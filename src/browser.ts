@@ -48,6 +48,24 @@ const landmarkTags: Record<string, string> = {
   section: "region",
 };
 
+const rolesNamedFromContents = new Set([
+  "button",
+  "cell",
+  "checkbox",
+  "columnheader",
+  "heading",
+  "link",
+  "menuitem",
+  "menuitemcheckbox",
+  "menuitemradio",
+  "option",
+  "radio",
+  "rowheader",
+  "switch",
+  "tab",
+  "treeitem",
+]);
+
 export function extractSemanticTree(options: SemanticTreeOptions = {}): SemanticNode {
   const rootDocument = document;
   const context: WalkContext = {
@@ -87,7 +105,7 @@ function walkElement(element: Element, context: WalkContext): SemanticNode | nul
   const state = getState(element);
   const focusable = isFocusable(element);
   const interactive = isInteractive(element, role, focusable);
-  const name = role ? computeName(element, context) : "";
+  const name = role ? computeName(element, role, context) : "";
   const description = computeDescription(element, context);
   const tag = element.tagName.toLowerCase();
   const children = collectChildren(element, context);
@@ -182,6 +200,8 @@ function getRole(element: Element): string | null {
   if (explicit) return explicit;
 
   const tag = element.tagName.toLowerCase();
+  if (tag === "section" && !hasExplicitNameSource(element)) return null;
+  if (tag === "form" && !hasExplicitNameSource(element)) return null;
   if (tag in landmarkTags) return landmarkTags[tag] ?? null;
   if (/^h[1-6]$/.test(tag)) return "heading";
 
@@ -224,7 +244,7 @@ function inputRole(input: HTMLInputElement): string | null {
   return "textbox";
 }
 
-function computeName(element: Element, context: WalkContext): string {
+function computeName(element: Element, role: string, context: WalkContext): string {
   if (element.getAttribute("aria-labelledby")) {
     const labelled = textFromIds(element.getAttribute("aria-labelledby") ?? "", context.rootDocument);
     if (labelled) return labelled;
@@ -253,9 +273,12 @@ function computeName(element: Element, context: WalkContext): string {
     if (legend) return getVisibleText(legend, context.options.maxTextLength);
   }
 
-  const title = element.getAttribute("title");
-  const ownText = getVisibleText(element, context.options.maxTextLength);
-  return ownText || normalizeText(title ?? "", context.options.maxTextLength);
+  if (rolesNamedFromContents.has(role)) {
+    const ownText = getVisibleText(element, context.options.maxTextLength);
+    if (ownText) return ownText;
+  }
+
+  return normalizeText(element.getAttribute("title") ?? "", context.options.maxTextLength);
 }
 
 function computeDescription(element: Element, context: WalkContext): string {
@@ -542,6 +565,14 @@ function normalizeText(value: string, maxLength: number): string {
 
 function firstToken(value: string | null): string | null {
   return value?.trim().split(/\s+/)[0] || null;
+}
+
+function hasExplicitNameSource(element: Element): boolean {
+  return Boolean(
+    element.getAttribute("aria-label") ||
+    element.getAttribute("aria-labelledby") ||
+    element.getAttribute("title"),
+  );
 }
 
 function hasEmptyAlt(element: Element): boolean {

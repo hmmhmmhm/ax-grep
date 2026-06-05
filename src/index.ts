@@ -85,6 +85,7 @@ const __AX_LITE__ = (() => {
   };
   const interactiveRoles = new Set(["button","checkbox","combobox","link","listbox","menuitem","menuitemcheckbox","menuitemradio","option","radio","searchbox","slider","spinbutton","switch","tab","textbox","treeitem"]);
   const landmarkTags = { article: "article", aside: "complementary", footer: "contentinfo", form: "form", header: "banner", main: "main", nav: "navigation", section: "region" };
+  const rolesNamedFromContents = new Set(["button","cell","checkbox","columnheader","heading","link","menuitem","menuitemcheckbox","menuitemradio","option","radio","rowheader","switch","tab","treeitem"]);
   function extractSemanticTree(options = {}) {
     const rootDocument = document;
     const context = { options: { ...defaultOptions, ...options }, nextId: 1, rootDocument };
@@ -111,7 +112,7 @@ const __AX_LITE__ = (() => {
     const state = getState(element);
     const focusable = isFocusable(element);
     const interactive = isInteractive(element, role, focusable);
-    const name = role ? computeName(element, context) : "";
+    const name = role ? computeName(element, role, context) : "";
     const description = computeDescription(element, context);
     const tag = element.tagName.toLowerCase();
     const children = collectChildren(element, context);
@@ -161,6 +162,8 @@ const __AX_LITE__ = (() => {
     const explicit = firstToken(element.getAttribute("role"));
     if (explicit) return explicit;
     const tag = element.tagName.toLowerCase();
+    if (tag === "section" && !hasExplicitNameSource(element)) return null;
+    if (tag === "form" && !hasExplicitNameSource(element)) return null;
     if (tag in landmarkTags) return landmarkTags[tag] || null;
     if (/^h[1-6]$/.test(tag)) return "heading";
     if (tag === "a" || tag === "area") return element.hasAttribute("href") ? "link" : null;
@@ -199,7 +202,7 @@ const __AX_LITE__ = (() => {
     if (type === "hidden") return null;
     return "textbox";
   }
-  function computeName(element, context) {
+  function computeName(element, role, context) {
     if (element.getAttribute("aria-labelledby")) {
       const labelled = textFromIds(element.getAttribute("aria-labelledby") || "", context.rootDocument);
       if (labelled) return labelled;
@@ -218,9 +221,11 @@ const __AX_LITE__ = (() => {
       const legend = element.querySelector(":scope > legend");
       if (legend) return getVisibleText(legend, context.options.maxTextLength);
     }
-    const title = element.getAttribute("title");
-    const ownText = getVisibleText(element, context.options.maxTextLength);
-    return ownText || normalizeText(title || "", context.options.maxTextLength);
+    if (rolesNamedFromContents.has(role)) {
+      const ownText = getVisibleText(element, context.options.maxTextLength);
+      if (ownText) return ownText;
+    }
+    return normalizeText(element.getAttribute("title") || "", context.options.maxTextLength);
   }
   function computeDescription(element, context) {
     const describedBy = element.getAttribute("aria-describedby");
@@ -317,6 +322,7 @@ const __AX_LITE__ = (() => {
   function textFromIds(ids, rootDocument) { return normalizeText(ids.split(/\s+/).map((id) => { const element = rootDocument.getElementById(id); return element ? getVisibleText(element, 240) : ""; }).filter(Boolean).join(" "), 240); }
   function normalizeText(value, maxLength) { const normalized = value.replace(/\s+/g, " ").trim(); return normalized.length > maxLength ? normalized.slice(0, maxLength - 1) + "…" : normalized; }
   function firstToken(value) { return (value && value.trim().split(/\s+/)[0]) || null; }
+  function hasExplicitNameSource(element) { return Boolean(element.getAttribute("aria-label") || element.getAttribute("aria-labelledby") || element.getAttribute("title")); }
   function hasEmptyAlt(element) { return element.hasAttribute("alt") && element.getAttribute("alt") === ""; }
   function isButtonLikeInput(input) { return ["button", "image", "reset", "submit"].includes((input.getAttribute("type") || "").toLowerCase()); }
   function inputFallbackName(input) { const type = (input.getAttribute("type") || "").toLowerCase(); if (type === "submit") return "Submit"; if (type === "reset") return "Reset"; return ""; }

@@ -46,7 +46,9 @@ pnpm compare:sample
 The comparison script extracts an `ax-lite` tree with Puppeteer and compares it
 against `agent-browser snapshot` output for the same URL.
 
-See `docs/comparison-baseline.md` for the first baseline run.
+The sample set covers a static page, Wikipedia, MDN documentation, Hacker News,
+GitHub's features page, and an npm package URL. See
+`docs/comparison-baseline.md` for the current baseline run.
 
 By default, `ax-lite` includes `<select>` options because that is useful for
 agent action planning. The comparison harness disables option unrolling so its

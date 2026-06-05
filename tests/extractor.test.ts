@@ -114,6 +114,67 @@ describe("extractSemanticTree", () => {
     expect(flat.find((node) => node.role === "button")?.name).toBe("Save");
   });
 
+  it("does not name structural landmarks from all descendant text", async () => {
+    await page.setContent(`
+      <main>
+        <h1>Article title</h1>
+        <p>Long article body that should not become the main landmark name.</p>
+      </main>
+      <ul>
+        <li><a href="/a">First link</a></li>
+      </ul>
+    `);
+
+    const tree = await extract(page);
+    const flat = flattenSemanticTree(tree);
+
+    expect(flat.find((node) => node.role === "main")?.name).toBe("");
+    expect(flat.find((node) => node.role === "list")?.name).toBe("");
+    expect(flat.find((node) => node.role === "listitem")?.name).toBe("");
+    expect(flat.find((node) => node.role === "heading")?.name).toBe("Article title");
+    expect(flat.find((node) => node.role === "link")?.name).toBe("First link");
+  });
+
+  it("uses link contents before title fallback for accessible names", async () => {
+    await page.setContent(`
+      <a href="/en" title="English — Wikipedia — The Free Encyclopedia">
+        English <small>7,189,000+ articles</small>
+      </a>
+      <a href="/empty" title="Fallback title"></a>
+    `);
+
+    const tree = await extract(page);
+    const links = flattenSemanticTree(tree).filter((node) => node.role === "link");
+
+    expect(links[0]?.name).toBe("English 7,189,000+ articles");
+    expect(links[1]?.name).toBe("Fallback title");
+  });
+
+  it("only exposes section and form landmarks when they have explicit names", async () => {
+    await page.setContent(`
+      <section>
+        <h2>Unnamed section</h2>
+      </section>
+      <section aria-label="Named section">
+        <p>Body</p>
+      </section>
+      <form>
+        <button>Unnamed form button</button>
+      </form>
+      <form aria-label="Search">
+        <button>Search</button>
+      </form>
+    `);
+
+    const tree = await extract(page);
+    const namedRoles = summarizeSemanticTree(tree).namedRoles;
+
+    expect(namedRoles).toContain("region:Named section");
+    expect(namedRoles).toContain("form:Search");
+    expect(namedRoles).not.toContain("region:Unnamed section");
+    expect(namedRoles).not.toContain("form:Unnamed form button");
+  });
+
   it("supports text output mode for prompt-sized inspection", async () => {
     await page.setContent(`
       <main>

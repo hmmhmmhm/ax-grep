@@ -176,11 +176,16 @@ function normalizeRole(role: string): string {
 }
 
 function normalizeName(name: string): string {
-  return name
+  const normalized = name
     .replace(/\s+/g, " ")
     .replace(/\s+\(external\)$/i, "")
     .trim()
     .toLowerCase();
+  return normalizeDigitSeparators(normalized);
+}
+
+function normalizeDigitSeparators(value: string): string {
+  return value.replace(/(?<=\d)[\s,.\u202f\u00a0]+(?=\d{3}\b)/g, "");
 }
 
 function resolveAgentBrowserBin(): string | null {
