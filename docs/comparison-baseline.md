@@ -46,6 +46,17 @@ exact-match scoring intact while making page state explicit.
 | `https://libraries.io/npm/typescript` | 382 | 609 | 0.49 | 0.95 | 0.95 | 0.17 | 0.80 |
 | `https://www.npmjs.com/package/typescript` | 16 | 15 | 0.50 | 0.67 | 0.80 | 0.50 | 0.72 |
 
+## Korean Sample Results
+
+Run with `pnpm compare:korea`.
+
+| URL | ax-lite nodes | agent-browser lines | named role overlap | action recall | nav recall | content recall | agent score |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `https://ko.wikipedia.org/wiki/%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD` | 5713 | 7088 | 0.44 | 0.82 | 0.85 | 0.14 | 0.69 |
+| `https://www.hani.co.kr/` | 998 | 992 | 0.42 | 0.50 | 0.48 | 0.23 | 0.48 |
+| `https://www.korea.kr/` | 569 | 494 | 0.47 | 0.66 | 0.69 | 0.24 | 0.59 |
+| `https://www.yonhapnewstv.co.kr/` | 566 | 448 | 0.79 | 0.79 | 0.83 | 0.79 | 0.81 |
+
 ## Observations
 
 - Simple static pages line up well. `example.com` matched the important named roles exactly.
@@ -61,6 +72,16 @@ exact-match scoring intact while making page state explicit.
   Wikipedia and Libraries.io: static-text recall is low, but actionable and
   navigation targets are mostly preserved. That distinction better matches the
   goal of making pages tractable for agents.
+- Korean samples cover a large encyclopedia article, two news-like pages, and a
+  public portal. The Korean Wikipedia page is intentionally heavy and is kept in
+  `compare:korea` rather than the default sample script.
+- `hani.co.kr` timed out waiting for Puppeteer network idle during the baseline
+  run and used the DOMContentLoaded state. Keep it as a news-site stress case,
+  but do not treat it as a tightly stable target yet.
+- Korean live pages can shift by a few nodes or snapshot lines between runs as
+  headlines, ads, and embedded widgets update.
+- `yonhapnewstv.co.kr` currently lines up best among the Korean samples across
+  exact overlap, content recall, and agent score.
 - `npmjs.com` currently serves a Cloudflare challenge in the sample environment. The baseline is useful as a challenge-page fixture, not as a package-page content fixture.
 
 ## Next Improvements
