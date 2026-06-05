@@ -24,6 +24,7 @@ type Comparison = {
     namedRoleTotal: number;
     ratio: number;
   };
+  agentReadiness: AgentReadinessScores;
   warnings: string[];
 };
 
@@ -32,8 +33,64 @@ type NormalizedSummary = {
   namedRoles: string[];
 };
 
+type AgentReadinessScores = {
+  referenceRecall: number;
+  candidatePrecision: number;
+  f1: number;
+  actionableRecall: number;
+  navigationRecall: number;
+  contentRecall: number;
+  score: number;
+};
+
 const comparisonViewport = parseViewport(process.env.AX_LITE_COMPARE_VIEWPORT);
 const comparisonSetupScript = readSetupScript(process.env.AX_LITE_COMPARE_SETUP);
+const actionableRoles = new Set([
+  "button",
+  "checkbox",
+  "combobox",
+  "link",
+  "listbox",
+  "menuitem",
+  "menuitemcheckbox",
+  "menuitemradio",
+  "option",
+  "radio",
+  "searchbox",
+  "slider",
+  "spinbutton",
+  "switch",
+  "tab",
+  "textbox",
+  "treeitem",
+]);
+const navigationRoles = new Set([
+  "article",
+  "banner",
+  "complementary",
+  "contentinfo",
+  "heading",
+  "link",
+  "main",
+  "navigation",
+  "region",
+  "search",
+]);
+const contentRoles = new Set([
+  "cell",
+  "columnheader",
+  "definition",
+  "heading",
+  "img",
+  "list",
+  "listitem",
+  "p",
+  "row",
+  "rowheader",
+  "table",
+  "term",
+  "text",
+]);
 
 const urls = process.argv.slice(2);
 const targets = urls.length > 0
@@ -71,6 +128,7 @@ for (const [index, url] of targets.entries()) {
     const agentNamedRoles = new Set(agentBrowser?.normalized.namedRoles ?? []);
     const matches = axLiteNormalized.namedRoles.filter((item) => agentNamedRoles.has(item)).length;
     const namedRoleTotal = Math.max(axLiteNormalized.namedRoles.length, agentBrowser?.normalized.namedRoles.length ?? 0);
+    const agentReadiness = scoreAgentReadiness(axLiteNormalized, agentBrowser?.normalized ?? emptyNormalizedSummary());
 
     comparisons.push({
       url,
@@ -82,6 +140,7 @@ for (const [index, url] of targets.entries()) {
         namedRoleTotal,
         ratio: namedRoleTotal === 0 ? 1 : matches / namedRoleTotal,
       },
+      agentReadiness,
       warnings,
     });
 
@@ -193,6 +252,60 @@ function normalizeNamedRoles(namedRoles: string[]): NormalizedSummary {
     roleCounts,
     namedRoles: Array.from(new Set(normalizedRoles)),
   };
+}
+
+function emptyNormalizedSummary(): NormalizedSummary {
+  return {
+    roleCounts: {},
+    namedRoles: [],
+  };
+}
+
+function scoreAgentReadiness(candidate: NormalizedSummary, reference: NormalizedSummary): AgentReadinessScores {
+  const candidateSet = new Set(candidate.namedRoles);
+  const referenceSet = new Set(reference.namedRoles);
+  const matches = candidate.namedRoles.filter((item) => referenceSet.has(item)).length;
+  const referenceRecall = ratio(matches, reference.namedRoles.length, 1);
+  const candidatePrecision = ratio(matches, candidate.namedRoles.length, 1);
+  const f1 = referenceRecall + candidatePrecision === 0
+    ? 0
+    : (2 * referenceRecall * candidatePrecision) / (referenceRecall + candidatePrecision);
+  const actionableRecall = categoryRecall(candidateSet, reference.namedRoles, actionableRoles);
+  const navigationRecall = categoryRecall(candidateSet, reference.namedRoles, navigationRoles);
+  const contentRecall = categoryRecall(candidateSet, reference.namedRoles, contentRoles);
+
+  return {
+    referenceRecall: roundScore(referenceRecall),
+    candidatePrecision: roundScore(candidatePrecision),
+    f1: roundScore(f1),
+    actionableRecall: roundScore(actionableRecall),
+    navigationRecall: roundScore(navigationRecall),
+    contentRecall: roundScore(contentRecall),
+    score: roundScore(
+      actionableRecall * 0.4
+      + navigationRecall * 0.25
+      + contentRecall * 0.2
+      + candidatePrecision * 0.15
+    ),
+  };
+}
+
+function categoryRecall(candidateSet: Set<string>, referenceNamedRoles: string[], roles: Set<string>): number {
+  const referenceItems = referenceNamedRoles.filter((item) => roles.has(roleFromNamedRole(item)));
+  const matches = referenceItems.filter((item) => candidateSet.has(item)).length;
+  return ratio(matches, referenceItems.length, 1);
+}
+
+function roleFromNamedRole(item: string): string {
+  return item.split(":")[0] ?? "unknown";
+}
+
+function ratio(numerator: number, denominator: number, emptyValue = 0): number {
+  return denominator === 0 ? emptyValue : numerator / denominator;
+}
+
+function roundScore(value: number): number {
+  return Math.round(value * 1000) / 1000;
 }
 
 function normalizeRole(role: string): string {
