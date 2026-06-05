@@ -1,0 +1,49 @@
+{
+  "name": "@hmmhmmhm/ax-lite",
+  "version": "0.1.0",
+  "description": "A browser-native semantic accessibility tree extractor that runs without DevTools or CDP.",
+  "type": "module",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hmmhmmhm/ax-lite.git"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./browser": {
+      "types": "./dist/browser.d.ts",
+      "import": "./dist/browser.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup && tsc --noEmit",
+    "check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "compare": "tsx scripts/compare.ts",
+    "compare:sample": "tsx scripts/compare.ts https://example.com https://www.wikipedia.org https://developer.mozilla.org/en-US/docs/Web/Accessibility"
+  },
+  "keywords": [
+    "accessibility",
+    "a11y",
+    "semantic-tree",
+    "webview",
+    "agent"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^25.0.0",
+    "agent-browser": "^0.27.0",
+    "puppeteer": "^24.31.0",
+    "tsx": "^4.21.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.0"
+  }
+}
