@@ -218,6 +218,7 @@ const __AX_LITE__ = (() => {
     if (tag === "dialog") return "dialog";
     if (tag === "fieldset") return "group";
     if (tag === "figure") return "figure";
+    if (tag === "iframe") return "iframe";
     if (tag === "img") return hasEmptyAlt(element) ? "presentation" : "img";
     if (tag === "li") return "listitem";
     if (tag === "ol" || tag === "ul") return "list";

@@ -246,6 +246,21 @@ describe("extractSemanticTree", () => {
     expect(namedRoles).toContain("button:Frame action");
   });
 
+  it("marks cross-origin iframes as unavailable placeholders", async () => {
+    await page.setContent(`
+      <main>
+        <iframe title="Remote frame" src="https://example.com"></iframe>
+      </main>
+    `);
+
+    const tree = await extract(page);
+    const iframePlaceholder = flattenSemanticTree(tree).find((node) =>
+      node.tag === "iframe" && Boolean(node.unavailableReason)
+    );
+
+    expect(iframePlaceholder?.tag).toBe("iframe");
+  });
+
   it("streams semantic tree changes from DOM mutations", async () => {
     await page.setContent(`<main id="root"></main>`);
     await page.evaluate(() => {

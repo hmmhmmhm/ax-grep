@@ -53,6 +53,39 @@ For injected-script use, `createObserverScript()` installs an observer on
 `window.__AX_LITE_OBSERVER__` and dispatches `__AX_LITE_OBSERVER__:change`
 events.
 
+## WebView Injection
+
+Android WebView:
+
+```kotlin
+val script = """
+  (() => {
+    /* paste createExtractorScript() output here */
+  })()
+""".trimIndent()
+
+webView.evaluateJavascript(script) { json ->
+  // json is the serialized semantic tree result.
+}
+```
+
+iOS WKWebView:
+
+```swift
+let script = """
+(() => {
+  /* paste createExtractorScript() output here */
+})()
+"""
+
+webView.evaluateJavaScript(script) { result, error in
+  // result is the semantic tree object when JavaScriptCore bridges it directly.
+}
+```
+
+For mutation streams in WebViews, use `createObserverScript()` and bridge the
+`__AX_LITE_OBSERVER__:change` event through your platform messaging layer.
+
 ## Compare With Agent Browser
 
 ```sh
@@ -72,6 +105,10 @@ To force a shared viewport for both Puppeteer and `agent-browser`, set
 ```sh
 AX_LITE_COMPARE_VIEWPORT=1365x900 pnpm compare:sample
 ```
+
+To force page state before extraction, set `AX_LITE_COMPARE_SETUP` to a local
+JavaScript file. The script is evaluated in both Puppeteer and `agent-browser`
+before snapshots are captured.
 
 By default, `ax-lite` includes `<select>` options because that is useful for
 agent action planning. The comparison harness disables option unrolling so its

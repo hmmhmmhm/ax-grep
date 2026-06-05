@@ -9,6 +9,10 @@ The default baseline does not force a viewport. A shared viewport can be tested
 with `AX_LITE_COMPARE_VIEWPORT=WIDTHxHEIGHT`, but the default run is kept stable
 to avoid changing the benchmark shape unexpectedly.
 
+For state-sensitive pages, `AX_LITE_COMPARE_SETUP=path/to/setup.js` evaluates a
+setup script in both Puppeteer and `agent-browser` before extraction. This keeps
+exact-match scoring intact while making page state explicit.
+
 ## Sample Results
 
 | URL | ax-lite nodes | agent-browser lines | named role overlap |
@@ -16,7 +20,7 @@ to avoid changing the benchmark shape unexpectedly.
 | `https://example.com` | 4 | 3 | 1.00 |
 | `https://www.wikipedia.org` | 140 | 105 | 0.57 |
 | `https://developer.mozilla.org/en-US/docs/Web/Accessibility` | 315 | 286 | 0.56 |
-| `https://news.ycombinator.com` | 710 | 501 | 0.75 |
+| `https://news.ycombinator.com` | 710 | 501 | 0.76 |
 | `https://github.com/features` | 764 | 538 | 0.90 |
 | `https://libraries.io/npm/typescript` | 382 | 609 | 0.49 |
 | `https://www.npmjs.com/package/typescript` | 16 | 15 | 0.50 |
@@ -38,4 +42,4 @@ to avoid changing the benchmark shape unexpectedly.
 
 - Improve custom-element/shadow-host pruning without losing useful selector targets.
 - Support authenticated/cached sessions for `npmjs.com` if the real npm package page remains useful as a target.
-- Add cross-origin iframe placeholder coverage.
+- Add more real WebView smoke tests once Android/iOS host projects exist.

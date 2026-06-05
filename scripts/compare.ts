@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import process from "node:process";
 import puppeteer from "puppeteer";
 import {
@@ -32,6 +33,7 @@ type NormalizedSummary = {
 };
 
 const comparisonViewport = parseViewport(process.env.AX_LITE_COMPARE_VIEWPORT);
+const comparisonSetupScript = readSetupScript(process.env.AX_LITE_COMPARE_SETUP);
 
 const urls = process.argv.slice(2);
 const targets = urls.length > 0
@@ -47,6 +49,9 @@ for (const [index, url] of targets.entries()) {
   try {
     if (comparisonViewport) await page.setViewport(comparisonViewport);
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
+    if (comparisonSetupScript) {
+      await page.evaluate(comparisonSetupScript);
+    }
     await page.waitForNetworkIdle({ idleTime: 750, timeout: 10_000 }).catch(() => {
       warnings.push("Puppeteer network idle timed out; used DOMContentLoaded state");
     });
@@ -125,6 +130,16 @@ function runAgentBrowserSnapshot(
   if (open.status !== 0) {
     warnings.push(`agent-browser open failed: ${trimError(open.stderr || open.stdout)}`);
     return null;
+  }
+
+  if (comparisonSetupScript) {
+    const setup = spawnSync(agentBrowserBin, ["--session", session, "eval", comparisonSetupScript], {
+      encoding: "utf8",
+      timeout: 15_000,
+    });
+    if (setup.status !== 0) {
+      warnings.push(`agent-browser setup script failed: ${trimError(setup.stderr || setup.stdout)}`);
+    }
   }
 
   const snapshot = spawnSync(agentBrowserBin, ["--session", session, "snapshot", "-c", "-d", "8"], {
@@ -249,4 +264,9 @@ function parseViewport(value: string | undefined): { width: number; height: numb
     width: Number(match[1]),
     height: Number(match[2]),
   };
+}
+
+function readSetupScript(path: string | undefined): string | null {
+  if (!path) return null;
+  return readFileSync(path, "utf8");
 }
