@@ -1,17 +1,20 @@
-import { formatSemanticTreeText } from "./browser";
-import type { ExtractorScriptOptions, SemanticNode, SemanticTreeOptions } from "./types";
+import { formatSemanticTreeText, observeSemanticTree } from "./browser";
+import type { ExtractorScriptOptions, ObserverScriptOptions, SemanticNode, SemanticTreeOptions } from "./types";
 
 export type {
   ExtractMode,
   ExtractorScriptOptions,
   OutputFormat,
+  ObserverScriptOptions,
   SemanticNode,
   SemanticNodeBounds,
   SemanticNodeState,
+  SemanticTreeChange,
+  SemanticTreeObserverOptions,
   SemanticTreeOptions,
 } from "./types";
 
-export { formatSemanticTreeText };
+export { formatSemanticTreeText, observeSemanticTree };
 
 export function createExtractorScript(options: ExtractorScriptOptions = {}): string {
   const serializedOptions = JSON.stringify(options);
@@ -20,6 +23,21 @@ export function createExtractorScript(options: ExtractorScriptOptions = {}): str
     const options = ${serializedOptions};
     const tree = __AX_LITE__.extractSemanticTree(options);
     return options.format === "text" ? __AX_LITE__.formatSemanticTreeText(tree) : tree;
+  })()`;
+}
+
+export function createObserverScript(options: ObserverScriptOptions = {}): string {
+  const { globalName = "__AX_LITE_OBSERVER__", ...observerOptions } = options;
+  const serializedOptions = JSON.stringify(observerOptions);
+  const serializedGlobalName = JSON.stringify(globalName);
+  return `(() => {
+    ${browserBundleSource()}
+    const globalName = ${serializedGlobalName};
+    const observer = __AX_LITE__.observeSemanticTree((change) => {
+      window.dispatchEvent(new CustomEvent(globalName + ":change", { detail: change }));
+    }, ${serializedOptions});
+    window[globalName] = observer;
+    return observer.snapshot();
   })()`;
 }
 
@@ -107,6 +125,31 @@ const __AX_LITE__ = (() => {
     }
     visit(node, 0);
     return lines.join("\n");
+  }
+  function observeSemanticTree(onChange, options = {}) {
+    const root = document.documentElement;
+    const debounceMs = options.debounceMs ?? 50;
+    let mutationCount = 0;
+    let timeoutId;
+    function snapshot() { return extractSemanticTree(options); }
+    function emit() {
+      timeoutId = undefined;
+      onChange({ tree: snapshot(), changedAt: Date.now(), mutationCount });
+      mutationCount = 0;
+    }
+    const observer = new MutationObserver((mutations) => {
+      mutationCount += mutations.length;
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(emit, debounceMs);
+    });
+    observer.observe(root, { attributes: true, characterData: true, childList: true, subtree: true });
+    return {
+      disconnect() {
+        if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+        observer.disconnect();
+      },
+      snapshot,
+    };
   }
   function walkElement(element, context) {
     if (!context.options.includeHidden && isHidden(element)) return null;
@@ -267,7 +310,9 @@ const __AX_LITE__ = (() => {
     if (element.hasAttribute("hidden")) return true;
     if (element.getAttribute("aria-hidden") === "true") return true;
     const style = getComputedStyle(element);
-    return style.display === "none" || style.visibility === "hidden" || style.contentVisibility === "hidden";
+    if (style.display === "none" || style.visibility === "hidden" || style.contentVisibility === "hidden") return true;
+    if (Number(style.opacity) === 0) return true;
+    return false;
   }
   function isLikelyAd(element) { const haystack = [element.id, element.getAttribute("class"), element.getAttribute("aria-label"), element.getAttribute("data-testid"), element.getAttribute("data-test-id"), element.getAttribute("data-name")].filter(Boolean).join(" ").toLowerCase(); if (/\b(ad|ads|advert|advertisement|sponsor|sponsored|placement)\b/.test(haystack)) return true; if (element instanceof HTMLAnchorElement && normalizeText(element.textContent || "", 80).toLowerCase() === "ad") return true; return false; }
   function isDisabled(element) { return element.getAttribute("aria-disabled") === "true" || ("disabled" in element && Boolean(element.disabled)); }
@@ -337,7 +382,7 @@ const __AX_LITE__ = (() => {
   function nextId(context) { const id = "n" + context.nextId; context.nextId += 1; return id; }
   function round(value) { return Math.round(value * 100) / 100; }
   function cssEscape(value) { if (typeof CSS !== "undefined" && typeof CSS.escape === "function") return CSS.escape(value); return value.replace(/[^a-zA-Z0-9_-]/g, (char) => "\\" + char); }
-  return { extractSemanticTree, formatSemanticTreeText };
+  return { extractSemanticTree, formatSemanticTreeText, observeSemanticTree };
 })();
 `;
 }

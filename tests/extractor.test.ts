@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import puppeteer, { type Browser, type Page } from "puppeteer";
 import {
+  createObserverScript,
   createExtractorScript,
   flattenSemanticTree,
   formatSemanticTreeText,
@@ -51,6 +52,7 @@ describe("extractSemanticTree", () => {
         <input aria-labelledby="search-title" />
         <button style="display:none">Hidden button</button>
         <button aria-hidden="true">Also hidden</button>
+        <button style="opacity:0">Transparent button</button>
       </section>
     `);
 
@@ -60,6 +62,7 @@ describe("extractSemanticTree", () => {
     expect(text).toContain("textbox 'Search docs'");
     expect(text).not.toContain("Hidden button");
     expect(text).not.toContain("Also hidden");
+    expect(text).not.toContain("Transparent button");
   });
 
   it("unrolls select options", async () => {
@@ -210,6 +213,63 @@ describe("extractSemanticTree", () => {
     expect(namedRoles).toContain("cell:Story title");
     expect(namedRoles).toContain("cell:12 comments");
     expect(namedRoles).toContain("link:Story title");
+  });
+
+  it("extracts semantic children from open shadow roots", async () => {
+    await page.setContent(`<main><x-card></x-card></main>`);
+    await page.evaluate(() => {
+      const host = document.querySelector("x-card");
+      const shadow = host?.attachShadow({ mode: "open" });
+      if (shadow) shadow.innerHTML = `<button>Shadow action</button>`;
+    });
+
+    const tree = await extract(page);
+    const namedRoles = summarizeSemanticTree(tree).namedRoles;
+
+    expect(namedRoles).toContain("button:Shadow action");
+  });
+
+  it("extracts semantic children from same-origin iframes", async () => {
+    await page.setContent(`
+      <main>
+        <iframe srcdoc="<button>Frame action</button>"></iframe>
+      </main>
+    `);
+    await page.waitForFunction(() => {
+      const iframe = document.querySelector("iframe");
+      return iframe?.contentDocument?.body?.querySelector("button");
+    });
+
+    const tree = await extract(page);
+    const namedRoles = summarizeSemanticTree(tree).namedRoles;
+
+    expect(namedRoles).toContain("button:Frame action");
+  });
+
+  it("streams semantic tree changes from DOM mutations", async () => {
+    await page.setContent(`<main id="root"></main>`);
+    await page.evaluate(() => {
+      (window as unknown as { __changes: unknown[] }).__changes = [];
+      window.addEventListener("__AX_LITE_OBSERVER__:change", (event) => {
+        (window as unknown as { __changes: unknown[] }).__changes.push((event as CustomEvent).detail);
+      });
+    });
+    await page.evaluate(createObserverScript({ debounceMs: 10, includeBounds: false }));
+    await page.evaluate(() => {
+      const button = document.createElement("button");
+      button.textContent = "Later action";
+      document.getElementById("root")?.append(button);
+    });
+    await page.waitForFunction(() => (window as unknown as { __changes: unknown[] }).__changes.length > 0);
+
+    const change = await page.evaluate(() => {
+      return (window as unknown as { __changes: Array<{ tree: SemanticNode; mutationCount: number }> }).__changes[0];
+    });
+    if (!change) throw new Error("Expected a semantic tree mutation change");
+    const namedRoles = summarizeSemanticTree(change.tree).namedRoles;
+
+    expect(change.mutationCount).toBeGreaterThan(0);
+    expect(namedRoles).toContain("button:Later action");
   });
 
   it("supports text output mode for prompt-sized inspection", async () => {

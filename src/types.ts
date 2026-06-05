@@ -14,6 +14,16 @@ export type SemanticTreeOptions = {
   maxTextLength?: number;
 };
 
+export type SemanticTreeChange = {
+  tree: SemanticNode;
+  changedAt: number;
+  mutationCount: number;
+};
+
+export type SemanticTreeObserverOptions = SemanticTreeOptions & {
+  debounceMs?: number;
+};
+
 export type SemanticNodeState = {
   hidden?: boolean;
   disabled?: boolean;
@@ -55,4 +65,8 @@ export type SemanticNode = {
 
 export type ExtractorScriptOptions = SemanticTreeOptions & {
   format?: OutputFormat;
+};
+
+export type ObserverScriptOptions = SemanticTreeObserverOptions & {
+  globalName?: string;
 };

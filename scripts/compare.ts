@@ -31,6 +31,8 @@ type NormalizedSummary = {
   namedRoles: string[];
 };
 
+const comparisonViewport = parseViewport(process.env.AX_LITE_COMPARE_VIEWPORT);
+
 const urls = process.argv.slice(2);
 const targets = urls.length > 0
   ? urls
@@ -43,6 +45,7 @@ for (const [index, url] of targets.entries()) {
   const page = await browser.newPage();
   const warnings: string[] = [];
   try {
+    if (comparisonViewport) await page.setViewport(comparisonViewport);
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
     await page.waitForNetworkIdle({ idleTime: 750, timeout: 10_000 }).catch(() => {
       warnings.push("Puppeteer network idle timed out; used DOMContentLoaded state");
@@ -96,6 +99,23 @@ function runAgentBrowserSnapshot(
   if (!agentBrowserBin) {
     warnings.push("agent-browser binary was not found; skipped reference snapshot");
     return null;
+  }
+
+  if (comparisonViewport) {
+    const viewport = spawnSync(agentBrowserBin, [
+      "--session",
+      session,
+      "set",
+      "viewport",
+      String(comparisonViewport.width),
+      String(comparisonViewport.height),
+    ], {
+      encoding: "utf8",
+      timeout: 15_000,
+    });
+    if (viewport.status !== 0) {
+      warnings.push(`agent-browser viewport setup failed: ${trimError(viewport.stderr || viewport.stdout)}`);
+    }
   }
 
   const open = spawnSync(agentBrowserBin, ["--session", session, "open", url], {
@@ -217,4 +237,16 @@ function printTreeSample(url: string, tree: SemanticNode): void {
 
 function trimError(value: string): string {
   return value.replace(/\s+/g, " ").trim().slice(0, 240);
+}
+
+function parseViewport(value: string | undefined): { width: number; height: number } | null {
+  if (!value) return null;
+  const match = value.match(/^(\d+)x(\d+)$/);
+  if (!match) {
+    throw new Error(`Invalid AX_LITE_COMPARE_VIEWPORT '${value}'. Expected WIDTHxHEIGHT, for example 1365x900.`);
+  }
+  return {
+    width: Number(match[1]),
+    height: Number(match[2]),
+  };
 }

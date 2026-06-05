@@ -1,4 +1,10 @@
-import type { SemanticNode, SemanticNodeState, SemanticTreeOptions } from "./types";
+import type {
+  SemanticNode,
+  SemanticNodeState,
+  SemanticTreeChange,
+  SemanticTreeObserverOptions,
+  SemanticTreeOptions,
+} from "./types";
 
 type WalkContext = {
   options: Required<SemanticTreeOptions>;
@@ -16,6 +22,10 @@ const defaultOptions: Required<SemanticTreeOptions> = {
   excludeLikelyAds: false,
   pruneCustomElementWrappers: true,
   maxTextLength: 240,
+};
+
+const defaultObserverOptions: Required<Pick<SemanticTreeObserverOptions, "debounceMs">> = {
+  debounceMs: 50,
 };
 
 const interactiveRoles = new Set([
@@ -97,6 +107,51 @@ export function formatSemanticTreeText(node: SemanticNode): string {
 
   visit(node, 0);
   return lines.join("\n");
+}
+
+export function observeSemanticTree(
+  onChange: (change: SemanticTreeChange) => void,
+  options: SemanticTreeObserverOptions = {},
+): { disconnect: () => void; snapshot: () => SemanticNode } {
+  const root = document.documentElement;
+  const observerOptions = { ...defaultObserverOptions, ...options };
+  let mutationCount = 0;
+  let timeoutId: number | undefined;
+
+  function snapshot(): SemanticNode {
+    return extractSemanticTree(options);
+  }
+
+  function emit(): void {
+    timeoutId = undefined;
+    onChange({
+      tree: snapshot(),
+      changedAt: Date.now(),
+      mutationCount,
+    });
+    mutationCount = 0;
+  }
+
+  const observer = new MutationObserver((mutations) => {
+    mutationCount += mutations.length;
+    if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+    timeoutId = window.setTimeout(emit, observerOptions.debounceMs);
+  });
+
+  observer.observe(root, {
+    attributes: true,
+    characterData: true,
+    childList: true,
+    subtree: true,
+  });
+
+  return {
+    disconnect() {
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+      observer.disconnect();
+    },
+    snapshot,
+  };
 }
 
 function walkElement(element: Element, context: WalkContext): SemanticNode | null {
@@ -341,11 +396,13 @@ function isHidden(element: Element): boolean {
   if (element.getAttribute("aria-hidden") === "true") return true;
 
   const style = getComputedStyle(element);
-  return (
+  if (
     style.display === "none" ||
     style.visibility === "hidden" ||
     style.contentVisibility === "hidden"
-  );
+  ) return true;
+  if (Number(style.opacity) === 0) return true;
+  return false;
 }
 
 function isLikelyAd(element: Element): boolean {
