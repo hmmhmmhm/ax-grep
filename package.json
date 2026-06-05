@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "description": "A browser-native semantic accessibility tree extractor that runs without DevTools or CDP.",
   "type": "module",
-  "private": true,
+  "packageManager": "pnpm@10.33.4",
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hmmhmmhm/ax-lite.git"
