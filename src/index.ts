@@ -58,7 +58,16 @@ export function summarizeSemanticTree(node: SemanticNode): {
 }
 
 export function normalizeOptions(options: SemanticTreeOptions = {}): SemanticTreeOptions {
-  return { mode: "compact", includeBounds: true, includeAttributes: true, includeTextNodes: true, ...options };
+  return {
+    mode: "compact",
+    includeBounds: true,
+    includeAttributes: true,
+    includeTextNodes: true,
+    includeHidden: false,
+    includeSelectOptions: true,
+    pruneCustomElementWrappers: true,
+    ...options,
+  };
 }
 
 function browserBundleSource(): string {
@@ -70,6 +79,8 @@ const __AX_LITE__ = (() => {
     includeAttributes: true,
     includeTextNodes: true,
     includeHidden: false,
+    includeSelectOptions: true,
+    pruneCustomElementWrappers: true,
     maxTextLength: 240,
   };
   const interactiveRoles = new Set(["button","checkbox","combobox","link","listbox","menuitem","menuitemcheckbox","menuitemradio","option","radio","searchbox","slider","spinbutton","switch","tab","textbox","treeitem"]);
@@ -126,6 +137,7 @@ const __AX_LITE__ = (() => {
     const children = [];
     for (const child of Array.from(element.childNodes)) {
       if (child.nodeType === Node.ELEMENT_NODE) {
+        if (!context.options.includeSelectOptions && element instanceof HTMLSelectElement) continue;
         const semanticChild = walkElement(child, context);
         if (semanticChild) children.push(semanticChild);
       } else if (context.options.includeTextNodes && child.nodeType === Node.TEXT_NODE) {
@@ -139,6 +151,7 @@ const __AX_LITE__ = (() => {
     if (context.options.mode === "full") return false;
     if (role === "none" || role === "presentation") return true;
     if (interactive) return false;
+    if (context.options.pruneCustomElementWrappers && isCustomElement(element)) return children.length > 0;
     if (role && role !== "generic") return false;
     if (name) return false;
     if (element.id || element.getAttribute("aria-label") || element.getAttribute("aria-labelledby")) return false;
@@ -261,10 +274,12 @@ const __AX_LITE__ = (() => {
     return focusable && Boolean(role);
   }
   function appendSpecialChildren(element, node, context) {
+    if (!context.options.includeSelectOptions) return;
     if (element instanceof HTMLSelectElement) {
       for (const option of Array.from(element.options)) node.children.push({ id: nextId(context), tag: "option", role: "option", name: normalizeText(option.textContent || "", context.options.maxTextLength), value: option.value, state: { selected: option.selected, disabled: option.disabled }, interactive: false, focusable: false, selector: getCssPath(option), xpath: getXPath(option), children: [] });
     }
   }
+  function isCustomElement(element) { return element.tagName.includes("-"); }
   function appendShadowChildren(element, node, context) {
     const shadowRoot = element.shadowRoot;
     if (!shadowRoot) return;

@@ -17,7 +17,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await browser.close();
+  await browser?.close();
 });
 
 describe("extractSemanticTree", () => {
@@ -78,6 +78,40 @@ describe("extractSemanticTree", () => {
     expect(flat.find((node) => node.role === "combobox")?.name).toBe("Choose a car");
     expect(options.map((node) => node.name)).toEqual(expect.arrayContaining(["Volvo", "Audi"]));
     expect(options.find((node) => node.name === "Audi")?.state?.selected).toBe(true);
+  });
+
+  it("can keep select controls compact without option unrolling", async () => {
+    await page.setContent(`
+      <label for="language">Language</label>
+      <select id="language">
+        <option value="en">English</option>
+        <option value="ko">Korean</option>
+      </select>
+    `);
+
+    const tree = (await page.evaluate(
+      createExtractorScript({ mode: "compact", includeBounds: false, includeSelectOptions: false }),
+    )) as SemanticNode;
+    const flat = flattenSemanticTree(tree);
+
+    expect(flat.find((node) => node.role === "combobox")?.name).toBe("Language");
+    expect(flat.filter((node) => node.role === "option")).toHaveLength(0);
+  });
+
+  it("prunes custom element wrappers that only contain semantic descendants", async () => {
+    await page.setContent(`
+      <main>
+        <mdn-button>
+          <button>Save</button>
+        </mdn-button>
+      </main>
+    `);
+
+    const tree = await extract(page);
+    const flat = flattenSemanticTree(tree);
+
+    expect(flat.find((node) => node.tag === "mdn-button")).toBeUndefined();
+    expect(flat.find((node) => node.role === "button")?.name).toBe("Save");
   });
 
   it("supports text output mode for prompt-sized inspection", async () => {

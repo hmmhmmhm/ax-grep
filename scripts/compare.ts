@@ -11,10 +11,12 @@ import {
 type Comparison = {
   url: string;
   axLite: ReturnType<typeof summarizeSemanticTree>;
+  axLiteNormalized: NormalizedSummary;
   agentBrowser: {
     lineCount: number;
     roleCounts: Record<string, number>;
     namedRoles: string[];
+    normalized: NormalizedSummary;
   } | null;
   overlap: {
     namedRoleMatches: number;
@@ -22,6 +24,11 @@ type Comparison = {
     ratio: number;
   };
   warnings: string[];
+};
+
+type NormalizedSummary = {
+  roleCounts: Record<string, number>;
+  namedRoles: string[];
 };
 
 const urls = process.argv.slice(2);
@@ -42,17 +49,24 @@ for (const [index, url] of targets.entries()) {
     });
 
     const tree = await page.evaluate(
-      createExtractorScript({ mode: "compact", includeBounds: false, includeTextNodes: false }),
+      createExtractorScript({
+        mode: "compact",
+        includeBounds: false,
+        includeTextNodes: false,
+        includeSelectOptions: false,
+      }),
     ) as SemanticNode;
     const axLite = summarizeSemanticTree(tree);
+    const axLiteNormalized = normalizeNamedRoles(axLite.namedRoles);
     const agentBrowser = runAgentBrowserSnapshot(url, `ax-lite-compare-${Date.now()}-${index}`, warnings);
-    const agentNamedRoles = new Set(agentBrowser?.namedRoles ?? []);
-    const matches = axLite.namedRoles.filter((item) => agentNamedRoles.has(item)).length;
-    const namedRoleTotal = Math.max(axLite.namedRoles.length, agentBrowser?.namedRoles.length ?? 0);
+    const agentNamedRoles = new Set(agentBrowser?.normalized.namedRoles ?? []);
+    const matches = axLiteNormalized.namedRoles.filter((item) => agentNamedRoles.has(item)).length;
+    const namedRoleTotal = Math.max(axLiteNormalized.namedRoles.length, agentBrowser?.normalized.namedRoles.length ?? 0);
 
     comparisons.push({
       url,
       axLite,
+      axLiteNormalized,
       agentBrowser,
       overlap: {
         namedRoleMatches: matches,
@@ -125,7 +139,48 @@ function parseAgentBrowserSnapshot(output: string): NonNullable<Comparison["agen
     lineCount: contentLines.length,
     roleCounts,
     namedRoles,
+    normalized: normalizeNamedRoles(namedRoles),
   };
+}
+
+function normalizeNamedRoles(namedRoles: string[]): NormalizedSummary {
+  const normalizedRoles = namedRoles.map((item) => {
+    const [role = "unknown", ...nameParts] = item.split(":");
+    return `${normalizeRole(role)}:${normalizeName(nameParts.join(":"))}`;
+  });
+  const roleCounts: Record<string, number> = {};
+  for (const item of normalizedRoles) {
+    const role = item.split(":")[0] ?? "unknown";
+    roleCounts[role] = (roleCounts[role] ?? 0) + 1;
+  }
+  return {
+    roleCounts,
+    namedRoles: Array.from(new Set(normalizedRoles)),
+  };
+}
+
+function normalizeRole(role: string): string {
+  const key = role.toLowerCase();
+  const aliases: Record<string, string> = {
+    descriptionlist: "list",
+    definition: "definition",
+    disclosuretriangle: "button",
+    image: "img",
+    labeltext: "text",
+    linebreak: "text",
+    paragraph: "p",
+    statictext: "text",
+    term: "term",
+  };
+  return aliases[key] ?? key;
+}
+
+function normalizeName(name: string): string {
+  return name
+    .replace(/\s+/g, " ")
+    .replace(/\s+\(external\)$/i, "")
+    .trim()
+    .toLowerCase();
 }
 
 function resolveAgentBrowserBin(): string | null {
@@ -143,7 +198,7 @@ function printTreeSample(url: string, tree: SemanticNode): void {
   const flat = flattenSemanticTree(tree)
     .filter((node) => node.role && node.name)
     .slice(0, 12)
-    .map((node) => `${node.role}:${node.name}`);
+    .map((node) => `${normalizeRole(node.role ?? "")}:${node.name}`);
   console.error(`\n${url}`);
   console.error(flat.join("\n"));
 }

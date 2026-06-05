@@ -47,3 +47,7 @@ The comparison script extracts an `ax-lite` tree with Puppeteer and compares it
 against `agent-browser snapshot` output for the same URL.
 
 See `docs/comparison-baseline.md` for the first baseline run.
+
+By default, `ax-lite` includes `<select>` options because that is useful for
+agent action planning. The comparison harness disables option unrolling so its
+shape is closer to browser accessibility snapshots.

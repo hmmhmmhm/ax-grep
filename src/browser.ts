@@ -12,6 +12,8 @@ const defaultOptions: Required<SemanticTreeOptions> = {
   includeAttributes: true,
   includeTextNodes: true,
   includeHidden: false,
+  includeSelectOptions: true,
+  pruneCustomElementWrappers: true,
   maxTextLength: 240,
 };
 
@@ -132,6 +134,7 @@ function collectChildren(element: Element, context: WalkContext): SemanticNode[]
   const children: SemanticNode[] = [];
   for (const child of Array.from(element.childNodes)) {
     if (child.nodeType === Node.ELEMENT_NODE) {
+      if (!context.options.includeSelectOptions && element instanceof HTMLSelectElement) continue;
       const semanticChild = walkElement(child as Element, context);
       if (semanticChild) children.push(semanticChild);
       continue;
@@ -167,6 +170,7 @@ function shouldPrune(
   if (context.options.mode === "full") return false;
   if (role === "none" || role === "presentation") return true;
   if (interactive) return false;
+  if (context.options.pruneCustomElementWrappers && isCustomElement(element)) return children.length > 0;
   if (role && role !== "generic") return false;
   if (name) return false;
   if (element.id || element.getAttribute("aria-label") || element.getAttribute("aria-labelledby")) return false;
@@ -338,6 +342,7 @@ function isInteractive(element: Element, role: string | null, focusable: boolean
 }
 
 function appendSpecialChildren(element: Element, node: SemanticNode, context: WalkContext): void {
+  if (!context.options.includeSelectOptions) return;
   if (element instanceof HTMLSelectElement) {
     for (const option of Array.from(element.options)) {
       node.children.push({
@@ -355,6 +360,10 @@ function appendSpecialChildren(element: Element, node: SemanticNode, context: Wa
       });
     }
   }
+}
+
+function isCustomElement(element: Element): boolean {
+  return element.tagName.includes("-");
 }
 
 function appendShadowChildren(element: Element, node: SemanticNode, context: WalkContext): void {
