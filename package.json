@@ -30,7 +30,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "compare": "tsx scripts/compare.ts",
-    "compare:sample": "tsx scripts/compare.ts https://example.com https://www.wikipedia.org https://developer.mozilla.org/en-US/docs/Web/Accessibility https://news.ycombinator.com https://github.com/features https://www.npmjs.com/package/typescript"
+    "compare:sample": "tsx scripts/compare.ts https://example.com https://www.wikipedia.org https://developer.mozilla.org/en-US/docs/Web/Accessibility https://news.ycombinator.com https://github.com/features https://libraries.io/npm/typescript https://www.npmjs.com/package/typescript"
   },
   "keywords": [
     "accessibility",

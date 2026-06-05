@@ -65,6 +65,7 @@ export function normalizeOptions(options: SemanticTreeOptions = {}): SemanticTre
     includeTextNodes: true,
     includeHidden: false,
     includeSelectOptions: true,
+    excludeLikelyAds: false,
     pruneCustomElementWrappers: true,
     ...options,
   };
@@ -80,6 +81,7 @@ const __AX_LITE__ = (() => {
     includeTextNodes: true,
     includeHidden: false,
     includeSelectOptions: true,
+    excludeLikelyAds: false,
     pruneCustomElementWrappers: true,
     maxTextLength: 240,
   };
@@ -108,6 +110,7 @@ const __AX_LITE__ = (() => {
   }
   function walkElement(element, context) {
     if (!context.options.includeHidden && isHidden(element)) return null;
+    if (context.options.excludeLikelyAds && isLikelyAd(element)) return null;
     const role = getRole(element);
     const state = getState(element);
     const focusable = isFocusable(element);
@@ -182,6 +185,7 @@ const __AX_LITE__ = (() => {
     if (tag === "select") return element.hasAttribute("multiple") ? "listbox" : "combobox";
     if (tag === "summary") return "button";
     if (tag === "table") return "table";
+    if (tag === "caption") return "caption";
     if (tag === "tbody" || tag === "tfoot" || tag === "thead") return "rowgroup";
     if (tag === "td") return "cell";
     if (tag === "textarea") return "textbox";
@@ -265,6 +269,7 @@ const __AX_LITE__ = (() => {
     const style = getComputedStyle(element);
     return style.display === "none" || style.visibility === "hidden" || style.contentVisibility === "hidden";
   }
+  function isLikelyAd(element) { const haystack = [element.id, element.getAttribute("class"), element.getAttribute("aria-label"), element.getAttribute("data-testid"), element.getAttribute("data-test-id"), element.getAttribute("data-name")].filter(Boolean).join(" ").toLowerCase(); if (/\b(ad|ads|advert|advertisement|sponsor|sponsored|placement)\b/.test(haystack)) return true; if (element instanceof HTMLAnchorElement && normalizeText(element.textContent || "", 80).toLowerCase() === "ad") return true; return false; }
   function isDisabled(element) { return element.getAttribute("aria-disabled") === "true" || ("disabled" in element && Boolean(element.disabled)); }
   function isFocusable(element) {
     if (isDisabled(element) || isHidden(element)) return false;

@@ -175,6 +175,43 @@ describe("extractSemanticTree", () => {
     expect(namedRoles).not.toContain("form:Unnamed form button");
   });
 
+  it("can exclude likely ad placements when requested", async () => {
+    await page.setContent(`
+      <main>
+        <a class="ad" href="/ad">Ad</a>
+        <a href="/real">Real link</a>
+      </main>
+    `);
+
+    const tree = (await page.evaluate(
+      createExtractorScript({ mode: "compact", includeBounds: false, excludeLikelyAds: true }),
+    )) as SemanticNode;
+    const namedRoles = summarizeSemanticTree(tree).namedRoles;
+
+    expect(namedRoles).toContain("link:Real link");
+    expect(namedRoles).not.toContain("link:Ad");
+  });
+
+  it("extracts table cell names for layout-table comparison", async () => {
+    await page.setContent(`
+      <table>
+        <tbody>
+          <tr>
+            <td><a href="/news">Story title</a></td>
+            <td>12 comments</td>
+          </tr>
+        </tbody>
+      </table>
+    `);
+
+    const tree = await extract(page);
+    const namedRoles = summarizeSemanticTree(tree).namedRoles;
+
+    expect(namedRoles).toContain("cell:Story title");
+    expect(namedRoles).toContain("cell:12 comments");
+    expect(namedRoles).toContain("link:Story title");
+  });
+
   it("supports text output mode for prompt-sized inspection", async () => {
     await page.setContent(`
       <main>

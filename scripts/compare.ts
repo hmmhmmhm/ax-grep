@@ -54,6 +54,7 @@ for (const [index, url] of targets.entries()) {
         includeBounds: false,
         includeTextNodes: false,
         includeSelectOptions: false,
+        excludeLikelyAds: true,
       }),
     ) as SemanticNode;
     const axLite = summarizeSemanticTree(tree);
@@ -165,8 +166,12 @@ function normalizeRole(role: string): string {
     descriptionlist: "list",
     definition: "definition",
     disclosuretriangle: "button",
+    iframe: "iframe",
     image: "img",
     labeltext: "text",
+    layouttable: "table",
+    layouttablecell: "cell",
+    layouttablerow: "row",
     linebreak: "text",
     paragraph: "p",
     statictext: "text",
@@ -179,6 +184,8 @@ function normalizeName(name: string): string {
   const normalized = name
     .replace(/\s+/g, " ")
     .replace(/\s+\(external\)$/i, "")
+    .replace(/\s+([|),])/g, "$1")
+    .replace(/([(])\s+/g, "$1")
     .trim()
     .toLowerCase();
   return normalizeDigitSeparators(normalized);

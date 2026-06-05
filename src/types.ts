@@ -9,6 +9,7 @@ export type SemanticTreeOptions = {
   includeTextNodes?: boolean;
   includeHidden?: boolean;
   includeSelectOptions?: boolean;
+  excludeLikelyAds?: boolean;
   pruneCustomElementWrappers?: boolean;
   maxTextLength?: number;
 };

@@ -47,7 +47,7 @@ The comparison script extracts an `ax-lite` tree with Puppeteer and compares it
 against `agent-browser snapshot` output for the same URL.
 
 The sample set covers a static page, Wikipedia, MDN documentation, Hacker News,
-GitHub's features page, and an npm package URL. See
+GitHub's features page, a Libraries.io package URL, and the npm challenge page. See
 `docs/comparison-baseline.md` for the current baseline run.
 
 By default, `ax-lite` includes `<select>` options because that is useful for
