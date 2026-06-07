@@ -345,7 +345,8 @@ async function openSearchResult(
   if (!rank || !options.searchQuery || !options.searchEngine) {
     throw new UsageError(`--open-result requires --search`);
   }
-  const results = summarizeResults(summarizeLinks(searchTree, searchFetched.finalUrl));
+  const links = summarizeLinks(searchTree, searchFetched.finalUrl);
+  const results = summarizeSearchResults(searchFetched, links);
   const selected = results[rank - 1];
   if (!selected) {
     throw new CliError("NO_RESULT", `search result ${rank} is not available; found ${results.length}`, 21);
@@ -558,7 +559,7 @@ function formatCliText(node: SemanticNode, fetched: FetchResult, options: Pick<C
   const outline = summarizeOutline(node);
   const actions = summarizeActions(node);
   const content = summarizeContent(node);
-  const results = summarizeResults(links);
+  const results = summarizeSearchResults(fetched, links);
   const analysis = analyzePage(fetched, node, links, results, outline, actions, content);
   appendSection(lines, formatAnalysisText(analysis));
   appendSection(lines, formatResultsText(results));
@@ -804,6 +805,141 @@ function summarizeResults(links: LinkSummary[]): ResultSummary[] {
     if (link.snippet) result.snippet = link.snippet;
     return result;
   });
+}
+
+function summarizeSearchResults(fetched: Pick<FetchResult, "html" | "finalUrl">, links: LinkSummary[]): ResultSummary[] {
+  const linkResults = summarizeResults(links);
+  if (!looksLikeSearchUrl(fetched.finalUrl)) return linkResults;
+  const extracted = extractSearchResults(fetched.html, fetched.finalUrl);
+  return extracted.length > 0 ? extracted : linkResults;
+}
+
+function extractSearchResults(html: string, baseUrl: string): ResultSummary[] {
+  const engine = detectSearchEngine(baseUrl);
+  if (!engine) return [];
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const cards = collectResultCards(document.children, engine);
+  const results: ResultSummary[] = [];
+  const seen = new Set<string>();
+  for (const card of cards) {
+    const result = resultFromCard(card, baseUrl, engine, results.length + 1);
+    if (!result || seen.has(result.url)) continue;
+    seen.add(result.url);
+    results.push(result);
+    if (results.length >= 10) break;
+  }
+  return results;
+}
+
+function detectSearchEngine(url: string): SearchEngine | null {
+  try {
+    const hostname = new URL(url).hostname.replace(/^www\./, "");
+    if (hostname.endsWith("bing.com")) return "bing";
+    if (hostname.endsWith("duckduckgo.com")) return "duckduckgo";
+    if (hostname.endsWith("startpage.com")) return "startpage";
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function collectResultCards(nodes: AnyNode[], engine: SearchEngine): Element[] {
+  const cards: Element[] = [];
+  function visit(nodeList: AnyNode[]): void {
+    for (const node of nodeList) {
+      if (!(node instanceof DomElement)) continue;
+      if (isResultCard(node, engine)) {
+        cards.push(node);
+        continue;
+      }
+      visit(node.children);
+    }
+  }
+  visit(nodes);
+  return cards;
+}
+
+function isResultCard(element: Element, engine: SearchEngine): boolean {
+  if (engine === "bing") return element.name === "li" && hasClass(element, "b_algo");
+  if (engine === "duckduckgo") {
+    return hasClass(element, "result")
+      || hasClass(element, "web-result")
+      || hasClass(element, "result__body");
+  }
+  return hasClass(element, "w-gl__result")
+    || hasClass(element, "result")
+    || hasClass(element, "search-result");
+}
+
+function resultFromCard(card: Element, baseUrl: string, engine: SearchEngine, rank: number): ResultSummary | null {
+  const link = resultTitleLink(card, engine) ?? firstUsefulAnchor(card, baseUrl);
+  if (!link) return null;
+  const href = attr(link, "href");
+  const url = href ? normalizeHref(href, baseUrl) : null;
+  if (!url) return null;
+  const title = cleanLinkText(descendantText(link));
+  if (!title || isSearchNavigationText(title)) return null;
+  const result: ResultSummary = {
+    title,
+    url,
+    source: sourceFromUrl(url),
+    rank,
+  };
+  const snippet = resultSnippet(card, title);
+  if (snippet) result.snippet = snippet;
+  return result;
+}
+
+function resultTitleLink(card: Element, engine: SearchEngine): Element | undefined {
+  if (engine === "bing") {
+    const heading = findElement(card.children, (element) => /^h[1-6]$/.test(element.name));
+    const headingLink = heading ? firstUsefulAnchor(heading, "https://example.invalid") : undefined;
+    if (headingLink) return headingLink;
+  }
+  const classMatch = findElement(card.children, (element) => {
+    if (element.name !== "a") return false;
+    return hasClass(element, "result__a")
+      || hasClass(element, "result-title")
+      || hasClass(element, "w-gl__result-title")
+      || hasClass(element, "result-link");
+  });
+  if (classMatch) return classMatch;
+  const heading = findElement(card.children, (element) => /^h[1-6]$/.test(element.name));
+  return heading ? firstUsefulAnchor(heading, "https://example.invalid") : undefined;
+}
+
+function firstUsefulAnchor(root: Element, baseUrl: string): Element | undefined {
+  return findElement(root.children, (element) => {
+    if (element.name !== "a") return false;
+    const href = attr(element, "href");
+    if (!href || !normalizeHref(href, baseUrl)) return false;
+    const text = cleanLinkText(descendantText(element));
+    return Boolean(text) && !isSearchNavigationText(text);
+  });
+}
+
+function resultSnippet(card: Element, title: string): string {
+  const snippetElement = findElement(card.children, (element) => {
+    return hasClass(element, "result__snippet")
+      || hasClass(element, "b_caption")
+      || hasClass(element, "b_snippet")
+      || hasClass(element, "w-gl__description")
+      || hasClass(element, "description")
+      || hasClass(element, "snippet")
+      || hasClass(element, "excerpt");
+  });
+  const raw = snippetElement ? descendantText(snippetElement) : descendantText(card).replace(title, " ");
+  const snippet = cleanContentText(raw.replace(title, " ").replace(/^[\s,.;:!?-]+/, ""));
+  if (!snippet || snippet.toLowerCase() === title.toLowerCase()) return "";
+  return snippet;
+}
+
+function isSearchNavigationText(text: string): boolean {
+  return /^(all|images|videos|maps|news|shopping|전체|이미지|동영상|지도|뉴스|검색|설정|로그인)$/i.test(text.trim());
 }
 
 function sourceFromUrl(url: string): string {
@@ -1095,6 +1231,7 @@ function firstLinkHref(nodes: AnyNode[], rel: string): string {
 }
 
 function descendantText(element: Element): string {
+  if (element.name === "script" || element.name === "style" || element.name === "noscript") return "";
   let text = "";
   for (const child of element.children) {
     if (child.type === "text") {
@@ -1108,6 +1245,10 @@ function descendantText(element: Element): string {
 
 function attr(element: Element, name: string): string | undefined {
   return element.attribs[name];
+}
+
+function hasClass(element: Element, className: string): boolean {
+  return (attr(element, "class") ?? "").split(/\s+/).includes(className);
 }
 
 function samePageOrSameHost(url: string, baseUrl: string): boolean {
@@ -1135,7 +1276,7 @@ function jsonEnvelope(
   const outline = summarizeOutline(tree);
   const actions = summarizeActions(tree);
   const content = summarizeContent(tree);
-  const results = summarizeResults(links);
+  const results = summarizeSearchResults(fetched, links);
   const analysis = analyzePage(fetched, tree, links, results, outline, actions, content);
   return {
     schemaVersion: 1,
@@ -1198,6 +1339,7 @@ function jsonErrorEnvelope(
     page: {},
     links: [],
     results: [],
+    searchResults: [],
     outline: [],
     actions: [],
     content: [],

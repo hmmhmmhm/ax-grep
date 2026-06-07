@@ -183,6 +183,114 @@ describe("cli", () => {
     expect(envelope.results[0].url).toBe("https://result.example/");
   });
 
+  it("extracts search result cards in SERP order", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://duckduckgo.com/html/?q=ax-grep", "--json"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <a href="/settings">Settings</a>
+          <div class="result">
+            <a class="result__a" href="/l/?uddg=${encodeURIComponent("https://first.example/short")}">First</a>
+            <a href="https://noise.example/a-very-long-link-title-that-would-score-higher">Noisy secondary link with a long title</a>
+            <a class="result__snippet" href="https://snippet.example">Snippet link should not become the result title.</a>
+          </div>
+          <div class="result">
+            <a class="result__a" href="https://second.example/article">A much longer second result title</a>
+            <div class="result__snippet">Second snippet explains the result.</div>
+          </div>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.searchResults).toEqual([
+      {
+        title: "First",
+        url: "https://first.example/short",
+        source: "first.example",
+        rank: 1,
+        snippet: "Snippet link should not become the result title.",
+      },
+      {
+        title: "A much longer second result title",
+        url: "https://second.example/article",
+        source: "second.example",
+        rank: 2,
+        snippet: "Second snippet explains the result.",
+      },
+    ]);
+    expect(envelope.results).toEqual(envelope.searchResults);
+  });
+
+  it("ignores style text inside search result titles", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://www.startpage.com/sp/search?query=example", "--json"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <div class="w-gl__result">
+            <a class="w-gl__result-title" href="https://example.com/">
+              <style>.title{color:red}</style>
+              Example Domain
+            </a>
+            <p class="w-gl__description">Example snippet.</p>
+          </div>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.searchResults[0]).toMatchObject({
+      title: "Example Domain",
+      url: "https://example.com/",
+      snippet: "Example snippet.",
+    });
+  });
+
+  it("opens search results using SERP order instead of generic link score", async () => {
+    const stdout = new MemoryWriter();
+    const requestedUrls: string[] = [];
+    const status = await runCli(["--search", "agent browser", "--open-result", "1", "--json"], {
+      stdout,
+      fetch: async (input) => {
+        requestedUrls.push(String(input));
+        if (requestedUrls.length === 1) {
+          return new Response(`
+            <main>
+              <div class="result">
+                <a class="result__a" href="https://first.example/short">First</a>
+              </div>
+              <div class="result">
+                <a class="result__a" href="https://second.example/a-much-longer-title-that-would-score-higher">A much longer second result title</a>
+              </div>
+            </main>
+          `, { headers: { "content-type": "text/html" } });
+        }
+        return new Response(`
+          <html>
+            <head><title>First target</title></head>
+            <body><main><h1>First target</h1><p>This opened the first SERP result.</p></main></body>
+          </html>
+        `, { headers: { "content-type": "text/html" } });
+      },
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(requestedUrls[1]).toBe("https://first.example/short");
+    expect(envelope.sourceSearch).toMatchObject({
+      selectedRank: 1,
+      selectedTitle: "First",
+      selectedUrl: "https://first.example/short",
+    });
+  });
+
   it("can open a selected search result and analyze the target page", async () => {
     const stdout = new MemoryWriter();
     const requestedUrls: string[] = [];

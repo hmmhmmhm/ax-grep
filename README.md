@@ -80,6 +80,9 @@ DuckDuckGo HTML; `--engine bing` and `--engine startpage` are also supported.
 Add `--open-result <n>` to fetch and analyze the selected ranked result in
 the same command. The JSON output keeps `sourceSearch` metadata so an agent can
 see which query, engine, and result rank produced the final page.
+For supported search engines, `searchResults` is extracted from SERP result
+cards before falling back to generic link ranking, so result order tracks the
+page's own ranking more closely.
 
 When a page is challenged, logged-in, or JavaScript-rendered, let a browser
 controller capture the HTML and pass it back through the same CLI:
