@@ -10,11 +10,19 @@ describe("cli", () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test"], {
       stdout,
-      fetch: async () => new Response(`<main><h1>Example</h1><a href="/docs">Docs</a></main>`),
+      fetch: async () => new Response(`
+        <html lang="en">
+          <head><title>Example page</title><meta name="description" content="Useful description"></head>
+          <body><main><h1>Example</h1><button>Run</button><a href="/docs">Docs</a></main></body>
+        </html>
+      `),
     });
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("links\n  1. Docs <https://example.test/docs>");
+    expect(stdout.output).toContain("page\n  title: Example page\n  description: Useful description\n  lang: en");
+    expect(stdout.output).toContain("outline\n  1. h1 Example");
+    expect(stdout.output).toContain("actions\n  1. button Run");
     expect(stdout.output).toContain("main");
     expect(stdout.output).toContain("heading 'Example'");
     expect(stdout.output).toContain("[i] link 'Docs' <https://example.test/docs>");
@@ -63,12 +71,23 @@ describe("cli", () => {
     const status = await runCli(["https://example.test", "--json"], {
       stdout,
       fetch: async () => new Response(`
-        <main>
-          <a href="/docs">Docs</a>
-          <a href="/docs">Docs duplicate</a>
-          <a href="javascript:void(0)">Ignored</a>
-          <a href="/proxy">Visit in Anonymous View</a>
-        </main>
+        <html lang="ko">
+          <head>
+            <title>Docs page</title>
+            <meta name="description" content="Docs description">
+            <link rel="canonical" href="/canonical">
+          </head>
+          <body>
+            <main>
+              <h2>Docs heading</h2>
+              <button>Save</button>
+              <a href="/docs">Docs</a>
+              <a href="/docs">Docs duplicate</a>
+              <a href="javascript:void(0)">Ignored</a>
+              <a href="/proxy">Visit in Anonymous View</a>
+            </main>
+          </body>
+        </html>
       `),
     });
 
@@ -91,6 +110,14 @@ describe("cli", () => {
         rank: 1,
       },
     ]);
+    expect(envelope.page).toMatchObject({
+      title: "Docs page",
+      description: "Docs description",
+      canonicalUrl: "https://example.test/canonical",
+      lang: "ko",
+    });
+    expect(envelope.outline).toEqual([{ text: "Docs heading", level: 2 }]);
+    expect(envelope.actions).toEqual([{ type: "button", text: "Save", selector: "button" }]);
   });
 
   it("keeps the best duplicate link text and strips trailing URL punctuation", async () => {
@@ -165,8 +192,11 @@ describe("cli", () => {
       url: "https://example.test",
       mode: "compact",
       warnings: [],
+      page: {},
       links: [],
       results: [],
+      outline: [],
+      actions: [],
       error: {
         code: "HTTP_ERROR",
         status: 403,

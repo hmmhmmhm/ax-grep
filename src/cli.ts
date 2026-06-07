@@ -4,6 +4,9 @@ import { realpathSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { parseDocument } from "htmlparser2";
+import { Element as DomElement } from "domhandler";
+import type { AnyNode, Element } from "domhandler";
 import { extract, type StaticSemanticTreeOptions } from "./static";
 import type { SemanticNode } from "./types";
 
@@ -27,6 +30,7 @@ type FetchResult = {
   finalUrl: string;
   status: number;
   contentType: string;
+  page: PageSummary;
 };
 
 type CliErrorCode = "FETCH_FAILED" | "HTTP_ERROR" | "NO_INSPECTABLE_CONTENT" | "TIMEOUT" | "USAGE";
@@ -43,6 +47,24 @@ type ResultSummary = {
   url: string;
   source: string;
   rank: number;
+};
+
+type PageSummary = {
+  title?: string;
+  description?: string;
+  canonicalUrl?: string;
+  lang?: string;
+};
+
+type OutlineSummary = {
+  text: string;
+  level?: number;
+};
+
+type ActionSummary = {
+  type: string;
+  text: string;
+  selector?: string;
 };
 
 type CliIO = {
@@ -75,13 +97,13 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
         }), null, 2)}\n`);
       } else {
         stderr.write(`ax-grep: warning: ${message}\n`);
-        stdout.write(`${formatCliText(tree, fetched.finalUrl, options)}\n`);
+        stdout.write(`${formatCliText(tree, fetched, options)}\n`);
       }
       return 20;
     }
     const output = options.format === "json"
       ? `${JSON.stringify(jsonEnvelope(options, fetched, tree), null, 2)}\n`
-      : `${formatCliText(tree, fetched.finalUrl, options)}\n`;
+      : `${formatCliText(tree, fetched, options)}\n`;
     stdout.write(output);
     return 0;
   } catch (error) {
@@ -223,18 +245,22 @@ async function loadHtml(options: CliOptions, fetchImpl: typeof fetch, stdin: Nod
   if (options.input === "html-file") {
     const htmlFile = options.htmlFile;
     if (!htmlFile) throw new UsageError(`--html-file requires a value`);
+    const html = await readFile(htmlFile, "utf8");
     return {
-      html: await readFile(htmlFile, "utf8"),
+      html,
       finalUrl: options.baseUrl,
       status: 0,
       contentType: "text/html",
+      page: extractPageSummary(html, options.baseUrl),
     };
   }
+  const html = await readStdin(stdin);
   return {
-    html: await readStdin(stdin),
+    html,
     finalUrl: options.baseUrl,
     status: 0,
     contentType: "text/html",
+    page: extractPageSummary(html, options.baseUrl),
   };
 }
 
@@ -254,11 +280,14 @@ async function fetchHtml(options: CliOptions, fetchImpl: typeof fetch): Promise<
     if (!response.ok) {
       throw new CliError("HTTP_ERROR", `fetch failed with HTTP ${response.status} ${response.statusText}`.trim(), 12, response.status);
     }
+    const html = await response.text();
+    const finalUrl = response.url || options.url;
     return {
-      html: await response.text(),
+      html,
       finalUrl: response.url || options.url,
       status: response.status,
       contentType: response.headers.get("content-type") ?? "",
+      page: extractPageSummary(html, finalUrl),
     };
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
@@ -358,10 +387,14 @@ class CliError extends Error {
   }
 }
 
-function formatCliText(node: SemanticNode, baseUrl: string, options: Pick<CliOptions, "linksOnly" | "maxTreeLines">): string {
+function formatCliText(node: SemanticNode, fetched: FetchResult, options: Pick<CliOptions, "linksOnly" | "maxTreeLines">): string {
+  const baseUrl = fetched.finalUrl;
   const links = summarizeLinks(node, baseUrl);
   const lines: string[] = links.length > 0 ? formatLinksText(links) : [];
   if (options.linksOnly) return lines.join("\n");
+  appendSection(lines, formatPageText(fetched.page));
+  appendSection(lines, formatOutlineText(summarizeOutline(node)));
+  appendSection(lines, formatActionsText(summarizeActions(node)));
   const treeLines: string[] = [];
   function visit(current: SemanticNode, depth: number): void {
     const prefix = lines.length > 0 ? `  ${"  ".repeat(depth)}` : "  ".repeat(depth);
@@ -390,6 +423,40 @@ function formatLinksText(links: LinkSummary[]): string[] {
   return [
     "links",
     ...links.map((link, index) => `  ${index + 1}. ${link.text || link.role} <${link.url}>`),
+  ];
+}
+
+function appendSection(lines: string[], section: string[]): void {
+  if (section.length === 0) return;
+  if (lines.length > 0) lines.push("");
+  lines.push(...section);
+}
+
+function formatPageText(page: PageSummary): string[] {
+  const lines = [];
+  if (page.title) lines.push(`  title: ${page.title}`);
+  if (page.description) lines.push(`  description: ${page.description}`);
+  if (page.canonicalUrl) lines.push(`  canonical: ${page.canonicalUrl}`);
+  if (page.lang) lines.push(`  lang: ${page.lang}`);
+  return lines.length > 0 ? ["page", ...lines] : [];
+}
+
+function formatOutlineText(outline: OutlineSummary[]): string[] {
+  if (outline.length === 0) return [];
+  return [
+    "outline",
+    ...outline.map((item, index) => {
+      const level = item.level ? `h${item.level}` : "heading";
+      return `  ${index + 1}. ${level} ${item.text}`;
+    }),
+  ];
+}
+
+function formatActionsText(actions: ActionSummary[]): string[] {
+  if (actions.length === 0) return [];
+  return [
+    "actions",
+    ...actions.map((action, index) => `  ${index + 1}. ${action.type} ${action.text}`),
   ];
 }
 
@@ -529,6 +596,102 @@ function sourceFromUrl(url: string): string {
   }
 }
 
+function extractPageSummary(html: string, baseUrl: string): PageSummary {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const htmlElement = findElement(document.children, (element) => element.name === "html");
+  const titleElement = findElement(document.children, (element) => element.name === "title");
+  const description = firstMetaContent(document.children, "description")
+    || firstMetaContent(document.children, "og:description")
+    || firstMetaContent(document.children, "twitter:description");
+  const canonicalHref = firstLinkHref(document.children, "canonical");
+  const summary: PageSummary = {};
+  const title = titleElement ? cleanLinkText(descendantText(titleElement)) : "";
+  if (title) summary.title = title;
+  if (description) summary.description = description;
+  if (canonicalHref) summary.canonicalUrl = normalizeHref(canonicalHref, baseUrl) ?? canonicalHref;
+  const lang = htmlElement ? attr(htmlElement, "lang") : "";
+  if (lang) summary.lang = lang;
+  return summary;
+}
+
+function summarizeOutline(node: SemanticNode): OutlineSummary[] {
+  const outline: OutlineSummary[] = [];
+  function visit(current: SemanticNode): void {
+    if (current.role === "heading" && current.name) {
+      const item: OutlineSummary = { text: current.name };
+      const match = /^h([1-6])$/.exec(current.tag);
+      if (match?.[1]) item.level = Number(match[1]);
+      outline.push(item);
+    }
+    if (outline.length >= 20) return;
+    for (const child of current.children) visit(child);
+  }
+  visit(node);
+  return outline.slice(0, 20);
+}
+
+function summarizeActions(node: SemanticNode): ActionSummary[] {
+  const actions: ActionSummary[] = [];
+  function visit(current: SemanticNode): void {
+    const type = current.role || current.tag;
+    if (current.interactive && type !== "link") {
+      const text = cleanLinkText(current.name || current.value || current.text || type);
+      if (text) {
+        const action: ActionSummary = { type, text };
+        if (current.selector) action.selector = current.selector;
+        actions.push(action);
+      }
+    }
+    if (actions.length >= 12) return;
+    for (const child of current.children) visit(child);
+  }
+  visit(node);
+  return actions.slice(0, 12);
+}
+
+function findElement(nodes: AnyNode[], predicate: (element: Element) => boolean): Element | undefined {
+  for (const node of nodes) {
+    if (!(node instanceof DomElement)) continue;
+    if (predicate(node)) return node;
+    const found = findElement(node.children, predicate);
+    if (found) return found;
+  }
+  return undefined;
+}
+
+function firstMetaContent(nodes: AnyNode[], name: string): string {
+  const element = findElement(nodes, (item) => {
+    if (item.name !== "meta") return false;
+    return attr(item, "name") === name || attr(item, "property") === name;
+  });
+  return element ? cleanLinkText(attr(element, "content") ?? "") : "";
+}
+
+function firstLinkHref(nodes: AnyNode[], rel: string): string {
+  const element = findElement(nodes, (item) => item.name === "link" && (attr(item, "rel") ?? "").split(/\s+/).includes(rel));
+  return element ? attr(element, "href") ?? "" : "";
+}
+
+function descendantText(element: Element): string {
+  let text = "";
+  for (const child of element.children) {
+    if (child.type === "text") {
+      text += child.data;
+    } else if (child instanceof DomElement) {
+      text += descendantText(child);
+    }
+  }
+  return text;
+}
+
+function attr(element: Element, name: string): string | undefined {
+  return element.attribs[name];
+}
+
 function samePageOrSameHost(url: string, baseUrl: string): boolean {
   try {
     const parsed = new URL(url);
@@ -551,6 +714,8 @@ function jsonEnvelope(
   error?: { code: CliErrorCode; message: string; status?: number },
 ): object {
   const links = summarizeLinks(tree, fetched.finalUrl);
+  const outline = summarizeOutline(tree);
+  const actions = summarizeActions(tree);
   return {
     schemaVersion: 1,
     tool: "ax-grep",
@@ -562,8 +727,11 @@ function jsonEnvelope(
     fetchedAt: new Date().toISOString(),
     mode: options.extractOptions.mode ?? "compact",
     warnings,
+    page: fetched.page,
     links,
     results: summarizeResults(links),
+    outline,
+    actions,
     error,
     tree,
   };
@@ -578,8 +746,11 @@ function jsonErrorEnvelope(error: CliError, metadata: Partial<Pick<CliOptions, "
     fetchedAt: new Date().toISOString(),
     mode: metadata.extractOptions?.mode ?? "compact",
     warnings: [],
+    page: {},
     links: [],
     results: [],
+    outline: [],
+    actions: [],
     error: {
       code: error.code,
       message: error.message,

@@ -59,9 +59,9 @@ main
 ```
 
 Text output includes link URLs, with common search redirect links normalized
-when possible. It starts with a deduplicated `links` summary so an agent can
-pick the next URL before reading the full tree. Use JSON when another tool
-needs fetch metadata, link summaries, and the full node structure.
+when possible. It starts with deduplicated `links`, then page metadata,
+heading outline, important actions, and finally the full tree. Use JSON when
+another tool needs the same summaries as structured data.
 
 ```sh
 ax-grep https://example.com --json
@@ -91,6 +91,10 @@ cat captured.html | ax-grep https://example.com --stdin --json
   "status": 200,
   "mode": "compact",
   "warnings": [],
+  "page": {
+    "title": "Example Domain",
+    "description": "Example domains are reserved for documentation."
+  },
   "links": [
     {
       "text": "More information...",
@@ -106,6 +110,13 @@ cat captured.html | ax-grep https://example.com --stdin --json
       "rank": 1
     }
   ],
+  "outline": [
+    {
+      "text": "Example Domain",
+      "level": 1
+    }
+  ],
+  "actions": [],
   "tree": {}
 }
 ```
