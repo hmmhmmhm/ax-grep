@@ -431,12 +431,14 @@ pnpm compare:tokens:china-japan
 ```
 
 The comparison scripts compare `ax-grep` output with `agent-browser snapshot`
-output and estimate token cost for compact agent prompts. See
+output, score the CLI's `pageCheck`/`searchResults` agent summary, and estimate
+token cost for compact agent prompts. See
 `docs/comparison-baseline.md` for the current baseline run.
 
 Current benchmark suites include:
 
 - static HTML vs browser snapshots
+- CLI agent summary scoring for `pageCheck`, `searchResults`, and suggested actions
 - token-cost comparison for compact prompt text
 - Korean forum/search/social targets
 - Chinese and Japanese wiki/news/forum/search targets

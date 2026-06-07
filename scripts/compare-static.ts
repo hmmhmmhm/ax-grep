@@ -1,7 +1,9 @@
 import { spawnSync } from "node:child_process";
 import process from "node:process";
+import { Readable } from "node:stream";
 import { extract } from "../src/static";
 import { flattenSemanticTree, summarizeSemanticTree, type SemanticNode } from "../src/index";
+import { runCli } from "../src/cli";
 import { resolveBenchmarkTargets, type BenchmarkTarget } from "./benchmark-targets";
 
 type NormalizedSummary = {
@@ -44,7 +46,23 @@ type StaticComparison = {
     contentRecall: number;
     score: number;
   };
+  cliAgentSummary: CliAgentSummary;
   warnings: string[];
+};
+
+type CliAgentSummary = {
+  ok: boolean;
+  kind: string;
+  pageCheck: {
+    confidence: "low" | "medium" | "high";
+    contentPreviewCount: number;
+    contentLength: number;
+    primaryLinkCount: number;
+    actionCount: number;
+  };
+  searchResultCount: number;
+  suggestedActionCount: number;
+  score: number;
 };
 
 type StaticClassification = "usable" | "needs-browser" | "challenge" | "shell" | "over-collected" | "reference-challenge" | "reference-missing" | "volatile";
@@ -53,6 +71,7 @@ type GateSummary = {
   included: number;
   excluded: number;
   averageScore: number;
+  averageCliAgentScore: number;
   averagePrecision: number;
   averageReferenceRecall: number;
   classifications: Record<StaticClassification, number>;
@@ -105,6 +124,7 @@ for (const [index, target] of targets.entries()) {
   const namedRoleTotal = Math.max(staticNormalized.namedRoles.length, agentBrowser?.normalized.namedRoles.length ?? 0);
 
   const agentReadiness = scoreAgentReadiness(staticNormalized, agentBrowser?.normalized ?? emptyNormalizedSummary());
+  const cliAgentSummary = await summarizeCliAgentOutput(target.url, html, warnings);
   const comparison: StaticComparison = {
     category: target.category,
     url: target.url,
@@ -124,6 +144,7 @@ for (const [index, target] of targets.entries()) {
       ratio: namedRoleTotal === 0 ? 1 : matches / namedRoleTotal,
     },
     agentReadiness,
+    cliAgentSummary,
     warnings,
   };
   comparison.classification = classifyComparison(comparison);
@@ -303,6 +324,92 @@ function scoreAgentReadiness(candidate: NormalizedSummary, reference: Normalized
   };
 }
 
+async function summarizeCliAgentOutput(url: string, html: string, warnings: string[]): Promise<CliAgentSummary> {
+  const stdout = createMemoryWriter();
+  const stderr = createMemoryWriter();
+  const status = await runCli([url, "--stdin", "--json"], {
+    stdout,
+    stderr,
+    stdin: Readable.from([html]) as NodeJS.ReadStream,
+    fetch: async () => {
+      throw new Error("compare-static should pass HTML through stdin");
+    },
+  });
+  if (status !== 0) warnings.push(`ax-grep CLI summary exited ${status}: ${trimError(stderr.output || stdout.output)}`);
+  try {
+    return summarizeCliEnvelope(JSON.parse(stdout.output));
+  } catch (error) {
+    warnings.push(`ax-grep CLI summary parse failed: ${trimError(error)}`);
+    return emptyCliAgentSummary();
+  }
+}
+
+function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
+  const item = envelope as {
+    ok?: boolean;
+    kind?: string;
+    pageCheck?: {
+      confidence?: "low" | "medium" | "high";
+      contentPreview?: unknown[];
+      contentLength?: number;
+      primaryLinks?: unknown[];
+      actions?: unknown[];
+    };
+    searchResults?: unknown[];
+    suggestedActions?: unknown[];
+  };
+  const confidence = item.pageCheck?.confidence ?? "low";
+  const summary: CliAgentSummary = {
+    ok: item.ok === true,
+    kind: item.kind ?? "unknown",
+    pageCheck: {
+      confidence,
+      contentPreviewCount: item.pageCheck?.contentPreview?.length ?? 0,
+      contentLength: item.pageCheck?.contentLength ?? 0,
+      primaryLinkCount: item.pageCheck?.primaryLinks?.length ?? 0,
+      actionCount: item.pageCheck?.actions?.length ?? 0,
+    },
+    searchResultCount: item.searchResults?.length ?? 0,
+    suggestedActionCount: item.suggestedActions?.length ?? 0,
+    score: 0,
+  };
+  summary.score = scoreCliAgentSummary(summary);
+  return summary;
+}
+
+function emptyCliAgentSummary(): CliAgentSummary {
+  return {
+    ok: false,
+    kind: "unknown",
+    pageCheck: {
+      confidence: "low",
+      contentPreviewCount: 0,
+      contentLength: 0,
+      primaryLinkCount: 0,
+      actionCount: 0,
+    },
+    searchResultCount: 0,
+    suggestedActionCount: 0,
+    score: 0,
+  };
+}
+
+function scoreCliAgentSummary(summary: CliAgentSummary): number {
+  const confidenceScore = summary.pageCheck.confidence === "high" ? 1 : summary.pageCheck.confidence === "medium" ? 0.65 : 0.2;
+  const contentScore = Math.min(1, summary.pageCheck.contentPreviewCount / 3) * 0.4
+    + Math.min(1, summary.pageCheck.contentLength / 600) * 0.6;
+  const linkScore = Math.min(1, summary.pageCheck.primaryLinkCount / 4);
+  const actionScore = Math.min(1, Math.max(summary.suggestedActionCount, summary.pageCheck.actionCount) / 2);
+  const searchScore = summary.kind === "search-results" ? Math.min(1, summary.searchResultCount / 5) : 1;
+  return roundScore(
+    confidenceScore * 0.25
+    + contentScore * 0.25
+    + linkScore * 0.2
+    + actionScore * 0.1
+    + searchScore * 0.2
+  );
+}
+
 function classifyComparison(comparison: StaticComparison): StaticClassification {
   if (comparison.fetch.source === "fetch" && (comparison.fetch.status === 401 || comparison.fetch.status === 403 || comparison.fetch.status === 429)) return "challenge";
   if (!comparison.agentBrowser) return "reference-missing";
@@ -339,6 +446,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     included: included.length,
     excluded: comparisons.length - included.length,
     averageScore: average(included.map((comparison) => comparison.agentReadiness.score)),
+    averageCliAgentScore: average(included.map((comparison) => comparison.cliAgentSummary.score)),
     averagePrecision: average(included.map((comparison) => comparison.agentReadiness.candidatePrecision)),
     averageReferenceRecall: average(included.map((comparison) => comparison.agentReadiness.referenceRecall)),
     classifications,
@@ -484,6 +592,17 @@ function printTreeSample(url: string, tree: SemanticNode): void {
   console.error(flat.join("\n"));
 }
 
-function trimError(value: string): string {
-  return value.replace(/\s+/g, " ").trim().slice(0, 240);
+function trimError(value: unknown): string {
+  return String(value).replace(/\s+/g, " ").trim().slice(0, 240);
+}
+
+function createMemoryWriter(): Pick<NodeJS.WriteStream, "write"> & { output: string } {
+  const writer = {
+    output: "",
+    write(chunk: string | Uint8Array): boolean {
+      writer.output += chunk.toString();
+      return true;
+    },
+  };
+  return writer;
 }

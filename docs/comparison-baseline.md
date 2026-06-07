@@ -26,6 +26,14 @@ same exact normalized `role:name` matches, but split by agent-facing use:
 - `score`: weighted summary for agent parsing: actionable 40%, navigation 25%,
   content 20%, precision 15%.
 
+The static harness also emits `cliAgentSummary`, which scores the actual
+agent-facing CLI JSON envelope rather than raw tree overlap. It uses
+`pageCheck`, `searchResults`, and `suggestedActions` to estimate how directly an
+agent can decide whether to read, open, or retry a page. `averageCliAgentScore`
+in `gateSummary` tracks that higher-level usefulness separately from
+`agentReadiness`, which remains an exact `agent-browser snapshot` overlap
+metric.
+
 The default baseline does not force a viewport. A shared viewport can be tested
 with `AX_LITE_COMPARE_VIEWPORT=WIDTHxHEIGHT`, but the default run is kept stable
 to avoid changing the benchmark shape unexpectedly.
