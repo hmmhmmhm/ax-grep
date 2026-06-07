@@ -282,6 +282,42 @@ describe("cli", () => {
     });
   });
 
+  it("extracts Baidu search result cards", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://www.baidu.com/s?wd=ax-lite", "--json"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <a href="https://passport.baidu.com/">登录</a>
+          <div class="result" tpl="se_com_default">
+            <h3><a href="https://target.example/first">Baidu First Result</a></h3>
+            <div class="c-abstract">First Baidu snippet for agent search result checking.</div>
+          </div>
+          <div class="result">
+            <h3><a href="https://target.example/second">Baidu Second Result</a></h3>
+          </div>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.kind).toBe("search-results");
+    expect(envelope.searchResults).toEqual([
+      expect.objectContaining({
+        title: "Baidu First Result",
+        url: "https://target.example/first",
+        rank: 1,
+      }),
+      expect.objectContaining({
+        title: "Baidu Second Result",
+        url: "https://target.example/second",
+        rank: 2,
+      }),
+    ]);
+  });
+
   it("opens search results using SERP order instead of generic link score", async () => {
     const stdout = new MemoryWriter();
     const requestedUrls: string[] = [];

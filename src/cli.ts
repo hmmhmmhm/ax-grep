@@ -12,6 +12,7 @@ import type { SemanticNode } from "./types";
 
 type CliFormat = "text" | "json";
 type SearchEngine = "bing" | "duckduckgo" | "startpage";
+type SearchResultEngine = SearchEngine | "baidu" | "yahoo-japan";
 
 type CliOptions = {
   url?: string;
@@ -929,19 +930,21 @@ function extractSearchResults(html: string, baseUrl: string): ResultSummary[] {
   return results;
 }
 
-function detectSearchEngine(url: string): SearchEngine | null {
+function detectSearchEngine(url: string): SearchResultEngine | null {
   try {
     const hostname = new URL(url).hostname.replace(/^www\./, "");
+    if (hostname.endsWith("baidu.com")) return "baidu";
     if (hostname.endsWith("bing.com")) return "bing";
     if (hostname.endsWith("duckduckgo.com")) return "duckduckgo";
     if (hostname.endsWith("startpage.com")) return "startpage";
+    if (hostname.endsWith("search.yahoo.co.jp")) return "yahoo-japan";
     return null;
   } catch {
     return null;
   }
 }
 
-function collectResultCards(nodes: AnyNode[], engine: SearchEngine): Element[] {
+function collectResultCards(nodes: AnyNode[], engine: SearchResultEngine): Element[] {
   const cards: Element[] = [];
   function visit(nodeList: AnyNode[]): void {
     for (const node of nodeList) {
@@ -957,19 +960,21 @@ function collectResultCards(nodes: AnyNode[], engine: SearchEngine): Element[] {
   return cards;
 }
 
-function isResultCard(element: Element, engine: SearchEngine): boolean {
+function isResultCard(element: Element, engine: SearchResultEngine): boolean {
+  if (engine === "baidu") return hasClass(element, "result") || hasClass(element, "c-container");
   if (engine === "bing") return element.name === "li" && hasClass(element, "b_algo");
   if (engine === "duckduckgo") {
     return hasClass(element, "result")
       || hasClass(element, "web-result")
       || hasClass(element, "result__body");
   }
+  if (engine === "yahoo-japan") return hasClass(element, "sw-Card") || hasClass(element, "algo") || hasClass(element, "SearchResult");
   return hasClass(element, "w-gl__result")
     || hasClass(element, "result")
     || hasClass(element, "search-result");
 }
 
-function resultFromCard(card: Element, baseUrl: string, engine: SearchEngine, rank: number): ResultSummary | null {
+function resultFromCard(card: Element, baseUrl: string, engine: SearchResultEngine, rank: number): ResultSummary | null {
   const link = resultTitleLink(card, engine) ?? firstUsefulAnchor(card, baseUrl);
   if (!link) return null;
   const href = attr(link, "href");
@@ -988,8 +993,8 @@ function resultFromCard(card: Element, baseUrl: string, engine: SearchEngine, ra
   return result;
 }
 
-function resultTitleLink(card: Element, engine: SearchEngine): Element | undefined {
-  if (engine === "bing") {
+function resultTitleLink(card: Element, engine: SearchResultEngine): Element | undefined {
+  if (engine === "baidu" || engine === "bing" || engine === "yahoo-japan") {
     const heading = findElement(card.children, (element) => /^h[1-6]$/.test(element.name));
     const headingLink = heading ? firstUsefulAnchor(heading, "https://example.invalid") : undefined;
     if (headingLink) return headingLink;
@@ -999,6 +1004,7 @@ function resultTitleLink(card: Element, engine: SearchEngine): Element | undefin
     return hasClass(element, "result__a")
       || hasClass(element, "result-title")
       || hasClass(element, "w-gl__result-title")
+      || hasClass(element, "c-title")
       || hasClass(element, "result-link");
   });
   if (classMatch) return classMatch;
@@ -1433,8 +1439,12 @@ function dedupeDiagnostics(diagnostics: DiagnosticSummary[]): DiagnosticSummary[
 function looksLikeSearchUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
+    const hostname = parsed.hostname.replace(/^www\./, "");
+    if (hostname.endsWith("baidu.com") && parsed.searchParams.has("wd")) return true;
+    if (hostname.endsWith("search.yahoo.co.jp") && parsed.searchParams.has("p")) return true;
     return parsed.searchParams.has("q")
       || parsed.searchParams.has("query")
+      || parsed.searchParams.has("wd")
       || /\/search\b|\/sp\/search\b|\/html\/?$/i.test(parsed.pathname);
   } catch {
     return false;
