@@ -53,6 +53,9 @@ maps that intent to the executor-facing mode: `read`, `command`, `browser`,
 `averageAgentNextScore` tracks whether `agent.next` is a canonical executor
 payload that agrees with `continuationMode` and mirrors the primary action's
 command, read pointer, URL, browser interaction, and terminal fields.
+`averageAgentSignalScore` tracks whether `agent.signals` exposes structured
+content, verification, search result, source link, browser, response, and
+diagnostic signals needed for fast agent routing.
 `averageContentEvidenceMetadataScore` tracks whether `pageCheck.contentEvidence`
 items include `source` and bounded `score` metadata, so agents can prioritize
 semantic evidence over fallback excerpts.

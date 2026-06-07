@@ -248,6 +248,12 @@ type AgentNext = {
   terminal?: boolean;
 };
 
+type AgentSignal = {
+  kind: "content" | "verification" | "search-results" | "source-links" | "browser" | "diagnostic" | "response";
+  severity: "info" | "warning" | "error";
+  message: string;
+};
+
 type AgentSummary = {
   status: AgentStatus;
   pageKind: ContentKind;
@@ -255,6 +261,7 @@ type AgentSummary = {
   routingIntent: AgentRoutingIntent;
   continuationMode: AgentContinuationMode;
   next: AgentNext;
+  signals: AgentSignal[];
   canContinue: boolean;
   canUseFetchedHtml: boolean;
   needsBrowserHtml: boolean;
@@ -1352,6 +1359,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  verification: ${agent.verificationFoundCount}/${agent.verificationRequestedCount} found, ${agent.verificationMissingCount} missing`,
     `  readability: ${agent.readability} (${agent.readabilityScore})`,
   ];
+  for (const signal of agent.signals) lines.push(`  signal: ${signal.kind}/${signal.severity} - ${signal.message}`);
   for (const reason of agent.readabilityReasons) lines.push(`  readabilityReason: ${reason}`);
   if (agent.bestReadTarget) lines.push(`  bestReadTarget: ${agent.bestReadTarget}`);
   if (typeof agent.bestReadTargetScore === "number") lines.push(`  bestReadTargetScore: ${agent.bestReadTargetScore}`);
@@ -2455,6 +2463,7 @@ function summarizeAgent(
     routingIntent: agentRoutingIntent(primaryAction),
     continuationMode: agentContinuationMode(primaryAction),
     next: summarizeAgentNext(primaryAction),
+    signals: summarizeAgentSignals(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, fetched, error),
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml,
     needsBrowserHtml,
@@ -2627,6 +2636,71 @@ function summarizeAgentNext(primaryAction: SuggestedAction | undefined): AgentNe
     ...(primaryAction.requiresBrowserInteraction ? { requiresBrowserInteraction: true } : {}),
     ...(primaryAction.terminal ? { terminal: true } : {}),
   };
+}
+
+function summarizeAgentSignals(
+  status: AgentStatus,
+  analysis: AnalysisSummary,
+  pageCheck: PageCheckSummary,
+  verification: VerificationSummary,
+  results: ResultSummary[],
+  needsBrowserHtml: boolean,
+  fetched?: FetchResult,
+  error?: { code: CliErrorCode; message: string; status?: number },
+): AgentSignal[] {
+  const signals: AgentSignal[] = [];
+  const add = (signal: AgentSignal): void => {
+    if (signals.some((item) => item.kind === signal.kind && item.message === signal.message)) return;
+    signals.push(signal);
+  };
+
+  if (error) {
+    add({ kind: "diagnostic", severity: "error", message: `${error.code}: ${error.message}` });
+  } else if (fetched && (fetched.status < 200 || fetched.status >= 400)) {
+    add({ kind: "response", severity: fetched.status >= 500 ? "error" : "warning", message: `HTTP ${fetched.status} response from fetched page.` });
+  }
+
+  if (needsBrowserHtml) {
+    add({ kind: "browser", severity: "warning", message: "Browser-captured HTML is recommended before trusting page content." });
+  } else if (pageCheck.readability.level !== "low") {
+    add({
+      kind: "content",
+      severity: "info",
+      message: `Fetched HTML is ${pageCheck.readability.level} readability with ${pageCheck.contentEvidence.length} evidence item(s).`,
+    });
+  } else if (status !== "choose-result") {
+    add({ kind: "content", severity: "warning", message: "Fetched HTML has low readability for direct content extraction." });
+  }
+
+  if (analysis.kind === "search-results") {
+    add({
+      kind: "search-results",
+      severity: results.length > 0 ? "info" : "warning",
+      message: `${results.length} ranked search result(s) extracted.`,
+    });
+  }
+
+  if (verification.requestedCount > 0) {
+    add({
+      kind: "verification",
+      severity: verification.status === "matched" ? "info" : "warning",
+      message: `${verification.foundCount}/${verification.requestedCount} requested verification text(s) found.`,
+    });
+  }
+
+  if (analysis.kind !== "search-results" && pageCheck.sourceLinks.length > 0) {
+    add({
+      kind: "source-links",
+      severity: "info",
+      message: `${pageCheck.sourceLinks.length} source-like link(s) available for follow-up.`,
+    });
+  }
+
+  for (const diagnostic of analysis.diagnostics.slice(0, 3)) {
+    add({ kind: "diagnostic", severity: diagnostic.severity, message: `${diagnostic.code}: ${diagnostic.message}` });
+  }
+
+  return signals.slice(0, 6);
 }
 
 function selectBestReadTarget(readTargets: AgentReadTarget[]): AgentReadTarget | undefined {
@@ -2976,6 +3050,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     routingIntent: agentRoutingIntent(primaryAction),
     continuationMode: agentContinuationMode(primaryAction),
     next: summarizeAgentNext(primaryAction),
+    signals: summarizeErrorAgentSignals(error, primaryAction, summary),
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml: false,
     needsBrowserHtml: errorNeedsBrowserHtml(primaryAction),
@@ -3016,6 +3091,16 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(primaryAction?.requiresBrowserInteraction ? { requiresBrowserInteraction: true } : {}),
     ...(primaryAction ? { primaryAction } : {}),
   };
+}
+
+function summarizeErrorAgentSignals(error: CliError, primaryAction: SuggestedAction | undefined, summary: string): AgentSignal[] {
+  const signals: AgentSignal[] = [
+    { kind: "diagnostic", severity: "error", message: `${error.code}: ${summary}` },
+  ];
+  if (primaryAction?.action === "retry-with-browser-html") {
+    signals.push({ kind: "browser", severity: "warning", message: "Browser-captured HTML is recommended before retrying extraction." });
+  }
+  return signals;
 }
 
 function errorNeedsBrowserHtml(primaryAction: SuggestedAction | undefined): boolean {
@@ -3715,6 +3800,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     routingIntent: agent.routingIntent,
     continuationMode: agent.continuationMode,
     next: agent.next,
+    ...(agent.signals.length > 0 ? { signals: agent.signals } : {}),
     canContinue: agent.canContinue,
     canUseFetchedHtml: agent.canUseFetchedHtml,
     needsBrowserHtml: agent.needsBrowserHtml,

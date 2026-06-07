@@ -242,6 +242,10 @@ describe("cli", () => {
           readFrom: "verification.bestEvidence",
           terminal: true,
         },
+        signals: expect.arrayContaining([
+          expect.objectContaining({ kind: "content", severity: "info" }),
+          expect.objectContaining({ kind: "verification", severity: "info" }),
+        ]),
         pageKind: "page",
         canContinue: true,
         canUseFetchedHtml: true,
@@ -366,6 +370,9 @@ describe("cli", () => {
         command: "ax-grep --search 'agent browser' --engine bing --open-result best --agent",
         commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "best", "--agent"],
       },
+      signals: expect.arrayContaining([
+        expect.objectContaining({ kind: "search-results", severity: "info" }),
+      ]),
       responseStatus: 200,
       responseOk: true,
       responseContentType: "text/html",
@@ -2296,6 +2303,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  pageKind: content-page");
     expect(stdout.output).toContain("  routingIntent: read-current");
     expect(stdout.output).toContain("  continuationMode: read");
+    expect(stdout.output).toContain("  signal: content/info - ");
     expect(stdout.output).toContain("  canContinue: true");
     expect(stdout.output).toContain("  responseStatus: 200");
     expect(stdout.output).toContain("  responseOk: true");
@@ -2517,6 +2525,10 @@ describe("cli", () => {
         action: "retry-with-browser-html",
         execution: "run-command",
       },
+      signals: expect.arrayContaining([
+        expect.objectContaining({ kind: "browser", severity: "warning" }),
+        expect.objectContaining({ kind: "diagnostic", severity: "error" }),
+      ]),
       canUseFetchedHtml: false,
       needsBrowserHtml: true,
       primaryAction: {
@@ -2775,6 +2787,9 @@ describe("cli", () => {
         next: {
           mode: "stop",
         },
+        signals: expect.arrayContaining([
+          expect.objectContaining({ kind: "diagnostic", severity: "error" }),
+        ]),
         summary: "missing URL",
         canContinue: false,
         needsBrowserHtml: false,
@@ -3009,6 +3024,9 @@ describe("cli", () => {
         execution: "interact-browser",
         requiresBrowserInteraction: true,
       },
+      signals: expect.arrayContaining([
+        expect.objectContaining({ kind: "diagnostic", severity: "warning" }),
+      ]),
       canUseFetchedHtml: false,
       needsBrowserHtml: false,
       primaryExecution: "interact-browser",

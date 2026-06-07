@@ -57,6 +57,7 @@ type CliAgentSummary = {
   agentRoutingIntentScore: number;
   agentContinuationModeScore: number;
   agentNextScore: number;
+  agentSignalScore: number;
   agentPageKindScore: number;
   agentAlternativeActionCountScore: number;
   agentUsabilityScoreConsistency: number;
@@ -127,6 +128,12 @@ type CliAgentNextShape = CliActionShape & {
   reason?: string;
 };
 
+type CliAgentSignalShape = {
+  kind?: "content" | "verification" | "search-results" | "source-links" | "browser" | "diagnostic" | "response";
+  severity?: "info" | "warning" | "error";
+  message?: string;
+};
+
 type CliSearchResultShape = {
   rank?: number;
   source?: string;
@@ -164,6 +171,7 @@ type GateSummary = {
   averageAgentRoutingIntentScore: number;
   averageAgentContinuationModeScore: number;
   averageAgentNextScore: number;
+  averageAgentSignalScore: number;
   averageAgentReadTargetScore: number;
   averageAgentResultCountScore: number;
   averageAgentSourceLinkCountScore: number;
@@ -486,6 +494,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       routingIntent?: AgentRoutingIntent;
       continuationMode?: AgentContinuationMode;
       next?: CliAgentNextShape;
+      signals?: CliAgentSignalShape[];
       responseStatus?: number;
       responseOk?: boolean;
       responseContentType?: string;
@@ -583,6 +592,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentRoutingIntentScore: scoreAgentRoutingIntent(item.agent?.routingIntent, item.agent?.primaryAction),
     agentContinuationModeScore: scoreAgentContinuationMode(item.agent?.continuationMode, item.agent?.primaryAction),
     agentNextScore: scoreAgentNext(item.agent?.next, item.agent?.continuationMode, item.agent?.primaryAction),
+    agentSignalScore: scoreAgentSignals(item.agent?.signals, item),
     agentPageKindScore: scoreAgentPageKind(item.agent?.pageKind, item.kind),
     agentAlternativeActionCountScore: scoreAgentAlternativeActionCount(item.agent?.alternativeActionCount, item),
     agentUsabilityScoreConsistency: scoreAgentUsabilityScore(item.agent?.usabilityScore, item),
@@ -626,6 +636,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentRoutingIntentScore: 0,
     agentContinuationModeScore: 0,
     agentNextScore: 0,
+    agentSignalScore: 0,
     agentPageKindScore: 0,
     agentAlternativeActionCountScore: 0,
     agentUsabilityScoreConsistency: 0,
@@ -796,6 +807,38 @@ function scoreAgentNext(next: CliAgentNextShape | undefined, continuationMode: A
   }
   required += 1;
   if (typeof next.reason === "string" && next.reason === primaryAction.reason) matched += 1;
+  return roundScore(matched / required);
+}
+
+function scoreAgentSignals(signals: CliAgentSignalShape[] | undefined, envelope: {
+  kind?: string;
+  diagnostics?: Array<{ severity?: "info" | "warning" | "error" }>;
+  agent?: { needsBrowserHtml?: boolean };
+  pageCheck?: { contentEvidence?: unknown[]; sourceLinks?: unknown[] };
+  searchResults?: unknown[];
+  verification?: { requestedCount?: number };
+}): number {
+  if (!Array.isArray(signals) || signals.length === 0) return 0;
+  const wellFormed = signals.filter((signal) => {
+    return typeof signal.kind === "string"
+      && ["info", "warning", "error"].includes(signal.severity ?? "")
+      && typeof signal.message === "string"
+      && signal.message.length > 0;
+  }).length / signals.length;
+  const kinds = new Set(signals.map((signal) => signal.kind));
+  let required = 1;
+  let matched = wellFormed > 0 ? wellFormed : 0;
+  const expectKind = (condition: boolean, kind: CliAgentSignalShape["kind"]): void => {
+    if (!condition || !kind) return;
+    required += 1;
+    if (kinds.has(kind)) matched += 1;
+  };
+  expectKind(envelope.agent?.needsBrowserHtml === true, "browser");
+  expectKind((envelope.diagnostics?.length ?? 0) > 0, "diagnostic");
+  expectKind(envelope.kind === "search-results", "search-results");
+  expectKind((envelope.verification?.requestedCount ?? 0) > 0, "verification");
+  expectKind(envelope.kind !== "search-results" && (envelope.pageCheck?.sourceLinks?.length ?? 0) > 0, "source-links");
+  expectKind((envelope.pageCheck?.contentEvidence?.length ?? 0) > 0, "content");
   return roundScore(matched / required);
 }
 
@@ -1240,7 +1283,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
   const agentActionScore = summary.agentPrimaryAction ? 1 : 0;
   return roundScore(
     confidenceScore * 0.14
-    + readabilityExplainabilityScore * 0.115
+    + readabilityExplainabilityScore * 0.11
     + contentScore * 0.2
     + linkScore * 0.16
     + actionScore * 0.05
@@ -1267,6 +1310,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentRoutingIntentScore * 0.005
     + summary.agentContinuationModeScore * 0.005
     + summary.agentNextScore * 0.005
+    + summary.agentSignalScore * 0.005
     + summary.agentPrimaryShortcutScore * 0.005
   );
 }
@@ -1315,6 +1359,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentRoutingIntentScore: average(included.map((comparison) => comparison.cliAgentSummary.agentRoutingIntentScore)),
     averageAgentContinuationModeScore: average(included.map((comparison) => comparison.cliAgentSummary.agentContinuationModeScore)),
     averageAgentNextScore: average(included.map((comparison) => comparison.cliAgentSummary.agentNextScore)),
+    averageAgentSignalScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSignalScore)),
     averageAgentReadTargetScore: average(included.map((comparison) => comparison.cliAgentSummary.agentReadTargetScore)),
     averageAgentResultCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentResultCountScore)),
     averageAgentSourceLinkCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSourceLinkCountScore)),
