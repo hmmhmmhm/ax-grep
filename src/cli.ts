@@ -23,6 +23,8 @@ type CliOptions = {
   htmlFile?: string;
   searchQuery?: string;
   searchEngine?: SearchEngine;
+  searchLang?: string;
+  searchRegion?: string;
   openResult?: number;
   sourceSearch?: SourceSearchSummary;
   timeoutMs: number;
@@ -34,6 +36,8 @@ type SourceSearchSummary = {
   query: string;
   engine: SearchEngine;
   searchUrl: string;
+  lang?: string;
+  region?: string;
   selectedRank: number;
   selectedTitle: string;
   selectedUrl: string;
@@ -205,6 +209,8 @@ function parseArgs(argv: string[]): CliOptions {
   let htmlFile: string | undefined;
   let searchQuery: string | undefined;
   let searchEngine: SearchEngine = "duckduckgo";
+  let searchLang: string | undefined;
+  let searchRegion: string | undefined;
   let openResult: number | undefined;
   let timeoutMs = defaultTimeoutMs;
   let userAgent = defaultUserAgent;
@@ -253,6 +259,16 @@ function parseArgs(argv: string[]): CliOptions {
     }
     if (arg === "--engine") {
       searchEngine = parseSearchEngine(readValue(argv, index, arg));
+      index += 1;
+      continue;
+    }
+    if (arg === "--lang") {
+      searchLang = parseSearchLang(readValue(argv, index, arg));
+      index += 1;
+      continue;
+    }
+    if (arg === "--region") {
+      searchRegion = parseSearchRegion(readValue(argv, index, arg));
       index += 1;
       continue;
     }
@@ -317,7 +333,7 @@ function parseArgs(argv: string[]): CliOptions {
 
   if (searchQuery && url) throw new UsageError(`--search cannot be used with an explicit URL`);
   if (openResult && !searchQuery) throw new UsageError(`--open-result requires --search`);
-  if (searchQuery) url = searchUrl(searchQuery, searchEngine);
+  if (searchQuery) url = searchUrl(searchQuery, searchEngine, searchLang, searchRegion);
   if (input === "fetch" && !url) throw new UsageError(`missing URL\n\n${usage()}`);
   if (url) validateUrl(url);
   if (input === "html-file" && !htmlFile) throw new UsageError(`--html-file requires a value`);
@@ -327,6 +343,8 @@ function parseArgs(argv: string[]): CliOptions {
   if (htmlFile) options.htmlFile = htmlFile;
   if (searchQuery) options.searchQuery = searchQuery;
   if (searchQuery) options.searchEngine = searchEngine;
+  if (searchLang) options.searchLang = searchLang;
+  if (searchRegion) options.searchRegion = searchRegion;
   if (openResult) options.openResult = openResult;
   if (maxTreeLines) options.maxTreeLines = maxTreeLines;
   return options;
@@ -360,6 +378,8 @@ async function openSearchResult(
       query: options.searchQuery,
       engine: options.searchEngine,
       searchUrl: searchFetched.finalUrl,
+      ...(options.searchLang ? { lang: options.searchLang } : {}),
+      ...(options.searchRegion ? { region: options.searchRegion } : {}),
       selectedRank: selected.rank,
       selectedTitle: selected.title,
       selectedUrl: selected.url,
@@ -375,13 +395,15 @@ async function openSearchResult(
   return { options: openedOptions, fetched: openedFetched };
 }
 
-function errorMetadataFromOptions(options: CliOptions): Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "sourceSearch">> {
-  const metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "sourceSearch">> = {
+function errorMetadataFromOptions(options: CliOptions): Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion" | "sourceSearch">> {
+  const metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion" | "sourceSearch">> = {
     extractOptions: options.extractOptions,
   };
   if (options.url) metadata.url = options.url;
   if (options.searchQuery) metadata.searchQuery = options.searchQuery;
   if (options.searchEngine) metadata.searchEngine = options.searchEngine;
+  if (options.searchLang) metadata.searchLang = options.searchLang;
+  if (options.searchRegion) metadata.searchRegion = options.searchRegion;
   if (options.sourceSearch) metadata.sourceSearch = options.sourceSearch;
   return metadata;
 }
@@ -418,6 +440,7 @@ async function fetchHtml(options: CliOptions, fetchImpl: typeof fetch): Promise<
     const response = await fetchImpl(options.url, {
       headers: {
         accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        ...(options.searchLang || options.searchRegion ? { "accept-language": acceptLanguageHeader(options.searchLang, options.searchRegion) } : {}),
         "user-agent": options.userAgent,
       },
       redirect: "follow",
@@ -448,6 +471,13 @@ async function fetchHtml(options: CliOptions, fetchImpl: typeof fetch): Promise<
   }
 }
 
+function acceptLanguageHeader(lang?: string, region?: string): string {
+  if (lang && region) return `${lang}-${region},${lang};q=0.9`;
+  if (lang) return lang;
+  if (region) return `en-${region},en;q=0.9`;
+  return "";
+}
+
 async function readStdin(stdin: NodeJS.ReadStream): Promise<string> {
   stdin.setEncoding("utf8");
   let html = "";
@@ -473,11 +503,39 @@ function parseSearchEngine(value: string): SearchEngine {
   throw new UsageError(`--engine must be bing, duckduckgo, or startpage`);
 }
 
-function searchUrl(query: string, engine: SearchEngine): string {
-  const encoded = encodeURIComponent(query);
-  if (engine === "bing") return `https://www.bing.com/search?q=${encoded}`;
-  if (engine === "startpage") return `https://www.startpage.com/sp/search?query=${encoded}`;
-  return `https://duckduckgo.com/html/?q=${encoded}`;
+function parseSearchLang(value: string): string {
+  const normalized = value.trim().toLowerCase();
+  if (!/^[a-z]{2,3}(-[a-z]{2})?$/.test(normalized)) throw new UsageError(`--lang must be a language code like en, ko, ja, or zh-cn`);
+  return normalized;
+}
+
+function parseSearchRegion(value: string): string {
+  const normalized = value.trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(normalized)) throw new UsageError(`--region must be a two-letter region code like US, KR, JP, or CN`);
+  return normalized;
+}
+
+function searchUrl(query: string, engine: SearchEngine, lang?: string, region?: string): string {
+  if (engine === "bing") {
+    const url = new URL("https://www.bing.com/search");
+    url.searchParams.set("q", query);
+    if (lang) url.searchParams.set("setlang", lang);
+    if (region) url.searchParams.set("cc", region);
+    if (lang && region) url.searchParams.set("mkt", `${lang}-${region}`);
+    return url.toString();
+  }
+  if (engine === "startpage") {
+    const url = new URL("https://www.startpage.com/sp/search");
+    url.searchParams.set("query", query);
+    if (lang) url.searchParams.set("language", lang);
+    if (region) url.searchParams.set("region", region);
+    return url.toString();
+  }
+  const url = new URL("https://duckduckgo.com/html/");
+  url.searchParams.set("q", query);
+  if (lang && region) url.searchParams.set("kl", `${region.toLowerCase()}-${lang}`);
+  else if (region) url.searchParams.set("kl", `${region.toLowerCase()}-${region.toLowerCase()}`);
+  return url.toString();
 }
 
 function parsePositiveInteger(value: string, option: string): number {
@@ -506,6 +564,8 @@ Fetch a page and print a compact semantic accessibility-like tree.
 Options:
   --search <query>           Search the web and analyze the result page.
   --engine <name>            Search engine for --search: duckduckgo, bing, or startpage.
+  --lang <code>              Search language hint, e.g. en, ko, ja, zh-cn.
+  --region <code>            Search region hint, e.g. US, KR, JP, CN.
   --open-result <n>          With --search, fetch and analyze the selected result.
   --json                     Print the SemanticNode tree as JSON.
   --text                     Print the compact text tree. This is the default.
@@ -543,7 +603,7 @@ class CliError extends Error {
     message: string,
     readonly exitCode: number,
     readonly status?: number,
-    readonly metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "sourceSearch">> = {},
+    readonly metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion" | "sourceSearch">> = {},
   ) {
     super(message);
   }
@@ -614,9 +674,11 @@ function formatPageText(page: PageSummary): string[] {
 
 function formatSourceSearchText(sourceSearch?: SourceSearchSummary): string[] {
   if (!sourceSearch) return [];
+  const locale = [sourceSearch.lang, sourceSearch.region].filter(Boolean).join("/");
   return [
     "source",
     `  search: ${sourceSearch.query} via ${sourceSearch.engine}`,
+    ...(locale ? [`  locale: ${locale}`] : []),
     `  selected: ${sourceSearch.selectedRank}. ${sourceSearch.selectedTitle} <${sourceSearch.selectedUrl}>`,
     `  result page: ${sourceSearch.searchUrl}`,
   ];
@@ -1285,6 +1347,8 @@ function jsonEnvelope(
     url: options.url,
     searchQuery: options.searchQuery,
     searchEngine: options.searchEngine,
+    searchLang: options.searchLang,
+    searchRegion: options.searchRegion,
     sourceSearch: options.sourceSearch,
     finalUrl: fetched.finalUrl,
     status: fetched.status,
@@ -1309,7 +1373,7 @@ function jsonEnvelope(
 
 function jsonErrorEnvelope(
   error: CliError,
-  metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "sourceSearch">> = {},
+  metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion" | "sourceSearch">> = {},
 ): object {
   return {
     schemaVersion: 1,
@@ -1318,6 +1382,8 @@ function jsonErrorEnvelope(
     url: metadata.url,
     searchQuery: metadata.searchQuery,
     searchEngine: metadata.searchEngine,
+    searchLang: metadata.searchLang,
+    searchRegion: metadata.searchRegion,
     sourceSearch: metadata.sourceSearch,
     fetchedAt: new Date().toISOString(),
     mode: metadata.extractOptions?.mode ?? "compact",
@@ -1357,8 +1423,8 @@ function toCliError(error: unknown): CliError {
   return new CliError("FETCH_FAILED", error instanceof Error ? error.message : String(error), 10);
 }
 
-function parseArgMetadata(argv: string[]): Partial<Pick<CliOptions, "url" | "extractOptions">> {
-  const metadata: Partial<Pick<CliOptions, "url" | "extractOptions">> = { extractOptions: {} };
+function parseArgMetadata(argv: string[]): Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion">> {
+  const metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion">> = { extractOptions: {} };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (!arg) continue;
@@ -1368,8 +1434,32 @@ function parseArgMetadata(argv: string[]): Partial<Pick<CliOptions, "url" | "ext
       index += 1;
       continue;
     }
+    if (arg === "--search") {
+      const value = argv[index + 1];
+      if (value && !value.startsWith("-")) metadata.searchQuery = value;
+      index += 1;
+      continue;
+    }
+    if (arg === "--engine") {
+      const value = argv[index + 1];
+      if (value === "bing" || value === "duckduckgo" || value === "startpage") metadata.searchEngine = value;
+      index += 1;
+      continue;
+    }
+    if (arg === "--lang") {
+      const value = argv[index + 1];
+      if (value && !value.startsWith("-")) metadata.searchLang = value.toLowerCase();
+      index += 1;
+      continue;
+    }
+    if (arg === "--region") {
+      const value = argv[index + 1];
+      if (value && !value.startsWith("-")) metadata.searchRegion = value.toUpperCase();
+      index += 1;
+      continue;
+    }
     if (arg.startsWith("-")) {
-      if (["--engine", "--max-text-length", "--open", "--open-result", "--search", "--timeout", "--user-agent"].includes(arg)) index += 1;
+      if (["--max-text-length", "--open", "--open-result", "--timeout", "--user-agent"].includes(arg)) index += 1;
       continue;
     }
     metadata.url ??= arg;

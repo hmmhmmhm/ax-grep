@@ -67,6 +67,7 @@ another tool needs the same summaries as structured data.
 ```sh
 ax-grep --search "agent browser accessibility tree"
 ax-grep --search "ax-grep npm" --engine bing --links-only
+ax-grep --search "ax-grep npm" --engine bing --lang en --region US
 ax-grep --search "ax-grep npm" --open-result 1 --json
 ax-grep https://example.com --json
 ax-grep https://example.com --links-only
@@ -86,6 +87,9 @@ page's own ranking more closely.
 Search result pages also cap the trailing text tree to 80 lines by default to
 keep agent prompts focused; pass `--max-tree-lines <n>` to choose a different
 limit.
+Use `--lang <code>` and `--region <code>` to add search URL parameters and an
+`Accept-Language` header, making agent searches more reproducible across
+locales.
 
 When a page is challenged, logged-in, or JavaScript-rendered, let a browser
 controller capture the HTML and pass it back through the same CLI:
@@ -105,10 +109,14 @@ cat captured.html | ax-grep https://example.com --stdin --json
   "url": "https://example.com",
   "searchQuery": "example domain",
   "searchEngine": "duckduckgo",
+  "searchLang": "en",
+  "searchRegion": "US",
   "sourceSearch": {
     "query": "example domain",
     "engine": "duckduckgo",
-    "searchUrl": "https://duckduckgo.com/html/?q=example%20domain",
+    "searchUrl": "https://duckduckgo.com/html/?q=example+domain&kl=us-en",
+    "lang": "en",
+    "region": "US",
     "selectedRank": 1,
     "selectedTitle": "Example Domain",
     "selectedUrl": "https://example.com/"

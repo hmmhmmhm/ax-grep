@@ -174,13 +174,43 @@ describe("cli", () => {
     const envelope = JSON.parse(stdout.output);
 
     expect(status).toBe(0);
-    expect(requestedUrl).toBe("https://www.bing.com/search?q=agent%20browser");
+    expect(requestedUrl).toBe("https://www.bing.com/search?q=agent+browser");
     expect(envelope).toMatchObject({
       searchQuery: "agent browser",
       searchEngine: "bing",
       kind: "search-results",
     });
     expect(envelope.results[0].url).toBe("https://result.example/");
+  });
+
+  it("can set search language and region hints", async () => {
+    const stdout = new MemoryWriter();
+    let requestedUrl = "";
+    let acceptLanguage = "";
+    const status = await runCli(["--search", "agent browser", "--engine", "bing", "--lang", "en", "--region", "US", "--json"], {
+      stdout,
+      fetch: async (input, init) => {
+        requestedUrl = String(input);
+        acceptLanguage = String((init?.headers as Record<string, string>)["accept-language"]);
+        return new Response(`
+          <main>
+            <ol>
+              <li><a href="https://result.example">Agent browser result</a><p>Search result snippet.</p></li>
+            </ol>
+          </main>
+        `, { headers: { "content-type": "text/html" } });
+      },
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(requestedUrl).toBe("https://www.bing.com/search?q=agent+browser&setlang=en&cc=US&mkt=en-US");
+    expect(acceptLanguage).toBe("en-US,en;q=0.9");
+    expect(envelope).toMatchObject({
+      searchLang: "en",
+      searchRegion: "US",
+    });
   });
 
   it("extracts search result cards in SERP order", async () => {
@@ -330,7 +360,7 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(requestedUrls).toEqual([
-      "https://duckduckgo.com/html/?q=agent%20browser",
+      "https://duckduckgo.com/html/?q=agent+browser",
       "https://target.example/article",
     ]);
     expect(envelope).toMatchObject({
@@ -345,7 +375,7 @@ describe("cli", () => {
       sourceSearch: {
         query: "agent browser",
         engine: "duckduckgo",
-        searchUrl: "https://duckduckgo.com/html/?q=agent%20browser",
+        searchUrl: "https://duckduckgo.com/html/?q=agent+browser",
         selectedRank: 2,
         selectedTitle: "Target Result",
         selectedUrl: "https://target.example/article",
@@ -422,7 +452,7 @@ describe("cli", () => {
       sourceSearch: {
         query: "agent browser",
         engine: "duckduckgo",
-        searchUrl: "https://duckduckgo.com/html/?q=agent%20browser",
+        searchUrl: "https://duckduckgo.com/html/?q=agent+browser",
         selectedRank: 1,
         selectedTitle: "Target Result",
         selectedUrl: "https://target.example/article",
