@@ -53,7 +53,7 @@ for (const target of targets) {
   const response = await fetch(target.url, {
     headers: {
       accept: "text/html,application/xhtml+xml",
-      "user-agent": "ax-grep-token-cost/0.1 (+https://github.com/hmmhmmhm/ax-lite)",
+      "user-agent": "ax-grep-token-cost/0.1 (+https://github.com/hmmhmmhm/ax-grep)",
     },
     signal: AbortSignal.timeout(30_000),
   });

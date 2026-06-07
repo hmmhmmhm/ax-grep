@@ -142,7 +142,7 @@ async function fetchOrRenderHtml(
   const response = await fetch(url, {
     headers: {
       accept: "text/html,application/xhtml+xml",
-      "user-agent": "ax-grep-static/0.1 (+https://github.com/hmmhmmhm/ax-lite)",
+      "user-agent": "ax-grep-static/0.1 (+https://github.com/hmmhmmhm/ax-grep)",
     },
     signal: AbortSignal.timeout(30_000),
   });

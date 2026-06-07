@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hmmhmmhm/ax-lite.git"
+    "url": "git+https://github.com/hmmhmmhm/ax-grep.git"
   },
   "exports": {
     ".": {
