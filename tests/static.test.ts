@@ -431,4 +431,163 @@ describe("static extract", () => {
     expect(roles).not.toContain("link:Thread 19");
     expect(roles.some((item) => item.startsWith("note:"))).toBe(true);
   });
+
+  it("covers static role, state, and naming edge cases", () => {
+    const tree = extract(`
+      <html class="site">
+        <head>
+          <meta name="application-name" content="Forum App">
+          <meta property="twitter:site" content="@forum">
+        </head>
+        <body id="page">
+          <main>
+            leading text
+            <section aria-label="Named section">
+              <form aria-label="Search form">
+                <label id="query-label">Query</label>
+                <input id="query" aria-labelledby="query-label" type="search" aria-invalid="spelling">
+                <input type="button" value="Input button">
+                <input type="submit" value="Submit search">
+                <input type="reset" value="Reset search">
+                <input type="image" value="Image input">
+                <input type="checkbox" checked>
+                <input type="radio" aria-checked="false">
+                <input type="radio" aria-checked="mixed">
+                <input type="range" disabled>
+                <input type="number" readonly required>
+                <input type="hidden" value="Hidden">
+                <select multiple><option selected>One</option></select>
+                <textarea aria-required="true">Draft</textarea>
+                <progress value="1"></progress>
+              </form>
+              <fieldset><button aria-pressed="false">Toggle</button></fieldset>
+              <dialog open><button>Open dialog button</button></dialog>
+              <dialog><button>Closed dialog button</button></dialog>
+              <div popover open><button>Open popover button</button></div>
+              <div popover><button>Closed popover button</button></div>
+              <div class="modal" aria-modal="true"><button>Modal button</button></div>
+              <div class="drawer" data-open="true"><button>Drawer button</button></div>
+              <div class="sheet" data-state="open"><button>Sheet button</button></div>
+              <div class="overlay" tabindex="0"><button>Focusable overlay button</button></div>
+              <div class="dropdown" inert><button>Inert dropdown button</button></div>
+              <div class="flyout" style="transform: translateX(-100%)"><button>Offscreen transform button</button></div>
+              <div class="sheet" style="height: 0"><button>Zero height button</button></div>
+              <div class="drawer" style="pointer-events: none"><button>No pointer button</button></div>
+              <a>Anchor without href</a>
+              <area href="/map" title="Map area">
+              <figure title="Figure title"></figure>
+              <img src="/missing-name.png" title="Titled image">
+              <p id="dupe">First paragraph</p>
+              <p>Second paragraph</p>
+              <table class="bottom_list">
+                <tr><th scope="row">Row head</th><td><img alt="Inline image"></td></tr>
+              </table>
+            </section>
+            <div role="presentation"><span>Presented text</span></div>
+            <div role="none"><span>None text</span></div>
+          </main>
+        </body>
+      </html>
+    `, {
+      excludeLikelyBoilerplate: true,
+      includeTextNodes: true,
+      maxTextLength: 16,
+    });
+
+    const flat = flattenSemanticTree(tree);
+    const roles = summarizeSemanticTree(tree).namedRoles;
+
+    expect(roles).toEqual(expect.arrayContaining([
+      "text:leading text",
+      "region:Named section",
+      "form:Search form",
+      "text:Query",
+      "searchbox:Query",
+      "button:Input button",
+      "button:Submit search",
+      "button:Reset search",
+      "option:One",
+      "text:One",
+      "text:Draft",
+      "button:Toggle",
+      "button:Open dialog but...",
+      "button:Open popover bu...",
+      "button:Modal button",
+      "button:Drawer button",
+      "button:Sheet button",
+      "button:Focusable overl...",
+      "link:Map area",
+      "figure:Figure title",
+      "img:Titled image",
+      "text:First paragraph",
+      "text:Second paragraph",
+      "img:Inline image",
+      "text:Presented text",
+      "text:None text",
+    ]));
+    expect(roles).not.toContain("button:Closed dialog button");
+    expect(roles).not.toContain("button:Closed popover button");
+    expect(roles).not.toContain("button:Inert dropdown button");
+    expect(roles).not.toContain("button:Offscreen transform button");
+    expect(roles).not.toContain("button:Zero height button");
+    expect(roles).not.toContain("button:No pointer button");
+
+    expect(flat.find((node) => node.role === "searchbox")?.state?.invalid).toBe("spelling");
+    expect(flat.some((node) => node.role === "button" && node.name === "")).toBe(true);
+    expect(flat.find((node) => node.role === "checkbox")?.state?.checked).toBe(true);
+    expect(flat.filter((node) => node.role === "radio").map((node) => node.state?.checked)).toEqual([false, "mixed"]);
+    expect(flat.find((node) => node.role === "slider")?.state?.disabled).toBe(true);
+    expect(flat.find((node) => node.role === "spinbutton")?.state).toMatchObject({ readonly: true, required: true });
+    expect(flat.find((node) => node.role === "button" && node.name === "Toggle")?.state?.pressed).toBe(false);
+    expect(flat.some((node) => node.role === "listbox")).toBe(true);
+    expect(flat.some((node) => node.role === "textbox")).toBe(true);
+    expect(flat.some((node) => node.role === "progressbar")).toBe(true);
+    expect(flat.some((node) => node.role === "text" && node.name === "leading text")).toBe(true);
+    expect(flat.find((node) => node.role === "radio" && node.state?.checked === "mixed")?.selector).toBe("input:nth-of-type(8)");
+    expect(flat.some((node) => node.role === "table")).toBe(false);
+  });
+
+  it("covers static pruning, summarization, and selector edge cases", () => {
+    const interactiveTree = extract(`
+      <main>
+        <section><button id="needs:escape">Keep button</button></section>
+        <span>Drop text</span>
+      </main>
+    `, { mode: "interactive" });
+    const interactiveFlat = flattenSemanticTree(interactiveTree);
+
+    expect(interactiveFlat.some((node) => node.role === "button" && node.name === "Keep button")).toBe(true);
+    expect(interactiveFlat.find((node) => node.role === "button")?.selector).toBe("#needs\\:escape");
+
+    const cappedTextTree = extract(`
+      <main>first <span>middle</span> second</main>
+    `, {
+      includeTextNodes: true,
+      maxChildrenPerNode: 1,
+      summarizeLargeSubtrees: true,
+    });
+
+    expect(summarizeSemanticTree(cappedTextTree).namedRoles).toEqual(expect.arrayContaining([
+      "text:first",
+      "note:2 static nodes omitted",
+    ]));
+
+    const linkItems = Array.from({ length: 12 }, (_, index) => `<a href="/${index}">Link ${index}</a>`).join("");
+    const linkFarmTree = extract(`
+      <nav>
+        <h2>Useful links</h2>
+        <ul>${linkItems}</ul>
+      </nav>
+    `, {
+      maxLinkFarmChildren: 3,
+      summarizeLargeSubtrees: false,
+      summarizeRepeatedSubtrees: false,
+    });
+    const linkFarmRoles = summarizeSemanticTree(linkFarmTree).namedRoles;
+
+    expect(linkFarmRoles).toContain("heading:Useful links");
+    expect(linkFarmRoles).toContain("link:Link 0");
+    expect(linkFarmRoles).not.toContain("link:Link 4");
+    expect(linkFarmRoles.some((item) => item.startsWith("note:"))).toBe(true);
+  });
 });

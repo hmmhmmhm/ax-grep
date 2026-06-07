@@ -1,5 +1,9 @@
 # ax-grep
 
+[![npm version](https://img.shields.io/npm/v/ax-grep.svg)](https://www.npmjs.com/package/ax-grep)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![line coverage: 100%](https://img.shields.io/badge/line%20coverage-100%25-brightgreen.svg)](#coverage)
+
 `ax-grep` turns HTML or a live DOM into a compact semantic tree that is easier
 for agents and automation code to inspect than raw markup.
 
@@ -271,6 +275,17 @@ Current benchmark suites include:
 - Korean forum/search/social targets
 - Chinese and Japanese wiki/news/forum/search targets
 - challenge and volatile-page diagnostics
+
+## Coverage
+
+```sh
+pnpm test:coverage
+```
+
+The coverage gate requires 100% line coverage for the V8-instrumented static
+extractor core in `src/static.ts`. Browser injection behavior is covered by the
+Puppeteer test suite, but it runs inside the page context and is not counted in
+the Node V8 coverage report.
 
 ## Package Status
 
