@@ -598,6 +598,81 @@ describe("cli", () => {
     ]);
   });
 
+  it("falls back to headings and primary links for forum pages without paragraph roles", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://forum.example/post/456", "--json"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head><title>Forum post title : Forum</title></head>
+          <body>
+            <main>
+              <h1>Forum</h1>
+              <h2>Board name</h2>
+              <h3>Forum post title</h3>
+              <a href="https://facebook.com/sharer/sharer.php?u=https://forum.example/post/456">Facebook</a>
+              <a href="#div_content">본문 바로가기</a>
+              <a href="/post/456/comments">Useful comments</a>
+              <a href="https://source.example/report">Original source report</a>
+            </main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.contentPreview).toEqual([
+      "Board name",
+      "Original source report",
+      "Useful comments",
+    ]);
+    expect(envelope.pageCheck.primaryLinks).toEqual([
+      expect.objectContaining({
+        title: "Original source report",
+        kind: "external",
+      }),
+      expect.objectContaining({
+        title: "Useful comments",
+        kind: "internal",
+      }),
+    ]);
+    expect(envelope.pageCheck.primaryLinks.map((link: { title: string }) => link.title)).not.toContain("Facebook");
+  });
+
+  it("uses forum HTML content blocks when semantic paragraph content is absent", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://forum.example/post/789", "--json"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head><title>Forum discussion</title></head>
+          <body>
+            <main>
+              <h1>Forum</h1>
+              <h2>Discussion board</h2>
+              <div class="comment_view">
+                First useful comment has enough text for the page checking preview.
+                <input type="hidden" value="duplicate hidden text should not appear">
+              </div>
+              <div class="comment_view">Second useful comment gives the agent more context.</div>
+            </main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.contentPreview).toEqual([
+      "First useful comment has enough text for the page checking preview.",
+      "Second useful comment gives the agent more context.",
+      "Discussion board",
+    ]);
+  });
+
   it("prints pageCheck details in text output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/article"], {

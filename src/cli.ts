@@ -1131,12 +1131,15 @@ function summarizePageCheck(
   analysis: AnalysisSummary,
 ): PageCheckSummary {
   const focusedContent = pageCheckContent(content);
-  const contentPreview = focusedContent.slice(0, 4).map((item) => item.text);
-  const contentLength = focusedContent.reduce((total, item) => total + item.text.length, 0);
+  const primaryLinks = summarizePrimaryPageLinks(links, fetched.finalUrl);
+  const contentPreview = focusedContent.length > 0
+    ? focusedContent.slice(0, 4).map((item) => item.text)
+    : htmlContentPreview(fetched.html).concat(fallbackPageCheckPreview(fetched, outline, primaryLinks)).slice(0, 4);
+  const contentLength = contentPreview.reduce((total, text) => total + text.length, 0);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentLength,
-    primaryLinks: summarizePrimaryPageLinks(links, fetched.finalUrl),
+    primaryLinks,
     actions: actions.slice(0, 5),
     confidence: pageCheckConfidence(contentLength, outline, analysis),
   };
@@ -1150,6 +1153,74 @@ function summarizePageCheck(
 function pageCheckContent(content: ContentSummary[]): ContentSummary[] {
   const paragraphContent = content.filter((item) => item.role !== "article");
   return paragraphContent.length > 0 ? paragraphContent : content;
+}
+
+function fallbackPageCheckPreview(fetched: FetchResult, outline: OutlineSummary[], primaryLinks: PageLinkSummary[]): string[] {
+  const seen = new Set<string>();
+  const preview: string[] = [];
+  const add = (value: string): void => {
+    const text = cleanContentText(value);
+    const key = text.toLowerCase();
+    if (!text || text.length < 6 || seen.has(key)) return;
+    if (isLowValuePreviewText(text)) return;
+    if (fetched.page.title && normalizePageTitle(fetched.page.title) === normalizePageTitle(text)) return;
+    seen.add(key);
+    preview.push(text);
+  };
+  for (const item of outline) add(item.text);
+  for (const link of primaryLinks) {
+    add(link.title);
+    if (link.snippet) add(link.snippet);
+  }
+  return preview.slice(0, 4);
+}
+
+function htmlContentPreview(html: string): string[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const blocks: string[] = [];
+  const seen = new Set<string>();
+  function visit(nodes: AnyNode[]): void {
+    for (const node of nodes) {
+      if (!(node instanceof DomElement)) continue;
+      if (isLikelyContentElement(node) && !hasLikelyContentChild(node)) {
+        const text = cleanContentText(descendantText(node));
+        const key = text.toLowerCase();
+        if (text.length >= 24 && !seen.has(key) && !isLowValuePreviewText(text)) {
+          seen.add(key);
+          blocks.push(text);
+          if (blocks.length >= 4) return;
+        }
+      }
+      visit(node.children);
+      if (blocks.length >= 4) return;
+    }
+  }
+  visit(document.children);
+  return blocks;
+}
+
+function isLikelyContentElement(element: Element): boolean {
+  if (element.name === "p" || element.name === "article") return true;
+  const marker = `${attr(element, "id") ?? ""} ${attr(element, "class") ?? ""} ${attr(element, "data-role") ?? ""}`.toLowerCase();
+  return /(post|article|content|comment|view|본문|댓글)/i.test(marker)
+    && !/(header|footer|nav|menu|login|auth|toolbar|button|contact|info|symph|like|reply)/i.test(marker);
+}
+
+function hasLikelyContentChild(element: Element): boolean {
+  return element.children.some((child) => child instanceof DomElement && isLikelyContentElement(child));
+}
+
+function normalizePageTitle(value: string): string {
+  return value.replace(/\s*[:|-]\s*.+$/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+}
+
+function isLowValuePreviewText(text: string): boolean {
+  if (/^(?:\d{2,4}[-./년]\d{1,2}[-./월]\d{1,2}일?\s*){1,2}(?:\d{1,2}:\d{2}(?::\d{2})?)?\s*$/i.test(text)) return true;
+  return /(본문 바로가기|메뉴 바로가기|보기설정|테마설정|통합검색|주소복사|Facebook|X\(Twitter\)|static nodes omitted|고객지원|게시물 삭제 요청|불법촬영물|쪽지 신고|닉네임 신고|개인정보|이용약관)/i.test(text);
 }
 
 function summarizePrimaryPageLinks(links: LinkSummary[], baseUrl: string): PageLinkSummary[] {
@@ -1171,7 +1242,7 @@ function summarizePrimaryPageLinks(links: LinkSummary[], baseUrl: string): PageL
 
 function isLowValuePageLink(link: LinkSummary): boolean {
   const haystack = `${link.text} ${link.url}`.toLowerCase();
-  return /(login|logout|sign in|signup|register|privacy|terms|cookie|advertis|광고|로그인|회원가입|개인정보|이용약관|메일인증|email verification)/i.test(haystack);
+  return /(^clien\s|^clien$|login|logout|sign in|signup|register|privacy|terms|cookie|advertis|facebook\.com\/sharer|x\.com\/intent\/tweet|twitter\.com\/intent\/tweet|\/auth\/|#div_content|#menutop|\/service\/$|share|공유|주소복사|본문 바로가기|메뉴 바로가기|보기설정|테마설정|톺아보기|공감글|커뮤니티전체|고객지원|광고|로그인|회원가입|개인정보|이용약관|메일인증|email verification)/i.test(haystack);
 }
 
 function pageCheckConfidence(contentLength: number, outline: OutlineSummary[], analysis: AnalysisSummary): PageCheckSummary["confidence"] {
@@ -1394,7 +1465,7 @@ function firstLinkHref(nodes: AnyNode[], rel: string): string {
 }
 
 function descendantText(element: Element): string {
-  if (element.name === "script" || element.name === "style" || element.name === "noscript") return "";
+  if (["button", "input", "noscript", "script", "select", "style", "svg", "textarea"].includes(element.name)) return "";
   let text = "";
   for (const child of element.children) {
     if (child.type === "text") {
