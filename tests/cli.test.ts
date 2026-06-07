@@ -146,6 +146,42 @@ describe("cli", () => {
     });
   });
 
+  it("adds result snippets and content excerpts for page checking", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test", "--json"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <article>
+            <h1>Research guide</h1>
+            <p>This page explains how to compare sources, inspect claims, and choose the best next result for an agent.</p>
+            <ul>
+              <li>
+                <a href="/result">Result Title</a>
+                <p>Snippet text explains why this result is useful for the current investigation.</p>
+              </li>
+            </ul>
+          </article>
+        </main>
+      `),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.results[0]).toMatchObject({
+      title: "Result Title",
+      url: "https://example.test/result",
+      snippet: "Snippet text explains why this result is useful for the current investigation.",
+    });
+    expect(envelope.content).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        text: "This page explains how to compare sources, inspect claims, and choose the best next result for an agent.",
+        role: "p",
+      }),
+    ]));
+  });
+
   it("returns a structured warning when the page has no inspectable content", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test", "--json"], {

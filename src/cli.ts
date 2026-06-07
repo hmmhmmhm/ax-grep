@@ -39,6 +39,7 @@ type LinkSummary = {
   text: string;
   url: string;
   role: string;
+  snippet?: string;
   selector?: string;
 };
 
@@ -47,6 +48,7 @@ type ResultSummary = {
   url: string;
   source: string;
   rank: number;
+  snippet?: string;
 };
 
 type PageSummary = {
@@ -64,6 +66,12 @@ type OutlineSummary = {
 type ActionSummary = {
   type: string;
   text: string;
+  selector?: string;
+};
+
+type ContentSummary = {
+  text: string;
+  role: string;
   selector?: string;
 };
 
@@ -395,6 +403,7 @@ function formatCliText(node: SemanticNode, fetched: FetchResult, options: Pick<C
   appendSection(lines, formatPageText(fetched.page));
   appendSection(lines, formatOutlineText(summarizeOutline(node)));
   appendSection(lines, formatActionsText(summarizeActions(node)));
+  appendSection(lines, formatContentText(summarizeContent(node)));
   const treeLines: string[] = [];
   function visit(current: SemanticNode, depth: number): void {
     const prefix = lines.length > 0 ? `  ${"  ".repeat(depth)}` : "  ".repeat(depth);
@@ -460,6 +469,14 @@ function formatActionsText(actions: ActionSummary[]): string[] {
   ];
 }
 
+function formatContentText(content: ContentSummary[]): string[] {
+  if (content.length === 0) return [];
+  return [
+    "content",
+    ...content.map((item, index) => `  ${index + 1}. ${item.text}`),
+  ];
+}
+
 function formatHref(node: SemanticNode, baseUrl: string): string {
   const href = node.attributes?.href;
   if (!href) return "";
@@ -503,7 +520,7 @@ function formatState(node: SemanticNode): string {
 function summarizeLinks(node: SemanticNode, baseUrl: string): LinkSummary[] {
   const candidates: Array<LinkSummary & { score: number; index: number }> = [];
   let index = 0;
-  function visit(current: SemanticNode): void {
+  function visit(current: SemanticNode, ancestors: SemanticNode[]): void {
     if (current.role === "link") {
       const href = current.attributes?.href;
       const url = href ? normalizeHref(href, baseUrl) : null;
@@ -515,14 +532,16 @@ function summarizeLinks(node: SemanticNode, baseUrl: string): LinkSummary[] {
           score: linkScore(current, url, baseUrl),
           index,
         };
+        const snippet = linkContextSnippet(current, ancestors);
+        if (snippet) candidate.snippet = snippet;
         if (current.selector) candidate.selector = current.selector;
         candidates.push(candidate);
       }
       index += 1;
     }
-    for (const child of current.children) visit(child);
+    for (const child of current.children) visit(child, [...ancestors, current]);
   }
-  visit(node);
+  visit(node, []);
 
   const byUrl = new Map<string, LinkSummary & { score: number; index: number }>();
   for (const candidate of candidates) {
@@ -580,12 +599,16 @@ function stripTrailingUrlPunctuation(href: string): string {
 }
 
 function summarizeResults(links: LinkSummary[]): ResultSummary[] {
-  return links.map((link, index) => ({
-    title: link.text,
-    url: link.url,
-    source: sourceFromUrl(link.url),
-    rank: index + 1,
-  }));
+  return links.map((link, index) => {
+    const result: ResultSummary = {
+      title: link.text,
+      url: link.url,
+      source: sourceFromUrl(link.url),
+      rank: index + 1,
+    };
+    if (link.snippet) result.snippet = link.snippet;
+    return result;
+  });
 }
 
 function sourceFromUrl(url: string): string {
@@ -653,6 +676,55 @@ function summarizeActions(node: SemanticNode): ActionSummary[] {
   return actions.slice(0, 12);
 }
 
+function summarizeContent(node: SemanticNode): ContentSummary[] {
+  const content: ContentSummary[] = [];
+  const seen = new Set<string>();
+  function visit(current: SemanticNode): void {
+    const role = current.role || current.tag;
+    if (role === "p" || role === "text" || role === "article") {
+      const text = cleanContentText(current.text || current.name || descendantSemanticText(current));
+      if (text && text.length >= 24 && !seen.has(text.toLowerCase())) {
+        seen.add(text.toLowerCase());
+        const item: ContentSummary = { text, role };
+        if (current.selector) item.selector = current.selector;
+        content.push(item);
+      }
+    }
+    if (content.length >= 12) return;
+    for (const child of current.children) visit(child);
+  }
+  visit(node);
+  return content.slice(0, 12);
+}
+
+function linkContextSnippet(link: SemanticNode, ancestors: SemanticNode[]): string {
+  for (const ancestor of [...ancestors].reverse()) {
+    const role = ancestor.role || ancestor.tag;
+    if (!["li", "listitem", "article", "section", "div", "p", "td", "cell"].includes(role)) continue;
+    const text = cleanContentText(descendantSemanticText(ancestor, link));
+    if (text.length < 24) continue;
+    if (text.toLowerCase() === (link.name || "").toLowerCase()) continue;
+    return text;
+  }
+  return "";
+}
+
+function descendantSemanticText(node: SemanticNode, skip?: SemanticNode): string {
+  if (node === skip) return "";
+  const parts = [node.text, node.role === "link" ? "" : node.name, node.value].filter(Boolean) as string[];
+  for (const child of node.children) {
+    const text = descendantSemanticText(child, skip);
+    if (text) parts.push(text);
+  }
+  return parts.join(" ");
+}
+
+function cleanContentText(text: string): string {
+  return cleanLinkText(text)
+    .replace(/\s+([,.;:!?])/g, "$1")
+    .slice(0, 320);
+}
+
 function findElement(nodes: AnyNode[], predicate: (element: Element) => boolean): Element | undefined {
   for (const node of nodes) {
     if (!(node instanceof DomElement)) continue;
@@ -716,6 +788,7 @@ function jsonEnvelope(
   const links = summarizeLinks(tree, fetched.finalUrl);
   const outline = summarizeOutline(tree);
   const actions = summarizeActions(tree);
+  const content = summarizeContent(tree);
   return {
     schemaVersion: 1,
     tool: "ax-grep",
@@ -732,6 +805,7 @@ function jsonEnvelope(
     results: summarizeResults(links),
     outline,
     actions,
+    content,
     error,
     tree,
   };
@@ -751,6 +825,7 @@ function jsonErrorEnvelope(error: CliError, metadata: Partial<Pick<CliOptions, "
     results: [],
     outline: [],
     actions: [],
+    content: [],
     error: {
       code: error.code,
       message: error.message,
