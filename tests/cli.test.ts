@@ -242,6 +242,10 @@ describe("cli", () => {
           readFrom: "verification.bestEvidence",
           terminal: true,
         },
+        expectedOutcome: {
+          kind: "read-evidence",
+          message: expect.stringContaining("verification.bestEvidence"),
+        },
         signals: expect.arrayContaining([
           expect.objectContaining({ kind: "content", severity: "info" }),
           expect.objectContaining({ kind: "verification", severity: "info" }),
@@ -369,6 +373,9 @@ describe("cli", () => {
         openResult: "best",
         command: "ax-grep --search 'agent browser' --engine bing --open-result best --agent",
         commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "best", "--agent"],
+      },
+      expectedOutcome: {
+        kind: "open-result",
       },
       signals: expect.arrayContaining([
         expect.objectContaining({ kind: "search-results", severity: "info" }),
@@ -2303,6 +2310,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  pageKind: content-page");
     expect(stdout.output).toContain("  routingIntent: read-current");
     expect(stdout.output).toContain("  continuationMode: read");
+    expect(stdout.output).toContain("  expectedOutcome: read-evidence - ");
     expect(stdout.output).toContain("  signal: content/info - ");
     expect(stdout.output).toContain("  canContinue: true");
     expect(stdout.output).toContain("  responseStatus: 200");
@@ -2524,6 +2532,9 @@ describe("cli", () => {
         mode: "capture-html",
         action: "retry-with-browser-html",
         execution: "run-command",
+      },
+      expectedOutcome: {
+        kind: "capture-html",
       },
       signals: expect.arrayContaining([
         expect.objectContaining({ kind: "browser", severity: "warning" }),
@@ -2787,6 +2798,9 @@ describe("cli", () => {
         next: {
           mode: "stop",
         },
+        expectedOutcome: {
+          kind: "stop",
+        },
         signals: expect.arrayContaining([
           expect.objectContaining({ kind: "diagnostic", severity: "error" }),
         ]),
@@ -3023,6 +3037,9 @@ describe("cli", () => {
         action: "inspect-browser-state",
         execution: "interact-browser",
         requiresBrowserInteraction: true,
+      },
+      expectedOutcome: {
+        kind: "browser-inspection",
       },
       signals: expect.arrayContaining([
         expect.objectContaining({ kind: "diagnostic", severity: "warning" }),

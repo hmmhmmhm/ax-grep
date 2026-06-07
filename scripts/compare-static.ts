@@ -57,6 +57,7 @@ type CliAgentSummary = {
   agentRoutingIntentScore: number;
   agentContinuationModeScore: number;
   agentNextScore: number;
+  agentExpectedOutcomeScore: number;
   agentSignalScore: number;
   agentPageKindScore: number;
   agentAlternativeActionCountScore: number;
@@ -134,6 +135,11 @@ type CliAgentSignalShape = {
   message?: string;
 };
 
+type CliAgentExpectedOutcomeShape = {
+  kind?: "read-evidence" | "open-result" | "run-search" | "capture-html" | "browser-inspection" | "inspect-output" | "stop";
+  message?: string;
+};
+
 type CliSearchResultShape = {
   rank?: number;
   source?: string;
@@ -171,6 +177,7 @@ type GateSummary = {
   averageAgentRoutingIntentScore: number;
   averageAgentContinuationModeScore: number;
   averageAgentNextScore: number;
+  averageAgentExpectedOutcomeScore: number;
   averageAgentSignalScore: number;
   averageAgentReadTargetScore: number;
   averageAgentResultCountScore: number;
@@ -494,6 +501,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       routingIntent?: AgentRoutingIntent;
       continuationMode?: AgentContinuationMode;
       next?: CliAgentNextShape;
+      expectedOutcome?: CliAgentExpectedOutcomeShape;
       signals?: CliAgentSignalShape[];
       responseStatus?: number;
       responseOk?: boolean;
@@ -592,6 +600,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentRoutingIntentScore: scoreAgentRoutingIntent(item.agent?.routingIntent, item.agent?.primaryAction),
     agentContinuationModeScore: scoreAgentContinuationMode(item.agent?.continuationMode, item.agent?.primaryAction),
     agentNextScore: scoreAgentNext(item.agent?.next, item.agent?.continuationMode, item.agent?.primaryAction),
+    agentExpectedOutcomeScore: scoreAgentExpectedOutcome(item.agent?.expectedOutcome, item.agent?.primaryAction),
     agentSignalScore: scoreAgentSignals(item.agent?.signals, item),
     agentPageKindScore: scoreAgentPageKind(item.agent?.pageKind, item.kind),
     agentAlternativeActionCountScore: scoreAgentAlternativeActionCount(item.agent?.alternativeActionCount, item),
@@ -636,6 +645,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentRoutingIntentScore: 0,
     agentContinuationModeScore: 0,
     agentNextScore: 0,
+    agentExpectedOutcomeScore: 0,
     agentSignalScore: 0,
     agentPageKindScore: 0,
     agentAlternativeActionCountScore: 0,
@@ -840,6 +850,30 @@ function scoreAgentSignals(signals: CliAgentSignalShape[] | undefined, envelope:
   expectKind(envelope.kind !== "search-results" && (envelope.pageCheck?.sourceLinks?.length ?? 0) > 0, "source-links");
   expectKind((envelope.pageCheck?.contentEvidence?.length ?? 0) > 0, "content");
   return roundScore(matched / required);
+}
+
+function scoreAgentExpectedOutcome(outcome: CliAgentExpectedOutcomeShape | undefined, primaryAction: CliActionShape | undefined): number {
+  if (!outcome) return 0;
+  let required = 2;
+  let matched = 0;
+  if (outcome.kind === expectedAgentOutcomeKind(primaryAction)) matched += 1;
+  if (typeof outcome.message === "string" && outcome.message.length > 0) matched += 1;
+  if (primaryAction?.readFrom) {
+    required += 1;
+    if (outcome.message?.includes(primaryAction.readFrom)) matched += 1;
+  }
+  return roundScore(matched / required);
+}
+
+function expectedAgentOutcomeKind(primaryAction: CliActionShape | undefined): NonNullable<CliAgentExpectedOutcomeShape["kind"]> {
+  if (!primaryAction) return "stop";
+  if (primaryAction.action === "retry-with-browser-html") return "capture-html";
+  if (primaryAction.requiresBrowserInteraction || normalizedActionExecution(primaryAction) === "interact-browser") return "browser-inspection";
+  if (normalizedActionExecution(primaryAction) === "read-current") return "read-evidence";
+  if (primaryAction.action === "refine-search" || primaryAction.action === "broaden-search" || primaryAction.action === "check-url-or-search") return "run-search";
+  if (primaryAction.action === "open-result" || primaryAction.action === "open-alternate-result" || primaryAction.action === "open-source-link" || primaryAction.url) return "open-result";
+  if (normalizedActionExecution(primaryAction) === "inspect-output") return "inspect-output";
+  return "inspect-output";
 }
 
 function expectedAgentRoutingIntent(primaryAction: CliActionShape | undefined): AgentRoutingIntent {
@@ -1283,7 +1317,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
   const agentActionScore = summary.agentPrimaryAction ? 1 : 0;
   return roundScore(
     confidenceScore * 0.14
-    + readabilityExplainabilityScore * 0.11
+    + readabilityExplainabilityScore * 0.105
     + contentScore * 0.2
     + linkScore * 0.16
     + actionScore * 0.05
@@ -1310,6 +1344,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentRoutingIntentScore * 0.005
     + summary.agentContinuationModeScore * 0.005
     + summary.agentNextScore * 0.005
+    + summary.agentExpectedOutcomeScore * 0.005
     + summary.agentSignalScore * 0.005
     + summary.agentPrimaryShortcutScore * 0.005
   );
@@ -1359,6 +1394,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentRoutingIntentScore: average(included.map((comparison) => comparison.cliAgentSummary.agentRoutingIntentScore)),
     averageAgentContinuationModeScore: average(included.map((comparison) => comparison.cliAgentSummary.agentContinuationModeScore)),
     averageAgentNextScore: average(included.map((comparison) => comparison.cliAgentSummary.agentNextScore)),
+    averageAgentExpectedOutcomeScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExpectedOutcomeScore)),
     averageAgentSignalScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSignalScore)),
     averageAgentReadTargetScore: average(included.map((comparison) => comparison.cliAgentSummary.agentReadTargetScore)),
     averageAgentResultCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentResultCountScore)),

@@ -124,7 +124,7 @@ tables. It prints compact JSON with the top-level `agent` object plus
 they are present. Read `agent` first: it combines page classification,
 readability, verification, diagnostic codes, and recommended result selection
 into `status`, `summary`, `routingIntent`, `continuationMode`,
-`next`, `signals`, `canUseFetchedHtml`, `needsBrowserHtml`,
+`next`, `expectedOutcome`, `signals`, `canUseFetchedHtml`, `needsBrowserHtml`,
 `responseStatus`, `responseOk`, `responseContentType`, `finalUrlChanged`,
 `pageKind`, `alternativeActionCount`, `usabilityScore`,
 `evidenceQualityScore`, `sourceQualityScore`, `readabilityScore`,
@@ -143,6 +143,10 @@ such as `recommendedRank`, `recommendedSource`, `recommendedRelevance`, and
 `mode` and `reason`, and when a follow-up exists it mirrors the exact fields
 needed to continue, such as `commandArgs`, `readFrom`, `url`, `openResult`, or
 `requiresBrowserInteraction`.
+`agent.expectedOutcome` states what success should look like after following
+`agent.next`, such as reading evidence, opening a result, running a search,
+capturing rendered HTML, using a browser inspection, inspecting output, or
+stopping.
 `agent.signals` is a short structured status feed for routing and debugging:
 `content`, `verification`, `search-results`, `source-links`, `browser`,
 `diagnostic`, and `response` signals each carry `info`, `warning`, or `error`

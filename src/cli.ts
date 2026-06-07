@@ -254,6 +254,11 @@ type AgentSignal = {
   message: string;
 };
 
+type AgentExpectedOutcome = {
+  kind: "read-evidence" | "open-result" | "run-search" | "capture-html" | "browser-inspection" | "inspect-output" | "stop";
+  message: string;
+};
+
 type AgentSummary = {
   status: AgentStatus;
   pageKind: ContentKind;
@@ -261,6 +266,7 @@ type AgentSummary = {
   routingIntent: AgentRoutingIntent;
   continuationMode: AgentContinuationMode;
   next: AgentNext;
+  expectedOutcome: AgentExpectedOutcome;
   signals: AgentSignal[];
   canContinue: boolean;
   canUseFetchedHtml: boolean;
@@ -1341,6 +1347,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  pageKind: ${agent.pageKind}`,
     `  routingIntent: ${agent.routingIntent}`,
     `  continuationMode: ${agent.continuationMode}`,
+    `  expectedOutcome: ${agent.expectedOutcome.kind} - ${agent.expectedOutcome.message}`,
     `  summary: ${agent.summary}`,
     `  canContinue: ${agent.canContinue}`,
     `  canUseFetchedHtml: ${agent.canUseFetchedHtml}`,
@@ -2463,6 +2470,7 @@ function summarizeAgent(
     routingIntent: agentRoutingIntent(primaryAction),
     continuationMode: agentContinuationMode(primaryAction),
     next: summarizeAgentNext(primaryAction),
+    expectedOutcome: summarizeAgentExpectedOutcome(primaryAction),
     signals: summarizeAgentSignals(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, fetched, error),
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml,
@@ -2635,6 +2643,57 @@ function summarizeAgentNext(primaryAction: SuggestedAction | undefined): AgentNe
     ...(primaryAction.commandArgs ? { commandArgs: primaryAction.commandArgs } : {}),
     ...(primaryAction.requiresBrowserInteraction ? { requiresBrowserInteraction: true } : {}),
     ...(primaryAction.terminal ? { terminal: true } : {}),
+  };
+}
+
+function summarizeAgentExpectedOutcome(primaryAction: SuggestedAction | undefined): AgentExpectedOutcome {
+  if (!primaryAction) {
+    return {
+      kind: "stop",
+      message: "No follow-up action is available.",
+    };
+  }
+  if (primaryAction.action === "retry-with-browser-html") {
+    return {
+      kind: "capture-html",
+      message: "Capture rendered browser HTML, rerun the provided command, and expect a readable agent payload.",
+    };
+  }
+  if (primaryAction.requiresBrowserInteraction || actionExecution(primaryAction) === "interact-browser") {
+    return {
+      kind: "browser-inspection",
+      message: "Use a browser session to inspect or interact with the page state before retrying extraction.",
+    };
+  }
+  if (actionExecution(primaryAction) === "read-current") {
+    return {
+      kind: "read-evidence",
+      message: primaryAction.readFrom
+        ? `Read ${primaryAction.readFrom} from the current payload and treat it as the next evidence source.`
+        : "Read the current payload evidence before running another command.",
+    };
+  }
+  if (primaryAction.action === "refine-search" || primaryAction.action === "broaden-search" || primaryAction.action === "check-url-or-search") {
+    return {
+      kind: "run-search",
+      message: "Run the provided search command and expect a new ranked result payload.",
+    };
+  }
+  if (primaryAction.action === "open-result" || primaryAction.action === "open-alternate-result" || primaryAction.action === "open-source-link" || primaryAction.url) {
+    return {
+      kind: "open-result",
+      message: "Open the target URL with the provided command and expect the resulting page check or verification payload.",
+    };
+  }
+  if (actionExecution(primaryAction) === "inspect-output") {
+    return {
+      kind: "inspect-output",
+      message: "Inspect the current diagnostics and output before choosing a follow-up action.",
+    };
+  }
+  return {
+    kind: "inspect-output",
+    message: "Inspect the current payload before choosing a follow-up action.",
   };
 }
 
@@ -3050,6 +3109,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     routingIntent: agentRoutingIntent(primaryAction),
     continuationMode: agentContinuationMode(primaryAction),
     next: summarizeAgentNext(primaryAction),
+    expectedOutcome: summarizeAgentExpectedOutcome(primaryAction),
     signals: summarizeErrorAgentSignals(error, primaryAction, summary),
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml: false,
@@ -3800,6 +3860,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     routingIntent: agent.routingIntent,
     continuationMode: agent.continuationMode,
     next: agent.next,
+    expectedOutcome: agent.expectedOutcome,
     ...(agent.signals.length > 0 ? { signals: agent.signals } : {}),
     canContinue: agent.canContinue,
     canUseFetchedHtml: agent.canUseFetchedHtml,
