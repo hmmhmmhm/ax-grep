@@ -211,6 +211,60 @@ candidates before running the recovery command. After any `--open-result`,
 the original SERP title, snippet, rank, relevance, and runnable command as
 page provenance.
 
+An agent executor can treat `agent.next.mode` as the only required switch:
+
+```ts
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+
+const execFileAsync = promisify(execFile);
+
+async function runAxGrep(args: string[]) {
+  const { stdout } = await execFileAsync("ax-grep", args);
+  return JSON.parse(stdout);
+}
+
+async function inspectWithAxGrep(urlOrQuery: string) {
+  let payload = await runAxGrep([urlOrQuery, "--agent"]);
+
+  for (let step = 0; step < 4; step += 1) {
+    const next = payload.agent.next;
+
+    if (next.mode === "read" || next.mode === "stop") {
+      return payload;
+    }
+
+    if (next.mode === "command" && next.commandArgs) {
+      payload = await runAxGrep(next.commandArgs.slice(1));
+      continue;
+    }
+
+    if (next.mode === "capture-html" && next.commandArgs) {
+      const htmlPath = await captureRenderedHtml(next.url);
+      payload = await runAxGrep(next.commandArgs
+        .slice(1)
+        .map((arg: string) => arg === "captured.html" ? htmlPath : arg));
+      continue;
+    }
+
+    if (next.mode === "browser") {
+      return openInAgentBrowser(next.url);
+    }
+
+    throw new Error(next.reason);
+  }
+
+  return payload;
+}
+```
+
+`commandArgs` always starts with `ax-grep`, so callers using `execFile` can pass
+`commandArgs.slice(1)` back to the binary. `capture-html` means the current
+fetch was not enough; use the browser controller to save rendered HTML, then
+run the supplied command with that file path. `read` and `stop` are terminal for
+the current payload: read `agent.next.readFrom`, or return the payload if no
+extra evidence is needed.
+
 Use repeatable `--find <text>` with any page or search result page to ask
 `ax-grep` whether the page summaries contain a term or phrase. JSON output adds
 `finds` with `found`, `matchCount`, and the matching field/evidence text, so an

@@ -1,0 +1,44 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+
+function jsonBlocks(markdown: string): string[] {
+  return [...markdown.matchAll(/```json\n([\s\S]*?)\n```/g)].map((match) => match[1] ?? "");
+}
+
+describe("README", () => {
+  it("keeps JSON examples parseable and documents the agent continuation contract", async () => {
+    const readme = await readFile(join(process.cwd(), "README.md"), "utf8");
+    const blocks = jsonBlocks(readme);
+
+    expect(blocks.length).toBeGreaterThan(0);
+    for (const block of blocks) {
+      expect(() => JSON.parse(block)).not.toThrow();
+    }
+
+    const firstBlock = blocks[0];
+    expect(firstBlock).toBeDefined();
+
+    const exampleEnvelope = JSON.parse(firstBlock ?? "");
+
+    expect(exampleEnvelope.agent).toMatchObject({
+      continuationMode: "read",
+      next: {
+        mode: "read",
+        readFrom: "verification.bestEvidence",
+      },
+      expectedOutcome: {
+        kind: "read-evidence",
+      },
+    });
+    expect(exampleEnvelope.agent.signals).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: "content",
+          severity: "info",
+        }),
+      ]),
+    );
+    expect(readme).toContain("An agent executor can treat `agent.next.mode` as the only required switch");
+  });
+});
