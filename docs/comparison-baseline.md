@@ -50,6 +50,9 @@ stopping.
 `averageAgentContinuationModeScore` tracks whether `agent.continuationMode`
 maps that intent to the executor-facing mode: `read`, `command`, `browser`,
 `capture-html`, `inspect`, or `stop`.
+`averageAgentNextScore` tracks whether `agent.next` is a canonical executor
+payload that agrees with `continuationMode` and mirrors the primary action's
+command, read pointer, URL, browser interaction, and terminal fields.
 `averageContentEvidenceMetadataScore` tracks whether `pageCheck.contentEvidence`
 items include `source` and bounded `score` metadata, so agents can prioritize
 semantic evidence over fallback excerpts.

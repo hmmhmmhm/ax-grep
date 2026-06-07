@@ -56,6 +56,7 @@ type CliAgentSummary = {
   agentStatus: "ready" | "choose-result" | "verify" | "needs-browser" | "error" | "unknown";
   agentRoutingIntentScore: number;
   agentContinuationModeScore: number;
+  agentNextScore: number;
   agentPageKindScore: number;
   agentAlternativeActionCountScore: number;
   agentUsabilityScoreConsistency: number;
@@ -109,6 +110,7 @@ type AgentContinuationMode = "command" | "read" | "browser" | "capture-html" | "
 
 type CliActionShape = {
   action?: string;
+  reason?: string;
   url?: string;
   rank?: number;
   openResult?: number | "best";
@@ -117,6 +119,12 @@ type CliActionShape = {
   commandArgs?: string[];
   readFrom?: string;
   requiresBrowserInteraction?: boolean;
+  terminal?: boolean;
+};
+
+type CliAgentNextShape = CliActionShape & {
+  mode?: AgentContinuationMode;
+  reason?: string;
 };
 
 type CliSearchResultShape = {
@@ -155,6 +163,7 @@ type GateSummary = {
   averageReadabilityReasonScore: number;
   averageAgentRoutingIntentScore: number;
   averageAgentContinuationModeScore: number;
+  averageAgentNextScore: number;
   averageAgentReadTargetScore: number;
   averageAgentResultCountScore: number;
   averageAgentSourceLinkCountScore: number;
@@ -476,6 +485,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       status?: "ready" | "choose-result" | "verify" | "needs-browser" | "error";
       routingIntent?: AgentRoutingIntent;
       continuationMode?: AgentContinuationMode;
+      next?: CliAgentNextShape;
       responseStatus?: number;
       responseOk?: boolean;
       responseContentType?: string;
@@ -572,6 +582,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentStatus: item.agent?.status ?? "unknown",
     agentRoutingIntentScore: scoreAgentRoutingIntent(item.agent?.routingIntent, item.agent?.primaryAction),
     agentContinuationModeScore: scoreAgentContinuationMode(item.agent?.continuationMode, item.agent?.primaryAction),
+    agentNextScore: scoreAgentNext(item.agent?.next, item.agent?.continuationMode, item.agent?.primaryAction),
     agentPageKindScore: scoreAgentPageKind(item.agent?.pageKind, item.kind),
     agentAlternativeActionCountScore: scoreAgentAlternativeActionCount(item.agent?.alternativeActionCount, item),
     agentUsabilityScoreConsistency: scoreAgentUsabilityScore(item.agent?.usabilityScore, item),
@@ -614,6 +625,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentStatus: "unknown",
     agentRoutingIntentScore: 0,
     agentContinuationModeScore: 0,
+    agentNextScore: 0,
     agentPageKindScore: 0,
     agentAlternativeActionCountScore: 0,
     agentUsabilityScoreConsistency: 0,
@@ -745,6 +757,46 @@ function scoreAgentRoutingIntent(routingIntent: AgentRoutingIntent | undefined, 
 
 function scoreAgentContinuationMode(continuationMode: AgentContinuationMode | undefined, primaryAction: CliActionShape | undefined): number {
   return continuationMode === expectedAgentContinuationMode(primaryAction) ? 1 : 0;
+}
+
+function scoreAgentNext(next: CliAgentNextShape | undefined, continuationMode: AgentContinuationMode | undefined, primaryAction: CliActionShape | undefined): number {
+  if (!next) return 0;
+  const expectedMode = expectedAgentContinuationMode(primaryAction);
+  let required = 2;
+  let matched = 0;
+  if (next.mode === expectedMode) matched += 1;
+  if (continuationMode === undefined || next.mode === continuationMode) matched += 1;
+  if (!primaryAction) {
+    required += 2;
+    if (!next.action) matched += 1;
+    if (typeof next.reason === "string" && next.reason.length > 0) matched += 1;
+    return roundScore(matched / required);
+  }
+  const fields: Array<keyof CliActionShape> = [
+    "action",
+    "execution",
+    "url",
+    "rank",
+    "openResult",
+    "readFrom",
+    "command",
+    "commandArgs",
+    "requiresBrowserInteraction",
+    "terminal",
+  ];
+  for (const field of fields) {
+    const expected = primaryAction[field];
+    const actual = next[field];
+    if (typeof expected !== "undefined") {
+      required += 1;
+      if (JSON.stringify(actual) === JSON.stringify(expected)) matched += 1;
+    } else if (typeof actual !== "undefined") {
+      required += 1;
+    }
+  }
+  required += 1;
+  if (typeof next.reason === "string" && next.reason === primaryAction.reason) matched += 1;
+  return roundScore(matched / required);
 }
 
 function expectedAgentRoutingIntent(primaryAction: CliActionShape | undefined): AgentRoutingIntent {
@@ -1188,7 +1240,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
   const agentActionScore = summary.agentPrimaryAction ? 1 : 0;
   return roundScore(
     confidenceScore * 0.14
-    + readabilityExplainabilityScore * 0.12
+    + readabilityExplainabilityScore * 0.115
     + contentScore * 0.2
     + linkScore * 0.16
     + actionScore * 0.05
@@ -1214,6 +1266,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentResponseMetadataScore * 0.005
     + summary.agentRoutingIntentScore * 0.005
     + summary.agentContinuationModeScore * 0.005
+    + summary.agentNextScore * 0.005
     + summary.agentPrimaryShortcutScore * 0.005
   );
 }
@@ -1261,6 +1314,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageReadabilityReasonScore: average(included.map((comparison) => comparison.cliAgentSummary.pageCheck.readabilityReasonScore)),
     averageAgentRoutingIntentScore: average(included.map((comparison) => comparison.cliAgentSummary.agentRoutingIntentScore)),
     averageAgentContinuationModeScore: average(included.map((comparison) => comparison.cliAgentSummary.agentContinuationModeScore)),
+    averageAgentNextScore: average(included.map((comparison) => comparison.cliAgentSummary.agentNextScore)),
     averageAgentReadTargetScore: average(included.map((comparison) => comparison.cliAgentSummary.agentReadTargetScore)),
     averageAgentResultCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentResultCountScore)),
     averageAgentSourceLinkCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSourceLinkCountScore)),

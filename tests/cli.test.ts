@@ -235,6 +235,13 @@ describe("cli", () => {
         status: "ready",
         routingIntent: "read-current",
         continuationMode: "read",
+        next: {
+          mode: "read",
+          action: "use-evidence",
+          execution: "read-current",
+          readFrom: "verification.bestEvidence",
+          terminal: true,
+        },
         pageKind: "page",
         canContinue: true,
         canUseFetchedHtml: true,
@@ -349,6 +356,16 @@ describe("cli", () => {
       pageKind: "search-results",
       routingIntent: "open-url",
       continuationMode: "command",
+      next: {
+        mode: "command",
+        action: "open-result",
+        execution: "run-command",
+        url: "https://result.example/",
+        rank: 1,
+        openResult: "best",
+        command: "ax-grep --search 'agent browser' --engine bing --open-result best --agent",
+        commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "best", "--agent"],
+      },
       responseStatus: 200,
       responseOk: true,
       responseContentType: "text/html",
@@ -2495,6 +2512,11 @@ describe("cli", () => {
     expect(envelope.agent).toMatchObject({
       status: "needs-browser",
       continuationMode: "capture-html",
+      next: {
+        mode: "capture-html",
+        action: "retry-with-browser-html",
+        execution: "run-command",
+      },
       canUseFetchedHtml: false,
       needsBrowserHtml: true,
       primaryAction: {
@@ -2750,6 +2772,9 @@ describe("cli", () => {
         pageKind: "empty",
         routingIntent: "none",
         continuationMode: "stop",
+        next: {
+          mode: "stop",
+        },
         summary: "missing URL",
         canContinue: false,
         needsBrowserHtml: false,
@@ -2978,6 +3003,12 @@ describe("cli", () => {
     expect(envelope.agent).toMatchObject({
       status: "verify",
       continuationMode: "browser",
+      next: {
+        mode: "browser",
+        action: "inspect-browser-state",
+        execution: "interact-browser",
+        requiresBrowserInteraction: true,
+      },
       canUseFetchedHtml: false,
       needsBrowserHtml: false,
       primaryExecution: "interact-browser",

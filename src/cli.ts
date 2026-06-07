@@ -233,12 +233,28 @@ type AgentStatus = "ready" | "choose-result" | "verify" | "needs-browser" | "err
 type AgentRoutingIntent = "read-current" | "open-url" | "search" | "browser-html" | "browser-interaction" | "inspect-output" | "none";
 type AgentContinuationMode = "command" | "read" | "browser" | "capture-html" | "inspect" | "stop";
 
+type AgentNext = {
+  mode: AgentContinuationMode;
+  reason: string;
+  action?: SuggestedAction["action"];
+  execution?: NonNullable<SuggestedAction["execution"]>;
+  url?: string;
+  rank?: number;
+  openResult?: number | "best";
+  readFrom?: string;
+  command?: string;
+  commandArgs?: string[];
+  requiresBrowserInteraction?: boolean;
+  terminal?: boolean;
+};
+
 type AgentSummary = {
   status: AgentStatus;
   pageKind: ContentKind;
   summary: string;
   routingIntent: AgentRoutingIntent;
   continuationMode: AgentContinuationMode;
+  next: AgentNext;
   canContinue: boolean;
   canUseFetchedHtml: boolean;
   needsBrowserHtml: boolean;
@@ -2438,6 +2454,7 @@ function summarizeAgent(
     summary,
     routingIntent: agentRoutingIntent(primaryAction),
     continuationMode: agentContinuationMode(primaryAction),
+    next: summarizeAgentNext(primaryAction),
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml,
     needsBrowserHtml,
@@ -2587,6 +2604,29 @@ function agentContinuationMode(primaryAction: SuggestedAction | undefined): Agen
   if (execution === "inspect-output") return "inspect";
   if (execution === "run-command") return "command";
   return agentCanContinue(primaryAction) ? "command" : "stop";
+}
+
+function summarizeAgentNext(primaryAction: SuggestedAction | undefined): AgentNext {
+  if (!primaryAction) {
+    return {
+      mode: "stop",
+      reason: "No follow-up action is available.",
+    };
+  }
+  return {
+    mode: agentContinuationMode(primaryAction),
+    action: primaryAction.action,
+    reason: primaryAction.reason,
+    execution: actionExecution(primaryAction),
+    ...(primaryAction.url ? { url: primaryAction.url } : {}),
+    ...(primaryAction.rank ? { rank: primaryAction.rank } : {}),
+    ...(primaryAction.openResult ? { openResult: primaryAction.openResult } : {}),
+    ...(primaryAction.readFrom ? { readFrom: primaryAction.readFrom } : {}),
+    ...(primaryAction.command ? { command: primaryAction.command } : {}),
+    ...(primaryAction.commandArgs ? { commandArgs: primaryAction.commandArgs } : {}),
+    ...(primaryAction.requiresBrowserInteraction ? { requiresBrowserInteraction: true } : {}),
+    ...(primaryAction.terminal ? { terminal: true } : {}),
+  };
 }
 
 function selectBestReadTarget(readTargets: AgentReadTarget[]): AgentReadTarget | undefined {
@@ -2935,6 +2975,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     summary,
     routingIntent: agentRoutingIntent(primaryAction),
     continuationMode: agentContinuationMode(primaryAction),
+    next: summarizeAgentNext(primaryAction),
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml: false,
     needsBrowserHtml: errorNeedsBrowserHtml(primaryAction),
@@ -3673,6 +3714,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     summary: agent.summary,
     routingIntent: agent.routingIntent,
     continuationMode: agent.continuationMode,
+    next: agent.next,
     canContinue: agent.canContinue,
     canUseFetchedHtml: agent.canUseFetchedHtml,
     needsBrowserHtml: agent.needsBrowserHtml,
