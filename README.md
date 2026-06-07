@@ -65,6 +65,8 @@ needs fetch metadata, link summaries, and the full node structure.
 
 ```sh
 ax-grep https://example.com --json
+ax-grep https://example.com --links-only
+ax-grep https://example.com --max-tree-lines 80
 ax-grep https://example.com --mode interactive --exclude-boilerplate
 ax-grep https://example.com --timeout 30000 --user-agent "my-agent/1.0"
 ```
@@ -88,6 +90,14 @@ ax-grep https://example.com --timeout 30000 --user-agent "my-agent/1.0"
       "role": "link"
     }
   ],
+  "results": [
+    {
+      "title": "More information...",
+      "url": "https://www.iana.org/domains/example",
+      "source": "iana.org",
+      "rank": 1
+    }
+  ],
   "tree": {}
 }
 ```
@@ -95,7 +105,8 @@ ax-grep https://example.com --timeout 30000 --user-agent "my-agent/1.0"
 The CLI uses plain `fetch()`. It does not execute page JavaScript or bypass
 bot checks. For challenged pages, pass HTML captured by a browser controller to
 the library API instead. If a fetched page has no inspectable content, the CLI
-returns exit code `20` and emits a structured JSON warning in `--json` mode.
+returns exit code `20` and emits a structured JSON error and warning in
+`--json` mode.
 
 ## Entry Points
 

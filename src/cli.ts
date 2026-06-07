@@ -11,6 +11,8 @@ type CliFormat = "text" | "json";
 type CliOptions = {
   url: string;
   format: CliFormat;
+  linksOnly: boolean;
+  maxTreeLines?: number;
   timeoutMs: number;
   userAgent: string;
   extractOptions: StaticSemanticTreeOptions;
@@ -30,6 +32,13 @@ type LinkSummary = {
   url: string;
   role: string;
   selector?: string;
+};
+
+type ResultSummary = {
+  title: string;
+  url: string;
+  source: string;
+  rank: number;
 };
 
 type CliIO = {
@@ -53,16 +62,20 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
     if (isUnavailableTree(tree)) {
       const message = "no inspectable content; if the page is challenged or JavaScript-rendered, pass browser-captured HTML to the library API";
       if (options.format === "json") {
-        stdout.write(`${JSON.stringify(jsonEnvelope(options, fetched, tree, [{ code: "NO_INSPECTABLE_CONTENT", message }]), null, 2)}\n`);
+        stdout.write(`${JSON.stringify(jsonEnvelope(options, fetched, tree, [{ code: "NO_INSPECTABLE_CONTENT", message }], {
+          code: "NO_INSPECTABLE_CONTENT",
+          message,
+          status: fetched.status,
+        }), null, 2)}\n`);
       } else {
         stderr.write(`ax-grep: warning: ${message}\n`);
-        stdout.write(`${formatCliText(tree, fetched.finalUrl)}\n`);
+        stdout.write(`${formatCliText(tree, fetched.finalUrl, options)}\n`);
       }
       return 20;
     }
     const output = options.format === "json"
       ? `${JSON.stringify(jsonEnvelope(options, fetched, tree), null, 2)}\n`
-      : `${formatCliText(tree, fetched.finalUrl)}\n`;
+      : `${formatCliText(tree, fetched.finalUrl, options)}\n`;
     stdout.write(output);
     return 0;
   } catch (error) {
@@ -91,6 +104,8 @@ function parseArgs(argv: string[]): CliOptions {
   const extractOptions: StaticSemanticTreeOptions = {};
   let format: CliFormat = "text";
   let formatOption: CliFormat | undefined;
+  let linksOnly = false;
+  let maxTreeLines: number | undefined;
   let timeoutMs = defaultTimeoutMs;
   let userAgent = defaultUserAgent;
   let url = "";
@@ -112,6 +127,10 @@ function parseArgs(argv: string[]): CliOptions {
       if (formatOption && formatOption !== "text") throw new UsageError(`--json and --text cannot be used together`);
       format = "text";
       formatOption = "text";
+      continue;
+    }
+    if (arg === "--links-only" || arg === "--summary") {
+      linksOnly = true;
       continue;
     }
     if (arg === "--include-hidden") {
@@ -144,6 +163,11 @@ function parseArgs(argv: string[]): CliOptions {
       index += 1;
       continue;
     }
+    if (arg === "--max-tree-lines") {
+      maxTreeLines = parsePositiveInteger(readValue(argv, index, arg), arg);
+      index += 1;
+      continue;
+    }
     if (arg === "--timeout") {
       timeoutMs = parsePositiveInteger(readValue(argv, index, arg), arg);
       index += 1;
@@ -165,7 +189,9 @@ function parseArgs(argv: string[]): CliOptions {
 
   if (!url) throw new UsageError(`missing URL\n\n${usage()}`);
   validateUrl(url);
-  return { url, format, timeoutMs, userAgent, extractOptions };
+  const options: CliOptions = { url, format, linksOnly, timeoutMs, userAgent, extractOptions };
+  if (maxTreeLines) options.maxTreeLines = maxTreeLines;
+  return options;
 }
 
 async function fetchHtml(options: CliOptions, fetchImpl: typeof fetch): Promise<FetchResult> {
@@ -245,6 +271,8 @@ Options:
   --no-attributes            Omit element attributes from JSON output.
   --exclude-ads              Prune likely ad and promotion regions.
   --exclude-boilerplate      Prune likely forum/search boilerplate.
+  --links-only, --summary    Print only the ranked links summary in text mode.
+  --max-tree-lines <n>       Limit tree lines after the links summary.
   --max-text-length <n>      Limit direct text/name fragments.
   --timeout <ms>             Fetch timeout. Default: ${defaultTimeoutMs}.
   --user-agent <value>       Override the request User-Agent.
@@ -253,7 +281,7 @@ Options:
 Notes:
   The CLI uses fetch only. It does not run JavaScript or bypass bot checks.
   Text output starts with a deduplicated links summary for agent navigation.
-  JSON output is an envelope with fetch metadata, links, warnings, and tree.`;
+  JSON output is an envelope with fetch metadata, links, results, warnings, and tree.`;
 }
 
 class UsageError extends Error {
@@ -273,10 +301,11 @@ class CliError extends Error {
   }
 }
 
-function formatCliText(node: SemanticNode, baseUrl: string): string {
+function formatCliText(node: SemanticNode, baseUrl: string, options: Pick<CliOptions, "linksOnly" | "maxTreeLines">): string {
   const links = summarizeLinks(node, baseUrl);
   const lines: string[] = links.length > 0 ? formatLinksText(links) : [];
-  if (lines.length > 0) lines.push("", "tree");
+  if (options.linksOnly) return lines.join("\n");
+  const treeLines: string[] = [];
   function visit(current: SemanticNode, depth: number): void {
     const prefix = lines.length > 0 ? `  ${"  ".repeat(depth)}` : "  ".repeat(depth);
     const role = current.role || current.tag;
@@ -285,10 +314,18 @@ function formatCliText(node: SemanticNode, baseUrl: string): string {
     const href = current.role === "link" ? formatHref(current, baseUrl) : "";
     const state = formatState(current);
     const unavailable = current.unavailableReason ? ` (${current.unavailableReason})` : "";
-    lines.push(`${prefix}${marker}${role}${name}${href}${state}${unavailable}`);
+    treeLines.push(`${prefix}${marker}${role}${name}${href}${state}${unavailable}`);
     for (const child of current.children) visit(child, depth + 1);
   }
   visit(node, 0);
+  if (lines.length > 0) lines.push("", "tree");
+  const maxTreeLines = options.maxTreeLines;
+  if (maxTreeLines && treeLines.length > maxTreeLines) {
+    lines.push(...treeLines.slice(0, maxTreeLines));
+    lines.push(`  ... ${treeLines.length - maxTreeLines} tree lines omitted`);
+  } else {
+    lines.push(...treeLines);
+  }
   return lines.join("\n");
 }
 
@@ -303,7 +340,8 @@ function formatHref(node: SemanticNode, baseUrl: string): string {
   const href = node.attributes?.href;
   if (!href) return "";
   try {
-    return ` <${unwrapKnownRedirect(new URL(href, baseUrl)).toString()}>`;
+    const normalized = normalizeHref(href, baseUrl);
+    return normalized ? ` <${normalized}>` : "";
   } catch {
     return ` <${href}>`;
   }
@@ -347,7 +385,7 @@ function summarizeLinks(node: SemanticNode, baseUrl: string): LinkSummary[] {
       const url = href ? normalizeHref(href, baseUrl) : null;
       if (url && isUsefulLink(current, url, baseUrl)) {
         const candidate: LinkSummary & { score: number; index: number } = {
-          text: current.name || current.text || url,
+          text: cleanLinkText(current.name || current.text || url),
           url,
           role: current.role,
           score: linkScore(current, url, baseUrl),
@@ -362,13 +400,14 @@ function summarizeLinks(node: SemanticNode, baseUrl: string): LinkSummary[] {
   }
   visit(node);
 
-  const seenBeforeSort = new Set<string>();
-  return candidates
-    .filter((link) => {
-      if (seenBeforeSort.has(link.url)) return false;
-      seenBeforeSort.add(link.url);
-      return true;
-    })
+  const byUrl = new Map<string, LinkSummary & { score: number; index: number }>();
+  for (const candidate of candidates) {
+    const previous = byUrl.get(candidate.url);
+    if (!previous || candidate.score > previous.score || (candidate.score === previous.score && candidate.index < previous.index)) {
+      byUrl.set(candidate.url, candidate);
+    }
+  }
+  return [...byUrl.values()]
     .sort((a, b) => b.score - a.score || a.index - b.index)
     .slice(0, 10)
     .map(({ score: _score, index: _index, ...link }) => link);
@@ -376,7 +415,7 @@ function summarizeLinks(node: SemanticNode, baseUrl: string): LinkSummary[] {
 
 function normalizeHref(href: string, baseUrl: string): string | null {
   try {
-    const normalized = unwrapKnownRedirect(new URL(href, baseUrl));
+    const normalized = unwrapKnownRedirect(new URL(stripTrailingUrlPunctuation(href), baseUrl));
     if (normalized.protocol !== "http:" && normalized.protocol !== "https:") return null;
     return normalized.toString();
   } catch {
@@ -398,10 +437,39 @@ function linkScore(node: SemanticNode, url: string, baseUrl: string): number {
   if (!samePageOrSameHost(url, baseUrl)) score += 100;
   if (text.length > 12) score += 20;
   if (text.length > 50) score += 10;
+  if (/^https?:\/\//i.test(text)) score -= 15;
+  if (new URL(url).hostname.replace(/^www\./, "") === text.trim().toLowerCase()) score -= 20;
   if (node.selector?.includes("result") || node.selector?.includes("article")) score += 10;
   if (/^(all|images|videos|maps|news|전체|이미지|동영상|지도|뉴스)$/i.test(text)) score -= 60;
   if (/search|login|settings|home|skip|hamburger|필터|검색|로그인|설정/i.test(text)) score -= 40;
   return score;
+}
+
+function cleanLinkText(text: string): string {
+  return text.replace(/\s+/g, " ").trim();
+}
+
+function stripTrailingUrlPunctuation(href: string): string {
+  let stripped = href.trim();
+  while (/[),.\]]$/.test(stripped)) stripped = stripped.slice(0, -1);
+  return stripped;
+}
+
+function summarizeResults(links: LinkSummary[]): ResultSummary[] {
+  return links.map((link, index) => ({
+    title: link.text,
+    url: link.url,
+    source: sourceFromUrl(link.url),
+    rank: index + 1,
+  }));
+}
+
+function sourceFromUrl(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "";
+  }
 }
 
 function samePageOrSameHost(url: string, baseUrl: string): boolean {
@@ -423,11 +491,13 @@ function jsonEnvelope(
   fetched: FetchResult,
   tree: SemanticNode,
   warnings: Array<{ code: string; message: string }> = [],
+  error?: { code: CliErrorCode; message: string; status?: number },
 ): object {
+  const links = summarizeLinks(tree, fetched.finalUrl);
   return {
     schemaVersion: 1,
     tool: "ax-grep",
-    ok: warnings.length === 0,
+    ok: warnings.length === 0 && !error,
     url: options.url,
     finalUrl: fetched.finalUrl,
     status: fetched.status,
@@ -435,7 +505,9 @@ function jsonEnvelope(
     fetchedAt: new Date().toISOString(),
     mode: options.extractOptions.mode ?? "compact",
     warnings,
-    links: summarizeLinks(tree, fetched.finalUrl),
+    links,
+    results: summarizeResults(links),
+    error,
     tree,
   };
 }
@@ -449,6 +521,8 @@ function jsonErrorEnvelope(error: CliError, metadata: Partial<Pick<CliOptions, "
     fetchedAt: new Date().toISOString(),
     mode: metadata.extractOptions?.mode ?? "compact",
     warnings: [],
+    links: [],
+    results: [],
     error: {
       code: error.code,
       message: error.message,
