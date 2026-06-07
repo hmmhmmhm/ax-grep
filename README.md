@@ -55,10 +55,12 @@ npx ax-grep https://example.com
 main
   heading 'Example Domain'
   p 'This domain is for use in illustrative examples...'
-  [i] link 'More information...'
+  [i] link 'More information...' <https://www.iana.org/domains/example>
 ```
 
-Use JSON when another tool needs the full node structure.
+Text output includes link URLs, with common search redirect links normalized
+when possible. Use JSON when another tool needs fetch metadata and the full
+node structure.
 
 ```sh
 ax-grep https://example.com --json
@@ -66,9 +68,26 @@ ax-grep https://example.com --mode interactive --exclude-boilerplate
 ax-grep https://example.com --timeout 30000 --user-agent "my-agent/1.0"
 ```
 
+`--json` prints an envelope:
+
+```json
+{
+  "schemaVersion": 1,
+  "tool": "ax-grep",
+  "ok": true,
+  "url": "https://example.com",
+  "finalUrl": "https://example.com/",
+  "status": 200,
+  "mode": "compact",
+  "warnings": [],
+  "tree": {}
+}
+```
+
 The CLI uses plain `fetch()`. It does not execute page JavaScript or bypass
 bot checks. For challenged pages, pass HTML captured by a browser controller to
-the library API instead.
+the library API instead. If a fetched page has no inspectable content, the CLI
+returns exit code `20` and emits a structured JSON warning in `--json` mode.
 
 ## Entry Points
 

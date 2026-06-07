@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
+import { realpathSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { formatSemanticTreeText } from "./browser";
 import { extract, type StaticSemanticTreeOptions } from "./static";
+import type { SemanticNode } from "./types";
 
 type CliFormat = "text" | "json";
 
@@ -14,6 +15,15 @@ type CliOptions = {
   userAgent: string;
   extractOptions: StaticSemanticTreeOptions;
 };
+
+type FetchResult = {
+  html: string;
+  finalUrl: string;
+  status: number;
+  contentType: string;
+};
+
+type CliErrorCode = "FETCH_FAILED" | "HTTP_ERROR" | "NO_INSPECTABLE_CONTENT" | "TIMEOUT" | "USAGE";
 
 type CliIO = {
   fetch?: typeof fetch;
@@ -31,9 +41,21 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
 
   try {
     const options = parseArgs(argv);
-    const html = await fetchHtml(options, fetchImpl);
-    const tree = extract(html, options.extractOptions);
-    const output = options.format === "json" ? `${JSON.stringify(tree, null, 2)}\n` : `${formatSemanticTreeText(tree)}\n`;
+    const fetched = await fetchHtml(options, fetchImpl);
+    const tree = extract(fetched.html, options.extractOptions);
+    if (isUnavailableTree(tree)) {
+      const message = "no inspectable content; if the page is challenged or JavaScript-rendered, pass browser-captured HTML to the library API";
+      if (options.format === "json") {
+        stdout.write(`${JSON.stringify(jsonEnvelope(options, fetched, tree, [{ code: "NO_INSPECTABLE_CONTENT", message }]), null, 2)}\n`);
+      } else {
+        stderr.write(`ax-grep: warning: ${message}\n`);
+        stdout.write(`${formatCliText(tree, fetched.finalUrl)}\n`);
+      }
+      return 20;
+    }
+    const output = options.format === "json"
+      ? `${JSON.stringify(jsonEnvelope(options, fetched, tree), null, 2)}\n`
+      : `${formatCliText(tree, fetched.finalUrl)}\n`;
     stdout.write(output);
     return 0;
   } catch (error) {
@@ -41,9 +63,14 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
       stdout.write(`${error.message}\n`);
       return 0;
     }
+    if (argv.includes("--json")) {
+      const cliError = toCliError(error);
+      stdout.write(`${JSON.stringify(jsonErrorEnvelope(cliError), null, 2)}\n`);
+      return cliError.exitCode;
+    }
     const message = error instanceof Error ? error.message : String(error);
     stderr.write(`ax-grep: ${message}\n`);
-    return 1;
+    return toCliError(error).exitCode;
   }
 }
 
@@ -123,7 +150,7 @@ function parseArgs(argv: string[]): CliOptions {
   return { url, format, timeoutMs, userAgent, extractOptions };
 }
 
-async function fetchHtml(options: CliOptions, fetchImpl: typeof fetch): Promise<string> {
+async function fetchHtml(options: CliOptions, fetchImpl: typeof fetch): Promise<FetchResult> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), options.timeoutMs);
   try {
@@ -136,12 +163,20 @@ async function fetchHtml(options: CliOptions, fetchImpl: typeof fetch): Promise<
       signal: controller.signal,
     });
     if (!response.ok) {
-      throw new Error(`fetch failed with HTTP ${response.status} ${response.statusText}`.trim());
+      throw new CliError("HTTP_ERROR", `fetch failed with HTTP ${response.status} ${response.statusText}`.trim(), 12, response.status);
     }
-    return await response.text();
+    return {
+      html: await response.text(),
+      finalUrl: response.url || options.url,
+      status: response.status,
+      contentType: response.headers.get("content-type") ?? "",
+    };
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
-      throw new Error(`fetch timed out after ${options.timeoutMs}ms`);
+      throw new CliError("TIMEOUT", `fetch timed out after ${options.timeoutMs}ms`, 11);
+    }
+    if (!(error instanceof CliError)) {
+      throw new CliError("FETCH_FAILED", error instanceof Error ? error.message : String(error), 10);
     }
     throw error;
   } finally {
@@ -190,12 +225,137 @@ Options:
   --max-text-length <n>      Limit direct text/name fragments.
   --timeout <ms>             Fetch timeout. Default: ${defaultTimeoutMs}.
   --user-agent <value>       Override the request User-Agent.
-  -h, --help                 Show this help.`;
+  -h, --help                 Show this help.
+
+Notes:
+  The CLI uses fetch only. It does not run JavaScript or bypass bot checks.
+  Text output includes link hrefs for search/navigation decisions.
+  JSON output is an envelope with fetch metadata, warnings, and tree.`;
 }
 
 class UsageError extends Error {}
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+class CliError extends Error {
+  constructor(
+    readonly code: CliErrorCode,
+    message: string,
+    readonly exitCode: number,
+    readonly status?: number,
+  ) {
+    super(message);
+  }
+}
+
+function formatCliText(node: SemanticNode, baseUrl: string): string {
+  const lines: string[] = [];
+  function visit(current: SemanticNode, depth: number): void {
+    const prefix = "  ".repeat(depth);
+    const role = current.role || current.tag;
+    const marker = current.interactive ? "[i] " : "";
+    const name = current.name ? ` '${current.name}'` : "";
+    const href = current.role === "link" ? formatHref(current, baseUrl) : "";
+    const state = formatState(current);
+    const unavailable = current.unavailableReason ? ` (${current.unavailableReason})` : "";
+    lines.push(`${prefix}${marker}${role}${name}${href}${state}${unavailable}`);
+    for (const child of current.children) visit(child, depth + 1);
+  }
+  visit(node, 0);
+  return lines.join("\n");
+}
+
+function formatHref(node: SemanticNode, baseUrl: string): string {
+  const href = node.attributes?.href;
+  if (!href) return "";
+  try {
+    return ` <${unwrapKnownRedirect(new URL(href, baseUrl)).toString()}>`;
+  } catch {
+    return ` <${href}>`;
+  }
+}
+
+function unwrapKnownRedirect(url: URL): URL {
+  if (url.hostname.endsWith("bing.com") && url.pathname === "/ck/a") {
+    const encoded = url.searchParams.get("u");
+    const decoded = decodeBingTarget(encoded);
+    if (decoded) return decoded;
+  }
+  if (url.hostname.endsWith("duckduckgo.com") && url.pathname === "/l/") {
+    const target = url.searchParams.get("uddg");
+    if (target) return new URL(target);
+  }
+  return url;
+}
+
+function decodeBingTarget(value: string | null): URL | null {
+  if (!value) return null;
+  const payload = value.startsWith("a1") ? value.slice(2) : value;
+  try {
+    return new URL(Buffer.from(payload, "base64url").toString("utf8"));
+  } catch {
+    return null;
+  }
+}
+
+function formatState(node: SemanticNode): string {
+  if (!node.state || Object.keys(node.state).length === 0) return "";
+  const parts = Object.entries(node.state).map(([key, value]) => `${key}=${value}`);
+  return ` [${parts.join(" ")}]`;
+}
+
+function isUnavailableTree(tree: SemanticNode): boolean {
+  return tree.children.length === 0 && Boolean(tree.unavailableReason);
+}
+
+function jsonEnvelope(
+  options: CliOptions,
+  fetched: FetchResult,
+  tree: SemanticNode,
+  warnings: Array<{ code: string; message: string }> = [],
+): object {
+  return {
+    schemaVersion: 1,
+    tool: "ax-grep",
+    ok: warnings.length === 0,
+    url: options.url,
+    finalUrl: fetched.finalUrl,
+    status: fetched.status,
+    contentType: fetched.contentType,
+    fetchedAt: new Date().toISOString(),
+    mode: options.extractOptions.mode ?? "compact",
+    warnings,
+    tree,
+  };
+}
+
+function jsonErrorEnvelope(error: CliError): object {
+  return {
+    schemaVersion: 1,
+    tool: "ax-grep",
+    ok: false,
+    error: {
+      code: error.code,
+      message: error.message,
+      status: error.status,
+    },
+  };
+}
+
+function toCliError(error: unknown): CliError {
+  if (error instanceof CliError) return error;
+  if (error instanceof UsageError) return new CliError("USAGE", error.message, 2);
+  return new CliError("FETCH_FAILED", error instanceof Error ? error.message : String(error), 10);
+}
+
+function isMainModule(): boolean {
+  if (!process.argv[1]) return false;
+  try {
+    return realpathSync(resolve(process.argv[1])) === fileURLToPath(import.meta.url);
+  } catch {
+    return resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+  }
+}
+
+if (isMainModule()) {
   runCli(process.argv.slice(2)).then((code) => {
     process.exitCode = code;
   });
