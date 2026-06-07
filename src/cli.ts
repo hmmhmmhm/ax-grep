@@ -2446,7 +2446,7 @@ function summarizeAgent(
     summary,
     routingIntent: agentRoutingIntent(primaryAction),
     continuationMode: agentContinuationMode(primaryAction),
-    next: summarizeAgentNext(primaryAction),
+    next: summarizeAgentNext(primaryAction, readTargets),
     expectedOutcome: summarizeAgentExpectedOutcome(primaryAction),
     signals: summarizeAgentSignals(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, fetched, error),
     canContinue: agentCanContinue(primaryAction),
@@ -2600,13 +2600,16 @@ function agentContinuationMode(primaryAction: SuggestedAction | undefined): Agen
   return agentCanContinue(primaryAction) ? "command" : "stop";
 }
 
-function summarizeAgentNext(primaryAction: SuggestedAction | undefined): AgentNext {
+function summarizeAgentNext(primaryAction: SuggestedAction | undefined, readTargets: AgentReadTarget[] = []): AgentNext {
   if (!primaryAction) {
     return {
       mode: "stop",
       reason: "No follow-up action is available.",
     };
   }
+  const readTarget = primaryAction.readFrom
+    ? readTargets.find((target) => target.path === primaryAction.readFrom)
+    : undefined;
   return {
     mode: agentContinuationMode(primaryAction),
     action: primaryAction.action,
@@ -2620,6 +2623,7 @@ function summarizeAgentNext(primaryAction: SuggestedAction | undefined): AgentNe
     ...(primaryAction.commandArgs ? { commandArgs: primaryAction.commandArgs } : {}),
     ...(primaryAction.requiresBrowserInteraction ? { requiresBrowserInteraction: true } : {}),
     ...(primaryAction.terminal ? { terminal: true } : {}),
+    ...(readTarget ? { readTarget } : {}),
   };
 }
 
@@ -2703,6 +2707,12 @@ function summarizeAgentSignals(
       kind: "content",
       severity: "info",
       message: `Fetched HTML is ${pageCheck.readability.level} readability with ${pageCheck.contentEvidence.length} evidence item(s).`,
+    });
+  } else if (pageCheck.contentEvidence.length > 0) {
+    add({
+      kind: "content",
+      severity: "warning",
+      message: `Fetched HTML has low readability but ${pageCheck.contentEvidence.length} evidence item(s) were extracted.`,
     });
   } else if (status !== "choose-result") {
     add({ kind: "content", severity: "warning", message: "Fetched HTML has low readability for direct content extraction." });
@@ -3085,7 +3095,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     summary,
     routingIntent: agentRoutingIntent(primaryAction),
     continuationMode: agentContinuationMode(primaryAction),
-    next: summarizeAgentNext(primaryAction),
+    next: summarizeAgentNext(primaryAction, readTargets),
     expectedOutcome: summarizeAgentExpectedOutcome(primaryAction),
     signals: summarizeErrorAgentSignals(error, primaryAction, summary),
     canContinue: agentCanContinue(primaryAction),

@@ -26,6 +26,9 @@ describe("README", () => {
       next: {
         mode: "read",
         readFrom: "verification.bestEvidence",
+        readTarget: {
+          path: "verification.bestEvidence",
+        },
       },
       expectedOutcome: {
         kind: "read-evidence",

@@ -241,6 +241,12 @@ describe("cli", () => {
           execution: "read-current",
           readFrom: "verification.bestEvidence",
           terminal: true,
+          readTarget: {
+            path: "verification.bestEvidence",
+            reason: "Best matching evidence for the requested --find text.",
+            count: 1,
+            primary: true,
+          },
         },
         expectedOutcome: {
           kind: "read-evidence",
@@ -297,6 +303,12 @@ describe("cli", () => {
       count: 1,
       primary: true,
     }));
+    expect(envelope.agent.next.readTarget).toEqual(
+      expect.objectContaining({
+        path: "verification.bestEvidence",
+        reason: "Best matching evidence for the requested --find text.",
+      }),
+    );
     expect(envelope.pageCheck.recommendedAction).toBeUndefined();
     expect(envelope.pageCheck.nextSteps).toBeUndefined();
     expect(envelope.tree).toBeUndefined();
@@ -379,6 +391,7 @@ describe("cli", () => {
       },
       signals: expect.arrayContaining([
         expect.objectContaining({ kind: "search-results", severity: "info" }),
+        expect.objectContaining({ kind: "content", severity: "warning" }),
       ]),
       responseStatus: 200,
       responseOk: true,

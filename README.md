@@ -142,7 +142,9 @@ such as `recommendedRank`, `recommendedSource`, `recommendedRelevance`, and
 `agent.next` is the canonical next-step payload for executors. It always has a
 `mode` and `reason`, and when a follow-up exists it mirrors the exact fields
 needed to continue, such as `commandArgs`, `readFrom`, `url`, `openResult`, or
-`requiresBrowserInteraction`.
+`requiresBrowserInteraction`. When `mode` is `read`, `next.readTarget` mirrors
+the matching `agent.readTargets` entry so an executor can understand the target
+without joining arrays itself.
 `agent.expectedOutcome` states what success should look like after following
 `agent.next`, such as reading evidence, opening a result, running a search,
 capturing rendered HTML, using a browser inspection, inspecting output, or
@@ -479,7 +481,14 @@ cat captured.html | ax-grep https://example.com --stdin --json
       "execution": "read-current",
       "url": "https://example.com/",
       "readFrom": "verification.bestEvidence",
-      "terminal": true
+      "terminal": true,
+      "readTarget": {
+        "path": "verification.bestEvidence",
+        "reason": "Best matching evidence for the requested --find text.",
+        "count": 1,
+        "score": 0.72,
+        "primary": true
+      }
     },
     "expectedOutcome": {
       "kind": "read-evidence",

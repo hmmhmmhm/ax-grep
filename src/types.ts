@@ -108,6 +108,7 @@ export type AgentNext = {
   commandArgs?: string[];
   requiresBrowserInteraction?: boolean;
   terminal?: boolean;
+  readTarget?: AgentReadTarget;
 };
 
 export type AgentSignalKind =

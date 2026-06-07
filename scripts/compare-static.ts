@@ -129,6 +129,7 @@ type CliActionShape = {
 type CliAgentNextShape = CliActionShape & {
   mode?: AgentContinuationMode;
   reason?: string;
+  readTarget?: CliReadTargetShape;
 };
 
 type CliAgentSignalShape = {
@@ -156,6 +157,7 @@ type CliSearchResultShape = {
 type CliReadTargetShape = {
   path?: string;
   reason?: string;
+  count?: number;
   score?: number;
   primary?: boolean;
 };
@@ -826,6 +828,12 @@ function scoreAgentNext(next: CliAgentNextShape | undefined, continuationMode: A
   }
   required += 1;
   if (typeof next.reason === "string" && next.reason === primaryAction.reason) matched += 1;
+  if (primaryAction.readFrom) {
+    required += 1;
+    if (next.readTarget?.path === primaryAction.readFrom && typeof next.readTarget.reason === "string") matched += 1;
+  } else if (typeof next.readTarget !== "undefined") {
+    required += 1;
+  }
   return roundScore(matched / required);
 }
 
