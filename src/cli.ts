@@ -75,6 +75,26 @@ type ContentSummary = {
   selector?: string;
 };
 
+type ContentKind = "empty" | "search-results" | "content-page" | "interactive-page" | "page";
+
+type DiagnosticSummary = {
+  severity: "info" | "warning" | "error";
+  code: string;
+  message: string;
+};
+
+type SuggestedAction = {
+  action: string;
+  reason: string;
+  url?: string;
+};
+
+type AnalysisSummary = {
+  kind: ContentKind;
+  diagnostics: DiagnosticSummary[];
+  suggestedActions: SuggestedAction[];
+};
+
 type CliIO = {
   fetch?: typeof fetch;
   stdin?: NodeJS.ReadStream;
@@ -375,7 +395,7 @@ Notes:
   The CLI uses fetch only. It does not run JavaScript or bypass bot checks.
   Use --html-file or --stdin with a URL argument for browser-captured HTML.
   Text output starts with a deduplicated links summary for agent navigation.
-  JSON output is an envelope with fetch metadata, links, results, warnings, and tree.`;
+  JSON output is an envelope with fetch metadata, analysis, links, results, warnings, and tree.`;
 }
 
 class UsageError extends Error {
@@ -401,9 +421,15 @@ function formatCliText(node: SemanticNode, fetched: FetchResult, options: Pick<C
   const lines: string[] = links.length > 0 ? formatLinksText(links) : [];
   if (options.linksOnly) return lines.join("\n");
   appendSection(lines, formatPageText(fetched.page));
-  appendSection(lines, formatOutlineText(summarizeOutline(node)));
-  appendSection(lines, formatActionsText(summarizeActions(node)));
-  appendSection(lines, formatContentText(summarizeContent(node)));
+  const outline = summarizeOutline(node);
+  const actions = summarizeActions(node);
+  const content = summarizeContent(node);
+  const results = summarizeResults(links);
+  const analysis = analyzePage(fetched, node, links, results, outline, actions, content);
+  appendSection(lines, formatAnalysisText(analysis));
+  appendSection(lines, formatOutlineText(outline));
+  appendSection(lines, formatActionsText(actions));
+  appendSection(lines, formatContentText(content));
   const treeLines: string[] = [];
   function visit(current: SemanticNode, depth: number): void {
     const prefix = lines.length > 0 ? `  ${"  ".repeat(depth)}` : "  ".repeat(depth);
@@ -467,6 +493,18 @@ function formatActionsText(actions: ActionSummary[]): string[] {
     "actions",
     ...actions.map((action, index) => `  ${index + 1}. ${action.type} ${action.text}`),
   ];
+}
+
+function formatAnalysisText(analysis: AnalysisSummary): string[] {
+  const lines = [`  kind: ${analysis.kind}`];
+  for (const diagnostic of analysis.diagnostics) {
+    lines.push(`  ${diagnostic.severity}: ${diagnostic.code} - ${diagnostic.message}`);
+  }
+  for (const action of analysis.suggestedActions) {
+    const url = action.url ? ` <${action.url}>` : "";
+    lines.push(`  next: ${action.action}${url} - ${action.reason}`);
+  }
+  return ["analysis", ...lines];
 }
 
 function formatContentText(content: ContentSummary[]): string[] {
@@ -725,6 +763,98 @@ function cleanContentText(text: string): string {
     .slice(0, 320);
 }
 
+function analyzePage(
+  fetched: FetchResult,
+  tree: SemanticNode,
+  links: LinkSummary[],
+  results: ResultSummary[],
+  outline: OutlineSummary[],
+  actions: ActionSummary[],
+  content: ContentSummary[],
+): AnalysisSummary {
+  const diagnostics: DiagnosticSummary[] = [];
+  const suggestedActions: SuggestedAction[] = [];
+  const kind = classifyPage(fetched, tree, results, outline, actions, content);
+
+  if (kind === "empty") {
+    diagnostics.push({
+      severity: "error",
+      code: "NO_INSPECTABLE_CONTENT",
+      message: "No inspectable content was extracted from the page.",
+    });
+    suggestedActions.push({
+      action: "retry-with-browser-html",
+      reason: "The fetched HTML may be challenged, empty, or JavaScript-rendered.",
+    });
+  }
+
+  if (kind === "search-results" && results[0]) {
+    suggestedActions.push({
+      action: "open-result",
+      reason: "The page looks like search results; open the highest-ranked relevant result.",
+      url: results[0].url,
+    });
+  }
+
+  if (kind === "content-page" && content.length > 0) {
+    suggestedActions.push({
+      action: "read-content",
+      reason: "The page has article-like content excerpts suitable for source checking.",
+    });
+  }
+
+  if (kind === "interactive-page" && actions.length > 0) {
+    suggestedActions.push({
+      action: "inspect-actions",
+      reason: "The page exposes prominent controls that may be needed before content is visible.",
+    });
+  }
+
+  if (links.length === 0 && kind !== "empty") {
+    diagnostics.push({
+      severity: "warning",
+      code: "NO_USEFUL_LINKS",
+      message: "No useful outbound links were found in the semantic tree.",
+    });
+  }
+
+  if (!fetched.contentType.includes("html") && fetched.contentType) {
+    diagnostics.push({
+      severity: "warning",
+      code: "NON_HTML_CONTENT_TYPE",
+      message: `Fetched content-type is ${fetched.contentType}.`,
+    });
+  }
+
+  return { kind, diagnostics, suggestedActions };
+}
+
+function classifyPage(
+  fetched: FetchResult,
+  tree: SemanticNode,
+  results: ResultSummary[],
+  outline: OutlineSummary[],
+  actions: ActionSummary[],
+  content: ContentSummary[],
+): ContentKind {
+  if (isUnavailableTree(tree)) return "empty";
+  if (looksLikeSearchUrl(fetched.finalUrl) || results.length >= 5) return "search-results";
+  if (content.length >= 2 || outline.length >= 3) return "content-page";
+  if (actions.length >= 3) return "interactive-page";
+  return "page";
+}
+
+function looksLikeSearchUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.searchParams.has("q")
+      || parsed.searchParams.has("query")
+      || /\/search\b|\/sp\/search\b|\/html\/?$/i.test(parsed.pathname);
+  } catch {
+    return false;
+  }
+}
+
 function findElement(nodes: AnyNode[], predicate: (element: Element) => boolean): Element | undefined {
   for (const node of nodes) {
     if (!(node instanceof DomElement)) continue;
@@ -789,6 +919,8 @@ function jsonEnvelope(
   const outline = summarizeOutline(tree);
   const actions = summarizeActions(tree);
   const content = summarizeContent(tree);
+  const results = summarizeResults(links);
+  const analysis = analyzePage(fetched, tree, links, results, outline, actions, content);
   return {
     schemaVersion: 1,
     tool: "ax-grep",
@@ -800,9 +932,12 @@ function jsonEnvelope(
     fetchedAt: new Date().toISOString(),
     mode: options.extractOptions.mode ?? "compact",
     warnings,
+    kind: analysis.kind,
+    diagnostics: analysis.diagnostics,
+    suggestedActions: analysis.suggestedActions,
     page: fetched.page,
     links,
-    results: summarizeResults(links),
+    results,
     outline,
     actions,
     content,
@@ -820,6 +955,20 @@ function jsonErrorEnvelope(error: CliError, metadata: Partial<Pick<CliOptions, "
     fetchedAt: new Date().toISOString(),
     mode: metadata.extractOptions?.mode ?? "compact",
     warnings: [],
+    kind: "empty",
+    diagnostics: [
+      {
+        severity: "error",
+        code: error.code,
+        message: error.message,
+      },
+    ],
+    suggestedActions: error.code === "USAGE" ? [] : [
+      {
+        action: "retry-or-check-input",
+        reason: "The CLI could not complete extraction for this request.",
+      },
+    ],
     page: {},
     links: [],
     results: [],

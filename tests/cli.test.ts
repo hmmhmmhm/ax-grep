@@ -21,6 +21,7 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("links\n  1. Docs <https://example.test/docs>");
     expect(stdout.output).toContain("page\n  title: Example page\n  description: Useful description\n  lang: en");
+    expect(stdout.output).toContain("analysis\n  kind: page");
     expect(stdout.output).toContain("outline\n  1. h1 Example");
     expect(stdout.output).toContain("actions\n  1. button Run");
     expect(stdout.output).toContain("main");
@@ -88,7 +89,7 @@ describe("cli", () => {
             </main>
           </body>
         </html>
-      `),
+      `, { headers: { "content-type": "text/html" } }),
     });
 
     const envelope = JSON.parse(stdout.output);
@@ -116,8 +117,35 @@ describe("cli", () => {
       canonicalUrl: "https://example.test/canonical",
       lang: "ko",
     });
+    expect(envelope.kind).toBe("page");
+    expect(envelope.diagnostics).toEqual([]);
+    expect(envelope.suggestedActions).toEqual([]);
     expect(envelope.outline).toEqual([{ text: "Docs heading", level: 2 }]);
     expect(envelope.actions).toEqual([{ type: "button", text: "Save", selector: "button" }]);
+  });
+
+  it("classifies search-like pages and suggests opening the first result", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://search.example/search?q=agent", "--json"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <ol>
+            <li><a href="https://one.example">First useful result</a><p>First result snippet helps choose the page.</p></li>
+            <li><a href="https://two.example">Second result</a><p>Second result snippet.</p></li>
+          </ol>
+        </main>
+      `),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.kind).toBe("search-results");
+    expect(envelope.suggestedActions[0]).toMatchObject({
+      action: "open-result",
+      url: "https://one.example/",
+    });
   });
 
   it("keeps the best duplicate link text and strips trailing URL punctuation", async () => {
@@ -186,7 +214,7 @@ describe("cli", () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test", "--json"], {
       stdout,
-      fetch: async () => new Response("", { status: 200 }),
+      fetch: async () => new Response("", { status: 200, headers: { "content-type": "text/html" } }),
     });
 
     const envelope = JSON.parse(stdout.output);
@@ -194,6 +222,12 @@ describe("cli", () => {
     expect(status).toBe(20);
     expect(envelope.ok).toBe(false);
     expect(envelope.warnings[0].code).toBe("NO_INSPECTABLE_CONTENT");
+    expect(envelope.kind).toBe("empty");
+    expect(envelope.diagnostics[0]).toMatchObject({
+      severity: "error",
+      code: "NO_INSPECTABLE_CONTENT",
+    });
+    expect(envelope.suggestedActions[0].action).toBe("retry-with-browser-html");
     expect(envelope.links).toEqual([]);
     expect(envelope.results).toEqual([]);
     expect(envelope.error).toMatchObject({

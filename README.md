@@ -60,8 +60,9 @@ main
 
 Text output includes link URLs, with common search redirect links normalized
 when possible. It starts with deduplicated `links`, then page metadata,
-heading outline, important actions, content excerpts, and finally the full
-tree. Use JSON when another tool needs the same summaries as structured data.
+analysis, heading outline, important actions, content excerpts, and finally
+the full tree. Use JSON when another tool needs the same summaries as
+structured data.
 
 ```sh
 ax-grep https://example.com --json
@@ -91,6 +92,14 @@ cat captured.html | ax-grep https://example.com --stdin --json
   "status": 200,
   "mode": "compact",
   "warnings": [],
+  "kind": "content-page",
+  "diagnostics": [],
+  "suggestedActions": [
+    {
+      "action": "read-content",
+      "reason": "The page has article-like content excerpts suitable for source checking."
+    }
+  ],
   "page": {
     "title": "Example Domain",
     "description": "Example domains are reserved for documentation."
