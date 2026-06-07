@@ -10,6 +10,7 @@ describe("cli", () => {
     });
 
     expect(status).toBe(0);
+    expect(stdout.output).toContain("links\n  1. Docs <https://example.test/docs>");
     expect(stdout.output).toContain("main");
     expect(stdout.output).toContain("heading 'Example'");
     expect(stdout.output).toContain("[i] link 'Docs' <https://example.test/docs>");
@@ -47,8 +48,36 @@ describe("cli", () => {
       status: 200,
       mode: "interactive",
     });
+    expect(envelope.links).toEqual([]);
     expect(button?.name).toBe("Run");
     expect(button?.attributes).toBeUndefined();
+  });
+
+  it("includes a deduplicated links summary in JSON output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test", "--json"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <a href="/docs">Docs</a>
+          <a href="/docs">Docs duplicate</a>
+          <a href="javascript:void(0)">Ignored</a>
+          <a href="/proxy">Visit in Anonymous View</a>
+        </main>
+      `),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.links).toEqual([
+      {
+        text: "Docs",
+        url: "https://example.test/docs",
+        role: "link",
+        selector: "a",
+      },
+    ]);
   });
 
   it("returns a structured warning when the page has no inspectable content", async () => {
@@ -74,6 +103,36 @@ describe("cli", () => {
 
     expect(status).toBe(12);
     expect(stderr.output).toContain("HTTP 403 Forbidden");
+  });
+
+  it("classifies JSON usage errors separately from fetch errors", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["--json"], { stdout });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(2);
+    expect(envelope).toMatchObject({
+      ok: false,
+      mode: "compact",
+      warnings: [],
+      error: {
+        code: "USAGE",
+      },
+    });
+  });
+
+  it("rejects conflicting output format flags", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test", "--json", "--text"], { stdout });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(2);
+    expect(envelope.error).toMatchObject({
+      code: "USAGE",
+      message: "--json and --text cannot be used together",
+    });
   });
 });
 

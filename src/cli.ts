@@ -25,6 +25,13 @@ type FetchResult = {
 
 type CliErrorCode = "FETCH_FAILED" | "HTTP_ERROR" | "NO_INSPECTABLE_CONTENT" | "TIMEOUT" | "USAGE";
 
+type LinkSummary = {
+  text: string;
+  url: string;
+  role: string;
+  selector?: string;
+};
+
 type CliIO = {
   fetch?: typeof fetch;
   stdout?: Pick<NodeJS.WriteStream, "write">;
@@ -60,12 +67,18 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
     return 0;
   } catch (error) {
     if (error instanceof UsageError) {
-      stdout.write(`${error.message}\n`);
-      return 0;
+      if (argv.includes("--json")) {
+        stdout.write(`${JSON.stringify(jsonErrorEnvelope(toCliError(error), parseArgMetadata(argv)), null, 2)}\n`);
+      } else if (error.exitCode === 0) {
+        stdout.write(`${error.message}\n`);
+      } else {
+        stderr.write(`ax-grep: ${error.message}\n`);
+      }
+      return error.exitCode;
     }
     if (argv.includes("--json")) {
       const cliError = toCliError(error);
-      stdout.write(`${JSON.stringify(jsonErrorEnvelope(cliError), null, 2)}\n`);
+      stdout.write(`${JSON.stringify(jsonErrorEnvelope(cliError, parseArgMetadata(argv)), null, 2)}\n`);
       return cliError.exitCode;
     }
     const message = error instanceof Error ? error.message : String(error);
@@ -77,6 +90,7 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
 function parseArgs(argv: string[]): CliOptions {
   const extractOptions: StaticSemanticTreeOptions = {};
   let format: CliFormat = "text";
+  let formatOption: CliFormat | undefined;
   let timeoutMs = defaultTimeoutMs;
   let userAgent = defaultUserAgent;
   let url = "";
@@ -86,14 +100,18 @@ function parseArgs(argv: string[]): CliOptions {
     if (!arg) continue;
 
     if (arg === "--help" || arg === "-h") {
-      throw new UsageError(usage());
+      throw new UsageError(usage(), 0);
     }
     if (arg === "--json") {
+      if (formatOption && formatOption !== "json") throw new UsageError(`--json and --text cannot be used together`);
       format = "json";
+      formatOption = "json";
       continue;
     }
     if (arg === "--text") {
+      if (formatOption && formatOption !== "text") throw new UsageError(`--json and --text cannot be used together`);
       format = "text";
+      formatOption = "text";
       continue;
     }
     if (arg === "--include-hidden") {
@@ -137,15 +155,15 @@ function parseArgs(argv: string[]): CliOptions {
       continue;
     }
     if (arg.startsWith("-")) {
-      throw new Error(`unknown option: ${arg}\n\n${usage()}`);
+      throw new UsageError(`unknown option: ${arg}\n\n${usage()}`);
     }
     if (url) {
-      throw new Error(`expected one URL, got extra argument: ${arg}\n\n${usage()}`);
+      throw new UsageError(`expected one URL, got extra argument: ${arg}\n\n${usage()}`);
     }
     url = arg;
   }
 
-  if (!url) throw new Error(`missing URL\n\n${usage()}`);
+  if (!url) throw new UsageError(`missing URL\n\n${usage()}`);
   validateUrl(url);
   return { url, format, timeoutMs, userAgent, extractOptions };
 }
@@ -186,25 +204,30 @@ async function fetchHtml(options: CliOptions, fetchImpl: typeof fetch): Promise<
 
 function readValue(argv: string[], index: number, option: string): string {
   const value = argv[index + 1];
-  if (!value || value.startsWith("-")) throw new Error(`${option} requires a value`);
+  if (!value || value.startsWith("-")) throw new UsageError(`${option} requires a value`);
   return value;
 }
 
 function parseMode(value: string): NonNullable<StaticSemanticTreeOptions["mode"]> {
   if (value === "compact" || value === "interactive" || value === "full") return value;
-  throw new Error(`--mode must be compact, interactive, or full`);
+  throw new UsageError(`--mode must be compact, interactive, or full`);
 }
 
 function parsePositiveInteger(value: string, option: string): number {
   const parsed = Number(value);
-  if (!Number.isInteger(parsed) || parsed <= 0) throw new Error(`${option} must be a positive integer`);
+  if (!Number.isInteger(parsed) || parsed <= 0) throw new UsageError(`${option} must be a positive integer`);
   return parsed;
 }
 
 function validateUrl(value: string): void {
-  const parsed = new URL(value);
+  let parsed: URL;
+  try {
+    parsed = new URL(value);
+  } catch {
+    throw new UsageError(`URL must be absolute`);
+  }
   if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-    throw new Error(`URL must use http or https`);
+    throw new UsageError(`URL must use http or https`);
   }
 }
 
@@ -229,11 +252,15 @@ Options:
 
 Notes:
   The CLI uses fetch only. It does not run JavaScript or bypass bot checks.
-  Text output includes link hrefs for search/navigation decisions.
-  JSON output is an envelope with fetch metadata, warnings, and tree.`;
+  Text output starts with a deduplicated links summary for agent navigation.
+  JSON output is an envelope with fetch metadata, links, warnings, and tree.`;
 }
 
-class UsageError extends Error {}
+class UsageError extends Error {
+  constructor(message: string, readonly exitCode = 2) {
+    super(message);
+  }
+}
 
 class CliError extends Error {
   constructor(
@@ -247,9 +274,11 @@ class CliError extends Error {
 }
 
 function formatCliText(node: SemanticNode, baseUrl: string): string {
-  const lines: string[] = [];
+  const links = summarizeLinks(node, baseUrl);
+  const lines: string[] = links.length > 0 ? formatLinksText(links) : [];
+  if (lines.length > 0) lines.push("", "tree");
   function visit(current: SemanticNode, depth: number): void {
-    const prefix = "  ".repeat(depth);
+    const prefix = lines.length > 0 ? `  ${"  ".repeat(depth)}` : "  ".repeat(depth);
     const role = current.role || current.tag;
     const marker = current.interactive ? "[i] " : "";
     const name = current.name ? ` '${current.name}'` : "";
@@ -261,6 +290,13 @@ function formatCliText(node: SemanticNode, baseUrl: string): string {
   }
   visit(node, 0);
   return lines.join("\n");
+}
+
+function formatLinksText(links: LinkSummary[]): string[] {
+  return [
+    "links",
+    ...links.map((link, index) => `  ${index + 1}. ${link.text || link.role} <${link.url}>`),
+  ];
 }
 
 function formatHref(node: SemanticNode, baseUrl: string): string {
@@ -302,6 +338,82 @@ function formatState(node: SemanticNode): string {
   return ` [${parts.join(" ")}]`;
 }
 
+function summarizeLinks(node: SemanticNode, baseUrl: string): LinkSummary[] {
+  const candidates: Array<LinkSummary & { score: number; index: number }> = [];
+  let index = 0;
+  function visit(current: SemanticNode): void {
+    if (current.role === "link") {
+      const href = current.attributes?.href;
+      const url = href ? normalizeHref(href, baseUrl) : null;
+      if (url && isUsefulLink(current, url, baseUrl)) {
+        const candidate: LinkSummary & { score: number; index: number } = {
+          text: current.name || current.text || url,
+          url,
+          role: current.role,
+          score: linkScore(current, url, baseUrl),
+          index,
+        };
+        if (current.selector) candidate.selector = current.selector;
+        candidates.push(candidate);
+      }
+      index += 1;
+    }
+    for (const child of current.children) visit(child);
+  }
+  visit(node);
+
+  const seenBeforeSort = new Set<string>();
+  return candidates
+    .filter((link) => {
+      if (seenBeforeSort.has(link.url)) return false;
+      seenBeforeSort.add(link.url);
+      return true;
+    })
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .slice(0, 10)
+    .map(({ score: _score, index: _index, ...link }) => link);
+}
+
+function normalizeHref(href: string, baseUrl: string): string | null {
+  try {
+    const normalized = unwrapKnownRedirect(new URL(href, baseUrl));
+    if (normalized.protocol !== "http:" && normalized.protocol !== "https:") return null;
+    return normalized.toString();
+  } catch {
+    return null;
+  }
+}
+
+function isUsefulLink(node: SemanticNode, url: string, baseUrl: string): boolean {
+  const text = (node.name || node.text || "").trim().toLowerCase();
+  if (!text && samePageOrSameHost(url, baseUrl)) return false;
+  if (/^(skip to|콘텐츠로|접근성|settings|설정|hamburger menu|startpage home page|duckduckgo|english|login|로그인|visit in anonymous view)$/i.test(text)) return false;
+  if (url.includes("javascript:")) return false;
+  return true;
+}
+
+function linkScore(node: SemanticNode, url: string, baseUrl: string): number {
+  const text = node.name || node.text || "";
+  let score = 0;
+  if (!samePageOrSameHost(url, baseUrl)) score += 100;
+  if (text.length > 12) score += 20;
+  if (text.length > 50) score += 10;
+  if (node.selector?.includes("result") || node.selector?.includes("article")) score += 10;
+  if (/^(all|images|videos|maps|news|전체|이미지|동영상|지도|뉴스)$/i.test(text)) score -= 60;
+  if (/search|login|settings|home|skip|hamburger|필터|검색|로그인|설정/i.test(text)) score -= 40;
+  return score;
+}
+
+function samePageOrSameHost(url: string, baseUrl: string): boolean {
+  try {
+    const parsed = new URL(url);
+    const base = new URL(baseUrl);
+    return parsed.hostname === base.hostname;
+  } catch {
+    return false;
+  }
+}
+
 function isUnavailableTree(tree: SemanticNode): boolean {
   return tree.children.length === 0 && Boolean(tree.unavailableReason);
 }
@@ -323,15 +435,20 @@ function jsonEnvelope(
     fetchedAt: new Date().toISOString(),
     mode: options.extractOptions.mode ?? "compact",
     warnings,
+    links: summarizeLinks(tree, fetched.finalUrl),
     tree,
   };
 }
 
-function jsonErrorEnvelope(error: CliError): object {
+function jsonErrorEnvelope(error: CliError, metadata: Partial<Pick<CliOptions, "url" | "extractOptions">> = {}): object {
   return {
     schemaVersion: 1,
     tool: "ax-grep",
     ok: false,
+    url: metadata.url,
+    fetchedAt: new Date().toISOString(),
+    mode: metadata.extractOptions?.mode ?? "compact",
+    warnings: [],
     error: {
       code: error.code,
       message: error.message,
@@ -344,6 +461,26 @@ function toCliError(error: unknown): CliError {
   if (error instanceof CliError) return error;
   if (error instanceof UsageError) return new CliError("USAGE", error.message, 2);
   return new CliError("FETCH_FAILED", error instanceof Error ? error.message : String(error), 10);
+}
+
+function parseArgMetadata(argv: string[]): Partial<Pick<CliOptions, "url" | "extractOptions">> {
+  const metadata: Partial<Pick<CliOptions, "url" | "extractOptions">> = { extractOptions: {} };
+  for (let index = 0; index < argv.length; index += 1) {
+    const arg = argv[index];
+    if (!arg) continue;
+    if (arg === "--mode") {
+      const value = argv[index + 1];
+      if (value === "compact" || value === "interactive" || value === "full") metadata.extractOptions = { mode: value };
+      index += 1;
+      continue;
+    }
+    if (arg.startsWith("-")) {
+      if (["--max-text-length", "--timeout", "--user-agent"].includes(arg)) index += 1;
+      continue;
+    }
+    metadata.url ??= arg;
+  }
+  return metadata;
 }
 
 function isMainModule(): boolean {

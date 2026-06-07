@@ -59,8 +59,9 @@ main
 ```
 
 Text output includes link URLs, with common search redirect links normalized
-when possible. Use JSON when another tool needs fetch metadata and the full
-node structure.
+when possible. It starts with a deduplicated `links` summary so an agent can
+pick the next URL before reading the full tree. Use JSON when another tool
+needs fetch metadata, link summaries, and the full node structure.
 
 ```sh
 ax-grep https://example.com --json
@@ -80,6 +81,13 @@ ax-grep https://example.com --timeout 30000 --user-agent "my-agent/1.0"
   "status": 200,
   "mode": "compact",
   "warnings": [],
+  "links": [
+    {
+      "text": "More information...",
+      "url": "https://www.iana.org/domains/example",
+      "role": "link"
+    }
+  ],
   "tree": {}
 }
 ```
