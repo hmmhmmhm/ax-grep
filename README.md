@@ -216,10 +216,11 @@ An agent executor can treat `agent.next.mode` as the only required switch:
 ```ts
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import type { AgentJsonEnvelope, AgentNext } from "ax-grep";
 
 const execFileAsync = promisify(execFile);
 
-async function runAxGrep(args: string[]) {
+async function runAxGrep(args: string[]): Promise<AgentJsonEnvelope> {
   const { stdout } = await execFileAsync("ax-grep", args);
   return JSON.parse(stdout);
 }
@@ -228,7 +229,7 @@ async function inspectWithAxGrep(urlOrQuery: string) {
   let payload = await runAxGrep([urlOrQuery, "--agent"]);
 
   for (let step = 0; step < 4; step += 1) {
-    const next = payload.agent.next;
+    const next: AgentNext = payload.agent.next;
 
     if (next.mode === "read" || next.mode === "stop") {
       return payload;

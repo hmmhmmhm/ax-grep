@@ -8,7 +8,16 @@ import { parseDocument } from "htmlparser2";
 import { Element as DomElement } from "domhandler";
 import type { AnyNode, Element } from "domhandler";
 import { extract, type StaticSemanticTreeOptions } from "./static";
-import type { SemanticNode } from "./types";
+import type {
+  AgentContinuationMode,
+  AgentExpectedOutcome,
+  AgentNext,
+  AgentReadTarget,
+  AgentRoutingIntent,
+  AgentSignal,
+  AgentStatus,
+  SemanticNode,
+} from "./types";
 
 type CliFormat = "text" | "json";
 type SearchEngine = "bing" | "duckduckgo" | "startpage";
@@ -235,36 +244,6 @@ type VerificationSummary = {
   recommendedAction?: SuggestedAction;
 };
 
-type AgentStatus = "ready" | "choose-result" | "verify" | "needs-browser" | "error";
-type AgentRoutingIntent = "read-current" | "open-url" | "search" | "browser-html" | "browser-interaction" | "inspect-output" | "none";
-type AgentContinuationMode = "command" | "read" | "browser" | "capture-html" | "inspect" | "stop";
-
-type AgentNext = {
-  mode: AgentContinuationMode;
-  reason: string;
-  action?: SuggestedAction["action"];
-  execution?: NonNullable<SuggestedAction["execution"]>;
-  url?: string;
-  rank?: number;
-  openResult?: number | "best";
-  readFrom?: string;
-  command?: string;
-  commandArgs?: string[];
-  requiresBrowserInteraction?: boolean;
-  terminal?: boolean;
-};
-
-type AgentSignal = {
-  kind: "content" | "verification" | "search-results" | "source-links" | "browser" | "diagnostic" | "response";
-  severity: "info" | "warning" | "error";
-  message: string;
-};
-
-type AgentExpectedOutcome = {
-  kind: "read-evidence" | "open-result" | "run-search" | "capture-html" | "browser-inspection" | "inspect-output" | "stop";
-  message: string;
-};
-
 type AgentSummary = {
   status: AgentStatus;
   pageKind: ContentKind;
@@ -319,14 +298,6 @@ type AgentSummary = {
   recommendedSource?: string;
   recommendedRelevance?: ResultSummary["relevance"];
   recommendedLikelyOfficial?: boolean;
-};
-
-type AgentReadTarget = {
-  path: string;
-  reason: string;
-  count?: number;
-  score?: number;
-  primary?: boolean;
 };
 
 type PageCheckSummary = {

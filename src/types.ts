@@ -79,3 +79,158 @@ export type ExtractorScriptOptions = SemanticTreeOptions & {
 export type ObserverScriptOptions = SemanticTreeObserverOptions & {
   globalName?: string;
 };
+
+export type AgentStatus = "ready" | "choose-result" | "verify" | "needs-browser" | "error";
+
+export type AgentRoutingIntent =
+  | "read-current"
+  | "open-url"
+  | "search"
+  | "browser-html"
+  | "browser-interaction"
+  | "inspect-output"
+  | "none";
+
+export type AgentContinuationMode = "command" | "read" | "browser" | "capture-html" | "inspect" | "stop";
+
+export type AgentExecutionMode = "run-command" | "read-current" | "interact-browser" | "inspect-output";
+
+export type AgentNext = {
+  mode: AgentContinuationMode;
+  reason: string;
+  action?: string;
+  execution?: AgentExecutionMode;
+  url?: string;
+  rank?: number;
+  openResult?: number | "best";
+  readFrom?: string;
+  command?: string;
+  commandArgs?: string[];
+  requiresBrowserInteraction?: boolean;
+  terminal?: boolean;
+};
+
+export type AgentSignalKind =
+  | "content"
+  | "verification"
+  | "search-results"
+  | "source-links"
+  | "browser"
+  | "diagnostic"
+  | "response";
+
+export type AgentSignalSeverity = "info" | "warning" | "error";
+
+export type AgentSignal = {
+  kind: AgentSignalKind;
+  severity: AgentSignalSeverity;
+  message: string;
+};
+
+export type AgentExpectedOutcomeKind =
+  | "read-evidence"
+  | "open-result"
+  | "run-search"
+  | "capture-html"
+  | "browser-inspection"
+  | "inspect-output"
+  | "stop";
+
+export type AgentExpectedOutcome = {
+  kind: AgentExpectedOutcomeKind;
+  message: string;
+};
+
+export type AgentReadTarget = {
+  path: string;
+  reason: string;
+  count?: number;
+  score?: number;
+  primary?: boolean;
+};
+
+export type AgentSummary = {
+  status: AgentStatus;
+  pageKind: string;
+  summary: string;
+  routingIntent: AgentRoutingIntent;
+  continuationMode: AgentContinuationMode;
+  next: AgentNext;
+  expectedOutcome: AgentExpectedOutcome;
+  signals?: AgentSignal[];
+  canContinue: boolean;
+  canUseFetchedHtml: boolean;
+  needsBrowserHtml: boolean;
+  responseStatus?: number;
+  responseOk?: boolean;
+  responseContentType?: string;
+  finalUrlChanged?: boolean;
+  confidence?: "low" | "medium" | "high";
+  usabilityScore?: number;
+  readability?: "low" | "medium" | "high";
+  readabilityScore?: number;
+  readabilityReasons?: string[];
+  verificationStatus?: "not-requested" | "matched" | "partial" | "missing";
+  verificationRequestedCount?: number;
+  verificationFoundCount?: number;
+  verificationMissingCount?: number;
+  resultCount?: number;
+  evidenceCount?: number;
+  sourceLinkCount?: number;
+  evidenceQualityScore?: number;
+  sourceQualityScore?: number;
+  alternativeActionCount?: number;
+  diagnosticCodes?: string[];
+  diagnosticErrorCount?: number;
+  diagnosticWarningCount?: number;
+  diagnosticInfoCount?: number;
+  readTargets?: AgentReadTarget[];
+  bestReadTarget?: string;
+  bestReadTargetScore?: number;
+  bestReadTargetReason?: string;
+  primaryExecution?: AgentExecutionMode;
+  primaryReadFrom?: string;
+  primaryCommand?: string;
+  primaryCommandArgs?: string[];
+  primaryUrl?: string;
+  primaryRank?: number;
+  primaryOpenResult?: number | "best";
+  requiresBrowserInteraction?: boolean;
+  primaryAction?: Record<string, unknown>;
+  recommendedUrl?: string;
+  recommendedTitle?: string;
+  recommendedRank?: number;
+  recommendedSource?: string;
+  recommendedRelevance?: number;
+  recommendedLikelyOfficial?: boolean;
+};
+
+export type AgentJsonEnvelope = {
+  schemaVersion: number;
+  tool: "ax-grep";
+  ok: boolean;
+  url?: string;
+  finalUrl?: string;
+  status?: number;
+  contentType?: string;
+  fetchedAt?: string;
+  mode?: string;
+  kind?: string;
+  searchQuery?: string;
+  searchEngine?: string;
+  selectedSearchEngine?: string;
+  searchLang?: string;
+  searchRegion?: string;
+  sourceSearch?: Record<string, unknown>;
+  warnings?: Array<{ code: string; message: string }>;
+  agent: AgentSummary;
+  page?: Record<string, unknown>;
+  pageCheck?: Record<string, unknown>;
+  verification?: Record<string, unknown>;
+  finds?: Array<Record<string, unknown>>;
+  searchResults?: Array<Record<string, unknown>>;
+  recommendedResult?: Record<string, unknown>;
+  suggestedActions?: Array<Record<string, unknown>>;
+  error?: { code: string; message: string; status?: number };
+  treeOmitted?: boolean;
+};

@@ -3,6 +3,19 @@ import { extract as extractStatic, type StaticSemanticTreeOptions } from "./stat
 import type { ExtractorScriptOptions, ObserverScriptOptions, SemanticNode, SemanticTreeOptions } from "./types";
 
 export type {
+  AgentContinuationMode,
+  AgentExpectedOutcome,
+  AgentExpectedOutcomeKind,
+  AgentExecutionMode,
+  AgentJsonEnvelope,
+  AgentNext,
+  AgentReadTarget,
+  AgentRoutingIntent,
+  AgentSignal,
+  AgentSignalKind,
+  AgentSignalSeverity,
+  AgentStatus,
+  AgentSummary,
   ExtractMode,
   ExtractorScriptOptions,
   OutputFormat,
