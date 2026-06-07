@@ -114,6 +114,22 @@ type AnalysisSummary = {
   suggestedActions: SuggestedAction[];
 };
 
+type PageLinkSummary = ResultSummary & {
+  kind: "internal" | "external";
+};
+
+type PageCheckSummary = {
+  title?: string;
+  canonicalUrl?: string;
+  mainHeading?: string;
+  lang?: string;
+  contentPreview: string[];
+  contentLength: number;
+  primaryLinks: PageLinkSummary[];
+  actions: ActionSummary[];
+  confidence: "low" | "medium" | "high";
+};
+
 type CliIO = {
   fetch?: typeof fetch;
   stdin?: NodeJS.ReadStream;
@@ -621,7 +637,9 @@ function formatCliText(node: SemanticNode, fetched: FetchResult, options: Pick<C
   const content = summarizeContent(node);
   const results = summarizeSearchResults(fetched, links);
   const analysis = analyzePage(fetched, node, links, results, outline, actions, content);
+  const pageCheck = summarizePageCheck(fetched, links, outline, actions, content, analysis);
   appendSection(lines, formatAnalysisText(analysis));
+  appendSection(lines, formatPageCheckText(pageCheck));
   appendSection(lines, formatResultsText(results));
   appendSection(lines, formatOutlineText(outline));
   appendSection(lines, formatActionsText(actions));
@@ -713,6 +731,20 @@ function formatAnalysisText(analysis: AnalysisSummary): string[] {
     lines.push(`  next: ${action.action}${url} - ${action.reason}`);
   }
   return ["analysis", ...lines];
+}
+
+function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
+  const lines = [
+    `  confidence: ${pageCheck.confidence}`,
+    `  contentLength: ${pageCheck.contentLength}`,
+  ];
+  if (pageCheck.title) lines.push(`  title: ${pageCheck.title}`);
+  if (pageCheck.mainHeading) lines.push(`  mainHeading: ${pageCheck.mainHeading}`);
+  if (pageCheck.canonicalUrl) lines.push(`  canonical: ${pageCheck.canonicalUrl}`);
+  for (const excerpt of pageCheck.contentPreview) lines.push(`  excerpt: ${excerpt}`);
+  for (const link of pageCheck.primaryLinks) lines.push(`  link: ${link.kind} ${link.title} <${link.url}>`);
+  for (const action of pageCheck.actions) lines.push(`  action: ${action.type} ${action.text}`);
+  return ["pageCheck", ...lines];
 }
 
 function formatResultsText(results: ResultSummary[]): string[] {
@@ -1090,6 +1122,75 @@ function summarizeContent(node: SemanticNode): ContentSummary[] {
   return content.slice(0, 12);
 }
 
+function summarizePageCheck(
+  fetched: FetchResult,
+  links: LinkSummary[],
+  outline: OutlineSummary[],
+  actions: ActionSummary[],
+  content: ContentSummary[],
+  analysis: AnalysisSummary,
+): PageCheckSummary {
+  const focusedContent = pageCheckContent(content);
+  const contentPreview = focusedContent.slice(0, 4).map((item) => item.text);
+  const contentLength = focusedContent.reduce((total, item) => total + item.text.length, 0);
+  const pageCheck: PageCheckSummary = {
+    contentPreview,
+    contentLength,
+    primaryLinks: summarizePrimaryPageLinks(links, fetched.finalUrl),
+    actions: actions.slice(0, 5),
+    confidence: pageCheckConfidence(contentLength, outline, analysis),
+  };
+  if (fetched.page.title) pageCheck.title = fetched.page.title;
+  if (fetched.page.canonicalUrl) pageCheck.canonicalUrl = fetched.page.canonicalUrl;
+  if (fetched.page.lang) pageCheck.lang = fetched.page.lang;
+  if (outline[0]?.text) pageCheck.mainHeading = outline[0].text;
+  return pageCheck;
+}
+
+function pageCheckContent(content: ContentSummary[]): ContentSummary[] {
+  const paragraphContent = content.filter((item) => item.role !== "article");
+  return paragraphContent.length > 0 ? paragraphContent : content;
+}
+
+function summarizePrimaryPageLinks(links: LinkSummary[], baseUrl: string): PageLinkSummary[] {
+  return links
+    .filter((link) => !isLowValuePageLink(link))
+    .slice(0, 8)
+    .map((link, index) => {
+      const summary: PageLinkSummary = {
+        title: link.text,
+        url: link.url,
+        source: sourceFromUrl(link.url),
+        rank: index + 1,
+        kind: samePageOrSameHost(link.url, baseUrl) ? "internal" : "external",
+      };
+      if (link.snippet) summary.snippet = link.snippet;
+      return summary;
+    });
+}
+
+function isLowValuePageLink(link: LinkSummary): boolean {
+  const haystack = `${link.text} ${link.url}`.toLowerCase();
+  return /(login|logout|sign in|signup|register|privacy|terms|cookie|advertis|광고|로그인|회원가입|개인정보|이용약관|메일인증|email verification)/i.test(haystack);
+}
+
+function pageCheckConfidence(contentLength: number, outline: OutlineSummary[], analysis: AnalysisSummary): PageCheckSummary["confidence"] {
+  if (analysis.kind === "blocked-page" || analysis.kind === "empty") return "low";
+  if (contentLength >= 180 && outline.length > 0) return "high";
+  if (contentLength >= 80 || outline.length > 0) return "medium";
+  return "low";
+}
+
+function emptyPageCheck(): PageCheckSummary {
+  return {
+    contentPreview: [],
+    contentLength: 0,
+    primaryLinks: [],
+    actions: [],
+    confidence: "low",
+  };
+}
+
 function linkContextSnippet(link: SemanticNode, ancestors: SemanticNode[]): string {
   for (const ancestor of [...ancestors].reverse()) {
     const role = ancestor.role || ancestor.tag;
@@ -1340,6 +1441,7 @@ function jsonEnvelope(
   const content = summarizeContent(tree);
   const results = summarizeSearchResults(fetched, links);
   const analysis = analyzePage(fetched, tree, links, results, outline, actions, content);
+  const pageCheck = summarizePageCheck(fetched, links, outline, actions, content, analysis);
   return {
     schemaVersion: 1,
     tool: "ax-grep",
@@ -1360,6 +1462,7 @@ function jsonEnvelope(
     diagnostics: analysis.diagnostics,
     suggestedActions: analysis.suggestedActions,
     page: fetched.page,
+    pageCheck,
     links,
     results,
     searchResults: analysis.kind === "search-results" ? results : [],
@@ -1403,6 +1506,7 @@ function jsonErrorEnvelope(
       },
     ],
     page: {},
+    pageCheck: emptyPageCheck(),
     links: [],
     results: [],
     searchResults: [],

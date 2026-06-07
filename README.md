@@ -137,6 +137,25 @@ cat captured.html | ax-grep https://example.com --stdin --json
     "title": "Example Domain",
     "description": "Example domains are reserved for documentation."
   },
+  "pageCheck": {
+    "title": "Example Domain",
+    "mainHeading": "Example Domain",
+    "contentPreview": [
+      "This domain is for use in illustrative examples in documents."
+    ],
+    "contentLength": 58,
+    "primaryLinks": [
+      {
+        "title": "More information...",
+        "url": "https://www.iana.org/domains/example",
+        "source": "iana.org",
+        "rank": 1,
+        "kind": "external"
+      }
+    ],
+    "actions": [],
+    "confidence": "medium"
+  },
   "links": [
     {
       "text": "More information...",
@@ -185,7 +204,9 @@ next useful move, such as opening the first result or retrying with captured
 browser HTML. `links` always describes links on the current page. `results` is
 a ranked convenience view over those links for backward compatibility;
 `searchResults` is populated when the current page is classified as a search
-results page.
+results page. `pageCheck` is the higher-level page inspection summary agents
+should read first for title, canonical URL, main heading, content excerpts,
+important links, actions, and extraction confidence.
 
 ## Entry Points
 

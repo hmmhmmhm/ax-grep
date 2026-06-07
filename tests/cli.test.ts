@@ -539,6 +539,87 @@ describe("cli", () => {
     ]));
   });
 
+  it("includes a pageCheck summary for article and forum pages", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://forum.example/post/123", "--json"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html lang="en">
+          <head>
+            <title>Forum post title</title>
+            <link rel="canonical" href="/post/123">
+          </head>
+          <body>
+            <header><a href="/login">Login</a><a href="/privacy">Privacy</a></header>
+            <main>
+              <article>
+                <h1>Forum post title</h1>
+                <p>This post explains the primary claim, gives enough surrounding context, and includes source details for checking.</p>
+                <p>The second paragraph adds discussion context so an agent can inspect whether the page is useful before reading the full tree.</p>
+                <a href="https://source.example/report">Original source report</a>
+                <a href="/comments/123">Comments</a>
+                <button>Reply</button>
+              </article>
+            </main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck).toMatchObject({
+      title: "Forum post title",
+      canonicalUrl: "https://forum.example/post/123",
+      mainHeading: "Forum post title",
+      lang: "en",
+      confidence: "high",
+    });
+    expect(envelope.pageCheck.contentPreview).toEqual([
+      "This post explains the primary claim, gives enough surrounding context, and includes source details for checking.",
+      "The second paragraph adds discussion context so an agent can inspect whether the page is useful before reading the full tree.",
+    ]);
+    expect(envelope.pageCheck.primaryLinks).toEqual([
+      expect.objectContaining({
+        title: "Original source report",
+        url: "https://source.example/report",
+        kind: "external",
+      }),
+      expect.objectContaining({
+        title: "Comments",
+        url: "https://forum.example/comments/123",
+        kind: "internal",
+      }),
+    ]);
+    expect(envelope.pageCheck.primaryLinks.map((link: { title: string }) => link.title)).not.toContain("Login");
+    expect(envelope.pageCheck.actions).toEqual([
+      expect.objectContaining({ type: "button", text: "Reply" }),
+    ]);
+  });
+
+  it("prints pageCheck details in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/article"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <article>
+            <h1>Article heading</h1>
+            <p>This article paragraph is long enough to appear in the page checking summary for agents.</p>
+            <a href="https://source.example/report">Source report</a>
+          </article>
+        </main>
+      `),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("pageCheck\n  confidence: medium");
+    expect(stdout.output).toContain("  mainHeading: Article heading");
+    expect(stdout.output).toContain("  excerpt: This article paragraph is long enough to appear in the page checking summary for agents.");
+    expect(stdout.output).toContain("  link: external Source report <https://source.example/report>");
+  });
+
   it("prints ranked result details in text output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://search.example/search?q=agent"], {
