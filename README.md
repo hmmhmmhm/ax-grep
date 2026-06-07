@@ -413,17 +413,94 @@ cat captured.html | ax-grep https://example.com --stdin --json
   },
   "agent": {
     "status": "ready",
+    "pageKind": "content-page",
     "summary": "All requested text was found in the page summaries.",
+    "routingIntent": "read-current",
+    "continuationMode": "read",
+    "next": {
+      "mode": "read",
+      "action": "use-evidence",
+      "reason": "All requested text was found in the page summaries.",
+      "execution": "read-current",
+      "url": "https://example.com/",
+      "readFrom": "verification.bestEvidence",
+      "terminal": true
+    },
+    "expectedOutcome": {
+      "kind": "read-evidence",
+      "message": "Read verification.bestEvidence from the current payload and treat it as the next evidence source."
+    },
+    "signals": [
+      {
+        "kind": "content",
+        "severity": "info",
+        "message": "Fetched HTML is medium readability with 1 evidence item(s)."
+      },
+      {
+        "kind": "verification",
+        "severity": "info",
+        "message": "1/1 requested verification text(s) found."
+      },
+      {
+        "kind": "source-links",
+        "severity": "info",
+        "message": "1 source-like link(s) available for follow-up."
+      }
+    ],
     "canUseFetchedHtml": true,
     "needsBrowserHtml": false,
+    "responseStatus": 200,
+    "responseOk": true,
+    "responseContentType": "text/html",
+    "finalUrlChanged": false,
     "confidence": "medium",
+    "usabilityScore": 0.88,
     "readability": "medium",
+    "readabilityScore": 0.45,
+    "readabilityReasons": [
+      "1 content evidence item",
+      "1 external source link"
+    ],
     "verificationStatus": "matched",
+    "verificationRequestedCount": 1,
+    "verificationFoundCount": 1,
+    "verificationMissingCount": 0,
     "resultCount": 0,
     "evidenceCount": 1,
     "sourceLinkCount": 1,
+    "evidenceQualityScore": 0.72,
+    "sourceQualityScore": 0.92,
+    "alternativeActionCount": 0,
     "diagnosticCodes": [],
+    "diagnosticErrorCount": 0,
+    "diagnosticWarningCount": 0,
+    "diagnosticInfoCount": 0,
+    "readTargets": [
+      {
+        "path": "verification.bestEvidence",
+        "reason": "Best matching evidence for the requested --find text.",
+        "count": 1,
+        "score": 0.72,
+        "primary": true
+      },
+      {
+        "path": "pageCheck.contentEvidence",
+        "reason": "Structured page excerpts suitable for source checking.",
+        "count": 1,
+        "score": 0.72
+      },
+      {
+        "path": "pageCheck.sourceLinks",
+        "reason": "External source-like links referenced by the page.",
+        "count": 1,
+        "score": 0.92
+      }
+    ],
+    "bestReadTarget": "verification.bestEvidence",
+    "bestReadTargetScore": 0.72,
+    "bestReadTargetReason": "Best matching evidence for the requested --find text.",
     "primaryExecution": "read-current",
+    "primaryReadFrom": "verification.bestEvidence",
     "primaryAction": {
       "action": "use-evidence",
       "execution": "read-current",
