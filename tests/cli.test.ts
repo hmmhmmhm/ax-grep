@@ -1,4 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { Readable } from "node:stream";
 import { runCli } from "../src/cli";
 
 describe("cli", () => {
@@ -224,6 +228,43 @@ describe("cli", () => {
     expect(stdout.output).toContain("tree\n  main\n    [i] link 'Docs'");
     expect(stdout.output).toContain("tree lines omitted");
     expect(stdout.output).not.toContain("Body text");
+  });
+
+  it("can extract browser-captured HTML from a file with a URL base", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "ax-grep-"));
+    const htmlFile = join(dir, "page.html");
+    await writeFile(htmlFile, `<main><a href="/captured">Captured</a></main>`, "utf8");
+
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://captured.example/page", "--html-file", htmlFile, "--links-only"], {
+      stdout,
+      fetch: async () => {
+        throw new Error("fetch should not run for --html-file");
+      },
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output.trim()).toBe("links\n  1. Captured <https://captured.example/captured>");
+  });
+
+  it("can extract browser-captured HTML from stdin", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://captured.example/page", "--stdin", "--json"], {
+      stdout,
+      stdin: Readable.from([`<main><a href="/stdin">From stdin</a></main>`]) as NodeJS.ReadStream,
+      fetch: async () => {
+        throw new Error("fetch should not run for --stdin");
+      },
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.links[0]).toMatchObject({
+      text: "From stdin",
+      url: "https://captured.example/stdin",
+    });
+    expect(envelope.status).toBe(0);
   });
 });
 

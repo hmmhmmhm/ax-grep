@@ -1,18 +1,22 @@
 #!/usr/bin/env node
 
 import { realpathSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { extract, type StaticSemanticTreeOptions } from "./static";
 import type { SemanticNode } from "./types";
 
 type CliFormat = "text" | "json";
 
 type CliOptions = {
-  url: string;
+  url?: string;
+  baseUrl: string;
   format: CliFormat;
   linksOnly: boolean;
   maxTreeLines?: number;
+  input: "fetch" | "html-file" | "stdin";
+  htmlFile?: string;
   timeoutMs: number;
   userAgent: string;
   extractOptions: StaticSemanticTreeOptions;
@@ -43,6 +47,7 @@ type ResultSummary = {
 
 type CliIO = {
   fetch?: typeof fetch;
+  stdin?: NodeJS.ReadStream;
   stdout?: Pick<NodeJS.WriteStream, "write">;
   stderr?: Pick<NodeJS.WriteStream, "write">;
 };
@@ -54,10 +59,11 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
   const stdout = io.stdout ?? process.stdout;
   const stderr = io.stderr ?? process.stderr;
   const fetchImpl = io.fetch ?? globalThis.fetch;
+  const stdin = io.stdin ?? process.stdin;
 
   try {
     const options = parseArgs(argv);
-    const fetched = await fetchHtml(options, fetchImpl);
+    const fetched = await loadHtml(options, fetchImpl, stdin);
     const tree = extract(fetched.html, options.extractOptions);
     if (isUnavailableTree(tree)) {
       const message = "no inspectable content; if the page is challenged or JavaScript-rendered, pass browser-captured HTML to the library API";
@@ -106,6 +112,8 @@ function parseArgs(argv: string[]): CliOptions {
   let formatOption: CliFormat | undefined;
   let linksOnly = false;
   let maxTreeLines: number | undefined;
+  let input: CliOptions["input"] = "fetch";
+  let htmlFile: string | undefined;
   let timeoutMs = defaultTimeoutMs;
   let userAgent = defaultUserAgent;
   let url = "";
@@ -131,6 +139,18 @@ function parseArgs(argv: string[]): CliOptions {
     }
     if (arg === "--links-only" || arg === "--summary") {
       linksOnly = true;
+      continue;
+    }
+    if (arg === "--html-file") {
+      if (input === "stdin") throw new UsageError(`--html-file and --stdin cannot be used together`);
+      input = "html-file";
+      htmlFile = readValue(argv, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--stdin") {
+      if (input === "html-file") throw new UsageError(`--html-file and --stdin cannot be used together`);
+      input = "stdin";
       continue;
     }
     if (arg === "--include-hidden") {
@@ -187,14 +207,39 @@ function parseArgs(argv: string[]): CliOptions {
     url = arg;
   }
 
-  if (!url) throw new UsageError(`missing URL\n\n${usage()}`);
-  validateUrl(url);
-  const options: CliOptions = { url, format, linksOnly, timeoutMs, userAgent, extractOptions };
+  if (input === "fetch" && !url) throw new UsageError(`missing URL\n\n${usage()}`);
+  if (url) validateUrl(url);
+  if (input === "html-file" && !htmlFile) throw new UsageError(`--html-file requires a value`);
+  const baseUrl = url || (htmlFile ? pathToFileURL(resolve(htmlFile)).toString() : "stdin://ax-grep");
+  const options: CliOptions = { baseUrl, format, linksOnly, input, timeoutMs, userAgent, extractOptions };
+  if (url) options.url = url;
+  if (htmlFile) options.htmlFile = htmlFile;
   if (maxTreeLines) options.maxTreeLines = maxTreeLines;
   return options;
 }
 
+async function loadHtml(options: CliOptions, fetchImpl: typeof fetch, stdin: NodeJS.ReadStream): Promise<FetchResult> {
+  if (options.input === "fetch") return fetchHtml(options, fetchImpl);
+  if (options.input === "html-file") {
+    const htmlFile = options.htmlFile;
+    if (!htmlFile) throw new UsageError(`--html-file requires a value`);
+    return {
+      html: await readFile(htmlFile, "utf8"),
+      finalUrl: options.baseUrl,
+      status: 0,
+      contentType: "text/html",
+    };
+  }
+  return {
+    html: await readStdin(stdin),
+    finalUrl: options.baseUrl,
+    status: 0,
+    contentType: "text/html",
+  };
+}
+
 async function fetchHtml(options: CliOptions, fetchImpl: typeof fetch): Promise<FetchResult> {
+  if (!options.url) throw new UsageError(`missing URL\n\n${usage()}`);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), options.timeoutMs);
   try {
@@ -226,6 +271,15 @@ async function fetchHtml(options: CliOptions, fetchImpl: typeof fetch): Promise<
   } finally {
     clearTimeout(timeout);
   }
+}
+
+async function readStdin(stdin: NodeJS.ReadStream): Promise<string> {
+  stdin.setEncoding("utf8");
+  let html = "";
+  for await (const chunk of stdin) {
+    html += chunk;
+  }
+  return html;
 }
 
 function readValue(argv: string[], index: number, option: string): string {
@@ -273,6 +327,8 @@ Options:
   --exclude-boilerplate      Prune likely forum/search boilerplate.
   --links-only, --summary    Print only the ranked links summary in text mode.
   --max-tree-lines <n>       Limit tree lines after the links summary.
+  --html-file <path>         Extract from browser-captured HTML instead of fetch.
+  --stdin                    Read HTML from stdin instead of fetch.
   --max-text-length <n>      Limit direct text/name fragments.
   --timeout <ms>             Fetch timeout. Default: ${defaultTimeoutMs}.
   --user-agent <value>       Override the request User-Agent.
@@ -280,6 +336,7 @@ Options:
 
 Notes:
   The CLI uses fetch only. It does not run JavaScript or bypass bot checks.
+  Use --html-file or --stdin with a URL argument for browser-captured HTML.
   Text output starts with a deduplicated links summary for agent navigation.
   JSON output is an envelope with fetch metadata, links, results, warnings, and tree.`;
 }
