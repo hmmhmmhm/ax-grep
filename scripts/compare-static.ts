@@ -54,6 +54,7 @@ type CliAgentSummary = {
   ok: boolean;
   kind: string;
   agentStatus: "ready" | "choose-result" | "verify" | "needs-browser" | "error" | "unknown";
+  agentExecutorScore: number;
   agentRoutingIntentScore: number;
   agentContinuationModeScore: number;
   agentNextScore: number;
@@ -171,6 +172,7 @@ type GateSummary = {
   excluded: number;
   averageScore: number;
   averageCliAgentScore: number;
+  averageAgentExecutorScore: number;
   averageActionSchemaScore: number;
   averageSearchResultActionScore: number;
   averageContentEvidenceMetadataScore: number;
@@ -599,6 +601,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     ok: item.ok === true,
     kind: item.kind ?? "unknown",
     agentStatus: item.agent?.status ?? "unknown",
+    agentExecutorScore: 0,
     agentRoutingIntentScore: scoreAgentRoutingIntent(item.agent?.routingIntent, item.agent?.primaryAction),
     agentContinuationModeScore: scoreAgentContinuationMode(item.agent?.continuationMode, item.agent?.primaryAction),
     agentNextScore: scoreAgentNext(item.agent?.next, item.agent?.continuationMode, item.agent?.primaryAction),
@@ -636,6 +639,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
   };
   if (item.agent?.primaryAction?.action) summary.agentPrimaryAction = item.agent.primaryAction.action;
   if (item.agent?.primaryExecution) summary.agentPrimaryExecution = item.agent.primaryExecution;
+  summary.agentExecutorScore = scoreAgentExecutorSummary(summary);
   summary.score = scoreCliAgentSummary(summary);
   return summary;
 }
@@ -645,6 +649,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     ok: false,
     kind: "unknown",
     agentStatus: "unknown",
+    agentExecutorScore: 0,
     agentRoutingIntentScore: 0,
     agentContinuationModeScore: 0,
     agentNextScore: 0,
@@ -1370,6 +1375,27 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
   );
 }
 
+function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
+  return roundScore(average([
+    summary.actionSchemaScore,
+    summary.agentRoutingIntentScore,
+    summary.agentContinuationModeScore,
+    summary.agentNextScore,
+    summary.agentExpectedOutcomeScore,
+    summary.agentSignalScore,
+    summary.agentReadTargetScore,
+    summary.agentBrowserNeedScore,
+    summary.agentCanContinueScore,
+    summary.agentPrimaryExecutionScore,
+    summary.agentPrimaryShortcutScore,
+    summary.searchResultActionScore,
+    summary.pageLinkCommandScore,
+    summary.agentResponseMetadataScore,
+    summary.agentDiagnosticCountScore,
+    summary.agentVerificationCountScore,
+  ]));
+}
+
 function classifyComparison(comparison: StaticComparison): StaticClassification {
   if (comparison.fetch.source === "fetch" && (comparison.fetch.status === 401 || comparison.fetch.status === 403 || comparison.fetch.status === 429)) return "challenge";
   if (!comparison.agentBrowser) return "reference-missing";
@@ -1407,6 +1433,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     excluded: comparisons.length - included.length,
     averageScore: average(included.map((comparison) => comparison.agentReadiness.score)),
     averageCliAgentScore: average(included.map((comparison) => comparison.cliAgentSummary.score)),
+    averageAgentExecutorScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExecutorScore)),
     averageActionSchemaScore: average(included.map((comparison) => comparison.cliAgentSummary.actionSchemaScore)),
     averageSearchResultActionScore: average(included.map((comparison) => comparison.cliAgentSummary.searchResultActionScore)),
     averageContentEvidenceMetadataScore: average(included.map((comparison) => comparison.cliAgentSummary.pageCheck.contentEvidenceMetadataScore)),
