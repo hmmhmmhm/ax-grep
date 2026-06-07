@@ -76,6 +76,9 @@ non-search pages and at least the compact result count for search pages.
 `averageAgentSourceLinkCountScore` tracks whether `agent.sourceLinkCount` is
 zero for search pages and matches compact `pageCheck.sourceLinks` for ordinary
 content pages.
+`averagePageLinkCommandScore` tracks whether compact `pageCheck.primaryLinks`
+and `pageCheck.sourceLinks` include direct `command` and `commandArgs`, so
+agents can open page links without reconstructing fetch flags.
 `averageAgentBrowserNeedScore` tracks whether `agent.needsBrowserHtml` agrees
 with the primary action: browser HTML retry actions should require browser
 HTML, while URL search recovery, alternate-result recovery, read-current, and

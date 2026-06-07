@@ -175,6 +175,12 @@ type SearchResultCommandContext = {
   userAgent?: string;
 };
 
+type PageLinkCommandContext = {
+  agentMode: boolean;
+  timeoutMs?: number;
+  userAgent?: string;
+};
+
 type AnalysisSummary = {
   kind: ContentKind;
   diagnostics: DiagnosticSummary[];
@@ -3612,7 +3618,7 @@ function jsonEnvelope(
     tree: options.omitTree ? undefined : tree,
   };
   if (options.omitTree) delete (envelope as { tree?: SemanticNode }).tree;
-  if (options.agentMode) return agentJsonEnvelope(envelope, searchResultCommandContext(options));
+  if (options.agentMode) return agentJsonEnvelope(envelope, searchResultCommandContext(options), pageLinkCommandContext(options));
   return envelope;
 }
 
@@ -3645,7 +3651,7 @@ function agentJsonEnvelope(envelope: {
   searchResults: ResultSummary[];
   recommendedResult: ResultSummary | undefined;
   error: { code: CliErrorCode; message: string; status?: number } | undefined;
-}, searchCommandContext?: SearchResultCommandContext): object {
+}, searchCommandContext?: SearchResultCommandContext, pageLinkContext?: PageLinkCommandContext): object {
   const suggestedActions = compactSuggestedActions(envelope.suggestedActions, envelope.agent.primaryAction);
 
   return {
@@ -3669,7 +3675,7 @@ function agentJsonEnvelope(envelope: {
     ...(envelope.warnings.length > 0 ? { warnings: envelope.warnings } : {}),
     agent: compactAgentSummary(envelope.agent),
     ...compactAgentPage(envelope.page),
-    pageCheck: compactAgentPageCheck(envelope.pageCheck, envelope.agent.primaryAction, envelope.searchResults.length > 0),
+    pageCheck: compactAgentPageCheck(envelope.pageCheck, envelope.agent.primaryAction, envelope.searchResults.length > 0, pageLinkContext),
     ...compactAgentVerification(envelope.verification, envelope.agent.primaryAction),
     ...(envelope.finds.length > 0 ? { finds: envelope.finds } : {}),
     ...compactAgentSearchResults(envelope.searchResults, envelope.recommendedResult, searchCommandContext),
@@ -3800,7 +3806,7 @@ function agentJsonErrorEnvelope(envelope: {
   };
 }
 
-function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: SuggestedAction, omitResultLinkDuplicates = false): object {
+function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: SuggestedAction, omitResultLinkDuplicates = false, pageLinkContext?: PageLinkCommandContext): object {
   const sourceUrls = new Set(pageCheck.sourceLinks.map((link) => link.url));
   const nonSourcePrimaryLinks = pageCheck.primaryLinks.filter((link) => !sourceUrls.has(link.url));
   const primaryLinks = pageCheck.sourceLinks.length > 0
@@ -3814,8 +3820,8 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
   return {
     contentEvidence: pageCheck.contentEvidence,
     contentLength: pageCheck.contentLength,
-    ...(primaryLinks.length > 0 && !omitResultLinkDuplicates ? { primaryLinks: primaryLinks.map(compactAgentPageLink) } : {}),
-    ...(pageCheck.sourceLinks.length > 0 && !omitResultLinkDuplicates ? { sourceLinks: pageCheck.sourceLinks.map(compactAgentPageLink) } : {}),
+    ...(primaryLinks.length > 0 && !omitResultLinkDuplicates ? { primaryLinks: primaryLinks.map((link) => compactAgentPageLink(link, pageLinkContext)) } : {}),
+    ...(pageCheck.sourceLinks.length > 0 && !omitResultLinkDuplicates ? { sourceLinks: pageCheck.sourceLinks.map((link) => compactAgentPageLink(link, pageLinkContext)) } : {}),
     ...(pageCheck.actions.length > 0 && !omitResultLinkDuplicates ? { actions: pageCheck.actions } : {}),
     confidence: pageCheck.confidence,
     readability: {
@@ -4010,6 +4016,14 @@ function searchResultCommandContext(options: CliOptions): SearchResultCommandCon
   };
 }
 
+function pageLinkCommandContext(options: CliOptions): PageLinkCommandContext {
+  return {
+    agentMode: true,
+    ...(typeof options.timeoutMs === "number" ? { timeoutMs: options.timeoutMs } : {}),
+    ...(options.userAgent ? { userAgent: options.userAgent } : {}),
+  };
+}
+
 function compactAgentSearchResults(results: ResultSummary[], recommendedResult?: ResultSummary, commandContext?: SearchResultCommandContext): object {
   if (results.length === 0) return {};
   const selected: ResultSummary[] = [];
@@ -4060,7 +4074,7 @@ function compactAgentSearchResult(result: ResultSummary, commandContext?: Search
   };
 }
 
-function compactAgentPageLink(link: PageLinkSummary): PageLinkSummary {
+function compactAgentPageLink(link: PageLinkSummary, commandContext?: PageLinkCommandContext): PageLinkSummary & Partial<Pick<SuggestedAction, "command" | "commandArgs">> {
   const compact: PageLinkSummary = {
     title: link.title,
     url: link.url,
@@ -4075,7 +4089,11 @@ function compactAgentPageLink(link: PageLinkSummary): PageLinkSummary {
   if (link.matchedTerms) compact.matchedTerms = link.matchedTerms;
   if (link.findMatches) compact.findMatches = link.findMatches;
   if (typeof link.isLikelyOfficial === "boolean") compact.isLikelyOfficial = link.isLikelyOfficial;
-  return compact;
+  const command = commandContext ? pageCommandSpec(link.url, commandContext.agentMode, false, [], commandContext.timeoutMs, commandContext.userAgent) : undefined;
+  return {
+    ...compact,
+    ...(command ? commandFields(command) : {}),
+  };
 }
 
 function compactAgentAction(action: SuggestedAction): object {

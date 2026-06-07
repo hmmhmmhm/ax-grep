@@ -1620,6 +1620,16 @@ describe("cli", () => {
     expect(envelope.pageCheck.sourceLinks).toEqual([
       expect.objectContaining({
         url: "https://source.example/report",
+        command: "ax-grep 'https://source.example/report' --timeout 30000 --user-agent 'custom-agent/1.0' --agent",
+        commandArgs: [
+          "ax-grep",
+          "https://source.example/report",
+          "--timeout",
+          "30000",
+          "--user-agent",
+          "custom-agent/1.0",
+          "--agent",
+        ],
       }),
     ]);
   });

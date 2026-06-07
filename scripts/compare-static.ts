@@ -59,6 +59,7 @@ type CliAgentSummary = {
   agentNextScore: number;
   agentExpectedOutcomeScore: number;
   agentSignalScore: number;
+  pageLinkCommandScore: number;
   agentPageKindScore: number;
   agentAlternativeActionCountScore: number;
   agentUsabilityScoreConsistency: number;
@@ -179,6 +180,7 @@ type GateSummary = {
   averageAgentNextScore: number;
   averageAgentExpectedOutcomeScore: number;
   averageAgentSignalScore: number;
+  averagePageLinkCommandScore: number;
   averageAgentReadTargetScore: number;
   averageAgentResultCountScore: number;
   averageAgentSourceLinkCountScore: number;
@@ -556,8 +558,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       contentPreview?: unknown[];
       contentEvidence?: CliContentEvidenceShape[];
       contentLength?: number;
-      primaryLinks?: unknown[];
-      sourceLinks?: Array<{ sourceScore?: number }>;
+      primaryLinks?: Array<{ sourceScore?: number; command?: string; commandArgs?: string[] }>;
+      sourceLinks?: Array<{ sourceScore?: number; command?: string; commandArgs?: string[] }>;
       actions?: unknown[];
       recommendedAction?: CliActionShape;
       nextSteps?: CliActionShape[];
@@ -602,6 +604,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentNextScore: scoreAgentNext(item.agent?.next, item.agent?.continuationMode, item.agent?.primaryAction),
     agentExpectedOutcomeScore: scoreAgentExpectedOutcome(item.agent?.expectedOutcome, item.agent?.primaryAction),
     agentSignalScore: scoreAgentSignals(item.agent?.signals, item),
+    pageLinkCommandScore: scorePageLinkCommands(item.pageCheck?.primaryLinks ?? [], item.pageCheck?.sourceLinks ?? []),
     agentPageKindScore: scoreAgentPageKind(item.agent?.pageKind, item.kind),
     agentAlternativeActionCountScore: scoreAgentAlternativeActionCount(item.agent?.alternativeActionCount, item),
     agentUsabilityScoreConsistency: scoreAgentUsabilityScore(item.agent?.usabilityScore, item),
@@ -647,6 +650,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentNextScore: 0,
     agentExpectedOutcomeScore: 0,
     agentSignalScore: 0,
+    pageLinkCommandScore: 0,
     agentPageKindScore: 0,
     agentAlternativeActionCountScore: 0,
     agentUsabilityScoreConsistency: 0,
@@ -874,6 +878,21 @@ function expectedAgentOutcomeKind(primaryAction: CliActionShape | undefined): No
   if (primaryAction.action === "open-result" || primaryAction.action === "open-alternate-result" || primaryAction.action === "open-source-link" || primaryAction.url) return "open-result";
   if (normalizedActionExecution(primaryAction) === "inspect-output") return "inspect-output";
   return "inspect-output";
+}
+
+function scorePageLinkCommands(
+  primaryLinks: Array<{ command?: string; commandArgs?: string[] }>,
+  sourceLinks: Array<{ command?: string; commandArgs?: string[] }>,
+): number {
+  const links = [...primaryLinks, ...sourceLinks];
+  if (links.length === 0) return 1;
+  const validCount = links.filter((link) => {
+    return typeof link.command === "string"
+      && link.command.length > 0
+      && Array.isArray(link.commandArgs)
+      && link.commandArgs.length > 0;
+  }).length;
+  return roundScore(validCount / links.length);
 }
 
 function expectedAgentRoutingIntent(primaryAction: CliActionShape | undefined): AgentRoutingIntent {
@@ -1317,7 +1336,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
   const agentActionScore = summary.agentPrimaryAction ? 1 : 0;
   return roundScore(
     confidenceScore * 0.14
-    + readabilityExplainabilityScore * 0.105
+    + readabilityExplainabilityScore * 0.1
     + contentScore * 0.2
     + linkScore * 0.16
     + actionScore * 0.05
@@ -1346,6 +1365,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentNextScore * 0.005
     + summary.agentExpectedOutcomeScore * 0.005
     + summary.agentSignalScore * 0.005
+    + summary.pageLinkCommandScore * 0.005
     + summary.agentPrimaryShortcutScore * 0.005
   );
 }
@@ -1396,6 +1416,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentNextScore: average(included.map((comparison) => comparison.cliAgentSummary.agentNextScore)),
     averageAgentExpectedOutcomeScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExpectedOutcomeScore)),
     averageAgentSignalScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSignalScore)),
+    averagePageLinkCommandScore: average(included.map((comparison) => comparison.cliAgentSummary.pageLinkCommandScore)),
     averageAgentReadTargetScore: average(included.map((comparison) => comparison.cliAgentSummary.agentReadTargetScore)),
     averageAgentResultCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentResultCountScore)),
     averageAgentSourceLinkCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSourceLinkCountScore)),
