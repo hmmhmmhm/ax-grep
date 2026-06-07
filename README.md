@@ -768,6 +768,7 @@ events.
 pnpm compare:sample
 pnpm compare:static https://example.com https://news.ycombinator.com
 pnpm compare:tokens https://example.com https://news.ycombinator.com
+pnpm compare:static:agent
 pnpm compare:static:korea-social
 pnpm compare:tokens:korea-social
 pnpm compare:static:china-japan
@@ -784,6 +785,7 @@ estimate token cost for both compact tree prompts and `--agent` JSON prompts. Se
 Current benchmark suites include:
 
 - static HTML vs browser snapshots
+- agent executor regression targets for `averageAgentExecutorScore`
 - CLI agent summary scoring for `pageCheck`, `searchResults`, source evidence, readability, next steps, and suggested actions
 - token-cost comparison for compact tree prompt text and `--agent` JSON payloads
 - Korean forum/search/social targets

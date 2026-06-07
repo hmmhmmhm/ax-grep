@@ -204,6 +204,12 @@ Run with `pnpm compare:korea`.
 ## Static SSR HTML Results
 
 Run with `pnpm compare:static URL...`.
+Run with `pnpm compare:static:agent` for the smaller executor-focused regression
+set that exercises readable pages, listings, forum-style links, and a search
+diagnostic while tracking `averageAgentExecutorScore`.
+In the current run, the gate summary includes 3 targets and excludes 2
+diagnostics; `averageAgentExecutorScore` is 1.00 for the included executor
+targets.
 
 This path fetches HTML and runs `extract(html)` from the static entry without
 Chrome, jsdom, WebView, layout, or script execution. `agent-browser` is used only

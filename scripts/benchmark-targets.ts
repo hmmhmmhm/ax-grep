@@ -124,10 +124,36 @@ export const chinaJapanTargets: BenchmarkTarget[] = [
   },
 ];
 
+export const agentExecutorTargets: BenchmarkTarget[] = [
+  {
+    category: "Example baseline",
+    url: "https://example.com",
+  },
+  {
+    category: "Wikipedia portal",
+    url: "https://www.wikipedia.org",
+  },
+  {
+    category: "Books listing",
+    url: "https://books.toscrape.com/",
+  },
+  {
+    category: "Old Reddit programming",
+    url: "https://old.reddit.com/r/programming/",
+  },
+  {
+    category: "Bing search diagnostic",
+    url: "https://www.bing.com/search?q=ax-grep",
+    gate: false,
+    gateReason: "Search result pages are anti-bot and personalization sensitive; keep as executor diagnostics only.",
+  },
+];
+
 export function resolveBenchmarkTargets(args: string[], fallback: string[]): BenchmarkTarget[] {
   const targetSetIndex = args.indexOf("--target-set");
   if (targetSetIndex >= 0) {
     const name = args[targetSetIndex + 1];
+    if (name === "agent-executor") return agentExecutorTargets;
     if (name === "korea-social") return koreaSocialTargets;
     if (name === "china-japan") return chinaJapanTargets;
     throw new Error(`Unknown target set: ${name ?? ""}`);
