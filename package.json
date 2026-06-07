@@ -1,5 +1,5 @@
 {
-  "name": "@hmmhmmhm/ax-lite",
+  "name": "ax-grep",
   "version": "0.1.0",
   "description": "A browser-native semantic accessibility tree extractor that runs without DevTools or CDP.",
   "type": "module",
@@ -19,6 +19,10 @@
     "./browser": {
       "types": "./dist/browser.d.ts",
       "import": "./dist/browser.js"
+    },
+    "./static": {
+      "types": "./dist/static.d.ts",
+      "import": "./dist/static.js"
     }
   },
   "files": [
@@ -30,8 +34,16 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "compare": "tsx scripts/compare.ts",
+    "compare:static": "tsx scripts/compare-static.ts",
+    "compare:tokens": "tsx scripts/compare-token-cost.ts",
     "compare:sample": "tsx scripts/compare.ts https://example.com https://www.wikipedia.org https://developer.mozilla.org/en-US/docs/Web/Accessibility https://news.ycombinator.com https://github.com/features https://libraries.io/npm/typescript https://www.npmjs.com/package/typescript",
-    "compare:korea": "tsx scripts/compare.ts https://ko.wikipedia.org/wiki/%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD https://www.hani.co.kr/ https://www.korea.kr/ https://www.yonhapnewstv.co.kr/"
+    "compare:korea": "tsx scripts/compare.ts https://ko.wikipedia.org/wiki/%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD https://www.hani.co.kr/ https://www.korea.kr/ https://www.yonhapnewstv.co.kr/",
+    "compare:static:korea-social": "tsx scripts/compare-static.ts --target-set korea-social",
+    "compare:tokens:korea-social": "tsx scripts/compare-token-cost.ts --target-set korea-social",
+    "compare:static:china-japan": "tsx scripts/compare-static.ts --target-set china-japan",
+    "compare:tokens:china-japan": "tsx scripts/compare-token-cost.ts --target-set china-japan",
+    "compare:static:diverse": "tsx scripts/compare-static.ts https://www.bbc.com/news https://www.npr.org/2025/03/11/nx-s1-5324543/ntsb-dca-mid-air-collision-american-black-hawk https://www.theguardian.com/international https://www.gov.uk/foreign-travel-advice https://www.nottinghamshire.gov.uk/global-content/how-to-create-accessible-content/how-to-make-web-pages-accessible/checklist-web-page https://books.toscrape.com/ https://old.reddit.com/r/programming/ https://www.reddit.com/r/programming/ https://x.com/NASA https://www.instagram.com/nasa/",
+    "compare:tokens:diverse": "tsx scripts/compare-token-cost.ts https://www.bbc.com/news https://www.npr.org/2025/03/11/nx-s1-5324543/ntsb-dca-mid-air-collision-american-black-hawk https://www.gov.uk/foreign-travel-advice https://books.toscrape.com/ https://old.reddit.com/r/programming/ https://x.com/NASA https://www.instagram.com/nasa/"
   },
   "keywords": [
     "accessibility",
@@ -45,9 +57,14 @@
     "@types/node": "^25.0.0",
     "agent-browser": "^0.27.0",
     "puppeteer": "^24.31.0",
-    "tsx": "^4.21.0",
     "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vitest": "^4.1.0"
+  },
+  "dependencies": {
+    "domhandler": "^6.0.1",
+    "htmlparser2": "^12.0.0",
+    "js-tiktoken": "^1.0.21"
   }
 }

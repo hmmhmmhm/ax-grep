@@ -1,4 +1,5 @@
 import { formatSemanticTreeText, observeSemanticTree } from "./browser";
+import { extract as extractStatic, type StaticSemanticTreeOptions } from "./static";
 import type { ExtractorScriptOptions, ObserverScriptOptions, SemanticNode, SemanticTreeOptions } from "./types";
 
 export type {
@@ -13,8 +14,13 @@ export type {
   SemanticTreeObserverOptions,
   SemanticTreeOptions,
 } from "./types";
+export type { StaticSemanticTreeOptions } from "./static";
 
 export { formatSemanticTreeText, observeSemanticTree };
+
+export function extract(html: string, options?: StaticSemanticTreeOptions): SemanticNode {
+  return extractStatic(html, options);
+}
 
 export function createExtractorScript(options: ExtractorScriptOptions = {}): string {
   const serializedOptions = JSON.stringify(options);
@@ -84,7 +90,16 @@ export function normalizeOptions(options: SemanticTreeOptions = {}): SemanticTre
     includeHidden: false,
     includeSelectOptions: true,
     excludeLikelyAds: false,
+    excludeLikelyBoilerplate: false,
     pruneCustomElementWrappers: true,
+    pruneCollapsedSubtrees: true,
+    pruneLikelyClosedOverlays: false,
+    summarizeLargeSubtrees: false,
+    summarizeLikelyLinkFarms: false,
+    summarizeRepeatedSubtrees: false,
+    maxChildrenPerNode: 80,
+    maxLinkFarmChildren: 24,
+    maxRepeatedSubtreeInstances: 3,
     ...options,
   };
 }
@@ -100,7 +115,16 @@ const __AX_LITE__ = (() => {
     includeHidden: false,
     includeSelectOptions: true,
     excludeLikelyAds: false,
+    excludeLikelyBoilerplate: false,
     pruneCustomElementWrappers: true,
+    pruneCollapsedSubtrees: true,
+    pruneLikelyClosedOverlays: false,
+    summarizeLargeSubtrees: false,
+    summarizeLikelyLinkFarms: false,
+    summarizeRepeatedSubtrees: false,
+    maxChildrenPerNode: 80,
+    maxLinkFarmChildren: 24,
+    maxRepeatedSubtreeInstances: 3,
     maxTextLength: 240,
   };
   const interactiveRoles = new Set(["button","checkbox","combobox","link","listbox","menuitem","menuitemcheckbox","menuitemradio","option","radio","searchbox","slider","spinbutton","switch","tab","textbox","treeitem"]);

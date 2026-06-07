@@ -20,7 +20,16 @@ const defaultOptions: Required<SemanticTreeOptions> = {
   includeHidden: false,
   includeSelectOptions: true,
   excludeLikelyAds: false,
+  excludeLikelyBoilerplate: false,
   pruneCustomElementWrappers: true,
+  pruneCollapsedSubtrees: true,
+  pruneLikelyClosedOverlays: false,
+  summarizeLargeSubtrees: false,
+  summarizeLikelyLinkFarms: false,
+  summarizeRepeatedSubtrees: false,
+  maxChildrenPerNode: 80,
+  maxLinkFarmChildren: 24,
+  maxRepeatedSubtreeInstances: 3,
   maxTextLength: 240,
 };
 
@@ -90,6 +99,8 @@ export function extractSemanticTree(options: SemanticTreeOptions = {}): Semantic
     unavailableNode(context, "document", "Document has no inspectable body")
   );
 }
+
+export { extractSemanticTree as extract };
 
 export function formatSemanticTreeText(node: SemanticNode): string {
   const lines: string[] = [];

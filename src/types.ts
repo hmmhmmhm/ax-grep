@@ -10,7 +10,16 @@ export type SemanticTreeOptions = {
   includeHidden?: boolean;
   includeSelectOptions?: boolean;
   excludeLikelyAds?: boolean;
+  excludeLikelyBoilerplate?: boolean;
   pruneCustomElementWrappers?: boolean;
+  pruneCollapsedSubtrees?: boolean;
+  pruneLikelyClosedOverlays?: boolean;
+  summarizeLargeSubtrees?: boolean;
+  summarizeLikelyLinkFarms?: boolean;
+  summarizeRepeatedSubtrees?: boolean;
+  maxChildrenPerNode?: number;
+  maxLinkFarmChildren?: number;
+  maxRepeatedSubtreeInstances?: number;
   maxTextLength?: number;
 };
 

@@ -124,7 +124,7 @@ for (const [index, url] of targets.entries()) {
     ) as SemanticNode;
     const axLite = summarizeSemanticTree(tree);
     const axLiteNormalized = normalizeNamedRoles(axLite.namedRoles);
-    const agentBrowser = runAgentBrowserSnapshot(url, `ax-lite-compare-${Date.now()}-${index}`, warnings);
+    const agentBrowser = runAgentBrowserSnapshot(url, `ax-grep-compare-${Date.now()}-${index}`, warnings);
     const agentNamedRoles = new Set(agentBrowser?.normalized.namedRoles ?? []);
     const matches = axLiteNormalized.namedRoles.filter((item) => agentNamedRoles.has(item)).length;
     const namedRoleTotal = Math.max(axLiteNormalized.namedRoles.length, agentBrowser?.normalized.namedRoles.length ?? 0);
