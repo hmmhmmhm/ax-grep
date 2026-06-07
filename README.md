@@ -83,6 +83,9 @@ see which query, engine, and result rank produced the final page.
 For supported search engines, `searchResults` is extracted from SERP result
 cards before falling back to generic link ranking, so result order tracks the
 page's own ranking more closely.
+Search result pages also cap the trailing text tree to 80 lines by default to
+keep agent prompts focused; pass `--max-tree-lines <n>` to choose a different
+limit.
 
 When a page is challenged, logged-in, or JavaScript-rendered, let a browser
 controller capture the HTML and pass it back through the same CLI:

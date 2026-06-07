@@ -766,6 +766,24 @@ describe("cli", () => {
     expect(stdout.output).not.toContain("Body text");
   });
 
+  it("caps search page tree output by default", async () => {
+    const stdout = new MemoryWriter();
+    const paragraphs = Array.from({ length: 120 }, (_, index) => `<p>Search page noise ${index}</p>`).join("");
+    const status = await runCli(["https://search.example/search?q=agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <ol><li><a href="https://result.example">Result</a><p>Snippet text for result.</p></li></ol>
+          <section>${paragraphs}</section>
+        </main>
+      `),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("tree lines omitted");
+    expect(stdout.output).not.toContain("Search page noise 119");
+  });
+
   it("can extract browser-captured HTML from a file with a URL base", async () => {
     const dir = await mkdtemp(join(tmpdir(), "ax-grep-"));
     const htmlFile = join(dir, "page.html");

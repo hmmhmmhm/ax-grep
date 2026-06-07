@@ -580,7 +580,7 @@ function formatCliText(node: SemanticNode, fetched: FetchResult, options: Pick<C
   }
   visit(node, 0);
   if (lines.length > 0) lines.push("", "tree");
-  const maxTreeLines = options.maxTreeLines;
+  const maxTreeLines = options.maxTreeLines ?? (looksLikeSearchUrl(fetched.finalUrl) ? 80 : undefined);
   if (maxTreeLines && treeLines.length > maxTreeLines) {
     lines.push(...treeLines.slice(0, maxTreeLines));
     lines.push(`  ... ${treeLines.length - maxTreeLines} tree lines omitted`);
