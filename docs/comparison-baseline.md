@@ -27,12 +27,124 @@ same exact normalized `role:name` matches, but split by agent-facing use:
   content 20%, precision 15%.
 
 The static harness also emits `cliAgentSummary`, which scores the actual
-agent-facing CLI JSON envelope rather than raw tree overlap. It uses
-`pageCheck`, `searchResults`, and `suggestedActions` to estimate how directly an
-agent can decide whether to read, open, or retry a page. `averageCliAgentScore`
+agent-facing `--agent` compact JSON envelope rather than raw tree overlap. It uses
+top-level `agent` routing status, `pageCheck`, structured content evidence, source links and source quality,
+readability, requested verification status, follow-up `nextSteps`, `searchResults`, and `suggestedActions` to estimate how directly an agent can
+decide whether to read, open, or retry a page. `averageCliAgentScore`
 in `gateSummary` tracks that higher-level usefulness separately from
 `agentReadiness`, which remains an exact `agent-browser snapshot` overlap
 metric.
+The score includes action-schema completeness, so `run-command` actions need
+both a human-readable command and raw `commandArgs`, `read-current` actions need
+`readFrom`, and `interact-browser` actions need an explicit browser-interaction
+signal.
+`averageActionSchemaScore` tracks that schema completeness directly across the
+gate-included targets.
+`averageSearchResultActionScore` tracks whether compact search results include
+rank-specific `openResult`, `command`, and raw `commandArgs`, so search agents
+can open alternate results without reconstructing commands.
+`averageContentEvidenceMetadataScore` tracks whether `pageCheck.contentEvidence`
+items include `source` and bounded `score` metadata, so agents can prioritize
+semantic evidence over fallback excerpts.
+`averageReadabilityReasonScore` tracks whether compact page checks preserve
+concise readability reasons, so agents can understand why a page is readable,
+thin, blocked, or worth retrying.
+`averageAgentReadabilityReasonScore` tracks whether the compact top-level
+`agent` summary repeats concise readability reasons, so agents can route from
+the first object before drilling into `pageCheck`.
+`averageAgentReadTargetScore` tracks whether `agent.readTargets` points to
+payload fields that actually exist and are worth reading, and whether
+`read-current` actions mark the matching target as primary.
+`averageAgentResultCountScore` tracks whether `agent.resultCount` is zero for
+non-search pages and at least the compact result count for search pages.
+`averageAgentSourceLinkCountScore` tracks whether `agent.sourceLinkCount` is
+zero for search pages and matches compact `pageCheck.sourceLinks` for ordinary
+content pages.
+`averageAgentBrowserNeedScore` tracks whether `agent.needsBrowserHtml` agrees
+with the primary action: browser HTML retry actions should require browser
+HTML, while URL search recovery, alternate-result recovery, read-current, and
+retry-later actions should not.
+`averageAgentPageKindScore` tracks whether `agent.pageKind` mirrors the root
+payload `kind`, so agents can route from the top-level `agent` object without
+re-reading `analysis.kind` or the envelope root.
+`averageAgentAlternativeActionCountScore` tracks whether
+`agent.alternativeActionCount` matches the deduplicated compact follow-up
+actions left outside `agent.primaryAction`, so agents can know whether a page
+has useful alternatives before scanning nested action arrays.
+`averageAgentUsabilityScoreConsistency` tracks whether `agent.usabilityScore`
+matches the documented compact quality heuristic derived from status,
+readability, confidence, evidence, search results, source links, and
+verification status.
+`averageAgentEvidenceQualityScoreConsistency` and
+`averageAgentSourceQualityScoreConsistency` track whether top-level evidence
+and source quality scores match the compact evidence/source arrays, so agents
+can compare payload quality before reading every candidate item.
+`averageAgentBestReadTargetScore` tracks whether `agent.bestReadTarget` and its
+score/reason match the primary or highest-scored `agent.readTargets` entry, so
+agents can start reading the best compact field without sorting candidates.
+`averageAgentDiagnosticCountScore` tracks whether top-level diagnostic severity
+counts match the compact diagnostics array, so agents can distinguish warnings
+from hard errors before drilling into diagnostic messages.
+`averageAgentVerificationCountScore` tracks whether top-level verification
+requested/found/missing counts match the compact verification object, so agents
+can decide whether requested evidence is complete before reading details.
+`averageAgentResponseMetadataScore` tracks whether `agent.responseStatus`,
+`agent.responseOk`, `agent.responseContentType`, and `agent.finalUrlChanged`
+mirror the compact envelope response fields, so agents can judge fetch health
+from the top-level `agent` object.
+`averageAgentCanContinueScore` tracks whether `agent.canContinue` agrees with
+the primary action execution class, so recoverable errors with runnable actions
+do not look terminal and usage/input errors without actions do not look
+actionable.
+`averageAgentPrimaryExecutionScore` tracks whether `agent.primaryExecution`
+matches `agent.primaryAction.execution`, so agents can route from the shortcut
+field without rereading the full action object.
+`averageAgentPrimaryShortcutScore` tracks whether `agent.primaryReadFrom`,
+`agent.primaryCommand`, `agent.primaryCommandArgs`, `agent.primaryUrl`,
+`agent.primaryRank`, `agent.primaryOpenResult`, and
+`agent.requiresBrowserInteraction` mirror the matching fields on
+`agent.primaryAction`, so agents can continue from top-level routing fields.
+`averageAgentSourceSearchProvenanceScore` tracks whether opened-result payloads
+with `sourceSearch.selectedResult` or `sourceSearch.alternateResults` expose
+matching `agent.readTargets`, so agents can inspect original SERP provenance
+before trusting or recovering from an opened page.
+`averageAgentRecommendedMetadataScore` tracks whether search pages with a
+`recommendedResult` repeat its rank, source, relevance, and official-source
+hint on the top-level `agent` object for quick routing.
+Terminal actions such as `read-content` and `use-evidence` are treated as
+usable without executable commands when `execution` is `read-current` and a
+`readFrom` pointer is present, because the compact payload already contains the
+evidence an agent should read. Browser-interaction actions are also valid
+without commands when `execution` is `interact-browser`; in those cases another
+static fetch would not advance the page state.
+
+The `--agent` payload intentionally removes repeated routing data: top-level
+diagnostics are represented as `agent.diagnosticCodes`, repeated primary actions
+are omitted from `suggestedActions` and verification/page-check action slots,
+page-level alternatives are suppressed when verification has selected
+`use-evidence`,
+search-page link/action follow-ups are omitted when `searchResults` already
+carry the decision surface, and search output is capped to the first five
+results plus any out-of-window recommended result. Opened-result payloads omit
+engine attempts once `sourceSearch` records the selected result, but keep compact
+selected/alternate SERP candidates with executable open commands for failure
+recovery, preserving custom fetch options such as `--timeout` and
+`--user-agent`. Page checks also
+skip common global-navigation headings, links, and buttons, and omit extra
+external primary links when source links are already present, so repository and
+documentation pages route agents toward page content instead of site chrome.
+Fetch failures that still have a target URL emit an executable browser-HTML
+retry command, preserving `--find` checks for the next run. When browser HTML is
+already supplied through `--html-file` or `--stdin`, the compact agent payload
+does not ask for another browser retry. Parsed search result pages keep
+`agent.canUseFetchedHtml` true even when their page-readability score is low,
+because the result cards remain usable for open/refine routing.
+Captured blocker pages still keep challenge/login/paywall diagnostics; the
+follow-up action changes to browser-state inspection instead of another capture
+loop. HTTP error actions are status-aware, so missing URLs and transient server
+errors no longer all collapse into a browser-HTML retry; missing opened search
+results and opened-result verification failures can route directly to an
+alternate original SERP candidate when one matches the missing `--find` text.
 
 The default baseline does not force a viewport. A shared viewport can be tested
 with `AX_LITE_COMPARE_VIEWPORT=WIDTHxHEIGHT`, but the default run is kept stable
@@ -102,7 +214,9 @@ Run with `pnpm compare:static:diverse`.
 Run with `pnpm compare:tokens URL...`.
 
 This serializes both browser-injected and static SSR extraction into compact
-agent prompt text and estimates token cost with `cl100k_base`. The prompt text
+agent prompt text and estimates token cost with `cl100k_base`. It also measures
+the recommended `--agent` compact JSON payload, so the benchmark can compare raw
+tree prompts with the actual CLI payload agents should use. The prompt text
 includes role, name, state/value, and selectors for interactive nodes.
 
 | URL | browser nodes | browser tokens | static nodes | static tokens | static delta | static/browser ratio |

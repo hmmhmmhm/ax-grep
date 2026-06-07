@@ -66,30 +66,139 @@ another tool needs the same summaries as structured data.
 
 ```sh
 ax-grep --search "agent browser accessibility tree"
+ax-grep --search "ax-grep npm" --agent
+ax-grep --search "ax-grep npm" --json --summary
 ax-grep --search "ax-grep npm" --engine bing --links-only
 ax-grep --search "ax-grep npm" --engine bing --lang en --region US
-ax-grep --search "ax-grep npm" --open-result 1 --json
+ax-grep --search "ax-grep npm" --open-result best --json
 ax-grep https://example.com --json
+ax-grep https://example.com --json --no-tree
+ax-grep https://example.com --agent --find "documentation examples"
+ax-grep https://example.com --json --summary --find "documentation examples"
 ax-grep https://example.com --links-only
 ax-grep https://example.com --max-tree-lines 80
 ax-grep https://example.com --mode interactive --exclude-boilerplate
 ax-grep https://example.com --timeout 30000 --user-agent "my-agent/1.0"
 ```
 
-`--search` builds a search URL for the agent. The default engine is
-DuckDuckGo HTML; `--engine bing` and `--engine startpage` are also supported.
-Add `--open-result <n>` to fetch and analyze the selected ranked result in
-the same command. The JSON output keeps `sourceSearch` metadata so an agent can
-see which query, engine, and result rank produced the final page.
+`--search` builds search URLs for the agent. By default it uses auto mode:
+DuckDuckGo, Bing, and StartPage are tried, blocked or empty result pages are
+skipped, and the best usable result set is kept. Pass `--engine duckduckgo`,
+`--engine bing`, or `--engine startpage` to force a single engine. Auto mode
+keeps the request as `searchEngine: "auto"`, records the chosen engine as
+`selectedSearchEngine`, and includes per-engine attempts in `searchEngines`.
+Add `--open-result <n>` to fetch and analyze a selected ranked result in the
+same command, or use `--open-result best` to open the strongest query match
+based on relevance, matched terms, official-source hints, and any repeatable
+`--find <text>` checks supplied with the search. The JSON output keeps
+`sourceSearch` metadata so an agent can see which query, selected engine, and
+result rank produced the final page. It also keeps compact `selectedResult` and
+`alternateResults` metadata, so if the opened result is missing or thin, the
+agent can recover from the original SERP without rerunning the search. In
+compact `--agent` output those result entries include ready-to-run open-result
+commands, preserving custom fetch options such as `--timeout` and
+`--user-agent` when they were needed for the original request.
 For supported search engines, `searchResults` is extracted from SERP result
 cards before falling back to generic link ranking, so result order tracks the
-page's own ranking more closely.
+page's own ranking more closely. Search results also include simple agent
+judgment hints: `sourceType`, `sourceScore`, `sourceHints`, `relevance`,
+`matchedTerms`, and `isLikelyOfficial`; if top results only weakly match the query, `diagnostics` includes
+`SEARCH_LOW_CONFIDENCE`. On search result pages, JSON also includes
+`recommendedResult`, and `suggestedActions` includes `openResult: "best"` plus
+a ready-to-run `command` when the original query is known. When all top results
+miss an essential package-like term such as `ax-grep`, `recommendedResult` is
+omitted and the agent action becomes `refine-search` instead of opening a
+misleading high-rank result.
 Search result pages also cap the trailing text tree to 80 lines by default to
 keep agent prompts focused; pass `--max-tree-lines <n>` to choose a different
-limit.
+limit. In JSON mode, pass `--no-tree` or `--summary` to omit the raw tree while
+keeping metadata, diagnostics, pageCheck, links, pageLinks, results, and
+searchResults.
 Use `--lang <code>` and `--region <code>` to add search URL parameters and an
 `Accept-Language` header, making agent searches more reproducible across
 locales.
+
+For agent routing, use `--agent` when you do not need the raw tree or full link
+tables. It prints compact JSON with the top-level `agent` object plus
+`pageCheck`, search results, requested verification results, and warnings when
+they are present. Read `agent` first: it combines page classification,
+readability, verification, diagnostic codes, and recommended result selection
+into `status`, `summary`, `canUseFetchedHtml`, `needsBrowserHtml`,
+`responseStatus`, `responseOk`, `responseContentType`, `finalUrlChanged`,
+`pageKind`, `alternativeActionCount`, `usabilityScore`,
+`evidenceQualityScore`, `sourceQualityScore`, `readabilityScore`,
+`readabilityReasons`, `diagnosticCodes`, `diagnosticErrorCount`,
+`diagnosticWarningCount`, `diagnosticInfoCount`, `verificationRequestedCount`,
+`verificationFoundCount`, `verificationMissingCount`, `readTargets`, `bestReadTarget`,
+`primaryExecution`, `primaryAction`, and compact recommended-result metadata
+such as `recommendedRank`, `recommendedSource`, `recommendedRelevance`, and
+`recommendedLikelyOfficial`.
+`canContinue` is true when the primary action is directly usable by an agent
+(`run-command`, `read-current`, or browser interaction), including recoverable
+error states such as alternate-result recovery or retry-later.
+`agent.readTargets` lists the compact payload paths worth reading next, marking
+the primary `read-current` target when one exists. In compact agent
+mode the first action lives in `agent.primaryAction`, while
+`agent.primaryExecution` mirrors that action's `execution` for quick routing.
+`agent.primaryReadFrom`, `agent.primaryCommand`, `agent.primaryCommandArgs`,
+`agent.primaryUrl`, `agent.primaryRank`, `agent.primaryOpenResult`, and
+`agent.requiresBrowserInteraction` mirror the most common continuation fields
+from that same primary action, so a calling agent can route without drilling
+into the full action object first.
+Duplicate `suggestedActions`,
+`pageCheck.recommendedAction`, and `verification.recommendedAction` entries are
+omitted when they repeat that same command, leaving `pageCheck.nextSteps` for
+follow-up alternatives. When verification has already selected `use-evidence`,
+compact output suppresses page-level alternative actions so the agent does not
+branch away from confirmed evidence. Generated follow-up commands preserve
+search and fetch context such as `--lang`, `--region`, `--find`, `--timeout`,
+`--user-agent`, and `--agent` so another agent can continue the same
+investigation without reconstructing flags. Compact search-result entries also
+include rank-specific `openResult`, `command`, and `commandArgs`, so an agent
+can compare or open result 2 or 3 without inventing a command from the raw URL;
+search-like pages reached by a normal URL expose a direct
+`ax-grep <result-url>` continuation for the selected result;
+fetch errors also emit a
+browser-captured HTML retry command when a URL is known. `run-command` actions
+include both a human-copyable `command` string and raw `commandArgs` for
+`spawn`/`execFile` style execution, so agents do not need to parse shell
+quoting. Terminal actions such
+as `read-content` and `use-evidence` include `execution: "read-current"`,
+`terminal: true`, and a `readFrom` pointer, and intentionally do not include
+commands, so agents read the current evidence instead of refetching the same
+usable page. Browser-interaction actions include `execution: "interact-browser"`
+and `requiresBrowserInteraction: true`, and omit commands when another static
+fetch would not reveal more information. When
+`--html-file` or `--stdin` is already supplying browser-captured HTML, compact
+output suppresses another browser retry recommendation. On search result pages,
+compact agent output keeps the ranked `searchResults` list and omits
+duplicate `pageCheck` link lists, search-form actions, and search-page
+follow-up steps that repeat `agent.primaryAction`. Page checks also suppress
+common global-navigation buttons and links so agents are routed toward page
+content instead of site chrome; when `sourceLinks` are present, extra external
+`primaryLinks` are omitted from compact output. To keep payloads small, it emits
+the first five search results plus the recommended result when that result is
+outside the first five; auto-search engine attempts are reduced to status,
+result counts, diagnostic codes, and each engine's top result, and are omitted
+after `--open-result` once `sourceSearch` records the selected result.
+`sourceSearch.alternateResults` keeps the nearby candidate results needed for
+failure recovery while avoiding the full engine-attempt payload. When the
+primary action is `open-alternate-result`, `agent.readTargets` points at
+`sourceSearch.alternateResults` so an agent can inspect the original SERP
+candidates before running the recovery command. After any `--open-result`,
+`agent.readTargets` also points at `sourceSearch.selectedResult`, preserving
+the original SERP title, snippet, rank, relevance, and runnable command as
+page provenance.
+
+Use repeatable `--find <text>` with any page or search result page to ask
+`ax-grep` whether the page summaries contain a term or phrase. JSON output adds
+`finds` with `found`, `matchCount`, and the matching field/evidence text, so an
+agent can verify a page without scanning the full tree. It also adds
+`verification`, a compact roll-up with `status`, found/missing query counts,
+best evidence, and the next verification action. On search result pages,
+matching results also expose `findMatches`; the SERP title itself is not enough
+to satisfy `--find`. `recommendedResult`, suggested `open-result` actions, and
+`--open-result best` prefer result-card matches automatically.
 
 When a page is challenged, logged-in, or JavaScript-rendered, let a browser
 controller capture the HTML and pass it back through the same CLI:
@@ -108,13 +217,31 @@ cat captured.html | ax-grep https://example.com --stdin --json
   "ok": true,
   "url": "https://example.com",
   "searchQuery": "example domain",
-  "searchEngine": "duckduckgo",
+  "searchEngine": "auto",
+  "selectedSearchEngine": "bing",
+  "searchEngines": [
+    {
+      "engine": "duckduckgo",
+      "url": "https://duckduckgo.com/html/?q=example+domain&kl=us-en",
+      "ok": false,
+      "resultCount": 0,
+      "kind": "blocked-page"
+    },
+    {
+      "engine": "bing",
+      "url": "https://www.bing.com/search?q=example+domain&setlang=en&cc=US&mkt=en-US",
+      "ok": true,
+      "resultCount": 3,
+      "kind": "search-results"
+    }
+  ],
   "searchLang": "en",
   "searchRegion": "US",
   "sourceSearch": {
     "query": "example domain",
-    "engine": "duckduckgo",
-    "searchUrl": "https://duckduckgo.com/html/?q=example+domain&kl=us-en",
+    "engine": "bing",
+    "selectedEngine": "bing",
+    "searchUrl": "https://www.bing.com/search?q=example+domain&setlang=en&cc=US&mkt=en-US",
     "lang": "en",
     "region": "US",
     "selectedRank": 1,
@@ -130,7 +257,10 @@ cat captured.html | ax-grep https://example.com --stdin --json
   "suggestedActions": [
     {
       "action": "read-content",
-      "reason": "The page has article-like content excerpts suitable for source checking."
+      "execution": "read-current",
+      "reason": "The page has article-like content excerpts suitable for source checking.",
+      "terminal": true,
+      "readFrom": "pageCheck.contentEvidence"
     }
   ],
   "page": {
@@ -143,8 +273,30 @@ cat captured.html | ax-grep https://example.com --stdin --json
     "contentPreview": [
       "This domain is for use in illustrative examples in documents."
     ],
+    "contentEvidence": [
+      {
+        "rank": 1,
+        "text": "This domain is for use in illustrative examples in documents.",
+        "role": "p",
+        "source": "semantic",
+        "score": 0.72,
+        "selector": "p"
+      }
+    ],
     "contentLength": 58,
     "primaryLinks": [
+      {
+        "title": "More information...",
+        "url": "https://www.iana.org/domains/example",
+        "source": "iana.org",
+        "rank": 1,
+        "kind": "external",
+        "sourceType": "official",
+        "sourceScore": 0.92,
+        "sourceHints": ["official-organization"]
+      }
+    ],
+    "sourceLinks": [
       {
         "title": "More information...",
         "url": "https://www.iana.org/domains/example",
@@ -154,7 +306,112 @@ cat captured.html | ax-grep https://example.com --stdin --json
       }
     ],
     "actions": [],
-    "confidence": "medium"
+    "confidence": "medium",
+    "readability": {
+      "level": "medium",
+      "score": 0.45,
+      "reasons": [
+        "1 content evidence item",
+        "1 external source link"
+      ]
+    },
+    "recommendedAction": {
+      "action": "read-content",
+      "execution": "read-current",
+      "reason": "The page has enough structured evidence for source checking.",
+      "url": "https://example.com/",
+      "terminal": true,
+      "readFrom": "pageCheck.contentEvidence"
+    },
+    "nextSteps": [
+      {
+        "action": "read-content",
+        "execution": "read-current",
+        "reason": "The page has enough structured evidence for source checking.",
+        "url": "https://example.com/",
+        "terminal": true,
+        "readFrom": "pageCheck.contentEvidence"
+      },
+      {
+        "action": "open-source-link",
+        "execution": "run-command",
+        "reason": "Inspect an external source link referenced by the page.",
+        "url": "https://www.iana.org/domains/example",
+        "rank": 1,
+        "command": "ax-grep 'https://www.iana.org/domains/example' --json --summary",
+        "commandArgs": [
+          "ax-grep",
+          "https://www.iana.org/domains/example",
+          "--json",
+          "--summary"
+        ]
+      }
+    ]
+  },
+  "finds": [
+    {
+      "query": "documentation examples",
+      "found": true,
+      "matchCount": 1,
+      "matches": [
+        {
+          "field": "contentEvidence",
+          "rank": 1,
+          "text": "This domain is for use in illustrative examples in documents.",
+          "source": "semantic",
+          "score": 0.72,
+          "selector": "p"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "status": "matched",
+    "requestedCount": 1,
+    "foundCount": 1,
+    "missingCount": 0,
+    "evidenceCount": 1,
+    "foundQueries": ["documentation examples"],
+    "missingQueries": [],
+    "bestEvidence": {
+      "field": "contentEvidence",
+      "rank": 1,
+      "text": "This domain is for use in illustrative examples in documents.",
+      "source": "semantic",
+      "score": 0.72,
+      "selector": "p"
+    },
+    "recommendedAction": {
+      "action": "use-evidence",
+      "execution": "read-current",
+      "reason": "All requested text was found in the page summaries.",
+      "url": "https://example.com/",
+      "terminal": true,
+      "readFrom": "verification.bestEvidence"
+    }
+  },
+  "agent": {
+    "status": "ready",
+    "summary": "All requested text was found in the page summaries.",
+    "canUseFetchedHtml": true,
+    "needsBrowserHtml": false,
+    "confidence": "medium",
+    "readability": "medium",
+    "verificationStatus": "matched",
+    "resultCount": 0,
+    "evidenceCount": 1,
+    "sourceLinkCount": 1,
+    "diagnosticCodes": [],
+    "primaryExecution": "read-current",
+    "primaryAction": {
+      "action": "use-evidence",
+      "execution": "read-current",
+      "reason": "All requested text was found in the page summaries.",
+      "url": "https://example.com/",
+      "terminal": true,
+      "readFrom": "verification.bestEvidence"
+    },
+    "recommendedUrl": "https://example.com/"
   },
   "links": [
     {
@@ -169,7 +426,13 @@ cat captured.html | ax-grep https://example.com --stdin --json
       "url": "https://www.iana.org/domains/example",
       "source": "iana.org",
       "rank": 1,
-      "snippet": "Background text near the result when available."
+      "snippet": "Background text near the result when available.",
+      "sourceType": "official",
+      "sourceScore": 0.92,
+      "sourceHints": ["official-organization"],
+      "relevance": "medium",
+      "matchedTerms": ["example"],
+      "isLikelyOfficial": false
     }
   ],
   "searchResults": [],
@@ -186,7 +449,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
       "role": "p"
     }
   ],
-  "tree": {}
+  "treeOmitted": true
 }
 ```
 
@@ -200,13 +463,73 @@ HTML.
 `interactive-page`, `blocked-page`, `empty`, or `page`. `diagnostics` flags
 states such as `CHALLENGE_LIKELY`, `LOGIN_REQUIRED`, `PAYWALL_LIKELY`,
 `NO_USEFUL_LINKS`, and `NON_HTML_CONTENT_TYPE`; `suggestedActions` gives the
-next useful move, such as opening the first result or retrying with captured
-browser HTML. `links` always describes links on the current page. `results` is
-a ranked convenience view over those links for backward compatibility;
+next useful move, such as opening the strongest matching result or retrying
+with captured browser HTML. For search pages, `recommendedResult` is the result
+an agent should inspect first when it does not have a stronger reason to choose
+another rank. It uses query relevance plus any `--find` matches, so the same
+command can search, identify the likely source, and open it with
+`--open-result best`. `links` always describes links on the current page.
+`pageLinks` is the ranked source-scored view over those links. `results` is a
+backward-compatible alias that contains search candidates on search pages and
+page-link candidates on ordinary pages;
 `searchResults` is populated when the current page is classified as a search
 results page. `pageCheck` is the higher-level page inspection summary agents
 should read first for title, canonical URL, main heading, content excerpts,
-important links, actions, and extraction confidence.
+structured content evidence, source-like external links, actions, and
+extraction confidence. Each `contentEvidence` item includes `source` and
+`score` fields so agents can distinguish semantic page evidence from fallback
+text when choosing what to cite or verify. `pageCheck.readability` includes
+`level`, numeric `score`, and concise `reasons`, explaining how directly useful
+the page is for source checking; compact `agent` repeats the score and first
+few reasons so agents can route from the top-level object before drilling into
+`pageCheck`. `pageCheck.recommendedAction` gives the next
+page-level move without requiring the agent to infer it from raw fields.
+`pageCheck.nextSteps` expands that into a deduplicated shortlist of follow-ups
+such as opening the best search result, opening source links, inspecting
+controls, or retrying with browser-captured HTML. Actions include an
+`execution` discriminator: `run-command` means execute the included `command`
+or, preferably, `commandArgs`,
+`read-current` means read the field named by `readFrom`, and
+`interact-browser` means use the live browser before recapturing HTML.
+
+`agent.status` is the shortest routing signal: `ready` means fetched HTML is
+usable, `choose-result` means open the primary search result action, `verify`
+means evidence is partial or thin, `needs-browser` means browser-captured HTML
+is recommended, and `error` means extraction failed before a usable summary was
+produced. `agent.canUseFetchedHtml` stays true for successfully parsed search
+result pages, even when page readability is low, because the SERP cards are
+already usable for choosing or refining results. `agent.resultCount` counts
+search results only, while `agent.sourceLinkCount` counts page-level source
+links only; on search pages, use `searchResults` for candidate sources.
+When `--html-file` or `--stdin` supplies browser-captured HTML, blocker
+diagnostics are still reported, but actions do not ask for another browser HTML
+retry; browser-state inspection actions intentionally omit commands because the
+next step is interaction in the already-open browser. HTTP failures also branch
+by status: likely access blocks can request browser HTML, opened missing search
+results route to an alternate SERP result when available, other missing URLs
+route to URL-check/search recovery, and server errors route to a later retry.
+
+`sourceType`, `sourceScore`, and `sourceHints` are lightweight source-profiling
+fields on ranked results and page links. They classify obvious domains such as
+government, education, official registries, documentation, code hosts, wiki,
+news, forums, social platforms, and commerce pages. They are hints for agent
+triage, not a trust guarantee.
+
+When `--find` is used, `verification.status` is the quickest page-check answer:
+`matched` means every requested phrase was found, `partial` means some were
+found, and `missing` means none were found. Without `--find`, full JSON reports
+`not-requested`; compact `--agent` output omits the `verification` object and
+keeps the same state in `agent.verificationStatus`. If evidence is missing,
+`verification.recommendedAction` points to the next useful move, such as opening
+a source link, opening an alternate original SERP result, or retrying with
+browser-captured HTML. If no source or alternate is available, `broaden-search`
+emits a fresh `--search` command rather than refetching the same page. In
+compact agent output, empty verification arrays and actions already present as
+`agent.primaryAction` are omitted. Verification commands preserve the missing
+`--find` query so the next page is checked for the same claim automatically.
+When a search result page has no result card matching `--find`, `refine-search`
+also folds the missing phrase into the next `--search` query so agents do not
+repeat the same SERP.
 
 ## Entry Points
 
@@ -431,15 +754,17 @@ pnpm compare:tokens:china-japan
 ```
 
 The comparison scripts compare `ax-grep` output with `agent-browser snapshot`
-output, score the CLI's `pageCheck`/`searchResults` agent summary, and estimate
-token cost for compact agent prompts. See
+output, score the CLI's `--agent` compact `agent`/`pageCheck`/`searchResults` summary, including
+structured evidence, readability, source link quality, verification status,
+recommended actions, next steps, and
+estimate token cost for both compact tree prompts and `--agent` JSON prompts. See
 `docs/comparison-baseline.md` for the current baseline run.
 
 Current benchmark suites include:
 
 - static HTML vs browser snapshots
-- CLI agent summary scoring for `pageCheck`, `searchResults`, and suggested actions
-- token-cost comparison for compact prompt text
+- CLI agent summary scoring for `pageCheck`, `searchResults`, source evidence, readability, next steps, and suggested actions
+- token-cost comparison for compact tree prompt text and `--agent` JSON payloads
 - Korean forum/search/social targets
 - Chinese and Japanese wiki/news/forum/search targets
 - challenge and volatile-page diagnostics

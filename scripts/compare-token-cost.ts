@@ -1,7 +1,9 @@
 import process from "node:process";
+import { Readable } from "node:stream";
 import { getEncoding } from "js-tiktoken";
 import puppeteer from "puppeteer";
 import { createExtractorScript, flattenSemanticTree, type SemanticNode } from "../src/index";
+import { runCli } from "../src/cli";
 import { extract } from "../src/static";
 import { resolveBenchmarkTargets, type BenchmarkTarget } from "./benchmark-targets";
 
@@ -27,9 +29,12 @@ type TokenComparison = {
   staticHtmlSource: "fetch" | "browser-rendered";
   browser: ModeCost;
   static: ModeCost;
+  agentCompact: ModeCost;
   delta: {
     staticMinusBrowserTokens: number | null;
     staticToBrowserTokenRatio: number | null;
+    agentMinusBrowserTokens: number | null;
+    agentToBrowserTokenRatio: number | null;
     staticMinusBrowserNodes: number | null;
   };
   warnings: string[];
@@ -39,7 +44,9 @@ type TokenGateSummary = {
   included: number;
   excluded: number;
   averageStaticToBrowserTokenRatio: number;
+  averageAgentToBrowserTokenRatio: number;
   averageStaticMinusBrowserTokens: number;
+  averageAgentMinusBrowserTokens: number;
   averageStaticMinusBrowserNodes: number;
 };
 
@@ -102,6 +109,7 @@ for (const target of targets) {
     ...(target.maxChildrenPerNode === undefined ? {} : { maxChildrenPerNode: target.maxChildrenPerNode }),
     ...(target.maxLinkFarmChildren === undefined ? {} : { maxLinkFarmChildren: target.maxLinkFarmChildren }),
   }));
+  const agentCompactCost = await measureAgentCompact(target.url, staticHtml, staticHtmlSource, response.status, warnings);
   comparisons.push({
     category: target.category,
     url: target.url,
@@ -110,9 +118,12 @@ for (const target of targets) {
     staticHtmlSource,
     browser: browserCost,
     static: staticCost,
+    agentCompact: agentCompactCost,
     delta: {
       staticMinusBrowserTokens: browserCost.available ? staticCost.estimatedTokens - browserCost.estimatedTokens : null,
       staticToBrowserTokenRatio: browserCost.available ? round(staticCost.estimatedTokens / Math.max(browserCost.estimatedTokens, 1)) : null,
+      agentMinusBrowserTokens: browserCost.available && agentCompactCost.available ? agentCompactCost.estimatedTokens - browserCost.estimatedTokens : null,
+      agentToBrowserTokenRatio: browserCost.available && agentCompactCost.available ? round(agentCompactCost.estimatedTokens / Math.max(browserCost.estimatedTokens, 1)) : null,
       staticMinusBrowserNodes: browserCost.available ? staticCost.nodeCount - browserCost.nodeCount : null,
     },
     warnings,
@@ -136,6 +147,53 @@ function measureTree(tree: SemanticNode): ModeCost {
     estimatedTokens,
     tokensPerNode: round(estimatedTokens / Math.max(flat.length, 1)),
     preview: text.split("\n").slice(0, 12),
+  };
+}
+
+async function measureAgentCompact(
+  url: string,
+  html: string,
+  source: "fetch" | "browser-rendered",
+  status: number,
+  warnings: string[],
+): Promise<ModeCost> {
+  const stdout = createMemoryWriter();
+  const stderr = createMemoryWriter();
+  const args = source === "browser-rendered" ? [url, "--stdin", "--agent"] : [url, "--agent"];
+  const cliStatus = await runCli(args, {
+    stdout,
+    stderr,
+    ...(source === "browser-rendered" ? { stdin: Readable.from([html]) as NodeJS.ReadStream } : {}),
+    fetch: async () => {
+      if (source === "browser-rendered") throw new Error("compare-token-cost should pass rendered HTML through stdin");
+      return new Response(html, {
+        status: status || 200,
+        headers: { "content-type": "text/html" },
+      });
+    },
+  });
+  if (cliStatus !== 0) warnings.push(`ax-grep agent compact exited ${cliStatus}: ${trimError(stderr.output || stdout.output)}`);
+  const text = stdout.output.trim();
+  const estimatedTokens = encoder.encode(text).length;
+  return {
+    available: cliStatus === 0 && text.length > 0,
+    nodeCount: 0,
+    interactiveCount: 0,
+    textBytes: new TextEncoder().encode(text).length,
+    textChars: text.length,
+    estimatedTokens,
+    tokensPerNode: 0,
+    preview: text.split("\n").slice(0, 12),
+  };
+}
+
+function createMemoryWriter(): { output: string; write(chunk: string | Uint8Array): boolean } {
+  return {
+    output: "",
+    write(chunk: string | Uint8Array) {
+      this.output += typeof chunk === "string" ? chunk : new TextDecoder().decode(chunk);
+      return true;
+    },
   };
 }
 
@@ -193,7 +251,9 @@ function summarizeGate(comparisons: TokenComparison[]): TokenGateSummary {
     included: included.length,
     excluded: comparisons.length - included.length,
     averageStaticToBrowserTokenRatio: averageNumbers(included.map((comparison) => comparison.delta.staticToBrowserTokenRatio)),
+    averageAgentToBrowserTokenRatio: averageNumbers(included.map((comparison) => comparison.delta.agentToBrowserTokenRatio)),
     averageStaticMinusBrowserTokens: averageNumbers(included.map((comparison) => comparison.delta.staticMinusBrowserTokens)),
+    averageAgentMinusBrowserTokens: averageNumbers(included.map((comparison) => comparison.delta.agentMinusBrowserTokens)),
     averageStaticMinusBrowserNodes: averageNumbers(included.map((comparison) => comparison.delta.staticMinusBrowserNodes)),
   };
 }

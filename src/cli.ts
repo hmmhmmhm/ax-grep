@@ -12,21 +12,27 @@ import type { SemanticNode } from "./types";
 
 type CliFormat = "text" | "json";
 type SearchEngine = "bing" | "duckduckgo" | "startpage";
-type SearchResultEngine = SearchEngine | "baidu" | "yahoo-japan";
+type SearchEngineOption = SearchEngine | "auto";
+type SearchResultEngine = SearchEngine | "baidu" | "yahoo-japan" | "generic";
 
 type CliOptions = {
   url?: string;
   baseUrl: string;
   format: CliFormat;
   linksOnly: boolean;
+  omitTree: boolean;
+  agentMode: boolean;
   maxTreeLines?: number;
   input: "fetch" | "html-file" | "stdin";
   htmlFile?: string;
   searchQuery?: string;
-  searchEngine?: SearchEngine;
+  searchEngine?: SearchEngineOption;
+  selectedSearchEngine?: SearchEngine;
+  searchAttempts?: SearchAttemptSummary[];
   searchLang?: string;
   searchRegion?: string;
-  openResult?: number;
+  openResult?: number | "best";
+  findQueries?: string[];
   sourceSearch?: SourceSearchSummary;
   timeoutMs: number;
   userAgent: string;
@@ -35,13 +41,19 @@ type CliOptions = {
 
 type SourceSearchSummary = {
   query: string;
-  engine: SearchEngine;
+  engine: SearchEngineOption;
+  selectedEngine?: SearchEngine;
   searchUrl: string;
   lang?: string;
   region?: string;
+  timeoutMs?: number;
+  userAgent?: string;
+  findQueries?: string[];
   selectedRank: number;
   selectedTitle: string;
   selectedUrl: string;
+  selectedResult?: ResultSummary;
+  alternateResults?: ResultSummary[];
 };
 
 type FetchResult = {
@@ -50,6 +62,28 @@ type FetchResult = {
   status: number;
   contentType: string;
   page: PageSummary;
+};
+
+type SearchAttemptSummary = {
+  engine: SearchEngine;
+  url: string;
+  ok: boolean;
+  resultCount: number;
+  kind?: ContentKind;
+  status?: number;
+  finalUrl?: string;
+  diagnostics?: DiagnosticSummary[];
+  topResult?: {
+    title: string;
+    url: string;
+    relevance?: "low" | "medium" | "high";
+    isLikelyOfficial?: boolean;
+  };
+  error?: {
+    code: CliErrorCode;
+    message: string;
+    status?: number;
+  };
 };
 
 type CliErrorCode = "FETCH_FAILED" | "HTTP_ERROR" | "NO_INSPECTABLE_CONTENT" | "NO_RESULT" | "TIMEOUT" | "USAGE";
@@ -68,7 +102,16 @@ type ResultSummary = {
   source: string;
   rank: number;
   snippet?: string;
+  sourceType?: SourceType;
+  sourceScore?: number;
+  sourceHints?: string[];
+  relevance?: "low" | "medium" | "high";
+  matchedTerms?: string[];
+  findMatches?: string[];
+  isLikelyOfficial?: boolean;
 };
+
+type SourceType = "official" | "government" | "education" | "documentation" | "code" | "wiki" | "news" | "forum" | "social" | "commerce" | "unknown";
 
 type PageSummary = {
   title?: string;
@@ -107,6 +150,29 @@ type SuggestedAction = {
   reason: string;
   url?: string;
   rank?: number;
+  openResult?: number | "best";
+  command?: string;
+  commandArgs?: string[];
+  terminal?: boolean;
+  readFrom?: string;
+  requiresBrowserInteraction?: boolean;
+  execution?: "run-command" | "read-current" | "interact-browser" | "inspect-output";
+};
+
+type CommandSpec = {
+  command: string;
+  commandArgs: string[];
+};
+
+type SearchResultCommandContext = {
+  query: string;
+  engine?: SearchEngineOption;
+  findQueries: string[];
+  agentMode: boolean;
+  lang?: string;
+  region?: string;
+  timeoutMs?: number;
+  userAgent?: string;
 };
 
 type AnalysisSummary = {
@@ -119,16 +185,126 @@ type PageLinkSummary = ResultSummary & {
   kind: "internal" | "external";
 };
 
+type PageEvidenceSummary = {
+  rank: number;
+  text: string;
+  role: string;
+  source: "semantic" | "fallback";
+  score: number;
+  selector?: string;
+};
+
+type PageReadabilitySummary = {
+  level: "low" | "medium" | "high";
+  score: number;
+  reasons: string[];
+};
+
+type FindMatchSummary = {
+  field: string;
+  text: string;
+  rank?: number;
+  url?: string;
+  selector?: string;
+  source?: PageEvidenceSummary["source"];
+  score?: number;
+};
+
+type FindSummary = {
+  query: string;
+  found: boolean;
+  matchCount: number;
+  matches: FindMatchSummary[];
+};
+
+type VerificationSummary = {
+  status: "not-requested" | "matched" | "partial" | "missing";
+  requestedCount: number;
+  foundCount: number;
+  missingCount: number;
+  evidenceCount: number;
+  foundQueries: string[];
+  missingQueries: string[];
+  bestEvidence?: FindMatchSummary;
+  recommendedAction?: SuggestedAction;
+};
+
+type AgentStatus = "ready" | "choose-result" | "verify" | "needs-browser" | "error";
+
+type AgentSummary = {
+  status: AgentStatus;
+  pageKind: ContentKind;
+  summary: string;
+  canContinue: boolean;
+  canUseFetchedHtml: boolean;
+  needsBrowserHtml: boolean;
+  responseStatus: number;
+  responseOk: boolean;
+  responseContentType: string;
+  finalUrlChanged: boolean;
+  confidence: PageCheckSummary["confidence"];
+  usabilityScore: number;
+  readability: PageReadabilitySummary["level"];
+  readabilityScore: number;
+  readabilityReasons: string[];
+  verificationStatus: VerificationSummary["status"];
+  verificationRequestedCount: number;
+  verificationFoundCount: number;
+  verificationMissingCount: number;
+  resultCount: number;
+  evidenceCount: number;
+  sourceLinkCount: number;
+  evidenceQualityScore: number;
+  sourceQualityScore: number;
+  alternativeActionCount: number;
+  diagnosticCodes: string[];
+  diagnosticErrorCount: number;
+  diagnosticWarningCount: number;
+  diagnosticInfoCount: number;
+  readTargets: AgentReadTarget[];
+  bestReadTarget?: string;
+  bestReadTargetScore?: number;
+  bestReadTargetReason?: string;
+  primaryExecution?: NonNullable<SuggestedAction["execution"]>;
+  primaryReadFrom?: string;
+  primaryCommand?: string;
+  primaryCommandArgs?: string[];
+  primaryUrl?: string;
+  primaryRank?: number;
+  primaryOpenResult?: number | "best";
+  requiresBrowserInteraction?: boolean;
+  primaryAction?: SuggestedAction;
+  recommendedUrl?: string;
+  recommendedTitle?: string;
+  recommendedRank?: number;
+  recommendedSource?: string;
+  recommendedRelevance?: ResultSummary["relevance"];
+  recommendedLikelyOfficial?: boolean;
+};
+
+type AgentReadTarget = {
+  path: string;
+  reason: string;
+  count?: number;
+  score?: number;
+  primary?: boolean;
+};
+
 type PageCheckSummary = {
   title?: string;
   canonicalUrl?: string;
   mainHeading?: string;
   lang?: string;
   contentPreview: string[];
+  contentEvidence: PageEvidenceSummary[];
   contentLength: number;
   primaryLinks: PageLinkSummary[];
+  sourceLinks: PageLinkSummary[];
   actions: ActionSummary[];
   confidence: "low" | "medium" | "high";
+  readability: PageReadabilitySummary;
+  recommendedAction: SuggestedAction;
+  nextSteps: SuggestedAction[];
 };
 
 type CliIO = {
@@ -140,6 +316,7 @@ type CliIO = {
 
 const defaultTimeoutMs = 15_000;
 const defaultUserAgent = "ax-grep/0.1 (+https://github.com/hmmhmmhm/ax-grep)";
+const autoSearchEngines: SearchEngine[] = ["duckduckgo", "bing", "startpage"];
 
 export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
   const stdout = io.stdout ?? process.stdout;
@@ -148,20 +325,22 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
   const stdin = io.stdin ?? process.stdin;
 
   try {
-    const options = parseArgs(argv);
-    const fetched = await loadHtml(options, fetchImpl, stdin);
-    const tree = extract(fetched.html, options.extractOptions);
+    const parsedOptions = parseArgs(argv);
+    const resolved = await resolveCliInput(parsedOptions, fetchImpl, stdin);
+    const options = resolved.options;
+    const fetched = resolved.fetched;
+    const tree = resolved.tree;
     if (options.openResult) {
       const opened = await openSearchResult(options, fetched, tree, fetchImpl);
       const openedTree = extract(opened.fetched.html, opened.options.extractOptions);
       if (isUnavailableTree(openedTree)) {
         const message = "no inspectable content; if the page is challenged or JavaScript-rendered, pass browser-captured HTML to the library API";
         if (opened.options.format === "json") {
-          stdout.write(`${JSON.stringify(jsonEnvelope(opened.options, opened.fetched, openedTree, [{ code: "NO_INSPECTABLE_CONTENT", message }], {
+          stdout.write(`${formatJsonOutput(jsonEnvelope(opened.options, opened.fetched, openedTree, [{ code: "NO_INSPECTABLE_CONTENT", message }], {
             code: "NO_INSPECTABLE_CONTENT",
             message,
             status: opened.fetched.status,
-          }), null, 2)}\n`);
+          }), opened.options.agentMode)}\n`);
         } else {
           stderr.write(`ax-grep: warning: ${message}\n`);
           stdout.write(`${formatCliText(openedTree, opened.fetched, opened.options)}\n`);
@@ -169,7 +348,7 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
         return 20;
       }
       const output = opened.options.format === "json"
-        ? `${JSON.stringify(jsonEnvelope(opened.options, opened.fetched, openedTree), null, 2)}\n`
+        ? `${formatJsonOutput(jsonEnvelope(opened.options, opened.fetched, openedTree), opened.options.agentMode)}\n`
         : `${formatCliText(openedTree, opened.fetched, opened.options)}\n`;
       stdout.write(output);
       return 0;
@@ -177,11 +356,11 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
     if (isUnavailableTree(tree)) {
       const message = "no inspectable content; if the page is challenged or JavaScript-rendered, pass browser-captured HTML to the library API";
       if (options.format === "json") {
-        stdout.write(`${JSON.stringify(jsonEnvelope(options, fetched, tree, [{ code: "NO_INSPECTABLE_CONTENT", message }], {
+        stdout.write(`${formatJsonOutput(jsonEnvelope(options, fetched, tree, [{ code: "NO_INSPECTABLE_CONTENT", message }], {
           code: "NO_INSPECTABLE_CONTENT",
           message,
           status: fetched.status,
-        }), null, 2)}\n`);
+        }), options.agentMode)}\n`);
       } else {
         stderr.write(`ax-grep: warning: ${message}\n`);
         stdout.write(`${formatCliText(tree, fetched, options)}\n`);
@@ -189,15 +368,15 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
       return 20;
     }
     const output = options.format === "json"
-      ? `${JSON.stringify(jsonEnvelope(options, fetched, tree), null, 2)}\n`
+      ? `${formatJsonOutput(jsonEnvelope(options, fetched, tree), options.agentMode)}\n`
       : `${formatCliText(tree, fetched, options)}\n`;
     stdout.write(output);
     return 0;
   } catch (error) {
     if (error instanceof UsageError) {
-      if (argv.includes("--json")) {
+      if (wantsJsonOutput(argv)) {
         const cliError = toCliError(error);
-        stdout.write(`${JSON.stringify(jsonErrorEnvelope(cliError, { ...parseArgMetadata(argv), ...cliError.metadata }), null, 2)}\n`);
+        stdout.write(`${formatJsonOutput(jsonErrorEnvelope(cliError, { ...parseArgMetadata(argv), ...cliError.metadata }), argv.includes("--agent"))}\n`);
       } else if (error.exitCode === 0) {
         stdout.write(`${error.message}\n`);
       } else {
@@ -205,9 +384,9 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
       }
       return error.exitCode;
     }
-    if (argv.includes("--json")) {
+    if (wantsJsonOutput(argv)) {
       const cliError = toCliError(error);
-      stdout.write(`${JSON.stringify(jsonErrorEnvelope(cliError, { ...parseArgMetadata(argv), ...cliError.metadata }), null, 2)}\n`);
+      stdout.write(`${formatJsonOutput(jsonErrorEnvelope(cliError, { ...parseArgMetadata(argv), ...cliError.metadata }), argv.includes("--agent"))}\n`);
       return cliError.exitCode;
     }
     const message = error instanceof Error ? error.message : String(error);
@@ -216,19 +395,30 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
   }
 }
 
+function wantsJsonOutput(argv: string[]): boolean {
+  return argv.includes("--json") || argv.includes("--agent");
+}
+
+function formatJsonOutput(value: object, compact: boolean): string {
+  return compact ? JSON.stringify(value) : JSON.stringify(value, null, 2);
+}
+
 function parseArgs(argv: string[]): CliOptions {
   const extractOptions: StaticSemanticTreeOptions = {};
   let format: CliFormat = "text";
   let formatOption: CliFormat | undefined;
   let linksOnly = false;
+  let omitTree = false;
+  let agentMode = false;
   let maxTreeLines: number | undefined;
   let input: CliOptions["input"] = "fetch";
   let htmlFile: string | undefined;
   let searchQuery: string | undefined;
-  let searchEngine: SearchEngine = "duckduckgo";
+  let searchEngine: SearchEngineOption = "auto";
   let searchLang: string | undefined;
   let searchRegion: string | undefined;
-  let openResult: number | undefined;
+  let openResult: CliOptions["openResult"];
+  const findQueries: string[] = [];
   let timeoutMs = defaultTimeoutMs;
   let userAgent = defaultUserAgent;
   let url = "";
@@ -246,6 +436,14 @@ function parseArgs(argv: string[]): CliOptions {
       formatOption = "json";
       continue;
     }
+    if (arg === "--agent") {
+      if (formatOption && formatOption !== "json") throw new UsageError(`--agent and --text cannot be used together`);
+      agentMode = true;
+      format = "json";
+      formatOption = "json";
+      omitTree = true;
+      continue;
+    }
     if (arg === "--text") {
       if (formatOption && formatOption !== "text") throw new UsageError(`--json and --text cannot be used together`);
       format = "text";
@@ -254,6 +452,10 @@ function parseArgs(argv: string[]): CliOptions {
     }
     if (arg === "--links-only" || arg === "--summary") {
       linksOnly = true;
+      continue;
+    }
+    if (arg === "--no-tree") {
+      omitTree = true;
       continue;
     }
     if (arg === "--html-file") {
@@ -290,7 +492,12 @@ function parseArgs(argv: string[]): CliOptions {
       continue;
     }
     if (arg === "--open-result" || arg === "--open") {
-      openResult = parsePositiveInteger(readValue(argv, index, arg), arg);
+      openResult = parseOpenResult(readValue(argv, index, arg), arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--find") {
+      findQueries.push(readValue(argv, index, arg));
       index += 1;
       continue;
     }
@@ -350,12 +557,13 @@ function parseArgs(argv: string[]): CliOptions {
 
   if (searchQuery && url) throw new UsageError(`--search cannot be used with an explicit URL`);
   if (openResult && !searchQuery) throw new UsageError(`--open-result requires --search`);
-  if (searchQuery) url = searchUrl(searchQuery, searchEngine, searchLang, searchRegion);
+  if (searchQuery) url = searchUrl(searchQuery, searchEngine === "auto" ? "duckduckgo" : searchEngine, searchLang, searchRegion);
   if (input === "fetch" && !url) throw new UsageError(`missing URL\n\n${usage()}`);
   if (url) validateUrl(url);
   if (input === "html-file" && !htmlFile) throw new UsageError(`--html-file requires a value`);
   const baseUrl = url || (htmlFile ? pathToFileURL(resolve(htmlFile)).toString() : "stdin://ax-grep");
-  const options: CliOptions = { baseUrl, format, linksOnly, input, timeoutMs, userAgent, extractOptions };
+  if (format === "json" && linksOnly) omitTree = true;
+  const options: CliOptions = { baseUrl, format, linksOnly, omitTree, agentMode, input, timeoutMs, userAgent, extractOptions };
   if (url) options.url = url;
   if (htmlFile) options.htmlFile = htmlFile;
   if (searchQuery) options.searchQuery = searchQuery;
@@ -363,8 +571,343 @@ function parseArgs(argv: string[]): CliOptions {
   if (searchLang) options.searchLang = searchLang;
   if (searchRegion) options.searchRegion = searchRegion;
   if (openResult) options.openResult = openResult;
+  if (findQueries.length > 0) options.findQueries = findQueries;
   if (maxTreeLines) options.maxTreeLines = maxTreeLines;
   return options;
+}
+
+async function resolveCliInput(
+  options: CliOptions,
+  fetchImpl: typeof fetch,
+  stdin: NodeJS.ReadStream,
+): Promise<{ options: CliOptions; fetched: FetchResult; tree: SemanticNode }> {
+  if (options.searchQuery && options.searchEngine === "auto") {
+    return resolveAutoSearch(options, fetchImpl);
+  }
+  const fetched = await loadHtml(options, fetchImpl, stdin);
+  return { options, fetched, tree: extract(fetched.html, options.extractOptions) };
+}
+
+async function resolveAutoSearch(
+  options: CliOptions,
+  fetchImpl: typeof fetch,
+): Promise<{ options: CliOptions; fetched: FetchResult; tree: SemanticNode }> {
+  if (!options.searchQuery) throw new UsageError(`--engine auto requires --search`);
+  const attempts: SearchAttemptSummary[] = [];
+  let best: { options: CliOptions; fetched: FetchResult; tree: SemanticNode; score: number } | undefined;
+
+  for (const engine of autoSearchEngines) {
+    const url = searchUrl(options.searchQuery, engine, options.searchLang, options.searchRegion);
+    const engineOptions: CliOptions = {
+      ...options,
+      url,
+      baseUrl: url,
+      searchEngine: "auto",
+      selectedSearchEngine: engine,
+    };
+    try {
+      const fetched = await fetchHtml(engineOptions, fetchImpl);
+      const tree = extract(fetched.html, engineOptions.extractOptions);
+      const links = summarizeLinks(tree, fetched.finalUrl);
+      const outline = summarizeOutline(tree);
+      const actions = summarizeActions(tree);
+      const content = summarizeContent(tree);
+      const results = annotateResults(summarizeSearchResults(fetched, links), options.searchQuery, options.findQueries ?? []);
+      const analysis = analyzePage(fetched, tree, links, results, outline, actions, content, engineOptions);
+      const unavailable = isUnavailableTree(tree);
+      const attempt: SearchAttemptSummary = {
+        engine,
+        url,
+        ok: !unavailable && analysis.kind === "search-results" && results.length > 0,
+        resultCount: results.length,
+        kind: analysis.kind,
+        status: fetched.status,
+        finalUrl: fetched.finalUrl,
+        diagnostics: analysis.diagnostics,
+        ...(results[0] ? {
+          topResult: {
+            title: results[0].title,
+            url: results[0].url,
+            ...(results[0].relevance ? { relevance: results[0].relevance } : {}),
+            ...(typeof results[0].isLikelyOfficial === "boolean" ? { isLikelyOfficial: results[0].isLikelyOfficial } : {}),
+          },
+        } : {}),
+      };
+      attempts.push(attempt);
+      const score = scoreAutoSearchAttempt(attempt, unavailable, results);
+      if (!best || score > best.score) {
+        best = { options: engineOptions, fetched, tree, score };
+      }
+    } catch (error) {
+      const cliError = toCliError(error);
+      attempts.push({
+        engine,
+        url,
+        ok: false,
+        resultCount: 0,
+        error: {
+          code: cliError.code,
+          message: cliError.message,
+          ...(cliError.status ? { status: cliError.status } : {}),
+        },
+      });
+    }
+  }
+
+  if (!best) {
+    throw new CliError("FETCH_FAILED", "all auto search engines failed", 10, undefined, {
+      ...errorMetadataFromOptions(options),
+      searchAttempts: attempts,
+    });
+  }
+  if (!attempts.some((attempt) => attempt.ok)) {
+    throw new CliError("NO_RESULT", "auto search found no usable results", 21, undefined, {
+      ...errorMetadataFromOptions(options),
+      ...(best.options.selectedSearchEngine ? { selectedSearchEngine: best.options.selectedSearchEngine } : {}),
+      searchAttempts: attempts,
+    });
+  }
+
+  return {
+    options: {
+      ...best.options,
+      searchAttempts: attempts,
+    },
+    fetched: best.fetched,
+    tree: best.tree,
+  };
+}
+
+function scoreAutoSearchAttempt(attempt: SearchAttemptSummary, unavailable: boolean, results: ResultSummary[]): number {
+  let score = 0;
+  if (!attempt.error) score += 100;
+  if (!unavailable) score += 25;
+  if (attempt.kind === "search-results") score += 500;
+  score += Math.min(attempt.resultCount, 20) * 20;
+  score += resultQualityScore(results);
+  for (const diagnostic of attempt.diagnostics ?? []) {
+    if (diagnostic.severity === "error") score -= 100;
+    if (/CAPTCHA|CHALLENGE|BLOCK|LOGIN|NO_INSPECTABLE_CONTENT/i.test(diagnostic.code)) score -= 250;
+  }
+  return score;
+}
+
+function resultQualityScore(results: ResultSummary[]): number {
+  let score = 0;
+  for (const [index, result] of results.entries()) {
+    const rankWeight = Math.max(1, 10 - index);
+    if (result.relevance === "high") score += 25 * rankWeight;
+    else if (result.relevance === "medium") score += 8 * rankWeight;
+    score += (result.findMatches?.length ?? 0) * 18 * rankWeight;
+    if (result.isLikelyOfficial) score += 30 * rankWeight;
+    score += (result.matchedTerms?.length ?? 0) * rankWeight;
+  }
+  return score;
+}
+
+function recommendedSearchResult(results: ResultSummary[], findQueries: string[] = []): ResultSummary | undefined {
+  if (findQueries.length > 0 && !results.some((result) => matchedFindQueriesForResult(result, findQueries).length > 0 || (result.findMatches?.length ?? 0) > 0)) {
+    return undefined;
+  }
+  const recommended = [...results].sort((left, right) => {
+    const scoreDelta = singleResultRecommendationScore(right, findQueries) - singleResultRecommendationScore(left, findQueries);
+    if (scoreDelta !== 0) return scoreDelta;
+    return left.rank - right.rank;
+  })[0];
+  if (!recommended) return undefined;
+  if ((recommended.findMatches?.length ?? 0) > 0 || matchedFindQueriesForResult(recommended, findQueries).length > 0) return recommended;
+  if (recommended.isLikelyOfficial || recommended.relevance === "high" || recommended.relevance === "medium" || recommended.relevance === undefined) return recommended;
+  return undefined;
+}
+
+function searchOpenCommand(
+  query: string | undefined,
+  engine?: SearchEngineOption,
+  findQueries: string[] = [],
+  agentMode = false,
+  lang?: string,
+  region?: string,
+  openResult: number | "best" = "best",
+  timeoutMs?: number,
+  userAgent?: string,
+): string | undefined {
+  return searchOpenCommandSpec(query, engine, findQueries, agentMode, lang, region, openResult, timeoutMs, userAgent)?.command;
+}
+
+function searchOpenCommandSpec(
+  query: string | undefined,
+  engine?: SearchEngineOption,
+  findQueries: string[] = [],
+  agentMode = false,
+  lang?: string,
+  region?: string,
+  openResult: number | "best" = "best",
+  timeoutMs?: number,
+  userAgent?: string,
+): CommandSpec | undefined {
+  if (!query) return undefined;
+  const commandArgs = ["ax-grep", "--search", query];
+  const shellArgs = ["ax-grep", "--search", shellQuote(query)];
+  if (engine && engine !== "auto") pushCommandOption(commandArgs, shellArgs, "--engine", engine);
+  if (lang) pushCommandOption(commandArgs, shellArgs, "--lang", lang);
+  if (region) pushCommandOption(commandArgs, shellArgs, "--region", region);
+  appendCommandFetchOptions(commandArgs, shellArgs, timeoutMs, userAgent);
+  for (const findQuery of findQueries) pushCommandOption(commandArgs, shellArgs, "--find", findQuery, true);
+  pushCommandOption(commandArgs, shellArgs, "--open-result", String(openResult));
+  if (agentMode) pushCommandFlag(commandArgs, shellArgs, "--agent");
+  else pushCommandFlag(commandArgs, shellArgs, "--json", "--summary");
+  return { command: shellArgs.join(" "), commandArgs };
+}
+
+function searchCommand(query: string, agentMode = false, timeoutMs?: number, userAgent?: string): string {
+  return searchCommandSpec(query, agentMode, timeoutMs, userAgent).command;
+}
+
+function searchCommandSpec(query: string, agentMode = false, timeoutMs?: number, userAgent?: string): CommandSpec {
+  const commandArgs = ["ax-grep", "--search", query];
+  const shellArgs = ["ax-grep", "--search", shellQuote(query)];
+  appendCommandFetchOptions(commandArgs, shellArgs, timeoutMs, userAgent);
+  if (agentMode) pushCommandFlag(commandArgs, shellArgs, "--agent");
+  else pushCommandFlag(commandArgs, shellArgs, "--json", "--summary");
+  return { command: shellArgs.join(" "), commandArgs };
+}
+
+function verificationSearchCommand(findQueries: string[], agentMode = false, timeoutMs?: number, userAgent?: string): string {
+  return verificationSearchCommandSpec(findQueries, agentMode, timeoutMs, userAgent).command;
+}
+
+function verificationSearchCommandSpec(findQueries: string[], agentMode = false, timeoutMs?: number, userAgent?: string): CommandSpec {
+  const query = findQueries.length > 0 ? findQueries.join(" ") : "missing evidence";
+  const commandArgs = ["ax-grep", "--search", query];
+  const shellArgs = ["ax-grep", "--search", shellQuote(query)];
+  appendCommandFetchOptions(commandArgs, shellArgs, timeoutMs, userAgent);
+  for (const findQuery of findQueries) pushCommandOption(commandArgs, shellArgs, "--find", findQuery, true);
+  if (agentMode) pushCommandFlag(commandArgs, shellArgs, "--agent");
+  else pushCommandFlag(commandArgs, shellArgs, "--json", "--summary");
+  return { command: shellArgs.join(" "), commandArgs };
+}
+
+function refineSearchCommand(
+  query: string | undefined,
+  engine?: SearchEngineOption,
+  findQueries: string[] = [],
+  agentMode = false,
+  lang?: string,
+  region?: string,
+  timeoutMs?: number,
+  userAgent?: string,
+): string | undefined {
+  return refineSearchCommandSpec(query, engine, findQueries, agentMode, lang, region, timeoutMs, userAgent)?.command;
+}
+
+function refineSearchCommandSpec(
+  query: string | undefined,
+  engine?: SearchEngineOption,
+  findQueries: string[] = [],
+  agentMode = false,
+  lang?: string,
+  region?: string,
+  timeoutMs?: number,
+  userAgent?: string,
+): CommandSpec | undefined {
+  if (!query) return undefined;
+  const terms = queryTerms(query);
+  const essentialTerms = essentialQueryTerms(terms);
+  const baseQuery = essentialTerms.length > 0
+    ? [essentialTerms.map((term) => `"${term}"`).join(" "), ...terms.filter((term) => !essentialTerms.includes(term))].filter(Boolean).join(" ")
+    : query;
+  const refinedQuery = addMissingFindTextToQuery(baseQuery, findQueries);
+  const commandArgs = ["ax-grep", "--search", refinedQuery];
+  const shellArgs = ["ax-grep", "--search", shellQuote(refinedQuery)];
+  if (engine && engine !== "auto") pushCommandOption(commandArgs, shellArgs, "--engine", engine);
+  if (lang) pushCommandOption(commandArgs, shellArgs, "--lang", lang);
+  if (region) pushCommandOption(commandArgs, shellArgs, "--region", region);
+  appendCommandFetchOptions(commandArgs, shellArgs, timeoutMs, userAgent);
+  for (const findQuery of findQueries) pushCommandOption(commandArgs, shellArgs, "--find", findQuery, true);
+  if (agentMode) pushCommandFlag(commandArgs, shellArgs, "--agent");
+  else pushCommandFlag(commandArgs, shellArgs, "--json", "--summary");
+  return { command: shellArgs.join(" "), commandArgs };
+}
+
+function addMissingFindTextToQuery(query: string, findQueries: string[]): string {
+  if (findQueries.length === 0) return query;
+  const queryTermsSet = new Set(queryTerms(query).map(normalizeForMatch));
+  const additions = findQueries.filter((findQuery) => {
+    const missingTerms = queryTerms(findQuery)
+      .map(normalizeForMatch)
+      .filter((term) => !queryTermsSet.has(term));
+    return missingTerms.length > 0;
+  });
+  if (additions.length === 0) return query;
+  return [...additions.map((item) => `"${item}"`), query].join(" ");
+}
+
+function pageCommand(url: string, agentMode: boolean, browserHtml = false, findQueries: string[] = [], timeoutMs?: number, userAgent?: string): string {
+  return pageCommandSpec(url, agentMode, browserHtml, findQueries, timeoutMs, userAgent).command;
+}
+
+function pageCommandSpec(url: string, agentMode: boolean, browserHtml = false, findQueries: string[] = [], timeoutMs?: number, userAgent?: string): CommandSpec {
+  const commandArgs = ["ax-grep", url];
+  const shellArgs = ["ax-grep", shellQuote(url)];
+  if (browserHtml) pushCommandOption(commandArgs, shellArgs, "--html-file", "captured.html");
+  appendCommandFetchOptions(commandArgs, shellArgs, timeoutMs, userAgent);
+  for (const findQuery of findQueries) pushCommandOption(commandArgs, shellArgs, "--find", findQuery, true);
+  if (agentMode) pushCommandFlag(commandArgs, shellArgs, "--agent");
+  else pushCommandFlag(commandArgs, shellArgs, "--json", "--summary");
+  return { command: shellArgs.join(" "), commandArgs };
+}
+
+function appendCommandFetchOptions(commandArgs: string[], shellArgs: string[], timeoutMs?: number, userAgent?: string): void {
+  if (typeof timeoutMs === "number" && timeoutMs !== defaultTimeoutMs) pushCommandOption(commandArgs, shellArgs, "--timeout", String(timeoutMs));
+  if (userAgent && userAgent !== defaultUserAgent) pushCommandOption(commandArgs, shellArgs, "--user-agent", userAgent, true);
+}
+
+function pushCommandFlag(commandArgs: string[], shellArgs: string[], ...flags: string[]): void {
+  commandArgs.push(...flags);
+  shellArgs.push(...flags);
+}
+
+function pushCommandOption(commandArgs: string[], shellArgs: string[], flag: string, value: string, quoteValue = false): void {
+  commandArgs.push(flag, value);
+  shellArgs.push(flag, quoteValue ? shellQuote(value) : value);
+}
+
+function commandFields(spec: CommandSpec | undefined): Pick<SuggestedAction, "command" | "commandArgs"> {
+  return spec ? { command: spec.command, commandArgs: spec.commandArgs } : {};
+}
+
+function shellQuote(value: string): string {
+  return `'${value.replace(/'/g, "'\\''")}'`;
+}
+
+function singleResultRecommendationScore(result: ResultSummary, findQueries: string[] = []): number {
+  let score = 0;
+  score += resultFindMatchScore(result, findQueries);
+  if (result.isLikelyOfficial) score += 100;
+  const sourceWeight = result.relevance === "low" && !result.isLikelyOfficial ? 8 : 35;
+  score += (result.sourceScore ?? 0) * sourceWeight;
+  if (result.relevance === "high") score += 75;
+  else if (result.relevance === "medium") score += 30;
+  score += (result.matchedTerms?.length ?? 0) * 12;
+  score += Math.max(0, 10 - result.rank);
+  return score;
+}
+
+function searchResultActionReason(recommended: ResultSummary, first: ResultSummary): string {
+  if ((recommended.findMatches?.length ?? 0) > 0) {
+    return `The page looks like search results; open the result matching --find: ${recommended.findMatches?.join(", ")}.`;
+  }
+  if (recommended.rank === first.rank) {
+    return "The page looks like search results; open the highest-ranked relevant result.";
+  }
+  return "The page looks like search results; open the result with the strongest query match.";
+}
+
+function resultFindMatchScore(result: ResultSummary, findQueries: string[]): number {
+  const explicitMatches = result.findMatches?.length ?? 0;
+  if (explicitMatches > 0) return explicitMatches * 120;
+  const matches = matchedFindQueriesForResult(result, findQueries);
+  return matches.length * 120;
 }
 
 async function openSearchResult(
@@ -376,15 +919,15 @@ async function openSearchResult(
   if (isUnavailableTree(searchTree)) {
     return { options, fetched: searchFetched };
   }
-  const rank = options.openResult;
-  if (!rank || !options.searchQuery || !options.searchEngine) {
+  const requested = options.openResult;
+  if (!requested || !options.searchQuery || !options.searchEngine) {
     throw new UsageError(`--open-result requires --search`);
   }
   const links = summarizeLinks(searchTree, searchFetched.finalUrl);
-  const results = summarizeSearchResults(searchFetched, links);
-  const selected = results[rank - 1];
+  const results = annotateResults(summarizeSearchResults(searchFetched, links), options.searchQuery, options.findQueries ?? []);
+  const selected = requested === "best" ? recommendedSearchResult(results, options.findQueries ?? []) : results[requested - 1];
   if (!selected) {
-    throw new CliError("NO_RESULT", `search result ${rank} is not available; found ${results.length}`, 21);
+    throw new CliError("NO_RESULT", `search result ${requested} is not available; found ${results.length}`, 21);
   }
   const openedOptions: CliOptions = {
     ...options,
@@ -393,13 +936,19 @@ async function openSearchResult(
     input: "fetch",
     sourceSearch: {
       query: options.searchQuery,
-      engine: options.searchEngine,
+      engine: options.selectedSearchEngine ?? options.searchEngine,
+      ...(options.searchEngine === "auto" && options.selectedSearchEngine ? { selectedEngine: options.selectedSearchEngine } : {}),
       searchUrl: searchFetched.finalUrl,
       ...(options.searchLang ? { lang: options.searchLang } : {}),
       ...(options.searchRegion ? { region: options.searchRegion } : {}),
+      ...(options.timeoutMs !== defaultTimeoutMs ? { timeoutMs: options.timeoutMs } : {}),
+      ...(options.userAgent !== defaultUserAgent ? { userAgent: options.userAgent } : {}),
+      ...(options.findQueries?.length ? { findQueries: options.findQueries } : {}),
       selectedRank: selected.rank,
       selectedTitle: selected.title,
       selectedUrl: selected.url,
+      selectedResult: selected,
+      alternateResults: results.filter((result) => result.url !== selected.url).slice(0, 4),
     },
   };
   let openedFetched: FetchResult;
@@ -412,16 +961,21 @@ async function openSearchResult(
   return { options: openedOptions, fetched: openedFetched };
 }
 
-function errorMetadataFromOptions(options: CliOptions): Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion" | "sourceSearch">> {
-  const metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion" | "sourceSearch">> = {
+function errorMetadataFromOptions(options: CliOptions): Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "selectedSearchEngine" | "searchAttempts" | "searchLang" | "searchRegion" | "sourceSearch" | "findQueries" | "timeoutMs" | "userAgent">> {
+  const metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "selectedSearchEngine" | "searchAttempts" | "searchLang" | "searchRegion" | "sourceSearch" | "findQueries" | "timeoutMs" | "userAgent">> = {
     extractOptions: options.extractOptions,
   };
   if (options.url) metadata.url = options.url;
   if (options.searchQuery) metadata.searchQuery = options.searchQuery;
   if (options.searchEngine) metadata.searchEngine = options.searchEngine;
+  if (options.selectedSearchEngine) metadata.selectedSearchEngine = options.selectedSearchEngine;
+  if (options.searchAttempts) metadata.searchAttempts = options.searchAttempts;
   if (options.searchLang) metadata.searchLang = options.searchLang;
   if (options.searchRegion) metadata.searchRegion = options.searchRegion;
   if (options.sourceSearch) metadata.sourceSearch = options.sourceSearch;
+  if (options.findQueries?.length) metadata.findQueries = options.findQueries;
+  if (options.timeoutMs !== defaultTimeoutMs) metadata.timeoutMs = options.timeoutMs;
+  if (options.userAgent !== defaultUserAgent) metadata.userAgent = options.userAgent;
   return metadata;
 }
 
@@ -515,9 +1069,9 @@ function parseMode(value: string): NonNullable<StaticSemanticTreeOptions["mode"]
   throw new UsageError(`--mode must be compact, interactive, or full`);
 }
 
-function parseSearchEngine(value: string): SearchEngine {
-  if (value === "bing" || value === "duckduckgo" || value === "startpage") return value;
-  throw new UsageError(`--engine must be bing, duckduckgo, or startpage`);
+function parseSearchEngine(value: string): SearchEngineOption {
+  if (value === "auto" || value === "bing" || value === "duckduckgo" || value === "startpage") return value;
+  throw new UsageError(`--engine must be auto, bing, duckduckgo, or startpage`);
 }
 
 function parseSearchLang(value: string): string {
@@ -555,6 +1109,11 @@ function searchUrl(query: string, engine: SearchEngine, lang?: string, region?: 
   return url.toString();
 }
 
+function parseOpenResult(value: string, option: string): number | "best" {
+  if (value.trim().toLowerCase() === "best") return "best";
+  return parsePositiveInteger(value, option);
+}
+
 function parsePositiveInteger(value: string, option: string): number {
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed <= 0) throw new UsageError(`${option} must be a positive integer`);
@@ -580,10 +1139,12 @@ Fetch a page and print a compact semantic accessibility-like tree.
 
 Options:
   --search <query>           Search the web and analyze the result page.
-  --engine <name>            Search engine for --search: duckduckgo, bing, or startpage.
+  --engine <name>            Search engine for --search: auto, duckduckgo, bing, or startpage. Default: auto.
   --lang <code>              Search language hint, e.g. en, ko, ja, zh-cn.
   --region <code>            Search region hint, e.g. US, KR, JP, CN.
-  --open-result <n>          With --search, fetch and analyze the selected result.
+  --open-result <n|best>     With --search, fetch and analyze the selected result.
+  --find <text>              Check whether page summaries contain text. Repeatable.
+  --agent                    Print compact JSON for agent routing; implies --json --no-tree.
   --json                     Print the SemanticNode tree as JSON.
   --text                     Print the compact text tree. This is the default.
   --mode <compact|interactive|full>
@@ -592,7 +1153,8 @@ Options:
   --no-attributes            Omit element attributes from JSON output.
   --exclude-ads              Prune likely ad and promotion regions.
   --exclude-boilerplate      Prune likely forum/search boilerplate.
-  --links-only, --summary    Print only the ranked links summary in text mode.
+  --links-only, --summary    Print only the ranked links summary in text mode; omit tree in JSON mode.
+  --no-tree                  Omit the raw tree from JSON output.
   --max-tree-lines <n>       Limit tree lines after the links summary.
   --html-file <path>         Extract from browser-captured HTML instead of fetch.
   --stdin                    Read HTML from stdin instead of fetch.
@@ -605,7 +1167,7 @@ Notes:
   The CLI uses fetch only. It does not run JavaScript or bypass bot checks.
   Use --html-file or --stdin with a URL argument for browser-captured HTML.
   Text output starts with a deduplicated links summary for agent navigation.
-  JSON output is an envelope with fetch metadata, analysis, links, results, warnings, and tree.`;
+  JSON output is an envelope with fetch metadata, analysis, links, results, warnings, and tree unless --no-tree is set.`;
 }
 
 class UsageError extends Error {
@@ -620,13 +1182,17 @@ class CliError extends Error {
     message: string,
     readonly exitCode: number,
     readonly status?: number,
-    readonly metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion" | "sourceSearch">> = {},
+    readonly metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "selectedSearchEngine" | "searchAttempts" | "searchLang" | "searchRegion" | "sourceSearch" | "findQueries" | "timeoutMs" | "userAgent">> = {},
   ) {
     super(message);
   }
 }
 
-function formatCliText(node: SemanticNode, fetched: FetchResult, options: Pick<CliOptions, "linksOnly" | "maxTreeLines" | "sourceSearch">): string {
+function formatCliText(
+  node: SemanticNode,
+  fetched: FetchResult,
+  options: Pick<CliOptions, "linksOnly" | "maxTreeLines" | "sourceSearch" | "findQueries" | "searchQuery" | "searchEngine" | "selectedSearchEngine" | "searchLang" | "searchRegion" | "agentMode" | "timeoutMs" | "userAgent">,
+): string {
   const baseUrl = fetched.finalUrl;
   const links = summarizeLinks(node, baseUrl);
   const lines: string[] = links.length > 0 ? formatLinksText(links) : [];
@@ -636,11 +1202,18 @@ function formatCliText(node: SemanticNode, fetched: FetchResult, options: Pick<C
   const outline = summarizeOutline(node);
   const actions = summarizeActions(node);
   const content = summarizeContent(node);
-  const results = summarizeSearchResults(fetched, links);
-  const analysis = analyzePage(fetched, node, links, results, outline, actions, content);
-  const pageCheck = summarizePageCheck(fetched, links, outline, actions, content, analysis);
+  const results = annotateResults(summarizeSearchResults(fetched, links), options.searchQuery, options.findQueries ?? []);
+  const analysis = analyzePage(fetched, node, links, results, outline, actions, content, options);
+  const pageCheck = summarizePageCheck(fetched, links, outline, actions, content, analysis, options.agentMode, false, options.timeoutMs, options.userAgent);
+  const finds = summarizeFinds(options.findQueries ?? [], fetched.page, pageCheck, links, results, outline, content, analysis.kind);
+  const verification = summarizeVerification(finds, pageCheck, fetched.finalUrl, analysis, options.agentMode, false, options.sourceSearch, options.timeoutMs, options.userAgent);
+  const recommendedResult = analysis.kind === "search-results" ? recommendedSearchResult(results, options.findQueries ?? []) : undefined;
+  const agent = summarizeAgent(analysis, pageCheck, verification, results, recommendedResult, undefined, false, options.sourceSearch, fetched);
+  appendSection(lines, formatAgentText(agent));
   appendSection(lines, formatAnalysisText(analysis));
   appendSection(lines, formatPageCheckText(pageCheck));
+  appendSection(lines, formatVerificationText(verification));
+  appendSection(lines, formatFindsText(finds));
   appendSection(lines, formatResultsText(results));
   appendSection(lines, formatOutlineText(outline));
   appendSection(lines, formatActionsText(actions));
@@ -659,7 +1232,7 @@ function formatCliText(node: SemanticNode, fetched: FetchResult, options: Pick<C
   }
   visit(node, 0);
   if (lines.length > 0) lines.push("", "tree");
-  const maxTreeLines = options.maxTreeLines ?? (looksLikeSearchUrl(fetched.finalUrl) ? 80 : undefined);
+  const maxTreeLines = options.maxTreeLines ?? (looksLikeKnownSearchUrl(fetched.finalUrl) || looksLikeGenericSearchUrl(fetched.finalUrl) ? 80 : undefined);
   if (maxTreeLines && treeLines.length > maxTreeLines) {
     lines.push(...treeLines.slice(0, maxTreeLines));
     lines.push(`  ... ${treeLines.length - maxTreeLines} tree lines omitted`);
@@ -734,18 +1307,136 @@ function formatAnalysisText(analysis: AnalysisSummary): string[] {
   return ["analysis", ...lines];
 }
 
+function formatAgentText(agent: AgentSummary): string[] {
+  const lines = [
+    "agent",
+    `  status: ${agent.status}`,
+    `  pageKind: ${agent.pageKind}`,
+    `  summary: ${agent.summary}`,
+    `  canContinue: ${agent.canContinue}`,
+    `  canUseFetchedHtml: ${agent.canUseFetchedHtml}`,
+    `  needsBrowserHtml: ${agent.needsBrowserHtml}`,
+    `  responseStatus: ${agent.responseStatus}`,
+    `  responseOk: ${agent.responseOk}`,
+    `  responseContentType: ${agent.responseContentType || "unknown"}`,
+    `  finalUrlChanged: ${agent.finalUrlChanged}`,
+    `  alternativeActionCount: ${agent.alternativeActionCount}`,
+    `  usabilityScore: ${agent.usabilityScore}`,
+    `  evidenceQualityScore: ${agent.evidenceQualityScore}`,
+    `  sourceQualityScore: ${agent.sourceQualityScore}`,
+    `  diagnosticErrors: ${agent.diagnosticErrorCount}`,
+    `  diagnosticWarnings: ${agent.diagnosticWarningCount}`,
+    `  diagnosticInfo: ${agent.diagnosticInfoCount}`,
+    `  verification: ${agent.verificationFoundCount}/${agent.verificationRequestedCount} found, ${agent.verificationMissingCount} missing`,
+    `  readability: ${agent.readability} (${agent.readabilityScore})`,
+  ];
+  for (const reason of agent.readabilityReasons) lines.push(`  readabilityReason: ${reason}`);
+  if (agent.bestReadTarget) lines.push(`  bestReadTarget: ${agent.bestReadTarget}`);
+  if (typeof agent.bestReadTargetScore === "number") lines.push(`  bestReadTargetScore: ${agent.bestReadTargetScore}`);
+  if (agent.bestReadTargetReason) lines.push(`  bestReadTargetReason: ${agent.bestReadTargetReason}`);
+  if (agent.recommendedUrl) lines.push(`  recommendedUrl: ${agent.recommendedUrl}`);
+  if (agent.recommendedTitle) lines.push(`  recommendedTitle: ${agent.recommendedTitle}`);
+  if (agent.recommendedRank) lines.push(`  recommendedRank: ${agent.recommendedRank}`);
+  if (agent.recommendedSource) lines.push(`  recommendedSource: ${agent.recommendedSource}`);
+  if (agent.recommendedRelevance) lines.push(`  recommendedRelevance: ${agent.recommendedRelevance}`);
+  if (typeof agent.recommendedLikelyOfficial === "boolean") lines.push(`  recommendedLikelyOfficial: ${agent.recommendedLikelyOfficial}`);
+  for (const target of agent.readTargets) {
+    const count = typeof target.count === "number" ? ` count=${target.count}` : "";
+    const score = typeof target.score === "number" ? ` score=${target.score}` : "";
+    const primary = target.primary ? " primary" : "";
+    lines.push(`  readTarget: ${target.path}${count}${score}${primary} - ${target.reason}`);
+  }
+  if (agent.primaryAction) {
+    lines.push(`  next: ${formatActionLabel(agent.primaryAction)} - ${agent.primaryAction.reason}`);
+    lines.push(`  execution: ${actionExecution(agent.primaryAction)}`);
+    if (agent.primaryAction.url) lines.push(`  url: ${agent.primaryAction.url}`);
+    if (agent.primaryAction.rank) lines.push(`  rank: ${agent.primaryAction.rank}`);
+    if (agent.primaryAction.openResult) lines.push(`  openResult: ${agent.primaryAction.openResult}`);
+    if (agent.primaryAction.readFrom) lines.push(`  readFrom: ${agent.primaryAction.readFrom}`);
+    if (agent.primaryAction.requiresBrowserInteraction) lines.push("  requiresBrowserInteraction: true");
+    if (agent.primaryAction.command) lines.push(`  command: ${agent.primaryAction.command}`);
+    if (agent.primaryAction.commandArgs) lines.push(`  commandArgs: ${formatCommandArgsText(agent.primaryAction.commandArgs)}`);
+  }
+  return lines;
+}
+
 function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   const lines = [
     `  confidence: ${pageCheck.confidence}`,
+    `  readability: ${pageCheck.readability.level} (${pageCheck.readability.score})`,
     `  contentLength: ${pageCheck.contentLength}`,
   ];
   if (pageCheck.title) lines.push(`  title: ${pageCheck.title}`);
   if (pageCheck.mainHeading) lines.push(`  mainHeading: ${pageCheck.mainHeading}`);
   if (pageCheck.canonicalUrl) lines.push(`  canonical: ${pageCheck.canonicalUrl}`);
   for (const excerpt of pageCheck.contentPreview) lines.push(`  excerpt: ${excerpt}`);
+  for (const evidence of pageCheck.contentEvidence) {
+    const selector = evidence.selector ? ` (${evidence.selector})` : "";
+    lines.push(`  evidence: ${evidence.rank}. ${evidence.role}${selector} ${evidence.text}`);
+  }
   for (const link of pageCheck.primaryLinks) lines.push(`  link: ${link.kind} ${link.title} <${link.url}>`);
+  for (const link of pageCheck.sourceLinks) lines.push(`  sourceLink: ${link.title} <${link.url}>`);
   for (const action of pageCheck.actions) lines.push(`  action: ${action.type} ${action.text}`);
+  lines.push(`  next: ${formatActionLabel(pageCheck.recommendedAction)} - ${pageCheck.recommendedAction.reason}`);
+  lines.push(`  execution: ${actionExecution(pageCheck.recommendedAction)}`);
+  if (pageCheck.recommendedAction.readFrom) lines.push(`  readFrom: ${pageCheck.recommendedAction.readFrom}`);
+  if (pageCheck.recommendedAction.requiresBrowserInteraction) lines.push("  requiresBrowserInteraction: true");
+  if (pageCheck.recommendedAction.command) lines.push(`  command: ${pageCheck.recommendedAction.command}`);
+  if (pageCheck.recommendedAction.commandArgs) lines.push(`  commandArgs: ${formatCommandArgsText(pageCheck.recommendedAction.commandArgs)}`);
+  for (const [index, step] of pageCheck.nextSteps.entries()) {
+    const target = step.url ? ` <${step.url}>` : "";
+    lines.push(`  step: ${index + 1}. ${formatActionLabel(step)}${target} - ${step.reason}`);
+    lines.push(`    execution: ${actionExecution(step)}`);
+    if (step.readFrom) lines.push(`    readFrom: ${step.readFrom}`);
+    if (step.requiresBrowserInteraction) lines.push("    requiresBrowserInteraction: true");
+    if (step.command) lines.push(`    command: ${step.command}`);
+    if (step.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(step.commandArgs)}`);
+  }
   return ["pageCheck", ...lines];
+}
+
+function formatActionLabel(action: SuggestedAction): string {
+  return `${action.action}${action.terminal ? " [terminal]" : ""}`;
+}
+
+function formatCommandArgsText(commandArgs: string[]): string {
+  return JSON.stringify(commandArgs);
+}
+
+function formatFindsText(finds: FindSummary[]): string[] {
+  if (finds.length === 0) return [];
+  const lines = ["finds"];
+  for (const item of finds) {
+    lines.push(`  ${item.found ? "found" : "missing"}: ${item.query} (${item.matchCount})`);
+    for (const match of item.matches.slice(0, 3)) {
+      const rank = match.rank ? `${match.rank}. ` : "";
+      const url = match.url ? ` <${match.url}>` : "";
+      const selector = match.selector ? ` (${match.selector})` : "";
+      lines.push(`    ${rank}${match.field}${selector}: ${match.text}${url}`);
+    }
+  }
+  return lines;
+}
+
+function formatVerificationText(verification: VerificationSummary): string[] {
+  if (verification.status === "not-requested") return [];
+  const lines = [
+    "verification",
+    `  status: ${verification.status}`,
+    `  found: ${verification.foundCount}/${verification.requestedCount}`,
+  ];
+  if (verification.missingQueries.length > 0) lines.push(`  missing: ${verification.missingQueries.join(", ")}`);
+  if (verification.bestEvidence) {
+    const rank = verification.bestEvidence.rank ? `${verification.bestEvidence.rank}. ` : "";
+    const url = verification.bestEvidence.url ? ` <${verification.bestEvidence.url}>` : "";
+    lines.push(`  evidence: ${rank}${verification.bestEvidence.field}: ${verification.bestEvidence.text}${url}`);
+  }
+  if (verification.recommendedAction) {
+    lines.push(`  next: ${verification.recommendedAction.action} - ${verification.recommendedAction.reason}`);
+    if (verification.recommendedAction.command) lines.push(`  command: ${verification.recommendedAction.command}`);
+    if (verification.recommendedAction.commandArgs) lines.push(`  commandArgs: ${formatCommandArgsText(verification.recommendedAction.commandArgs)}`);
+  }
+  return lines;
 }
 
 function formatResultsText(results: ResultSummary[]): string[] {
@@ -755,6 +1446,10 @@ function formatResultsText(results: ResultSummary[]): string[] {
     lines.push(`  ${result.rank}. ${result.title}`);
     lines.push(`     url: ${result.url}`);
     if (result.source) lines.push(`     source: ${result.source}`);
+    if (result.sourceType) {
+      const hints = result.sourceHints?.length ? ` (${result.sourceHints.join(", ")})` : "";
+      lines.push(`     sourceType: ${result.sourceType} ${result.sourceScore ?? 0}${hints}`);
+    }
     if (result.snippet) lines.push(`     snippet: ${result.snippet}`);
   }
   return lines;
@@ -816,14 +1511,14 @@ function summarizeLinks(node: SemanticNode, baseUrl: string): LinkSummary[] {
       const href = current.attributes?.href;
       const url = href ? normalizeHref(href, baseUrl) : null;
       if (url && isUsefulLink(current, url, baseUrl)) {
+        const snippet = linkContextSnippet(current, ancestors);
         const candidate: LinkSummary & { score: number; index: number } = {
           text: cleanLinkText(current.name || current.text || url),
           url,
           role: current.role,
-          score: linkScore(current, url, baseUrl),
+          score: linkScore(current, url, baseUrl, snippet),
           index,
         };
-        const snippet = linkContextSnippet(current, ancestors);
         if (snippet) candidate.snippet = snippet;
         if (current.selector) candidate.selector = current.selector;
         candidates.push(candidate);
@@ -865,7 +1560,7 @@ function isUsefulLink(node: SemanticNode, url: string, baseUrl: string): boolean
   return true;
 }
 
-function linkScore(node: SemanticNode, url: string, baseUrl: string): number {
+function linkScore(node: SemanticNode, url: string, baseUrl: string, snippet = ""): number {
   const text = node.name || node.text || "";
   let score = 0;
   if (!samePageOrSameHost(url, baseUrl)) score += 100;
@@ -876,6 +1571,7 @@ function linkScore(node: SemanticNode, url: string, baseUrl: string): number {
   if (node.selector?.includes("result") || node.selector?.includes("article")) score += 10;
   if (/^(all|images|videos|maps|news|전체|이미지|동영상|지도|뉴스)$/i.test(text)) score -= 60;
   if (/search|login|settings|home|skip|hamburger|필터|검색|로그인|설정/i.test(text)) score -= 40;
+  if (isLikelyGlobalNavigationText(text, snippet)) score -= 120;
   return score;
 }
 
@@ -891,11 +1587,16 @@ function stripTrailingUrlPunctuation(href: string): string {
 
 function summarizeResults(links: LinkSummary[]): ResultSummary[] {
   return links.map((link, index) => {
+    const source = sourceFromUrl(link.url);
+    const sourceProfile = summarizeSourceProfile(link.url, link.text, link.snippet);
     const result: ResultSummary = {
       title: link.text,
       url: link.url,
-      source: sourceFromUrl(link.url),
+      source,
       rank: index + 1,
+      sourceType: sourceProfile.type,
+      sourceScore: sourceProfile.score,
+      sourceHints: sourceProfile.hints,
     };
     if (link.snippet) result.snippet = link.snippet;
     return result;
@@ -904,9 +1605,141 @@ function summarizeResults(links: LinkSummary[]): ResultSummary[] {
 
 function summarizeSearchResults(fetched: Pick<FetchResult, "html" | "finalUrl">, links: LinkSummary[]): ResultSummary[] {
   const linkResults = summarizeResults(links);
-  if (!looksLikeSearchUrl(fetched.finalUrl)) return linkResults;
+  if (!looksLikeKnownSearchUrl(fetched.finalUrl) && !looksLikeGenericSearchUrl(fetched.finalUrl)) return linkResults;
   const extracted = extractSearchResults(fetched.html, fetched.finalUrl);
-  return extracted.length > 0 ? extracted : linkResults;
+  if (extracted.length > 0) return extracted;
+  return looksLikeKnownSearchUrl(fetched.finalUrl) ? linkResults : [];
+}
+
+function annotateResults(results: ResultSummary[], query?: string, findQueries: string[] = []): ResultSummary[] {
+  const terms = queryTerms(query);
+  if (terms.length === 0 && findQueries.length === 0) return results;
+  return results.map((result) => {
+    const sourceProfile = summarizeSourceProfile(result.url, result.title, result.snippet);
+    const annotated: ResultSummary = {
+      ...result,
+      sourceType: result.sourceType ?? sourceProfile.type,
+      sourceScore: result.sourceScore ?? sourceProfile.score,
+      sourceHints: result.sourceHints ?? sourceProfile.hints,
+    };
+    const haystack = normalizeForMatch(`${result.title} ${result.url} ${result.source} ${result.snippet ?? ""}`);
+    if (terms.length > 0) {
+      const matchedTerms = terms.filter((term) => haystack.includes(normalizeForMatch(term)));
+      const essentialTerms = essentialQueryTerms(terms);
+      const matchedEssentialTerms = essentialTerms.filter((term) => haystack.includes(normalizeForMatch(term)));
+      const isLikelyOfficial = likelyOfficialResult(result, terms);
+      let relevance: ResultSummary["relevance"] = "low";
+      if (matchedTerms.length === terms.length || isLikelyOfficial) relevance = "high";
+      else if (matchedTerms.length > 0 && (essentialTerms.length === 0 || matchedEssentialTerms.length > 0)) relevance = "medium";
+      annotated.relevance = relevance;
+      annotated.matchedTerms = matchedTerms;
+      annotated.isLikelyOfficial = isLikelyOfficial;
+    }
+    const findMatches = matchedFindQueriesForResult(result, findQueries);
+    if (findMatches.length > 0) annotated.findMatches = findMatches;
+    return annotated;
+  });
+}
+
+function matchedFindQueriesForResult(result: ResultSummary, findQueries: string[]): string[] {
+  if (findQueries.length === 0) return [];
+  const haystack = normalizeFindValue(`${result.title} ${result.url} ${result.source} ${result.snippet ?? ""}`);
+  return findQueries.filter((query) => {
+    const normalizedQuery = normalizeFindValue(query);
+    if (!normalizedQuery) return false;
+    if (haystack.includes(normalizedQuery)) return true;
+    const terms = queryTerms(query).map(normalizeFindValue).filter(Boolean);
+    return terms.length > 0 && terms.every((term) => haystack.includes(term));
+  });
+}
+
+function queryTerms(query?: string): string[] {
+  if (!query) return [];
+  const terms = query
+    .toLowerCase()
+    .split(/\s+/)
+    .map((term) => term.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}-]+$/gu, ""))
+    .filter((term) => term.length >= 2);
+  return Array.from(new Set(terms));
+}
+
+function essentialQueryTerms(terms: string[]): string[] {
+  return terms.filter((term) => /[a-z0-9]-[a-z0-9]/i.test(term));
+}
+
+function normalizeForMatch(value: string): string {
+  return value.toLowerCase().replace(/[._/]+/g, "-");
+}
+
+function likelyOfficialResult(result: ResultSummary, terms: string[]): boolean {
+  const source = result.source.replace(/^www\./, "").toLowerCase();
+  const url = result.url.toLowerCase();
+  const title = result.title.toLowerCase();
+  const packageLike = terms.find((term) => /[a-z0-9]-[a-z0-9]/i.test(term)) ?? terms[0];
+  if (!packageLike) return false;
+  const normalizedPackage = normalizeForMatch(packageLike);
+  if (source === "npmjs.com" && url.includes(`/package/${normalizedPackage}`)) return true;
+  if (source === "github.com" && (url.includes(`/${normalizedPackage}`) || title.includes(normalizedPackage))) return true;
+  if (source === `${normalizedPackage}.com` || source === `${normalizedPackage}.org` || source === `${normalizedPackage}.dev`) return true;
+  if (source.startsWith(`${normalizedPackage}.`) || source.startsWith(`docs.${normalizedPackage}.`) || source.startsWith(`platform.${normalizedPackage}.`)) return true;
+  return false;
+}
+
+function summarizeSourceProfile(url: string, title?: string, snippet?: string): { type: SourceType; score: number; hints: string[] } {
+  const hints: string[] = [];
+  let type: SourceType = "unknown";
+  let score = 0.35;
+  let hostname = "";
+  let pathname = "";
+  try {
+    const parsed = new URL(url);
+    hostname = parsed.hostname.replace(/^www\./, "").toLowerCase();
+    pathname = parsed.pathname.toLowerCase();
+  } catch {
+    return { type, score: 0, hints: ["invalid-url"] };
+  }
+  const text = `${title ?? ""} ${snippet ?? ""}`.toLowerCase();
+  const hostAndPath = `${hostname}${pathname}`;
+
+  const set = (nextType: SourceType, nextScore: number, hint: string): void => {
+    if (nextScore >= score) {
+      type = nextType;
+      score = nextScore;
+    }
+    hints.push(hint);
+  };
+
+  if (/\.(?:gov|go|gob|gouv|go\.kr|gov\.cn|go\.jp)(?:\.|$)/i.test(hostname) || /(?:^|\.)gov\.uk$/.test(hostname)) {
+    set("government", 0.95, "government-domain");
+  }
+  if (/\.(?:edu|ac)(?:\.|$)/i.test(hostname) || /\.(?:ac\.kr|ac\.jp|edu\.cn)$/i.test(hostname)) {
+    set("education", 0.86, "education-domain");
+  }
+  if (/(?:^|\.)wikipedia\.org$|(?:^|\.)wikidata\.org$/.test(hostname)) set("wiki", 0.62, "wiki");
+  if (/(?:^|\.)github\.com$|(?:^|\.)gitlab\.com$|(?:^|\.)bitbucket\.org$/.test(hostname)) set("code", 0.72, "code-host");
+  if (/(?:^|\.)npmjs\.com$|(?:^|\.)pypi\.org$|(?:^|\.)crates\.io$|(?:^|\.)packagist\.org$/.test(hostname)) set("official", 0.9, "package-registry");
+  if (/(?:^|\.)developer\.mozilla\.org$|(?:^|\.)docs\.[^/]+|\/docs?\/|\/documentation\//.test(hostAndPath) || /\b(documentation|docs|api reference)\b/.test(text)) {
+    set("documentation", 0.78, "documentation");
+  }
+  if (/(?:^|\.)x\.com$|(?:^|\.)twitter\.com$|(?:^|\.)instagram\.com$|(?:^|\.)facebook\.com$|(?:^|\.)threads\.net$|(?:^|\.)tiktok\.com$/.test(hostname)) {
+    set("social", 0.42, "social-platform");
+  }
+  if (/(?:^|\.)reddit\.com$|(?:^|\.)dcinside\.com$|(?:^|\.)clien\.net$|(?:^|\.)ruliweb\.com$|(?:^|\.)stackoverflow\.com$|(?:^|\.)news\.ycombinator\.com$/.test(hostname)) {
+    set("forum", 0.5, "community");
+  }
+  if (/(?:news|press|journal|times|일보|신문)/i.test(hostname) || /\b(news|breaking|article)\b/.test(text)) {
+    set("news", 0.58, "news-like");
+  }
+  if (/(?:shop|store|product|pricing|cart|checkout|buy|commerce)/i.test(hostAndPath)) set("commerce", 0.38, "commerce-like");
+  if (/(?:^|\.)iana\.org$|(?:^|\.)ietf\.org$|(?:^|\.)w3\.org$|(?:^|\.)whatwg\.org$|(?:^|\.)openai\.com$/.test(hostname)) {
+    set("official", 0.92, "official-organization");
+  }
+
+  return {
+    type,
+    score: roundMetric(Math.max(0, Math.min(1, score))),
+    hints: Array.from(new Set(hints)).slice(0, 4),
+  };
 }
 
 function extractSearchResults(html: string, baseUrl: string): ResultSummary[] {
@@ -938,6 +1771,7 @@ function detectSearchEngine(url: string): SearchResultEngine | null {
     if (hostname.endsWith("duckduckgo.com")) return "duckduckgo";
     if (hostname.endsWith("startpage.com")) return "startpage";
     if (hostname.endsWith("search.yahoo.co.jp")) return "yahoo-japan";
+    if (looksLikeGenericSearchUrl(url)) return "generic";
     return null;
   } catch {
     return null;
@@ -969,6 +1803,11 @@ function isResultCard(element: Element, engine: SearchResultEngine): boolean {
       || hasClass(element, "result__body");
   }
   if (engine === "yahoo-japan") return hasClass(element, "sw-Card") || hasClass(element, "algo") || hasClass(element, "SearchResult");
+  if (engine === "generic") {
+    return hasClass(element, "result")
+      || hasClass(element, "search-result")
+      || (element.name === "li" && findElement(element.children, (child) => child.name === "a") !== undefined && findElement(element.children, (child) => child.name === "p") !== undefined);
+  }
   return hasClass(element, "w-gl__result")
     || hasClass(element, "result")
     || hasClass(element, "search-result");
@@ -1135,25 +1974,768 @@ function summarizePageCheck(
   actions: ActionSummary[],
   content: ContentSummary[],
   analysis: AnalysisSummary,
+  agentMode = false,
+  capturedHtml = false,
+  timeoutMs?: number,
+  userAgent?: string,
 ): PageCheckSummary {
   const focusedContent = pageCheckContent(content);
   const primaryLinks = summarizePrimaryPageLinks(links, fetched.finalUrl);
+  const fallbackPreview = focusedContent.length > 0
+    ? []
+    : htmlContentPreview(fetched.html).concat(fallbackPageCheckPreview(fetched, outline, primaryLinks)).slice(0, 4);
   const contentPreview = focusedContent.length > 0
     ? focusedContent.slice(0, 4).map((item) => item.text)
-    : htmlContentPreview(fetched.html).concat(fallbackPageCheckPreview(fetched, outline, primaryLinks)).slice(0, 4);
+    : fallbackPreview;
+  const contentEvidence = focusedContent.length > 0
+    ? summarizeContentEvidence(focusedContent)
+    : summarizeFallbackEvidence(fallbackPreview);
   const contentLength = contentPreview.reduce((total, text) => total + text.length, 0);
+  const sourceLinks = summarizeSourcePageLinks(primaryLinks);
+  const pageActions = summarizePageCheckActions(actions);
+  const confidence = pageCheckConfidence(contentLength, outline, analysis);
+  const readability = summarizeReadability(confidence, contentEvidence, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
+    contentEvidence,
     contentLength,
     primaryLinks,
-    actions: actions.slice(0, 5),
-    confidence: pageCheckConfidence(contentLength, outline, analysis),
+    sourceLinks,
+    actions: pageActions,
+    confidence,
+    readability,
+    recommendedAction,
+    nextSteps: summarizePageCheckNextSteps(recommendedAction, readability, analysis, fetched.finalUrl, sourceLinks, pageActions, agentMode, capturedHtml, timeoutMs, userAgent),
   };
   if (fetched.page.title) pageCheck.title = fetched.page.title;
   if (fetched.page.canonicalUrl) pageCheck.canonicalUrl = fetched.page.canonicalUrl;
   if (fetched.page.lang) pageCheck.lang = fetched.page.lang;
-  if (outline[0]?.text) pageCheck.mainHeading = outline[0].text;
+  const mainHeading = pageMainHeading(outline);
+  if (mainHeading) pageCheck.mainHeading = mainHeading;
   return pageCheck;
+}
+
+function pageMainHeading(outline: OutlineSummary[]): string | undefined {
+  const meaningful = outline.filter((item) => !isLowValueHeadingText(item.text));
+  return meaningful.find((item) => item.level === 1)?.text ?? meaningful[0]?.text;
+}
+
+function summarizeReadability(
+  confidence: PageCheckSummary["confidence"],
+  contentEvidence: PageEvidenceSummary[],
+  contentLength: number,
+  sourceLinks: PageLinkSummary[],
+  actions: ActionSummary[],
+  analysis: AnalysisSummary,
+): PageReadabilitySummary {
+  const reasons: string[] = [];
+  let score = confidence === "high" ? 0.35 : confidence === "medium" ? 0.22 : 0.08;
+  if (contentEvidence.length > 0) {
+    const semanticEvidenceCount = contentEvidence.filter((item) => item.role !== "fallback").length;
+    const fallbackEvidenceCount = contentEvidence.length - semanticEvidenceCount;
+    score += Math.min(0.25, semanticEvidenceCount * 0.08 + fallbackEvidenceCount * 0.02);
+    reasons.push(`${contentEvidence.length} content evidence item${contentEvidence.length === 1 ? "" : "s"}`);
+  }
+  if (contentLength >= 400) {
+    score += 0.18;
+    reasons.push("substantial extracted text");
+  } else if (contentLength >= 120) {
+    score += 0.1;
+    reasons.push("some extracted text");
+  }
+  if (sourceLinks.length > 0) {
+    score += 0.12;
+    reasons.push(analysis.kind === "search-results"
+      ? `${sourceLinks.length} search result source${sourceLinks.length === 1 ? "" : "s"}`
+      : `${sourceLinks.length} external source link${sourceLinks.length === 1 ? "" : "s"}`);
+  }
+  if (actions.length > 0 && contentLength < 120) {
+    score -= 0.08;
+    reasons.push("interaction may be required");
+  }
+  if (analysis.kind === "blocked-page" || analysis.kind === "empty") {
+    if (analysis.kind === "empty" && contentEvidence.length === 0 && contentLength === 0) {
+      return {
+        level: "low",
+        score: 0,
+        reasons: ["no page content extracted"],
+      };
+    }
+    score = Math.min(score, 0.18);
+    reasons.push("page appears blocked or empty");
+  }
+  const bounded = Math.max(0, Math.min(1, score));
+  return {
+    level: bounded >= 0.7 ? "high" : bounded >= 0.4 ? "medium" : "low",
+    score: roundMetric(bounded),
+    reasons,
+  };
+}
+
+function summarizeSourcePageLinks(primaryLinks: PageLinkSummary[]): PageLinkSummary[] {
+  return primaryLinks
+    .filter((link) => link.kind === "external")
+    .sort((left, right) => sourceLinkPriority(right) - sourceLinkPriority(left) || left.rank - right.rank)
+    .slice(0, 4)
+    .map((link, index) => ({ ...link, rank: index + 1 }));
+}
+
+function sourceLinkPriority(link: PageLinkSummary): number {
+  return (link.sourceScore ?? 0) >= 0.78 ? 1 : 0;
+}
+
+function summarizePageCheckActions(actions: ActionSummary[]): ActionSummary[] {
+  return actions.filter((action) => !isLowValueAction(action)).slice(0, 5);
+}
+
+function isLowValueAction(action: ActionSummary): boolean {
+  return /^(toggle navigation|navigation menu|appearance settings|platform|solutions|resources|open source|enterprise|open sidebar|get started|concepts|how-tos|reference|search or ask copilot|search or jump to…|search or jump to|select language:.*|version:.*|resetting focus|textbox|input|button|upvote|downvote|limit my search to .+|t5_[a-z0-9]+|open menu|close menu|hamburger menu|close|검색하기|통합검색|로그인|나중에 하기|메뉴|내비게이션)$/i.test(action.text.trim());
+}
+
+function recommendedPageCheckAction(
+  readability: PageReadabilitySummary,
+  analysis: AnalysisSummary,
+  pageUrl: string,
+  sourceLinks: PageLinkSummary[],
+  agentMode = false,
+  capturedHtml = false,
+  timeoutMs?: number,
+  userAgent?: string,
+): SuggestedAction {
+  const searchAction = analysis.suggestedActions.find((action) => action.action === "refine-search" || action.action === "open-result");
+  if (searchAction) return searchAction;
+  if ((analysis.kind === "blocked-page" || analysis.kind === "empty") && !capturedHtml) {
+    return {
+      action: "retry-with-browser-html",
+      reason: "The page is not reliably readable from fetched HTML.",
+      url: pageUrl,
+      ...commandFields(pageCommandSpec(pageUrl, agentMode, true, [], timeoutMs, userAgent)),
+    };
+  }
+  if ((analysis.kind === "blocked-page" || analysis.kind === "empty") && capturedHtml) {
+    return {
+      action: "inspect-browser-state",
+      reason: "Browser-captured HTML still appears blocked or empty; inspect the browser state or capture after interacting.",
+      url: pageUrl,
+      requiresBrowserInteraction: true,
+    };
+  }
+  if (readability.level === "high" || readability.level === "medium") {
+    return {
+      action: "read-content",
+      reason: "The page has enough structured evidence for source checking.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.contentEvidence",
+    };
+  }
+  if (sourceLinks[0]) {
+    return {
+      action: "open-source-link",
+      reason: "The page has limited readable content, but an external source link is available.",
+      url: sourceLinks[0].url,
+      rank: sourceLinks[0].rank,
+      ...commandFields(pageCommandSpec(sourceLinks[0].url, agentMode, false, [], timeoutMs, userAgent)),
+    };
+  }
+  return {
+    action: "inspect-actions-or-open-source-link",
+    reason: "The page has limited readable content; inspect available controls or source links before relying on it.",
+    url: pageUrl,
+    requiresBrowserInteraction: true,
+  };
+}
+
+function summarizePageCheckNextSteps(
+  recommendedAction: SuggestedAction,
+  readability: PageReadabilitySummary,
+  analysis: AnalysisSummary,
+  pageUrl: string,
+  sourceLinks: PageLinkSummary[],
+  actions: ActionSummary[],
+  agentMode = false,
+  capturedHtml = false,
+  timeoutMs?: number,
+  userAgent?: string,
+): SuggestedAction[] {
+  const steps: SuggestedAction[] = [];
+  const add = (step: SuggestedAction): void => {
+    const key = `${step.action}:${step.url ?? ""}:${step.rank ?? ""}:${step.openResult ?? ""}:${step.readFrom ?? ""}`;
+    if (steps.some((item) => `${item.action}:${item.url ?? ""}:${item.rank ?? ""}:${item.openResult ?? ""}:${item.readFrom ?? ""}` === key)) return;
+    steps.push(step);
+  };
+  const needsSearchRefinement = analysis.suggestedActions.some((action) => action.action === "refine-search");
+
+  for (const action of analysis.suggestedActions) {
+    if (action.action === "open-result" || action.action === "refine-search") add(action);
+  }
+  add(recommendedAction);
+  if (analysis.kind === "search-results") return steps;
+
+  if (!needsSearchRefinement) {
+    for (const link of sourceLinks.slice(0, 2)) {
+      add({
+        action: "open-source-link",
+        reason: "Inspect an external source link referenced by the page.",
+        url: link.url,
+        rank: link.rank,
+        ...commandFields(pageCommandSpec(link.url, agentMode, false, [], timeoutMs, userAgent)),
+      });
+    }
+  }
+
+  if (actions[0] && analysis.kind !== "blocked-page" && analysis.kind !== "empty") {
+    add({
+      action: "inspect-actions",
+      reason: "Visible controls may reveal more content or navigation choices.",
+      url: pageUrl,
+      requiresBrowserInteraction: true,
+    });
+  }
+
+  if (readability.level === "low" && analysis.kind !== "blocked-page" && analysis.kind !== "empty" && !capturedHtml) {
+    add({
+      action: "retry-with-browser-html",
+      reason: "Fetched HTML has limited readable evidence; browser-captured HTML may expose more content.",
+      url: pageUrl,
+      ...commandFields(pageCommandSpec(pageUrl, agentMode, true, [], timeoutMs, userAgent)),
+    });
+  }
+
+  return steps.slice(0, 5);
+}
+
+function roundMetric(value: number): number {
+  return Math.round(value * 1000) / 1000;
+}
+
+function summarizeContentEvidence(content: ContentSummary[]): PageEvidenceSummary[] {
+  return content.slice(0, 4).map((item, index) => {
+    const evidence: PageEvidenceSummary = {
+      rank: index + 1,
+      text: item.text,
+      role: item.role,
+      source: "semantic",
+      score: evidenceScore(item.text, item.role, true, Boolean(item.selector)),
+    };
+    if (item.selector) evidence.selector = item.selector;
+    return evidence;
+  });
+}
+
+function summarizeFallbackEvidence(preview: string[]): PageEvidenceSummary[] {
+  return preview.map((text, index) => ({
+    rank: index + 1,
+    text,
+    role: "fallback",
+    source: "fallback",
+    score: evidenceScore(text, "fallback", false, false),
+  }));
+}
+
+function evidenceScore(text: string, role: string, semantic: boolean, hasSelector: boolean): number {
+  let score = semantic ? 0.58 : 0.24;
+  const length = text.length;
+  if (length >= 240) score += 0.2;
+  else if (length >= 120) score += 0.14;
+  else if (length >= 60) score += 0.08;
+  if (role === "p" || role === "article") score += 0.12;
+  if (hasSelector) score += 0.06;
+  return roundMetric(Math.max(0, Math.min(1, score)));
+}
+
+function summarizeFinds(
+  queries: string[],
+  page: PageSummary,
+  pageCheck: PageCheckSummary,
+  links: LinkSummary[],
+  results: ResultSummary[],
+  outline: OutlineSummary[],
+  content: ContentSummary[],
+  kind: ContentKind,
+): FindSummary[] {
+  if (queries.length === 0) return [];
+  const candidates = findCandidates(page, pageCheck, links, results, outline, content, kind);
+  return queries.map((query) => {
+    const normalizedQuery = normalizeFindValue(query);
+    const terms = queryTerms(query).map(normalizeFindValue);
+    const matches = candidates.filter((candidate) => {
+      const normalizedText = normalizeFindValue(candidate.text);
+      if (!normalizedQuery) return false;
+      if (normalizedText.includes(normalizedQuery)) return true;
+      return terms.length > 0 && terms.every((term) => normalizedText.includes(term));
+    }).slice(0, 8);
+    return {
+      query,
+      found: matches.length > 0,
+      matchCount: matches.length,
+      matches,
+    };
+  });
+}
+
+function summarizeVerification(
+  finds: FindSummary[],
+  pageCheck: PageCheckSummary,
+  pageUrl: string,
+  analysis: AnalysisSummary,
+  agentMode = false,
+  capturedHtml = false,
+  sourceSearch?: SourceSearchSummary,
+  timeoutMs?: number,
+  userAgent?: string,
+): VerificationSummary {
+  const requestedCount = finds.length;
+  const foundQueries = finds.filter((item) => item.found).map((item) => item.query);
+  const missingQueries = finds.filter((item) => !item.found).map((item) => item.query);
+  const evidenceCount = finds.reduce((total, item) => total + item.matchCount, 0);
+  const bestEvidence = finds.find((item) => item.matches[0])?.matches[0];
+  const status: VerificationSummary["status"] = requestedCount === 0
+    ? "not-requested"
+    : missingQueries.length === 0
+      ? "matched"
+      : foundQueries.length > 0
+        ? "partial"
+        : "missing";
+  const summary: VerificationSummary = {
+    status,
+    requestedCount,
+    foundCount: foundQueries.length,
+    missingCount: missingQueries.length,
+    evidenceCount,
+    foundQueries,
+    missingQueries,
+  };
+  if (bestEvidence) summary.bestEvidence = bestEvidence;
+  const recommendedAction = recommendedVerificationAction(status, pageCheck, pageUrl, analysis, agentMode, missingQueries, capturedHtml, sourceSearch, timeoutMs, userAgent);
+  if (recommendedAction) summary.recommendedAction = recommendedAction;
+  return summary;
+}
+
+function recommendedVerificationAction(
+  status: VerificationSummary["status"],
+  pageCheck: PageCheckSummary,
+  pageUrl: string,
+  analysis: AnalysisSummary,
+  agentMode = false,
+  missingQueries: string[] = [],
+  capturedHtml = false,
+  sourceSearch?: SourceSearchSummary,
+  timeoutMs?: number,
+  userAgent?: string,
+): SuggestedAction | undefined {
+  if (status === "not-requested") return undefined;
+  const searchAction = analysis.suggestedActions.find((action) => action.action === "refine-search" || action.action === "open-result");
+  if (analysis.kind === "search-results" && searchAction) return searchAction;
+  if (status === "matched") {
+    return {
+      action: "use-evidence",
+      reason: "All requested text was found in the page summaries.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "verification.bestEvidence",
+    };
+  }
+  if (searchAction) return searchAction;
+  const alternateAction = sourceSearchAlternateAction(sourceSearch, missingQueries, agentMode);
+  if (alternateAction) return alternateAction;
+  if (pageCheck.sourceLinks[0]) {
+    return {
+      action: "open-source-link",
+      reason: "Some requested text was not found; inspect the strongest external source link.",
+      url: pageCheck.sourceLinks[0].url,
+      rank: pageCheck.sourceLinks[0].rank,
+      ...commandFields(pageCommandSpec(pageCheck.sourceLinks[0].url, agentMode, false, missingQueries, timeoutMs, userAgent)),
+    };
+  }
+  if ((analysis.kind === "blocked-page" || analysis.kind === "empty" || pageCheck.readability.level === "low") && !capturedHtml) {
+    return {
+      action: "retry-with-browser-html",
+      reason: "Requested text was not found and the fetched page may be incomplete.",
+      url: pageUrl,
+      ...commandFields(pageCommandSpec(pageUrl, agentMode, true, missingQueries, timeoutMs, userAgent)),
+    };
+  }
+  if (analysis.kind === "blocked-page" || analysis.kind === "empty") {
+    return {
+      action: "inspect-browser-state",
+      reason: "Requested text was not found, and browser-captured HTML still appears blocked or empty.",
+      url: pageUrl,
+      requiresBrowserInteraction: true,
+    };
+  }
+  return {
+    action: "broaden-search",
+    reason: "Requested text was not found in the current page summaries.",
+    ...commandFields(verificationSearchCommandSpec(missingQueries, agentMode, timeoutMs, userAgent)),
+  };
+}
+
+function sourceSearchAlternateAction(sourceSearch: SourceSearchSummary | undefined, missingQueries: string[], agentMode = false): SuggestedAction | undefined {
+  if (!sourceSearch || missingQueries.length === 0) return undefined;
+  const alternate = sourceSearch.alternateResults?.find((result) => {
+    const matches = result.findMatches ?? matchedFindQueriesForResult(result, missingQueries);
+    return matches.some((match) => missingQueries.includes(match));
+  });
+  const command = alternate
+    ? searchOpenCommandSpec(
+        sourceSearch.query,
+        sourceSearch.selectedEngine ?? sourceSearch.engine,
+        missingQueries,
+        agentMode,
+        sourceSearch.lang,
+        sourceSearch.region,
+        alternate.rank,
+        sourceSearch.timeoutMs,
+        sourceSearch.userAgent,
+      )
+    : undefined;
+  if (!alternate || !command) return undefined;
+  return {
+    action: "open-alternate-result",
+    reason: "The opened result did not verify the requested text; an alternate original SERP result matches the missing query.",
+    url: alternate.url,
+    rank: alternate.rank,
+    ...commandFields(command),
+  };
+}
+
+function summarizeAgent(
+  analysis: AnalysisSummary,
+  pageCheck: PageCheckSummary,
+  verification: VerificationSummary,
+  results: ResultSummary[],
+  recommendedResult?: ResultSummary,
+  error?: { code: CliErrorCode; message: string; status?: number },
+  capturedHtml = false,
+  sourceSearch?: SourceSearchSummary,
+  fetched?: FetchResult,
+  requestUrl?: string,
+): AgentSummary {
+  const diagnosticCodes = analysis.diagnostics.map((diagnostic) => diagnostic.code);
+  const primaryAction = primaryAgentAction(analysis, pageCheck, verification);
+  const hasUsableSearchResults = analysis.kind === "search-results" && results.length > 0;
+  const blockedOrEmpty = analysis.kind === "blocked-page" || analysis.kind === "empty";
+  const needsBrowserHtml = Boolean(error)
+    || (!capturedHtml && blockedOrEmpty)
+    || primaryAction?.action === "retry-with-browser-html";
+  const canUseFetchedHtml = !needsBrowserHtml && !blockedOrEmpty && (capturedHtml || hasUsableSearchResults || verification.status === "matched" || pageCheck.readability.level !== "low");
+  const status = agentStatus(analysis, pageCheck, verification, needsBrowserHtml, error);
+  const summary = agentSummaryText(status, analysis, pageCheck, verification, recommendedResult);
+  const diagnosticCounts = countDiagnosticsBySeverity(analysis.diagnostics);
+  const readTargets = summarizeAgentReadTargets(primaryAction, analysis.kind, pageCheck, verification, results, sourceSearch);
+  const bestReadTarget = selectBestReadTarget(readTargets);
+  const agent: AgentSummary = {
+    status,
+    pageKind: analysis.kind,
+    summary,
+    canContinue: agentCanContinue(primaryAction),
+    canUseFetchedHtml,
+    needsBrowserHtml,
+    responseStatus: fetched?.status ?? error?.status ?? 0,
+    responseOk: fetched ? fetched.status >= 200 && fetched.status < 400 : false,
+    responseContentType: fetched?.contentType ?? "",
+    finalUrlChanged: Boolean(fetched && requestUrl && fetched.finalUrl !== requestUrl),
+    confidence: pageCheck.confidence,
+    usabilityScore: agentUsabilityScore(status, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error),
+    readability: pageCheck.readability.level,
+    readabilityScore: pageCheck.readability.score,
+    readabilityReasons: pageCheck.readability.reasons.slice(0, 3),
+    verificationStatus: verification.status,
+    verificationRequestedCount: verification.requestedCount,
+    verificationFoundCount: verification.foundCount,
+    verificationMissingCount: verification.missingCount,
+    resultCount: hasUsableSearchResults ? results.length : 0,
+    evidenceCount: pageCheck.contentEvidence.length,
+    sourceLinkCount: analysis.kind === "search-results" ? 0 : pageCheck.sourceLinks.length,
+    evidenceQualityScore: averageEvidenceScore(pageCheck.contentEvidence),
+    sourceQualityScore: agentSourceQualityScore(analysis.kind, pageCheck.sourceLinks, results),
+    alternativeActionCount: countAlternativeAgentActions(analysis, pageCheck, verification, primaryAction),
+    diagnosticCodes,
+    diagnosticErrorCount: diagnosticCounts.error,
+    diagnosticWarningCount: diagnosticCounts.warning,
+    diagnosticInfoCount: diagnosticCounts.info,
+    readTargets,
+  };
+  if (bestReadTarget) {
+    agent.bestReadTarget = bestReadTarget.path;
+    if (typeof bestReadTarget.score === "number") agent.bestReadTargetScore = bestReadTarget.score;
+    agent.bestReadTargetReason = bestReadTarget.reason;
+  }
+  if (primaryAction) {
+    agent.primaryExecution = actionExecution(primaryAction);
+    if (primaryAction.readFrom) agent.primaryReadFrom = primaryAction.readFrom;
+    if (primaryAction.command) agent.primaryCommand = primaryAction.command;
+    if (primaryAction.commandArgs) agent.primaryCommandArgs = primaryAction.commandArgs;
+    if (primaryAction.url) agent.primaryUrl = primaryAction.url;
+    if (primaryAction.rank) agent.primaryRank = primaryAction.rank;
+    if (primaryAction.openResult) agent.primaryOpenResult = primaryAction.openResult;
+    if (primaryAction.requiresBrowserInteraction) agent.requiresBrowserInteraction = true;
+    agent.primaryAction = primaryAction;
+  }
+  if (recommendedResult) {
+    agent.recommendedUrl = recommendedResult.url;
+    agent.recommendedTitle = recommendedResult.title;
+    agent.recommendedRank = recommendedResult.rank;
+    agent.recommendedSource = recommendedResult.source;
+    if (recommendedResult.relevance) agent.recommendedRelevance = recommendedResult.relevance;
+    if (typeof recommendedResult.isLikelyOfficial === "boolean") agent.recommendedLikelyOfficial = recommendedResult.isLikelyOfficial;
+  } else if (primaryAction?.url) {
+    agent.recommendedUrl = primaryAction.url;
+  }
+  return agent;
+}
+
+function summarizeAgentReadTargets(
+  primaryAction: SuggestedAction | undefined,
+  kind: ContentKind,
+  pageCheck: PageCheckSummary,
+  verification: VerificationSummary,
+  results: ResultSummary[],
+  sourceSearch?: SourceSearchSummary,
+): AgentReadTarget[] {
+  const targets: AgentReadTarget[] = [];
+  const add = (target: AgentReadTarget): void => {
+    if (targets.some((item) => item.path === target.path)) return;
+    targets.push(target);
+  };
+  const primaryReadFrom = primaryAction && actionExecution(primaryAction) === "read-current" ? primaryAction.readFrom : undefined;
+  if (verification.bestEvidence) {
+    add({
+      path: "verification.bestEvidence",
+      reason: "Best matching evidence for the requested --find text.",
+      count: 1,
+      ...(typeof verification.bestEvidence.score === "number" ? { score: verification.bestEvidence.score } : {}),
+      ...(primaryReadFrom === "verification.bestEvidence" ? { primary: true } : {}),
+    });
+  }
+  if (pageCheck.contentEvidence.length > 0) {
+    add({
+      path: "pageCheck.contentEvidence",
+      reason: "Structured page excerpts suitable for source checking.",
+      count: pageCheck.contentEvidence.length,
+      score: averageEvidenceScore(pageCheck.contentEvidence),
+      ...(primaryReadFrom === "pageCheck.contentEvidence" ? { primary: true } : {}),
+    });
+  }
+  if (sourceSearch?.selectedResult) {
+    add({
+      path: "sourceSearch.selectedResult",
+      reason: "Original SERP metadata for the result that produced the current page.",
+      count: 1,
+      ...(typeof sourceSearch.selectedResult.sourceScore === "number" ? { score: sourceSearch.selectedResult.sourceScore } : {}),
+    });
+  }
+  if (kind === "search-results" && results.length > 0) {
+    add({
+      path: "searchResults",
+      reason: "Ranked search result cards extracted from the current result page.",
+      count: results.length,
+    });
+  }
+  if (primaryAction?.action === "open-alternate-result" && sourceSearch?.alternateResults?.length) {
+    add({
+      path: "sourceSearch.alternateResults",
+      reason: "Original SERP candidates available for recovery after the selected result failed or did not verify.",
+      count: sourceSearch.alternateResults.length,
+      score: averageResultSourceScore(sourceSearch.alternateResults),
+    });
+  }
+  if (kind !== "search-results" && pageCheck.sourceLinks.length > 0) {
+    add({
+      path: "pageCheck.sourceLinks",
+      reason: "External source-like links referenced by the page.",
+      count: pageCheck.sourceLinks.length,
+      score: roundMetric(pageCheck.sourceLinks.reduce((total, link) => total + (link.sourceScore ?? 0), 0) / pageCheck.sourceLinks.length),
+    });
+  }
+  return targets.slice(0, 4);
+}
+
+function agentCanContinue(primaryAction: SuggestedAction | undefined): boolean {
+  if (!primaryAction) return false;
+  return actionExecution(primaryAction) !== "inspect-output";
+}
+
+function selectBestReadTarget(readTargets: AgentReadTarget[]): AgentReadTarget | undefined {
+  return [...readTargets].sort((left, right) => {
+    if (left.primary !== right.primary) return left.primary ? -1 : 1;
+    return (right.score ?? 0) - (left.score ?? 0);
+  })[0];
+}
+
+function countDiagnosticsBySeverity(diagnostics: DiagnosticSummary[]): Record<DiagnosticSummary["severity"], number> {
+  return diagnostics.reduce((counts, diagnostic) => {
+    counts[diagnostic.severity] += 1;
+    return counts;
+  }, { info: 0, warning: 0, error: 0 });
+}
+
+function agentUsabilityScore(
+  status: AgentStatus,
+  pageCheck: PageCheckSummary,
+  verification: VerificationSummary,
+  results: ResultSummary[],
+  needsBrowserHtml: boolean,
+  error?: { code: CliErrorCode; message: string; status?: number },
+): number {
+  if (error) return 0;
+  if (needsBrowserHtml) return 0.1;
+  const confidence = pageCheck.confidence === "high" ? 1 : pageCheck.confidence === "medium" ? 0.65 : 0.25;
+  const evidence = Math.min(1, pageCheck.contentEvidence.length / 3);
+  const sources = Math.min(1, pageCheck.sourceLinks.length / 2);
+  const searchResults = Math.min(1, results.length / 5);
+  const verificationScore = verification.status === "matched"
+    ? 1
+    : verification.status === "partial"
+      ? 0.55
+      : verification.status === "missing"
+        ? 0.15
+        : 0.5;
+  const statusScore = status === "ready" || status === "choose-result"
+    ? 1
+    : status === "verify"
+      ? 0.55
+      : status === "needs-browser"
+        ? 0.15
+        : 0;
+  const resultScore = results.length > 0
+    ? searchResults * 0.35 + confidence * 0.15 + verificationScore * 0.2 + statusScore * 0.3
+    : pageCheck.readability.score * 0.35 + confidence * 0.2 + evidence * 0.2 + sources * 0.1 + verificationScore * 0.1 + statusScore * 0.05;
+  return roundMetric(Math.max(0, Math.min(1, resultScore)));
+}
+
+function countAlternativeAgentActions(
+  analysis: AnalysisSummary,
+  pageCheck: PageCheckSummary,
+  verification: VerificationSummary,
+  primaryAction: SuggestedAction | undefined,
+): number {
+  const actions: SuggestedAction[] = [];
+  const add = (action: SuggestedAction | undefined): void => {
+    if (!action || sameSuggestedAction(action, primaryAction)) return;
+    if ((primaryAction?.action === "use-evidence" || primaryAction?.action === "read-content") && action.action === "read-content") return;
+    if (actions.some((item) => sameSuggestedAction(item, action))) return;
+    actions.push(action);
+  };
+  for (const action of analysis.suggestedActions) add(action);
+  if (primaryAction?.action !== "use-evidence") {
+    add(pageCheck.recommendedAction);
+    for (const step of pageCheck.nextSteps) add(step);
+  }
+  add(verification.recommendedAction);
+  return actions.length;
+}
+
+function averageResultSourceScore(results: ResultSummary[]): number {
+  const scores = results.map((result) => result.sourceScore).filter((score): score is number => typeof score === "number");
+  if (scores.length === 0) return 0;
+  return roundMetric(scores.reduce((total, score) => total + score, 0) / scores.length);
+}
+
+function agentSourceQualityScore(kind: ContentKind, sourceLinks: PageLinkSummary[], results: ResultSummary[]): number {
+  if (kind === "search-results") return averageResultSourceScore(results);
+  if (sourceLinks.length === 0) return 0;
+  return roundMetric(sourceLinks.reduce((total, link) => total + (link.sourceScore ?? 0), 0) / sourceLinks.length);
+}
+
+function averageEvidenceScore(evidence: PageEvidenceSummary[]): number {
+  if (evidence.length === 0) return 0;
+  return roundMetric(evidence.reduce((total, item) => total + item.score, 0) / evidence.length);
+}
+
+function primaryAgentAction(
+  analysis: AnalysisSummary,
+  pageCheck: PageCheckSummary,
+  verification: VerificationSummary,
+): SuggestedAction | undefined {
+  const searchAction = analysis.suggestedActions.find((action) => action.action === "open-result" || action.action === "refine-search");
+  if (searchAction) return searchAction;
+  if (verification.recommendedAction) return verification.recommendedAction;
+  return pageCheck.nextSteps[0] ?? pageCheck.recommendedAction;
+}
+
+function agentStatus(
+  analysis: AnalysisSummary,
+  pageCheck: PageCheckSummary,
+  verification: VerificationSummary,
+  needsBrowserHtml: boolean,
+  error?: { code: CliErrorCode; message: string; status?: number },
+): AgentStatus {
+  if (error && error.code !== "NO_INSPECTABLE_CONTENT") return "error";
+  if (needsBrowserHtml) return "needs-browser";
+  if (analysis.kind === "search-results") return "choose-result";
+  if (verification.status === "partial" || verification.status === "missing") return "verify";
+  if (verification.status === "matched") return "ready";
+  if (pageCheck.readability.level === "low") return "verify";
+  return "ready";
+}
+
+function agentSummaryText(
+  status: AgentStatus,
+  analysis: AnalysisSummary,
+  pageCheck: PageCheckSummary,
+  verification: VerificationSummary,
+  recommendedResult?: ResultSummary,
+): string {
+  if (status === "error") return "Extraction failed before a usable page summary was produced.";
+  if (status === "needs-browser") return "Fetched HTML is blocked, empty, or too thin; browser-captured HTML is recommended.";
+  if (status === "choose-result" && recommendedResult) return `Open result ${recommendedResult.rank}: ${recommendedResult.title}.`;
+  if (status === "choose-result") return "Search results are low confidence; refine the query before opening a result.";
+  if (status === "verify") {
+    if (verification.status === "partial") return "Some requested text was found; inspect missing evidence before relying on this page.";
+    if (verification.status === "missing") return "Requested text was not found in the current page summaries.";
+    return "The page has limited readable evidence; inspect source links or controls before relying on it.";
+  }
+  if (verification.status === "matched") return "All requested text was found in the page summaries.";
+  if (analysis.kind === "content-page") return "The page has readable content evidence suitable for source checking.";
+  return `The page is usable with ${pageCheck.confidence} confidence and ${pageCheck.readability.level} readability.`;
+}
+
+function findCandidates(
+  page: PageSummary,
+  pageCheck: PageCheckSummary,
+  links: LinkSummary[],
+  results: ResultSummary[],
+  outline: OutlineSummary[],
+  content: ContentSummary[],
+  kind: ContentKind,
+): FindMatchSummary[] {
+  const candidates: FindMatchSummary[] = [];
+  const seen = new Set<string>();
+  const add = (match: FindMatchSummary): void => {
+    const key = `${match.url ?? ""}\n${match.text}`.toLowerCase();
+    if (!match.text || seen.has(key)) return;
+    seen.add(key);
+    candidates.push(match);
+  };
+  if (kind !== "search-results") {
+    if (page.title) add({ field: "title", text: page.title });
+    if (page.description) add({ field: "description", text: page.description });
+    if (pageCheck.mainHeading) add({ field: "mainHeading", text: pageCheck.mainHeading });
+  }
+  for (const evidence of pageCheck.contentEvidence) {
+    add({
+      field: "contentEvidence",
+      text: evidence.text,
+      rank: evidence.rank,
+      ...(evidence.selector ? { selector: evidence.selector } : {}),
+      source: evidence.source,
+      score: evidence.score,
+    });
+  }
+  for (const link of pageCheck.sourceLinks) add({ field: "sourceLink", text: link.title, rank: link.rank, url: link.url });
+  for (const link of pageCheck.primaryLinks) add({ field: "primaryLink", text: link.title, rank: link.rank, url: link.url });
+  for (const result of results) add({ field: "result", text: [result.title, result.snippet].filter(Boolean).join(" "), rank: result.rank, url: result.url });
+  for (const item of outline) add({ field: "heading", text: item.text, ...(item.level ? { rank: item.level } : {}) });
+  for (const link of links) add({ field: "link", text: [link.text, link.snippet].filter(Boolean).join(" "), url: link.url });
+  for (const item of content) add({ field: "content", text: item.text, ...(item.selector ? { selector: item.selector } : {}) });
+  return candidates;
+}
+
+function normalizeFindValue(value: string): string {
+  return value.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").replace(/\s+/g, " ").trim();
 }
 
 function pageCheckContent(content: ContentSummary[]): ContentSummary[] {
@@ -1229,17 +2811,25 @@ function isLowValuePreviewText(text: string): boolean {
   return /(본문 바로가기|메뉴 바로가기|보기설정|테마설정|통합검색|주소복사|Facebook|X\(Twitter\)|static nodes omitted|고객지원|게시물 삭제 요청|불법촬영물|쪽지 신고|닉네임 신고|개인정보|이용약관)/i.test(text);
 }
 
+function isLowValueHeadingText(text: string): boolean {
+  return /^(navigation menu|folders and files|latest commit|history|repository files navigation|explore|explore by type|support & services|programs|footer|site navigation|메뉴|탐색|내비게이션)$/i.test(text.trim());
+}
+
 function summarizePrimaryPageLinks(links: LinkSummary[], baseUrl: string): PageLinkSummary[] {
   return links
     .filter((link) => !isLowValuePageLink(link))
     .slice(0, 8)
     .map((link, index) => {
+      const sourceProfile = summarizeSourceProfile(link.url, link.text, link.snippet);
       const summary: PageLinkSummary = {
         title: link.text,
         url: link.url,
         source: sourceFromUrl(link.url),
         rank: index + 1,
         kind: samePageOrSameHost(link.url, baseUrl) ? "internal" : "external",
+        sourceType: sourceProfile.type,
+        sourceScore: sourceProfile.score,
+        sourceHints: sourceProfile.hints,
       };
       if (link.snippet) summary.snippet = link.snippet;
       return summary;
@@ -1248,7 +2838,13 @@ function summarizePrimaryPageLinks(links: LinkSummary[], baseUrl: string): PageL
 
 function isLowValuePageLink(link: LinkSummary): boolean {
   const haystack = `${link.text} ${link.url}`.toLowerCase();
-  return /(^clien\s|^clien$|login|logout|sign in|signup|register|privacy|terms|cookie|advertis|facebook\.com\/sharer|x\.com\/intent\/tweet|twitter\.com\/intent\/tweet|\/auth\/|#div_content|#menutop|\/service\/$|share|공유|주소복사|본문 바로가기|메뉴 바로가기|보기설정|테마설정|톺아보기|공감글|커뮤니티전체|고객지원|광고|로그인|회원가입|개인정보|이용약관|메일인증|email verification)/i.test(haystack);
+  if (isLikelyGlobalNavigationText(link.text, link.snippet)) return true;
+  return /(^clien\s|^clien$|login|logout|sign in|signup|register|privacy|terms|cookie|advertis|facebook\.com\/sharer|x\.com\/intent\/tweet|twitter\.com\/intent\/tweet|\/auth\/|#div_content|#menutop|\/service\/$|share|pricing|githubstatus|github\.blog|contact support|customer support|expert services|ask the github community|community discussions|공유|주소복사|본문 바로가기|메뉴 바로가기|보기설정|테마설정|톺아보기|공감글|커뮤니티전체|고객지원|광고|로그인|회원가입|개인정보|이용약관|메일인증|email verification)/i.test(haystack);
+}
+
+function isLikelyGlobalNavigationText(text: string, snippet = ""): boolean {
+  const haystack = `${text} ${snippet}`.toLowerCase();
+  return /(explore by type|support & services|why github|github skills|customer stories|events & webinars|ebooks & reports|business insights|community forum|trust center|partners|security lab|maintainer community|accelerator|github stars|archive program|blog changelog marketplace|contact support|customer support|expert services|ask the github community|status pricing blog)/i.test(haystack);
 }
 
 function pageCheckConfidence(contentLength: number, outline: OutlineSummary[], analysis: AnalysisSummary): PageCheckSummary["confidence"] {
@@ -1261,10 +2857,169 @@ function pageCheckConfidence(contentLength: number, outline: OutlineSummary[], a
 function emptyPageCheck(): PageCheckSummary {
   return {
     contentPreview: [],
+    contentEvidence: [],
     contentLength: 0,
     primaryLinks: [],
+    sourceLinks: [],
     actions: [],
     confidence: "low",
+    readability: {
+      level: "low",
+      score: 0,
+      reasons: ["no page content extracted"],
+    },
+    recommendedAction: {
+      action: "retry-with-browser-html",
+      reason: "The page is not reliably readable from fetched HTML.",
+    },
+    nextSteps: [
+      {
+        action: "retry-with-browser-html",
+        reason: "The page is not reliably readable from fetched HTML.",
+      },
+    ],
+  };
+}
+
+function emptyVerification(): VerificationSummary {
+  return {
+    status: "not-requested",
+    requestedCount: 0,
+    foundCount: 0,
+    missingCount: 0,
+    evidenceCount: 0,
+    foundQueries: [],
+    missingQueries: [],
+  };
+}
+
+function errorAgent(error: CliError, url?: string, agentMode = false, findQueries: string[] = [], sourceSearch?: SourceSearchSummary, timeoutMs?: number, userAgent?: string): AgentSummary {
+  const summary = error.code === "USAGE" ? error.message.split("\n")[0] || error.message : error.message;
+  const primaryAction = errorAction(error, url, agentMode, findQueries, sourceSearch, timeoutMs, userAgent);
+  const readTargets = summarizeErrorAgentReadTargets(primaryAction, sourceSearch);
+  const bestReadTarget = selectBestReadTarget(readTargets);
+  return {
+    status: "error",
+    pageKind: "empty",
+    summary,
+    canContinue: agentCanContinue(primaryAction),
+    canUseFetchedHtml: false,
+    needsBrowserHtml: errorNeedsBrowserHtml(primaryAction),
+    responseStatus: error.status ?? 0,
+    responseOk: false,
+    responseContentType: "",
+    finalUrlChanged: false,
+    confidence: "low",
+    usabilityScore: 0,
+    readability: "low",
+    readabilityScore: 0,
+    readabilityReasons: ["error before page readability could be evaluated"],
+    verificationStatus: "not-requested",
+    verificationRequestedCount: 0,
+    verificationFoundCount: 0,
+    verificationMissingCount: 0,
+    resultCount: 0,
+    evidenceCount: 0,
+    sourceLinkCount: 0,
+    evidenceQualityScore: 0,
+    sourceQualityScore: 0,
+    alternativeActionCount: 0,
+    diagnosticCodes: [error.code],
+    diagnosticErrorCount: 1,
+    diagnosticWarningCount: 0,
+    diagnosticInfoCount: 0,
+    readTargets,
+    ...(bestReadTarget ? { bestReadTarget: bestReadTarget.path } : {}),
+    ...(typeof bestReadTarget?.score === "number" ? { bestReadTargetScore: bestReadTarget.score } : {}),
+    ...(bestReadTarget ? { bestReadTargetReason: bestReadTarget.reason } : {}),
+    ...(primaryAction ? { primaryExecution: actionExecution(primaryAction) } : {}),
+    ...(primaryAction?.readFrom ? { primaryReadFrom: primaryAction.readFrom } : {}),
+    ...(primaryAction?.command ? { primaryCommand: primaryAction.command } : {}),
+    ...(primaryAction?.commandArgs ? { primaryCommandArgs: primaryAction.commandArgs } : {}),
+    ...(primaryAction?.url ? { primaryUrl: primaryAction.url } : {}),
+    ...(primaryAction?.rank ? { primaryRank: primaryAction.rank } : {}),
+    ...(primaryAction?.openResult ? { primaryOpenResult: primaryAction.openResult } : {}),
+    ...(primaryAction?.requiresBrowserInteraction ? { requiresBrowserInteraction: true } : {}),
+    ...(primaryAction ? { primaryAction } : {}),
+  };
+}
+
+function errorNeedsBrowserHtml(primaryAction: SuggestedAction | undefined): boolean {
+  return primaryAction?.action === "retry-with-browser-html";
+}
+
+function summarizeErrorAgentReadTargets(primaryAction: SuggestedAction | undefined, sourceSearch?: SourceSearchSummary): AgentReadTarget[] {
+  const targets: AgentReadTarget[] = [];
+  if (sourceSearch?.selectedResult) {
+    targets.push({
+      path: "sourceSearch.selectedResult",
+      reason: "Original SERP metadata for the selected result that failed.",
+      count: 1,
+      ...(typeof sourceSearch.selectedResult.sourceScore === "number" ? { score: sourceSearch.selectedResult.sourceScore } : {}),
+    });
+  }
+  if (primaryAction?.action !== "open-alternate-result" || !sourceSearch?.alternateResults?.length) return targets;
+  targets.push({
+    path: "sourceSearch.alternateResults",
+    reason: "Original SERP candidates available for recovery after the selected result failed.",
+    count: sourceSearch.alternateResults.length,
+    score: averageResultSourceScore(sourceSearch.alternateResults),
+  });
+  return targets;
+}
+
+function errorAction(error: CliError, url?: string, agentMode = false, findQueries: string[] = [], sourceSearch?: SourceSearchSummary, timeoutMs?: number, userAgent?: string): SuggestedAction | undefined {
+  if (error.code === "USAGE") return undefined;
+  if (!url) {
+    return {
+      action: "retry-or-check-input",
+      reason: "The CLI could not complete extraction for this request.",
+    };
+  }
+  if (error.code === "HTTP_ERROR" && (error.status === 404 || error.status === 410)) {
+    const alternate = sourceSearch?.alternateResults?.[0];
+    const alternateCommand = alternate && sourceSearch
+      ? searchOpenCommandSpec(
+          sourceSearch.query,
+          sourceSearch.selectedEngine ?? sourceSearch.engine,
+          findQueries,
+          agentMode,
+          sourceSearch.lang,
+          sourceSearch.region,
+          alternate.rank,
+          sourceSearch.timeoutMs,
+          sourceSearch.userAgent,
+        )
+      : undefined;
+    if (alternate && alternateCommand) {
+      return {
+        action: "open-alternate-result",
+        reason: "The selected search result was missing; open the next available result from the original SERP.",
+        url: alternate.url,
+        rank: alternate.rank,
+        ...commandFields(alternateCommand),
+      };
+    }
+    return {
+      action: "check-url-or-search",
+      reason: "The URL returned a missing/gone status; verify the URL or search for a replacement source.",
+      url,
+      ...commandFields(searchCommandSpec(url, agentMode, timeoutMs, userAgent)),
+    };
+  }
+  if (error.code === "HTTP_ERROR" && typeof error.status === "number" && error.status >= 500) {
+    return {
+      action: "retry-later",
+      reason: "The server returned a transient error status; retry the same URL later.",
+      url,
+      ...commandFields(pageCommandSpec(url, agentMode, false, findQueries, timeoutMs, userAgent)),
+    };
+  }
+  return {
+    action: "retry-with-browser-html",
+    reason: "Fetch failed before a usable page summary was available; retry with browser-captured HTML.",
+    url,
+    ...commandFields(pageCommandSpec(url, agentMode, true, findQueries, timeoutMs, userAgent)),
   };
 }
 
@@ -1304,6 +3059,9 @@ function analyzePage(
   outline: OutlineSummary[],
   actions: ActionSummary[],
   content: ContentSummary[],
+  options: Pick<CliOptions, "searchQuery" | "searchEngine" | "selectedSearchEngine" | "searchLang" | "searchRegion" | "findQueries">
+    & Partial<Pick<CliOptions, "timeoutMs" | "userAgent">>
+    & { agentMode?: boolean; capturedHtml?: boolean } = {},
 ): AnalysisSummary {
   const barrierDiagnostics = filterDiagnosticsForResultPages(detectBarrierDiagnostics(fetched, tree, content), results);
   const diagnostics: DiagnosticSummary[] = [...barrierDiagnostics];
@@ -1316,32 +3074,72 @@ function analyzePage(
       code: "NO_INSPECTABLE_CONTENT",
       message: "No inspectable content was extracted from the page.",
     });
-    suggestedActions.push({
-      action: "retry-with-browser-html",
-      reason: "The fetched HTML may be challenged, empty, or JavaScript-rendered.",
-    });
+    suggestedActions.push(options.capturedHtml
+      ? {
+          action: "inspect-browser-state",
+          reason: "Browser-captured HTML is still empty; inspect the browser state or capture after interacting.",
+        }
+      : {
+          action: "retry-with-browser-html",
+          reason: "The fetched HTML may be challenged, empty, or JavaScript-rendered.",
+        });
   }
 
   if (kind === "blocked-page") {
-    suggestedActions.push({
-      action: "retry-with-browser-html",
-      reason: "The page appears blocked, challenged, paywalled, or login-gated.",
-    });
+    suggestedActions.push(options.capturedHtml
+      ? {
+          action: "inspect-browser-state",
+          reason: "Browser-captured HTML still appears blocked, challenged, paywalled, or login-gated.",
+        }
+      : {
+          action: "retry-with-browser-html",
+          reason: "The page appears blocked, challenged, paywalled, or login-gated.",
+        });
   }
 
   if (kind === "search-results" && results[0]) {
-    suggestedActions.push({
-      action: "open-result",
-      reason: "The page looks like search results; open the highest-ranked relevant result.",
-      url: results[0].url,
-      rank: results[0].rank,
-    });
+    const topResults = results.slice(0, 5);
+    const lowConfidence = searchResultsLowConfidence(topResults);
+    if (lowConfidence) {
+      diagnostics.push({
+        severity: "warning",
+        code: "SEARCH_LOW_CONFIDENCE",
+        message: "Search results were extracted, but top results only weakly match the query.",
+      });
+    }
+    const recommended = recommendedSearchResult(results, options.findQueries ?? []);
+    if (recommended) {
+      const command = options.searchQuery
+        ? searchOpenCommandSpec(options.searchQuery, options.selectedSearchEngine ?? options.searchEngine, options.findQueries ?? [], options.agentMode ?? false, options.searchLang, options.searchRegion, "best", options.timeoutMs, options.userAgent)
+        : pageCommandSpec(recommended.url, options.agentMode ?? false, false, options.findQueries ?? [], options.timeoutMs, options.userAgent);
+      const reason = searchResultActionReason(recommended, results[0]);
+      suggestedActions.push({
+        action: "open-result",
+        reason,
+        url: recommended.url,
+        rank: recommended.rank,
+        openResult: options.searchQuery ? "best" : recommended.rank,
+        ...commandFields(command),
+      });
+    } else {
+      const command = refineSearchCommandSpec(options.searchQuery, options.selectedSearchEngine ?? options.searchEngine, options.findQueries ?? [], options.agentMode ?? false, options.searchLang, options.searchRegion, options.timeoutMs, options.userAgent);
+      suggestedActions.push({
+        action: "refine-search",
+        reason: (options.findQueries?.length ?? 0) > 0
+          ? "No result card matched the requested --find text; refine the query before opening a result."
+          : "Top results do not match the essential query terms; refine the query or add --find before opening a result.",
+        ...commandFields(command),
+      });
+    }
   }
 
   if (kind === "content-page" && content.length > 0) {
     suggestedActions.push({
       action: "read-content",
       reason: "The page has article-like content excerpts suitable for source checking.",
+      url: fetched.finalUrl,
+      terminal: true,
+      readFrom: "pageCheck.contentEvidence",
     });
   }
 
@@ -1349,6 +3147,8 @@ function analyzePage(
     suggestedActions.push({
       action: "inspect-actions",
       reason: "The page exposes prominent controls that may be needed before content is visible.",
+      url: fetched.finalUrl,
+      requiresBrowserInteraction: true,
     });
   }
 
@@ -1371,6 +3171,11 @@ function analyzePage(
   return { kind, diagnostics, suggestedActions };
 }
 
+function searchResultsLowConfidence(results: ResultSummary[]): boolean {
+  return results.some((result) => result.relevance)
+    && !results.some((result) => result.relevance === "high" || result.isLikelyOfficial || (result.findMatches?.length ?? 0) > 0);
+}
+
 function filterDiagnosticsForResultPages(diagnostics: DiagnosticSummary[], results: ResultSummary[]): DiagnosticSummary[] {
   if (results.length < 5) return diagnostics;
   return diagnostics.filter((diagnostic) => diagnostic.code === "CHALLENGE_LIKELY");
@@ -1387,7 +3192,7 @@ function classifyPage(
 ): ContentKind {
   if (isUnavailableTree(tree)) return "empty";
   if (diagnostics.some((item) => item.code === "CHALLENGE_LIKELY" || item.code === "LOGIN_REQUIRED" || item.code === "PAYWALL_LIKELY")) return "blocked-page";
-  if (looksLikeSearchUrl(fetched.finalUrl)) return "search-results";
+  if (looksLikeKnownSearchUrl(fetched.finalUrl) || (looksLikeGenericSearchUrl(fetched.finalUrl) && extractSearchResults(fetched.html, fetched.finalUrl).length > 0)) return "search-results";
   if (content.length >= 2 || outline.length >= 3) return "content-page";
   if (actions.length >= 3) return "interactive-page";
   return "page";
@@ -1409,7 +3214,7 @@ function detectBarrierDiagnostics(fetched: FetchResult, tree: SemanticNode, cont
       message: "The page appears to contain a bot check, CAPTCHA, or access challenge.",
     });
   }
-  if (/(log in|login required|sign in to continue|please sign in|로그인|로그인이 필요|회원만|가입 후|unauthorized)/i.test(haystack)) {
+  if (/(login required|log in to continue|sign in to continue|please sign in|로그인이 필요|회원만|가입 후|unauthorized)/i.test(haystack)) {
     diagnostics.push({
       severity: "warning",
       code: "LOGIN_REQUIRED",
@@ -1436,16 +3241,29 @@ function dedupeDiagnostics(diagnostics: DiagnosticSummary[]): DiagnosticSummary[
   });
 }
 
-function looksLikeSearchUrl(url: string): boolean {
+function looksLikeKnownSearchUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
     const hostname = parsed.hostname.replace(/^www\./, "");
+    const pathname = parsed.pathname.toLowerCase();
+    if (hostname.endsWith("duckduckgo.com") && (parsed.searchParams.has("q") || pathname === "/html/" || pathname === "/html")) return true;
+    if (hostname.endsWith("bing.com") && parsed.searchParams.has("q")) return true;
+    if (hostname.endsWith("startpage.com") && (parsed.searchParams.has("query") || pathname.includes("/sp/search"))) return true;
+    if (hostname.endsWith("google.com") && parsed.searchParams.has("q") && pathname.startsWith("/search")) return true;
     if (hostname.endsWith("baidu.com") && parsed.searchParams.has("wd")) return true;
     if (hostname.endsWith("search.yahoo.co.jp") && parsed.searchParams.has("p")) return true;
-    return parsed.searchParams.has("q")
-      || parsed.searchParams.has("query")
-      || parsed.searchParams.has("wd")
-      || /\/search\b|\/sp\/search\b|\/html\/?$/i.test(parsed.pathname);
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+function looksLikeGenericSearchUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    const pathname = parsed.pathname.toLowerCase();
+    return /\/search\b|\/sp\/search\b/i.test(pathname)
+      && (parsed.searchParams.has("q") || parsed.searchParams.has("query") || parsed.searchParams.has("wd") || parsed.searchParams.has("p"));
   } catch {
     return false;
   }
@@ -1517,19 +3335,34 @@ function jsonEnvelope(
   error?: { code: CliErrorCode; message: string; status?: number },
 ): object {
   const links = summarizeLinks(tree, fetched.finalUrl);
+  const pageLinks = summarizeResults(links);
   const outline = summarizeOutline(tree);
   const actions = summarizeActions(tree);
   const content = summarizeContent(tree);
-  const results = summarizeSearchResults(fetched, links);
-  const analysis = analyzePage(fetched, tree, links, results, outline, actions, content);
-  const pageCheck = summarizePageCheck(fetched, links, outline, actions, content, analysis);
-  return {
+  const results = annotateResults(summarizeSearchResults(fetched, links), options.searchQuery, options.findQueries ?? []);
+  const capturedHtml = options.input !== "fetch";
+  const analysis = analyzePage(fetched, tree, links, results, outline, actions, content, { ...options, capturedHtml });
+  const pageCheck = summarizePageCheck(fetched, links, outline, actions, content, analysis, options.agentMode, capturedHtml, options.timeoutMs, options.userAgent);
+  const finds = summarizeFinds(options.findQueries ?? [], fetched.page, pageCheck, links, results, outline, content, analysis.kind);
+  const verification = summarizeVerification(finds, pageCheck, fetched.finalUrl, analysis, options.agentMode, capturedHtml, options.sourceSearch, options.timeoutMs, options.userAgent);
+  const recommendedResult = analysis.kind === "search-results" ? recommendedSearchResult(results, options.findQueries ?? []) : undefined;
+  const agent = summarizeAgent(analysis, pageCheck, verification, results, recommendedResult, error, capturedHtml, options.sourceSearch, fetched, options.url);
+  const outputAnalysis = {
+    ...analysis,
+    suggestedActions: analysis.suggestedActions.map(withActionExecution),
+  };
+  const outputPageCheck = withPageCheckActionExecution(pageCheck);
+  const outputVerification = withVerificationActionExecution(verification);
+  const outputAgent = withAgentActionExecution(agent);
+  const envelope = {
     schemaVersion: 1,
     tool: "ax-grep",
     ok: warnings.length === 0 && !error,
     url: options.url,
     searchQuery: options.searchQuery,
     searchEngine: options.searchEngine,
+    selectedSearchEngine: options.selectedSearchEngine,
+    searchEngines: options.searchAttempts,
     searchLang: options.searchLang,
     searchRegion: options.searchRegion,
     sourceSearch: options.sourceSearch,
@@ -1539,56 +3372,134 @@ function jsonEnvelope(
     fetchedAt: new Date().toISOString(),
     mode: options.extractOptions.mode ?? "compact",
     warnings,
-    kind: analysis.kind,
-    diagnostics: analysis.diagnostics,
-    suggestedActions: analysis.suggestedActions,
+    kind: outputAnalysis.kind,
+    diagnostics: outputAnalysis.diagnostics,
+    suggestedActions: outputAnalysis.suggestedActions,
+    agent: outputAgent,
     page: fetched.page,
-    pageCheck,
+    pageCheck: outputPageCheck,
+    finds,
+    verification: outputVerification,
     links,
+    pageLinks,
     results,
-    searchResults: analysis.kind === "search-results" ? results : [],
+    searchResults: outputAnalysis.kind === "search-results" ? results : [],
+    recommendedResult,
     outline,
     actions,
     content,
     error,
-    tree,
+    treeOmitted: options.omitTree || undefined,
+    tree: options.omitTree ? undefined : tree,
+  };
+  if (options.omitTree) delete (envelope as { tree?: SemanticNode }).tree;
+  if (options.agentMode) return agentJsonEnvelope(envelope, searchResultCommandContext(options));
+  return envelope;
+}
+
+function agentJsonEnvelope(envelope: {
+  schemaVersion: number;
+  tool: string;
+  ok: boolean;
+  url: string | undefined;
+  searchQuery: string | undefined;
+  searchEngine: SearchEngineOption | undefined;
+  selectedSearchEngine: SearchEngine | undefined;
+  searchEngines: SearchAttemptSummary[] | undefined;
+  searchLang: string | undefined;
+  searchRegion: string | undefined;
+  sourceSearch: SourceSearchSummary | undefined;
+  finalUrl: string;
+  status: number;
+  contentType: string;
+  fetchedAt: string;
+  mode: string;
+  warnings: Array<{ code: string; message: string }>;
+  kind: ContentKind;
+  diagnostics: DiagnosticSummary[];
+  suggestedActions: SuggestedAction[];
+  agent: AgentSummary;
+  page: PageSummary;
+  pageCheck: PageCheckSummary;
+  finds: FindSummary[];
+  verification: VerificationSummary;
+  searchResults: ResultSummary[];
+  recommendedResult: ResultSummary | undefined;
+  error: { code: CliErrorCode; message: string; status?: number } | undefined;
+}, searchCommandContext?: SearchResultCommandContext): object {
+  const suggestedActions = compactSuggestedActions(envelope.suggestedActions, envelope.agent.primaryAction);
+
+  return {
+    schemaVersion: envelope.schemaVersion,
+    tool: envelope.tool,
+    ok: envelope.ok,
+    url: envelope.url,
+    finalUrl: envelope.finalUrl,
+    status: envelope.status,
+    contentType: envelope.contentType,
+    fetchedAt: envelope.fetchedAt,
+    mode: envelope.mode,
+    kind: envelope.kind,
+    searchQuery: envelope.searchQuery,
+    searchEngine: envelope.searchEngine,
+    selectedSearchEngine: envelope.selectedSearchEngine,
+    ...(!envelope.sourceSearch ? compactAgentSearchEngines(envelope.searchEngines) : {}),
+    searchLang: envelope.searchLang,
+    searchRegion: envelope.searchRegion,
+    sourceSearch: compactAgentSourceSearch(envelope.sourceSearch),
+    ...(envelope.warnings.length > 0 ? { warnings: envelope.warnings } : {}),
+    agent: compactAgentSummary(envelope.agent),
+    ...compactAgentPage(envelope.page),
+    pageCheck: compactAgentPageCheck(envelope.pageCheck, envelope.agent.primaryAction, envelope.searchResults.length > 0),
+    ...compactAgentVerification(envelope.verification, envelope.agent.primaryAction),
+    ...(envelope.finds.length > 0 ? { finds: envelope.finds } : {}),
+    ...compactAgentSearchResults(envelope.searchResults, envelope.recommendedResult, searchCommandContext),
+    ...(envelope.recommendedResult ? { recommendedResult: compactAgentSearchResult(envelope.recommendedResult, searchCommandContext) } : {}),
+    ...(suggestedActions.length > 0 ? { suggestedActions } : {}),
+    ...(envelope.error ? { error: envelope.error } : {}),
+    treeOmitted: true,
   };
 }
 
 function jsonErrorEnvelope(
   error: CliError,
-  metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion" | "sourceSearch">> = {},
+  metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "selectedSearchEngine" | "searchAttempts" | "searchLang" | "searchRegion" | "sourceSearch" | "agentMode" | "findQueries" | "timeoutMs" | "userAgent">> = {},
 ): object {
-  return {
+  const action = errorAction(error, metadata.url, metadata.agentMode ?? false, metadata.findQueries ?? [], metadata.sourceSearch, metadata.timeoutMs, metadata.userAgent);
+  const outputAction = action ? withActionExecution(action) : undefined;
+  const pageCheck = errorPageCheck(outputAction);
+  const agent = withAgentActionExecution(errorAgent(error, metadata.url, metadata.agentMode ?? false, metadata.findQueries ?? [], metadata.sourceSearch, metadata.timeoutMs, metadata.userAgent));
+  const envelope = {
     schemaVersion: 1,
     tool: "ax-grep",
     ok: false,
     url: metadata.url,
     searchQuery: metadata.searchQuery,
     searchEngine: metadata.searchEngine,
+    selectedSearchEngine: metadata.selectedSearchEngine,
+    searchEngines: metadata.searchAttempts,
     searchLang: metadata.searchLang,
     searchRegion: metadata.searchRegion,
     sourceSearch: metadata.sourceSearch,
     fetchedAt: new Date().toISOString(),
     mode: metadata.extractOptions?.mode ?? "compact",
     warnings: [],
-    kind: "empty",
+    kind: "empty" as ContentKind,
     diagnostics: [
       {
-        severity: "error",
+        severity: "error" as const,
         code: error.code,
         message: error.message,
       },
     ],
-    suggestedActions: error.code === "USAGE" ? [] : [
-      {
-        action: "retry-or-check-input",
-        reason: "The CLI could not complete extraction for this request.",
-      },
-    ],
+    suggestedActions: outputAction ? [outputAction] : [],
+    agent,
     page: {},
-    pageCheck: emptyPageCheck(),
+    pageCheck,
+    finds: [],
+    verification: emptyVerification(),
     links: [],
+    pageLinks: [],
     results: [],
     searchResults: [],
     outline: [],
@@ -1597,9 +3508,398 @@ function jsonErrorEnvelope(
     error: {
       code: error.code,
       message: error.message,
-      status: error.status,
+      ...(typeof error.status === "number" ? { status: error.status } : {}),
     },
   };
+  if (metadata.agentMode) return agentJsonErrorEnvelope(envelope);
+  return envelope;
+}
+
+function errorPageCheck(action: SuggestedAction | undefined): PageCheckSummary {
+  const pageCheck = emptyPageCheck();
+  if (!action) return pageCheck;
+  return {
+    ...pageCheck,
+    recommendedAction: action,
+    nextSteps: [action],
+  };
+}
+
+function agentJsonErrorEnvelope(envelope: {
+  schemaVersion: number;
+  tool: string;
+  ok: boolean;
+  url: string | undefined;
+  searchQuery: string | undefined;
+  searchEngine: SearchEngineOption | undefined;
+  selectedSearchEngine: SearchEngine | undefined;
+  searchEngines: SearchAttemptSummary[] | undefined;
+  searchLang: string | undefined;
+  searchRegion: string | undefined;
+  sourceSearch: SourceSearchSummary | undefined;
+  fetchedAt: string;
+  mode: string;
+  warnings: Array<{ code: string; message: string }>;
+  kind: ContentKind;
+  diagnostics: DiagnosticSummary[];
+  suggestedActions: SuggestedAction[];
+  agent: AgentSummary;
+  page: PageSummary;
+  pageCheck: PageCheckSummary;
+  finds: FindSummary[];
+  verification: VerificationSummary;
+  searchResults: ResultSummary[];
+  error: { code: CliErrorCode; message: string; status?: number };
+}): object {
+  const suggestedActions = compactSuggestedActions(envelope.suggestedActions, envelope.agent.primaryAction);
+
+  return {
+    schemaVersion: envelope.schemaVersion,
+    tool: envelope.tool,
+    ok: envelope.ok,
+    url: envelope.url,
+    searchQuery: envelope.searchQuery,
+    searchEngine: envelope.searchEngine,
+    selectedSearchEngine: envelope.selectedSearchEngine,
+    ...(!envelope.sourceSearch ? compactAgentSearchEngines(envelope.searchEngines) : {}),
+    searchLang: envelope.searchLang,
+    searchRegion: envelope.searchRegion,
+    sourceSearch: compactAgentSourceSearch(envelope.sourceSearch),
+    fetchedAt: envelope.fetchedAt,
+    mode: envelope.mode,
+    kind: envelope.kind,
+    ...(envelope.warnings.length > 0 ? { warnings: envelope.warnings } : {}),
+    ...(suggestedActions.length > 0 ? { suggestedActions } : {}),
+    agent: compactAgentSummary(envelope.agent),
+    ...compactAgentPage(envelope.page),
+    pageCheck: compactAgentPageCheck(envelope.pageCheck, envelope.agent.primaryAction, envelope.searchResults.length > 0),
+    ...compactAgentVerification(envelope.verification, envelope.agent.primaryAction),
+    ...(envelope.finds.length > 0 ? { finds: envelope.finds } : {}),
+    ...compactAgentSearchResults(envelope.searchResults),
+    error: envelope.error,
+    treeOmitted: true,
+  };
+}
+
+function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: SuggestedAction, omitResultLinkDuplicates = false): object {
+  const sourceUrls = new Set(pageCheck.sourceLinks.map((link) => link.url));
+  const nonSourcePrimaryLinks = pageCheck.primaryLinks.filter((link) => !sourceUrls.has(link.url));
+  const primaryLinks = pageCheck.sourceLinks.length > 0
+    ? nonSourcePrimaryLinks.filter((link) => link.kind === "internal")
+    : nonSourcePrimaryLinks;
+  const suppressPageActions = primaryAction?.action === "use-evidence";
+  const nextSteps = suppressPageActions
+    ? []
+    : primaryAction ? pageCheck.nextSteps.filter((step) => !sameSuggestedAction(step, primaryAction)) : pageCheck.nextSteps;
+  const recommendedAction = suppressPageActions || sameSuggestedAction(pageCheck.recommendedAction, primaryAction) ? undefined : pageCheck.recommendedAction;
+  return {
+    contentEvidence: pageCheck.contentEvidence,
+    contentLength: pageCheck.contentLength,
+    ...(primaryLinks.length > 0 && !omitResultLinkDuplicates ? { primaryLinks: primaryLinks.map(compactAgentPageLink) } : {}),
+    ...(pageCheck.sourceLinks.length > 0 && !omitResultLinkDuplicates ? { sourceLinks: pageCheck.sourceLinks.map(compactAgentPageLink) } : {}),
+    ...(pageCheck.actions.length > 0 && !omitResultLinkDuplicates ? { actions: pageCheck.actions } : {}),
+    confidence: pageCheck.confidence,
+    readability: {
+      level: pageCheck.readability.level,
+      score: pageCheck.readability.score,
+      reasons: pageCheck.readability.reasons,
+    },
+    ...(recommendedAction ? { recommendedAction: compactAgentAction(recommendedAction) } : {}),
+    ...(nextSteps.length > 0 ? { nextSteps: nextSteps.map(compactAgentAction) } : {}),
+    ...(pageCheck.title ? { title: pageCheck.title } : {}),
+    ...(pageCheck.canonicalUrl ? { canonicalUrl: pageCheck.canonicalUrl } : {}),
+    ...(pageCheck.mainHeading ? { mainHeading: pageCheck.mainHeading } : {}),
+    ...(pageCheck.lang ? { lang: pageCheck.lang } : {}),
+  };
+}
+
+function sameSuggestedAction(left: SuggestedAction | undefined, right: SuggestedAction | undefined): boolean {
+  if (!left || !right) return false;
+  return left.action === right.action
+    && left.url === right.url
+    && left.command === right.command
+    && left.rank === right.rank
+    && left.openResult === right.openResult
+    && left.terminal === right.terminal
+    && left.readFrom === right.readFrom
+    && left.requiresBrowserInteraction === right.requiresBrowserInteraction
+    && actionExecution(left) === actionExecution(right);
+}
+
+function compactSuggestedActions(actions: SuggestedAction[], primaryAction?: SuggestedAction): object[] {
+  return actions
+    .filter((action) => !sameSuggestedAction(action, primaryAction))
+    .filter((action) => !((primaryAction?.action === "use-evidence" || primaryAction?.action === "read-content") && action.action === "read-content"))
+    .map(compactAgentAction);
+}
+
+function compactAgentSummary(agent: AgentSummary): object {
+  return {
+    status: agent.status,
+    pageKind: agent.pageKind,
+    summary: agent.summary,
+    canContinue: agent.canContinue,
+    canUseFetchedHtml: agent.canUseFetchedHtml,
+    needsBrowserHtml: agent.needsBrowserHtml,
+    responseStatus: agent.responseStatus,
+    responseOk: agent.responseOk,
+    responseContentType: agent.responseContentType,
+    finalUrlChanged: agent.finalUrlChanged,
+    confidence: agent.confidence,
+    usabilityScore: agent.usabilityScore,
+    readability: agent.readability,
+    readabilityScore: agent.readabilityScore,
+    ...(agent.readabilityReasons.length > 0 ? { readabilityReasons: agent.readabilityReasons } : {}),
+    verificationStatus: agent.verificationStatus,
+    verificationRequestedCount: agent.verificationRequestedCount,
+    verificationFoundCount: agent.verificationFoundCount,
+    verificationMissingCount: agent.verificationMissingCount,
+    resultCount: agent.resultCount,
+    evidenceCount: agent.evidenceCount,
+    sourceLinkCount: agent.sourceLinkCount,
+    evidenceQualityScore: agent.evidenceQualityScore,
+    sourceQualityScore: agent.sourceQualityScore,
+    alternativeActionCount: agent.alternativeActionCount,
+    ...(agent.diagnosticCodes.length > 0 ? { diagnosticCodes: agent.diagnosticCodes } : {}),
+    diagnosticErrorCount: agent.diagnosticErrorCount,
+    diagnosticWarningCount: agent.diagnosticWarningCount,
+    diagnosticInfoCount: agent.diagnosticInfoCount,
+    ...(agent.readTargets.length > 0 ? { readTargets: agent.readTargets } : {}),
+    ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
+    ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
+    ...(agent.bestReadTargetReason ? { bestReadTargetReason: agent.bestReadTargetReason } : {}),
+    ...(agent.primaryExecution ? { primaryExecution: agent.primaryExecution } : {}),
+    ...(agent.primaryReadFrom ? { primaryReadFrom: agent.primaryReadFrom } : {}),
+    ...(agent.primaryCommand ? { primaryCommand: agent.primaryCommand } : {}),
+    ...(agent.primaryCommandArgs ? { primaryCommandArgs: agent.primaryCommandArgs } : {}),
+    ...(agent.primaryUrl ? { primaryUrl: agent.primaryUrl } : {}),
+    ...(agent.primaryRank ? { primaryRank: agent.primaryRank } : {}),
+    ...(agent.primaryOpenResult ? { primaryOpenResult: agent.primaryOpenResult } : {}),
+    ...(agent.requiresBrowserInteraction ? { requiresBrowserInteraction: true } : {}),
+    ...(agent.primaryAction ? { primaryAction: compactAgentAction(agent.primaryAction) } : {}),
+    ...(agent.recommendedUrl ? { recommendedUrl: agent.recommendedUrl } : {}),
+    ...(agent.recommendedTitle ? { recommendedTitle: agent.recommendedTitle } : {}),
+    ...(agent.recommendedRank ? { recommendedRank: agent.recommendedRank } : {}),
+    ...(agent.recommendedSource ? { recommendedSource: agent.recommendedSource } : {}),
+    ...(agent.recommendedRelevance ? { recommendedRelevance: agent.recommendedRelevance } : {}),
+    ...(typeof agent.recommendedLikelyOfficial === "boolean" ? { recommendedLikelyOfficial: agent.recommendedLikelyOfficial } : {}),
+  };
+}
+
+function compactAgentPage(page: PageSummary): object {
+  return page.description ? { page: { description: page.description } } : {};
+}
+
+function compactAgentVerification(verification: VerificationSummary, primaryAction?: SuggestedAction): object {
+  if (verification.status === "not-requested") return {};
+  const recommendedAction = sameSuggestedAction(verification.recommendedAction, primaryAction)
+    ? undefined
+    : verification.recommendedAction;
+  return {
+    verification: {
+      status: verification.status,
+      requestedCount: verification.requestedCount,
+      foundCount: verification.foundCount,
+      missingCount: verification.missingCount,
+      evidenceCount: verification.evidenceCount,
+      ...(verification.foundQueries.length > 0 ? { foundQueries: verification.foundQueries } : {}),
+      ...(verification.missingQueries.length > 0 ? { missingQueries: verification.missingQueries } : {}),
+      ...(verification.bestEvidence ? { bestEvidence: verification.bestEvidence } : {}),
+      ...(recommendedAction ? { recommendedAction: compactAgentAction(recommendedAction) } : {}),
+    },
+  };
+}
+
+function compactAgentSearchEngines(attempts: SearchAttemptSummary[] | undefined): object {
+  if (!attempts || attempts.length === 0) return {};
+  return {
+    searchEngines: attempts.map((attempt) => ({
+      engine: attempt.engine,
+      ok: attempt.ok,
+      resultCount: attempt.resultCount,
+      ...(attempt.kind ? { kind: attempt.kind } : {}),
+      ...(typeof attempt.status === "number" ? { status: attempt.status } : {}),
+      ...(attempt.finalUrl && attempt.finalUrl !== attempt.url ? { finalUrl: attempt.finalUrl } : {}),
+      ...(attempt.diagnostics?.length ? { diagnosticCodes: attempt.diagnostics.map((item) => item.code) } : {}),
+      ...(attempt.topResult ? { topResult: compactAttemptTopResult(attempt.topResult) } : {}),
+      ...(attempt.error ? { error: { code: attempt.error.code, ...(attempt.error.status ? { status: attempt.error.status } : {}) } } : {}),
+    })),
+  };
+}
+
+function compactAgentSourceSearch(sourceSearch: SourceSearchSummary | undefined): object | undefined {
+  if (!sourceSearch) return undefined;
+  return {
+    query: sourceSearch.query,
+    engine: sourceSearch.engine,
+    ...(sourceSearch.selectedEngine ? { selectedEngine: sourceSearch.selectedEngine } : {}),
+    searchUrl: sourceSearch.searchUrl,
+    ...(sourceSearch.lang ? { lang: sourceSearch.lang } : {}),
+    ...(sourceSearch.region ? { region: sourceSearch.region } : {}),
+    ...(sourceSearch.findQueries?.length ? { findQueries: sourceSearch.findQueries } : {}),
+    selectedRank: sourceSearch.selectedRank,
+    selectedTitle: sourceSearch.selectedTitle,
+    selectedUrl: sourceSearch.selectedUrl,
+    ...(sourceSearch.selectedResult ? { selectedResult: compactAgentSourceSearchResult(sourceSearch, sourceSearch.selectedResult) } : {}),
+    ...(sourceSearch.alternateResults?.length ? { alternateResults: sourceSearch.alternateResults.map((result) => compactAgentSourceSearchResult(sourceSearch, result)) } : {}),
+  };
+}
+
+function compactAgentSourceSearchResult(sourceSearch: SourceSearchSummary, result: ResultSummary): object {
+  const command = searchOpenCommandSpec(
+    sourceSearch.query,
+    sourceSearch.selectedEngine ?? sourceSearch.engine,
+    sourceSearch.findQueries ?? [],
+    true,
+    sourceSearch.lang,
+    sourceSearch.region,
+    result.rank,
+    sourceSearch.timeoutMs,
+    sourceSearch.userAgent,
+  );
+  return {
+    ...compactAgentSearchResult(result),
+    ...commandFields(command),
+  };
+}
+
+function compactAttemptTopResult(topResult: NonNullable<SearchAttemptSummary["topResult"]>): object {
+  return {
+    title: topResult.title,
+    url: topResult.url,
+    ...(topResult.relevance ? { relevance: topResult.relevance } : {}),
+    ...(typeof topResult.isLikelyOfficial === "boolean" ? { isLikelyOfficial: topResult.isLikelyOfficial } : {}),
+  };
+}
+
+function searchResultCommandContext(options: CliOptions): SearchResultCommandContext | undefined {
+  if (!options.searchQuery) return undefined;
+  return {
+    query: options.searchQuery,
+    findQueries: options.findQueries ?? [],
+    agentMode: true,
+    ...(options.selectedSearchEngine ?? options.searchEngine ? { engine: options.selectedSearchEngine ?? options.searchEngine } : {}),
+    ...(options.searchLang ? { lang: options.searchLang } : {}),
+    ...(options.searchRegion ? { region: options.searchRegion } : {}),
+    ...(typeof options.timeoutMs === "number" ? { timeoutMs: options.timeoutMs } : {}),
+    ...(options.userAgent ? { userAgent: options.userAgent } : {}),
+  };
+}
+
+function compactAgentSearchResults(results: ResultSummary[], recommendedResult?: ResultSummary, commandContext?: SearchResultCommandContext): object {
+  if (results.length === 0) return {};
+  const selected: ResultSummary[] = [];
+  const seen = new Set<string>();
+  const add = (result: ResultSummary | undefined): void => {
+    if (!result) return;
+    const key = `${result.rank}:${result.url}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    selected.push(result);
+  };
+  for (const result of results.slice(0, 5)) add(result);
+  add(recommendedResult);
+  return { searchResults: selected.map((result) => compactAgentSearchResult(result, commandContext)) };
+}
+
+function compactAgentSearchResult(result: ResultSummary, commandContext?: SearchResultCommandContext): ResultSummary & Partial<Pick<SuggestedAction, "openResult" | "command" | "commandArgs">> {
+  const command = commandContext
+    ? searchOpenCommandSpec(
+        commandContext.query,
+        commandContext.engine,
+        commandContext.findQueries,
+        commandContext.agentMode,
+        commandContext.lang,
+        commandContext.region,
+        result.rank,
+        commandContext.timeoutMs,
+        commandContext.userAgent,
+      )
+    : undefined;
+  const compact: ResultSummary = {
+    title: result.title,
+    url: result.url,
+    source: result.source,
+    rank: result.rank,
+  };
+  if (result.snippet) compact.snippet = result.snippet;
+  if (result.sourceType) compact.sourceType = result.sourceType;
+  if (typeof result.sourceScore === "number") compact.sourceScore = result.sourceScore;
+  if (result.sourceHints?.length) compact.sourceHints = result.sourceHints;
+  if (result.relevance) compact.relevance = result.relevance;
+  if (result.matchedTerms?.length) compact.matchedTerms = result.matchedTerms;
+  if (result.findMatches?.length) compact.findMatches = result.findMatches;
+  if (typeof result.isLikelyOfficial === "boolean") compact.isLikelyOfficial = result.isLikelyOfficial;
+  return {
+    ...compact,
+    ...(command ? { openResult: result.rank, ...commandFields(command) } : {}),
+  };
+}
+
+function compactAgentPageLink(link: PageLinkSummary): PageLinkSummary {
+  const compact: PageLinkSummary = {
+    title: link.title,
+    url: link.url,
+    source: link.source,
+    rank: link.rank,
+    kind: link.kind,
+  };
+  if (link.sourceType) compact.sourceType = link.sourceType;
+  if (typeof link.sourceScore === "number") compact.sourceScore = link.sourceScore;
+  if (link.sourceHints) compact.sourceHints = link.sourceHints;
+  if (link.relevance) compact.relevance = link.relevance;
+  if (link.matchedTerms) compact.matchedTerms = link.matchedTerms;
+  if (link.findMatches) compact.findMatches = link.findMatches;
+  if (typeof link.isLikelyOfficial === "boolean") compact.isLikelyOfficial = link.isLikelyOfficial;
+  return compact;
+}
+
+function compactAgentAction(action: SuggestedAction): object {
+  return {
+    action: action.action,
+    execution: actionExecution(action),
+    reason: action.reason,
+    ...(action.url ? { url: action.url } : {}),
+    ...(action.rank ? { rank: action.rank } : {}),
+    ...(action.openResult ? { openResult: action.openResult } : {}),
+    ...(action.command ? { command: action.command } : {}),
+    ...(action.commandArgs ? { commandArgs: action.commandArgs } : {}),
+    ...(action.terminal ? { terminal: action.terminal } : {}),
+    ...(action.readFrom ? { readFrom: action.readFrom } : {}),
+    ...(action.requiresBrowserInteraction ? { requiresBrowserInteraction: action.requiresBrowserInteraction } : {}),
+  };
+}
+
+function actionExecution(action: SuggestedAction): NonNullable<SuggestedAction["execution"]> {
+  if (action.execution) return action.execution;
+  if (action.terminal) return "read-current";
+  if (action.requiresBrowserInteraction || action.action === "inspect-browser-state") return "interact-browser";
+  if (action.command) return "run-command";
+  return "inspect-output";
+}
+
+function withActionExecution(action: SuggestedAction): SuggestedAction {
+  return { ...action, execution: actionExecution(action) };
+}
+
+function withPageCheckActionExecution(pageCheck: PageCheckSummary): PageCheckSummary {
+  return {
+    ...pageCheck,
+    recommendedAction: withActionExecution(pageCheck.recommendedAction),
+    nextSteps: pageCheck.nextSteps.map(withActionExecution),
+  };
+}
+
+function withVerificationActionExecution(verification: VerificationSummary): VerificationSummary {
+  return verification.recommendedAction
+    ? { ...verification, recommendedAction: withActionExecution(verification.recommendedAction) }
+    : verification;
+}
+
+function withAgentActionExecution(agent: AgentSummary): AgentSummary {
+  return agent.primaryAction
+    ? { ...agent, primaryExecution: actionExecution(agent.primaryAction), primaryAction: withActionExecution(agent.primaryAction) }
+    : agent;
 }
 
 function toCliError(error: unknown): CliError {
@@ -1608,11 +3908,15 @@ function toCliError(error: unknown): CliError {
   return new CliError("FETCH_FAILED", error instanceof Error ? error.message : String(error), 10);
 }
 
-function parseArgMetadata(argv: string[]): Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion">> {
-  const metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion">> = { extractOptions: {} };
+function parseArgMetadata(argv: string[]): Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion" | "agentMode" | "findQueries" | "timeoutMs" | "userAgent">> {
+  const metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion" | "agentMode" | "findQueries" | "timeoutMs" | "userAgent">> = { extractOptions: {}, findQueries: [] };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (!arg) continue;
+    if (arg === "--agent") {
+      metadata.agentMode = true;
+      continue;
+    }
     if (arg === "--mode") {
       const value = argv[index + 1];
       if (value === "compact" || value === "interactive" || value === "full") metadata.extractOptions = { mode: value };
@@ -1627,7 +3931,7 @@ function parseArgMetadata(argv: string[]): Partial<Pick<CliOptions, "url" | "ext
     }
     if (arg === "--engine") {
       const value = argv[index + 1];
-      if (value === "bing" || value === "duckduckgo" || value === "startpage") metadata.searchEngine = value;
+      if (value === "auto" || value === "bing" || value === "duckduckgo" || value === "startpage") metadata.searchEngine = value;
       index += 1;
       continue;
     }
@@ -1640,6 +3944,25 @@ function parseArgMetadata(argv: string[]): Partial<Pick<CliOptions, "url" | "ext
     if (arg === "--region") {
       const value = argv[index + 1];
       if (value && !value.startsWith("-")) metadata.searchRegion = value.toUpperCase();
+      index += 1;
+      continue;
+    }
+    if (arg === "--find") {
+      const value = argv[index + 1];
+      if (value && !value.startsWith("-")) metadata.findQueries?.push(value);
+      index += 1;
+      continue;
+    }
+    if (arg === "--timeout") {
+      const value = argv[index + 1];
+      const parsed = value ? Number.parseInt(value, 10) : Number.NaN;
+      if (Number.isFinite(parsed) && parsed > 0) metadata.timeoutMs = parsed;
+      index += 1;
+      continue;
+    }
+    if (arg === "--user-agent") {
+      const value = argv[index + 1];
+      if (value && !value.startsWith("-")) metadata.userAgent = value;
       index += 1;
       continue;
     }
