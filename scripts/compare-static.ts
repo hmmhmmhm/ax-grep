@@ -55,6 +55,7 @@ type CliAgentSummary = {
   kind: string;
   agentStatus: "ready" | "choose-result" | "verify" | "needs-browser" | "error" | "unknown";
   agentRoutingIntentScore: number;
+  agentContinuationModeScore: number;
   agentPageKindScore: number;
   agentAlternativeActionCountScore: number;
   agentUsabilityScoreConsistency: number;
@@ -104,6 +105,7 @@ type CliAgentSummary = {
 
 type ActionExecution = "run-command" | "read-current" | "interact-browser" | "inspect-output" | "unknown";
 type AgentRoutingIntent = "read-current" | "open-url" | "search" | "browser-html" | "browser-interaction" | "inspect-output" | "none";
+type AgentContinuationMode = "command" | "read" | "browser" | "capture-html" | "inspect" | "stop";
 
 type CliActionShape = {
   action?: string;
@@ -152,6 +154,7 @@ type GateSummary = {
   averageContentEvidenceMetadataScore: number;
   averageReadabilityReasonScore: number;
   averageAgentRoutingIntentScore: number;
+  averageAgentContinuationModeScore: number;
   averageAgentReadTargetScore: number;
   averageAgentResultCountScore: number;
   averageAgentSourceLinkCountScore: number;
@@ -472,6 +475,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agent?: {
       status?: "ready" | "choose-result" | "verify" | "needs-browser" | "error";
       routingIntent?: AgentRoutingIntent;
+      continuationMode?: AgentContinuationMode;
       responseStatus?: number;
       responseOk?: boolean;
       responseContentType?: string;
@@ -567,6 +571,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     kind: item.kind ?? "unknown",
     agentStatus: item.agent?.status ?? "unknown",
     agentRoutingIntentScore: scoreAgentRoutingIntent(item.agent?.routingIntent, item.agent?.primaryAction),
+    agentContinuationModeScore: scoreAgentContinuationMode(item.agent?.continuationMode, item.agent?.primaryAction),
     agentPageKindScore: scoreAgentPageKind(item.agent?.pageKind, item.kind),
     agentAlternativeActionCountScore: scoreAgentAlternativeActionCount(item.agent?.alternativeActionCount, item),
     agentUsabilityScoreConsistency: scoreAgentUsabilityScore(item.agent?.usabilityScore, item),
@@ -608,6 +613,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     kind: "unknown",
     agentStatus: "unknown",
     agentRoutingIntentScore: 0,
+    agentContinuationModeScore: 0,
     agentPageKindScore: 0,
     agentAlternativeActionCountScore: 0,
     agentUsabilityScoreConsistency: 0,
@@ -737,6 +743,10 @@ function scoreAgentRoutingIntent(routingIntent: AgentRoutingIntent | undefined, 
   return routingIntent === expectedAgentRoutingIntent(primaryAction) ? 1 : 0;
 }
 
+function scoreAgentContinuationMode(continuationMode: AgentContinuationMode | undefined, primaryAction: CliActionShape | undefined): number {
+  return continuationMode === expectedAgentContinuationMode(primaryAction) ? 1 : 0;
+}
+
 function expectedAgentRoutingIntent(primaryAction: CliActionShape | undefined): AgentRoutingIntent {
   if (!primaryAction) return "none";
   if (primaryAction.action === "retry-with-browser-html") return "browser-html";
@@ -746,6 +756,18 @@ function expectedAgentRoutingIntent(primaryAction: CliActionShape | undefined): 
   if (primaryAction.action === "open-result" || primaryAction.action === "open-alternate-result" || primaryAction.action === "open-source-link" || primaryAction.url) return "open-url";
   if (normalizedActionExecution(primaryAction) === "inspect-output") return "inspect-output";
   return "open-url";
+}
+
+function expectedAgentContinuationMode(primaryAction: CliActionShape | undefined): AgentContinuationMode {
+  if (!primaryAction) return "stop";
+  const routingIntent = expectedAgentRoutingIntent(primaryAction);
+  if (routingIntent === "browser-html") return "capture-html";
+  if (routingIntent === "browser-interaction") return "browser";
+  const execution = normalizedActionExecution(primaryAction);
+  if (execution === "read-current") return "read";
+  if (execution === "inspect-output") return "inspect";
+  if (execution === "run-command") return "command";
+  return normalizedActionExecution(primaryAction) !== "inspect-output" ? "command" : "stop";
 }
 
 function scoreAgentReadTargets(readTargets: CliReadTargetShape[], primaryAction: CliActionShape | undefined, envelope: unknown): number {
@@ -1166,7 +1188,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
   const agentActionScore = summary.agentPrimaryAction ? 1 : 0;
   return roundScore(
     confidenceScore * 0.14
-    + readabilityExplainabilityScore * 0.125
+    + readabilityExplainabilityScore * 0.12
     + contentScore * 0.2
     + linkScore * 0.16
     + actionScore * 0.05
@@ -1191,6 +1213,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentVerificationCountScore * 0.005
     + summary.agentResponseMetadataScore * 0.005
     + summary.agentRoutingIntentScore * 0.005
+    + summary.agentContinuationModeScore * 0.005
     + summary.agentPrimaryShortcutScore * 0.005
   );
 }
@@ -1237,6 +1260,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageContentEvidenceMetadataScore: average(included.map((comparison) => comparison.cliAgentSummary.pageCheck.contentEvidenceMetadataScore)),
     averageReadabilityReasonScore: average(included.map((comparison) => comparison.cliAgentSummary.pageCheck.readabilityReasonScore)),
     averageAgentRoutingIntentScore: average(included.map((comparison) => comparison.cliAgentSummary.agentRoutingIntentScore)),
+    averageAgentContinuationModeScore: average(included.map((comparison) => comparison.cliAgentSummary.agentContinuationModeScore)),
     averageAgentReadTargetScore: average(included.map((comparison) => comparison.cliAgentSummary.agentReadTargetScore)),
     averageAgentResultCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentResultCountScore)),
     averageAgentSourceLinkCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSourceLinkCountScore)),

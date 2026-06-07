@@ -123,7 +123,8 @@ tables. It prints compact JSON with the top-level `agent` object plus
 `pageCheck`, search results, requested verification results, and warnings when
 they are present. Read `agent` first: it combines page classification,
 readability, verification, diagnostic codes, and recommended result selection
-into `status`, `summary`, `routingIntent`, `canUseFetchedHtml`, `needsBrowserHtml`,
+into `status`, `summary`, `routingIntent`, `continuationMode`,
+`canUseFetchedHtml`, `needsBrowserHtml`,
 `responseStatus`, `responseOk`, `responseContentType`, `finalUrlChanged`,
 `pageKind`, `alternativeActionCount`, `usabilityScore`,
 `evidenceQualityScore`, `sourceQualityScore`, `readabilityScore`,
@@ -133,6 +134,11 @@ into `status`, `summary`, `routingIntent`, `canUseFetchedHtml`, `needsBrowserHtm
 `primaryExecution`, `primaryAction`, and compact recommended-result metadata
 such as `recommendedRank`, `recommendedSource`, `recommendedRelevance`, and
 `recommendedLikelyOfficial`.
+
+`routingIntent` explains the next-step intent (`read-current`, `open-url`,
+`search`, `browser-html`, `browser-interaction`, `inspect-output`, or `none`).
+`continuationMode` is the simpler executor switch for agent loops: `read`,
+`command`, `browser`, `capture-html`, `inspect`, or `stop`.
 `canContinue` is true when the primary action is directly usable by an agent
 (`run-command`, `read-current`, or browser interaction), including recoverable
 error states such as alternate-result recovery or retry-later.

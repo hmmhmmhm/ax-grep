@@ -234,6 +234,7 @@ describe("cli", () => {
       agent: {
         status: "ready",
         routingIntent: "read-current",
+        continuationMode: "read",
         pageKind: "page",
         canContinue: true,
         canUseFetchedHtml: true,
@@ -347,6 +348,7 @@ describe("cli", () => {
     expect(envelope.agent).toMatchObject({
       pageKind: "search-results",
       routingIntent: "open-url",
+      continuationMode: "command",
       responseStatus: 200,
       responseOk: true,
       responseContentType: "text/html",
@@ -2276,6 +2278,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("agent\n  status: ready");
     expect(stdout.output).toContain("  pageKind: content-page");
     expect(stdout.output).toContain("  routingIntent: read-current");
+    expect(stdout.output).toContain("  continuationMode: read");
     expect(stdout.output).toContain("  canContinue: true");
     expect(stdout.output).toContain("  responseStatus: 200");
     expect(stdout.output).toContain("  responseOk: true");
@@ -2491,6 +2494,7 @@ describe("cli", () => {
     });
     expect(envelope.agent).toMatchObject({
       status: "needs-browser",
+      continuationMode: "capture-html",
       canUseFetchedHtml: false,
       needsBrowserHtml: true,
       primaryAction: {
@@ -2745,6 +2749,7 @@ describe("cli", () => {
         status: "error",
         pageKind: "empty",
         routingIntent: "none",
+        continuationMode: "stop",
         summary: "missing URL",
         canContinue: false,
         needsBrowserHtml: false,
@@ -2972,6 +2977,7 @@ describe("cli", () => {
     expect(envelope.kind).toBe("blocked-page");
     expect(envelope.agent).toMatchObject({
       status: "verify",
+      continuationMode: "browser",
       canUseFetchedHtml: false,
       needsBrowserHtml: false,
       primaryExecution: "interact-browser",

@@ -47,6 +47,9 @@ can open alternate results without reconstructing commands.
 summarizes the primary action as reading current payload, opening a URL,
 searching, retrying with browser HTML, requiring browser interaction, or
 stopping.
+`averageAgentContinuationModeScore` tracks whether `agent.continuationMode`
+maps that intent to the executor-facing mode: `read`, `command`, `browser`,
+`capture-html`, `inspect`, or `stop`.
 `averageContentEvidenceMetadataScore` tracks whether `pageCheck.contentEvidence`
 items include `source` and bounded `score` metadata, so agents can prioritize
 semantic evidence over fallback excerpts.
