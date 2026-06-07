@@ -42,6 +42,34 @@ pnpm add ax-grep
 npm install ax-grep
 ```
 
+## CLI
+
+`ax-grep` can also run as a small agent-oriented command. It fetches a URL,
+extracts the static semantic tree, and prints compact text by default.
+
+```sh
+npx ax-grep https://example.com
+```
+
+```text
+main
+  heading 'Example Domain'
+  p 'This domain is for use in illustrative examples...'
+  [i] link 'More information...'
+```
+
+Use JSON when another tool needs the full node structure.
+
+```sh
+ax-grep https://example.com --json
+ax-grep https://example.com --mode interactive --exclude-boilerplate
+ax-grep https://example.com --timeout 30000 --user-agent "my-agent/1.0"
+```
+
+The CLI uses plain `fetch()`. It does not execute page JavaScript or bypass
+bot checks. For challenged pages, pass HTML captured by a browser controller to
+the library API instead.
+
 ## Entry Points
 
 | Situation | Use |

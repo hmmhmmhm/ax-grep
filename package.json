@@ -29,6 +29,9 @@
       "import": "./dist/static.js"
     }
   },
+  "bin": {
+    "ax-grep": "./dist/cli.js"
+  },
   "files": [
     "dist"
   ],
