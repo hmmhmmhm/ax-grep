@@ -177,6 +177,108 @@ describe("cli", () => {
     expect(envelope.results[0].url).toBe("https://result.example/");
   });
 
+  it("can open a selected search result and analyze the target page", async () => {
+    const stdout = new MemoryWriter();
+    const requestedUrls: string[] = [];
+    const status = await runCli(["--search", "agent browser", "--open-result", "2", "--json"], {
+      stdout,
+      fetch: async (input) => {
+        requestedUrls.push(String(input));
+        if (requestedUrls.length === 1) {
+          return new Response(`
+            <main>
+              <ol>
+                <li><a href="https://first.example/page">A Much Stronger First Result Title</a><p>First result snippet.</p></li>
+                <li><a href="https://target.example/article">Target Result</a><p>Target result snippet for the selected page.</p></li>
+              </ol>
+            </main>
+          `, { headers: { "content-type": "text/html" } });
+        }
+        return new Response(`
+          <html>
+            <head><title>Target page</title></head>
+            <body>
+              <main>
+                <article>
+                  <h1>Target heading</h1>
+                  <p>This target page has enough article text for source checking.</p>
+                  <p>Agents can inspect this second paragraph after opening the search result.</p>
+                  <a href="/next">Next source</a>
+                </article>
+              </main>
+            </body>
+          </html>
+        `, { headers: { "content-type": "text/html" } });
+      },
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(requestedUrls).toEqual([
+      "https://duckduckgo.com/html/?q=agent%20browser",
+      "https://target.example/article",
+    ]);
+    expect(envelope).toMatchObject({
+      url: "https://target.example/article",
+      finalUrl: "https://target.example/article",
+      searchQuery: "agent browser",
+      searchEngine: "duckduckgo",
+      kind: "content-page",
+      page: {
+        title: "Target page",
+      },
+      sourceSearch: {
+        query: "agent browser",
+        engine: "duckduckgo",
+        searchUrl: "https://duckduckgo.com/html/?q=agent%20browser",
+        selectedRank: 2,
+        selectedTitle: "Target Result",
+        selectedUrl: "https://target.example/article",
+      },
+    });
+    expect(envelope.outline).toEqual([{ text: "Target heading", level: 1 }]);
+    expect(envelope.results[0]).toMatchObject({
+      title: "Next source",
+      url: "https://target.example/next",
+    });
+  });
+
+  it("rejects opening a result without search mode", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test", "--open-result", "1", "--json"], { stdout });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(2);
+    expect(envelope.error).toMatchObject({
+      code: "USAGE",
+      message: "--open-result requires --search",
+    });
+  });
+
+  it("returns a structured error when the selected search result is missing", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["--search", "agent browser", "--open-result", "3", "--json"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <ol>
+            <li><a href="https://first.example/page">First Result</a><p>First result snippet.</p></li>
+          </ol>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(21);
+    expect(envelope.error).toMatchObject({
+      code: "NO_RESULT",
+      message: "search result 3 is not available; found 1",
+    });
+  });
+
   it("rejects search with an explicit URL", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test", "--search", "agent", "--json"], { stdout });

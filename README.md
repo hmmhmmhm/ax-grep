@@ -67,6 +67,7 @@ structured data.
 ```sh
 ax-grep --search "agent browser accessibility tree"
 ax-grep --search "ax-grep npm" --engine bing --links-only
+ax-grep --search "ax-grep npm" --open-result 1 --json
 ax-grep https://example.com --json
 ax-grep https://example.com --links-only
 ax-grep https://example.com --max-tree-lines 80
@@ -76,6 +77,9 @@ ax-grep https://example.com --timeout 30000 --user-agent "my-agent/1.0"
 
 `--search` builds a search URL for the agent. The default engine is
 DuckDuckGo HTML; `--engine bing` and `--engine startpage` are also supported.
+Add `--open-result <n>` to fetch and analyze the selected ranked result in
+the same command. The JSON output keeps `sourceSearch` metadata so an agent can
+see which query, engine, and result rank produced the final page.
 
 When a page is challenged, logged-in, or JavaScript-rendered, let a browser
 controller capture the HTML and pass it back through the same CLI:
@@ -93,6 +97,16 @@ cat captured.html | ax-grep https://example.com --stdin --json
   "tool": "ax-grep",
   "ok": true,
   "url": "https://example.com",
+  "searchQuery": "example domain",
+  "searchEngine": "duckduckgo",
+  "sourceSearch": {
+    "query": "example domain",
+    "engine": "duckduckgo",
+    "searchUrl": "https://duckduckgo.com/html/?q=example%20domain",
+    "selectedRank": 1,
+    "selectedTitle": "Example Domain",
+    "selectedUrl": "https://example.com/"
+  },
   "finalUrl": "https://example.com/",
   "status": 200,
   "mode": "compact",

@@ -23,9 +23,20 @@ type CliOptions = {
   htmlFile?: string;
   searchQuery?: string;
   searchEngine?: SearchEngine;
+  openResult?: number;
+  sourceSearch?: SourceSearchSummary;
   timeoutMs: number;
   userAgent: string;
   extractOptions: StaticSemanticTreeOptions;
+};
+
+type SourceSearchSummary = {
+  query: string;
+  engine: SearchEngine;
+  searchUrl: string;
+  selectedRank: number;
+  selectedTitle: string;
+  selectedUrl: string;
 };
 
 type FetchResult = {
@@ -36,7 +47,7 @@ type FetchResult = {
   page: PageSummary;
 };
 
-type CliErrorCode = "FETCH_FAILED" | "HTTP_ERROR" | "NO_INSPECTABLE_CONTENT" | "TIMEOUT" | "USAGE";
+type CliErrorCode = "FETCH_FAILED" | "HTTP_ERROR" | "NO_INSPECTABLE_CONTENT" | "NO_RESULT" | "TIMEOUT" | "USAGE";
 
 type LinkSummary = {
   text: string;
@@ -118,6 +129,29 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
     const options = parseArgs(argv);
     const fetched = await loadHtml(options, fetchImpl, stdin);
     const tree = extract(fetched.html, options.extractOptions);
+    if (options.openResult) {
+      const opened = await openSearchResult(options, fetched, tree, fetchImpl);
+      const openedTree = extract(opened.fetched.html, opened.options.extractOptions);
+      if (isUnavailableTree(openedTree)) {
+        const message = "no inspectable content; if the page is challenged or JavaScript-rendered, pass browser-captured HTML to the library API";
+        if (opened.options.format === "json") {
+          stdout.write(`${JSON.stringify(jsonEnvelope(opened.options, opened.fetched, openedTree, [{ code: "NO_INSPECTABLE_CONTENT", message }], {
+            code: "NO_INSPECTABLE_CONTENT",
+            message,
+            status: opened.fetched.status,
+          }), null, 2)}\n`);
+        } else {
+          stderr.write(`ax-grep: warning: ${message}\n`);
+          stdout.write(`${formatCliText(openedTree, opened.fetched, opened.options)}\n`);
+        }
+        return 20;
+      }
+      const output = opened.options.format === "json"
+        ? `${JSON.stringify(jsonEnvelope(opened.options, opened.fetched, openedTree), null, 2)}\n`
+        : `${formatCliText(openedTree, opened.fetched, opened.options)}\n`;
+      stdout.write(output);
+      return 0;
+    }
     if (isUnavailableTree(tree)) {
       const message = "no inspectable content; if the page is challenged or JavaScript-rendered, pass browser-captured HTML to the library API";
       if (options.format === "json") {
@@ -169,6 +203,7 @@ function parseArgs(argv: string[]): CliOptions {
   let htmlFile: string | undefined;
   let searchQuery: string | undefined;
   let searchEngine: SearchEngine = "duckduckgo";
+  let openResult: number | undefined;
   let timeoutMs = defaultTimeoutMs;
   let userAgent = defaultUserAgent;
   let url = "";
@@ -216,6 +251,11 @@ function parseArgs(argv: string[]): CliOptions {
     }
     if (arg === "--engine") {
       searchEngine = parseSearchEngine(readValue(argv, index, arg));
+      index += 1;
+      continue;
+    }
+    if (arg === "--open-result" || arg === "--open") {
+      openResult = parsePositiveInteger(readValue(argv, index, arg), arg);
       index += 1;
       continue;
     }
@@ -274,6 +314,7 @@ function parseArgs(argv: string[]): CliOptions {
   }
 
   if (searchQuery && url) throw new UsageError(`--search cannot be used with an explicit URL`);
+  if (openResult && !searchQuery) throw new UsageError(`--open-result requires --search`);
   if (searchQuery) url = searchUrl(searchQuery, searchEngine);
   if (input === "fetch" && !url) throw new UsageError(`missing URL\n\n${usage()}`);
   if (url) validateUrl(url);
@@ -284,8 +325,45 @@ function parseArgs(argv: string[]): CliOptions {
   if (htmlFile) options.htmlFile = htmlFile;
   if (searchQuery) options.searchQuery = searchQuery;
   if (searchQuery) options.searchEngine = searchEngine;
+  if (openResult) options.openResult = openResult;
   if (maxTreeLines) options.maxTreeLines = maxTreeLines;
   return options;
+}
+
+async function openSearchResult(
+  options: CliOptions,
+  searchFetched: FetchResult,
+  searchTree: SemanticNode,
+  fetchImpl: typeof fetch,
+): Promise<{ options: CliOptions; fetched: FetchResult }> {
+  if (isUnavailableTree(searchTree)) {
+    return { options, fetched: searchFetched };
+  }
+  const rank = options.openResult;
+  if (!rank || !options.searchQuery || !options.searchEngine) {
+    throw new UsageError(`--open-result requires --search`);
+  }
+  const results = summarizeResults(summarizeLinks(searchTree, searchFetched.finalUrl));
+  const selected = results[rank - 1];
+  if (!selected) {
+    throw new CliError("NO_RESULT", `search result ${rank} is not available; found ${results.length}`, 21);
+  }
+  const openedOptions: CliOptions = {
+    ...options,
+    url: selected.url,
+    baseUrl: selected.url,
+    input: "fetch",
+    sourceSearch: {
+      query: options.searchQuery,
+      engine: options.searchEngine,
+      searchUrl: searchFetched.finalUrl,
+      selectedRank: selected.rank,
+      selectedTitle: selected.title,
+      selectedUrl: selected.url,
+    },
+  };
+  const openedFetched = await fetchHtml(openedOptions, fetchImpl);
+  return { options: openedOptions, fetched: openedFetched };
 }
 
 async function loadHtml(options: CliOptions, fetchImpl: typeof fetch, stdin: NodeJS.ReadStream): Promise<FetchResult> {
@@ -408,6 +486,7 @@ Fetch a page and print a compact semantic accessibility-like tree.
 Options:
   --search <query>           Search the web and analyze the result page.
   --engine <name>            Search engine for --search: duckduckgo, bing, or startpage.
+  --open-result <n>          With --search, fetch and analyze the selected result.
   --json                     Print the SemanticNode tree as JSON.
   --text                     Print the compact text tree. This is the default.
   --mode <compact|interactive|full>
@@ -449,11 +528,12 @@ class CliError extends Error {
   }
 }
 
-function formatCliText(node: SemanticNode, fetched: FetchResult, options: Pick<CliOptions, "linksOnly" | "maxTreeLines">): string {
+function formatCliText(node: SemanticNode, fetched: FetchResult, options: Pick<CliOptions, "linksOnly" | "maxTreeLines" | "sourceSearch">): string {
   const baseUrl = fetched.finalUrl;
   const links = summarizeLinks(node, baseUrl);
   const lines: string[] = links.length > 0 ? formatLinksText(links) : [];
   if (options.linksOnly) return lines.join("\n");
+  appendSection(lines, formatSourceSearchText(options.sourceSearch));
   appendSection(lines, formatPageText(fetched.page));
   const outline = summarizeOutline(node);
   const actions = summarizeActions(node);
@@ -508,6 +588,16 @@ function formatPageText(page: PageSummary): string[] {
   if (page.canonicalUrl) lines.push(`  canonical: ${page.canonicalUrl}`);
   if (page.lang) lines.push(`  lang: ${page.lang}`);
   return lines.length > 0 ? ["page", ...lines] : [];
+}
+
+function formatSourceSearchText(sourceSearch?: SourceSearchSummary): string[] {
+  if (!sourceSearch) return [];
+  return [
+    "source",
+    `  search: ${sourceSearch.query} via ${sourceSearch.engine}`,
+    `  selected: ${sourceSearch.selectedRank}. ${sourceSearch.selectedTitle} <${sourceSearch.selectedUrl}>`,
+    `  result page: ${sourceSearch.searchUrl}`,
+  ];
 }
 
 function formatOutlineText(outline: OutlineSummary[]): string[] {
@@ -1020,6 +1110,7 @@ function jsonEnvelope(
     url: options.url,
     searchQuery: options.searchQuery,
     searchEngine: options.searchEngine,
+    sourceSearch: options.sourceSearch,
     finalUrl: fetched.finalUrl,
     status: fetched.status,
     contentType: fetched.contentType,
@@ -1095,7 +1186,7 @@ function parseArgMetadata(argv: string[]): Partial<Pick<CliOptions, "url" | "ext
       continue;
     }
     if (arg.startsWith("-")) {
-      if (["--max-text-length", "--timeout", "--user-agent"].includes(arg)) index += 1;
+      if (["--engine", "--max-text-length", "--open", "--open-result", "--search", "--timeout", "--user-agent"].includes(arg)) index += 1;
       continue;
     }
     metadata.url ??= arg;
