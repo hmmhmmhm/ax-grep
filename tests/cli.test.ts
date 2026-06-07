@@ -236,6 +236,52 @@ describe("cli", () => {
     });
   });
 
+  it("detects challenged pages and suggests browser-captured HTML", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://challenge.example", "--json"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head><title>Just a moment...</title></head>
+          <body><main><h1>Checking your browser</h1><p>Verify you are human before continuing.</p></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.kind).toBe("blocked-page");
+    expect(envelope.diagnostics).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "CHALLENGE_LIKELY" }),
+    ]));
+    expect(envelope.suggestedActions[0]).toMatchObject({
+      action: "retry-with-browser-html",
+    });
+  });
+
+  it("detects login and paywall barriers", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://news.example/article", "--json"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h1>Premium article</h1>
+          <p>Log in to continue reading this premium article. Subscription required.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.kind).toBe("blocked-page");
+    expect(envelope.diagnostics.map((item: { code: string }) => item.code)).toEqual(expect.arrayContaining([
+      "LOGIN_REQUIRED",
+      "PAYWALL_LIKELY",
+    ]));
+  });
+
   it("reports fetch failures to stderr", async () => {
     const stderr = new MemoryWriter();
     const status = await runCli(["https://example.test"], {

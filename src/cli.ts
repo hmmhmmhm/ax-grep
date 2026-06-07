@@ -75,7 +75,7 @@ type ContentSummary = {
   selector?: string;
 };
 
-type ContentKind = "empty" | "search-results" | "content-page" | "interactive-page" | "page";
+type ContentKind = "empty" | "blocked-page" | "search-results" | "content-page" | "interactive-page" | "page";
 
 type DiagnosticSummary = {
   severity: "info" | "warning" | "error";
@@ -772,9 +772,10 @@ function analyzePage(
   actions: ActionSummary[],
   content: ContentSummary[],
 ): AnalysisSummary {
-  const diagnostics: DiagnosticSummary[] = [];
+  const barrierDiagnostics = detectBarrierDiagnostics(fetched, tree, content);
+  const diagnostics: DiagnosticSummary[] = [...barrierDiagnostics];
   const suggestedActions: SuggestedAction[] = [];
-  const kind = classifyPage(fetched, tree, results, outline, actions, content);
+  const kind = classifyPage(fetched, tree, results, outline, actions, content, barrierDiagnostics);
 
   if (kind === "empty") {
     diagnostics.push({
@@ -785,6 +786,13 @@ function analyzePage(
     suggestedActions.push({
       action: "retry-with-browser-html",
       reason: "The fetched HTML may be challenged, empty, or JavaScript-rendered.",
+    });
+  }
+
+  if (kind === "blocked-page") {
+    suggestedActions.push({
+      action: "retry-with-browser-html",
+      reason: "The page appears blocked, challenged, paywalled, or login-gated.",
     });
   }
 
@@ -836,12 +844,57 @@ function classifyPage(
   outline: OutlineSummary[],
   actions: ActionSummary[],
   content: ContentSummary[],
+  diagnostics: DiagnosticSummary[],
 ): ContentKind {
   if (isUnavailableTree(tree)) return "empty";
+  if (diagnostics.some((item) => item.code === "CHALLENGE_LIKELY" || item.code === "LOGIN_REQUIRED" || item.code === "PAYWALL_LIKELY")) return "blocked-page";
   if (looksLikeSearchUrl(fetched.finalUrl) || results.length >= 5) return "search-results";
   if (content.length >= 2 || outline.length >= 3) return "content-page";
   if (actions.length >= 3) return "interactive-page";
   return "page";
+}
+
+function detectBarrierDiagnostics(fetched: FetchResult, tree: SemanticNode, content: ContentSummary[]): DiagnosticSummary[] {
+  const haystack = [
+    fetched.page.title,
+    fetched.page.description,
+    ...content.map((item) => item.text),
+    descendantSemanticText(tree),
+  ].filter(Boolean).join(" ").toLowerCase();
+  const diagnostics: DiagnosticSummary[] = [];
+
+  if (/(captcha|verify you are human|unusual traffic|checking your browser|just a moment|cf-browser-verification|cloudflare|access denied|request blocked|봇이 아닙니다|자동입력|보안문자)/i.test(haystack)) {
+    diagnostics.push({
+      severity: "warning",
+      code: "CHALLENGE_LIKELY",
+      message: "The page appears to contain a bot check, CAPTCHA, or access challenge.",
+    });
+  }
+  if (/(log in|login required|sign in to continue|please sign in|로그인|로그인이 필요|회원만|가입 후|unauthorized)/i.test(haystack)) {
+    diagnostics.push({
+      severity: "warning",
+      code: "LOGIN_REQUIRED",
+      message: "The page appears to require login or account access.",
+    });
+  }
+  if (/(subscribe to continue|subscription required|paywall|premium article|구독|유료기사|유료 기사|결제 후)/i.test(haystack)) {
+    diagnostics.push({
+      severity: "warning",
+      code: "PAYWALL_LIKELY",
+      message: "The page appears to be paywalled or subscription-gated.",
+    });
+  }
+
+  return dedupeDiagnostics(diagnostics);
+}
+
+function dedupeDiagnostics(diagnostics: DiagnosticSummary[]): DiagnosticSummary[] {
+  const seen = new Set<string>();
+  return diagnostics.filter((diagnostic) => {
+    if (seen.has(diagnostic.code)) return false;
+    seen.add(diagnostic.code);
+    return true;
+  });
 }
 
 function looksLikeSearchUrl(url: string): boolean {

@@ -143,6 +143,13 @@ returns exit code `20` and emits a structured JSON error and warning in
 `--json` mode. Use `--html-file` or `--stdin` for browser-captured fallback
 HTML.
 
+`kind` is an agent-facing page classification: `search-results`, `content-page`,
+`interactive-page`, `blocked-page`, `empty`, or `page`. `diagnostics` flags
+states such as `CHALLENGE_LIKELY`, `LOGIN_REQUIRED`, `PAYWALL_LIKELY`,
+`NO_USEFUL_LINKS`, and `NON_HTML_CONTENT_TYPE`; `suggestedActions` gives the
+next useful move, such as opening the first result or retrying with captured
+browser HTML.
+
 ## Entry Points
 
 | Situation | Use |
