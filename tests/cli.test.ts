@@ -233,6 +233,7 @@ describe("cli", () => {
       treeOmitted: true,
       agent: {
         status: "ready",
+        routingIntent: "read-current",
         pageKind: "page",
         canContinue: true,
         canUseFetchedHtml: true,
@@ -345,6 +346,7 @@ describe("cli", () => {
     });
     expect(envelope.agent).toMatchObject({
       pageKind: "search-results",
+      routingIntent: "open-url",
       responseStatus: 200,
       responseOk: true,
       responseContentType: "text/html",
@@ -2273,6 +2275,7 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n  status: ready");
     expect(stdout.output).toContain("  pageKind: content-page");
+    expect(stdout.output).toContain("  routingIntent: read-current");
     expect(stdout.output).toContain("  canContinue: true");
     expect(stdout.output).toContain("  responseStatus: 200");
     expect(stdout.output).toContain("  responseOk: true");
@@ -2741,6 +2744,7 @@ describe("cli", () => {
       agent: {
         status: "error",
         pageKind: "empty",
+        routingIntent: "none",
         summary: "missing URL",
         canContinue: false,
         needsBrowserHtml: false,

@@ -54,6 +54,7 @@ type CliAgentSummary = {
   ok: boolean;
   kind: string;
   agentStatus: "ready" | "choose-result" | "verify" | "needs-browser" | "error" | "unknown";
+  agentRoutingIntentScore: number;
   agentPageKindScore: number;
   agentAlternativeActionCountScore: number;
   agentUsabilityScoreConsistency: number;
@@ -102,6 +103,7 @@ type CliAgentSummary = {
 };
 
 type ActionExecution = "run-command" | "read-current" | "interact-browser" | "inspect-output" | "unknown";
+type AgentRoutingIntent = "read-current" | "open-url" | "search" | "browser-html" | "browser-interaction" | "inspect-output" | "none";
 
 type CliActionShape = {
   action?: string;
@@ -149,6 +151,7 @@ type GateSummary = {
   averageSearchResultActionScore: number;
   averageContentEvidenceMetadataScore: number;
   averageReadabilityReasonScore: number;
+  averageAgentRoutingIntentScore: number;
   averageAgentReadTargetScore: number;
   averageAgentResultCountScore: number;
   averageAgentSourceLinkCountScore: number;
@@ -468,6 +471,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     contentType?: string;
     agent?: {
       status?: "ready" | "choose-result" | "verify" | "needs-browser" | "error";
+      routingIntent?: AgentRoutingIntent;
       responseStatus?: number;
       responseOk?: boolean;
       responseContentType?: string;
@@ -562,6 +566,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     ok: item.ok === true,
     kind: item.kind ?? "unknown",
     agentStatus: item.agent?.status ?? "unknown",
+    agentRoutingIntentScore: scoreAgentRoutingIntent(item.agent?.routingIntent, item.agent?.primaryAction),
     agentPageKindScore: scoreAgentPageKind(item.agent?.pageKind, item.kind),
     agentAlternativeActionCountScore: scoreAgentAlternativeActionCount(item.agent?.alternativeActionCount, item),
     agentUsabilityScoreConsistency: scoreAgentUsabilityScore(item.agent?.usabilityScore, item),
@@ -602,6 +607,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     ok: false,
     kind: "unknown",
     agentStatus: "unknown",
+    agentRoutingIntentScore: 0,
     agentPageKindScore: 0,
     agentAlternativeActionCountScore: 0,
     agentUsabilityScoreConsistency: 0,
@@ -725,6 +731,21 @@ function scoreReadabilityReasons(reasons: unknown[] | undefined): number {
   if (!Array.isArray(reasons)) return 0;
   const usefulReasons = reasons.filter((reason) => typeof reason === "string" && reason.trim().length > 0);
   return usefulReasons.length > 0 ? 1 : 0;
+}
+
+function scoreAgentRoutingIntent(routingIntent: AgentRoutingIntent | undefined, primaryAction: CliActionShape | undefined): number {
+  return routingIntent === expectedAgentRoutingIntent(primaryAction) ? 1 : 0;
+}
+
+function expectedAgentRoutingIntent(primaryAction: CliActionShape | undefined): AgentRoutingIntent {
+  if (!primaryAction) return "none";
+  if (primaryAction.action === "retry-with-browser-html") return "browser-html";
+  if (primaryAction.requiresBrowserInteraction || normalizedActionExecution(primaryAction) === "interact-browser") return "browser-interaction";
+  if (primaryAction.action === "read-content" || primaryAction.action === "use-evidence" || normalizedActionExecution(primaryAction) === "read-current") return "read-current";
+  if (primaryAction.action === "refine-search" || primaryAction.action === "broaden-search" || primaryAction.action === "check-url-or-search") return "search";
+  if (primaryAction.action === "open-result" || primaryAction.action === "open-alternate-result" || primaryAction.action === "open-source-link" || primaryAction.url) return "open-url";
+  if (normalizedActionExecution(primaryAction) === "inspect-output") return "inspect-output";
+  return "open-url";
 }
 
 function scoreAgentReadTargets(readTargets: CliReadTargetShape[], primaryAction: CliActionShape | undefined, envelope: unknown): number {
@@ -1145,7 +1166,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
   const agentActionScore = summary.agentPrimaryAction ? 1 : 0;
   return roundScore(
     confidenceScore * 0.14
-    + readabilityExplainabilityScore * 0.13
+    + readabilityExplainabilityScore * 0.125
     + contentScore * 0.2
     + linkScore * 0.16
     + actionScore * 0.05
@@ -1169,6 +1190,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentDiagnosticCountScore * 0.005
     + summary.agentVerificationCountScore * 0.005
     + summary.agentResponseMetadataScore * 0.005
+    + summary.agentRoutingIntentScore * 0.005
     + summary.agentPrimaryShortcutScore * 0.005
   );
 }
@@ -1214,6 +1236,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageSearchResultActionScore: average(included.map((comparison) => comparison.cliAgentSummary.searchResultActionScore)),
     averageContentEvidenceMetadataScore: average(included.map((comparison) => comparison.cliAgentSummary.pageCheck.contentEvidenceMetadataScore)),
     averageReadabilityReasonScore: average(included.map((comparison) => comparison.cliAgentSummary.pageCheck.readabilityReasonScore)),
+    averageAgentRoutingIntentScore: average(included.map((comparison) => comparison.cliAgentSummary.agentRoutingIntentScore)),
     averageAgentReadTargetScore: average(included.map((comparison) => comparison.cliAgentSummary.agentReadTargetScore)),
     averageAgentResultCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentResultCountScore)),
     averageAgentSourceLinkCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSourceLinkCountScore)),

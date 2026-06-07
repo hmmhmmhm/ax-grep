@@ -123,7 +123,7 @@ tables. It prints compact JSON with the top-level `agent` object plus
 `pageCheck`, search results, requested verification results, and warnings when
 they are present. Read `agent` first: it combines page classification,
 readability, verification, diagnostic codes, and recommended result selection
-into `status`, `summary`, `canUseFetchedHtml`, `needsBrowserHtml`,
+into `status`, `summary`, `routingIntent`, `canUseFetchedHtml`, `needsBrowserHtml`,
 `responseStatus`, `responseOk`, `responseContentType`, `finalUrlChanged`,
 `pageKind`, `alternativeActionCount`, `usabilityScore`,
 `evidenceQualityScore`, `sourceQualityScore`, `readabilityScore`,

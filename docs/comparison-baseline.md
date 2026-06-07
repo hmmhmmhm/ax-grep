@@ -43,6 +43,10 @@ gate-included targets.
 `averageSearchResultActionScore` tracks whether compact search results include
 rank-specific `openResult`, `command`, and raw `commandArgs`, so search agents
 can open alternate results without reconstructing commands.
+`averageAgentRoutingIntentScore` tracks whether `agent.routingIntent` correctly
+summarizes the primary action as reading current payload, opening a URL,
+searching, retrying with browser HTML, requiring browser interaction, or
+stopping.
 `averageContentEvidenceMetadataScore` tracks whether `pageCheck.contentEvidence`
 items include `source` and bounded `score` metadata, so agents can prioritize
 semantic evidence over fallback excerpts.

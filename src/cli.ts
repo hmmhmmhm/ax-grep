@@ -230,11 +230,13 @@ type VerificationSummary = {
 };
 
 type AgentStatus = "ready" | "choose-result" | "verify" | "needs-browser" | "error";
+type AgentRoutingIntent = "read-current" | "open-url" | "search" | "browser-html" | "browser-interaction" | "inspect-output" | "none";
 
 type AgentSummary = {
   status: AgentStatus;
   pageKind: ContentKind;
   summary: string;
+  routingIntent: AgentRoutingIntent;
   canContinue: boolean;
   canUseFetchedHtml: boolean;
   needsBrowserHtml: boolean;
@@ -1312,6 +1314,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     "agent",
     `  status: ${agent.status}`,
     `  pageKind: ${agent.pageKind}`,
+    `  routingIntent: ${agent.routingIntent}`,
     `  summary: ${agent.summary}`,
     `  canContinue: ${agent.canContinue}`,
     `  canUseFetchedHtml: ${agent.canUseFetchedHtml}`,
@@ -2430,6 +2433,7 @@ function summarizeAgent(
     status,
     pageKind: analysis.kind,
     summary,
+    routingIntent: agentRoutingIntent(primaryAction),
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml,
     needsBrowserHtml,
@@ -2556,6 +2560,17 @@ function summarizeAgentReadTargets(
 function agentCanContinue(primaryAction: SuggestedAction | undefined): boolean {
   if (!primaryAction) return false;
   return actionExecution(primaryAction) !== "inspect-output";
+}
+
+function agentRoutingIntent(primaryAction: SuggestedAction | undefined): AgentRoutingIntent {
+  if (!primaryAction) return "none";
+  if (primaryAction.action === "retry-with-browser-html") return "browser-html";
+  if (primaryAction.requiresBrowserInteraction || actionExecution(primaryAction) === "interact-browser") return "browser-interaction";
+  if (primaryAction.action === "read-content" || primaryAction.action === "use-evidence" || actionExecution(primaryAction) === "read-current") return "read-current";
+  if (primaryAction.action === "refine-search" || primaryAction.action === "broaden-search" || primaryAction.action === "check-url-or-search") return "search";
+  if (primaryAction.action === "open-result" || primaryAction.action === "open-alternate-result" || primaryAction.action === "open-source-link" || primaryAction.url) return "open-url";
+  if (actionExecution(primaryAction) === "inspect-output") return "inspect-output";
+  return "open-url";
 }
 
 function selectBestReadTarget(readTargets: AgentReadTarget[]): AgentReadTarget | undefined {
@@ -2902,6 +2917,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     status: "error",
     pageKind: "empty",
     summary,
+    routingIntent: agentRoutingIntent(primaryAction),
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml: false,
     needsBrowserHtml: errorNeedsBrowserHtml(primaryAction),
@@ -3638,6 +3654,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     status: agent.status,
     pageKind: agent.pageKind,
     summary: agent.summary,
+    routingIntent: agent.routingIntent,
     canContinue: agent.canContinue,
     canUseFetchedHtml: agent.canUseFetchedHtml,
     needsBrowserHtml: agent.needsBrowserHtml,
