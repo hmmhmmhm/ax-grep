@@ -148,6 +148,48 @@ describe("cli", () => {
     });
   });
 
+  it("can build a search URL from a query", async () => {
+    const stdout = new MemoryWriter();
+    let requestedUrl = "";
+    const status = await runCli(["--search", "agent browser", "--engine", "bing", "--json"], {
+      stdout,
+      fetch: async (input) => {
+        requestedUrl = String(input);
+        return new Response(`
+          <main>
+            <ol>
+              <li><a href="https://result.example">Agent browser result</a><p>Search result snippet.</p></li>
+            </ol>
+          </main>
+        `, { headers: { "content-type": "text/html" } });
+      },
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(requestedUrl).toBe("https://www.bing.com/search?q=agent%20browser");
+    expect(envelope).toMatchObject({
+      searchQuery: "agent browser",
+      searchEngine: "bing",
+      kind: "search-results",
+    });
+    expect(envelope.results[0].url).toBe("https://result.example/");
+  });
+
+  it("rejects search with an explicit URL", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test", "--search", "agent", "--json"], { stdout });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(2);
+    expect(envelope.error).toMatchObject({
+      code: "USAGE",
+      message: "--search cannot be used with an explicit URL",
+    });
+  });
+
   it("keeps the best duplicate link text and strips trailing URL punctuation", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test", "--json"], {
@@ -280,6 +322,26 @@ describe("cli", () => {
       "LOGIN_REQUIRED",
       "PAYWALL_LIKELY",
     ]));
+  });
+
+  it("does not treat search result pages as login-gated because of header login links", async () => {
+    const stdout = new MemoryWriter();
+    const items = Array.from({ length: 6 }, (_, index) => `
+      <li><a href="https://result-${index}.example">Useful result ${index}</a><p>Result snippet ${index}.</p></li>
+    `).join("");
+    const status = await runCli(["https://search.example/search?q=login", "--json"], {
+      stdout,
+      fetch: async () => new Response(`
+        <header><a href="/login">Login</a></header>
+        <main><ol>${items}</ol></main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.kind).toBe("search-results");
+    expect(envelope.diagnostics.map((item: { code: string }) => item.code)).not.toContain("LOGIN_REQUIRED");
   });
 
   it("reports fetch failures to stderr", async () => {

@@ -65,12 +65,17 @@ the full tree. Use JSON when another tool needs the same summaries as
 structured data.
 
 ```sh
+ax-grep --search "agent browser accessibility tree"
+ax-grep --search "ax-grep npm" --engine bing --links-only
 ax-grep https://example.com --json
 ax-grep https://example.com --links-only
 ax-grep https://example.com --max-tree-lines 80
 ax-grep https://example.com --mode interactive --exclude-boilerplate
 ax-grep https://example.com --timeout 30000 --user-agent "my-agent/1.0"
 ```
+
+`--search` builds a search URL for the agent. The default engine is
+DuckDuckGo HTML; `--engine bing` and `--engine startpage` are also supported.
 
 When a page is challenged, logged-in, or JavaScript-rendered, let a browser
 controller capture the HTML and pass it back through the same CLI:

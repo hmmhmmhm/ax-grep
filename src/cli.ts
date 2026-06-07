@@ -11,6 +11,7 @@ import { extract, type StaticSemanticTreeOptions } from "./static";
 import type { SemanticNode } from "./types";
 
 type CliFormat = "text" | "json";
+type SearchEngine = "bing" | "duckduckgo" | "startpage";
 
 type CliOptions = {
   url?: string;
@@ -20,6 +21,8 @@ type CliOptions = {
   maxTreeLines?: number;
   input: "fetch" | "html-file" | "stdin";
   htmlFile?: string;
+  searchQuery?: string;
+  searchEngine?: SearchEngine;
   timeoutMs: number;
   userAgent: string;
   extractOptions: StaticSemanticTreeOptions;
@@ -164,6 +167,8 @@ function parseArgs(argv: string[]): CliOptions {
   let maxTreeLines: number | undefined;
   let input: CliOptions["input"] = "fetch";
   let htmlFile: string | undefined;
+  let searchQuery: string | undefined;
+  let searchEngine: SearchEngine = "duckduckgo";
   let timeoutMs = defaultTimeoutMs;
   let userAgent = defaultUserAgent;
   let url = "";
@@ -201,6 +206,17 @@ function parseArgs(argv: string[]): CliOptions {
     if (arg === "--stdin") {
       if (input === "html-file") throw new UsageError(`--html-file and --stdin cannot be used together`);
       input = "stdin";
+      continue;
+    }
+    if (arg === "--search") {
+      if (input !== "fetch") throw new UsageError(`--search cannot be used with --html-file or --stdin`);
+      searchQuery = readValue(argv, index, arg);
+      index += 1;
+      continue;
+    }
+    if (arg === "--engine") {
+      searchEngine = parseSearchEngine(readValue(argv, index, arg));
+      index += 1;
       continue;
     }
     if (arg === "--include-hidden") {
@@ -257,6 +273,8 @@ function parseArgs(argv: string[]): CliOptions {
     url = arg;
   }
 
+  if (searchQuery && url) throw new UsageError(`--search cannot be used with an explicit URL`);
+  if (searchQuery) url = searchUrl(searchQuery, searchEngine);
   if (input === "fetch" && !url) throw new UsageError(`missing URL\n\n${usage()}`);
   if (url) validateUrl(url);
   if (input === "html-file" && !htmlFile) throw new UsageError(`--html-file requires a value`);
@@ -264,6 +282,8 @@ function parseArgs(argv: string[]): CliOptions {
   const options: CliOptions = { baseUrl, format, linksOnly, input, timeoutMs, userAgent, extractOptions };
   if (url) options.url = url;
   if (htmlFile) options.htmlFile = htmlFile;
+  if (searchQuery) options.searchQuery = searchQuery;
+  if (searchQuery) options.searchEngine = searchEngine;
   if (maxTreeLines) options.maxTreeLines = maxTreeLines;
   return options;
 }
@@ -350,6 +370,18 @@ function parseMode(value: string): NonNullable<StaticSemanticTreeOptions["mode"]
   throw new UsageError(`--mode must be compact, interactive, or full`);
 }
 
+function parseSearchEngine(value: string): SearchEngine {
+  if (value === "bing" || value === "duckduckgo" || value === "startpage") return value;
+  throw new UsageError(`--engine must be bing, duckduckgo, or startpage`);
+}
+
+function searchUrl(query: string, engine: SearchEngine): string {
+  const encoded = encodeURIComponent(query);
+  if (engine === "bing") return `https://www.bing.com/search?q=${encoded}`;
+  if (engine === "startpage") return `https://www.startpage.com/sp/search?query=${encoded}`;
+  return `https://duckduckgo.com/html/?q=${encoded}`;
+}
+
 function parsePositiveInteger(value: string, option: string): number {
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed <= 0) throw new UsageError(`${option} must be a positive integer`);
@@ -374,6 +406,8 @@ function usage(): string {
 Fetch a page and print a compact semantic accessibility-like tree.
 
 Options:
+  --search <query>           Search the web and analyze the result page.
+  --engine <name>            Search engine for --search: duckduckgo, bing, or startpage.
   --json                     Print the SemanticNode tree as JSON.
   --text                     Print the compact text tree. This is the default.
   --mode <compact|interactive|full>
@@ -772,7 +806,7 @@ function analyzePage(
   actions: ActionSummary[],
   content: ContentSummary[],
 ): AnalysisSummary {
-  const barrierDiagnostics = detectBarrierDiagnostics(fetched, tree, content);
+  const barrierDiagnostics = filterDiagnosticsForResultPages(detectBarrierDiagnostics(fetched, tree, content), results);
   const diagnostics: DiagnosticSummary[] = [...barrierDiagnostics];
   const suggestedActions: SuggestedAction[] = [];
   const kind = classifyPage(fetched, tree, results, outline, actions, content, barrierDiagnostics);
@@ -835,6 +869,11 @@ function analyzePage(
   }
 
   return { kind, diagnostics, suggestedActions };
+}
+
+function filterDiagnosticsForResultPages(diagnostics: DiagnosticSummary[], results: ResultSummary[]): DiagnosticSummary[] {
+  if (results.length < 5) return diagnostics;
+  return diagnostics.filter((diagnostic) => diagnostic.code === "CHALLENGE_LIKELY");
 }
 
 function classifyPage(
@@ -979,6 +1018,8 @@ function jsonEnvelope(
     tool: "ax-grep",
     ok: warnings.length === 0 && !error,
     url: options.url,
+    searchQuery: options.searchQuery,
+    searchEngine: options.searchEngine,
     finalUrl: fetched.finalUrl,
     status: fetched.status,
     contentType: fetched.contentType,
