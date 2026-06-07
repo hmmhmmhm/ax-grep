@@ -60,9 +60,9 @@ main
 
 Text output includes link URLs, with common search redirect links normalized
 when possible. It starts with deduplicated `links`, then page metadata,
-analysis, heading outline, important actions, content excerpts, and finally
-the full tree. Use JSON when another tool needs the same summaries as
-structured data.
+analysis, ranked `results` with source/snippet details, heading outline,
+important actions, content excerpts, and finally the full tree. Use JSON when
+another tool needs the same summaries as structured data.
 
 ```sh
 ax-grep --search "agent browser accessibility tree"
@@ -139,6 +139,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
       "snippet": "Background text near the result when available."
     }
   ],
+  "searchResults": [],
   "outline": [
     {
       "text": "Example Domain",
@@ -167,7 +168,10 @@ HTML.
 states such as `CHALLENGE_LIKELY`, `LOGIN_REQUIRED`, `PAYWALL_LIKELY`,
 `NO_USEFUL_LINKS`, and `NON_HTML_CONTENT_TYPE`; `suggestedActions` gives the
 next useful move, such as opening the first result or retrying with captured
-browser HTML.
+browser HTML. `links` always describes links on the current page. `results` is
+a ranked convenience view over those links for backward compatibility;
+`searchResults` is populated when the current page is classified as a search
+results page.
 
 ## Entry Points
 

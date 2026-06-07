@@ -101,6 +101,7 @@ type SuggestedAction = {
   action: string;
   reason: string;
   url?: string;
+  rank?: number;
 };
 
 type AnalysisSummary = {
@@ -174,7 +175,8 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
   } catch (error) {
     if (error instanceof UsageError) {
       if (argv.includes("--json")) {
-        stdout.write(`${JSON.stringify(jsonErrorEnvelope(toCliError(error), parseArgMetadata(argv)), null, 2)}\n`);
+        const cliError = toCliError(error);
+        stdout.write(`${JSON.stringify(jsonErrorEnvelope(cliError, { ...parseArgMetadata(argv), ...cliError.metadata }), null, 2)}\n`);
       } else if (error.exitCode === 0) {
         stdout.write(`${error.message}\n`);
       } else {
@@ -184,7 +186,7 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
     }
     if (argv.includes("--json")) {
       const cliError = toCliError(error);
-      stdout.write(`${JSON.stringify(jsonErrorEnvelope(cliError, parseArgMetadata(argv)), null, 2)}\n`);
+      stdout.write(`${JSON.stringify(jsonErrorEnvelope(cliError, { ...parseArgMetadata(argv), ...cliError.metadata }), null, 2)}\n`);
       return cliError.exitCode;
     }
     const message = error instanceof Error ? error.message : String(error);
@@ -362,8 +364,25 @@ async function openSearchResult(
       selectedUrl: selected.url,
     },
   };
-  const openedFetched = await fetchHtml(openedOptions, fetchImpl);
+  let openedFetched: FetchResult;
+  try {
+    openedFetched = await fetchHtml(openedOptions, fetchImpl);
+  } catch (error) {
+    const cliError = toCliError(error);
+    throw new CliError(cliError.code, cliError.message, cliError.exitCode, cliError.status, errorMetadataFromOptions(openedOptions));
+  }
   return { options: openedOptions, fetched: openedFetched };
+}
+
+function errorMetadataFromOptions(options: CliOptions): Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "sourceSearch">> {
+  const metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "sourceSearch">> = {
+    extractOptions: options.extractOptions,
+  };
+  if (options.url) metadata.url = options.url;
+  if (options.searchQuery) metadata.searchQuery = options.searchQuery;
+  if (options.searchEngine) metadata.searchEngine = options.searchEngine;
+  if (options.sourceSearch) metadata.sourceSearch = options.sourceSearch;
+  return metadata;
 }
 
 async function loadHtml(options: CliOptions, fetchImpl: typeof fetch, stdin: NodeJS.ReadStream): Promise<FetchResult> {
@@ -523,6 +542,7 @@ class CliError extends Error {
     message: string,
     readonly exitCode: number,
     readonly status?: number,
+    readonly metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "sourceSearch">> = {},
   ) {
     super(message);
   }
@@ -541,6 +561,7 @@ function formatCliText(node: SemanticNode, fetched: FetchResult, options: Pick<C
   const results = summarizeResults(links);
   const analysis = analyzePage(fetched, node, links, results, outline, actions, content);
   appendSection(lines, formatAnalysisText(analysis));
+  appendSection(lines, formatResultsText(results));
   appendSection(lines, formatOutlineText(outline));
   appendSection(lines, formatActionsText(actions));
   appendSection(lines, formatContentText(content));
@@ -629,6 +650,18 @@ function formatAnalysisText(analysis: AnalysisSummary): string[] {
     lines.push(`  next: ${action.action}${url} - ${action.reason}`);
   }
   return ["analysis", ...lines];
+}
+
+function formatResultsText(results: ResultSummary[]): string[] {
+  if (results.length === 0) return [];
+  const lines = ["results"];
+  for (const result of results) {
+    lines.push(`  ${result.rank}. ${result.title}`);
+    lines.push(`     url: ${result.url}`);
+    if (result.source) lines.push(`     source: ${result.source}`);
+    if (result.snippet) lines.push(`     snippet: ${result.snippet}`);
+  }
+  return lines;
 }
 
 function formatContentText(content: ContentSummary[]): string[] {
@@ -925,6 +958,7 @@ function analyzePage(
       action: "open-result",
       reason: "The page looks like search results; open the highest-ranked relevant result.",
       url: results[0].url,
+      rank: results[0].rank,
     });
   }
 
@@ -977,7 +1011,7 @@ function classifyPage(
 ): ContentKind {
   if (isUnavailableTree(tree)) return "empty";
   if (diagnostics.some((item) => item.code === "CHALLENGE_LIKELY" || item.code === "LOGIN_REQUIRED" || item.code === "PAYWALL_LIKELY")) return "blocked-page";
-  if (looksLikeSearchUrl(fetched.finalUrl) || results.length >= 5) return "search-results";
+  if (looksLikeSearchUrl(fetched.finalUrl)) return "search-results";
   if (content.length >= 2 || outline.length >= 3) return "content-page";
   if (actions.length >= 3) return "interactive-page";
   return "page";
@@ -992,7 +1026,7 @@ function detectBarrierDiagnostics(fetched: FetchResult, tree: SemanticNode, cont
   ].filter(Boolean).join(" ").toLowerCase();
   const diagnostics: DiagnosticSummary[] = [];
 
-  if (/(captcha|verify you are human|unusual traffic|checking your browser|just a moment|cf-browser-verification|cloudflare|access denied|request blocked|봇이 아닙니다|자동입력|보안문자)/i.test(haystack)) {
+  if (/(captcha|verify you are human|unusual traffic|checking your browser|just a moment|cf-browser-verification|cloudflare|access denied|request blocked|please wait for verification|please wait|enable javascript|enable java script|자바스크립트|봇이 아닙니다|자동입력|보안문자)/i.test(haystack)) {
     diagnostics.push({
       severity: "warning",
       code: "CHALLENGE_LIKELY",
@@ -1123,6 +1157,7 @@ function jsonEnvelope(
     page: fetched.page,
     links,
     results,
+    searchResults: analysis.kind === "search-results" ? results : [],
     outline,
     actions,
     content,
@@ -1131,12 +1166,18 @@ function jsonEnvelope(
   };
 }
 
-function jsonErrorEnvelope(error: CliError, metadata: Partial<Pick<CliOptions, "url" | "extractOptions">> = {}): object {
+function jsonErrorEnvelope(
+  error: CliError,
+  metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "sourceSearch">> = {},
+): object {
   return {
     schemaVersion: 1,
     tool: "ax-grep",
     ok: false,
     url: metadata.url,
+    searchQuery: metadata.searchQuery,
+    searchEngine: metadata.searchEngine,
+    sourceSearch: metadata.sourceSearch,
     fetchedAt: new Date().toISOString(),
     mode: metadata.extractOptions?.mode ?? "compact",
     warnings: [],

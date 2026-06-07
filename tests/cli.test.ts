@@ -145,6 +145,12 @@ describe("cli", () => {
     expect(envelope.suggestedActions[0]).toMatchObject({
       action: "open-result",
       url: "https://one.example/",
+      rank: 1,
+    });
+    expect(envelope.searchResults[0]).toMatchObject({
+      title: "First useful result",
+      url: "https://one.example/",
+      rank: 1,
     });
   });
 
@@ -279,6 +285,47 @@ describe("cli", () => {
     });
   });
 
+  it("keeps selected search metadata when opening a result fails", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["--search", "agent browser", "--open-result", "1", "--json"], {
+      stdout,
+      fetch: async (input) => {
+        if (String(input).includes("duckduckgo.com")) {
+          return new Response(`
+            <main>
+              <ol>
+                <li><a href="https://target.example/article">Target Result</a><p>Target result snippet.</p></li>
+              </ol>
+            </main>
+          `, { headers: { "content-type": "text/html" } });
+        }
+        return new Response("forbidden", { status: 403, statusText: "Forbidden" });
+      },
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(12);
+    expect(envelope).toMatchObject({
+      ok: false,
+      url: "https://target.example/article",
+      searchQuery: "agent browser",
+      searchEngine: "duckduckgo",
+      sourceSearch: {
+        query: "agent browser",
+        engine: "duckduckgo",
+        searchUrl: "https://duckduckgo.com/html/?q=agent%20browser",
+        selectedRank: 1,
+        selectedTitle: "Target Result",
+        selectedUrl: "https://target.example/article",
+      },
+      error: {
+        code: "HTTP_ERROR",
+        status: 403,
+      },
+    });
+  });
+
   it("rejects search with an explicit URL", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test", "--search", "agent", "--json"], { stdout });
@@ -352,6 +399,29 @@ describe("cli", () => {
         role: "p",
       }),
     ]));
+  });
+
+  it("prints ranked result details in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://search.example/search?q=agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <ol>
+            <li>
+              <a href="https://result.example/article">Result Title</a>
+              <p>Snippet text explains why this result is useful for the current investigation.</p>
+            </li>
+          </ol>
+        </main>
+      `),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("results\n  1. Result Title");
+    expect(stdout.output).toContain("     url: https://result.example/article");
+    expect(stdout.output).toContain("     source: result.example");
+    expect(stdout.output).toContain("     snippet: Snippet text explains why this result is useful for the current investigation.");
   });
 
   it("returns a structured warning when the page has no inspectable content", async () => {
@@ -444,6 +514,54 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(envelope.kind).toBe("search-results");
     expect(envelope.diagnostics.map((item: { code: string }) => item.code)).not.toContain("LOGIN_REQUIRED");
+  });
+
+  it("does not classify ordinary link-heavy pages as search results", async () => {
+    const stdout = new MemoryWriter();
+    const links = Array.from({ length: 8 }, (_, index) => `
+      <li><a href="https://external-${index}.example/article">External article ${index}</a></li>
+    `).join("");
+    const status = await runCli(["https://forum.example/board", "--json"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h1>Forum board</h1>
+          <ul>${links}</ul>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.results).toHaveLength(8);
+    expect(envelope.searchResults).toEqual([]);
+    expect(envelope.kind).toBe("page");
+    expect(envelope.suggestedActions.map((item: { action: string }) => item.action)).not.toContain("open-result");
+  });
+
+  it("treats verification wait pages as challenge-like", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://social.example/thread", "--json"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head><title>Please wait for verification</title></head>
+          <body><main><p>Please wait while we verify your browser. Enable JavaScript to continue.</p></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.kind).toBe("blocked-page");
+    expect(envelope.diagnostics).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: "CHALLENGE_LIKELY" }),
+    ]));
+    expect(envelope.suggestedActions[0]).toMatchObject({
+      action: "retry-with-browser-html",
+    });
   });
 
   it("reports fetch failures to stderr", async () => {
