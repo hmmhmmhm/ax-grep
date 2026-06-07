@@ -11,6 +11,10 @@
     "type": "git",
     "url": "git+https://github.com/hmmhmmhm/ax-grep.git"
   },
+  "homepage": "https://github.com/hmmhmmhm/ax-grep#readme",
+  "bugs": {
+    "url": "https://github.com/hmmhmmhm/ax-grep/issues"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

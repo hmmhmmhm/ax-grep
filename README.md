@@ -1,11 +1,32 @@
 # ax-grep
 
-`ax-grep` extracts a semantic accessibility-like tree from HTML or from a live
-web page. It is designed for agents, browser extensions, injected scripts, and
-WebView bridges that need a compact, inspectable view of page structure.
+`ax-grep` turns HTML or a live DOM into a compact semantic tree that is easier
+for agents and automation code to inspect than raw markup.
 
-It is not a replacement for a real browser accessibility tree. It approximates
-one from DOM, ARIA, computed style, labels, focusability, and element state.
+It is built for browser extensions, injected scripts, WebView bridges, Workers,
+and agent pipelines that need page structure without Chrome DevTools Protocol or
+a platform accessibility API.
+
+```ts
+import { extract, formatSemanticTreeText } from "ax-grep";
+
+const html = await fetch("https://example.com").then((response) => response.text());
+const tree = extract(html);
+
+console.log(formatSemanticTreeText(tree));
+```
+
+```text
+document
+  main
+    heading 'Example Domain'
+    p 'This domain is for use in illustrative examples...'
+    [i] link 'More information...'
+```
+
+`ax-grep` is not a replacement for a real browser accessibility tree. It
+approximates one from DOM, ARIA, computed style, labels, focusability, and
+element state.
 
 ## Install
 
@@ -13,16 +34,23 @@ one from DOM, ARIA, computed style, labels, focusability, and element state.
 pnpm add ax-grep
 ```
 
-## Which API Should I Use?
+```sh
+npm install ax-grep
+```
+
+## Entry Points
 
 | Situation | Use |
 | --- | --- |
-| You have an HTML string from `fetch()`, SSR, or a Worker | `extract(html)` from `ax-grep` |
-| You control a live page through Puppeteer, Playwright, or a WebView bridge | `createExtractorScript()` from `ax-grep` |
-| Your code already runs inside the page, such as a browser extension content script | `extract()` from `ax-grep/browser` |
-| You want the explicit Worker-oriented static entry | `extract(html)` from `ax-grep/static` |
+| HTML string from `fetch()`, SSR, or a Worker | `extract(html)` from `ax-grep` |
+| Small Worker/static-only bundle | `extract(html)` from `ax-grep/static` |
+| Code already running inside the page | `extract()` from `ax-grep/browser` |
+| Puppeteer, Playwright, WebView, or another external page controller | `createExtractorScript()` from `ax-grep` |
 
 ## Static HTML
+
+Use the root entry when you have an HTML string. This path does not create a DOM
+with jsdom and does not launch a browser.
 
 ```ts
 import { extract } from "ax-grep";
@@ -32,10 +60,34 @@ const html = await response.text();
 const tree = extract(html);
 ```
 
-Use `ax-grep/static` for the same static extractor as an explicit subpath when
-you want the smallest Worker-oriented import.
+The root `extract(html)` function is the same static extractor exposed at
+`ax-grep/static`.
+
+```ts
+import { extract } from "ax-grep/static";
+
+const tree = extract(html, {
+  includeAttributes: false,
+});
+```
+
+Static extraction can infer roles, names, labels, ARIA state, links, forms,
+headings, tables, and lists from SSR markup. It also applies conservative
+prompt-size controls by default:
+
+- skips non-semantic payload tags such as `script`, `style`, and `template`
+- prunes hidden markup and collapsed controlled regions
+- summarizes very large child lists and repeated template-like subtrees
+- detects broad wiki-like and forum-like HTML shapes to tune summarization
+
+Static extraction cannot see computed CSS, layout bounds, client-rendered DOM,
+shadow DOM, iframe contents, or post-load mutations.
 
 ## Browser Injection
+
+Use `createExtractorScript()` when you control a page from the outside. This is
+the right path for Puppeteer, Playwright, Android WebView, iOS WKWebView, or an
+agent browser that can evaluate JavaScript.
 
 ```ts
 import { createExtractorScript } from "ax-grep";
@@ -64,7 +116,7 @@ console.log(formatSemanticTreeText(tree));
 await browser.close();
 ```
 
-WebView-style injection:
+WebView-style injection works the same way:
 
 ```ts
 import { createExtractorScript } from "ax-grep";
@@ -80,6 +132,9 @@ const script = createExtractorScript({
 
 ## Direct In-Page Usage
 
+Use `ax-grep/browser` when your code is already executing in the page, such as a
+browser extension content script.
+
 ```ts
 import { extract, formatSemanticTreeText } from "ax-grep/browser";
 
@@ -91,7 +146,33 @@ const tree = extract({
 console.log(formatSemanticTreeText(tree));
 ```
 
-## Static SSR HTML
+## Output Shape
+
+`extract()` returns a `SemanticNode` tree:
+
+```ts
+type SemanticNode = {
+  id: string;
+  tag: string;
+  role: string | null;
+  name: string;
+  interactive: boolean;
+  focusable: boolean;
+  selector?: string;
+  xpath?: string;
+  text?: string;
+  value?: string;
+  state?: Record<string, unknown>;
+  attributes?: Record<string, string>;
+  children: SemanticNode[];
+};
+```
+
+Use `formatSemanticTreeText(tree)` for a compact prompt-friendly text view, or
+`flattenSemanticTree(tree)` and `summarizeSemanticTree(tree)` for analysis and
+benchmarks.
+
+## Cloudflare Worker Example
 
 ```ts
 import { extract } from "ax-grep/static";
@@ -113,16 +194,34 @@ export default {
 };
 ```
 
-Static extraction parses the HTML string directly, so it can infer roles, names,
-labels, ARIA state, links, forms, headings, tables, and lists from SSR markup. It
-cannot see computed style, layout bounds, client-rendered DOM, shadow DOM, or
-iframe contents.
+## Options
 
-By default, static extraction prunes hidden markup and collapsed controlled
-regions, skips non-semantic payload tags, summarizes very large child lists, and
-collapses repeated template-like subtrees. It also infers broad source profiles
-from the HTML, preserving more links for wiki-like pages while tightening dense
-link-list summarization for forum-like pages.
+The common options are shared across browser and static extraction where they
+make sense.
+
+```ts
+const tree = extract(html, {
+  mode: "compact",
+  includeAttributes: false,
+  includeHidden: false,
+  includeSelectOptions: true,
+  maxTextLength: 240,
+});
+```
+
+Useful options:
+
+| Option | Default | Notes |
+| --- | ---: | --- |
+| `mode` | `"compact"` | Use `"interactive"` to keep mostly actionable nodes. |
+| `includeAttributes` | `true` | Turn off for smaller prompt payloads. |
+| `includeHidden` | `false` | Keep hidden/collapsed content only when needed. |
+| `includeSelectOptions` | `true` | Useful for agent planning, verbose for huge selects. |
+| `includeTextNodes` | browser: `true`, static: `false` | Static extraction relies more on semantic names by default. |
+| `maxTextLength` | `240` | Clips long direct text/name fragments. |
+| `excludeLikelyAds` | `false` | Optional heuristic pruning for benchmark or prompt use. |
+| `summarizeLargeSubtrees` | static: `true` | Keeps SSR payloads bounded. |
+| `summarizeLikelyLinkFarms` | static: `true` | Helps forum/sidebar/navigation-heavy pages. |
 
 ## Mutation Stream
 
@@ -140,6 +239,15 @@ For injected-script use, `createObserverScript()` installs an observer on
 `window.__AX_LITE_OBSERVER__` and dispatches `__AX_LITE_OBSERVER__:change`
 events.
 
+## What It Does Not Do
+
+- It does not call the browser accessibility tree API.
+- It does not use DevTools Protocol or CDP.
+- It does not run JavaScript for static HTML input.
+- It does not bypass login, bot checks, or site challenges.
+- It does not guarantee identical output to Playwright or `agent-browser`
+  accessibility snapshots.
+
 ## Benchmarking
 
 ```sh
@@ -155,3 +263,22 @@ pnpm compare:tokens:china-japan
 The comparison scripts compare `ax-grep` output with `agent-browser snapshot`
 output and estimate token cost for compact agent prompts. See
 `docs/comparison-baseline.md` for the current baseline run.
+
+Current benchmark suites include:
+
+- static HTML vs browser snapshots
+- token-cost comparison for compact prompt text
+- Korean forum/search/social targets
+- Chinese and Japanese wiki/news/forum/search targets
+- challenge and volatile-page diagnostics
+
+## Package Status
+
+`ax-grep` is early-stage software. The public API is intentionally small:
+
+- `extract(html)` from `ax-grep` or `ax-grep/static`
+- `extract()` from `ax-grep/browser`
+- `createExtractorScript()` and `createObserverScript()` from `ax-grep`
+
+The long-form aliases `extractStaticSemanticTree()` and `extractSemanticTree()`
+are kept for compatibility.
