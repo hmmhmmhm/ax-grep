@@ -2077,6 +2077,8 @@ describe("cli", () => {
     ]);
     expect(envelope.pageCheck.contentEvidence).toEqual([
       expect.objectContaining({
+        id: "e1",
+        path: "pageCheck.contentEvidence[0]",
         rank: 1,
         role: "p",
         source: "semantic",
@@ -2084,6 +2086,8 @@ describe("cli", () => {
         text: "This post explains the primary claim, gives enough surrounding context, and includes source details for checking.",
       }),
       expect.objectContaining({
+        id: "e2",
+        path: "pageCheck.contentEvidence[1]",
         rank: 2,
         role: "p",
         source: "semantic",
@@ -2419,7 +2423,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  readability: medium");
     expect(stdout.output).toContain("  mainHeading: Article heading");
     expect(stdout.output).toContain("  excerpt: This article paragraph is long enough to appear in the page checking summary for agents.");
-    expect(stdout.output).toContain("  evidence: 1. p (p) This article paragraph is long enough to appear in the page checking summary for agents.");
+    expect(stdout.output).toContain("  evidence: e1 pageCheck.contentEvidence[0] 1. p (p) This article paragraph is long enough to appear in the page checking summary for agents.");
     expect(stdout.output).toContain("  link: external Source report <https://source.example/report>");
     expect(stdout.output).toContain("  sourceLink: Source report <https://source.example/report>");
     expect(stdout.output).toContain("  next: read-content [terminal] - The page has enough structured evidence for source checking.");

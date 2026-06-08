@@ -206,6 +206,8 @@ type PageLinkSummary = ResultSummary & {
 };
 
 type PageEvidenceSummary = {
+  id: string;
+  path: string;
   rank: number;
   text: string;
   role: string;
@@ -1413,7 +1415,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   for (const excerpt of pageCheck.contentPreview) lines.push(`  excerpt: ${excerpt}`);
   for (const evidence of pageCheck.contentEvidence) {
     const selector = evidence.selector ? ` (${evidence.selector})` : "";
-    lines.push(`  evidence: ${evidence.rank}. ${evidence.role}${selector} ${evidence.text}`);
+    lines.push(`  evidence: ${evidence.id} ${evidence.path} ${evidence.rank}. ${evidence.role}${selector} ${evidence.text}`);
   }
   for (const link of pageCheck.primaryLinks) lines.push(`  link: ${link.kind} ${link.title} <${link.url}>`);
   for (const link of pageCheck.sourceLinks) lines.push(`  sourceLink: ${link.title} <${link.url}>`);
@@ -2256,6 +2258,8 @@ function roundMetric(value: number): number {
 function summarizeContentEvidence(content: ContentSummary[]): PageEvidenceSummary[] {
   return content.slice(0, 4).map((item, index) => {
     const evidence: PageEvidenceSummary = {
+      id: `e${index + 1}`,
+      path: `pageCheck.contentEvidence[${index}]`,
       rank: index + 1,
       text: item.text,
       role: item.role,
@@ -2269,6 +2273,8 @@ function summarizeContentEvidence(content: ContentSummary[]): PageEvidenceSummar
 
 function summarizeFallbackEvidence(preview: string[]): PageEvidenceSummary[] {
   return preview.map((text, index) => ({
+    id: `e${index + 1}`,
+    path: `pageCheck.contentEvidence[${index}]`,
     rank: index + 1,
     text,
     role: "fallback",

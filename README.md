@@ -686,9 +686,10 @@ page-link candidates on ordinary pages;
 results page. `pageCheck` is the higher-level page inspection summary agents
 should read first for title, canonical URL, main heading, content excerpts,
 structured content evidence, source-like external links, actions, and
-extraction confidence. Each `contentEvidence` item includes `source` and
-`score` fields so agents can distinguish semantic page evidence from fallback
-text when choosing what to cite or verify. `pageCheck.readability` includes
+extraction confidence. Each `contentEvidence` item includes a compact citation
+`id`, its stable payload `path`, plus `source` and `score` fields, so agents can
+distinguish semantic page evidence from fallback text and cite exact snippets
+when choosing what to verify or return. `pageCheck.readability` includes
 `level`, numeric `score`, and concise `reasons`, explaining how directly useful
 the page is for source checking; compact `agent` repeats the score and first
 few reasons so agents can route from the top-level object before drilling into

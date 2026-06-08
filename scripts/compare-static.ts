@@ -192,6 +192,8 @@ type CliReadTargetShape = {
 };
 
 type CliContentEvidenceShape = {
+  id?: string;
+  path?: string;
   source?: string;
   score?: number;
 };
@@ -805,7 +807,11 @@ function scoreSearchResultActions(results: CliSearchResultShape[]): number {
 function scoreContentEvidenceMetadata(evidence: CliContentEvidenceShape[]): number {
   if (evidence.length === 0) return 1;
   const validCount = evidence.filter((item) => {
-    return (item.source === "semantic" || item.source === "fallback")
+    return typeof item.id === "string"
+      && /^e\d+$/.test(item.id)
+      && typeof item.path === "string"
+      && item.path.startsWith("pageCheck.contentEvidence[")
+      && (item.source === "semantic" || item.source === "fallback")
       && typeof item.score === "number"
       && item.score >= 0
       && item.score <= 1;
