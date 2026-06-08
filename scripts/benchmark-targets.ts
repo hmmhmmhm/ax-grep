@@ -1,12 +1,41 @@
 export type BenchmarkTarget = {
   category: string;
   url: string;
+  html?: string;
+  status?: number;
+  findQueries?: string[];
   gate?: boolean;
   gateReason?: string;
   excludeLikelyBoilerplate?: boolean;
   maxChildrenPerNode?: number;
   maxLinkFarmChildren?: number;
 };
+
+const syntheticSearchHtml = `
+  <main>
+    <ol>
+      <li class="b_algo">
+        <h2><a href="https://docs.example/ax-grep">ax-grep agent guide</a></h2>
+        <p>Practical guide for using ax-grep as an agent search and page checking tool.</p>
+      </li>
+      <li class="b_algo">
+        <h2><a href="https://noise.example/post">Unrelated note</a></h2>
+        <p>Background material that should not be selected first.</p>
+      </li>
+    </ol>
+  </main>
+`;
+
+const syntheticSearchRefineHtml = `
+  <main>
+    <div class="result" tpl="se_com_default">
+      <h3><a href="https://target.example/first">Unrelated Baidu Result</a></h3>
+      <div class="c-abstract">This result does not contain the requested text.</div>
+    </div>
+  </main>
+`;
+
+const syntheticBlockedHtml = "";
 
 export const koreaSocialTargets: BenchmarkTarget[] = [
   {
@@ -125,6 +154,22 @@ export const chinaJapanTargets: BenchmarkTarget[] = [
 ];
 
 export const agentExecutorTargets: BenchmarkTarget[] = [
+  {
+    category: "Synthetic search open gate",
+    url: "https://www.bing.com/search?q=ax-grep",
+    html: syntheticSearchHtml,
+  },
+  {
+    category: "Synthetic search refine gate",
+    url: "https://www.baidu.com/s?wd=ax-lite",
+    html: syntheticSearchRefineHtml,
+    findQueries: ["target claim"],
+  },
+  {
+    category: "Synthetic browser HTML retry gate",
+    url: "https://blocked.example/app-shell",
+    html: syntheticBlockedHtml,
+  },
   {
     category: "Example baseline",
     url: "https://example.com",

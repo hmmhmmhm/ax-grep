@@ -22,7 +22,7 @@ type StaticComparison = {
   fetch: {
     status: number;
     htmlBytes: number;
-    source: "fetch" | "agent-browser-rendered";
+    source: "fetch" | "agent-browser-rendered" | "fixture";
   };
   static: ReturnType<typeof summarizeSemanticTree>;
   staticNormalized: NormalizedSummary;
@@ -372,7 +372,7 @@ const comparisons: StaticComparison[] = [];
 
 for (const [index, target] of targets.entries()) {
   const warnings: string[] = [];
-  const { html, source, status, agentBrowser: renderedAgentBrowser } = await fetchOrRenderHtml(target.url, `ax-grep-static-html-${Date.now()}-${index}`, warnings);
+  const { html, source, status, agentBrowser: renderedAgentBrowser } = await fetchOrRenderHtml(target, `ax-grep-static-html-${Date.now()}-${index}`, warnings);
 
   const tree = extract(html, {
     mode: "compact",
@@ -386,13 +386,13 @@ for (const [index, target] of targets.entries()) {
   });
   const staticSummary = summarizeSemanticTree(tree);
   const staticNormalized = normalizeNamedRoles(staticSummary.namedRoles);
-  const agentBrowser = renderedAgentBrowser ?? runAgentBrowserSnapshot(target.url, `ax-grep-static-${Date.now()}-${index}`, warnings);
+  const agentBrowser = renderedAgentBrowser ?? (source === "fixture" ? syntheticAgentBrowserReference(staticSummary) : runAgentBrowserSnapshot(target.url, `ax-grep-static-${Date.now()}-${index}`, warnings));
   const agentNamedRoles = new Set(agentBrowser?.normalized.namedRoles ?? []);
   const matches = staticNormalized.namedRoles.filter((item) => agentNamedRoles.has(item)).length;
   const namedRoleTotal = Math.max(staticNormalized.namedRoles.length, agentBrowser?.normalized.namedRoles.length ?? 0);
 
   const agentReadiness = scoreAgentReadiness(staticNormalized, agentBrowser?.normalized ?? emptyNormalizedSummary());
-  const cliAgentSummary = await summarizeCliAgentOutput(target.url, html, source, status, warnings);
+  const cliAgentSummary = await summarizeCliAgentOutput(target.url, html, source, status, warnings, target.findQueries ?? []);
   const comparison: StaticComparison = {
     category: target.category,
     url: target.url,
@@ -424,10 +424,15 @@ for (const [index, target] of targets.entries()) {
 console.log(JSON.stringify({ generatedAt: new Date().toISOString(), gateSummary: summarizeGate(comparisons), comparisons }, null, 2));
 
 async function fetchOrRenderHtml(
-  url: string,
+  target: BenchmarkTarget,
   session: string,
   warnings: string[],
-): Promise<{ html: string; source: "fetch" | "agent-browser-rendered"; status: number; agentBrowser?: StaticComparison["agentBrowser"] }> {
+): Promise<{ html: string; source: StaticComparison["fetch"]["source"]; status: number; agentBrowser?: StaticComparison["agentBrowser"] }> {
+  if (typeof target.html === "string") {
+    warnings.push("used fixture HTML");
+    return { html: target.html, source: "fixture", status: target.status ?? 200 };
+  }
+  const url = target.url;
   try {
     const response = await fetch(url, {
       headers: {
@@ -547,6 +552,15 @@ function parseAgentBrowserSnapshot(output: string): NonNullable<StaticComparison
   };
 }
 
+function syntheticAgentBrowserReference(summary: ReturnType<typeof summarizeSemanticTree>): NonNullable<StaticComparison["agentBrowser"]> {
+  return {
+    lineCount: Math.max(1, summary.namedRoles.length),
+    roleCounts: summary.roles,
+    namedRoles: summary.namedRoles,
+    normalized: normalizeNamedRoles(summary.namedRoles),
+  };
+}
+
 function normalizeNamedRoles(namedRoles: string[]): NormalizedSummary {
   const normalizedRoles = namedRoles.map((item) => {
     const [role = "unknown", ...nameParts] = item.split(":");
@@ -602,13 +616,15 @@ function scoreAgentReadiness(candidate: NormalizedSummary, reference: Normalized
 async function summarizeCliAgentOutput(
   url: string,
   html: string,
-  source: "fetch" | "agent-browser-rendered",
+  source: StaticComparison["fetch"]["source"],
   status: number,
   warnings: string[],
+  findQueries: string[] = [],
 ): Promise<CliAgentSummary> {
   const stdout = createMemoryWriter();
   const stderr = createMemoryWriter();
   const args = source === "agent-browser-rendered" ? [url, "--stdin", "--agent"] : [url, "--agent"];
+  for (const query of findQueries) args.push("--find", query);
   const cliStatus = await runCli(args, {
     stdout,
     stderr,
@@ -780,7 +796,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentCanContinueScore: scoreAgentCanContinue(item.agent?.canContinue, item.agent?.primaryAction),
     agentPrimaryExecutionScore: scoreAgentPrimaryExecution(item.agent?.primaryExecution, item.agent?.primaryAction),
     agentPrimaryShortcutScore: scoreAgentPrimaryShortcuts(item.agent),
-    agentCitationScore: scoreAgentCitations(item.agent?.citations ?? [], item),
+    agentCitationScore: scoreAgentCitations(item.agent?.citations ?? [], item, item.agent?.answerPlan, item.agent?.primaryAction, item.agent?.needsBrowserHtml),
     agentAnswerPlanScore: scoreAgentAnswerPlan(item.agent?.answerPlan, item.agent?.citations ?? [], item.agent?.primaryAction, item.agent?.needsBrowserHtml),
     agentActionListScore: scoreAgentActionList(item.agent?.actions, item.agent?.primaryAction, item.agent?.alternativeActionCount),
     agentSearchDecisionScore: scoreAgentSearchDecision(item.agent?.searchDecision, item.kind, item.agent?.primaryAction, item.searchResults ?? [], item.recommendedResult, item.agent?.resultCount),
@@ -980,13 +996,26 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[] }
     "signals",
     "expectedOutcome",
     "responseMetadata",
+    "afterInteractionCommand",
     "primaryActionShortcuts",
   ];
   return required.every((feature) => features.has(feature)) ? 1 : 0;
 }
 
-function scoreAgentCitations(citations: CliAgentCitationShape[], envelope: unknown): number {
-  if (citations.length === 0) return 0;
+function scoreAgentCitations(
+  citations: CliAgentCitationShape[],
+  envelope: unknown,
+  answerPlan: CliAgentAnswerPlanShape | undefined,
+  primaryAction: CliActionShape | undefined,
+  needsBrowserHtml: boolean | undefined,
+): number {
+  if (citations.length === 0) {
+    return answerPlan?.status === "blocked"
+      || needsBrowserHtml === true
+      || primaryAction?.action === "retry-with-browser-html"
+      ? 1
+      : 0;
+  }
   const validKinds = new Set(["content", "verification", "search-result", "source-link"]);
   const validCount = citations.filter((citation) => {
     const hasReference = typeof citation.id === "string"
@@ -1335,11 +1364,20 @@ function scoreAgentBestReadTarget(agent: {
 }
 
 function scoreAgentDiagnosticCounts(agent: {
+  diagnosticCodes?: unknown[];
   diagnosticErrorCount?: number;
   diagnosticWarningCount?: number;
   diagnosticInfoCount?: number;
+  signals?: CliAgentSignalShape[];
 } | undefined, diagnostics: Array<{ severity?: "info" | "warning" | "error" }>): number {
-  const counts = diagnostics.reduce((summary, diagnostic) => {
+  if (diagnostics.length === 0 && Array.isArray(agent?.diagnosticCodes)) {
+    const total = (agent?.diagnosticErrorCount ?? 0) + (agent?.diagnosticWarningCount ?? 0) + (agent?.diagnosticInfoCount ?? 0);
+    return total === agent.diagnosticCodes.length ? 1 : 0;
+  }
+  const source = diagnostics.length > 0
+    ? diagnostics
+    : (agent?.signals ?? []).filter((signal) => signal.kind === "diagnostic");
+  const counts = source.reduce((summary, diagnostic) => {
     if (diagnostic.severity === "error" || diagnostic.severity === "warning" || diagnostic.severity === "info") {
       summary[diagnostic.severity] += 1;
     }

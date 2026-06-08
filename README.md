@@ -1049,6 +1049,7 @@ Current benchmark suites include:
 
 - static HTML vs browser snapshots
 - agent executor regression targets for `averageAgentExecutorScore`
+- fixture-backed agent executor gates for search open, search refine, and browser HTML retry recovery
 - CLI agent summary scoring for `pageCheck`, `searchResults`, source evidence, readability, next steps, and suggested actions
 - token-cost comparison for compact tree prompt text and `--agent` JSON payloads
 - Korean forum/search/social targets
