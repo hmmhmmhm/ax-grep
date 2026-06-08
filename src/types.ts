@@ -180,7 +180,9 @@ export type AgentCitation = {
 
 export type AgentAnswerPlan = {
   status: "ready" | "needs-more" | "blocked" | "error";
+  confidence: "low" | "medium" | "high";
   reason: string;
+  gaps: string[];
   useCitationIds: string[];
   nextAction?: string;
   command?: string;
@@ -272,6 +274,7 @@ export type AgentContractFeature =
   | "citations"
   | "answerPlan"
   | "answerPlan.actionFields"
+  | "answerPlan.confidence"
   | "searchResult.selectionReason"
   | "contentEvidence.quality"
   | "readTargets"

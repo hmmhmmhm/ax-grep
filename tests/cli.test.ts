@@ -241,6 +241,7 @@ describe("cli", () => {
             "citations",
             "answerPlan",
             "answerPlan.actionFields",
+            "answerPlan.confidence",
             "searchResult.selectionReason",
             "contentEvidence.quality",
             "readTargets",
@@ -283,6 +284,8 @@ describe("cli", () => {
         },
         answerPlan: {
           status: "ready",
+          confidence: "high",
+          gaps: [],
           useCitationIds: expect.arrayContaining(["v1"]),
           nextAction: "use-evidence",
           url: "https://example.test",
@@ -463,6 +466,8 @@ describe("cli", () => {
       },
       answerPlan: {
         status: "needs-more",
+        confidence: "medium",
+        gaps: expect.arrayContaining(["A follow-up action is required before final answering."]),
         nextAction: "open-result",
         command: "ax-grep --search 'agent browser' --engine bing --open-result best --agent",
         commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "best", "--agent"],
@@ -2445,6 +2450,8 @@ describe("cli", () => {
     expect(stdout.output).toContain("  loopReason: Return the resolved value for pageCheck.contentEvidence.");
     expect(stdout.output).toContain("  expectedOutcome: read-evidence - ");
     expect(stdout.output).toContain("  answerPlan: ready - Readable page evidence is available; answer from the listed citations.");
+    expect(stdout.output).toContain("  answerConfidence: medium");
+    expect(stdout.output).toContain("  answerGaps: Page readability is medium.");
     expect(stdout.output).toContain("  answerCitations: e1");
     expect(stdout.output).toContain("  answerReadFrom: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  answerUrl: https://example.test/article");

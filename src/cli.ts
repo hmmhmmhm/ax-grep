@@ -330,6 +330,7 @@ const agentContract: AgentContract = {
     "citations",
     "answerPlan",
     "answerPlan.actionFields",
+    "answerPlan.confidence",
     "searchResult.selectionReason",
     "contentEvidence.quality",
     "readTargets",
@@ -1378,6 +1379,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  loopReason: ${agent.next.loop.reason}`,
     `  expectedOutcome: ${agent.expectedOutcome.kind} - ${agent.expectedOutcome.message}`,
     `  answerPlan: ${agent.answerPlan.status} - ${agent.answerPlan.reason}`,
+    `  answerConfidence: ${agent.answerPlan.confidence}`,
+    `  answerGaps: ${agent.answerPlan.gaps.join("; ") || "none"}`,
     `  answerCitations: ${agent.answerPlan.useCitationIds.join(", ") || "none"}`,
     ...(agent.answerPlan.readFrom ? [`  answerReadFrom: ${agent.answerPlan.readFrom}`] : []),
     ...(agent.answerPlan.url ? [`  answerUrl: ${agent.answerPlan.url}`] : []),
@@ -2699,7 +2702,9 @@ function summarizeAgentAnswerPlan(
   if (error) {
     return {
       status: "error",
+      confidence: "low",
       reason: `Extraction failed with ${error.code}.`,
+      gaps: [`Extraction failed with ${error.code}.`],
       useCitationIds: [],
       ...actionFields,
     };
@@ -2707,7 +2712,9 @@ function summarizeAgentAnswerPlan(
   if (needsBrowserHtml || status === "needs-browser") {
     return {
       status: "blocked",
+      confidence: "low",
       reason: "Browser-captured HTML or browser inspection is needed before answering.",
+      gaps: ["Browser-captured HTML or browser inspection is needed."],
       useCitationIds: [],
       ...actionFields,
     };
@@ -2715,7 +2722,9 @@ function summarizeAgentAnswerPlan(
   if (verification.status === "matched") {
     return {
       status: "ready",
+      confidence: "high",
       reason: "Requested verification text was found; answer from the listed citations.",
+      gaps: [],
       useCitationIds: citationIds,
       ...actionFields,
     };
@@ -2723,17 +2732,43 @@ function summarizeAgentAnswerPlan(
   if (primaryAction && actionExecution(primaryAction) === "read-current" && pageCheck.contentEvidence.length > 0 && pageCheck.readability.level !== "low") {
     return {
       status: "ready",
+      confidence: answerPlanReadConfidence(pageCheck),
       reason: "Readable page evidence is available; answer from the listed citations.",
+      gaps: answerPlanReadGaps(pageCheck, citationIds),
       useCitationIds: citationIds,
       ...actionFields,
     };
   }
   return {
     status: "needs-more",
+    confidence: citationIds.length > 0 ? "medium" : "low",
     reason: "Follow the next action before producing a final answer.",
+    gaps: answerPlanFollowupGaps(pageCheck, verification, citationIds),
     useCitationIds: citationIds,
     ...actionFields,
   };
+}
+
+function answerPlanReadConfidence(pageCheck: PageCheckSummary): AgentAnswerPlan["confidence"] {
+  if (pageCheck.readability.level === "high" && averageEvidenceScore(pageCheck.contentEvidence) >= 0.76) return "high";
+  return "medium";
+}
+
+function answerPlanReadGaps(pageCheck: PageCheckSummary, citationIds: string[]): string[] {
+  const gaps: string[] = [];
+  if (citationIds.length === 0) gaps.push("No citeable content evidence was shortlisted.");
+  if (pageCheck.sourceLinks.length === 0) gaps.push("No external source-like links were found.");
+  if (pageCheck.readability.level !== "high") gaps.push(`Page readability is ${pageCheck.readability.level}.`);
+  return gaps.slice(0, 3);
+}
+
+function answerPlanFollowupGaps(pageCheck: PageCheckSummary, verification: VerificationSummary, citationIds: string[]): string[] {
+  const gaps: string[] = [];
+  if (verification.missingQueries.length > 0) gaps.push(`Missing verification text: ${verification.missingQueries.join(", ")}.`);
+  if (citationIds.length === 0) gaps.push("No citeable current-payload evidence is ready.");
+  if (pageCheck.readability.level === "low") gaps.push("Current page readability is low.");
+  gaps.push("A follow-up action is required before final answering.");
+  return gaps.slice(0, 4);
 }
 
 function answerPlanActionFields(primaryAction: SuggestedAction | undefined): Pick<AgentAnswerPlan, "nextAction" | "command" | "commandArgs" | "url" | "readFrom"> {
@@ -3429,7 +3464,9 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     expectedOutcome: summarizeAgentExpectedOutcome(primaryAction),
     answerPlan: {
       status: "error",
+      confidence: "low",
       reason: `Extraction failed with ${error.code}.`,
+      gaps: [`Extraction failed with ${error.code}.`],
       useCitationIds: [],
       ...answerPlanActionFields(primaryAction),
     },

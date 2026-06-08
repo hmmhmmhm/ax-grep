@@ -201,7 +201,9 @@ type CliAgentCitationShape = {
 
 type CliAgentAnswerPlanShape = {
   status?: "ready" | "needs-more" | "blocked" | "error";
+  confidence?: "low" | "medium" | "high";
   reason?: string;
+  gaps?: unknown[];
   useCitationIds?: unknown[];
   nextAction?: string;
   command?: string;
@@ -921,6 +923,8 @@ function scoreAgentAnswerPlan(
     || answerPlan.status === "blocked"
     || answerPlan.status === "error";
   const validReason = typeof answerPlan.reason === "string" && answerPlan.reason.length > 0;
+  const validConfidence = answerPlan.confidence === "low" || answerPlan.confidence === "medium" || answerPlan.confidence === "high";
+  const validGaps = Array.isArray(answerPlan.gaps) && answerPlan.gaps.every((gap) => typeof gap === "string" && gap.length > 0);
   const citationIds = new Set(citations.map((citation) => citation.id).filter((id): id is string => typeof id === "string"));
   const validCitations = Array.isArray(answerPlan.useCitationIds)
     && answerPlan.useCitationIds.every((id) => typeof id === "string" && citationIds.has(id));
@@ -939,7 +943,7 @@ function scoreAgentAnswerPlan(
   const validReadFrom = typeof primaryAction?.readFrom === "string"
     ? answerPlan.readFrom === primaryAction.readFrom
     : typeof answerPlan.readFrom === "undefined";
-  return validStatus && validReason && validCitations && validNextAction && validCommand && validCommandArgs && validUrl && validReadFrom ? 1 : 0;
+  return validStatus && validConfidence && validReason && validGaps && validCitations && validNextAction && validCommand && validCommandArgs && validUrl && validReadFrom ? 1 : 0;
 }
 
 function scoreAgentRoutingIntent(routingIntent: AgentRoutingIntent | undefined, primaryAction: CliActionShape | undefined): number {
