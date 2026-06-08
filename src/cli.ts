@@ -394,6 +394,7 @@ const agentContract: AgentContract = {
     "runbook",
     "handoff",
     "handoff.answerEvidence",
+    "handoff.choices",
     "executionPlan",
     "citations",
     "citation.reason",
@@ -2766,13 +2767,15 @@ function summarizeAgent(
   const citations = summarizeAgentCitations(analysis.kind, pageCheck, verification, recommendedResult, sourceSearch);
   const searchDecision = summarizeAgentSearchDecision(analysis, results, recommendedResult, primaryAction);
   const pageDecision = summarizeAgentPageDecision(analysis, pageCheck, primaryAction);
+  const resultChoices = summarizeAgentResultChoices(hasUsableSearchResults ? results : [], recommendedResult, primaryAction);
+  const sourceChoices = summarizeAgentSourceChoices(analysis.kind, pageCheck.sourceLinks, primaryAction, agentMode, findQueries, timeoutMs, userAgent);
   const next = summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch));
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
   const answerPlan = summarizeAgentAnswerPlan(status, primaryAction, pageCheck, verification, citations, needsBrowserHtml, error);
   const answerEvidence = summarizeAgentAnswerEvidence(citations, answerPlan);
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, canUseFetchedHtml, needsBrowserHtml);
   const runbook = summarizeAgentRunbook(next, executionPlan, answerPlan);
-  const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence);
+  const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices);
   const evidenceQualityScore = averageEvidenceScore(pageCheck.contentEvidence);
   const sourceQualityScore = agentSourceQualityScore(analysis.kind, pageCheck.sourceLinks, results, recommendedResult);
   const usabilityScore = agentUsabilityScore(status, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error);
@@ -2810,10 +2813,10 @@ function summarizeAgent(
     verificationFoundCount: verification.foundCount,
     verificationMissingCount: verification.missingCount,
     resultCount: hasUsableSearchResults ? results.length : 0,
-    resultChoices: summarizeAgentResultChoices(hasUsableSearchResults ? results : [], recommendedResult, primaryAction),
+    resultChoices,
     evidenceCount: pageCheck.contentEvidence.length,
     sourceLinkCount: analysis.kind === "search-results" ? 0 : pageCheck.sourceLinks.length,
-    sourceChoices: summarizeAgentSourceChoices(analysis.kind, pageCheck.sourceLinks, primaryAction, agentMode, findQueries, timeoutMs, userAgent),
+    sourceChoices,
     evidenceQualityScore,
     sourceQualityScore,
     alternativeActionCount: countAlternativeAgentActions(analysis, pageCheck, verification, primaryAction),
@@ -3293,6 +3296,8 @@ function summarizeAgentHandoff(
   executionPlan: AgentExecutionPlan,
   answerPlan: AgentAnswerPlan,
   answerEvidence: AgentCitation[] = [],
+  resultChoices: AgentResultChoice[] = [],
+  sourceChoices: AgentSourceChoice[] = [],
 ): AgentHandoff {
   return {
     instruction: agentHandoffInstruction(next, executionPlan, answerPlan),
@@ -3312,6 +3317,8 @@ function summarizeAgentHandoff(
     reason: next.loop.reason || next.reason || executionPlan.reason,
     ...(answerPlan.useCitationIds.length > 0 ? { useCitationIds: answerPlan.useCitationIds } : {}),
     ...(answerEvidence.length > 0 ? { answerEvidence } : {}),
+    ...(resultChoices.length > 0 ? { resultChoices } : {}),
+    ...(sourceChoices.length > 0 ? { sourceChoices } : {}),
     ...(next.readTarget ? { readTarget: next.readTarget } : {}),
     ...(next.readFrom ? { readFrom: next.readFrom } : {}),
     ...(next.readValue ? { readValue: next.readValue } : {}),

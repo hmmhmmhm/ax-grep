@@ -244,6 +244,8 @@ export type AgentHandoff = {
   reason: string;
   useCitationIds?: string[];
   answerEvidence?: AgentCitation[];
+  resultChoices?: AgentResultChoice[];
+  sourceChoices?: AgentSourceChoice[];
   readTarget?: AgentReadTarget;
   readFrom?: string;
   readValue?: AgentReadValue;
@@ -418,6 +420,7 @@ export type AgentContractFeature =
   | "runbook"
   | "handoff"
   | "handoff.answerEvidence"
+  | "handoff.choices"
   | "executionPlan"
   | "citations"
   | "citation.reason"

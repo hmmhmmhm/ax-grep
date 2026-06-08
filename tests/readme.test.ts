@@ -31,6 +31,7 @@ describe("README", () => {
           "runbook",
           "handoff",
           "handoff.answerEvidence",
+          "handoff.choices",
           "executionPlan",
           "citations",
           "citation.reason",
