@@ -55,6 +55,7 @@ type CliAgentSummary = {
   kind: string;
   agentStatus: "ready" | "choose-result" | "verify" | "needs-browser" | "error" | "unknown";
   agentExecutorScore: number;
+  agentContractScore: number;
   agentRoutingIntentScore: number;
   agentContinuationModeScore: number;
   agentNextScore: number;
@@ -203,6 +204,7 @@ type GateSummary = {
   averageScore: number;
   averageCliAgentScore: number;
   averageAgentExecutorScore: number;
+  averageAgentContractScore: number;
   averageActionSchemaScore: number;
   averageSearchResultActionScore: number;
   averageContentEvidenceMetadataScore: number;
@@ -531,6 +533,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     status?: number;
     contentType?: string;
     agent?: {
+      contract?: {
+        version?: number;
+        features?: unknown[];
+      };
       status?: "ready" | "choose-result" | "verify" | "needs-browser" | "error";
       routingIntent?: AgentRoutingIntent;
       continuationMode?: AgentContinuationMode;
@@ -632,6 +638,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     kind: item.kind ?? "unknown",
     agentStatus: item.agent?.status ?? "unknown",
     agentExecutorScore: 0,
+    agentContractScore: scoreAgentContract(item.agent?.contract),
     agentRoutingIntentScore: scoreAgentRoutingIntent(item.agent?.routingIntent, item.agent?.primaryAction),
     agentContinuationModeScore: scoreAgentContinuationMode(item.agent?.continuationMode, item.agent?.primaryAction),
     agentNextScore: scoreAgentNext(item.agent?.next, item.agent?.continuationMode, item.agent?.primaryAction),
@@ -680,6 +687,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     kind: "unknown",
     agentStatus: "unknown",
     agentExecutorScore: 0,
+    agentContractScore: 0,
     agentRoutingIntentScore: 0,
     agentContinuationModeScore: 0,
     agentNextScore: 0,
@@ -809,6 +817,23 @@ function scoreReadabilityReasons(reasons: unknown[] | undefined): number {
   if (!Array.isArray(reasons)) return 0;
   const usefulReasons = reasons.filter((reason) => typeof reason === "string" && reason.trim().length > 0);
   return usefulReasons.length > 0 ? 1 : 0;
+}
+
+function scoreAgentContract(contract: { version?: number; features?: unknown[] } | undefined): number {
+  if (!contract || contract.version !== 1 || !Array.isArray(contract.features)) return 0;
+  const features = new Set(contract.features.filter((feature): feature is string => typeof feature === "string"));
+  const required = [
+    "next.loop",
+    "next.readTarget",
+    "next.readValue",
+    "next.target",
+    "readTargets",
+    "signals",
+    "expectedOutcome",
+    "responseMetadata",
+    "primaryActionShortcuts",
+  ];
+  return required.every((feature) => features.has(feature)) ? 1 : 0;
 }
 
 function scoreAgentRoutingIntent(routingIntent: AgentRoutingIntent | undefined, primaryAction: CliActionShape | undefined): number {
@@ -1441,6 +1466,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
 
 function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
   return roundScore(average([
+    summary.agentContractScore,
     summary.actionSchemaScore,
     summary.agentRoutingIntentScore,
     summary.agentContinuationModeScore,
@@ -1498,6 +1524,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageScore: average(included.map((comparison) => comparison.agentReadiness.score)),
     averageCliAgentScore: average(included.map((comparison) => comparison.cliAgentSummary.score)),
     averageAgentExecutorScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExecutorScore)),
+    averageAgentContractScore: average(included.map((comparison) => comparison.cliAgentSummary.agentContractScore)),
     averageActionSchemaScore: average(included.map((comparison) => comparison.cliAgentSummary.actionSchemaScore)),
     averageSearchResultActionScore: average(included.map((comparison) => comparison.cliAgentSummary.searchResultActionScore)),
     averageContentEvidenceMetadataScore: average(included.map((comparison) => comparison.cliAgentSummary.pageCheck.contentEvidenceMetadataScore)),

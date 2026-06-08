@@ -22,6 +22,14 @@ describe("README", () => {
     const exampleEnvelope = JSON.parse(firstBlock ?? "");
 
     expect(exampleEnvelope.agent).toMatchObject({
+      contract: {
+        version: 1,
+        features: expect.arrayContaining([
+          "next.loop",
+          "next.readValue",
+          "next.target",
+        ]),
+      },
       continuationMode: "read",
       next: {
         mode: "read",

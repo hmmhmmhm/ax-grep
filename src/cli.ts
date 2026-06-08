@@ -9,6 +9,7 @@ import { Element as DomElement } from "domhandler";
 import type { AnyNode, Element } from "domhandler";
 import { extract, type StaticSemanticTreeOptions } from "./static";
 import type {
+  AgentContract,
   AgentContinuationMode,
   AgentExpectedOutcome,
   AgentLoopDirective,
@@ -249,6 +250,7 @@ type VerificationSummary = {
 };
 
 type AgentSummary = {
+  contract: AgentContract;
   status: AgentStatus;
   pageKind: ContentKind;
   summary: string;
@@ -302,6 +304,21 @@ type AgentSummary = {
   recommendedSource?: string;
   recommendedRelevance?: ResultSummary["relevance"];
   recommendedLikelyOfficial?: boolean;
+};
+
+const agentContract: AgentContract = {
+  version: 1,
+  features: [
+    "next.loop",
+    "next.readTarget",
+    "next.readValue",
+    "next.target",
+    "readTargets",
+    "signals",
+    "expectedOutcome",
+    "responseMetadata",
+    "primaryActionShortcuts",
+  ],
 };
 
 type PageCheckSummary = {
@@ -2449,6 +2466,7 @@ function summarizeAgent(
   const readTargets = summarizeAgentReadTargets(primaryAction, analysis.kind, pageCheck, verification, results, sourceSearch);
   const bestReadTarget = selectBestReadTarget(readTargets);
   const agent: AgentSummary = {
+    contract: agentContract,
     status,
     pageKind: analysis.kind,
     summary,
@@ -3184,6 +3202,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const readTargets = summarizeErrorAgentReadTargets(primaryAction, sourceSearch);
   const bestReadTarget = selectBestReadTarget(readTargets);
   return {
+    contract: agentContract,
     status: "error",
     pageKind: "empty",
     summary,
@@ -3947,6 +3966,7 @@ function compactSuggestedActions(actions: SuggestedAction[], primaryAction?: Sug
 
 function compactAgentSummary(agent: AgentSummary): object {
   return {
+    contract: agent.contract,
     status: agent.status,
     pageKind: agent.pageKind,
     summary: agent.summary,

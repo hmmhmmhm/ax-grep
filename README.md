@@ -123,7 +123,7 @@ tables. It prints compact JSON with the top-level `agent` object plus
 `pageCheck`, search results, requested verification results, and warnings when
 they are present. Read `agent` first: it combines page classification,
 readability, verification, diagnostic codes, and recommended result selection
-into `status`, `summary`, `routingIntent`, `continuationMode`,
+into `contract`, `status`, `summary`, `routingIntent`, `continuationMode`,
 `next`, `expectedOutcome`, `signals`, `canUseFetchedHtml`, `needsBrowserHtml`,
 `responseStatus`, `responseOk`, `responseContentType`, `finalUrlChanged`,
 `pageKind`, `alternativeActionCount`, `usabilityScore`,
@@ -137,6 +137,9 @@ such as `recommendedRank`, `recommendedSource`, `recommendedRelevance`, and
 
 `routingIntent` explains the next-step intent (`read-current`, `open-url`,
 `search`, `browser-html`, `browser-interaction`, `inspect-output`, or `none`).
+`contract.version` and `contract.features` identify the agent payload contract
+supported by the current CLI output, so executors can check for fields such as
+`next.loop`, `next.readValue`, and `next.target` before relying on them.
 `continuationMode` is the simpler executor switch for agent loops: `read`,
 `command`, `browser`, `capture-html`, `inspect`, or `stop`.
 `agent.next` is the canonical next-step payload for executors. It always has a
@@ -479,6 +482,20 @@ cat captured.html | ax-grep https://example.com --stdin --json
     }
   },
   "agent": {
+    "contract": {
+      "version": 1,
+      "features": [
+        "next.loop",
+        "next.readTarget",
+        "next.readValue",
+        "next.target",
+        "readTargets",
+        "signals",
+        "expectedOutcome",
+        "responseMetadata",
+        "primaryActionShortcuts"
+      ]
+    },
     "status": "ready",
     "pageKind": "content-page",
     "summary": "All requested text was found in the page summaries.",

@@ -232,6 +232,16 @@ describe("cli", () => {
       kind: "page",
       treeOmitted: true,
       agent: {
+        contract: {
+          version: 1,
+          features: expect.arrayContaining([
+            "next.loop",
+            "next.readValue",
+            "next.target",
+            "readTargets",
+            "signals",
+          ]),
+        },
         status: "ready",
         routingIntent: "read-current",
         continuationMode: "read",

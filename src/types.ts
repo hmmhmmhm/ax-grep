@@ -183,6 +183,7 @@ export type AgentTarget = {
 };
 
 export type AgentSummary = {
+  contract: AgentContract;
   status: AgentStatus;
   pageKind: string;
   summary: string;
@@ -236,6 +237,22 @@ export type AgentSummary = {
   recommendedSource?: string;
   recommendedRelevance?: number;
   recommendedLikelyOfficial?: boolean;
+};
+
+export type AgentContractFeature =
+  | "next.loop"
+  | "next.readTarget"
+  | "next.readValue"
+  | "next.target"
+  | "readTargets"
+  | "signals"
+  | "expectedOutcome"
+  | "responseMetadata"
+  | "primaryActionShortcuts";
+
+export type AgentContract = {
+  version: number;
+  features: AgentContractFeature[];
 };
 
 export type AgentJsonEnvelope = {

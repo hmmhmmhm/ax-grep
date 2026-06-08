@@ -3,6 +3,8 @@ import { extract as extractStatic, type StaticSemanticTreeOptions } from "./stat
 import type { ExtractorScriptOptions, ObserverScriptOptions, SemanticNode, SemanticTreeOptions } from "./types";
 
 export type {
+  AgentContract,
+  AgentContractFeature,
   AgentContinuationMode,
   AgentExpectedOutcome,
   AgentExpectedOutcomeKind,
