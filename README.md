@@ -187,6 +187,8 @@ mode the first action lives in `agent.primaryAction`, while
 `agent.requiresBrowserInteraction` mirror the most common continuation fields
 from that same primary action, so a calling agent can route without drilling
 into the full action object first.
+Agent-facing actions include `priority` and `priorityReason`, so executors can
+compare follow-up alternatives without re-ranking them from prose alone.
 Duplicate `suggestedActions`,
 `pageCheck.recommendedAction`, and `verification.recommendedAction` entries are
 omitted when they repeat that same command, leaving `pageCheck.nextSteps` for
@@ -513,6 +515,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "answerPlan.confidence",
         "searchResult.selectionReason",
         "sourceLink.selectionReason",
+        "action.priority",
         "contentEvidence.quality",
         "readTargets",
         "signals",

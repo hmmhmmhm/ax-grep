@@ -101,6 +101,8 @@ export type AgentNext = {
   loop: AgentLoopDirective;
   action?: string;
   execution?: AgentExecutionMode;
+  priority?: "low" | "medium" | "high";
+  priorityReason?: string;
   url?: string;
   rank?: number;
   openResult?: number | "best";
@@ -280,6 +282,7 @@ export type AgentContractFeature =
   | "answerPlan.confidence"
   | "searchResult.selectionReason"
   | "sourceLink.selectionReason"
+  | "action.priority"
   | "contentEvidence.quality"
   | "readTargets"
   | "signals"

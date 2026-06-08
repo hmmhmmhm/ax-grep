@@ -166,6 +166,8 @@ type DiagnosticSummary = {
 type SuggestedAction = {
   action: string;
   reason: string;
+  priority?: "low" | "medium" | "high";
+  priorityReason?: string;
   url?: string;
   rank?: number;
   openResult?: number | "best";
@@ -334,6 +336,7 @@ const agentContract: AgentContract = {
     "answerPlan.confidence",
     "searchResult.selectionReason",
     "sourceLink.selectionReason",
+    "action.priority",
     "contentEvidence.quality",
     "readTargets",
     "signals",
@@ -1435,6 +1438,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.primaryAction) {
     lines.push(`  next: ${formatActionLabel(agent.primaryAction)} - ${agent.primaryAction.reason}`);
     lines.push(`  execution: ${actionExecution(agent.primaryAction)}`);
+    lines.push(`  priority: ${agent.primaryAction.priority ?? actionPriority(agent.primaryAction)} - ${agent.primaryAction.priorityReason ?? actionPriorityReason(agent.primaryAction)}`);
     if (agent.primaryAction.url) lines.push(`  url: ${agent.primaryAction.url}`);
     if (agent.primaryAction.rank) lines.push(`  rank: ${agent.primaryAction.rank}`);
     if (agent.primaryAction.openResult) lines.push(`  openResult: ${agent.primaryAction.openResult}`);
@@ -1465,6 +1469,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   for (const action of pageCheck.actions) lines.push(`  action: ${action.type} ${action.text}`);
   lines.push(`  next: ${formatActionLabel(pageCheck.recommendedAction)} - ${pageCheck.recommendedAction.reason}`);
   lines.push(`  execution: ${actionExecution(pageCheck.recommendedAction)}`);
+  lines.push(`  priority: ${pageCheck.recommendedAction.priority ?? actionPriority(pageCheck.recommendedAction)} - ${pageCheck.recommendedAction.priorityReason ?? actionPriorityReason(pageCheck.recommendedAction)}`);
   if (pageCheck.recommendedAction.readFrom) lines.push(`  readFrom: ${pageCheck.recommendedAction.readFrom}`);
   if (pageCheck.recommendedAction.requiresBrowserInteraction) lines.push("  requiresBrowserInteraction: true");
   if (pageCheck.recommendedAction.command) lines.push(`  command: ${pageCheck.recommendedAction.command}`);
@@ -1473,6 +1478,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const target = step.url ? ` <${step.url}>` : "";
     lines.push(`  step: ${index + 1}. ${formatActionLabel(step)}${target} - ${step.reason}`);
     lines.push(`    execution: ${actionExecution(step)}`);
+    lines.push(`    priority: ${step.priority ?? actionPriority(step)} - ${step.priorityReason ?? actionPriorityReason(step)}`);
     if (step.readFrom) lines.push(`    readFrom: ${step.readFrom}`);
     if (step.requiresBrowserInteraction) lines.push("    requiresBrowserInteraction: true");
     if (step.command) lines.push(`    command: ${step.command}`);
@@ -2931,6 +2937,8 @@ function summarizeAgentNext(
     reason: primaryAction.reason,
     loop: summarizeAgentLoop(primaryAction),
     execution: actionExecution(primaryAction),
+    priority: primaryAction.priority ?? actionPriority(primaryAction),
+    priorityReason: primaryAction.priorityReason ?? actionPriorityReason(primaryAction),
     ...(primaryAction.url ? { url: primaryAction.url } : {}),
     ...(primaryAction.rank ? { rank: primaryAction.rank } : {}),
     ...(primaryAction.openResult ? { openResult: primaryAction.openResult } : {}),
@@ -4545,6 +4553,8 @@ function compactAgentAction(action: SuggestedAction): object {
   return {
     action: action.action,
     execution: actionExecution(action),
+    priority: action.priority ?? actionPriority(action),
+    priorityReason: action.priorityReason ?? actionPriorityReason(action),
     reason: action.reason,
     ...(action.url ? { url: action.url } : {}),
     ...(action.rank ? { rank: action.rank } : {}),
@@ -4566,8 +4576,33 @@ function actionExecution(action: SuggestedAction): NonNullable<SuggestedAction["
   return "inspect-output";
 }
 
+function actionPriority(action: SuggestedAction): NonNullable<SuggestedAction["priority"]> {
+  if (action.action === "use-evidence" || action.action === "read-content" || action.terminal) return "high";
+  if (action.action === "open-result" || action.action === "open-alternate-result") return "high";
+  if (action.action === "retry-with-browser-html") return "high";
+  if (action.action === "open-source-link" || action.action === "refine-search" || action.action === "broaden-search") return "medium";
+  if (action.requiresBrowserInteraction || actionExecution(action) === "interact-browser") return "medium";
+  return "low";
+}
+
+function actionPriorityReason(action: SuggestedAction): string {
+  if (action.action === "use-evidence") return "Confirmed evidence can be returned from the current payload.";
+  if (action.action === "read-content" || action.terminal) return "Readable content evidence is available in the current payload.";
+  if (action.action === "open-result" || action.action === "open-alternate-result") return "Opening the selected result is the next required executor step.";
+  if (action.action === "retry-with-browser-html") return "Browser-captured HTML is required to make progress.";
+  if (action.action === "open-source-link") return "External source-like link can improve verification.";
+  if (action.action === "refine-search" || action.action === "broaden-search") return "Search needs refinement before a reliable result can be opened.";
+  if (action.requiresBrowserInteraction || actionExecution(action) === "interact-browser") return "Browser interaction may expose additional content or controls.";
+  return "Inspect current output before choosing another action.";
+}
+
 function withActionExecution(action: SuggestedAction): SuggestedAction {
-  return { ...action, execution: actionExecution(action) };
+  return {
+    ...action,
+    execution: actionExecution(action),
+    priority: action.priority ?? actionPriority(action),
+    priorityReason: action.priorityReason ?? actionPriorityReason(action),
+  };
 }
 
 function withPageCheckActionExecution(pageCheck: PageCheckSummary): PageCheckSummary {

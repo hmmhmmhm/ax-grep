@@ -245,6 +245,7 @@ describe("cli", () => {
             "answerPlan.confidence",
             "searchResult.selectionReason",
             "sourceLink.selectionReason",
+            "action.priority",
             "contentEvidence.quality",
             "readTargets",
             "signals",
@@ -257,6 +258,8 @@ describe("cli", () => {
           mode: "read",
           action: "use-evidence",
           execution: "read-current",
+          priority: "high",
+          priorityReason: "Confirmed evidence can be returned from the current payload.",
           readFrom: "verification.bestEvidence",
           terminal: true,
           loop: {
@@ -345,6 +348,8 @@ describe("cli", () => {
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "use-evidence",
       execution: "read-current",
+      priority: "high",
+      priorityReason: "Confirmed evidence can be returned from the current payload.",
       url: "https://example.test",
       terminal: true,
       readFrom: "verification.bestEvidence",

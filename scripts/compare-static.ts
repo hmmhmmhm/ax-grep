@@ -122,6 +122,8 @@ type CliActionShape = {
   rank?: number;
   openResult?: number | "best";
   execution?: ActionExecution;
+  priority?: "low" | "medium" | "high";
+  priorityReason?: string;
   command?: string;
   commandArgs?: string[];
   readFrom?: string;
@@ -824,6 +826,10 @@ function normalizedActionExecution(action: CliActionShape): ActionExecution {
 function scoreActionSchema(actions: CliActionShape[]): number {
   if (actions.length === 0) return 0;
   const validCount = actions.filter((action) => {
+    const hasPriority = (action.priority === "low" || action.priority === "medium" || action.priority === "high")
+      && typeof action.priorityReason === "string"
+      && action.priorityReason.length > 0;
+    if (!hasPriority) return false;
     const execution = normalizedActionExecution(action);
     if (execution === "run-command") return Boolean(action.command) && Array.isArray(action.commandArgs) && action.commandArgs.length > 0;
     if (execution === "read-current") return Boolean(action.readFrom);
@@ -978,6 +984,8 @@ function scoreAgentNext(next: CliAgentNextShape | undefined, continuationMode: A
   const fields: Array<keyof CliActionShape> = [
     "action",
     "execution",
+    "priority",
+    "priorityReason",
     "url",
     "rank",
     "openResult",
