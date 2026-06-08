@@ -252,6 +252,7 @@ describe("cli", () => {
             "handoff.answerEvidence",
             "handoff.choices",
             "handoff.sourceSearch",
+            "handoff.quality",
             "executionPlan",
             "citations",
             "citation.reason",
@@ -362,6 +363,17 @@ describe("cli", () => {
               id: "v1",
               path: "verification.bestEvidence",
               text: "Example",
+            }),
+          ]),
+          signals: expect.arrayContaining([
+            expect.objectContaining({ kind: "content", severity: "info" }),
+            expect.objectContaining({ kind: "verification", severity: "info" }),
+          ]),
+          qualityGates: expect.arrayContaining([
+            expect.objectContaining({
+              kind: "verification",
+              pass: true,
+              path: "verification.bestEvidence",
             }),
           ]),
         },

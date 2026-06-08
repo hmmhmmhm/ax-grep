@@ -157,9 +157,10 @@ and target metadata into one object, so a subagent can usually switch on
 `agent.handoff` is the shortest executor handoff. It gives one plain
 `instruction` plus the same decision, mode, operation, action, priority,
 confidence, answer status, citation IDs and resolved answer evidence, result or
-source choices, read path/value, command, URL, target metadata, or browser-HTML
-fields needed for the immediate next step, so a subagent can do the right thing
-without assembling a sentence from multiple objects.
+source choices, compact signals/quality gates, read path/value, command, URL,
+target metadata, or browser-HTML fields needed for the immediate next step, so
+a subagent can do the right thing without assembling a sentence from multiple
+objects.
 `agent.next` is the canonical next-step payload for executors. It always has a
 `mode`, `reason`, and `loop`. `next.loop.decision` is the direct executor
 switch: `return`, `execute`, `browser`, `inspect`, or `stop`. When a follow-up
@@ -569,6 +570,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "handoff.answerEvidence",
         "handoff.choices",
         "handoff.sourceSearch",
+        "handoff.quality",
         "executionPlan",
         "citations",
         "citation.reason",
@@ -718,6 +720,28 @@ cat captured.html | ax-grep https://example.com --stdin --json
           "selector": "p"
         }
       },
+      "signals": [
+        {
+          "kind": "content",
+          "severity": "info",
+          "message": "Fetched HTML is medium readability with 1 evidence item(s)."
+        },
+        {
+          "kind": "verification",
+          "severity": "info",
+          "message": "1/1 requested verification text(s) found."
+        }
+      ],
+      "qualityGates": [
+        {
+          "kind": "verification",
+          "pass": true,
+          "severity": "info",
+          "message": "1/1 requested verification text(s) found.",
+          "score": 1,
+          "path": "verification.bestEvidence"
+        }
+      ],
       "readFrom": "verification.bestEvidence",
       "url": "https://example.com/"
     },

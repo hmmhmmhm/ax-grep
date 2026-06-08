@@ -398,6 +398,7 @@ const agentContract: AgentContract = {
     "handoff.answerEvidence",
     "handoff.choices",
     "handoff.sourceSearch",
+    "handoff.quality",
     "executionPlan",
     "citations",
     "citation.reason",
@@ -2778,10 +2779,12 @@ function summarizeAgent(
   const answerEvidence = summarizeAgentAnswerEvidence(citations, answerPlan);
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, canUseFetchedHtml, needsBrowserHtml);
   const runbook = summarizeAgentRunbook(next, executionPlan, answerPlan);
-  const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, compactAgentSourceSearch(sourceSearch));
   const evidenceQualityScore = averageEvidenceScore(pageCheck.contentEvidence);
   const sourceQualityScore = agentSourceQualityScore(analysis.kind, pageCheck.sourceLinks, results, recommendedResult);
   const usabilityScore = agentUsabilityScore(status, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error);
+  const signals = summarizeAgentSignals(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, fetched, error);
+  const qualityGates = summarizeAgentQualityGates(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error, usabilityScore, evidenceQualityScore, sourceQualityScore);
+  const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, compactAgentSourceSearch(sourceSearch), signals, qualityGates);
   const agent: AgentSummary = {
     contract: agentContract,
     status,
@@ -2797,8 +2800,8 @@ function summarizeAgent(
     answerPlan,
     ...(searchDecision ? { searchDecision } : {}),
     ...(pageDecision ? { pageDecision } : {}),
-    signals: summarizeAgentSignals(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, fetched, error),
-    qualityGates: summarizeAgentQualityGates(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error, usabilityScore, evidenceQualityScore, sourceQualityScore),
+    signals,
+    qualityGates,
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml,
     needsBrowserHtml,
@@ -3302,6 +3305,8 @@ function summarizeAgentHandoff(
   resultChoices: AgentResultChoice[] = [],
   sourceChoices: AgentSourceChoice[] = [],
   sourceSearch?: AgentSourceSearch,
+  signals: AgentSignal[] = [],
+  qualityGates: AgentQualityGate[] = [],
 ): AgentHandoff {
   return {
     instruction: agentHandoffInstruction(next, executionPlan, answerPlan),
@@ -3324,6 +3329,8 @@ function summarizeAgentHandoff(
     ...(resultChoices.length > 0 ? { resultChoices } : {}),
     ...(sourceChoices.length > 0 ? { sourceChoices } : {}),
     ...(sourceSearch ? { sourceSearch } : {}),
+    ...(signals.length > 0 ? { signals } : {}),
+    ...(qualityGates.length > 0 ? { qualityGates } : {}),
     ...(next.readTarget ? { readTarget: next.readTarget } : {}),
     ...(next.readFrom ? { readFrom: next.readFrom } : {}),
     ...(next.readValue ? { readValue: next.readValue } : {}),
@@ -4250,7 +4257,26 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const answerPlan = summarizeErrorAgentAnswerPlan(error, primaryAction, needsBrowserHtml);
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, false, needsBrowserHtml);
   const runbook = summarizeAgentRunbook(next, executionPlan, answerPlan);
-  const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, [], [], [], compactAgentSourceSearch(sourceSearch));
+  const signals = summarizeErrorAgentSignals(error, primaryAction, summary);
+  const qualityGates: AgentQualityGate[] = [
+    {
+      kind: "fetch",
+      pass: false,
+      severity: "error",
+      message: `Fetch or extraction failed with ${error.code}.`,
+      score: 0,
+      path: "error",
+    },
+    {
+      kind: "browser",
+      pass: !needsBrowserHtml,
+      severity: needsBrowserHtml ? "warning" : "info",
+      message: needsBrowserHtml ? "Browser-captured HTML or browser inspection is needed." : "No browser capture is required for this error path.",
+      score: needsBrowserHtml ? 0 : 1,
+      path: "agent.needsBrowserHtml",
+    },
+  ];
+  const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, [], [], [], compactAgentSourceSearch(sourceSearch), signals, qualityGates);
   return {
     contract: agentContract,
     status: "error",
@@ -4264,25 +4290,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     expectedOutcome,
     executionPlan,
     answerPlan,
-    signals: summarizeErrorAgentSignals(error, primaryAction, summary),
-    qualityGates: [
-      {
-        kind: "fetch",
-        pass: false,
-        severity: "error",
-        message: `Fetch or extraction failed with ${error.code}.`,
-        score: 0,
-        path: "error",
-      },
-      {
-        kind: "browser",
-        pass: !needsBrowserHtml,
-        severity: needsBrowserHtml ? "warning" : "info",
-        message: needsBrowserHtml ? "Browser-captured HTML or browser inspection is needed." : "No browser capture is required for this error path.",
-        score: needsBrowserHtml ? 0 : 1,
-        path: "agent.needsBrowserHtml",
-      },
-    ],
+    signals,
+    qualityGates,
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml: false,
     needsBrowserHtml,

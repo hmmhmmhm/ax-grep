@@ -33,6 +33,7 @@ describe("README", () => {
           "handoff.answerEvidence",
           "handoff.choices",
           "handoff.sourceSearch",
+          "handoff.quality",
           "executionPlan",
           "citations",
           "citation.reason",
@@ -98,6 +99,19 @@ describe("README", () => {
         answerEvidence: expect.arrayContaining([
           expect.objectContaining({
             id: "v1",
+            path: "verification.bestEvidence",
+          }),
+        ]),
+        signals: expect.arrayContaining([
+          expect.objectContaining({
+            kind: "content",
+            severity: "info",
+          }),
+        ]),
+        qualityGates: expect.arrayContaining([
+          expect.objectContaining({
+            kind: "verification",
+            pass: true,
             path: "verification.bestEvidence",
           }),
         ]),

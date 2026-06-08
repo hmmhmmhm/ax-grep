@@ -247,6 +247,8 @@ export type AgentHandoff = {
   resultChoices?: AgentResultChoice[];
   sourceChoices?: AgentSourceChoice[];
   sourceSearch?: AgentSourceSearch;
+  signals?: AgentSignal[];
+  qualityGates?: AgentQualityGate[];
   readTarget?: AgentReadTarget;
   readFrom?: string;
   readValue?: AgentReadValue;
@@ -446,6 +448,7 @@ export type AgentContractFeature =
   | "handoff.answerEvidence"
   | "handoff.choices"
   | "handoff.sourceSearch"
+  | "handoff.quality"
   | "executionPlan"
   | "citations"
   | "citation.reason"
