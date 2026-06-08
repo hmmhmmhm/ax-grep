@@ -29,6 +29,7 @@ describe("README", () => {
           "next.readValue",
           "next.target",
           "runbook",
+          "handoff",
           "executionPlan",
           "citations",
           "citation.reason",

@@ -60,6 +60,7 @@ type CliAgentSummary = {
   agentContinuationModeScore: number;
   agentNextScore: number;
   agentRunbookScore: number;
+  agentHandoffScore: number;
   agentExecutionPlanScore: number;
   agentExpectedOutcomeScore: number;
   agentSignalScore: number;
@@ -185,6 +186,27 @@ type CliAgentRunbookShape = {
   };
   url?: string;
   target?: CliAgentTargetShape;
+  browserHtml?: CliAgentBrowserHtmlShape;
+};
+
+type CliAgentHandoffShape = {
+  instruction?: string;
+  decision?: CliAgentLoopShape["decision"];
+  operation?: CliAgentExecutionPlanShape["operation"];
+  confidence?: CliAgentExecutionPlanShape["confidence"];
+  answerStatus?: CliAgentAnswerPlanShape["status"];
+  answerReady?: boolean;
+  shouldContinue?: boolean;
+  terminal?: boolean;
+  expectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
+  reason?: string;
+  useCitationIds?: unknown[];
+  readFrom?: string;
+  command?: string;
+  commandArgs?: unknown[];
+  afterInteractionCommand?: string;
+  afterInteractionCommandArgs?: unknown[];
+  url?: string;
   browserHtml?: CliAgentBrowserHtmlShape;
 };
 
@@ -387,6 +409,7 @@ type GateSummary = {
   averageAgentContinuationModeScore: number;
   averageAgentNextScore: number;
   averageAgentRunbookScore: number;
+  averageAgentHandoffScore: number;
   averageAgentExecutionPlanScore: number;
   averageAgentExpectedOutcomeScore: number;
   averageAgentSignalScore: number;
@@ -744,6 +767,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       continuationMode?: AgentContinuationMode;
       next?: CliAgentNextShape;
       runbook?: CliAgentRunbookShape;
+      handoff?: CliAgentHandoffShape;
       expectedOutcome?: CliAgentExpectedOutcomeShape;
       executionPlan?: CliAgentExecutionPlanShape;
       answerPlan?: CliAgentAnswerPlanShape;
@@ -859,6 +883,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentContinuationModeScore: scoreAgentContinuationMode(item.agent?.continuationMode, item.agent?.primaryAction),
     agentNextScore: scoreAgentNext(item.agent?.next, item.agent?.continuationMode, item.agent?.primaryAction),
     agentRunbookScore: scoreAgentRunbook(item.agent?.runbook, item.agent?.next, item.agent?.executionPlan, item.agent?.answerPlan),
+    agentHandoffScore: scoreAgentHandoff(item.agent?.handoff, item.agent?.next, item.agent?.executionPlan, item.agent?.answerPlan),
     agentExecutionPlanScore: scoreAgentExecutionPlan(item.agent?.executionPlan, item.agent?.next, item.agent?.answerPlan, item.agent?.canUseFetchedHtml, item.agent?.needsBrowserHtml, item.agent?.expectedOutcome),
     agentExpectedOutcomeScore: scoreAgentExpectedOutcome(item.agent?.expectedOutcome, item.agent?.primaryAction),
     agentSignalScore: scoreAgentSignals(item.agent?.signals, item),
@@ -920,6 +945,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentContinuationModeScore: 0,
     agentNextScore: 0,
     agentRunbookScore: 0,
+    agentHandoffScore: 0,
     agentExecutionPlanScore: 0,
     agentExpectedOutcomeScore: 0,
     agentSignalScore: 0,
@@ -1084,6 +1110,7 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[] }
     "next.readValue",
     "next.target",
     "runbook",
+    "handoff",
     "executionPlan",
     "citations",
     "answerPlan",
@@ -1341,6 +1368,54 @@ function scoreAgentRunbook(
   if (next.target) {
     required += 1;
     if (runbook.target?.url === next.target.url) matched += 1;
+  }
+  return roundScore(matched / required);
+}
+
+function scoreAgentHandoff(
+  handoff: CliAgentHandoffShape | undefined,
+  next: CliAgentNextShape | undefined,
+  plan: CliAgentExecutionPlanShape | undefined,
+  answerPlan: CliAgentAnswerPlanShape | undefined,
+): number {
+  if (!handoff || !next?.loop || !plan || !answerPlan) return 0;
+  let required = 10;
+  let matched = 0;
+  if (typeof handoff.instruction === "string" && handoff.instruction.length > 0) matched += 1;
+  if (handoff.decision === next.loop.decision) matched += 1;
+  if (handoff.operation === plan.operation) matched += 1;
+  if (handoff.confidence === plan.confidence) matched += 1;
+  if (handoff.answerStatus === answerPlan.status) matched += 1;
+  if (handoff.answerReady === plan.answerReady) matched += 1;
+  if (handoff.shouldContinue === next.loop.shouldContinue) matched += 1;
+  if (handoff.terminal === next.loop.terminal) matched += 1;
+  if (handoff.expectedOutcome === plan.expectedOutcome) matched += 1;
+  if (typeof handoff.reason === "string" && handoff.reason.length > 0) matched += 1;
+  if (answerPlan.useCitationIds && answerPlan.useCitationIds.length > 0) {
+    required += 1;
+    if (JSON.stringify(handoff.useCitationIds) === JSON.stringify(answerPlan.useCitationIds)) matched += 1;
+  }
+  if (next.command) {
+    required += 2;
+    if (handoff.command === next.command) matched += 1;
+    if (JSON.stringify(handoff.commandArgs) === JSON.stringify(next.commandArgs)) matched += 1;
+  }
+  if (next.afterInteractionCommand) {
+    required += 2;
+    if (handoff.afterInteractionCommand === next.afterInteractionCommand) matched += 1;
+    if (JSON.stringify(handoff.afterInteractionCommandArgs) === JSON.stringify(next.afterInteractionCommandArgs)) matched += 1;
+  }
+  if (next.readFrom) {
+    required += 1;
+    if (handoff.readFrom === next.readFrom) matched += 1;
+  }
+  if (next.url) {
+    required += 1;
+    if (handoff.url === next.url) matched += 1;
+  }
+  if (next.browserHtml) {
+    required += 1;
+    if (JSON.stringify(handoff.browserHtml) === JSON.stringify(next.browserHtml)) matched += 1;
   }
   return roundScore(matched / required);
 }
@@ -2240,6 +2315,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentContinuationModeScore * 0.005
     + summary.agentNextScore * 0.005
     + summary.agentRunbookScore * 0.005
+    + summary.agentHandoffScore * 0.005
     + summary.agentExecutionPlanScore * 0.005
     + summary.agentExpectedOutcomeScore * 0.005
     + summary.agentSignalScore * 0.005
@@ -2263,6 +2339,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentContinuationModeScore,
     summary.agentNextScore,
     summary.agentRunbookScore,
+    summary.agentHandoffScore,
     summary.agentExecutionPlanScore,
     summary.agentExpectedOutcomeScore,
     summary.agentSignalScore,
@@ -2336,6 +2413,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentContinuationModeScore: average(included.map((comparison) => comparison.cliAgentSummary.agentContinuationModeScore)),
     averageAgentNextScore: average(included.map((comparison) => comparison.cliAgentSummary.agentNextScore)),
     averageAgentRunbookScore: average(included.map((comparison) => comparison.cliAgentSummary.agentRunbookScore)),
+    averageAgentHandoffScore: average(included.map((comparison) => comparison.cliAgentSummary.agentHandoffScore)),
     averageAgentExecutionPlanScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExecutionPlanScore)),
     averageAgentExpectedOutcomeScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExpectedOutcomeScore)),
     averageAgentSignalScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSignalScore)),

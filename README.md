@@ -131,7 +131,7 @@ tables. It prints compact JSON with the top-level `agent` object plus
 they are present. Read `agent` first: it combines page classification,
 readability, verification, diagnostic codes, and recommended result selection
 into `contract`, `status`, `summary`, `routingIntent`, `continuationMode`,
-`next`, `runbook`, `expectedOutcome`, `signals`, `canUseFetchedHtml`, `needsBrowserHtml`,
+`next`, `runbook`, `handoff`, `expectedOutcome`, `signals`, `canUseFetchedHtml`, `needsBrowserHtml`,
 `responseStatus`, `responseOk`, `responseContentType`, `finalUrlChanged`,
 `pageKind`, `alternativeActionCount`, `usabilityScore`,
 `evidenceQualityScore`, `sourceQualityScore`, `readabilityScore`,
@@ -154,6 +154,11 @@ relying on them.
 loop decision, operation, answer readiness, command/read/browser-HTML fields,
 and target metadata into one object, so a subagent can usually switch on
 `runbook.decision` without joining `next`, `executionPlan`, and `answerPlan`.
+`agent.handoff` is the shortest executor handoff. It gives one plain
+`instruction` plus the same decision, operation, confidence, answer status,
+citation IDs, read path, command, URL, or browser-HTML fields needed for the
+immediate next step, so a subagent can do the right thing without assembling a
+sentence from multiple objects.
 `agent.next` is the canonical next-step payload for executors. It always has a
 `mode`, `reason`, and `loop`. `next.loop.decision` is the direct executor
 switch: `return`, `execute`, `browser`, `inspect`, or `stop`. When a follow-up
@@ -560,6 +565,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "next.readValue",
         "next.target",
         "runbook",
+        "handoff",
         "executionPlan",
         "citations",
         "citation.reason",
@@ -652,6 +658,23 @@ cat captured.html | ax-grep https://example.com --stdin --json
           "selector": "p"
         }
       },
+      "url": "https://example.com/"
+    },
+    "handoff": {
+      "instruction": "Answer now from verification.bestEvidence using citations v1, e1.",
+      "decision": "return",
+      "operation": "return",
+      "confidence": "high",
+      "answerStatus": "ready",
+      "answerReady": true,
+      "shouldContinue": false,
+      "terminal": true,
+      "expectedOutcome": "read-evidence",
+      "useCitationIds": [
+        "v1",
+        "e1"
+      ],
+      "readFrom": "verification.bestEvidence",
       "url": "https://example.com/"
     },
     "expectedOutcome": {

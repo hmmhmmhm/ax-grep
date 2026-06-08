@@ -16,6 +16,7 @@ import type {
   AgentContinuationMode,
   AgentExecutionPlan,
   AgentExpectedOutcome,
+  AgentHandoff,
   AgentLoopDirective,
   AgentNext,
   AgentQualityGate,
@@ -320,6 +321,7 @@ type AgentSummary = {
   continuationMode: AgentContinuationMode;
   next: AgentNext;
   runbook: AgentRunbook;
+  handoff: AgentHandoff;
   expectedOutcome: AgentExpectedOutcome;
   executionPlan: AgentExecutionPlan;
   answerPlan: AgentAnswerPlan;
@@ -390,6 +392,7 @@ const agentContract: AgentContract = {
     "next.readValue",
     "next.target",
     "runbook",
+    "handoff",
     "executionPlan",
     "citations",
     "citation.reason",
@@ -1467,6 +1470,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  routingIntent: ${agent.routingIntent}`,
     `  continuationMode: ${agent.continuationMode}`,
     `  nextMode: ${agent.next.mode}`,
+    `  handoff: ${agent.handoff.decision}/${agent.handoff.operation}/${agent.handoff.confidence} - ${agent.handoff.instruction}`,
     `  executionPlan: ${agent.executionPlan.operation}/${agent.executionPlan.confidence} - ${agent.executionPlan.reason}`,
     `  loopDecision: ${agent.next.loop.decision}`,
     `  loopContinue: ${agent.next.loop.shouldContinue}`,
@@ -2765,6 +2769,8 @@ function summarizeAgent(
   const answerPlan = summarizeAgentAnswerPlan(status, primaryAction, pageCheck, verification, citations, needsBrowserHtml, error);
   const answerEvidence = summarizeAgentAnswerEvidence(citations, answerPlan);
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, canUseFetchedHtml, needsBrowserHtml);
+  const runbook = summarizeAgentRunbook(next, executionPlan, answerPlan);
+  const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan);
   const evidenceQualityScore = averageEvidenceScore(pageCheck.contentEvidence);
   const sourceQualityScore = agentSourceQualityScore(analysis.kind, pageCheck.sourceLinks, results, recommendedResult);
   const usabilityScore = agentUsabilityScore(status, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error);
@@ -2776,7 +2782,8 @@ function summarizeAgent(
     routingIntent: agentRoutingIntent(primaryAction),
     continuationMode: agentContinuationMode(primaryAction),
     next,
-    runbook: summarizeAgentRunbook(next, executionPlan, answerPlan),
+    runbook,
+    handoff,
     expectedOutcome,
     executionPlan,
     answerPlan,
@@ -3277,6 +3284,56 @@ function summarizeAgentRunbook(
     ...(next.target ? { target: next.target } : {}),
     ...(next.browserHtml ? { browserHtml: next.browserHtml } : {}),
   };
+}
+
+function summarizeAgentHandoff(
+  next: AgentNext,
+  executionPlan: AgentExecutionPlan,
+  answerPlan: AgentAnswerPlan,
+): AgentHandoff {
+  return {
+    instruction: agentHandoffInstruction(next, executionPlan, answerPlan),
+    decision: next.loop.decision,
+    operation: executionPlan.operation,
+    confidence: executionPlan.confidence,
+    answerStatus: answerPlan.status,
+    answerReady: executionPlan.answerReady,
+    shouldContinue: next.loop.shouldContinue,
+    terminal: next.loop.terminal,
+    expectedOutcome: executionPlan.expectedOutcome,
+    reason: next.loop.reason || next.reason || executionPlan.reason,
+    ...(answerPlan.useCitationIds.length > 0 ? { useCitationIds: answerPlan.useCitationIds } : {}),
+    ...(next.readFrom ? { readFrom: next.readFrom } : {}),
+    ...(next.command ? { command: next.command } : {}),
+    ...(next.commandArgs ? { commandArgs: next.commandArgs } : {}),
+    ...(next.afterInteractionCommand ? { afterInteractionCommand: next.afterInteractionCommand } : {}),
+    ...(next.afterInteractionCommandArgs ? { afterInteractionCommandArgs: next.afterInteractionCommandArgs } : {}),
+    ...(next.url ? { url: next.url } : {}),
+    ...(next.browserHtml ? { browserHtml: next.browserHtml } : {}),
+  };
+}
+
+function agentHandoffInstruction(next: AgentNext, executionPlan: AgentExecutionPlan, answerPlan: AgentAnswerPlan): string {
+  if (answerPlan.status === "ready") {
+    const citations = answerPlan.useCitationIds.length > 0 ? ` using citations ${answerPlan.useCitationIds.join(", ")}` : "";
+    const readFrom = answerPlan.readFrom ? ` from ${answerPlan.readFrom}` : "";
+    return `Answer now${readFrom}${citations}.`;
+  }
+  if (executionPlan.operation === "execute-command" && next.command) {
+    return `Run ${formatShellCommandForInstruction(next.command, next.commandArgs)} and continue with its output.`;
+  }
+  if (executionPlan.operation === "capture-browser-html" && next.browserHtml) {
+    return `Capture rendered HTML into ${next.browserHtml.htmlFile}, then run ${formatShellCommandForInstruction(next.browserHtml.command ?? next.command ?? "ax-grep", next.browserHtml.commandArgs ?? next.commandArgs)}.`;
+  }
+  if (executionPlan.operation === "inspect-browser") return "Inspect the page in a browser before answering.";
+  if (executionPlan.operation === "inspect-output") return "Inspect the command output before answering.";
+  if (next.readFrom) return `Read ${next.readFrom} before answering.`;
+  return answerPlan.gaps[0] ?? executionPlan.reason;
+}
+
+function formatShellCommandForInstruction(command: string, args: string[] | undefined): string {
+  if (!args || args.length === 0 || command.includes(" ")) return command;
+  return [command, ...args.map(shellQuote)].join(" ");
 }
 
 function agentExecutionOperation(next: AgentNext): AgentExecutionPlan["operation"] {
@@ -4168,6 +4225,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const needsBrowserHtml = errorNeedsBrowserHtml(primaryAction);
   const answerPlan = summarizeErrorAgentAnswerPlan(error, primaryAction, needsBrowserHtml);
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, false, needsBrowserHtml);
+  const runbook = summarizeAgentRunbook(next, executionPlan, answerPlan);
+  const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan);
   return {
     contract: agentContract,
     status: "error",
@@ -4176,7 +4235,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     routingIntent: agentRoutingIntent(primaryAction),
     continuationMode: agentContinuationMode(primaryAction),
     next,
-    runbook: summarizeAgentRunbook(next, executionPlan, answerPlan),
+    runbook,
+    handoff,
     expectedOutcome,
     executionPlan,
     answerPlan,
@@ -5032,6 +5092,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     continuationMode: agent.continuationMode,
     next: agent.next,
     runbook: agent.runbook,
+    handoff: agent.handoff,
     expectedOutcome: agent.expectedOutcome,
     executionPlan: agent.executionPlan,
     answerPlan: agent.answerPlan,

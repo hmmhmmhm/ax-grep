@@ -239,6 +239,7 @@ describe("cli", () => {
             "next.readValue",
             "next.target",
             "runbook",
+            "handoff",
             "executionPlan",
             "citations",
             "citation.reason",
@@ -314,6 +315,19 @@ describe("cli", () => {
               text: "Example",
             }),
           },
+        },
+        handoff: {
+          instruction: "Answer now from verification.bestEvidence using citations v1, e1.",
+          decision: "return",
+          operation: "return",
+          confidence: "high",
+          answerStatus: "ready",
+          answerReady: true,
+          shouldContinue: false,
+          terminal: true,
+          expectedOutcome: "read-evidence",
+          readFrom: "verification.bestEvidence",
+          useCitationIds: expect.arrayContaining(["v1"]),
         },
         expectedOutcome: {
           kind: "read-evidence",
@@ -2769,6 +2783,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  loopTerminal: true");
     expect(stdout.output).toContain("  loopMaxIterations: 0");
     expect(stdout.output).toContain("  loopReason: Return the resolved value for pageCheck.contentEvidence.");
+    expect(stdout.output).toContain("  handoff: return/return/medium - Answer now from pageCheck.contentEvidence using citations e1.");
     expect(stdout.output).toContain("  expectedOutcome: read-evidence - ");
     expect(stdout.output).toContain("  answerPlan: ready - Readable page evidence is available; answer from the listed citations.");
     expect(stdout.output).toContain("  answerConfidence: medium");
