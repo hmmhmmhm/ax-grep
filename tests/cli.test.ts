@@ -2048,6 +2048,12 @@ describe("cli", () => {
       },
       command: "ax-grep --search 'agent browser' --engine duckduckgo --open-result 2 --agent",
     });
+    expect(envelope.agent.answerPlan).toMatchObject({
+      status: "needs-more",
+      nextAction: "open-alternate-result",
+      command: "ax-grep --search 'agent browser' --engine duckduckgo --open-result 2 --agent",
+      url: "https://alternate.example/article",
+    });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "sourceSearch.selectedResult",
       count: 1,
@@ -3586,11 +3592,21 @@ describe("cli", () => {
       action: "check-url-or-search",
       command: "ax-grep --search 'https://missing.example/page' --agent",
     });
+    expect(missingEnvelope.agent.answerPlan).toMatchObject({
+      status: "needs-more",
+      nextAction: "check-url-or-search",
+      command: "ax-grep --search 'https://missing.example/page' --agent",
+    });
     expect(serverStatus).toBe(12);
     expect(serverEnvelope.agent.canContinue).toBe(true);
     expect(serverEnvelope.agent.needsBrowserHtml).toBe(false);
     expect(serverEnvelope.agent.primaryAction).toMatchObject({
       action: "retry-later",
+      command: "ax-grep 'https://server.example/page' --agent",
+    });
+    expect(serverEnvelope.agent.answerPlan).toMatchObject({
+      status: "needs-more",
+      nextAction: "retry-later",
       command: "ax-grep 'https://server.example/page' --agent",
     });
   });

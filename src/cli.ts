@@ -3835,14 +3835,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const next = summarizeAgentNext(primaryAction, readTargets, errorAgentReadValue(primaryAction, sourceSearch));
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
   const needsBrowserHtml = errorNeedsBrowserHtml(primaryAction);
-  const answerPlan: AgentAnswerPlan = {
-    status: "error",
-    confidence: "low",
-    reason: `Extraction failed with ${error.code}.`,
-    gaps: [`Extraction failed with ${error.code}.`],
-    useCitationIds: [],
-    ...answerPlanActionFields(primaryAction),
-  };
+  const answerPlan = summarizeErrorAgentAnswerPlan(error, primaryAction, needsBrowserHtml);
   return {
     contract: agentContract,
     status: "error",
@@ -3900,6 +3893,38 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(primaryAction?.openResult ? { primaryOpenResult: primaryAction.openResult } : {}),
     ...(primaryAction?.requiresBrowserInteraction ? { requiresBrowserInteraction: true } : {}),
     ...(primaryAction ? { primaryAction } : {}),
+  };
+}
+
+function summarizeErrorAgentAnswerPlan(error: CliError, primaryAction: SuggestedAction | undefined, needsBrowserHtml: boolean): AgentAnswerPlan {
+  const actionFields = answerPlanActionFields(primaryAction);
+  if (needsBrowserHtml) {
+    return {
+      status: "blocked",
+      confidence: "low",
+      reason: "Extraction failed; browser-captured HTML is needed before answering.",
+      gaps: [`Extraction failed with ${error.code}.`, "Browser-captured HTML is needed."],
+      useCitationIds: [],
+      ...actionFields,
+    };
+  }
+  if (primaryAction && actionExecution(primaryAction) !== "inspect-output") {
+    return {
+      status: "needs-more",
+      confidence: "low",
+      reason: "Extraction failed, but a recovery action is available.",
+      gaps: [`Extraction failed with ${error.code}.`, "Follow the recovery action before answering."],
+      useCitationIds: [],
+      ...actionFields,
+    };
+  }
+  return {
+    status: "error",
+    confidence: "low",
+    reason: `Extraction failed with ${error.code}.`,
+    gaps: [`Extraction failed with ${error.code}.`],
+    useCitationIds: [],
+    ...actionFields,
   };
 }
 
