@@ -1729,11 +1729,10 @@ function annotateResults(results: ResultSummary[], query?: string, findQueries: 
       sourceScore: result.sourceScore ?? sourceProfile.score,
       sourceHints: result.sourceHints ?? sourceProfile.hints,
     };
-    const haystack = normalizeForMatch(`${result.title} ${result.url} ${result.source} ${result.snippet ?? ""}`);
     if (terms.length > 0) {
-      const matchedTerms = terms.filter((term) => haystack.includes(normalizeForMatch(term)));
       const essentialTerms = essentialQueryTerms(terms);
-      const matchedEssentialTerms = essentialTerms.filter((term) => haystack.includes(normalizeForMatch(term)));
+      const matchedTerms = terms.filter((term) => queryTermMatchesResult(term, result, essentialTerms.includes(term)));
+      const matchedEssentialTerms = essentialTerms.filter((term) => matchedTerms.includes(term));
       const isLikelyOfficial = likelyOfficialResult(result, terms);
       let relevance: ResultSummary["relevance"] = "low";
       if (matchedTerms.length === terms.length || isLikelyOfficial) relevance = "high";
@@ -1747,6 +1746,45 @@ function annotateResults(results: ResultSummary[], query?: string, findQueries: 
     annotated.selectionReason = searchResultSelectionReason(annotated);
     return annotated;
   });
+}
+
+function queryTermMatchesResult(term: string, result: ResultSummary, exactNameRequired = false): boolean {
+  if (!exactNameRequired) {
+    return normalizeForMatch(`${result.title} ${result.url} ${result.source} ${result.snippet ?? ""}`).includes(normalizeForMatch(term));
+  }
+  return exactNameMatchesText(term, result.title)
+    || exactNameMatchesText(term, result.snippet ?? "")
+    || exactNameMatchesSource(term, result.source)
+    || exactNameMatchesUrl(term, result.url);
+}
+
+function exactNameMatchesText(term: string, text: string): boolean {
+  const normalizedTerm = normalizeForMatch(term);
+  const normalizedText = normalizeForMatch(text);
+  const escaped = escapeRegExp(normalizedTerm).replace(/\\-/g, "[-\\s]+");
+  return new RegExp(`(^|[^\\p{L}\\p{N}])${escaped}([^\\p{L}\\p{N}]|$)`, "u").test(normalizedText);
+}
+
+function exactNameMatchesSource(term: string, source: string): boolean {
+  const normalizedTerm = normalizeForMatch(term);
+  const normalizedSource = normalizeForMatch(source.replace(/^www\./, ""));
+  return normalizedSource === normalizedTerm || normalizedSource.startsWith(`${normalizedTerm}-`) || normalizedSource.startsWith(`${normalizedTerm}.`);
+}
+
+function exactNameMatchesUrl(term: string, url: string): boolean {
+  const normalizedTerm = normalizeForMatch(term);
+  try {
+    const parsed = new URL(url);
+    if (exactNameMatchesSource(term, parsed.hostname)) return true;
+    const parts = parsed.pathname.split("/").map((part) => normalizeForMatch(decodeURIComponent(part))).filter(Boolean);
+    return parts.some((part) => part === normalizedTerm);
+  } catch {
+    return exactNameMatchesText(term, url);
+  }
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function searchResultSelectionReason(result: Pick<ResultSummary, "rank" | "source" | "sourceHints" | "relevance" | "matchedTerms" | "findMatches" | "isLikelyOfficial">): string {

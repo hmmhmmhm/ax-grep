@@ -1080,6 +1080,37 @@ describe("cli", () => {
     }));
   });
 
+  it("does not treat URL slug fragments as exact package-like query matches", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["--search", "ax-grep", "--engine", "duckduckgo", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <div class="result">
+            <a class="result__a" href="https://unix.stackexchange.com/questions/639269/what-does-ps-ax-grep-catch-do">What does ps -ax | grep $$ &gt; catch do?</a>
+            <div class="result__snippet">Discussion about process listing and grep usage.</div>
+          </div>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.searchResults[0]).toMatchObject({
+      title: "What does ps -ax | grep $$ > catch do?",
+      relevance: "low",
+      isLikelyOfficial: false,
+    });
+    expect(envelope.searchResults[0].matchedTerms).toBeUndefined();
+    expect(envelope.recommendedResult).toBeUndefined();
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "refine-search",
+      priority: "medium",
+      command: "ax-grep --search '\"ax-grep\"' --engine duckduckgo --agent",
+    });
+  });
+
   it("does not satisfy --find from the search page title alone", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["--search", "ax-grep npm", "--engine", "duckduckgo", "--find", "ax-grep", "--json", "--no-tree"], {
