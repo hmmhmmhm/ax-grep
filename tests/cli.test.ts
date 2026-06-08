@@ -638,6 +638,28 @@ describe("cli", () => {
     expect(envelope.suggestedActions).toBeUndefined();
   });
 
+  it("prints result choices in text search output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://www.bing.com/search?q=agent+browser"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <ol>
+            <li class="b_algo">
+              <h2><a href="https://result.example/">Agent browser result</a></h2>
+              <p>agent browser result</p>
+            </li>
+          </ol>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("  searchDecision: open-result/low - Ranked result 1 from result.example.");
+    expect(stdout.output).toContain("  resultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult");
+    expect(stdout.output).toContain("source=result.example <https://result.example/> - Ranked result 1 from result.example. Agent browser result");
+  });
+
   it("preserves custom timeout and user agent in generated agent commands", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli([

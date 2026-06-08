@@ -1503,6 +1503,26 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.recommendedRelevance) lines.push(`  recommendedRelevance: ${agent.recommendedRelevance}`);
   if (typeof agent.recommendedLikelyOfficial === "boolean") lines.push(`  recommendedLikelyOfficial: ${agent.recommendedLikelyOfficial}`);
   if (agent.recommendedSelectionReason) lines.push(`  recommendedSelectionReason: ${agent.recommendedSelectionReason}`);
+  for (const choice of agent.resultChoices) {
+    const rank = typeof choice.rank === "number" ? ` rank=${choice.rank}` : "";
+    const flags = [
+      choice.recommended ? "recommended" : "",
+      choice.primary ? "primary" : "",
+      choice.recommendedPath ? `via=${choice.recommendedPath}` : "",
+    ].filter(Boolean).join(" ");
+    const flagText = flags ? ` ${flags}` : "";
+    const score = typeof choice.sourceScore === "number" ? ` score=${choice.sourceScore}` : "";
+    const relevance = choice.relevance ? ` relevance=${choice.relevance}` : "";
+    const source = choice.source ? ` source=${choice.source}` : "";
+    const sourceType = choice.sourceType ? ` type=${choice.sourceType}` : "";
+    const official = typeof choice.isLikelyOfficial === "boolean" ? ` official=${choice.isLikelyOfficial}` : "";
+    const matchedTerms = choice.matchedTerms?.length ? ` terms=${choice.matchedTerms.join(",")}` : "";
+    const findMatches = choice.findMatches?.length ? ` find=${choice.findMatches.join(",")}` : "";
+    const target = choice.url ? ` <${choice.url}>` : "";
+    const reason = choice.selectionReason ? ` - ${choice.selectionReason}` : "";
+    const title = choice.title ? ` ${choice.title}` : "";
+    lines.push(`  resultChoice: ${choice.id} ${choice.path}${rank}${flagText}${score}${relevance}${source}${sourceType}${official}${matchedTerms}${findMatches}${target}${reason}${title}`);
+  }
   for (const target of agent.readTargets) {
     const count = typeof target.count === "number" ? ` count=${target.count}` : "";
     const score = typeof target.score === "number" ? ` score=${target.score}` : "";

@@ -211,6 +211,8 @@ shortlist inside the top-level agent object. It marks the `recommended` and
 `primary` choice, includes the `searchResults[...]` path, and keeps rank,
 source, relevance, source score, match hints, and `selectionReason` together so
 a subagent can compare candidates before drilling into the full result list.
+Text output prints the same shortlist as `resultChoice:` lines in the `agent`
+block for agents that are inspecting stdout instead of compact JSON.
 `agent.readTargets` lists the compact payload paths worth reading next, marking
 the primary `read-current` target when one exists. In compact agent
 mode the first action lives in `agent.primaryAction`, while
