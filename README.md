@@ -213,6 +213,11 @@ source, relevance, source score, match hints, and `selectionReason` together so
 a subagent can compare candidates before drilling into the full result list.
 Text output prints the same shortlist as `resultChoice:` lines in the `agent`
 block for agents that are inspecting stdout instead of compact JSON.
+On normal page checks, `agent.sourceChoices` mirrors `pageCheck.sourceLinks`
+with stable `pageCheck.sourceLinks[...]` paths, source scores, reasons, and
+runnable command fields so an executor can compare source candidates without
+walking the page-check payload first. Text output prints these as
+`sourceChoice:` lines in the `agent` block.
 `agent.readTargets` lists the compact payload paths worth reading next, marking
 the primary `read-current` target when one exists. In compact agent
 mode the first action lives in `agent.primaryAction`, while
@@ -560,6 +565,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "answerPlan.confidence",
         "searchDecision",
         "resultChoices",
+        "sourceChoices",
         "pageDecision",
         "searchResult.selectionReason",
         "sourceLink.selectionReason",

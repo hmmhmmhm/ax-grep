@@ -248,6 +248,7 @@ describe("cli", () => {
             "answerPlan.confidence",
             "searchDecision",
             "resultChoices",
+            "sourceChoices",
             "pageDecision",
             "searchResult.selectionReason",
             "sourceLink.selectionReason",
@@ -368,6 +369,18 @@ describe("cli", () => {
         usabilityScore: expect.any(Number),
         evidenceQualityScore: expect.any(Number),
         sourceQualityScore: expect.any(Number),
+        sourceChoices: [
+          expect.objectContaining({
+            id: "s1",
+            path: "pageCheck.sourceLinks[0]",
+            title: "Target",
+            url: "https://target.example/",
+            kind: "external",
+            selectionReason: expect.any(String),
+            command: "ax-grep 'https://target.example/' --find 'Example' --agent",
+            commandArgs: ["ax-grep", "https://target.example/", "--find", "Example", "--agent"],
+          }),
+        ],
         readabilityScore: expect.any(Number),
         bestReadTarget: "verification.bestEvidence",
         bestReadTargetReason: "Best matching evidence for the requested --find text.",
@@ -2768,6 +2781,10 @@ describe("cli", () => {
     expect(stdout.output).toContain("This article paragraph is long enough to appear in the page checking summary for agents.");
     expect(stdout.output).toContain("  citation: s1 pageCheck.sourceLinks[0] source-link medium score=");
     expect(stdout.output).toContain("Possible source candidate: news-like.");
+    expect(stdout.output).toContain("  sourceChoice: s1 pageCheck.sourceLinks[0] rank=1");
+    expect(stdout.output).toContain("source=source.example type=news kind=external <https://source.example/report> - Possible source candidate: news-like. Source report");
+    expect(stdout.output).toContain("    command: ax-grep 'https://source.example/report' --json --summary");
+    expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://source.example/report\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  bestReadTarget: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  bestReadTargetReason: Structured page excerpts suitable for source checking.");
     expect(stdout.output).toContain("  readabilityReason: 1 content evidence item");

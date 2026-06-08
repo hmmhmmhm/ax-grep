@@ -280,6 +280,15 @@ export type AgentResultChoice = AgentTarget & {
   recommendedPath?: string;
 };
 
+export type AgentSourceChoice = AgentTarget & {
+  id: string;
+  path: string;
+  kind?: "internal" | "external";
+  primary?: boolean;
+  command?: string;
+  commandArgs?: string[];
+};
+
 export type AgentSummary = {
   contract: AgentContract;
   status: AgentStatus;
@@ -315,6 +324,7 @@ export type AgentSummary = {
   resultChoices?: AgentResultChoice[];
   evidenceCount?: number;
   sourceLinkCount?: number;
+  sourceChoices?: AgentSourceChoice[];
   evidenceQualityScore?: number;
   sourceQualityScore?: number;
   alternativeActionCount?: number;
@@ -364,6 +374,7 @@ export type AgentContractFeature =
   | "answerPlan.confidence"
   | "searchDecision"
   | "resultChoices"
+  | "sourceChoices"
   | "pageDecision"
   | "searchResult.selectionReason"
   | "sourceLink.selectionReason"

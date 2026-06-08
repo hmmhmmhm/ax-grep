@@ -38,6 +38,7 @@ describe("README", () => {
           "answerPlan.confidence",
           "searchDecision",
           "resultChoices",
+          "sourceChoices",
           "pageDecision",
           "searchResult.selectionReason",
           "sourceLink.selectionReason",

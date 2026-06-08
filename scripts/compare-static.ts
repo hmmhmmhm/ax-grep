@@ -79,6 +79,7 @@ type CliAgentSummary = {
   agentResultCountScore: number;
   agentResultChoiceScore: number;
   agentSourceLinkCountScore: number;
+  agentSourceChoiceScore: number;
   agentBrowserNeedScore: number;
   agentBrowserHtmlScore: number;
   agentReadabilityReasonScore: number;
@@ -202,6 +203,15 @@ type CliAgentResultChoiceShape = CliAgentTargetShape & {
   recommended?: boolean;
   primary?: boolean;
   recommendedPath?: string;
+};
+
+type CliAgentSourceChoiceShape = CliAgentTargetShape & {
+  id?: string;
+  path?: string;
+  kind?: "internal" | "external";
+  primary?: boolean;
+  command?: string;
+  commandArgs?: string[];
 };
 
 type CliAgentLoopShape = {
@@ -375,6 +385,7 @@ type GateSummary = {
   averageAgentResultCountScore: number;
   averageAgentResultChoiceScore: number;
   averageAgentSourceLinkCountScore: number;
+  averageAgentSourceChoiceScore: number;
   averageAgentBrowserNeedScore: number;
   averageAgentBrowserHtmlScore: number;
   averageAgentPageKindScore: number;
@@ -757,6 +768,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       resultCount?: number;
       resultChoices?: CliAgentResultChoiceShape[];
       sourceLinkCount?: number;
+      sourceChoices?: CliAgentSourceChoiceShape[];
       primaryExecution?: ActionExecution;
       primaryReadFrom?: string;
       primaryCommand?: string;
@@ -788,8 +800,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       contentPreview?: unknown[];
       contentEvidence?: CliContentEvidenceShape[];
       contentLength?: number;
-      primaryLinks?: Array<{ sourceScore?: number; selectionReason?: string; command?: string; commandArgs?: string[] }>;
-      sourceLinks?: Array<{ sourceScore?: number; selectionReason?: string; command?: string; commandArgs?: string[] }>;
+      primaryLinks?: Array<{ id?: string; path?: string; title?: string; url?: string; sourceScore?: number; selectionReason?: string; command?: string; commandArgs?: string[] }>;
+      sourceLinks?: Array<{ id?: string; path?: string; title?: string; url?: string; kind?: "internal" | "external"; sourceScore?: number; selectionReason?: string; command?: string; commandArgs?: string[] }>;
       actions?: unknown[];
       recommendedAction?: CliActionShape;
       nextSteps?: CliActionShape[];
@@ -852,6 +864,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentResultCountScore: scoreAgentResultCount(item.kind ?? "unknown", item.agent?.resultCount, item.searchResults ?? []),
     agentResultChoiceScore: scoreAgentResultChoices(item.agent?.resultChoices ?? [], item.searchResults ?? [], item.recommendedResult, item.agent?.primaryAction),
     agentSourceLinkCountScore: scoreAgentSourceLinkCount(item.kind ?? "unknown", item.agent?.sourceLinkCount, item.pageCheck?.sourceLinks ?? []),
+    agentSourceChoiceScore: scoreAgentSourceChoices(item.kind ?? "unknown", item.agent?.sourceChoices ?? [], item.pageCheck?.sourceLinks ?? [], item.agent?.primaryAction),
     agentBrowserNeedScore: scoreAgentBrowserNeed(item.agent?.needsBrowserHtml, item.agent?.status, item.agent?.primaryAction),
     agentBrowserHtmlScore: scoreAgentBrowserHtml(item.agent?.next, item.agent?.executionPlan, item.agent?.primaryAction),
     agentReadabilityReasonScore: scoreReadabilityReasons(item.agent?.readabilityReasons),
@@ -911,6 +924,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentResultCountScore: 0,
     agentResultChoiceScore: 0,
     agentSourceLinkCountScore: 0,
+    agentSourceChoiceScore: 0,
     agentBrowserNeedScore: 0,
     agentBrowserHtmlScore: 0,
     agentReadabilityReasonScore: 0,
@@ -1062,6 +1076,7 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[] }
     "answerEvidence",
     "searchDecision",
     "resultChoices",
+    "sourceChoices",
     "pageDecision",
     "readTargets",
     "actions",
@@ -1618,6 +1633,40 @@ function scoreAgentSourceLinkCount(kind: string, sourceLinkCount: number | undef
   return sourceLinkCount === sourceLinks.length ? 1 : 0;
 }
 
+function scoreAgentSourceChoices(
+  kind: string,
+  choices: CliAgentSourceChoiceShape[],
+  sourceLinks: Array<{ title?: string; url?: string; kind?: "internal" | "external"; selectionReason?: string; command?: string; commandArgs?: string[] }>,
+  primaryAction: CliActionShape | undefined,
+): number {
+  if (kind === "search-results" || sourceLinks.length === 0) return choices.length === 0 ? 1 : 0;
+  if (choices.length === 0) return 0;
+  let required = 3;
+  let matched = 0;
+  if (choices.length <= Math.min(4, sourceLinks.length) && choices.length >= 1) matched += 1;
+  const validChoices = choices.filter((choice, index) => {
+    const source = sourceLinks[index];
+    return source
+      && choice.id === `s${index + 1}`
+      && choice.path === `pageCheck.sourceLinks[${index}]`
+      && choice.url === source.url
+      && choice.title === source.title
+      && choice.kind === source.kind
+      && typeof choice.selectionReason === "string"
+      && choice.selectionReason.length > 0;
+  }).length;
+  if (validChoices === choices.length) matched += 1;
+  const runnableChoices = choices.filter((choice) => typeof choice.command === "string" && choice.command.length > 0 && Array.isArray(choice.commandArgs) && choice.commandArgs.length > 0).length;
+  if (runnableChoices === choices.length) matched += 1;
+  const sourcePrimaryAction = primaryAction?.action === "open-source-link"
+    || sourceLinks.some((source) => primaryAction?.url && source.url === primaryAction.url);
+  if (sourcePrimaryAction && primaryAction) {
+    required += 1;
+    if (choices.some((choice) => choice.primary === true && (choice.url === primaryAction.url || choice.rank === primaryAction.rank))) matched += 1;
+  }
+  return roundScore(matched / required);
+}
+
 function scoreAgentPageKind(pageKind: string | undefined, rootKind: string | undefined): number {
   if (!rootKind || rootKind === "unknown") return typeof pageKind === "undefined" ? 1 : 0;
   return pageKind === rootKind ? 1 : 0;
@@ -2119,6 +2168,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentResultCountScore * 0.005
     + summary.agentResultChoiceScore * 0.005
     + summary.agentSourceLinkCountScore * 0.005
+    + summary.agentSourceChoiceScore * 0.005
     + summary.agentBrowserNeedScore * 0.005
     + summary.agentBrowserHtmlScore * 0.005
     + summary.agentPageKindScore * 0.005
@@ -2161,6 +2211,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentSignalScore,
     summary.agentReadTargetScore,
     summary.agentResultChoiceScore,
+    summary.agentSourceChoiceScore,
     summary.agentBrowserNeedScore,
     summary.agentBrowserHtmlScore,
     summary.agentCanContinueScore,
@@ -2235,6 +2286,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentResultCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentResultCountScore)),
     averageAgentResultChoiceScore: average(included.map((comparison) => comparison.cliAgentSummary.agentResultChoiceScore)),
     averageAgentSourceLinkCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSourceLinkCountScore)),
+    averageAgentSourceChoiceScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSourceChoiceScore)),
     averageAgentBrowserNeedScore: average(included.map((comparison) => comparison.cliAgentSummary.agentBrowserNeedScore)),
     averageAgentBrowserHtmlScore: average(included.map((comparison) => comparison.cliAgentSummary.agentBrowserHtmlScore)),
     averageAgentPageKindScore: average(included.map((comparison) => comparison.cliAgentSummary.agentPageKindScore)),

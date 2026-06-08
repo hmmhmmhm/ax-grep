@@ -24,6 +24,7 @@ import type {
   AgentRoutingIntent,
   AgentRunbook,
   AgentSignal,
+  AgentSourceChoice,
   AgentStatus,
   AgentTarget,
   SemanticNode,
@@ -344,6 +345,7 @@ type AgentSummary = {
   resultChoices: AgentResultChoice[];
   evidenceCount: number;
   sourceLinkCount: number;
+  sourceChoices: AgentSourceChoice[];
   evidenceQualityScore: number;
   sourceQualityScore: number;
   alternativeActionCount: number;
@@ -395,6 +397,7 @@ const agentContract: AgentContract = {
     "answerPlan.confidence",
     "searchDecision",
     "resultChoices",
+    "sourceChoices",
     "pageDecision",
     "searchResult.selectionReason",
     "sourceLink.selectionReason",
@@ -1339,7 +1342,22 @@ function formatCliText(
   const finds = summarizeFinds(options.findQueries ?? [], fetched.page, pageCheck, links, results, outline, content, analysis.kind);
   const verification = summarizeVerification(finds, pageCheck, fetched.finalUrl, analysis, options.agentMode, false, options.sourceSearch, options.timeoutMs, options.userAgent);
   const recommendedResult = analysis.kind === "search-results" ? recommendedSearchResult(results, options.findQueries ?? []) : undefined;
-  const agent = summarizeAgent(analysis, pageCheck, verification, results, recommendedResult, undefined, false, options.sourceSearch, fetched);
+  const agent = summarizeAgent(
+    analysis,
+    pageCheck,
+    verification,
+    results,
+    recommendedResult,
+    undefined,
+    false,
+    options.sourceSearch,
+    fetched,
+    undefined,
+    options.agentMode,
+    options.findQueries ?? [],
+    options.timeoutMs,
+    options.userAgent,
+  );
   appendSection(lines, formatAgentText(agent));
   appendSection(lines, formatAnalysisText(analysis));
   appendSection(lines, formatPageCheckText(pageCheck));
@@ -1522,6 +1540,21 @@ function formatAgentText(agent: AgentSummary): string[] {
     const reason = choice.selectionReason ? ` - ${choice.selectionReason}` : "";
     const title = choice.title ? ` ${choice.title}` : "";
     lines.push(`  resultChoice: ${choice.id} ${choice.path}${rank}${flagText}${score}${relevance}${source}${sourceType}${official}${matchedTerms}${findMatches}${target}${reason}${title}`);
+  }
+  for (const choice of agent.sourceChoices) {
+    const rank = typeof choice.rank === "number" ? ` rank=${choice.rank}` : "";
+    const primary = choice.primary ? " primary" : "";
+    const score = typeof choice.sourceScore === "number" ? ` score=${choice.sourceScore}` : "";
+    const source = choice.source ? ` source=${choice.source}` : "";
+    const sourceType = choice.sourceType ? ` type=${choice.sourceType}` : "";
+    const kind = choice.kind ? ` kind=${choice.kind}` : "";
+    const official = typeof choice.isLikelyOfficial === "boolean" ? ` official=${choice.isLikelyOfficial}` : "";
+    const target = choice.url ? ` <${choice.url}>` : "";
+    const reason = choice.selectionReason ? ` - ${choice.selectionReason}` : "";
+    const title = choice.title ? ` ${choice.title}` : "";
+    lines.push(`  sourceChoice: ${choice.id} ${choice.path}${rank}${primary}${score}${source}${sourceType}${kind}${official}${target}${reason}${title}`);
+    if (choice.command) lines.push(`    command: ${choice.command}`);
+    if (choice.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
   }
   for (const target of agent.readTargets) {
     const count = typeof target.count === "number" ? ` count=${target.count}` : "";
@@ -2698,6 +2731,10 @@ function summarizeAgent(
   sourceSearch?: SourceSearchSummary,
   fetched?: FetchResult,
   requestUrl?: string,
+  agentMode = false,
+  findQueries: string[] = [],
+  timeoutMs?: number,
+  userAgent?: string,
 ): AgentSummary {
   const diagnosticCodes = analysis.diagnostics.map((diagnostic) => diagnostic.code);
   const primaryAction = primaryAgentAction(analysis, pageCheck, verification);
@@ -2755,6 +2792,7 @@ function summarizeAgent(
     resultChoices: summarizeAgentResultChoices(hasUsableSearchResults ? results : [], recommendedResult, primaryAction),
     evidenceCount: pageCheck.contentEvidence.length,
     sourceLinkCount: analysis.kind === "search-results" ? 0 : pageCheck.sourceLinks.length,
+    sourceChoices: summarizeAgentSourceChoices(analysis.kind, pageCheck.sourceLinks, primaryAction, agentMode, findQueries, timeoutMs, userAgent),
     evidenceQualityScore: averageEvidenceScore(pageCheck.contentEvidence),
     sourceQualityScore: agentSourceQualityScore(analysis.kind, pageCheck.sourceLinks, results, recommendedResult),
     alternativeActionCount: countAlternativeAgentActions(analysis, pageCheck, verification, primaryAction),
@@ -2907,6 +2945,41 @@ function summarizeAgentResultChoices(
       ...(typeof result.isLikelyOfficial === "boolean" ? { isLikelyOfficial: result.isLikelyOfficial } : {}),
       selectionReason: result.selectionReason ?? searchResultSelectionReason(result),
       ...(recommended ? { recommended: true, recommendedPath: "recommendedResult" } : {}),
+      ...(primary ? { primary: true } : {}),
+    };
+  });
+}
+
+function summarizeAgentSourceChoices(
+  kind: ContentKind,
+  sourceLinks: PageLinkSummary[],
+  primaryAction: SuggestedAction | undefined,
+  agentMode: boolean,
+  findQueries: string[],
+  timeoutMs?: number,
+  userAgent?: string,
+): AgentSourceChoice[] {
+  if (kind === "search-results" || sourceLinks.length === 0) return [];
+  return sourceLinks.slice(0, 4).map((link, index) => {
+    const command = pageCommandSpec(link.url, agentMode, false, findQueries, timeoutMs, userAgent);
+    const primary = Boolean(primaryAction?.url === link.url || (typeof primaryAction?.rank === "number" && primaryAction.rank === link.rank));
+    return {
+      id: `s${index + 1}`,
+      path: `pageCheck.sourceLinks[${index}]`,
+      title: link.title,
+      url: link.url,
+      source: link.source,
+      rank: link.rank,
+      kind: link.kind,
+      ...(link.sourceType ? { sourceType: link.sourceType } : {}),
+      ...(typeof link.sourceScore === "number" ? { sourceScore: link.sourceScore } : {}),
+      ...(link.sourceHints?.length ? { sourceHints: link.sourceHints } : {}),
+      ...(link.relevance ? { relevance: link.relevance } : {}),
+      ...(link.matchedTerms?.length ? { matchedTerms: link.matchedTerms } : {}),
+      ...(link.findMatches?.length ? { findMatches: link.findMatches } : {}),
+      ...(typeof link.isLikelyOfficial === "boolean" ? { isLikelyOfficial: link.isLikelyOfficial } : {}),
+      selectionReason: link.selectionReason ?? sourceLinkSelectionReason(link),
+      ...commandFields(command),
       ...(primary ? { primary: true } : {}),
     };
   });
@@ -4024,6 +4097,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     resultChoices: [],
     evidenceCount: 0,
     sourceLinkCount: 0,
+    sourceChoices: [],
     evidenceQualityScore: 0,
     sourceQualityScore: 0,
     alternativeActionCount: 0,
@@ -4523,7 +4597,22 @@ function jsonEnvelope(
   const finds = summarizeFinds(options.findQueries ?? [], fetched.page, pageCheck, links, results, outline, content, analysis.kind);
   const verification = summarizeVerification(finds, pageCheck, fetched.finalUrl, analysis, options.agentMode, capturedHtml, options.sourceSearch, options.timeoutMs, options.userAgent);
   const recommendedResult = analysis.kind === "search-results" ? recommendedSearchResult(results, options.findQueries ?? []) : undefined;
-  const agent = summarizeAgent(analysis, pageCheck, verification, results, recommendedResult, error, capturedHtml, options.sourceSearch, fetched, options.url);
+  const agent = summarizeAgent(
+    analysis,
+    pageCheck,
+    verification,
+    results,
+    recommendedResult,
+    error,
+    capturedHtml,
+    options.sourceSearch,
+    fetched,
+    options.url,
+    options.agentMode,
+    options.findQueries ?? [],
+    options.timeoutMs,
+    options.userAgent,
+  );
   const outputAnalysis = {
     ...analysis,
     suggestedActions: analysis.suggestedActions.map(withActionExecution),
@@ -4847,6 +4936,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     ...(agent.resultChoices.length > 0 ? { resultChoices: agent.resultChoices } : {}),
     evidenceCount: agent.evidenceCount,
     sourceLinkCount: agent.sourceLinkCount,
+    ...(agent.sourceChoices.length > 0 ? { sourceChoices: agent.sourceChoices } : {}),
     evidenceQualityScore: agent.evidenceQualityScore,
     sourceQualityScore: agent.sourceQualityScore,
     alternativeActionCount: agent.alternativeActionCount,
