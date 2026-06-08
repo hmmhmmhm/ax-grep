@@ -332,6 +332,7 @@ const agentContract: AgentContract = {
     "answerPlan.actionFields",
     "answerPlan.confidence",
     "searchResult.selectionReason",
+    "sourceLink.selectionReason",
     "contentEvidence.quality",
     "readTargets",
     "signals",
@@ -1456,8 +1457,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const selector = evidence.selector ? ` (${evidence.selector})` : "";
     lines.push(`  evidence: ${evidence.id} ${evidence.path} ${evidence.rank}. ${evidence.role}${selector} ${evidence.quality} - ${evidence.qualityReason} ${evidence.text}`);
   }
-  for (const link of pageCheck.primaryLinks) lines.push(`  link: ${link.kind} ${link.title} <${link.url}>`);
-  for (const link of pageCheck.sourceLinks) lines.push(`  sourceLink: ${link.title} <${link.url}>`);
+  for (const link of pageCheck.primaryLinks) lines.push(`  link: ${link.kind} ${link.title} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`);
+  for (const link of pageCheck.sourceLinks) lines.push(`  sourceLink: ${link.title} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`);
   for (const action of pageCheck.actions) lines.push(`  action: ${action.type} ${action.text}`);
   lines.push(`  next: ${formatActionLabel(pageCheck.recommendedAction)} - ${pageCheck.recommendedAction.reason}`);
   lines.push(`  execution: ${actionExecution(pageCheck.recommendedAction)}`);
@@ -1732,6 +1733,14 @@ function searchResultSelectionReason(result: Pick<ResultSummary, "rank" | "sourc
   if (result.relevance === "low" && result.matchedTerms?.length) return `Low relevance: only matched ${result.matchedTerms.join(", ")}.`;
   if (result.sourceHints?.length) return `Source profile: ${result.sourceHints.join(", ")}.`;
   return `Ranked result ${result.rank} from ${result.source}.`;
+}
+
+function sourceLinkSelectionReason(link: Pick<ResultSummary, "source" | "sourceScore" | "sourceHints" | "sourceType"> & { kind?: PageLinkSummary["kind"] }): string {
+  const score = typeof link.sourceScore === "number" ? link.sourceScore : 0;
+  if (score >= 0.78 && link.sourceHints?.length) return `Strong source candidate: ${link.sourceHints.join(", ")}.`;
+  if (score >= 0.5 && link.sourceHints?.length) return `Possible source candidate: ${link.sourceHints.join(", ")}.`;
+  if (link.sourceType && link.sourceType !== "unknown") return `Source profile is ${link.sourceType}.`;
+  return `${link.kind === "external" ? "External" : "Page"} link from ${link.source}.`;
 }
 
 function matchedFindQueriesForResult(result: ResultSummary, findQueries: string[]): string[] {
@@ -3385,6 +3394,13 @@ function summarizePrimaryPageLinks(links: LinkSummary[], baseUrl: string): PageL
         sourceType: sourceProfile.type,
         sourceScore: sourceProfile.score,
         sourceHints: sourceProfile.hints,
+        selectionReason: sourceLinkSelectionReason({
+          source: sourceFromUrl(link.url),
+          kind: samePageOrSameHost(link.url, baseUrl) ? "internal" : "external",
+          sourceType: sourceProfile.type,
+          sourceScore: sourceProfile.score,
+          sourceHints: sourceProfile.hints,
+        }),
       };
       if (link.snippet) summary.snippet = link.snippet;
       return summary;
@@ -4475,6 +4491,7 @@ function compactAgentPageLink(
   if (link.matchedTerms) compact.matchedTerms = link.matchedTerms;
   if (link.findMatches) compact.findMatches = link.findMatches;
   if (typeof link.isLikelyOfficial === "boolean") compact.isLikelyOfficial = link.isLikelyOfficial;
+  compact.selectionReason = link.selectionReason ?? sourceLinkSelectionReason(link);
   const command = commandContext ? pageCommandSpec(link.url, commandContext.agentMode, false, [], commandContext.timeoutMs, commandContext.userAgent) : undefined;
   return {
     ...compact,

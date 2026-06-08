@@ -633,8 +633,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       contentPreview?: unknown[];
       contentEvidence?: CliContentEvidenceShape[];
       contentLength?: number;
-      primaryLinks?: Array<{ sourceScore?: number; command?: string; commandArgs?: string[] }>;
-      sourceLinks?: Array<{ sourceScore?: number; command?: string; commandArgs?: string[] }>;
+      primaryLinks?: Array<{ sourceScore?: number; selectionReason?: string; command?: string; commandArgs?: string[] }>;
+      sourceLinks?: Array<{ sourceScore?: number; selectionReason?: string; command?: string; commandArgs?: string[] }>;
       actions?: unknown[];
       recommendedAction?: CliActionShape;
       nextSteps?: CliActionShape[];
@@ -1085,8 +1085,8 @@ function expectedAgentOutcomeKind(primaryAction: CliActionShape | undefined): No
 }
 
 function scorePageLinkCommands(
-  primaryLinks: Array<{ id?: string; path?: string; command?: string; commandArgs?: string[] }>,
-  sourceLinks: Array<{ id?: string; path?: string; command?: string; commandArgs?: string[] }>,
+  primaryLinks: Array<{ id?: string; path?: string; selectionReason?: string; command?: string; commandArgs?: string[] }>,
+  sourceLinks: Array<{ id?: string; path?: string; selectionReason?: string; command?: string; commandArgs?: string[] }>,
 ): number {
   const links = [...primaryLinks, ...sourceLinks];
   if (links.length === 0) return 1;
@@ -1098,7 +1098,9 @@ function scorePageLinkCommands(
       && typeof link.command === "string"
       && link.command.length > 0
       && Array.isArray(link.commandArgs)
-      && link.commandArgs.length > 0;
+      && link.commandArgs.length > 0
+      && typeof link.selectionReason === "string"
+      && link.selectionReason.length > 0;
   }).length;
   return roundScore(validCount / links.length);
 }

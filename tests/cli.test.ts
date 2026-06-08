@@ -243,6 +243,7 @@ describe("cli", () => {
             "answerPlan.actionFields",
             "answerPlan.confidence",
             "searchResult.selectionReason",
+            "sourceLink.selectionReason",
             "contentEvidence.quality",
             "readTargets",
             "signals",
@@ -1732,6 +1733,7 @@ describe("cli", () => {
         id: "s1",
         path: "pageCheck.sourceLinks[0]",
         url: "https://source.example/report",
+        selectionReason: "Possible source candidate: news-like.",
         command: "ax-grep 'https://source.example/report' --timeout 30000 --user-agent 'custom-agent/1.0' --agent",
         commandArgs: [
           "ax-grep",
@@ -2149,6 +2151,7 @@ describe("cli", () => {
         title: "Original source report",
         url: "https://source.example/report",
         kind: "external",
+        selectionReason: "External link from source.example.",
       }),
       expect.objectContaining({
         title: "Comments",
@@ -2163,6 +2166,7 @@ describe("cli", () => {
         kind: "external",
         sourceType: "unknown",
         sourceScore: 0.35,
+        selectionReason: "External link from source.example.",
       }),
     ]);
     expect(envelope.pageCheck.primaryLinks.map((link: { title: string }) => link.title)).not.toContain("Login");
@@ -2482,8 +2486,8 @@ describe("cli", () => {
     expect(stdout.output).toContain("  mainHeading: Article heading");
     expect(stdout.output).toContain("  excerpt: This article paragraph is long enough to appear in the page checking summary for agents.");
     expect(stdout.output).toContain("  evidence: e1 pageCheck.contentEvidence[0] 1. p (p) high - high evidence from semantic extraction, 88 chars, p content, selector available. This article paragraph is long enough to appear in the page checking summary for agents.");
-    expect(stdout.output).toContain("  link: external Source report <https://source.example/report>");
-    expect(stdout.output).toContain("  sourceLink: Source report <https://source.example/report>");
+    expect(stdout.output).toContain("  link: external Source report <https://source.example/report> - Possible source candidate: news-like.");
+    expect(stdout.output).toContain("  sourceLink: Source report <https://source.example/report> - Possible source candidate: news-like.");
     expect(stdout.output).toContain("  next: read-content [terminal] - The page has enough structured evidence for source checking.");
     expect(stdout.output).toContain("  execution: read-current");
     expect(stdout.output).toContain("  readFrom: pageCheck.contentEvidence");

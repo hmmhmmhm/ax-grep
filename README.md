@@ -199,8 +199,8 @@ include citeable `id`/`path` metadata plus rank-specific `openResult`,
 `command`, and `commandArgs`, so an agent can compare, cite, or open result 2
 or 3 without inventing a command from the raw URL; compact
 `pageCheck.primaryLinks` and `pageCheck.sourceLinks` also include `id`, `path`,
-`command`, and `commandArgs` in `--agent` output, preserving fetch flags for
-source-link follow-up;
+`selectionReason`, `command`, and `commandArgs` in `--agent` output, preserving
+fetch flags for source-link follow-up;
 search-like pages reached by a normal URL expose a direct
 `ax-grep <result-url>` continuation for the selected result;
 fetch errors also emit a
@@ -399,7 +399,8 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "kind": "external",
         "sourceType": "official",
         "sourceScore": 0.92,
-        "sourceHints": ["official-organization"]
+        "sourceHints": ["official-organization"],
+        "selectionReason": "Strong source candidate: official-organization."
       }
     ],
     "sourceLinks": [
@@ -509,6 +510,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "answerPlan.actionFields",
         "answerPlan.confidence",
         "searchResult.selectionReason",
+        "sourceLink.selectionReason",
         "contentEvidence.quality",
         "readTargets",
         "signals",
