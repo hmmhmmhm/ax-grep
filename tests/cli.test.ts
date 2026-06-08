@@ -640,6 +640,11 @@ describe("cli", () => {
     expect(envelope.pageCheck.nextSteps).toBeUndefined();
     expect(envelope.agent.sourceLinkCount).toBe(0);
     expect(envelope.agent.resultCount).toBe(1);
+    expect(envelope.agent.citations).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ kind: "source-link" }),
+      ]),
+    );
     expect(envelope.agent.readabilityReasons).toContain("1 search result source");
     expect(envelope.pageCheck.readability.reasons).toContain("1 search result source");
   });

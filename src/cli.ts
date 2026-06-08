@@ -2665,7 +2665,7 @@ function summarizeAgent(
   const diagnosticCounts = countDiagnosticsBySeverity(analysis.diagnostics);
   const readTargets = summarizeAgentReadTargets(primaryAction, analysis.kind, pageCheck, verification, results, sourceSearch);
   const bestReadTarget = selectBestReadTarget(readTargets);
-  const citations = summarizeAgentCitations(pageCheck, verification, recommendedResult, sourceSearch);
+  const citations = summarizeAgentCitations(analysis.kind, pageCheck, verification, recommendedResult, sourceSearch);
   const searchDecision = summarizeAgentSearchDecision(analysis, results, recommendedResult, primaryAction);
   const pageDecision = summarizeAgentPageDecision(analysis, pageCheck, primaryAction);
   const next = summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch));
@@ -2746,6 +2746,7 @@ function summarizeAgent(
 }
 
 function summarizeAgentCitations(
+  kind: ContentKind,
   pageCheck: PageCheckSummary,
   verification: VerificationSummary,
   recommendedResult?: ResultSummary,
@@ -2803,17 +2804,19 @@ function summarizeAgentCitations(
       ...(typeof sourceSearch.selectedResult.sourceScore === "number" ? { score: sourceSearch.selectedResult.sourceScore } : {}),
     });
   }
-  for (const [index, link] of pageCheck.sourceLinks.slice(0, 2).entries()) {
-    add({
-      kind: "source-link",
-      id: `s${index + 1}`,
-      path: `pageCheck.sourceLinks[${index}]`,
-      confidence: sourceCitationConfidence(link),
-      reason: link.selectionReason ?? sourceLinkSelectionReason(link),
-      title: link.title,
-      url: link.url,
-      ...(typeof link.sourceScore === "number" ? { score: link.sourceScore } : {}),
-    });
+  if (kind !== "search-results") {
+    for (const [index, link] of pageCheck.sourceLinks.slice(0, 2).entries()) {
+      add({
+        kind: "source-link",
+        id: `s${index + 1}`,
+        path: `pageCheck.sourceLinks[${index}]`,
+        confidence: sourceCitationConfidence(link),
+        reason: link.selectionReason ?? sourceLinkSelectionReason(link),
+        title: link.title,
+        url: link.url,
+        ...(typeof link.sourceScore === "number" ? { score: link.sourceScore } : {}),
+      });
+    }
   }
   return citations.slice(0, 6);
 }
