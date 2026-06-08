@@ -299,7 +299,10 @@ primary action is `open-alternate-result`, `agent.readTargets` points at
 candidates before running the recovery command. After any `--open-result`,
 `agent.readTargets` also points at `sourceSearch.selectedResult`, preserving
 the original SERP title, snippet, rank, relevance, and runnable command as
-page provenance.
+page provenance. Text output mirrors that recovery context with flat keys such
+as `handoffSourceSearchQuery:`, `handoffSourceSearchSearchUrl:`,
+`handoffSourceSearchSelectedUrl:`, `handoffSourceSearchFindQueries:`, and
+`handoffSourceSearchAlternateCommandArgs:`.
 
 An agent executor can treat `agent.handoff.decision` as the only required switch:
 

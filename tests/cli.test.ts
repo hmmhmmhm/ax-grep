@@ -2422,6 +2422,64 @@ describe("cli", () => {
     expect(envelope.verification.recommendedAction).toBeUndefined();
   });
 
+  it("prints source search recovery handoff details in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli([
+      "--search",
+      "agent browser",
+      "--engine",
+      "duckduckgo",
+      "--find",
+      "target claim",
+      "--open-result",
+      "1",
+    ], {
+      stdout,
+      fetch: async (input) => {
+        if (String(input).includes("duckduckgo.com")) {
+          return new Response(`
+            <main>
+              <div class="result">
+                <a class="result__a" href="https://first.example/article">Agent browser overview</a>
+                <div class="result__snippet">General overview without the requested claim.</div>
+              </div>
+              <div class="result">
+                <a class="result__a" href="https://alternate.example/article">Independent source</a>
+                <div class="result__snippet">This result contains the target claim for verification.</div>
+              </div>
+            </main>
+          `, { headers: { "content-type": "text/html" } });
+        }
+        return new Response(`
+          <main>
+            <article>
+              <h1>Agent browser overview</h1>
+              <p>This opened page is readable but does not contain the requested phrase.</p>
+            </article>
+          </main>
+        `, { headers: { "content-type": "text/html" } });
+      },
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n  status: verify");
+    expect(stdout.output).toContain("  handoff: execute/execute-command/low action=open-alternate-result");
+    expect(stdout.output).toContain("  handoffSourceSearch: agent browser engine=duckduckgo selected=1 alternates=1 <https://first.example/article>");
+    expect(stdout.output).toContain("  handoffSourceSearchQuery: agent browser");
+    expect(stdout.output).toContain("  handoffSourceSearchEngine: duckduckgo");
+    expect(stdout.output).toContain("  handoffSourceSearchSearchUrl: https://duckduckgo.com/html/?q=agent+browser");
+    expect(stdout.output).toContain("  handoffSourceSearchFindQueries: target claim");
+    expect(stdout.output).toContain("  handoffSourceSearchSelectedRank: 1");
+    expect(stdout.output).toContain("  handoffSourceSearchSelectedUrl: https://first.example/article");
+    expect(stdout.output).toContain("  handoffSourceSearchResult: selected sourceSearch.selectedResult rank=1");
+    expect(stdout.output).toContain("  handoffSourceSearchAlternate: a2 sourceSearch.alternateResults[0] rank=2");
+    expect(stdout.output).toContain("find=target claim <https://alternate.example/article>");
+    expect(stdout.output).toContain("  handoffSourceSearchAlternateCommandArgs: [\"ax-grep\",\"--search\",\"agent browser\",\"--engine\",\"duckduckgo\",\"--find\",\"target claim\",\"--open-result\",\"2\",\"--agent\"]");
+    expect(stdout.output).toContain("  handoffCommandArgs: [\"ax-grep\",\"--search\",\"agent browser\",\"--engine\",\"duckduckgo\",\"--find\",\"target claim\",\"--open-result\",\"2\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  readTarget: sourceSearch.alternateResults count=1");
+    expect(stdout.output).toContain("source\n  search: agent browser via duckduckgo");
+  });
+
   it("rejects search with an explicit URL", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test", "--search", "agent", "--json"], { stdout });

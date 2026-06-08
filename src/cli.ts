@@ -1542,6 +1542,8 @@ function formatAgentSourceSearchResultText(result: AgentSourceSearchResult, pref
   const lines = [`  ${prefix}: ${result.id} ${result.path}${rank}${openResult}${score}${relevance}${source}${sourceType}${official}${matchedTerms}${findMatches}${target}${reason}${title}`];
   if (result.command) lines.push(`    command: ${result.command}`);
   if (result.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(result.commandArgs)}`);
+  if (result.command) lines.push(`  ${prefix}Command: ${result.command}`);
+  if (result.commandArgs) lines.push(`  ${prefix}CommandArgs: ${formatCommandArgsText(result.commandArgs)}`);
   return lines;
 }
 
@@ -1619,6 +1621,13 @@ function formatAgentText(agent: AgentSummary): string[] {
     const selectedEngine = search.selectedEngine ? ` selectedEngine=${search.selectedEngine}` : "";
     const alternates = search.alternateResults?.length ? ` alternates=${search.alternateResults.length}` : "";
     lines.push(`  handoffSourceSearch: ${search.query} engine=${search.engine}${selectedEngine} selected=${search.selectedRank}${alternates} <${search.selectedUrl}>`);
+    lines.push(`  handoffSourceSearchQuery: ${search.query}`);
+    lines.push(`  handoffSourceSearchEngine: ${search.engine}`);
+    if (search.selectedEngine) lines.push(`  handoffSourceSearchSelectedEngine: ${search.selectedEngine}`);
+    lines.push(`  handoffSourceSearchSearchUrl: ${search.searchUrl}`);
+    if (search.findQueries?.length) lines.push(`  handoffSourceSearchFindQueries: ${search.findQueries.join("; ")}`);
+    lines.push(`  handoffSourceSearchSelectedRank: ${search.selectedRank}`);
+    lines.push(`  handoffSourceSearchSelectedUrl: ${search.selectedUrl}`);
     if (search.selectedResult) lines.push(...formatAgentSourceSearchResultText(search.selectedResult, "handoffSourceSearchResult"));
     for (const result of search.alternateResults ?? []) lines.push(...formatAgentSourceSearchResultText(result, "handoffSourceSearchAlternate"));
   }
