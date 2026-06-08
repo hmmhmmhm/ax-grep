@@ -89,6 +89,9 @@ describe("README", () => {
         readTarget: {
           path: "verification.bestEvidence",
         },
+        readValue: {
+          path: "verification.bestEvidence",
+        },
       },
       expectedOutcome: {
         kind: "read-evidence",

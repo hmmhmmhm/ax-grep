@@ -3311,6 +3311,7 @@ function summarizeAgentHandoff(
     ...(answerPlan.useCitationIds.length > 0 ? { useCitationIds: answerPlan.useCitationIds } : {}),
     ...(next.readTarget ? { readTarget: next.readTarget } : {}),
     ...(next.readFrom ? { readFrom: next.readFrom } : {}),
+    ...(next.readValue ? { readValue: next.readValue } : {}),
     ...(next.command ? { command: next.command } : {}),
     ...(next.commandArgs ? { commandArgs: next.commandArgs } : {}),
     ...(next.afterInteractionCommand ? { afterInteractionCommand: next.afterInteractionCommand } : {}),

@@ -156,7 +156,7 @@ and target metadata into one object, so a subagent can usually switch on
 `runbook.decision` without joining `next`, `executionPlan`, and `answerPlan`.
 `agent.handoff` is the shortest executor handoff. It gives one plain
 `instruction` plus the same decision, mode, operation, action, priority,
-confidence, answer status, citation IDs, read path, command, URL, target
+confidence, answer status, citation IDs, read path/value, command, URL, target
 metadata, or browser-HTML fields needed for the
 immediate next step, so a subagent can do the right thing without assembling a
 sentence from multiple objects.
@@ -315,9 +315,7 @@ async function inspectWithAxGrep(urlOrQuery: string) {
     const step: AgentHandoff = payload.agent.handoff;
 
     if (step.decision === "return") {
-      if (step.readFrom && step.readFrom === payload.agent.next.readValue?.path) {
-        return payload.agent.next.readValue.value;
-      }
+      if (step.readValue) return step.readValue.value;
       return payload;
     }
 
@@ -352,9 +350,8 @@ async function inspectWithAxGrep(urlOrQuery: string) {
 `commandArgs.slice(1)` back to the binary. `capture-html` means the current
 fetch was not enough; use the browser controller to save rendered HTML, then
 run the supplied command with that file path. `read` and `stop` are terminal for
-the current payload: use `agent.handoff.readFrom` and
-`agent.next.readValue.value` when present, fall back to the payload if no extra
-evidence is needed.
+the current payload: use `agent.handoff.readValue.value` when present, and fall
+back to the payload if no extra evidence is needed.
 
 Use repeatable `--find <text>` with any page or search result page to ask
 `ax-grep` whether the page summaries contain a term or phrase. JSON output adds
@@ -686,6 +683,17 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "reason": "Best matching evidence for the requested --find text.",
         "count": 1,
         "primary": true
+      },
+      "readValue": {
+        "path": "verification.bestEvidence",
+        "value": {
+          "field": "contentEvidence",
+          "rank": 1,
+          "text": "This domain is for use in illustrative examples in documents.",
+          "source": "semantic",
+          "score": 0.72,
+          "selector": "p"
+        }
       },
       "readFrom": "verification.bestEvidence",
       "url": "https://example.com/"

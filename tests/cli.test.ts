@@ -346,6 +346,13 @@ describe("cli", () => {
             primary: true,
           },
           readFrom: "verification.bestEvidence",
+          readValue: {
+            path: "verification.bestEvidence",
+            value: expect.objectContaining({
+              field: "mainHeading",
+              text: "Example",
+            }),
+          },
           useCitationIds: expect.arrayContaining(["v1"]),
         },
         expectedOutcome: {

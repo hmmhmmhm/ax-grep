@@ -208,6 +208,10 @@ type CliAgentHandoffShape = {
   useCitationIds?: unknown[];
   readTarget?: CliReadTargetShape;
   readFrom?: string;
+  readValue?: {
+    path?: string;
+    value?: unknown;
+  };
   command?: string;
   commandArgs?: unknown[];
   afterInteractionCommand?: string;
@@ -1421,9 +1425,10 @@ function scoreAgentHandoff(
     if (JSON.stringify(handoff.afterInteractionCommandArgs) === JSON.stringify(next.afterInteractionCommandArgs)) matched += 1;
   }
   if (next.readFrom) {
-    required += 2;
+    required += 3;
     if (handoff.readFrom === next.readFrom) matched += 1;
     if (handoff.readTarget?.path === next.readTarget?.path) matched += 1;
+    if (handoff.readValue?.path === next.readValue?.path) matched += 1;
   }
   if (next.url) {
     required += 1;

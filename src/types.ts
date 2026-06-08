@@ -245,6 +245,7 @@ export type AgentHandoff = {
   useCitationIds?: string[];
   readTarget?: AgentReadTarget;
   readFrom?: string;
+  readValue?: AgentReadValue;
   command?: string;
   commandArgs?: string[];
   afterInteractionCommand?: string;
