@@ -223,6 +223,8 @@ type CliContentEvidenceShape = {
   path?: string;
   source?: string;
   score?: number;
+  quality?: string;
+  qualityReason?: string;
 };
 
 type StaticClassification = "usable" | "needs-browser" | "challenge" | "shell" | "over-collected" | "reference-challenge" | "reference-missing" | "volatile";
@@ -853,7 +855,10 @@ function scoreContentEvidenceMetadata(evidence: CliContentEvidenceShape[]): numb
       && (item.source === "semantic" || item.source === "fallback")
       && typeof item.score === "number"
       && item.score >= 0
-      && item.score <= 1;
+      && item.score <= 1
+      && (item.quality === "low" || item.quality === "medium" || item.quality === "high")
+      && typeof item.qualityReason === "string"
+      && item.qualityReason.length > 0;
   }).length;
   return roundScore(validCount / evidence.length);
 }

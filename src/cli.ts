@@ -218,6 +218,8 @@ type PageEvidenceSummary = {
   role: string;
   source: "semantic" | "fallback";
   score: number;
+  quality: "low" | "medium" | "high";
+  qualityReason: string;
   selector?: string;
 };
 
@@ -235,6 +237,8 @@ type FindMatchSummary = {
   selector?: string;
   source?: PageEvidenceSummary["source"];
   score?: number;
+  quality?: PageEvidenceSummary["quality"];
+  qualityReason?: string;
 };
 
 type FindSummary = {
@@ -327,6 +331,7 @@ const agentContract: AgentContract = {
     "answerPlan",
     "answerPlan.actionFields",
     "searchResult.selectionReason",
+    "contentEvidence.quality",
     "readTargets",
     "signals",
     "expectedOutcome",
@@ -1446,7 +1451,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   for (const excerpt of pageCheck.contentPreview) lines.push(`  excerpt: ${excerpt}`);
   for (const evidence of pageCheck.contentEvidence) {
     const selector = evidence.selector ? ` (${evidence.selector})` : "";
-    lines.push(`  evidence: ${evidence.id} ${evidence.path} ${evidence.rank}. ${evidence.role}${selector} ${evidence.text}`);
+    lines.push(`  evidence: ${evidence.id} ${evidence.path} ${evidence.rank}. ${evidence.role}${selector} ${evidence.quality} - ${evidence.qualityReason} ${evidence.text}`);
   }
   for (const link of pageCheck.primaryLinks) lines.push(`  link: ${link.kind} ${link.title} <${link.url}>`);
   for (const link of pageCheck.sourceLinks) lines.push(`  sourceLink: ${link.title} <${link.url}>`);
@@ -2299,6 +2304,7 @@ function roundMetric(value: number): number {
 
 function summarizeContentEvidence(content: ContentSummary[]): PageEvidenceSummary[] {
   return content.slice(0, 4).map((item, index) => {
+    const score = evidenceScore(item.text, item.role, true, Boolean(item.selector));
     const evidence: PageEvidenceSummary = {
       id: `e${index + 1}`,
       path: `pageCheck.contentEvidence[${index}]`,
@@ -2306,7 +2312,9 @@ function summarizeContentEvidence(content: ContentSummary[]): PageEvidenceSummar
       text: item.text,
       role: item.role,
       source: "semantic",
-      score: evidenceScore(item.text, item.role, true, Boolean(item.selector)),
+      score,
+      quality: evidenceQuality(score),
+      qualityReason: evidenceQualityReason(score, item.text, item.role, true, Boolean(item.selector)),
     };
     if (item.selector) evidence.selector = item.selector;
     return evidence;
@@ -2314,15 +2322,20 @@ function summarizeContentEvidence(content: ContentSummary[]): PageEvidenceSummar
 }
 
 function summarizeFallbackEvidence(preview: string[]): PageEvidenceSummary[] {
-  return preview.map((text, index) => ({
-    id: `e${index + 1}`,
-    path: `pageCheck.contentEvidence[${index}]`,
-    rank: index + 1,
-    text,
-    role: "fallback",
-    source: "fallback",
-    score: evidenceScore(text, "fallback", false, false),
-  }));
+  return preview.map((text, index) => {
+    const score = evidenceScore(text, "fallback", false, false);
+    return {
+      id: `e${index + 1}`,
+      path: `pageCheck.contentEvidence[${index}]`,
+      rank: index + 1,
+      text,
+      role: "fallback",
+      source: "fallback",
+      score,
+      quality: evidenceQuality(score),
+      qualityReason: evidenceQualityReason(score, text, "fallback", false, false),
+    };
+  });
 }
 
 function evidenceScore(text: string, role: string, semantic: boolean, hasSelector: boolean): number {
@@ -2334,6 +2347,22 @@ function evidenceScore(text: string, role: string, semantic: boolean, hasSelecto
   if (role === "p" || role === "article") score += 0.12;
   if (hasSelector) score += 0.06;
   return roundMetric(Math.max(0, Math.min(1, score)));
+}
+
+function evidenceQuality(score: number): PageEvidenceSummary["quality"] {
+  if (score >= 0.76) return "high";
+  if (score >= 0.5) return "medium";
+  return "low";
+}
+
+function evidenceQualityReason(score: number, text: string, role: string, semantic: boolean, hasSelector: boolean): string {
+  const parts = [
+    semantic ? "semantic extraction" : "fallback text",
+    `${text.length} chars`,
+  ];
+  if (role === "p" || role === "article") parts.push(`${role} content`);
+  if (hasSelector) parts.push("selector available");
+  return `${evidenceQuality(score)} evidence from ${parts.join(", ")}.`;
 }
 
 function summarizeFinds(
@@ -3212,6 +3241,8 @@ function findCandidates(
       ...(evidence.selector ? { selector: evidence.selector } : {}),
       source: evidence.source,
       score: evidence.score,
+      quality: evidence.quality,
+      qualityReason: evidence.qualityReason,
     });
   }
   for (const link of pageCheck.sourceLinks) add({ field: "sourceLink", text: link.title, rank: link.rank, url: link.url });

@@ -273,6 +273,7 @@ export type AgentContractFeature =
   | "answerPlan"
   | "answerPlan.actionFields"
   | "searchResult.selectionReason"
+  | "contentEvidence.quality"
   | "readTargets"
   | "signals"
   | "expectedOutcome"

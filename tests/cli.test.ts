@@ -242,6 +242,7 @@ describe("cli", () => {
             "answerPlan",
             "answerPlan.actionFields",
             "searchResult.selectionReason",
+            "contentEvidence.quality",
             "readTargets",
             "signals",
           ]),
@@ -2473,7 +2474,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  readability: medium");
     expect(stdout.output).toContain("  mainHeading: Article heading");
     expect(stdout.output).toContain("  excerpt: This article paragraph is long enough to appear in the page checking summary for agents.");
-    expect(stdout.output).toContain("  evidence: e1 pageCheck.contentEvidence[0] 1. p (p) This article paragraph is long enough to appear in the page checking summary for agents.");
+    expect(stdout.output).toContain("  evidence: e1 pageCheck.contentEvidence[0] 1. p (p) high - high evidence from semantic extraction, 88 chars, p content, selector available. This article paragraph is long enough to appear in the page checking summary for agents.");
     expect(stdout.output).toContain("  link: external Source report <https://source.example/report>");
     expect(stdout.output).toContain("  sourceLink: Source report <https://source.example/report>");
     expect(stdout.output).toContain("  next: read-content [terminal] - The page has enough structured evidence for source checking.");

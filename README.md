@@ -383,6 +383,8 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "role": "p",
         "source": "semantic",
         "score": 0.72,
+        "quality": "medium",
+        "qualityReason": "medium evidence from semantic extraction, 58 chars, p content, selector available.",
         "selector": "p"
       }
     ],
@@ -505,6 +507,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "answerPlan",
         "answerPlan.actionFields",
         "searchResult.selectionReason",
+        "contentEvidence.quality",
         "readTargets",
         "signals",
         "expectedOutcome",
@@ -701,9 +704,10 @@ results page. `pageCheck` is the higher-level page inspection summary agents
 should read first for title, canonical URL, main heading, content excerpts,
 structured content evidence, source-like external links, actions, and
 extraction confidence. Each `contentEvidence` item includes a compact citation
-`id`, its stable payload `path`, plus `source` and `score` fields, so agents can
-distinguish semantic page evidence from fallback text and cite exact snippets
-when choosing what to verify or return. `pageCheck.readability` includes
+`id`, its stable payload `path`, plus `source`, `score`, `quality`, and
+`qualityReason` fields, so agents can distinguish semantic page evidence from
+fallback text, judge whether a snippet is strong enough to answer from, and cite
+exact snippets when choosing what to verify or return. `pageCheck.readability` includes
 `level`, numeric `score`, and concise `reasons`, explaining how directly useful
 the page is for source checking; compact `agent` repeats the score and first
 few reasons so agents can route from the top-level object before drilling into
