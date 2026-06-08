@@ -13,6 +13,7 @@ import type {
   AgentExpectedOutcome,
   AgentNext,
   AgentReadTarget,
+  AgentReadValue,
   AgentRoutingIntent,
   AgentSignal,
   AgentStatus,
@@ -2452,7 +2453,7 @@ function summarizeAgent(
     summary,
     routingIntent: agentRoutingIntent(primaryAction),
     continuationMode: agentContinuationMode(primaryAction),
-    next: summarizeAgentNext(primaryAction, readTargets),
+    next: summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch)),
     expectedOutcome: summarizeAgentExpectedOutcome(primaryAction),
     signals: summarizeAgentSignals(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, fetched, error),
     canContinue: agentCanContinue(primaryAction),
@@ -2606,7 +2607,11 @@ function agentContinuationMode(primaryAction: SuggestedAction | undefined): Agen
   return agentCanContinue(primaryAction) ? "command" : "stop";
 }
 
-function summarizeAgentNext(primaryAction: SuggestedAction | undefined, readTargets: AgentReadTarget[] = []): AgentNext {
+function summarizeAgentNext(
+  primaryAction: SuggestedAction | undefined,
+  readTargets: AgentReadTarget[] = [],
+  readValue?: AgentReadValue,
+): AgentNext {
   if (!primaryAction) {
     return {
       mode: "stop",
@@ -2630,8 +2635,27 @@ function summarizeAgentNext(primaryAction: SuggestedAction | undefined, readTarg
     ...(primaryAction.requiresBrowserInteraction ? { requiresBrowserInteraction: true } : {}),
     ...(primaryAction.terminal ? { terminal: true } : {}),
     ...(readTarget ? { readTarget } : {}),
+    ...(readValue ? { readValue } : {}),
     ...(primaryAction.target ? { target: primaryAction.target } : {}),
   };
+}
+
+function agentReadValue(
+  primaryAction: SuggestedAction | undefined,
+  pageCheck: PageCheckSummary,
+  verification: VerificationSummary,
+  results: ResultSummary[],
+  sourceSearch?: SourceSearchSummary,
+): AgentReadValue | undefined {
+  if (!primaryAction?.readFrom || actionExecution(primaryAction) !== "read-current") return undefined;
+  const path = primaryAction.readFrom;
+  if (path === "verification.bestEvidence" && verification.bestEvidence) return { path, value: verification.bestEvidence };
+  if (path === "pageCheck.contentEvidence") return { path, value: pageCheck.contentEvidence };
+  if (path === "searchResults") return { path, value: results };
+  if (path === "sourceSearch.selectedResult" && sourceSearch?.selectedResult) return { path, value: sourceSearch.selectedResult };
+  if (path === "sourceSearch.alternateResults" && sourceSearch?.alternateResults) return { path, value: sourceSearch.alternateResults };
+  if (path === "pageCheck.sourceLinks") return { path, value: pageCheck.sourceLinks };
+  return undefined;
 }
 
 function summarizeAgentExpectedOutcome(primaryAction: SuggestedAction | undefined): AgentExpectedOutcome {
@@ -3102,7 +3126,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     summary,
     routingIntent: agentRoutingIntent(primaryAction),
     continuationMode: agentContinuationMode(primaryAction),
-    next: summarizeAgentNext(primaryAction, readTargets),
+    next: summarizeAgentNext(primaryAction, readTargets, errorAgentReadValue(primaryAction, sourceSearch)),
     expectedOutcome: summarizeAgentExpectedOutcome(primaryAction),
     signals: summarizeErrorAgentSignals(error, primaryAction, summary),
     canContinue: agentCanContinue(primaryAction),
@@ -3179,6 +3203,17 @@ function summarizeErrorAgentReadTargets(primaryAction: SuggestedAction | undefin
     score: averageResultSourceScore(sourceSearch.alternateResults),
   });
   return targets;
+}
+
+function errorAgentReadValue(primaryAction: SuggestedAction | undefined, sourceSearch?: SourceSearchSummary): AgentReadValue | undefined {
+  if (!primaryAction?.readFrom || actionExecution(primaryAction) !== "read-current") return undefined;
+  if (primaryAction.readFrom === "sourceSearch.selectedResult" && sourceSearch?.selectedResult) {
+    return { path: primaryAction.readFrom, value: sourceSearch.selectedResult };
+  }
+  if (primaryAction.readFrom === "sourceSearch.alternateResults" && sourceSearch?.alternateResults) {
+    return { path: primaryAction.readFrom, value: sourceSearch.alternateResults };
+  }
+  return undefined;
 }
 
 function errorAction(error: CliError, url?: string, agentMode = false, findQueries: string[] = [], sourceSearch?: SourceSearchSummary, timeoutMs?: number, userAgent?: string): SuggestedAction | undefined {

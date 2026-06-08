@@ -131,6 +131,10 @@ type CliAgentNextShape = CliActionShape & {
   mode?: AgentContinuationMode;
   reason?: string;
   readTarget?: CliReadTargetShape;
+  readValue?: {
+    path?: string;
+    value?: unknown;
+  };
 };
 
 type CliAgentTargetShape = {
@@ -847,7 +851,11 @@ function scoreAgentNext(next: CliAgentNextShape | undefined, continuationMode: A
   if (primaryAction.readFrom) {
     required += 1;
     if (next.readTarget?.path === primaryAction.readFrom && typeof next.readTarget.reason === "string") matched += 1;
+    required += 1;
+    if (next.readValue?.path === primaryAction.readFrom && typeof next.readValue.value !== "undefined") matched += 1;
   } else if (typeof next.readTarget !== "undefined") {
+    required += 1;
+  } else if (typeof next.readValue !== "undefined") {
     required += 1;
   }
   return roundScore(matched / required);

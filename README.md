@@ -144,8 +144,9 @@ such as `recommendedRank`, `recommendedSource`, `recommendedRelevance`, and
 needed to continue, such as `commandArgs`, `readFrom`, `url`, `openResult`, or
 `requiresBrowserInteraction`. When `mode` is `read`, `next.readTarget` mirrors
 the matching `agent.readTargets` entry so an executor can understand the target
-without joining arrays itself. When `mode` is `command` for a result or source
-link, `next.target` carries the target URL's title, source host, rank,
+without joining arrays itself, and `next.readValue` contains the resolved
+current-payload value for that path. When `mode` is `command` for a result or
+source link, `next.target` carries the target URL's title, source host, rank,
 source-type score, relevance, and official-source hints when known, so an agent
 can decide whether to run the command without looking up the result array.
 `agent.expectedOutcome` states what success should look like after following
@@ -237,6 +238,7 @@ async function inspectWithAxGrep(urlOrQuery: string) {
     const next: AgentNext = payload.agent.next;
 
     if (next.mode === "read" || next.mode === "stop") {
+      if (next.readValue) return next.readValue.value;
       return payload;
     }
 
@@ -268,8 +270,9 @@ async function inspectWithAxGrep(urlOrQuery: string) {
 `commandArgs.slice(1)` back to the binary. `capture-html` means the current
 fetch was not enough; use the browser controller to save rendered HTML, then
 run the supplied command with that file path. `read` and `stop` are terminal for
-the current payload: read `agent.next.readFrom`, or return the payload if no
-extra evidence is needed.
+the current payload: use `agent.next.readValue.value` when present, fall back to
+`agent.next.readFrom` if needed, or return the payload if no extra evidence is
+needed.
 
 Use repeatable `--find <text>` with any page or search result page to ask
 `ax-grep` whether the page summaries contain a term or phrase. JSON output adds
@@ -491,6 +494,17 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "count": 1,
         "score": 0.72,
         "primary": true
+      },
+      "readValue": {
+        "path": "verification.bestEvidence",
+        "value": {
+          "field": "contentEvidence",
+          "rank": 1,
+          "text": "This domain is for use in illustrative examples in documents.",
+          "source": "semantic",
+          "score": 0.72,
+          "selector": "p"
+        }
       }
     },
     "expectedOutcome": {

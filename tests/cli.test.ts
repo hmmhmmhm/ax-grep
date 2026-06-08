@@ -247,6 +247,13 @@ describe("cli", () => {
             count: 1,
             primary: true,
           },
+          readValue: {
+            path: "verification.bestEvidence",
+            value: expect.objectContaining({
+              field: "mainHeading",
+              text: "Example",
+            }),
+          },
         },
         expectedOutcome: {
           kind: "read-evidence",
@@ -309,6 +316,13 @@ describe("cli", () => {
         reason: "Best matching evidence for the requested --find text.",
       }),
     );
+    expect(envelope.agent.next.readValue).toEqual({
+      path: "verification.bestEvidence",
+      value: expect.objectContaining({
+        field: "mainHeading",
+        text: "Example",
+      }),
+    });
     expect(envelope.pageCheck.recommendedAction).toBeUndefined();
     expect(envelope.pageCheck.nextSteps).toBeUndefined();
     expect(envelope.tree).toBeUndefined();

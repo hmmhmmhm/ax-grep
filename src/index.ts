@@ -10,6 +10,7 @@ export type {
   AgentJsonEnvelope,
   AgentNext,
   AgentReadTarget,
+  AgentReadValue,
   AgentRoutingIntent,
   AgentSignal,
   AgentSignalKind,

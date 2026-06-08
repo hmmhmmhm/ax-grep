@@ -109,6 +109,7 @@ export type AgentNext = {
   requiresBrowserInteraction?: boolean;
   terminal?: boolean;
   readTarget?: AgentReadTarget;
+  readValue?: AgentReadValue;
   target?: AgentTarget;
 };
 
@@ -149,6 +150,11 @@ export type AgentReadTarget = {
   count?: number;
   score?: number;
   primary?: boolean;
+};
+
+export type AgentReadValue = {
+  path: string;
+  value: unknown;
 };
 
 export type AgentTarget = {
