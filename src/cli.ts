@@ -1488,6 +1488,42 @@ function formatAgentCitationText(citation: AgentCitation, prefix = "citation"): 
   return `  ${prefix}: ${citation.id} ${citation.path} ${citation.kind}${confidence}${score}${reason} ${label}${target}`;
 }
 
+function formatAgentReadValueText(readValue: AgentReadValue, prefix = "handoffReadValue"): string[] {
+  const lines = [`  ${prefix}: ${readValue.path}`];
+  if (Array.isArray(readValue.value)) {
+    lines.push(`  ${prefix}Type: array count=${readValue.value.length}`);
+    for (const [index, item] of readValue.value.slice(0, 3).entries()) {
+      lines.push(`  ${prefix}Item: ${formatAgentReadValueItemText(item, `${readValue.path}[${index}]`)}`);
+    }
+    if (readValue.value.length > 3) lines.push(`  ${prefix}Omitted: ${readValue.value.length - 3}`);
+    return lines;
+  }
+  if (readValue.value && typeof readValue.value === "object") {
+    lines.push(`  ${prefix}Type: object`);
+    lines.push(`  ${prefix}Item: ${formatAgentReadValueItemText(readValue.value, readValue.path)}`);
+    return lines;
+  }
+  lines.push(`  ${prefix}Type: ${typeof readValue.value}`);
+  lines.push(`  ${prefix}Value: ${String(readValue.value)}`);
+  return lines;
+}
+
+function formatAgentReadValueItemText(value: unknown, fallbackPath: string): string {
+  if (!value || typeof value !== "object") return `${fallbackPath} - ${String(value)}`;
+  const item = value as Record<string, unknown>;
+  const id = typeof item.id === "string" ? ` ${item.id}` : "";
+  const path = typeof item.path === "string" ? item.path : fallbackPath;
+  const rank = typeof item.rank === "number" ? ` rank=${item.rank}` : "";
+  const role = typeof item.role === "string" ? ` role=${item.role}` : "";
+  const kind = typeof item.kind === "string" ? ` kind=${item.kind}` : "";
+  const score = typeof item.score === "number" ? ` score=${item.score}` : typeof item.sourceScore === "number" ? ` score=${item.sourceScore}` : "";
+  const confidence = typeof item.confidence === "string" ? ` confidence=${item.confidence}` : "";
+  const url = typeof item.url === "string" ? ` <${item.url}>` : "";
+  const label = [item.title, item.text, item.snippet, item.selectionReason, item.reason]
+    .find((candidate): candidate is string => typeof candidate === "string" && candidate.length > 0) ?? "";
+  return `${path}${id}${rank}${role}${kind}${score}${confidence}${url}${label ? ` - ${label}` : ""}`;
+}
+
 function formatAgentResultChoiceText(choice: AgentResultChoice, prefix = "resultChoice"): string {
   const rank = typeof choice.rank === "number" ? ` rank=${choice.rank}` : "";
   const flags = [
@@ -1594,7 +1630,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  readability: ${agent.readability} (${agent.readabilityScore})`,
   ];
   if (agent.handoff.readFrom) lines.push(`  handoffReadFrom: ${agent.handoff.readFrom}`);
-  if (agent.handoff.readValue) lines.push(`  handoffReadValue: ${agent.handoff.readValue.path}`);
+  if (agent.handoff.readValue) lines.push(...formatAgentReadValueText(agent.handoff.readValue));
   if (agent.handoff.command) lines.push(`  handoffCommand: ${agent.handoff.command}`);
   if (agent.handoff.commandArgs) lines.push(`  handoffCommandArgs: ${formatCommandArgsText(agent.handoff.commandArgs)}`);
   if (agent.handoff.afterInteractionCommand) lines.push(`  handoffAfterInteractionCommand: ${agent.handoff.afterInteractionCommand}`);

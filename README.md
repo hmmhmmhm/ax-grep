@@ -234,7 +234,8 @@ runnable command fields so an executor can compare source candidates without
 walking the page-check payload first. Text output prints these as
 `sourceChoice:` lines in the `agent` block, while the handoff section also
 exposes direct stdout hints such as `handoffReadFrom:`, `handoffReadValue:`,
-`handoffEvidence:`, `handoffSourceChoice:`, and `handoffQualityGate:`.
+`handoffReadValueType:`, `handoffReadValueItem:`, `handoffEvidence:`,
+`handoffSourceChoice:`, and `handoffQualityGate:`.
 `agent.readTargets` lists the compact payload paths worth reading next, marking
 the primary `read-current` target when one exists. In compact agent
 mode the first action lives in `agent.primaryAction`, while

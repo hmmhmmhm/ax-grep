@@ -2961,6 +2961,9 @@ describe("cli", () => {
     expect(stdout.output).toContain("  handoff: return/return/medium action=read-content priority=high - Answer now from pageCheck.contentEvidence using citations e1.");
     expect(stdout.output).toContain("  handoffReadFrom: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  handoffReadValue: pageCheck.contentEvidence");
+    expect(stdout.output).toContain("  handoffReadValueType: array count=1");
+    expect(stdout.output).toContain("  handoffReadValueItem: pageCheck.contentEvidence[0] e1 rank=1 role=p score=");
+    expect(stdout.output).toContain(" - This article paragraph is long enough to appear in the page checking summary for agents.");
     expect(stdout.output).toContain("  handoffReadTarget: pageCheck.contentEvidence count=1");
     expect(stdout.output).toContain("  handoffEvidence: e1 pageCheck.contentEvidence[0] content high score=");
     expect(stdout.output).toContain("  handoffSourceChoice: s1 pageCheck.sourceLinks[0] rank=1");
