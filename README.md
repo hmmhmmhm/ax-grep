@@ -112,6 +112,10 @@ misleading high-rank result.
 `agent.searchDecision` summarizes that same choice as `open-result`,
 `refine-search`, or `none`, with confidence, result counts, relevance counts,
 and the runnable command when one is available.
+For non-search pages, `agent.pageDecision` mirrors the page-level choice as
+`read-content`, `open-source-link`, `retry-with-browser-html`, `inspect-actions`,
+or `none`, with readability, evidence, source quality, and runnable command
+fields where applicable.
 Search result pages also cap the trailing text tree to 80 lines by default to
 keep agent prompts focused; pass `--max-tree-lines <n>` to choose a different
 limit. In JSON mode, pass `--no-tree` or `--summary` to omit the raw tree while
@@ -520,6 +524,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "answerPlan.actionFields",
         "answerPlan.confidence",
         "searchDecision",
+        "pageDecision",
         "searchResult.selectionReason",
         "sourceLink.selectionReason",
         "action.priority",

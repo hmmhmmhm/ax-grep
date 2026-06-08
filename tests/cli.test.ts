@@ -244,6 +244,7 @@ describe("cli", () => {
             "answerPlan.actionFields",
             "answerPlan.confidence",
             "searchDecision",
+            "pageDecision",
             "searchResult.selectionReason",
             "sourceLink.selectionReason",
             "action.priority",
@@ -297,6 +298,13 @@ describe("cli", () => {
           nextAction: "use-evidence",
           url: "https://example.test",
           readFrom: "verification.bestEvidence",
+        },
+        pageDecision: {
+          decision: "read-content",
+          confidence: "medium",
+          readFrom: "pageCheck.contentEvidence",
+          evidenceCount: 1,
+          sourceLinkCount: 1,
         },
         signals: expect.arrayContaining([
           expect.objectContaining({ kind: "content", severity: "info" }),

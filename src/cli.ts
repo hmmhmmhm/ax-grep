@@ -117,6 +117,22 @@ type AgentSearchDecision = {
   commandArgs?: string[];
 };
 
+type AgentPageDecision = {
+  decision: "read-content" | "open-source-link" | "retry-with-browser-html" | "inspect-actions" | "none";
+  confidence: "low" | "medium" | "high";
+  reason: string;
+  readability: PageReadabilitySummary["level"];
+  readabilityScore: number;
+  evidenceCount: number;
+  evidenceQualityScore: number;
+  sourceLinkCount: number;
+  sourceQualityScore: number;
+  readFrom?: string;
+  url?: string;
+  command?: string;
+  commandArgs?: string[];
+};
+
 type CliErrorCode = "FETCH_FAILED" | "HTTP_ERROR" | "NO_INSPECTABLE_CONTENT" | "NO_RESULT" | "TIMEOUT" | "USAGE";
 
 type LinkSummary = {
@@ -297,6 +313,7 @@ type AgentSummary = {
   expectedOutcome: AgentExpectedOutcome;
   answerPlan: AgentAnswerPlan;
   searchDecision?: AgentSearchDecision;
+  pageDecision?: AgentPageDecision;
   signals: AgentSignal[];
   canContinue: boolean;
   canUseFetchedHtml: boolean;
@@ -361,6 +378,7 @@ const agentContract: AgentContract = {
     "answerPlan.actionFields",
     "answerPlan.confidence",
     "searchDecision",
+    "pageDecision",
     "searchResult.selectionReason",
     "sourceLink.selectionReason",
     "action.priority",
@@ -1420,6 +1438,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.answerPlan.command ? [`  answerCommand: ${agent.answerPlan.command}`] : []),
     ...(agent.answerPlan.commandArgs ? [`  answerCommandArgs: ${JSON.stringify(agent.answerPlan.commandArgs)}`] : []),
     ...(agent.searchDecision ? [`  searchDecision: ${agent.searchDecision.decision}/${agent.searchDecision.confidence} - ${agent.searchDecision.reason}`] : []),
+    ...(agent.pageDecision ? [`  pageDecision: ${agent.pageDecision.decision}/${agent.pageDecision.confidence} - ${agent.pageDecision.reason}`] : []),
     `  summary: ${agent.summary}`,
     `  canContinue: ${agent.canContinue}`,
     `  canUseFetchedHtml: ${agent.canUseFetchedHtml}`,
@@ -2643,6 +2662,7 @@ function summarizeAgent(
   const bestReadTarget = selectBestReadTarget(readTargets);
   const citations = summarizeAgentCitations(pageCheck, verification, recommendedResult, sourceSearch);
   const searchDecision = summarizeAgentSearchDecision(analysis, results, recommendedResult, primaryAction);
+  const pageDecision = summarizeAgentPageDecision(analysis, pageCheck, primaryAction);
   const agent: AgentSummary = {
     contract: agentContract,
     status,
@@ -2654,6 +2674,7 @@ function summarizeAgent(
     expectedOutcome: summarizeAgentExpectedOutcome(primaryAction),
     answerPlan: summarizeAgentAnswerPlan(status, primaryAction, pageCheck, verification, citations, needsBrowserHtml, error),
     ...(searchDecision ? { searchDecision } : {}),
+    ...(pageDecision ? { pageDecision } : {}),
     signals: summarizeAgentSignals(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, fetched, error),
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml,
@@ -2848,6 +2869,79 @@ function summarizeAgentSearchDecision(
 function searchDecisionConfidence(result: ResultSummary): AgentSearchDecision["confidence"] {
   if (result.findMatches?.length || result.isLikelyOfficial || result.relevance === "high") return "high";
   if (result.relevance === "medium" || (result.sourceScore ?? 0) >= 0.5) return "medium";
+  return "low";
+}
+
+function summarizeAgentPageDecision(
+  analysis: AnalysisSummary,
+  pageCheck: PageCheckSummary,
+  primaryAction: SuggestedAction | undefined,
+): AgentPageDecision | undefined {
+  if (analysis.kind === "search-results") return undefined;
+  const pageAction = primaryAction?.action === "use-evidence" ? pageCheck.recommendedAction : primaryAction;
+  const evidenceQualityScore = averageEvidenceScore(pageCheck.contentEvidence);
+  const sourceQualityScore = agentSourceQualityScore(analysis.kind, pageCheck.sourceLinks, []);
+  const base = {
+    readability: pageCheck.readability.level,
+    readabilityScore: pageCheck.readability.score,
+    evidenceCount: pageCheck.contentEvidence.length,
+    evidenceQualityScore,
+    sourceLinkCount: pageCheck.sourceLinks.length,
+    sourceQualityScore,
+  };
+  if (pageAction?.action === "read-content") {
+    return {
+      decision: "read-content",
+      confidence: pageDecisionConfidence(pageCheck, sourceQualityScore),
+      reason: pageAction.reason,
+      ...base,
+      ...(pageAction.readFrom ? { readFrom: pageAction.readFrom } : {}),
+      ...(pageAction.url ? { url: pageAction.url } : {}),
+    };
+  }
+  if (pageAction?.action === "open-source-link") {
+    return {
+      decision: "open-source-link",
+      confidence: sourceQualityScore >= 0.78 ? "high" : sourceQualityScore >= 0.5 ? "medium" : "low",
+      reason: pageAction.reason,
+      ...base,
+      ...(pageAction.url ? { url: pageAction.url } : {}),
+      ...(pageAction.command ? { command: pageAction.command } : {}),
+      ...(pageAction.commandArgs ? { commandArgs: pageAction.commandArgs } : {}),
+    };
+  }
+  if (pageAction?.action === "retry-with-browser-html") {
+    return {
+      decision: "retry-with-browser-html",
+      confidence: "low",
+      reason: pageAction.reason,
+      ...base,
+      ...(pageAction.url ? { url: pageAction.url } : {}),
+      ...(pageAction.command ? { command: pageAction.command } : {}),
+      ...(pageAction.commandArgs ? { commandArgs: pageAction.commandArgs } : {}),
+    };
+  }
+  if (pageAction?.requiresBrowserInteraction || actionExecution(pageAction ?? pageCheck.recommendedAction) === "interact-browser") {
+    return {
+      decision: "inspect-actions",
+      confidence: "low",
+      reason: pageAction?.reason ?? pageCheck.recommendedAction.reason,
+      ...base,
+      ...(pageAction?.url ? { url: pageAction.url } : {}),
+    };
+  }
+  return {
+    decision: "none",
+    confidence: "low",
+    reason: "No page-level decision was selected.",
+    ...base,
+  };
+}
+
+function pageDecisionConfidence(pageCheck: PageCheckSummary, sourceQualityScore: number): AgentPageDecision["confidence"] {
+  const evidenceQualityScore = averageEvidenceScore(pageCheck.contentEvidence);
+  if (pageCheck.readability.level === "high" && evidenceQualityScore >= 0.76) return "high";
+  if (pageCheck.readability.level !== "low" && (evidenceQualityScore >= 0.5 || sourceQualityScore >= 0.5)) return "medium";
   return "low";
 }
 
@@ -4461,6 +4555,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     expectedOutcome: agent.expectedOutcome,
     answerPlan: agent.answerPlan,
     ...(agent.searchDecision ? { searchDecision: agent.searchDecision } : {}),
+    ...(agent.pageDecision ? { pageDecision: agent.pageDecision } : {}),
     ...(agent.signals.length > 0 ? { signals: agent.signals } : {}),
     canContinue: agent.canContinue,
     canUseFetchedHtml: agent.canUseFetchedHtml,
