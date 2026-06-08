@@ -11,71 +11,66 @@ describe("README", () => {
     const readme = await readFile(join(process.cwd(), "README.md"), "utf8");
     const blocks = jsonBlocks(readme);
 
+    expect(readme.split(/\r?\n/).length).toBeLessThan(950);
     expect(blocks.length).toBeGreaterThan(0);
     for (const block of blocks) {
+      expect(block.length).toBeLessThan(10_000);
       expect(() => JSON.parse(block)).not.toThrow();
     }
+    expect(readme).not.toContain('"gateSummary"');
+    expect(readme).not.toContain('"comparisons"');
+    expect(readme).not.toContain('"generatedAt"');
+    expect(readme).not.toContain("Total output lines");
 
     const firstBlock = blocks[0];
     expect(firstBlock).toBeDefined();
 
     const exampleEnvelope = JSON.parse(firstBlock ?? "");
 
+    expect(exampleEnvelope).toMatchObject({
+      schemaVersion: 1,
+      tool: "ax-grep",
+      ok: true,
+      kind: "content-page",
+      page: {
+        structuredDataTypes: expect.arrayContaining(["Article"]),
+      },
+      pageCheck: {
+        contentEvidence: expect.arrayContaining([
+          expect.objectContaining({
+            id: "c1",
+            path: "pageCheck.contentEvidence[0]",
+            quality: "medium",
+          }),
+        ]),
+      },
+      verification: {
+        status: "matched",
+        bestEvidence: {
+          path: "pageCheck.contentEvidence[0]",
+        },
+      },
+    });
     expect(exampleEnvelope.agent).toMatchObject({
       contract: {
         version: 1,
         features: expect.arrayContaining([
           "next.loop",
           "next.readValue",
-          "next.target",
-          "runbook",
           "handoff",
           "handoff.answerEvidence",
-          "handoff.choices",
-          "handoff.sourceSearch",
           "handoff.quality",
-          "executionPlan",
-          "citations",
-          "citation.reason",
-          "answerPlan",
-          "answerEvidence",
-          "answerPlan.actionFields",
-          "answerPlan.confidence",
-          "searchDecision",
-          "resultChoices",
-          "sourceChoices",
-          "pageDecision",
-          "searchResult.selectionReason",
-          "sourceLink.selectionReason",
-          "action.priority",
-          "afterInteractionCommand",
-          "browserHtml",
-          "qualityGates",
-          "actions",
-          "contentEvidence.quality",
         ]),
       },
+      status: "ready",
       continuationMode: "read",
       next: {
         mode: "read",
         loop: {
           decision: "return",
+          shouldContinue: false,
+          terminal: true,
         },
-        readFrom: "verification.bestEvidence",
-        readTarget: {
-          path: "verification.bestEvidence",
-        },
-        readValue: {
-          path: "verification.bestEvidence",
-        },
-      },
-      runbook: {
-        decision: "return",
-        mode: "read",
-        operation: "return",
-        action: "use-evidence",
-        answerStatus: "ready",
-        answerReady: true,
         readFrom: "verification.bestEvidence",
         readValue: {
           path: "verification.bestEvidence",
@@ -90,22 +85,10 @@ describe("README", () => {
         answerStatus: "ready",
         answerReady: true,
         readFrom: "verification.bestEvidence",
-        readTarget: {
-          path: "verification.bestEvidence",
-        },
-        readValue: {
-          path: "verification.bestEvidence",
-        },
         answerEvidence: expect.arrayContaining([
           expect.objectContaining({
             id: "v1",
             path: "verification.bestEvidence",
-          }),
-        ]),
-        signals: expect.arrayContaining([
-          expect.objectContaining({
-            kind: "content",
-            severity: "info",
           }),
         ]),
         qualityGates: expect.arrayContaining([
@@ -116,36 +99,7 @@ describe("README", () => {
           }),
         ]),
       },
-      expectedOutcome: {
-        kind: "read-evidence",
-      },
-      executionPlan: {
-        operation: "return",
-        useFetchedHtml: true,
-        needsBrowserHtml: false,
-        answerReady: true,
-        expectedOutcome: "read-evidence",
-        readFrom: "verification.bestEvidence",
-      },
-      answerPlan: {
-        status: "ready",
-        useCitationIds: expect.arrayContaining(["v1"]),
-      },
-      answerEvidence: expect.arrayContaining([
-        expect.objectContaining({
-          id: "v1",
-          path: "verification.bestEvidence",
-        }),
-      ]),
     });
-    expect(exampleEnvelope.agent.signals).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          kind: "content",
-          severity: "info",
-        }),
-      ]),
-    );
     expect(readme).toContain("An agent executor can treat `agent.handoff.decision` as the only required switch");
     expect(readme).toContain("const step: AgentHandoff = payload.agent.handoff");
   });

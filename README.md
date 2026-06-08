@@ -382,7 +382,8 @@ ax-grep https://example.com --html-file captured.html --links-only
 cat captured.html | ax-grep https://example.com --stdin --json
 ```
 
-`--json` prints an envelope:
+A shortened `--json --summary` envelope looks like this. It is intentionally
+small; the full CLI output is the tool contract, not README fixture data:
 
 ```json
 {
@@ -390,181 +391,38 @@ cat captured.html | ax-grep https://example.com --stdin --json
   "tool": "ax-grep",
   "ok": true,
   "url": "https://example.com",
-  "searchQuery": "example domain",
-  "searchEngine": "auto",
-  "selectedSearchEngine": "bing",
-  "searchEngines": [
-    {
-      "engine": "duckduckgo",
-      "url": "https://duckduckgo.com/html/?q=example+domain&kl=us-en",
-      "ok": false,
-      "resultCount": 0,
-      "kind": "blocked-page"
-    },
-    {
-      "engine": "bing",
-      "url": "https://www.bing.com/search?q=example+domain&setlang=en&cc=US&mkt=en-US",
-      "ok": true,
-      "resultCount": 3,
-      "kind": "search-results"
-    }
-  ],
-  "searchLang": "en",
-  "searchRegion": "US",
-  "sourceSearch": {
-    "query": "example domain",
-    "engine": "bing",
-    "selectedEngine": "bing",
-    "searchUrl": "https://www.bing.com/search?q=example+domain&setlang=en&cc=US&mkt=en-US",
-    "lang": "en",
-    "region": "US",
-    "selectedRank": 1,
-    "selectedTitle": "Example Domain",
-    "selectedUrl": "https://example.com/"
-  },
   "finalUrl": "https://example.com/",
-  "status": 200,
-  "mode": "compact",
-  "warnings": [],
   "kind": "content-page",
-  "diagnostics": [],
-  "suggestedActions": [
-    {
-      "action": "read-content",
-      "execution": "read-current",
-      "reason": "The page has article-like content excerpts suitable for source checking.",
-      "terminal": true,
-      "readFrom": "pageCheck.contentEvidence"
-    }
-  ],
+  "mode": "compact",
   "page": {
     "title": "Example Domain",
-    "description": "Example domains are reserved for documentation."
+    "description": "Example Domain is reserved for illustrative examples.",
+    "siteName": "Example",
+    "structuredDataTypes": ["Article"]
   },
   "pageCheck": {
     "title": "Example Domain",
-    "mainHeading": "Example Domain",
-    "contentPreview": [
-      "This domain is for use in illustrative examples in documents."
-    ],
+    "confidence": "medium",
     "contentEvidence": [
       {
-        "rank": 1,
+        "id": "c1",
+        "path": "pageCheck.contentEvidence[0]",
         "text": "This domain is for use in illustrative examples in documents.",
-        "role": "p",
-        "source": "semantic",
-        "score": 0.72,
-        "quality": "medium",
-        "qualityReason": "medium evidence from semantic extraction, 58 chars, p content, selector available.",
-        "selector": "p"
+        "quality": "medium"
       }
     ],
-    "contentLength": 58,
-    "primaryLinks": [
-      {
-        "title": "More information...",
-        "url": "https://www.iana.org/domains/example",
-        "source": "iana.org",
-        "rank": 1,
-        "kind": "external",
-        "sourceType": "official",
-        "sourceScore": 0.92,
-        "sourceHints": ["official-organization"],
-        "selectionReason": "Strong source candidate: official-organization."
-      }
-    ],
-    "sourceLinks": [
-      {
-        "title": "More information...",
-        "url": "https://www.iana.org/domains/example",
-        "source": "iana.org",
-        "rank": 1,
-        "kind": "external"
-      }
-    ],
-    "actions": [],
-    "confidence": "medium",
     "readability": {
       "level": "medium",
       "score": 0.45,
-      "reasons": [
-        "1 content evidence item",
-        "1 external source link"
-      ]
-    },
-    "recommendedAction": {
-      "action": "read-content",
-      "execution": "read-current",
-      "reason": "The page has enough structured evidence for source checking.",
-      "url": "https://example.com/",
-      "terminal": true,
-      "readFrom": "pageCheck.contentEvidence"
-    },
-    "nextSteps": [
-      {
-        "action": "read-content",
-        "execution": "read-current",
-        "reason": "The page has enough structured evidence for source checking.",
-        "url": "https://example.com/",
-        "terminal": true,
-        "readFrom": "pageCheck.contentEvidence"
-      },
-      {
-        "action": "open-source-link",
-        "execution": "run-command",
-        "reason": "Inspect an external source link referenced by the page.",
-        "url": "https://www.iana.org/domains/example",
-        "rank": 1,
-        "command": "ax-grep 'https://www.iana.org/domains/example' --json --summary",
-        "commandArgs": [
-          "ax-grep",
-          "https://www.iana.org/domains/example",
-          "--json",
-          "--summary"
-        ]
-      }
-    ]
-  },
-  "finds": [
-    {
-      "query": "documentation examples",
-      "found": true,
-      "matchCount": 1,
-      "matches": [
-        {
-          "field": "contentEvidence",
-          "rank": 1,
-          "text": "This domain is for use in illustrative examples in documents.",
-          "source": "semantic",
-          "score": 0.72,
-          "selector": "p"
-        }
-      ]
+      "reasons": ["1 content evidence item"]
     }
-  ],
+  },
   "verification": {
     "status": "matched",
-    "requestedCount": 1,
-    "foundCount": 1,
-    "missingCount": 0,
-    "evidenceCount": 1,
-    "foundQueries": ["documentation examples"],
-    "missingQueries": [],
     "bestEvidence": {
       "field": "contentEvidence",
-      "rank": 1,
-      "text": "This domain is for use in illustrative examples in documents.",
-      "source": "semantic",
-      "score": 0.72,
-      "selector": "p"
-    },
-    "recommendedAction": {
-      "action": "use-evidence",
-      "execution": "read-current",
-      "reason": "All requested text was found in the page summaries.",
-      "url": "https://example.com/",
-      "terminal": true,
-      "readFrom": "verification.bestEvidence"
+      "path": "pageCheck.contentEvidence[0]",
+      "text": "This domain is for use in illustrative examples in documents."
     }
   },
   "agent": {
@@ -572,174 +430,45 @@ cat captured.html | ax-grep https://example.com --stdin --json
       "version": 1,
       "features": [
         "next.loop",
-        "next.readTarget",
         "next.readValue",
-        "next.target",
-        "runbook",
         "handoff",
         "handoff.answerEvidence",
-        "handoff.choices",
-        "handoff.sourceSearch",
-        "handoff.quality",
-        "executionPlan",
-        "citations",
-        "citation.reason",
-        "answerPlan",
-        "answerEvidence",
-        "answerPlan.actionFields",
-        "answerPlan.confidence",
-        "searchDecision",
-        "resultChoices",
-        "sourceChoices",
-        "pageDecision",
-        "searchResult.selectionReason",
-        "sourceLink.selectionReason",
-        "action.priority",
-        "actions",
-        "contentEvidence.quality",
-        "readTargets",
-        "signals",
-        "qualityGates",
-        "expectedOutcome",
-        "responseMetadata",
-        "afterInteractionCommand",
-        "browserHtml",
-        "primaryActionShortcuts"
+        "handoff.quality"
       ]
     },
     "status": "ready",
-    "pageKind": "content-page",
-    "summary": "All requested text was found in the page summaries.",
-    "routingIntent": "read-current",
     "continuationMode": "read",
     "next": {
       "mode": "read",
-      "action": "use-evidence",
-      "reason": "All requested text was found in the page summaries.",
       "loop": {
         "decision": "return",
         "shouldContinue": false,
-        "terminal": true,
-        "reason": "Return the resolved value for verification.bestEvidence.",
-        "maxSuggestedIterations": 0
+        "terminal": true
       },
-      "execution": "read-current",
-      "url": "https://example.com/",
       "readFrom": "verification.bestEvidence",
-      "terminal": true,
-      "readTarget": {
-        "path": "verification.bestEvidence",
-        "reason": "Best matching evidence for the requested --find text.",
-        "count": 1,
-        "score": 0.72,
-        "primary": true
-      },
       "readValue": {
         "path": "verification.bestEvidence",
         "value": {
           "field": "contentEvidence",
-          "rank": 1,
-          "text": "This domain is for use in illustrative examples in documents.",
-          "source": "semantic",
-          "score": 0.72,
-          "selector": "p"
+          "text": "This domain is for use in illustrative examples in documents."
         }
       }
     },
-    "runbook": {
-      "decision": "return",
-      "mode": "read",
-      "operation": "return",
-      "action": "use-evidence",
-      "reason": "Return the resolved value for verification.bestEvidence.",
-      "confidence": "high",
-      "answerStatus": "ready",
-      "answerReady": true,
-      "shouldContinue": false,
-      "terminal": true,
-      "maxSuggestedIterations": 0,
-      "useFetchedHtml": true,
-      "needsBrowserHtml": false,
-      "expectedOutcome": "read-evidence",
-      "readFrom": "verification.bestEvidence",
-      "readValue": {
-        "path": "verification.bestEvidence",
-        "value": {
-          "field": "contentEvidence",
-          "rank": 1,
-          "text": "This domain is for use in illustrative examples in documents.",
-          "source": "semantic",
-          "score": 0.72,
-          "selector": "p"
-        }
-      },
-      "url": "https://example.com/"
-    },
     "handoff": {
-      "instruction": "Answer now from verification.bestEvidence using citations v1, e1.",
+      "instruction": "Answer now from verification.bestEvidence using citations v1.",
       "decision": "return",
       "mode": "read",
       "operation": "return",
       "action": "use-evidence",
-      "confidence": "high",
-      "priority": "high",
       "answerStatus": "ready",
       "answerReady": true,
-      "shouldContinue": false,
-      "terminal": true,
-      "maxSuggestedIterations": 0,
-      "expectedOutcome": "read-evidence",
-      "useCitationIds": [
-        "v1",
-        "e1"
-      ],
+      "readFrom": "verification.bestEvidence",
       "answerEvidence": [
         {
-          "kind": "verification",
           "id": "v1",
           "path": "verification.bestEvidence",
-          "confidence": "high",
-          "reason": "Best matching evidence for the requested verification text.",
-          "text": "This domain is for use in illustrative examples in documents.",
-          "score": 0.72
-        },
-        {
-          "kind": "content",
-          "id": "e1",
-          "path": "pageCheck.contentEvidence[0]",
-          "confidence": "medium",
-          "reason": "medium evidence from semantic extraction, 57 chars, p content, selector available.",
-          "text": "This domain is for use in illustrative examples in documents.",
-          "score": 0.72
-        }
-      ],
-      "readTarget": {
-        "path": "verification.bestEvidence",
-        "reason": "Best matching evidence for the requested --find text.",
-        "count": 1,
-        "primary": true
-      },
-      "readValue": {
-        "path": "verification.bestEvidence",
-        "value": {
-          "field": "contentEvidence",
-          "rank": 1,
-          "text": "This domain is for use in illustrative examples in documents.",
-          "source": "semantic",
-          "score": 0.72,
-          "selector": "p"
-        }
-      },
-      "signals": [
-        {
-          "kind": "content",
-          "severity": "info",
-          "message": "Fetched HTML is medium readability with 1 evidence item(s)."
-        },
-        {
           "kind": "verification",
-          "severity": "info",
-          "message": "1/1 requested verification text(s) found."
+          "text": "This domain is for use in illustrative examples in documents."
         }
       ],
       "qualityGates": [
@@ -747,203 +476,11 @@ cat captured.html | ax-grep https://example.com --stdin --json
           "kind": "verification",
           "pass": true,
           "severity": "info",
-          "message": "1/1 requested verification text(s) found.",
-          "score": 1,
           "path": "verification.bestEvidence"
         }
-      ],
-      "readFrom": "verification.bestEvidence",
-      "url": "https://example.com/"
-    },
-    "expectedOutcome": {
-      "kind": "read-evidence",
-      "message": "Read verification.bestEvidence from the current payload and treat it as the next evidence source."
-    },
-    "executionPlan": {
-      "operation": "return",
-      "confidence": "high",
-      "reason": "Requested verification text was found; answer from the listed citations.",
-      "useFetchedHtml": true,
-      "needsBrowserHtml": false,
-      "answerReady": true,
-      "terminal": true,
-      "shouldContinue": false,
-      "maxSuggestedIterations": 0,
-      "expectedOutcome": "read-evidence",
-      "readFrom": "verification.bestEvidence",
-      "url": "https://example.com/"
-    },
-    "answerPlan": {
-      "status": "ready",
-      "confidence": "high",
-      "reason": "Requested verification text was found; answer from the listed citations.",
-      "gaps": [],
-      "useCitationIds": [
-        "v1",
-        "e1"
-      ],
-      "nextAction": "use-evidence",
-      "url": "https://example.com/",
-      "readFrom": "verification.bestEvidence"
-    },
-    "citations": [
-      {
-        "kind": "verification",
-        "id": "v1",
-        "path": "verification.bestEvidence",
-        "confidence": "high",
-        "reason": "Best matching evidence for the requested verification text.",
-        "text": "This domain is for use in illustrative examples in documents.",
-        "score": 0.72
-      },
-      {
-        "kind": "content",
-        "id": "e1",
-        "path": "pageCheck.contentEvidence[0]",
-        "confidence": "medium",
-        "reason": "medium evidence from semantic extraction, 57 chars, p content, selector available.",
-        "text": "This domain is for use in illustrative examples in documents.",
-        "score": 0.72
-      }
-    ],
-    "answerEvidence": [
-      {
-        "kind": "verification",
-        "id": "v1",
-        "path": "verification.bestEvidence",
-        "confidence": "high",
-        "reason": "Best matching evidence for the requested verification text.",
-        "text": "This domain is for use in illustrative examples in documents.",
-        "score": 0.72
-      },
-      {
-        "kind": "content",
-        "id": "e1",
-        "path": "pageCheck.contentEvidence[0]",
-        "confidence": "medium",
-        "reason": "medium evidence from semantic extraction, 57 chars, p content, selector available.",
-        "text": "This domain is for use in illustrative examples in documents.",
-        "score": 0.72
-      }
-    ],
-    "signals": [
-      {
-        "kind": "content",
-        "severity": "info",
-        "message": "Fetched HTML is medium readability with 1 evidence item(s)."
-      },
-      {
-        "kind": "verification",
-        "severity": "info",
-        "message": "1/1 requested verification text(s) found."
-      },
-      {
-        "kind": "source-links",
-        "severity": "info",
-        "message": "1 source-like link(s) available for follow-up."
-      }
-    ],
-    "canUseFetchedHtml": true,
-    "needsBrowserHtml": false,
-    "responseStatus": 200,
-    "responseOk": true,
-    "responseContentType": "text/html",
-    "finalUrlChanged": false,
-    "confidence": "medium",
-    "usabilityScore": 0.88,
-    "readability": "medium",
-    "readabilityScore": 0.45,
-    "readabilityReasons": [
-      "1 content evidence item",
-      "1 external source link"
-    ],
-    "verificationStatus": "matched",
-    "verificationRequestedCount": 1,
-    "verificationFoundCount": 1,
-    "verificationMissingCount": 0,
-    "resultCount": 0,
-    "evidenceCount": 1,
-    "sourceLinkCount": 1,
-    "evidenceQualityScore": 0.72,
-    "sourceQualityScore": 0.92,
-    "alternativeActionCount": 0,
-    "diagnosticCodes": [],
-    "diagnosticErrorCount": 0,
-    "diagnosticWarningCount": 0,
-    "diagnosticInfoCount": 0,
-    "readTargets": [
-      {
-        "path": "verification.bestEvidence",
-        "reason": "Best matching evidence for the requested --find text.",
-        "count": 1,
-        "score": 0.72,
-        "primary": true
-      },
-      {
-        "path": "pageCheck.contentEvidence",
-        "reason": "Structured page excerpts suitable for source checking.",
-        "count": 1,
-        "score": 0.72
-      },
-      {
-        "path": "pageCheck.sourceLinks",
-        "reason": "External source-like links referenced by the page.",
-        "count": 1,
-        "score": 0.92
-      }
-    ],
-    "bestReadTarget": "verification.bestEvidence",
-    "bestReadTargetScore": 0.72,
-    "bestReadTargetReason": "Best matching evidence for the requested --find text.",
-    "primaryExecution": "read-current",
-    "primaryReadFrom": "verification.bestEvidence",
-    "primaryAction": {
-      "action": "use-evidence",
-      "execution": "read-current",
-      "reason": "All requested text was found in the page summaries.",
-      "url": "https://example.com/",
-      "terminal": true,
-      "readFrom": "verification.bestEvidence"
-    },
-    "recommendedUrl": "https://example.com/"
+      ]
+    }
   },
-  "links": [
-    {
-      "text": "More information...",
-      "url": "https://www.iana.org/domains/example",
-      "role": "link"
-    }
-  ],
-  "results": [
-    {
-      "title": "More information...",
-      "url": "https://www.iana.org/domains/example",
-      "source": "iana.org",
-      "rank": 1,
-      "snippet": "Background text near the result when available.",
-      "sourceType": "official",
-      "sourceScore": 0.92,
-      "sourceHints": ["official-organization"],
-      "relevance": "medium",
-      "matchedTerms": ["example"],
-      "isLikelyOfficial": false,
-      "selectionReason": "Medium relevance: matched example."
-    }
-  ],
-  "searchResults": [],
-  "outline": [
-    {
-      "text": "Example Domain",
-      "level": 1
-    }
-  ],
-  "actions": [],
-  "content": [
-    {
-      "text": "This domain is for use in illustrative examples in documents.",
-      "role": "p"
-    }
-  ],
   "treeOmitted": true
 }
 ```
@@ -975,15 +512,16 @@ extraction confidence. When available, it also preserves head provenance fields
 such as `siteName`, `author`, `publishedTime`, and `modifiedTime`, which are
 not normally visible in the accessibility tree. JSON-LD schema.org `@type`
 values are exposed as `structuredDataTypes`, and JSON-LD headline, author, and
-dates are used as fallback provenance when equivalent meta tags are missing. Each `contentEvidence` item includes a compact citation
-`id`, its stable payload `path`, plus `source`, `score`, `quality`, and
-`qualityReason` fields, so agents can distinguish semantic page evidence from
-fallback text, judge whether a snippet is strong enough to answer from, and cite
-exact snippets when choosing what to verify or return. `pageCheck.readability` includes
-`level`, numeric `score`, and concise `reasons`, explaining how directly useful
-the page is for source checking; compact `agent` repeats the score and first
-few reasons so agents can route from the top-level object before drilling into
-`pageCheck`. `pageCheck.recommendedAction` gives the next
+dates are used as fallback provenance when equivalent meta tags are missing.
+Each `contentEvidence` item includes a compact citation `id`, its stable
+payload `path`, plus `source`, `score`, `quality`, and `qualityReason` fields,
+so agents can distinguish semantic page evidence from fallback text, judge
+whether a snippet is strong enough to answer from, and cite exact snippets when
+choosing what to verify or return. `pageCheck.readability` includes `level`,
+numeric `score`, and concise `reasons`, explaining how directly useful the page
+is for source checking; compact `agent` repeats the score and first few reasons
+so agents can route from the top-level object before drilling into `pageCheck`.
+`pageCheck.recommendedAction` gives the next
 page-level move without requiring the agent to infer it from raw fields.
 `pageCheck.nextSteps` expands that into a deduplicated shortlist of follow-ups
 such as opening the best search result, opening source links, inspecting
