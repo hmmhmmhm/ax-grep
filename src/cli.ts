@@ -3362,6 +3362,12 @@ function summarizeAgentExpectedOutcome(primaryAction: SuggestedAction | undefine
       message: "Run the provided search command and expect a new ranked result payload.",
     };
   }
+  if (primaryAction.action === "retry-later") {
+    return {
+      kind: "retry-fetch",
+      message: "Retry the same URL with the provided command and expect a fresh page check payload.",
+    };
+  }
   if (primaryAction.action === "open-result" || primaryAction.action === "open-alternate-result" || primaryAction.action === "open-source-link" || primaryAction.url) {
     return {
       kind: "open-result",

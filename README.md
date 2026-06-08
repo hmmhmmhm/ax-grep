@@ -166,9 +166,9 @@ Text output includes the same loop switch as `nextMode`, `loopDecision`,
 `loopContinue`, `loopTerminal`, `loopMaxIterations`, and `loopReason`, so a
 lightweight executor can still continue without parsing the full JSON envelope.
 `agent.expectedOutcome` states what success should look like after following
-`agent.next`, such as reading evidence, opening a result, running a search,
-capturing rendered HTML, using a browser inspection, inspecting output, or
-stopping.
+`agent.next`, such as reading evidence, opening a result, retrying a failed
+fetch, running a search, capturing rendered HTML, using a browser inspection,
+inspecting output, or stopping.
 `agent.executionPlan` condenses the executor decision into one checklist:
 `operation` is `return`, `execute-command`, `capture-browser-html`,
 `inspect-browser`, `inspect-output`, or `stop`, and the same object repeats

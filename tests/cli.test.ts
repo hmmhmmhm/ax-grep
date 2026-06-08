@@ -3607,11 +3607,35 @@ describe("cli", () => {
     expect(missingEnvelope.agent.primaryAction).toMatchObject({
       action: "check-url-or-search",
       command: "ax-grep --search 'https://missing.example/page' --agent",
+      commandArgs: ["ax-grep", "--search", "https://missing.example/page", "--agent"],
     });
     expect(missingEnvelope.agent.answerPlan).toMatchObject({
       status: "needs-more",
       nextAction: "check-url-or-search",
       command: "ax-grep --search 'https://missing.example/page' --agent",
+      commandArgs: ["ax-grep", "--search", "https://missing.example/page", "--agent"],
+    });
+    expect(missingEnvelope.agent.next).toMatchObject({
+      mode: "command",
+      action: "check-url-or-search",
+      execution: "run-command",
+      command: "ax-grep --search 'https://missing.example/page' --agent",
+      commandArgs: ["ax-grep", "--search", "https://missing.example/page", "--agent"],
+      loop: {
+        decision: "execute",
+        shouldContinue: true,
+        terminal: false,
+      },
+    });
+    expect(missingEnvelope.agent.expectedOutcome).toMatchObject({
+      kind: "run-search",
+    });
+    expect(missingEnvelope.agent.executionPlan).toMatchObject({
+      operation: "execute-command",
+      expectedOutcome: "run-search",
+      command: "ax-grep --search 'https://missing.example/page' --agent",
+      commandArgs: ["ax-grep", "--search", "https://missing.example/page", "--agent"],
+      answerReady: false,
     });
     expect(serverStatus).toBe(12);
     expect(serverEnvelope.agent.canContinue).toBe(true);
@@ -3619,11 +3643,35 @@ describe("cli", () => {
     expect(serverEnvelope.agent.primaryAction).toMatchObject({
       action: "retry-later",
       command: "ax-grep 'https://server.example/page' --agent",
+      commandArgs: ["ax-grep", "https://server.example/page", "--agent"],
     });
     expect(serverEnvelope.agent.answerPlan).toMatchObject({
       status: "needs-more",
       nextAction: "retry-later",
       command: "ax-grep 'https://server.example/page' --agent",
+      commandArgs: ["ax-grep", "https://server.example/page", "--agent"],
+    });
+    expect(serverEnvelope.agent.next).toMatchObject({
+      mode: "command",
+      action: "retry-later",
+      execution: "run-command",
+      command: "ax-grep 'https://server.example/page' --agent",
+      commandArgs: ["ax-grep", "https://server.example/page", "--agent"],
+      loop: {
+        decision: "execute",
+        shouldContinue: true,
+        terminal: false,
+      },
+    });
+    expect(serverEnvelope.agent.expectedOutcome).toMatchObject({
+      kind: "retry-fetch",
+    });
+    expect(serverEnvelope.agent.executionPlan).toMatchObject({
+      operation: "execute-command",
+      expectedOutcome: "retry-fetch",
+      command: "ax-grep 'https://server.example/page' --agent",
+      commandArgs: ["ax-grep", "https://server.example/page", "--agent"],
+      answerReady: false,
     });
   });
 });

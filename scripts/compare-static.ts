@@ -180,7 +180,7 @@ type CliAgentSignalShape = {
 };
 
 type CliAgentExpectedOutcomeShape = {
-  kind?: "read-evidence" | "open-result" | "run-search" | "capture-html" | "browser-inspection" | "inspect-output" | "stop";
+  kind?: "read-evidence" | "open-result" | "retry-fetch" | "run-search" | "capture-html" | "browser-inspection" | "inspect-output" | "stop";
   message?: string;
 };
 
@@ -1229,6 +1229,7 @@ function expectedAgentOutcomeKind(primaryAction: CliActionShape | undefined): No
   if (primaryAction.requiresBrowserInteraction || normalizedActionExecution(primaryAction) === "interact-browser") return "browser-inspection";
   if (normalizedActionExecution(primaryAction) === "read-current") return "read-evidence";
   if (primaryAction.action === "refine-search" || primaryAction.action === "broaden-search" || primaryAction.action === "check-url-or-search") return "run-search";
+  if (primaryAction.action === "retry-later") return "retry-fetch";
   if (primaryAction.action === "open-result" || primaryAction.action === "open-alternate-result" || primaryAction.action === "open-source-link" || primaryAction.url) return "open-result";
   if (normalizedActionExecution(primaryAction) === "inspect-output") return "inspect-output";
   return "inspect-output";

@@ -146,6 +146,7 @@ export type AgentSignal = {
 export type AgentExpectedOutcomeKind =
   | "read-evidence"
   | "open-result"
+  | "retry-fetch"
   | "run-search"
   | "capture-html"
   | "browser-inspection"
