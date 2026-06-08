@@ -772,6 +772,8 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("  searchDecision: open-result/low - Ranked result 1 from result.example.");
+    expect(stdout.output).toContain("  handoffCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  handoffResultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult");
     expect(stdout.output).toContain("  resultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult");
     expect(stdout.output).toContain("source=result.example <https://result.example/> - Ranked result 1 from result.example. Agent browser result");
   });
@@ -2899,6 +2901,13 @@ describe("cli", () => {
     expect(stdout.output).toContain("  loopMaxIterations: 0");
     expect(stdout.output).toContain("  loopReason: Return the resolved value for pageCheck.contentEvidence.");
     expect(stdout.output).toContain("  handoff: return/return/medium action=read-content priority=high - Answer now from pageCheck.contentEvidence using citations e1.");
+    expect(stdout.output).toContain("  handoffReadFrom: pageCheck.contentEvidence");
+    expect(stdout.output).toContain("  handoffReadValue: pageCheck.contentEvidence");
+    expect(stdout.output).toContain("  handoffReadTarget: pageCheck.contentEvidence count=1");
+    expect(stdout.output).toContain("  handoffEvidence: e1 pageCheck.contentEvidence[0] content high score=");
+    expect(stdout.output).toContain("  handoffSourceChoice: s1 pageCheck.sourceLinks[0] rank=1");
+    expect(stdout.output).toContain("  handoffSignal: content/info - ");
+    expect(stdout.output).toContain("  handoffQualityGate: fetch pass/info score=1 path=agent.responseStatus - Fetched response was converted into an agent payload.");
     expect(stdout.output).toContain("  expectedOutcome: read-evidence - ");
     expect(stdout.output).toContain("  answerPlan: ready - Readable page evidence is available; answer from the listed citations.");
     expect(stdout.output).toContain("  answerConfidence: medium");

@@ -1469,6 +1469,82 @@ function formatAnalysisText(analysis: AnalysisSummary): string[] {
   return ["analysis", ...lines];
 }
 
+function formatAgentSignalText(signal: AgentSignal, prefix = "signal"): string {
+  return `  ${prefix}: ${signal.kind}/${signal.severity} - ${signal.message}`;
+}
+
+function formatAgentQualityGateText(gate: AgentQualityGate, prefix = "qualityGate"): string {
+  const score = typeof gate.score === "number" ? ` score=${gate.score}` : "";
+  const path = gate.path ? ` path=${gate.path}` : "";
+  return `  ${prefix}: ${gate.kind} ${gate.pass ? "pass" : "fail"}/${gate.severity}${score}${path} - ${gate.message}`;
+}
+
+function formatAgentCitationText(citation: AgentCitation, prefix = "citation"): string {
+  const score = typeof citation.score === "number" ? ` score=${citation.score}` : "";
+  const target = citation.url ? ` <${citation.url}>` : "";
+  const label = citation.text ?? citation.title ?? citation.url ?? "";
+  const confidence = citation.confidence ? ` ${citation.confidence}` : "";
+  const reason = citation.reason ? ` - ${citation.reason}` : "";
+  return `  ${prefix}: ${citation.id} ${citation.path} ${citation.kind}${confidence}${score}${reason} ${label}${target}`;
+}
+
+function formatAgentResultChoiceText(choice: AgentResultChoice, prefix = "resultChoice"): string {
+  const rank = typeof choice.rank === "number" ? ` rank=${choice.rank}` : "";
+  const flags = [
+    choice.recommended ? "recommended" : "",
+    choice.primary ? "primary" : "",
+    choice.recommendedPath ? `via=${choice.recommendedPath}` : "",
+  ].filter(Boolean).join(" ");
+  const flagText = flags ? ` ${flags}` : "";
+  const score = typeof choice.sourceScore === "number" ? ` score=${choice.sourceScore}` : "";
+  const relevance = choice.relevance ? ` relevance=${choice.relevance}` : "";
+  const source = choice.source ? ` source=${choice.source}` : "";
+  const sourceType = choice.sourceType ? ` type=${choice.sourceType}` : "";
+  const official = typeof choice.isLikelyOfficial === "boolean" ? ` official=${choice.isLikelyOfficial}` : "";
+  const matchedTerms = choice.matchedTerms?.length ? ` terms=${choice.matchedTerms.join(",")}` : "";
+  const findMatches = choice.findMatches?.length ? ` find=${choice.findMatches.join(",")}` : "";
+  const target = choice.url ? ` <${choice.url}>` : "";
+  const reason = choice.selectionReason ? ` - ${choice.selectionReason}` : "";
+  const title = choice.title ? ` ${choice.title}` : "";
+  return `  ${prefix}: ${choice.id} ${choice.path}${rank}${flagText}${score}${relevance}${source}${sourceType}${official}${matchedTerms}${findMatches}${target}${reason}${title}`;
+}
+
+function formatAgentSourceChoiceText(choice: AgentSourceChoice, prefix = "sourceChoice"): string[] {
+  const rank = typeof choice.rank === "number" ? ` rank=${choice.rank}` : "";
+  const primary = choice.primary ? " primary" : "";
+  const score = typeof choice.sourceScore === "number" ? ` score=${choice.sourceScore}` : "";
+  const source = choice.source ? ` source=${choice.source}` : "";
+  const sourceType = choice.sourceType ? ` type=${choice.sourceType}` : "";
+  const kind = choice.kind ? ` kind=${choice.kind}` : "";
+  const official = typeof choice.isLikelyOfficial === "boolean" ? ` official=${choice.isLikelyOfficial}` : "";
+  const target = choice.url ? ` <${choice.url}>` : "";
+  const reason = choice.selectionReason ? ` - ${choice.selectionReason}` : "";
+  const title = choice.title ? ` ${choice.title}` : "";
+  const lines = [`  ${prefix}: ${choice.id} ${choice.path}${rank}${primary}${score}${source}${sourceType}${kind}${official}${target}${reason}${title}`];
+  if (choice.command) lines.push(`    command: ${choice.command}`);
+  if (choice.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
+  return lines;
+}
+
+function formatAgentSourceSearchResultText(result: AgentSourceSearchResult, prefix: string): string[] {
+  const rank = typeof result.rank === "number" ? ` rank=${result.rank}` : "";
+  const openResult = result.openResult ? ` openResult=${result.openResult}` : "";
+  const score = typeof result.sourceScore === "number" ? ` score=${result.sourceScore}` : "";
+  const relevance = result.relevance ? ` relevance=${result.relevance}` : "";
+  const source = result.source ? ` source=${result.source}` : "";
+  const sourceType = result.sourceType ? ` type=${result.sourceType}` : "";
+  const official = typeof result.isLikelyOfficial === "boolean" ? ` official=${result.isLikelyOfficial}` : "";
+  const matchedTerms = result.matchedTerms?.length ? ` terms=${result.matchedTerms.join(",")}` : "";
+  const findMatches = result.findMatches?.length ? ` find=${result.findMatches.join(",")}` : "";
+  const target = result.url ? ` <${result.url}>` : "";
+  const reason = result.selectionReason ? ` - ${result.selectionReason}` : "";
+  const title = result.title ? ` ${result.title}` : "";
+  const lines = [`  ${prefix}: ${result.id} ${result.path}${rank}${openResult}${score}${relevance}${source}${sourceType}${official}${matchedTerms}${findMatches}${target}${reason}${title}`];
+  if (result.command) lines.push(`    command: ${result.command}`);
+  if (result.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(result.commandArgs)}`);
+  return lines;
+}
+
 function formatAgentText(agent: AgentSummary): string[] {
   const lines = [
     "agent",
@@ -1515,21 +1591,41 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  verification: ${agent.verificationFoundCount}/${agent.verificationRequestedCount} found, ${agent.verificationMissingCount} missing`,
     `  readability: ${agent.readability} (${agent.readabilityScore})`,
   ];
-  for (const signal of agent.signals) lines.push(`  signal: ${signal.kind}/${signal.severity} - ${signal.message}`);
+  if (agent.handoff.readFrom) lines.push(`  handoffReadFrom: ${agent.handoff.readFrom}`);
+  if (agent.handoff.readValue) lines.push(`  handoffReadValue: ${agent.handoff.readValue.path}`);
+  if (agent.handoff.command) lines.push(`  handoffCommand: ${agent.handoff.command}`);
+  if (agent.handoff.commandArgs) lines.push(`  handoffCommandArgs: ${formatCommandArgsText(agent.handoff.commandArgs)}`);
+  if (agent.handoff.afterInteractionCommand) lines.push(`  handoffAfterInteractionCommand: ${agent.handoff.afterInteractionCommand}`);
+  if (agent.handoff.afterInteractionCommandArgs) lines.push(`  handoffAfterInteractionCommandArgs: ${formatCommandArgsText(agent.handoff.afterInteractionCommandArgs)}`);
+  if (agent.handoff.url) lines.push(`  handoffUrl: ${agent.handoff.url}`);
+  if (agent.handoff.readTarget) {
+    const count = typeof agent.handoff.readTarget.count === "number" ? ` count=${agent.handoff.readTarget.count}` : "";
+    const score = typeof agent.handoff.readTarget.score === "number" ? ` score=${agent.handoff.readTarget.score}` : "";
+    const primary = agent.handoff.readTarget.primary ? " primary" : "";
+    lines.push(`  handoffReadTarget: ${agent.handoff.readTarget.path}${count}${score}${primary} - ${agent.handoff.readTarget.reason}`);
+  }
+  if (agent.handoff.browserHtml) {
+    lines.push(`  handoffBrowserHtml: ${agent.handoff.browserHtml.htmlFile} capture=${agent.handoff.browserHtml.captureScript}`);
+    if (agent.handoff.browserHtml.command) lines.push(`    command: ${agent.handoff.browserHtml.command}`);
+    if (agent.handoff.browserHtml.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(agent.handoff.browserHtml.commandArgs)}`);
+  }
+  if (agent.handoff.sourceSearch) {
+    const search = agent.handoff.sourceSearch;
+    const selectedEngine = search.selectedEngine ? ` selectedEngine=${search.selectedEngine}` : "";
+    const alternates = search.alternateResults?.length ? ` alternates=${search.alternateResults.length}` : "";
+    lines.push(`  handoffSourceSearch: ${search.query} engine=${search.engine}${selectedEngine} selected=${search.selectedRank}${alternates} <${search.selectedUrl}>`);
+    if (search.selectedResult) lines.push(...formatAgentSourceSearchResultText(search.selectedResult, "handoffSourceSearchResult"));
+    for (const result of search.alternateResults ?? []) lines.push(...formatAgentSourceSearchResultText(result, "handoffSourceSearchAlternate"));
+  }
+  for (const citation of agent.handoff.answerEvidence ?? []) lines.push(formatAgentCitationText(citation, "handoffEvidence"));
+  for (const choice of agent.handoff.resultChoices ?? []) lines.push(formatAgentResultChoiceText(choice, "handoffResultChoice"));
+  for (const choice of agent.handoff.sourceChoices ?? []) lines.push(...formatAgentSourceChoiceText(choice, "handoffSourceChoice"));
+  for (const signal of agent.handoff.signals ?? []) lines.push(formatAgentSignalText(signal, "handoffSignal"));
+  for (const gate of agent.handoff.qualityGates ?? []) lines.push(formatAgentQualityGateText(gate, "handoffQualityGate"));
+  for (const signal of agent.signals) lines.push(formatAgentSignalText(signal));
   for (const reason of agent.readabilityReasons) lines.push(`  readabilityReason: ${reason}`);
-  for (const gate of agent.qualityGates) {
-    const score = typeof gate.score === "number" ? ` score=${gate.score}` : "";
-    const path = gate.path ? ` path=${gate.path}` : "";
-    lines.push(`  qualityGate: ${gate.kind} ${gate.pass ? "pass" : "fail"}/${gate.severity}${score}${path} - ${gate.message}`);
-  }
-  for (const citation of agent.citations) {
-    const score = typeof citation.score === "number" ? ` score=${citation.score}` : "";
-    const target = citation.url ? ` <${citation.url}>` : "";
-    const label = citation.text ?? citation.title ?? citation.url ?? "";
-    const confidence = citation.confidence ? ` ${citation.confidence}` : "";
-    const reason = citation.reason ? ` - ${citation.reason}` : "";
-    lines.push(`  citation: ${citation.id} ${citation.path} ${citation.kind}${confidence}${score}${reason} ${label}${target}`);
-  }
+  for (const gate of agent.qualityGates) lines.push(formatAgentQualityGateText(gate));
+  for (const citation of agent.citations) lines.push(formatAgentCitationText(citation));
   if (agent.bestReadTarget) lines.push(`  bestReadTarget: ${agent.bestReadTarget}`);
   if (typeof agent.bestReadTargetScore === "number") lines.push(`  bestReadTargetScore: ${agent.bestReadTargetScore}`);
   if (agent.bestReadTargetReason) lines.push(`  bestReadTargetReason: ${agent.bestReadTargetReason}`);
@@ -1540,41 +1636,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.recommendedRelevance) lines.push(`  recommendedRelevance: ${agent.recommendedRelevance}`);
   if (typeof agent.recommendedLikelyOfficial === "boolean") lines.push(`  recommendedLikelyOfficial: ${agent.recommendedLikelyOfficial}`);
   if (agent.recommendedSelectionReason) lines.push(`  recommendedSelectionReason: ${agent.recommendedSelectionReason}`);
-  for (const choice of agent.resultChoices) {
-    const rank = typeof choice.rank === "number" ? ` rank=${choice.rank}` : "";
-    const flags = [
-      choice.recommended ? "recommended" : "",
-      choice.primary ? "primary" : "",
-      choice.recommendedPath ? `via=${choice.recommendedPath}` : "",
-    ].filter(Boolean).join(" ");
-    const flagText = flags ? ` ${flags}` : "";
-    const score = typeof choice.sourceScore === "number" ? ` score=${choice.sourceScore}` : "";
-    const relevance = choice.relevance ? ` relevance=${choice.relevance}` : "";
-    const source = choice.source ? ` source=${choice.source}` : "";
-    const sourceType = choice.sourceType ? ` type=${choice.sourceType}` : "";
-    const official = typeof choice.isLikelyOfficial === "boolean" ? ` official=${choice.isLikelyOfficial}` : "";
-    const matchedTerms = choice.matchedTerms?.length ? ` terms=${choice.matchedTerms.join(",")}` : "";
-    const findMatches = choice.findMatches?.length ? ` find=${choice.findMatches.join(",")}` : "";
-    const target = choice.url ? ` <${choice.url}>` : "";
-    const reason = choice.selectionReason ? ` - ${choice.selectionReason}` : "";
-    const title = choice.title ? ` ${choice.title}` : "";
-    lines.push(`  resultChoice: ${choice.id} ${choice.path}${rank}${flagText}${score}${relevance}${source}${sourceType}${official}${matchedTerms}${findMatches}${target}${reason}${title}`);
-  }
-  for (const choice of agent.sourceChoices) {
-    const rank = typeof choice.rank === "number" ? ` rank=${choice.rank}` : "";
-    const primary = choice.primary ? " primary" : "";
-    const score = typeof choice.sourceScore === "number" ? ` score=${choice.sourceScore}` : "";
-    const source = choice.source ? ` source=${choice.source}` : "";
-    const sourceType = choice.sourceType ? ` type=${choice.sourceType}` : "";
-    const kind = choice.kind ? ` kind=${choice.kind}` : "";
-    const official = typeof choice.isLikelyOfficial === "boolean" ? ` official=${choice.isLikelyOfficial}` : "";
-    const target = choice.url ? ` <${choice.url}>` : "";
-    const reason = choice.selectionReason ? ` - ${choice.selectionReason}` : "";
-    const title = choice.title ? ` ${choice.title}` : "";
-    lines.push(`  sourceChoice: ${choice.id} ${choice.path}${rank}${primary}${score}${source}${sourceType}${kind}${official}${target}${reason}${title}`);
-    if (choice.command) lines.push(`    command: ${choice.command}`);
-    if (choice.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
-  }
+  for (const choice of agent.resultChoices) lines.push(formatAgentResultChoiceText(choice));
+  for (const choice of agent.sourceChoices) lines.push(...formatAgentSourceChoiceText(choice));
   for (const target of agent.readTargets) {
     const count = typeof target.count === "number" ? ` count=${target.count}` : "";
     const score = typeof target.score === "number" ? ` score=${target.score}` : "";
