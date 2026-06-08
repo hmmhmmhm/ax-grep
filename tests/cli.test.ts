@@ -474,12 +474,16 @@ describe("cli", () => {
       path: "pageCheck.sourceLinks",
     }));
     expect(envelope.searchResults[0]).toMatchObject({
+      id: "r1",
+      path: "searchResults[0]",
       title: "Agent browser result",
       openResult: 1,
       command: "ax-grep --search 'agent browser' --engine bing --open-result 1 --agent",
       commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent"],
     });
     expect(envelope.recommendedResult).toMatchObject({
+      id: "r1",
+      path: "recommendedResult",
       openResult: 1,
       command: "ax-grep --search 'agent browser' --engine bing --open-result 1 --agent",
       commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent"],
@@ -1427,6 +1431,8 @@ describe("cli", () => {
       selectedTitle: "ax-grep - npm",
       selectedUrl: "https://www.npmjs.com/package/ax-grep",
       selectedResult: {
+        id: "selected",
+        path: "sourceSearch.selectedResult",
         title: "ax-grep - npm",
         url: "https://www.npmjs.com/package/ax-grep",
         source: "npmjs.com",
@@ -1682,6 +1688,8 @@ describe("cli", () => {
     expect(envelope.pageCheck.primaryLinks).toBeUndefined();
     expect(envelope.pageCheck.sourceLinks).toEqual([
       expect.objectContaining({
+        id: "s1",
+        path: "pageCheck.sourceLinks[0]",
         url: "https://source.example/report",
         command: "ax-grep 'https://source.example/report' --timeout 30000 --user-agent 'custom-agent/1.0' --agent",
         commandArgs: [

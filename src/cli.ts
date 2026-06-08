@@ -110,6 +110,8 @@ type LinkSummary = {
 };
 
 type ResultSummary = {
+  id?: string;
+  path?: string;
   title: string;
   url: string;
   source: string;
@@ -962,6 +964,8 @@ async function openSearchResult(
   if (!selected) {
     throw new CliError("NO_RESULT", `search result ${requested} is not available; found ${results.length}`, 21);
   }
+  const alternateResults = results.filter((result) => result.url !== selected.url).slice(0, 4)
+    .map((result, index) => withResultReference(result, `a${result.rank}`, `sourceSearch.alternateResults[${index}]`));
   const openedOptions: CliOptions = {
     ...options,
     url: selected.url,
@@ -980,8 +984,8 @@ async function openSearchResult(
       selectedRank: selected.rank,
       selectedTitle: selected.title,
       selectedUrl: selected.url,
-      selectedResult: selected,
-      alternateResults: results.filter((result) => result.url !== selected.url).slice(0, 4),
+      selectedResult: withResultReference(selected, "selected", "sourceSearch.selectedResult"),
+      alternateResults,
     },
   };
   let openedFetched: FetchResult;
@@ -992,6 +996,10 @@ async function openSearchResult(
     throw new CliError(cliError.code, cliError.message, cliError.exitCode, cliError.status, errorMetadataFromOptions(openedOptions));
   }
   return { options: openedOptions, fetched: openedFetched };
+}
+
+function withResultReference(result: ResultSummary, id: string, path: string): ResultSummary {
+  return { ...result, id, path };
 }
 
 function errorMetadataFromOptions(options: CliOptions): Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "selectedSearchEngine" | "searchAttempts" | "searchLang" | "searchRegion" | "sourceSearch" | "findQueries" | "timeoutMs" | "userAgent">> {
@@ -3797,7 +3805,7 @@ function agentJsonEnvelope(envelope: {
     ...compactAgentVerification(envelope.verification, envelope.agent.primaryAction),
     ...(envelope.finds.length > 0 ? { finds: envelope.finds } : {}),
     ...compactAgentSearchResults(envelope.searchResults, envelope.recommendedResult, searchCommandContext),
-    ...(envelope.recommendedResult ? { recommendedResult: compactAgentSearchResult(envelope.recommendedResult, searchCommandContext) } : {}),
+    ...(envelope.recommendedResult ? { recommendedResult: compactAgentSearchResult(envelope.recommendedResult, searchCommandContext, { id: `r${envelope.recommendedResult.rank}`, path: "recommendedResult" }) } : {}),
     ...(suggestedActions.length > 0 ? { suggestedActions } : {}),
     ...(envelope.error ? { error: envelope.error } : {}),
     treeOmitted: true,
@@ -3938,8 +3946,8 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
   return {
     contentEvidence: pageCheck.contentEvidence,
     contentLength: pageCheck.contentLength,
-    ...(primaryLinks.length > 0 && !omitResultLinkDuplicates ? { primaryLinks: primaryLinks.map((link) => compactAgentPageLink(link, pageLinkContext)) } : {}),
-    ...(pageCheck.sourceLinks.length > 0 && !omitResultLinkDuplicates ? { sourceLinks: pageCheck.sourceLinks.map((link) => compactAgentPageLink(link, pageLinkContext)) } : {}),
+    ...(primaryLinks.length > 0 && !omitResultLinkDuplicates ? { primaryLinks: primaryLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `l${index + 1}`, path: `pageCheck.primaryLinks[${index}]` })) } : {}),
+    ...(pageCheck.sourceLinks.length > 0 && !omitResultLinkDuplicates ? { sourceLinks: pageCheck.sourceLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `s${index + 1}`, path: `pageCheck.sourceLinks[${index}]` })) } : {}),
     ...(pageCheck.actions.length > 0 && !omitResultLinkDuplicates ? { actions: pageCheck.actions } : {}),
     confidence: pageCheck.confidence,
     readability: {
@@ -4090,11 +4098,11 @@ function compactAgentSourceSearch(sourceSearch: SourceSearchSummary | undefined)
     selectedTitle: sourceSearch.selectedTitle,
     selectedUrl: sourceSearch.selectedUrl,
     ...(sourceSearch.selectedResult ? { selectedResult: compactAgentSourceSearchResult(sourceSearch, sourceSearch.selectedResult) } : {}),
-    ...(sourceSearch.alternateResults?.length ? { alternateResults: sourceSearch.alternateResults.map((result) => compactAgentSourceSearchResult(sourceSearch, result)) } : {}),
+    ...(sourceSearch.alternateResults?.length ? { alternateResults: sourceSearch.alternateResults.map((result, index) => compactAgentSourceSearchResult(sourceSearch, result, index)) } : {}),
   };
 }
 
-function compactAgentSourceSearchResult(sourceSearch: SourceSearchSummary, result: ResultSummary): object {
+function compactAgentSourceSearchResult(sourceSearch: SourceSearchSummary, result: ResultSummary, index?: number): object {
   const command = searchOpenCommandSpec(
     sourceSearch.query,
     sourceSearch.selectedEngine ?? sourceSearch.engine,
@@ -4106,8 +4114,12 @@ function compactAgentSourceSearchResult(sourceSearch: SourceSearchSummary, resul
     sourceSearch.timeoutMs,
     sourceSearch.userAgent,
   );
+  const path = index === undefined ? "sourceSearch.selectedResult" : `sourceSearch.alternateResults[${index}]`;
   return {
-    ...compactAgentSearchResult(result),
+    ...compactAgentSearchResult(result, undefined, {
+      id: index === undefined ? "selected" : `a${result.rank}`,
+      path,
+    }),
     ...commandFields(command),
   };
 }
@@ -4156,10 +4168,14 @@ function compactAgentSearchResults(results: ResultSummary[], recommendedResult?:
   };
   for (const result of results.slice(0, 5)) add(result);
   add(recommendedResult);
-  return { searchResults: selected.map((result) => compactAgentSearchResult(result, commandContext)) };
+  return { searchResults: selected.map((result, index) => compactAgentSearchResult(result, commandContext, { id: `r${result.rank}`, path: `searchResults[${index}]` })) };
 }
 
-function compactAgentSearchResult(result: ResultSummary, commandContext?: SearchResultCommandContext): ResultSummary & Partial<Pick<SuggestedAction, "openResult" | "command" | "commandArgs">> {
+function compactAgentSearchResult(
+  result: ResultSummary,
+  commandContext?: SearchResultCommandContext,
+  reference?: { id: string; path: string },
+): ResultSummary & Partial<Pick<SuggestedAction, "openResult" | "command" | "commandArgs">> {
   const command = commandContext
     ? searchOpenCommandSpec(
         commandContext.query,
@@ -4174,6 +4190,7 @@ function compactAgentSearchResult(result: ResultSummary, commandContext?: Search
       )
     : undefined;
   const compact: ResultSummary = {
+    ...(reference ? { id: reference.id, path: reference.path } : {}),
     title: result.title,
     url: result.url,
     source: result.source,
@@ -4193,8 +4210,13 @@ function compactAgentSearchResult(result: ResultSummary, commandContext?: Search
   };
 }
 
-function compactAgentPageLink(link: PageLinkSummary, commandContext?: PageLinkCommandContext): PageLinkSummary & Partial<Pick<SuggestedAction, "command" | "commandArgs">> {
+function compactAgentPageLink(
+  link: PageLinkSummary,
+  commandContext?: PageLinkCommandContext,
+  reference?: { id: string; path: string },
+): PageLinkSummary & Partial<Pick<SuggestedAction, "command" | "commandArgs">> {
   const compact: PageLinkSummary = {
+    ...(reference ? { id: reference.id, path: reference.path } : {}),
     title: link.title,
     url: link.url,
     source: link.source,

@@ -186,10 +186,11 @@ branch away from confirmed evidence. Generated follow-up commands preserve
 search and fetch context such as `--lang`, `--region`, `--find`, `--timeout`,
 `--user-agent`, and `--agent` so another agent can continue the same
 investigation without reconstructing flags. Compact search-result entries also
-include rank-specific `openResult`, `command`, and `commandArgs`, so an agent
-can compare or open result 2 or 3 without inventing a command from the raw URL;
-compact `pageCheck.primaryLinks` and `pageCheck.sourceLinks` also include
-`command` and `commandArgs` in `--agent` output, preserving fetch flags for
+include citeable `id`/`path` metadata plus rank-specific `openResult`,
+`command`, and `commandArgs`, so an agent can compare, cite, or open result 2
+or 3 without inventing a command from the raw URL; compact
+`pageCheck.primaryLinks` and `pageCheck.sourceLinks` also include `id`, `path`,
+`command`, and `commandArgs` in `--agent` output, preserving fetch flags for
 source-link follow-up;
 search-like pages reached by a normal URL expose a direct
 `ax-grep <result-url>` continuation for the selected result;

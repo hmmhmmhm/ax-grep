@@ -173,6 +173,8 @@ type CliAgentExpectedOutcomeShape = {
 };
 
 type CliSearchResultShape = {
+  id?: string;
+  path?: string;
   rank?: number;
   source?: string;
   sourceScore?: number;
@@ -796,7 +798,11 @@ function scoreActionSchema(actions: CliActionShape[]): number {
 function scoreSearchResultActions(results: CliSearchResultShape[]): number {
   if (results.length === 0) return 1;
   const runnableCount = results.filter((result) => {
-    return typeof result.openResult !== "undefined"
+    return typeof result.id === "string"
+      && result.id.length > 0
+      && typeof result.path === "string"
+      && result.path.length > 0
+      && typeof result.openResult !== "undefined"
       && Boolean(result.command)
       && Array.isArray(result.commandArgs)
       && result.commandArgs.length > 0;
@@ -981,13 +987,17 @@ function expectedAgentOutcomeKind(primaryAction: CliActionShape | undefined): No
 }
 
 function scorePageLinkCommands(
-  primaryLinks: Array<{ command?: string; commandArgs?: string[] }>,
-  sourceLinks: Array<{ command?: string; commandArgs?: string[] }>,
+  primaryLinks: Array<{ id?: string; path?: string; command?: string; commandArgs?: string[] }>,
+  sourceLinks: Array<{ id?: string; path?: string; command?: string; commandArgs?: string[] }>,
 ): number {
   const links = [...primaryLinks, ...sourceLinks];
   if (links.length === 0) return 1;
   const validCount = links.filter((link) => {
-    return typeof link.command === "string"
+    return typeof link.id === "string"
+      && link.id.length > 0
+      && typeof link.path === "string"
+      && link.path.length > 0
+      && typeof link.command === "string"
       && link.command.length > 0
       && Array.isArray(link.commandArgs)
       && link.commandArgs.length > 0;
