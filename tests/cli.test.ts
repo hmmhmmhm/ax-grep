@@ -239,6 +239,7 @@ describe("cli", () => {
             "next.readValue",
             "next.target",
             "citations",
+            "answerPlan",
             "readTargets",
             "signals",
           ]),
@@ -276,6 +277,11 @@ describe("cli", () => {
         expectedOutcome: {
           kind: "read-evidence",
           message: expect.stringContaining("verification.bestEvidence"),
+        },
+        answerPlan: {
+          status: "ready",
+          useCitationIds: expect.arrayContaining(["v1"]),
+          nextAction: "use-evidence",
         },
         signals: expect.arrayContaining([
           expect.objectContaining({ kind: "content", severity: "info" }),
@@ -2417,6 +2423,8 @@ describe("cli", () => {
     expect(stdout.output).toContain("  loopMaxIterations: 0");
     expect(stdout.output).toContain("  loopReason: Return the resolved value for pageCheck.contentEvidence.");
     expect(stdout.output).toContain("  expectedOutcome: read-evidence - ");
+    expect(stdout.output).toContain("  answerPlan: ready - Readable page evidence is available; answer from the listed citations.");
+    expect(stdout.output).toContain("  answerCitations: e1");
     expect(stdout.output).toContain("  signal: content/info - ");
     expect(stdout.output).toContain("  canContinue: true");
     expect(stdout.output).toContain("  responseStatus: 200");

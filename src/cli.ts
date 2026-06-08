@@ -9,6 +9,7 @@ import { Element as DomElement } from "domhandler";
 import type { AnyNode, Element } from "domhandler";
 import { extract, type StaticSemanticTreeOptions } from "./static";
 import type {
+  AgentAnswerPlan,
   AgentCitation,
   AgentContract,
   AgentContinuationMode,
@@ -263,6 +264,7 @@ type AgentSummary = {
   continuationMode: AgentContinuationMode;
   next: AgentNext;
   expectedOutcome: AgentExpectedOutcome;
+  answerPlan: AgentAnswerPlan;
   signals: AgentSignal[];
   canContinue: boolean;
   canUseFetchedHtml: boolean;
@@ -320,6 +322,7 @@ const agentContract: AgentContract = {
     "next.readValue",
     "next.target",
     "citations",
+    "answerPlan",
     "readTargets",
     "signals",
     "expectedOutcome",
@@ -1365,6 +1368,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  loopMaxIterations: ${agent.next.loop.maxSuggestedIterations}`,
     `  loopReason: ${agent.next.loop.reason}`,
     `  expectedOutcome: ${agent.expectedOutcome.kind} - ${agent.expectedOutcome.message}`,
+    `  answerPlan: ${agent.answerPlan.status} - ${agent.answerPlan.reason}`,
+    `  answerCitations: ${agent.answerPlan.useCitationIds.join(", ") || "none"}`,
     `  summary: ${agent.summary}`,
     `  canContinue: ${agent.canContinue}`,
     `  canUseFetchedHtml: ${agent.canUseFetchedHtml}`,
@@ -2494,6 +2499,7 @@ function summarizeAgent(
   const diagnosticCounts = countDiagnosticsBySeverity(analysis.diagnostics);
   const readTargets = summarizeAgentReadTargets(primaryAction, analysis.kind, pageCheck, verification, results, sourceSearch);
   const bestReadTarget = selectBestReadTarget(readTargets);
+  const citations = summarizeAgentCitations(pageCheck, verification, recommendedResult, sourceSearch);
   const agent: AgentSummary = {
     contract: agentContract,
     status,
@@ -2503,6 +2509,7 @@ function summarizeAgent(
     continuationMode: agentContinuationMode(primaryAction),
     next: summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch)),
     expectedOutcome: summarizeAgentExpectedOutcome(primaryAction),
+    answerPlan: summarizeAgentAnswerPlan(status, primaryAction, pageCheck, verification, citations, needsBrowserHtml, error),
     signals: summarizeAgentSignals(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, fetched, error),
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml,
@@ -2530,7 +2537,7 @@ function summarizeAgent(
     diagnosticErrorCount: diagnosticCounts.error,
     diagnosticWarningCount: diagnosticCounts.warning,
     diagnosticInfoCount: diagnosticCounts.info,
-    citations: summarizeAgentCitations(pageCheck, verification, recommendedResult, sourceSearch),
+    citations,
     readTargets,
   };
   if (bestReadTarget) {
@@ -2623,6 +2630,59 @@ function summarizeAgentCitations(
     });
   }
   return citations.slice(0, 6);
+}
+
+function summarizeAgentAnswerPlan(
+  status: AgentStatus,
+  primaryAction: SuggestedAction | undefined,
+  pageCheck: PageCheckSummary,
+  verification: VerificationSummary,
+  citations: AgentCitation[],
+  needsBrowserHtml: boolean,
+  error?: { code: CliErrorCode; message: string; status?: number },
+): AgentAnswerPlan {
+  const citationIds = citations
+    .filter((citation) => citation.kind === "verification" || citation.kind === "content")
+    .map((citation) => citation.id)
+    .slice(0, 4);
+  if (error) {
+    return {
+      status: "error",
+      reason: `Extraction failed with ${error.code}.`,
+      useCitationIds: [],
+      ...(primaryAction?.action ? { nextAction: primaryAction.action } : {}),
+    };
+  }
+  if (needsBrowserHtml || status === "needs-browser") {
+    return {
+      status: "blocked",
+      reason: "Browser-captured HTML or browser inspection is needed before answering.",
+      useCitationIds: [],
+      ...(primaryAction?.action ? { nextAction: primaryAction.action } : {}),
+    };
+  }
+  if (verification.status === "matched") {
+    return {
+      status: "ready",
+      reason: "Requested verification text was found; answer from the listed citations.",
+      useCitationIds: citationIds,
+      ...(primaryAction?.action ? { nextAction: primaryAction.action } : {}),
+    };
+  }
+  if (primaryAction && actionExecution(primaryAction) === "read-current" && pageCheck.contentEvidence.length > 0 && pageCheck.readability.level !== "low") {
+    return {
+      status: "ready",
+      reason: "Readable page evidence is available; answer from the listed citations.",
+      useCitationIds: citationIds,
+      ...(primaryAction.action ? { nextAction: primaryAction.action } : {}),
+    };
+  }
+  return {
+    status: "needs-more",
+    reason: "Follow the next action before producing a final answer.",
+    useCitationIds: citationIds,
+    ...(primaryAction?.action ? { nextAction: primaryAction.action } : {}),
+  };
 }
 
 function summarizeAgentReadTargets(
@@ -3303,6 +3363,12 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     continuationMode: agentContinuationMode(primaryAction),
     next: summarizeAgentNext(primaryAction, readTargets, errorAgentReadValue(primaryAction, sourceSearch)),
     expectedOutcome: summarizeAgentExpectedOutcome(primaryAction),
+    answerPlan: {
+      status: "error",
+      reason: `Extraction failed with ${error.code}.`,
+      useCitationIds: [],
+      ...(primaryAction?.action ? { nextAction: primaryAction.action } : {}),
+    },
     signals: summarizeErrorAgentSignals(error, primaryAction, summary),
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml: false,
@@ -4068,6 +4134,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     continuationMode: agent.continuationMode,
     next: agent.next,
     expectedOutcome: agent.expectedOutcome,
+    answerPlan: agent.answerPlan,
     ...(agent.signals.length > 0 ? { signals: agent.signals } : {}),
     canContinue: agent.canContinue,
     canUseFetchedHtml: agent.canUseFetchedHtml,

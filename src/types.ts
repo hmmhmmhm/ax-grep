@@ -178,6 +178,13 @@ export type AgentCitation = {
   score?: number;
 };
 
+export type AgentAnswerPlan = {
+  status: "ready" | "needs-more" | "blocked" | "error";
+  reason: string;
+  useCitationIds: string[];
+  nextAction?: string;
+};
+
 export type AgentTarget = {
   title?: string;
   url: string;
@@ -201,6 +208,7 @@ export type AgentSummary = {
   continuationMode: AgentContinuationMode;
   next: AgentNext;
   expectedOutcome: AgentExpectedOutcome;
+  answerPlan?: AgentAnswerPlan;
   signals?: AgentSignal[];
   canContinue: boolean;
   canUseFetchedHtml: boolean;
@@ -256,6 +264,7 @@ export type AgentContractFeature =
   | "next.readValue"
   | "next.target"
   | "citations"
+  | "answerPlan"
   | "readTargets"
   | "signals"
   | "expectedOutcome"

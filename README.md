@@ -168,6 +168,9 @@ severity plus a concise message.
 `agent.citations` is a compact shortlist of citeable content, verification
 evidence, search results, and source links with stable `id`/`path` references,
 so an executor can assemble an answer without scanning the full tree first.
+`agent.answerPlan` says whether the current payload is ready for a final answer
+(`ready`), needs another command (`needs-more`), needs browser capture
+(`blocked`), or failed (`error`), and lists the citation IDs to use.
 `canContinue` is true when the primary action is directly usable by an agent
 (`run-command`, `read-current`, or browser interaction), including recoverable
 error states such as alternate-result recovery or retry-later.
@@ -497,6 +500,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "next.readValue",
         "next.target",
         "citations",
+        "answerPlan",
         "readTargets",
         "signals",
         "expectedOutcome",
