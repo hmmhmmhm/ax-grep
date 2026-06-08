@@ -775,7 +775,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentCitationScore: scoreAgentCitations(item.agent?.citations ?? [], item),
     agentAnswerPlanScore: scoreAgentAnswerPlan(item.agent?.answerPlan, item.agent?.citations ?? [], item.agent?.primaryAction),
     agentActionListScore: scoreAgentActionList(item.agent?.actions, item.agent?.primaryAction, item.agent?.alternativeActionCount),
-    agentSearchDecisionScore: scoreAgentSearchDecision(item.agent?.searchDecision, item.kind, item.agent?.primaryAction, item.searchResults ?? [], item.recommendedResult),
+    agentSearchDecisionScore: scoreAgentSearchDecision(item.agent?.searchDecision, item.kind, item.agent?.primaryAction, item.searchResults ?? [], item.recommendedResult, item.agent?.resultCount),
     agentPageDecisionScore: scoreAgentPageDecision(item.agent?.pageDecision, item.kind, item.agent?.primaryAction, item.pageCheck),
     pageCheck: pageCheckSummary,
     searchResultCount: item.searchResults?.length ?? 0,
@@ -1423,6 +1423,7 @@ function scoreAgentSearchDecision(
   primaryAction: CliActionShape | undefined,
   searchResults: CliSearchResultShape[],
   recommendedResult: CliSearchResultShape | undefined,
+  agentResultCount: number | undefined,
 ): number {
   if (kind !== "search-results") return typeof decision === "undefined" ? 1 : 0;
   if (!decision) return 0;
@@ -1431,7 +1432,9 @@ function scoreAgentSearchDecision(
   if (decision.decision === expectedSearchDecision(primaryAction, recommendedResult)) matched += 1;
   if (decision.confidence === "low" || decision.confidence === "medium" || decision.confidence === "high") matched += 1;
   if (typeof decision.reason === "string" && decision.reason.length > 0) matched += 1;
-  if (decision.resultCount === searchResults.length) matched += 1;
+  if (typeof agentResultCount === "number"
+    ? decision.resultCount === agentResultCount
+    : decision.resultCount === searchResults.length) matched += 1;
   if (typeof decision.highRelevanceCount === "number"
     && typeof decision.mediumRelevanceCount === "number"
     && typeof decision.lowRelevanceCount === "number"
@@ -1443,8 +1446,11 @@ function scoreAgentSearchDecision(
     if (decision.recommendedUrl === recommendedResult.url) matched += 1;
   }
   if (primaryAction?.command) {
-    required += 1;
+    required += 2;
     if (decision.command === primaryAction.command) matched += 1;
+    if (JSON.stringify(decision.commandArgs) === JSON.stringify(primaryAction.commandArgs)) matched += 1;
+  } else if (typeof decision.commandArgs !== "undefined") {
+    required += 1;
   }
   return roundScore(matched / required);
 }
@@ -1476,8 +1482,11 @@ function scoreAgentPageDecision(
     if (decision.readFrom === primaryAction.readFrom) matched += 1;
   }
   if (primaryAction?.command) {
-    required += 1;
+    required += 2;
     if (decision.command === primaryAction.command) matched += 1;
+    if (JSON.stringify(decision.commandArgs) === JSON.stringify(primaryAction.commandArgs)) matched += 1;
+  } else if (typeof decision.commandArgs !== "undefined") {
+    required += 1;
   }
   return roundScore(matched / required);
 }

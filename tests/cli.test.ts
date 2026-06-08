@@ -540,6 +540,11 @@ describe("cli", () => {
       primaryOpenResult: "best",
       primaryCommand: "ax-grep --search 'agent browser' --engine bing --open-result best --agent",
       primaryCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "best", "--agent"],
+      searchDecision: {
+        decision: "open-result",
+        command: "ax-grep --search 'agent browser' --engine bing --open-result best --agent",
+        commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "best", "--agent"],
+      },
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "searchResults",
@@ -1181,6 +1186,7 @@ describe("cli", () => {
       officialCount: 0,
       findMatchCount: 0,
       command: "ax-grep --search '\"ax-grep\"' --engine duckduckgo --agent",
+      commandArgs: ["ax-grep", "--search", "\"ax-grep\"", "--engine", "duckduckgo", "--agent"],
     });
   });
 
