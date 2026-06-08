@@ -1161,7 +1161,7 @@ function scoreAgentExecutionPlan(
   if (next.command) {
     required += 2;
     if (plan.command === next.command) matched += 1;
-    if (Array.isArray(plan.commandArgs) && plan.commandArgs.length > 0) matched += 1;
+    if (JSON.stringify(plan.commandArgs) === JSON.stringify(next.commandArgs)) matched += 1;
   }
   if (next.url) {
     required += 1;

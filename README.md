@@ -1037,6 +1037,9 @@ structured evidence, readability, source link quality, verification status,
 recommended actions, next steps, and
 estimate token cost for both compact tree prompts and `--agent` JSON prompts. See
 `docs/comparison-baseline.md` for the current baseline run.
+Search, social, challenge, and volatile targets may be diagnostic-only and
+excluded from gate averages; check each run's `included`/`excluded` counts
+before treating an average as release-gating coverage.
 
 Current benchmark suites include:
 

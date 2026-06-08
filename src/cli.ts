@@ -3037,22 +3037,24 @@ function summarizeAgentAnswerPlan(
     .filter((citation) => citation.kind === "verification" || citation.kind === "content")
     .map((citation) => citation.id)
     .slice(0, 4);
+  if (needsBrowserHtml || status === "needs-browser") {
+    return {
+      status: "blocked",
+      confidence: "low",
+      reason: "Browser-captured HTML or browser inspection is needed before answering.",
+      gaps: error
+        ? [`Extraction failed with ${error.code}.`, "Browser-captured HTML or browser inspection is needed."]
+        : ["Browser-captured HTML or browser inspection is needed."],
+      useCitationIds: [],
+      ...actionFields,
+    };
+  }
   if (error) {
     return {
       status: "error",
       confidence: "low",
       reason: `Extraction failed with ${error.code}.`,
       gaps: [`Extraction failed with ${error.code}.`],
-      useCitationIds: [],
-      ...actionFields,
-    };
-  }
-  if (needsBrowserHtml || status === "needs-browser") {
-    return {
-      status: "blocked",
-      confidence: "low",
-      reason: "Browser-captured HTML or browser inspection is needed before answering.",
-      gaps: ["Browser-captured HTML or browser inspection is needed."],
       useCitationIds: [],
       ...actionFields,
     };
@@ -4135,7 +4137,10 @@ function analyzePage(
         ...commandFields(command),
       });
     } else {
-      const command = refineSearchCommandSpec(options.searchQuery, options.selectedSearchEngine ?? options.searchEngine, options.findQueries ?? [], options.agentMode ?? false, options.searchLang, options.searchRegion, options.timeoutMs, options.userAgent);
+      const directSearch = inferSearchResultCommandContext(fetched.finalUrl);
+      const query = options.searchQuery ?? directSearch?.query;
+      const engine = options.selectedSearchEngine ?? options.searchEngine ?? directSearch?.engine;
+      const command = refineSearchCommandSpec(query, engine, options.findQueries ?? [], options.agentMode ?? false, options.searchLang, options.searchRegion, options.timeoutMs, options.userAgent);
       suggestedActions.push({
         action: "refine-search",
         reason: (options.findQueries?.length ?? 0) > 0
@@ -4804,6 +4809,7 @@ function compactAttemptTopResult(topResult: NonNullable<SearchAttemptSummary["to
 
 function searchResultCommandContext(options: CliOptions): SearchResultCommandContext | undefined {
   const inferred = inferSearchResultCommandContext(options.url);
+  if (!options.searchQuery && !inferred?.engine) return undefined;
   const query = options.searchQuery ?? inferred?.query;
   if (!query) return undefined;
   const engine = options.selectedSearchEngine ?? options.searchEngine ?? inferred?.engine;
@@ -4835,6 +4841,18 @@ function inferSearchResultCommandContext(url: string | undefined): Pick<SearchRe
     if (hostname.endsWith("startpage.com")) {
       const query = parsed.searchParams.get("query");
       return query ? { query, engine: "startpage" } : undefined;
+    }
+    if (hostname.endsWith("google.com")) {
+      const query = parsed.searchParams.get("q");
+      return query ? { query } : undefined;
+    }
+    if (hostname.endsWith("baidu.com")) {
+      const query = parsed.searchParams.get("wd") ?? parsed.searchParams.get("word");
+      return query ? { query } : undefined;
+    }
+    if (hostname.endsWith("search.yahoo.co.jp")) {
+      const query = parsed.searchParams.get("p");
+      return query ? { query } : undefined;
     }
     return undefined;
   } catch {

@@ -1552,6 +1552,39 @@ describe("cli", () => {
     ]);
   });
 
+  it("recovers direct search URL queries when refining unsupported SERPs", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://www.baidu.com/s?wd=ax-lite", "--find", "target claim", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <div class="result" tpl="se_com_default">
+            <h3><a href="https://target.example/first">Unrelated Baidu Result</a></h3>
+            <div class="c-abstract">This result does not contain the requested text.</div>
+          </div>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "refine-search",
+      commandArgs: ["ax-grep", "--search", "\"target claim\" \"ax-lite\"", "--find", "target claim", "--agent"],
+    });
+    expect(envelope.agent.answerPlan).toMatchObject({
+      status: "needs-more",
+      nextAction: "refine-search",
+      commandArgs: ["ax-grep", "--search", "\"target claim\" \"ax-lite\"", "--find", "target claim", "--agent"],
+    });
+    expect(envelope.agent.executionPlan).toMatchObject({
+      operation: "execute-command",
+      expectedOutcome: "run-search",
+      commandArgs: ["ax-grep", "--search", "\"target claim\" \"ax-lite\"", "--find", "target claim", "--agent"],
+    });
+  });
+
   it("opens search results using SERP order instead of generic link score", async () => {
     const stdout = new MemoryWriter();
     const requestedUrls: string[] = [];
@@ -2866,9 +2899,26 @@ describe("cli", () => {
         mode: "capture-html",
         action: "retry-with-browser-html",
         execution: "run-command",
+        command: "ax-grep 'https://example.test' --html-file captured.html --json --summary",
+        commandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--json", "--summary"],
       },
       expectedOutcome: {
         kind: "capture-html",
+      },
+      answerPlan: {
+        status: "blocked",
+        nextAction: "retry-with-browser-html",
+        command: "ax-grep 'https://example.test' --html-file captured.html --json --summary",
+        commandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--json", "--summary"],
+        gaps: expect.arrayContaining(["Extraction failed with NO_INSPECTABLE_CONTENT.", "Browser-captured HTML or browser inspection is needed."]),
+      },
+      executionPlan: {
+        operation: "capture-browser-html",
+        expectedOutcome: "capture-html",
+        command: "ax-grep 'https://example.test' --html-file captured.html --json --summary",
+        commandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--json", "--summary"],
+        needsBrowserHtml: true,
+        answerReady: false,
       },
       signals: expect.arrayContaining([
         expect.objectContaining({ kind: "browser", severity: "warning" }),
