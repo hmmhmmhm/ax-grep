@@ -20,6 +20,7 @@ import type {
   AgentNext,
   AgentReadTarget,
   AgentReadValue,
+  AgentResultChoice,
   AgentRoutingIntent,
   AgentRunbook,
   AgentSignal,
@@ -340,6 +341,7 @@ type AgentSummary = {
   verificationFoundCount: number;
   verificationMissingCount: number;
   resultCount: number;
+  resultChoices: AgentResultChoice[];
   evidenceCount: number;
   sourceLinkCount: number;
   evidenceQualityScore: number;
@@ -392,6 +394,7 @@ const agentContract: AgentContract = {
     "answerPlan.actionFields",
     "answerPlan.confidence",
     "searchDecision",
+    "resultChoices",
     "pageDecision",
     "searchResult.selectionReason",
     "sourceLink.selectionReason",
@@ -2729,6 +2732,7 @@ function summarizeAgent(
     verificationFoundCount: verification.foundCount,
     verificationMissingCount: verification.missingCount,
     resultCount: hasUsableSearchResults ? results.length : 0,
+    resultChoices: summarizeAgentResultChoices(hasUsableSearchResults ? results : [], recommendedResult, primaryAction),
     evidenceCount: pageCheck.contentEvidence.length,
     sourceLinkCount: analysis.kind === "search-results" ? 0 : pageCheck.sourceLinks.length,
     evidenceQualityScore: averageEvidenceScore(pageCheck.contentEvidence),
@@ -2856,6 +2860,36 @@ function summarizeAgentAnswerEvidence(citations: AgentCitation[], answerPlan: Ag
   return answerPlan.useCitationIds
     .map((id) => byId.get(id))
     .filter((citation): citation is AgentCitation => Boolean(citation));
+}
+
+function summarizeAgentResultChoices(
+  results: ResultSummary[],
+  recommendedResult: ResultSummary | undefined,
+  primaryAction: SuggestedAction | undefined,
+): AgentResultChoice[] {
+  if (results.length === 0) return [];
+  return selectCompactSearchResults(results, recommendedResult).map((result, index) => {
+    const recommended = Boolean(recommendedResult && result.rank === recommendedResult.rank && result.url === recommendedResult.url);
+    const primary = Boolean(primaryAction?.url === result.url || (typeof primaryAction?.rank === "number" && primaryAction.rank === result.rank));
+    return {
+      id: `r${result.rank}`,
+      path: `searchResults[${index}]`,
+      title: result.title,
+      url: result.url,
+      source: result.source,
+      rank: result.rank,
+      ...(result.sourceType ? { sourceType: result.sourceType } : {}),
+      ...(typeof result.sourceScore === "number" ? { sourceScore: result.sourceScore } : {}),
+      ...(result.sourceHints?.length ? { sourceHints: result.sourceHints } : {}),
+      ...(result.relevance ? { relevance: result.relevance } : {}),
+      ...(result.matchedTerms?.length ? { matchedTerms: result.matchedTerms } : {}),
+      ...(result.findMatches?.length ? { findMatches: result.findMatches } : {}),
+      ...(typeof result.isLikelyOfficial === "boolean" ? { isLikelyOfficial: result.isLikelyOfficial } : {}),
+      selectionReason: result.selectionReason ?? searchResultSelectionReason(result),
+      ...(recommended ? { recommended: true, recommendedPath: "recommendedResult" } : {}),
+      ...(primary ? { primary: true } : {}),
+    };
+  });
 }
 
 function summarizeAgentSearchDecision(
@@ -3967,6 +4001,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     verificationFoundCount: 0,
     verificationMissingCount: 0,
     resultCount: 0,
+    resultChoices: [],
     evidenceCount: 0,
     sourceLinkCount: 0,
     evidenceQualityScore: 0,
@@ -4789,6 +4824,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     verificationFoundCount: agent.verificationFoundCount,
     verificationMissingCount: agent.verificationMissingCount,
     resultCount: agent.resultCount,
+    ...(agent.resultChoices.length > 0 ? { resultChoices: agent.resultChoices } : {}),
     evidenceCount: agent.evidenceCount,
     sourceLinkCount: agent.sourceLinkCount,
     evidenceQualityScore: agent.evidenceQualityScore,

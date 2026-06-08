@@ -206,6 +206,11 @@ route from `agent.next`/`agent.answerPlan` instead of stopping on status alone.
 `canContinue` is true when the primary action is directly usable by an agent
 (`run-command`, `read-current`, or browser interaction), including recoverable
 error states such as alternate-result recovery or retry-later.
+On search result pages, `agent.resultChoices` mirrors the compact result
+shortlist inside the top-level agent object. It marks the `recommended` and
+`primary` choice, includes the `searchResults[...]` path, and keeps rank,
+source, relevance, source score, match hints, and `selectionReason` together so
+a subagent can compare candidates before drilling into the full result list.
 `agent.readTargets` lists the compact payload paths worth reading next, marking
 the primary `read-current` target when one exists. In compact agent
 mode the first action lives in `agent.primaryAction`, while
@@ -552,6 +557,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "answerPlan.actionFields",
         "answerPlan.confidence",
         "searchDecision",
+        "resultChoices",
         "pageDecision",
         "searchResult.selectionReason",
         "sourceLink.selectionReason",

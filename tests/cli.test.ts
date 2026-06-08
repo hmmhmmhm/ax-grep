@@ -247,6 +247,7 @@ describe("cli", () => {
             "answerPlan.actionFields",
             "answerPlan.confidence",
             "searchDecision",
+            "resultChoices",
             "pageDecision",
             "searchResult.selectionReason",
             "sourceLink.selectionReason",
@@ -596,6 +597,19 @@ describe("cli", () => {
         command: "ax-grep --search 'agent browser' --engine bing --open-result best --agent",
         commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "best", "--agent"],
       },
+      resultChoices: [
+        expect.objectContaining({
+          id: "r1",
+          path: "searchResults[0]",
+          title: "Agent browser result",
+          url: "https://result.example/",
+          rank: 1,
+          recommended: true,
+          primary: true,
+          recommendedPath: "recommendedResult",
+          selectionReason: "High relevance: matched agent, browser.",
+        }),
+      ],
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "searchResults",

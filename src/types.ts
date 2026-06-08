@@ -272,6 +272,14 @@ export type AgentTarget = {
   selectionReason?: string;
 };
 
+export type AgentResultChoice = AgentTarget & {
+  id: string;
+  path: string;
+  recommended?: boolean;
+  primary?: boolean;
+  recommendedPath?: string;
+};
+
 export type AgentSummary = {
   contract: AgentContract;
   status: AgentStatus;
@@ -304,6 +312,7 @@ export type AgentSummary = {
   verificationFoundCount?: number;
   verificationMissingCount?: number;
   resultCount?: number;
+  resultChoices?: AgentResultChoice[];
   evidenceCount?: number;
   sourceLinkCount?: number;
   evidenceQualityScore?: number;
@@ -354,6 +363,7 @@ export type AgentContractFeature =
   | "answerPlan.actionFields"
   | "answerPlan.confidence"
   | "searchDecision"
+  | "resultChoices"
   | "pageDecision"
   | "searchResult.selectionReason"
   | "sourceLink.selectionReason"
