@@ -517,10 +517,13 @@ Each `contentEvidence` item includes a compact citation `id`, its stable
 payload `path`, plus `source`, `score`, `quality`, and `qualityReason` fields,
 so agents can distinguish semantic page evidence from fallback text, judge
 whether a snippet is strong enough to answer from, and cite exact snippets when
-choosing what to verify or return. `pageCheck.readability` includes `level`,
-numeric `score`, and concise `reasons`, explaining how directly useful the page
-is for source checking; compact `agent` repeats the score and first few reasons
-so agents can route from the top-level object before drilling into `pageCheck`.
+choosing what to verify or return. `pageCheck.dataTables` captures compact
+table captions, headers, and sample rows from HTML so agents can verify prices,
+specs, rankings, and other tabular facts without reading the full tree.
+`pageCheck.readability` includes `level`, numeric `score`, and concise
+`reasons`, explaining how directly useful the page is for source checking;
+compact `agent` repeats the score and first few reasons so agents can route
+from the top-level object before drilling into `pageCheck`.
 `pageCheck.recommendedAction` gives the next
 page-level move without requiring the agent to infer it from raw fields.
 `pageCheck.nextSteps` expands that into a deduplicated shortlist of follow-ups

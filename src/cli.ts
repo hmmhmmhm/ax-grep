@@ -282,6 +282,19 @@ type PageEvidenceSummary = {
   selector?: string;
 };
 
+type PageDataTableSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  rowCount: number;
+  columnCount: number;
+  headers: string[];
+  sampleRows: string[][];
+  text: string;
+  caption?: string;
+  selector?: string;
+};
+
 type PageReadabilitySummary = {
   level: "low" | "medium" | "high";
   score: number;
@@ -420,6 +433,7 @@ const agentContract: AgentContract = {
     "action.priority",
     "actions",
     "contentEvidence.quality",
+    "pageCheck.dataTables",
     "readTargets",
     "signals",
     "qualityGates",
@@ -443,6 +457,7 @@ type PageCheckSummary = {
   structuredDataTypes?: string[];
   contentPreview: string[];
   contentEvidence: PageEvidenceSummary[];
+  dataTables: PageDataTableSummary[];
   contentLength: number;
   primaryLinks: PageLinkSummary[];
   sourceLinks: PageLinkSummary[];
@@ -1750,6 +1765,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const selector = evidence.selector ? ` (${evidence.selector})` : "";
     lines.push(`  evidence: ${evidence.id} ${evidence.path} ${evidence.rank}. ${evidence.role}${selector} ${evidence.quality} - ${evidence.qualityReason} ${evidence.text}`);
   }
+  for (const table of pageCheck.dataTables) {
+    const caption = table.caption ? ` caption="${table.caption}"` : "";
+    lines.push(`  dataTable: ${table.id} ${table.path} ${table.rowCount}x${table.columnCount}${caption} - ${table.text}`);
+  }
   for (const link of pageCheck.primaryLinks) lines.push(`  link: ${link.kind} ${link.title} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`);
   for (const link of pageCheck.sourceLinks) lines.push(`  sourceLink: ${link.title} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`);
   for (const action of pageCheck.actions) lines.push(`  action: ${action.type} ${action.text}`);
@@ -2463,14 +2482,16 @@ function summarizePageCheck(
     ? summarizeContentEvidence(focusedContent)
     : summarizeFallbackEvidence(fallbackPreview);
   const contentLength = contentPreview.reduce((total, text) => total + text.length, 0);
+  const dataTables = summarizeDataTables(fetched.html);
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
-  const confidence = pageCheckConfidence(contentLength, outline, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, agentMode, capturedHtml, timeoutMs, userAgent);
+  const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
+    dataTables,
     contentLength,
     primaryLinks,
     sourceLinks,
@@ -2501,6 +2522,7 @@ function pageMainHeading(outline: OutlineSummary[]): string | undefined {
 function summarizeReadability(
   confidence: PageCheckSummary["confidence"],
   contentEvidence: PageEvidenceSummary[],
+  dataTables: PageDataTableSummary[],
   contentLength: number,
   sourceLinks: PageLinkSummary[],
   actions: ActionSummary[],
@@ -2513,6 +2535,10 @@ function summarizeReadability(
     const fallbackEvidenceCount = contentEvidence.length - semanticEvidenceCount;
     score += Math.min(0.25, semanticEvidenceCount * 0.08 + fallbackEvidenceCount * 0.02);
     reasons.push(`${contentEvidence.length} content evidence item${contentEvidence.length === 1 ? "" : "s"}`);
+  }
+  if (dataTables.length > 0) {
+    score += Math.min(0.12, dataTables.length * 0.06);
+    reasons.push(`${dataTables.length} data table${dataTables.length === 1 ? "" : "s"}`);
   }
   if (contentLength >= 400) {
     score += 0.18;
@@ -2575,6 +2601,8 @@ function recommendedPageCheckAction(
   analysis: AnalysisSummary,
   pageUrl: string,
   sourceLinks: PageLinkSummary[],
+  dataTables: PageDataTableSummary[],
+  contentEvidence: PageEvidenceSummary[],
   agentMode = false,
   capturedHtml = false,
   timeoutMs?: number,
@@ -2600,12 +2628,14 @@ function recommendedPageCheckAction(
     };
   }
   if (readability.level === "high" || readability.level === "medium") {
+    const hasSemanticEvidence = contentEvidence.some((item) => item.source === "semantic");
+    const readFrom = hasSemanticEvidence || dataTables.length === 0 ? "pageCheck.contentEvidence" : "pageCheck.dataTables";
     return {
       action: "read-content",
       reason: "The page has enough structured evidence for source checking.",
       url: pageUrl,
       terminal: true,
-      readFrom: "pageCheck.contentEvidence",
+      readFrom,
     };
   }
   if (sourceLinks[0]) {
@@ -2726,6 +2756,69 @@ function summarizeFallbackEvidence(preview: string[]): PageEvidenceSummary[] {
       qualityReason: evidenceQualityReason(score, text, "fallback", false, false),
     };
   });
+}
+
+function summarizeDataTables(html: string): PageDataTableSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  return findElements(document.children, (item) => item.name === "table")
+    .map((table, index) => summarizeDataTable(table, index))
+    .filter((table): table is PageDataTableSummary => Boolean(table))
+    .map((table, index) => ({
+      ...table,
+      id: `t${index + 1}`,
+      path: `pageCheck.dataTables[${index}]`,
+      rank: index + 1,
+    }))
+    .slice(0, 4);
+}
+
+function summarizeDataTable(table: Element, tableIndex: number): PageDataTableSummary | undefined {
+  const rows = findElements(table.children, (item) => item.name === "tr")
+    .map((row) => tableRowCells(row))
+    .filter((row) => row.cells.length > 0);
+  if (rows.length === 0) return undefined;
+  const maxColumns = Math.max(...rows.map((row) => row.cells.length));
+  if (maxColumns < 2) return undefined;
+  const headerRowIndex = rows.findIndex((row) => row.hasHeader);
+  const headerRow = headerRowIndex >= 0 ? rows[headerRowIndex] : undefined;
+  const headers = (headerRow?.cells ?? []).slice(0, 6);
+  const dataRows = rows
+    .filter((_row, rowIndex) => rowIndex !== headerRowIndex)
+    .map((row) => row.cells.slice(0, 6))
+    .filter((row) => row.some(Boolean));
+  if (dataRows.length === 0) return undefined;
+  const directCaption = findElement(table.children, (item) => item.name === "caption");
+  const caption = directCaption ? cleanContentText(descendantText(directCaption)) : "";
+  const textParts = [
+    caption,
+    headers.length > 0 ? `Headers: ${headers.join(" | ")}` : "",
+    ...dataRows.slice(0, 3).map((row) => row.join(" | ")),
+  ].filter(Boolean);
+  const summary: PageDataTableSummary = {
+    id: "t1",
+    path: "pageCheck.dataTables[0]",
+    rank: 1,
+    rowCount: dataRows.length,
+    columnCount: maxColumns,
+    headers,
+    sampleRows: dataRows.slice(0, 3),
+    text: cleanContentText(textParts.join(" ; ")),
+    selector: `table:nth-of-type(${tableIndex + 1})`,
+  };
+  if (caption) summary.caption = caption;
+  return summary;
+}
+
+function tableRowCells(row: Element): { cells: string[]; hasHeader: boolean } {
+  const cellElements = row.children.filter((child): child is Element => child instanceof DomElement && (child.name === "th" || child.name === "td"));
+  return {
+    cells: cellElements.map((cell) => cleanContentText(descendantText(cell))).filter(Boolean),
+    hasHeader: cellElements.some((cell) => cell.name === "th"),
+  };
 }
 
 function evidenceScore(text: string, role: string, semantic: boolean, hasSelector: boolean): number {
@@ -3722,6 +3815,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.contentEvidence" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.dataTables.length > 0) {
+    add({
+      path: "pageCheck.dataTables",
+      reason: "Structured table captions, headers, and sample rows extracted from the page HTML.",
+      count: pageCheck.dataTables.length,
+      score: roundMetric(Math.min(1, 0.45 + pageCheck.dataTables.length * 0.1)),
+      ...(primaryReadFrom === "pageCheck.dataTables" ? { primary: true } : {}),
+    });
+  }
   if (sourceSearch?.selectedResult) {
     add({
       path: "sourceSearch.selectedResult",
@@ -3910,6 +4012,7 @@ function agentReadValue(
   const path = primaryAction.readFrom;
   if (path === "verification.bestEvidence" && verification.bestEvidence) return { path, value: verification.bestEvidence };
   if (path === "pageCheck.contentEvidence") return { path, value: pageCheck.contentEvidence };
+  if (path === "pageCheck.dataTables") return { path, value: pageCheck.dataTables };
   if (path === "searchResults") return { path, value: results };
   if (path === "sourceSearch.selectedResult" && sourceSearch?.selectedResult) return { path, value: sourceSearch.selectedResult };
   if (path === "sourceSearch.alternateResults" && sourceSearch?.alternateResults) return { path, value: sourceSearch.alternateResults };
@@ -4246,6 +4349,14 @@ function findCandidates(
       qualityReason: evidence.qualityReason,
     });
   }
+  for (const table of pageCheck.dataTables) {
+    add({
+      field: "dataTable",
+      text: table.text,
+      rank: table.rank,
+      ...(table.selector ? { selector: table.selector } : {}),
+    });
+  }
   for (const link of pageCheck.sourceLinks) add({ field: "sourceLink", text: link.title, rank: link.rank, url: link.url });
   for (const link of pageCheck.primaryLinks) add({ field: "primaryLink", text: link.title, rank: link.rank, url: link.url });
   for (const result of results) add({ field: "result", text: [result.title, result.snippet].filter(Boolean).join(" "), rank: result.rank, url: result.url });
@@ -4375,8 +4486,10 @@ function isLikelyGlobalNavigationText(text: string, snippet = ""): boolean {
   return /(explore by type|support & services|why github|github skills|customer stories|events & webinars|ebooks & reports|business insights|community forum|trust center|partners|security lab|maintainer community|accelerator|github stars|archive program|blog changelog marketplace|contact support|customer support|expert services|ask the github community|status pricing blog)/i.test(haystack);
 }
 
-function pageCheckConfidence(contentLength: number, outline: OutlineSummary[], analysis: AnalysisSummary): PageCheckSummary["confidence"] {
+function pageCheckConfidence(contentLength: number, outline: OutlineSummary[], dataTables: PageDataTableSummary[], analysis: AnalysisSummary): PageCheckSummary["confidence"] {
   if (analysis.kind === "blocked-page" || analysis.kind === "empty") return "low";
+  if (dataTables.length > 0 && (contentLength >= 80 || outline.length > 0)) return "high";
+  if (dataTables.length > 0) return "medium";
   if (contentLength >= 180 && outline.length > 0) return "high";
   if (contentLength >= 80 || outline.length > 0) return "medium";
   return "low";
@@ -4386,6 +4499,7 @@ function emptyPageCheck(): PageCheckSummary {
   return {
     contentPreview: [],
     contentEvidence: [],
+    dataTables: [],
     contentLength: 0,
     primaryLinks: [],
     sourceLinks: [],
@@ -5328,6 +5442,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
   const recommendedAction = suppressPageActions || sameSuggestedAction(pageCheck.recommendedAction, primaryAction) ? undefined : pageCheck.recommendedAction;
   return {
     contentEvidence: pageCheck.contentEvidence,
+    ...(pageCheck.dataTables.length > 0 ? { dataTables: pageCheck.dataTables } : {}),
     contentLength: pageCheck.contentLength,
     ...(primaryLinks.length > 0 && !omitResultLinkDuplicates ? { primaryLinks: primaryLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `l${index + 1}`, path: `pageCheck.primaryLinks[${index}]` })) } : {}),
     ...(pageCheck.sourceLinks.length > 0 && !omitResultLinkDuplicates ? { sourceLinks: pageCheck.sourceLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `s${index + 1}`, path: `pageCheck.sourceLinks[${index}]` })) } : {}),

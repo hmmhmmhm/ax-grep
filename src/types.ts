@@ -465,6 +465,7 @@ export type AgentContractFeature =
   | "action.priority"
   | "actions"
   | "contentEvidence.quality"
+  | "pageCheck.dataTables"
   | "readTargets"
   | "signals"
   | "qualityGates"

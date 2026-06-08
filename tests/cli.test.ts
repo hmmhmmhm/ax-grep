@@ -2743,6 +2743,117 @@ describe("cli", () => {
     ]);
   });
 
+  it("summarizes data tables as pageCheck read targets for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/pricing", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head><title>Pricing table</title></head>
+          <body>
+            <main>
+              <h1>Pricing</h1>
+              <table>
+                <caption>Plan comparison</caption>
+                <thead>
+                  <tr><th>Plan</th><th>Monthly price</th><th>Storage</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Starter</td><td>$19.99</td><td>10 GB</td></tr>
+                  <tr><td>Team</td><td>$49.99</td><td>100 GB</td></tr>
+                </tbody>
+              </table>
+            </main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.dataTables).toEqual([
+      {
+        id: "t1",
+        path: "pageCheck.dataTables[0]",
+        rank: 1,
+        rowCount: 2,
+        columnCount: 3,
+        caption: "Plan comparison",
+        headers: ["Plan", "Monthly price", "Storage"],
+        sampleRows: [
+          ["Starter", "$19.99", "10 GB"],
+          ["Team", "$49.99", "100 GB"],
+        ],
+        text: "Plan comparison; Headers: Plan | Monthly price | Storage; Starter | $19.99 | 10 GB; Team | $49.99 | 100 GB",
+        selector: "table:nth-of-type(1)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("1 data table");
+    expect(envelope.pageCheck.recommendedAction).toBeUndefined();
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.dataTables",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.dataTables",
+      count: 1,
+      primary: true,
+      reason: "Structured table captions, headers, and sample rows extracted from the page HTML.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.dataTables",
+      value: [
+        expect.objectContaining({
+          id: "t1",
+          path: "pageCheck.dataTables[0]",
+          text: expect.stringContaining("$19.99"),
+        }),
+      ],
+    });
+  });
+
+  it("checks requested text against page data table summaries", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/pricing", "--agent", "--find", "$49.99"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h1>Pricing</h1>
+          <table>
+            <tr><th>Plan</th><th>Monthly price</th></tr>
+            <tr><td>Team</td><td>$49.99</td></tr>
+          </table>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "dataTable",
+        rank: 1,
+        selector: "table:nth-of-type(1)",
+        text: "Headers: Plan | Monthly price; Team | $49.99",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+    expect(envelope.agent.handoff.answerEvidence).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: "v1",
+        path: "verification.bestEvidence",
+        text: "Headers: Plan | Monthly price; Team | $49.99",
+      }),
+    ]));
+  });
+
   it("falls back to headings and primary links for forum pages without paragraph roles", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://forum.example/post/456", "--json"], {
