@@ -77,6 +77,19 @@ describe("README", () => {
           path: "verification.bestEvidence",
         },
       },
+      handoff: {
+        instruction: expect.stringContaining("Answer now"),
+        decision: "return",
+        mode: "read",
+        operation: "return",
+        action: "use-evidence",
+        answerStatus: "ready",
+        answerReady: true,
+        readFrom: "verification.bestEvidence",
+        readTarget: {
+          path: "verification.bestEvidence",
+        },
+      },
       expectedOutcome: {
         kind: "read-evidence",
       },
@@ -107,6 +120,7 @@ describe("README", () => {
         }),
       ]),
     );
-    expect(readme).toContain("An agent executor can treat `agent.runbook.decision` as the only required switch");
+    expect(readme).toContain("An agent executor can treat `agent.handoff.decision` as the only required switch");
+    expect(readme).toContain("const step: AgentHandoff = payload.agent.handoff");
   });
 });

@@ -6,6 +6,7 @@ import {
   flattenSemanticTree,
   formatSemanticTreeText,
   summarizeSemanticTree,
+  type AgentHandoff,
   type SemanticNode,
 } from "../src/index";
 
@@ -22,6 +23,17 @@ afterAll(async () => {
 });
 
 describe("extractSemanticTree", () => {
+  it("exports the agent handoff type from the public entry", () => {
+    const handoff: Pick<AgentHandoff, "decision" | "mode" | "operation" | "instruction"> = {
+      decision: "return",
+      mode: "read",
+      operation: "return",
+      instruction: "Answer now.",
+    };
+
+    expect(handoff.decision).toBe("return");
+  });
+
   it("extracts headings, form controls, names, and state", async () => {
     await page.setContent(`
       <main>

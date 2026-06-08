@@ -294,12 +294,12 @@ candidates before running the recovery command. After any `--open-result`,
 the original SERP title, snippet, rank, relevance, and runnable command as
 page provenance.
 
-An agent executor can treat `agent.runbook.decision` as the only required switch:
+An agent executor can treat `agent.handoff.decision` as the only required switch:
 
 ```ts
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import type { AgentJsonEnvelope, AgentRunbook } from "ax-grep";
+import type { AgentHandoff, AgentJsonEnvelope } from "ax-grep";
 
 const execFileAsync = promisify(execFile);
 
@@ -312,10 +312,12 @@ async function inspectWithAxGrep(urlOrQuery: string) {
   let payload = await runAxGrep([urlOrQuery, "--agent"]);
 
   for (let iteration = 0; iteration < 4; iteration += 1) {
-    const step: AgentRunbook = payload.agent.runbook;
+    const step: AgentHandoff = payload.agent.handoff;
 
     if (step.decision === "return") {
-      if (step.readValue) return step.readValue.value;
+      if (step.readFrom && step.readFrom === payload.agent.next.readValue?.path) {
+        return payload.agent.next.readValue.value;
+      }
       return payload;
     }
 
@@ -350,9 +352,9 @@ async function inspectWithAxGrep(urlOrQuery: string) {
 `commandArgs.slice(1)` back to the binary. `capture-html` means the current
 fetch was not enough; use the browser controller to save rendered HTML, then
 run the supplied command with that file path. `read` and `stop` are terminal for
-the current payload: use `agent.next.readValue.value` when present, fall back to
-`agent.next.readFrom` if needed, or return the payload if no extra evidence is
-needed.
+the current payload: use `agent.handoff.readFrom` and
+`agent.next.readValue.value` when present, fall back to the payload if no extra
+evidence is needed.
 
 Use repeatable `--find <text>` with any page or search result page to ask
 `ax-grep` whether the page summaries contain a term or phrase. JSON output adds

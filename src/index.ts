@@ -9,6 +9,7 @@ export type {
   AgentExpectedOutcome,
   AgentExpectedOutcomeKind,
   AgentExecutionMode,
+  AgentHandoff,
   AgentJsonEnvelope,
   AgentLoopDecision,
   AgentLoopDirective,
