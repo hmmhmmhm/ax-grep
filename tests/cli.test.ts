@@ -3437,9 +3437,23 @@ describe("cli", () => {
         action: "inspect-browser-state",
         execution: "interact-browser",
         requiresBrowserInteraction: true,
+        afterInteractionCommand: "ax-grep 'https://captured.example/challenge' --html-file captured.html --agent",
+        afterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent"],
       },
       expectedOutcome: {
         kind: "browser-inspection",
+      },
+      answerPlan: {
+        status: "needs-more",
+        nextAction: "inspect-browser-state",
+        afterInteractionCommand: "ax-grep 'https://captured.example/challenge' --html-file captured.html --agent",
+        afterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent"],
+      },
+      executionPlan: {
+        operation: "inspect-browser",
+        expectedOutcome: "browser-inspection",
+        afterInteractionCommand: "ax-grep 'https://captured.example/challenge' --html-file captured.html --agent",
+        afterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent"],
       },
       signals: expect.arrayContaining([
         expect.objectContaining({ kind: "diagnostic", severity: "warning" }),
@@ -3447,11 +3461,15 @@ describe("cli", () => {
       canUseFetchedHtml: false,
       needsBrowserHtml: false,
       primaryExecution: "interact-browser",
+      primaryAfterInteractionCommand: "ax-grep 'https://captured.example/challenge' --html-file captured.html --agent",
+      primaryAfterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent"],
       requiresBrowserInteraction: true,
       primaryAction: {
         action: "inspect-browser-state",
         execution: "interact-browser",
         requiresBrowserInteraction: true,
+        afterInteractionCommand: "ax-grep 'https://captured.example/challenge' --html-file captured.html --agent",
+        afterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent"],
       },
     });
     expect(envelope.agent.primaryAction.command).toBeUndefined();

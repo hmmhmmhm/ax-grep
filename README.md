@@ -199,6 +199,7 @@ the primary `read-current` target when one exists. In compact agent
 mode the first action lives in `agent.primaryAction`, while
 `agent.primaryExecution` mirrors that action's `execution` for quick routing.
 `agent.primaryReadFrom`, `agent.primaryCommand`, `agent.primaryCommandArgs`,
+`agent.primaryAfterInteractionCommand`, `agent.primaryAfterInteractionCommandArgs`,
 `agent.primaryUrl`, `agent.primaryRank`, `agent.primaryOpenResult`, and
 `agent.requiresBrowserInteraction` mirror the most common continuation fields
 from that same primary action, so a calling agent can route without drilling
@@ -234,8 +235,10 @@ as `read-content` and `use-evidence` include `execution: "read-current"`,
 `terminal: true`, and a `readFrom` pointer, and intentionally do not include
 commands, so agents read the current evidence instead of refetching the same
 usable page. Browser-interaction actions include `execution: "interact-browser"`
-and `requiresBrowserInteraction: true`, and omit commands when another static
-fetch would not reveal more information. When
+and `requiresBrowserInteraction: true`. They still omit immediate `command`
+fields when another static fetch would not reveal more information, but may
+include `afterInteractionCommandArgs` for the follow-up `--html-file` run after
+the browser state has been changed and recaptured. When
 `--html-file` or `--stdin` is already supplying browser-captured HTML, compact
 output suppresses another browser retry recommendation. On search result pages,
 compact agent output keeps the ranked `searchResults` list and omits
@@ -544,6 +547,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "signals",
         "expectedOutcome",
         "responseMetadata",
+        "afterInteractionCommand",
         "primaryActionShortcuts"
       ]
     },

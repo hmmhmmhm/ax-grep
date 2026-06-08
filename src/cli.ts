@@ -206,6 +206,8 @@ type SuggestedAction = {
   openResult?: number | "best";
   command?: string;
   commandArgs?: string[];
+  afterInteractionCommand?: string;
+  afterInteractionCommandArgs?: string[];
   terminal?: boolean;
   readFrom?: string;
   requiresBrowserInteraction?: boolean;
@@ -354,6 +356,8 @@ type AgentSummary = {
   primaryReadFrom?: string;
   primaryCommand?: string;
   primaryCommandArgs?: string[];
+  primaryAfterInteractionCommand?: string;
+  primaryAfterInteractionCommandArgs?: string[];
   primaryUrl?: string;
   primaryRank?: number;
   primaryOpenResult?: number | "best";
@@ -392,6 +396,7 @@ const agentContract: AgentContract = {
     "signals",
     "expectedOutcome",
     "responseMetadata",
+    "afterInteractionCommand",
     "primaryActionShortcuts",
   ],
 };
@@ -982,6 +987,10 @@ function commandFields(spec: CommandSpec | undefined): Pick<SuggestedAction, "co
   return spec ? { command: spec.command, commandArgs: spec.commandArgs } : {};
 }
 
+function afterInteractionCommandFields(spec: CommandSpec | undefined): Pick<SuggestedAction, "afterInteractionCommand" | "afterInteractionCommandArgs"> {
+  return spec ? { afterInteractionCommand: spec.command, afterInteractionCommandArgs: spec.commandArgs } : {};
+}
+
 function shellQuote(value: string): string {
   return `'${value.replace(/'/g, "'\\''")}'`;
 }
@@ -1442,6 +1451,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.answerPlan.url ? [`  answerUrl: ${agent.answerPlan.url}`] : []),
     ...(agent.answerPlan.command ? [`  answerCommand: ${agent.answerPlan.command}`] : []),
     ...(agent.answerPlan.commandArgs ? [`  answerCommandArgs: ${JSON.stringify(agent.answerPlan.commandArgs)}`] : []),
+    ...(agent.answerPlan.afterInteractionCommand ? [`  answerAfterInteractionCommand: ${agent.answerPlan.afterInteractionCommand}`] : []),
+    ...(agent.answerPlan.afterInteractionCommandArgs ? [`  answerAfterInteractionCommandArgs: ${JSON.stringify(agent.answerPlan.afterInteractionCommandArgs)}`] : []),
     ...(agent.searchDecision ? [`  searchDecision: ${agent.searchDecision.decision}/${agent.searchDecision.confidence} - ${agent.searchDecision.reason}`] : []),
     ...(agent.pageDecision ? [`  pageDecision: ${agent.pageDecision.decision}/${agent.pageDecision.confidence} - ${agent.pageDecision.reason}`] : []),
     `  summary: ${agent.summary}`,
@@ -1504,6 +1515,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     if (agent.primaryAction.requiresBrowserInteraction) lines.push("  requiresBrowserInteraction: true");
     if (agent.primaryAction.command) lines.push(`  command: ${agent.primaryAction.command}`);
     if (agent.primaryAction.commandArgs) lines.push(`  commandArgs: ${formatCommandArgsText(agent.primaryAction.commandArgs)}`);
+    if (agent.primaryAction.afterInteractionCommand) lines.push(`  afterInteractionCommand: ${agent.primaryAction.afterInteractionCommand}`);
+    if (agent.primaryAction.afterInteractionCommandArgs) lines.push(`  afterInteractionCommandArgs: ${formatCommandArgsText(agent.primaryAction.afterInteractionCommandArgs)}`);
   }
   return lines;
 }
@@ -2326,6 +2339,7 @@ function recommendedPageCheckAction(
       reason: "Browser-captured HTML still appears blocked or empty; inspect the browser state or capture after interacting.",
       url: pageUrl,
       requiresBrowserInteraction: true,
+      ...afterInteractionCommandFields(pageCommandSpec(pageUrl, agentMode, true, [], timeoutMs, userAgent)),
     };
   }
   if (readability.level === "high" || readability.level === "medium") {
@@ -2352,6 +2366,7 @@ function recommendedPageCheckAction(
     reason: "The page has limited readable content; inspect available controls or source links before relying on it.",
     url: pageUrl,
     requiresBrowserInteraction: true,
+    ...afterInteractionCommandFields(pageCommandSpec(pageUrl, agentMode, true, [], timeoutMs, userAgent)),
   };
 }
 
@@ -2400,6 +2415,7 @@ function summarizePageCheckNextSteps(
       reason: "Visible controls may reveal more content or navigation choices.",
       url: pageUrl,
       requiresBrowserInteraction: true,
+      ...afterInteractionCommandFields(pageCommandSpec(pageUrl, agentMode, true, [], timeoutMs, userAgent)),
     });
   }
 
@@ -2601,6 +2617,7 @@ function recommendedVerificationAction(
       reason: "Requested text was not found, and browser-captured HTML still appears blocked or empty.",
       url: pageUrl,
       requiresBrowserInteraction: true,
+      ...afterInteractionCommandFields(pageCommandSpec(pageUrl, agentMode, true, missingQueries, timeoutMs, userAgent)),
     };
   }
   return {
@@ -2725,6 +2742,8 @@ function summarizeAgent(
     if (primaryAction.readFrom) agent.primaryReadFrom = primaryAction.readFrom;
     if (primaryAction.command) agent.primaryCommand = primaryAction.command;
     if (primaryAction.commandArgs) agent.primaryCommandArgs = primaryAction.commandArgs;
+    if (primaryAction.afterInteractionCommand) agent.primaryAfterInteractionCommand = primaryAction.afterInteractionCommand;
+    if (primaryAction.afterInteractionCommandArgs) agent.primaryAfterInteractionCommandArgs = primaryAction.afterInteractionCommandArgs;
     if (primaryAction.url) agent.primaryUrl = primaryAction.url;
     if (primaryAction.rank) agent.primaryRank = primaryAction.rank;
     if (primaryAction.openResult) agent.primaryOpenResult = primaryAction.openResult;
@@ -2972,6 +2991,8 @@ function summarizeAgentExecutionPlan(
     ...(next.readFrom ? { readFrom: next.readFrom } : {}),
     ...(next.command ? { command: next.command } : {}),
     ...(next.commandArgs ? { commandArgs: next.commandArgs } : {}),
+    ...(next.afterInteractionCommand ? { afterInteractionCommand: next.afterInteractionCommand } : {}),
+    ...(next.afterInteractionCommandArgs ? { afterInteractionCommandArgs: next.afterInteractionCommandArgs } : {}),
     ...(next.url ? { url: next.url } : {}),
   };
 }
@@ -3111,12 +3132,14 @@ function answerPlanFollowupGaps(pageCheck: PageCheckSummary, verification: Verif
   return gaps.slice(0, 4);
 }
 
-function answerPlanActionFields(primaryAction: SuggestedAction | undefined): Pick<AgentAnswerPlan, "nextAction" | "command" | "commandArgs" | "url" | "readFrom"> {
+function answerPlanActionFields(primaryAction: SuggestedAction | undefined): Pick<AgentAnswerPlan, "nextAction" | "command" | "commandArgs" | "afterInteractionCommand" | "afterInteractionCommandArgs" | "url" | "readFrom"> {
   if (!primaryAction) return {};
   return {
     ...(primaryAction.action ? { nextAction: primaryAction.action } : {}),
     ...(primaryAction.command ? { command: primaryAction.command } : {}),
     ...(primaryAction.commandArgs ? { commandArgs: primaryAction.commandArgs } : {}),
+    ...(primaryAction.afterInteractionCommand ? { afterInteractionCommand: primaryAction.afterInteractionCommand } : {}),
+    ...(primaryAction.afterInteractionCommandArgs ? { afterInteractionCommandArgs: primaryAction.afterInteractionCommandArgs } : {}),
     ...(primaryAction.url ? { url: primaryAction.url } : {}),
     ...(primaryAction.readFrom ? { readFrom: primaryAction.readFrom } : {}),
   };
@@ -3245,6 +3268,8 @@ function summarizeAgentNext(
     ...(primaryAction.readFrom ? { readFrom: primaryAction.readFrom } : {}),
     ...(primaryAction.command ? { command: primaryAction.command } : {}),
     ...(primaryAction.commandArgs ? { commandArgs: primaryAction.commandArgs } : {}),
+    ...(primaryAction.afterInteractionCommand ? { afterInteractionCommand: primaryAction.afterInteractionCommand } : {}),
+    ...(primaryAction.afterInteractionCommandArgs ? { afterInteractionCommandArgs: primaryAction.afterInteractionCommandArgs } : {}),
     ...(primaryAction.requiresBrowserInteraction ? { requiresBrowserInteraction: true } : {}),
     ...(primaryAction.terminal ? { terminal: true } : {}),
     ...(readTarget ? { readTarget } : {}),
@@ -3896,6 +3921,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(primaryAction?.readFrom ? { primaryReadFrom: primaryAction.readFrom } : {}),
     ...(primaryAction?.command ? { primaryCommand: primaryAction.command } : {}),
     ...(primaryAction?.commandArgs ? { primaryCommandArgs: primaryAction.commandArgs } : {}),
+    ...(primaryAction?.afterInteractionCommand ? { primaryAfterInteractionCommand: primaryAction.afterInteractionCommand } : {}),
+    ...(primaryAction?.afterInteractionCommandArgs ? { primaryAfterInteractionCommandArgs: primaryAction.afterInteractionCommandArgs } : {}),
     ...(primaryAction?.url ? { primaryUrl: primaryAction.url } : {}),
     ...(primaryAction?.rank ? { primaryRank: primaryAction.rank } : {}),
     ...(primaryAction?.openResult ? { primaryOpenResult: primaryAction.openResult } : {}),
@@ -4092,6 +4119,9 @@ function analyzePage(
       ? {
           action: "inspect-browser-state",
           reason: "Browser-captured HTML is still empty; inspect the browser state or capture after interacting.",
+          url: fetched.finalUrl,
+          requiresBrowserInteraction: true,
+          ...afterInteractionCommandFields(pageCommandSpec(fetched.finalUrl, options.agentMode ?? false, true, options.findQueries ?? [], options.timeoutMs, options.userAgent)),
         }
       : {
           action: "retry-with-browser-html",
@@ -4104,6 +4134,9 @@ function analyzePage(
       ? {
           action: "inspect-browser-state",
           reason: "Browser-captured HTML still appears blocked, challenged, paywalled, or login-gated.",
+          url: fetched.finalUrl,
+          requiresBrowserInteraction: true,
+          ...afterInteractionCommandFields(pageCommandSpec(fetched.finalUrl, options.agentMode ?? false, true, options.findQueries ?? [], options.timeoutMs, options.userAgent)),
         }
       : {
           action: "retry-with-browser-html",
@@ -4167,6 +4200,7 @@ function analyzePage(
       reason: "The page exposes prominent controls that may be needed before content is visible.",
       url: fetched.finalUrl,
       requiresBrowserInteraction: true,
+      ...afterInteractionCommandFields(pageCommandSpec(fetched.finalUrl, options.agentMode ?? false, true, options.findQueries ?? [], options.timeoutMs, options.userAgent)),
     });
   }
 
@@ -4636,6 +4670,7 @@ function sameSuggestedAction(left: SuggestedAction | undefined, right: Suggested
   return left.action === right.action
     && left.url === right.url
     && left.command === right.command
+    && left.afterInteractionCommand === right.afterInteractionCommand
     && left.rank === right.rank
     && left.openResult === right.openResult
     && left.terminal === right.terminal
@@ -4702,6 +4737,8 @@ function compactAgentSummary(agent: AgentSummary): object {
     ...(agent.primaryReadFrom ? { primaryReadFrom: agent.primaryReadFrom } : {}),
     ...(agent.primaryCommand ? { primaryCommand: agent.primaryCommand } : {}),
     ...(agent.primaryCommandArgs ? { primaryCommandArgs: agent.primaryCommandArgs } : {}),
+    ...(agent.primaryAfterInteractionCommand ? { primaryAfterInteractionCommand: agent.primaryAfterInteractionCommand } : {}),
+    ...(agent.primaryAfterInteractionCommandArgs ? { primaryAfterInteractionCommandArgs: agent.primaryAfterInteractionCommandArgs } : {}),
     ...(agent.primaryUrl ? { primaryUrl: agent.primaryUrl } : {}),
     ...(agent.primaryRank ? { primaryRank: agent.primaryRank } : {}),
     ...(agent.primaryOpenResult ? { primaryOpenResult: agent.primaryOpenResult } : {}),
@@ -5002,6 +5039,8 @@ function compactAgentAction(action: SuggestedAction): object {
     ...(action.openResult ? { openResult: action.openResult } : {}),
     ...(action.command ? { command: action.command } : {}),
     ...(action.commandArgs ? { commandArgs: action.commandArgs } : {}),
+    ...(action.afterInteractionCommand ? { afterInteractionCommand: action.afterInteractionCommand } : {}),
+    ...(action.afterInteractionCommandArgs ? { afterInteractionCommandArgs: action.afterInteractionCommandArgs } : {}),
     ...(action.terminal ? { terminal: action.terminal } : {}),
     ...(action.readFrom ? { readFrom: action.readFrom } : {}),
     ...(action.requiresBrowserInteraction ? { requiresBrowserInteraction: action.requiresBrowserInteraction } : {}),

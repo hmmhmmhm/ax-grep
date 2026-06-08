@@ -109,6 +109,8 @@ export type AgentNext = {
   readFrom?: string;
   command?: string;
   commandArgs?: string[];
+  afterInteractionCommand?: string;
+  afterInteractionCommandArgs?: string[];
   requiresBrowserInteraction?: boolean;
   terminal?: boolean;
   readTarget?: AgentReadTarget;
@@ -172,6 +174,8 @@ export type AgentExecutionPlan = {
   readFrom?: string;
   command?: string;
   commandArgs?: string[];
+  afterInteractionCommand?: string;
+  afterInteractionCommandArgs?: string[];
   url?: string;
 };
 
@@ -209,6 +213,8 @@ export type AgentAnswerPlan = {
   nextAction?: string;
   command?: string;
   commandArgs?: string[];
+  afterInteractionCommand?: string;
+  afterInteractionCommandArgs?: string[];
   url?: string;
   readFrom?: string;
 };
@@ -278,6 +284,8 @@ export type AgentSummary = {
   primaryReadFrom?: string;
   primaryCommand?: string;
   primaryCommandArgs?: string[];
+  primaryAfterInteractionCommand?: string;
+  primaryAfterInteractionCommandArgs?: string[];
   primaryUrl?: string;
   primaryRank?: number;
   primaryOpenResult?: number | "best";
@@ -314,6 +322,7 @@ export type AgentContractFeature =
   | "signals"
   | "expectedOutcome"
   | "responseMetadata"
+  | "afterInteractionCommand"
   | "primaryActionShortcuts";
 
 export type AgentContract = {

@@ -130,6 +130,8 @@ type CliActionShape = {
   priorityReason?: string;
   command?: string;
   commandArgs?: string[];
+  afterInteractionCommand?: string;
+  afterInteractionCommandArgs?: string[];
   readFrom?: string;
   requiresBrowserInteraction?: boolean;
   terminal?: boolean;
@@ -198,6 +200,8 @@ type CliAgentExecutionPlanShape = {
   readFrom?: string;
   command?: string;
   commandArgs?: unknown[];
+  afterInteractionCommand?: string;
+  afterInteractionCommandArgs?: unknown[];
   url?: string;
 };
 
@@ -237,6 +241,8 @@ type CliAgentAnswerPlanShape = {
   nextAction?: string;
   command?: string;
   commandArgs?: unknown[];
+  afterInteractionCommand?: string;
+  afterInteractionCommandArgs?: unknown[];
   url?: string;
   readFrom?: string;
 };
@@ -679,6 +685,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       primaryReadFrom?: string;
       primaryCommand?: string;
       primaryCommandArgs?: string[];
+      primaryAfterInteractionCommand?: string;
+      primaryAfterInteractionCommandArgs?: string[];
       primaryUrl?: string;
       primaryRank?: number;
       primaryOpenResult?: number | "best";
@@ -1026,13 +1034,19 @@ function scoreAgentAnswerPlan(
   const validCommandArgs = Array.isArray(primaryAction?.commandArgs)
     ? JSON.stringify(answerPlan.commandArgs) === JSON.stringify(primaryAction.commandArgs)
     : typeof answerPlan.commandArgs === "undefined";
+  const validAfterInteractionCommand = typeof primaryAction?.afterInteractionCommand === "string"
+    ? answerPlan.afterInteractionCommand === primaryAction.afterInteractionCommand
+    : typeof answerPlan.afterInteractionCommand === "undefined";
+  const validAfterInteractionCommandArgs = Array.isArray(primaryAction?.afterInteractionCommandArgs)
+    ? JSON.stringify(answerPlan.afterInteractionCommandArgs) === JSON.stringify(primaryAction.afterInteractionCommandArgs)
+    : typeof answerPlan.afterInteractionCommandArgs === "undefined";
   const validUrl = typeof primaryAction?.url === "string"
     ? answerPlan.url === primaryAction.url
     : typeof answerPlan.url === "undefined";
   const validReadFrom = typeof primaryAction?.readFrom === "string"
     ? answerPlan.readFrom === primaryAction.readFrom
     : typeof answerPlan.readFrom === "undefined";
-  return validStatus && validConfidence && validReason && validGaps && validCitations && validNextAction && validCommand && validCommandArgs && validUrl && validReadFrom ? 1 : 0;
+  return validStatus && validConfidence && validReason && validGaps && validCitations && validNextAction && validCommand && validCommandArgs && validAfterInteractionCommand && validAfterInteractionCommandArgs && validUrl && validReadFrom ? 1 : 0;
 }
 
 function expectedAgentAnswerPlanStatus(
@@ -1162,6 +1176,11 @@ function scoreAgentExecutionPlan(
     required += 2;
     if (plan.command === next.command) matched += 1;
     if (JSON.stringify(plan.commandArgs) === JSON.stringify(next.commandArgs)) matched += 1;
+  }
+  if (next.afterInteractionCommand) {
+    required += 2;
+    if (plan.afterInteractionCommand === next.afterInteractionCommand) matched += 1;
+    if (JSON.stringify(plan.afterInteractionCommandArgs) === JSON.stringify(next.afterInteractionCommandArgs)) matched += 1;
   }
   if (next.url) {
     required += 1;
@@ -1646,6 +1665,8 @@ function scoreAgentPrimaryShortcuts(agent: {
   primaryReadFrom?: string;
   primaryCommand?: string;
   primaryCommandArgs?: string[];
+  primaryAfterInteractionCommand?: string;
+  primaryAfterInteractionCommandArgs?: string[];
   primaryUrl?: string;
   primaryRank?: number;
   primaryOpenResult?: number | "best";
@@ -1657,6 +1678,8 @@ function scoreAgentPrimaryShortcuts(agent: {
     return agent?.primaryReadFrom
       || agent?.primaryCommand
       || agent?.primaryCommandArgs
+      || agent?.primaryAfterInteractionCommand
+      || agent?.primaryAfterInteractionCommandArgs
       || agent?.primaryUrl
       || agent?.primaryRank
       || agent?.primaryOpenResult
@@ -1680,6 +1703,18 @@ function scoreAgentPrimaryShortcuts(agent: {
     required += 1;
     if (JSON.stringify(agent?.primaryCommandArgs) === JSON.stringify(action.commandArgs)) matched += 1;
   } else if (agent?.primaryCommandArgs) {
+    required += 1;
+  }
+  if (action.afterInteractionCommand) {
+    required += 1;
+    if (agent?.primaryAfterInteractionCommand === action.afterInteractionCommand) matched += 1;
+  } else if (agent?.primaryAfterInteractionCommand) {
+    required += 1;
+  }
+  if (action.afterInteractionCommandArgs) {
+    required += 1;
+    if (JSON.stringify(agent?.primaryAfterInteractionCommandArgs) === JSON.stringify(action.afterInteractionCommandArgs)) matched += 1;
+  } else if (agent?.primaryAfterInteractionCommandArgs) {
     required += 1;
   }
   if (action.url) {
