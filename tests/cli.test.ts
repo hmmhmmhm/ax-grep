@@ -1509,6 +1509,36 @@ describe("cli", () => {
     ]);
   });
 
+  it("adds direct open commands for unsupported direct search result URLs in agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://www.baidu.com/s?wd=ax-lite", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <div class="result" tpl="se_com_default">
+            <h3><a href="https://target.example/first">Baidu First Result</a></h3>
+            <div class="c-abstract">First Baidu snippet for agent search result checking.</div>
+          </div>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.kind).toBe("search-results");
+    expect(envelope.searchResults).toEqual([
+      expect.objectContaining({
+        id: "r1",
+        path: "searchResults[0]",
+        rank: 1,
+        openResult: 1,
+        command: "ax-grep 'https://target.example/first' --agent",
+        commandArgs: ["ax-grep", "https://target.example/first", "--agent"],
+      }),
+    ]);
+  });
+
   it("opens search results using SERP order instead of generic link score", async () => {
     const stdout = new MemoryWriter();
     const requestedUrls: string[] = [];

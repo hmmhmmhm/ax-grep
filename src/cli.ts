@@ -239,6 +239,7 @@ type SearchResultCommandContext = {
 
 type PageLinkCommandContext = {
   agentMode: boolean;
+  findQueries: string[];
   timeoutMs?: number;
   userAgent?: string;
 };
@@ -4430,8 +4431,8 @@ function agentJsonEnvelope(envelope: {
     pageCheck: compactAgentPageCheck(envelope.pageCheck, envelope.agent.primaryAction, envelope.searchResults.length > 0, pageLinkContext),
     ...compactAgentVerification(envelope.verification, envelope.agent.primaryAction),
     ...(envelope.finds.length > 0 ? { finds: envelope.finds } : {}),
-    ...compactAgentSearchResults(envelope.searchResults, envelope.recommendedResult, searchCommandContext),
-    ...(envelope.recommendedResult ? { recommendedResult: compactAgentSearchResult(envelope.recommendedResult, searchCommandContext, { id: `r${envelope.recommendedResult.rank}`, path: "recommendedResult" }) } : {}),
+    ...compactAgentSearchResults(envelope.searchResults, envelope.recommendedResult, searchCommandContext, pageLinkContext),
+    ...(envelope.recommendedResult ? { recommendedResult: compactAgentSearchResult(envelope.recommendedResult, searchCommandContext, { id: `r${envelope.recommendedResult.rank}`, path: "recommendedResult" }, pageLinkContext) } : {}),
     ...(suggestedActions.length > 0 ? { suggestedActions } : {}),
     ...(envelope.error ? { error: envelope.error } : {}),
     treeOmitted: true,
@@ -4809,12 +4810,18 @@ function inferSearchResultCommandContext(url: string | undefined): Pick<SearchRe
 function pageLinkCommandContext(options: CliOptions): PageLinkCommandContext {
   return {
     agentMode: true,
+    findQueries: options.findQueries ?? [],
     ...(typeof options.timeoutMs === "number" ? { timeoutMs: options.timeoutMs } : {}),
     ...(options.userAgent ? { userAgent: options.userAgent } : {}),
   };
 }
 
-function compactAgentSearchResults(results: ResultSummary[], recommendedResult?: ResultSummary, commandContext?: SearchResultCommandContext): object {
+function compactAgentSearchResults(
+  results: ResultSummary[],
+  recommendedResult?: ResultSummary,
+  commandContext?: SearchResultCommandContext,
+  fallbackCommandContext?: PageLinkCommandContext,
+): object {
   if (results.length === 0) return {};
   const selected: ResultSummary[] = [];
   const seen = new Set<string>();
@@ -4827,13 +4834,21 @@ function compactAgentSearchResults(results: ResultSummary[], recommendedResult?:
   };
   for (const result of results.slice(0, 5)) add(result);
   add(recommendedResult);
-  return { searchResults: selected.map((result, index) => compactAgentSearchResult(result, commandContext, { id: `r${result.rank}`, path: `searchResults[${index}]` })) };
+  return {
+    searchResults: selected.map((result, index) => compactAgentSearchResult(
+      result,
+      commandContext,
+      { id: `r${result.rank}`, path: `searchResults[${index}]` },
+      fallbackCommandContext,
+    )),
+  };
 }
 
 function compactAgentSearchResult(
   result: ResultSummary,
   commandContext?: SearchResultCommandContext,
   reference?: { id: string; path: string },
+  fallbackCommandContext?: PageLinkCommandContext,
 ): ResultSummary & Partial<Pick<SuggestedAction, "openResult" | "command" | "commandArgs">> {
   const command = commandContext
     ? searchOpenCommandSpec(
@@ -4847,7 +4862,9 @@ function compactAgentSearchResult(
         commandContext.timeoutMs,
         commandContext.userAgent,
       )
-    : undefined;
+    : fallbackCommandContext
+      ? pageCommandSpec(result.url, fallbackCommandContext.agentMode, false, fallbackCommandContext.findQueries, fallbackCommandContext.timeoutMs, fallbackCommandContext.userAgent)
+      : undefined;
   const compact: ResultSummary = {
     ...(reference ? { id: reference.id, path: reference.path } : {}),
     title: result.title,
@@ -4891,7 +4908,7 @@ function compactAgentPageLink(
   if (link.findMatches) compact.findMatches = link.findMatches;
   if (typeof link.isLikelyOfficial === "boolean") compact.isLikelyOfficial = link.isLikelyOfficial;
   compact.selectionReason = link.selectionReason ?? sourceLinkSelectionReason(link);
-  const command = commandContext ? pageCommandSpec(link.url, commandContext.agentMode, false, [], commandContext.timeoutMs, commandContext.userAgent) : undefined;
+  const command = commandContext ? pageCommandSpec(link.url, commandContext.agentMode, false, commandContext.findQueries, commandContext.timeoutMs, commandContext.userAgent) : undefined;
   return {
     ...compact,
     ...(command ? commandFields(command) : {}),
