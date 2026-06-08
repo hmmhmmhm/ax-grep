@@ -161,6 +161,7 @@ type CliAgentTargetShape = {
   matchedTerms?: string[];
   findMatches?: string[];
   isLikelyOfficial?: boolean;
+  selectionReason?: string;
 };
 
 type CliAgentSignalShape = {
@@ -182,6 +183,7 @@ type CliSearchResultShape = {
   sourceScore?: number;
   relevance?: "low" | "medium" | "high";
   isLikelyOfficial?: boolean;
+  selectionReason?: string;
   openResult?: number | "best";
   command?: string;
   commandArgs?: string[];
@@ -1454,6 +1456,7 @@ function scoreAgentRecommendedMetadata(
     recommendedSource?: string;
     recommendedRelevance?: "low" | "medium" | "high";
     recommendedLikelyOfficial?: boolean;
+    recommendedSelectionReason?: string;
   } | undefined,
   recommendedResult: CliSearchResultShape | undefined,
 ): number {
@@ -1475,6 +1478,10 @@ function scoreAgentRecommendedMetadata(
   if (typeof recommendedResult.isLikelyOfficial === "boolean") {
     required += 1;
     if (agent?.recommendedLikelyOfficial === recommendedResult.isLikelyOfficial) matched += 1;
+  }
+  if (recommendedResult.selectionReason) {
+    required += 1;
+    if (agent?.recommendedSelectionReason === recommendedResult.selectionReason) matched += 1;
   }
   return required === 0 ? 1 : roundScore(matched / required);
 }

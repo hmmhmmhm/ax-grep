@@ -126,6 +126,7 @@ type ResultSummary = {
   matchedTerms?: string[];
   findMatches?: string[];
   isLikelyOfficial?: boolean;
+  selectionReason?: string;
 };
 
 type SourceType = "official" | "government" | "education" | "documentation" | "code" | "wiki" | "news" | "forum" | "social" | "commerce" | "unknown";
@@ -312,6 +313,7 @@ type AgentSummary = {
   recommendedSource?: string;
   recommendedRelevance?: ResultSummary["relevance"];
   recommendedLikelyOfficial?: boolean;
+  recommendedSelectionReason?: string;
 };
 
 const agentContract: AgentContract = {
@@ -324,6 +326,7 @@ const agentContract: AgentContract = {
     "citations",
     "answerPlan",
     "answerPlan.actionFields",
+    "searchResult.selectionReason",
     "readTargets",
     "signals",
     "expectedOutcome",
@@ -1410,6 +1413,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.recommendedSource) lines.push(`  recommendedSource: ${agent.recommendedSource}`);
   if (agent.recommendedRelevance) lines.push(`  recommendedRelevance: ${agent.recommendedRelevance}`);
   if (typeof agent.recommendedLikelyOfficial === "boolean") lines.push(`  recommendedLikelyOfficial: ${agent.recommendedLikelyOfficial}`);
+  if (agent.recommendedSelectionReason) lines.push(`  recommendedSelectionReason: ${agent.recommendedSelectionReason}`);
   for (const target of agent.readTargets) {
     const count = typeof target.count === "number" ? ` count=${target.count}` : "";
     const score = typeof target.score === "number" ? ` score=${target.score}` : "";
@@ -1707,8 +1711,19 @@ function annotateResults(results: ResultSummary[], query?: string, findQueries: 
     }
     const findMatches = matchedFindQueriesForResult(result, findQueries);
     if (findMatches.length > 0) annotated.findMatches = findMatches;
+    annotated.selectionReason = searchResultSelectionReason(annotated);
     return annotated;
   });
+}
+
+function searchResultSelectionReason(result: Pick<ResultSummary, "rank" | "source" | "sourceHints" | "relevance" | "matchedTerms" | "findMatches" | "isLikelyOfficial">): string {
+  if (result.findMatches?.length) return `Matches --find: ${result.findMatches.join(", ")}.`;
+  if (result.isLikelyOfficial) return "Likely official source for the query.";
+  if (result.relevance === "high" && result.matchedTerms?.length) return `High relevance: matched ${result.matchedTerms.join(", ")}.`;
+  if (result.relevance === "medium" && result.matchedTerms?.length) return `Medium relevance: matched ${result.matchedTerms.join(", ")}.`;
+  if (result.relevance === "low" && result.matchedTerms?.length) return `Low relevance: only matched ${result.matchedTerms.join(", ")}.`;
+  if (result.sourceHints?.length) return `Source profile: ${result.sourceHints.join(", ")}.`;
+  return `Ranked result ${result.rank} from ${result.source}.`;
 }
 
 function matchedFindQueriesForResult(result: ResultSummary, findQueries: string[]): string[] {
@@ -2568,6 +2583,7 @@ function summarizeAgent(
     agent.recommendedSource = recommendedResult.source;
     if (recommendedResult.relevance) agent.recommendedRelevance = recommendedResult.relevance;
     if (typeof recommendedResult.isLikelyOfficial === "boolean") agent.recommendedLikelyOfficial = recommendedResult.isLikelyOfficial;
+    agent.recommendedSelectionReason = recommendedResult.selectionReason ?? searchResultSelectionReason(recommendedResult);
   } else if (primaryAction?.url) {
     agent.recommendedUrl = primaryAction.url;
   }
@@ -4199,6 +4215,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     ...(agent.recommendedSource ? { recommendedSource: agent.recommendedSource } : {}),
     ...(agent.recommendedRelevance ? { recommendedRelevance: agent.recommendedRelevance } : {}),
     ...(typeof agent.recommendedLikelyOfficial === "boolean" ? { recommendedLikelyOfficial: agent.recommendedLikelyOfficial } : {}),
+    ...(agent.recommendedSelectionReason ? { recommendedSelectionReason: agent.recommendedSelectionReason } : {}),
   };
 }
 
@@ -4363,6 +4380,7 @@ function compactAgentSearchResult(
   if (result.matchedTerms?.length) compact.matchedTerms = result.matchedTerms;
   if (result.findMatches?.length) compact.findMatches = result.findMatches;
   if (typeof result.isLikelyOfficial === "boolean") compact.isLikelyOfficial = result.isLikelyOfficial;
+  compact.selectionReason = result.selectionReason ?? searchResultSelectionReason(result);
   return {
     ...compact,
     ...(command ? { openResult: result.rank, ...commandFields(command) } : {}),
@@ -4409,6 +4427,7 @@ function agentTargetFromResult(result: ResultSummary): AgentTarget {
     ...(result.matchedTerms?.length ? { matchedTerms: result.matchedTerms } : {}),
     ...(result.findMatches?.length ? { findMatches: result.findMatches } : {}),
     ...(typeof result.isLikelyOfficial === "boolean" ? { isLikelyOfficial: result.isLikelyOfficial } : {}),
+    selectionReason: result.selectionReason ?? searchResultSelectionReason(result),
   };
 }
 

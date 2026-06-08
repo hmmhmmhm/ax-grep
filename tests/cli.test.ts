@@ -241,6 +241,7 @@ describe("cli", () => {
             "citations",
             "answerPlan",
             "answerPlan.actionFields",
+            "searchResult.selectionReason",
             "readTargets",
             "signals",
           ]),
@@ -425,6 +426,7 @@ describe("cli", () => {
         url: "https://result.example/",
         source: "result.example",
         rank: 1,
+        selectionReason: "High relevance: matched agent, browser.",
       },
     });
     expect(envelope.agent).toMatchObject({
@@ -452,6 +454,7 @@ describe("cli", () => {
           url: "https://result.example/",
           source: "result.example",
           rank: 1,
+          selectionReason: "High relevance: matched agent, browser.",
         },
       },
       expectedOutcome: {
@@ -622,10 +625,12 @@ describe("cli", () => {
       rank: 7,
       url: "https://result-7.example/",
       findMatches: ["target claim"],
+      selectionReason: "Matches --find: target claim.",
     });
     expect(envelope.agent).toMatchObject({
       recommendedRank: 7,
       recommendedSource: "result-7.example",
+      recommendedSelectionReason: "Matches --find: target claim.",
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       rank: 7,
@@ -996,6 +1001,7 @@ describe("cli", () => {
       relevance: "high",
       matchedTerms: ["ax-grep", "npm"],
       isLikelyOfficial: true,
+      selectionReason: "Likely official source for the query.",
     });
     expect(envelope.searchResults[1]).toMatchObject({
       sourceType: "unknown",
@@ -1003,6 +1009,7 @@ describe("cli", () => {
       relevance: "low",
       matchedTerms: [],
       isLikelyOfficial: false,
+      selectionReason: "Ranked result 2 from unrelated.example.",
     });
     expect(envelope.tree).toBeUndefined();
   });
@@ -1029,6 +1036,7 @@ describe("cli", () => {
       relevance: "low",
       matchedTerms: ["npm"],
       isLikelyOfficial: false,
+      selectionReason: "Low relevance: only matched npm.",
     });
     expect(envelope.diagnostics).toContainEqual(expect.objectContaining({
       code: "SEARCH_LOW_CONFIDENCE",
@@ -1169,12 +1177,14 @@ describe("cli", () => {
       title: "Independent source",
       rank: 2,
       findMatches: ["target claim"],
+      selectionReason: "Matches --find: target claim.",
     });
     expect(envelope.recommendedResult).toMatchObject({
       title: "Independent source",
       url: "https://source.example/article",
       rank: 2,
       findMatches: ["target claim"],
+      selectionReason: "Matches --find: target claim.",
     });
     expect(envelope.suggestedActions[0]).toMatchObject({
       action: "open-result",

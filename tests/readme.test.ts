@@ -31,6 +31,7 @@ describe("README", () => {
           "citations",
           "answerPlan",
           "answerPlan.actionFields",
+          "searchResult.selectionReason",
         ]),
       },
       continuationMode: "read",

@@ -201,6 +201,7 @@ export type AgentTarget = {
   matchedTerms?: string[];
   findMatches?: string[];
   isLikelyOfficial?: boolean;
+  selectionReason?: string;
 };
 
 export type AgentSummary = {
@@ -260,6 +261,7 @@ export type AgentSummary = {
   recommendedSource?: string;
   recommendedRelevance?: number;
   recommendedLikelyOfficial?: boolean;
+  recommendedSelectionReason?: string;
 };
 
 export type AgentContractFeature =
@@ -270,6 +272,7 @@ export type AgentContractFeature =
   | "citations"
   | "answerPlan"
   | "answerPlan.actionFields"
+  | "searchResult.selectionReason"
   | "readTargets"
   | "signals"
   | "expectedOutcome"
