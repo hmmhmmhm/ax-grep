@@ -973,7 +973,9 @@ should read first for title, canonical URL, main heading, content excerpts,
 structured content evidence, source-like external links, actions, and
 extraction confidence. When available, it also preserves head provenance fields
 such as `siteName`, `author`, `publishedTime`, and `modifiedTime`, which are
-not normally visible in the accessibility tree. Each `contentEvidence` item includes a compact citation
+not normally visible in the accessibility tree. JSON-LD schema.org `@type`
+values are exposed as `structuredDataTypes`, and JSON-LD headline, author, and
+dates are used as fallback provenance when equivalent meta tags are missing. Each `contentEvidence` item includes a compact citation
 `id`, its stable payload `path`, plus `source`, `score`, `quality`, and
 `qualityReason` fields, so agents can distinguish semantic page evidence from
 fallback text, judge whether a snippet is strong enough to answer from, and cite

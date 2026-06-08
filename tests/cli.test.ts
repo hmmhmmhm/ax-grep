@@ -234,6 +234,16 @@ describe("cli", () => {
             <meta name="author" content="Example Author">
             <meta property="article:published_time" content="2026-03-04T05:06:07Z">
             <meta property="article:modified_time" content="2026-03-05T06:07:08Z">
+            <script type="application/ld+json">
+              {
+                "@context": "https://schema.org",
+                "@type": "NewsArticle",
+                "headline": "Example",
+                "author": {"@type": "Person", "name": "Structured Author"},
+                "datePublished": "2026-03-04T05:06:07Z",
+                "dateModified": "2026-03-05T06:07:08Z"
+              }
+            </script>
           </head>
           <body>
             <main><h1>Example</h1><p>Example content for agent routing.</p><a href="https://target.example/">Target</a></main>
@@ -260,6 +270,7 @@ describe("cli", () => {
         author: "Example Author",
         publishedTime: "2026-03-04T05:06:07Z",
         modifiedTime: "2026-03-05T06:07:08Z",
+        structuredDataTypes: ["NewsArticle"],
       },
       agent: {
         contract: {
@@ -523,6 +534,7 @@ describe("cli", () => {
         author: "Example Author",
         publishedTime: "2026-03-04T05:06:07Z",
         modifiedTime: "2026-03-05T06:07:08Z",
+        structuredDataTypes: ["NewsArticle"],
       },
     });
     expect(envelope.agent.primaryAction).toMatchObject({
@@ -2593,6 +2605,22 @@ describe("cli", () => {
             <meta name="author" content="Reporter Name">
             <meta property="article:published_time" content="2026-01-02T03:04:05Z">
             <meta property="article:modified_time" content="2026-01-03T04:05:06Z">
+            <script type="application/ld+json">
+              [
+                {
+                  "@context": "https://schema.org",
+                  "@type": "Article",
+                  "headline": "Forum post title",
+                  "author": {"@type": "Person", "name": "Structured Reporter"},
+                  "datePublished": "2026-01-02T03:04:05Z",
+                  "dateModified": "2026-01-03T04:05:06Z"
+                },
+                {
+                  "@context": "https://schema.org",
+                  "@type": "BreadcrumbList"
+                }
+              ]
+            </script>
           </head>
           <body>
             <header><a href="/login">Login</a><a href="/privacy">Privacy</a></header>
@@ -2623,6 +2651,7 @@ describe("cli", () => {
       author: "Reporter Name",
       publishedTime: "2026-01-02T03:04:05Z",
       modifiedTime: "2026-01-03T04:05:06Z",
+      structuredDataTypes: ["Article", "BreadcrumbList"],
       confidence: "high",
       readability: {
         level: "high",
@@ -2974,9 +3003,16 @@ describe("cli", () => {
           <head>
             <title>Article title</title>
             <meta property="og:site_name" content="Example News">
-            <meta name="author" content="Article Author">
-            <meta property="article:published_time" content="2026-02-03T04:05:06Z">
-            <meta property="article:modified_time" content="2026-02-04T05:06:07Z">
+            <script type="application/ld+json">
+              {
+                "@context": "https://schema.org",
+                "@type": ["NewsArticle", "ReportageNewsArticle"],
+                "headline": "Article title",
+                "author": [{"@type": "Person", "name": "Article Author"}],
+                "datePublished": "2026-02-03T04:05:06Z",
+                "dateModified": "2026-02-04T05:06:07Z"
+              }
+            </script>
           </head>
           <body>
             <main>
@@ -3058,11 +3094,13 @@ describe("cli", () => {
     expect(stdout.output).toContain("  author: Article Author");
     expect(stdout.output).toContain("  published: 2026-02-03T04:05:06Z");
     expect(stdout.output).toContain("  modified: 2026-02-04T05:06:07Z");
+    expect(stdout.output).toContain("  schemaTypes: NewsArticle, ReportageNewsArticle");
     expect(stdout.output).toContain("  title: Article title");
     expect(stdout.output).toContain("  site: Example News");
     expect(stdout.output).toContain("  author: Article Author");
     expect(stdout.output).toContain("  published: 2026-02-03T04:05:06Z");
     expect(stdout.output).toContain("  modified: 2026-02-04T05:06:07Z");
+    expect(stdout.output).toContain("  schemaTypes: NewsArticle, ReportageNewsArticle");
     expect(stdout.output).toContain("  mainHeading: Article heading");
     expect(stdout.output).toContain("  excerpt: This article paragraph is long enough to appear in the page checking summary for agents.");
     expect(stdout.output).toContain("  evidence: e1 pageCheck.contentEvidence[0] 1. p (p) high - high evidence from semantic extraction, 88 chars, p content, selector available. This article paragraph is long enough to appear in the page checking summary for agents.");

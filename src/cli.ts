@@ -181,6 +181,7 @@ type PageSummary = {
   author?: string;
   publishedTime?: string;
   modifiedTime?: string;
+  structuredDataTypes?: string[];
 };
 
 type OutlineSummary = {
@@ -439,6 +440,7 @@ type PageCheckSummary = {
   author?: string;
   publishedTime?: string;
   modifiedTime?: string;
+  structuredDataTypes?: string[];
   contentPreview: string[];
   contentEvidence: PageEvidenceSummary[];
   contentLength: number;
@@ -1435,6 +1437,7 @@ function formatPageText(page: PageSummary): string[] {
   if (page.author) lines.push(`  author: ${page.author}`);
   if (page.publishedTime) lines.push(`  published: ${page.publishedTime}`);
   if (page.modifiedTime) lines.push(`  modified: ${page.modifiedTime}`);
+  if (page.structuredDataTypes?.length) lines.push(`  schemaTypes: ${page.structuredDataTypes.join(", ")}`);
   return lines.length > 0 ? ["page", ...lines] : [];
 }
 
@@ -1741,6 +1744,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   if (pageCheck.author) lines.push(`  author: ${pageCheck.author}`);
   if (pageCheck.publishedTime) lines.push(`  published: ${pageCheck.publishedTime}`);
   if (pageCheck.modifiedTime) lines.push(`  modified: ${pageCheck.modifiedTime}`);
+  if (pageCheck.structuredDataTypes?.length) lines.push(`  schemaTypes: ${pageCheck.structuredDataTypes.join(", ")}`);
   for (const excerpt of pageCheck.contentPreview) lines.push(`  excerpt: ${excerpt}`);
   for (const evidence of pageCheck.contentEvidence) {
     const selector = evidence.selector ? ` (${evidence.selector})` : "";
@@ -2359,17 +2363,23 @@ function extractPageSummary(html: string, baseUrl: string): PageSummary {
     "date.modified",
     "dcterms.modified",
   ]);
+  const structuredData = extractJsonLdSummary(document.children);
   const summary: PageSummary = {};
   const title = titleElement ? cleanLinkText(descendantText(titleElement)) : "";
-  if (title) summary.title = title;
+  const resolvedTitle = title || structuredData.headline || "";
+  const resolvedAuthor = author || structuredData.author || "";
+  const resolvedPublishedTime = publishedTime || structuredData.publishedTime || "";
+  const resolvedModifiedTime = modifiedTime || structuredData.modifiedTime || "";
+  if (resolvedTitle) summary.title = resolvedTitle;
   if (description) summary.description = description;
   if (canonicalHref) summary.canonicalUrl = normalizeHref(canonicalHref, baseUrl) ?? canonicalHref;
   const lang = htmlElement ? attr(htmlElement, "lang") : "";
   if (lang) summary.lang = lang;
   if (siteName) summary.siteName = siteName;
-  if (author) summary.author = author;
-  if (publishedTime) summary.publishedTime = publishedTime;
-  if (modifiedTime) summary.modifiedTime = modifiedTime;
+  if (resolvedAuthor) summary.author = resolvedAuthor;
+  if (resolvedPublishedTime) summary.publishedTime = resolvedPublishedTime;
+  if (resolvedModifiedTime) summary.modifiedTime = resolvedModifiedTime;
+  if (structuredData.types.length > 0) summary.structuredDataTypes = structuredData.types;
   return summary;
 }
 
@@ -2477,6 +2487,7 @@ function summarizePageCheck(
   if (fetched.page.author) pageCheck.author = fetched.page.author;
   if (fetched.page.publishedTime) pageCheck.publishedTime = fetched.page.publishedTime;
   if (fetched.page.modifiedTime) pageCheck.modifiedTime = fetched.page.modifiedTime;
+  if (fetched.page.structuredDataTypes?.length) pageCheck.structuredDataTypes = fetched.page.structuredDataTypes;
   const mainHeading = pageMainHeading(outline);
   if (mainHeading) pageCheck.mainHeading = mainHeading;
   return pageCheck;
@@ -4925,9 +4936,79 @@ function firstMetaContentOf(nodes: AnyNode[], names: string[]): string {
   return "";
 }
 
+function extractJsonLdSummary(nodes: AnyNode[]): { types: string[]; headline?: string; author?: string; publishedTime?: string; modifiedTime?: string } {
+  const values = findElements(nodes, (item) => item.name === "script" && /application\/ld\+json/i.test(attr(item, "type") ?? ""))
+    .flatMap((script) => parseJsonLdValues(scriptText(script)));
+  const types = Array.from(new Set(values.flatMap((value) => jsonLdStringArray(value["@type"])).filter(Boolean))).slice(0, 8);
+  const primary = values.find((value) => jsonLdStringArray(value["@type"]).some((type) => /article|posting|news|blog|product|book|review|webpage/i.test(type)))
+    ?? values[0];
+  return {
+    types,
+    headline: jsonLdString(primary?.headline) || jsonLdString(primary?.name),
+    author: jsonLdAuthor(primary?.author),
+    publishedTime: jsonLdString(primary?.datePublished) || jsonLdString(primary?.dateCreated),
+    modifiedTime: jsonLdString(primary?.dateModified),
+  };
+}
+
+function findElements(nodes: AnyNode[], predicate: (element: Element) => boolean): Element[] {
+  const found: Element[] = [];
+  for (const node of nodes) {
+    if (!(node instanceof DomElement)) continue;
+    if (predicate(node)) found.push(node);
+    found.push(...findElements(node.children, predicate));
+  }
+  return found;
+}
+
+function parseJsonLdValues(text: string): Array<Record<string, unknown>> {
+  if (!text.trim()) return [];
+  try {
+    return flattenJsonLd(JSON.parse(text));
+  } catch {
+    return [];
+  }
+}
+
+function flattenJsonLd(value: unknown): Array<Record<string, unknown>> {
+  if (Array.isArray(value)) return value.flatMap(flattenJsonLd);
+  if (!value || typeof value !== "object") return [];
+  const object = value as Record<string, unknown>;
+  const graph = Array.isArray(object["@graph"]) ? object["@graph"].flatMap(flattenJsonLd) : [];
+  return [object, ...graph];
+}
+
+function jsonLdString(value: unknown): string {
+  if (typeof value === "string") return cleanLinkText(value);
+  if (typeof value === "number") return String(value);
+  return "";
+}
+
+function jsonLdStringArray(value: unknown): string[] {
+  if (Array.isArray(value)) return value.map(jsonLdString).filter(Boolean);
+  const single = jsonLdString(value);
+  return single ? [single] : [];
+}
+
+function jsonLdAuthor(value: unknown): string {
+  if (typeof value === "string") return cleanLinkText(value);
+  if (Array.isArray(value)) return value.map(jsonLdAuthor).filter(Boolean).join(", ");
+  if (!value || typeof value !== "object") return "";
+  const object = value as Record<string, unknown>;
+  return jsonLdString(object.name) || jsonLdString(object.url);
+}
+
 function firstLinkHref(nodes: AnyNode[], rel: string): string {
   const element = findElement(nodes, (item) => item.name === "link" && (attr(item, "rel") ?? "").split(/\s+/).includes(rel));
   return element ? attr(element, "href") ?? "" : "";
+}
+
+function scriptText(element: Element): string {
+  let text = "";
+  for (const child of element.children) {
+    if (child.type === "text") text += child.data;
+  }
+  return text;
 }
 
 function descendantText(element: Element): string {
@@ -5267,6 +5348,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.author ? { author: pageCheck.author } : {}),
     ...(pageCheck.publishedTime ? { publishedTime: pageCheck.publishedTime } : {}),
     ...(pageCheck.modifiedTime ? { modifiedTime: pageCheck.modifiedTime } : {}),
+    ...(pageCheck.structuredDataTypes?.length ? { structuredDataTypes: pageCheck.structuredDataTypes } : {}),
   };
 }
 
@@ -5372,6 +5454,7 @@ function compactAgentPage(page: PageSummary): object {
     ...(page.author ? { author: page.author } : {}),
     ...(page.publishedTime ? { publishedTime: page.publishedTime } : {}),
     ...(page.modifiedTime ? { modifiedTime: page.modifiedTime } : {}),
+    ...(page.structuredDataTypes?.length ? { structuredDataTypes: page.structuredDataTypes } : {}),
   };
   return Object.keys(compact).length > 0 ? { page: compact } : {};
 }
