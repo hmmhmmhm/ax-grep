@@ -770,10 +770,12 @@ or, preferably, `commandArgs`,
 `agent.status` is the shortest routing signal: `ready` means fetched HTML is
 usable, `choose-result` means open the primary search result action, `verify`
 means evidence is partial or thin, `needs-browser` means browser-captured HTML
-is recommended, and `error` means extraction failed before a usable summary was
-produced. `agent.canUseFetchedHtml` stays true for successfully parsed search
-result pages, even when page readability is low, because the SERP cards are
-already usable for choosing or refining results. `agent.resultCount` counts
+is recommended, and `error` means extraction failed before fetched page content
+was usable; recoverable errors still expose the next executable step through
+`agent.answerPlan`, `agent.next`, and `agent.canContinue`. `agent.canUseFetchedHtml`
+stays true for successfully parsed search result pages, even when page
+readability is low, because the SERP cards are already usable for choosing or
+refining results. `agent.resultCount` counts
 search results only, while `agent.sourceLinkCount` counts page-level source
 links only; on search pages, use `searchResults` for candidate sources.
 When `--html-file` or `--stdin` supplies browser-captured HTML, blocker

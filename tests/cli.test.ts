@@ -3065,6 +3065,22 @@ describe("cli", () => {
         action: "retry-with-browser-html",
         url: "https://example.test/package",
         command: "ax-grep 'https://example.test/package' --html-file captured.html --find 'target claim' --agent",
+        commandArgs: ["ax-grep", "https://example.test/package", "--html-file", "captured.html", "--find", "target claim", "--agent"],
+      },
+      answerPlan: {
+        status: "blocked",
+        confidence: "low",
+        nextAction: "retry-with-browser-html",
+        url: "https://example.test/package",
+        command: "ax-grep 'https://example.test/package' --html-file captured.html --find 'target claim' --agent",
+        commandArgs: ["ax-grep", "https://example.test/package", "--html-file", "captured.html", "--find", "target claim", "--agent"],
+        gaps: expect.arrayContaining(["Extraction failed with HTTP_ERROR.", "Browser-captured HTML is needed."]),
+      },
+      executionPlan: {
+        operation: "capture-browser-html",
+        needsBrowserHtml: true,
+        shouldContinue: true,
+        answerReady: false,
       },
     });
     expect(envelope.pageCheck.recommendedAction).toBeUndefined();
