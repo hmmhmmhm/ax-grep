@@ -251,6 +251,7 @@ describe("cli", () => {
             "handoff",
             "handoff.answerEvidence",
             "handoff.choices",
+            "handoff.sourceSearch",
             "executionPlan",
             "citations",
             "citation.reason",
@@ -2277,6 +2278,26 @@ describe("cli", () => {
       command: "ax-grep --search 'agent browser' --engine duckduckgo --open-result 2 --agent",
       url: "https://alternate.example/article",
     });
+    expect(envelope.agent.handoff).toMatchObject({
+      decision: "execute",
+      action: "open-alternate-result",
+      url: "https://alternate.example/article",
+      sourceSearch: {
+        query: "agent browser",
+        engine: "duckduckgo",
+        selectedRank: 1,
+        selectedUrl: "https://missing.example/article",
+        alternateResults: [
+          expect.objectContaining({
+            path: "sourceSearch.alternateResults[0]",
+            title: "Alternate Result",
+            url: "https://alternate.example/article",
+            rank: 2,
+            commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--open-result", "2", "--agent"],
+          }),
+        ],
+      },
+    });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "sourceSearch.selectedResult",
       count: 1,
@@ -2351,6 +2372,27 @@ describe("cli", () => {
         url: "https://alternate.example/article",
         rank: 2,
         command: "ax-grep --search 'agent browser' --engine duckduckgo --find 'target claim' --open-result 2 --agent",
+      },
+      handoff: {
+        decision: "execute",
+        action: "open-alternate-result",
+        sourceSearch: {
+          query: "agent browser",
+          engine: "duckduckgo",
+          findQueries: ["target claim"],
+          selectedRank: 1,
+          selectedUrl: "https://first.example/article",
+          alternateResults: [
+            expect.objectContaining({
+              path: "sourceSearch.alternateResults[0]",
+              title: "Independent source",
+              url: "https://alternate.example/article",
+              rank: 2,
+              findMatches: ["target claim"],
+              commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--find", "target claim", "--open-result", "2", "--agent"],
+            }),
+          ],
+        },
       },
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({

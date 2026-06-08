@@ -27,6 +27,8 @@ import type {
   AgentRunbook,
   AgentSignal,
   AgentSourceChoice,
+  AgentSourceSearch,
+  AgentSourceSearchResult,
   AgentStatus,
   AgentTarget,
   SemanticNode,
@@ -395,6 +397,7 @@ const agentContract: AgentContract = {
     "handoff",
     "handoff.answerEvidence",
     "handoff.choices",
+    "handoff.sourceSearch",
     "executionPlan",
     "citations",
     "citation.reason",
@@ -2775,7 +2778,7 @@ function summarizeAgent(
   const answerEvidence = summarizeAgentAnswerEvidence(citations, answerPlan);
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, canUseFetchedHtml, needsBrowserHtml);
   const runbook = summarizeAgentRunbook(next, executionPlan, answerPlan);
-  const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices);
+  const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, compactAgentSourceSearch(sourceSearch));
   const evidenceQualityScore = averageEvidenceScore(pageCheck.contentEvidence);
   const sourceQualityScore = agentSourceQualityScore(analysis.kind, pageCheck.sourceLinks, results, recommendedResult);
   const usabilityScore = agentUsabilityScore(status, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error);
@@ -3298,6 +3301,7 @@ function summarizeAgentHandoff(
   answerEvidence: AgentCitation[] = [],
   resultChoices: AgentResultChoice[] = [],
   sourceChoices: AgentSourceChoice[] = [],
+  sourceSearch?: AgentSourceSearch,
 ): AgentHandoff {
   return {
     instruction: agentHandoffInstruction(next, executionPlan, answerPlan),
@@ -3319,6 +3323,7 @@ function summarizeAgentHandoff(
     ...(answerEvidence.length > 0 ? { answerEvidence } : {}),
     ...(resultChoices.length > 0 ? { resultChoices } : {}),
     ...(sourceChoices.length > 0 ? { sourceChoices } : {}),
+    ...(sourceSearch ? { sourceSearch } : {}),
     ...(next.readTarget ? { readTarget: next.readTarget } : {}),
     ...(next.readFrom ? { readFrom: next.readFrom } : {}),
     ...(next.readValue ? { readValue: next.readValue } : {}),
@@ -4245,7 +4250,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const answerPlan = summarizeErrorAgentAnswerPlan(error, primaryAction, needsBrowserHtml);
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, false, needsBrowserHtml);
   const runbook = summarizeAgentRunbook(next, executionPlan, answerPlan);
-  const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan);
+  const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, [], [], [], compactAgentSourceSearch(sourceSearch));
   return {
     contract: agentContract,
     status: "error",
@@ -5216,7 +5221,7 @@ function compactAgentSearchEngines(attempts: SearchAttemptSummary[] | undefined)
   };
 }
 
-function compactAgentSourceSearch(sourceSearch: SourceSearchSummary | undefined): object | undefined {
+function compactAgentSourceSearch(sourceSearch: SourceSearchSummary | undefined): AgentSourceSearch | undefined {
   if (!sourceSearch) return undefined;
   return {
     query: sourceSearch.query,
@@ -5234,7 +5239,7 @@ function compactAgentSourceSearch(sourceSearch: SourceSearchSummary | undefined)
   };
 }
 
-function compactAgentSourceSearchResult(sourceSearch: SourceSearchSummary, result: ResultSummary, index?: number): object {
+function compactAgentSourceSearchResult(sourceSearch: SourceSearchSummary, result: ResultSummary, index?: number): AgentSourceSearchResult {
   const command = searchOpenCommandSpec(
     sourceSearch.query,
     sourceSearch.selectedEngine ?? sourceSearch.engine,
@@ -5247,11 +5252,14 @@ function compactAgentSourceSearchResult(sourceSearch: SourceSearchSummary, resul
     sourceSearch.userAgent,
   );
   const path = index === undefined ? "sourceSearch.selectedResult" : `sourceSearch.alternateResults[${index}]`;
+  const id = index === undefined ? "selected" : `a${result.rank}`;
   return {
     ...compactAgentSearchResult(result, undefined, {
-      id: index === undefined ? "selected" : `a${result.rank}`,
+      id,
       path,
     }),
+    id,
+    path,
     ...commandFields(command),
   };
 }

@@ -32,6 +32,7 @@ describe("README", () => {
           "handoff",
           "handoff.answerEvidence",
           "handoff.choices",
+          "handoff.sourceSearch",
           "executionPlan",
           "citations",
           "citation.reason",

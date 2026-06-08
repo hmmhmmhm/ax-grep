@@ -568,6 +568,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "handoff",
         "handoff.answerEvidence",
         "handoff.choices",
+        "handoff.sourceSearch",
         "executionPlan",
         "citations",
         "citation.reason",

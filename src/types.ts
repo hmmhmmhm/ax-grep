@@ -246,6 +246,7 @@ export type AgentHandoff = {
   answerEvidence?: AgentCitation[];
   resultChoices?: AgentResultChoice[];
   sourceChoices?: AgentSourceChoice[];
+  sourceSearch?: AgentSourceSearch;
   readTarget?: AgentReadTarget;
   readFrom?: string;
   readValue?: AgentReadValue;
@@ -340,6 +341,29 @@ export type AgentSourceChoice = AgentTarget & {
   commandArgs?: string[];
 };
 
+export type AgentSourceSearchResult = AgentTarget & {
+  id: string;
+  path: string;
+  openResult?: number | "best";
+  command?: string;
+  commandArgs?: string[];
+};
+
+export type AgentSourceSearch = {
+  query: string;
+  engine: string;
+  selectedEngine?: string;
+  searchUrl: string;
+  lang?: string;
+  region?: string;
+  findQueries?: string[];
+  selectedRank: number;
+  selectedTitle: string;
+  selectedUrl: string;
+  selectedResult?: AgentSourceSearchResult;
+  alternateResults?: AgentSourceSearchResult[];
+};
+
 export type AgentSummary = {
   contract: AgentContract;
   status: AgentStatus;
@@ -421,6 +445,7 @@ export type AgentContractFeature =
   | "handoff"
   | "handoff.answerEvidence"
   | "handoff.choices"
+  | "handoff.sourceSearch"
   | "executionPlan"
   | "citations"
   | "citation.reason"

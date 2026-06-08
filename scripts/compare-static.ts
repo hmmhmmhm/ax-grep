@@ -209,6 +209,7 @@ type CliAgentHandoffShape = {
   answerEvidence?: CliAgentCitationShape[];
   resultChoices?: CliAgentResultChoiceShape[];
   sourceChoices?: CliAgentSourceChoiceShape[];
+  sourceSearch?: unknown;
   readTarget?: CliReadTargetShape;
   readFrom?: string;
   readValue?: {
@@ -905,6 +906,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       item.agent?.answerEvidence ?? [],
       item.agent?.resultChoices ?? [],
       item.agent?.sourceChoices ?? [],
+      item.sourceSearch,
     ),
     agentExecutionPlanScore: scoreAgentExecutionPlan(item.agent?.executionPlan, item.agent?.next, item.agent?.answerPlan, item.agent?.canUseFetchedHtml, item.agent?.needsBrowserHtml, item.agent?.expectedOutcome),
     agentExpectedOutcomeScore: scoreAgentExpectedOutcome(item.agent?.expectedOutcome, item.agent?.primaryAction),
@@ -1135,6 +1137,7 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[] }
     "handoff",
     "handoff.answerEvidence",
     "handoff.choices",
+    "handoff.sourceSearch",
     "executionPlan",
     "citations",
     "answerPlan",
@@ -1404,6 +1407,7 @@ function scoreAgentHandoff(
   answerEvidence: CliAgentCitationShape[] = [],
   resultChoices: CliAgentResultChoiceShape[] = [],
   sourceChoices: CliAgentSourceChoiceShape[] = [],
+  sourceSearch?: unknown,
 ): number {
   if (!handoff || !next?.loop || !plan || !answerPlan) return 0;
   let required = 14;
@@ -1438,6 +1442,10 @@ function scoreAgentHandoff(
   if (sourceChoices.length > 0) {
     required += 1;
     if (JSON.stringify(handoff.sourceChoices) === JSON.stringify(sourceChoices)) matched += 1;
+  }
+  if (sourceSearch) {
+    required += 1;
+    if (JSON.stringify(handoff.sourceSearch) === JSON.stringify(sourceSearch)) matched += 1;
   }
   if (next.command) {
     required += 2;
