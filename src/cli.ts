@@ -1606,8 +1606,13 @@ function formatAgentText(agent: AgentSummary): string[] {
   }
   if (agent.handoff.browserHtml) {
     lines.push(`  handoffBrowserHtml: ${agent.handoff.browserHtml.htmlFile} capture=${agent.handoff.browserHtml.captureScript}`);
+    if (agent.handoff.browserHtml.url) lines.push(`  handoffBrowserHtmlUrl: ${agent.handoff.browserHtml.url}`);
+    lines.push(`  handoffBrowserHtmlFile: ${agent.handoff.browserHtml.htmlFile}`);
+    lines.push(`  handoffBrowserHtmlCaptureScript: ${agent.handoff.browserHtml.captureScript}`);
     if (agent.handoff.browserHtml.command) lines.push(`    command: ${agent.handoff.browserHtml.command}`);
     if (agent.handoff.browserHtml.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(agent.handoff.browserHtml.commandArgs)}`);
+    if (agent.handoff.browserHtml.command) lines.push(`  handoffBrowserHtmlCommand: ${agent.handoff.browserHtml.command}`);
+    if (agent.handoff.browserHtml.commandArgs) lines.push(`  handoffBrowserHtmlCommandArgs: ${formatCommandArgsText(agent.handoff.browserHtml.commandArgs)}`);
   }
   if (agent.handoff.sourceSearch) {
     const search = agent.handoff.sourceSearch;

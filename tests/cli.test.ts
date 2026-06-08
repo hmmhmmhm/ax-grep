@@ -3233,6 +3233,33 @@ describe("cli", () => {
     });
   });
 
+  it("prints browser capture handoff details in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test"], {
+      stdout,
+      fetch: async () => new Response("", { status: 200, headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(20);
+    expect(stdout.output).toContain("agent\n  status: needs-browser");
+    expect(stdout.output).toContain("  continuationMode: capture-html");
+    expect(stdout.output).toContain("  handoff: browser/capture-browser-html/low action=retry-with-browser-html priority=high - ");
+    expect(stdout.output).toContain("  handoffCommandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  handoffUrl: https://example.test");
+    expect(stdout.output).toContain("  handoffBrowserHtml: captured.html capture=document.documentElement.outerHTML");
+    expect(stdout.output).toContain("  handoffBrowserHtmlUrl: https://example.test");
+    expect(stdout.output).toContain("  handoffBrowserHtmlFile: captured.html");
+    expect(stdout.output).toContain("  handoffBrowserHtmlCaptureScript: document.documentElement.outerHTML");
+    expect(stdout.output).toContain("  handoffBrowserHtmlCommandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  handoffSignal: browser/warning - Browser-captured HTML is recommended before trusting page content.");
+    expect(stdout.output).toContain("  handoffQualityGate: browser fail/warning score=0 path=agent.needsBrowserHtml - Browser-captured HTML or browser inspection is needed.");
+    expect(stdout.output).toContain("  next: retry-with-browser-html - The page is not reliably readable from fetched HTML.");
+    expect(stdout.output).toContain("  commandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("pageCheck\n  confidence: low");
+    expect(stdout.output).toContain("  next: retry-with-browser-html - The page is not reliably readable from fetched HTML.");
+    expect(stdout.output).toContain("  step: 1. retry-with-browser-html <https://example.test> - The page is not reliably readable from fetched HTML.");
+  });
+
   it("detects challenged pages and suggests browser-captured HTML", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://challenge.example", "--json"], {

@@ -225,6 +225,9 @@ a subagent can compare candidates before drilling into the full result list.
 Text output prints the same shortlist as `resultChoice:` lines and mirrors the
 next handoff as `handoffCommandArgs:` plus `handoffResultChoice:` lines in the
 `agent` block for agents that are inspecting stdout instead of compact JSON.
+Browser-capture handoffs also get flat stdout keys:
+`handoffBrowserHtmlUrl:`, `handoffBrowserHtmlFile:`,
+`handoffBrowserHtmlCaptureScript:`, and `handoffBrowserHtmlCommandArgs:`.
 On normal page checks, `agent.sourceChoices` mirrors `pageCheck.sourceLinks`
 with stable `pageCheck.sourceLinks[...]` paths, source scores, reasons, and
 runnable command fields so an executor can compare source candidates without
