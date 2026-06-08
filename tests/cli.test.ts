@@ -257,6 +257,7 @@ describe("cli", () => {
             "contentEvidence.quality",
             "readTargets",
             "signals",
+            "qualityGates",
             "browserHtml",
           ]),
         },
@@ -357,6 +358,20 @@ describe("cli", () => {
         signals: expect.arrayContaining([
           expect.objectContaining({ kind: "content", severity: "info" }),
           expect.objectContaining({ kind: "verification", severity: "info" }),
+        ]),
+        qualityGates: expect.arrayContaining([
+          expect.objectContaining({
+            kind: "fetch",
+            pass: true,
+            severity: "info",
+            path: "agent.responseStatus",
+          }),
+          expect.objectContaining({
+            kind: "verification",
+            pass: true,
+            severity: "info",
+            path: "verification.bestEvidence",
+          }),
         ]),
         pageKind: "page",
         canContinue: true,
@@ -2762,6 +2777,9 @@ describe("cli", () => {
     expect(stdout.output).toContain("  answerReadFrom: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  answerUrl: https://example.test/article");
     expect(stdout.output).toContain("  signal: content/info - ");
+    expect(stdout.output).toContain("  qualityGate: fetch pass/info score=1 path=agent.responseStatus - Fetched response was converted into an agent payload.");
+    expect(stdout.output).toContain("  qualityGate: content pass/info score=");
+    expect(stdout.output).toContain("  qualityGate: source pass/info score=");
     expect(stdout.output).toContain("  canContinue: true");
     expect(stdout.output).toContain("  responseStatus: 200");
     expect(stdout.output).toContain("  responseOk: true");

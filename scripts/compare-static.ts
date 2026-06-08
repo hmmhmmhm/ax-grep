@@ -63,6 +63,7 @@ type CliAgentSummary = {
   agentExecutionPlanScore: number;
   agentExpectedOutcomeScore: number;
   agentSignalScore: number;
+  agentQualityGateScore: number;
   pageLinkCommandScore: number;
   agentPageKindScore: number;
   agentAlternativeActionCountScore: number;
@@ -212,6 +213,15 @@ type CliAgentSourceChoiceShape = CliAgentTargetShape & {
   primary?: boolean;
   command?: string;
   commandArgs?: string[];
+};
+
+type CliAgentQualityGateShape = {
+  kind?: "fetch" | "content" | "source" | "search" | "verification" | "browser" | "diagnostic" | "status";
+  pass?: boolean;
+  severity?: "info" | "warning" | "error";
+  message?: string;
+  score?: number;
+  path?: string;
 };
 
 type CliAgentLoopShape = {
@@ -380,6 +390,7 @@ type GateSummary = {
   averageAgentExecutionPlanScore: number;
   averageAgentExpectedOutcomeScore: number;
   averageAgentSignalScore: number;
+  averageAgentQualityGateScore: number;
   averagePageLinkCommandScore: number;
   averageAgentReadTargetScore: number;
   averageAgentResultCountScore: number;
@@ -739,6 +750,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       searchDecision?: CliAgentSearchDecisionShape;
       pageDecision?: CliAgentPageDecisionShape;
       signals?: CliAgentSignalShape[];
+      qualityGates?: CliAgentQualityGateShape[];
       responseStatus?: number;
       responseOk?: boolean;
       responseContentType?: string;
@@ -850,6 +862,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentExecutionPlanScore: scoreAgentExecutionPlan(item.agent?.executionPlan, item.agent?.next, item.agent?.answerPlan, item.agent?.canUseFetchedHtml, item.agent?.needsBrowserHtml, item.agent?.expectedOutcome),
     agentExpectedOutcomeScore: scoreAgentExpectedOutcome(item.agent?.expectedOutcome, item.agent?.primaryAction),
     agentSignalScore: scoreAgentSignals(item.agent?.signals, item),
+    agentQualityGateScore: scoreAgentQualityGates(item.agent?.qualityGates, item),
     pageLinkCommandScore: scorePageLinkCommands(item.pageCheck?.primaryLinks ?? [], item.pageCheck?.sourceLinks ?? []),
     agentPageKindScore: scoreAgentPageKind(item.agent?.pageKind, item.kind),
     agentAlternativeActionCountScore: scoreAgentAlternativeActionCount(item.agent?.alternativeActionCount, item),
@@ -910,6 +923,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentExecutionPlanScore: 0,
     agentExpectedOutcomeScore: 0,
     agentSignalScore: 0,
+    agentQualityGateScore: 0,
     pageLinkCommandScore: 0,
     agentPageKindScore: 0,
     agentAlternativeActionCountScore: 0,
@@ -1081,6 +1095,7 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[] }
     "readTargets",
     "actions",
     "signals",
+    "qualityGates",
     "expectedOutcome",
     "responseMetadata",
     "afterInteractionCommand",
@@ -1409,6 +1424,47 @@ function scoreAgentSignals(signals: CliAgentSignalShape[] | undefined, envelope:
   expectKind((envelope.verification?.requestedCount ?? 0) > 0, "verification");
   expectKind(envelope.kind !== "search-results" && (envelope.pageCheck?.sourceLinks?.length ?? 0) > 0, "source-links");
   expectKind((envelope.pageCheck?.contentEvidence?.length ?? 0) > 0, "content");
+  return roundScore(matched / required);
+}
+
+function scoreAgentQualityGates(gates: CliAgentQualityGateShape[] | undefined, envelope: {
+  kind?: string;
+  diagnostics?: unknown[];
+  agent?: { needsBrowserHtml?: boolean };
+  pageCheck?: { contentEvidence?: unknown[]; sourceLinks?: unknown[] };
+  searchResults?: unknown[];
+  verification?: { requestedCount?: number };
+}): number {
+  if (!Array.isArray(gates) || gates.length === 0) return 0;
+  const validKinds = new Set(["fetch", "content", "source", "search", "verification", "browser", "diagnostic", "status"]);
+  const validSeverities = new Set(["info", "warning", "error"]);
+  const wellFormed = gates.filter((gate) => {
+    return typeof gate.kind === "string"
+      && validKinds.has(gate.kind)
+      && typeof gate.pass === "boolean"
+      && typeof gate.severity === "string"
+      && validSeverities.has(gate.severity)
+      && typeof gate.message === "string"
+      && gate.message.length > 0
+      && (typeof gate.score === "undefined" || (typeof gate.score === "number" && gate.score >= 0 && gate.score <= 1))
+      && (typeof gate.path === "undefined" || (typeof gate.path === "string" && gate.path.length > 0));
+  }).length / gates.length;
+  const kinds = new Set(gates.map((gate) => gate.kind));
+  let required = 5;
+  let matched = wellFormed > 0 ? wellFormed : 0;
+  if (kinds.has("fetch")) matched += 1;
+  if (kinds.has("content")) matched += 1;
+  if (kinds.has("browser")) matched += 1;
+  if (kinds.has("status")) matched += 1;
+  const expectKind = (condition: boolean, kind: NonNullable<CliAgentQualityGateShape["kind"]>): void => {
+    if (!condition) return;
+    required += 1;
+    if (kinds.has(kind)) matched += 1;
+  };
+  expectKind(envelope.kind === "search-results" || (envelope.searchResults?.length ?? 0) > 0, "search");
+  expectKind((envelope.pageCheck?.sourceLinks?.length ?? 0) > 0, "source");
+  expectKind((envelope.verification?.requestedCount ?? 0) > 0, "verification");
+  expectKind((envelope.diagnostics?.length ?? 0) > 0, "diagnostic");
   return roundScore(matched / required);
 }
 
@@ -2187,6 +2243,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentExecutionPlanScore * 0.005
     + summary.agentExpectedOutcomeScore * 0.005
     + summary.agentSignalScore * 0.005
+    + summary.agentQualityGateScore * 0.005
     + summary.pageLinkCommandScore * 0.005
     + summary.agentPrimaryShortcutScore * 0.005
     + summary.agentCitationScore * 0.005
@@ -2209,6 +2266,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentExecutionPlanScore,
     summary.agentExpectedOutcomeScore,
     summary.agentSignalScore,
+    summary.agentQualityGateScore,
     summary.agentReadTargetScore,
     summary.agentResultChoiceScore,
     summary.agentSourceChoiceScore,
@@ -2281,6 +2339,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentExecutionPlanScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExecutionPlanScore)),
     averageAgentExpectedOutcomeScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExpectedOutcomeScore)),
     averageAgentSignalScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSignalScore)),
+    averageAgentQualityGateScore: average(included.map((comparison) => comparison.cliAgentSummary.agentQualityGateScore)),
     averagePageLinkCommandScore: average(included.map((comparison) => comparison.cliAgentSummary.pageLinkCommandScore)),
     averageAgentReadTargetScore: average(included.map((comparison) => comparison.cliAgentSummary.agentReadTargetScore)),
     averageAgentResultCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentResultCountScore)),

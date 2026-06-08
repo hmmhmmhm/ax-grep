@@ -189,6 +189,10 @@ provided command without inferring the protocol from prose.
 `content`, `verification`, `search-results`, `source-links`, `browser`,
 `diagnostic`, and `response` signals each carry `info`, `warning`, or `error`
 severity plus a concise message.
+`agent.qualityGates` turns the same extraction state into pass/fail checks for
+fetch, content, source, search, verification, browser, and diagnostic quality,
+plus overall status, including a severity, optional score, and payload path. Use it when a subagent
+needs a quick trust audit before answering or executing the next command.
 `agent.citations` is a compact shortlist of citeable content, verification
 evidence, search results, and source links with stable `id`/`path` references,
 plus `confidence` and `reason`, so an executor can assemble an answer without
@@ -574,6 +578,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "contentEvidence.quality",
         "readTargets",
         "signals",
+        "qualityGates",
         "expectedOutcome",
         "responseMetadata",
         "afterInteractionCommand",

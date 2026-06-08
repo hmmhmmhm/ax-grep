@@ -18,6 +18,7 @@ import type {
   AgentExpectedOutcome,
   AgentLoopDirective,
   AgentNext,
+  AgentQualityGate,
   AgentReadTarget,
   AgentReadValue,
   AgentResultChoice,
@@ -325,6 +326,7 @@ type AgentSummary = {
   searchDecision?: AgentSearchDecision;
   pageDecision?: AgentPageDecision;
   signals: AgentSignal[];
+  qualityGates: AgentQualityGate[];
   canContinue: boolean;
   canUseFetchedHtml: boolean;
   needsBrowserHtml: boolean;
@@ -406,6 +408,7 @@ const agentContract: AgentContract = {
     "contentEvidence.quality",
     "readTargets",
     "signals",
+    "qualityGates",
     "expectedOutcome",
     "responseMetadata",
     "afterInteractionCommand",
@@ -1503,6 +1506,11 @@ function formatAgentText(agent: AgentSummary): string[] {
   ];
   for (const signal of agent.signals) lines.push(`  signal: ${signal.kind}/${signal.severity} - ${signal.message}`);
   for (const reason of agent.readabilityReasons) lines.push(`  readabilityReason: ${reason}`);
+  for (const gate of agent.qualityGates) {
+    const score = typeof gate.score === "number" ? ` score=${gate.score}` : "";
+    const path = gate.path ? ` path=${gate.path}` : "";
+    lines.push(`  qualityGate: ${gate.kind} ${gate.pass ? "pass" : "fail"}/${gate.severity}${score}${path} - ${gate.message}`);
+  }
   for (const citation of agent.citations) {
     const score = typeof citation.score === "number" ? ` score=${citation.score}` : "";
     const target = citation.url ? ` <${citation.url}>` : "";
@@ -2757,6 +2765,9 @@ function summarizeAgent(
   const answerPlan = summarizeAgentAnswerPlan(status, primaryAction, pageCheck, verification, citations, needsBrowserHtml, error);
   const answerEvidence = summarizeAgentAnswerEvidence(citations, answerPlan);
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, canUseFetchedHtml, needsBrowserHtml);
+  const evidenceQualityScore = averageEvidenceScore(pageCheck.contentEvidence);
+  const sourceQualityScore = agentSourceQualityScore(analysis.kind, pageCheck.sourceLinks, results, recommendedResult);
+  const usabilityScore = agentUsabilityScore(status, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error);
   const agent: AgentSummary = {
     contract: agentContract,
     status,
@@ -2772,6 +2783,7 @@ function summarizeAgent(
     ...(searchDecision ? { searchDecision } : {}),
     ...(pageDecision ? { pageDecision } : {}),
     signals: summarizeAgentSignals(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, fetched, error),
+    qualityGates: summarizeAgentQualityGates(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error, usabilityScore, evidenceQualityScore, sourceQualityScore),
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml,
     needsBrowserHtml,
@@ -2780,7 +2792,7 @@ function summarizeAgent(
     responseContentType: fetched?.contentType ?? "",
     finalUrlChanged: Boolean(fetched && requestUrl && fetched.finalUrl !== requestUrl),
     confidence: pageCheck.confidence,
-    usabilityScore: agentUsabilityScore(status, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error),
+    usabilityScore,
     readability: pageCheck.readability.level,
     readabilityScore: pageCheck.readability.score,
     readabilityReasons: pageCheck.readability.reasons.slice(0, 3),
@@ -2793,8 +2805,8 @@ function summarizeAgent(
     evidenceCount: pageCheck.contentEvidence.length,
     sourceLinkCount: analysis.kind === "search-results" ? 0 : pageCheck.sourceLinks.length,
     sourceChoices: summarizeAgentSourceChoices(analysis.kind, pageCheck.sourceLinks, primaryAction, agentMode, findQueries, timeoutMs, userAgent),
-    evidenceQualityScore: averageEvidenceScore(pageCheck.contentEvidence),
-    sourceQualityScore: agentSourceQualityScore(analysis.kind, pageCheck.sourceLinks, results, recommendedResult),
+    evidenceQualityScore,
+    sourceQualityScore,
     alternativeActionCount: countAlternativeAgentActions(analysis, pageCheck, verification, primaryAction),
     diagnosticCodes,
     diagnosticErrorCount: diagnosticCounts.error,
@@ -2983,6 +2995,98 @@ function summarizeAgentSourceChoices(
       ...(primary ? { primary: true } : {}),
     };
   });
+}
+
+function summarizeAgentQualityGates(
+  status: AgentStatus,
+  analysis: AnalysisSummary,
+  pageCheck: PageCheckSummary,
+  verification: VerificationSummary,
+  results: ResultSummary[],
+  needsBrowserHtml: boolean,
+  error: { code: CliErrorCode; message: string; status?: number } | undefined,
+  usabilityScore: number,
+  evidenceQualityScore: number,
+  sourceQualityScore: number,
+): AgentQualityGate[] {
+  const gates: AgentQualityGate[] = [];
+  gates.push({
+    kind: "fetch",
+    pass: !error,
+    severity: error ? "error" : "info",
+    message: error ? `Fetch or extraction failed with ${error.code}.` : "Fetched response was converted into an agent payload.",
+    score: error ? 0 : 1,
+    path: "agent.responseStatus",
+  });
+  gates.push({
+    kind: "content",
+    pass: pageCheck.contentEvidence.length > 0 && pageCheck.readability.level !== "low",
+    severity: pageCheck.readability.level === "low" ? "warning" : "info",
+    message: `${pageCheck.contentEvidence.length} content evidence item(s); readability is ${pageCheck.readability.level}.`,
+    score: evidenceQualityScore,
+    path: "pageCheck.contentEvidence",
+  });
+  gates.push({
+    kind: "source",
+    pass: analysis.kind === "search-results" || pageCheck.sourceLinks.length > 0,
+    severity: analysis.kind === "search-results" || pageCheck.sourceLinks.length > 0 ? "info" : "warning",
+    message: analysis.kind === "search-results"
+      ? "Search result pages use result choices instead of page source choices."
+      : `${pageCheck.sourceLinks.length} source-like link(s) available.`,
+    score: sourceQualityScore,
+    path: analysis.kind === "search-results" ? "searchResults" : "pageCheck.sourceLinks",
+  });
+  if (analysis.kind === "search-results") {
+    const highRelevanceCount = results.filter((result) => result.relevance === "high").length;
+    gates.push({
+      kind: "search",
+      pass: results.length > 0,
+      severity: results.length > 0 ? "info" : "warning",
+      message: `${results.length} search result(s) extracted; ${highRelevanceCount} high-relevance result(s).`,
+      score: results.length > 0 ? roundMetric(Math.min(1, (highRelevanceCount || results.length) / Math.max(1, results.length))) : 0,
+      path: "searchResults",
+    });
+  }
+  if (verification.status !== "not-requested") {
+    gates.push({
+      kind: "verification",
+      pass: verification.status === "matched",
+      severity: verification.status === "matched" ? "info" : verification.status === "partial" ? "warning" : "error",
+      message: `${verification.foundCount}/${verification.requestedCount} requested verification text(s) found.`,
+      score: verification.requestedCount > 0 ? roundMetric(verification.foundCount / verification.requestedCount) : 1,
+      path: verification.bestEvidence ? "verification.bestEvidence" : "verification",
+    });
+  }
+  gates.push({
+    kind: "browser",
+    pass: !needsBrowserHtml,
+    severity: needsBrowserHtml ? "warning" : "info",
+    message: needsBrowserHtml ? "Browser-captured HTML or browser inspection is needed." : "Fetched HTML is usable without browser capture.",
+    score: needsBrowserHtml ? 0 : 1,
+    path: "agent.needsBrowserHtml",
+  });
+  if (analysis.diagnostics.length > 0) {
+    const highestSeverity = analysis.diagnostics.some((item) => item.severity === "error")
+      ? "error"
+      : analysis.diagnostics.some((item) => item.severity === "warning") ? "warning" : "info";
+    gates.push({
+      kind: "diagnostic",
+      pass: highestSeverity !== "error",
+      severity: highestSeverity,
+      message: `${analysis.diagnostics.length} diagnostic item(s): ${analysis.diagnostics.map((item) => item.code).slice(0, 3).join(", ")}.`,
+      score: highestSeverity === "error" ? 0 : highestSeverity === "warning" ? 0.5 : 1,
+      path: "diagnostics",
+    });
+  }
+  gates.push({
+    kind: "status",
+    pass: status === "ready" || status === "choose-result",
+    severity: status === "error" || status === "needs-browser" ? "error" : status === "verify" ? "warning" : "info",
+    message: `Overall agent status is ${status}; usability score is ${usabilityScore}.`,
+    score: usabilityScore,
+    path: "agent.status",
+  });
+  return gates;
 }
 
 function summarizeAgentSearchDecision(
@@ -4077,6 +4181,24 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     executionPlan,
     answerPlan,
     signals: summarizeErrorAgentSignals(error, primaryAction, summary),
+    qualityGates: [
+      {
+        kind: "fetch",
+        pass: false,
+        severity: "error",
+        message: `Fetch or extraction failed with ${error.code}.`,
+        score: 0,
+        path: "error",
+      },
+      {
+        kind: "browser",
+        pass: !needsBrowserHtml,
+        severity: needsBrowserHtml ? "warning" : "info",
+        message: needsBrowserHtml ? "Browser-captured HTML or browser inspection is needed." : "No browser capture is required for this error path.",
+        score: needsBrowserHtml ? 0 : 1,
+        path: "agent.needsBrowserHtml",
+      },
+    ],
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml: false,
     needsBrowserHtml,
@@ -4916,6 +5038,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     ...(agent.searchDecision ? { searchDecision: agent.searchDecision } : {}),
     ...(agent.pageDecision ? { pageDecision: agent.pageDecision } : {}),
     ...(agent.signals.length > 0 ? { signals: agent.signals } : {}),
+    ...(agent.qualityGates.length > 0 ? { qualityGates: agent.qualityGates } : {}),
     canContinue: agent.canContinue,
     canUseFetchedHtml: agent.canUseFetchedHtml,
     needsBrowserHtml: agent.needsBrowserHtml,

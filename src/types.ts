@@ -146,6 +146,25 @@ export type AgentSignal = {
   message: string;
 };
 
+export type AgentQualityGateKind =
+  | "fetch"
+  | "content"
+  | "source"
+  | "search"
+  | "verification"
+  | "browser"
+  | "diagnostic"
+  | "status";
+
+export type AgentQualityGate = {
+  kind: AgentQualityGateKind;
+  pass: boolean;
+  severity: AgentSignalSeverity;
+  message: string;
+  score?: number;
+  path?: string;
+};
+
 export type AgentExpectedOutcomeKind =
   | "read-evidence"
   | "open-result"
@@ -304,6 +323,7 @@ export type AgentSummary = {
   searchDecision?: Record<string, unknown>;
   pageDecision?: Record<string, unknown>;
   signals?: AgentSignal[];
+  qualityGates?: AgentQualityGate[];
   canContinue: boolean;
   canUseFetchedHtml: boolean;
   needsBrowserHtml: boolean;
@@ -383,6 +403,7 @@ export type AgentContractFeature =
   | "contentEvidence.quality"
   | "readTargets"
   | "signals"
+  | "qualityGates"
   | "expectedOutcome"
   | "responseMetadata"
   | "afterInteractionCommand"

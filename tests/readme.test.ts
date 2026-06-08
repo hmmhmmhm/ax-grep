@@ -45,6 +45,7 @@ describe("README", () => {
           "action.priority",
           "afterInteractionCommand",
           "browserHtml",
+          "qualityGates",
           "actions",
           "contentEvidence.quality",
         ]),
