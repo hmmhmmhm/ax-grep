@@ -206,6 +206,7 @@ type CliAgentHandoffShape = {
   expectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
   reason?: string;
   useCitationIds?: unknown[];
+  answerEvidence?: CliAgentCitationShape[];
   readTarget?: CliReadTargetShape;
   readFrom?: string;
   readValue?: {
@@ -894,7 +895,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentContinuationModeScore: scoreAgentContinuationMode(item.agent?.continuationMode, item.agent?.primaryAction),
     agentNextScore: scoreAgentNext(item.agent?.next, item.agent?.continuationMode, item.agent?.primaryAction),
     agentRunbookScore: scoreAgentRunbook(item.agent?.runbook, item.agent?.next, item.agent?.executionPlan, item.agent?.answerPlan),
-    agentHandoffScore: scoreAgentHandoff(item.agent?.handoff, item.agent?.next, item.agent?.executionPlan, item.agent?.answerPlan),
+    agentHandoffScore: scoreAgentHandoff(item.agent?.handoff, item.agent?.next, item.agent?.executionPlan, item.agent?.answerPlan, item.agent?.answerEvidence ?? []),
     agentExecutionPlanScore: scoreAgentExecutionPlan(item.agent?.executionPlan, item.agent?.next, item.agent?.answerPlan, item.agent?.canUseFetchedHtml, item.agent?.needsBrowserHtml, item.agent?.expectedOutcome),
     agentExpectedOutcomeScore: scoreAgentExpectedOutcome(item.agent?.expectedOutcome, item.agent?.primaryAction),
     agentSignalScore: scoreAgentSignals(item.agent?.signals, item),
@@ -1122,6 +1123,7 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[] }
     "next.target",
     "runbook",
     "handoff",
+    "handoff.answerEvidence",
     "executionPlan",
     "citations",
     "answerPlan",
@@ -1388,6 +1390,7 @@ function scoreAgentHandoff(
   next: CliAgentNextShape | undefined,
   plan: CliAgentExecutionPlanShape | undefined,
   answerPlan: CliAgentAnswerPlanShape | undefined,
+  answerEvidence: CliAgentCitationShape[] = [],
 ): number {
   if (!handoff || !next?.loop || !plan || !answerPlan) return 0;
   let required = 14;
@@ -1411,8 +1414,9 @@ function scoreAgentHandoff(
     if (handoff.priorityReason === next.priorityReason) matched += 1;
   }
   if (answerPlan.useCitationIds && answerPlan.useCitationIds.length > 0) {
-    required += 1;
+    required += 2;
     if (JSON.stringify(handoff.useCitationIds) === JSON.stringify(answerPlan.useCitationIds)) matched += 1;
+    if (JSON.stringify(handoff.answerEvidence) === JSON.stringify(answerEvidence)) matched += 1;
   }
   if (next.command) {
     required += 2;

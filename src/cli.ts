@@ -393,6 +393,7 @@ const agentContract: AgentContract = {
     "next.target",
     "runbook",
     "handoff",
+    "handoff.answerEvidence",
     "executionPlan",
     "citations",
     "citation.reason",
@@ -2771,7 +2772,7 @@ function summarizeAgent(
   const answerEvidence = summarizeAgentAnswerEvidence(citations, answerPlan);
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, canUseFetchedHtml, needsBrowserHtml);
   const runbook = summarizeAgentRunbook(next, executionPlan, answerPlan);
-  const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan);
+  const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence);
   const evidenceQualityScore = averageEvidenceScore(pageCheck.contentEvidence);
   const sourceQualityScore = agentSourceQualityScore(analysis.kind, pageCheck.sourceLinks, results, recommendedResult);
   const usabilityScore = agentUsabilityScore(status, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error);
@@ -3291,6 +3292,7 @@ function summarizeAgentHandoff(
   next: AgentNext,
   executionPlan: AgentExecutionPlan,
   answerPlan: AgentAnswerPlan,
+  answerEvidence: AgentCitation[] = [],
 ): AgentHandoff {
   return {
     instruction: agentHandoffInstruction(next, executionPlan, answerPlan),
@@ -3309,6 +3311,7 @@ function summarizeAgentHandoff(
     expectedOutcome: executionPlan.expectedOutcome,
     reason: next.loop.reason || next.reason || executionPlan.reason,
     ...(answerPlan.useCitationIds.length > 0 ? { useCitationIds: answerPlan.useCitationIds } : {}),
+    ...(answerEvidence.length > 0 ? { answerEvidence } : {}),
     ...(next.readTarget ? { readTarget: next.readTarget } : {}),
     ...(next.readFrom ? { readFrom: next.readFrom } : {}),
     ...(next.readValue ? { readValue: next.readValue } : {}),

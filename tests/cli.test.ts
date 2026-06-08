@@ -249,6 +249,7 @@ describe("cli", () => {
             "next.target",
             "runbook",
             "handoff",
+            "handoff.answerEvidence",
             "executionPlan",
             "citations",
             "citation.reason",
@@ -354,6 +355,13 @@ describe("cli", () => {
             }),
           },
           useCitationIds: expect.arrayContaining(["v1"]),
+          answerEvidence: expect.arrayContaining([
+            expect.objectContaining({
+              id: "v1",
+              path: "verification.bestEvidence",
+              text: "Example",
+            }),
+          ]),
         },
         expectedOutcome: {
           kind: "read-evidence",

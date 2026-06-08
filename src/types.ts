@@ -243,6 +243,7 @@ export type AgentHandoff = {
   expectedOutcome: AgentExpectedOutcomeKind;
   reason: string;
   useCitationIds?: string[];
+  answerEvidence?: AgentCitation[];
   readTarget?: AgentReadTarget;
   readFrom?: string;
   readValue?: AgentReadValue;
@@ -416,6 +417,7 @@ export type AgentContractFeature =
   | "next.target"
   | "runbook"
   | "handoff"
+  | "handoff.answerEvidence"
   | "executionPlan"
   | "citations"
   | "citation.reason"

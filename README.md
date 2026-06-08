@@ -156,8 +156,8 @@ and target metadata into one object, so a subagent can usually switch on
 `runbook.decision` without joining `next`, `executionPlan`, and `answerPlan`.
 `agent.handoff` is the shortest executor handoff. It gives one plain
 `instruction` plus the same decision, mode, operation, action, priority,
-confidence, answer status, citation IDs, read path/value, command, URL, target
-metadata, or browser-HTML fields needed for the
+confidence, answer status, citation IDs and resolved answer evidence, read
+path/value, command, URL, target metadata, or browser-HTML fields needed for the
 immediate next step, so a subagent can do the right thing without assembling a
 sentence from multiple objects.
 `agent.next` is the canonical next-step payload for executors. It always has a
@@ -566,6 +566,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "next.target",
         "runbook",
         "handoff",
+        "handoff.answerEvidence",
         "executionPlan",
         "citations",
         "citation.reason",
@@ -677,6 +678,26 @@ cat captured.html | ax-grep https://example.com --stdin --json
       "useCitationIds": [
         "v1",
         "e1"
+      ],
+      "answerEvidence": [
+        {
+          "kind": "verification",
+          "id": "v1",
+          "path": "verification.bestEvidence",
+          "confidence": "high",
+          "reason": "Best matching evidence for the requested verification text.",
+          "text": "This domain is for use in illustrative examples in documents.",
+          "score": 0.72
+        },
+        {
+          "kind": "content",
+          "id": "e1",
+          "path": "pageCheck.contentEvidence[0]",
+          "confidence": "medium",
+          "reason": "medium evidence from semantic extraction, 57 chars, p content, selector available.",
+          "text": "This domain is for use in illustrative examples in documents.",
+          "score": 0.72
+        }
       ],
       "readTarget": {
         "path": "verification.bestEvidence",

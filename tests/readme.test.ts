@@ -30,6 +30,7 @@ describe("README", () => {
           "next.target",
           "runbook",
           "handoff",
+          "handoff.answerEvidence",
           "executionPlan",
           "citations",
           "citation.reason",
@@ -92,6 +93,12 @@ describe("README", () => {
         readValue: {
           path: "verification.bestEvidence",
         },
+        answerEvidence: expect.arrayContaining([
+          expect.objectContaining({
+            id: "v1",
+            path: "verification.bestEvidence",
+          }),
+        ]),
       },
       expectedOutcome: {
         kind: "read-evidence",
