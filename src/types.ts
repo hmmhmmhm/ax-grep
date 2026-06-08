@@ -168,6 +168,16 @@ export type AgentReadValue = {
   value: unknown;
 };
 
+export type AgentCitation = {
+  kind: "content" | "verification" | "search-result" | "source-link";
+  id: string;
+  path: string;
+  text?: string;
+  title?: string;
+  url?: string;
+  score?: number;
+};
+
 export type AgentTarget = {
   title?: string;
   url: string;
@@ -218,6 +228,7 @@ export type AgentSummary = {
   diagnosticErrorCount?: number;
   diagnosticWarningCount?: number;
   diagnosticInfoCount?: number;
+  citations?: AgentCitation[];
   readTargets?: AgentReadTarget[];
   bestReadTarget?: string;
   bestReadTargetScore?: number;
@@ -244,6 +255,7 @@ export type AgentContractFeature =
   | "next.readTarget"
   | "next.readValue"
   | "next.target"
+  | "citations"
   | "readTargets"
   | "signals"
   | "expectedOutcome"

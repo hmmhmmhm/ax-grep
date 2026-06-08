@@ -165,6 +165,9 @@ stopping.
 `content`, `verification`, `search-results`, `source-links`, `browser`,
 `diagnostic`, and `response` signals each carry `info`, `warning`, or `error`
 severity plus a concise message.
+`agent.citations` is a compact shortlist of citeable content, verification
+evidence, search results, and source links with stable `id`/`path` references,
+so an executor can assemble an answer without scanning the full tree first.
 `canContinue` is true when the primary action is directly usable by an agent
 (`run-command`, `read-current`, or browser interaction), including recoverable
 error states such as alternate-result recovery or retry-later.
@@ -493,6 +496,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "next.readTarget",
         "next.readValue",
         "next.target",
+        "citations",
         "readTargets",
         "signals",
         "expectedOutcome",

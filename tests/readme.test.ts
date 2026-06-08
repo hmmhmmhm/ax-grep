@@ -28,6 +28,7 @@ describe("README", () => {
           "next.loop",
           "next.readValue",
           "next.target",
+          "citations",
         ]),
       },
       continuationMode: "read",

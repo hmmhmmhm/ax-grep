@@ -9,6 +9,7 @@ import { Element as DomElement } from "domhandler";
 import type { AnyNode, Element } from "domhandler";
 import { extract, type StaticSemanticTreeOptions } from "./static";
 import type {
+  AgentCitation,
   AgentContract,
   AgentContinuationMode,
   AgentExpectedOutcome,
@@ -289,6 +290,7 @@ type AgentSummary = {
   diagnosticErrorCount: number;
   diagnosticWarningCount: number;
   diagnosticInfoCount: number;
+  citations: AgentCitation[];
   readTargets: AgentReadTarget[];
   bestReadTarget?: string;
   bestReadTargetScore?: number;
@@ -317,6 +319,7 @@ const agentContract: AgentContract = {
     "next.readTarget",
     "next.readValue",
     "next.target",
+    "citations",
     "readTargets",
     "signals",
     "expectedOutcome",
@@ -1382,6 +1385,12 @@ function formatAgentText(agent: AgentSummary): string[] {
   ];
   for (const signal of agent.signals) lines.push(`  signal: ${signal.kind}/${signal.severity} - ${signal.message}`);
   for (const reason of agent.readabilityReasons) lines.push(`  readabilityReason: ${reason}`);
+  for (const citation of agent.citations) {
+    const score = typeof citation.score === "number" ? ` score=${citation.score}` : "";
+    const target = citation.url ? ` <${citation.url}>` : "";
+    const label = citation.text ?? citation.title ?? citation.url ?? "";
+    lines.push(`  citation: ${citation.id} ${citation.path} ${citation.kind}${score} ${label}${target}`);
+  }
   if (agent.bestReadTarget) lines.push(`  bestReadTarget: ${agent.bestReadTarget}`);
   if (typeof agent.bestReadTargetScore === "number") lines.push(`  bestReadTargetScore: ${agent.bestReadTargetScore}`);
   if (agent.bestReadTargetReason) lines.push(`  bestReadTargetReason: ${agent.bestReadTargetReason}`);
@@ -2521,6 +2530,7 @@ function summarizeAgent(
     diagnosticErrorCount: diagnosticCounts.error,
     diagnosticWarningCount: diagnosticCounts.warning,
     diagnosticInfoCount: diagnosticCounts.info,
+    citations: summarizeAgentCitations(pageCheck, verification, recommendedResult, sourceSearch),
     readTargets,
   };
   if (bestReadTarget) {
@@ -2550,6 +2560,69 @@ function summarizeAgent(
     agent.recommendedUrl = primaryAction.url;
   }
   return agent;
+}
+
+function summarizeAgentCitations(
+  pageCheck: PageCheckSummary,
+  verification: VerificationSummary,
+  recommendedResult?: ResultSummary,
+  sourceSearch?: SourceSearchSummary,
+): AgentCitation[] {
+  const citations: AgentCitation[] = [];
+  const add = (citation: AgentCitation): void => {
+    if (citations.some((item) => item.kind === citation.kind && item.path === citation.path)) return;
+    citations.push(citation);
+  };
+  if (verification.bestEvidence) {
+    add({
+      kind: "verification",
+      id: "v1",
+      path: "verification.bestEvidence",
+      text: verification.bestEvidence.text,
+      ...(verification.bestEvidence.url ? { url: verification.bestEvidence.url } : {}),
+      ...(typeof verification.bestEvidence.score === "number" ? { score: verification.bestEvidence.score } : {}),
+    });
+  }
+  for (const evidence of pageCheck.contentEvidence.slice(0, 3)) {
+    add({
+      kind: "content",
+      id: evidence.id,
+      path: evidence.path,
+      text: evidence.text,
+      score: evidence.score,
+    });
+  }
+  if (recommendedResult) {
+    add({
+      kind: "search-result",
+      id: `r${recommendedResult.rank}`,
+      path: "recommendedResult",
+      title: recommendedResult.title,
+      url: recommendedResult.url,
+      ...(typeof recommendedResult.sourceScore === "number" ? { score: recommendedResult.sourceScore } : {}),
+    });
+  }
+  if (sourceSearch?.selectedResult) {
+    add({
+      kind: "search-result",
+      id: sourceSearch.selectedResult.id ?? "selected",
+      path: sourceSearch.selectedResult.path ?? "sourceSearch.selectedResult",
+      title: sourceSearch.selectedResult.title,
+      url: sourceSearch.selectedResult.url,
+      ...(typeof sourceSearch.selectedResult.sourceScore === "number" ? { score: sourceSearch.selectedResult.sourceScore } : {}),
+    });
+  }
+  for (const [index, link] of pageCheck.sourceLinks.slice(0, 2).entries()) {
+    add({
+      kind: "source-link",
+      id: `s${index + 1}`,
+      path: `pageCheck.sourceLinks[${index}]`,
+      title: link.title,
+      url: link.url,
+      ...(typeof link.sourceScore === "number" ? { score: link.sourceScore } : {}),
+    });
+  }
+  return citations.slice(0, 6);
 }
 
 function summarizeAgentReadTargets(
@@ -3257,6 +3330,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     diagnosticErrorCount: 1,
     diagnosticWarningCount: 0,
     diagnosticInfoCount: 0,
+    citations: [],
     readTargets,
     ...(bestReadTarget ? { bestReadTarget: bestReadTarget.path } : {}),
     ...(typeof bestReadTarget?.score === "number" ? { bestReadTargetScore: bestReadTarget.score } : {}),
@@ -4021,6 +4095,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     diagnosticErrorCount: agent.diagnosticErrorCount,
     diagnosticWarningCount: agent.diagnosticWarningCount,
     diagnosticInfoCount: agent.diagnosticInfoCount,
+    ...(agent.citations.length > 0 ? { citations: agent.citations } : {}),
     ...(agent.readTargets.length > 0 ? { readTargets: agent.readTargets } : {}),
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),

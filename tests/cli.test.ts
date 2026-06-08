@@ -238,6 +238,7 @@ describe("cli", () => {
             "next.loop",
             "next.readValue",
             "next.target",
+            "citations",
             "readTargets",
             "signals",
           ]),
@@ -297,6 +298,14 @@ describe("cli", () => {
         diagnosticErrorCount: 0,
         diagnosticWarningCount: 0,
         diagnosticInfoCount: 0,
+        citations: expect.arrayContaining([
+          expect.objectContaining({
+            kind: "verification",
+            id: "v1",
+            path: "verification.bestEvidence",
+            text: "Example",
+          }),
+        ]),
         verificationRequestedCount: 1,
         verificationFoundCount: 1,
         verificationMissingCount: 0,
@@ -2423,6 +2432,9 @@ describe("cli", () => {
     expect(stdout.output).toContain("  diagnosticInfo: 0");
     expect(stdout.output).toContain("  verification: 0/0 found, 0 missing");
     expect(stdout.output).toContain("  readability: medium");
+    expect(stdout.output).toContain("  citation: e1 pageCheck.contentEvidence[0] content score=");
+    expect(stdout.output).toContain("This article paragraph is long enough to appear in the page checking summary for agents.");
+    expect(stdout.output).toContain("  citation: s1 pageCheck.sourceLinks[0] source-link score=");
     expect(stdout.output).toContain("  bestReadTarget: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  bestReadTargetReason: Structured page excerpts suitable for source checking.");
     expect(stdout.output).toContain("  readabilityReason: 1 content evidence item");
