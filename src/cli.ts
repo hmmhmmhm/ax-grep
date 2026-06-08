@@ -3977,6 +3977,7 @@ function errorAction(error: CliError, url?: string, agentMode = false, findQueri
         reason: "The selected search result was missing; open the next available result from the original SERP.",
         url: alternate.url,
         rank: alternate.rank,
+        target: agentTargetFromResult(alternate),
         ...commandFields(alternateCommand),
       };
     }

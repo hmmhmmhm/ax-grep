@@ -1401,11 +1401,12 @@ function scoreAgentActionList(actions: CliActionShape[] | undefined, primaryActi
   if (!Array.isArray(actions) || actions.length === 0) return 0;
   const firstAction = actions[0];
   if (!firstAction) return 0;
-  let required = 4;
+  let required = 5;
   let matched = 0;
   if (compactActionKey(firstAction) === compactActionKey(primaryAction)) matched += 1;
   if (firstAction.primary === true) matched += 1;
   if (typeof firstAction.source === "string" && firstAction.source.length > 0) matched += 1;
+  if (scoreOpenResultTarget(firstAction) === 1) matched += 1;
   const expectedCount = typeof alternativeActionCount === "number" ? alternativeActionCount + 1 : undefined;
   if (typeof expectedCount === "number") {
     if (actions.length === expectedCount) matched += 1;
@@ -1415,6 +1416,17 @@ function scoreAgentActionList(actions: CliActionShape[] | undefined, primaryActi
   required += 1;
   if (actions.every((action) => scoreActionSchema([action]) === 1 && typeof action.source === "string" && action.source.length > 0)) matched += 1;
   return roundScore(matched / required);
+}
+
+function scoreOpenResultTarget(action: CliActionShape): number {
+  if (action.action !== "open-result" && action.action !== "open-alternate-result") return typeof action.target === "undefined" ? 1 : 0;
+  if (!action.target || typeof action.target !== "object") return 0;
+  if (typeof action.url === "string" && action.target.url !== action.url) return 0;
+  if (typeof action.rank === "number" && action.target.rank !== action.rank) return 0;
+  return typeof action.target.url === "string"
+    && action.target.url.length > 0
+    && typeof action.target.title === "string"
+    && action.target.title.length > 0 ? 1 : 0;
 }
 
 function scoreAgentSearchDecision(

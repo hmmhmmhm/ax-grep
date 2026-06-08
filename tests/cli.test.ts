@@ -2040,6 +2040,12 @@ describe("cli", () => {
       reason: "The selected search result was missing; open the next available result from the original SERP.",
       url: "https://alternate.example/article",
       rank: 2,
+      target: {
+        title: "Alternate Result",
+        url: "https://alternate.example/article",
+        source: "alternate.example",
+        rank: 2,
+      },
       command: "ax-grep --search 'agent browser' --engine duckduckgo --open-result 2 --agent",
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
