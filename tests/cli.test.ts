@@ -711,6 +711,8 @@ describe("cli", () => {
       recommendedSource: "result-7.example",
       recommendedSelectionReason: "Matches --find: target claim.",
     });
+    const visibleSourceAverage = envelope.searchResults.reduce((total: number, result: { sourceScore?: number }) => total + (result.sourceScore ?? 0), 0) / envelope.searchResults.length;
+    expect(envelope.agent.sourceQualityScore).toBeCloseTo(visibleSourceAverage, 3);
     expect(envelope.agent.primaryAction).toMatchObject({
       rank: 7,
       openResult: "best",

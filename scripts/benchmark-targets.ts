@@ -147,6 +147,18 @@ export const agentExecutorTargets: BenchmarkTarget[] = [
     gate: false,
     gateReason: "Search result pages are anti-bot and personalization sensitive; keep as executor diagnostics only.",
   },
+  {
+    category: "Baidu search diagnostic",
+    url: "https://www.baidu.com/s?wd=ax-grep",
+    gate: false,
+    gateReason: "Search result pages are anti-bot and personalization sensitive; keep as executor diagnostics only.",
+  },
+  {
+    category: "Yahoo Japan search diagnostic",
+    url: "https://search.yahoo.co.jp/search?p=ax-grep",
+    gate: false,
+    gateReason: "Search result pages are anti-bot and personalization sensitive; keep as executor diagnostics only.",
+  },
 ];
 
 export function resolveBenchmarkTargets(args: string[], fallback: string[]): BenchmarkTarget[] {

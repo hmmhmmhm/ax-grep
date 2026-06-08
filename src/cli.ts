@@ -2705,7 +2705,7 @@ function summarizeAgent(
     evidenceCount: pageCheck.contentEvidence.length,
     sourceLinkCount: analysis.kind === "search-results" ? 0 : pageCheck.sourceLinks.length,
     evidenceQualityScore: averageEvidenceScore(pageCheck.contentEvidence),
-    sourceQualityScore: agentSourceQualityScore(analysis.kind, pageCheck.sourceLinks, results),
+    sourceQualityScore: agentSourceQualityScore(analysis.kind, pageCheck.sourceLinks, results, recommendedResult),
     alternativeActionCount: countAlternativeAgentActions(analysis, pageCheck, verification, primaryAction),
     diagnosticCodes,
     diagnosticErrorCount: diagnosticCounts.error,
@@ -3556,8 +3556,8 @@ function averageResultSourceScore(results: ResultSummary[]): number {
   return roundMetric(scores.reduce((total, score) => total + score, 0) / scores.length);
 }
 
-function agentSourceQualityScore(kind: ContentKind, sourceLinks: PageLinkSummary[], results: ResultSummary[]): number {
-  if (kind === "search-results") return averageResultSourceScore(results);
+function agentSourceQualityScore(kind: ContentKind, sourceLinks: PageLinkSummary[], results: ResultSummary[], recommendedResult?: ResultSummary): number {
+  if (kind === "search-results") return averageResultSourceScore(selectCompactSearchResults(results, recommendedResult));
   if (sourceLinks.length === 0) return 0;
   return roundMetric(sourceLinks.reduce((total, link) => total + (link.sourceScore ?? 0), 0) / sourceLinks.length);
 }
@@ -4823,6 +4823,18 @@ function compactAgentSearchResults(
   fallbackCommandContext?: PageLinkCommandContext,
 ): object {
   if (results.length === 0) return {};
+  const selected = selectCompactSearchResults(results, recommendedResult);
+  return {
+    searchResults: selected.map((result, index) => compactAgentSearchResult(
+      result,
+      commandContext,
+      { id: `r${result.rank}`, path: `searchResults[${index}]` },
+      fallbackCommandContext,
+    )),
+  };
+}
+
+function selectCompactSearchResults(results: ResultSummary[], recommendedResult?: ResultSummary): ResultSummary[] {
   const selected: ResultSummary[] = [];
   const seen = new Set<string>();
   const add = (result: ResultSummary | undefined): void => {
@@ -4834,14 +4846,7 @@ function compactAgentSearchResults(
   };
   for (const result of results.slice(0, 5)) add(result);
   add(recommendedResult);
-  return {
-    searchResults: selected.map((result, index) => compactAgentSearchResult(
-      result,
-      commandContext,
-      { id: `r${result.rank}`, path: `searchResults[${index}]` },
-      fallbackCommandContext,
-    )),
-  };
+  return selected;
 }
 
 function compactAgentSearchResult(
