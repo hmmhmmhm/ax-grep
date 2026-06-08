@@ -13,6 +13,7 @@ import type {
   AgentCitation,
   AgentContract,
   AgentContinuationMode,
+  AgentExecutionPlan,
   AgentExpectedOutcome,
   AgentLoopDirective,
   AgentNext,
@@ -311,6 +312,7 @@ type AgentSummary = {
   continuationMode: AgentContinuationMode;
   next: AgentNext;
   expectedOutcome: AgentExpectedOutcome;
+  executionPlan: AgentExecutionPlan;
   answerPlan: AgentAnswerPlan;
   searchDecision?: AgentSearchDecision;
   pageDecision?: AgentPageDecision;
@@ -372,6 +374,7 @@ const agentContract: AgentContract = {
     "next.readTarget",
     "next.readValue",
     "next.target",
+    "executionPlan",
     "citations",
     "citation.reason",
     "answerPlan",
@@ -1423,6 +1426,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  routingIntent: ${agent.routingIntent}`,
     `  continuationMode: ${agent.continuationMode}`,
     `  nextMode: ${agent.next.mode}`,
+    `  executionPlan: ${agent.executionPlan.operation}/${agent.executionPlan.confidence} - ${agent.executionPlan.reason}`,
     `  loopDecision: ${agent.next.loop.decision}`,
     `  loopContinue: ${agent.next.loop.shouldContinue}`,
     `  loopTerminal: ${agent.next.loop.terminal}`,
@@ -2663,6 +2667,9 @@ function summarizeAgent(
   const citations = summarizeAgentCitations(pageCheck, verification, recommendedResult, sourceSearch);
   const searchDecision = summarizeAgentSearchDecision(analysis, results, recommendedResult, primaryAction);
   const pageDecision = summarizeAgentPageDecision(analysis, pageCheck, primaryAction);
+  const next = summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch));
+  const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
+  const answerPlan = summarizeAgentAnswerPlan(status, primaryAction, pageCheck, verification, citations, needsBrowserHtml, error);
   const agent: AgentSummary = {
     contract: agentContract,
     status,
@@ -2670,9 +2677,10 @@ function summarizeAgent(
     summary,
     routingIntent: agentRoutingIntent(primaryAction),
     continuationMode: agentContinuationMode(primaryAction),
-    next: summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch)),
-    expectedOutcome: summarizeAgentExpectedOutcome(primaryAction),
-    answerPlan: summarizeAgentAnswerPlan(status, primaryAction, pageCheck, verification, citations, needsBrowserHtml, error),
+    next,
+    expectedOutcome,
+    executionPlan: summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, canUseFetchedHtml, needsBrowserHtml),
+    answerPlan,
     ...(searchDecision ? { searchDecision } : {}),
     ...(pageDecision ? { pageDecision } : {}),
     signals: summarizeAgentSignals(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, fetched, error),
@@ -2936,6 +2944,60 @@ function summarizeAgentPageDecision(
     reason: "No page-level decision was selected.",
     ...base,
   };
+}
+
+function summarizeAgentExecutionPlan(
+  next: AgentNext,
+  expectedOutcome: AgentExpectedOutcome,
+  answerPlan: AgentAnswerPlan,
+  canUseFetchedHtml: boolean,
+  needsBrowserHtml: boolean,
+): AgentExecutionPlan {
+  const operation = agentExecutionOperation(next);
+  return {
+    operation,
+    confidence: executionPlanConfidence(operation, answerPlan, canUseFetchedHtml, needsBrowserHtml),
+    reason: executionPlanReason(operation, next, answerPlan),
+    useFetchedHtml: canUseFetchedHtml,
+    needsBrowserHtml,
+    answerReady: answerPlan.status === "ready",
+    terminal: next.loop.terminal,
+    shouldContinue: next.loop.shouldContinue,
+    maxSuggestedIterations: next.loop.maxSuggestedIterations,
+    expectedOutcome: expectedOutcome.kind,
+    ...(next.readFrom ? { readFrom: next.readFrom } : {}),
+    ...(next.command ? { command: next.command } : {}),
+    ...(next.commandArgs ? { commandArgs: next.commandArgs } : {}),
+    ...(next.url ? { url: next.url } : {}),
+  };
+}
+
+function agentExecutionOperation(next: AgentNext): AgentExecutionPlan["operation"] {
+  if (next.loop.decision === "return") return "return";
+  if (next.loop.decision === "execute") return "execute-command";
+  if (next.loop.decision === "browser") return next.mode === "capture-html" ? "capture-browser-html" : "inspect-browser";
+  if (next.loop.decision === "inspect") return "inspect-output";
+  return "stop";
+}
+
+function executionPlanConfidence(
+  operation: AgentExecutionPlan["operation"],
+  answerPlan: AgentAnswerPlan,
+  canUseFetchedHtml: boolean,
+  needsBrowserHtml: boolean,
+): AgentExecutionPlan["confidence"] {
+  if (needsBrowserHtml || operation === "capture-browser-html" || operation === "inspect-browser") return "low";
+  if (operation === "return" && answerPlan.status === "ready") return answerPlan.confidence;
+  if (operation === "execute-command" && canUseFetchedHtml) return "medium";
+  if (answerPlan.status === "error") return "low";
+  return canUseFetchedHtml ? "medium" : "low";
+}
+
+function executionPlanReason(operation: AgentExecutionPlan["operation"], next: AgentNext, answerPlan: AgentAnswerPlan): string {
+  if (operation === "return" && answerPlan.status === "ready") return answerPlan.reason;
+  if (operation === "capture-browser-html") return "Fetch output is not reliable enough; capture rendered HTML and rerun the provided command.";
+  if (operation === "inspect-browser") return "Static extraction needs browser interaction or inspection before continuing.";
+  return next.reason;
 }
 
 function pageDecisionConfidence(pageCheck: PageCheckSummary, sourceQualityScore: number): AgentPageDecision["confidence"] {
@@ -3766,6 +3828,17 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const primaryAction = errorAction(error, url, agentMode, findQueries, sourceSearch, timeoutMs, userAgent);
   const readTargets = summarizeErrorAgentReadTargets(primaryAction, sourceSearch);
   const bestReadTarget = selectBestReadTarget(readTargets);
+  const next = summarizeAgentNext(primaryAction, readTargets, errorAgentReadValue(primaryAction, sourceSearch));
+  const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
+  const needsBrowserHtml = errorNeedsBrowserHtml(primaryAction);
+  const answerPlan: AgentAnswerPlan = {
+    status: "error",
+    confidence: "low",
+    reason: `Extraction failed with ${error.code}.`,
+    gaps: [`Extraction failed with ${error.code}.`],
+    useCitationIds: [],
+    ...answerPlanActionFields(primaryAction),
+  };
   return {
     contract: agentContract,
     status: "error",
@@ -3773,20 +3846,14 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     summary,
     routingIntent: agentRoutingIntent(primaryAction),
     continuationMode: agentContinuationMode(primaryAction),
-    next: summarizeAgentNext(primaryAction, readTargets, errorAgentReadValue(primaryAction, sourceSearch)),
-    expectedOutcome: summarizeAgentExpectedOutcome(primaryAction),
-    answerPlan: {
-      status: "error",
-      confidence: "low",
-      reason: `Extraction failed with ${error.code}.`,
-      gaps: [`Extraction failed with ${error.code}.`],
-      useCitationIds: [],
-      ...answerPlanActionFields(primaryAction),
-    },
+    next,
+    expectedOutcome,
+    executionPlan: summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, false, needsBrowserHtml),
+    answerPlan,
     signals: summarizeErrorAgentSignals(error, primaryAction, summary),
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml: false,
-    needsBrowserHtml: errorNeedsBrowserHtml(primaryAction),
+    needsBrowserHtml,
     responseStatus: error.status ?? 0,
     responseOk: false,
     responseContentType: "",
@@ -4553,6 +4620,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     continuationMode: agent.continuationMode,
     next: agent.next,
     expectedOutcome: agent.expectedOutcome,
+    executionPlan: agent.executionPlan,
     answerPlan: agent.answerPlan,
     ...(agent.searchDecision ? { searchDecision: agent.searchDecision } : {}),
     ...(agent.pageDecision ? { pageDecision: agent.pageDecision } : {}),

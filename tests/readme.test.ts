@@ -28,6 +28,7 @@ describe("README", () => {
           "next.loop",
           "next.readValue",
           "next.target",
+          "executionPlan",
           "citations",
           "citation.reason",
           "answerPlan",
@@ -58,6 +59,14 @@ describe("README", () => {
       },
       expectedOutcome: {
         kind: "read-evidence",
+      },
+      executionPlan: {
+        operation: "return",
+        useFetchedHtml: true,
+        needsBrowserHtml: false,
+        answerReady: true,
+        expectedOutcome: "read-evidence",
+        readFrom: "verification.bestEvidence",
       },
     });
     expect(exampleEnvelope.agent.signals).toEqual(

@@ -138,7 +138,7 @@ into `contract`, `status`, `summary`, `routingIntent`, `continuationMode`,
 `readabilityReasons`, `diagnosticCodes`, `diagnosticErrorCount`,
 `diagnosticWarningCount`, `diagnosticInfoCount`, `verificationRequestedCount`,
 `verificationFoundCount`, `verificationMissingCount`, `readTargets`, `bestReadTarget`,
-`primaryExecution`, `primaryAction`, and compact recommended-result metadata
+`executionPlan`, `primaryExecution`, `primaryAction`, and compact recommended-result metadata
 such as `recommendedRank`, `recommendedSource`, `recommendedRelevance`, and
 `recommendedLikelyOfficial`.
 
@@ -146,7 +146,8 @@ such as `recommendedRank`, `recommendedSource`, `recommendedRelevance`, and
 `search`, `browser-html`, `browser-interaction`, `inspect-output`, or `none`).
 `contract.version` and `contract.features` identify the agent payload contract
 supported by the current CLI output, so executors can check for fields such as
-`next.loop`, `next.readValue`, and `next.target` before relying on them.
+`next.loop`, `next.readValue`, `next.target`, and `executionPlan` before
+relying on them.
 `continuationMode` is the simpler executor switch for agent loops: `read`,
 `command`, `browser`, `capture-html`, `inspect`, or `stop`.
 `agent.next` is the canonical next-step payload for executors. It always has a
@@ -168,6 +169,11 @@ lightweight executor can still continue without parsing the full JSON envelope.
 `agent.next`, such as reading evidence, opening a result, running a search,
 capturing rendered HTML, using a browser inspection, inspecting output, or
 stopping.
+`agent.executionPlan` condenses the executor decision into one checklist:
+`operation` is `return`, `execute-command`, `capture-browser-html`,
+`inspect-browser`, `inspect-output`, or `stop`, and the same object repeats
+trust flags (`useFetchedHtml`, `needsBrowserHtml`, `answerReady`), loop limits,
+expected outcome, and runnable `commandArgs` or `readFrom` fields when present.
 `agent.signals` is a short structured status feed for routing and debugging:
 `content`, `verification`, `search-results`, `source-links`, `browser`,
 `diagnostic`, and `response` signals each carry `info`, `warning`, or `error`
@@ -518,6 +524,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "next.readTarget",
         "next.readValue",
         "next.target",
+        "executionPlan",
         "citations",
         "citation.reason",
         "answerPlan",
@@ -579,6 +586,20 @@ cat captured.html | ax-grep https://example.com --stdin --json
     "expectedOutcome": {
       "kind": "read-evidence",
       "message": "Read verification.bestEvidence from the current payload and treat it as the next evidence source."
+    },
+    "executionPlan": {
+      "operation": "return",
+      "confidence": "high",
+      "reason": "Requested verification text was found; answer from the listed citations.",
+      "useFetchedHtml": true,
+      "needsBrowserHtml": false,
+      "answerReady": true,
+      "terminal": true,
+      "shouldContinue": false,
+      "maxSuggestedIterations": 0,
+      "expectedOutcome": "read-evidence",
+      "readFrom": "verification.bestEvidence",
+      "url": "https://example.com/"
     },
     "signals": [
       {

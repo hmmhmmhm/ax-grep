@@ -157,6 +157,23 @@ export type AgentExpectedOutcome = {
   message: string;
 };
 
+export type AgentExecutionPlan = {
+  operation: "return" | "execute-command" | "capture-browser-html" | "inspect-browser" | "inspect-output" | "stop";
+  confidence: "low" | "medium" | "high";
+  reason: string;
+  useFetchedHtml: boolean;
+  needsBrowserHtml: boolean;
+  answerReady: boolean;
+  terminal: boolean;
+  shouldContinue: boolean;
+  maxSuggestedIterations: number;
+  expectedOutcome: AgentExpectedOutcomeKind;
+  readFrom?: string;
+  command?: string;
+  commandArgs?: string[];
+  url?: string;
+};
+
 export type AgentReadTarget = {
   path: string;
   reason: string;
@@ -219,6 +236,7 @@ export type AgentSummary = {
   continuationMode: AgentContinuationMode;
   next: AgentNext;
   expectedOutcome: AgentExpectedOutcome;
+  executionPlan: AgentExecutionPlan;
   answerPlan?: AgentAnswerPlan;
   searchDecision?: Record<string, unknown>;
   pageDecision?: Record<string, unknown>;
@@ -278,6 +296,7 @@ export type AgentContractFeature =
   | "next.readTarget"
   | "next.readValue"
   | "next.target"
+  | "executionPlan"
   | "citations"
   | "citation.reason"
   | "answerPlan"

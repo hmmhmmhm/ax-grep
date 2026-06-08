@@ -238,6 +238,7 @@ describe("cli", () => {
             "next.loop",
             "next.readValue",
             "next.target",
+            "executionPlan",
             "citations",
             "citation.reason",
             "answerPlan",
@@ -289,6 +290,19 @@ describe("cli", () => {
         expectedOutcome: {
           kind: "read-evidence",
           message: expect.stringContaining("verification.bestEvidence"),
+        },
+        executionPlan: {
+          operation: "return",
+          confidence: "high",
+          useFetchedHtml: true,
+          needsBrowserHtml: false,
+          answerReady: true,
+          terminal: true,
+          shouldContinue: false,
+          maxSuggestedIterations: 0,
+          expectedOutcome: "read-evidence",
+          readFrom: "verification.bestEvidence",
+          url: "https://example.test",
         },
         answerPlan: {
           status: "ready",

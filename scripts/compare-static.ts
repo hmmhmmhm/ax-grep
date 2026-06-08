@@ -59,6 +59,7 @@ type CliAgentSummary = {
   agentRoutingIntentScore: number;
   agentContinuationModeScore: number;
   agentNextScore: number;
+  agentExecutionPlanScore: number;
   agentExpectedOutcomeScore: number;
   agentSignalScore: number;
   pageLinkCommandScore: number;
@@ -183,6 +184,23 @@ type CliAgentExpectedOutcomeShape = {
   message?: string;
 };
 
+type CliAgentExecutionPlanShape = {
+  operation?: "return" | "execute-command" | "capture-browser-html" | "inspect-browser" | "inspect-output" | "stop";
+  confidence?: "low" | "medium" | "high";
+  reason?: string;
+  useFetchedHtml?: boolean;
+  needsBrowserHtml?: boolean;
+  answerReady?: boolean;
+  terminal?: boolean;
+  shouldContinue?: boolean;
+  maxSuggestedIterations?: number;
+  expectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
+  readFrom?: string;
+  command?: string;
+  commandArgs?: unknown[];
+  url?: string;
+};
+
 type CliSearchResultShape = {
   id?: string;
   path?: string;
@@ -288,6 +306,7 @@ type GateSummary = {
   averageAgentRoutingIntentScore: number;
   averageAgentContinuationModeScore: number;
   averageAgentNextScore: number;
+  averageAgentExecutionPlanScore: number;
   averageAgentExpectedOutcomeScore: number;
   averageAgentSignalScore: number;
   averagePageLinkCommandScore: number;
@@ -623,6 +642,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       continuationMode?: AgentContinuationMode;
       next?: CliAgentNextShape;
       expectedOutcome?: CliAgentExpectedOutcomeShape;
+      executionPlan?: CliAgentExecutionPlanShape;
       answerPlan?: CliAgentAnswerPlanShape;
       searchDecision?: CliAgentSearchDecisionShape;
       pageDecision?: CliAgentPageDecisionShape;
@@ -646,6 +666,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       verificationFoundCount?: number;
       verificationMissingCount?: number;
       canContinue?: boolean;
+      canUseFetchedHtml?: boolean;
       needsBrowserHtml?: boolean;
       readabilityReasons?: unknown[];
       recommendedRank?: number;
@@ -728,6 +749,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentRoutingIntentScore: scoreAgentRoutingIntent(item.agent?.routingIntent, item.agent?.primaryAction),
     agentContinuationModeScore: scoreAgentContinuationMode(item.agent?.continuationMode, item.agent?.primaryAction),
     agentNextScore: scoreAgentNext(item.agent?.next, item.agent?.continuationMode, item.agent?.primaryAction),
+    agentExecutionPlanScore: scoreAgentExecutionPlan(item.agent?.executionPlan, item.agent?.next, item.agent?.answerPlan, item.agent?.canUseFetchedHtml, item.agent?.needsBrowserHtml, item.agent?.expectedOutcome),
     agentExpectedOutcomeScore: scoreAgentExpectedOutcome(item.agent?.expectedOutcome, item.agent?.primaryAction),
     agentSignalScore: scoreAgentSignals(item.agent?.signals, item),
     pageLinkCommandScore: scorePageLinkCommands(item.pageCheck?.primaryLinks ?? [], item.pageCheck?.sourceLinks ?? []),
@@ -782,6 +804,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentRoutingIntentScore: 0,
     agentContinuationModeScore: 0,
     agentNextScore: 0,
+    agentExecutionPlanScore: 0,
     agentExpectedOutcomeScore: 0,
     agentSignalScore: 0,
     pageLinkCommandScore: 0,
@@ -939,6 +962,7 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[] }
     "next.readTarget",
     "next.readValue",
     "next.target",
+    "executionPlan",
     "citations",
     "answerPlan",
     "searchDecision",
@@ -1095,6 +1119,51 @@ function scoreAgentNextLoop(loop: CliAgentLoopShape | undefined, mode: AgentCont
     && typeof loop.reason === "string"
     && loop.reason.length > 0
     && typeof loop.maxSuggestedIterations === "number" ? 1 : 0;
+}
+
+function scoreAgentExecutionPlan(
+  plan: CliAgentExecutionPlanShape | undefined,
+  next: CliAgentNextShape | undefined,
+  answerPlan: CliAgentAnswerPlanShape | undefined,
+  canUseFetchedHtml: boolean | undefined,
+  needsBrowserHtml: boolean | undefined,
+  expectedOutcome: CliAgentExpectedOutcomeShape | undefined,
+): number {
+  if (!plan || !next?.loop) return 0;
+  let required = 10;
+  let matched = 0;
+  if (plan.operation === expectedExecutionPlanOperation(next)) matched += 1;
+  if (plan.confidence === "low" || plan.confidence === "medium" || plan.confidence === "high") matched += 1;
+  if (typeof plan.reason === "string" && plan.reason.length > 0) matched += 1;
+  if (plan.useFetchedHtml === canUseFetchedHtml) matched += 1;
+  if (plan.needsBrowserHtml === needsBrowserHtml) matched += 1;
+  if (plan.answerReady === (answerPlan?.status === "ready")) matched += 1;
+  if (plan.terminal === next.loop.terminal) matched += 1;
+  if (plan.shouldContinue === next.loop.shouldContinue) matched += 1;
+  if (plan.maxSuggestedIterations === next.loop.maxSuggestedIterations) matched += 1;
+  if (plan.expectedOutcome === expectedOutcome?.kind) matched += 1;
+  if (next.readFrom) {
+    required += 1;
+    if (plan.readFrom === next.readFrom) matched += 1;
+  }
+  if (next.command) {
+    required += 2;
+    if (plan.command === next.command) matched += 1;
+    if (Array.isArray(plan.commandArgs) && plan.commandArgs.length > 0) matched += 1;
+  }
+  if (next.url) {
+    required += 1;
+    if (plan.url === next.url) matched += 1;
+  }
+  return roundScore(matched / required);
+}
+
+function expectedExecutionPlanOperation(next: CliAgentNextShape): NonNullable<CliAgentExecutionPlanShape["operation"]> {
+  if (next.loop?.decision === "return") return "return";
+  if (next.loop?.decision === "execute") return "execute-command";
+  if (next.loop?.decision === "browser") return next.mode === "capture-html" ? "capture-browser-html" : "inspect-browser";
+  if (next.loop?.decision === "inspect") return "inspect-output";
+  return "stop";
 }
 
 function scoreAgentSignals(signals: CliAgentSignalShape[] | undefined, envelope: {
@@ -1751,6 +1820,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentRoutingIntentScore * 0.005
     + summary.agentContinuationModeScore * 0.005
     + summary.agentNextScore * 0.005
+    + summary.agentExecutionPlanScore * 0.005
     + summary.agentExpectedOutcomeScore * 0.005
     + summary.agentSignalScore * 0.005
     + summary.pageLinkCommandScore * 0.005
@@ -1770,6 +1840,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentRoutingIntentScore,
     summary.agentContinuationModeScore,
     summary.agentNextScore,
+    summary.agentExecutionPlanScore,
     summary.agentExpectedOutcomeScore,
     summary.agentSignalScore,
     summary.agentReadTargetScore,
@@ -1836,6 +1907,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentRoutingIntentScore: average(included.map((comparison) => comparison.cliAgentSummary.agentRoutingIntentScore)),
     averageAgentContinuationModeScore: average(included.map((comparison) => comparison.cliAgentSummary.agentContinuationModeScore)),
     averageAgentNextScore: average(included.map((comparison) => comparison.cliAgentSummary.agentNextScore)),
+    averageAgentExecutionPlanScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExecutionPlanScore)),
     averageAgentExpectedOutcomeScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExpectedOutcomeScore)),
     averageAgentSignalScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSignalScore)),
     averagePageLinkCommandScore: average(included.map((comparison) => comparison.cliAgentSummary.pageLinkCommandScore)),
