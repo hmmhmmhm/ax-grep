@@ -2729,6 +2729,12 @@ describe("cli", () => {
         reason: "Some requested text was not found; inspect the strongest external source link.",
         url: "https://source.example/report",
         rank: 1,
+        target: {
+          title: "Source report",
+          url: "https://source.example/report",
+          source: "source.example",
+          rank: 1,
+        },
         command: "ax-grep 'https://source.example/report' --find 'not present' --json --summary",
       },
     });
@@ -2740,6 +2746,12 @@ describe("cli", () => {
       primaryAction: {
         action: "open-source-link",
         url: "https://source.example/report",
+        target: {
+          title: "Source report",
+          url: "https://source.example/report",
+          source: "source.example",
+          rank: 1,
+        },
       },
     });
   });

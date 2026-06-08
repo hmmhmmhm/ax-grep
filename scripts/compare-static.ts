@@ -1406,7 +1406,7 @@ function scoreAgentActionList(actions: CliActionShape[] | undefined, primaryActi
   if (compactActionKey(firstAction) === compactActionKey(primaryAction)) matched += 1;
   if (firstAction.primary === true) matched += 1;
   if (typeof firstAction.source === "string" && firstAction.source.length > 0) matched += 1;
-  if (scoreOpenResultTarget(firstAction) === 1) matched += 1;
+  if (scoreOpenActionTarget(firstAction) === 1) matched += 1;
   const expectedCount = typeof alternativeActionCount === "number" ? alternativeActionCount + 1 : undefined;
   if (typeof expectedCount === "number") {
     if (actions.length === expectedCount) matched += 1;
@@ -1418,8 +1418,8 @@ function scoreAgentActionList(actions: CliActionShape[] | undefined, primaryActi
   return roundScore(matched / required);
 }
 
-function scoreOpenResultTarget(action: CliActionShape): number {
-  if (action.action !== "open-result" && action.action !== "open-alternate-result") return typeof action.target === "undefined" ? 1 : 0;
+function scoreOpenActionTarget(action: CliActionShape): number {
+  if (action.action !== "open-result" && action.action !== "open-alternate-result" && action.action !== "open-source-link") return typeof action.target === "undefined" ? 1 : 0;
   if (!action.target || typeof action.target !== "object") return 0;
   if (typeof action.url === "string" && action.target.url !== action.url) return 0;
   if (typeof action.rank === "number" && action.target.rank !== action.rank) return 0;
