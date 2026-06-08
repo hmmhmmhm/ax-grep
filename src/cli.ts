@@ -11,6 +11,7 @@ import { extract, type StaticSemanticTreeOptions } from "./static";
 import type {
   AgentContinuationMode,
   AgentExpectedOutcome,
+  AgentLoopDirective,
   AgentNext,
   AgentReadTarget,
   AgentReadValue,
@@ -2616,6 +2617,7 @@ function summarizeAgentNext(
     return {
       mode: "stop",
       reason: "No follow-up action is available.",
+      loop: summarizeAgentLoop(undefined),
     };
   }
   const readTarget = primaryAction.readFrom
@@ -2625,6 +2627,7 @@ function summarizeAgentNext(
     mode: agentContinuationMode(primaryAction),
     action: primaryAction.action,
     reason: primaryAction.reason,
+    loop: summarizeAgentLoop(primaryAction),
     execution: actionExecution(primaryAction),
     ...(primaryAction.url ? { url: primaryAction.url } : {}),
     ...(primaryAction.rank ? { rank: primaryAction.rank } : {}),
@@ -2637,6 +2640,66 @@ function summarizeAgentNext(
     ...(readTarget ? { readTarget } : {}),
     ...(readValue ? { readValue } : {}),
     ...(primaryAction.target ? { target: primaryAction.target } : {}),
+  };
+}
+
+function summarizeAgentLoop(primaryAction: SuggestedAction | undefined): AgentLoopDirective {
+  if (!primaryAction) {
+    return {
+      decision: "stop",
+      shouldContinue: false,
+      terminal: true,
+      reason: "No follow-up action is available.",
+      maxSuggestedIterations: 0,
+    };
+  }
+  const mode = agentContinuationMode(primaryAction);
+  if (mode === "read") {
+    return {
+      decision: "return",
+      shouldContinue: false,
+      terminal: true,
+      reason: primaryAction.readFrom
+        ? `Return the resolved value for ${primaryAction.readFrom}.`
+        : "Return the current payload evidence.",
+      maxSuggestedIterations: 0,
+    };
+  }
+  if (mode === "stop") {
+    return {
+      decision: "stop",
+      shouldContinue: false,
+      terminal: true,
+      reason: primaryAction.reason,
+      maxSuggestedIterations: 0,
+    };
+  }
+  if (mode === "browser" || mode === "capture-html") {
+    return {
+      decision: "browser",
+      shouldContinue: true,
+      terminal: false,
+      reason: mode === "capture-html"
+        ? "Capture rendered HTML, rerun the provided command, and inspect the next agent payload."
+        : "Use browser interaction or inspection before continuing.",
+      maxSuggestedIterations: 1,
+    };
+  }
+  if (mode === "inspect") {
+    return {
+      decision: "inspect",
+      shouldContinue: false,
+      terminal: false,
+      reason: "Inspect the current payload before choosing a follow-up action.",
+      maxSuggestedIterations: 0,
+    };
+  }
+  return {
+    decision: "execute",
+    shouldContinue: true,
+    terminal: false,
+    reason: "Run the provided command and inspect the next agent payload.",
+    maxSuggestedIterations: 1,
   };
 }
 

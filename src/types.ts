@@ -98,6 +98,7 @@ export type AgentExecutionMode = "run-command" | "read-current" | "interact-brow
 export type AgentNext = {
   mode: AgentContinuationMode;
   reason: string;
+  loop: AgentLoopDirective;
   action?: string;
   execution?: AgentExecutionMode;
   url?: string;
@@ -111,6 +112,16 @@ export type AgentNext = {
   readTarget?: AgentReadTarget;
   readValue?: AgentReadValue;
   target?: AgentTarget;
+};
+
+export type AgentLoopDecision = "return" | "execute" | "browser" | "inspect" | "stop";
+
+export type AgentLoopDirective = {
+  decision: AgentLoopDecision;
+  shouldContinue: boolean;
+  terminal: boolean;
+  reason: string;
+  maxSuggestedIterations: number;
 };
 
 export type AgentSignalKind =

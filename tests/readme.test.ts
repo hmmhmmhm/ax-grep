@@ -25,6 +25,9 @@ describe("README", () => {
       continuationMode: "read",
       next: {
         mode: "read",
+        loop: {
+          decision: "return",
+        },
         readFrom: "verification.bestEvidence",
         readTarget: {
           path: "verification.bestEvidence",

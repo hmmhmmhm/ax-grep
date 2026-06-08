@@ -8,6 +8,8 @@ export type {
   AgentExpectedOutcomeKind,
   AgentExecutionMode,
   AgentJsonEnvelope,
+  AgentLoopDecision,
+  AgentLoopDirective,
   AgentNext,
   AgentReadTarget,
   AgentReadValue,

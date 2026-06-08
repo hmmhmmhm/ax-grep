@@ -140,8 +140,10 @@ such as `recommendedRank`, `recommendedSource`, `recommendedRelevance`, and
 `continuationMode` is the simpler executor switch for agent loops: `read`,
 `command`, `browser`, `capture-html`, `inspect`, or `stop`.
 `agent.next` is the canonical next-step payload for executors. It always has a
-`mode` and `reason`, and when a follow-up exists it mirrors the exact fields
-needed to continue, such as `commandArgs`, `readFrom`, `url`, `openResult`, or
+`mode`, `reason`, and `loop`. `next.loop.decision` is the direct executor
+switch: `return`, `execute`, `browser`, `inspect`, or `stop`. When a follow-up
+exists, `next` mirrors the exact fields needed to continue, such as
+`commandArgs`, `readFrom`, `url`, `openResult`, or
 `requiresBrowserInteraction`. When `mode` is `read`, `next.readTarget` mirrors
 the matching `agent.readTargets` entry so an executor can understand the target
 without joining arrays itself, and `next.readValue` contains the resolved
@@ -237,17 +239,19 @@ async function inspectWithAxGrep(urlOrQuery: string) {
   for (let step = 0; step < 4; step += 1) {
     const next: AgentNext = payload.agent.next;
 
-    if (next.mode === "read" || next.mode === "stop") {
+    if (next.loop.decision === "return") {
       if (next.readValue) return next.readValue.value;
       return payload;
     }
 
-    if (next.mode === "command" && next.commandArgs) {
+    if (next.loop.decision === "stop") return payload;
+
+    if (next.loop.decision === "execute" && next.commandArgs) {
       payload = await runAxGrep(next.commandArgs.slice(1));
       continue;
     }
 
-    if (next.mode === "capture-html" && next.commandArgs) {
+    if (next.loop.decision === "browser" && next.mode === "capture-html" && next.commandArgs) {
       const htmlPath = await captureRenderedHtml(next.url);
       payload = await runAxGrep(next.commandArgs
         .slice(1)
@@ -255,7 +259,7 @@ async function inspectWithAxGrep(urlOrQuery: string) {
       continue;
     }
 
-    if (next.mode === "browser") {
+    if (next.loop.decision === "browser") {
       return openInAgentBrowser(next.url);
     }
 
@@ -484,6 +488,13 @@ cat captured.html | ax-grep https://example.com --stdin --json
       "mode": "read",
       "action": "use-evidence",
       "reason": "All requested text was found in the page summaries.",
+      "loop": {
+        "decision": "return",
+        "shouldContinue": false,
+        "terminal": true,
+        "reason": "Return the resolved value for verification.bestEvidence.",
+        "maxSuggestedIterations": 0
+      },
       "execution": "read-current",
       "url": "https://example.com/",
       "readFrom": "verification.bestEvidence",

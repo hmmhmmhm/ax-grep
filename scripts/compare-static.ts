@@ -130,11 +130,20 @@ type CliActionShape = {
 type CliAgentNextShape = CliActionShape & {
   mode?: AgentContinuationMode;
   reason?: string;
+  loop?: CliAgentLoopShape;
   readTarget?: CliReadTargetShape;
   readValue?: {
     path?: string;
     value?: unknown;
   };
+};
+
+type CliAgentLoopShape = {
+  decision?: "return" | "execute" | "browser" | "inspect" | "stop";
+  shouldContinue?: boolean;
+  terminal?: boolean;
+  reason?: string;
+  maxSuggestedIterations?: number;
 };
 
 type CliAgentTargetShape = {
@@ -817,6 +826,8 @@ function scoreAgentNext(next: CliAgentNextShape | undefined, continuationMode: A
   let matched = 0;
   if (next.mode === expectedMode) matched += 1;
   if (continuationMode === undefined || next.mode === continuationMode) matched += 1;
+  required += 1;
+  if (scoreAgentNextLoop(next.loop, expectedMode) === 1) matched += 1;
   if (!primaryAction) {
     required += 2;
     if (!next.action) matched += 1;
@@ -859,6 +870,27 @@ function scoreAgentNext(next: CliAgentNextShape | undefined, continuationMode: A
     required += 1;
   }
   return roundScore(matched / required);
+}
+
+function scoreAgentNextLoop(loop: CliAgentLoopShape | undefined, mode: AgentContinuationMode): number {
+  if (!loop) return 0;
+  const expectedDecision = mode === "read"
+    ? "return"
+    : mode === "stop"
+      ? "stop"
+      : mode === "browser" || mode === "capture-html"
+        ? "browser"
+        : mode === "inspect"
+          ? "inspect"
+          : "execute";
+  const expectedShouldContinue = expectedDecision === "execute" || expectedDecision === "browser";
+  const expectedTerminal = expectedDecision === "return" || expectedDecision === "stop";
+  return loop.decision === expectedDecision
+    && loop.shouldContinue === expectedShouldContinue
+    && loop.terminal === expectedTerminal
+    && typeof loop.reason === "string"
+    && loop.reason.length > 0
+    && typeof loop.maxSuggestedIterations === "number" ? 1 : 0;
 }
 
 function scoreAgentSignals(signals: CliAgentSignalShape[] | undefined, envelope: {

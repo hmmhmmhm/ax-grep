@@ -241,6 +241,13 @@ describe("cli", () => {
           execution: "read-current",
           readFrom: "verification.bestEvidence",
           terminal: true,
+          loop: {
+            decision: "return",
+            shouldContinue: false,
+            terminal: true,
+            reason: "Return the resolved value for verification.bestEvidence.",
+            maxSuggestedIterations: 0,
+          },
           readTarget: {
             path: "verification.bestEvidence",
             reason: "Best matching evidence for the requested --find text.",
@@ -399,6 +406,13 @@ describe("cli", () => {
       next: {
         mode: "command",
         action: "open-result",
+        loop: {
+          decision: "execute",
+          shouldContinue: true,
+          terminal: false,
+          reason: "Run the provided command and inspect the next agent payload.",
+          maxSuggestedIterations: 1,
+        },
         execution: "run-command",
         url: "https://result.example/",
         rank: 1,
