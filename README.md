@@ -154,7 +154,7 @@ relying on them.
 `mode`, `reason`, and `loop`. `next.loop.decision` is the direct executor
 switch: `return`, `execute`, `browser`, `inspect`, or `stop`. When a follow-up
 exists, `next` mirrors the exact fields needed to continue, such as
-`commandArgs`, `readFrom`, `url`, `openResult`, or
+`commandArgs`, `readFrom`, `url`, `openResult`, `browserHtml`, or
 `requiresBrowserInteraction`. When `mode` is `read`, `next.readTarget` mirrors
 the matching `agent.readTargets` entry so an executor can understand the target
 without joining arrays itself, and `next.readValue` contains the resolved
@@ -162,6 +162,9 @@ current-payload value for that path. When `mode` is `command` for a result or
 source link, `next.target` carries the target URL's title, source host, rank,
 source-type score, relevance, and official-source hints when known, so an agent
 can decide whether to run the command without looking up the result array.
+When browser-captured HTML is needed, `next.browserHtml` gives the capture
+script, placeholder file name, and the command or after-interaction command that
+should receive the captured HTML file path.
 Text output includes the same loop switch as `nextMode`, `loopDecision`,
 `loopContinue`, `loopTerminal`, `loopMaxIterations`, and `loopReason`, so a
 lightweight executor can still continue without parsing the full JSON envelope.
@@ -174,6 +177,10 @@ inspecting output, or stopping.
 `inspect-browser`, `inspect-output`, or `stop`, and the same object repeats
 trust flags (`useFetchedHtml`, `needsBrowserHtml`, `answerReady`), loop limits,
 expected outcome, and runnable `commandArgs` or `readFrom` fields when present.
+For `capture-browser-html` and `inspect-browser`, the same plan also repeats
+`browserHtml` so an executor can write the captured
+`document.documentElement.outerHTML` to the placeholder file and rerun the
+provided command without inferring the protocol from prose.
 `agent.signals` is a short structured status feed for routing and debugging:
 `content`, `verification`, `search-results`, `source-links`, `browser`,
 `diagnostic`, and `response` signals each carry `info`, `warning`, or `error`
@@ -292,11 +299,12 @@ async function inspectWithAxGrep(urlOrQuery: string) {
       continue;
     }
 
-    if (next.loop.decision === "browser" && next.mode === "capture-html" && next.commandArgs) {
-      const htmlPath = await captureRenderedHtml(next.url);
-      payload = await runAxGrep(next.commandArgs
+    const browserHtml = next.browserHtml;
+    if (next.loop.decision === "browser" && browserHtml?.commandArgs) {
+      const htmlPath = await captureRenderedHtml(next.url, browserHtml.captureScript);
+      payload = await runAxGrep(browserHtml.commandArgs
         .slice(1)
-        .map((arg: string) => arg === "captured.html" ? htmlPath : arg));
+        .map((arg: string) => arg === browserHtml.htmlFile ? htmlPath : arg));
       continue;
     }
 

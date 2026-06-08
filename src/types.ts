@@ -116,6 +116,7 @@ export type AgentNext = {
   readTarget?: AgentReadTarget;
   readValue?: AgentReadValue;
   target?: AgentTarget;
+  browserHtml?: AgentBrowserHtmlCapture;
 };
 
 export type AgentLoopDecision = "return" | "execute" | "browser" | "inspect" | "stop";
@@ -177,6 +178,17 @@ export type AgentExecutionPlan = {
   afterInteractionCommand?: string;
   afterInteractionCommandArgs?: string[];
   url?: string;
+  browserHtml?: AgentBrowserHtmlCapture;
+};
+
+export type AgentBrowserHtmlCapture = {
+  url?: string;
+  htmlFile: string;
+  captureScript: string;
+  command?: string;
+  commandArgs?: string[];
+  afterInteractionCommand?: string;
+  afterInteractionCommandArgs?: string[];
 };
 
 export type AgentReadTarget = {
@@ -323,6 +335,7 @@ export type AgentContractFeature =
   | "expectedOutcome"
   | "responseMetadata"
   | "afterInteractionCommand"
+  | "browserHtml"
   | "primaryActionShortcuts";
 
 export type AgentContract = {

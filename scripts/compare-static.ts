@@ -78,6 +78,7 @@ type CliAgentSummary = {
   agentResultCountScore: number;
   agentSourceLinkCountScore: number;
   agentBrowserNeedScore: number;
+  agentBrowserHtmlScore: number;
   agentReadabilityReasonScore: number;
   agentSourceSearchProvenanceScore: number;
   agentRecommendedMetadataScore: number;
@@ -150,6 +151,17 @@ type CliAgentNextShape = CliActionShape & {
     path?: string;
     value?: unknown;
   };
+  browserHtml?: CliAgentBrowserHtmlShape;
+};
+
+type CliAgentBrowserHtmlShape = {
+  url?: string;
+  htmlFile?: string;
+  captureScript?: string;
+  command?: string;
+  commandArgs?: unknown[];
+  afterInteractionCommand?: string;
+  afterInteractionCommandArgs?: unknown[];
 };
 
 type CliAgentLoopShape = {
@@ -203,6 +215,7 @@ type CliAgentExecutionPlanShape = {
   afterInteractionCommand?: string;
   afterInteractionCommandArgs?: unknown[];
   url?: string;
+  browserHtml?: CliAgentBrowserHtmlShape;
 };
 
 type CliSearchResultShape = {
@@ -320,6 +333,7 @@ type GateSummary = {
   averageAgentResultCountScore: number;
   averageAgentSourceLinkCountScore: number;
   averageAgentBrowserNeedScore: number;
+  averageAgentBrowserHtmlScore: number;
   averageAgentPageKindScore: number;
   averageAgentAlternativeActionCountScore: number;
   averageAgentUsabilityScoreConsistency: number;
@@ -790,6 +804,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentResultCountScore: scoreAgentResultCount(item.kind ?? "unknown", item.agent?.resultCount, item.searchResults ?? []),
     agentSourceLinkCountScore: scoreAgentSourceLinkCount(item.kind ?? "unknown", item.agent?.sourceLinkCount, item.pageCheck?.sourceLinks ?? []),
     agentBrowserNeedScore: scoreAgentBrowserNeed(item.agent?.needsBrowserHtml, item.agent?.status, item.agent?.primaryAction),
+    agentBrowserHtmlScore: scoreAgentBrowserHtml(item.agent?.next, item.agent?.executionPlan, item.agent?.primaryAction),
     agentReadabilityReasonScore: scoreReadabilityReasons(item.agent?.readabilityReasons),
     agentSourceSearchProvenanceScore: scoreAgentSourceSearchProvenance(item.sourceSearch, item.agent?.readTargets ?? []),
     agentRecommendedMetadataScore: scoreAgentRecommendedMetadata(item.agent, item.recommendedResult),
@@ -845,6 +860,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentResultCountScore: 0,
     agentSourceLinkCountScore: 0,
     agentBrowserNeedScore: 0,
+    agentBrowserHtmlScore: 0,
     agentReadabilityReasonScore: 0,
     agentSourceSearchProvenanceScore: 0,
     agentRecommendedMetadataScore: 0,
@@ -997,6 +1013,7 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[] }
     "expectedOutcome",
     "responseMetadata",
     "afterInteractionCommand",
+    "browserHtml",
     "primaryActionShortcuts",
   ];
   return required.every((feature) => features.has(feature)) ? 1 : 0;
@@ -1688,6 +1705,37 @@ function scoreAgentBrowserNeed(
   return needsBrowserHtml ? 0.5 : 1;
 }
 
+function scoreAgentBrowserHtml(
+  next: CliAgentNextShape | undefined,
+  plan: CliAgentExecutionPlanShape | undefined,
+  primaryAction: CliActionShape | undefined,
+): number {
+  const requiresCapture = primaryAction?.action === "retry-with-browser-html" || Boolean(primaryAction?.afterInteractionCommandArgs);
+  if (!requiresCapture) return next?.browserHtml || plan?.browserHtml ? 0.5 : 1;
+  if (!next?.browserHtml || !plan?.browserHtml) return 0;
+  let required = 4;
+  let matched = 0;
+  if (next.browserHtml.htmlFile === "captured.html") matched += 1;
+  if (next.browserHtml.captureScript === "document.documentElement.outerHTML") matched += 1;
+  if (plan.browserHtml.htmlFile === next.browserHtml.htmlFile) matched += 1;
+  if (plan.browserHtml.captureScript === next.browserHtml.captureScript) matched += 1;
+  if (primaryAction?.commandArgs) {
+    required += 2;
+    if (JSON.stringify(next.browserHtml.commandArgs) === JSON.stringify(primaryAction.commandArgs)) matched += 1;
+    if (JSON.stringify(plan.browserHtml.commandArgs) === JSON.stringify(primaryAction.commandArgs)) matched += 1;
+  }
+  if (primaryAction?.afterInteractionCommandArgs) {
+    required += 2;
+    if (JSON.stringify(next.browserHtml.afterInteractionCommandArgs) === JSON.stringify(primaryAction.afterInteractionCommandArgs)) matched += 1;
+    if (JSON.stringify(plan.browserHtml.afterInteractionCommandArgs) === JSON.stringify(primaryAction.afterInteractionCommandArgs)) matched += 1;
+  }
+  if (primaryAction?.url) {
+    required += 1;
+    if (next.browserHtml.url === primaryAction.url) matched += 1;
+  }
+  return roundScore(matched / required);
+}
+
 function scoreAgentCanContinue(canContinue: boolean | undefined, primaryAction: CliActionShape | undefined): number {
   if (typeof canContinue !== "boolean") return 0;
   const expected = primaryAction ? normalizedActionExecution(primaryAction) !== "inspect-output" : false;
@@ -1915,6 +1963,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentResultCountScore * 0.005
     + summary.agentSourceLinkCountScore * 0.005
     + summary.agentBrowserNeedScore * 0.005
+    + summary.agentBrowserHtmlScore * 0.005
     + summary.agentPageKindScore * 0.005
     + summary.agentAlternativeActionCountScore * 0.005
     + summary.agentUsabilityScoreConsistency * 0.005
@@ -1952,6 +2001,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentSignalScore,
     summary.agentReadTargetScore,
     summary.agentBrowserNeedScore,
+    summary.agentBrowserHtmlScore,
     summary.agentCanContinueScore,
     summary.agentPrimaryExecutionScore,
     summary.agentPrimaryShortcutScore,
@@ -2022,6 +2072,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentResultCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentResultCountScore)),
     averageAgentSourceLinkCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSourceLinkCountScore)),
     averageAgentBrowserNeedScore: average(included.map((comparison) => comparison.cliAgentSummary.agentBrowserNeedScore)),
+    averageAgentBrowserHtmlScore: average(included.map((comparison) => comparison.cliAgentSummary.agentBrowserHtmlScore)),
     averageAgentPageKindScore: average(included.map((comparison) => comparison.cliAgentSummary.agentPageKindScore)),
     averageAgentAlternativeActionCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentAlternativeActionCountScore)),
     averageAgentUsabilityScoreConsistency: average(included.map((comparison) => comparison.cliAgentSummary.agentUsabilityScoreConsistency)),

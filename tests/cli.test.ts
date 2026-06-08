@@ -253,6 +253,7 @@ describe("cli", () => {
             "contentEvidence.quality",
             "readTargets",
             "signals",
+            "browserHtml",
           ]),
         },
         status: "ready",
@@ -2901,6 +2902,13 @@ describe("cli", () => {
         execution: "run-command",
         command: "ax-grep 'https://example.test' --html-file captured.html --json --summary",
         commandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--json", "--summary"],
+        browserHtml: {
+          url: "https://example.test",
+          htmlFile: "captured.html",
+          captureScript: "document.documentElement.outerHTML",
+          command: "ax-grep 'https://example.test' --html-file captured.html --json --summary",
+          commandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--json", "--summary"],
+        },
       },
       expectedOutcome: {
         kind: "capture-html",
@@ -2918,6 +2926,11 @@ describe("cli", () => {
         command: "ax-grep 'https://example.test' --html-file captured.html --json --summary",
         commandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--json", "--summary"],
         needsBrowserHtml: true,
+        browserHtml: {
+          htmlFile: "captured.html",
+          captureScript: "document.documentElement.outerHTML",
+          commandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--json", "--summary"],
+        },
         answerReady: false,
       },
       signals: expect.arrayContaining([
@@ -3117,6 +3130,17 @@ describe("cli", () => {
         command: "ax-grep 'https://example.test/package' --html-file captured.html --find 'target claim' --agent",
         commandArgs: ["ax-grep", "https://example.test/package", "--html-file", "captured.html", "--find", "target claim", "--agent"],
       },
+      next: {
+        mode: "capture-html",
+        action: "retry-with-browser-html",
+        browserHtml: {
+          url: "https://example.test/package",
+          htmlFile: "captured.html",
+          captureScript: "document.documentElement.outerHTML",
+          command: "ax-grep 'https://example.test/package' --html-file captured.html --find 'target claim' --agent",
+          commandArgs: ["ax-grep", "https://example.test/package", "--html-file", "captured.html", "--find", "target claim", "--agent"],
+        },
+      },
       answerPlan: {
         status: "blocked",
         confidence: "low",
@@ -3131,6 +3155,11 @@ describe("cli", () => {
         needsBrowserHtml: true,
         shouldContinue: true,
         answerReady: false,
+        browserHtml: {
+          htmlFile: "captured.html",
+          captureScript: "document.documentElement.outerHTML",
+          commandArgs: ["ax-grep", "https://example.test/package", "--html-file", "captured.html", "--find", "target claim", "--agent"],
+        },
       },
     });
     expect(envelope.pageCheck.recommendedAction).toBeUndefined();
@@ -3439,6 +3468,13 @@ describe("cli", () => {
         requiresBrowserInteraction: true,
         afterInteractionCommand: "ax-grep 'https://captured.example/challenge' --html-file captured.html --agent",
         afterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent"],
+        browserHtml: {
+          url: "https://captured.example/challenge",
+          htmlFile: "captured.html",
+          captureScript: "document.documentElement.outerHTML",
+          afterInteractionCommand: "ax-grep 'https://captured.example/challenge' --html-file captured.html --agent",
+          afterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent"],
+        },
       },
       expectedOutcome: {
         kind: "browser-inspection",
@@ -3454,6 +3490,11 @@ describe("cli", () => {
         expectedOutcome: "browser-inspection",
         afterInteractionCommand: "ax-grep 'https://captured.example/challenge' --html-file captured.html --agent",
         afterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent"],
+        browserHtml: {
+          htmlFile: "captured.html",
+          captureScript: "document.documentElement.outerHTML",
+          afterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent"],
+        },
       },
       signals: expect.arrayContaining([
         expect.objectContaining({ kind: "diagnostic", severity: "warning" }),

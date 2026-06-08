@@ -10,6 +10,7 @@ import type { AnyNode, Element } from "domhandler";
 import { extract, type StaticSemanticTreeOptions } from "./static";
 import type {
   AgentAnswerPlan,
+  AgentBrowserHtmlCapture,
   AgentCitation,
   AgentContract,
   AgentContinuationMode,
@@ -397,6 +398,7 @@ const agentContract: AgentContract = {
     "expectedOutcome",
     "responseMetadata",
     "afterInteractionCommand",
+    "browserHtml",
     "primaryActionShortcuts",
   ],
 };
@@ -2994,6 +2996,7 @@ function summarizeAgentExecutionPlan(
     ...(next.afterInteractionCommand ? { afterInteractionCommand: next.afterInteractionCommand } : {}),
     ...(next.afterInteractionCommandArgs ? { afterInteractionCommandArgs: next.afterInteractionCommandArgs } : {}),
     ...(next.url ? { url: next.url } : {}),
+    ...(next.browserHtml ? { browserHtml: next.browserHtml } : {}),
   };
 }
 
@@ -3275,6 +3278,22 @@ function summarizeAgentNext(
     ...(readTarget ? { readTarget } : {}),
     ...(readValue ? { readValue } : {}),
     ...(primaryAction.target ? { target: primaryAction.target } : {}),
+    ...agentBrowserHtmlCaptureFields(primaryAction),
+  };
+}
+
+function agentBrowserHtmlCaptureFields(primaryAction: SuggestedAction): { browserHtml?: AgentBrowserHtmlCapture } {
+  if (primaryAction.action !== "retry-with-browser-html" && !primaryAction.afterInteractionCommandArgs) return {};
+  return {
+    browserHtml: {
+      ...(primaryAction.url ? { url: primaryAction.url } : {}),
+      htmlFile: "captured.html",
+      captureScript: "document.documentElement.outerHTML",
+      ...(primaryAction.command ? { command: primaryAction.command } : {}),
+      ...(primaryAction.commandArgs ? { commandArgs: primaryAction.commandArgs } : {}),
+      ...(primaryAction.afterInteractionCommand ? { afterInteractionCommand: primaryAction.afterInteractionCommand } : {}),
+      ...(primaryAction.afterInteractionCommandArgs ? { afterInteractionCommandArgs: primaryAction.afterInteractionCommandArgs } : {}),
+    },
   };
 }
 
