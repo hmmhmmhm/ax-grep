@@ -172,6 +172,8 @@ export type AgentCitation = {
   kind: "content" | "verification" | "search-result" | "source-link";
   id: string;
   path: string;
+  confidence?: "low" | "medium" | "high";
+  reason?: string;
   text?: string;
   title?: string;
   url?: string;
@@ -272,6 +274,7 @@ export type AgentContractFeature =
   | "next.readValue"
   | "next.target"
   | "citations"
+  | "citation.reason"
   | "answerPlan"
   | "answerPlan.actionFields"
   | "answerPlan.confidence"

@@ -239,6 +239,7 @@ describe("cli", () => {
             "next.readValue",
             "next.target",
             "citations",
+            "citation.reason",
             "answerPlan",
             "answerPlan.actionFields",
             "answerPlan.confidence",
@@ -318,6 +319,8 @@ describe("cli", () => {
             kind: "verification",
             id: "v1",
             path: "verification.bestEvidence",
+            confidence: "high",
+            reason: "Best matching evidence for the requested verification text.",
             text: "Example",
           }),
         ]),
@@ -2474,9 +2477,11 @@ describe("cli", () => {
     expect(stdout.output).toContain("  diagnosticInfo: 0");
     expect(stdout.output).toContain("  verification: 0/0 found, 0 missing");
     expect(stdout.output).toContain("  readability: medium");
-    expect(stdout.output).toContain("  citation: e1 pageCheck.contentEvidence[0] content score=");
+    expect(stdout.output).toContain("  citation: e1 pageCheck.contentEvidence[0] content high score=");
+    expect(stdout.output).toContain("high evidence from semantic extraction");
     expect(stdout.output).toContain("This article paragraph is long enough to appear in the page checking summary for agents.");
-    expect(stdout.output).toContain("  citation: s1 pageCheck.sourceLinks[0] source-link score=");
+    expect(stdout.output).toContain("  citation: s1 pageCheck.sourceLinks[0] source-link medium score=");
+    expect(stdout.output).toContain("Possible source candidate: news-like.");
     expect(stdout.output).toContain("  bestReadTarget: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  bestReadTargetReason: Structured page excerpts suitable for source checking.");
     expect(stdout.output).toContain("  readabilityReason: 1 content evidence item");

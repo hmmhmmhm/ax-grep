@@ -167,7 +167,8 @@ stopping.
 severity plus a concise message.
 `agent.citations` is a compact shortlist of citeable content, verification
 evidence, search results, and source links with stable `id`/`path` references,
-so an executor can assemble an answer without scanning the full tree first.
+plus `confidence` and `reason`, so an executor can assemble an answer without
+scanning the full tree first.
 `agent.answerPlan` says whether the current payload is ready for a final answer
 (`ready`), needs another command (`needs-more`), needs browser capture
 (`blocked`), or failed (`error`), lists the citation IDs to use, exposes
@@ -506,6 +507,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "next.readValue",
         "next.target",
         "citations",
+        "citation.reason",
         "answerPlan",
         "answerPlan.actionFields",
         "answerPlan.confidence",

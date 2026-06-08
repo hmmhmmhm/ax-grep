@@ -193,6 +193,8 @@ type CliAgentCitationShape = {
   kind?: string;
   id?: string;
   path?: string;
+  confidence?: string;
+  reason?: string;
   text?: string;
   title?: string;
   url?: string;
@@ -904,10 +906,14 @@ function scoreAgentCitations(citations: CliAgentCitationShape[], envelope: unkno
       || typeof citation.url === "string";
     const hasValidScore = typeof citation.score === "undefined"
       || (typeof citation.score === "number" && citation.score >= 0 && citation.score <= 1);
+    const hasValidConfidence = citation.confidence === "low" || citation.confidence === "medium" || citation.confidence === "high";
+    const hasReason = typeof citation.reason === "string" && citation.reason.length > 0;
     return hasReference
       && validKinds.has(String(citation.kind))
       && hasPayload
-      && hasValidScore;
+      && hasValidScore
+      && hasValidConfidence
+      && hasReason;
   }).length;
   return roundScore(validCount / citations.length);
 }

@@ -328,6 +328,7 @@ const agentContract: AgentContract = {
     "next.readValue",
     "next.target",
     "citations",
+    "citation.reason",
     "answerPlan",
     "answerPlan.actionFields",
     "answerPlan.confidence",
@@ -1411,7 +1412,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     const score = typeof citation.score === "number" ? ` score=${citation.score}` : "";
     const target = citation.url ? ` <${citation.url}>` : "";
     const label = citation.text ?? citation.title ?? citation.url ?? "";
-    lines.push(`  citation: ${citation.id} ${citation.path} ${citation.kind}${score} ${label}${target}`);
+    const confidence = citation.confidence ? ` ${citation.confidence}` : "";
+    const reason = citation.reason ? ` - ${citation.reason}` : "";
+    lines.push(`  citation: ${citation.id} ${citation.path} ${citation.kind}${confidence}${score}${reason} ${label}${target}`);
   }
   if (agent.bestReadTarget) lines.push(`  bestReadTarget: ${agent.bestReadTarget}`);
   if (typeof agent.bestReadTargetScore === "number") lines.push(`  bestReadTargetScore: ${agent.bestReadTargetScore}`);
@@ -2647,6 +2650,8 @@ function summarizeAgentCitations(
       kind: "verification",
       id: "v1",
       path: "verification.bestEvidence",
+      confidence: "high",
+      reason: "Best matching evidence for the requested verification text.",
       text: verification.bestEvidence.text,
       ...(verification.bestEvidence.url ? { url: verification.bestEvidence.url } : {}),
       ...(typeof verification.bestEvidence.score === "number" ? { score: verification.bestEvidence.score } : {}),
@@ -2657,6 +2662,8 @@ function summarizeAgentCitations(
       kind: "content",
       id: evidence.id,
       path: evidence.path,
+      confidence: evidence.quality,
+      reason: evidence.qualityReason,
       text: evidence.text,
       score: evidence.score,
     });
@@ -2666,6 +2673,8 @@ function summarizeAgentCitations(
       kind: "search-result",
       id: `r${recommendedResult.rank}`,
       path: "recommendedResult",
+      confidence: searchCitationConfidence(recommendedResult),
+      reason: recommendedResult.selectionReason ?? searchResultSelectionReason(recommendedResult),
       title: recommendedResult.title,
       url: recommendedResult.url,
       ...(typeof recommendedResult.sourceScore === "number" ? { score: recommendedResult.sourceScore } : {}),
@@ -2676,6 +2685,8 @@ function summarizeAgentCitations(
       kind: "search-result",
       id: sourceSearch.selectedResult.id ?? "selected",
       path: sourceSearch.selectedResult.path ?? "sourceSearch.selectedResult",
+      confidence: searchCitationConfidence(sourceSearch.selectedResult),
+      reason: sourceSearch.selectedResult.selectionReason ?? searchResultSelectionReason(sourceSearch.selectedResult),
       title: sourceSearch.selectedResult.title,
       url: sourceSearch.selectedResult.url,
       ...(typeof sourceSearch.selectedResult.sourceScore === "number" ? { score: sourceSearch.selectedResult.sourceScore } : {}),
@@ -2686,12 +2697,26 @@ function summarizeAgentCitations(
       kind: "source-link",
       id: `s${index + 1}`,
       path: `pageCheck.sourceLinks[${index}]`,
+      confidence: sourceCitationConfidence(link),
+      reason: link.selectionReason ?? sourceLinkSelectionReason(link),
       title: link.title,
       url: link.url,
       ...(typeof link.sourceScore === "number" ? { score: link.sourceScore } : {}),
     });
   }
   return citations.slice(0, 6);
+}
+
+function searchCitationConfidence(result: ResultSummary): NonNullable<AgentCitation["confidence"]> {
+  if (result.findMatches?.length || result.isLikelyOfficial || result.relevance === "high") return "high";
+  if (result.relevance === "medium" || (result.sourceScore ?? 0) >= 0.5) return "medium";
+  return "low";
+}
+
+function sourceCitationConfidence(link: PageLinkSummary): NonNullable<AgentCitation["confidence"]> {
+  if ((link.sourceScore ?? 0) >= 0.78) return "high";
+  if ((link.sourceScore ?? 0) >= 0.5) return "medium";
+  return "low";
 }
 
 function summarizeAgentAnswerPlan(
