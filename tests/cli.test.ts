@@ -319,13 +319,23 @@ describe("cli", () => {
         handoff: {
           instruction: "Answer now from verification.bestEvidence using citations v1, e1.",
           decision: "return",
+          mode: "read",
           operation: "return",
+          action: "use-evidence",
           confidence: "high",
+          priority: "high",
           answerStatus: "ready",
           answerReady: true,
           shouldContinue: false,
           terminal: true,
+          maxSuggestedIterations: 0,
           expectedOutcome: "read-evidence",
+          readTarget: {
+            path: "verification.bestEvidence",
+            reason: "Best matching evidence for the requested --find text.",
+            count: 1,
+            primary: true,
+          },
           readFrom: "verification.bestEvidence",
           useCitationIds: expect.arrayContaining(["v1"]),
         },
@@ -2783,7 +2793,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  loopTerminal: true");
     expect(stdout.output).toContain("  loopMaxIterations: 0");
     expect(stdout.output).toContain("  loopReason: Return the resolved value for pageCheck.contentEvidence.");
-    expect(stdout.output).toContain("  handoff: return/return/medium - Answer now from pageCheck.contentEvidence using citations e1.");
+    expect(stdout.output).toContain("  handoff: return/return/medium action=read-content priority=high - Answer now from pageCheck.contentEvidence using citations e1.");
     expect(stdout.output).toContain("  expectedOutcome: read-evidence - ");
     expect(stdout.output).toContain("  answerPlan: ready - Readable page evidence is available; answer from the listed citations.");
     expect(stdout.output).toContain("  answerConfidence: medium");

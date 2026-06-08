@@ -155,8 +155,9 @@ loop decision, operation, answer readiness, command/read/browser-HTML fields,
 and target metadata into one object, so a subagent can usually switch on
 `runbook.decision` without joining `next`, `executionPlan`, and `answerPlan`.
 `agent.handoff` is the shortest executor handoff. It gives one plain
-`instruction` plus the same decision, operation, confidence, answer status,
-citation IDs, read path, command, URL, or browser-HTML fields needed for the
+`instruction` plus the same decision, mode, operation, action, priority,
+confidence, answer status, citation IDs, read path, command, URL, target
+metadata, or browser-HTML fields needed for the
 immediate next step, so a subagent can do the right thing without assembling a
 sentence from multiple objects.
 `agent.next` is the canonical next-step payload for executors. It always has a
@@ -663,17 +664,27 @@ cat captured.html | ax-grep https://example.com --stdin --json
     "handoff": {
       "instruction": "Answer now from verification.bestEvidence using citations v1, e1.",
       "decision": "return",
+      "mode": "read",
       "operation": "return",
+      "action": "use-evidence",
       "confidence": "high",
+      "priority": "high",
       "answerStatus": "ready",
       "answerReady": true,
       "shouldContinue": false,
       "terminal": true,
+      "maxSuggestedIterations": 0,
       "expectedOutcome": "read-evidence",
       "useCitationIds": [
         "v1",
         "e1"
       ],
+      "readTarget": {
+        "path": "verification.bestEvidence",
+        "reason": "Best matching evidence for the requested --find text.",
+        "count": 1,
+        "primary": true
+      },
       "readFrom": "verification.bestEvidence",
       "url": "https://example.com/"
     },

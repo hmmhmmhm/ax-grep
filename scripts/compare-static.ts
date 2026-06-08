@@ -192,21 +192,28 @@ type CliAgentRunbookShape = {
 type CliAgentHandoffShape = {
   instruction?: string;
   decision?: CliAgentLoopShape["decision"];
+  mode?: AgentContinuationMode;
   operation?: CliAgentExecutionPlanShape["operation"];
+  action?: string;
   confidence?: CliAgentExecutionPlanShape["confidence"];
+  priority?: "low" | "medium" | "high";
+  priorityReason?: string;
   answerStatus?: CliAgentAnswerPlanShape["status"];
   answerReady?: boolean;
   shouldContinue?: boolean;
   terminal?: boolean;
+  maxSuggestedIterations?: number;
   expectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
   reason?: string;
   useCitationIds?: unknown[];
+  readTarget?: CliReadTargetShape;
   readFrom?: string;
   command?: string;
   commandArgs?: unknown[];
   afterInteractionCommand?: string;
   afterInteractionCommandArgs?: unknown[];
   url?: string;
+  target?: CliAgentTargetShape;
   browserHtml?: CliAgentBrowserHtmlShape;
 };
 
@@ -1379,18 +1386,26 @@ function scoreAgentHandoff(
   answerPlan: CliAgentAnswerPlanShape | undefined,
 ): number {
   if (!handoff || !next?.loop || !plan || !answerPlan) return 0;
-  let required = 10;
+  let required = 14;
   let matched = 0;
   if (typeof handoff.instruction === "string" && handoff.instruction.length > 0) matched += 1;
   if (handoff.decision === next.loop.decision) matched += 1;
+  if (handoff.mode === next.mode) matched += 1;
   if (handoff.operation === plan.operation) matched += 1;
+  if (handoff.action === next.action) matched += 1;
   if (handoff.confidence === plan.confidence) matched += 1;
+  if (handoff.priority === next.priority) matched += 1;
   if (handoff.answerStatus === answerPlan.status) matched += 1;
   if (handoff.answerReady === plan.answerReady) matched += 1;
   if (handoff.shouldContinue === next.loop.shouldContinue) matched += 1;
   if (handoff.terminal === next.loop.terminal) matched += 1;
+  if (handoff.maxSuggestedIterations === next.loop.maxSuggestedIterations) matched += 1;
   if (handoff.expectedOutcome === plan.expectedOutcome) matched += 1;
   if (typeof handoff.reason === "string" && handoff.reason.length > 0) matched += 1;
+  if (next.priorityReason) {
+    required += 1;
+    if (handoff.priorityReason === next.priorityReason) matched += 1;
+  }
   if (answerPlan.useCitationIds && answerPlan.useCitationIds.length > 0) {
     required += 1;
     if (JSON.stringify(handoff.useCitationIds) === JSON.stringify(answerPlan.useCitationIds)) matched += 1;
@@ -1406,12 +1421,17 @@ function scoreAgentHandoff(
     if (JSON.stringify(handoff.afterInteractionCommandArgs) === JSON.stringify(next.afterInteractionCommandArgs)) matched += 1;
   }
   if (next.readFrom) {
-    required += 1;
+    required += 2;
     if (handoff.readFrom === next.readFrom) matched += 1;
+    if (handoff.readTarget?.path === next.readTarget?.path) matched += 1;
   }
   if (next.url) {
     required += 1;
     if (handoff.url === next.url) matched += 1;
+  }
+  if (next.target) {
+    required += 1;
+    if (handoff.target?.url === next.target.url) matched += 1;
   }
   if (next.browserHtml) {
     required += 1;

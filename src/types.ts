@@ -229,21 +229,28 @@ export type AgentRunbook = {
 export type AgentHandoff = {
   instruction: string;
   decision: AgentLoopDecision;
+  mode: AgentContinuationMode;
   operation: AgentExecutionPlan["operation"];
+  action?: string;
   confidence: AgentExecutionPlan["confidence"];
+  priority?: "low" | "medium" | "high";
+  priorityReason?: string;
   answerStatus: AgentAnswerPlan["status"];
   answerReady: boolean;
   shouldContinue: boolean;
   terminal: boolean;
+  maxSuggestedIterations: number;
   expectedOutcome: AgentExpectedOutcomeKind;
   reason: string;
   useCitationIds?: string[];
+  readTarget?: AgentReadTarget;
   readFrom?: string;
   command?: string;
   commandArgs?: string[];
   afterInteractionCommand?: string;
   afterInteractionCommandArgs?: string[];
   url?: string;
+  target?: AgentTarget;
   browserHtml?: AgentBrowserHtmlCapture;
 };
 
