@@ -1284,7 +1284,7 @@ Options:
   --region <code>            Search region hint, e.g. US, KR, JP, CN.
   --open-result <n|best>     With --search, fetch and analyze the selected result.
   --find <text>              Check whether page summaries contain text. Repeatable.
-  --agent                    Print compact JSON for agent routing; implies --json --no-tree.
+  --agent                    Print compact JSON for agent routing; read agent.handoff first.
   --json                     Print the SemanticNode tree as JSON.
   --text                     Print the compact text tree. This is the default.
   --mode <compact|interactive|full>
@@ -1307,6 +1307,7 @@ Notes:
   The CLI uses fetch only. It does not run JavaScript or bypass bot checks.
   Use --html-file or --stdin with a URL argument for browser-captured HTML.
   Text output starts with a deduplicated links summary for agent navigation.
+  --agent implies --json --no-tree and exposes agent.handoff for the next executor step.
   JSON output is an envelope with fetch metadata, analysis, links, results, warnings, and tree unless --no-tree is set.`;
 }
 

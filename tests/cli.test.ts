@@ -6,6 +6,15 @@ import { Readable } from "node:stream";
 import { runCli } from "../src/cli";
 
 describe("cli", () => {
+  it("documents agent handoff routing in help output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["--help"], { stdout });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("--agent                    Print compact JSON for agent routing; read agent.handoff first.");
+    expect(stdout.output).toContain("--agent implies --json --no-tree and exposes agent.handoff for the next executor step.");
+  });
+
   it("fetches a URL and prints the text tree by default", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test"], {
