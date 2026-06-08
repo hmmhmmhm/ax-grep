@@ -144,7 +144,10 @@ such as `recommendedRank`, `recommendedSource`, `recommendedRelevance`, and
 needed to continue, such as `commandArgs`, `readFrom`, `url`, `openResult`, or
 `requiresBrowserInteraction`. When `mode` is `read`, `next.readTarget` mirrors
 the matching `agent.readTargets` entry so an executor can understand the target
-without joining arrays itself.
+without joining arrays itself. When `mode` is `command` for a result or source
+link, `next.target` carries the target URL's title, source host, rank,
+source-type score, relevance, and official-source hints when known, so an agent
+can decide whether to run the command without looking up the result array.
 `agent.expectedOutcome` states what success should look like after following
 `agent.next`, such as reading evidence, opening a result, running a search,
 capturing rendered HTML, using a browser inspection, inspecting output, or

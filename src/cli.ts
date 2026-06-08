@@ -16,6 +16,7 @@ import type {
   AgentRoutingIntent,
   AgentSignal,
   AgentStatus,
+  AgentTarget,
   SemanticNode,
 } from "./types";
 
@@ -166,6 +167,7 @@ type SuggestedAction = {
   readFrom?: string;
   requiresBrowserInteraction?: boolean;
   execution?: "run-command" | "read-current" | "interact-browser" | "inspect-output";
+  target?: AgentTarget;
 };
 
 type CommandSpec = {
@@ -2150,6 +2152,7 @@ function recommendedPageCheckAction(
       reason: "The page has limited readable content, but an external source link is available.",
       url: sourceLinks[0].url,
       rank: sourceLinks[0].rank,
+      target: agentTargetFromResult(sourceLinks[0]),
       ...commandFields(pageCommandSpec(sourceLinks[0].url, agentMode, false, [], timeoutMs, userAgent)),
     };
   }
@@ -2194,6 +2197,7 @@ function summarizePageCheckNextSteps(
         reason: "Inspect an external source link referenced by the page.",
         url: link.url,
         rank: link.rank,
+        target: agentTargetFromResult(link),
         ...commandFields(pageCommandSpec(link.url, agentMode, false, [], timeoutMs, userAgent)),
       });
     }
@@ -2360,6 +2364,7 @@ function recommendedVerificationAction(
       reason: "Some requested text was not found; inspect the strongest external source link.",
       url: pageCheck.sourceLinks[0].url,
       rank: pageCheck.sourceLinks[0].rank,
+      target: agentTargetFromResult(pageCheck.sourceLinks[0]),
       ...commandFields(pageCommandSpec(pageCheck.sourceLinks[0].url, agentMode, false, missingQueries, timeoutMs, userAgent)),
     };
   }
@@ -2411,6 +2416,7 @@ function sourceSearchAlternateAction(sourceSearch: SourceSearchSummary | undefin
     reason: "The opened result did not verify the requested text; an alternate original SERP result matches the missing query.",
     url: alternate.url,
     rank: alternate.rank,
+    target: agentTargetFromResult(alternate),
     ...commandFields(command),
   };
 }
@@ -2624,6 +2630,7 @@ function summarizeAgentNext(primaryAction: SuggestedAction | undefined, readTarg
     ...(primaryAction.requiresBrowserInteraction ? { requiresBrowserInteraction: true } : {}),
     ...(primaryAction.terminal ? { terminal: true } : {}),
     ...(readTarget ? { readTarget } : {}),
+    ...(primaryAction.target ? { target: primaryAction.target } : {}),
   };
 }
 
@@ -3325,6 +3332,7 @@ function analyzePage(
         url: recommended.url,
         rank: recommended.rank,
         openResult: options.searchQuery ? "best" : recommended.rank,
+        target: agentTargetFromResult(recommended),
         ...commandFields(command),
       });
     } else {
@@ -4077,6 +4085,22 @@ function compactAgentPageLink(link: PageLinkSummary, commandContext?: PageLinkCo
   };
 }
 
+function agentTargetFromResult(result: ResultSummary): AgentTarget {
+  return {
+    title: result.title,
+    url: result.url,
+    source: result.source,
+    rank: result.rank,
+    ...(result.sourceType ? { sourceType: result.sourceType } : {}),
+    ...(typeof result.sourceScore === "number" ? { sourceScore: result.sourceScore } : {}),
+    ...(result.sourceHints?.length ? { sourceHints: result.sourceHints } : {}),
+    ...(result.relevance ? { relevance: result.relevance } : {}),
+    ...(result.matchedTerms?.length ? { matchedTerms: result.matchedTerms } : {}),
+    ...(result.findMatches?.length ? { findMatches: result.findMatches } : {}),
+    ...(typeof result.isLikelyOfficial === "boolean" ? { isLikelyOfficial: result.isLikelyOfficial } : {}),
+  };
+}
+
 function compactAgentAction(action: SuggestedAction): object {
   return {
     action: action.action,
@@ -4090,6 +4114,7 @@ function compactAgentAction(action: SuggestedAction): object {
     ...(action.terminal ? { terminal: action.terminal } : {}),
     ...(action.readFrom ? { readFrom: action.readFrom } : {}),
     ...(action.requiresBrowserInteraction ? { requiresBrowserInteraction: action.requiresBrowserInteraction } : {}),
+    ...(action.target ? { target: action.target } : {}),
   };
 }
 

@@ -109,6 +109,7 @@ export type AgentNext = {
   requiresBrowserInteraction?: boolean;
   terminal?: boolean;
   readTarget?: AgentReadTarget;
+  target?: AgentTarget;
 };
 
 export type AgentSignalKind =
@@ -148,6 +149,20 @@ export type AgentReadTarget = {
   count?: number;
   score?: number;
   primary?: boolean;
+};
+
+export type AgentTarget = {
+  title?: string;
+  url: string;
+  source?: string;
+  rank?: number;
+  sourceType?: string;
+  sourceScore?: number;
+  sourceHints?: string[];
+  relevance?: "low" | "medium" | "high";
+  matchedTerms?: string[];
+  findMatches?: string[];
+  isLikelyOfficial?: boolean;
 };
 
 export type AgentSummary = {

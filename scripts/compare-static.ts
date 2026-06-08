@@ -124,12 +124,27 @@ type CliActionShape = {
   readFrom?: string;
   requiresBrowserInteraction?: boolean;
   terminal?: boolean;
+  target?: CliAgentTargetShape;
 };
 
 type CliAgentNextShape = CliActionShape & {
   mode?: AgentContinuationMode;
   reason?: string;
   readTarget?: CliReadTargetShape;
+};
+
+type CliAgentTargetShape = {
+  title?: string;
+  url?: string;
+  source?: string;
+  rank?: number;
+  sourceType?: string;
+  sourceScore?: number;
+  sourceHints?: string[];
+  relevance?: "low" | "medium" | "high";
+  matchedTerms?: string[];
+  findMatches?: string[];
+  isLikelyOfficial?: boolean;
 };
 
 type CliAgentSignalShape = {
@@ -815,6 +830,7 @@ function scoreAgentNext(next: CliAgentNextShape | undefined, continuationMode: A
     "commandArgs",
     "requiresBrowserInteraction",
     "terminal",
+    "target",
   ];
   for (const field of fields) {
     const expected = primaryAction[field];

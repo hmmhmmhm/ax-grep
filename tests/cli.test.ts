@@ -371,6 +371,12 @@ describe("cli", () => {
       reason: "The page looks like search results; open the highest-ranked relevant result.",
       command: "ax-grep --search 'agent browser' --engine bing --open-result best --agent",
       commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "best", "--agent"],
+      target: {
+        title: "Agent browser result",
+        url: "https://result.example/",
+        source: "result.example",
+        rank: 1,
+      },
     });
     expect(envelope.agent).toMatchObject({
       pageKind: "search-results",
@@ -385,6 +391,12 @@ describe("cli", () => {
         openResult: "best",
         command: "ax-grep --search 'agent browser' --engine bing --open-result best --agent",
         commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "best", "--agent"],
+        target: {
+          title: "Agent browser result",
+          url: "https://result.example/",
+          source: "result.example",
+          rank: 1,
+        },
       },
       expectedOutcome: {
         kind: "open-result",
@@ -2240,6 +2252,12 @@ describe("cli", () => {
       url: "https://source.example/report",
       rank: 1,
       command: "ax-grep 'https://source.example/report' --json --summary",
+      target: {
+        title: "Original source report",
+        url: "https://source.example/report",
+        source: "source.example",
+        rank: 1,
+      },
     });
     expect(envelope.pageCheck.nextSteps).toEqual([
       expect.objectContaining({

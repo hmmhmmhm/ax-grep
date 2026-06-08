@@ -16,6 +16,7 @@ export type {
   AgentSignalSeverity,
   AgentStatus,
   AgentSummary,
+  AgentTarget,
   ExtractMode,
   ExtractorScriptOptions,
   OutputFormat,
