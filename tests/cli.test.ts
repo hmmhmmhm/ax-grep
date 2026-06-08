@@ -644,6 +644,38 @@ describe("cli", () => {
     expect(envelope.pageCheck.readability.reasons).toContain("1 search result source");
   });
 
+  it("adds result open commands for direct search result URLs in agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://www.bing.com/search?q=agent+browser", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <ol>
+            <li class="b_algo">
+              <h2><a href="https://result.example/">Agent browser result</a></h2>
+              <p>agent browser result</p>
+            </li>
+          </ol>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.kind).toBe("search-results");
+    expect(envelope.searchResults).toEqual([
+      expect.objectContaining({
+        id: "r1",
+        path: "searchResults[0]",
+        rank: 1,
+        openResult: 1,
+        command: "ax-grep --search 'agent browser' --engine bing --open-result 1 --agent",
+        commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent"],
+      }),
+    ]);
+  });
+
   it("limits compact agent search results while keeping an out-of-window recommendation", async () => {
     const stdout = new MemoryWriter();
     const items = Array.from({ length: 7 }, (_, index) => {

@@ -4767,17 +4767,43 @@ function compactAttemptTopResult(topResult: NonNullable<SearchAttemptSummary["to
 }
 
 function searchResultCommandContext(options: CliOptions): SearchResultCommandContext | undefined {
-  if (!options.searchQuery) return undefined;
+  const inferred = inferSearchResultCommandContext(options.url);
+  const query = options.searchQuery ?? inferred?.query;
+  if (!query) return undefined;
+  const engine = options.selectedSearchEngine ?? options.searchEngine ?? inferred?.engine;
   return {
-    query: options.searchQuery,
+    query,
     findQueries: options.findQueries ?? [],
     agentMode: true,
-    ...(options.selectedSearchEngine ?? options.searchEngine ? { engine: options.selectedSearchEngine ?? options.searchEngine } : {}),
+    ...(engine ? { engine } : {}),
     ...(options.searchLang ? { lang: options.searchLang } : {}),
     ...(options.searchRegion ? { region: options.searchRegion } : {}),
     ...(typeof options.timeoutMs === "number" ? { timeoutMs: options.timeoutMs } : {}),
     ...(options.userAgent ? { userAgent: options.userAgent } : {}),
   };
+}
+
+function inferSearchResultCommandContext(url: string | undefined): Pick<SearchResultCommandContext, "query" | "engine"> | undefined {
+  if (!url) return undefined;
+  try {
+    const parsed = new URL(url);
+    const hostname = parsed.hostname.replace(/^www\./, "");
+    if (hostname.endsWith("bing.com")) {
+      const query = parsed.searchParams.get("q");
+      return query ? { query, engine: "bing" } : undefined;
+    }
+    if (hostname.endsWith("duckduckgo.com")) {
+      const query = parsed.searchParams.get("q");
+      return query ? { query, engine: "duckduckgo" } : undefined;
+    }
+    if (hostname.endsWith("startpage.com")) {
+      const query = parsed.searchParams.get("query");
+      return query ? { query, engine: "startpage" } : undefined;
+    }
+    return undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function pageLinkCommandContext(options: CliOptions): PageLinkCommandContext {
