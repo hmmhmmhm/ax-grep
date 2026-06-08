@@ -177,6 +177,10 @@ type PageSummary = {
   description?: string;
   canonicalUrl?: string;
   lang?: string;
+  siteName?: string;
+  author?: string;
+  publishedTime?: string;
+  modifiedTime?: string;
 };
 
 type OutlineSummary = {
@@ -431,6 +435,10 @@ type PageCheckSummary = {
   canonicalUrl?: string;
   mainHeading?: string;
   lang?: string;
+  siteName?: string;
+  author?: string;
+  publishedTime?: string;
+  modifiedTime?: string;
   contentPreview: string[];
   contentEvidence: PageEvidenceSummary[];
   contentLength: number;
@@ -1423,6 +1431,10 @@ function formatPageText(page: PageSummary): string[] {
   if (page.description) lines.push(`  description: ${page.description}`);
   if (page.canonicalUrl) lines.push(`  canonical: ${page.canonicalUrl}`);
   if (page.lang) lines.push(`  lang: ${page.lang}`);
+  if (page.siteName) lines.push(`  site: ${page.siteName}`);
+  if (page.author) lines.push(`  author: ${page.author}`);
+  if (page.publishedTime) lines.push(`  published: ${page.publishedTime}`);
+  if (page.modifiedTime) lines.push(`  modified: ${page.modifiedTime}`);
   return lines.length > 0 ? ["page", ...lines] : [];
 }
 
@@ -1725,6 +1737,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   if (pageCheck.title) lines.push(`  title: ${pageCheck.title}`);
   if (pageCheck.mainHeading) lines.push(`  mainHeading: ${pageCheck.mainHeading}`);
   if (pageCheck.canonicalUrl) lines.push(`  canonical: ${pageCheck.canonicalUrl}`);
+  if (pageCheck.siteName) lines.push(`  site: ${pageCheck.siteName}`);
+  if (pageCheck.author) lines.push(`  author: ${pageCheck.author}`);
+  if (pageCheck.publishedTime) lines.push(`  published: ${pageCheck.publishedTime}`);
+  if (pageCheck.modifiedTime) lines.push(`  modified: ${pageCheck.modifiedTime}`);
   for (const excerpt of pageCheck.contentPreview) lines.push(`  excerpt: ${excerpt}`);
   for (const evidence of pageCheck.contentEvidence) {
     const selector = evidence.selector ? ` (${evidence.selector})` : "";
@@ -2316,6 +2332,33 @@ function extractPageSummary(html: string, baseUrl: string): PageSummary {
     || firstMetaContent(document.children, "og:description")
     || firstMetaContent(document.children, "twitter:description");
   const canonicalHref = firstLinkHref(document.children, "canonical");
+  const siteName = firstMetaContent(document.children, "og:site_name")
+    || firstMetaContent(document.children, "application-name");
+  const author = firstMetaContentOf(document.children, [
+    "author",
+    "article:author",
+    "parsely-author",
+    "twitter:creator",
+    "dc.creator",
+    "dcterms.creator",
+  ]);
+  const publishedTime = firstMetaContentOf(document.children, [
+    "article:published_time",
+    "og:published_time",
+    "pubdate",
+    "publishdate",
+    "date",
+    "dc.date",
+    "dcterms.issued",
+  ]);
+  const modifiedTime = firstMetaContentOf(document.children, [
+    "article:modified_time",
+    "og:updated_time",
+    "last-modified",
+    "modified",
+    "date.modified",
+    "dcterms.modified",
+  ]);
   const summary: PageSummary = {};
   const title = titleElement ? cleanLinkText(descendantText(titleElement)) : "";
   if (title) summary.title = title;
@@ -2323,6 +2366,10 @@ function extractPageSummary(html: string, baseUrl: string): PageSummary {
   if (canonicalHref) summary.canonicalUrl = normalizeHref(canonicalHref, baseUrl) ?? canonicalHref;
   const lang = htmlElement ? attr(htmlElement, "lang") : "";
   if (lang) summary.lang = lang;
+  if (siteName) summary.siteName = siteName;
+  if (author) summary.author = author;
+  if (publishedTime) summary.publishedTime = publishedTime;
+  if (modifiedTime) summary.modifiedTime = modifiedTime;
   return summary;
 }
 
@@ -2426,6 +2473,10 @@ function summarizePageCheck(
   if (fetched.page.title) pageCheck.title = fetched.page.title;
   if (fetched.page.canonicalUrl) pageCheck.canonicalUrl = fetched.page.canonicalUrl;
   if (fetched.page.lang) pageCheck.lang = fetched.page.lang;
+  if (fetched.page.siteName) pageCheck.siteName = fetched.page.siteName;
+  if (fetched.page.author) pageCheck.author = fetched.page.author;
+  if (fetched.page.publishedTime) pageCheck.publishedTime = fetched.page.publishedTime;
+  if (fetched.page.modifiedTime) pageCheck.modifiedTime = fetched.page.modifiedTime;
   const mainHeading = pageMainHeading(outline);
   if (mainHeading) pageCheck.mainHeading = mainHeading;
   return pageCheck;
@@ -4866,6 +4917,14 @@ function firstMetaContent(nodes: AnyNode[], name: string): string {
   return element ? cleanLinkText(attr(element, "content") ?? "") : "";
 }
 
+function firstMetaContentOf(nodes: AnyNode[], names: string[]): string {
+  for (const name of names) {
+    const value = firstMetaContent(nodes, name);
+    if (value) return value;
+  }
+  return "";
+}
+
 function firstLinkHref(nodes: AnyNode[], rel: string): string {
   const element = findElement(nodes, (item) => item.name === "link" && (attr(item, "rel") ?? "").split(/\s+/).includes(rel));
   return element ? attr(element, "href") ?? "" : "";
@@ -5204,6 +5263,10 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.canonicalUrl ? { canonicalUrl: pageCheck.canonicalUrl } : {}),
     ...(pageCheck.mainHeading ? { mainHeading: pageCheck.mainHeading } : {}),
     ...(pageCheck.lang ? { lang: pageCheck.lang } : {}),
+    ...(pageCheck.siteName ? { siteName: pageCheck.siteName } : {}),
+    ...(pageCheck.author ? { author: pageCheck.author } : {}),
+    ...(pageCheck.publishedTime ? { publishedTime: pageCheck.publishedTime } : {}),
+    ...(pageCheck.modifiedTime ? { modifiedTime: pageCheck.modifiedTime } : {}),
   };
 }
 
@@ -5303,7 +5366,14 @@ function compactAgentSummary(agent: AgentSummary): object {
 }
 
 function compactAgentPage(page: PageSummary): object {
-  return page.description ? { page: { description: page.description } } : {};
+  const compact = {
+    ...(page.description ? { description: page.description } : {}),
+    ...(page.siteName ? { siteName: page.siteName } : {}),
+    ...(page.author ? { author: page.author } : {}),
+    ...(page.publishedTime ? { publishedTime: page.publishedTime } : {}),
+    ...(page.modifiedTime ? { modifiedTime: page.modifiedTime } : {}),
+  };
+  return Object.keys(compact).length > 0 ? { page: compact } : {};
 }
 
 function compactAgentVerification(verification: VerificationSummary, primaryAction?: SuggestedAction): object {

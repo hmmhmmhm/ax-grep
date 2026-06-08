@@ -225,7 +225,21 @@ describe("cli", () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test", "--agent", "--find", "Example"], {
       stdout,
-      fetch: async () => new Response(`<main><h1>Example</h1><p>Example content for agent routing.</p><a href="https://target.example/">Target</a></main>`, {
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <title>Example</title>
+            <meta name="description" content="Example description">
+            <meta property="og:site_name" content="Example Site">
+            <meta name="author" content="Example Author">
+            <meta property="article:published_time" content="2026-03-04T05:06:07Z">
+            <meta property="article:modified_time" content="2026-03-05T06:07:08Z">
+          </head>
+          <body>
+            <main><h1>Example</h1><p>Example content for agent routing.</p><a href="https://target.example/">Target</a></main>
+          </body>
+        </html>
+      `, {
         headers: { "content-type": "text/html" },
       }),
     });
@@ -240,6 +254,13 @@ describe("cli", () => {
       url: "https://example.test",
       kind: "page",
       treeOmitted: true,
+      page: {
+        description: "Example description",
+        siteName: "Example Site",
+        author: "Example Author",
+        publishedTime: "2026-03-04T05:06:07Z",
+        modifiedTime: "2026-03-05T06:07:08Z",
+      },
       agent: {
         contract: {
           version: 1,
@@ -302,7 +323,7 @@ describe("cli", () => {
           readValue: {
             path: "verification.bestEvidence",
             value: expect.objectContaining({
-              field: "mainHeading",
+              field: "title",
               text: "Example",
             }),
           },
@@ -324,7 +345,7 @@ describe("cli", () => {
           readValue: {
             path: "verification.bestEvidence",
             value: expect.objectContaining({
-              field: "mainHeading",
+              field: "title",
               text: "Example",
             }),
           },
@@ -353,7 +374,7 @@ describe("cli", () => {
           readValue: {
             path: "verification.bestEvidence",
             value: expect.objectContaining({
-              field: "mainHeading",
+              field: "title",
               text: "Example",
             }),
           },
@@ -498,6 +519,10 @@ describe("cli", () => {
       },
       pageCheck: {
         mainHeading: "Example",
+        siteName: "Example Site",
+        author: "Example Author",
+        publishedTime: "2026-03-04T05:06:07Z",
+        modifiedTime: "2026-03-05T06:07:08Z",
       },
     });
     expect(envelope.agent.primaryAction).toMatchObject({
@@ -523,7 +548,7 @@ describe("cli", () => {
     expect(envelope.agent.next.readValue).toEqual({
       path: "verification.bestEvidence",
       value: expect.objectContaining({
-        field: "mainHeading",
+        field: "title",
         text: "Example",
       }),
     });
@@ -2564,6 +2589,10 @@ describe("cli", () => {
           <head>
             <title>Forum post title</title>
             <link rel="canonical" href="/post/123">
+            <meta property="og:site_name" content="Forum Example">
+            <meta name="author" content="Reporter Name">
+            <meta property="article:published_time" content="2026-01-02T03:04:05Z">
+            <meta property="article:modified_time" content="2026-01-03T04:05:06Z">
           </head>
           <body>
             <header><a href="/login">Login</a><a href="/privacy">Privacy</a></header>
@@ -2590,6 +2619,10 @@ describe("cli", () => {
       canonicalUrl: "https://forum.example/post/123",
       mainHeading: "Forum post title",
       lang: "en",
+      siteName: "Forum Example",
+      author: "Reporter Name",
+      publishedTime: "2026-01-02T03:04:05Z",
+      modifiedTime: "2026-01-03T04:05:06Z",
       confidence: "high",
       readability: {
         level: "high",
@@ -2937,13 +2970,24 @@ describe("cli", () => {
     const status = await runCli(["https://example.test/article"], {
       stdout,
       fetch: async () => new Response(`
-        <main>
-          <article>
-            <h1>Article heading</h1>
-            <p>This article paragraph is long enough to appear in the page checking summary for agents.</p>
-            <a href="https://source.example/report">Source report</a>
-          </article>
-        </main>
+        <html>
+          <head>
+            <title>Article title</title>
+            <meta property="og:site_name" content="Example News">
+            <meta name="author" content="Article Author">
+            <meta property="article:published_time" content="2026-02-03T04:05:06Z">
+            <meta property="article:modified_time" content="2026-02-04T05:06:07Z">
+          </head>
+          <body>
+            <main>
+              <article>
+                <h1>Article heading</h1>
+                <p>This article paragraph is long enough to appear in the page checking summary for agents.</p>
+                <a href="https://source.example/report">Source report</a>
+              </article>
+            </main>
+          </body>
+        </html>
       `),
     });
 
@@ -3009,6 +3053,16 @@ describe("cli", () => {
     expect(stdout.output).toContain("  recommendedUrl: https://example.test/article");
     expect(stdout.output).toContain("pageCheck\n  confidence: medium");
     expect(stdout.output).toContain("  readability: medium");
+    expect(stdout.output).toContain("page\n  title: Article title");
+    expect(stdout.output).toContain("  site: Example News");
+    expect(stdout.output).toContain("  author: Article Author");
+    expect(stdout.output).toContain("  published: 2026-02-03T04:05:06Z");
+    expect(stdout.output).toContain("  modified: 2026-02-04T05:06:07Z");
+    expect(stdout.output).toContain("  title: Article title");
+    expect(stdout.output).toContain("  site: Example News");
+    expect(stdout.output).toContain("  author: Article Author");
+    expect(stdout.output).toContain("  published: 2026-02-03T04:05:06Z");
+    expect(stdout.output).toContain("  modified: 2026-02-04T05:06:07Z");
     expect(stdout.output).toContain("  mainHeading: Article heading");
     expect(stdout.output).toContain("  excerpt: This article paragraph is long enough to appear in the page checking summary for agents.");
     expect(stdout.output).toContain("  evidence: e1 pageCheck.contentEvidence[0] 1. p (p) high - high evidence from semantic extraction, 88 chars, p content, selector available. This article paragraph is long enough to appear in the page checking summary for agents.");
