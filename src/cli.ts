@@ -101,6 +101,22 @@ type SearchAttemptSummary = {
   };
 };
 
+type AgentSearchDecision = {
+  decision: "open-result" | "refine-search" | "none";
+  confidence: "low" | "medium" | "high";
+  reason: string;
+  resultCount: number;
+  highRelevanceCount: number;
+  mediumRelevanceCount: number;
+  lowRelevanceCount: number;
+  officialCount: number;
+  findMatchCount: number;
+  recommendedRank?: number;
+  recommendedUrl?: string;
+  command?: string;
+  commandArgs?: string[];
+};
+
 type CliErrorCode = "FETCH_FAILED" | "HTTP_ERROR" | "NO_INSPECTABLE_CONTENT" | "NO_RESULT" | "TIMEOUT" | "USAGE";
 
 type LinkSummary = {
@@ -280,6 +296,7 @@ type AgentSummary = {
   next: AgentNext;
   expectedOutcome: AgentExpectedOutcome;
   answerPlan: AgentAnswerPlan;
+  searchDecision?: AgentSearchDecision;
   signals: AgentSignal[];
   canContinue: boolean;
   canUseFetchedHtml: boolean;
@@ -343,6 +360,7 @@ const agentContract: AgentContract = {
     "answerPlan",
     "answerPlan.actionFields",
     "answerPlan.confidence",
+    "searchDecision",
     "searchResult.selectionReason",
     "sourceLink.selectionReason",
     "action.priority",
@@ -1401,6 +1419,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.answerPlan.url ? [`  answerUrl: ${agent.answerPlan.url}`] : []),
     ...(agent.answerPlan.command ? [`  answerCommand: ${agent.answerPlan.command}`] : []),
     ...(agent.answerPlan.commandArgs ? [`  answerCommandArgs: ${JSON.stringify(agent.answerPlan.commandArgs)}`] : []),
+    ...(agent.searchDecision ? [`  searchDecision: ${agent.searchDecision.decision}/${agent.searchDecision.confidence} - ${agent.searchDecision.reason}`] : []),
     `  summary: ${agent.summary}`,
     `  canContinue: ${agent.canContinue}`,
     `  canUseFetchedHtml: ${agent.canUseFetchedHtml}`,
@@ -2623,6 +2642,7 @@ function summarizeAgent(
   const readTargets = summarizeAgentReadTargets(primaryAction, analysis.kind, pageCheck, verification, results, sourceSearch);
   const bestReadTarget = selectBestReadTarget(readTargets);
   const citations = summarizeAgentCitations(pageCheck, verification, recommendedResult, sourceSearch);
+  const searchDecision = summarizeAgentSearchDecision(analysis, results, recommendedResult, primaryAction);
   const agent: AgentSummary = {
     contract: agentContract,
     status,
@@ -2633,6 +2653,7 @@ function summarizeAgent(
     next: summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch)),
     expectedOutcome: summarizeAgentExpectedOutcome(primaryAction),
     answerPlan: summarizeAgentAnswerPlan(status, primaryAction, pageCheck, verification, citations, needsBrowserHtml, error),
+    ...(searchDecision ? { searchDecision } : {}),
     signals: summarizeAgentSignals(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, fetched, error),
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml,
@@ -2765,6 +2786,69 @@ function summarizeAgentCitations(
     });
   }
   return citations.slice(0, 6);
+}
+
+function summarizeAgentSearchDecision(
+  analysis: AnalysisSummary,
+  results: ResultSummary[],
+  recommendedResult: ResultSummary | undefined,
+  primaryAction: SuggestedAction | undefined,
+): AgentSearchDecision | undefined {
+  if (analysis.kind !== "search-results") return undefined;
+  const highRelevanceCount = results.filter((result) => result.relevance === "high").length;
+  const mediumRelevanceCount = results.filter((result) => result.relevance === "medium").length;
+  const lowRelevanceCount = results.filter((result) => result.relevance === "low").length;
+  const officialCount = results.filter((result) => result.isLikelyOfficial).length;
+  const findMatchCount = results.filter((result) => (result.findMatches?.length ?? 0) > 0).length;
+  if (recommendedResult && primaryAction?.action === "open-result") {
+    return {
+      decision: "open-result",
+      confidence: searchDecisionConfidence(recommendedResult),
+      reason: recommendedResult.selectionReason ?? searchResultSelectionReason(recommendedResult),
+      resultCount: results.length,
+      highRelevanceCount,
+      mediumRelevanceCount,
+      lowRelevanceCount,
+      officialCount,
+      findMatchCount,
+      recommendedRank: recommendedResult.rank,
+      recommendedUrl: recommendedResult.url,
+      ...(primaryAction.command ? { command: primaryAction.command } : {}),
+      ...(primaryAction.commandArgs ? { commandArgs: primaryAction.commandArgs } : {}),
+    };
+  }
+  if (primaryAction?.action === "refine-search") {
+    return {
+      decision: "refine-search",
+      confidence: "low",
+      reason: primaryAction.reason,
+      resultCount: results.length,
+      highRelevanceCount,
+      mediumRelevanceCount,
+      lowRelevanceCount,
+      officialCount,
+      findMatchCount,
+      ...(primaryAction.command ? { command: primaryAction.command } : {}),
+      ...(primaryAction.commandArgs ? { commandArgs: primaryAction.commandArgs } : {}),
+    };
+  }
+  return {
+    decision: "none",
+    confidence: "low",
+    reason: results.length > 0 ? "Search results were extracted, but no executable search decision was selected." : "No search results were extracted.",
+    resultCount: results.length,
+    highRelevanceCount,
+    mediumRelevanceCount,
+    lowRelevanceCount,
+    officialCount,
+    findMatchCount,
+  };
+}
+
+function searchDecisionConfidence(result: ResultSummary): AgentSearchDecision["confidence"] {
+  if (result.findMatches?.length || result.isLikelyOfficial || result.relevance === "high") return "high";
+  if (result.relevance === "medium" || (result.sourceScore ?? 0) >= 0.5) return "medium";
+  return "low";
 }
 
 function searchCitationConfidence(result: ResultSummary): NonNullable<AgentCitation["confidence"]> {
@@ -4376,6 +4460,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     next: agent.next,
     expectedOutcome: agent.expectedOutcome,
     answerPlan: agent.answerPlan,
+    ...(agent.searchDecision ? { searchDecision: agent.searchDecision } : {}),
     ...(agent.signals.length > 0 ? { signals: agent.signals } : {}),
     canContinue: agent.canContinue,
     canUseFetchedHtml: agent.canUseFetchedHtml,

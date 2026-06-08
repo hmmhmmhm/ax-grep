@@ -220,6 +220,7 @@ export type AgentSummary = {
   next: AgentNext;
   expectedOutcome: AgentExpectedOutcome;
   answerPlan?: AgentAnswerPlan;
+  searchDecision?: Record<string, unknown>;
   signals?: AgentSignal[];
   canContinue: boolean;
   canUseFetchedHtml: boolean;
@@ -281,6 +282,7 @@ export type AgentContractFeature =
   | "answerPlan"
   | "answerPlan.actionFields"
   | "answerPlan.confidence"
+  | "searchDecision"
   | "searchResult.selectionReason"
   | "sourceLink.selectionReason"
   | "action.priority"

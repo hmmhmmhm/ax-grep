@@ -109,6 +109,9 @@ a ready-to-run `command` when the original query is known. When all top results
 miss an essential package-like term such as `ax-grep`, `recommendedResult` is
 omitted and the agent action becomes `refine-search` instead of opening a
 misleading high-rank result.
+`agent.searchDecision` summarizes that same choice as `open-result`,
+`refine-search`, or `none`, with confidence, result counts, relevance counts,
+and the runnable command when one is available.
 Search result pages also cap the trailing text tree to 80 lines by default to
 keep agent prompts focused; pass `--max-tree-lines <n>` to choose a different
 limit. In JSON mode, pass `--no-tree` or `--summary` to omit the raw tree while
@@ -516,6 +519,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "answerPlan",
         "answerPlan.actionFields",
         "answerPlan.confidence",
+        "searchDecision",
         "searchResult.selectionReason",
         "sourceLink.selectionReason",
         "action.priority",

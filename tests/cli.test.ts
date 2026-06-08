@@ -243,6 +243,7 @@ describe("cli", () => {
             "answerPlan",
             "answerPlan.actionFields",
             "answerPlan.confidence",
+            "searchDecision",
             "searchResult.selectionReason",
             "sourceLink.selectionReason",
             "action.priority",
@@ -1107,6 +1108,17 @@ describe("cli", () => {
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "refine-search",
       priority: "medium",
+      command: "ax-grep --search '\"ax-grep\"' --engine duckduckgo --agent",
+    });
+    expect(envelope.agent.searchDecision).toMatchObject({
+      decision: "refine-search",
+      confidence: "low",
+      resultCount: 1,
+      highRelevanceCount: 0,
+      mediumRelevanceCount: 0,
+      lowRelevanceCount: 1,
+      officialCount: 0,
+      findMatchCount: 0,
       command: "ax-grep --search '\"ax-grep\"' --engine duckduckgo --agent",
     });
   });

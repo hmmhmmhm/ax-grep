@@ -86,6 +86,7 @@ type CliAgentSummary = {
   agentCitationScore: number;
   agentAnswerPlanScore: number;
   agentActionListScore: number;
+  agentSearchDecisionScore: number;
   pageCheck: {
     confidence: "low" | "medium" | "high";
     readabilityLevel: "low" | "medium" | "high";
@@ -185,6 +186,7 @@ type CliSearchResultShape = {
   id?: string;
   path?: string;
   rank?: number;
+  url?: string;
   source?: string;
   sourceScore?: number;
   relevance?: "low" | "medium" | "high";
@@ -218,6 +220,22 @@ type CliAgentAnswerPlanShape = {
   commandArgs?: unknown[];
   url?: string;
   readFrom?: string;
+};
+
+type CliAgentSearchDecisionShape = {
+  decision?: "open-result" | "refine-search" | "none";
+  confidence?: "low" | "medium" | "high";
+  reason?: string;
+  resultCount?: number;
+  highRelevanceCount?: number;
+  mediumRelevanceCount?: number;
+  lowRelevanceCount?: number;
+  officialCount?: number;
+  findMatchCount?: number;
+  recommendedRank?: number;
+  recommendedUrl?: string;
+  command?: string;
+  commandArgs?: unknown[];
 };
 
 type CliReadTargetShape = {
@@ -278,6 +296,7 @@ type GateSummary = {
   averageAgentCitationScore: number;
   averageAgentAnswerPlanScore: number;
   averageAgentActionListScore: number;
+  averageAgentSearchDecisionScore: number;
   averagePrecision: number;
   averageReferenceRecall: number;
   classifications: Record<StaticClassification, number>;
@@ -587,6 +606,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       next?: CliAgentNextShape;
       expectedOutcome?: CliAgentExpectedOutcomeShape;
       answerPlan?: CliAgentAnswerPlanShape;
+      searchDecision?: CliAgentSearchDecisionShape;
       signals?: CliAgentSignalShape[];
       responseStatus?: number;
       responseOk?: boolean;
@@ -714,6 +734,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentCitationScore: scoreAgentCitations(item.agent?.citations ?? [], item),
     agentAnswerPlanScore: scoreAgentAnswerPlan(item.agent?.answerPlan, item.agent?.citations ?? [], item.agent?.primaryAction),
     agentActionListScore: scoreAgentActionList(item.agent?.actions, item.agent?.primaryAction, item.agent?.alternativeActionCount),
+    agentSearchDecisionScore: scoreAgentSearchDecision(item.agent?.searchDecision, item.kind, item.agent?.primaryAction, item.searchResults ?? [], item.recommendedResult),
     pageCheck: pageCheckSummary,
     searchResultCount: item.searchResults?.length ?? 0,
     searchResultActionScore: scoreSearchResultActions(item.searchResults ?? []),
@@ -766,6 +787,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentCitationScore: 0,
     agentAnswerPlanScore: 0,
     agentActionListScore: 0,
+    agentSearchDecisionScore: 0,
     pageCheck: {
       confidence: "low",
       readabilityLevel: "low",
@@ -898,6 +920,7 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[] }
     "next.target",
     "citations",
     "answerPlan",
+    "searchDecision",
     "readTargets",
     "actions",
     "signals",
@@ -1303,6 +1326,44 @@ function scoreAgentActionList(actions: CliActionShape[] | undefined, primaryActi
   return roundScore(matched / required);
 }
 
+function scoreAgentSearchDecision(
+  decision: CliAgentSearchDecisionShape | undefined,
+  kind: string | undefined,
+  primaryAction: CliActionShape | undefined,
+  searchResults: CliSearchResultShape[],
+  recommendedResult: CliSearchResultShape | undefined,
+): number {
+  if (kind !== "search-results") return typeof decision === "undefined" ? 1 : 0;
+  if (!decision) return 0;
+  let required = 5;
+  let matched = 0;
+  if (decision.decision === expectedSearchDecision(primaryAction, recommendedResult)) matched += 1;
+  if (decision.confidence === "low" || decision.confidence === "medium" || decision.confidence === "high") matched += 1;
+  if (typeof decision.reason === "string" && decision.reason.length > 0) matched += 1;
+  if (decision.resultCount === searchResults.length) matched += 1;
+  if (typeof decision.highRelevanceCount === "number"
+    && typeof decision.mediumRelevanceCount === "number"
+    && typeof decision.lowRelevanceCount === "number"
+    && typeof decision.officialCount === "number"
+    && typeof decision.findMatchCount === "number") matched += 1;
+  if (recommendedResult) {
+    required += 2;
+    if (decision.recommendedRank === recommendedResult.rank) matched += 1;
+    if (decision.recommendedUrl === recommendedResult.url) matched += 1;
+  }
+  if (primaryAction?.command) {
+    required += 1;
+    if (decision.command === primaryAction.command) matched += 1;
+  }
+  return roundScore(matched / required);
+}
+
+function expectedSearchDecision(primaryAction: CliActionShape | undefined, recommendedResult: CliSearchResultShape | undefined): NonNullable<CliAgentSearchDecisionShape["decision"]> {
+  if (primaryAction?.action === "open-result" && recommendedResult) return "open-result";
+  if (primaryAction?.action === "refine-search") return "refine-search";
+  return "none";
+}
+
 function scoreAgentUsabilityScore(usabilityScore: number | undefined, item: {
   agent?: { status?: CliAgentSummary["agentStatus"]; needsBrowserHtml?: boolean };
   pageCheck?: {
@@ -1638,7 +1699,8 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentPrimaryShortcutScore * 0.005
     + summary.agentCitationScore * 0.005
     + summary.agentAnswerPlanScore * 0.005
-    + summary.agentActionListScore * 0.005,
+    + summary.agentActionListScore * 0.005
+    + summary.agentSearchDecisionScore * 0.005,
   ));
 }
 
@@ -1659,6 +1721,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentCitationScore,
     summary.agentAnswerPlanScore,
     summary.agentActionListScore,
+    summary.agentSearchDecisionScore,
     summary.searchResultActionScore,
     summary.pageLinkCommandScore,
     summary.agentResponseMetadataScore,
@@ -1738,6 +1801,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentCitationScore: average(included.map((comparison) => comparison.cliAgentSummary.agentCitationScore)),
     averageAgentAnswerPlanScore: average(included.map((comparison) => comparison.cliAgentSummary.agentAnswerPlanScore)),
     averageAgentActionListScore: average(included.map((comparison) => comparison.cliAgentSummary.agentActionListScore)),
+    averageAgentSearchDecisionScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSearchDecisionScore)),
     averagePrecision: average(included.map((comparison) => comparison.agentReadiness.candidatePrecision)),
     averageReferenceRecall: average(included.map((comparison) => comparison.agentReadiness.referenceRecall)),
     classifications,

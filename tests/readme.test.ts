@@ -33,6 +33,7 @@ describe("README", () => {
           "answerPlan",
           "answerPlan.actionFields",
           "answerPlan.confidence",
+          "searchDecision",
           "searchResult.selectionReason",
           "sourceLink.selectionReason",
           "action.priority",
