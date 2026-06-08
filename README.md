@@ -188,6 +188,9 @@ scanning the full tree first.
 `confidence` plus concise `gaps`, and mirrors the primary action fields
 (`command`, `commandArgs`, `url`, or `readFrom`) needed to execute or answer
 from the plan directly.
+On recoverable extraction errors, `agent.status` remains `error` while
+`agent.answerPlan.status` becomes `needs-more` or `blocked`, so executors should
+route from `agent.next`/`agent.answerPlan` instead of stopping on status alone.
 `canContinue` is true when the primary action is directly usable by an agent
 (`run-command`, `read-current`, or browser interaction), including recoverable
 error states such as alternate-result recovery or retry-later.

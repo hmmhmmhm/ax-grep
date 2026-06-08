@@ -773,7 +773,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentPrimaryExecutionScore: scoreAgentPrimaryExecution(item.agent?.primaryExecution, item.agent?.primaryAction),
     agentPrimaryShortcutScore: scoreAgentPrimaryShortcuts(item.agent),
     agentCitationScore: scoreAgentCitations(item.agent?.citations ?? [], item),
-    agentAnswerPlanScore: scoreAgentAnswerPlan(item.agent?.answerPlan, item.agent?.citations ?? [], item.agent?.primaryAction),
+    agentAnswerPlanScore: scoreAgentAnswerPlan(item.agent?.answerPlan, item.agent?.citations ?? [], item.agent?.primaryAction, item.agent?.needsBrowserHtml),
     agentActionListScore: scoreAgentActionList(item.agent?.actions, item.agent?.primaryAction, item.agent?.alternativeActionCount),
     agentSearchDecisionScore: scoreAgentSearchDecision(item.agent?.searchDecision, item.kind, item.agent?.primaryAction, item.searchResults ?? [], item.recommendedResult, item.agent?.resultCount),
     agentPageDecisionScore: scoreAgentPageDecision(item.agent?.pageDecision, item.kind, item.agent?.primaryAction, item.pageCheck),
@@ -1007,12 +1007,10 @@ function scoreAgentAnswerPlan(
   answerPlan: CliAgentAnswerPlanShape | undefined,
   citations: CliAgentCitationShape[],
   primaryAction: CliActionShape | undefined,
+  needsBrowserHtml: boolean | undefined,
 ): number {
   if (!answerPlan) return 0;
-  const validStatus = answerPlan.status === "ready"
-    || answerPlan.status === "needs-more"
-    || answerPlan.status === "blocked"
-    || answerPlan.status === "error";
+  const validStatus = answerPlan.status === expectedAgentAnswerPlanStatus(answerPlan, primaryAction, needsBrowserHtml);
   const validReason = typeof answerPlan.reason === "string" && answerPlan.reason.length > 0;
   const validConfidence = answerPlan.confidence === "low" || answerPlan.confidence === "medium" || answerPlan.confidence === "high";
   const validGaps = Array.isArray(answerPlan.gaps) && answerPlan.gaps.every((gap) => typeof gap === "string" && gap.length > 0);
@@ -1035,6 +1033,20 @@ function scoreAgentAnswerPlan(
     ? answerPlan.readFrom === primaryAction.readFrom
     : typeof answerPlan.readFrom === "undefined";
   return validStatus && validConfidence && validReason && validGaps && validCitations && validNextAction && validCommand && validCommandArgs && validUrl && validReadFrom ? 1 : 0;
+}
+
+function expectedAgentAnswerPlanStatus(
+  answerPlan: CliAgentAnswerPlanShape,
+  primaryAction: CliActionShape | undefined,
+  needsBrowserHtml: boolean | undefined,
+): NonNullable<CliAgentAnswerPlanShape["status"]> {
+  if (needsBrowserHtml === true || primaryAction?.action === "retry-with-browser-html") return "blocked";
+  const execution = primaryAction ? normalizedActionExecution(primaryAction) : "unknown";
+  if (execution === "run-command") return "needs-more";
+  if (execution === "read-current") return "ready";
+  if (execution === "interact-browser") return "needs-more";
+  if (answerPlan.status === "ready" || answerPlan.status === "needs-more" || answerPlan.status === "blocked" || answerPlan.status === "error") return answerPlan.status;
+  return "error";
 }
 
 function scoreAgentRoutingIntent(routingIntent: AgentRoutingIntent | undefined, primaryAction: CliActionShape | undefined): number {
