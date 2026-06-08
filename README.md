@@ -189,6 +189,9 @@ from that same primary action, so a calling agent can route without drilling
 into the full action object first.
 Agent-facing actions include `priority` and `priorityReason`, so executors can
 compare follow-up alternatives without re-ranking them from prose alone.
+`agent.actions` provides the same deduplicated candidate set in one list,
+marking the first item with `primary: true` and preserving each candidate's
+source path.
 Duplicate `suggestedActions`,
 `pageCheck.recommendedAction`, and `verification.recommendedAction` entries are
 omitted when they repeat that same command, leaving `pageCheck.nextSteps` for
@@ -516,6 +519,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "searchResult.selectionReason",
         "sourceLink.selectionReason",
         "action.priority",
+        "actions",
         "contentEvidence.quality",
         "readTargets",
         "signals",

@@ -36,6 +36,7 @@ describe("README", () => {
           "searchResult.selectionReason",
           "sourceLink.selectionReason",
           "action.priority",
+          "actions",
           "contentEvidence.quality",
         ]),
       },

@@ -246,6 +246,7 @@ describe("cli", () => {
             "searchResult.selectionReason",
             "sourceLink.selectionReason",
             "action.priority",
+            "actions",
             "contentEvidence.quality",
             "readTargets",
             "signals",
@@ -335,6 +336,14 @@ describe("cli", () => {
         ]),
         verificationStatus: "matched",
         primaryExecution: "read-current",
+        actions: [
+          expect.objectContaining({
+            action: "use-evidence",
+            source: "agent.primaryAction",
+            primary: true,
+            priority: "high",
+          }),
+        ],
       },
       verification: {
         status: "matched",

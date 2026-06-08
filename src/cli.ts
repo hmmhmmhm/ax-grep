@@ -180,6 +180,14 @@ type SuggestedAction = {
   target?: AgentTarget;
 };
 
+type AgentActionSource = "agent.primaryAction" | "analysis.suggestedActions" | "pageCheck.recommendedAction" | "pageCheck.nextSteps" | "verification.recommendedAction";
+
+type AgentActionSummary = SuggestedAction & {
+  source: AgentActionSource;
+  primary?: boolean;
+  index?: number;
+};
+
 type CommandSpec = {
   command: string;
   commandArgs: string[];
@@ -301,6 +309,7 @@ type AgentSummary = {
   diagnosticInfoCount: number;
   citations: AgentCitation[];
   readTargets: AgentReadTarget[];
+  actions: AgentActionSummary[];
   bestReadTarget?: string;
   bestReadTargetScore?: number;
   bestReadTargetReason?: string;
@@ -337,6 +346,7 @@ const agentContract: AgentContract = {
     "searchResult.selectionReason",
     "sourceLink.selectionReason",
     "action.priority",
+    "actions",
     "contentEvidence.quality",
     "readTargets",
     "signals",
@@ -1434,6 +1444,11 @@ function formatAgentText(agent: AgentSummary): string[] {
     const score = typeof target.score === "number" ? ` score=${target.score}` : "";
     const primary = target.primary ? " primary" : "";
     lines.push(`  readTarget: ${target.path}${count}${score}${primary} - ${target.reason}`);
+  }
+  for (const action of agent.actions) {
+    const primary = action.primary ? " primary" : "";
+    const target = action.url ? ` <${action.url}>` : "";
+    lines.push(`  actionCandidate: ${action.source}${primary} ${formatActionLabel(action)}${target} - ${action.priority ?? actionPriority(action)} - ${action.reason}`);
   }
   if (agent.primaryAction) {
     lines.push(`  next: ${formatActionLabel(agent.primaryAction)} - ${agent.primaryAction.reason}`);
@@ -2609,6 +2624,7 @@ function summarizeAgent(
     diagnosticInfoCount: diagnosticCounts.info,
     citations,
     readTargets,
+    actions: summarizeAgentActions(analysis, pageCheck, verification, primaryAction),
   };
   if (bestReadTarget) {
     agent.bestReadTarget = bestReadTarget.path;
@@ -3223,6 +3239,38 @@ function countAlternativeAgentActions(
   return actions.length;
 }
 
+function summarizeAgentActions(
+  analysis: AnalysisSummary,
+  pageCheck: PageCheckSummary,
+  verification: VerificationSummary,
+  primaryAction: SuggestedAction | undefined,
+): AgentActionSummary[] {
+  const actions: AgentActionSummary[] = [];
+  const add = (action: SuggestedAction | undefined, source: AgentActionSource, primary = false, index?: number): void => {
+    if (!action) return;
+    if (!primary && sameSuggestedAction(action, primaryAction)) return;
+    if (!primary && (primaryAction?.action === "use-evidence" || primaryAction?.action === "read-content") && action.action === "read-content") return;
+    if (actions.some((item) => sameSuggestedAction(item, action))) return;
+    actions.push({
+      ...action,
+      source,
+      ...(primary ? { primary: true } : {}),
+      ...(typeof index === "number" ? { index } : {}),
+      execution: actionExecution(action),
+      priority: action.priority ?? actionPriority(action),
+      priorityReason: action.priorityReason ?? actionPriorityReason(action),
+    });
+  };
+  add(primaryAction, "agent.primaryAction", true);
+  analysis.suggestedActions.forEach((action, index) => add(action, "analysis.suggestedActions", false, index));
+  if (primaryAction?.action !== "use-evidence") {
+    add(pageCheck.recommendedAction, "pageCheck.recommendedAction");
+    pageCheck.nextSteps.forEach((step, index) => add(step, "pageCheck.nextSteps", false, index));
+  }
+  add(verification.recommendedAction, "verification.recommendedAction");
+  return actions;
+}
+
 function averageResultSourceScore(results: ResultSummary[]): number {
   const scores = results.map((result) => result.sourceScore).filter((score): score is number => typeof score === "number");
   if (scores.length === 0) return 0;
@@ -3548,6 +3596,11 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     diagnosticInfoCount: 0,
     citations: [],
     readTargets,
+    actions: primaryAction ? [{
+      ...withActionExecution(primaryAction),
+      source: "agent.primaryAction",
+      primary: true,
+    }] : [],
     ...(bestReadTarget ? { bestReadTarget: bestReadTarget.path } : {}),
     ...(typeof bestReadTarget?.score === "number" ? { bestReadTargetScore: bestReadTarget.score } : {}),
     ...(bestReadTarget ? { bestReadTargetReason: bestReadTarget.reason } : {}),
@@ -4314,6 +4367,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     diagnosticInfoCount: agent.diagnosticInfoCount,
     ...(agent.citations.length > 0 ? { citations: agent.citations } : {}),
     ...(agent.readTargets.length > 0 ? { readTargets: agent.readTargets } : {}),
+    ...(agent.actions.length > 0 ? { actions: agent.actions.map(compactAgentActionSummary) } : {}),
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
     ...(agent.bestReadTargetReason ? { bestReadTargetReason: agent.bestReadTargetReason } : {}),
@@ -4568,6 +4622,15 @@ function compactAgentAction(action: SuggestedAction): object {
   };
 }
 
+function compactAgentActionSummary(action: AgentActionSummary): object {
+  return {
+    ...compactAgentAction(action),
+    source: action.source,
+    ...(action.primary ? { primary: true } : {}),
+    ...(typeof action.index === "number" ? { index: action.index } : {}),
+  };
+}
+
 function actionExecution(action: SuggestedAction): NonNullable<SuggestedAction["execution"]> {
   if (action.execution) return action.execution;
   if (action.terminal) return "read-current";
@@ -4620,9 +4683,16 @@ function withVerificationActionExecution(verification: VerificationSummary): Ver
 }
 
 function withAgentActionExecution(agent: AgentSummary): AgentSummary {
-  return agent.primaryAction
-    ? { ...agent, primaryExecution: actionExecution(agent.primaryAction), primaryAction: withActionExecution(agent.primaryAction) }
-    : agent;
+  return {
+    ...agent,
+    actions: agent.actions.map((action) => ({
+      ...withActionExecution(action),
+      source: action.source,
+      ...(action.primary ? { primary: true } : {}),
+      ...(typeof action.index === "number" ? { index: action.index } : {}),
+    })),
+    ...(agent.primaryAction ? { primaryExecution: actionExecution(agent.primaryAction), primaryAction: withActionExecution(agent.primaryAction) } : {}),
+  };
 }
 
 function toCliError(error: unknown): CliError {

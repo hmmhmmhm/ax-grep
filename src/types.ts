@@ -249,6 +249,7 @@ export type AgentSummary = {
   diagnosticInfoCount?: number;
   citations?: AgentCitation[];
   readTargets?: AgentReadTarget[];
+  actions?: Array<Record<string, unknown>>;
   bestReadTarget?: string;
   bestReadTargetScore?: number;
   bestReadTargetReason?: string;
@@ -283,6 +284,7 @@ export type AgentContractFeature =
   | "searchResult.selectionReason"
   | "sourceLink.selectionReason"
   | "action.priority"
+  | "actions"
   | "contentEvidence.quality"
   | "readTargets"
   | "signals"
