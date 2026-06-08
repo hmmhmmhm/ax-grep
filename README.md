@@ -154,6 +154,9 @@ current-payload value for that path. When `mode` is `command` for a result or
 source link, `next.target` carries the target URL's title, source host, rank,
 source-type score, relevance, and official-source hints when known, so an agent
 can decide whether to run the command without looking up the result array.
+Text output includes the same loop switch as `nextMode`, `loopDecision`,
+`loopContinue`, `loopTerminal`, `loopMaxIterations`, and `loopReason`, so a
+lightweight executor can still continue without parsing the full JSON envelope.
 `agent.expectedOutcome` states what success should look like after following
 `agent.next`, such as reading evidence, opening a result, running a search,
 capturing rendered HTML, using a browser inspection, inspecting output, or

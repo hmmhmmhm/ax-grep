@@ -2389,6 +2389,12 @@ describe("cli", () => {
     expect(stdout.output).toContain("  pageKind: content-page");
     expect(stdout.output).toContain("  routingIntent: read-current");
     expect(stdout.output).toContain("  continuationMode: read");
+    expect(stdout.output).toContain("  nextMode: read");
+    expect(stdout.output).toContain("  loopDecision: return");
+    expect(stdout.output).toContain("  loopContinue: false");
+    expect(stdout.output).toContain("  loopTerminal: true");
+    expect(stdout.output).toContain("  loopMaxIterations: 0");
+    expect(stdout.output).toContain("  loopReason: Return the resolved value for pageCheck.contentEvidence.");
     expect(stdout.output).toContain("  expectedOutcome: read-evidence - ");
     expect(stdout.output).toContain("  signal: content/info - ");
     expect(stdout.output).toContain("  canContinue: true");
