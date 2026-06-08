@@ -3257,6 +3257,64 @@ describe("cli", () => {
     expect(envelope.agent.primaryAction.command).toBe("ax-grep --search 'agent browser' --engine duckduckgo --open-result best --agent");
   });
 
+  it("can drive a search-to-read executor loop from agent.next.loop", async () => {
+    const requestedUrls: string[] = [];
+    const fetch = async (input: RequestInfo | URL) => {
+      const url = String(input);
+      requestedUrls.push(url);
+      if (url.includes("duckduckgo.com")) {
+        return new Response(`
+          <main>
+            <div class="result">
+              <a class="result__a" href="https://result.example/guide">Agent Browser Guide</a>
+              <div class="result__snippet">agent browser guide with extraction details</div>
+            </div>
+          </main>
+        `, { headers: { "content-type": "text/html" } });
+      }
+      if (url === "https://result.example/guide") {
+        return new Response(`
+          <main>
+            <article>
+              <h1>Agent Browser Guide</h1>
+              <p>Agent browser extraction details explain how to continue from search to evidence.</p>
+              <p>After opening the best result, the executor should return semantic content evidence directly instead of requiring browser inspection.</p>
+              <p>This page includes enough readable body text for ax-grep to treat it as a content page that an agent can summarize and cite.</p>
+            </article>
+          </main>
+        `, { headers: { "content-type": "text/html" } });
+      }
+      throw new Error(`unexpected fetch ${url}`);
+    };
+
+    let args = ["--search", "agent browser", "--engine", "duckduckgo", "--agent"];
+    let payload: any;
+    for (let step = 0; step < 3; step += 1) {
+      const stdout = new MemoryWriter();
+      const status = await runCli(args, { stdout, fetch });
+      expect(status).toBe(0);
+      payload = JSON.parse(stdout.output);
+      const next = payload.agent.next;
+      if (next.loop.decision === "return") {
+        expect(next.readValue.path).toBe("pageCheck.contentEvidence");
+        expect(next.readValue.value).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              text: "Agent browser extraction details explain how to continue from search to evidence.",
+            }),
+          ]),
+        );
+        break;
+      }
+      expect(next.loop.decision).toBe("execute");
+      expect(next.commandArgs[0]).toBe("ax-grep");
+      args = next.commandArgs.slice(1);
+    }
+
+    expect(payload.agent.next.loop.decision).toBe("return");
+    expect(requestedUrls).toContain("https://result.example/guide");
+  });
+
   it("branches HTTP error actions by status", async () => {
     const missingStdout = new MemoryWriter();
     const missingStatus = await runCli(["https://missing.example/page", "--agent"], {
