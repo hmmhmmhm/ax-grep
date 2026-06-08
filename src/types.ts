@@ -314,6 +314,7 @@ export type AgentSummary = {
   diagnosticWarningCount?: number;
   diagnosticInfoCount?: number;
   citations?: AgentCitation[];
+  answerEvidence?: AgentCitation[];
   readTargets?: AgentReadTarget[];
   actions?: Array<Record<string, unknown>>;
   bestReadTarget?: string;
@@ -349,6 +350,7 @@ export type AgentContractFeature =
   | "citations"
   | "citation.reason"
   | "answerPlan"
+  | "answerEvidence"
   | "answerPlan.actionFields"
   | "answerPlan.confidence"
   | "searchDecision"

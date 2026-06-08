@@ -243,6 +243,7 @@ describe("cli", () => {
             "citations",
             "citation.reason",
             "answerPlan",
+            "answerEvidence",
             "answerPlan.actionFields",
             "answerPlan.confidence",
             "searchDecision",
@@ -337,6 +338,13 @@ describe("cli", () => {
           url: "https://example.test",
           readFrom: "verification.bestEvidence",
         },
+        answerEvidence: expect.arrayContaining([
+          expect.objectContaining({
+            id: "v1",
+            path: "verification.bestEvidence",
+            text: "Example",
+          }),
+        ]),
         pageDecision: {
           decision: "read-content",
           confidence: "medium",

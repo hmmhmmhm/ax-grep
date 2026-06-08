@@ -33,6 +33,7 @@ describe("README", () => {
           "citations",
           "citation.reason",
           "answerPlan",
+          "answerEvidence",
           "answerPlan.actionFields",
           "answerPlan.confidence",
           "searchDecision",
@@ -83,6 +84,16 @@ describe("README", () => {
         expectedOutcome: "read-evidence",
         readFrom: "verification.bestEvidence",
       },
+      answerPlan: {
+        status: "ready",
+        useCitationIds: expect.arrayContaining(["v1"]),
+      },
+      answerEvidence: expect.arrayContaining([
+        expect.objectContaining({
+          id: "v1",
+          path: "verification.bestEvidence",
+        }),
+      ]),
     });
     expect(exampleEnvelope.agent.signals).toEqual(
       expect.arrayContaining([

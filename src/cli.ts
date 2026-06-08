@@ -350,6 +350,7 @@ type AgentSummary = {
   diagnosticWarningCount: number;
   diagnosticInfoCount: number;
   citations: AgentCitation[];
+  answerEvidence: AgentCitation[];
   readTargets: AgentReadTarget[];
   actions: AgentActionSummary[];
   bestReadTarget?: string;
@@ -387,6 +388,7 @@ const agentContract: AgentContract = {
     "citations",
     "citation.reason",
     "answerPlan",
+    "answerEvidence",
     "answerPlan.actionFields",
     "answerPlan.confidence",
     "searchDecision",
@@ -2693,6 +2695,7 @@ function summarizeAgent(
   const next = summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch));
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
   const answerPlan = summarizeAgentAnswerPlan(status, primaryAction, pageCheck, verification, citations, needsBrowserHtml, error);
+  const answerEvidence = summarizeAgentAnswerEvidence(citations, answerPlan);
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, canUseFetchedHtml, needsBrowserHtml);
   const agent: AgentSummary = {
     contract: agentContract,
@@ -2736,6 +2739,7 @@ function summarizeAgent(
     diagnosticWarningCount: diagnosticCounts.warning,
     diagnosticInfoCount: diagnosticCounts.info,
     citations,
+    answerEvidence,
     readTargets,
     actions: summarizeAgentActions(analysis, pageCheck, verification, primaryAction),
   };
@@ -2845,6 +2849,13 @@ function summarizeAgentCitations(
     }
   }
   return citations.slice(0, 6);
+}
+
+function summarizeAgentAnswerEvidence(citations: AgentCitation[], answerPlan: AgentAnswerPlan): AgentCitation[] {
+  const byId = new Map(citations.map((citation) => [citation.id, citation]));
+  return answerPlan.useCitationIds
+    .map((id) => byId.get(id))
+    .filter((citation): citation is AgentCitation => Boolean(citation));
 }
 
 function summarizeAgentSearchDecision(
@@ -3966,6 +3977,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     diagnosticWarningCount: 0,
     diagnosticInfoCount: 0,
     citations: [],
+    answerEvidence: [],
     readTargets,
     actions: primaryAction ? [{
       ...withActionExecution(primaryAction),
@@ -4787,6 +4799,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     diagnosticWarningCount: agent.diagnosticWarningCount,
     diagnosticInfoCount: agent.diagnosticInfoCount,
     ...(agent.citations.length > 0 ? { citations: agent.citations } : {}),
+    ...(agent.answerEvidence.length > 0 ? { answerEvidence: agent.answerEvidence } : {}),
     ...(agent.readTargets.length > 0 ? { readTargets: agent.readTargets } : {}),
     ...(agent.actions.length > 0 ? { actions: agent.actions.map(compactAgentActionSummary) } : {}),
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),

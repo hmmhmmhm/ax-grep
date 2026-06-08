@@ -196,9 +196,10 @@ scanning the full tree first.
 `agent.answerPlan` says whether the current payload is ready for a final answer
 (`ready`), needs another command (`needs-more`), needs browser capture
 (`blocked`), or failed (`error`), lists the citation IDs to use, exposes
-`confidence` plus concise `gaps`, and mirrors the primary action fields
+`confidence` plus concise `gaps`, mirrors the primary action fields
 (`command`, `commandArgs`, `url`, or `readFrom`) needed to execute or answer
-from the plan directly.
+from the plan directly, and pairs with `agent.answerEvidence`, which contains
+the resolved citation objects for those IDs.
 On recoverable extraction errors, `agent.status` remains `error` while
 `agent.answerPlan.status` becomes `needs-more` or `blocked`, so executors should
 route from `agent.next`/`agent.answerPlan` instead of stopping on status alone.
@@ -547,6 +548,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "citations",
         "citation.reason",
         "answerPlan",
+        "answerEvidence",
         "answerPlan.actionFields",
         "answerPlan.confidence",
         "searchDecision",
@@ -651,6 +653,59 @@ cat captured.html | ax-grep https://example.com --stdin --json
       "readFrom": "verification.bestEvidence",
       "url": "https://example.com/"
     },
+    "answerPlan": {
+      "status": "ready",
+      "confidence": "high",
+      "reason": "Requested verification text was found; answer from the listed citations.",
+      "gaps": [],
+      "useCitationIds": [
+        "v1",
+        "e1"
+      ],
+      "nextAction": "use-evidence",
+      "url": "https://example.com/",
+      "readFrom": "verification.bestEvidence"
+    },
+    "citations": [
+      {
+        "kind": "verification",
+        "id": "v1",
+        "path": "verification.bestEvidence",
+        "confidence": "high",
+        "reason": "Best matching evidence for the requested verification text.",
+        "text": "This domain is for use in illustrative examples in documents.",
+        "score": 0.72
+      },
+      {
+        "kind": "content",
+        "id": "e1",
+        "path": "pageCheck.contentEvidence[0]",
+        "confidence": "medium",
+        "reason": "medium evidence from semantic extraction, 57 chars, p content, selector available.",
+        "text": "This domain is for use in illustrative examples in documents.",
+        "score": 0.72
+      }
+    ],
+    "answerEvidence": [
+      {
+        "kind": "verification",
+        "id": "v1",
+        "path": "verification.bestEvidence",
+        "confidence": "high",
+        "reason": "Best matching evidence for the requested verification text.",
+        "text": "This domain is for use in illustrative examples in documents.",
+        "score": 0.72
+      },
+      {
+        "kind": "content",
+        "id": "e1",
+        "path": "pageCheck.contentEvidence[0]",
+        "confidence": "medium",
+        "reason": "medium evidence from semantic extraction, 57 chars, p content, selector available.",
+        "text": "This domain is for use in illustrative examples in documents.",
+        "score": 0.72
+      }
+    ],
     "signals": [
       {
         "kind": "content",
