@@ -181,6 +181,32 @@ export type AgentExecutionPlan = {
   browserHtml?: AgentBrowserHtmlCapture;
 };
 
+export type AgentRunbook = {
+  decision: AgentLoopDecision;
+  mode: AgentContinuationMode;
+  operation: AgentExecutionPlan["operation"];
+  action?: string;
+  reason: string;
+  confidence: AgentExecutionPlan["confidence"];
+  answerStatus: AgentAnswerPlan["status"];
+  answerReady: boolean;
+  shouldContinue: boolean;
+  terminal: boolean;
+  maxSuggestedIterations: number;
+  useFetchedHtml: boolean;
+  needsBrowserHtml: boolean;
+  expectedOutcome: AgentExpectedOutcomeKind;
+  command?: string;
+  commandArgs?: string[];
+  afterInteractionCommand?: string;
+  afterInteractionCommandArgs?: string[];
+  readFrom?: string;
+  readValue?: AgentReadValue;
+  url?: string;
+  target?: AgentTarget;
+  browserHtml?: AgentBrowserHtmlCapture;
+};
+
 export type AgentBrowserHtmlCapture = {
   url?: string;
   htmlFile: string;
@@ -254,6 +280,7 @@ export type AgentSummary = {
   routingIntent: AgentRoutingIntent;
   continuationMode: AgentContinuationMode;
   next: AgentNext;
+  runbook: AgentRunbook;
   expectedOutcome: AgentExpectedOutcome;
   executionPlan: AgentExecutionPlan;
   answerPlan?: AgentAnswerPlan;
@@ -317,6 +344,7 @@ export type AgentContractFeature =
   | "next.readTarget"
   | "next.readValue"
   | "next.target"
+  | "runbook"
   | "executionPlan"
   | "citations"
   | "citation.reason"

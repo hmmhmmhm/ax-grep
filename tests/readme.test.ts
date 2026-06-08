@@ -28,6 +28,7 @@ describe("README", () => {
           "next.loop",
           "next.readValue",
           "next.target",
+          "runbook",
           "executionPlan",
           "citations",
           "citation.reason",
@@ -40,6 +41,7 @@ describe("README", () => {
           "sourceLink.selectionReason",
           "action.priority",
           "afterInteractionCommand",
+          "browserHtml",
           "actions",
           "contentEvidence.quality",
         ]),
@@ -54,6 +56,18 @@ describe("README", () => {
         readTarget: {
           path: "verification.bestEvidence",
         },
+        readValue: {
+          path: "verification.bestEvidence",
+        },
+      },
+      runbook: {
+        decision: "return",
+        mode: "read",
+        operation: "return",
+        action: "use-evidence",
+        answerStatus: "ready",
+        answerReady: true,
+        readFrom: "verification.bestEvidence",
         readValue: {
           path: "verification.bestEvidence",
         },
@@ -78,6 +92,6 @@ describe("README", () => {
         }),
       ]),
     );
-    expect(readme).toContain("An agent executor can treat `agent.next.mode` as the only required switch");
+    expect(readme).toContain("An agent executor can treat `agent.runbook.decision` as the only required switch");
   });
 });

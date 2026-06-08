@@ -131,7 +131,7 @@ tables. It prints compact JSON with the top-level `agent` object plus
 they are present. Read `agent` first: it combines page classification,
 readability, verification, diagnostic codes, and recommended result selection
 into `contract`, `status`, `summary`, `routingIntent`, `continuationMode`,
-`next`, `expectedOutcome`, `signals`, `canUseFetchedHtml`, `needsBrowserHtml`,
+`next`, `runbook`, `expectedOutcome`, `signals`, `canUseFetchedHtml`, `needsBrowserHtml`,
 `responseStatus`, `responseOk`, `responseContentType`, `finalUrlChanged`,
 `pageKind`, `alternativeActionCount`, `usabilityScore`,
 `evidenceQualityScore`, `sourceQualityScore`, `readabilityScore`,
@@ -150,6 +150,10 @@ supported by the current CLI output, so executors can check for fields such as
 relying on them.
 `continuationMode` is the simpler executor switch for agent loops: `read`,
 `command`, `browser`, `capture-html`, `inspect`, or `stop`.
+`agent.runbook` is the easiest executor entry point. It flattens the canonical
+loop decision, operation, answer readiness, command/read/browser-HTML fields,
+and target metadata into one object, so a subagent can usually switch on
+`runbook.decision` without joining `next`, `executionPlan`, and `answerPlan`.
 `agent.next` is the canonical next-step payload for executors. It always has a
 `mode`, `reason`, and `loop`. `next.loop.decision` is the direct executor
 switch: `return`, `execute`, `browser`, `inspect`, or `stop`. When a follow-up
@@ -267,12 +271,12 @@ candidates before running the recovery command. After any `--open-result`,
 the original SERP title, snippet, rank, relevance, and runnable command as
 page provenance.
 
-An agent executor can treat `agent.next.mode` as the only required switch:
+An agent executor can treat `agent.runbook.decision` as the only required switch:
 
 ```ts
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import type { AgentJsonEnvelope, AgentNext } from "ax-grep";
+import type { AgentJsonEnvelope, AgentRunbook } from "ax-grep";
 
 const execFileAsync = promisify(execFile);
 
@@ -284,35 +288,35 @@ async function runAxGrep(args: string[]): Promise<AgentJsonEnvelope> {
 async function inspectWithAxGrep(urlOrQuery: string) {
   let payload = await runAxGrep([urlOrQuery, "--agent"]);
 
-  for (let step = 0; step < 4; step += 1) {
-    const next: AgentNext = payload.agent.next;
+  for (let iteration = 0; iteration < 4; iteration += 1) {
+    const step: AgentRunbook = payload.agent.runbook;
 
-    if (next.loop.decision === "return") {
-      if (next.readValue) return next.readValue.value;
+    if (step.decision === "return") {
+      if (step.readValue) return step.readValue.value;
       return payload;
     }
 
-    if (next.loop.decision === "stop") return payload;
+    if (step.decision === "stop") return payload;
 
-    if (next.loop.decision === "execute" && next.commandArgs) {
-      payload = await runAxGrep(next.commandArgs.slice(1));
+    if (step.decision === "execute" && step.commandArgs) {
+      payload = await runAxGrep(step.commandArgs.slice(1));
       continue;
     }
 
-    const browserHtml = next.browserHtml;
-    if (next.loop.decision === "browser" && browserHtml?.commandArgs) {
-      const htmlPath = await captureRenderedHtml(next.url, browserHtml.captureScript);
+    const browserHtml = step.browserHtml;
+    if (step.decision === "browser" && browserHtml?.commandArgs) {
+      const htmlPath = await captureRenderedHtml(step.url, browserHtml.captureScript);
       payload = await runAxGrep(browserHtml.commandArgs
         .slice(1)
         .map((arg: string) => arg === browserHtml.htmlFile ? htmlPath : arg));
       continue;
     }
 
-    if (next.loop.decision === "browser") {
-      return openInAgentBrowser(next.url);
+    if (step.decision === "browser") {
+      return openInAgentBrowser(step.url);
     }
 
-    throw new Error(next.reason);
+    throw new Error(step.reason);
   }
 
   return payload;
@@ -538,6 +542,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "next.readTarget",
         "next.readValue",
         "next.target",
+        "runbook",
         "executionPlan",
         "citations",
         "citation.reason",
@@ -556,6 +561,7 @@ cat captured.html | ax-grep https://example.com --stdin --json
         "expectedOutcome",
         "responseMetadata",
         "afterInteractionCommand",
+        "browserHtml",
         "primaryActionShortcuts"
       ]
     },
@@ -597,6 +603,35 @@ cat captured.html | ax-grep https://example.com --stdin --json
           "selector": "p"
         }
       }
+    },
+    "runbook": {
+      "decision": "return",
+      "mode": "read",
+      "operation": "return",
+      "action": "use-evidence",
+      "reason": "Return the resolved value for verification.bestEvidence.",
+      "confidence": "high",
+      "answerStatus": "ready",
+      "answerReady": true,
+      "shouldContinue": false,
+      "terminal": true,
+      "maxSuggestedIterations": 0,
+      "useFetchedHtml": true,
+      "needsBrowserHtml": false,
+      "expectedOutcome": "read-evidence",
+      "readFrom": "verification.bestEvidence",
+      "readValue": {
+        "path": "verification.bestEvidence",
+        "value": {
+          "field": "contentEvidence",
+          "rank": 1,
+          "text": "This domain is for use in illustrative examples in documents.",
+          "source": "semantic",
+          "score": 0.72,
+          "selector": "p"
+        }
+      },
+      "url": "https://example.com/"
     },
     "expectedOutcome": {
       "kind": "read-evidence",

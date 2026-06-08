@@ -21,6 +21,7 @@ import type {
   AgentReadTarget,
   AgentReadValue,
   AgentRoutingIntent,
+  AgentRunbook,
   AgentSignal,
   AgentStatus,
   AgentTarget,
@@ -315,6 +316,7 @@ type AgentSummary = {
   routingIntent: AgentRoutingIntent;
   continuationMode: AgentContinuationMode;
   next: AgentNext;
+  runbook: AgentRunbook;
   expectedOutcome: AgentExpectedOutcome;
   executionPlan: AgentExecutionPlan;
   answerPlan: AgentAnswerPlan;
@@ -380,6 +382,7 @@ const agentContract: AgentContract = {
     "next.readTarget",
     "next.readValue",
     "next.target",
+    "runbook",
     "executionPlan",
     "citations",
     "citation.reason",
@@ -2690,6 +2693,7 @@ function summarizeAgent(
   const next = summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch));
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
   const answerPlan = summarizeAgentAnswerPlan(status, primaryAction, pageCheck, verification, citations, needsBrowserHtml, error);
+  const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, canUseFetchedHtml, needsBrowserHtml);
   const agent: AgentSummary = {
     contract: agentContract,
     status,
@@ -2698,8 +2702,9 @@ function summarizeAgent(
     routingIntent: agentRoutingIntent(primaryAction),
     continuationMode: agentContinuationMode(primaryAction),
     next,
+    runbook: summarizeAgentRunbook(next, executionPlan, answerPlan),
     expectedOutcome,
-    executionPlan: summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, canUseFetchedHtml, needsBrowserHtml),
+    executionPlan,
     answerPlan,
     ...(searchDecision ? { searchDecision } : {}),
     ...(pageDecision ? { pageDecision } : {}),
@@ -2996,6 +3001,38 @@ function summarizeAgentExecutionPlan(
     ...(next.afterInteractionCommand ? { afterInteractionCommand: next.afterInteractionCommand } : {}),
     ...(next.afterInteractionCommandArgs ? { afterInteractionCommandArgs: next.afterInteractionCommandArgs } : {}),
     ...(next.url ? { url: next.url } : {}),
+    ...(next.browserHtml ? { browserHtml: next.browserHtml } : {}),
+  };
+}
+
+function summarizeAgentRunbook(
+  next: AgentNext,
+  executionPlan: AgentExecutionPlan,
+  answerPlan: AgentAnswerPlan,
+): AgentRunbook {
+  return {
+    decision: next.loop.decision,
+    mode: next.mode,
+    operation: executionPlan.operation,
+    ...(next.action ? { action: next.action } : {}),
+    reason: next.loop.reason || next.reason,
+    confidence: executionPlan.confidence,
+    answerStatus: answerPlan.status,
+    answerReady: executionPlan.answerReady,
+    shouldContinue: next.loop.shouldContinue,
+    terminal: next.loop.terminal,
+    maxSuggestedIterations: next.loop.maxSuggestedIterations,
+    useFetchedHtml: executionPlan.useFetchedHtml,
+    needsBrowserHtml: executionPlan.needsBrowserHtml,
+    expectedOutcome: executionPlan.expectedOutcome,
+    ...(next.command ? { command: next.command } : {}),
+    ...(next.commandArgs ? { commandArgs: next.commandArgs } : {}),
+    ...(next.afterInteractionCommand ? { afterInteractionCommand: next.afterInteractionCommand } : {}),
+    ...(next.afterInteractionCommandArgs ? { afterInteractionCommandArgs: next.afterInteractionCommandArgs } : {}),
+    ...(next.readFrom ? { readFrom: next.readFrom } : {}),
+    ...(next.readValue ? { readValue: next.readValue } : {}),
+    ...(next.url ? { url: next.url } : {}),
+    ...(next.target ? { target: next.target } : {}),
     ...(next.browserHtml ? { browserHtml: next.browserHtml } : {}),
   };
 }
@@ -3888,6 +3925,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
   const needsBrowserHtml = errorNeedsBrowserHtml(primaryAction);
   const answerPlan = summarizeErrorAgentAnswerPlan(error, primaryAction, needsBrowserHtml);
+  const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, false, needsBrowserHtml);
   return {
     contract: agentContract,
     status: "error",
@@ -3896,8 +3934,9 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     routingIntent: agentRoutingIntent(primaryAction),
     continuationMode: agentContinuationMode(primaryAction),
     next,
+    runbook: summarizeAgentRunbook(next, executionPlan, answerPlan),
     expectedOutcome,
-    executionPlan: summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, false, needsBrowserHtml),
+    executionPlan,
     answerPlan,
     signals: summarizeErrorAgentSignals(error, primaryAction, summary),
     canContinue: agentCanContinue(primaryAction),
@@ -4714,6 +4753,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     routingIntent: agent.routingIntent,
     continuationMode: agent.continuationMode,
     next: agent.next,
+    runbook: agent.runbook,
     expectedOutcome: agent.expectedOutcome,
     executionPlan: agent.executionPlan,
     answerPlan: agent.answerPlan,

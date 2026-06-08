@@ -59,6 +59,7 @@ type CliAgentSummary = {
   agentRoutingIntentScore: number;
   agentContinuationModeScore: number;
   agentNextScore: number;
+  agentRunbookScore: number;
   agentExecutionPlanScore: number;
   agentExpectedOutcomeScore: number;
   agentSignalScore: number;
@@ -151,6 +152,35 @@ type CliAgentNextShape = CliActionShape & {
     path?: string;
     value?: unknown;
   };
+  browserHtml?: CliAgentBrowserHtmlShape;
+};
+
+type CliAgentRunbookShape = {
+  decision?: CliAgentLoopShape["decision"];
+  mode?: AgentContinuationMode;
+  operation?: CliAgentExecutionPlanShape["operation"];
+  action?: string;
+  reason?: string;
+  confidence?: CliAgentExecutionPlanShape["confidence"];
+  answerStatus?: CliAgentAnswerPlanShape["status"];
+  answerReady?: boolean;
+  shouldContinue?: boolean;
+  terminal?: boolean;
+  maxSuggestedIterations?: number;
+  useFetchedHtml?: boolean;
+  needsBrowserHtml?: boolean;
+  expectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
+  command?: string;
+  commandArgs?: unknown[];
+  afterInteractionCommand?: string;
+  afterInteractionCommandArgs?: unknown[];
+  readFrom?: string;
+  readValue?: {
+    path?: string;
+    value?: unknown;
+  };
+  url?: string;
+  target?: CliAgentTargetShape;
   browserHtml?: CliAgentBrowserHtmlShape;
 };
 
@@ -325,6 +355,7 @@ type GateSummary = {
   averageAgentRoutingIntentScore: number;
   averageAgentContinuationModeScore: number;
   averageAgentNextScore: number;
+  averageAgentRunbookScore: number;
   averageAgentExecutionPlanScore: number;
   averageAgentExpectedOutcomeScore: number;
   averageAgentSignalScore: number;
@@ -677,6 +708,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       routingIntent?: AgentRoutingIntent;
       continuationMode?: AgentContinuationMode;
       next?: CliAgentNextShape;
+      runbook?: CliAgentRunbookShape;
       expectedOutcome?: CliAgentExpectedOutcomeShape;
       executionPlan?: CliAgentExecutionPlanShape;
       answerPlan?: CliAgentAnswerPlanShape;
@@ -787,6 +819,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentRoutingIntentScore: scoreAgentRoutingIntent(item.agent?.routingIntent, item.agent?.primaryAction),
     agentContinuationModeScore: scoreAgentContinuationMode(item.agent?.continuationMode, item.agent?.primaryAction),
     agentNextScore: scoreAgentNext(item.agent?.next, item.agent?.continuationMode, item.agent?.primaryAction),
+    agentRunbookScore: scoreAgentRunbook(item.agent?.runbook, item.agent?.next, item.agent?.executionPlan, item.agent?.answerPlan),
     agentExecutionPlanScore: scoreAgentExecutionPlan(item.agent?.executionPlan, item.agent?.next, item.agent?.answerPlan, item.agent?.canUseFetchedHtml, item.agent?.needsBrowserHtml, item.agent?.expectedOutcome),
     agentExpectedOutcomeScore: scoreAgentExpectedOutcome(item.agent?.expectedOutcome, item.agent?.primaryAction),
     agentSignalScore: scoreAgentSignals(item.agent?.signals, item),
@@ -843,6 +876,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentRoutingIntentScore: 0,
     agentContinuationModeScore: 0,
     agentNextScore: 0,
+    agentRunbookScore: 0,
     agentExecutionPlanScore: 0,
     agentExpectedOutcomeScore: 0,
     agentSignalScore: 0,
@@ -1002,6 +1036,7 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[] }
     "next.readTarget",
     "next.readValue",
     "next.target",
+    "runbook",
     "executionPlan",
     "citations",
     "answerPlan",
@@ -1191,6 +1226,49 @@ function scoreAgentNextLoop(loop: CliAgentLoopShape | undefined, mode: AgentCont
     && typeof loop.reason === "string"
     && loop.reason.length > 0
     && typeof loop.maxSuggestedIterations === "number" ? 1 : 0;
+}
+
+function scoreAgentRunbook(
+  runbook: CliAgentRunbookShape | undefined,
+  next: CliAgentNextShape | undefined,
+  plan: CliAgentExecutionPlanShape | undefined,
+  answerPlan: CliAgentAnswerPlanShape | undefined,
+): number {
+  if (!runbook || !next?.loop || !plan) return 0;
+  let required = 14;
+  let matched = 0;
+  if (runbook.decision === next.loop.decision) matched += 1;
+  if (runbook.mode === next.mode) matched += 1;
+  if (runbook.operation === plan.operation) matched += 1;
+  if (runbook.action === next.action) matched += 1;
+  if (typeof runbook.reason === "string" && runbook.reason.length > 0) matched += 1;
+  if (runbook.confidence === plan.confidence) matched += 1;
+  if (runbook.answerStatus === answerPlan?.status) matched += 1;
+  if (runbook.answerReady === plan.answerReady) matched += 1;
+  if (runbook.shouldContinue === next.loop.shouldContinue) matched += 1;
+  if (runbook.terminal === next.loop.terminal) matched += 1;
+  if (runbook.maxSuggestedIterations === next.loop.maxSuggestedIterations) matched += 1;
+  if (runbook.useFetchedHtml === plan.useFetchedHtml) matched += 1;
+  if (runbook.needsBrowserHtml === plan.needsBrowserHtml) matched += 1;
+  if (runbook.expectedOutcome === plan.expectedOutcome) matched += 1;
+  if (next.commandArgs) {
+    required += 1;
+    if (JSON.stringify(runbook.commandArgs) === JSON.stringify(next.commandArgs)) matched += 1;
+  }
+  if (next.readFrom) {
+    required += 2;
+    if (runbook.readFrom === next.readFrom) matched += 1;
+    if (runbook.readValue?.path === next.readValue?.path) matched += 1;
+  }
+  if (next.browserHtml) {
+    required += 1;
+    if (JSON.stringify(runbook.browserHtml) === JSON.stringify(next.browserHtml)) matched += 1;
+  }
+  if (next.target) {
+    required += 1;
+    if (runbook.target?.url === next.target.url) matched += 1;
+  }
+  return roundScore(matched / required);
 }
 
 function scoreAgentExecutionPlan(
@@ -1976,6 +2054,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentRoutingIntentScore * 0.005
     + summary.agentContinuationModeScore * 0.005
     + summary.agentNextScore * 0.005
+    + summary.agentRunbookScore * 0.005
     + summary.agentExecutionPlanScore * 0.005
     + summary.agentExpectedOutcomeScore * 0.005
     + summary.agentSignalScore * 0.005
@@ -1996,6 +2075,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentRoutingIntentScore,
     summary.agentContinuationModeScore,
     summary.agentNextScore,
+    summary.agentRunbookScore,
     summary.agentExecutionPlanScore,
     summary.agentExpectedOutcomeScore,
     summary.agentSignalScore,
@@ -2064,6 +2144,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentRoutingIntentScore: average(included.map((comparison) => comparison.cliAgentSummary.agentRoutingIntentScore)),
     averageAgentContinuationModeScore: average(included.map((comparison) => comparison.cliAgentSummary.agentContinuationModeScore)),
     averageAgentNextScore: average(included.map((comparison) => comparison.cliAgentSummary.agentNextScore)),
+    averageAgentRunbookScore: average(included.map((comparison) => comparison.cliAgentSummary.agentRunbookScore)),
     averageAgentExecutionPlanScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExecutionPlanScore)),
     averageAgentExpectedOutcomeScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExpectedOutcomeScore)),
     averageAgentSignalScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSignalScore)),
