@@ -202,6 +202,10 @@ type CliAgentAnswerPlanShape = {
   reason?: string;
   useCitationIds?: unknown[];
   nextAction?: string;
+  command?: string;
+  commandArgs?: unknown[];
+  url?: string;
+  readFrom?: string;
 };
 
 type CliReadTargetShape = {
@@ -916,7 +920,19 @@ function scoreAgentAnswerPlan(
   const validNextAction = typeof primaryAction?.action === "string"
     ? answerPlan.nextAction === primaryAction.action
     : typeof answerPlan.nextAction === "undefined";
-  return validStatus && validReason && validCitations && validNextAction ? 1 : 0;
+  const validCommand = typeof primaryAction?.command === "string"
+    ? answerPlan.command === primaryAction.command
+    : typeof answerPlan.command === "undefined";
+  const validCommandArgs = Array.isArray(primaryAction?.commandArgs)
+    ? JSON.stringify(answerPlan.commandArgs) === JSON.stringify(primaryAction.commandArgs)
+    : typeof answerPlan.commandArgs === "undefined";
+  const validUrl = typeof primaryAction?.url === "string"
+    ? answerPlan.url === primaryAction.url
+    : typeof answerPlan.url === "undefined";
+  const validReadFrom = typeof primaryAction?.readFrom === "string"
+    ? answerPlan.readFrom === primaryAction.readFrom
+    : typeof answerPlan.readFrom === "undefined";
+  return validStatus && validReason && validCitations && validNextAction && validCommand && validCommandArgs && validUrl && validReadFrom ? 1 : 0;
 }
 
 function scoreAgentRoutingIntent(routingIntent: AgentRoutingIntent | undefined, primaryAction: CliActionShape | undefined): number {

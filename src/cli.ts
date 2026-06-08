@@ -323,6 +323,7 @@ const agentContract: AgentContract = {
     "next.target",
     "citations",
     "answerPlan",
+    "answerPlan.actionFields",
     "readTargets",
     "signals",
     "expectedOutcome",
@@ -1370,6 +1371,10 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  expectedOutcome: ${agent.expectedOutcome.kind} - ${agent.expectedOutcome.message}`,
     `  answerPlan: ${agent.answerPlan.status} - ${agent.answerPlan.reason}`,
     `  answerCitations: ${agent.answerPlan.useCitationIds.join(", ") || "none"}`,
+    ...(agent.answerPlan.readFrom ? [`  answerReadFrom: ${agent.answerPlan.readFrom}`] : []),
+    ...(agent.answerPlan.url ? [`  answerUrl: ${agent.answerPlan.url}`] : []),
+    ...(agent.answerPlan.command ? [`  answerCommand: ${agent.answerPlan.command}`] : []),
+    ...(agent.answerPlan.commandArgs ? [`  answerCommandArgs: ${JSON.stringify(agent.answerPlan.commandArgs)}`] : []),
     `  summary: ${agent.summary}`,
     `  canContinue: ${agent.canContinue}`,
     `  canUseFetchedHtml: ${agent.canUseFetchedHtml}`,
@@ -2641,6 +2646,7 @@ function summarizeAgentAnswerPlan(
   needsBrowserHtml: boolean,
   error?: { code: CliErrorCode; message: string; status?: number },
 ): AgentAnswerPlan {
+  const actionFields = answerPlanActionFields(primaryAction);
   const citationIds = citations
     .filter((citation) => citation.kind === "verification" || citation.kind === "content")
     .map((citation) => citation.id)
@@ -2650,7 +2656,7 @@ function summarizeAgentAnswerPlan(
       status: "error",
       reason: `Extraction failed with ${error.code}.`,
       useCitationIds: [],
-      ...(primaryAction?.action ? { nextAction: primaryAction.action } : {}),
+      ...actionFields,
     };
   }
   if (needsBrowserHtml || status === "needs-browser") {
@@ -2658,7 +2664,7 @@ function summarizeAgentAnswerPlan(
       status: "blocked",
       reason: "Browser-captured HTML or browser inspection is needed before answering.",
       useCitationIds: [],
-      ...(primaryAction?.action ? { nextAction: primaryAction.action } : {}),
+      ...actionFields,
     };
   }
   if (verification.status === "matched") {
@@ -2666,7 +2672,7 @@ function summarizeAgentAnswerPlan(
       status: "ready",
       reason: "Requested verification text was found; answer from the listed citations.",
       useCitationIds: citationIds,
-      ...(primaryAction?.action ? { nextAction: primaryAction.action } : {}),
+      ...actionFields,
     };
   }
   if (primaryAction && actionExecution(primaryAction) === "read-current" && pageCheck.contentEvidence.length > 0 && pageCheck.readability.level !== "low") {
@@ -2674,14 +2680,25 @@ function summarizeAgentAnswerPlan(
       status: "ready",
       reason: "Readable page evidence is available; answer from the listed citations.",
       useCitationIds: citationIds,
-      ...(primaryAction.action ? { nextAction: primaryAction.action } : {}),
+      ...actionFields,
     };
   }
   return {
     status: "needs-more",
     reason: "Follow the next action before producing a final answer.",
     useCitationIds: citationIds,
-    ...(primaryAction?.action ? { nextAction: primaryAction.action } : {}),
+    ...actionFields,
+  };
+}
+
+function answerPlanActionFields(primaryAction: SuggestedAction | undefined): Pick<AgentAnswerPlan, "nextAction" | "command" | "commandArgs" | "url" | "readFrom"> {
+  if (!primaryAction) return {};
+  return {
+    ...(primaryAction.action ? { nextAction: primaryAction.action } : {}),
+    ...(primaryAction.command ? { command: primaryAction.command } : {}),
+    ...(primaryAction.commandArgs ? { commandArgs: primaryAction.commandArgs } : {}),
+    ...(primaryAction.url ? { url: primaryAction.url } : {}),
+    ...(primaryAction.readFrom ? { readFrom: primaryAction.readFrom } : {}),
   };
 }
 
@@ -3367,7 +3384,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
       status: "error",
       reason: `Extraction failed with ${error.code}.`,
       useCitationIds: [],
-      ...(primaryAction?.action ? { nextAction: primaryAction.action } : {}),
+      ...answerPlanActionFields(primaryAction),
     },
     signals: summarizeErrorAgentSignals(error, primaryAction, summary),
     canContinue: agentCanContinue(primaryAction),

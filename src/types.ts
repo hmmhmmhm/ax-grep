@@ -183,6 +183,10 @@ export type AgentAnswerPlan = {
   reason: string;
   useCitationIds: string[];
   nextAction?: string;
+  command?: string;
+  commandArgs?: string[];
+  url?: string;
+  readFrom?: string;
 };
 
 export type AgentTarget = {
@@ -265,6 +269,7 @@ export type AgentContractFeature =
   | "next.target"
   | "citations"
   | "answerPlan"
+  | "answerPlan.actionFields"
   | "readTargets"
   | "signals"
   | "expectedOutcome"

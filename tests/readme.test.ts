@@ -30,6 +30,7 @@ describe("README", () => {
           "next.target",
           "citations",
           "answerPlan",
+          "answerPlan.actionFields",
         ]),
       },
       continuationMode: "read",

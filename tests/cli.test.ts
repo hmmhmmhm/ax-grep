@@ -240,6 +240,7 @@ describe("cli", () => {
             "next.target",
             "citations",
             "answerPlan",
+            "answerPlan.actionFields",
             "readTargets",
             "signals",
           ]),
@@ -282,6 +283,8 @@ describe("cli", () => {
           status: "ready",
           useCitationIds: expect.arrayContaining(["v1"]),
           nextAction: "use-evidence",
+          url: "https://example.test",
+          readFrom: "verification.bestEvidence",
         },
         signals: expect.arrayContaining([
           expect.objectContaining({ kind: "content", severity: "info" }),
@@ -453,6 +456,13 @@ describe("cli", () => {
       },
       expectedOutcome: {
         kind: "open-result",
+      },
+      answerPlan: {
+        status: "needs-more",
+        nextAction: "open-result",
+        command: "ax-grep --search 'agent browser' --engine bing --open-result best --agent",
+        commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "best", "--agent"],
+        url: "https://result.example/",
       },
       signals: expect.arrayContaining([
         expect.objectContaining({ kind: "search-results", severity: "info" }),
@@ -2425,6 +2435,8 @@ describe("cli", () => {
     expect(stdout.output).toContain("  expectedOutcome: read-evidence - ");
     expect(stdout.output).toContain("  answerPlan: ready - Readable page evidence is available; answer from the listed citations.");
     expect(stdout.output).toContain("  answerCitations: e1");
+    expect(stdout.output).toContain("  answerReadFrom: pageCheck.contentEvidence");
+    expect(stdout.output).toContain("  answerUrl: https://example.test/article");
     expect(stdout.output).toContain("  signal: content/info - ");
     expect(stdout.output).toContain("  canContinue: true");
     expect(stdout.output).toContain("  responseStatus: 200");
