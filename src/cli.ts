@@ -11707,7 +11707,7 @@ function compactAgentPageCheck(
     ? []
     : primaryAction ? pageCheck.nextSteps.filter((step) => !sameSuggestedAction(step, primaryAction)) : pageCheck.nextSteps;
   const recommendedAction = suppressPageActions || sameSuggestedAction(pageCheck.recommendedAction, primaryAction) ? undefined : pageCheck.recommendedAction;
-  const compactNextSteps = compactAgentCommandList(nextSteps.map(compactAgentAction), 1500);
+  const compactNextSteps = compactAgentCommandList(nextSteps.map((step) => compactAgentAction(step, { omitOpenSourceTarget: true })), 1500);
   const slimPaths = compactPageCheckSlimPaths(pageCheck, readTargets);
   return {
     contentEvidence: pageCheck.contentEvidence,
@@ -11848,7 +11848,7 @@ function compactSuggestedActions(actions: SuggestedAction[], primaryAction?: Sug
   return actions
     .filter((action) => !sameSuggestedAction(action, primaryAction))
     .filter((action) => !((primaryAction?.action === "use-evidence" || primaryAction?.action === "read-content") && action.action === "read-content"))
-    .map(compactAgentAction);
+    .map((action) => compactAgentAction(action));
 }
 
 function compactAgentSummary(agent: AgentSummary): object {
@@ -11966,7 +11966,7 @@ function compactAgentRunbook(runbook: AgentRunbook): object {
 }
 
 function compactAgentHandoff(handoff: AgentHandoff): object {
-  const { readValue, sourceChoices, resultChoices, answerEvidence, target, signals: _signals, qualityGates: _qualityGates, ...rest } = handoff;
+  const { readValue, sourceChoices: _sourceChoices, resultChoices, answerEvidence, target, signals: _signals, qualityGates: _qualityGates, ...rest } = handoff;
   const keepSignals = handoff.signals?.some((signal) => signal.kind === "verification" || signal.kind === "browser" || signal.kind === "diagnostic") === true;
   const keepQualityGates = handoff.qualityGates?.some((gate) => gate.kind === "verification" || gate.kind === "diagnostic" || gate.pass === false) === true;
   return {
@@ -11976,7 +11976,6 @@ function compactAgentHandoff(handoff: AgentHandoff): object {
     ...(target ? { target: compactAgentTarget(target, handoff.action) } : {}),
     ...(answerEvidence && answerEvidence.length > 0 ? { answerEvidence: answerEvidence.map(compactAgentCitationRef) } : {}),
     ...(resultChoices && resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(resultChoices) } : {}),
-    ...(sourceChoices && sourceChoices.length > 0 ? { sourceChoices: sourceChoices.map(compactAgentSourceChoiceRef) } : {}),
     ...(readValue ? { readValue: compactAgentReadValue(readValue, true) } : {}),
   };
 }
@@ -12350,7 +12349,7 @@ function agentTargetFromResult(result: ResultSummary): AgentTarget {
   };
 }
 
-function compactAgentAction(action: SuggestedAction): object {
+function compactAgentAction(action: SuggestedAction, options: { omitOpenSourceTarget?: boolean } = {}): object {
   return {
     action: action.action,
     execution: actionExecution(action),
@@ -12367,7 +12366,7 @@ function compactAgentAction(action: SuggestedAction): object {
     ...(action.terminal ? { terminal: action.terminal } : {}),
     ...(action.readFrom ? { readFrom: action.readFrom } : {}),
     ...(action.requiresBrowserInteraction ? { requiresBrowserInteraction: action.requiresBrowserInteraction } : {}),
-    ...(action.target ? { target: compactAgentTarget(action.target, action.action) } : {}),
+    ...(action.target && !(options.omitOpenSourceTarget && action.action === "open-source-link") ? { target: compactAgentTarget(action.target, action.action) } : {}),
   };
 }
 

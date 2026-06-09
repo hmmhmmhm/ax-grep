@@ -1532,7 +1532,7 @@ function scoreAgentHandoff(
   }
   if (sourceChoices.length > 0) {
     required += 1;
-    if (scoreHandoffSourceChoices(handoff.sourceChoices, sourceChoices) === 1) matched += 1;
+    if (typeof handoff.sourceChoices === "undefined" || scoreHandoffSourceChoices(handoff.sourceChoices, sourceChoices) === 1) matched += 1;
   }
   if (sourceSearch) {
     required += 1;
