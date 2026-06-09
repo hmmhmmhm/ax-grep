@@ -312,6 +312,7 @@ describe("cli", () => {
             "pageCheck.timeline",
             "pageCheck.contactPoints",
             "pageCheck.authorLinks",
+            "pageCheck.transcripts",
             "pageCheck.pagination",
             "readTargets",
             "signals",
@@ -4732,6 +4733,118 @@ npx ax-grep https://example.test --agent</code></pre>
         url: "https://example.test/embed/dashboard",
         selector: "iframe:nth-of-type(1)",
         text: "iframe: Interactive revenue dashboard https://example.test/embed/dashboard sandbox=allow-scripts allow-same-origin",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("summarizes caption and transcript resources for media checks", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/watch", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <video title="Product walkthrough" controls>
+            <source src="/media/walkthrough.mp4" type="video/mp4">
+            <track kind="captions" src="/media/walkthrough.en.vtt" srclang="en" label="English captions">
+          </video>
+          <audio controls src="/audio/interview.mp3">
+            <track kind="subtitles" src="/audio/interview.ko.vtt" srclang="ko" label="Korean subtitles">
+          </audio>
+          <a href="/media/walkthrough-transcript.txt">Full transcript</a>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.transcripts).toEqual([
+      {
+        id: "tr1",
+        path: "pageCheck.transcripts[0]",
+        rank: 1,
+        kind: "captions",
+        url: "https://example.test/media/walkthrough.en.vtt",
+        mediaKind: "video",
+        label: "English captions",
+        language: "en",
+        selector: "track:nth-of-type(1)",
+        text: "captions: English captions lang=en media=video https://example.test/media/walkthrough.en.vtt",
+      },
+      {
+        id: "tr2",
+        path: "pageCheck.transcripts[1]",
+        rank: 2,
+        kind: "subtitles",
+        url: "https://example.test/audio/interview.ko.vtt",
+        mediaKind: "audio",
+        label: "Korean subtitles",
+        language: "ko",
+        selector: "track:nth-of-type(2)",
+        text: "subtitles: Korean subtitles lang=ko media=audio https://example.test/audio/interview.ko.vtt",
+      },
+      {
+        id: "tr3",
+        path: "pageCheck.transcripts[2]",
+        rank: 3,
+        kind: "transcript",
+        url: "https://example.test/media/walkthrough-transcript.txt",
+        label: "Full transcript",
+        selector: "a:nth-of-type(1)",
+        text: "transcript: Full transcript https://example.test/media/walkthrough-transcript.txt",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("3 transcripts");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.transcripts",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.transcripts",
+      count: 3,
+      primary: true,
+      reason: "Caption, subtitle, and transcript URLs with labels and language hints extracted from page HTML.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.transcripts",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          id: "tr1",
+          url: "https://example.test/media/walkthrough.en.vtt",
+        }),
+      ]),
+    });
+  });
+
+  it("checks requested text against caption and transcript resources", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/watch", "--agent", "--find", "Korean subtitles"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <audio controls src="/audio/interview.mp3">
+            <track kind="subtitles" src="/audio/interview.ko.vtt" srclang="ko" label="Korean subtitles">
+          </audio>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "transcript",
+        rank: 1,
+        url: "https://example.test/audio/interview.ko.vtt",
+        selector: "track:nth-of-type(1)",
+        text: "subtitles: Korean subtitles lang=ko media=audio https://example.test/audio/interview.ko.vtt",
       },
     });
     expect(envelope.agent.primaryAction).toMatchObject({

@@ -490,6 +490,7 @@ export type AgentContractFeature =
   | "pageCheck.media"
   | "pageCheck.resources"
   | "pageCheck.embeds"
+  | "pageCheck.transcripts"
   | "pageCheck.authorLinks"
   | "readTargets"
   | "signals"
