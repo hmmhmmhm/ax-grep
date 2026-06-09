@@ -11733,7 +11733,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.codeBlocks.length > 0 ? { codeBlocks: compactAgentPageCheckItems(pageCheck.codeBlocks) } : {}),
     ...(pageCheck.citations.length > 0 ? { citations: compactAgentPageCheckItems(pageCheck.citations) } : {}),
     ...(pageCheck.media.length > 0 ? { media: compactAgentPageCheckItems(pageCheck.media) } : {}),
-    ...(pageCheck.resources.length > 0 ? { resources: compactAgentPageCheckItems(pageCheck.resources) } : {}),
+    ...(pageCheck.resources.length > 0 ? { resources: compactAgentPageCheckItems(pageCheck.resources, 2200) } : {}),
     ...(pageCheck.embeds.length > 0 ? { embeds: compactAgentPageCheckItems(pageCheck.embeds) } : {}),
     ...(pageCheck.transcripts.length > 0 ? { transcripts: compactAgentPageCheckItems(pageCheck.transcripts) } : {}),
     ...(pageCheck.authorLinks.length > 0 ? { authorLinks: compactAgentPageCheckItems(pageCheck.authorLinks) } : {}),
@@ -11761,20 +11761,28 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
   };
 }
 
-function compactAgentPageCheckItems<T>(items: T[]): object[] {
-  return items.map((item) => compactAgentPageCheckItem(item) as object);
+function compactAgentPageCheckItems<T>(items: T[], aggressiveThreshold = 2400): object[] {
+  const aggressive = JSON.stringify(items).length > aggressiveThreshold;
+  return items.map((item) => compactAgentPageCheckItem(item, aggressive) as object);
 }
 
-function compactAgentPageCheckItem(value: unknown): unknown {
-  if (typeof value === "string") return compactAgentPageCheckString(value);
-  if (Array.isArray(value)) return value.map(compactAgentPageCheckItem);
+function compactAgentPageCheckItem(value: unknown, aggressive = false): unknown {
+  if (typeof value === "string") return compactAgentPageCheckString(value, aggressive);
+  if (Array.isArray(value)) return value.map((item) => compactAgentPageCheckItem(item, aggressive));
   if (!value || typeof value !== "object") return value;
-  return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, compactAgentPageCheckItem(item)]));
+  const entries = Object.entries(value);
+  const hasStructuredSummary = entries.some(([key, item]) => key !== "text" && key !== "selector" && typeof item === "string" && item.length > 0);
+  return Object.fromEntries(entries.flatMap(([key, item]) => {
+    if (aggressive && key === "selector") return [];
+    if (aggressive && key === "text" && hasStructuredSummary) return [];
+    return [[key, compactAgentPageCheckItem(item, aggressive)]];
+  }));
 }
 
-function compactAgentPageCheckString(value: string): string {
-  if (value.length <= 320) return value;
-  return `${value.slice(0, 317)}...`;
+function compactAgentPageCheckString(value: string, aggressive = false): string {
+  const maxLength = aggressive ? 180 : 320;
+  if (value.length <= maxLength) return value;
+  return `${value.slice(0, maxLength - 3)}...`;
 }
 
 function sameSuggestedAction(left: SuggestedAction | undefined, right: SuggestedAction | undefined): boolean {
