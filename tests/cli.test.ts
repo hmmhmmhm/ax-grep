@@ -3628,6 +3628,60 @@ describe("cli", () => {
     });
   });
 
+  it("summarizes heading-grouped sections for pageCheck and verification", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/docs/runtime", "--agent", "--find", "Latency budgets timeout ceilings"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <body>
+            <main>
+              <h1>Runtime guide</h1>
+              <section>
+                <h2>Latency budgets</h2>
+                <p>Production agents should compare timeout ceilings before retrying a browser capture.</p>
+                <p>Keep follow-up checks short when the current payload already has enough evidence.</p>
+              </section>
+            </main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.sections).toEqual([
+      expect.objectContaining({
+        id: "sec1",
+        path: "pageCheck.sections[0]",
+        rank: 1,
+        heading: "Latency budgets",
+        level: 2,
+        excerpts: [
+          "Production agents should compare timeout ceilings before retrying a browser capture.",
+          "Keep follow-up checks short when the current payload already has enough evidence.",
+        ],
+        text: "Latency budgets; Production agents should compare timeout ceilings before retrying a browser capture.; Keep follow-up checks short when the current payload already has enough evidence.",
+      }),
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("1 content section");
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.sections",
+      count: 1,
+      reason: "Heading-grouped section summaries extracted from nearby page text.",
+    }));
+    expect(envelope.verification.bestEvidence).toMatchObject({
+      field: "section",
+      rank: 1,
+      text: expect.stringContaining("Latency budgets"),
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
   it("summarizes table-of-contents navigation as pageCheck read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/docs/guide", "--agent"], {

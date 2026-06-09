@@ -406,6 +406,17 @@ type PageBreadcrumbSummary = {
   selector?: string;
 };
 
+type PageSectionSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  heading: string;
+  level: number;
+  text: string;
+  excerpts: string[];
+  selector?: string;
+};
+
 type PageTocItem = {
   label: string;
   url?: string;
@@ -650,6 +661,7 @@ const agentContract: AgentContract = {
     "pageCheck.schemaFacts",
     "pageCheck.faqs",
     "pageCheck.breadcrumbs",
+    "pageCheck.sections",
     "pageCheck.toc",
     "pageCheck.codeBlocks",
     "pageCheck.citations",
@@ -688,6 +700,7 @@ type PageCheckSummary = {
   schemaFacts: PageSchemaFactSummary[];
   faqs: PageFaqSummary[];
   breadcrumbs: PageBreadcrumbSummary[];
+  sections: PageSectionSummary[];
   toc: PageTocSummary[];
   codeBlocks: PageCodeBlockSummary[];
   citations: PageCitationSummary[];
@@ -2038,6 +2051,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const selector = breadcrumb.selector ? ` (${breadcrumb.selector})` : "";
     lines.push(`  breadcrumb: ${breadcrumb.id} ${breadcrumb.path} ${breadcrumb.source}${selector} - ${breadcrumb.text}`);
   }
+  for (const section of pageCheck.sections) {
+    const selector = section.selector ? ` (${section.selector})` : "";
+    lines.push(`  section: ${section.id} ${section.path} h${section.level}${selector} - ${section.text}`);
+  }
   for (const toc of pageCheck.toc) {
     const title = toc.title ? ` title="${toc.title}"` : "";
     const selector = toc.selector ? ` (${toc.selector})` : "";
@@ -2907,6 +2924,7 @@ function summarizePageCheck(
   const schemaFacts = summarizeSchemaFacts(fetched.html);
   const faqs = summarizeFaqs(fetched.html);
   const breadcrumbs = summarizeBreadcrumbs(fetched.html, fetched.finalUrl);
+  const sections = summarizeSections(fetched.html);
   const toc = summarizeToc(fetched.html, fetched.finalUrl);
   const codeBlocks = summarizeCodeBlocks(fetched.html);
   const citations = summarizeCitations(fetched.html, fetched.finalUrl);
@@ -2917,8 +2935,8 @@ function summarizePageCheck(
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, sections, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, sections, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -2930,6 +2948,7 @@ function summarizePageCheck(
     schemaFacts,
     faqs,
     breadcrumbs,
+    sections,
     toc,
     codeBlocks,
     citations,
@@ -2974,6 +2993,7 @@ function summarizeReadability(
   schemaFacts: PageSchemaFactSummary[],
   faqs: PageFaqSummary[],
   breadcrumbs: PageBreadcrumbSummary[],
+  sections: PageSectionSummary[],
   toc: PageTocSummary[],
   codeBlocks: PageCodeBlockSummary[],
   citations: PageCitationSummary[],
@@ -3065,6 +3085,10 @@ function summarizeReadability(
       ? `${sourceLinks.length} search result source${sourceLinks.length === 1 ? "" : "s"}`
       : `${sourceLinks.length} external source link${sourceLinks.length === 1 ? "" : "s"}`);
   }
+  if (sections.length > 0) {
+    score += Math.min(0.08, sections.length * 0.03);
+    reasons.push(`${sections.length} content section${sections.length === 1 ? "" : "s"}`);
+  }
   if (actions.length > 0 && contentLength < 120) {
     score -= 0.08;
     reasons.push("interaction may be required");
@@ -3120,6 +3144,7 @@ function recommendedPageCheckAction(
   schemaFacts: PageSchemaFactSummary[],
   faqs: PageFaqSummary[],
   breadcrumbs: PageBreadcrumbSummary[],
+  sections: PageSectionSummary[],
   toc: PageTocSummary[],
   codeBlocks: PageCodeBlockSummary[],
   citations: PageCitationSummary[],
@@ -3166,7 +3191,9 @@ function recommendedPageCheckAction(
               ? "pageCheck.faqs"
               : breadcrumbs.length > 0
                 ? "pageCheck.breadcrumbs"
-                : toc.length > 0
+                : sections.length > 0
+                  ? "pageCheck.sections"
+                  : toc.length > 0
                   ? "pageCheck.toc"
                   : codeBlocks.length > 0
                     ? "pageCheck.codeBlocks"
@@ -3234,6 +3261,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.breadcrumbs",
+    };
+  }
+  if (sections.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but heading-grouped sections are available for source checking.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.sections",
     };
   }
   if (toc.length > 0) {
@@ -4288,6 +4324,103 @@ function isLowValueBreadcrumbLabel(label: string): boolean {
   return label.length > 80 || /^(menu|navigation|breadcrumb|breadcrumbs|skip to content|메뉴|내비게이션)$/i.test(label);
 }
 
+function summarizeSections(html: string): PageSectionSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageSectionSummary[] = [];
+  const seen = new Set<string>();
+  const headings = findElements(document.children, (item) => /^h[1-3]$/.test(item.name));
+  for (const heading of headings) {
+    const headingText = cleanContentText(descendantText(heading));
+    const level = headingLevel(heading);
+    const excerpts = sectionExcerptsAfterHeading(heading);
+    const text = cleanContentText([headingText, ...excerpts].join(" ; "));
+    const key = text.toLowerCase();
+    if (!isUsefulSectionSummary(headingText, excerpts, text) || seen.has(key)) continue;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `sec${rank}`,
+      path: `pageCheck.sections[${rank - 1}]`,
+      rank,
+      heading: headingText,
+      level,
+      text,
+      excerpts,
+      selector: `${heading.name}:nth-of-type(${elementNthOfType(heading)})`,
+    });
+    if (items.length >= 6) break;
+  }
+  return items;
+}
+
+function sectionExcerptsAfterHeading(heading: Element): string[] {
+  const parent = heading.parent instanceof DomElement ? heading.parent : undefined;
+  if (!parent) return [];
+  const siblings = directElementChildren(parent);
+  const start = siblings.indexOf(heading);
+  if (start < 0) return [];
+  const level = headingLevel(heading);
+  const excerpts: string[] = [];
+  const seen = new Set<string>();
+  for (const sibling of siblings.slice(start + 1)) {
+    if (/^h[1-6]$/.test(sibling.name) && headingLevel(sibling) <= level) break;
+    for (const text of sectionTextCandidates(sibling)) {
+      const excerpt = cleanContentText(text).slice(0, 320);
+      const key = excerpt.toLowerCase();
+      if (excerpt.length < 24 || seen.has(key) || isLowValueSectionText(excerpt)) continue;
+      seen.add(key);
+      excerpts.push(excerpt);
+      if (excerpts.length >= 3) return excerpts;
+    }
+  }
+  return excerpts;
+}
+
+function sectionTextCandidates(element: Element): string[] {
+  if (["p", "li", "blockquote"].includes(element.name)) return [descendantText(element)];
+  if (element.name === "pre") return [codeElementText(element)];
+  if (/^h[1-6]$/.test(element.name)) return [];
+  const directChildren = directElementChildren(element);
+  if (directChildren.some((child) => /^h[1-6]$/.test(child.name))) return [];
+  const directUseful = directChildren
+    .filter((child) => ["p", "li", "blockquote", "pre"].includes(child.name))
+    .map((child) => child.name === "pre" ? codeElementText(child) : descendantText(child));
+  if (directUseful.length > 0) return directUseful;
+  if (["article", "section", "div", "main"].includes(element.name)) {
+    return findElements(element.children, (item) => ["p", "li", "blockquote"].includes(item.name))
+      .slice(0, 4)
+      .map((item) => descendantText(item));
+  }
+  return [];
+}
+
+function headingLevel(element: Element): number {
+  const match = /^h([1-6])$/.exec(element.name);
+  return match?.[1] ? Number(match[1]) : 6;
+}
+
+function elementNthOfType(element: Element): number {
+  const parent = element.parent instanceof DomElement ? element.parent : undefined;
+  if (!parent) return 1;
+  return directElementChildren(parent)
+    .filter((child) => child.name === element.name)
+    .indexOf(element) + 1;
+}
+
+function isUsefulSectionSummary(heading: string, excerpts: string[], text: string): boolean {
+  if (!heading || isLowValueHeadingText(heading) || heading.length > 140) return false;
+  if (excerpts.length === 0 || text.length < 48 || text.length > 1400) return false;
+  return true;
+}
+
+function isLowValueSectionText(text: string): boolean {
+  return /^(share|copy link|permalink|edit|back to top|login|sign in|advertisement|메뉴|로그인|광고)$/i.test(text);
+}
+
 function summarizeToc(html: string, baseUrl: string): PageTocSummary[] {
   const document = parseDocument(html, {
     lowerCaseAttributeNames: true,
@@ -5115,12 +5248,14 @@ function summarizeFinds(
   return queries.map((query) => {
     const normalizedQuery = normalizeFindValue(query);
     const terms = queryTerms(query).map(normalizeFindValue);
-    const matches = candidates.filter((candidate) => {
+    const allMatches = candidates.filter((candidate) => {
       const normalizedText = normalizeFindValue(candidate.text);
       if (!normalizedQuery) return false;
       if (normalizedText.includes(normalizedQuery)) return true;
       return terms.length > 0 && terms.every((term) => normalizedText.includes(term));
-    }).slice(0, 8);
+    });
+    const directMatches = allMatches.filter((match) => match.field !== "section");
+    const matches = (directMatches.length > 0 ? directMatches : allMatches).slice(0, 8);
     return {
       query,
       found: matches.length > 0,
@@ -6144,6 +6279,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.breadcrumbs" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.sections.length > 0) {
+    add({
+      path: "pageCheck.sections",
+      reason: "Heading-grouped section summaries extracted from nearby page text.",
+      count: pageCheck.sections.length,
+      score: roundMetric(Math.min(1, 0.46 + pageCheck.sections.length * 0.07)),
+      ...(primaryReadFrom === "pageCheck.sections" ? { primary: true } : {}),
+    });
+  }
   if (pageCheck.toc.length > 0) {
     add({
       path: "pageCheck.toc",
@@ -6403,6 +6547,7 @@ function agentReadValue(
   if (path === "pageCheck.schemaFacts") return { path, value: pageCheck.schemaFacts };
   if (path === "pageCheck.faqs") return { path, value: pageCheck.faqs };
   if (path === "pageCheck.breadcrumbs") return { path, value: pageCheck.breadcrumbs };
+  if (path === "pageCheck.sections") return { path, value: pageCheck.sections };
   if (path === "pageCheck.toc") return { path, value: pageCheck.toc };
   if (path === "pageCheck.codeBlocks") return { path, value: pageCheck.codeBlocks };
   if (path === "pageCheck.citations") return { path, value: pageCheck.citations };
@@ -6812,6 +6957,14 @@ function findCandidates(
       ...(breadcrumb.selector ? { selector: breadcrumb.selector } : {}),
     });
   }
+  for (const section of pageCheck.sections) {
+    add({
+      field: "section",
+      text: section.text,
+      rank: section.rank,
+      ...(section.selector ? { selector: section.selector } : {}),
+    });
+  }
   for (const toc of pageCheck.toc) {
     add({
       field: "toc",
@@ -7023,6 +7176,7 @@ function emptyPageCheck(): PageCheckSummary {
     schemaFacts: [],
     faqs: [],
     breadcrumbs: [],
+    sections: [],
     toc: [],
     codeBlocks: [],
     citations: [],
@@ -7980,6 +8134,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.schemaFacts.length > 0 ? { schemaFacts: pageCheck.schemaFacts } : {}),
     ...(pageCheck.faqs.length > 0 ? { faqs: pageCheck.faqs } : {}),
     ...(pageCheck.breadcrumbs.length > 0 ? { breadcrumbs: pageCheck.breadcrumbs } : {}),
+    ...(pageCheck.sections.length > 0 ? { sections: pageCheck.sections } : {}),
     ...(pageCheck.toc.length > 0 ? { toc: pageCheck.toc } : {}),
     ...(pageCheck.codeBlocks.length > 0 ? { codeBlocks: pageCheck.codeBlocks } : {}),
     ...(pageCheck.citations.length > 0 ? { citations: pageCheck.citations } : {}),

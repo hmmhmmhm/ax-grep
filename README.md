@@ -534,7 +534,8 @@ data such as product offers, ratings, events, and FAQ answers.
 `pageCheck.faqs` captures visible FAQ question-answer pairs from details and
 accordion-style HTML.
 `pageCheck.breadcrumbs` captures JSON-LD and HTML breadcrumb trails as ordered
-context.
+context. `pageCheck.sections` groups nearby text under headings for fast
+section-level source checking.
 `pageCheck.toc` captures table-of-contents and in-page section links.
 `pageCheck.codeBlocks` captures code examples and command snippets from pre/code
 blocks.
