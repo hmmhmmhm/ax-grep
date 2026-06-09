@@ -167,6 +167,7 @@ type CliActionShape = {
   afterInteractionCommand?: string;
   afterInteractionCommandArgs?: string[];
   readFrom?: string;
+  sourceLinkRef?: string;
   requiresBrowserInteraction?: boolean;
   terminal?: boolean;
   source?: string;
@@ -1136,7 +1137,8 @@ function scoreActionSchema(actions: CliActionShape[]): number {
       && action.priorityReason.length > 0;
     if (!hasPriority) return false;
     const execution = normalizedActionExecution(action);
-    if (execution === "run-command") return Array.isArray(action.commandArgs) && action.commandArgs.length > 0;
+    if (execution === "run-command") return Array.isArray(action.commandArgs) && action.commandArgs.length > 0
+      || (typeof action.sourceLinkRef === "string" && /^pageCheck\.sourceLinks\[\d+\]$/.test(action.sourceLinkRef));
     if (execution === "read-current") return Boolean(action.readFrom);
     if (execution === "interact-browser") return action.requiresBrowserInteraction === true || action.action === "inspect-browser-state";
     if (execution === "inspect-output") return !action.command;
@@ -1780,8 +1782,8 @@ function expectedAgentOutcomeKind(primaryAction: CliActionShape | undefined): No
 }
 
 function scorePageLinkCommands(
-  primaryLinks: Array<{ id?: string; path?: string; selectionReason?: string; command?: string; commandArgs?: string[] }>,
-  sourceLinks: Array<{ id?: string; path?: string; selectionReason?: string; command?: string; commandArgs?: string[] }>,
+  primaryLinks: Array<{ id?: string; path?: string; selectionReason?: string; sourceScore?: number; command?: string; commandArgs?: string[] }>,
+  sourceLinks: Array<{ id?: string; path?: string; selectionReason?: string; sourceScore?: number; command?: string; commandArgs?: string[] }>,
 ): number {
   const links = [...primaryLinks, ...sourceLinks];
   if (links.length === 0) return 1;
@@ -1792,8 +1794,8 @@ function scorePageLinkCommands(
       && link.path.length > 0
       && Array.isArray(link.commandArgs)
       && link.commandArgs.length > 0
-      && typeof link.selectionReason === "string"
-      && link.selectionReason.length > 0;
+      && (typeof link.selectionReason === "string" && link.selectionReason.length > 0
+        || typeof link.sourceScore === "number");
   }).length;
   return roundScore(validCount / links.length);
 }
@@ -2308,6 +2310,7 @@ function compactActionKey(action: CliActionShape, primaryAction?: CliActionShape
   return [
     action.action ?? "",
     resolvedAgentUrl(action, primaryAction) ?? "",
+    action.sourceLinkRef ?? "",
     action.command ?? "",
     action.rank ?? "",
     action.openResult ?? "",

@@ -11707,20 +11707,20 @@ function compactAgentPageCheck(
     ? []
     : primaryAction ? pageCheck.nextSteps.filter((step) => !sameSuggestedAction(step, primaryAction)) : pageCheck.nextSteps;
   const recommendedAction = suppressPageActions || sameSuggestedAction(pageCheck.recommendedAction, primaryAction) ? undefined : pageCheck.recommendedAction;
-  const compactNextSteps = compactAgentCommandList(nextSteps.map((step) => compactAgentAction(step, { omitOpenSourceTarget: true, omitReason: true })), 900);
+  const compactNextSteps = compactAgentPageCheckNextSteps(nextSteps, pageCheck.sourceLinks);
   const slimPaths = compactPageCheckSlimPaths(pageCheck, readTargets);
   return {
-    contentEvidence: pageCheck.contentEvidence,
+    contentEvidence: compactAgentContentEvidence(pageCheck.contentEvidence, primaryAction),
     ...compactPageCheckArray("dataTables", pageCheck.dataTables, slimPaths),
     ...compactPageCheckArray("barriers", pageCheck.barriers, slimPaths),
-    ...compactPageCheckArray("forms", pageCheck.forms, slimPaths),
+    ...compactPageCheckArray("forms", compactAgentForms(pageCheck.forms, primaryAction), slimPaths),
     ...compactPageCheckArray("actionTargets", pageCheck.actionTargets, slimPaths),
     ...compactPageCheckArray("hydration", pageCheck.hydration, slimPaths),
     ...compactPageCheckArray("apiEndpoints", pageCheck.apiEndpoints, slimPaths),
     ...compactPageCheckArray("clientState", pageCheck.clientState, slimPaths),
     ...compactPageCheckArray("runtime", pageCheck.runtime, slimPaths),
     ...compactPageCheckArray("config", pageCheck.config, slimPaths),
-    ...compactPageCheckArray("appHints", compactAgentAppHints(pageCheck.appHints), slimPaths),
+    ...compactPageCheckArray("appHints", compactAgentAppHints(pageCheck.appHints, primaryAction), slimPaths),
     ...compactPageCheckArray("mobileHints", compactAgentMobileHints(pageCheck.mobileHints), slimPaths),
     ...compactPageCheckArray("topics", pageCheck.topics, slimPaths),
     ...compactPageCheckArray("contactPoints", pageCheck.contactPoints, slimPaths),
@@ -11792,11 +11792,10 @@ function compactPageCheckSlimPaths(pageCheck: PageCheckSummary, readTargets: Age
   return paths;
 }
 
-function compactAgentAppHints(items: PageAppHintSummary[]): object[] {
-  if (items.length < 8 || JSON.stringify(items).length <= 1200) return items;
+function compactAgentAppHints(items: PageAppHintSummary[], primaryAction?: SuggestedAction): object[] {
+  if (primaryAction?.readFrom === "pageCheck.appHints") return items;
+  if (items.length < 8 || JSON.stringify(items).length <= 900) return items;
   return items.map((item) => ({
-    id: item.id,
-    path: item.path,
     rank: item.rank,
     kind: item.kind,
     label: item.label,
@@ -11819,16 +11818,71 @@ function compactAgentMobileHints(items: PageMobileHintSummary[]): object[] {
   }));
 }
 
-function compactAgentPageLinkList(items: object[], threshold = 1500): object[] {
+function compactAgentPageLinkList(items: object[], threshold = 900): object[] {
   if (JSON.stringify(items).length <= threshold) return compactAgentCommandList(items);
   return compactAgentCommandList(items.map((item) => omitVerboseSourceLinkFields(item)), threshold);
 }
 
+function compactAgentContentEvidence(items: PageEvidenceSummary[], primaryAction?: SuggestedAction, threshold = 900): PageEvidenceSummary[] | object[] {
+  if (primaryAction?.readFrom === "pageCheck.contentEvidence") return items;
+  if (JSON.stringify(items).length <= threshold) return items;
+  if (!items.every((item) => item.source === "fallback" && item.quality === "low")) return items;
+  return items.map((item) => ({
+    id: item.id,
+    path: item.path,
+    rank: item.rank,
+    text: compactAgentPageCheckString(item.text, true),
+    role: item.role,
+    source: item.source,
+    score: item.score,
+    quality: item.quality,
+    qualityReason: item.qualityReason,
+  }));
+}
+
+function compactAgentForms(items: PageFormSummary[], primaryAction?: SuggestedAction, threshold = 500): PageFormSummary[] | object[] {
+  if (primaryAction?.readFrom === "pageCheck.forms") return items;
+  if (JSON.stringify(items).length <= threshold) return items;
+  return items.map((item) => ({
+    rank: item.rank,
+    method: item.method,
+    fieldCount: item.fieldCount,
+    fields: item.fields.map((field) => ({
+      type: field.type,
+      ...(field.name ? { name: field.name } : {}),
+      ...(field.label ? { label: field.label } : {}),
+      ...(field.placeholder && field.placeholder !== field.label ? { placeholder: field.placeholder } : {}),
+      ...(field.required ? { required: true } : {}),
+    })),
+    ...(item.actionUrl ? { actionUrl: item.actionUrl } : {}),
+    ...(item.submitText ? { submitText: item.submitText } : {}),
+    ...(item.queryField ? { queryField: item.queryField } : {}),
+    ...(item.urlTemplate ? { urlTemplate: item.urlTemplate } : {}),
+  }));
+}
+
+function compactAgentPageCheckNextSteps(steps: SuggestedAction[], sourceLinks: PageLinkSummary[], threshold = 900): object[] {
+  const compact = compactAgentCommandList(steps.map((step) => compactAgentAction(step, { omitOpenSourceTarget: true, omitReason: true })), threshold);
+  if (JSON.stringify(compact).length <= threshold) return compact;
+  return compact.map((item) => {
+    const action = item as Record<string, unknown>;
+    if (action.action !== "open-source-link" || typeof action.url !== "string") return item;
+    const index = sourceLinks.findIndex((link) => link.url === action.url);
+    if (index < 0) return item;
+    const { url: _url, command: _command, commandArgs: _commandArgs, ...rest } = action;
+    return {
+      ...rest,
+      sourceLinkRef: `pageCheck.sourceLinks[${index}]`,
+    };
+  });
+}
+
 function omitVerboseSourceLinkFields(item: object): object {
-  const { source: _source, sourceType: _sourceType, sourceHints: _sourceHints, ...rest } = item as {
+  const { source: _source, sourceType: _sourceType, sourceHints: _sourceHints, selectionReason: _selectionReason, ...rest } = item as {
     source?: unknown;
     sourceType?: unknown;
     sourceHints?: unknown;
+    selectionReason?: unknown;
     [key: string]: unknown;
   };
   return rest;
