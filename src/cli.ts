@@ -11991,7 +11991,8 @@ function omitRedundantCommand<T extends object>(item: T): object {
 
 function compactAgentReadValue(readValue: AgentReadValue, forceReference = false): object {
   if (Array.isArray(readValue.value)) {
-    if (!forceReference && (readValue.value.length <= 6 || JSON.stringify(readValue.value).length <= 3000)) return readValue;
+    const inlineLimit = readValue.path === "pageCheck.contentEvidence" ? 1200 : 3000;
+    if (!forceReference && JSON.stringify(readValue.value).length <= inlineLimit) return readValue;
     return {
       path: readValue.path,
       valuePath: readValue.path,
