@@ -321,6 +321,18 @@ type PageFormSummary = {
   selector?: string;
 };
 
+type PageKeyValueSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  label: string;
+  value: string;
+  text: string;
+  source: "definition-list" | "time" | "text";
+  datetime?: string;
+  selector?: string;
+};
+
 type PageReadabilitySummary = {
   level: "low" | "medium" | "high";
   score: number;
@@ -461,6 +473,7 @@ const agentContract: AgentContract = {
     "contentEvidence.quality",
     "pageCheck.dataTables",
     "pageCheck.forms",
+    "pageCheck.keyValues",
     "readTargets",
     "signals",
     "qualityGates",
@@ -486,6 +499,7 @@ type PageCheckSummary = {
   contentEvidence: PageEvidenceSummary[];
   dataTables: PageDataTableSummary[];
   forms: PageFormSummary[];
+  keyValues: PageKeyValueSummary[];
   contentLength: number;
   primaryLinks: PageLinkSummary[];
   sourceLinks: PageLinkSummary[];
@@ -1801,6 +1815,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const template = form.urlTemplate ? ` template=${form.urlTemplate}` : "";
     lines.push(`  form: ${form.id} ${form.path} ${form.method.toUpperCase()} fields=${form.fieldCount}${template} - ${form.text}`);
   }
+  for (const fact of pageCheck.keyValues) {
+    const datetime = fact.datetime ? ` datetime=${fact.datetime}` : "";
+    lines.push(`  keyValue: ${fact.id} ${fact.path} ${fact.source}${datetime} - ${fact.text}`);
+  }
   for (const link of pageCheck.primaryLinks) lines.push(`  link: ${link.kind} ${link.title} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`);
   for (const link of pageCheck.sourceLinks) lines.push(`  sourceLink: ${link.title} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`);
   for (const action of pageCheck.actions) lines.push(`  action: ${action.type} ${action.text}`);
@@ -2516,16 +2534,18 @@ function summarizePageCheck(
   const contentLength = contentPreview.reduce((total, text) => total + text.length, 0);
   const dataTables = summarizeDataTables(fetched.html);
   const forms = summarizeForms(fetched.html, fetched.finalUrl);
+  const keyValues = summarizeKeyValues(fetched.html);
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
     dataTables,
     forms,
+    keyValues,
     contentLength,
     primaryLinks,
     sourceLinks,
@@ -2558,6 +2578,7 @@ function summarizeReadability(
   contentEvidence: PageEvidenceSummary[],
   dataTables: PageDataTableSummary[],
   forms: PageFormSummary[],
+  keyValues: PageKeyValueSummary[],
   contentLength: number,
   sourceLinks: PageLinkSummary[],
   actions: ActionSummary[],
@@ -2577,6 +2598,10 @@ function summarizeReadability(
   }
   if (forms.length > 0 && contentLength < 120) {
     reasons.push(`${forms.length} form${forms.length === 1 ? "" : "s"}`);
+  }
+  if (keyValues.length > 0) {
+    score += Math.min(0.08, keyValues.length * 0.02);
+    reasons.push(`${keyValues.length} key-value fact${keyValues.length === 1 ? "" : "s"}`);
   }
   if (contentLength >= 400) {
     score += 0.18;
@@ -2641,6 +2666,7 @@ function recommendedPageCheckAction(
   sourceLinks: PageLinkSummary[],
   dataTables: PageDataTableSummary[],
   forms: PageFormSummary[],
+  keyValues: PageKeyValueSummary[],
   contentEvidence: PageEvidenceSummary[],
   agentMode = false,
   capturedHtml = false,
@@ -2672,7 +2698,9 @@ function recommendedPageCheckAction(
       ? "pageCheck.contentEvidence"
       : dataTables.length > 0
         ? "pageCheck.dataTables"
-        : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
+        : forms.length > 0
+          ? "pageCheck.forms"
+          : keyValues.length > 0 ? "pageCheck.keyValues" : "pageCheck.contentEvidence";
     return {
       action: "read-content",
       reason: "The page has enough structured evidence for source checking.",
@@ -2688,6 +2716,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.forms",
+    };
+  }
+  if (keyValues.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but key-value facts are available for agent verification.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.keyValues",
     };
   }
   if (sourceLinks[0]) {
@@ -3031,6 +3068,143 @@ function formatFormFieldSummary(field: PageFormFieldSummary): string {
   const required = field.required ? " required" : "";
   const options = field.options?.length ? ` options=${field.options.join("|")}` : "";
   return `${name}${field.type}${required}${label ? ` ${label}` : ""}${options}`;
+}
+
+function summarizeKeyValues(html: string): PageKeyValueSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageKeyValueSummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageKeyValueSummary, "id" | "path" | "rank">): void => {
+    const label = cleanKeyValuePart(item.label);
+    const value = cleanKeyValuePart(item.value);
+    const key = `${label}\n${value}`.toLowerCase();
+    if (!label || !value || seen.has(key) || isLowValueKeyValue(label, value)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `kv${rank}`,
+      path: `pageCheck.keyValues[${rank - 1}]`,
+      rank,
+      label,
+      value,
+      text: cleanContentText(`${label}: ${value}`),
+      source: item.source,
+      ...(item.datetime ? { datetime: item.datetime } : {}),
+      ...(item.selector ? { selector: item.selector } : {}),
+    });
+  };
+  for (const item of keyValuesFromDefinitionLists(document.children)) add(item);
+  for (const item of keyValuesFromTimeElements(document.children)) add(item);
+  for (const item of keyValuesFromLabelText(document.children)) add(item);
+  return items.slice(0, 8);
+}
+
+function keyValuesFromDefinitionLists(nodes: AnyNode[]): Array<Omit<PageKeyValueSummary, "id" | "path" | "rank">> {
+  const values: Array<Omit<PageKeyValueSummary, "id" | "path" | "rank">> = [];
+  for (const [listIndex, list] of findElements(nodes, (item) => item.name === "dl").entries()) {
+    let currentLabel = "";
+    for (const child of list.children) {
+      if (!(child instanceof DomElement)) continue;
+      if (child.name === "dt") {
+        currentLabel = cleanContentText(descendantText(child));
+      } else if (child.name === "dd" && currentLabel) {
+        const value = cleanContentText(descendantText(child));
+        if (value) {
+          values.push({
+            label: currentLabel,
+            value,
+            text: `${currentLabel}: ${value}`,
+            source: "definition-list",
+            selector: `dl:nth-of-type(${listIndex + 1})`,
+          });
+        }
+      }
+    }
+  }
+  return values;
+}
+
+function keyValuesFromTimeElements(nodes: AnyNode[]): Array<Omit<PageKeyValueSummary, "id" | "path" | "rank">> {
+  return findElements(nodes, (item) => item.name === "time")
+    .map((time, index) => {
+      const datetime = cleanLinkText(attr(time, "datetime") ?? "");
+      const value = cleanContentText(descendantText(time) || datetime);
+      const label = inferTimeLabel(time, nodes) || "Time";
+      return {
+        label,
+        value,
+        text: `${label}: ${value}`,
+        source: "time" as const,
+        ...(datetime ? { datetime } : {}),
+        selector: `time:nth-of-type(${index + 1})`,
+      };
+    })
+    .filter((item) => item.value);
+}
+
+function inferTimeLabel(time: Element, rootNodes: AnyNode[]): string {
+  const marker = `${attr(time, "itemprop") ?? ""} ${attr(time, "property") ?? ""} ${attr(time, "class") ?? ""} ${attr(time, "aria-label") ?? ""}`.toLowerCase();
+  if (/modified|updated|수정|업데이트/.test(marker)) return "Modified";
+  if (/publish|published|datepublished|created|작성|게시|등록/.test(marker)) return "Published";
+  const parentText = cleanContentText(parentContextText(time, rootNodes));
+  const match = /\b(published|modified|updated|created|posted|date|작성일|수정일|게시일|등록일)\b\s*[:：-]?/i.exec(parentText);
+  return match?.[1] ? cleanKeyValuePart(match[1]) : "";
+}
+
+function parentContextText(target: Element, rootNodes: AnyNode[]): string {
+  let context = "";
+  function visit(nodes: AnyNode[], ancestors: Element[]): boolean {
+    for (const node of nodes) {
+      if (!(node instanceof DomElement)) continue;
+      if (node === target) {
+        const parent = ancestors.at(-1);
+        context = parent ? descendantText(parent) : descendantText(target);
+        return true;
+      }
+      if (visit(node.children, [...ancestors, node])) return true;
+    }
+    return false;
+  }
+  visit(rootNodes, []);
+  return context;
+}
+
+function keyValuesFromLabelText(nodes: AnyNode[]): Array<Omit<PageKeyValueSummary, "id" | "path" | "rank">> {
+  const values: Array<Omit<PageKeyValueSummary, "id" | "path" | "rank">> = [];
+  for (const [index, element] of findElements(nodes, isLikelyKeyValueContainer).entries()) {
+    const text = cleanContentText(descendantText(element));
+    const match = /^([^:：]{2,40})[:：]\s*(.{2,160})$/.exec(text);
+    if (!match?.[1] || !match[2]) continue;
+    values.push({
+      label: match[1],
+      value: match[2],
+      text: `${match[1]}: ${match[2]}`,
+      source: "text",
+      selector: `${element.name}:nth-of-type(${index + 1})`,
+    });
+  }
+  return values;
+}
+
+function isLikelyKeyValueContainer(element: Element): boolean {
+  if (!["li", "p", "div", "span"].includes(element.name)) return false;
+  if (hasLikelyContentChild(element)) return false;
+  const text = cleanContentText(descendantText(element));
+  return text.length >= 6 && text.length <= 180 && /^[^:：]{2,40}[:：]\s*.{2,160}$/.test(text);
+}
+
+function cleanKeyValuePart(value: string): string {
+  return cleanContentText(value.replace(/\s*[:：]\s*$/g, "").replace(/^\s*[-–—]\s*/g, ""));
+}
+
+function isLowValueKeyValue(label: string, value: string): boolean {
+  if (label.length > 48 || value.length > 180) return true;
+  if (/^(home|menu|navigation|login|search|share|privacy|terms|cookie|광고|로그인|메뉴|검색)$/i.test(label)) return true;
+  return label.toLowerCase() === value.toLowerCase();
 }
 
 function evidenceScore(text: string, role: string, semantic: boolean, hasSelector: boolean): number {
@@ -4045,6 +4219,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.forms" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.keyValues.length > 0) {
+    add({
+      path: "pageCheck.keyValues",
+      reason: "Compact label/value facts extracted from definition lists, time elements, and short metadata text.",
+      count: pageCheck.keyValues.length,
+      score: roundMetric(Math.min(1, 0.42 + pageCheck.keyValues.length * 0.04)),
+      ...(primaryReadFrom === "pageCheck.keyValues" ? { primary: true } : {}),
+    });
+  }
   if (sourceSearch?.selectedResult) {
     add({
       path: "sourceSearch.selectedResult",
@@ -4235,6 +4418,7 @@ function agentReadValue(
   if (path === "pageCheck.contentEvidence") return { path, value: pageCheck.contentEvidence };
   if (path === "pageCheck.dataTables") return { path, value: pageCheck.dataTables };
   if (path === "pageCheck.forms") return { path, value: pageCheck.forms };
+  if (path === "pageCheck.keyValues") return { path, value: pageCheck.keyValues };
   if (path === "searchResults") return { path, value: results };
   if (path === "sourceSearch.selectedResult" && sourceSearch?.selectedResult) return { path, value: sourceSearch.selectedResult };
   if (path === "sourceSearch.alternateResults" && sourceSearch?.alternateResults) return { path, value: sourceSearch.alternateResults };
@@ -4588,6 +4772,14 @@ function findCandidates(
       ...(form.selector ? { selector: form.selector } : {}),
     });
   }
+  for (const fact of pageCheck.keyValues) {
+    add({
+      field: "keyValue",
+      text: fact.text,
+      rank: fact.rank,
+      ...(fact.selector ? { selector: fact.selector } : {}),
+    });
+  }
   for (const link of pageCheck.sourceLinks) add({ field: "sourceLink", text: link.title, rank: link.rank, url: link.url });
   for (const link of pageCheck.primaryLinks) add({ field: "primaryLink", text: link.title, rank: link.rank, url: link.url });
   for (const result of results) add({ field: "result", text: [result.title, result.snippet].filter(Boolean).join(" "), rank: result.rank, url: result.url });
@@ -4732,6 +4924,7 @@ function emptyPageCheck(): PageCheckSummary {
     contentEvidence: [],
     dataTables: [],
     forms: [],
+    keyValues: [],
     contentLength: 0,
     primaryLinks: [],
     sourceLinks: [],
@@ -5676,6 +5869,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     contentEvidence: pageCheck.contentEvidence,
     ...(pageCheck.dataTables.length > 0 ? { dataTables: pageCheck.dataTables } : {}),
     ...(pageCheck.forms.length > 0 ? { forms: pageCheck.forms } : {}),
+    ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),
     contentLength: pageCheck.contentLength,
     ...(primaryLinks.length > 0 && !omitResultLinkDuplicates ? { primaryLinks: primaryLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `l${index + 1}`, path: `pageCheck.primaryLinks[${index}]` })) } : {}),
     ...(pageCheck.sourceLinks.length > 0 && !omitResultLinkDuplicates ? { sourceLinks: pageCheck.sourceLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `s${index + 1}`, path: `pageCheck.sourceLinks[${index}]` })) } : {}),

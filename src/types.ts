@@ -467,6 +467,7 @@ export type AgentContractFeature =
   | "contentEvidence.quality"
   | "pageCheck.dataTables"
   | "pageCheck.forms"
+  | "pageCheck.keyValues"
   | "readTargets"
   | "signals"
   | "qualityGates"

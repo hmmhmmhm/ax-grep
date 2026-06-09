@@ -522,11 +522,12 @@ table captions, headers, and sample rows from HTML so agents can verify prices,
 specs, rankings, and other tabular facts without reading the full tree.
 `pageCheck.forms` captures form method, action URL, field names, labels, and
 GET query templates so agents can plan searches and filters without inferring
-submission details from controls alone. `pageCheck.readability` includes
-`level`, numeric `score`, and concise `reasons`, explaining how directly useful
-the page is for source checking; compact `agent` repeats the score and first
-few reasons so agents can route from the top-level object before drilling into
-`pageCheck`.
+submission details from controls alone. `pageCheck.keyValues` captures compact
+facts from definition lists, time elements, and short label/value text.
+`pageCheck.readability` includes `level`, numeric `score`, and concise
+`reasons`, explaining how directly useful the page is for source checking;
+compact `agent` repeats the score and first few reasons so agents can route
+from the top-level object before drilling into `pageCheck`.
 `pageCheck.recommendedAction` gives the next
 page-level move without requiring the agent to infer it from raw fields.
 `pageCheck.nextSteps` expands that into a deduplicated shortlist of follow-ups

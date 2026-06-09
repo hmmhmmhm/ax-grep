@@ -2963,6 +2963,99 @@ describe("cli", () => {
     });
   });
 
+  it("summarizes key-value facts from definition lists and time metadata", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/package", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h1>Package facts</h1>
+          <dl>
+            <dt>Version</dt><dd>2.4.1</dd>
+            <dt>License</dt><dd>MIT</dd>
+          </dl>
+          <p>Maintainer: Example Team</p>
+          <p>Updated <time datetime="2026-06-01T12:00:00Z" class="updated">June 1, 2026</time></p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.keyValues).toEqual([
+      expect.objectContaining({
+        id: "kv1",
+        path: "pageCheck.keyValues[0]",
+        rank: 1,
+        label: "Version",
+        value: "2.4.1",
+        text: "Version: 2.4.1",
+        source: "definition-list",
+        selector: "dl:nth-of-type(1)",
+      }),
+      expect.objectContaining({
+        id: "kv2",
+        path: "pageCheck.keyValues[1]",
+        label: "License",
+        value: "MIT",
+        text: "License: MIT",
+        source: "definition-list",
+      }),
+      expect.objectContaining({
+        id: "kv3",
+        label: "Modified",
+        value: "June 1, 2026",
+        text: "Modified: June 1, 2026",
+        source: "time",
+        datetime: "2026-06-01T12:00:00Z",
+      }),
+      expect.objectContaining({
+        id: "kv4",
+        label: "Maintainer",
+        value: "Example Team",
+        text: "Maintainer: Example Team",
+        source: "text",
+      }),
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("4 key-value facts");
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.keyValues",
+      count: 4,
+      reason: "Compact label/value facts extracted from definition lists, time elements, and short metadata text.",
+    }));
+  });
+
+  it("checks requested text against page key-value summaries", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/package", "--agent", "--find", "MIT"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h1>Package facts</h1>
+          <dl><dt>License</dt><dd>MIT</dd></dl>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "keyValue",
+        rank: 1,
+        selector: "dl:nth-of-type(1)",
+        text: "License: MIT",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
   it("falls back to headings and primary links for forum pages without paragraph roles", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://forum.example/post/456", "--json"], {
