@@ -349,6 +349,22 @@ type PageSchemaFactSummary = {
   selector?: string;
 };
 
+type PageBreadcrumbItem = {
+  label: string;
+  url?: string;
+  position?: number;
+};
+
+type PageBreadcrumbSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  source: "json-ld" | "html";
+  items: PageBreadcrumbItem[];
+  text: string;
+  selector?: string;
+};
+
 type PageMediaSummary = {
   id: string;
   path: string;
@@ -537,6 +553,7 @@ const agentContract: AgentContract = {
     "pageCheck.forms",
     "pageCheck.keyValues",
     "pageCheck.schemaFacts",
+    "pageCheck.breadcrumbs",
     "pageCheck.media",
     "pageCheck.resources",
     "pageCheck.embeds",
@@ -567,6 +584,7 @@ type PageCheckSummary = {
   forms: PageFormSummary[];
   keyValues: PageKeyValueSummary[];
   schemaFacts: PageSchemaFactSummary[];
+  breadcrumbs: PageBreadcrumbSummary[];
   media: PageMediaSummary[];
   resources: PageResourceSummary[];
   embeds: PageEmbedSummary[];
@@ -1892,6 +1910,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   for (const fact of pageCheck.schemaFacts) {
     lines.push(`  schemaFact: ${fact.id} ${fact.path} ${fact.types.join(",") || "unknown"} - ${fact.text}`);
   }
+  for (const breadcrumb of pageCheck.breadcrumbs) {
+    const selector = breadcrumb.selector ? ` (${breadcrumb.selector})` : "";
+    lines.push(`  breadcrumb: ${breadcrumb.id} ${breadcrumb.path} ${breadcrumb.source}${selector} - ${breadcrumb.text}`);
+  }
   for (const media of pageCheck.media) {
     const dimensions = media.width && media.height ? ` ${media.width}x${media.height}` : "";
     const selector = media.selector ? ` (${media.selector})` : "";
@@ -2623,14 +2645,15 @@ function summarizePageCheck(
   const forms = summarizeForms(fetched.html, fetched.finalUrl);
   const keyValues = summarizeKeyValues(fetched.html);
   const schemaFacts = summarizeSchemaFacts(fetched.html);
+  const breadcrumbs = summarizeBreadcrumbs(fetched.html, fetched.finalUrl);
   const media = summarizeMedia(fetched.html, fetched.finalUrl);
   const resources = summarizeResources(fetched.html, fetched.finalUrl);
   const embeds = summarizeEmbeds(fetched.html, fetched.finalUrl);
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, schemaFacts, media, resources, embeds, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, schemaFacts, media, resources, embeds, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, schemaFacts, breadcrumbs, media, resources, embeds, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, schemaFacts, breadcrumbs, media, resources, embeds, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -2638,6 +2661,7 @@ function summarizePageCheck(
     forms,
     keyValues,
     schemaFacts,
+    breadcrumbs,
     media,
     resources,
     embeds,
@@ -2675,6 +2699,7 @@ function summarizeReadability(
   forms: PageFormSummary[],
   keyValues: PageKeyValueSummary[],
   schemaFacts: PageSchemaFactSummary[],
+  breadcrumbs: PageBreadcrumbSummary[],
   media: PageMediaSummary[],
   resources: PageResourceSummary[],
   embeds: PageEmbedSummary[],
@@ -2705,6 +2730,10 @@ function summarizeReadability(
   if (schemaFacts.length > 0) {
     score += Math.min(0.1, schemaFacts.length * 0.04);
     reasons.push(`${schemaFacts.length} schema fact group${schemaFacts.length === 1 ? "" : "s"}`);
+  }
+  if (breadcrumbs.length > 0) {
+    score += Math.min(0.06, breadcrumbs.length * 0.03);
+    reasons.push(`${breadcrumbs.length} breadcrumb trail${breadcrumbs.length === 1 ? "" : "s"}`);
   }
   if (media.length > 0) {
     score += Math.min(0.06, media.length * 0.02);
@@ -2783,6 +2812,7 @@ function recommendedPageCheckAction(
   forms: PageFormSummary[],
   keyValues: PageKeyValueSummary[],
   schemaFacts: PageSchemaFactSummary[],
+  breadcrumbs: PageBreadcrumbSummary[],
   media: PageMediaSummary[],
   resources: PageResourceSummary[],
   embeds: PageEmbedSummary[],
@@ -2821,13 +2851,15 @@ function recommendedPageCheckAction(
           ? "pageCheck.keyValues"
           : schemaFacts.length > 0
             ? "pageCheck.schemaFacts"
-            : media.length > 0
-              ? "pageCheck.media"
-              : resources.length > 0
-                ? "pageCheck.resources"
-                : embeds.length > 0
-                  ? "pageCheck.embeds"
-                  : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
+            : breadcrumbs.length > 0
+              ? "pageCheck.breadcrumbs"
+              : media.length > 0
+                ? "pageCheck.media"
+                : resources.length > 0
+                  ? "pageCheck.resources"
+                  : embeds.length > 0
+                    ? "pageCheck.embeds"
+                    : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
     return {
       action: "read-content",
       reason: "The page has enough structured evidence for source checking.",
@@ -2861,6 +2893,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.schemaFacts",
+    };
+  }
+  if (breadcrumbs.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but breadcrumb trails are available for agent context.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.breadcrumbs",
     };
   }
   if (media.length > 0) {
@@ -3478,6 +3519,118 @@ function isLowValueSchemaFact(fact: PageSchemaFact): boolean {
 function schemaFactText(types: string[], facts: PageSchemaFact[]): string {
   const prefix = types.length > 0 ? `Types: ${types.join(", ")}` : "Types: unknown";
   return cleanContentText([prefix, ...facts.map((fact) => `${fact.label}: ${fact.value}`)].join(" ; "));
+}
+
+function summarizeBreadcrumbs(html: string, baseUrl: string): PageBreadcrumbSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: Array<Omit<PageBreadcrumbSummary, "id" | "path" | "rank">> = [];
+  for (const [scriptIndex, script] of findElements(document.children, (item) => item.name === "script" && /application\/ld\+json/i.test(attr(item, "type") ?? "")).entries()) {
+    for (const value of parseJsonLdValues(scriptText(script))) {
+      if (!jsonLdStringArray(value["@type"]).some((type) => type.toLowerCase() === "breadcrumblist")) continue;
+      const breadcrumbs = breadcrumbItemsFromJsonLd(value.itemListElement, baseUrl);
+      const text = breadcrumbText(breadcrumbs);
+      if (breadcrumbs.length < 2 || !text) continue;
+      items.push({
+        source: "json-ld",
+        items: breadcrumbs,
+        text,
+        selector: `script[type="application/ld+json"]:nth-of-type(${scriptIndex + 1})`,
+      });
+    }
+  }
+  for (const [index, element] of findElements(document.children, isLikelyBreadcrumbContainer).entries()) {
+    const breadcrumbs = breadcrumbItemsFromHtml(element, baseUrl);
+    const text = breadcrumbText(breadcrumbs);
+    if (breadcrumbs.length < 2 || !text) continue;
+    items.push({
+      source: "html",
+      items: breadcrumbs,
+      text,
+      selector: `${element.name}:nth-of-type(${index + 1})`,
+    });
+  }
+
+  const seen = new Set<string>();
+  const summaries: PageBreadcrumbSummary[] = [];
+  for (const item of items) {
+    const key = item.text.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const rank = summaries.length + 1;
+    summaries.push({
+      id: `bc${rank}`,
+      path: `pageCheck.breadcrumbs[${rank - 1}]`,
+      rank,
+      ...item,
+    });
+    if (summaries.length >= 4) break;
+  }
+  return summaries;
+}
+
+function breadcrumbItemsFromJsonLd(value: unknown, baseUrl: string): PageBreadcrumbItem[] {
+  return schemaObjectArray(value)
+    .map((item, index) => {
+      const position = Number(item.position);
+      const itemValue = item.item;
+      const itemObject = itemValue && typeof itemValue === "object" && !Array.isArray(itemValue) ? itemValue as Record<string, unknown> : undefined;
+      const rawUrl = typeof itemValue === "string"
+        ? itemValue
+        : jsonLdString(itemObject?.url) || jsonLdString(itemObject?.["@id"]);
+      const label = jsonLdString(item.name) || jsonLdString(itemObject?.name) || jsonLdString(itemObject?.headline);
+      const url = rawUrl ? normalizeHref(rawUrl, baseUrl) : null;
+      return {
+        label,
+        ...(url ? { url } : {}),
+        ...(Number.isFinite(position) ? { position } : { position: index + 1 }),
+      };
+    })
+    .filter((item) => item.label)
+    .sort((left, right) => (left.position ?? 0) - (right.position ?? 0))
+    .slice(0, 10);
+}
+
+function isLikelyBreadcrumbContainer(element: Element): boolean {
+  const marker = [
+    element.name,
+    attr(element, "aria-label") ?? "",
+    attr(element, "class") ?? "",
+    attr(element, "id") ?? "",
+    attr(element, "role") ?? "",
+  ].join(" ").toLowerCase();
+  if (/breadcrumb|breadcrumbs|crumb|현재\s*위치|현재위치|경로/.test(marker)) return true;
+  return element.name === "nav" && /breadcrumb|breadcrumbs|현재\s*위치|현재위치|경로/.test(marker);
+}
+
+function breadcrumbItemsFromHtml(element: Element, baseUrl: string): PageBreadcrumbItem[] {
+  const listItems = findElements(element.children, (item) => item.name === "li").slice(0, 10);
+  const sourceItems = listItems.length > 0 ? listItems : findElements(element.children, (item) => item.name === "a").slice(0, 10);
+  const breadcrumbs: PageBreadcrumbItem[] = [];
+  for (const [index, item] of sourceItems.entries()) {
+    const anchor = item.name === "a" ? item : findElement(item.children, (child) => child.name === "a");
+    const label = cleanContentText(anchor ? descendantText(anchor) : descendantText(item));
+    if (!label || isLowValueBreadcrumbLabel(label)) continue;
+    const rawUrl = anchor ? attr(anchor, "href") : undefined;
+    const url = rawUrl ? normalizeHref(rawUrl, baseUrl) : null;
+    breadcrumbs.push({
+      label,
+      ...(url ? { url } : {}),
+      position: index + 1,
+    });
+  }
+  return breadcrumbs;
+}
+
+function breadcrumbText(items: PageBreadcrumbItem[]): string {
+  return cleanContentText(items.map((item) => item.label).filter(Boolean).join(" > "));
+}
+
+function isLowValueBreadcrumbLabel(label: string): boolean {
+  return label.length > 80 || /^(menu|navigation|breadcrumb|breadcrumbs|skip to content|메뉴|내비게이션)$/i.test(label);
 }
 
 function summarizeMedia(html: string, baseUrl: string): PageMediaSummary[] {
@@ -4876,6 +5029,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.schemaFacts" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.breadcrumbs.length > 0) {
+    add({
+      path: "pageCheck.breadcrumbs",
+      reason: "Structured breadcrumb trails extracted from JSON-LD and breadcrumb navigation.",
+      count: pageCheck.breadcrumbs.length,
+      score: roundMetric(Math.min(1, 0.42 + pageCheck.breadcrumbs.length * 0.08)),
+      ...(primaryReadFrom === "pageCheck.breadcrumbs" ? { primary: true } : {}),
+    });
+  }
   if (pageCheck.media.length > 0) {
     add({
       path: "pageCheck.media",
@@ -5095,6 +5257,7 @@ function agentReadValue(
   if (path === "pageCheck.forms") return { path, value: pageCheck.forms };
   if (path === "pageCheck.keyValues") return { path, value: pageCheck.keyValues };
   if (path === "pageCheck.schemaFacts") return { path, value: pageCheck.schemaFacts };
+  if (path === "pageCheck.breadcrumbs") return { path, value: pageCheck.breadcrumbs };
   if (path === "pageCheck.media") return { path, value: pageCheck.media };
   if (path === "pageCheck.resources") return { path, value: pageCheck.resources };
   if (path === "pageCheck.embeds") return { path, value: pageCheck.embeds };
@@ -5467,6 +5630,14 @@ function findCandidates(
       ...(fact.selector ? { selector: fact.selector } : {}),
     });
   }
+  for (const breadcrumb of pageCheck.breadcrumbs) {
+    add({
+      field: "breadcrumb",
+      text: breadcrumb.text,
+      rank: breadcrumb.rank,
+      ...(breadcrumb.selector ? { selector: breadcrumb.selector } : {}),
+    });
+  }
   for (const media of pageCheck.media) {
     add({
       field: "media",
@@ -5640,6 +5811,7 @@ function emptyPageCheck(): PageCheckSummary {
     forms: [],
     keyValues: [],
     schemaFacts: [],
+    breadcrumbs: [],
     media: [],
     resources: [],
     embeds: [],
@@ -6589,6 +6761,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.forms.length > 0 ? { forms: pageCheck.forms } : {}),
     ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),
     ...(pageCheck.schemaFacts.length > 0 ? { schemaFacts: pageCheck.schemaFacts } : {}),
+    ...(pageCheck.breadcrumbs.length > 0 ? { breadcrumbs: pageCheck.breadcrumbs } : {}),
     ...(pageCheck.media.length > 0 ? { media: pageCheck.media } : {}),
     ...(pageCheck.resources.length > 0 ? { resources: pageCheck.resources } : {}),
     ...(pageCheck.embeds.length > 0 ? { embeds: pageCheck.embeds } : {}),

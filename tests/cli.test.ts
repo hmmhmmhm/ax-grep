@@ -3177,6 +3177,118 @@ describe("cli", () => {
     });
   });
 
+  it("summarizes JSON-LD and HTML breadcrumbs as pageCheck read targets for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/docs/api/responses", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <script type="application/ld+json">
+              {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                  { "@type": "ListItem", "position": 1, "name": "Docs", "item": "https://example.test/docs" },
+                  { "@type": "ListItem", "position": 2, "name": "API", "item": { "@id": "https://example.test/docs/api", "name": "API" } },
+                  { "@type": "ListItem", "position": 3, "name": "Responses", "item": "/docs/api/responses" }
+                ]
+              }
+            </script>
+          </head>
+          <body>
+            <nav aria-label="Breadcrumb">
+              <ol>
+                <li><a href="/docs">Docs</a></li>
+                <li><a href="/docs/api">API</a></li>
+                <li>Responses</li>
+              </ol>
+            </nav>
+            <main></main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.breadcrumbs).toEqual([
+      {
+        id: "bc1",
+        path: "pageCheck.breadcrumbs[0]",
+        rank: 1,
+        source: "json-ld",
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+        items: [
+          { label: "Docs", url: "https://example.test/docs", position: 1 },
+          { label: "API", url: "https://example.test/docs/api", position: 2 },
+          { label: "Responses", url: "https://example.test/docs/api/responses", position: 3 },
+        ],
+        text: "Docs > API > Responses",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("1 breadcrumb trail");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.breadcrumbs",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.breadcrumbs",
+      count: 1,
+      primary: true,
+      reason: "Structured breadcrumb trails extracted from JSON-LD and breadcrumb navigation.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.breadcrumbs",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          id: "bc1",
+          text: "Docs > API > Responses",
+        }),
+      ]),
+    });
+  });
+
+  it("checks requested text against breadcrumb summaries", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/docs/api/responses", "--agent", "--find", "Docs > API > Responses"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <body>
+            <nav aria-label="Breadcrumb">
+              <ol>
+                <li><a href="/docs">Docs</a></li>
+                <li><a href="/docs/api">API</a></li>
+                <li>Responses</li>
+              </ol>
+            </nav>
+            <main><h1>Reference</h1></main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "breadcrumb",
+        rank: 1,
+        selector: "nav:nth-of-type(1)",
+        text: "Docs > API > Responses",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
   it("summarizes page media with resolved image urls and captions for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/gallery", "--agent"], {
