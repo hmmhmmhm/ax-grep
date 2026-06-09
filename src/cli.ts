@@ -11781,7 +11781,9 @@ function compactPageCheckArray<T>(
 }
 
 function compactPageCheckSlimPaths(pageCheck: PageCheckSummary, readTargets: AgentReadTarget[]): Set<string> | undefined {
-  if (JSON.stringify(pageCheck).length <= 18000) return undefined;
+  const pageCheckSize = JSON.stringify(pageCheck).length;
+  const thinFetchedPage = pageCheck.contentLength <= 20 && pageCheck.contentEvidence.length === 0 && pageCheckSize > 8000;
+  if (!thinFetchedPage && pageCheckSize <= 18000) return undefined;
   const paths = new Set<string>(["contentEvidence", "sourceLinks", "nextSteps", "actions"]);
   for (const target of readTargets) {
     const match = /^pageCheck\.([A-Za-z0-9_]+)$/.exec(target.path);
@@ -11919,25 +11921,28 @@ function compactAgentContract(contract: AgentContract): object {
 }
 
 function compactAgentNext(next: AgentNext): object {
-  const { readValue, ...rest } = next;
+  const { readValue, target, ...rest } = next;
   return {
     ...rest,
+    ...(target ? { target: compactAgentTarget(target, next.action) } : {}),
     ...(readValue ? { readValue: compactAgentReadValue(readValue) } : {}),
   };
 }
 
 function compactAgentRunbook(runbook: AgentRunbook): object {
-  const { readValue, ...rest } = runbook;
+  const { readValue, target, ...rest } = runbook;
   return {
     ...rest,
+    ...(target ? { target: compactAgentTarget(target, runbook.action) } : {}),
     ...(readValue ? { readValue: compactAgentReadValue(readValue, true) } : {}),
   };
 }
 
 function compactAgentHandoff(handoff: AgentHandoff): object {
-  const { readValue, sourceChoices, resultChoices, answerEvidence, ...rest } = handoff;
+  const { readValue, sourceChoices, resultChoices, answerEvidence, target, ...rest } = handoff;
   return {
     ...rest,
+    ...(target ? { target: compactAgentTarget(target, handoff.action) } : {}),
     ...(answerEvidence && answerEvidence.length > 0 ? { answerEvidence: answerEvidence.map(compactAgentCitationRef) } : {}),
     ...(resultChoices && resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(resultChoices) } : {}),
     ...(sourceChoices && sourceChoices.length > 0 ? { sourceChoices: sourceChoices.map(compactAgentSourceChoiceRef) } : {}),
@@ -12320,7 +12325,16 @@ function compactAgentAction(action: SuggestedAction): object {
     ...(action.terminal ? { terminal: action.terminal } : {}),
     ...(action.readFrom ? { readFrom: action.readFrom } : {}),
     ...(action.requiresBrowserInteraction ? { requiresBrowserInteraction: action.requiresBrowserInteraction } : {}),
-    ...(action.target ? { target: action.target } : {}),
+    ...(action.target ? { target: compactAgentTarget(action.target, action.action) } : {}),
+  };
+}
+
+function compactAgentTarget(target: AgentTarget, action?: string): object {
+  if (action !== "open-source-link") return target;
+  return {
+    ...(target.title ? { title: target.title } : {}),
+    url: target.url,
+    ...(typeof target.rank === "number" ? { rank: target.rank } : {}),
   };
 }
 
