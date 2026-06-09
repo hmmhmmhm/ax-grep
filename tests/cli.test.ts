@@ -308,6 +308,7 @@ describe("cli", () => {
             "actions",
             "contentEvidence.quality",
             "pageCheck.timeline",
+            "pageCheck.contactPoints",
             "pageCheck.authorLinks",
             "pageCheck.pagination",
             "readTargets",
@@ -3501,6 +3502,109 @@ describe("cli", () => {
       rank: 3,
       text: "updated: 2026-06-08 source=time",
       selector: "time:nth-of-type(1)",
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("summarizes contact points as pageCheck read targets for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/contact", "--agent", "--find", "press@example.test"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <title>Contact</title>
+            <script type="application/ld+json">
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": "Example Labs",
+                "contactPoint": {
+                  "@type": "ContactPoint",
+                  "contactType": "Support",
+                  "telephone": "+1-555-0100",
+                  "url": "/support"
+                }
+              }
+            </script>
+          </head>
+          <body>
+            <main>
+              <h1>Contact</h1>
+              <a href="mailto:press@example.test">Press team</a>
+              <address>Example Labs, 1 Agent Way, Seoul 04524</address>
+            </main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.contactPoints).toEqual([
+      {
+        id: "cp1",
+        path: "pageCheck.contactPoints[0]",
+        rank: 1,
+        kind: "phone",
+        label: "Support",
+        value: "+1-555-0100",
+        text: "Support: phone +1-555-0100 source=json-ld",
+        source: "json-ld",
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      },
+      {
+        id: "cp2",
+        path: "pageCheck.contactPoints[1]",
+        rank: 2,
+        kind: "contact-url",
+        label: "Support",
+        value: "https://example.test/support",
+        text: "Support: contact-url https://example.test/support https://example.test/support source=json-ld",
+        source: "json-ld",
+        url: "https://example.test/support",
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      },
+      {
+        id: "cp3",
+        path: "pageCheck.contactPoints[2]",
+        rank: 3,
+        kind: "email",
+        label: "Press team",
+        value: "press@example.test",
+        text: "Press team: email press@example.test mailto:press@example.test source=link",
+        source: "link",
+        url: "mailto:press@example.test",
+        selector: "a:nth-of-type(1)",
+      },
+      {
+        id: "cp4",
+        path: "pageCheck.contactPoints[3]",
+        rank: 4,
+        kind: "address",
+        label: "Address",
+        value: "Example Labs, 1 Agent Way, Seoul 04524",
+        text: "Address: address Example Labs, 1 Agent Way, Seoul 04524 source=html",
+        source: "html",
+        selector: "address:nth-of-type(1)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("4 contact points");
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.contactPoints",
+      count: 4,
+      reason: "Email, phone, address, and contact URL facts extracted from HTML links, address tags, and JSON-LD.",
+    }));
+    expect(envelope.verification.bestEvidence).toMatchObject({
+      field: "contactPoint",
+      rank: 3,
+      text: "Press team: email press@example.test mailto:press@example.test source=link",
+      url: "mailto:press@example.test",
+      selector: "a:nth-of-type(1)",
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "use-evidence",

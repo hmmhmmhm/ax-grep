@@ -391,6 +391,19 @@ type PageTimelineSummary = {
   selector?: string;
 };
 
+type PageContactPointSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "email" | "phone" | "address" | "contact-url";
+  label: string;
+  value: string;
+  text: string;
+  source: "json-ld" | "html" | "link";
+  url?: string;
+  selector?: string;
+};
+
 type PageFaqSummary = {
   id: string;
   path: string;
@@ -685,6 +698,7 @@ const agentContract: AgentContract = {
     "pageCheck.metaFacts",
     "pageCheck.schemaFacts",
     "pageCheck.timeline",
+    "pageCheck.contactPoints",
     "pageCheck.faqs",
     "pageCheck.breadcrumbs",
     "pageCheck.sections",
@@ -726,6 +740,7 @@ type PageCheckSummary = {
   metaFacts: PageMetaFactSummary[];
   schemaFacts: PageSchemaFactSummary[];
   timeline: PageTimelineSummary[];
+  contactPoints: PageContactPointSummary[];
   faqs: PageFaqSummary[];
   breadcrumbs: PageBreadcrumbSummary[];
   sections: PageSectionSummary[];
@@ -2076,6 +2091,11 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const selector = item.selector ? ` (${item.selector})` : "";
     lines.push(`  timeline: ${item.id} ${item.path} ${item.kind} ${item.source}${selector} - ${item.text}`);
   }
+  for (const contact of pageCheck.contactPoints) {
+    const url = contact.url ? ` <${contact.url}>` : "";
+    const selector = contact.selector ? ` (${contact.selector})` : "";
+    lines.push(`  contactPoint: ${contact.id} ${contact.path} ${contact.kind} ${contact.source}${selector}${url} - ${contact.text}`);
+  }
   for (const faq of pageCheck.faqs) {
     const selector = faq.selector ? ` (${faq.selector})` : "";
     lines.push(`  faq: ${faq.id} ${faq.path} ${faq.source}${selector} - ${faq.text}`);
@@ -2962,6 +2982,7 @@ function summarizePageCheck(
   const metaFacts = summarizeMetaFacts(fetched.html, fetched.finalUrl);
   const schemaFacts = summarizeSchemaFacts(fetched.html);
   const timeline = summarizeTimeline(fetched.html, fetched.page);
+  const contactPoints = summarizeContactPoints(fetched.html, fetched.finalUrl);
   const faqs = summarizeFaqs(fetched.html);
   const breadcrumbs = summarizeBreadcrumbs(fetched.html, fetched.finalUrl);
   const sections = summarizeSections(fetched.html);
@@ -2976,8 +2997,8 @@ function summarizePageCheck(
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, timeline, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, timeline, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -2988,6 +3009,7 @@ function summarizePageCheck(
     metaFacts,
     schemaFacts,
     timeline,
+    contactPoints,
     faqs,
     breadcrumbs,
     sections,
@@ -3035,6 +3057,7 @@ function summarizeReadability(
   metaFacts: PageMetaFactSummary[],
   schemaFacts: PageSchemaFactSummary[],
   timeline: PageTimelineSummary[],
+  contactPoints: PageContactPointSummary[],
   faqs: PageFaqSummary[],
   breadcrumbs: PageBreadcrumbSummary[],
   sections: PageSectionSummary[],
@@ -3084,6 +3107,10 @@ function summarizeReadability(
   if (timeline.length > 0) {
     score += Math.min(0.08, timeline.length * 0.03);
     reasons.push(`${timeline.length} timeline fact${timeline.length === 1 ? "" : "s"}`);
+  }
+  if (contactPoints.length > 0) {
+    score += Math.min(0.08, contactPoints.length * 0.03);
+    reasons.push(`${contactPoints.length} contact point${contactPoints.length === 1 ? "" : "s"}`);
   }
   if (faqs.length > 0) {
     score += Math.min(0.08, faqs.length * 0.03);
@@ -3196,6 +3223,7 @@ function recommendedPageCheckAction(
   metaFacts: PageMetaFactSummary[],
   schemaFacts: PageSchemaFactSummary[],
   timeline: PageTimelineSummary[],
+  contactPoints: PageContactPointSummary[],
   faqs: PageFaqSummary[],
   breadcrumbs: PageBreadcrumbSummary[],
   sections: PageSectionSummary[],
@@ -3266,7 +3294,9 @@ function recommendedPageCheckAction(
                             ? "pageCheck.embeds"
                             : authorLinks.length > 0
                               ? "pageCheck.authorLinks"
-                              : metaFacts.length > 0
+                              : contactPoints.length > 0
+                                ? "pageCheck.contactPoints"
+                                : metaFacts.length > 0
                               ? "pageCheck.metaFacts"
                               : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
     return {
@@ -3410,6 +3440,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.authorLinks",
+    };
+  }
+  if (contactPoints.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but contact points are available for agent verification or follow-up.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.contactPoints",
     };
   }
   if (metaFacts.length > 0) {
@@ -4298,6 +4337,196 @@ function isUsefulTimelineValue(label: string, value: string): boolean {
 
 function timelineText(label: string, value: string, source: PageTimelineSummary["source"]): string {
   return cleanContentText(`${label}: ${value} source=${source}`);
+}
+
+function summarizeContactPoints(html: string, baseUrl: string): PageContactPointSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageContactPointSummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageContactPointSummary, "id" | "path" | "rank" | "text">): void => {
+    const value = cleanContentText(item.value);
+    const label = cleanContentText(item.label) || contactLabel(item.kind);
+    const url = item.url ? cleanLinkText(item.url) : "";
+    if (!isUsefulContactPoint(item.kind, value, url)) return;
+    const key = `${item.kind}\n${value}\n${url}`.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `cp${rank}`,
+      path: `pageCheck.contactPoints[${rank - 1}]`,
+      rank,
+      ...item,
+      label,
+      value,
+      ...(url ? { url } : {}),
+      text: contactPointText(item.kind, label, value, url, item.source),
+    });
+  };
+
+  for (const [scriptIndex, script] of findElements(document.children, (item) => item.name === "script" && /application\/ld\+json/i.test(attr(item, "type") ?? "")).entries()) {
+    for (const value of parseJsonLdValues(scriptText(script))) {
+      for (const item of contactPointsFromJsonLd(value, baseUrl)) {
+        add({
+          ...item,
+          source: "json-ld",
+          selector: `script[type="application/ld+json"]:nth-of-type(${scriptIndex + 1})`,
+        });
+      }
+    }
+  }
+
+  for (const [index, anchor] of findElements(document.children, (item) => item.name === "a").entries()) {
+    const href = cleanLinkText(attr(anchor, "href") ?? "");
+    const label = cleanContentText(descendantText(anchor) || attr(anchor, "title") || attr(anchor, "aria-label") || "");
+    if (/^mailto:/i.test(href)) {
+      const value = mailtoValue(href);
+      add({
+        kind: "email",
+        label: contactAnchorLabel(label, "Email"),
+        value,
+        source: "link",
+        url: `mailto:${value}`,
+        selector: `a:nth-of-type(${index + 1})`,
+      });
+      continue;
+    }
+    if (/^tel:/i.test(href)) {
+      const value = telValue(href);
+      add({
+        kind: "phone",
+        label: contactAnchorLabel(label, "Phone"),
+        value,
+        source: "link",
+        url: `tel:${value}`,
+        selector: `a:nth-of-type(${index + 1})`,
+      });
+      continue;
+    }
+    if (isLikelyContactAnchor(anchor, href, label)) {
+      const url = normalizeHref(href, baseUrl);
+      if (!url) continue;
+      add({
+        kind: "contact-url",
+        label: contactAnchorLabel(label, "Contact"),
+        value: label || resourceTitleFromUrl(url) || url,
+        source: "html",
+        url,
+        selector: `a:nth-of-type(${index + 1})`,
+      });
+    }
+  }
+
+  for (const [index, address] of findElements(document.children, (item) => item.name === "address").entries()) {
+    const value = cleanContentText(descendantText(address));
+    add({
+      kind: "address",
+      label: "Address",
+      value,
+      source: "html",
+      selector: `address:nth-of-type(${index + 1})`,
+    });
+  }
+
+  return items.slice(0, 8);
+}
+
+function contactPointsFromJsonLd(value: Record<string, unknown>, baseUrl: string): Array<Omit<PageContactPointSummary, "id" | "path" | "rank" | "text" | "source" | "selector">> {
+  const items: Array<Omit<PageContactPointSummary, "id" | "path" | "rank" | "text" | "source" | "selector">> = [];
+  const add = (kind: PageContactPointSummary["kind"], label: string, raw: unknown, rawUrl?: unknown): void => {
+    const rawText = kind === "address" ? schemaAddressValue(raw) : jsonLdString(raw);
+    const urlText = jsonLdString(rawUrl);
+    const url = kind === "contact-url"
+      ? contactUrl(rawText || urlText, baseUrl)
+      : urlText ? contactUrl(urlText, baseUrl) : "";
+    const valueText = kind === "contact-url" ? url || rawText : rawText;
+    if (valueText || url) items.push({ kind, label, value: valueText || url, ...(url ? { url } : {}) });
+  };
+
+  add("email", "Email", value.email);
+  add("phone", "Phone", value.telephone);
+  add("address", "Address", value.address);
+  add("contact-url", "Contact URL", value.contactUrl);
+  for (const contactPoint of schemaObjectArray(value.contactPoint).slice(0, 4)) {
+    const label = jsonLdString(contactPoint.contactType) || jsonLdString(contactPoint.name) || "Contact";
+    add("email", label, contactPoint.email);
+    add("phone", label, contactPoint.telephone);
+    add("contact-url", label, contactPoint.url);
+    add("address", label, contactPoint.address);
+  }
+  return items;
+}
+
+function schemaAddressValue(raw: unknown): string {
+  if (typeof raw === "string") return cleanContentText(raw);
+  if (Array.isArray(raw)) return raw.map(schemaAddressValue).filter(Boolean).join(" ; ");
+  if (!raw || typeof raw !== "object") return "";
+  const value = raw as Record<string, unknown>;
+  return cleanContentText([
+    jsonLdString(value.streetAddress),
+    jsonLdString(value.addressLocality),
+    jsonLdString(value.addressRegion),
+    jsonLdString(value.postalCode),
+    jsonLdString(value.addressCountry),
+  ].filter(Boolean).join(", "));
+}
+
+function contactUrl(raw: string, baseUrl: string): string {
+  if (!raw.trim()) return "";
+  if (/^mailto:/i.test(raw)) return `mailto:${mailtoValue(raw)}`;
+  if (/^tel:/i.test(raw)) return `tel:${telValue(raw)}`;
+  return normalizeHref(raw, baseUrl) ?? "";
+}
+
+function mailtoValue(href: string): string {
+  return decodeURIComponent(href.replace(/^mailto:/i, "").split(/[?#]/)[0] ?? "").trim();
+}
+
+function telValue(href: string): string {
+  return decodeURIComponent(href.replace(/^tel:/i, "").split(/[?#]/)[0] ?? "").replace(/\s+/g, "").trim();
+}
+
+function contactAnchorLabel(label: string, fallback: string): string {
+  const cleaned = cleanContentText(label);
+  if (!cleaned || /^[+()0-9.\-\s]+$/.test(cleaned) || /^[^@\s]+@[^@\s]+$/.test(cleaned)) return fallback;
+  return cleaned.slice(0, 80);
+}
+
+function isLikelyContactAnchor(anchor: Element, href: string, label: string): boolean {
+  if (!href || /^#|^javascript:/i.test(href)) return false;
+  const marker = [
+    label,
+    href,
+    attr(anchor, "rel") ?? "",
+    attr(anchor, "class") ?? "",
+    attr(anchor, "aria-label") ?? "",
+  ].join(" ").toLowerCase();
+  if (/(contact|support|help[-_\s]?desk|customer[-_\s]?service|sales|press|media[-_\s]?inquiries|문의|고객센터|지원|연락처)/.test(marker)) {
+    return !/(unsubscribe|share|privacy|terms|cookie|login|signup|advertis)/.test(marker);
+  }
+  return false;
+}
+
+function isUsefulContactPoint(kind: PageContactPointSummary["kind"], value: string, url: string): boolean {
+  if (!value || value.length > 260) return false;
+  if (kind === "email") return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value);
+  if (kind === "phone") return value.replace(/\D/g, "").length >= 7;
+  if (kind === "address") return value.length >= 12 && !/^(address|location|contact)$/i.test(value);
+  if (kind === "contact-url") return /^https?:\/\//i.test(url || value) && value.length <= 120;
+  return false;
+}
+
+function contactLabel(kind: PageContactPointSummary["kind"]): string {
+  if (kind === "contact-url") return "Contact URL";
+  return kind[0]?.toUpperCase() + kind.slice(1);
+}
+
+function contactPointText(kind: PageContactPointSummary["kind"], label: string, value: string, url: string, source: PageContactPointSummary["source"]): string {
+  return cleanContentText([`${label}:`, kind, value, url, `source=${source}`].filter(Boolean).join(" "));
 }
 
 function summarizeFaqs(html: string): PageFaqSummary[] {
@@ -6557,6 +6786,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.forms" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.contactPoints.length > 0 && primaryReadFrom === "pageCheck.contactPoints") {
+    add({
+      path: "pageCheck.contactPoints",
+      reason: "Email, phone, address, and contact URL facts extracted from HTML links, address tags, and JSON-LD.",
+      count: pageCheck.contactPoints.length,
+      score: roundMetric(Math.min(1, 0.45 + pageCheck.contactPoints.length * 0.06)),
+      primary: true,
+    });
+  }
   if (pageCheck.keyValues.length > 0) {
     add({
       path: "pageCheck.keyValues",
@@ -6690,6 +6928,14 @@ function summarizeAgentReadTargets(
       count: pageCheck.timeline.length,
       score: roundMetric(Math.min(1, 0.45 + pageCheck.timeline.length * 0.06)),
       ...(primaryReadFrom === "pageCheck.timeline" ? { primary: true } : {}),
+    });
+  }
+  if (pageCheck.contactPoints.length > 0) {
+    add({
+      path: "pageCheck.contactPoints",
+      reason: "Email, phone, address, and contact URL facts extracted from HTML links, address tags, and JSON-LD.",
+      count: pageCheck.contactPoints.length,
+      score: roundMetric(Math.min(1, 0.45 + pageCheck.contactPoints.length * 0.06)),
     });
   }
   if (sourceSearch?.selectedResult) {
@@ -6883,6 +7129,7 @@ function agentReadValue(
   if (path === "pageCheck.dataTables") return { path, value: pageCheck.dataTables };
   if (path === "pageCheck.barriers") return { path, value: pageCheck.barriers };
   if (path === "pageCheck.forms") return { path, value: pageCheck.forms };
+  if (path === "pageCheck.contactPoints") return { path, value: pageCheck.contactPoints };
   if (path === "pageCheck.keyValues") return { path, value: pageCheck.keyValues };
   if (path === "pageCheck.metaFacts") return { path, value: pageCheck.metaFacts };
   if (path === "pageCheck.schemaFacts") return { path, value: pageCheck.schemaFacts };
@@ -7259,6 +7506,15 @@ function findCandidates(
       ...(form.selector ? { selector: form.selector } : {}),
     });
   }
+  for (const contact of pageCheck.contactPoints) {
+    add({
+      field: "contactPoint",
+      text: contact.text,
+      rank: contact.rank,
+      ...(contact.url ? { url: contact.url } : {}),
+      ...(contact.selector ? { selector: contact.selector } : {}),
+    });
+  }
   for (const fact of pageCheck.keyValues) {
     add({
       field: "keyValue",
@@ -7531,6 +7787,7 @@ function emptyPageCheck(): PageCheckSummary {
     dataTables: [],
     barriers: [],
     forms: [],
+    contactPoints: [],
     keyValues: [],
     metaFacts: [],
     schemaFacts: [],
@@ -8491,6 +8748,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.dataTables.length > 0 ? { dataTables: pageCheck.dataTables } : {}),
     ...(pageCheck.barriers.length > 0 ? { barriers: pageCheck.barriers } : {}),
     ...(pageCheck.forms.length > 0 ? { forms: pageCheck.forms } : {}),
+    ...(pageCheck.contactPoints.length > 0 ? { contactPoints: pageCheck.contactPoints } : {}),
     ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),
     ...(pageCheck.metaFacts.length > 0 ? { metaFacts: pageCheck.metaFacts } : {}),
     ...(pageCheck.schemaFacts.length > 0 ? { schemaFacts: pageCheck.schemaFacts } : {}),
