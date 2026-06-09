@@ -312,6 +312,7 @@ describe("cli", () => {
             "pageCheck.apiEndpoints",
             "pageCheck.clientState",
             "pageCheck.runtime",
+            "pageCheck.config",
             "pageCheck.appHints",
             "pageCheck.topics",
             "pageCheck.httpPolicies",
@@ -3780,6 +3781,131 @@ describe("cli", () => {
         url: "https://example.test/sw.js",
         selector: "script:nth-of-type(1)",
         text: "service-worker https://example.test/sw.js",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("summarizes inline app config keys for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/app", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <script>
+              window.__APP_CONFIG__ = {
+                apiBase: "/api",
+                locale: "en",
+                featureFlags: { betaSearch: true },
+                release: "2026.06"
+              };
+              __INITIAL_STATE__ = {
+                user: null,
+                route: "/docs",
+                experiments: ["search-v2"]
+              };
+              dataLayer.push({
+                event: "page_view",
+                pageType: "docs",
+                section: "reference"
+              });
+            </script>
+          </head>
+          <body><main></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.config).toEqual([
+      {
+        id: "cfg1",
+        path: "pageCheck.config[0]",
+        rank: 1,
+        kind: "env",
+        name: "__APP_CONFIG__",
+        keys: ["apiBase", "locale", "featureFlags", "release"],
+        keyCount: 4,
+        text: "env __APP_CONFIG__ keys=apiBase, locale, featureFlags, release",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+      {
+        id: "cfg2",
+        path: "pageCheck.config[1]",
+        rank: 2,
+        kind: "feature-flags",
+        name: "__INITIAL_STATE__",
+        keys: ["user", "route", "experiments"],
+        keyCount: 3,
+        text: "feature-flags __INITIAL_STATE__ keys=user, route, experiments",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+      {
+        id: "cfg3",
+        path: "pageCheck.config[2]",
+        rank: 3,
+        kind: "data-layer",
+        name: "dataLayer.push",
+        keys: ["event", "pageType", "section"],
+        keyCount: 3,
+        text: "data-layer dataLayer.push keys=event, pageType, section",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("3 config hints");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.config",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.config",
+      count: 3,
+      primary: true,
+      reason: "Inline app config, initial state, env, feature flag, and dataLayer keys extracted from page scripts.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.config",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          id: "cfg1",
+          keys: expect.arrayContaining(["apiBase", "featureFlags"]),
+        }),
+      ]),
+    });
+  });
+
+  it("checks requested text against config hints", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/app", "--agent", "--find", "featureFlags"], {
+      stdout,
+      fetch: async () => new Response(`
+        <script>
+          window.__APP_CONFIG__ = { apiBase: "/api", featureFlags: { betaSearch: true } };
+        </script>
+        <main></main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "config",
+        rank: 1,
+        selector: "script:nth-of-type(1)",
+        text: "env __APP_CONFIG__ keys=apiBase, featureFlags",
       },
     });
     expect(envelope.agent.primaryAction).toMatchObject({
