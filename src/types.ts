@@ -476,6 +476,7 @@ export type AgentContractFeature =
   | "pageCheck.keyValues"
   | "pageCheck.metaFacts"
   | "pageCheck.schemaFacts"
+  | "pageCheck.offers"
   | "pageCheck.timeline"
   | "pageCheck.contactPoints"
   | "pageCheck.faqs"

@@ -379,6 +379,24 @@ type PageSchemaFactSummary = {
   selector?: string;
 };
 
+type PageOfferSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  name?: string;
+  price?: string;
+  currency?: string;
+  availability?: string;
+  url?: string;
+  brand?: string;
+  sku?: string;
+  rating?: string;
+  reviewCount?: string;
+  text: string;
+  source: "json-ld";
+  selector?: string;
+};
+
 type PageTimelineSummary = {
   id: string;
   path: string;
@@ -697,6 +715,7 @@ const agentContract: AgentContract = {
     "pageCheck.keyValues",
     "pageCheck.metaFacts",
     "pageCheck.schemaFacts",
+    "pageCheck.offers",
     "pageCheck.timeline",
     "pageCheck.contactPoints",
     "pageCheck.faqs",
@@ -739,6 +758,7 @@ type PageCheckSummary = {
   keyValues: PageKeyValueSummary[];
   metaFacts: PageMetaFactSummary[];
   schemaFacts: PageSchemaFactSummary[];
+  offers: PageOfferSummary[];
   timeline: PageTimelineSummary[];
   contactPoints: PageContactPointSummary[];
   faqs: PageFaqSummary[];
@@ -2087,6 +2107,11 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   for (const fact of pageCheck.schemaFacts) {
     lines.push(`  schemaFact: ${fact.id} ${fact.path} ${fact.types.join(",") || "unknown"} - ${fact.text}`);
   }
+  for (const offer of pageCheck.offers) {
+    const url = offer.url ? ` <${offer.url}>` : "";
+    const selector = offer.selector ? ` (${offer.selector})` : "";
+    lines.push(`  offer: ${offer.id} ${offer.path}${selector}${url} - ${offer.text}`);
+  }
   for (const item of pageCheck.timeline) {
     const selector = item.selector ? ` (${item.selector})` : "";
     lines.push(`  timeline: ${item.id} ${item.path} ${item.kind} ${item.source}${selector} - ${item.text}`);
@@ -2981,6 +3006,7 @@ function summarizePageCheck(
   const keyValues = summarizeKeyValues(fetched.html);
   const metaFacts = summarizeMetaFacts(fetched.html, fetched.finalUrl);
   const schemaFacts = summarizeSchemaFacts(fetched.html);
+  const offers = summarizeOffers(fetched.html, fetched.finalUrl);
   const timeline = summarizeTimeline(fetched.html, fetched.page);
   const contactPoints = summarizeContactPoints(fetched.html, fetched.finalUrl);
   const faqs = summarizeFaqs(fetched.html);
@@ -2997,8 +3023,8 @@ function summarizePageCheck(
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, offers, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, offers, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -3008,6 +3034,7 @@ function summarizePageCheck(
     keyValues,
     metaFacts,
     schemaFacts,
+    offers,
     timeline,
     contactPoints,
     faqs,
@@ -3056,6 +3083,7 @@ function summarizeReadability(
   keyValues: PageKeyValueSummary[],
   metaFacts: PageMetaFactSummary[],
   schemaFacts: PageSchemaFactSummary[],
+  offers: PageOfferSummary[],
   timeline: PageTimelineSummary[],
   contactPoints: PageContactPointSummary[],
   faqs: PageFaqSummary[],
@@ -3103,6 +3131,10 @@ function summarizeReadability(
   if (schemaFacts.length > 0) {
     score += Math.min(0.1, schemaFacts.length * 0.04);
     reasons.push(`${schemaFacts.length} schema fact group${schemaFacts.length === 1 ? "" : "s"}`);
+  }
+  if (offers.length > 0) {
+    score += Math.min(0.09, offers.length * 0.04);
+    reasons.push(`${offers.length} offer${offers.length === 1 ? "" : "s"}`);
   }
   if (timeline.length > 0) {
     score += Math.min(0.08, timeline.length * 0.03);
@@ -3222,6 +3254,7 @@ function recommendedPageCheckAction(
   keyValues: PageKeyValueSummary[],
   metaFacts: PageMetaFactSummary[],
   schemaFacts: PageSchemaFactSummary[],
+  offers: PageOfferSummary[],
   timeline: PageTimelineSummary[],
   contactPoints: PageContactPointSummary[],
   faqs: PageFaqSummary[],
@@ -3270,7 +3303,9 @@ function recommendedPageCheckAction(
           ? "pageCheck.keyValues"
           : schemaFacts.length > 0
             ? "pageCheck.schemaFacts"
-            : timeline.length > 0
+            : offers.length > 0
+              ? "pageCheck.offers"
+              : timeline.length > 0
               ? "pageCheck.timeline"
               : faqs.length > 0
               ? "pageCheck.faqs"
@@ -3332,6 +3367,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.schemaFacts",
+    };
+  }
+  if (offers.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but structured offer facts are available for price and availability checks.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.offers",
     };
   }
   if (timeline.length > 0) {
@@ -4209,6 +4253,143 @@ function refreshContentUrl(content: string, baseUrl: string): string | null {
 function schemaFactText(types: string[], facts: PageSchemaFact[]): string {
   const prefix = types.length > 0 ? `Types: ${types.join(", ")}` : "Types: unknown";
   return cleanContentText([prefix, ...facts.map((fact) => `${fact.label}: ${fact.value}`)].join(" ; "));
+}
+
+function summarizeOffers(html: string, baseUrl: string): PageOfferSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageOfferSummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageOfferSummary, "id" | "path" | "rank" | "text" | "source">): void => {
+    const text = offerText(item);
+    if (!isUsefulOffer(item, text)) return;
+    const key = [
+      item.name ?? "",
+      item.price ?? "",
+      item.currency ?? "",
+      item.availability ?? "",
+      item.url ?? "",
+      item.rating ?? "",
+      item.reviewCount ?? "",
+    ].join("\n").toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `of${rank}`,
+      path: `pageCheck.offers[${rank - 1}]`,
+      rank,
+      ...item,
+      text,
+      source: "json-ld",
+    });
+  };
+
+  for (const [scriptIndex, script] of findElements(document.children, (item) => item.name === "script" && /application\/ld\+json/i.test(attr(item, "type") ?? "")).entries()) {
+    for (const value of parseJsonLdValues(scriptText(script))) {
+      for (const offer of offersFromJsonLd(value, baseUrl)) {
+        add({
+          ...offer,
+          selector: `script[type="application/ld+json"]:nth-of-type(${scriptIndex + 1})`,
+        });
+      }
+    }
+  }
+
+  return items.slice(0, 6);
+}
+
+function offersFromJsonLd(value: Record<string, unknown>, baseUrl: string): Array<Omit<PageOfferSummary, "id" | "path" | "rank" | "text" | "source" | "selector">> {
+  const types = jsonLdStringArray(value["@type"]).map((type) => type.toLowerCase());
+  const productContext = {
+    name: jsonLdString(value.name) || jsonLdString(value.headline),
+    brand: schemaNamedValue(value.brand),
+    sku: jsonLdString(value.sku),
+    rating: schemaRatingValue(value.aggregateRating),
+    reviewCount: schemaReviewCount(value.aggregateRating),
+  };
+  const offerObjects = schemaObjectArray(value.offers);
+  if (offerObjects.length > 0) {
+    return offerObjects
+      .slice(0, 4)
+      .map((offer) => offerSummaryFromJsonLd(offer, productContext, baseUrl))
+      .filter((offer): offer is Omit<PageOfferSummary, "id" | "path" | "rank" | "text" | "source" | "selector"> => Boolean(offer));
+  }
+  if (types.some((type) => /^(offer|aggregateoffer)$/.test(type))) {
+    const offer = offerSummaryFromJsonLd(value, productContext, baseUrl);
+    return offer ? [offer] : [];
+  }
+  return [];
+}
+
+function offerSummaryFromJsonLd(
+  offer: Record<string, unknown>,
+  context: { name: string; brand: string; sku: string; rating: string; reviewCount: string },
+  baseUrl: string,
+): Omit<PageOfferSummary, "id" | "path" | "rank" | "text" | "source" | "selector"> | undefined {
+  const price = offerPriceValue(offer);
+  const currency = jsonLdString(offer.priceCurrency);
+  const availability = schemaAvailability(offer.availability);
+  const rawUrl = jsonLdString(offer.url) || jsonLdString(offer["@id"]);
+  const url = rawUrl ? normalizeHref(rawUrl, baseUrl) ?? "" : "";
+  const name = jsonLdString(offer.name) || context.name;
+  const rating = context.rating || schemaRatingValue(offer.aggregateRating);
+  const reviewCount = context.reviewCount || schemaReviewCount(offer.aggregateRating);
+  const summary = {
+    ...(name ? { name } : {}),
+    ...(price ? { price } : {}),
+    ...(currency ? { currency } : {}),
+    ...(availability ? { availability } : {}),
+    ...(url ? { url } : {}),
+    ...(context.brand ? { brand: context.brand } : {}),
+    ...(context.sku ? { sku: context.sku } : {}),
+    ...(rating ? { rating } : {}),
+    ...(reviewCount ? { reviewCount } : {}),
+  };
+  return Object.keys(summary).length > 0 ? summary : undefined;
+}
+
+function offerPriceValue(offer: Record<string, unknown>): string {
+  const price = jsonLdString(offer.price);
+  if (price) return price;
+  const low = jsonLdString(offer.lowPrice);
+  const high = jsonLdString(offer.highPrice);
+  if (low && high) return `${low}-${high}`;
+  return low || high;
+}
+
+function schemaRatingValue(value: unknown): string {
+  const rating = schemaObjectArray(value)[0];
+  if (!rating) return "";
+  return [jsonLdString(rating.ratingValue), jsonLdString(rating.bestRating)].filter(Boolean).join(" / ");
+}
+
+function schemaReviewCount(value: unknown): string {
+  const rating = schemaObjectArray(value)[0];
+  return rating ? jsonLdString(rating.reviewCount) || jsonLdString(rating.ratingCount) : "";
+}
+
+function offerText(offer: Omit<PageOfferSummary, "id" | "path" | "rank" | "text" | "source">): string {
+  const price = [offer.currency, offer.price].filter(Boolean).join(" ");
+  return cleanContentText([
+    offer.name ? `Name: ${offer.name}` : "",
+    price ? `Price: ${price}` : "",
+    offer.availability ? `Availability: ${offer.availability}` : "",
+    offer.brand ? `Brand: ${offer.brand}` : "",
+    offer.sku ? `SKU: ${offer.sku}` : "",
+    offer.rating ? `Rating: ${offer.rating}` : "",
+    offer.reviewCount ? `Review count: ${offer.reviewCount}` : "",
+    offer.url ? `URL: ${offer.url}` : "",
+    "source=json-ld",
+  ].filter(Boolean).join(" ; "));
+}
+
+function isUsefulOffer(offer: Omit<PageOfferSummary, "id" | "path" | "rank" | "text" | "source">, text: string): boolean {
+  if (!text || text.length > 800) return false;
+  return Boolean(offer.price || offer.availability || offer.rating || offer.reviewCount || offer.url);
 }
 
 function summarizeTimeline(html: string, page: PageSummary): PageTimelineSummary[] {
@@ -6822,6 +7003,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.schemaFacts" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.offers.length > 0) {
+    add({
+      path: "pageCheck.offers",
+      reason: "Structured price, availability, rating, and offer URLs extracted from JSON-LD.",
+      count: pageCheck.offers.length,
+      score: roundMetric(Math.min(1, 0.5 + pageCheck.offers.length * 0.08)),
+      ...(primaryReadFrom === "pageCheck.offers" ? { primary: true } : {}),
+    });
+  }
   if (pageCheck.faqs.length > 0) {
     add({
       path: "pageCheck.faqs",
@@ -7133,6 +7323,7 @@ function agentReadValue(
   if (path === "pageCheck.keyValues") return { path, value: pageCheck.keyValues };
   if (path === "pageCheck.metaFacts") return { path, value: pageCheck.metaFacts };
   if (path === "pageCheck.schemaFacts") return { path, value: pageCheck.schemaFacts };
+  if (path === "pageCheck.offers") return { path, value: pageCheck.offers };
   if (path === "pageCheck.timeline") return { path, value: pageCheck.timeline };
   if (path === "pageCheck.faqs") return { path, value: pageCheck.faqs };
   if (path === "pageCheck.breadcrumbs") return { path, value: pageCheck.breadcrumbs };
@@ -7540,6 +7731,15 @@ function findCandidates(
       ...(fact.selector ? { selector: fact.selector } : {}),
     });
   }
+  for (const offer of pageCheck.offers) {
+    add({
+      field: "offer",
+      text: offer.text,
+      rank: offer.rank,
+      ...(offer.url ? { url: offer.url } : {}),
+      ...(offer.selector ? { selector: offer.selector } : {}),
+    });
+  }
   for (const item of pageCheck.timeline) {
     add({
       field: "timeline",
@@ -7791,6 +7991,7 @@ function emptyPageCheck(): PageCheckSummary {
     keyValues: [],
     metaFacts: [],
     schemaFacts: [],
+    offers: [],
     timeline: [],
     faqs: [],
     breadcrumbs: [],
@@ -8752,6 +8953,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),
     ...(pageCheck.metaFacts.length > 0 ? { metaFacts: pageCheck.metaFacts } : {}),
     ...(pageCheck.schemaFacts.length > 0 ? { schemaFacts: pageCheck.schemaFacts } : {}),
+    ...(pageCheck.offers.length > 0 ? { offers: pageCheck.offers } : {}),
     ...(pageCheck.timeline.length > 0 ? { timeline: pageCheck.timeline } : {}),
     ...(pageCheck.faqs.length > 0 ? { faqs: pageCheck.faqs } : {}),
     ...(pageCheck.breadcrumbs.length > 0 ? { breadcrumbs: pageCheck.breadcrumbs } : {}),

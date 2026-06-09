@@ -307,6 +307,7 @@ describe("cli", () => {
             "action.priority",
             "actions",
             "contentEvidence.quality",
+            "pageCheck.offers",
             "pageCheck.timeline",
             "pageCheck.contactPoints",
             "pageCheck.authorLinks",
@@ -3420,6 +3421,82 @@ describe("cli", () => {
         selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
         text: "Types: Product; Name: Agent Browser Pro; Offer price: USD 19.99",
       },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("summarizes JSON-LD offers as pageCheck read targets for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/product", "--agent", "--find", "source=json-ld"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <script type="application/ld+json">
+              {
+                "@context": "https://schema.org",
+                "@type": "Product",
+                "name": "Agent Browser Pro",
+                "sku": "ABP-2026",
+                "brand": { "@type": "Brand", "name": "Example Labs" },
+                "offers": {
+                  "@type": "Offer",
+                  "price": "19.99",
+                  "priceCurrency": "USD",
+                  "availability": "https://schema.org/InStock",
+                  "url": "/buy"
+                },
+                "aggregateRating": {
+                  "@type": "AggregateRating",
+                  "ratingValue": "4.8",
+                  "bestRating": "5",
+                  "reviewCount": "128"
+                }
+              }
+            </script>
+          </head>
+          <body><main><h1>Product</h1></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.offers).toEqual([
+      {
+        id: "of1",
+        path: "pageCheck.offers[0]",
+        rank: 1,
+        name: "Agent Browser Pro",
+        price: "19.99",
+        currency: "USD",
+        availability: "InStock",
+        url: "https://example.test/buy",
+        brand: "Example Labs",
+        sku: "ABP-2026",
+        rating: "4.8 / 5",
+        reviewCount: "128",
+        text: "Name: Agent Browser Pro; Price: USD 19.99; Availability: InStock; Brand: Example Labs; SKU: ABP-2026; Rating: 4.8 / 5; Review count: 128; URL: https://example.test/buy; source=json-ld",
+        source: "json-ld",
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("1 offer");
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.offers",
+      count: 1,
+      reason: "Structured price, availability, rating, and offer URLs extracted from JSON-LD.",
+    }));
+    expect(envelope.verification.bestEvidence).toMatchObject({
+      field: "offer",
+      rank: 1,
+      text: "Name: Agent Browser Pro; Price: USD 19.99; Availability: InStock; Brand: Example Labs; SKU: ABP-2026; Rating: 4.8 / 5; Review count: 128; URL: https://example.test/buy; source=json-ld",
+      url: "https://example.test/buy",
+      selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "use-evidence",
