@@ -333,6 +333,22 @@ type PageKeyValueSummary = {
   selector?: string;
 };
 
+type PageSchemaFact = {
+  label: string;
+  value: string;
+};
+
+type PageSchemaFactSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  types: string[];
+  facts: PageSchemaFact[];
+  text: string;
+  source: "json-ld";
+  selector?: string;
+};
+
 type PageMediaSummary = {
   id: string;
   path: string;
@@ -520,6 +536,7 @@ const agentContract: AgentContract = {
     "pageCheck.dataTables",
     "pageCheck.forms",
     "pageCheck.keyValues",
+    "pageCheck.schemaFacts",
     "pageCheck.media",
     "pageCheck.resources",
     "pageCheck.embeds",
@@ -549,6 +566,7 @@ type PageCheckSummary = {
   dataTables: PageDataTableSummary[];
   forms: PageFormSummary[];
   keyValues: PageKeyValueSummary[];
+  schemaFacts: PageSchemaFactSummary[];
   media: PageMediaSummary[];
   resources: PageResourceSummary[];
   embeds: PageEmbedSummary[];
@@ -1871,6 +1889,9 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const datetime = fact.datetime ? ` datetime=${fact.datetime}` : "";
     lines.push(`  keyValue: ${fact.id} ${fact.path} ${fact.source}${datetime} - ${fact.text}`);
   }
+  for (const fact of pageCheck.schemaFacts) {
+    lines.push(`  schemaFact: ${fact.id} ${fact.path} ${fact.types.join(",") || "unknown"} - ${fact.text}`);
+  }
   for (const media of pageCheck.media) {
     const dimensions = media.width && media.height ? ` ${media.width}x${media.height}` : "";
     const selector = media.selector ? ` (${media.selector})` : "";
@@ -2601,20 +2622,22 @@ function summarizePageCheck(
   const dataTables = summarizeDataTables(fetched.html);
   const forms = summarizeForms(fetched.html, fetched.finalUrl);
   const keyValues = summarizeKeyValues(fetched.html);
+  const schemaFacts = summarizeSchemaFacts(fetched.html);
   const media = summarizeMedia(fetched.html, fetched.finalUrl);
   const resources = summarizeResources(fetched.html, fetched.finalUrl);
   const embeds = summarizeEmbeds(fetched.html, fetched.finalUrl);
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, media, resources, embeds, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, media, resources, embeds, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, schemaFacts, media, resources, embeds, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, schemaFacts, media, resources, embeds, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
     dataTables,
     forms,
     keyValues,
+    schemaFacts,
     media,
     resources,
     embeds,
@@ -2651,6 +2674,7 @@ function summarizeReadability(
   dataTables: PageDataTableSummary[],
   forms: PageFormSummary[],
   keyValues: PageKeyValueSummary[],
+  schemaFacts: PageSchemaFactSummary[],
   media: PageMediaSummary[],
   resources: PageResourceSummary[],
   embeds: PageEmbedSummary[],
@@ -2677,6 +2701,10 @@ function summarizeReadability(
   if (keyValues.length > 0) {
     score += Math.min(0.08, keyValues.length * 0.02);
     reasons.push(`${keyValues.length} key-value fact${keyValues.length === 1 ? "" : "s"}`);
+  }
+  if (schemaFacts.length > 0) {
+    score += Math.min(0.1, schemaFacts.length * 0.04);
+    reasons.push(`${schemaFacts.length} schema fact group${schemaFacts.length === 1 ? "" : "s"}`);
   }
   if (media.length > 0) {
     score += Math.min(0.06, media.length * 0.02);
@@ -2754,6 +2782,7 @@ function recommendedPageCheckAction(
   dataTables: PageDataTableSummary[],
   forms: PageFormSummary[],
   keyValues: PageKeyValueSummary[],
+  schemaFacts: PageSchemaFactSummary[],
   media: PageMediaSummary[],
   resources: PageResourceSummary[],
   embeds: PageEmbedSummary[],
@@ -2790,13 +2819,15 @@ function recommendedPageCheckAction(
         ? "pageCheck.dataTables"
         : keyValues.length > 0
           ? "pageCheck.keyValues"
-          : media.length > 0
-            ? "pageCheck.media"
-            : resources.length > 0
-              ? "pageCheck.resources"
-              : embeds.length > 0
-                ? "pageCheck.embeds"
-                : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
+          : schemaFacts.length > 0
+            ? "pageCheck.schemaFacts"
+            : media.length > 0
+              ? "pageCheck.media"
+              : resources.length > 0
+                ? "pageCheck.resources"
+                : embeds.length > 0
+                  ? "pageCheck.embeds"
+                  : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
     return {
       action: "read-content",
       reason: "The page has enough structured evidence for source checking.",
@@ -2821,6 +2852,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.keyValues",
+    };
+  }
+  if (schemaFacts.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but JSON-LD schema facts are available for agent verification.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.schemaFacts",
     };
   }
   if (media.length > 0) {
@@ -3328,6 +3368,116 @@ function isLowValueKeyValue(label: string, value: string): boolean {
   if (label.length > 48 || value.length > 180) return true;
   if (/^(home|menu|navigation|login|search|share|privacy|terms|cookie|광고|로그인|메뉴|검색)$/i.test(label)) return true;
   return label.toLowerCase() === value.toLowerCase();
+}
+
+function summarizeSchemaFacts(html: string): PageSchemaFactSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageSchemaFactSummary[] = [];
+  const seen = new Set<string>();
+  for (const [scriptIndex, script] of findElements(document.children, (item) => item.name === "script" && /application\/ld\+json/i.test(attr(item, "type") ?? "")).entries()) {
+    for (const value of parseJsonLdValues(scriptText(script))) {
+      const types = jsonLdStringArray(value["@type"]).slice(0, 4);
+      const facts = schemaFactsFromJsonLd(value).slice(0, 8);
+      const key = `${types.join(",")}\n${facts.map((fact) => `${fact.label}:${fact.value}`).join("\n")}`.toLowerCase();
+      if (facts.length === 0 || seen.has(key)) continue;
+      seen.add(key);
+      const rank = items.length + 1;
+      items.push({
+        id: `sf${rank}`,
+        path: `pageCheck.schemaFacts[${rank - 1}]`,
+        rank,
+        types,
+        facts,
+        text: schemaFactText(types, facts),
+        source: "json-ld",
+        selector: `script[type="application/ld+json"]:nth-of-type(${scriptIndex + 1})`,
+      });
+    }
+  }
+  return items.slice(0, 6);
+}
+
+function schemaFactsFromJsonLd(value: Record<string, unknown>): PageSchemaFact[] {
+  const facts: PageSchemaFact[] = [];
+  const add = (label: string, raw: unknown): void => {
+    const fact = schemaFact(label, raw);
+    if (!fact) return;
+    if (facts.some((item) => item.label.toLowerCase() === fact.label.toLowerCase() && item.value.toLowerCase() === fact.value.toLowerCase())) return;
+    facts.push(fact);
+  };
+  add("Name", value.name ?? value.headline);
+  add("Description", value.description);
+  add("Author", jsonLdAuthor(value.author));
+  add("Published", value.datePublished ?? value.dateCreated);
+  add("Modified", value.dateModified);
+  add("SKU", value.sku);
+  add("Brand", schemaNamedValue(value.brand));
+  add("Category", value.category);
+  add("Start date", value.startDate);
+  add("End date", value.endDate);
+  add("Location", schemaNamedValue(value.location));
+  for (const offer of schemaObjectArray(value.offers).slice(0, 2)) {
+    const price = [jsonLdString(offer.priceCurrency), jsonLdString(offer.price)].filter(Boolean).join(" ");
+    add("Offer price", price);
+    add("Offer availability", schemaAvailability(offer.availability));
+    add("Offer URL", offer.url);
+  }
+  for (const rating of schemaObjectArray(value.aggregateRating).slice(0, 1)) {
+    add("Rating", [jsonLdString(rating.ratingValue), jsonLdString(rating.bestRating)].filter(Boolean).join(" / "));
+    add("Review count", rating.reviewCount ?? rating.ratingCount);
+  }
+  for (const question of schemaObjectArray(value.mainEntity).slice(0, 4)) {
+    const questionText = jsonLdString(question.name);
+    const answers = schemaObjectArray(question.acceptedAnswer)
+      .map((answer) => jsonLdString(answer.text))
+      .filter(Boolean);
+    if (questionText && answers[0]) add(`FAQ: ${questionText}`, answers[0]);
+  }
+  return facts.filter((fact) => !isLowValueSchemaFact(fact));
+}
+
+function schemaFact(label: string, raw: unknown): PageSchemaFact | undefined {
+  const value = schemaFactValue(raw);
+  if (!value) return undefined;
+  return { label, value };
+}
+
+function schemaFactValue(raw: unknown): string {
+  if (typeof raw === "string" || typeof raw === "number" || typeof raw === "boolean") return cleanContentText(String(raw));
+  if (Array.isArray(raw)) return raw.map(schemaFactValue).filter(Boolean).join(", ");
+  if (!raw || typeof raw !== "object") return "";
+  return schemaNamedValue(raw);
+}
+
+function schemaObjectArray(value: unknown): Array<Record<string, unknown>> {
+  if (Array.isArray(value)) return value.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object");
+  if (value && typeof value === "object") return [value as Record<string, unknown>];
+  return [];
+}
+
+function schemaNamedValue(value: unknown): string {
+  if (!value || typeof value !== "object") return jsonLdString(value);
+  const object = value as Record<string, unknown>;
+  return jsonLdString(object.name) || jsonLdString(object.headline) || jsonLdString(object.url) || jsonLdString(object["@id"]);
+}
+
+function schemaAvailability(value: unknown): string {
+  const text = jsonLdString(value);
+  return text.replace(/^https?:\/\/schema\.org\//i, "");
+}
+
+function isLowValueSchemaFact(fact: PageSchemaFact): boolean {
+  if (fact.value.length > 280) return true;
+  return fact.label.toLowerCase() === fact.value.toLowerCase();
+}
+
+function schemaFactText(types: string[], facts: PageSchemaFact[]): string {
+  const prefix = types.length > 0 ? `Types: ${types.join(", ")}` : "Types: unknown";
+  return cleanContentText([prefix, ...facts.map((fact) => `${fact.label}: ${fact.value}`)].join(" ; "));
 }
 
 function summarizeMedia(html: string, baseUrl: string): PageMediaSummary[] {
@@ -4717,6 +4867,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.keyValues" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.schemaFacts.length > 0) {
+    add({
+      path: "pageCheck.schemaFacts",
+      reason: "Compact JSON-LD schema.org facts extracted from hidden structured data.",
+      count: pageCheck.schemaFacts.length,
+      score: roundMetric(Math.min(1, 0.5 + pageCheck.schemaFacts.length * 0.08)),
+      ...(primaryReadFrom === "pageCheck.schemaFacts" ? { primary: true } : {}),
+    });
+  }
   if (pageCheck.media.length > 0) {
     add({
       path: "pageCheck.media",
@@ -4935,6 +5094,7 @@ function agentReadValue(
   if (path === "pageCheck.dataTables") return { path, value: pageCheck.dataTables };
   if (path === "pageCheck.forms") return { path, value: pageCheck.forms };
   if (path === "pageCheck.keyValues") return { path, value: pageCheck.keyValues };
+  if (path === "pageCheck.schemaFacts") return { path, value: pageCheck.schemaFacts };
   if (path === "pageCheck.media") return { path, value: pageCheck.media };
   if (path === "pageCheck.resources") return { path, value: pageCheck.resources };
   if (path === "pageCheck.embeds") return { path, value: pageCheck.embeds };
@@ -5299,6 +5459,14 @@ function findCandidates(
       ...(fact.selector ? { selector: fact.selector } : {}),
     });
   }
+  for (const fact of pageCheck.schemaFacts) {
+    add({
+      field: "schemaFact",
+      text: fact.text,
+      rank: fact.rank,
+      ...(fact.selector ? { selector: fact.selector } : {}),
+    });
+  }
   for (const media of pageCheck.media) {
     add({
       field: "media",
@@ -5471,6 +5639,7 @@ function emptyPageCheck(): PageCheckSummary {
     dataTables: [],
     forms: [],
     keyValues: [],
+    schemaFacts: [],
     media: [],
     resources: [],
     embeds: [],
@@ -6419,6 +6588,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.dataTables.length > 0 ? { dataTables: pageCheck.dataTables } : {}),
     ...(pageCheck.forms.length > 0 ? { forms: pageCheck.forms } : {}),
     ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),
+    ...(pageCheck.schemaFacts.length > 0 ? { schemaFacts: pageCheck.schemaFacts } : {}),
     ...(pageCheck.media.length > 0 ? { media: pageCheck.media } : {}),
     ...(pageCheck.resources.length > 0 ? { resources: pageCheck.resources } : {}),
     ...(pageCheck.embeds.length > 0 ? { embeds: pageCheck.embeds } : {}),

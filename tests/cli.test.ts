@@ -3056,6 +3056,127 @@ describe("cli", () => {
     });
   });
 
+  it("summarizes JSON-LD schema facts as pageCheck read targets for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/product", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <title>Product</title>
+            <script type="application/ld+json">
+              {
+                "@context": "https://schema.org",
+                "@type": "Product",
+                "name": "Agent Browser Pro",
+                "sku": "ABP-2026",
+                "brand": { "@type": "Brand", "name": "Example Labs" },
+                "offers": {
+                  "@type": "Offer",
+                  "price": "19.99",
+                  "priceCurrency": "USD",
+                  "availability": "https://schema.org/InStock",
+                  "url": "https://example.test/product"
+                },
+                "aggregateRating": {
+                  "@type": "AggregateRating",
+                  "ratingValue": "4.8",
+                  "reviewCount": "128"
+                }
+              }
+            </script>
+          </head>
+          <body><main></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.schemaFacts).toEqual([
+      {
+        id: "sf1",
+        path: "pageCheck.schemaFacts[0]",
+        rank: 1,
+        types: ["Product"],
+        source: "json-ld",
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+        facts: [
+          { label: "Name", value: "Agent Browser Pro" },
+          { label: "SKU", value: "ABP-2026" },
+          { label: "Brand", value: "Example Labs" },
+          { label: "Offer price", value: "USD 19.99" },
+          { label: "Offer availability", value: "InStock" },
+          { label: "Offer URL", value: "https://example.test/product" },
+          { label: "Rating", value: "4.8" },
+          { label: "Review count", value: "128" },
+        ],
+        text: "Types: Product; Name: Agent Browser Pro; SKU: ABP-2026; Brand: Example Labs; Offer price: USD 19.99; Offer availability: InStock; Offer URL: https://example.test/product; Rating: 4.8; Review count: 128",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("1 schema fact group");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.schemaFacts",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.schemaFacts",
+      count: 1,
+      primary: true,
+      reason: "Compact JSON-LD schema.org facts extracted from hidden structured data.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.schemaFacts",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          id: "sf1",
+          types: ["Product"],
+        }),
+      ]),
+    });
+  });
+
+  it("checks requested text against JSON-LD schema fact summaries", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/product", "--agent", "--find", "USD 19.99"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <script type="application/ld+json">
+              {
+                "@context": "https://schema.org",
+                "@type": "Product",
+                "name": "Agent Browser Pro",
+                "offers": { "@type": "Offer", "price": "19.99", "priceCurrency": "USD" }
+              }
+            </script>
+          </head>
+          <body><main><h1>Product</h1></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "schemaFact",
+        rank: 1,
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+        text: "Types: Product; Name: Agent Browser Pro; Offer price: USD 19.99",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
   it("summarizes page media with resolved image urls and captions for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/gallery", "--agent"], {
