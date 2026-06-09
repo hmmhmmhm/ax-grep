@@ -11559,7 +11559,7 @@ function agentJsonEnvelope(envelope: {
     ...(envelope.warnings.length > 0 ? { warnings: envelope.warnings } : {}),
     agent: compactAgentSummary(envelope.agent),
     ...compactAgentPage(envelope.page),
-    pageCheck: compactAgentPageCheck(envelope.pageCheck, envelope.agent.primaryAction, envelope.searchResults.length > 0, pageLinkContext),
+    pageCheck: compactAgentPageCheck(envelope.pageCheck, envelope.agent.primaryAction, envelope.searchResults.length > 0, pageLinkContext, envelope.agent.readTargets),
     ...compactAgentVerification(envelope.verification, envelope.agent.primaryAction),
     ...(envelope.finds.length > 0 ? { finds: envelope.finds } : {}),
     ...compactAgentSearchResults(envelope.searchResults, envelope.recommendedResult, searchCommandContext, pageLinkContext),
@@ -11690,7 +11690,13 @@ function agentJsonErrorEnvelope(envelope: {
   };
 }
 
-function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: SuggestedAction, omitResultLinkDuplicates = false, pageLinkContext?: PageLinkCommandContext): object {
+function compactAgentPageCheck(
+  pageCheck: PageCheckSummary,
+  primaryAction?: SuggestedAction,
+  omitResultLinkDuplicates = false,
+  pageLinkContext?: PageLinkCommandContext,
+  readTargets: AgentReadTarget[] = [],
+): object {
   const sourceUrls = new Set(pageCheck.sourceLinks.map((link) => link.url));
   const nonSourcePrimaryLinks = pageCheck.primaryLinks.filter((link) => !sourceUrls.has(link.url));
   const primaryLinks = pageCheck.sourceLinks.length > 0
@@ -11702,42 +11708,43 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     : primaryAction ? pageCheck.nextSteps.filter((step) => !sameSuggestedAction(step, primaryAction)) : pageCheck.nextSteps;
   const recommendedAction = suppressPageActions || sameSuggestedAction(pageCheck.recommendedAction, primaryAction) ? undefined : pageCheck.recommendedAction;
   const compactNextSteps = compactAgentActionList(nextSteps);
+  const slimPaths = compactPageCheckSlimPaths(pageCheck, readTargets);
   return {
     contentEvidence: pageCheck.contentEvidence,
-    ...(pageCheck.dataTables.length > 0 ? { dataTables: compactAgentPageCheckItems(pageCheck.dataTables) } : {}),
-    ...(pageCheck.barriers.length > 0 ? { barriers: compactAgentPageCheckItems(pageCheck.barriers) } : {}),
-    ...(pageCheck.forms.length > 0 ? { forms: compactAgentPageCheckItems(pageCheck.forms) } : {}),
-    ...(pageCheck.actionTargets.length > 0 ? { actionTargets: compactAgentPageCheckItems(pageCheck.actionTargets) } : {}),
-    ...(pageCheck.hydration.length > 0 ? { hydration: compactAgentPageCheckItems(pageCheck.hydration) } : {}),
-    ...(pageCheck.apiEndpoints.length > 0 ? { apiEndpoints: compactAgentPageCheckItems(pageCheck.apiEndpoints) } : {}),
-    ...(pageCheck.clientState.length > 0 ? { clientState: compactAgentPageCheckItems(pageCheck.clientState) } : {}),
-    ...(pageCheck.runtime.length > 0 ? { runtime: compactAgentPageCheckItems(pageCheck.runtime) } : {}),
-    ...(pageCheck.config.length > 0 ? { config: compactAgentPageCheckItems(pageCheck.config) } : {}),
-    ...(pageCheck.appHints.length > 0 ? { appHints: compactAgentPageCheckItems(pageCheck.appHints) } : {}),
-    ...(pageCheck.mobileHints.length > 0 ? { mobileHints: compactAgentPageCheckItems(pageCheck.mobileHints) } : {}),
-    ...(pageCheck.topics.length > 0 ? { topics: compactAgentPageCheckItems(pageCheck.topics) } : {}),
-    ...(pageCheck.contactPoints.length > 0 ? { contactPoints: compactAgentPageCheckItems(pageCheck.contactPoints) } : {}),
-    ...(pageCheck.keyValues.length > 0 ? { keyValues: compactAgentPageCheckItems(pageCheck.keyValues) } : {}),
-    ...(pageCheck.metaFacts.length > 0 ? { metaFacts: compactAgentPageCheckItems(pageCheck.metaFacts) } : {}),
-    ...(pageCheck.provenance.length > 0 ? { provenance: compactAgentPageCheckItems(pageCheck.provenance) } : {}),
-    ...(pageCheck.httpPolicies.length > 0 ? { httpPolicies: compactAgentPageCheckItems(pageCheck.httpPolicies) } : {}),
-    ...(pageCheck.schemaFacts.length > 0 ? { schemaFacts: compactAgentPageCheckItems(pageCheck.schemaFacts) } : {}),
-    ...(pageCheck.offers.length > 0 ? { offers: compactAgentPageCheckItems(pageCheck.offers) } : {}),
-    ...(pageCheck.identities.length > 0 ? { identities: compactAgentPageCheckItems(pageCheck.identities) } : {}),
-    ...(pageCheck.datasets.length > 0 ? { datasets: compactAgentPageCheckItems(pageCheck.datasets) } : {}),
-    ...(pageCheck.timeline.length > 0 ? { timeline: compactAgentPageCheckItems(pageCheck.timeline) } : {}),
-    ...(pageCheck.faqs.length > 0 ? { faqs: compactAgentPageCheckItems(pageCheck.faqs) } : {}),
-    ...(pageCheck.breadcrumbs.length > 0 ? { breadcrumbs: compactAgentPageCheckItems(pageCheck.breadcrumbs) } : {}),
-    ...(pageCheck.sections.length > 0 ? { sections: compactAgentPageCheckItems(pageCheck.sections) } : {}),
-    ...(pageCheck.pagination.length > 0 ? { pagination: compactAgentPageCheckItems(pageCheck.pagination) } : {}),
-    ...(pageCheck.toc.length > 0 ? { toc: compactAgentPageCheckItems(pageCheck.toc) } : {}),
-    ...(pageCheck.codeBlocks.length > 0 ? { codeBlocks: compactAgentPageCheckItems(pageCheck.codeBlocks) } : {}),
-    ...(pageCheck.citations.length > 0 ? { citations: compactAgentPageCheckItems(pageCheck.citations) } : {}),
-    ...(pageCheck.media.length > 0 ? { media: compactAgentPageCheckItems(pageCheck.media) } : {}),
-    ...(pageCheck.resources.length > 0 ? { resources: compactAgentPageCheckItems(pageCheck.resources, 2200) } : {}),
-    ...(pageCheck.embeds.length > 0 ? { embeds: compactAgentPageCheckItems(pageCheck.embeds) } : {}),
-    ...(pageCheck.transcripts.length > 0 ? { transcripts: compactAgentPageCheckItems(pageCheck.transcripts) } : {}),
-    ...(pageCheck.authorLinks.length > 0 ? { authorLinks: compactAgentPageCheckItems(pageCheck.authorLinks) } : {}),
+    ...compactPageCheckArray("dataTables", pageCheck.dataTables, slimPaths),
+    ...compactPageCheckArray("barriers", pageCheck.barriers, slimPaths),
+    ...compactPageCheckArray("forms", pageCheck.forms, slimPaths),
+    ...compactPageCheckArray("actionTargets", pageCheck.actionTargets, slimPaths),
+    ...compactPageCheckArray("hydration", pageCheck.hydration, slimPaths),
+    ...compactPageCheckArray("apiEndpoints", pageCheck.apiEndpoints, slimPaths),
+    ...compactPageCheckArray("clientState", pageCheck.clientState, slimPaths),
+    ...compactPageCheckArray("runtime", pageCheck.runtime, slimPaths),
+    ...compactPageCheckArray("config", pageCheck.config, slimPaths),
+    ...compactPageCheckArray("appHints", pageCheck.appHints, slimPaths),
+    ...compactPageCheckArray("mobileHints", pageCheck.mobileHints, slimPaths),
+    ...compactPageCheckArray("topics", pageCheck.topics, slimPaths),
+    ...compactPageCheckArray("contactPoints", pageCheck.contactPoints, slimPaths),
+    ...compactPageCheckArray("keyValues", pageCheck.keyValues, slimPaths),
+    ...compactPageCheckArray("metaFacts", pageCheck.metaFacts, slimPaths),
+    ...compactPageCheckArray("provenance", pageCheck.provenance, slimPaths),
+    ...compactPageCheckArray("httpPolicies", pageCheck.httpPolicies, slimPaths),
+    ...compactPageCheckArray("schemaFacts", pageCheck.schemaFacts, slimPaths),
+    ...compactPageCheckArray("offers", pageCheck.offers, slimPaths),
+    ...compactPageCheckArray("identities", pageCheck.identities, slimPaths),
+    ...compactPageCheckArray("datasets", pageCheck.datasets, slimPaths),
+    ...compactPageCheckArray("timeline", pageCheck.timeline, slimPaths),
+    ...compactPageCheckArray("faqs", pageCheck.faqs, slimPaths),
+    ...compactPageCheckArray("breadcrumbs", pageCheck.breadcrumbs, slimPaths),
+    ...compactPageCheckArray("sections", pageCheck.sections, slimPaths),
+    ...compactPageCheckArray("pagination", pageCheck.pagination, slimPaths),
+    ...compactPageCheckArray("toc", pageCheck.toc, slimPaths),
+    ...compactPageCheckArray("codeBlocks", pageCheck.codeBlocks, slimPaths),
+    ...compactPageCheckArray("citations", pageCheck.citations, slimPaths),
+    ...compactPageCheckArray("media", pageCheck.media, slimPaths),
+    ...compactPageCheckArray("resources", pageCheck.resources, slimPaths, 2200),
+    ...compactPageCheckArray("embeds", pageCheck.embeds, slimPaths),
+    ...compactPageCheckArray("transcripts", pageCheck.transcripts, slimPaths),
+    ...compactPageCheckArray("authorLinks", pageCheck.authorLinks, slimPaths),
     contentLength: pageCheck.contentLength,
     ...(primaryLinks.length > 0 && !omitResultLinkDuplicates ? { primaryLinks: primaryLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `l${index + 1}`, path: `pageCheck.primaryLinks[${index}]` })) } : {}),
     ...(pageCheck.sourceLinks.length > 0 && !omitResultLinkDuplicates ? { sourceLinks: compactAgentCommandList(pageCheck.sourceLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `s${index + 1}`, path: `pageCheck.sourceLinks[${index}]` }))) } : {}),
@@ -11760,6 +11767,27 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.modifiedTime ? { modifiedTime: pageCheck.modifiedTime } : {}),
     ...(pageCheck.structuredDataTypes?.length ? { structuredDataTypes: pageCheck.structuredDataTypes } : {}),
   };
+}
+
+function compactPageCheckArray<T>(
+  key: string,
+  items: T[],
+  slimPaths: Set<string> | undefined,
+  aggressiveThreshold?: number,
+): object {
+  if (items.length === 0) return {};
+  if (slimPaths && !slimPaths.has(key)) return {};
+  return { [key]: compactAgentPageCheckItems(items, aggressiveThreshold) };
+}
+
+function compactPageCheckSlimPaths(pageCheck: PageCheckSummary, readTargets: AgentReadTarget[]): Set<string> | undefined {
+  if (JSON.stringify(pageCheck).length <= 18000) return undefined;
+  const paths = new Set<string>(["contentEvidence", "sourceLinks", "nextSteps", "actions"]);
+  for (const target of readTargets) {
+    const match = /^pageCheck\.([A-Za-z0-9_]+)$/.exec(target.path);
+    if (match?.[1]) paths.add(match[1]);
+  }
+  return paths;
 }
 
 function compactAgentPageCheckItems<T>(items: T[], aggressiveThreshold = 2400): object[] {
