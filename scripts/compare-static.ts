@@ -1497,7 +1497,7 @@ function scoreAgentHandoff(
   }
   if (sourceChoices.length > 0) {
     required += 1;
-    if (JSON.stringify(handoff.sourceChoices) === JSON.stringify(sourceChoices)) matched += 1;
+    if (scoreHandoffSourceChoices(handoff.sourceChoices, sourceChoices) === 1) matched += 1;
   }
   if (sourceSearch) {
     required += 1;
@@ -1552,6 +1552,21 @@ function scoreHandoffAnswerEvidence(handoffEvidence: CliAgentCitationShape[] | u
       && item.path === expected.path
       && item.kind === expected.kind
       && item.confidence === expected.confidence;
+  });
+  return valid ? 1 : 0;
+}
+
+function scoreHandoffSourceChoices(handoffChoices: CliAgentSourceChoiceShape[] | undefined, sourceChoices: CliAgentSourceChoiceShape[]): number {
+  if (!Array.isArray(handoffChoices)) return sourceChoices.length === 0 ? 1 : 0;
+  if (handoffChoices.length !== sourceChoices.length) return 0;
+  const valid = handoffChoices.every((choice, index) => {
+    const expected = sourceChoices[index];
+    return expected
+      && choice.id === expected.id
+      && choice.path === expected.path
+      && choice.title === expected.title
+      && choice.url === expected.url
+      && choice.rank === expected.rank;
   });
   return valid ? 1 : 0;
 }

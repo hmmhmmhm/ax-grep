@@ -11940,8 +11940,20 @@ function compactAgentHandoff(handoff: AgentHandoff): object {
     ...rest,
     ...(answerEvidence && answerEvidence.length > 0 ? { answerEvidence: answerEvidence.map(compactAgentCitationRef) } : {}),
     ...(resultChoices && resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(resultChoices) } : {}),
-    ...(sourceChoices && sourceChoices.length > 0 ? { sourceChoices: compactAgentCommandList(sourceChoices) } : {}),
+    ...(sourceChoices && sourceChoices.length > 0 ? { sourceChoices: sourceChoices.map(compactAgentSourceChoiceRef) } : {}),
     ...(readValue ? { readValue: compactAgentReadValue(readValue, true) } : {}),
+  };
+}
+
+function compactAgentSourceChoiceRef(choice: AgentSourceChoice): object {
+  return {
+    id: choice.id,
+    path: choice.path,
+    title: choice.title,
+    url: choice.url,
+    rank: choice.rank,
+    kind: choice.kind,
+    ...(choice.primary ? { primary: true } : {}),
   };
 }
 
