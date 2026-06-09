@@ -309,6 +309,7 @@ describe("cli", () => {
             "contentEvidence.quality",
             "pageCheck.actionTargets",
             "pageCheck.appHints",
+            "pageCheck.topics",
             "pageCheck.httpPolicies",
             "pageCheck.offers",
             "pageCheck.identities",
@@ -3364,6 +3365,184 @@ describe("cli", () => {
         rank: 2,
         selector: "meta[name=\"application-name\"]:nth-of-type(1)",
         text: "Application name: Example Console kind=app-name source=meta",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("summarizes hidden topic metadata for relevance checks", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/topic", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <meta name="keywords" content="retrieval, agent search">
+            <meta property="article:tag" content="CLI tooling">
+            <script type="application/ld+json">
+              {
+                "@context": "https://schema.org",
+                "@type": "Article",
+                "headline": "Agent page checks",
+                "keywords": ["accessibility tree", "static extraction"],
+                "articleSection": "Engineering",
+                "about": { "@type": "Thing", "name": "Subagent page checking" },
+                "mentions": [{ "@type": "Thing", "name": "browser automation" }]
+              }
+            </script>
+          </head>
+          <body><main><h1>Topic page</h1></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.topics).toEqual([
+      {
+        id: "tp1",
+        path: "pageCheck.topics[0]",
+        rank: 1,
+        kind: "keyword",
+        label: "Keyword",
+        value: "retrieval",
+        text: "Keyword: retrieval kind=keyword source=meta",
+        source: "meta",
+        selector: "meta[name=\"keywords\"]:nth-of-type(1)",
+      },
+      {
+        id: "tp2",
+        path: "pageCheck.topics[1]",
+        rank: 2,
+        kind: "keyword",
+        label: "Keyword",
+        value: "agent search",
+        text: "Keyword: agent search kind=keyword source=meta",
+        source: "meta",
+        selector: "meta[name=\"keywords\"]:nth-of-type(1)",
+      },
+      {
+        id: "tp3",
+        path: "pageCheck.topics[2]",
+        rank: 3,
+        kind: "tag",
+        label: "Article tag",
+        value: "CLI tooling",
+        text: "Article tag: CLI tooling kind=tag source=meta",
+        source: "meta",
+        selector: "meta[property=\"article:tag\"]:nth-of-type(2)",
+      },
+      {
+        id: "tp4",
+        path: "pageCheck.topics[3]",
+        rank: 4,
+        kind: "keyword",
+        label: "Keyword",
+        value: "accessibility tree",
+        text: "Keyword: accessibility tree kind=keyword source=json-ld",
+        source: "json-ld",
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      },
+      {
+        id: "tp5",
+        path: "pageCheck.topics[4]",
+        rank: 5,
+        kind: "keyword",
+        label: "Keyword",
+        value: "static extraction",
+        text: "Keyword: static extraction kind=keyword source=json-ld",
+        source: "json-ld",
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      },
+      {
+        id: "tp6",
+        path: "pageCheck.topics[5]",
+        rank: 6,
+        kind: "section",
+        label: "Article section",
+        value: "Engineering",
+        text: "Article section: Engineering kind=section source=json-ld",
+        source: "json-ld",
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      },
+      {
+        id: "tp7",
+        path: "pageCheck.topics[6]",
+        rank: 7,
+        kind: "about",
+        label: "About",
+        value: "Subagent page checking",
+        text: "About: Subagent page checking kind=about source=json-ld",
+        source: "json-ld",
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      },
+      {
+        id: "tp8",
+        path: "pageCheck.topics[7]",
+        rank: 8,
+        kind: "mention",
+        label: "Mention",
+        value: "browser automation",
+        text: "Mention: browser automation kind=mention source=json-ld",
+        source: "json-ld",
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("8 topics");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.topics",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.topics",
+      count: 8,
+      primary: true,
+      reason: "Keywords, tags, categories, about, and mention topics extracted from hidden metadata and JSON-LD.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.topics",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          id: "tp7",
+          value: "Subagent page checking",
+        }),
+      ]),
+    });
+  });
+
+  it("checks requested text against topic metadata", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/topic", "--agent", "--find", "browser automation"], {
+      stdout,
+      fetch: async () => new Response(`
+        <head>
+          <script type="application/ld+json">
+            {
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "mentions": [{ "@type": "Thing", "name": "browser automation" }]
+            }
+          </script>
+        </head>
+        <main><h1>Topic page</h1></main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "topic",
+        rank: 1,
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+        text: "Mention: browser automation kind=mention source=json-ld",
       },
     });
     expect(envelope.agent.primaryAction).toMatchObject({

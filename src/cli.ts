@@ -371,6 +371,18 @@ type PageAppHintSummary = {
   selector?: string;
 };
 
+type PageTopicSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "keyword" | "tag" | "section" | "category" | "about" | "mention";
+  label: string;
+  value: string;
+  text: string;
+  source: "meta" | "json-ld";
+  selector?: string;
+};
+
 type PageKeyValueSummary = {
   id: string;
   path: string;
@@ -802,6 +814,7 @@ const agentContract: AgentContract = {
     "pageCheck.forms",
     "pageCheck.actionTargets",
     "pageCheck.appHints",
+    "pageCheck.topics",
     "pageCheck.keyValues",
     "pageCheck.metaFacts",
     "pageCheck.httpPolicies",
@@ -851,6 +864,7 @@ type PageCheckSummary = {
   forms: PageFormSummary[];
   actionTargets: PageActionTargetSummary[];
   appHints: PageAppHintSummary[];
+  topics: PageTopicSummary[];
   keyValues: PageKeyValueSummary[];
   metaFacts: PageMetaFactSummary[];
   httpPolicies: PageHttpPolicySummary[];
@@ -2232,6 +2246,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const selector = hint.selector ? ` (${hint.selector})` : "";
     lines.push(`  appHint: ${hint.id} ${hint.path} ${hint.kind}${selector}${url} - ${hint.text}`);
   }
+  for (const topic of pageCheck.topics) {
+    const selector = topic.selector ? ` (${topic.selector})` : "";
+    lines.push(`  topic: ${topic.id} ${topic.path} ${topic.kind}${selector} - ${topic.text}`);
+  }
   for (const fact of pageCheck.keyValues) {
     const datetime = fact.datetime ? ` datetime=${fact.datetime}` : "";
     lines.push(`  keyValue: ${fact.id} ${fact.path} ${fact.source}${datetime} - ${fact.text}`);
@@ -3162,6 +3180,7 @@ function summarizePageCheck(
   const forms = summarizeForms(fetched.html, fetched.finalUrl);
   const actionTargets = summarizeActionTargets(fetched.html, fetched.finalUrl);
   const appHints = summarizeAppHints(fetched.html, fetched.finalUrl);
+  const topics = summarizeTopics(fetched.html);
   const keyValues = summarizeKeyValues(fetched.html);
   const metaFacts = summarizeMetaFacts(fetched.html, fetched.finalUrl);
   const httpPolicies = summarizeHttpPolicies(fetched.html, fetched.responseHeaders);
@@ -3186,8 +3205,8 @@ function summarizePageCheck(
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, actionTargets, appHints, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, actionTargets, appHints, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, actionTargets, appHints, topics, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, actionTargets, appHints, topics, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -3196,6 +3215,7 @@ function summarizePageCheck(
     forms,
     actionTargets,
     appHints,
+    topics,
     keyValues,
     metaFacts,
     httpPolicies,
@@ -3251,6 +3271,7 @@ function summarizeReadability(
   forms: PageFormSummary[],
   actionTargets: PageActionTargetSummary[],
   appHints: PageAppHintSummary[],
+  topics: PageTopicSummary[],
   keyValues: PageKeyValueSummary[],
   metaFacts: PageMetaFactSummary[],
   httpPolicies: PageHttpPolicySummary[],
@@ -3302,6 +3323,10 @@ function summarizeReadability(
   if (appHints.length > 0) {
     score += Math.min(0.06, appHints.length * 0.02);
     reasons.push(`${appHints.length} app hint${appHints.length === 1 ? "" : "s"}`);
+  }
+  if (topics.length > 0) {
+    score += Math.min(0.08, topics.length * 0.02);
+    reasons.push(`${topics.length} topic${topics.length === 1 ? "" : "s"}`);
   }
   if (keyValues.length > 0) {
     score += Math.min(0.08, keyValues.length * 0.02);
@@ -3452,6 +3477,7 @@ function recommendedPageCheckAction(
   forms: PageFormSummary[],
   actionTargets: PageActionTargetSummary[],
   appHints: PageAppHintSummary[],
+  topics: PageTopicSummary[],
   keyValues: PageKeyValueSummary[],
   metaFacts: PageMetaFactSummary[],
   httpPolicies: PageHttpPolicySummary[],
@@ -3508,6 +3534,8 @@ function recommendedPageCheckAction(
           ? "pageCheck.actionTargets"
           : appHints.length > 0
             ? "pageCheck.appHints"
+            : topics.length > 0
+              ? "pageCheck.topics"
         : keyValues.length > 0
           ? "pageCheck.keyValues"
           : httpPolicies.length > 0
@@ -3584,6 +3612,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.appHints",
+    };
+  }
+  if (topics.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but topic metadata is available for relevance checking.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.topics",
     };
   }
   if (keyValues.length > 0) {
@@ -4471,6 +4508,131 @@ function appHintText(kind: PageAppHintSummary["kind"], label: string, value: str
     media ? `media=${media}` : "",
     `source=${source}`,
   ].filter(Boolean).join(" "));
+}
+
+function summarizeTopics(html: string): PageTopicSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageTopicSummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageTopicSummary, "id" | "path" | "rank" | "text">): void => {
+    const value = cleanTopicValue(item.value);
+    const label = cleanContentText(item.label).slice(0, 60) || topicLabel(item.kind);
+    const key = `${item.kind}\n${value}`.toLowerCase();
+    if (!isUsefulTopic(value) || seen.has(key)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `tp${rank}`,
+      path: `pageCheck.topics[${rank - 1}]`,
+      rank,
+      kind: item.kind,
+      label,
+      value,
+      source: item.source,
+      ...(item.selector ? { selector: item.selector } : {}),
+      text: topicText(item.kind, label, value, item.source),
+    });
+  };
+
+  for (const [index, meta] of findElements(document.children, (item) => item.name === "meta").entries()) {
+    const rawName = cleanLinkText(attr(meta, "name") || attr(meta, "property") || "");
+    const name = rawName.toLowerCase();
+    const content = cleanContentText(attr(meta, "content") ?? "");
+    if (!name || !content) continue;
+    const kind = topicKindFromMetaName(name);
+    if (!kind) continue;
+    const values = kind === "keyword" ? splitTopicValues(content) : [content];
+    for (const value of values) {
+      const selectorAttribute = attr(meta, "property") ? "property" : "name";
+      add({
+        kind,
+        label: topicMetaLabel(name, kind),
+        value,
+        source: "meta",
+        selector: `meta[${selectorAttribute}="${cssAttributeValue(rawName)}"]:nth-of-type(${index + 1})`,
+      });
+    }
+  }
+
+  for (const [scriptIndex, script] of findElements(document.children, (item) => item.name === "script" && /application\/ld\+json/i.test(attr(item, "type") ?? "")).entries()) {
+    for (const value of parseJsonLdValues(scriptText(script))) {
+      for (const topic of topicsFromJsonLd(value)) {
+        add({
+          ...topic,
+          source: "json-ld",
+          selector: `script[type="application/ld+json"]:nth-of-type(${scriptIndex + 1})`,
+        });
+      }
+    }
+  }
+
+  return items.slice(0, 10);
+}
+
+function topicKindFromMetaName(name: string): PageTopicSummary["kind"] | undefined {
+  if (/^(keywords|news_keywords|sailthru\.tags|parsely-tags)$/.test(name)) return "keyword";
+  if (name === "article:tag" || name === "og:article:tag") return "tag";
+  if (name === "article:section" || name === "section") return "section";
+  if (/^(category|dc\.subject|dcterms\.subject)$/.test(name)) return "category";
+  return undefined;
+}
+
+function topicMetaLabel(name: string, kind: PageTopicSummary["kind"]): string {
+  if (name === "news_keywords") return "News keyword";
+  if (name === "article:tag" || name === "og:article:tag") return "Article tag";
+  if (name === "article:section") return "Article section";
+  return topicLabel(kind);
+}
+
+function topicsFromJsonLd(value: Record<string, unknown>): Array<Omit<PageTopicSummary, "id" | "path" | "rank" | "text" | "source" | "selector">> {
+  const items: Array<Omit<PageTopicSummary, "id" | "path" | "rank" | "text" | "source" | "selector">> = [];
+  for (const keyword of jsonLdTopicValues(value.keywords)) items.push({ kind: "keyword", label: "Keyword", value: keyword });
+  for (const section of jsonLdTopicValues(value.articleSection)) items.push({ kind: "section", label: "Article section", value: section });
+  for (const category of jsonLdTopicValues(value.category)) items.push({ kind: "category", label: "Category", value: category });
+  for (const about of jsonLdTopicValues(value.about)) items.push({ kind: "about", label: "About", value: about });
+  for (const mention of jsonLdTopicValues(value.mentions)) items.push({ kind: "mention", label: "Mention", value: mention });
+  return items;
+}
+
+function jsonLdTopicValues(value: unknown): string[] {
+  if (typeof value === "string") return splitTopicValues(value);
+  if (Array.isArray(value)) return value.flatMap(jsonLdTopicValues);
+  if (!value || typeof value !== "object") return [];
+  const object = value as Record<string, unknown>;
+  return [jsonLdString(object.name) || jsonLdString(object.headline) || jsonLdString(object.url) || jsonLdString(object["@id"])].filter(Boolean);
+}
+
+function splitTopicValues(value: string): string[] {
+  return value
+    .split(/[,;|]/)
+    .map(cleanTopicValue)
+    .filter(Boolean);
+}
+
+function cleanTopicValue(value: string): string {
+  return cleanContentText(value.replace(/^#/, "")).slice(0, 120);
+}
+
+function isUsefulTopic(value: string): boolean {
+  if (value.length < 2 || value.length > 120) return false;
+  return !/^(home|menu|navigation|login|search|share|privacy|terms|cookie|uncategorized)$/i.test(value);
+}
+
+function topicLabel(kind: PageTopicSummary["kind"]): string {
+  if (kind === "keyword") return "Keyword";
+  if (kind === "tag") return "Tag";
+  if (kind === "section") return "Section";
+  if (kind === "category") return "Category";
+  if (kind === "about") return "About";
+  return "Mention";
+}
+
+function topicText(kind: PageTopicSummary["kind"], label: string, value: string, source: PageTopicSummary["source"]): string {
+  return cleanContentText(`${label}: ${value} kind=${kind} source=${source}`);
 }
 
 function summarizeKeyValues(html: string): PageKeyValueSummary[] {
@@ -7998,6 +8160,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.appHints" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.topics.length > 0) {
+    add({
+      path: "pageCheck.topics",
+      reason: "Keywords, tags, categories, about, and mention topics extracted from hidden metadata and JSON-LD.",
+      count: pageCheck.topics.length,
+      score: roundMetric(Math.min(1, 0.44 + pageCheck.topics.length * 0.05)),
+      ...(primaryReadFrom === "pageCheck.topics" ? { primary: true } : {}),
+    });
+  }
   if (pageCheck.contactPoints.length > 0 && primaryReadFrom === "pageCheck.contactPoints") {
     add({
       path: "pageCheck.contactPoints",
@@ -8404,6 +8575,7 @@ function agentReadValue(
   if (path === "pageCheck.forms") return { path, value: pageCheck.forms };
   if (path === "pageCheck.actionTargets") return { path, value: pageCheck.actionTargets };
   if (path === "pageCheck.appHints") return { path, value: pageCheck.appHints };
+  if (path === "pageCheck.topics") return { path, value: pageCheck.topics };
   if (path === "pageCheck.contactPoints") return { path, value: pageCheck.contactPoints };
   if (path === "pageCheck.keyValues") return { path, value: pageCheck.keyValues };
   if (path === "pageCheck.metaFacts") return { path, value: pageCheck.metaFacts };
@@ -8804,6 +8976,14 @@ function findCandidates(
       ...(hint.selector ? { selector: hint.selector } : {}),
     });
   }
+  for (const topic of pageCheck.topics) {
+    add({
+      field: "topic",
+      text: topic.text,
+      rank: topic.rank,
+      ...(topic.selector ? { selector: topic.selector } : {}),
+    });
+  }
   for (const contact of pageCheck.contactPoints) {
     add({
       field: "contactPoint",
@@ -9131,6 +9311,7 @@ function emptyPageCheck(): PageCheckSummary {
     forms: [],
     actionTargets: [],
     appHints: [],
+    topics: [],
     contactPoints: [],
     keyValues: [],
     metaFacts: [],
@@ -10099,6 +10280,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.forms.length > 0 ? { forms: pageCheck.forms } : {}),
     ...(pageCheck.actionTargets.length > 0 ? { actionTargets: pageCheck.actionTargets } : {}),
     ...(pageCheck.appHints.length > 0 ? { appHints: pageCheck.appHints } : {}),
+    ...(pageCheck.topics.length > 0 ? { topics: pageCheck.topics } : {}),
     ...(pageCheck.contactPoints.length > 0 ? { contactPoints: pageCheck.contactPoints } : {}),
     ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),
     ...(pageCheck.metaFacts.length > 0 ? { metaFacts: pageCheck.metaFacts } : {}),

@@ -527,7 +527,8 @@ regional barrier signals that affect browser handling.
 GET query templates so agents can plan searches and filters without inferring
 submission details from controls alone. `pageCheck.actionTargets` captures hidden
 JSON-LD and OpenSearch action endpoints. `pageCheck.appHints` captures web app
-manifest, icon, theme, and installability metadata. `pageCheck.keyValues` captures compact
+manifest, icon, theme, and installability metadata. `pageCheck.topics` captures hidden
+keywords, tags, categories, and JSON-LD about/mention topics. `pageCheck.keyValues` captures compact
 facts from definition lists, time elements, and short label/value text.
 `pageCheck.metaFacts` captures robots directives, canonical URLs, alternate
 links, refresh targets, and selected social/article metadata from head tags.
