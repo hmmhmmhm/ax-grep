@@ -383,6 +383,18 @@ type PageApiEndpointSummary = {
   selector?: string;
 };
 
+type PageClientStateSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "local-storage" | "session-storage" | "cookie";
+  operation: "read" | "write" | "delete";
+  key: string;
+  text: string;
+  source: "script";
+  selector?: string;
+};
+
 type PageAppHintSummary = {
   id: string;
   path: string;
@@ -842,6 +854,7 @@ const agentContract: AgentContract = {
     "pageCheck.actionTargets",
     "pageCheck.hydration",
     "pageCheck.apiEndpoints",
+    "pageCheck.clientState",
     "pageCheck.appHints",
     "pageCheck.topics",
     "pageCheck.keyValues",
@@ -894,6 +907,7 @@ type PageCheckSummary = {
   actionTargets: PageActionTargetSummary[];
   hydration: PageHydrationSummary[];
   apiEndpoints: PageApiEndpointSummary[];
+  clientState: PageClientStateSummary[];
   appHints: PageAppHintSummary[];
   topics: PageTopicSummary[];
   keyValues: PageKeyValueSummary[];
@@ -2282,6 +2296,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const selector = endpoint.selector ? ` (${endpoint.selector})` : "";
     lines.push(`  apiEndpoint: ${endpoint.id} ${endpoint.path} ${endpoint.kind}${method}${selector} <${endpoint.url}> - ${endpoint.text}`);
   }
+  for (const state of pageCheck.clientState) {
+    const selector = state.selector ? ` (${state.selector})` : "";
+    lines.push(`  clientState: ${state.id} ${state.path} ${state.kind} ${state.operation}${selector} - ${state.text}`);
+  }
   for (const hint of pageCheck.appHints) {
     const url = hint.url ? ` <${hint.url}>` : "";
     const selector = hint.selector ? ` (${hint.selector})` : "";
@@ -3222,6 +3240,7 @@ function summarizePageCheck(
   const actionTargets = summarizeActionTargets(fetched.html, fetched.finalUrl);
   const hydration = summarizeHydration(fetched.html, fetched.finalUrl);
   const apiEndpoints = summarizeApiEndpoints(fetched.html, fetched.finalUrl);
+  const clientState = summarizeClientState(fetched.html);
   const appHints = summarizeAppHints(fetched.html, fetched.finalUrl);
   const topics = summarizeTopics(fetched.html);
   const keyValues = summarizeKeyValues(fetched.html);
@@ -3248,8 +3267,8 @@ function summarizePageCheck(
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, actionTargets, hydration, apiEndpoints, appHints, topics, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, actionTargets, hydration, apiEndpoints, appHints, topics, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, actionTargets, hydration, apiEndpoints, clientState, appHints, topics, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, actionTargets, hydration, apiEndpoints, clientState, appHints, topics, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -3259,6 +3278,7 @@ function summarizePageCheck(
     actionTargets,
     hydration,
     apiEndpoints,
+    clientState,
     appHints,
     topics,
     keyValues,
@@ -3317,6 +3337,7 @@ function summarizeReadability(
   actionTargets: PageActionTargetSummary[],
   hydration: PageHydrationSummary[],
   apiEndpoints: PageApiEndpointSummary[],
+  clientState: PageClientStateSummary[],
   appHints: PageAppHintSummary[],
   topics: PageTopicSummary[],
   keyValues: PageKeyValueSummary[],
@@ -3374,6 +3395,10 @@ function summarizeReadability(
   if (apiEndpoints.length > 0) {
     score += Math.min(0.08, apiEndpoints.length * 0.03);
     reasons.push(`${apiEndpoints.length} API endpoint${apiEndpoints.length === 1 ? "" : "s"}`);
+  }
+  if (clientState.length > 0) {
+    score += Math.min(0.08, clientState.length * 0.03);
+    reasons.push(`${clientState.length} client state hint${clientState.length === 1 ? "" : "s"}`);
   }
   if (appHints.length > 0) {
     score += Math.min(0.06, appHints.length * 0.02);
@@ -3533,6 +3558,7 @@ function recommendedPageCheckAction(
   actionTargets: PageActionTargetSummary[],
   hydration: PageHydrationSummary[],
   apiEndpoints: PageApiEndpointSummary[],
+  clientState: PageClientStateSummary[],
   appHints: PageAppHintSummary[],
   topics: PageTopicSummary[],
   keyValues: PageKeyValueSummary[],
@@ -3593,6 +3619,8 @@ function recommendedPageCheckAction(
             ? "pageCheck.hydration"
             : apiEndpoints.length > 0
               ? "pageCheck.apiEndpoints"
+              : clientState.length > 0
+                ? "pageCheck.clientState"
           : appHints.length > 0
             ? "pageCheck.appHints"
             : topics.length > 0
@@ -3682,6 +3710,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.apiEndpoints",
+    };
+  }
+  if (clientState.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but client state keys are available for agent planning.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.clientState",
     };
   }
   if (appHints.length > 0) {
@@ -4705,6 +4742,85 @@ function isUsefulApiEndpointUrl(url: string): boolean {
 
 function apiEndpointText(kind: PageApiEndpointSummary["kind"], method: string, url: string): string {
   return cleanContentText([kind, method || "", url].filter(Boolean).join(" "));
+}
+
+function summarizeClientState(html: string): PageClientStateSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageClientStateSummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageClientStateSummary, "id" | "path" | "rank" | "text" | "source"> & { source?: "script" }): void => {
+    const key = normalizeClientStateKey(item.key);
+    const dedupeKey = `${item.kind}\n${item.operation}\n${key}`.toLowerCase();
+    if (!key || seen.has(dedupeKey)) return;
+    seen.add(dedupeKey);
+    const rank = items.length + 1;
+    items.push({
+      id: `cs${rank}`,
+      path: `pageCheck.clientState[${rank - 1}]`,
+      rank,
+      kind: item.kind,
+      operation: item.operation,
+      key,
+      text: clientStateText(item.kind, item.operation, key),
+      source: "script",
+      ...(item.selector ? { selector: item.selector } : {}),
+    });
+  };
+
+  for (const [scriptIndex, script] of findElements(document.children, (item) => item.name === "script").entries()) {
+    if (attr(script, "src")) continue;
+    const text = scriptText(script);
+    if (!text || text.length > 160_000) continue;
+    const selector = `script:nth-of-type(${scriptIndex + 1})`;
+    for (const state of clientStateFromScript(text)) {
+      add({ ...state, selector });
+    }
+  }
+
+  return items.slice(0, 8);
+}
+
+function clientStateFromScript(text: string): Array<Omit<PageClientStateSummary, "id" | "path" | "rank" | "text" | "source" | "selector">> {
+  const items: Array<Omit<PageClientStateSummary, "id" | "path" | "rank" | "text" | "source" | "selector">> = [];
+  const add = (kind: PageClientStateSummary["kind"], operation: PageClientStateSummary["operation"], key: string): void => {
+    if (key) items.push({ kind, operation, key });
+  };
+  const storageKind = (value: string): PageClientStateSummary["kind"] => value === "sessionStorage" ? "session-storage" : "local-storage";
+
+  for (const match of text.matchAll(/\b(localStorage|sessionStorage)\s*\.\s*(getItem|setItem|removeItem)\s*\(\s*(['"`])([^'"`]+)\3/g)) {
+    const operation = match[2] === "setItem" ? "write" : match[2] === "removeItem" ? "delete" : "read";
+    add(storageKind(match[1] ?? ""), operation, match[4] ?? "");
+  }
+  for (const match of text.matchAll(/\b(localStorage|sessionStorage)\s*\[\s*(['"`])([^'"`]+)\2\s*\](\s*=)?/g)) {
+    add(storageKind(match[1] ?? ""), match[4] ? "write" : "read", match[3] ?? "");
+  }
+  for (const match of text.matchAll(/\bdocument\s*\.\s*cookie\s*=\s*(['"`])\s*([^=;'"`]+)\s*=/g)) {
+    add("cookie", "write", match[2] ?? "");
+  }
+  for (const match of text.matchAll(/\bdocument\s*\.\s*cookie\s*\.?\s*(?:match|includes|indexOf)\s*\(\s*(['"`])([^'"`=;]+)(?:=)?[^'"`]*\1/g)) {
+    add("cookie", "read", match[2] ?? "");
+  }
+  for (const match of text.matchAll(/\bCookies\s*\.\s*(get|set|remove)\s*\(\s*(['"`])([^'"`]+)\2/g)) {
+    const operation = match[1] === "set" ? "write" : match[1] === "remove" ? "delete" : "read";
+    add("cookie", operation, match[3] ?? "");
+  }
+  return items;
+}
+
+function normalizeClientStateKey(value: string): string {
+  const key = cleanLinkText(value).replace(/^["'`]+|["'`]+$/g, "");
+  if (!key || key.length > 80) return "";
+  if (/[{}]|\$\{|[\r\n]/.test(key)) return "";
+  if (!/[A-Za-z0-9_-]/.test(key)) return "";
+  return key;
+}
+
+function clientStateText(kind: PageClientStateSummary["kind"], operation: PageClientStateSummary["operation"], key: string): string {
+  return cleanContentText(`${kind} ${operation} ${key}`);
 }
 
 function summarizeAppHints(html: string, baseUrl: string): PageAppHintSummary[] {
@@ -8498,6 +8614,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.apiEndpoints" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.clientState.length > 0) {
+    add({
+      path: "pageCheck.clientState",
+      reason: "Inline script localStorage, sessionStorage, and cookie key hints extracted from page HTML.",
+      count: pageCheck.clientState.length,
+      score: roundMetric(Math.min(1, 0.44 + pageCheck.clientState.length * 0.07)),
+      ...(primaryReadFrom === "pageCheck.clientState" ? { primary: true } : {}),
+    });
+  }
   if (pageCheck.appHints.length > 0) {
     add({
       path: "pageCheck.appHints",
@@ -8923,6 +9048,7 @@ function agentReadValue(
   if (path === "pageCheck.actionTargets") return { path, value: pageCheck.actionTargets };
   if (path === "pageCheck.hydration") return { path, value: pageCheck.hydration };
   if (path === "pageCheck.apiEndpoints") return { path, value: pageCheck.apiEndpoints };
+  if (path === "pageCheck.clientState") return { path, value: pageCheck.clientState };
   if (path === "pageCheck.appHints") return { path, value: pageCheck.appHints };
   if (path === "pageCheck.topics") return { path, value: pageCheck.topics };
   if (path === "pageCheck.contactPoints") return { path, value: pageCheck.contactPoints };
@@ -9334,6 +9460,14 @@ function findCandidates(
       ...(endpoint.selector ? { selector: endpoint.selector } : {}),
     });
   }
+  for (const state of pageCheck.clientState) {
+    add({
+      field: "clientState",
+      text: state.text,
+      rank: state.rank,
+      ...(state.selector ? { selector: state.selector } : {}),
+    });
+  }
   for (const hint of pageCheck.appHints) {
     add({
       field: "appHint",
@@ -9679,6 +9813,7 @@ function emptyPageCheck(): PageCheckSummary {
     actionTargets: [],
     hydration: [],
     apiEndpoints: [],
+    clientState: [],
     appHints: [],
     topics: [],
     contactPoints: [],
@@ -10650,6 +10785,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.actionTargets.length > 0 ? { actionTargets: pageCheck.actionTargets } : {}),
     ...(pageCheck.hydration.length > 0 ? { hydration: pageCheck.hydration } : {}),
     ...(pageCheck.apiEndpoints.length > 0 ? { apiEndpoints: pageCheck.apiEndpoints } : {}),
+    ...(pageCheck.clientState.length > 0 ? { clientState: pageCheck.clientState } : {}),
     ...(pageCheck.appHints.length > 0 ? { appHints: pageCheck.appHints } : {}),
     ...(pageCheck.topics.length > 0 ? { topics: pageCheck.topics } : {}),
     ...(pageCheck.contactPoints.length > 0 ? { contactPoints: pageCheck.contactPoints } : {}),

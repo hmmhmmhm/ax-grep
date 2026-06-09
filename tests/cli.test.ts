@@ -310,6 +310,7 @@ describe("cli", () => {
             "pageCheck.actionTargets",
             "pageCheck.hydration",
             "pageCheck.apiEndpoints",
+            "pageCheck.clientState",
             "pageCheck.appHints",
             "pageCheck.topics",
             "pageCheck.httpPolicies",
@@ -3481,6 +3482,163 @@ describe("cli", () => {
         url: "https://example.test/api/search?q=agent",
         selector: "script:nth-of-type(1)",
         text: "fetch POST https://example.test/api/search?q=agent",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("summarizes inline script client state hints for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/app", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <script>
+              localStorage.setItem("feature:beta", "1");
+              sessionStorage.getItem("returnTo");
+              localStorage.removeItem("draft-id");
+              window.localStorage["theme"] = "dark";
+              document.cookie = "locale=en; path=/";
+              if (document.cookie.includes("consent=")) {}
+              Cookies.get("auth_hint");
+            </script>
+          </head>
+          <body><main><h1>App shell</h1></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.clientState).toEqual([
+      {
+        id: "cs1",
+        path: "pageCheck.clientState[0]",
+        rank: 1,
+        kind: "local-storage",
+        operation: "write",
+        key: "feature:beta",
+        text: "local-storage write feature:beta",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+      {
+        id: "cs2",
+        path: "pageCheck.clientState[1]",
+        rank: 2,
+        kind: "session-storage",
+        operation: "read",
+        key: "returnTo",
+        text: "session-storage read returnTo",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+      {
+        id: "cs3",
+        path: "pageCheck.clientState[2]",
+        rank: 3,
+        kind: "local-storage",
+        operation: "delete",
+        key: "draft-id",
+        text: "local-storage delete draft-id",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+      {
+        id: "cs4",
+        path: "pageCheck.clientState[3]",
+        rank: 4,
+        kind: "local-storage",
+        operation: "write",
+        key: "theme",
+        text: "local-storage write theme",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+      {
+        id: "cs5",
+        path: "pageCheck.clientState[4]",
+        rank: 5,
+        kind: "cookie",
+        operation: "write",
+        key: "locale",
+        text: "cookie write locale",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+      {
+        id: "cs6",
+        path: "pageCheck.clientState[5]",
+        rank: 6,
+        kind: "cookie",
+        operation: "read",
+        key: "consent",
+        text: "cookie read consent",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+      {
+        id: "cs7",
+        path: "pageCheck.clientState[6]",
+        rank: 7,
+        kind: "cookie",
+        operation: "read",
+        key: "auth_hint",
+        text: "cookie read auth_hint",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("7 client state hints");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.clientState",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.clientState",
+      count: 7,
+      primary: true,
+      reason: "Inline script localStorage, sessionStorage, and cookie key hints extracted from page HTML.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.clientState",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          id: "cs2",
+          key: "returnTo",
+        }),
+      ]),
+    });
+  });
+
+  it("checks requested text against client state hints", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/app", "--agent", "--find", "returnTo"], {
+      stdout,
+      fetch: async () => new Response(`
+        <script>
+          sessionStorage.getItem("returnTo");
+        </script>
+        <main><h1>App shell</h1></main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "clientState",
+        rank: 1,
+        selector: "script:nth-of-type(1)",
+        text: "session-storage read returnTo",
       },
     });
     expect(envelope.agent.primaryAction).toMatchObject({
