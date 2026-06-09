@@ -606,6 +606,11 @@ describe("cli", () => {
       path: "pageCheck.authorLinks",
       count: 2,
     }));
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "agent.semanticSummary",
+      count: envelope.agent.semanticSummary.namedRoleCount,
+      reason: "Compact semantic tree overview with role counts, top roles, landmarks, headings, and named role samples.",
+    }));
     expect(envelope.agent.next.readTarget).toEqual(
       expect.objectContaining({
         path: "verification.bestEvidence",

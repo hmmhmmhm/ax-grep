@@ -8534,14 +8534,14 @@ function summarizeAgent(
   const status = agentStatus(analysis, pageCheck, verification, needsBrowserHtml, error);
   const summary = agentSummaryText(status, analysis, pageCheck, verification, recommendedResult);
   const diagnosticCounts = countDiagnosticsBySeverity(analysis.diagnostics);
-  const readTargets = summarizeAgentReadTargets(primaryAction, analysis.kind, pageCheck, verification, results, sourceSearch);
+  const readTargets = summarizeAgentReadTargets(primaryAction, analysis.kind, pageCheck, verification, results, sourceSearch, semanticSummary);
   const bestReadTarget = selectBestReadTarget(readTargets);
   const citations = summarizeAgentCitations(analysis.kind, pageCheck, verification, primaryAction, recommendedResult, sourceSearch);
   const searchDecision = summarizeAgentSearchDecision(analysis, results, recommendedResult, primaryAction);
   const pageDecision = summarizeAgentPageDecision(analysis, pageCheck, primaryAction);
   const resultChoices = summarizeAgentResultChoices(hasUsableSearchResults ? results : [], recommendedResult, primaryAction);
   const sourceChoices = summarizeAgentSourceChoices(analysis.kind, pageCheck.sourceLinks, primaryAction, agentMode, findQueries, timeoutMs, userAgent);
-  const next = summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch));
+  const next = summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch, semanticSummary));
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
   const answerPlan = summarizeAgentAnswerPlan(status, primaryAction, pageCheck, verification, citations, needsBrowserHtml, error);
   const answerEvidence = summarizeAgentAnswerEvidence(citations, answerPlan);
@@ -9364,6 +9364,7 @@ function summarizeAgentReadTargets(
   verification: VerificationSummary,
   results: ResultSummary[],
   sourceSearch?: SourceSearchSummary,
+  semanticSummary?: AgentSemanticSummary,
 ): AgentReadTarget[] {
   const targets: AgentReadTarget[] = [];
   const add = (target: AgentReadTarget): void => {
@@ -9387,6 +9388,15 @@ function summarizeAgentReadTargets(
       count: pageCheck.contentEvidence.length,
       score: averageEvidenceScore(pageCheck.contentEvidence),
       ...(primaryReadFrom === "pageCheck.contentEvidence" ? { primary: true } : {}),
+    });
+  }
+  if (semanticSummary && kind !== "search-results") {
+    add({
+      path: "agent.semanticSummary",
+      reason: "Compact semantic tree overview with role counts, top roles, landmarks, headings, and named role samples.",
+      count: semanticSummary.namedRoleCount,
+      score: roundMetric(Math.min(0.42, 0.28 + semanticSummary.interactiveCount * 0.01 + semanticSummary.namedRoleCount * 0.003)),
+      ...(primaryReadFrom === "agent.semanticSummary" ? { primary: true } : {}),
     });
   }
   if (pageCheck.dataTables.length > 0) {
@@ -9750,7 +9760,7 @@ function summarizeAgentReadTargets(
       score: roundMetric(pageCheck.sourceLinks.reduce((total, link) => total + (link.sourceScore ?? 0), 0) / pageCheck.sourceLinks.length),
     });
   }
-  return targets.slice(0, 4);
+  return targets.slice(0, 5);
 }
 
 function agentCanContinue(primaryAction: SuggestedAction | undefined): boolean {
@@ -9902,6 +9912,7 @@ function agentReadValue(
   verification: VerificationSummary,
   results: ResultSummary[],
   sourceSearch?: SourceSearchSummary,
+  semanticSummary?: AgentSemanticSummary,
 ): AgentReadValue | undefined {
   if (!primaryAction?.readFrom || actionExecution(primaryAction) !== "read-current") return undefined;
   const path = primaryAction.readFrom;
@@ -9945,6 +9956,7 @@ function agentReadValue(
   if (path === "sourceSearch.selectedResult" && sourceSearch?.selectedResult) return { path, value: sourceSearch.selectedResult };
   if (path === "sourceSearch.alternateResults" && sourceSearch?.alternateResults) return { path, value: sourceSearch.alternateResults };
   if (path === "pageCheck.sourceLinks") return { path, value: pageCheck.sourceLinks };
+  if (path === "agent.semanticSummary" && semanticSummary) return { path, value: semanticSummary };
   return undefined;
 }
 
