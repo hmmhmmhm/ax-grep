@@ -11707,7 +11707,7 @@ function compactAgentPageCheck(
     ? []
     : primaryAction ? pageCheck.nextSteps.filter((step) => !sameSuggestedAction(step, primaryAction)) : pageCheck.nextSteps;
   const recommendedAction = suppressPageActions || sameSuggestedAction(pageCheck.recommendedAction, primaryAction) ? undefined : pageCheck.recommendedAction;
-  const compactNextSteps = compactAgentCommandList(nextSteps.map((step) => compactAgentAction(step, { omitOpenSourceTarget: true })), 1500);
+  const compactNextSteps = compactAgentCommandList(nextSteps.map((step) => compactAgentAction(step, { omitOpenSourceTarget: true, omitReason: true })), 1500);
   const slimPaths = compactPageCheckSlimPaths(pageCheck, readTargets);
   return {
     contentEvidence: pageCheck.contentEvidence,
@@ -11747,7 +11747,7 @@ function compactAgentPageCheck(
     ...compactPageCheckArray("authorLinks", pageCheck.authorLinks, slimPaths),
     contentLength: pageCheck.contentLength,
     ...(primaryLinks.length > 0 && !omitResultLinkDuplicates ? { primaryLinks: primaryLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `l${index + 1}`, path: `pageCheck.primaryLinks[${index}]` })) } : {}),
-    ...(pageCheck.sourceLinks.length > 0 && !omitResultLinkDuplicates ? { sourceLinks: compactAgentCommandList(pageCheck.sourceLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `s${index + 1}`, path: `pageCheck.sourceLinks[${index}]` }))) } : {}),
+    ...(pageCheck.sourceLinks.length > 0 && !omitResultLinkDuplicates ? { sourceLinks: compactAgentPageLinkList(pageCheck.sourceLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `s${index + 1}`, path: `pageCheck.sourceLinks[${index}]` }))) } : {}),
     ...(pageCheck.actions.length > 0 && !omitResultLinkDuplicates ? { actions: pageCheck.actions } : {}),
     confidence: pageCheck.confidence,
     readability: {
@@ -11804,6 +11804,20 @@ function compactAgentAppHints(items: PageAppHintSummary[]): object[] {
     ...(item.sizes ? { sizes: item.sizes } : {}),
     ...(item.media ? { media: item.media } : {}),
   }));
+}
+
+function compactAgentPageLinkList(items: object[], threshold = 1500): object[] {
+  if (JSON.stringify(items).length <= threshold) return compactAgentCommandList(items);
+  return compactAgentCommandList(items.map((item) => omitVerboseSourceLinkFields(item)), threshold);
+}
+
+function omitVerboseSourceLinkFields(item: object): object {
+  const { sourceType: _sourceType, sourceHints: _sourceHints, ...rest } = item as {
+    sourceType?: unknown;
+    sourceHints?: unknown;
+    [key: string]: unknown;
+  };
+  return rest;
 }
 
 function compactAgentPageCheckItems<T>(items: T[], aggressiveThreshold = 2400): object[] {
@@ -11900,7 +11914,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     diagnosticInfoCount: agent.diagnosticInfoCount,
     ...(agent.citations.length > 0 ? { citations: compactAgentCitationList(agent.citations) } : {}),
     ...(agent.answerEvidence.length > 0 ? { answerEvidence: compactAgentCitationList(agent.answerEvidence, 650) } : {}),
-    ...(agent.readTargets.length > 0 ? { readTargets: agent.readTargets } : {}),
+    ...(agent.readTargets.length > 0 ? { readTargets: compactAgentReadTargets(agent.readTargets) } : {}),
     ...(agent.actions.length > 0 ? { actions: compactAgentActionList(agent.actions.map((action) => compactAgentActionSummary(action, agent.primaryAction))) } : {}),
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
@@ -11977,6 +11991,21 @@ function compactAgentHandoff(handoff: AgentHandoff): object {
     ...(answerEvidence && answerEvidence.length > 0 ? { answerEvidence: answerEvidence.map(compactAgentCitationRef) } : {}),
     ...(resultChoices && resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(resultChoices) } : {}),
     ...(readValue ? { readValue: compactAgentReadValue(readValue, true) } : {}),
+  };
+}
+
+function compactAgentReadTargets(targets: AgentReadTarget[], threshold = 700): object[] {
+  if (JSON.stringify(targets).length <= threshold) return targets;
+  if (targets.some((target) => target.path.startsWith("verification."))) return targets;
+  return targets.map((target) => target.primary ? target : compactAgentReadTargetRef(target));
+}
+
+function compactAgentReadTargetRef(target: AgentReadTarget): object {
+  return {
+    path: target.path,
+    count: target.count,
+    ...(typeof target.score === "number" ? { score: target.score } : {}),
+    ...(target.primary ? { primary: true } : {}),
   };
 }
 
@@ -12349,13 +12378,13 @@ function agentTargetFromResult(result: ResultSummary): AgentTarget {
   };
 }
 
-function compactAgentAction(action: SuggestedAction, options: { omitOpenSourceTarget?: boolean } = {}): object {
+function compactAgentAction(action: SuggestedAction, options: { omitOpenSourceTarget?: boolean; omitReason?: boolean } = {}): object {
   return {
     action: action.action,
     execution: actionExecution(action),
     priority: action.priority ?? actionPriority(action),
     priorityReason: action.priorityReason ?? actionPriorityReason(action),
-    reason: action.reason,
+    ...(!options.omitReason ? { reason: action.reason } : {}),
     ...(action.url ? { url: action.url } : {}),
     ...(action.rank ? { rank: action.rank } : {}),
     ...(action.openResult ? { openResult: action.openResult } : {}),
