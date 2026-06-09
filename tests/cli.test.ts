@@ -3289,6 +3289,96 @@ describe("cli", () => {
     });
   });
 
+  it("summarizes code blocks as pageCheck read targets for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/docs/install", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <body>
+            <main>
+              <pre><code class="language-bash">pnpm add ax-grep
+npx ax-grep https://example.test --agent</code></pre>
+            </main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.codeBlocks).toEqual([
+      {
+        id: "cb1",
+        path: "pageCheck.codeBlocks[0]",
+        rank: 1,
+        text: "pnpm add ax-grep\nnpx ax-grep https://example.test --agent",
+        lineCount: 2,
+        source: "pre",
+        language: "bash",
+        commandLike: true,
+        selector: "pre:nth-of-type(1)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("1 code block");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.codeBlocks",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.codeBlocks",
+      count: 1,
+      primary: true,
+      reason: "Code examples and command snippets extracted from pre/code blocks.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.codeBlocks",
+      value: [
+        expect.objectContaining({
+          id: "cb1",
+          language: "bash",
+          commandLike: true,
+        }),
+      ],
+    });
+  });
+
+  it("checks requested text against code block summaries", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/docs/install", "--agent", "--find", "npx ax-grep https://example.test --agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <body>
+            <main>
+              <pre><code class="language-bash">pnpm add ax-grep
+npx ax-grep https://example.test --agent</code></pre>
+            </main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "codeBlock",
+        rank: 1,
+        selector: "pre:nth-of-type(1)",
+        text: "pnpm add ax-grep\nnpx ax-grep https://example.test --agent",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
   it("summarizes page media with resolved image urls and captions for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/gallery", "--agent"], {

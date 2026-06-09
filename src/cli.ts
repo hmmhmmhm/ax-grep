@@ -365,6 +365,18 @@ type PageBreadcrumbSummary = {
   selector?: string;
 };
 
+type PageCodeBlockSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  text: string;
+  lineCount: number;
+  source: "pre" | "code";
+  language?: string;
+  commandLike?: boolean;
+  selector?: string;
+};
+
 type PageMediaSummary = {
   id: string;
   path: string;
@@ -554,6 +566,7 @@ const agentContract: AgentContract = {
     "pageCheck.keyValues",
     "pageCheck.schemaFacts",
     "pageCheck.breadcrumbs",
+    "pageCheck.codeBlocks",
     "pageCheck.media",
     "pageCheck.resources",
     "pageCheck.embeds",
@@ -585,6 +598,7 @@ type PageCheckSummary = {
   keyValues: PageKeyValueSummary[];
   schemaFacts: PageSchemaFactSummary[];
   breadcrumbs: PageBreadcrumbSummary[];
+  codeBlocks: PageCodeBlockSummary[];
   media: PageMediaSummary[];
   resources: PageResourceSummary[];
   embeds: PageEmbedSummary[];
@@ -1914,6 +1928,12 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const selector = breadcrumb.selector ? ` (${breadcrumb.selector})` : "";
     lines.push(`  breadcrumb: ${breadcrumb.id} ${breadcrumb.path} ${breadcrumb.source}${selector} - ${breadcrumb.text}`);
   }
+  for (const codeBlock of pageCheck.codeBlocks) {
+    const language = codeBlock.language ? ` language=${codeBlock.language}` : "";
+    const commandLike = codeBlock.commandLike ? " commandLike" : "";
+    const selector = codeBlock.selector ? ` (${codeBlock.selector})` : "";
+    lines.push(`  codeBlock: ${codeBlock.id} ${codeBlock.path}${language}${commandLike} lines=${codeBlock.lineCount}${selector} - ${codeBlock.text}`);
+  }
   for (const media of pageCheck.media) {
     const dimensions = media.width && media.height ? ` ${media.width}x${media.height}` : "";
     const selector = media.selector ? ` (${media.selector})` : "";
@@ -2646,14 +2666,15 @@ function summarizePageCheck(
   const keyValues = summarizeKeyValues(fetched.html);
   const schemaFacts = summarizeSchemaFacts(fetched.html);
   const breadcrumbs = summarizeBreadcrumbs(fetched.html, fetched.finalUrl);
+  const codeBlocks = summarizeCodeBlocks(fetched.html);
   const media = summarizeMedia(fetched.html, fetched.finalUrl);
   const resources = summarizeResources(fetched.html, fetched.finalUrl);
   const embeds = summarizeEmbeds(fetched.html, fetched.finalUrl);
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, schemaFacts, breadcrumbs, media, resources, embeds, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, schemaFacts, breadcrumbs, media, resources, embeds, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, schemaFacts, breadcrumbs, codeBlocks, media, resources, embeds, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, schemaFacts, breadcrumbs, codeBlocks, media, resources, embeds, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -2662,6 +2683,7 @@ function summarizePageCheck(
     keyValues,
     schemaFacts,
     breadcrumbs,
+    codeBlocks,
     media,
     resources,
     embeds,
@@ -2700,6 +2722,7 @@ function summarizeReadability(
   keyValues: PageKeyValueSummary[],
   schemaFacts: PageSchemaFactSummary[],
   breadcrumbs: PageBreadcrumbSummary[],
+  codeBlocks: PageCodeBlockSummary[],
   media: PageMediaSummary[],
   resources: PageResourceSummary[],
   embeds: PageEmbedSummary[],
@@ -2734,6 +2757,10 @@ function summarizeReadability(
   if (breadcrumbs.length > 0) {
     score += Math.min(0.06, breadcrumbs.length * 0.03);
     reasons.push(`${breadcrumbs.length} breadcrumb trail${breadcrumbs.length === 1 ? "" : "s"}`);
+  }
+  if (codeBlocks.length > 0) {
+    score += Math.min(0.08, codeBlocks.length * 0.04);
+    reasons.push(`${codeBlocks.length} code block${codeBlocks.length === 1 ? "" : "s"}`);
   }
   if (media.length > 0) {
     score += Math.min(0.06, media.length * 0.02);
@@ -2813,6 +2840,7 @@ function recommendedPageCheckAction(
   keyValues: PageKeyValueSummary[],
   schemaFacts: PageSchemaFactSummary[],
   breadcrumbs: PageBreadcrumbSummary[],
+  codeBlocks: PageCodeBlockSummary[],
   media: PageMediaSummary[],
   resources: PageResourceSummary[],
   embeds: PageEmbedSummary[],
@@ -2853,13 +2881,15 @@ function recommendedPageCheckAction(
             ? "pageCheck.schemaFacts"
             : breadcrumbs.length > 0
               ? "pageCheck.breadcrumbs"
-              : media.length > 0
-                ? "pageCheck.media"
-                : resources.length > 0
-                  ? "pageCheck.resources"
-                  : embeds.length > 0
-                    ? "pageCheck.embeds"
-                    : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
+              : codeBlocks.length > 0
+                ? "pageCheck.codeBlocks"
+                : media.length > 0
+                  ? "pageCheck.media"
+                  : resources.length > 0
+                    ? "pageCheck.resources"
+                    : embeds.length > 0
+                      ? "pageCheck.embeds"
+                      : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
     return {
       action: "read-content",
       reason: "The page has enough structured evidence for source checking.",
@@ -2902,6 +2932,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.breadcrumbs",
+    };
+  }
+  if (codeBlocks.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but code blocks are available for agent verification.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.codeBlocks",
     };
   }
   if (media.length > 0) {
@@ -3631,6 +3670,99 @@ function breadcrumbText(items: PageBreadcrumbItem[]): string {
 
 function isLowValueBreadcrumbLabel(label: string): boolean {
   return label.length > 80 || /^(menu|navigation|breadcrumb|breadcrumbs|skip to content|메뉴|내비게이션)$/i.test(label);
+}
+
+function summarizeCodeBlocks(html: string): PageCodeBlockSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageCodeBlockSummary[] = [];
+  const seen = new Set<string>();
+  const codeElementsInPre = new Set<Element>();
+  const add = (element: Element, source: PageCodeBlockSummary["source"], selector: string): void => {
+    const rawText = codeElementText(element);
+    const text = cleanCodeBlockText(rawText);
+    if (!isLikelyUsefulCodeBlock(text)) return;
+    const key = text.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    const language = inferCodeBlockLanguage(element);
+    const rank = items.length + 1;
+    items.push({
+      id: `cb${rank}`,
+      path: `pageCheck.codeBlocks[${rank - 1}]`,
+      rank,
+      text,
+      lineCount: codeBlockLineCount(text),
+      source,
+      ...(language ? { language } : {}),
+      ...(isCommandLikeCodeBlock(text, language) ? { commandLike: true } : {}),
+      selector,
+    });
+  };
+
+  for (const [index, pre] of findElements(document.children, (item) => item.name === "pre").entries()) {
+    const code = findElement(pre.children, (item) => item.name === "code");
+    if (code) codeElementsInPre.add(code);
+    add(code ?? pre, "pre", `pre:nth-of-type(${index + 1})`);
+  }
+  for (const [index, code] of findElements(document.children, (item) => item.name === "code").entries()) {
+    if (codeElementsInPre.has(code)) continue;
+    add(code, "code", `code:nth-of-type(${index + 1})`);
+  }
+  return items.slice(0, 8);
+}
+
+function codeElementText(element: Element): string {
+  let text = "";
+  for (const child of element.children) {
+    if (child.type === "text") {
+      text += child.data;
+    } else if (child instanceof DomElement) {
+      text += codeElementText(child);
+    }
+  }
+  return text;
+}
+
+function cleanCodeBlockText(text: string): string {
+  return text
+    .replace(/\r\n?/g, "\n")
+    .split("\n")
+    .map((line) => line.replace(/\s+$/g, ""))
+    .join("\n")
+    .trim()
+    .slice(0, 1200);
+}
+
+function inferCodeBlockLanguage(element: Element): string {
+  const marker = [
+    attr(element, "data-language") ?? "",
+    attr(element, "lang") ?? "",
+    attr(element, "class") ?? "",
+  ].join(" ");
+  const match = /(?:^|\s)(?:language|lang)-([a-z0-9_+#.-]+)/i.exec(marker)
+    ?? /(?:^|\s)(?:highlight|brush):([a-z0-9_+#.-]+)/i.exec(marker);
+  return cleanContentText(match?.[1] ?? "").toLowerCase();
+}
+
+function isLikelyUsefulCodeBlock(text: string): boolean {
+  if (text.length < 12 || text.length > 1200) return false;
+  if (codeBlockLineCount(text) >= 2) return true;
+  return /(?:^|\s)(?:npm|pnpm|yarn|npx|pip|curl|git|docker|kubectl|brew|apt|get|post|put|delete)\s+\S+/i.test(text)
+    || /[{}();=<>]|--[a-z0-9-]+/i.test(text);
+}
+
+function codeBlockLineCount(text: string): number {
+  return text ? text.split("\n").length : 0;
+}
+
+function isCommandLikeCodeBlock(text: string, language: string): boolean {
+  if (/^(bash|sh|shell|console|terminal|powershell|ps1|zsh|fish)$/.test(language)) return true;
+  return /^(?:\$|>|#)\s*\S+/m.test(text)
+    || /(?:^|\n)\s*(?:npm|pnpm|yarn|npx|pip|curl|git|docker|kubectl|brew|apt)\s+\S+/i.test(text);
 }
 
 function summarizeMedia(html: string, baseUrl: string): PageMediaSummary[] {
@@ -5038,6 +5170,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.breadcrumbs" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.codeBlocks.length > 0) {
+    add({
+      path: "pageCheck.codeBlocks",
+      reason: "Code examples and command snippets extracted from pre/code blocks.",
+      count: pageCheck.codeBlocks.length,
+      score: roundMetric(Math.min(1, 0.46 + pageCheck.codeBlocks.length * 0.08)),
+      ...(primaryReadFrom === "pageCheck.codeBlocks" ? { primary: true } : {}),
+    });
+  }
   if (pageCheck.media.length > 0) {
     add({
       path: "pageCheck.media",
@@ -5258,6 +5399,7 @@ function agentReadValue(
   if (path === "pageCheck.keyValues") return { path, value: pageCheck.keyValues };
   if (path === "pageCheck.schemaFacts") return { path, value: pageCheck.schemaFacts };
   if (path === "pageCheck.breadcrumbs") return { path, value: pageCheck.breadcrumbs };
+  if (path === "pageCheck.codeBlocks") return { path, value: pageCheck.codeBlocks };
   if (path === "pageCheck.media") return { path, value: pageCheck.media };
   if (path === "pageCheck.resources") return { path, value: pageCheck.resources };
   if (path === "pageCheck.embeds") return { path, value: pageCheck.embeds };
@@ -5638,6 +5780,14 @@ function findCandidates(
       ...(breadcrumb.selector ? { selector: breadcrumb.selector } : {}),
     });
   }
+  for (const codeBlock of pageCheck.codeBlocks) {
+    add({
+      field: "codeBlock",
+      text: codeBlock.text,
+      rank: codeBlock.rank,
+      ...(codeBlock.selector ? { selector: codeBlock.selector } : {}),
+    });
+  }
   for (const media of pageCheck.media) {
     add({
       field: "media",
@@ -5812,6 +5962,7 @@ function emptyPageCheck(): PageCheckSummary {
     keyValues: [],
     schemaFacts: [],
     breadcrumbs: [],
+    codeBlocks: [],
     media: [],
     resources: [],
     embeds: [],
@@ -6762,6 +6913,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),
     ...(pageCheck.schemaFacts.length > 0 ? { schemaFacts: pageCheck.schemaFacts } : {}),
     ...(pageCheck.breadcrumbs.length > 0 ? { breadcrumbs: pageCheck.breadcrumbs } : {}),
+    ...(pageCheck.codeBlocks.length > 0 ? { codeBlocks: pageCheck.codeBlocks } : {}),
     ...(pageCheck.media.length > 0 ? { media: pageCheck.media } : {}),
     ...(pageCheck.resources.length > 0 ? { resources: pageCheck.resources } : {}),
     ...(pageCheck.embeds.length > 0 ? { embeds: pageCheck.embeds } : {}),

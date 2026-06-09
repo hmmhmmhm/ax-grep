@@ -528,6 +528,8 @@ facts from definition lists, time elements, and short label/value text.
 data such as product offers, ratings, events, and FAQ answers.
 `pageCheck.breadcrumbs` captures JSON-LD and HTML breadcrumb trails as ordered
 context.
+`pageCheck.codeBlocks` captures code examples and command snippets from pre/code
+blocks.
 `pageCheck.media` captures resolved image URLs, alt text, captions, and social
 preview images. `pageCheck.resources` captures feed, alternate, license,
 manifest, sitemap, and document resource links that are often hidden in head

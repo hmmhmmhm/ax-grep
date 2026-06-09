@@ -470,6 +470,7 @@ export type AgentContractFeature =
   | "pageCheck.keyValues"
   | "pageCheck.schemaFacts"
   | "pageCheck.breadcrumbs"
+  | "pageCheck.codeBlocks"
   | "pageCheck.media"
   | "pageCheck.resources"
   | "pageCheck.embeds"
