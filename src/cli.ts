@@ -365,6 +365,22 @@ type PageBreadcrumbSummary = {
   selector?: string;
 };
 
+type PageTocItem = {
+  label: string;
+  url?: string;
+  level?: number;
+};
+
+type PageTocSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  items: PageTocItem[];
+  text: string;
+  title?: string;
+  selector?: string;
+};
+
 type PageCodeBlockSummary = {
   id: string;
   path: string;
@@ -566,6 +582,7 @@ const agentContract: AgentContract = {
     "pageCheck.keyValues",
     "pageCheck.schemaFacts",
     "pageCheck.breadcrumbs",
+    "pageCheck.toc",
     "pageCheck.codeBlocks",
     "pageCheck.media",
     "pageCheck.resources",
@@ -598,6 +615,7 @@ type PageCheckSummary = {
   keyValues: PageKeyValueSummary[];
   schemaFacts: PageSchemaFactSummary[];
   breadcrumbs: PageBreadcrumbSummary[];
+  toc: PageTocSummary[];
   codeBlocks: PageCodeBlockSummary[];
   media: PageMediaSummary[];
   resources: PageResourceSummary[];
@@ -1928,6 +1946,11 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const selector = breadcrumb.selector ? ` (${breadcrumb.selector})` : "";
     lines.push(`  breadcrumb: ${breadcrumb.id} ${breadcrumb.path} ${breadcrumb.source}${selector} - ${breadcrumb.text}`);
   }
+  for (const toc of pageCheck.toc) {
+    const title = toc.title ? ` title="${toc.title}"` : "";
+    const selector = toc.selector ? ` (${toc.selector})` : "";
+    lines.push(`  toc: ${toc.id} ${toc.path}${title} items=${toc.items.length}${selector} - ${toc.text}`);
+  }
   for (const codeBlock of pageCheck.codeBlocks) {
     const language = codeBlock.language ? ` language=${codeBlock.language}` : "";
     const commandLike = codeBlock.commandLike ? " commandLike" : "";
@@ -2666,6 +2689,7 @@ function summarizePageCheck(
   const keyValues = summarizeKeyValues(fetched.html);
   const schemaFacts = summarizeSchemaFacts(fetched.html);
   const breadcrumbs = summarizeBreadcrumbs(fetched.html, fetched.finalUrl);
+  const toc = summarizeToc(fetched.html, fetched.finalUrl);
   const codeBlocks = summarizeCodeBlocks(fetched.html);
   const media = summarizeMedia(fetched.html, fetched.finalUrl);
   const resources = summarizeResources(fetched.html, fetched.finalUrl);
@@ -2673,8 +2697,8 @@ function summarizePageCheck(
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, schemaFacts, breadcrumbs, codeBlocks, media, resources, embeds, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, schemaFacts, breadcrumbs, codeBlocks, media, resources, embeds, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, schemaFacts, breadcrumbs, toc, codeBlocks, media, resources, embeds, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, schemaFacts, breadcrumbs, toc, codeBlocks, media, resources, embeds, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -2683,6 +2707,7 @@ function summarizePageCheck(
     keyValues,
     schemaFacts,
     breadcrumbs,
+    toc,
     codeBlocks,
     media,
     resources,
@@ -2722,6 +2747,7 @@ function summarizeReadability(
   keyValues: PageKeyValueSummary[],
   schemaFacts: PageSchemaFactSummary[],
   breadcrumbs: PageBreadcrumbSummary[],
+  toc: PageTocSummary[],
   codeBlocks: PageCodeBlockSummary[],
   media: PageMediaSummary[],
   resources: PageResourceSummary[],
@@ -2757,6 +2783,10 @@ function summarizeReadability(
   if (breadcrumbs.length > 0) {
     score += Math.min(0.06, breadcrumbs.length * 0.03);
     reasons.push(`${breadcrumbs.length} breadcrumb trail${breadcrumbs.length === 1 ? "" : "s"}`);
+  }
+  if (toc.length > 0) {
+    score += Math.min(0.06, toc.length * 0.03);
+    reasons.push(`${toc.length} table of contents${toc.length === 1 ? "" : " entries"}`);
   }
   if (codeBlocks.length > 0) {
     score += Math.min(0.08, codeBlocks.length * 0.04);
@@ -2840,6 +2870,7 @@ function recommendedPageCheckAction(
   keyValues: PageKeyValueSummary[],
   schemaFacts: PageSchemaFactSummary[],
   breadcrumbs: PageBreadcrumbSummary[],
+  toc: PageTocSummary[],
   codeBlocks: PageCodeBlockSummary[],
   media: PageMediaSummary[],
   resources: PageResourceSummary[],
@@ -2881,15 +2912,17 @@ function recommendedPageCheckAction(
             ? "pageCheck.schemaFacts"
             : breadcrumbs.length > 0
               ? "pageCheck.breadcrumbs"
-              : codeBlocks.length > 0
-                ? "pageCheck.codeBlocks"
-                : media.length > 0
-                  ? "pageCheck.media"
-                  : resources.length > 0
-                    ? "pageCheck.resources"
-                    : embeds.length > 0
-                      ? "pageCheck.embeds"
-                      : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
+              : toc.length > 0
+                ? "pageCheck.toc"
+                : codeBlocks.length > 0
+                  ? "pageCheck.codeBlocks"
+                  : media.length > 0
+                    ? "pageCheck.media"
+                    : resources.length > 0
+                      ? "pageCheck.resources"
+                      : embeds.length > 0
+                        ? "pageCheck.embeds"
+                        : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
     return {
       action: "read-content",
       reason: "The page has enough structured evidence for source checking.",
@@ -2932,6 +2965,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.breadcrumbs",
+    };
+  }
+  if (toc.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but table-of-contents links are available for agent navigation.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.toc",
     };
   }
   if (codeBlocks.length > 0) {
@@ -3670,6 +3712,96 @@ function breadcrumbText(items: PageBreadcrumbItem[]): string {
 
 function isLowValueBreadcrumbLabel(label: string): boolean {
   return label.length > 80 || /^(menu|navigation|breadcrumb|breadcrumbs|skip to content|메뉴|내비게이션)$/i.test(label);
+}
+
+function summarizeToc(html: string, baseUrl: string): PageTocSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageTocSummary[] = [];
+  const seen = new Set<string>();
+  for (const [index, element] of findElements(document.children, isLikelyTocContainer).entries()) {
+    const tocItems = tocItemsFromContainer(element, baseUrl);
+    if (tocItems.length < 2) continue;
+    const text = tocText(tocItems);
+    const key = text.toLowerCase();
+    if (!text || seen.has(key)) continue;
+    seen.add(key);
+    const title = inferTocTitle(element);
+    const rank = items.length + 1;
+    items.push({
+      id: `toc${rank}`,
+      path: `pageCheck.toc[${rank - 1}]`,
+      rank,
+      items: tocItems,
+      text,
+      ...(title ? { title } : {}),
+      selector: `${element.name}:nth-of-type(${index + 1})`,
+    });
+    if (items.length >= 4) break;
+  }
+  return items;
+}
+
+function isLikelyTocContainer(element: Element): boolean {
+  if (!["nav", "aside", "section", "div"].includes(element.name)) return false;
+  const marker = [
+    attr(element, "aria-label") ?? "",
+    attr(element, "aria-labelledby") ?? "",
+    attr(element, "class") ?? "",
+    attr(element, "id") ?? "",
+    attr(element, "role") ?? "",
+    headingTextInElement(element),
+  ].join(" ").toLowerCase();
+  return /table[-_\s]*of[-_\s]*contents|(?:^|\s)toc(?:\s|$)|on this page|in this article|contents|목차|이 문서|이 페이지/.test(marker);
+}
+
+function tocItemsFromContainer(element: Element, baseUrl: string): PageTocItem[] {
+  const items: PageTocItem[] = [];
+  const seen = new Set<string>();
+  for (const anchor of findElements(element.children, (item) => item.name === "a").slice(0, 20)) {
+    const label = cleanContentText(descendantText(anchor));
+    if (!label || isLowValueTocLabel(label)) continue;
+    const rawUrl = attr(anchor, "href") ?? "";
+    const url = rawUrl ? normalizeHref(rawUrl, baseUrl) : null;
+    const key = `${label}\n${url ?? ""}`.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const level = inferTocItemLevel(anchor);
+    items.push({
+      label,
+      ...(url ? { url } : {}),
+      ...(level ? { level } : {}),
+    });
+  }
+  return items.slice(0, 12);
+}
+
+function headingTextInElement(element: Element): string {
+  const heading = findElement(element.children, (item) => /^h[1-6]$/.test(item.name));
+  return heading ? cleanContentText(descendantText(heading)) : "";
+}
+
+function inferTocTitle(element: Element): string {
+  return cleanContentText(attr(element, "aria-label") ?? "") || headingTextInElement(element);
+}
+
+function inferTocItemLevel(anchor: Element): number | undefined {
+  const ariaLevel = Number(attr(anchor, "aria-level"));
+  if (Number.isInteger(ariaLevel) && ariaLevel >= 1 && ariaLevel <= 6) return ariaLevel;
+  const marker = `${attr(anchor, "class") ?? ""} ${attr(anchor, "data-level") ?? ""}`;
+  const match = /(?:^|\D)([1-6])(?:\D|$)/.exec(marker);
+  return match?.[1] ? Number(match[1]) : undefined;
+}
+
+function tocText(items: PageTocItem[]): string {
+  return cleanContentText(items.map((item) => item.label).join(" ; "));
+}
+
+function isLowValueTocLabel(label: string): boolean {
+  return label.length > 100 || /^(menu|navigation|home|top|back to top|skip to content|로그인|메뉴|홈)$/i.test(label);
 }
 
 function summarizeCodeBlocks(html: string): PageCodeBlockSummary[] {
@@ -5170,6 +5302,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.breadcrumbs" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.toc.length > 0) {
+    add({
+      path: "pageCheck.toc",
+      reason: "Table-of-contents and in-page section links extracted from document navigation.",
+      count: pageCheck.toc.length,
+      score: roundMetric(Math.min(1, 0.42 + pageCheck.toc.length * 0.08)),
+      ...(primaryReadFrom === "pageCheck.toc" ? { primary: true } : {}),
+    });
+  }
   if (pageCheck.codeBlocks.length > 0) {
     add({
       path: "pageCheck.codeBlocks",
@@ -5399,6 +5540,7 @@ function agentReadValue(
   if (path === "pageCheck.keyValues") return { path, value: pageCheck.keyValues };
   if (path === "pageCheck.schemaFacts") return { path, value: pageCheck.schemaFacts };
   if (path === "pageCheck.breadcrumbs") return { path, value: pageCheck.breadcrumbs };
+  if (path === "pageCheck.toc") return { path, value: pageCheck.toc };
   if (path === "pageCheck.codeBlocks") return { path, value: pageCheck.codeBlocks };
   if (path === "pageCheck.media") return { path, value: pageCheck.media };
   if (path === "pageCheck.resources") return { path, value: pageCheck.resources };
@@ -5780,6 +5922,14 @@ function findCandidates(
       ...(breadcrumb.selector ? { selector: breadcrumb.selector } : {}),
     });
   }
+  for (const toc of pageCheck.toc) {
+    add({
+      field: "toc",
+      text: toc.text,
+      rank: toc.rank,
+      ...(toc.selector ? { selector: toc.selector } : {}),
+    });
+  }
   for (const codeBlock of pageCheck.codeBlocks) {
     add({
       field: "codeBlock",
@@ -5962,6 +6112,7 @@ function emptyPageCheck(): PageCheckSummary {
     keyValues: [],
     schemaFacts: [],
     breadcrumbs: [],
+    toc: [],
     codeBlocks: [],
     media: [],
     resources: [],
@@ -6913,6 +7064,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),
     ...(pageCheck.schemaFacts.length > 0 ? { schemaFacts: pageCheck.schemaFacts } : {}),
     ...(pageCheck.breadcrumbs.length > 0 ? { breadcrumbs: pageCheck.breadcrumbs } : {}),
+    ...(pageCheck.toc.length > 0 ? { toc: pageCheck.toc } : {}),
     ...(pageCheck.codeBlocks.length > 0 ? { codeBlocks: pageCheck.codeBlocks } : {}),
     ...(pageCheck.media.length > 0 ? { media: pageCheck.media } : {}),
     ...(pageCheck.resources.length > 0 ? { resources: pageCheck.resources } : {}),

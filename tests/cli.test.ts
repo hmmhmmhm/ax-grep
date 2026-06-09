@@ -3289,6 +3289,101 @@ describe("cli", () => {
     });
   });
 
+  it("summarizes table-of-contents navigation as pageCheck read targets for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/docs/guide", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <body>
+            <nav aria-label="On this page">
+              <a class="toc-level-2" href="#install">Installation</a>
+              <a class="toc-level-2" href="#config">Configuration</a>
+              <a class="toc-level-3" href="#api">API reference</a>
+            </nav>
+            <main></main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.toc).toEqual([
+      {
+        id: "toc1",
+        path: "pageCheck.toc[0]",
+        rank: 1,
+        title: "On this page",
+        selector: "nav:nth-of-type(1)",
+        items: [
+          { label: "Installation", url: "https://example.test/docs/guide#install", level: 2 },
+          { label: "Configuration", url: "https://example.test/docs/guide#config", level: 2 },
+          { label: "API reference", url: "https://example.test/docs/guide#api", level: 3 },
+        ],
+        text: "Installation; Configuration; API reference",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("1 table of contents");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.toc",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.toc",
+      count: 1,
+      primary: true,
+      reason: "Table-of-contents and in-page section links extracted from document navigation.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.toc",
+      value: [
+        expect.objectContaining({
+          id: "toc1",
+          text: "Installation; Configuration; API reference",
+        }),
+      ],
+    });
+  });
+
+  it("checks requested text against table-of-contents summaries", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/docs/guide", "--agent", "--find", "Installation; Configuration; API reference"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <body>
+            <aside class="table-of-contents">
+              <a href="#install">Installation</a>
+              <a href="#config">Configuration</a>
+              <a href="#api">API reference</a>
+            </aside>
+            <main><p>This guide introduces the package for documentation readers.</p></main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "toc",
+        rank: 1,
+        selector: "aside:nth-of-type(1)",
+        text: "Installation; Configuration; API reference",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
   it("summarizes code blocks as pageCheck read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/docs/install", "--agent"], {
