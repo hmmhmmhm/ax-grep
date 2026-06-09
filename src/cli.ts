@@ -356,6 +356,21 @@ type PageActionTargetSummary = {
   selector?: string;
 };
 
+type PageAppHintSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "manifest" | "app-name" | "icon" | "theme" | "capability";
+  label: string;
+  value: string;
+  text: string;
+  source: "link" | "meta";
+  url?: string;
+  sizes?: string;
+  media?: string;
+  selector?: string;
+};
+
 type PageKeyValueSummary = {
   id: string;
   path: string;
@@ -786,6 +801,7 @@ const agentContract: AgentContract = {
     "pageCheck.barriers",
     "pageCheck.forms",
     "pageCheck.actionTargets",
+    "pageCheck.appHints",
     "pageCheck.keyValues",
     "pageCheck.metaFacts",
     "pageCheck.httpPolicies",
@@ -834,6 +850,7 @@ type PageCheckSummary = {
   barriers: PageBarrierSummary[];
   forms: PageFormSummary[];
   actionTargets: PageActionTargetSummary[];
+  appHints: PageAppHintSummary[];
   keyValues: PageKeyValueSummary[];
   metaFacts: PageMetaFactSummary[];
   httpPolicies: PageHttpPolicySummary[];
@@ -2210,6 +2227,11 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const selector = target.selector ? ` (${target.selector})` : "";
     lines.push(`  actionTarget: ${target.id} ${target.path} ${target.kind}${template}${selector}${url} - ${target.text}`);
   }
+  for (const hint of pageCheck.appHints) {
+    const url = hint.url ? ` <${hint.url}>` : "";
+    const selector = hint.selector ? ` (${hint.selector})` : "";
+    lines.push(`  appHint: ${hint.id} ${hint.path} ${hint.kind}${selector}${url} - ${hint.text}`);
+  }
   for (const fact of pageCheck.keyValues) {
     const datetime = fact.datetime ? ` datetime=${fact.datetime}` : "";
     lines.push(`  keyValue: ${fact.id} ${fact.path} ${fact.source}${datetime} - ${fact.text}`);
@@ -3139,6 +3161,7 @@ function summarizePageCheck(
   const barriers = summarizeBarriers(analysis.diagnostics, content, actions);
   const forms = summarizeForms(fetched.html, fetched.finalUrl);
   const actionTargets = summarizeActionTargets(fetched.html, fetched.finalUrl);
+  const appHints = summarizeAppHints(fetched.html, fetched.finalUrl);
   const keyValues = summarizeKeyValues(fetched.html);
   const metaFacts = summarizeMetaFacts(fetched.html, fetched.finalUrl);
   const httpPolicies = summarizeHttpPolicies(fetched.html, fetched.responseHeaders);
@@ -3163,8 +3186,8 @@ function summarizePageCheck(
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, actionTargets, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, actionTargets, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, actionTargets, appHints, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, actionTargets, appHints, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -3172,6 +3195,7 @@ function summarizePageCheck(
     barriers,
     forms,
     actionTargets,
+    appHints,
     keyValues,
     metaFacts,
     httpPolicies,
@@ -3226,6 +3250,7 @@ function summarizeReadability(
   dataTables: PageDataTableSummary[],
   forms: PageFormSummary[],
   actionTargets: PageActionTargetSummary[],
+  appHints: PageAppHintSummary[],
   keyValues: PageKeyValueSummary[],
   metaFacts: PageMetaFactSummary[],
   httpPolicies: PageHttpPolicySummary[],
@@ -3273,6 +3298,10 @@ function summarizeReadability(
   if (actionTargets.length > 0) {
     score += Math.min(0.08, actionTargets.length * 0.03);
     reasons.push(`${actionTargets.length} action target${actionTargets.length === 1 ? "" : "s"}`);
+  }
+  if (appHints.length > 0) {
+    score += Math.min(0.06, appHints.length * 0.02);
+    reasons.push(`${appHints.length} app hint${appHints.length === 1 ? "" : "s"}`);
   }
   if (keyValues.length > 0) {
     score += Math.min(0.08, keyValues.length * 0.02);
@@ -3422,6 +3451,7 @@ function recommendedPageCheckAction(
   dataTables: PageDataTableSummary[],
   forms: PageFormSummary[],
   actionTargets: PageActionTargetSummary[],
+  appHints: PageAppHintSummary[],
   keyValues: PageKeyValueSummary[],
   metaFacts: PageMetaFactSummary[],
   httpPolicies: PageHttpPolicySummary[],
@@ -3476,6 +3506,8 @@ function recommendedPageCheckAction(
         ? "pageCheck.dataTables"
         : actionTargets.length > 0
           ? "pageCheck.actionTargets"
+          : appHints.length > 0
+            ? "pageCheck.appHints"
         : keyValues.length > 0
           ? "pageCheck.keyValues"
           : httpPolicies.length > 0
@@ -3543,6 +3575,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.actionTargets",
+    };
+  }
+  if (appHints.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but app metadata hints are available for agent planning.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.appHints",
     };
   }
   if (keyValues.length > 0) {
@@ -4296,6 +4337,138 @@ function actionTargetText(kind: PageActionTargetSummary["kind"], name: string, t
     queryInput ? `queryInput=${queryInput}` : "",
     method ? `method=${method}` : "",
     encodingType ? `type=${encodingType}` : "",
+    `source=${source}`,
+  ].filter(Boolean).join(" "));
+}
+
+function summarizeAppHints(html: string, baseUrl: string): PageAppHintSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageAppHintSummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageAppHintSummary, "id" | "path" | "rank" | "text">): void => {
+    const label = cleanContentText(item.label).slice(0, 80);
+    const value = cleanContentText(item.value).slice(0, 180);
+    const url = item.url ? normalizeHref(item.url, baseUrl) ?? "" : "";
+    const sizes = cleanLinkText(item.sizes ?? "").slice(0, 60);
+    const media = cleanLinkText(item.media ?? "").slice(0, 80);
+    const key = `${item.kind}\n${label}\n${value}\n${url}\n${sizes}`.toLowerCase();
+    if (!label || !value || seen.has(key)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `ah${rank}`,
+      path: `pageCheck.appHints[${rank - 1}]`,
+      rank,
+      kind: item.kind,
+      label,
+      value,
+      source: item.source,
+      ...(url ? { url } : {}),
+      ...(sizes ? { sizes } : {}),
+      ...(media ? { media } : {}),
+      ...(item.selector ? { selector: item.selector } : {}),
+      text: appHintText(item.kind, label, value, url, sizes, media, item.source),
+    });
+  };
+
+  for (const [index, link] of findElements(document.children, (item) => item.name === "link").entries()) {
+    const rel = cleanLinkText(attr(link, "rel") ?? "");
+    if (!rel) continue;
+    const relParts = rel.toLowerCase().split(/\s+/);
+    const href = cleanLinkText(attr(link, "href") ?? "");
+    if (relParts.includes("manifest") && href) {
+      add({
+        kind: "manifest",
+        label: "Web app manifest",
+        value: href,
+        source: "link",
+        url: href,
+        selector: `link[rel="${cssAttributeValue(rel)}"]:nth-of-type(${index + 1})`,
+      });
+      continue;
+    }
+    if (relParts.some((part) => /^(icon|shortcut|apple-touch-icon|mask-icon)$/.test(part)) && href) {
+      const label = appIconLabel(relParts);
+      add({
+        kind: "icon",
+        label,
+        value: resourceTitleFromUrl(href) || href,
+        source: "link",
+        url: href,
+        sizes: cleanLinkText(attr(link, "sizes") ?? ""),
+        media: cleanLinkText(attr(link, "media") ?? ""),
+        selector: `link[rel="${cssAttributeValue(rel)}"]:nth-of-type(${index + 1})`,
+      });
+    }
+  }
+
+  for (const [index, meta] of findElements(document.children, (item) => item.name === "meta").entries()) {
+    const name = cleanLinkText(attr(meta, "name") || attr(meta, "property") || "").toLowerCase();
+    const content = cleanContentText(attr(meta, "content") ?? "");
+    if (!name || !content) continue;
+    const hint = appHintFromMeta(name, content);
+    if (!hint) continue;
+    add({
+      ...hint,
+      source: "meta",
+      selector: `meta[name="${cssAttributeValue(name)}"]:nth-of-type(${index + 1})`,
+    });
+  }
+
+  return items.slice(0, 8);
+}
+
+function appIconLabel(relParts: string[]): string {
+  if (relParts.includes("apple-touch-icon")) return "Apple touch icon";
+  if (relParts.includes("mask-icon")) return "Mask icon";
+  if (relParts.includes("shortcut")) return "Shortcut icon";
+  return "App icon";
+}
+
+function appHintFromMeta(name: string, content: string): Omit<PageAppHintSummary, "id" | "path" | "rank" | "text" | "source" | "selector"> | undefined {
+  if (name === "application-name" || name === "apple-mobile-web-app-title") {
+    return { kind: "app-name", label: appMetaLabel(name), value: content };
+  }
+  if (name === "theme-color" || name === "msapplication-tilecolor" || name === "msapplication-navbutton-color") {
+    return { kind: "theme", label: appMetaLabel(name), value: content };
+  }
+  if (/^(apple-mobile-web-app-capable|mobile-web-app-capable|msapplication-tap-highlight|msapplication-starturl|msapplication-tooltip)$/.test(name)) {
+    return { kind: "capability", label: appMetaLabel(name), value: content };
+  }
+  if (/^msapplication-(tileimage|square\d+x\d+logo|wide\d+x\d+logo)$/i.test(name)) {
+    return { kind: "icon", label: appMetaLabel(name), value: content, url: content };
+  }
+  return undefined;
+}
+
+function appMetaLabel(name: string): string {
+  const labels: Record<string, string> = {
+    "application-name": "Application name",
+    "apple-mobile-web-app-title": "Apple app title",
+    "theme-color": "Theme color",
+    "msapplication-tilecolor": "Windows tile color",
+    "msapplication-navbutton-color": "Windows nav button color",
+    "apple-mobile-web-app-capable": "Apple standalone capable",
+    "mobile-web-app-capable": "Mobile web app capable",
+    "msapplication-tap-highlight": "Windows tap highlight",
+    "msapplication-starturl": "Windows start URL",
+    "msapplication-tooltip": "Windows tooltip",
+    "msapplication-tileimage": "Windows tile image",
+  };
+  return labels[name] ?? cleanContentText(name.replace(/[-_]+/g, " ").replace(/^msapplication\s+/i, "Windows "));
+}
+
+function appHintText(kind: PageAppHintSummary["kind"], label: string, value: string, url: string, sizes: string, media: string, source: PageAppHintSummary["source"]): string {
+  return cleanContentText([
+    `${label}: ${value}`,
+    `kind=${kind}`,
+    url ? `url=${url}` : "",
+    sizes ? `sizes=${sizes}` : "",
+    media ? `media=${media}` : "",
     `source=${source}`,
   ].filter(Boolean).join(" "));
 }
@@ -7816,6 +7989,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.actionTargets" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.appHints.length > 0) {
+    add({
+      path: "pageCheck.appHints",
+      reason: "Web app manifest, icon, theme, and installability hints extracted from hidden head metadata.",
+      count: pageCheck.appHints.length,
+      score: roundMetric(Math.min(1, 0.4 + pageCheck.appHints.length * 0.06)),
+      ...(primaryReadFrom === "pageCheck.appHints" ? { primary: true } : {}),
+    });
+  }
   if (pageCheck.contactPoints.length > 0 && primaryReadFrom === "pageCheck.contactPoints") {
     add({
       path: "pageCheck.contactPoints",
@@ -8221,6 +8403,7 @@ function agentReadValue(
   if (path === "pageCheck.barriers") return { path, value: pageCheck.barriers };
   if (path === "pageCheck.forms") return { path, value: pageCheck.forms };
   if (path === "pageCheck.actionTargets") return { path, value: pageCheck.actionTargets };
+  if (path === "pageCheck.appHints") return { path, value: pageCheck.appHints };
   if (path === "pageCheck.contactPoints") return { path, value: pageCheck.contactPoints };
   if (path === "pageCheck.keyValues") return { path, value: pageCheck.keyValues };
   if (path === "pageCheck.metaFacts") return { path, value: pageCheck.metaFacts };
@@ -8612,6 +8795,15 @@ function findCandidates(
       ...(target.selector ? { selector: target.selector } : {}),
     });
   }
+  for (const hint of pageCheck.appHints) {
+    add({
+      field: "appHint",
+      text: hint.text,
+      rank: hint.rank,
+      ...(hint.url ? { url: hint.url } : {}),
+      ...(hint.selector ? { selector: hint.selector } : {}),
+    });
+  }
   for (const contact of pageCheck.contactPoints) {
     add({
       field: "contactPoint",
@@ -8938,6 +9130,7 @@ function emptyPageCheck(): PageCheckSummary {
     barriers: [],
     forms: [],
     actionTargets: [],
+    appHints: [],
     contactPoints: [],
     keyValues: [],
     metaFacts: [],
@@ -9905,6 +10098,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.barriers.length > 0 ? { barriers: pageCheck.barriers } : {}),
     ...(pageCheck.forms.length > 0 ? { forms: pageCheck.forms } : {}),
     ...(pageCheck.actionTargets.length > 0 ? { actionTargets: pageCheck.actionTargets } : {}),
+    ...(pageCheck.appHints.length > 0 ? { appHints: pageCheck.appHints } : {}),
     ...(pageCheck.contactPoints.length > 0 ? { contactPoints: pageCheck.contactPoints } : {}),
     ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),
     ...(pageCheck.metaFacts.length > 0 ? { metaFacts: pageCheck.metaFacts } : {}),

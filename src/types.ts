@@ -474,6 +474,7 @@ export type AgentContractFeature =
   | "pageCheck.barriers"
   | "pageCheck.forms"
   | "pageCheck.actionTargets"
+  | "pageCheck.appHints"
   | "pageCheck.keyValues"
   | "pageCheck.metaFacts"
   | "pageCheck.httpPolicies"

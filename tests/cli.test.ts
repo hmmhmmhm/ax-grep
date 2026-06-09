@@ -308,6 +308,7 @@ describe("cli", () => {
             "actions",
             "contentEvidence.quality",
             "pageCheck.actionTargets",
+            "pageCheck.appHints",
             "pageCheck.httpPolicies",
             "pageCheck.offers",
             "pageCheck.identities",
@@ -3228,6 +3229,141 @@ describe("cli", () => {
         url: "https://example.test/search?q={search_term_string}",
         selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
         text: "search: Example Docs template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string source=json-ld",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("summarizes app installability hints from hidden head metadata", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/app", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <meta name="application-name" content="Example Console">
+            <meta name="theme-color" content="#0f172a">
+            <meta name="apple-mobile-web-app-capable" content="yes">
+            <link rel="manifest" href="/site.webmanifest">
+            <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple.png">
+          </head>
+          <body><main><h1>Console</h1></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.appHints).toEqual([
+      {
+        id: "ah1",
+        path: "pageCheck.appHints[0]",
+        rank: 1,
+        kind: "manifest",
+        label: "Web app manifest",
+        value: "/site.webmanifest",
+        text: "Web app manifest: /site.webmanifest kind=manifest url=https://example.test/site.webmanifest source=link",
+        source: "link",
+        url: "https://example.test/site.webmanifest",
+        selector: "link[rel=\"manifest\"]:nth-of-type(1)",
+      },
+      {
+        id: "ah2",
+        path: "pageCheck.appHints[1]",
+        rank: 2,
+        kind: "icon",
+        label: "Apple touch icon",
+        value: "/icons/apple.png",
+        text: "Apple touch icon: /icons/apple.png kind=icon url=https://example.test/icons/apple.png sizes=180x180 source=link",
+        source: "link",
+        url: "https://example.test/icons/apple.png",
+        sizes: "180x180",
+        selector: "link[rel=\"apple-touch-icon\"]:nth-of-type(2)",
+      },
+      {
+        id: "ah3",
+        path: "pageCheck.appHints[2]",
+        rank: 3,
+        kind: "app-name",
+        label: "Application name",
+        value: "Example Console",
+        text: "Application name: Example Console kind=app-name source=meta",
+        source: "meta",
+        selector: "meta[name=\"application-name\"]:nth-of-type(1)",
+      },
+      {
+        id: "ah4",
+        path: "pageCheck.appHints[3]",
+        rank: 4,
+        kind: "theme",
+        label: "Theme color",
+        value: "#0f172a",
+        text: "Theme color: #0f172a kind=theme source=meta",
+        source: "meta",
+        selector: "meta[name=\"theme-color\"]:nth-of-type(2)",
+      },
+      {
+        id: "ah5",
+        path: "pageCheck.appHints[4]",
+        rank: 5,
+        kind: "capability",
+        label: "Apple standalone capable",
+        value: "yes",
+        text: "Apple standalone capable: yes kind=capability source=meta",
+        source: "meta",
+        selector: "meta[name=\"apple-mobile-web-app-capable\"]:nth-of-type(3)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("5 app hints");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.appHints",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.appHints",
+      count: 5,
+      primary: true,
+      reason: "Web app manifest, icon, theme, and installability hints extracted from hidden head metadata.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.appHints",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          id: "ah3",
+          value: "Example Console",
+        }),
+      ]),
+    });
+  });
+
+  it("checks requested text against app hints", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/app", "--agent", "--find", "Example Console"], {
+      stdout,
+      fetch: async () => new Response(`
+        <head>
+          <meta name="application-name" content="Example Console">
+          <link rel="manifest" href="/site.webmanifest">
+        </head>
+        <main><h1>App shell</h1></main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "appHint",
+        rank: 2,
+        selector: "meta[name=\"application-name\"]:nth-of-type(1)",
+        text: "Application name: Example Console kind=app-name source=meta",
       },
     });
     expect(envelope.agent.primaryAction).toMatchObject({
