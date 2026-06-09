@@ -11876,7 +11876,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     ...(agent.resultChoices.length > 0 ? { resultChoices: agent.resultChoices } : {}),
     evidenceCount: agent.evidenceCount,
     sourceLinkCount: agent.sourceLinkCount,
-    ...(agent.sourceChoices.length > 0 ? { sourceChoices: compactAgentCommandList(agent.sourceChoices) } : {}),
+    ...(agent.sourceChoices.length > 0 ? { sourceChoices: compactAgentSourceChoiceList(agent.sourceChoices) } : {}),
     evidenceQualityScore: agent.evidenceQualityScore,
     sourceQualityScore: agent.sourceQualityScore,
     alternativeActionCount: agent.alternativeActionCount,
@@ -11884,8 +11884,8 @@ function compactAgentSummary(agent: AgentSummary): object {
     diagnosticErrorCount: agent.diagnosticErrorCount,
     diagnosticWarningCount: agent.diagnosticWarningCount,
     diagnosticInfoCount: agent.diagnosticInfoCount,
-    ...(agent.citations.length > 0 ? { citations: agent.citations } : {}),
-    ...(agent.answerEvidence.length > 0 ? { answerEvidence: agent.answerEvidence } : {}),
+    ...(agent.citations.length > 0 ? { citations: compactAgentCitationList(agent.citations) } : {}),
+    ...(agent.answerEvidence.length > 0 ? { answerEvidence: compactAgentCitationList(agent.answerEvidence, 650) } : {}),
     ...(agent.readTargets.length > 0 ? { readTargets: agent.readTargets } : {}),
     ...(agent.actions.length > 0 ? { actions: compactAgentActionList(agent.actions.map(compactAgentActionSummary)) } : {}),
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
@@ -11962,6 +11962,11 @@ function compactAgentSourceChoiceRef(choice: AgentSourceChoice): object {
   };
 }
 
+function compactAgentSourceChoiceList(choices: AgentSourceChoice[], threshold = 1500): object[] {
+  if (JSON.stringify(choices).length <= threshold) return compactAgentCommandList(choices);
+  return choices.map(compactAgentSourceChoiceRef);
+}
+
 function compactAgentCitationRef(citation: AgentCitation): object {
   return {
     kind: citation.kind,
@@ -11970,6 +11975,11 @@ function compactAgentCitationRef(citation: AgentCitation): object {
     confidence: citation.confidence,
     ...(typeof citation.score === "number" ? { score: citation.score } : {}),
   };
+}
+
+function compactAgentCitationList(citations: AgentCitation[], threshold = 1000): object[] {
+  if (JSON.stringify(citations).length <= threshold) return citations;
+  return citations.map(compactAgentCitationRef);
 }
 
 function compactAgentActionList(actions: object[]): object[] {

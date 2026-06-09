@@ -1236,13 +1236,15 @@ function scoreAgentCitations(
       && typeof citation.path === "string"
       && citation.path.length > 0
       && pathExists(envelope, citation.path);
+    const hasResolvedPayload = citation.path ? pathHasCitationPayload(envelope, citation.path) : false;
     const hasPayload = typeof citation.text === "string"
       || typeof citation.title === "string"
-      || typeof citation.url === "string";
+      || typeof citation.url === "string"
+      || hasResolvedPayload;
     const hasValidScore = typeof citation.score === "undefined"
       || (typeof citation.score === "number" && citation.score >= 0 && citation.score <= 1);
     const hasValidConfidence = citation.confidence === "low" || citation.confidence === "medium" || citation.confidence === "high";
-    const hasReason = typeof citation.reason === "string" && citation.reason.length > 0;
+    const hasReason = (typeof citation.reason === "string" && citation.reason.length > 0) || hasResolvedPayload;
     return hasReference
       && validKinds.has(String(citation.kind))
       && hasPayload
@@ -1308,10 +1310,39 @@ function scoreAgentAnswerEvidence(
     return source
       && evidence.id === source.id
       && evidence.path === source.path
-      && evidence.kind === source.kind
-      && (typeof evidence.text === "string" || typeof evidence.title === "string" || typeof evidence.url === "string");
+      && evidence.kind === source.kind;
   }).length;
   return roundScore(validCount / ids.length);
+}
+
+function pathHasCitationPayload(value: unknown, path: string): boolean {
+  const target = valueAtPath(value, path);
+  if (!target || typeof target !== "object") return false;
+  const record = target as Record<string, unknown>;
+  return typeof record.text === "string"
+    || typeof record.title === "string"
+    || typeof record.url === "string"
+    || typeof record.value === "string";
+}
+
+function valueAtPath(value: unknown, path: string): unknown {
+  let current: unknown = value;
+  for (const part of path.split(".")) {
+    if (!part) return undefined;
+    const match = /^([^\[]+)(?:\[(\d+)\])?$/.exec(part);
+    if (!match) return undefined;
+    const key = match[1];
+    if (!key) return undefined;
+    const index = match[2] === undefined ? undefined : Number(match[2]);
+    if (current === null || typeof current !== "object") return undefined;
+    if (!Object.prototype.hasOwnProperty.call(current, key)) return undefined;
+    current = (current as Record<string, unknown>)[key];
+    if (index !== undefined) {
+      if (!Array.isArray(current) || index < 0 || index >= current.length) return undefined;
+      current = current[index];
+    }
+  }
+  return current;
 }
 
 function expectedAgentAnswerPlanStatus(
@@ -1980,11 +2011,12 @@ function scoreAgentSourceChoices(
       && choice.url === source.url
       && choice.title === source.title
       && choice.kind === source.kind
-      && typeof choice.selectionReason === "string"
-      && choice.selectionReason.length > 0;
+      && (typeof choice.selectionReason === "string" && choice.selectionReason.length > 0
+        || typeof source.selectionReason === "string" && source.selectionReason.length > 0);
   }).length;
   if (validChoices === choices.length) matched += 1;
-  const runnableChoices = choices.filter((choice) => Array.isArray(choice.commandArgs) && choice.commandArgs.length > 0).length;
+  const runnableChoices = choices.filter((choice, index) => Array.isArray(choice.commandArgs) && choice.commandArgs.length > 0
+    || Array.isArray(sourceLinks[index]?.commandArgs) && (sourceLinks[index]?.commandArgs?.length ?? 0) > 0).length;
   if (runnableChoices === choices.length) matched += 1;
   const sourcePrimaryAction = primaryAction?.action === "open-source-link"
     || sourceLinks.some((source) => primaryAction?.url && source.url === primaryAction.url);
