@@ -475,6 +475,7 @@ export type AgentContractFeature =
   | "pageCheck.forms"
   | "pageCheck.keyValues"
   | "pageCheck.metaFacts"
+  | "pageCheck.httpPolicies"
   | "pageCheck.schemaFacts"
   | "pageCheck.offers"
   | "pageCheck.identities"

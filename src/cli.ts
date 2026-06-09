@@ -85,6 +85,7 @@ type FetchResult = {
   finalUrl: string;
   status: number;
   contentType: string;
+  responseHeaders: Record<string, string>;
   page: PageSummary;
 };
 
@@ -360,6 +361,17 @@ type PageMetaFactSummary = {
   text: string;
   source: "meta" | "link";
   url?: string;
+  selector?: string;
+};
+
+type PageHttpPolicySummary = {
+  id: string;
+  path: string;
+  rank: number;
+  name: string;
+  value: string;
+  text: string;
+  source: "header" | "meta";
   selector?: string;
 };
 
@@ -759,6 +771,7 @@ const agentContract: AgentContract = {
     "pageCheck.forms",
     "pageCheck.keyValues",
     "pageCheck.metaFacts",
+    "pageCheck.httpPolicies",
     "pageCheck.schemaFacts",
     "pageCheck.offers",
     "pageCheck.identities",
@@ -805,6 +818,7 @@ type PageCheckSummary = {
   forms: PageFormSummary[];
   keyValues: PageKeyValueSummary[];
   metaFacts: PageMetaFactSummary[];
+  httpPolicies: PageHttpPolicySummary[];
   schemaFacts: PageSchemaFactSummary[];
   offers: PageOfferSummary[];
   identities: PageIdentitySummary[];
@@ -1526,6 +1540,7 @@ async function loadHtml(options: CliOptions, fetchImpl: typeof fetch, stdin: Nod
       finalUrl: options.baseUrl,
       status: 0,
       contentType: "text/html",
+      responseHeaders: {},
       page: extractPageSummary(html, options.baseUrl),
     };
   }
@@ -1535,6 +1550,7 @@ async function loadHtml(options: CliOptions, fetchImpl: typeof fetch, stdin: Nod
     finalUrl: options.baseUrl,
     status: 0,
     contentType: "text/html",
+    responseHeaders: {},
     page: extractPageSummary(html, options.baseUrl),
   };
 }
@@ -1563,6 +1579,7 @@ async function fetchHtml(options: CliOptions, fetchImpl: typeof fetch): Promise<
       finalUrl: response.url || options.url,
       status: response.status,
       contentType: response.headers.get("content-type") ?? "",
+      responseHeaders: selectedResponseHeaders(response.headers),
       page: extractPageSummary(html, finalUrl),
     };
   } catch (error) {
@@ -1576,6 +1593,29 @@ async function fetchHtml(options: CliOptions, fetchImpl: typeof fetch): Promise<
   } finally {
     clearTimeout(timeout);
   }
+}
+
+const responseHeaderAllowlist = [
+  "cache-control",
+  "content-security-policy",
+  "permissions-policy",
+  "referrer-policy",
+  "strict-transport-security",
+  "x-content-type-options",
+  "x-frame-options",
+  "x-robots-tag",
+  "cross-origin-embedder-policy",
+  "cross-origin-opener-policy",
+  "cross-origin-resource-policy",
+] as const;
+
+function selectedResponseHeaders(headers: Headers): Record<string, string> {
+  const selected: Record<string, string> = {};
+  for (const name of responseHeaderAllowlist) {
+    const value = cleanLinkText(headers.get(name) ?? "");
+    if (value) selected[name] = value.slice(0, 320);
+  }
+  return selected;
 }
 
 function acceptLanguageHeader(lang?: string, region?: string): string {
@@ -2154,6 +2194,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const url = fact.url ? ` <${fact.url}>` : "";
     const selector = fact.selector ? ` (${fact.selector})` : "";
     lines.push(`  metaFact: ${fact.id} ${fact.path} ${fact.source}${selector}${url} - ${fact.text}`);
+  }
+  for (const policy of pageCheck.httpPolicies) {
+    const selector = policy.selector ? ` (${policy.selector})` : "";
+    lines.push(`  httpPolicy: ${policy.id} ${policy.path} ${policy.source}${selector} - ${policy.text}`);
   }
   for (const fact of pageCheck.schemaFacts) {
     lines.push(`  schemaFact: ${fact.id} ${fact.path} ${fact.types.join(",") || "unknown"} - ${fact.text}`);
@@ -3072,6 +3116,7 @@ function summarizePageCheck(
   const forms = summarizeForms(fetched.html, fetched.finalUrl);
   const keyValues = summarizeKeyValues(fetched.html);
   const metaFacts = summarizeMetaFacts(fetched.html, fetched.finalUrl);
+  const httpPolicies = summarizeHttpPolicies(fetched.html, fetched.responseHeaders);
   const schemaFacts = summarizeSchemaFacts(fetched.html);
   const offers = summarizeOffers(fetched.html, fetched.finalUrl);
   const identities = summarizeIdentities(fetched.html, fetched.finalUrl);
@@ -3093,8 +3138,8 @@ function summarizePageCheck(
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -3103,6 +3148,7 @@ function summarizePageCheck(
     forms,
     keyValues,
     metaFacts,
+    httpPolicies,
     schemaFacts,
     offers,
     identities,
@@ -3155,6 +3201,7 @@ function summarizeReadability(
   forms: PageFormSummary[],
   keyValues: PageKeyValueSummary[],
   metaFacts: PageMetaFactSummary[],
+  httpPolicies: PageHttpPolicySummary[],
   schemaFacts: PageSchemaFactSummary[],
   offers: PageOfferSummary[],
   identities: PageIdentitySummary[],
@@ -3203,6 +3250,10 @@ function summarizeReadability(
   if (metaFacts.length > 0) {
     score += Math.min(0.06, metaFacts.length * 0.02);
     reasons.push(`${metaFacts.length} meta fact${metaFacts.length === 1 ? "" : "s"}`);
+  }
+  if (httpPolicies.length > 0) {
+    score += Math.min(0.08, httpPolicies.length * 0.025);
+    reasons.push(`${httpPolicies.length} HTTP polic${httpPolicies.length === 1 ? "y" : "ies"}`);
   }
   if (schemaFacts.length > 0) {
     score += Math.min(0.1, schemaFacts.length * 0.04);
@@ -3341,6 +3392,7 @@ function recommendedPageCheckAction(
   forms: PageFormSummary[],
   keyValues: PageKeyValueSummary[],
   metaFacts: PageMetaFactSummary[],
+  httpPolicies: PageHttpPolicySummary[],
   schemaFacts: PageSchemaFactSummary[],
   offers: PageOfferSummary[],
   identities: PageIdentitySummary[],
@@ -3392,6 +3444,8 @@ function recommendedPageCheckAction(
         ? "pageCheck.dataTables"
         : keyValues.length > 0
           ? "pageCheck.keyValues"
+          : httpPolicies.length > 0
+            ? "pageCheck.httpPolicies"
           : schemaFacts.length > 0
             ? "pageCheck.schemaFacts"
             : offers.length > 0
@@ -3455,6 +3509,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.keyValues",
+    };
+  }
+  if (httpPolicies.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but HTTP policy headers and meta directives are available for agent handling.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.httpPolicies",
     };
   }
   if (schemaFacts.length > 0) {
@@ -4372,6 +4435,62 @@ function refreshContentUrl(content: string, baseUrl: string): string | null {
   const match = /url\s*=\s*([^;]+)/i.exec(content);
   const rawUrl = match?.[1]?.trim().replace(/^['"]|['"]$/g, "");
   return rawUrl ? normalizeHref(rawUrl, baseUrl) : null;
+}
+
+function summarizeHttpPolicies(html: string, responseHeaders: Record<string, string>): PageHttpPolicySummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageHttpPolicySummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageHttpPolicySummary, "id" | "path" | "rank" | "text">): void => {
+    const name = httpPolicyName(item.name);
+    const value = cleanContentText(item.value);
+    const key = `${name}\n${value}\n${item.source}`.toLowerCase();
+    if (!name || !value || seen.has(key)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `hp${rank}`,
+      path: `pageCheck.httpPolicies[${rank - 1}]`,
+      rank,
+      name,
+      value,
+      source: item.source,
+      ...(item.selector ? { selector: item.selector } : {}),
+      text: `${name}: ${value} source=${item.source}`,
+    });
+  };
+
+  for (const name of responseHeaderAllowlist) {
+    const value = responseHeaders[name];
+    if (!value || !isHttpPolicyHeader(name)) continue;
+    add({ name, value, source: "header" });
+  }
+
+  for (const [index, meta] of findElements(document.children, (item) => item.name === "meta").entries()) {
+    const httpEquiv = cleanLinkText(attr(meta, "http-equiv") ?? "").toLowerCase();
+    const content = cleanContentText(attr(meta, "content") ?? "");
+    if (!content || !isHttpPolicyHeader(httpEquiv)) continue;
+    add({
+      name: httpEquiv,
+      value: content,
+      source: "meta",
+      selector: `meta[http-equiv="${cssAttributeValue(httpEquiv)}"]:nth-of-type(${index + 1})`,
+    });
+  }
+
+  return items.slice(0, 10);
+}
+
+function isHttpPolicyHeader(name: string): boolean {
+  return /^(content-security-policy|permissions-policy|referrer-policy|strict-transport-security|x-content-type-options|x-frame-options|x-robots-tag|cross-origin-embedder-policy|cross-origin-opener-policy|cross-origin-resource-policy|cache-control)$/i.test(name);
+}
+
+function httpPolicyName(name: string): string {
+  return cleanLinkText(name.toLowerCase()).replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function schemaFactText(types: string[], facts: PageSchemaFact[]): string {
@@ -7533,6 +7652,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.metaFacts" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.httpPolicies.length > 0) {
+    add({
+      path: "pageCheck.httpPolicies",
+      reason: "HTTP and meta policy directives for indexing, security, embedding, referrer, and cache handling.",
+      count: pageCheck.httpPolicies.length,
+      score: roundMetric(Math.min(1, 0.48 + pageCheck.httpPolicies.length * 0.06)),
+      ...(primaryReadFrom === "pageCheck.httpPolicies" ? { primary: true } : {}),
+    });
+  }
   if (pageCheck.schemaFacts.length > 0) {
     add({
       path: "pageCheck.schemaFacts",
@@ -7904,6 +8032,7 @@ function agentReadValue(
   if (path === "pageCheck.contactPoints") return { path, value: pageCheck.contactPoints };
   if (path === "pageCheck.keyValues") return { path, value: pageCheck.keyValues };
   if (path === "pageCheck.metaFacts") return { path, value: pageCheck.metaFacts };
+  if (path === "pageCheck.httpPolicies") return { path, value: pageCheck.httpPolicies };
   if (path === "pageCheck.schemaFacts") return { path, value: pageCheck.schemaFacts };
   if (path === "pageCheck.offers") return { path, value: pageCheck.offers };
   if (path === "pageCheck.identities") return { path, value: pageCheck.identities };
@@ -8308,6 +8437,14 @@ function findCandidates(
       ...(fact.selector ? { selector: fact.selector } : {}),
     });
   }
+  for (const policy of pageCheck.httpPolicies) {
+    add({
+      field: "httpPolicy",
+      text: policy.text,
+      rank: policy.rank,
+      ...(policy.selector ? { selector: policy.selector } : {}),
+    });
+  }
   for (const fact of pageCheck.schemaFacts) {
     add({
       field: "schemaFact",
@@ -8602,6 +8739,7 @@ function emptyPageCheck(): PageCheckSummary {
     contactPoints: [],
     keyValues: [],
     metaFacts: [],
+    httpPolicies: [],
     schemaFacts: [],
     offers: [],
     identities: [],
@@ -9567,6 +9705,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.contactPoints.length > 0 ? { contactPoints: pageCheck.contactPoints } : {}),
     ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),
     ...(pageCheck.metaFacts.length > 0 ? { metaFacts: pageCheck.metaFacts } : {}),
+    ...(pageCheck.httpPolicies.length > 0 ? { httpPolicies: pageCheck.httpPolicies } : {}),
     ...(pageCheck.schemaFacts.length > 0 ? { schemaFacts: pageCheck.schemaFacts } : {}),
     ...(pageCheck.offers.length > 0 ? { offers: pageCheck.offers } : {}),
     ...(pageCheck.identities.length > 0 ? { identities: pageCheck.identities } : {}),

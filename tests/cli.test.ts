@@ -307,6 +307,7 @@ describe("cli", () => {
             "action.priority",
             "actions",
             "contentEvidence.quality",
+            "pageCheck.httpPolicies",
             "pageCheck.offers",
             "pageCheck.identities",
             "pageCheck.datasets",
@@ -3302,6 +3303,113 @@ describe("cli", () => {
         rank: 1,
         selector: "meta:nth-of-type(1)",
         text: "robots directives: noindex, noarchive",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("summarizes HTTP policy headers and meta directives as pageCheck read targets for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/policy", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <meta http-equiv="referrer-policy" content="strict-origin-when-cross-origin">
+          </head>
+          <body><main></main></body>
+        </html>
+      `, {
+        headers: {
+          "content-type": "text/html",
+          "content-security-policy": "default-src 'self'; frame-ancestors 'none'",
+          "x-robots-tag": "noindex, noarchive",
+        },
+      }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.httpPolicies).toEqual([
+      {
+        id: "hp1",
+        path: "pageCheck.httpPolicies[0]",
+        rank: 1,
+        name: "Content-Security-Policy",
+        value: "default-src 'self'; frame-ancestors 'none'",
+        text: "Content-Security-Policy: default-src 'self'; frame-ancestors 'none' source=header",
+        source: "header",
+      },
+      {
+        id: "hp2",
+        path: "pageCheck.httpPolicies[1]",
+        rank: 2,
+        name: "X-Robots-Tag",
+        value: "noindex, noarchive",
+        text: "X-Robots-Tag: noindex, noarchive source=header",
+        source: "header",
+      },
+      {
+        id: "hp3",
+        path: "pageCheck.httpPolicies[2]",
+        rank: 3,
+        name: "Referrer-Policy",
+        value: "strict-origin-when-cross-origin",
+        text: "Referrer-Policy: strict-origin-when-cross-origin source=meta",
+        source: "meta",
+        selector: "meta[http-equiv=\"referrer-policy\"]:nth-of-type(1)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("3 HTTP policies");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.httpPolicies",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.httpPolicies",
+      count: 3,
+      primary: true,
+      reason: "HTTP and meta policy directives for indexing, security, embedding, referrer, and cache handling.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.httpPolicies",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          id: "hp1",
+          name: "Content-Security-Policy",
+        }),
+      ]),
+    });
+  });
+
+  it("checks requested text against HTTP policy summaries", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/policy", "--agent", "--find", "frame-ancestors"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main><h1>Policy</h1></main>
+      `, {
+        headers: {
+          "content-type": "text/html",
+          "content-security-policy": "default-src 'self'; frame-ancestors 'none'",
+        },
+      }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "httpPolicy",
+        rank: 1,
+        text: "Content-Security-Policy: default-src 'self'; frame-ancestors 'none' source=header",
       },
     });
     expect(envelope.agent.primaryAction).toMatchObject({

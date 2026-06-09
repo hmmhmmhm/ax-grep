@@ -529,6 +529,7 @@ submission details from controls alone. `pageCheck.keyValues` captures compact
 facts from definition lists, time elements, and short label/value text.
 `pageCheck.metaFacts` captures robots directives, canonical URLs, alternate
 links, refresh targets, and selected social/article metadata from head tags.
+`pageCheck.httpPolicies` captures security, indexing, referrer, embedding, and cache directives.
 `pageCheck.schemaFacts` captures compact facts from hidden JSON-LD schema.org
 data such as product offers, ratings, events, and FAQ answers.
 `pageCheck.offers` captures structured price, availability, rating, and offer URL facts.
