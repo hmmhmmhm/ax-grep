@@ -11982,7 +11982,7 @@ function compactAgentRunbook(runbook: AgentRunbook): object {
 }
 
 function compactAgentHandoff(handoff: AgentHandoff): object {
-  const { readValue, sourceChoices: _sourceChoices, resultChoices, answerEvidence, target, signals: _signals, qualityGates: _qualityGates, ...rest } = handoff;
+  const { readValue, readTarget, sourceChoices: _sourceChoices, resultChoices, answerEvidence, target, signals: _signals, qualityGates: _qualityGates, ...rest } = handoff;
   const keepSignals = handoff.signals?.some((signal) => signal.kind === "verification" || signal.kind === "browser" || signal.kind === "diagnostic") === true;
   const keepQualityGates = handoff.qualityGates?.some((gate) => gate.kind === "verification" || gate.kind === "diagnostic" || gate.pass === false) === true;
   return {
@@ -11990,10 +11990,15 @@ function compactAgentHandoff(handoff: AgentHandoff): object {
     ...(keepSignals ? { signals: handoff.signals } : {}),
     ...(keepQualityGates ? { qualityGates: handoff.qualityGates } : {}),
     ...(target ? { target: compactAgentTarget(target, handoff.action) } : {}),
+    ...(readTarget ? { readTarget: compactAgentHandoffReadTarget(readTarget) } : {}),
     ...(answerEvidence && answerEvidence.length > 0 ? { answerEvidence: answerEvidence.map(compactAgentCitationRef) } : {}),
     ...(resultChoices && resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(resultChoices) } : {}),
     ...(readValue ? { readValue: compactAgentReadValue(readValue, true) } : {}),
   };
+}
+
+function compactAgentHandoffReadTarget(target: AgentReadTarget): AgentReadTarget | object {
+  return target.path.startsWith("verification.") ? target : compactAgentReadTargetRef(target);
 }
 
 function compactAgentReadTargets(targets: AgentReadTarget[], threshold = 700): object[] {
@@ -12418,7 +12423,6 @@ function compactAgentActionSummary(action: AgentActionSummary, primaryAction?: S
       : action.index;
     return {
       action: action.action,
-      execution: actionExecution(action),
       source: action.source,
       index: action.index,
       path: `pageCheck.nextSteps[${compactIndex}]`,
