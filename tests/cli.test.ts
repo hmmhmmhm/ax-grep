@@ -308,6 +308,7 @@ describe("cli", () => {
             "actions",
             "contentEvidence.quality",
             "pageCheck.authorLinks",
+            "pageCheck.pagination",
             "readTargets",
             "signals",
             "qualityGates",
@@ -3675,6 +3676,76 @@ describe("cli", () => {
       field: "section",
       rank: 1,
       text: expect.stringContaining("Latency budgets"),
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("summarizes pagination navigation as pageCheck read targets for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/blog?page=2", "--agent", "--find", "next Page 3"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <link rel="prev" href="/blog?page=1" title="Previous page">
+            <link rel="next" href="/blog?page=3" title="Next page">
+          </head>
+          <body>
+            <main>
+              <h1>Blog archive</h1>
+              <p>Short archive listing.</p>
+              <nav aria-label="Pagination">
+                <a href="/blog?page=1" rel="prev">Previous</a>
+                <span aria-current="page">2</span>
+                <a href="/blog?page=3" rel="next">Page 3</a>
+              </nav>
+            </main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.pagination).toEqual([
+      expect.objectContaining({
+        id: "pg1",
+        path: "pageCheck.pagination[0]",
+        kind: "prev",
+        label: "Previous page",
+        source: "link",
+        url: "https://example.test/blog?page=1",
+      }),
+      expect.objectContaining({
+        id: "pg2",
+        path: "pageCheck.pagination[1]",
+        kind: "next",
+        label: "Next page",
+        source: "link",
+        url: "https://example.test/blog?page=3",
+      }),
+      expect.objectContaining({
+        kind: "page",
+        label: "2",
+        source: "html",
+        current: true,
+      }),
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("3 pagination links");
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.pagination",
+      count: 3,
+      reason: "Pagination and next/previous links extracted from rel metadata and page navigation.",
+    }));
+    expect(envelope.verification.bestEvidence).toMatchObject({
+      field: "pagination",
+      rank: 2,
+      text: "next Next page https://example.test/blog?page=3",
+      url: "https://example.test/blog?page=3",
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "use-evidence",

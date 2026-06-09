@@ -417,6 +417,19 @@ type PageSectionSummary = {
   selector?: string;
 };
 
+type PagePaginationSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "next" | "prev" | "first" | "last" | "page";
+  label: string;
+  text: string;
+  source: "link" | "html";
+  url?: string;
+  current?: boolean;
+  selector?: string;
+};
+
 type PageTocItem = {
   label: string;
   url?: string;
@@ -662,6 +675,7 @@ const agentContract: AgentContract = {
     "pageCheck.faqs",
     "pageCheck.breadcrumbs",
     "pageCheck.sections",
+    "pageCheck.pagination",
     "pageCheck.toc",
     "pageCheck.codeBlocks",
     "pageCheck.citations",
@@ -701,6 +715,7 @@ type PageCheckSummary = {
   faqs: PageFaqSummary[];
   breadcrumbs: PageBreadcrumbSummary[];
   sections: PageSectionSummary[];
+  pagination: PagePaginationSummary[];
   toc: PageTocSummary[];
   codeBlocks: PageCodeBlockSummary[];
   citations: PageCitationSummary[];
@@ -2055,6 +2070,12 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const selector = section.selector ? ` (${section.selector})` : "";
     lines.push(`  section: ${section.id} ${section.path} h${section.level}${selector} - ${section.text}`);
   }
+  for (const pagination of pageCheck.pagination) {
+    const current = pagination.current ? " current" : "";
+    const url = pagination.url ? ` <${pagination.url}>` : "";
+    const selector = pagination.selector ? ` (${pagination.selector})` : "";
+    lines.push(`  pagination: ${pagination.id} ${pagination.path} ${pagination.kind}${current}${selector}${url} - ${pagination.text}`);
+  }
   for (const toc of pageCheck.toc) {
     const title = toc.title ? ` title="${toc.title}"` : "";
     const selector = toc.selector ? ` (${toc.selector})` : "";
@@ -2925,6 +2946,7 @@ function summarizePageCheck(
   const faqs = summarizeFaqs(fetched.html);
   const breadcrumbs = summarizeBreadcrumbs(fetched.html, fetched.finalUrl);
   const sections = summarizeSections(fetched.html);
+  const pagination = summarizePagination(fetched.html, fetched.finalUrl);
   const toc = summarizeToc(fetched.html, fetched.finalUrl);
   const codeBlocks = summarizeCodeBlocks(fetched.html);
   const citations = summarizeCitations(fetched.html, fetched.finalUrl);
@@ -2935,8 +2957,8 @@ function summarizePageCheck(
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, sections, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, sections, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -2949,6 +2971,7 @@ function summarizePageCheck(
     faqs,
     breadcrumbs,
     sections,
+    pagination,
     toc,
     codeBlocks,
     citations,
@@ -2994,6 +3017,7 @@ function summarizeReadability(
   faqs: PageFaqSummary[],
   breadcrumbs: PageBreadcrumbSummary[],
   sections: PageSectionSummary[],
+  pagination: PagePaginationSummary[],
   toc: PageTocSummary[],
   codeBlocks: PageCodeBlockSummary[],
   citations: PageCitationSummary[],
@@ -3089,6 +3113,10 @@ function summarizeReadability(
     score += Math.min(0.08, sections.length * 0.03);
     reasons.push(`${sections.length} content section${sections.length === 1 ? "" : "s"}`);
   }
+  if (pagination.length > 0 && contentLength < 160) {
+    score += Math.min(0.05, pagination.length * 0.015);
+    reasons.push(`${pagination.length} pagination link${pagination.length === 1 ? "" : "s"}`);
+  }
   if (actions.length > 0 && contentLength < 120) {
     score -= 0.08;
     reasons.push("interaction may be required");
@@ -3145,6 +3173,7 @@ function recommendedPageCheckAction(
   faqs: PageFaqSummary[],
   breadcrumbs: PageBreadcrumbSummary[],
   sections: PageSectionSummary[],
+  pagination: PagePaginationSummary[],
   toc: PageTocSummary[],
   codeBlocks: PageCodeBlockSummary[],
   citations: PageCitationSummary[],
@@ -3193,7 +3222,9 @@ function recommendedPageCheckAction(
                 ? "pageCheck.breadcrumbs"
                 : sections.length > 0
                   ? "pageCheck.sections"
-                  : toc.length > 0
+                  : pagination.length > 0
+                    ? "pageCheck.pagination"
+                    : toc.length > 0
                   ? "pageCheck.toc"
                   : codeBlocks.length > 0
                     ? "pageCheck.codeBlocks"
@@ -3270,6 +3301,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.sections",
+    };
+  }
+  if (pagination.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but pagination links are available for continuing the source check.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.pagination",
     };
   }
   if (toc.length > 0) {
@@ -4419,6 +4459,124 @@ function isUsefulSectionSummary(heading: string, excerpts: string[], text: strin
 
 function isLowValueSectionText(text: string): boolean {
   return /^(share|copy link|permalink|edit|back to top|login|sign in|advertisement|메뉴|로그인|광고)$/i.test(text);
+}
+
+function summarizePagination(html: string, baseUrl: string): PagePaginationSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PagePaginationSummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PagePaginationSummary, "id" | "path" | "rank" | "text">): void => {
+    const label = cleanContentText(item.label);
+    const key = item.current || !item.url
+      ? `${item.kind}\n${item.url ?? ""}\n${label}\n${item.current ? "current" : ""}`.toLowerCase()
+      : `${item.kind}\n${item.url}`.toLowerCase();
+    if (!isUsefulPaginationItem(item.kind, label, item.url, item.current) || seen.has(key)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `pg${rank}`,
+      path: `pageCheck.pagination[${rank - 1}]`,
+      rank,
+      ...item,
+      label,
+      text: paginationText(item.kind, label, item.url, item.current),
+    });
+  };
+
+  for (const [index, link] of findElements(document.children, (item) => item.name === "link").entries()) {
+    const rel = (attr(link, "rel") ?? "").toLowerCase().split(/\s+/);
+    const kind = paginationKindFromRel(rel);
+    if (!kind) continue;
+    const href = attr(link, "href") ?? "";
+    const url = href ? normalizeHref(href, baseUrl) : null;
+    if (!url) continue;
+    add({
+      kind,
+      label: cleanContentText(attr(link, "title") || kind),
+      source: "link",
+      url,
+      selector: `link[rel="${cssAttributeValue(rel.join(" "))}"]:nth-of-type(${index + 1})`,
+    });
+  }
+
+  for (const [containerIndex, container] of findElements(document.children, isLikelyPaginationContainer).entries()) {
+    const anchors = findElements(container.children, (item) => item.name === "a").slice(0, 16);
+    for (const anchor of anchors) {
+      const rawLabel = cleanContentText(descendantText(anchor) || attr(anchor, "aria-label") || attr(anchor, "title") || "");
+      const rel = (attr(anchor, "rel") ?? "").toLowerCase().split(/\s+/);
+      const kind = paginationKindFromRel(rel) ?? paginationKindFromText(rawLabel);
+      if (!kind) continue;
+      const href = attr(anchor, "href") ?? "";
+      const url = href ? normalizeHref(href, baseUrl) : null;
+      add({
+        kind,
+        label: rawLabel || kind,
+        source: "html",
+        ...(url ? { url } : {}),
+        ...(attr(anchor, "aria-current") ? { current: true } : {}),
+        selector: `${container.name}:nth-of-type(${containerIndex + 1}) a`,
+      });
+    }
+    for (const [elementIndex, element] of findElements(container.children, (item) => attr(item, "aria-current") === "page" || hasClass(item, "current") || hasClass(item, "active")).entries()) {
+      const label = cleanContentText(descendantText(element) || attr(element, "aria-label") || "");
+      const anchor = element.name === "a" ? element : findElement(element.children, (item) => item.name === "a");
+      const href = anchor ? attr(anchor, "href") ?? "" : "";
+      const url = href ? normalizeHref(href, baseUrl) : null;
+      add({
+        kind: "page",
+        label,
+        source: "html",
+        current: true,
+        ...(url ? { url } : {}),
+        selector: `${container.name}:nth-of-type(${containerIndex + 1}) [aria-current]:nth-of-type(${elementIndex + 1})`,
+      });
+    }
+  }
+
+  return items.slice(0, 8);
+}
+
+function isLikelyPaginationContainer(element: Element): boolean {
+  if (!["nav", "div", "ul", "ol"].includes(element.name)) return false;
+  const marker = [
+    attr(element, "aria-label") ?? "",
+    attr(element, "class") ?? "",
+    attr(element, "id") ?? "",
+    attr(element, "role") ?? "",
+  ].join(" ").toLowerCase();
+  return /pagination|pager|pages|page-nav|paginate|다음|이전|페이지|ページ|次へ|前へ/.test(marker);
+}
+
+function paginationKindFromRel(rel: string[]): PagePaginationSummary["kind"] | undefined {
+  if (rel.includes("next")) return "next";
+  if (rel.includes("prev") || rel.includes("previous")) return "prev";
+  if (rel.includes("first")) return "first";
+  if (rel.includes("last")) return "last";
+  return undefined;
+}
+
+function paginationKindFromText(text: string): PagePaginationSummary["kind"] | undefined {
+  const value = text.trim().toLowerCase();
+  if (/^(next|next page|older|more|다음|다음 페이지|次へ|次のページ|下一页|下一頁|›|»|>)$/.test(value)) return "next";
+  if (/^(prev|previous|previous page|newer|이전|이전 페이지|前へ|前のページ|上一页|上一頁|‹|«|<)$/.test(value)) return "prev";
+  if (/^(first|first page|처음|最初|首页|首頁)$/.test(value)) return "first";
+  if (/^(last|last page|끝|最後|末页|末頁)$/.test(value)) return "last";
+  if (/^\d{1,4}$/.test(value)) return "page";
+  return undefined;
+}
+
+function isUsefulPaginationItem(kind: PagePaginationSummary["kind"], label: string, url: string | undefined, current = false): boolean {
+  if (!label || label.length > 80) return false;
+  if (!url && !current) return false;
+  return kind !== "page" || current || Boolean(url);
+}
+
+function paginationText(kind: PagePaginationSummary["kind"], label: string, url: string | undefined, current = false): string {
+  return cleanContentText([kind, current ? "current" : "", label, url ?? ""].filter(Boolean).join(" "));
 }
 
 function summarizeToc(html: string, baseUrl: string): PageTocSummary[] {
@@ -6288,6 +6446,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.sections" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.pagination.length > 0) {
+    add({
+      path: "pageCheck.pagination",
+      reason: "Pagination and next/previous links extracted from rel metadata and page navigation.",
+      count: pageCheck.pagination.length,
+      score: roundMetric(Math.min(1, 0.38 + pageCheck.pagination.length * 0.05)),
+      ...(primaryReadFrom === "pageCheck.pagination" ? { primary: true } : {}),
+    });
+  }
   if (pageCheck.toc.length > 0) {
     add({
       path: "pageCheck.toc",
@@ -6548,6 +6715,7 @@ function agentReadValue(
   if (path === "pageCheck.faqs") return { path, value: pageCheck.faqs };
   if (path === "pageCheck.breadcrumbs") return { path, value: pageCheck.breadcrumbs };
   if (path === "pageCheck.sections") return { path, value: pageCheck.sections };
+  if (path === "pageCheck.pagination") return { path, value: pageCheck.pagination };
   if (path === "pageCheck.toc") return { path, value: pageCheck.toc };
   if (path === "pageCheck.codeBlocks") return { path, value: pageCheck.codeBlocks };
   if (path === "pageCheck.citations") return { path, value: pageCheck.citations };
@@ -6965,6 +7133,15 @@ function findCandidates(
       ...(section.selector ? { selector: section.selector } : {}),
     });
   }
+  for (const pagination of pageCheck.pagination) {
+    add({
+      field: "pagination",
+      text: pagination.text,
+      rank: pagination.rank,
+      ...(pagination.url ? { url: pagination.url } : {}),
+      ...(pagination.selector ? { selector: pagination.selector } : {}),
+    });
+  }
   for (const toc of pageCheck.toc) {
     add({
       field: "toc",
@@ -7177,6 +7354,7 @@ function emptyPageCheck(): PageCheckSummary {
     faqs: [],
     breadcrumbs: [],
     sections: [],
+    pagination: [],
     toc: [],
     codeBlocks: [],
     citations: [],
@@ -8135,6 +8313,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.faqs.length > 0 ? { faqs: pageCheck.faqs } : {}),
     ...(pageCheck.breadcrumbs.length > 0 ? { breadcrumbs: pageCheck.breadcrumbs } : {}),
     ...(pageCheck.sections.length > 0 ? { sections: pageCheck.sections } : {}),
+    ...(pageCheck.pagination.length > 0 ? { pagination: pageCheck.pagination } : {}),
     ...(pageCheck.toc.length > 0 ? { toc: pageCheck.toc } : {}),
     ...(pageCheck.codeBlocks.length > 0 ? { codeBlocks: pageCheck.codeBlocks } : {}),
     ...(pageCheck.citations.length > 0 ? { citations: pageCheck.citations } : {}),

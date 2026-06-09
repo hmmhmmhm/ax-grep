@@ -535,7 +535,8 @@ data such as product offers, ratings, events, and FAQ answers.
 accordion-style HTML.
 `pageCheck.breadcrumbs` captures JSON-LD and HTML breadcrumb trails as ordered
 context. `pageCheck.sections` groups nearby text under headings for fast
-section-level source checking.
+section-level source checking. `pageCheck.pagination` captures next, previous,
+numbered, and current-page navigation.
 `pageCheck.toc` captures table-of-contents and in-page section links.
 `pageCheck.codeBlocks` captures code examples and command snippets from pre/code
 blocks.
