@@ -1313,6 +1313,10 @@ describe("cli", () => {
             <li class="b_algo">
               <h2><a href="https://www.npmjs.com/package/ax-grep">ax-grep - npm</a></h2>
               <p>2026-05-31 - Install ax-grep from npm.</p>
+              <div>
+                <a href="https://www.npmjs.com/package/ax-grep?activeTab=readme">Readme</a>
+                <a href="https://www.npmjs.com/package/ax-grep?activeTab=versions">Versions</a>
+              </div>
             </li>
             <li class="b_algo">
               <h2><a href="https://unrelated.example/">Enterprise AI transformation</a></h2>
@@ -1335,6 +1339,16 @@ describe("cli", () => {
       date: "2026-05-31",
       datePrecision: "day",
       dateSource: "snippet",
+      sitelinks: [
+        {
+          title: "Readme",
+          url: "https://www.npmjs.com/package/ax-grep?activeTab=readme",
+        },
+        {
+          title: "Versions",
+          url: "https://www.npmjs.com/package/ax-grep?activeTab=versions",
+        },
+      ],
       relevance: "high",
       matchedTerms: ["ax-grep", "npm"],
       isLikelyOfficial: true,
@@ -1349,6 +1363,12 @@ describe("cli", () => {
       selectionReason: "Ranked result 2 from unrelated.example.",
     });
     expect(envelope.tree).toBeUndefined();
+    expect(envelope.agent.resultChoices[0]).toMatchObject({
+      sitelinks: [
+        expect.objectContaining({ title: "Readme" }),
+        expect.objectContaining({ title: "Versions" }),
+      ],
+    });
   });
 
   it("does not treat generic package registry results as relevant when a package-like query term is missing", async () => {
@@ -1391,6 +1411,41 @@ describe("cli", () => {
     expect(envelope.pageCheck.nextSteps).not.toContainEqual(expect.objectContaining({
       url: "https://www.npmjs.com/package/axios",
     }));
+  });
+
+  it("matches requested text against search result sitelinks", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["--search", "agent browser", "--engine", "bing", "--find", "API reference", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <ol>
+            <li class="b_algo">
+              <h2><a href="https://docs.example/agent-browser">Agent browser docs</a></h2>
+              <p>Documentation overview.</p>
+              <a href="https://docs.example/agent-browser/api">API reference</a>
+            </li>
+          </ol>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.searchResults[0]).toMatchObject({
+      findMatches: ["API reference"],
+      sitelinks: [
+        {
+          title: "API reference",
+          url: "https://docs.example/agent-browser/api",
+        },
+      ],
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "open-result",
+      openResult: "best",
+    });
   });
 
   it("does not treat URL slug fragments as exact package-like query matches", async () => {
@@ -2110,9 +2165,11 @@ describe("cli", () => {
         if (String(input).includes("duckduckgo.com")) {
           return new Response(`
             <main>
-              <ol>
-                <li><a href="https://target.example/article">Target Result</a><p>May 31, 2026 - Target result snippet.</p></li>
-              </ol>
+              <div class="result">
+                  <a class="result__a" href="https://target.example/article">Target Result</a>
+                  <p>May 31, 2026 - Target result snippet.</p>
+                  <a href="https://target.example/article/api">API reference</a>
+              </div>
             </main>
           `, { headers: { "content-type": "text/html" } });
         }
@@ -2148,6 +2205,12 @@ describe("cli", () => {
         date: "2026-05-31",
         datePrecision: "day",
         dateSource: "snippet",
+        sitelinks: [
+          {
+            title: "API reference",
+            url: "https://target.example/article/api",
+          },
+        ],
         command: "ax-grep --search 'agent browser' --engine duckduckgo --timeout 30000 --user-agent 'custom-agent/1.0' --open-result 1 --agent",
         commandArgs: [
           "ax-grep",

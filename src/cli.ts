@@ -167,6 +167,7 @@ type ResultSummary = {
   date?: string;
   datePrecision?: "day" | "month" | "year";
   dateSource?: "title" | "snippet";
+  sitelinks?: Array<{ title: string; url: string }>;
   relevance?: "low" | "medium" | "high";
   matchedTerms?: string[];
   findMatches?: string[];
@@ -1792,10 +1793,11 @@ function formatAgentResultChoiceText(choice: AgentResultChoice, prefix = "result
   const official = typeof choice.isLikelyOfficial === "boolean" ? ` official=${choice.isLikelyOfficial}` : "";
   const matchedTerms = choice.matchedTerms?.length ? ` terms=${choice.matchedTerms.join(",")}` : "";
   const findMatches = choice.findMatches?.length ? ` find=${choice.findMatches.join(",")}` : "";
+  const sitelinks = choice.sitelinks?.length ? ` sitelinks=${choice.sitelinks.length}` : "";
   const target = choice.url ? ` <${choice.url}>` : "";
   const reason = choice.selectionReason ? ` - ${choice.selectionReason}` : "";
   const title = choice.title ? ` ${choice.title}` : "";
-  return `  ${prefix}: ${choice.id} ${choice.path}${rank}${flagText}${score}${relevance}${date}${source}${sourceType}${official}${matchedTerms}${findMatches}${target}${reason}${title}`;
+  return `  ${prefix}: ${choice.id} ${choice.path}${rank}${flagText}${score}${relevance}${date}${source}${sourceType}${official}${matchedTerms}${findMatches}${sitelinks}${target}${reason}${title}`;
 }
 
 function formatAgentSourceChoiceText(choice: AgentSourceChoice, prefix = "sourceChoice"): string[] {
@@ -1826,10 +1828,11 @@ function formatAgentSourceSearchResultText(result: AgentSourceSearchResult, pref
   const official = typeof result.isLikelyOfficial === "boolean" ? ` official=${result.isLikelyOfficial}` : "";
   const matchedTerms = result.matchedTerms?.length ? ` terms=${result.matchedTerms.join(",")}` : "";
   const findMatches = result.findMatches?.length ? ` find=${result.findMatches.join(",")}` : "";
+  const sitelinks = result.sitelinks?.length ? ` sitelinks=${result.sitelinks.length}` : "";
   const target = result.url ? ` <${result.url}>` : "";
   const reason = result.selectionReason ? ` - ${result.selectionReason}` : "";
   const title = result.title ? ` ${result.title}` : "";
-  const lines = [`  ${prefix}: ${result.id} ${result.path}${rank}${openResult}${score}${relevance}${date}${source}${sourceType}${official}${matchedTerms}${findMatches}${target}${reason}${title}`];
+  const lines = [`  ${prefix}: ${result.id} ${result.path}${rank}${openResult}${score}${relevance}${date}${source}${sourceType}${official}${matchedTerms}${findMatches}${sitelinks}${target}${reason}${title}`];
   if (result.command) lines.push(`    command: ${result.command}`);
   if (result.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(result.commandArgs)}`);
   if (result.command) lines.push(`  ${prefix}Command: ${result.command}`);
@@ -2131,6 +2134,7 @@ function formatResultsText(results: ResultSummary[]): string[] {
     }
     if (result.date) lines.push(`     date: ${result.date}${result.dateText ? ` (${result.dateText})` : ""}`);
     if (result.snippet) lines.push(`     snippet: ${result.snippet}`);
+    for (const sitelink of result.sitelinks ?? []) lines.push(`     sitelink: ${sitelink.title} <${sitelink.url}>`);
   }
   return lines;
 }
@@ -2324,10 +2328,11 @@ function annotateResults(results: ResultSummary[], query?: string, findQueries: 
 
 function queryTermMatchesResult(term: string, result: ResultSummary, exactNameRequired = false): boolean {
   if (!exactNameRequired) {
-    return normalizeForMatch(`${result.title} ${result.url} ${result.source} ${result.snippet ?? ""}`).includes(normalizeForMatch(term));
+    return normalizeForMatch(resultSearchText(result)).includes(normalizeForMatch(term));
   }
   return exactNameMatchesText(term, result.title)
     || exactNameMatchesText(term, result.snippet ?? "")
+    || result.sitelinks?.some((link) => exactNameMatchesText(term, link.title) || exactNameMatchesUrl(term, link.url))
     || exactNameMatchesSource(term, result.source)
     || exactNameMatchesUrl(term, result.url);
 }
@@ -2381,7 +2386,7 @@ function sourceLinkSelectionReason(link: Pick<ResultSummary, "source" | "sourceS
 
 function matchedFindQueriesForResult(result: ResultSummary, findQueries: string[]): string[] {
   if (findQueries.length === 0) return [];
-  const haystack = normalizeFindValue(`${result.title} ${result.url} ${result.source} ${result.snippet ?? ""}`);
+  const haystack = normalizeFindValue(resultSearchText(result));
   return findQueries.filter((query) => {
     const normalizedQuery = normalizeFindValue(query);
     if (!normalizedQuery) return false;
@@ -2389,6 +2394,16 @@ function matchedFindQueriesForResult(result: ResultSummary, findQueries: string[
     const terms = queryTerms(query).map(normalizeFindValue).filter(Boolean);
     return terms.length > 0 && terms.every((term) => haystack.includes(term));
   });
+}
+
+function resultSearchText(result: ResultSummary): string {
+  const sitelinks = result.sitelinks?.flatMap((link) => [link.title, link.url]) ?? [];
+  return [result.title, result.url, result.source, result.snippet, ...sitelinks].filter(Boolean).join(" ");
+}
+
+function resultEvidenceText(result: ResultSummary): string {
+  const sitelinks = result.sitelinks?.map((link) => link.title) ?? [];
+  return [result.title, result.snippet, ...sitelinks].filter(Boolean).join(" ");
 }
 
 function queryTerms(query?: string): string[] {
@@ -2567,6 +2582,8 @@ function resultFromCard(card: Element, baseUrl: string, engine: SearchResultEngi
   };
   const snippet = resultSnippet(card, title);
   if (snippet) result.snippet = snippet;
+  const sitelinks = resultSitelinks(card, link, url, baseUrl);
+  if (sitelinks.length > 0) result.sitelinks = sitelinks;
   return withResultDateHint(result);
 }
 
@@ -2613,6 +2630,37 @@ function resultSnippet(card: Element, title: string): string {
   const snippet = cleanContentText(raw.replace(title, " ").replace(/^[\s,.;:!?-]+/, ""));
   if (!snippet || snippet.toLowerCase() === title.toLowerCase()) return "";
   return snippet;
+}
+
+function resultSitelinks(card: Element, titleLink: Element, resultUrl: string, baseUrl: string): Array<{ title: string; url: string }> {
+  const items: Array<{ title: string; url: string }> = [];
+  const seen = new Set<string>([resultUrl]);
+  for (const anchor of findElements(card.children, (item) => item.name === "a")) {
+    if (anchor === titleLink) continue;
+    const href = attr(anchor, "href");
+    const url = href ? normalizeHref(href, baseUrl) : null;
+    if (!url || seen.has(url)) continue;
+    const title = cleanLinkText(descendantText(anchor));
+    if (!isUsefulResultSitelink(title, url, resultUrl)) continue;
+    seen.add(url);
+    items.push({ title, url });
+    if (items.length >= 4) break;
+  }
+  return items;
+}
+
+function isUsefulResultSitelink(title: string, url: string, resultUrl: string): boolean {
+  if (!title || title.length > 120) return false;
+  if (/^\d+$/.test(title.trim())) return false;
+  if (isSearchNavigationText(title)) return false;
+  if (/^(cached|similar|translate|feedback|more|menu|share|copy link)$/i.test(title.trim())) return false;
+  try {
+    const resultHost = new URL(resultUrl).hostname.replace(/^www\./, "");
+    const targetHost = new URL(url).hostname.replace(/^www\./, "");
+    return targetHost === resultHost || targetHost.endsWith(`.${resultHost}`) || resultHost.endsWith(`.${targetHost}`);
+  } catch {
+    return false;
+  }
 }
 
 function withResultDateHint(result: ResultSummary): ResultSummary {
@@ -5277,6 +5325,7 @@ function summarizeAgentResultChoices(
       ...(result.date ? { date: result.date } : {}),
       ...(result.datePrecision ? { datePrecision: result.datePrecision } : {}),
       ...(result.dateSource ? { dateSource: result.dateSource } : {}),
+      ...(result.sitelinks?.length ? { sitelinks: result.sitelinks } : {}),
       ...(result.relevance ? { relevance: result.relevance } : {}),
       ...(result.matchedTerms?.length ? { matchedTerms: result.matchedTerms } : {}),
       ...(result.findMatches?.length ? { findMatches: result.findMatches } : {}),
@@ -6639,7 +6688,7 @@ function findCandidates(
   }
   for (const link of pageCheck.sourceLinks) add({ field: "sourceLink", text: link.title, rank: link.rank, url: link.url });
   for (const link of pageCheck.primaryLinks) add({ field: "primaryLink", text: link.title, rank: link.rank, url: link.url });
-  for (const result of results) add({ field: "result", text: [result.title, result.snippet].filter(Boolean).join(" "), rank: result.rank, url: result.url });
+  for (const result of results) add({ field: "result", text: resultEvidenceText(result), rank: result.rank, url: result.url });
   for (const item of outline) add({ field: "heading", text: item.text, ...(item.level ? { rank: item.level } : {}) });
   for (const link of links) add({ field: "link", text: [link.text, link.snippet].filter(Boolean).join(" "), url: link.url });
   for (const item of content) add({ field: "content", text: item.text, ...(item.selector ? { selector: item.selector } : {}) });
@@ -8100,6 +8149,7 @@ function compactAgentSearchResult(
   if (result.date) compact.date = result.date;
   if (result.datePrecision) compact.datePrecision = result.datePrecision;
   if (result.dateSource) compact.dateSource = result.dateSource;
+  if (result.sitelinks?.length) compact.sitelinks = result.sitelinks;
   if (result.relevance) compact.relevance = result.relevance;
   if (result.matchedTerms?.length) compact.matchedTerms = result.matchedTerms;
   if (result.findMatches?.length) compact.findMatches = result.findMatches;

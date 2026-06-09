@@ -102,7 +102,7 @@ For supported search engines, `searchResults` is extracted from SERP result
 cards before falling back to generic link ranking, so result order tracks the
 page's own ranking more closely. Search results also include simple agent
 judgment hints: `sourceType`, `sourceScore`, `sourceHints`, `relevance`,
-`matchedTerms`, `isLikelyOfficial`, extracted date hints, and
+`matchedTerms`, `isLikelyOfficial`, extracted date hints, result sitelinks, and
 `selectionReason`; if top results only weakly match the query, `diagnostics` includes
 `SEARCH_LOW_CONFIDENCE`. On search result pages, JSON also includes
 `recommendedResult`, and `suggestedActions` includes `openResult: "best"` plus
