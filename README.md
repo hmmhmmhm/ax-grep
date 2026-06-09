@@ -81,50 +81,14 @@ ax-grep https://example.com --mode interactive --exclude-boilerplate
 ax-grep https://example.com --timeout 30000 --user-agent "my-agent/1.0"
 ```
 
-`--search` builds search URLs for the agent. By default it uses auto mode:
-DuckDuckGo, Bing, and StartPage are tried, blocked or empty result pages are
-skipped, and the best usable result set is kept. Pass `--engine duckduckgo`,
-`--engine bing`, or `--engine startpage` to force a single engine. Auto mode
-keeps the request as `searchEngine: "auto"`, records the chosen engine as
-`selectedSearchEngine`, and includes per-engine attempts in `searchEngines`.
-Add `--open-result <n>` to fetch and analyze a selected ranked result in the
-same command, or use `--open-result best` to open the strongest query match
-based on relevance, matched terms, official-source hints, and any repeatable
-`--find <text>` checks supplied with the search. The JSON output keeps
-`sourceSearch` metadata so an agent can see which query, selected engine, and
-result rank produced the final page. It also keeps compact `selectedResult` and
-`alternateResults` metadata, so if the opened result is missing or thin, the
-agent can recover from the original SERP without rerunning the search. In
-compact `--agent` output those result entries include ready-to-run open-result
-commands, preserving custom fetch options such as `--timeout` and
-`--user-agent` when they were needed for the original request.
-For supported search engines, `searchResults` is extracted from SERP result
-cards before falling back to generic link ranking, so result order tracks the
-page's own ranking more closely. Search results also include simple agent
-judgment hints: `sourceType`, `sourceScore`, `sourceHints`, `relevance`,
-`matchedTerms`, `isLikelyOfficial`, extracted date hints, result sitelinks, and
-`selectionReason`; if top results only weakly match the query, `diagnostics` includes
-`SEARCH_LOW_CONFIDENCE`. On search result pages, JSON also includes
-`recommendedResult`, and `suggestedActions` includes `openResult: "best"` plus
-a ready-to-run `command` when the original query is known. When all top results
-miss an essential package-like term such as `ax-grep`, `recommendedResult` is
-omitted and the agent action becomes `refine-search` instead of opening a
-misleading high-rank result.
-`agent.searchDecision` summarizes that same choice as `open-result`,
-`refine-search`, or `none`, with confidence, result counts, relevance counts,
-and the runnable command when one is available.
-For non-search pages, `agent.pageDecision` mirrors the page-level choice as
-`read-content`, `open-source-link`, `retry-with-browser-html`, `inspect-actions`,
-or `none`, with readability, evidence, source quality, and runnable command
-fields where applicable.
-Search result pages also cap the trailing text tree to 80 lines by default to
-keep agent prompts focused; pass `--max-tree-lines <n>` to choose a different
-limit. In JSON mode, pass `--no-tree` or `--summary` to omit the raw tree while
-keeping metadata, diagnostics, pageCheck, links, pageLinks, results, and
-searchResults.
-Use `--lang <code>` and `--region <code>` to add search URL parameters and an
-`Accept-Language` header, making agent searches more reproducible across
-locales.
+Search notes:
+
+- `--search` tries DuckDuckGo, Bing, and StartPage by default.
+- Use `--engine <name>` to force one engine.
+- Use `--open-result <n|best>` to fetch a ranked result in the same command.
+- Use `--find <text>` to bias result choice and verify page summaries.
+- Use `--no-tree` or `--summary` in JSON mode to keep output small.
+- Use `--lang` and `--region` for reproducible locale-specific searches.
 
 For agent routing, use `--agent` when you do not need the raw tree or full link
 tables. It returns a compact top-level `agent` object plus the relevant
