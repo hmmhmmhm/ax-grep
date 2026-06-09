@@ -526,6 +526,8 @@ submission details from controls alone. `pageCheck.keyValues` captures compact
 facts from definition lists, time elements, and short label/value text.
 `pageCheck.schemaFacts` captures compact facts from hidden JSON-LD schema.org
 data such as product offers, ratings, events, and FAQ answers.
+`pageCheck.faqs` captures visible FAQ question-answer pairs from details and
+accordion-style HTML.
 `pageCheck.breadcrumbs` captures JSON-LD and HTML breadcrumb trails as ordered
 context.
 `pageCheck.toc` captures table-of-contents and in-page section links.

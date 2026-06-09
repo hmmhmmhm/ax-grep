@@ -349,6 +349,17 @@ type PageSchemaFactSummary = {
   selector?: string;
 };
 
+type PageFaqSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  question: string;
+  answer: string;
+  text: string;
+  source: "details" | "html";
+  selector?: string;
+};
+
 type PageBreadcrumbItem = {
   label: string;
   url?: string;
@@ -581,6 +592,7 @@ const agentContract: AgentContract = {
     "pageCheck.forms",
     "pageCheck.keyValues",
     "pageCheck.schemaFacts",
+    "pageCheck.faqs",
     "pageCheck.breadcrumbs",
     "pageCheck.toc",
     "pageCheck.codeBlocks",
@@ -614,6 +626,7 @@ type PageCheckSummary = {
   forms: PageFormSummary[];
   keyValues: PageKeyValueSummary[];
   schemaFacts: PageSchemaFactSummary[];
+  faqs: PageFaqSummary[];
   breadcrumbs: PageBreadcrumbSummary[];
   toc: PageTocSummary[];
   codeBlocks: PageCodeBlockSummary[];
@@ -1942,6 +1955,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   for (const fact of pageCheck.schemaFacts) {
     lines.push(`  schemaFact: ${fact.id} ${fact.path} ${fact.types.join(",") || "unknown"} - ${fact.text}`);
   }
+  for (const faq of pageCheck.faqs) {
+    const selector = faq.selector ? ` (${faq.selector})` : "";
+    lines.push(`  faq: ${faq.id} ${faq.path} ${faq.source}${selector} - ${faq.text}`);
+  }
   for (const breadcrumb of pageCheck.breadcrumbs) {
     const selector = breadcrumb.selector ? ` (${breadcrumb.selector})` : "";
     lines.push(`  breadcrumb: ${breadcrumb.id} ${breadcrumb.path} ${breadcrumb.source}${selector} - ${breadcrumb.text}`);
@@ -2688,6 +2705,7 @@ function summarizePageCheck(
   const forms = summarizeForms(fetched.html, fetched.finalUrl);
   const keyValues = summarizeKeyValues(fetched.html);
   const schemaFacts = summarizeSchemaFacts(fetched.html);
+  const faqs = summarizeFaqs(fetched.html);
   const breadcrumbs = summarizeBreadcrumbs(fetched.html, fetched.finalUrl);
   const toc = summarizeToc(fetched.html, fetched.finalUrl);
   const codeBlocks = summarizeCodeBlocks(fetched.html);
@@ -2697,8 +2715,8 @@ function summarizePageCheck(
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, schemaFacts, breadcrumbs, toc, codeBlocks, media, resources, embeds, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, schemaFacts, breadcrumbs, toc, codeBlocks, media, resources, embeds, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, schemaFacts, faqs, breadcrumbs, toc, codeBlocks, media, resources, embeds, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, schemaFacts, faqs, breadcrumbs, toc, codeBlocks, media, resources, embeds, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -2706,6 +2724,7 @@ function summarizePageCheck(
     forms,
     keyValues,
     schemaFacts,
+    faqs,
     breadcrumbs,
     toc,
     codeBlocks,
@@ -2746,6 +2765,7 @@ function summarizeReadability(
   forms: PageFormSummary[],
   keyValues: PageKeyValueSummary[],
   schemaFacts: PageSchemaFactSummary[],
+  faqs: PageFaqSummary[],
   breadcrumbs: PageBreadcrumbSummary[],
   toc: PageTocSummary[],
   codeBlocks: PageCodeBlockSummary[],
@@ -2779,6 +2799,10 @@ function summarizeReadability(
   if (schemaFacts.length > 0) {
     score += Math.min(0.1, schemaFacts.length * 0.04);
     reasons.push(`${schemaFacts.length} schema fact group${schemaFacts.length === 1 ? "" : "s"}`);
+  }
+  if (faqs.length > 0) {
+    score += Math.min(0.08, faqs.length * 0.03);
+    reasons.push(`${faqs.length} FAQ item${faqs.length === 1 ? "" : "s"}`);
   }
   if (breadcrumbs.length > 0) {
     score += Math.min(0.06, breadcrumbs.length * 0.03);
@@ -2869,6 +2893,7 @@ function recommendedPageCheckAction(
   forms: PageFormSummary[],
   keyValues: PageKeyValueSummary[],
   schemaFacts: PageSchemaFactSummary[],
+  faqs: PageFaqSummary[],
   breadcrumbs: PageBreadcrumbSummary[],
   toc: PageTocSummary[],
   codeBlocks: PageCodeBlockSummary[],
@@ -2910,19 +2935,21 @@ function recommendedPageCheckAction(
           ? "pageCheck.keyValues"
           : schemaFacts.length > 0
             ? "pageCheck.schemaFacts"
-            : breadcrumbs.length > 0
-              ? "pageCheck.breadcrumbs"
-              : toc.length > 0
-                ? "pageCheck.toc"
-                : codeBlocks.length > 0
-                  ? "pageCheck.codeBlocks"
-                  : media.length > 0
-                    ? "pageCheck.media"
-                    : resources.length > 0
-                      ? "pageCheck.resources"
-                      : embeds.length > 0
-                        ? "pageCheck.embeds"
-                        : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
+            : faqs.length > 0
+              ? "pageCheck.faqs"
+              : breadcrumbs.length > 0
+                ? "pageCheck.breadcrumbs"
+                : toc.length > 0
+                  ? "pageCheck.toc"
+                  : codeBlocks.length > 0
+                    ? "pageCheck.codeBlocks"
+                    : media.length > 0
+                      ? "pageCheck.media"
+                      : resources.length > 0
+                        ? "pageCheck.resources"
+                        : embeds.length > 0
+                          ? "pageCheck.embeds"
+                          : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
     return {
       action: "read-content",
       reason: "The page has enough structured evidence for source checking.",
@@ -2956,6 +2983,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.schemaFacts",
+    };
+  }
+  if (faqs.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but FAQ question-answer pairs are available for agent verification.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.faqs",
     };
   }
   if (breadcrumbs.length > 0) {
@@ -3600,6 +3636,123 @@ function isLowValueSchemaFact(fact: PageSchemaFact): boolean {
 function schemaFactText(types: string[], facts: PageSchemaFact[]): string {
   const prefix = types.length > 0 ? `Types: ${types.join(", ")}` : "Types: unknown";
   return cleanContentText([prefix, ...facts.map((fact) => `${fact.label}: ${fact.value}`)].join(" ; "));
+}
+
+function summarizeFaqs(html: string): PageFaqSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageFaqSummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageFaqSummary, "id" | "path" | "rank" | "text">): void => {
+    if (isLowValueFaq(item.question, item.answer)) return;
+    const key = `${item.question}\n${item.answer}`.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `faq${rank}`,
+      path: `pageCheck.faqs[${rank - 1}]`,
+      rank,
+      ...item,
+      text: faqText(item.question, item.answer),
+    });
+  };
+
+  for (const [index, details] of findElements(document.children, (item) => item.name === "details").entries()) {
+    const summary = findElement(details.children, (item) => item.name === "summary");
+    if (!summary) continue;
+    const question = cleanContentText(descendantText(summary));
+    const answer = cleanContentText(details.children
+      .filter((child) => child !== summary)
+      .map((child) => child instanceof DomElement ? descendantText(child) : child.type === "text" ? child.data : "")
+      .join(" "));
+    add({
+      question,
+      answer,
+      source: "details",
+      selector: `details:nth-of-type(${index + 1})`,
+    });
+  }
+
+  for (const [containerIndex, container] of findElements(document.children, isLikelyFaqContainer).entries()) {
+    for (const pair of faqPairsFromContainer(container).slice(0, 6)) {
+      add({
+        ...pair,
+        source: "html",
+        selector: `${container.name}:nth-of-type(${containerIndex + 1})`,
+      });
+    }
+  }
+  return items.slice(0, 8);
+}
+
+function isLikelyFaqContainer(element: Element): boolean {
+  if (!["section", "div", "article", "ul", "ol"].includes(element.name)) return false;
+  const marker = [
+    attr(element, "class") ?? "",
+    attr(element, "id") ?? "",
+    attr(element, "aria-label") ?? "",
+    headingTextInElement(element),
+  ].join(" ").toLowerCase();
+  return /faq|frequently asked|q[&-]?a|questions?|answers?|자주 묻|질문/.test(marker);
+}
+
+function faqPairsFromContainer(container: Element): Array<{ question: string; answer: string }> {
+  const pairs: Array<{ question: string; answer: string }> = [];
+  for (const item of directElementChildren(container)) {
+    const question = faqQuestionFromElement(item);
+    if (!question) continue;
+    const answer = faqAnswerFromElement(item, question);
+    if (answer) pairs.push({ question, answer });
+  }
+  if (pairs.length > 0) return pairs;
+  const headings = findElements(container.children, (item) => /^h[2-6]$/.test(item.name) || /question|faq-question|accordion/i.test(`${attr(item, "class") ?? ""} ${attr(item, "role") ?? ""}`));
+  for (const heading of headings) {
+    const question = cleanContentText(descendantText(heading));
+    const answer = cleanContentText(nextSiblingText(heading));
+    if (question && answer) pairs.push({ question, answer });
+  }
+  return pairs;
+}
+
+function directElementChildren(element: Element): Element[] {
+  return element.children.filter((child): child is Element => child instanceof DomElement);
+}
+
+function faqQuestionFromElement(element: Element): string {
+  if (element.name === "details") return "";
+  const questionElement = findElement(element.children, (item) => /^h[2-6]$/.test(item.name) || item.name === "summary" || /question|faq-question|accordion-title/i.test(attr(item, "class") ?? ""));
+  return questionElement ? cleanContentText(descendantText(questionElement)) : "";
+}
+
+function faqAnswerFromElement(element: Element, question: string): string {
+  const answerElement = findElement(element.children, (item) => /answer|faq-answer|accordion-content|panel/i.test(`${attr(item, "class") ?? ""} ${attr(item, "role") ?? ""}`));
+  const raw = answerElement ? descendantText(answerElement) : descendantText(element);
+  return cleanContentText(raw.replace(question, ""));
+}
+
+function nextSiblingText(element: Element): string {
+  const parent = element.parent;
+  if (!parent || !(parent instanceof DomElement)) return "";
+  const siblings = directElementChildren(parent);
+  const index = siblings.indexOf(element);
+  if (index < 0) return "";
+  const next = siblings.slice(index + 1).find((item) => !/^h[1-6]$/.test(item.name));
+  return next ? descendantText(next) : "";
+}
+
+function faqText(question: string, answer: string): string {
+  return cleanContentText(`Q: ${question} A: ${answer}`);
+}
+
+function isLowValueFaq(question: string, answer: string): boolean {
+  if (question.length < 6 || question.length > 180) return true;
+  if (answer.length < 8 || answer.length > 500) return true;
+  if (question.toLowerCase() === answer.toLowerCase()) return true;
+  return /^(menu|navigation|login|search|share|privacy|terms|cookie)$/i.test(question);
 }
 
 function summarizeBreadcrumbs(html: string, baseUrl: string): PageBreadcrumbSummary[] {
@@ -5293,6 +5446,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.schemaFacts" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.faqs.length > 0) {
+    add({
+      path: "pageCheck.faqs",
+      reason: "FAQ question-answer pairs extracted from details, accordion, and FAQ HTML.",
+      count: pageCheck.faqs.length,
+      score: roundMetric(Math.min(1, 0.46 + pageCheck.faqs.length * 0.08)),
+      ...(primaryReadFrom === "pageCheck.faqs" ? { primary: true } : {}),
+    });
+  }
   if (pageCheck.breadcrumbs.length > 0) {
     add({
       path: "pageCheck.breadcrumbs",
@@ -5539,6 +5701,7 @@ function agentReadValue(
   if (path === "pageCheck.forms") return { path, value: pageCheck.forms };
   if (path === "pageCheck.keyValues") return { path, value: pageCheck.keyValues };
   if (path === "pageCheck.schemaFacts") return { path, value: pageCheck.schemaFacts };
+  if (path === "pageCheck.faqs") return { path, value: pageCheck.faqs };
   if (path === "pageCheck.breadcrumbs") return { path, value: pageCheck.breadcrumbs };
   if (path === "pageCheck.toc") return { path, value: pageCheck.toc };
   if (path === "pageCheck.codeBlocks") return { path, value: pageCheck.codeBlocks };
@@ -5914,6 +6077,14 @@ function findCandidates(
       ...(fact.selector ? { selector: fact.selector } : {}),
     });
   }
+  for (const faq of pageCheck.faqs) {
+    add({
+      field: "faq",
+      text: faq.text,
+      rank: faq.rank,
+      ...(faq.selector ? { selector: faq.selector } : {}),
+    });
+  }
   for (const breadcrumb of pageCheck.breadcrumbs) {
     add({
       field: "breadcrumb",
@@ -6111,6 +6282,7 @@ function emptyPageCheck(): PageCheckSummary {
     forms: [],
     keyValues: [],
     schemaFacts: [],
+    faqs: [],
     breadcrumbs: [],
     toc: [],
     codeBlocks: [],
@@ -7063,6 +7235,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.forms.length > 0 ? { forms: pageCheck.forms } : {}),
     ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),
     ...(pageCheck.schemaFacts.length > 0 ? { schemaFacts: pageCheck.schemaFacts } : {}),
+    ...(pageCheck.faqs.length > 0 ? { faqs: pageCheck.faqs } : {}),
     ...(pageCheck.breadcrumbs.length > 0 ? { breadcrumbs: pageCheck.breadcrumbs } : {}),
     ...(pageCheck.toc.length > 0 ? { toc: pageCheck.toc } : {}),
     ...(pageCheck.codeBlocks.length > 0 ? { codeBlocks: pageCheck.codeBlocks } : {}),

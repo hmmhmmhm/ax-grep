@@ -3177,6 +3177,98 @@ describe("cli", () => {
     });
   });
 
+  it("summarizes visible FAQ question-answer pairs as pageCheck read targets for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/help", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <body>
+            <main>
+              <details>
+                <summary>How do I install ax-grep?</summary>
+                <p>Run pnpm add ax-grep and then call the CLI with --agent.</p>
+              </details>
+            </main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.faqs).toEqual([
+      {
+        id: "faq1",
+        path: "pageCheck.faqs[0]",
+        rank: 1,
+        question: "How do I install ax-grep?",
+        answer: "Run pnpm add ax-grep and then call the CLI with --agent.",
+        text: "Q: How do I install ax-grep? A: Run pnpm add ax-grep and then call the CLI with --agent.",
+        source: "details",
+        selector: "details:nth-of-type(1)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("1 FAQ item");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.faqs",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.faqs",
+      count: 1,
+      primary: true,
+      reason: "FAQ question-answer pairs extracted from details, accordion, and FAQ HTML.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.faqs",
+      value: [
+        expect.objectContaining({
+          id: "faq1",
+          source: "details",
+        }),
+      ],
+    });
+  });
+
+  it("checks requested text against visible FAQ summaries", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/help", "--agent", "--find", "Run pnpm add ax-grep"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <body>
+            <section class="faq">
+              <div class="faq-item">
+                <h2>How do I install ax-grep?</h2>
+                <div class="faq-answer">Run pnpm add ax-grep and then call the CLI with --agent.</div>
+              </div>
+            </section>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "faq",
+        rank: 1,
+        selector: "section:nth-of-type(1)",
+        text: "Q: How do I install ax-grep? A: Run pnpm add ax-grep and then call the CLI with --agent.",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
   it("summarizes JSON-LD and HTML breadcrumbs as pageCheck read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/docs/api/responses", "--agent"], {
