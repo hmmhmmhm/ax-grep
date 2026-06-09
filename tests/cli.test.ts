@@ -379,7 +379,7 @@ describe("cli", () => {
             expect.objectContaining({
               id: "v1",
               path: "verification.bestEvidence",
-              text: "Example",
+              kind: "verification",
             }),
           ]),
           signals: expect.arrayContaining([
@@ -2970,7 +2970,7 @@ describe("cli", () => {
       expect.objectContaining({
         id: "v1",
         path: "verification.bestEvidence",
-        text: "Headers: Plan | Monthly price; Team | $49.99",
+        kind: "verification",
       }),
     ]));
   });

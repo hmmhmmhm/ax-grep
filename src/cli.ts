@@ -11935,12 +11935,23 @@ function compactAgentRunbook(runbook: AgentRunbook): object {
 }
 
 function compactAgentHandoff(handoff: AgentHandoff): object {
-  const { readValue, sourceChoices, resultChoices, ...rest } = handoff;
+  const { readValue, sourceChoices, resultChoices, answerEvidence, ...rest } = handoff;
   return {
     ...rest,
+    ...(answerEvidence && answerEvidence.length > 0 ? { answerEvidence: answerEvidence.map(compactAgentCitationRef) } : {}),
     ...(resultChoices && resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(resultChoices) } : {}),
     ...(sourceChoices && sourceChoices.length > 0 ? { sourceChoices: compactAgentCommandList(sourceChoices) } : {}),
     ...(readValue ? { readValue: compactAgentReadValue(readValue, true) } : {}),
+  };
+}
+
+function compactAgentCitationRef(citation: AgentCitation): object {
+  return {
+    kind: citation.kind,
+    id: citation.id,
+    path: citation.path,
+    confidence: citation.confidence,
+    ...(typeof citation.score === "number" ? { score: citation.score } : {}),
   };
 }
 

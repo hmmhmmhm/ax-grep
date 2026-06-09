@@ -1489,7 +1489,7 @@ function scoreAgentHandoff(
   if (answerPlan.useCitationIds && answerPlan.useCitationIds.length > 0) {
     required += 2;
     if (JSON.stringify(handoff.useCitationIds) === JSON.stringify(answerPlan.useCitationIds)) matched += 1;
-    if (JSON.stringify(handoff.answerEvidence) === JSON.stringify(answerEvidence)) matched += 1;
+    if (scoreHandoffAnswerEvidence(handoff.answerEvidence, answerEvidence) === 1) matched += 1;
   }
   if (resultChoices.length > 0) {
     required += 1;
@@ -1540,6 +1540,20 @@ function scoreAgentHandoff(
     if (JSON.stringify(handoff.browserHtml) === JSON.stringify(next.browserHtml)) matched += 1;
   }
   return roundScore(matched / required);
+}
+
+function scoreHandoffAnswerEvidence(handoffEvidence: CliAgentCitationShape[] | undefined, answerEvidence: CliAgentCitationShape[]): number {
+  if (!Array.isArray(handoffEvidence)) return answerEvidence.length === 0 ? 1 : 0;
+  if (handoffEvidence.length !== answerEvidence.length) return 0;
+  const valid = handoffEvidence.every((item, index) => {
+    const expected = answerEvidence[index];
+    return expected
+      && item.id === expected.id
+      && item.path === expected.path
+      && item.kind === expected.kind
+      && item.confidence === expected.confidence;
+  });
+  return valid ? 1 : 0;
 }
 
 function scoreAgentExecutionPlan(
