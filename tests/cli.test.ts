@@ -307,6 +307,7 @@ describe("cli", () => {
             "action.priority",
             "actions",
             "contentEvidence.quality",
+            "pageCheck.timeline",
             "pageCheck.authorLinks",
             "pageCheck.pagination",
             "readTargets",
@@ -3418,6 +3419,88 @@ describe("cli", () => {
         selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
         text: "Types: Product; Name: Agent Browser Pro; Offer price: USD 19.99",
       },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("summarizes publication and update dates as pageCheck timeline read targets for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/release", "--agent", "--find", "source=time"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <title>Release Notes</title>
+            <meta property="article:published_time" content="2026-06-01T09:00:00Z">
+            <script type="application/ld+json">
+              {
+                "@context": "https://schema.org",
+                "@type": "NewsArticle",
+                "headline": "Release Notes",
+                "dateModified": "2026-06-08T10:30:00Z"
+              }
+            </script>
+          </head>
+          <body>
+            <main>
+              <h1>Release Notes</h1>
+              <time class="updated" datetime="2026-06-08">Updated June 8 2026</time>
+            </main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.timeline).toEqual([
+      {
+        id: "tl1",
+        path: "pageCheck.timeline[0]",
+        rank: 1,
+        kind: "published",
+        label: "Published",
+        value: "2026-06-01T09:00:00Z",
+        text: "Published: 2026-06-01T09:00:00Z source=page",
+        source: "page",
+      },
+      {
+        id: "tl2",
+        path: "pageCheck.timeline[1]",
+        rank: 2,
+        kind: "modified",
+        label: "Modified",
+        value: "2026-06-08T10:30:00Z",
+        text: "Modified: 2026-06-08T10:30:00Z source=page",
+        source: "page",
+      },
+      {
+        id: "tl3",
+        path: "pageCheck.timeline[2]",
+        rank: 3,
+        kind: "modified",
+        label: "updated",
+        value: "2026-06-08",
+        text: "updated: 2026-06-08 source=time",
+        source: "time",
+        selector: "time:nth-of-type(1)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("3 timeline facts");
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.timeline",
+      count: 3,
+      reason: "Publication, modification, event, and visible time metadata extracted from page HTML and JSON-LD.",
+    }));
+    expect(envelope.verification.bestEvidence).toMatchObject({
+      field: "timeline",
+      rank: 3,
+      text: "updated: 2026-06-08 source=time",
+      selector: "time:nth-of-type(1)",
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "use-evidence",

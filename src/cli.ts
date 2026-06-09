@@ -379,6 +379,18 @@ type PageSchemaFactSummary = {
   selector?: string;
 };
 
+type PageTimelineSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "published" | "modified" | "created" | "updated" | "start" | "end" | "date";
+  label: string;
+  value: string;
+  text: string;
+  source: "meta" | "json-ld" | "time" | "page";
+  selector?: string;
+};
+
 type PageFaqSummary = {
   id: string;
   path: string;
@@ -672,6 +684,7 @@ const agentContract: AgentContract = {
     "pageCheck.keyValues",
     "pageCheck.metaFacts",
     "pageCheck.schemaFacts",
+    "pageCheck.timeline",
     "pageCheck.faqs",
     "pageCheck.breadcrumbs",
     "pageCheck.sections",
@@ -712,6 +725,7 @@ type PageCheckSummary = {
   keyValues: PageKeyValueSummary[];
   metaFacts: PageMetaFactSummary[];
   schemaFacts: PageSchemaFactSummary[];
+  timeline: PageTimelineSummary[];
   faqs: PageFaqSummary[];
   breadcrumbs: PageBreadcrumbSummary[];
   sections: PageSectionSummary[];
@@ -2058,6 +2072,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   for (const fact of pageCheck.schemaFacts) {
     lines.push(`  schemaFact: ${fact.id} ${fact.path} ${fact.types.join(",") || "unknown"} - ${fact.text}`);
   }
+  for (const item of pageCheck.timeline) {
+    const selector = item.selector ? ` (${item.selector})` : "";
+    lines.push(`  timeline: ${item.id} ${item.path} ${item.kind} ${item.source}${selector} - ${item.text}`);
+  }
   for (const faq of pageCheck.faqs) {
     const selector = faq.selector ? ` (${faq.selector})` : "";
     lines.push(`  faq: ${faq.id} ${faq.path} ${faq.source}${selector} - ${faq.text}`);
@@ -2943,6 +2961,7 @@ function summarizePageCheck(
   const keyValues = summarizeKeyValues(fetched.html);
   const metaFacts = summarizeMetaFacts(fetched.html, fetched.finalUrl);
   const schemaFacts = summarizeSchemaFacts(fetched.html);
+  const timeline = summarizeTimeline(fetched.html, fetched.page);
   const faqs = summarizeFaqs(fetched.html);
   const breadcrumbs = summarizeBreadcrumbs(fetched.html, fetched.finalUrl);
   const sections = summarizeSections(fetched.html);
@@ -2957,8 +2976,8 @@ function summarizePageCheck(
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, timeline, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, timeline, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -2968,6 +2987,7 @@ function summarizePageCheck(
     keyValues,
     metaFacts,
     schemaFacts,
+    timeline,
     faqs,
     breadcrumbs,
     sections,
@@ -3014,6 +3034,7 @@ function summarizeReadability(
   keyValues: PageKeyValueSummary[],
   metaFacts: PageMetaFactSummary[],
   schemaFacts: PageSchemaFactSummary[],
+  timeline: PageTimelineSummary[],
   faqs: PageFaqSummary[],
   breadcrumbs: PageBreadcrumbSummary[],
   sections: PageSectionSummary[],
@@ -3059,6 +3080,10 @@ function summarizeReadability(
   if (schemaFacts.length > 0) {
     score += Math.min(0.1, schemaFacts.length * 0.04);
     reasons.push(`${schemaFacts.length} schema fact group${schemaFacts.length === 1 ? "" : "s"}`);
+  }
+  if (timeline.length > 0) {
+    score += Math.min(0.08, timeline.length * 0.03);
+    reasons.push(`${timeline.length} timeline fact${timeline.length === 1 ? "" : "s"}`);
   }
   if (faqs.length > 0) {
     score += Math.min(0.08, faqs.length * 0.03);
@@ -3170,6 +3195,7 @@ function recommendedPageCheckAction(
   keyValues: PageKeyValueSummary[],
   metaFacts: PageMetaFactSummary[],
   schemaFacts: PageSchemaFactSummary[],
+  timeline: PageTimelineSummary[],
   faqs: PageFaqSummary[],
   breadcrumbs: PageBreadcrumbSummary[],
   sections: PageSectionSummary[],
@@ -3216,7 +3242,9 @@ function recommendedPageCheckAction(
           ? "pageCheck.keyValues"
           : schemaFacts.length > 0
             ? "pageCheck.schemaFacts"
-            : faqs.length > 0
+            : timeline.length > 0
+              ? "pageCheck.timeline"
+              : faqs.length > 0
               ? "pageCheck.faqs"
               : breadcrumbs.length > 0
                 ? "pageCheck.breadcrumbs"
@@ -3274,6 +3302,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.schemaFacts",
+    };
+  }
+  if (timeline.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but publication and update dates are available for agent freshness checks.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.timeline",
     };
   }
   if (faqs.length > 0) {
@@ -4133,6 +4170,134 @@ function refreshContentUrl(content: string, baseUrl: string): string | null {
 function schemaFactText(types: string[], facts: PageSchemaFact[]): string {
   const prefix = types.length > 0 ? `Types: ${types.join(", ")}` : "Types: unknown";
   return cleanContentText([prefix, ...facts.map((fact) => `${fact.label}: ${fact.value}`)].join(" ; "));
+}
+
+function summarizeTimeline(html: string, page: PageSummary): PageTimelineSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageTimelineSummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageTimelineSummary, "id" | "path" | "rank" | "text">): void => {
+    const value = cleanContentText(item.value);
+    const label = cleanContentText(item.label);
+    if (!isUsefulTimelineValue(label, value)) return;
+    const key = `${item.kind}\n${value}`.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `tl${rank}`,
+      path: `pageCheck.timeline[${rank - 1}]`,
+      rank,
+      ...item,
+      label,
+      value,
+      text: timelineText(label, value, item.source),
+    });
+  };
+
+  if (page.publishedTime) add({ kind: "published", label: "Published", value: page.publishedTime, source: "page" });
+  if (page.modifiedTime) add({ kind: "modified", label: "Modified", value: page.modifiedTime, source: "page" });
+
+  for (const [index, meta] of findElements(document.children, (item) => item.name === "meta").entries()) {
+    const name = attr(meta, "name") || attr(meta, "property") || attr(meta, "itemprop") || "";
+    const value = cleanContentText(attr(meta, "content") ?? "");
+    const kind = timelineKindFromName(name);
+    if (!kind || !value) continue;
+    add({
+      kind,
+      label: timelineLabel(kind, name),
+      value,
+      source: "meta",
+      selector: `meta:nth-of-type(${index + 1})`,
+    });
+  }
+
+  for (const [scriptIndex, script] of findElements(document.children, (item) => item.name === "script" && /application\/ld\+json/i.test(attr(item, "type") ?? "")).entries()) {
+    for (const value of parseJsonLdValues(scriptText(script))) {
+      for (const item of timelineItemsFromJsonLd(value)) {
+        add({
+          ...item,
+          source: "json-ld",
+          selector: `script[type="application/ld+json"]:nth-of-type(${scriptIndex + 1})`,
+        });
+      }
+    }
+  }
+
+  for (const [index, time] of findElements(document.children, (item) => item.name === "time").entries()) {
+    const rawValue = cleanContentText(attr(time, "datetime") || descendantText(time));
+    const labelSource = attr(time, "itemprop") || attr(time, "class") || attr(time, "aria-label") || descendantText(time);
+    const kind = timelineKindFromName(labelSource) ?? "date";
+    add({
+      kind,
+      label: timelineLabel(kind, labelSource),
+      value: rawValue,
+      source: "time",
+      selector: `time:nth-of-type(${index + 1})`,
+    });
+  }
+
+  return items.slice(0, 8);
+}
+
+function timelineItemsFromJsonLd(value: Record<string, unknown>): Array<{ kind: PageTimelineSummary["kind"]; label: string; value: string }> {
+  const fields: Array<[PageTimelineSummary["kind"], string, unknown]> = [
+    ["published", "Published", value.datePublished],
+    ["created", "Created", value.dateCreated],
+    ["modified", "Modified", value.dateModified],
+    ["updated", "Updated", value.dateUpdated],
+    ["date", "Posted", value.datePosted],
+    ["date", "Uploaded", value.uploadDate],
+    ["start", "Start date", value.startDate],
+    ["end", "End date", value.endDate],
+    ["date", "Date", value.date],
+  ];
+  return fields
+    .map(([kind, label, raw]) => {
+      const valueText = jsonLdString(raw);
+      return valueText ? { kind, label, value: valueText } : undefined;
+    })
+    .filter((item): item is { kind: PageTimelineSummary["kind"]; label: string; value: string } => Boolean(item));
+}
+
+function timelineKindFromName(name: string): PageTimelineSummary["kind"] | undefined {
+  const value = name.toLowerCase();
+  if (/published|publishdate|pubdate|issued|release|datepublished/.test(value)) return "published";
+  if (/modified|updated|revised|last[-_\s]?modified|datemodified|update/.test(value)) return "modified";
+  if (/created|datecreated/.test(value)) return "created";
+  if (/start|startdate|validfrom/.test(value)) return "start";
+  if (/end|enddate|validthrough|expires|expiration/.test(value)) return "end";
+  if (/\bdate\b|dc\.date|dcterms\.date|dateposted|uploaddate/.test(value)) return "date";
+  return undefined;
+}
+
+function timelineLabel(kind: PageTimelineSummary["kind"], sourceName: string): string {
+  const explicit = cleanContentText(sourceName.replace(/[_-]+/g, " "));
+  const byKind: Record<PageTimelineSummary["kind"], string> = {
+    published: "Published",
+    modified: "Modified",
+    created: "Created",
+    updated: "Updated",
+    start: "Start date",
+    end: "End date",
+    date: "Date",
+  };
+  if (!explicit || explicit.length > 48 || /^(date|time)$/i.test(explicit)) return byKind[kind];
+  return explicit;
+}
+
+function isUsefulTimelineValue(label: string, value: string): boolean {
+  if (!label || !value || value.length > 160) return false;
+  if (/^(date|time|published|modified|updated|created)$/i.test(value)) return false;
+  return /\d{4}|\d{1,2}[./-]\d{1,2}|\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(value);
+}
+
+function timelineText(label: string, value: string, source: PageTimelineSummary["source"]): string {
+  return cleanContentText(`${label}: ${value} source=${source}`);
 }
 
 function summarizeFaqs(html: string): PageFaqSummary[] {
@@ -6518,6 +6683,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.authorLinks" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.timeline.length > 0) {
+    add({
+      path: "pageCheck.timeline",
+      reason: "Publication, modification, event, and visible time metadata extracted from page HTML and JSON-LD.",
+      count: pageCheck.timeline.length,
+      score: roundMetric(Math.min(1, 0.45 + pageCheck.timeline.length * 0.06)),
+      ...(primaryReadFrom === "pageCheck.timeline" ? { primary: true } : {}),
+    });
+  }
   if (sourceSearch?.selectedResult) {
     add({
       path: "sourceSearch.selectedResult",
@@ -6712,6 +6886,7 @@ function agentReadValue(
   if (path === "pageCheck.keyValues") return { path, value: pageCheck.keyValues };
   if (path === "pageCheck.metaFacts") return { path, value: pageCheck.metaFacts };
   if (path === "pageCheck.schemaFacts") return { path, value: pageCheck.schemaFacts };
+  if (path === "pageCheck.timeline") return { path, value: pageCheck.timeline };
   if (path === "pageCheck.faqs") return { path, value: pageCheck.faqs };
   if (path === "pageCheck.breadcrumbs") return { path, value: pageCheck.breadcrumbs };
   if (path === "pageCheck.sections") return { path, value: pageCheck.sections };
@@ -7109,6 +7284,14 @@ function findCandidates(
       ...(fact.selector ? { selector: fact.selector } : {}),
     });
   }
+  for (const item of pageCheck.timeline) {
+    add({
+      field: "timeline",
+      text: item.text,
+      rank: item.rank,
+      ...(item.selector ? { selector: item.selector } : {}),
+    });
+  }
   for (const faq of pageCheck.faqs) {
     add({
       field: "faq",
@@ -7351,6 +7534,7 @@ function emptyPageCheck(): PageCheckSummary {
     keyValues: [],
     metaFacts: [],
     schemaFacts: [],
+    timeline: [],
     faqs: [],
     breadcrumbs: [],
     sections: [],
@@ -8310,6 +8494,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),
     ...(pageCheck.metaFacts.length > 0 ? { metaFacts: pageCheck.metaFacts } : {}),
     ...(pageCheck.schemaFacts.length > 0 ? { schemaFacts: pageCheck.schemaFacts } : {}),
+    ...(pageCheck.timeline.length > 0 ? { timeline: pageCheck.timeline } : {}),
     ...(pageCheck.faqs.length > 0 ? { faqs: pageCheck.faqs } : {}),
     ...(pageCheck.breadcrumbs.length > 0 ? { breadcrumbs: pageCheck.breadcrumbs } : {}),
     ...(pageCheck.sections.length > 0 ? { sections: pageCheck.sections } : {}),

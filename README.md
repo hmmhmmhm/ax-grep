@@ -531,6 +531,7 @@ facts from definition lists, time elements, and short label/value text.
 links, refresh targets, and selected social/article metadata from head tags.
 `pageCheck.schemaFacts` captures compact facts from hidden JSON-LD schema.org
 data such as product offers, ratings, events, and FAQ answers.
+`pageCheck.timeline` captures publication, modification, event, and visible time facts.
 `pageCheck.faqs` captures visible FAQ question-answer pairs from details and
 accordion-style HTML.
 `pageCheck.breadcrumbs` captures JSON-LD and HTML breadcrumb trails as ordered
