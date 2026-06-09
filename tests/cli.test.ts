@@ -1312,7 +1312,7 @@ describe("cli", () => {
           <ol>
             <li class="b_algo">
               <h2><a href="https://www.npmjs.com/package/ax-grep">ax-grep - npm</a></h2>
-              <p>Install ax-grep from npm.</p>
+              <p>2026-05-31 - Install ax-grep from npm.</p>
             </li>
             <li class="b_algo">
               <h2><a href="https://unrelated.example/">Enterprise AI transformation</a></h2>
@@ -1331,6 +1331,10 @@ describe("cli", () => {
       sourceType: "official",
       sourceScore: 0.9,
       sourceHints: ["package-registry"],
+      dateText: "2026-05-31",
+      date: "2026-05-31",
+      datePrecision: "day",
+      dateSource: "snippet",
       relevance: "high",
       matchedTerms: ["ax-grep", "npm"],
       isLikelyOfficial: true,
@@ -2107,7 +2111,7 @@ describe("cli", () => {
           return new Response(`
             <main>
               <ol>
-                <li><a href="https://target.example/article">Target Result</a><p>Target result snippet.</p></li>
+                <li><a href="https://target.example/article">Target Result</a><p>May 31, 2026 - Target result snippet.</p></li>
               </ol>
             </main>
           `, { headers: { "content-type": "text/html" } });
@@ -2140,6 +2144,10 @@ describe("cli", () => {
         title: "Target Result",
         url: "https://target.example/article",
         rank: 1,
+        dateText: "May 31, 2026",
+        date: "2026-05-31",
+        datePrecision: "day",
+        dateSource: "snippet",
         command: "ax-grep --search 'agent browser' --engine duckduckgo --timeout 30000 --user-agent 'custom-agent/1.0' --open-result 1 --agent",
         commandArgs: [
           "ax-grep",

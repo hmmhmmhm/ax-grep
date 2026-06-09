@@ -319,6 +319,10 @@ export type AgentTarget = {
   sourceType?: string;
   sourceScore?: number;
   sourceHints?: string[];
+  dateText?: string;
+  date?: string;
+  datePrecision?: "day" | "month" | "year";
+  dateSource?: "title" | "snippet";
   relevance?: "low" | "medium" | "high";
   matchedTerms?: string[];
   findMatches?: string[];

@@ -163,6 +163,10 @@ type ResultSummary = {
   sourceType?: SourceType;
   sourceScore?: number;
   sourceHints?: string[];
+  dateText?: string;
+  date?: string;
+  datePrecision?: "day" | "month" | "year";
+  dateSource?: "title" | "snippet";
   relevance?: "low" | "medium" | "high";
   matchedTerms?: string[];
   findMatches?: string[];
@@ -1782,6 +1786,7 @@ function formatAgentResultChoiceText(choice: AgentResultChoice, prefix = "result
   const flagText = flags ? ` ${flags}` : "";
   const score = typeof choice.sourceScore === "number" ? ` score=${choice.sourceScore}` : "";
   const relevance = choice.relevance ? ` relevance=${choice.relevance}` : "";
+  const date = choice.date ? ` date=${choice.date}` : "";
   const source = choice.source ? ` source=${choice.source}` : "";
   const sourceType = choice.sourceType ? ` type=${choice.sourceType}` : "";
   const official = typeof choice.isLikelyOfficial === "boolean" ? ` official=${choice.isLikelyOfficial}` : "";
@@ -1790,7 +1795,7 @@ function formatAgentResultChoiceText(choice: AgentResultChoice, prefix = "result
   const target = choice.url ? ` <${choice.url}>` : "";
   const reason = choice.selectionReason ? ` - ${choice.selectionReason}` : "";
   const title = choice.title ? ` ${choice.title}` : "";
-  return `  ${prefix}: ${choice.id} ${choice.path}${rank}${flagText}${score}${relevance}${source}${sourceType}${official}${matchedTerms}${findMatches}${target}${reason}${title}`;
+  return `  ${prefix}: ${choice.id} ${choice.path}${rank}${flagText}${score}${relevance}${date}${source}${sourceType}${official}${matchedTerms}${findMatches}${target}${reason}${title}`;
 }
 
 function formatAgentSourceChoiceText(choice: AgentSourceChoice, prefix = "sourceChoice"): string[] {
@@ -1815,6 +1820,7 @@ function formatAgentSourceSearchResultText(result: AgentSourceSearchResult, pref
   const openResult = result.openResult ? ` openResult=${result.openResult}` : "";
   const score = typeof result.sourceScore === "number" ? ` score=${result.sourceScore}` : "";
   const relevance = result.relevance ? ` relevance=${result.relevance}` : "";
+  const date = result.date ? ` date=${result.date}` : "";
   const source = result.source ? ` source=${result.source}` : "";
   const sourceType = result.sourceType ? ` type=${result.sourceType}` : "";
   const official = typeof result.isLikelyOfficial === "boolean" ? ` official=${result.isLikelyOfficial}` : "";
@@ -1823,7 +1829,7 @@ function formatAgentSourceSearchResultText(result: AgentSourceSearchResult, pref
   const target = result.url ? ` <${result.url}>` : "";
   const reason = result.selectionReason ? ` - ${result.selectionReason}` : "";
   const title = result.title ? ` ${result.title}` : "";
-  const lines = [`  ${prefix}: ${result.id} ${result.path}${rank}${openResult}${score}${relevance}${source}${sourceType}${official}${matchedTerms}${findMatches}${target}${reason}${title}`];
+  const lines = [`  ${prefix}: ${result.id} ${result.path}${rank}${openResult}${score}${relevance}${date}${source}${sourceType}${official}${matchedTerms}${findMatches}${target}${reason}${title}`];
   if (result.command) lines.push(`    command: ${result.command}`);
   if (result.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(result.commandArgs)}`);
   if (result.command) lines.push(`  ${prefix}Command: ${result.command}`);
@@ -2123,6 +2129,7 @@ function formatResultsText(results: ResultSummary[]): string[] {
       const hints = result.sourceHints?.length ? ` (${result.sourceHints.join(", ")})` : "";
       lines.push(`     sourceType: ${result.sourceType} ${result.sourceScore ?? 0}${hints}`);
     }
+    if (result.date) lines.push(`     date: ${result.date}${result.dateText ? ` (${result.dateText})` : ""}`);
     if (result.snippet) lines.push(`     snippet: ${result.snippet}`);
   }
   return lines;
@@ -2272,7 +2279,7 @@ function summarizeResults(links: LinkSummary[]): ResultSummary[] {
       sourceHints: sourceProfile.hints,
     };
     if (link.snippet) result.snippet = link.snippet;
-    return result;
+    return withResultDateHint(result);
   });
 }
 
@@ -2308,6 +2315,7 @@ function annotateResults(results: ResultSummary[], query?: string, findQueries: 
       annotated.isLikelyOfficial = isLikelyOfficial;
     }
     const findMatches = matchedFindQueriesForResult(result, findQueries);
+    if (!annotated.dateText) Object.assign(annotated, resultDateHint(annotated.title, annotated.snippet));
     if (findMatches.length > 0) annotated.findMatches = findMatches;
     annotated.selectionReason = searchResultSelectionReason(annotated);
     return annotated;
@@ -2559,7 +2567,7 @@ function resultFromCard(card: Element, baseUrl: string, engine: SearchResultEngi
   };
   const snippet = resultSnippet(card, title);
   if (snippet) result.snippet = snippet;
-  return result;
+  return withResultDateHint(result);
 }
 
 function resultTitleLink(card: Element, engine: SearchResultEngine): Element | undefined {
@@ -2605,6 +2613,71 @@ function resultSnippet(card: Element, title: string): string {
   const snippet = cleanContentText(raw.replace(title, " ").replace(/^[\s,.;:!?-]+/, ""));
   if (!snippet || snippet.toLowerCase() === title.toLowerCase()) return "";
   return snippet;
+}
+
+function withResultDateHint(result: ResultSummary): ResultSummary {
+  return {
+    ...result,
+    ...resultDateHint(result.title, result.snippet),
+  };
+}
+
+function resultDateHint(title: string, snippet?: string): Pick<ResultSummary, "dateText" | "date" | "datePrecision" | "dateSource"> {
+  const snippetHint = snippet ? extractDateHint(snippet) : null;
+  if (snippetHint) return { ...snippetHint, dateSource: "snippet" };
+  const titleHint = extractDateHint(title);
+  return titleHint ? { ...titleHint, dateSource: "title" } : {};
+}
+
+function extractDateHint(text: string): Pick<ResultSummary, "dateText" | "date" | "datePrecision"> | null {
+  const compact = cleanContentText(text);
+  const numeric = /\b((?:19|20)\d{2})[./-]\s*(\d{1,2})(?:[./-]\s*(\d{1,2}))?\b/.exec(compact);
+  if (numeric) {
+    const year = Number(numeric[1]);
+    const month = Number(numeric[2]);
+    const day = numeric[3] ? Number(numeric[3]) : 1;
+    const date = normalizedDate(year, month, day);
+    if (date) {
+      return {
+        dateText: numeric[0],
+        date,
+        datePrecision: numeric[3] ? "day" : "month",
+      };
+    }
+  }
+
+  const monthName = /\b(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\.?\s+(\d{1,2})(?:,)?\s+((?:19|20)\d{2})\b/i.exec(compact);
+  if (monthName?.[1] && monthName[2] && monthName[3]) {
+    const month = monthNumber(monthName[1]);
+    const day = Number(monthName[2]);
+    const year = Number(monthName[3]);
+    const date = normalizedDate(year, month, day);
+    if (date) return { dateText: monthName[0], date, datePrecision: "day" };
+  }
+
+  const dayMonthName = /\b(\d{1,2})\s+(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\.?\s+((?:19|20)\d{2})\b/i.exec(compact);
+  if (dayMonthName?.[1] && dayMonthName[2] && dayMonthName[3]) {
+    const day = Number(dayMonthName[1]);
+    const month = monthNumber(dayMonthName[2]);
+    const year = Number(dayMonthName[3]);
+    const date = normalizedDate(year, month, day);
+    if (date) return { dateText: dayMonthName[0], date, datePrecision: "day" };
+  }
+
+  return null;
+}
+
+function monthNumber(name: string): number {
+  return ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+    .findIndex((month) => name.toLowerCase().startsWith(month)) + 1;
+}
+
+function normalizedDate(year: number, month: number, day: number): string | null {
+  if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) return null;
+  if (year < 1900 || year > 2100 || month < 1 || month > 12 || day < 1 || day > 31) return null;
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return null;
+  return date.toISOString().slice(0, 10);
 }
 
 function isSearchNavigationText(text: string): boolean {
@@ -5200,6 +5273,10 @@ function summarizeAgentResultChoices(
       ...(result.sourceType ? { sourceType: result.sourceType } : {}),
       ...(typeof result.sourceScore === "number" ? { sourceScore: result.sourceScore } : {}),
       ...(result.sourceHints?.length ? { sourceHints: result.sourceHints } : {}),
+      ...(result.dateText ? { dateText: result.dateText } : {}),
+      ...(result.date ? { date: result.date } : {}),
+      ...(result.datePrecision ? { datePrecision: result.datePrecision } : {}),
+      ...(result.dateSource ? { dateSource: result.dateSource } : {}),
       ...(result.relevance ? { relevance: result.relevance } : {}),
       ...(result.matchedTerms?.length ? { matchedTerms: result.matchedTerms } : {}),
       ...(result.findMatches?.length ? { findMatches: result.findMatches } : {}),
@@ -8019,6 +8096,10 @@ function compactAgentSearchResult(
   if (result.sourceType) compact.sourceType = result.sourceType;
   if (typeof result.sourceScore === "number") compact.sourceScore = result.sourceScore;
   if (result.sourceHints?.length) compact.sourceHints = result.sourceHints;
+  if (result.dateText) compact.dateText = result.dateText;
+  if (result.date) compact.date = result.date;
+  if (result.datePrecision) compact.datePrecision = result.datePrecision;
+  if (result.dateSource) compact.dateSource = result.dateSource;
   if (result.relevance) compact.relevance = result.relevance;
   if (result.matchedTerms?.length) compact.matchedTerms = result.matchedTerms;
   if (result.findMatches?.length) compact.findMatches = result.findMatches;
