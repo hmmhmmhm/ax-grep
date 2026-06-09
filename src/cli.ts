@@ -11885,7 +11885,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     ...(agent.pageDecision ? { pageDecision: agent.pageDecision } : {}),
     ...(agent.semanticSummary ? { semanticSummary: compactAgentSemanticSummary(agent.semanticSummary) } : {}),
     ...(agent.signals.length > 0 ? { signals: agent.signals } : {}),
-    ...(agent.qualityGates.length > 0 ? { qualityGates: agent.qualityGates } : {}),
+    ...(agent.qualityGates.length > 0 ? { qualityGates: compactAgentQualityGates(agent.qualityGates) } : {}),
     canContinue: agent.canContinue,
     canUseFetchedHtml: agent.canUseFetchedHtml,
     needsBrowserHtml: agent.needsBrowserHtml,
@@ -11999,6 +11999,15 @@ function compactAgentHandoff(handoff: AgentHandoff): object {
 
 function compactAgentHandoffReadTarget(target: AgentReadTarget): AgentReadTarget | object {
   return target.path.startsWith("verification.") ? target : compactAgentReadTargetRef(target);
+}
+
+function compactAgentQualityGates(gates: AgentQualityGate[], threshold = 650): object[] {
+  if (JSON.stringify(gates).length <= threshold) return gates;
+  return gates.map((gate) => {
+    if (!gate.pass || gate.kind === "verification" || gate.kind === "diagnostic") return gate;
+    const { message: _message, ...rest } = gate;
+    return rest;
+  });
 }
 
 function compactAgentReadTargets(targets: AgentReadTarget[], threshold = 700): object[] {

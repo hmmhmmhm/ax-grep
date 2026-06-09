@@ -1700,13 +1700,14 @@ function scoreAgentQualityGates(gates: CliAgentQualityGateShape[] | undefined, e
   const validKinds = new Set(["fetch", "content", "source", "search", "verification", "browser", "diagnostic", "status"]);
   const validSeverities = new Set(["info", "warning", "error"]);
   const wellFormed = gates.filter((gate) => {
+    const hasMessage = typeof gate.message === "string" && gate.message.length > 0;
+    const hasCompactEvidence = typeof gate.path === "string" && gate.path.length > 0 || typeof gate.score === "number";
     return typeof gate.kind === "string"
       && validKinds.has(gate.kind)
       && typeof gate.pass === "boolean"
       && typeof gate.severity === "string"
       && validSeverities.has(gate.severity)
-      && typeof gate.message === "string"
-      && gate.message.length > 0
+      && (hasMessage || hasCompactEvidence)
       && (typeof gate.score === "undefined" || (typeof gate.score === "number" && gate.score >= 0 && gate.score <= 1))
       && (typeof gate.path === "undefined" || (typeof gate.path === "string" && gate.path.length > 0));
   }).length / gates.length;
