@@ -2854,6 +2854,115 @@ describe("cli", () => {
     ]));
   });
 
+  it("summarizes forms with action fields and query URL templates for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/search", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h1>Search archive</h1>
+          <form method="GET" action="/find">
+            <label for="q">Archive search</label>
+            <input id="q" name="query" type="search" placeholder="Search reports" required>
+            <select name="category"><option>All</option><option>Reports</option></select>
+            <input type="hidden" name="csrf" value="secret">
+            <button type="submit">Search</button>
+          </form>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.forms).toEqual([
+      {
+        id: "f1",
+        path: "pageCheck.forms[0]",
+        rank: 1,
+        method: "get",
+        actionUrl: "https://example.test/find",
+        fieldCount: 2,
+        submitText: "Search",
+        queryField: "query",
+        urlTemplate: "https://example.test/find?query=%7Bquery%7D",
+        selector: "form:nth-of-type(1)",
+        text: "GET https://example.test/find; query field: query; submit: Search; query:search required Archive search; category:select options=All|Reports",
+        fields: [
+          {
+            name: "query",
+            type: "search",
+            label: "Archive search",
+            placeholder: "Search reports",
+            required: true,
+            selector: "input[name=\"query\"]",
+          },
+          {
+            name: "category",
+            type: "select",
+            selector: "select[name=\"category\"]",
+            options: ["All", "Reports"],
+          },
+        ],
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("1 form");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.forms",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.forms",
+      count: 1,
+      primary: true,
+      reason: "Form action, method, field names, labels, and query URL templates extracted from the page HTML.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.forms",
+      value: [
+        expect.objectContaining({
+          id: "f1",
+          urlTemplate: "https://example.test/find?query=%7Bquery%7D",
+          queryField: "query",
+        }),
+      ],
+    });
+  });
+
+  it("checks requested text against page form summaries", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/search", "--agent", "--find", "Archive search"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <form action="/find">
+            <label><span>Archive search</span><input name="q" type="search"></label>
+            <button>Go</button>
+          </form>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "form",
+        rank: 1,
+        url: "https://example.test/find",
+        selector: "form:nth-of-type(1)",
+        text: "GET https://example.test/find; query field: q; submit: Go; q:search Archive search",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
   it("falls back to headings and primary links for forum pages without paragraph roles", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://forum.example/post/456", "--json"], {

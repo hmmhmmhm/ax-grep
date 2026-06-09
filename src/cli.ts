@@ -295,6 +295,32 @@ type PageDataTableSummary = {
   selector?: string;
 };
 
+type PageFormFieldSummary = {
+  name?: string;
+  type: string;
+  label?: string;
+  placeholder?: string;
+  value?: string;
+  required?: boolean;
+  selector?: string;
+  options?: string[];
+};
+
+type PageFormSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  method: string;
+  fieldCount: number;
+  fields: PageFormFieldSummary[];
+  text: string;
+  actionUrl?: string;
+  submitText?: string;
+  queryField?: string;
+  urlTemplate?: string;
+  selector?: string;
+};
+
 type PageReadabilitySummary = {
   level: "low" | "medium" | "high";
   score: number;
@@ -434,6 +460,7 @@ const agentContract: AgentContract = {
     "actions",
     "contentEvidence.quality",
     "pageCheck.dataTables",
+    "pageCheck.forms",
     "readTargets",
     "signals",
     "qualityGates",
@@ -458,6 +485,7 @@ type PageCheckSummary = {
   contentPreview: string[];
   contentEvidence: PageEvidenceSummary[];
   dataTables: PageDataTableSummary[];
+  forms: PageFormSummary[];
   contentLength: number;
   primaryLinks: PageLinkSummary[];
   sourceLinks: PageLinkSummary[];
@@ -1769,6 +1797,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const caption = table.caption ? ` caption="${table.caption}"` : "";
     lines.push(`  dataTable: ${table.id} ${table.path} ${table.rowCount}x${table.columnCount}${caption} - ${table.text}`);
   }
+  for (const form of pageCheck.forms) {
+    const template = form.urlTemplate ? ` template=${form.urlTemplate}` : "";
+    lines.push(`  form: ${form.id} ${form.path} ${form.method.toUpperCase()} fields=${form.fieldCount}${template} - ${form.text}`);
+  }
   for (const link of pageCheck.primaryLinks) lines.push(`  link: ${link.kind} ${link.title} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`);
   for (const link of pageCheck.sourceLinks) lines.push(`  sourceLink: ${link.title} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`);
   for (const action of pageCheck.actions) lines.push(`  action: ${action.type} ${action.text}`);
@@ -2483,15 +2515,17 @@ function summarizePageCheck(
     : summarizeFallbackEvidence(fallbackPreview);
   const contentLength = contentPreview.reduce((total, text) => total + text.length, 0);
   const dataTables = summarizeDataTables(fetched.html);
+  const forms = summarizeForms(fetched.html, fetched.finalUrl);
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
     dataTables,
+    forms,
     contentLength,
     primaryLinks,
     sourceLinks,
@@ -2523,6 +2557,7 @@ function summarizeReadability(
   confidence: PageCheckSummary["confidence"],
   contentEvidence: PageEvidenceSummary[],
   dataTables: PageDataTableSummary[],
+  forms: PageFormSummary[],
   contentLength: number,
   sourceLinks: PageLinkSummary[],
   actions: ActionSummary[],
@@ -2539,6 +2574,9 @@ function summarizeReadability(
   if (dataTables.length > 0) {
     score += Math.min(0.12, dataTables.length * 0.06);
     reasons.push(`${dataTables.length} data table${dataTables.length === 1 ? "" : "s"}`);
+  }
+  if (forms.length > 0 && contentLength < 120) {
+    reasons.push(`${forms.length} form${forms.length === 1 ? "" : "s"}`);
   }
   if (contentLength >= 400) {
     score += 0.18;
@@ -2602,6 +2640,7 @@ function recommendedPageCheckAction(
   pageUrl: string,
   sourceLinks: PageLinkSummary[],
   dataTables: PageDataTableSummary[],
+  forms: PageFormSummary[],
   contentEvidence: PageEvidenceSummary[],
   agentMode = false,
   capturedHtml = false,
@@ -2629,13 +2668,26 @@ function recommendedPageCheckAction(
   }
   if (readability.level === "high" || readability.level === "medium") {
     const hasSemanticEvidence = contentEvidence.some((item) => item.source === "semantic");
-    const readFrom = hasSemanticEvidence || dataTables.length === 0 ? "pageCheck.contentEvidence" : "pageCheck.dataTables";
+    const readFrom = hasSemanticEvidence
+      ? "pageCheck.contentEvidence"
+      : dataTables.length > 0
+        ? "pageCheck.dataTables"
+        : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
     return {
       action: "read-content",
       reason: "The page has enough structured evidence for source checking.",
       url: pageUrl,
       terminal: true,
       readFrom,
+    };
+  }
+  if (forms.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but form metadata is available for agent planning.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.forms",
     };
   }
   if (sourceLinks[0]) {
@@ -2819,6 +2871,166 @@ function tableRowCells(row: Element): { cells: string[]; hasHeader: boolean } {
     cells: cellElements.map((cell) => cleanContentText(descendantText(cell))).filter(Boolean),
     hasHeader: cellElements.some((cell) => cell.name === "th"),
   };
+}
+
+function summarizeForms(html: string, baseUrl: string): PageFormSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  return findElements(document.children, (item) => item.name === "form")
+    .map((form, index) => summarizeForm(form, index, baseUrl, document.children))
+    .filter((form): form is PageFormSummary => Boolean(form))
+    .slice(0, 4);
+}
+
+function summarizeForm(form: Element, index: number, baseUrl: string, rootNodes: AnyNode[]): PageFormSummary | undefined {
+  const fields = summarizeFormFields(form, rootNodes);
+  if (fields.length === 0) return undefined;
+  const method = (attr(form, "method") || "get").toLowerCase();
+  const action = attr(form, "action") || baseUrl;
+  const actionUrl = normalizeHref(action, baseUrl) ?? action;
+  const submitText = summarizeFormSubmitText(form);
+  const queryField = formQueryField(fields);
+  const urlTemplate = method === "get" && queryField ? formUrlTemplate(actionUrl, queryField) : "";
+  const textParts = [
+    `${method.toUpperCase()} ${actionUrl}`,
+    queryField ? `query field: ${queryField}` : "",
+    submitText ? `submit: ${submitText}` : "",
+    ...fields.slice(0, 4).map(formatFormFieldSummary),
+  ].filter(Boolean);
+  const summary: PageFormSummary = {
+    id: `f${index + 1}`,
+    path: `pageCheck.forms[${index}]`,
+    rank: index + 1,
+    method,
+    actionUrl,
+    fieldCount: fields.length,
+    fields: fields.slice(0, 6),
+    text: cleanContentText(textParts.join(" ; ")),
+    selector: `form:nth-of-type(${index + 1})`,
+  };
+  if (submitText) summary.submitText = submitText;
+  if (queryField) summary.queryField = queryField;
+  if (urlTemplate) summary.urlTemplate = urlTemplate;
+  return summary;
+}
+
+function summarizeFormFields(form: Element, rootNodes: AnyNode[]): PageFormFieldSummary[] {
+  const controls = findElements(form.children, (item) => ["input", "textarea", "select"].includes(item.name));
+  return controls
+    .map((control, index) => summarizeFormField(control, index, rootNodes))
+    .filter((field): field is PageFormFieldSummary => Boolean(field));
+}
+
+function summarizeFormField(control: Element, index: number, rootNodes: AnyNode[]): PageFormFieldSummary | undefined {
+  const type = control.name === "textarea"
+    ? "textarea"
+    : control.name === "select"
+      ? "select"
+      : (attr(control, "type") || "text").toLowerCase();
+  if (type === "hidden" || type === "submit" || type === "button" || type === "image" || type === "reset") return undefined;
+  const name = attr(control, "name") || attr(control, "id") || "";
+  const field: PageFormFieldSummary = {
+    type,
+    selector: name ? `${control.name}[name="${cssAttributeValue(name)}"]` : `${control.name}:nth-of-type(${index + 1})`,
+  };
+  const label = formFieldLabel(control, rootNodes);
+  const placeholder = attr(control, "placeholder") || "";
+  const value = attr(control, "value") || "";
+  const options = control.name === "select"
+    ? findElements(control.children, (item) => item.name === "option").map((option) => cleanContentText(descendantText(option) || attr(option, "value") || "")).filter(Boolean).slice(0, 8)
+    : [];
+  if (name) field.name = name;
+  if (label) field.label = label;
+  if (placeholder) field.placeholder = placeholder;
+  if (value) field.value = value;
+  if (attr(control, "required") !== undefined || attr(control, "aria-required") === "true") field.required = true;
+  if (options.length > 0) field.options = options;
+  return field;
+}
+
+function cssAttributeValue(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
+}
+
+function formFieldLabel(control: Element, rootNodes: AnyNode[]): string {
+  const ariaLabel = attr(control, "aria-label");
+  if (ariaLabel) return cleanLinkText(ariaLabel);
+  const labelledBy = attr(control, "aria-labelledby");
+  if (labelledBy) {
+    const labels = labelledBy.split(/\s+/)
+      .map((id) => findElement(rootNodes, (item) => attr(item, "id") === id))
+      .map((element) => element ? cleanContentText(descendantText(element)) : "")
+      .filter(Boolean);
+    if (labels.length > 0) return labels.join(" ");
+  }
+  const id = attr(control, "id");
+  if (id) {
+    const explicit = findElement(rootNodes, (item) => item.name === "label" && attr(item, "for") === id);
+    if (explicit) return cleanContentText(descendantText(explicit));
+  }
+  const wrapped = nearestAncestorLabel(control, rootNodes);
+  if (wrapped) return cleanContentText(descendantText(wrapped));
+  return "";
+}
+
+function nearestAncestorLabel(target: Element, nodes: AnyNode[]): Element | undefined {
+  function visit(nodeList: AnyNode[], ancestors: Element[]): Element | undefined {
+    for (const node of nodeList) {
+      if (!(node instanceof DomElement)) continue;
+      if (node === target) return [...ancestors].reverse().find((ancestor) => ancestor.name === "label");
+      const found = visit(node.children, [...ancestors, node]);
+      if (found) return found;
+    }
+    return undefined;
+  }
+  return visit(nodes, []);
+}
+
+function summarizeFormSubmitText(form: Element): string {
+  const submit = findElement(form.children, (item) => {
+    if (item.name === "button") return !attr(item, "type") || attr(item, "type") === "submit";
+    return item.name === "input" && (attr(item, "type") || "text").toLowerCase() === "submit";
+  });
+  if (!submit) return "";
+  return cleanLinkText(elementText(submit) || attr(submit, "value") || attr(submit, "aria-label") || "");
+}
+
+function elementText(element: Element): string {
+  let text = "";
+  for (const child of element.children) {
+    if (child.type === "text") {
+      text += child.data;
+    } else if (child instanceof DomElement) {
+      text += elementText(child);
+    }
+  }
+  return text;
+}
+
+function formQueryField(fields: PageFormFieldSummary[]): string {
+  const queryLike = fields.find((field) => field.name && (field.type === "search" || /^(q|query|search|keyword|keywords|s|wd|p)$/i.test(field.name) || /search|query|keyword|검색/i.test(`${field.label ?? ""} ${field.placeholder ?? ""}`)));
+  return queryLike?.name ?? fields.find((field) => field.name && (field.type === "text" || field.type === "search"))?.name ?? "";
+}
+
+function formUrlTemplate(actionUrl: string, queryField: string): string {
+  try {
+    const url = new URL(actionUrl);
+    url.searchParams.set(queryField, "{query}");
+    return url.toString();
+  } catch {
+    return "";
+  }
+}
+
+function formatFormFieldSummary(field: PageFormFieldSummary): string {
+  const name = field.name ? `${field.name}:` : "";
+  const label = field.label || field.placeholder || field.value || "";
+  const required = field.required ? " required" : "";
+  const options = field.options?.length ? ` options=${field.options.join("|")}` : "";
+  return `${name}${field.type}${required}${label ? ` ${label}` : ""}${options}`;
 }
 
 function evidenceScore(text: string, role: string, semantic: boolean, hasSelector: boolean): number {
@@ -3824,6 +4036,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.dataTables" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.forms.length > 0) {
+    add({
+      path: "pageCheck.forms",
+      reason: "Form action, method, field names, labels, and query URL templates extracted from the page HTML.",
+      count: pageCheck.forms.length,
+      score: roundMetric(Math.min(1, 0.4 + pageCheck.forms.length * 0.08)),
+      ...(primaryReadFrom === "pageCheck.forms" ? { primary: true } : {}),
+    });
+  }
   if (sourceSearch?.selectedResult) {
     add({
       path: "sourceSearch.selectedResult",
@@ -4013,6 +4234,7 @@ function agentReadValue(
   if (path === "verification.bestEvidence" && verification.bestEvidence) return { path, value: verification.bestEvidence };
   if (path === "pageCheck.contentEvidence") return { path, value: pageCheck.contentEvidence };
   if (path === "pageCheck.dataTables") return { path, value: pageCheck.dataTables };
+  if (path === "pageCheck.forms") return { path, value: pageCheck.forms };
   if (path === "searchResults") return { path, value: results };
   if (path === "sourceSearch.selectedResult" && sourceSearch?.selectedResult) return { path, value: sourceSearch.selectedResult };
   if (path === "sourceSearch.alternateResults" && sourceSearch?.alternateResults) return { path, value: sourceSearch.alternateResults };
@@ -4357,6 +4579,15 @@ function findCandidates(
       ...(table.selector ? { selector: table.selector } : {}),
     });
   }
+  for (const form of pageCheck.forms) {
+    add({
+      field: "form",
+      text: form.text,
+      rank: form.rank,
+      ...(form.actionUrl ? { url: form.actionUrl } : {}),
+      ...(form.selector ? { selector: form.selector } : {}),
+    });
+  }
   for (const link of pageCheck.sourceLinks) add({ field: "sourceLink", text: link.title, rank: link.rank, url: link.url });
   for (const link of pageCheck.primaryLinks) add({ field: "primaryLink", text: link.title, rank: link.rank, url: link.url });
   for (const result of results) add({ field: "result", text: [result.title, result.snippet].filter(Boolean).join(" "), rank: result.rank, url: result.url });
@@ -4500,6 +4731,7 @@ function emptyPageCheck(): PageCheckSummary {
     contentPreview: [],
     contentEvidence: [],
     dataTables: [],
+    forms: [],
     contentLength: 0,
     primaryLinks: [],
     sourceLinks: [],
@@ -5443,6 +5675,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
   return {
     contentEvidence: pageCheck.contentEvidence,
     ...(pageCheck.dataTables.length > 0 ? { dataTables: pageCheck.dataTables } : {}),
+    ...(pageCheck.forms.length > 0 ? { forms: pageCheck.forms } : {}),
     contentLength: pageCheck.contentLength,
     ...(primaryLinks.length > 0 && !omitResultLinkDuplicates ? { primaryLinks: primaryLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `l${index + 1}`, path: `pageCheck.primaryLinks[${index}]` })) } : {}),
     ...(pageCheck.sourceLinks.length > 0 && !omitResultLinkDuplicates ? { sourceLinks: pageCheck.sourceLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `s${index + 1}`, path: `pageCheck.sourceLinks[${index}]` })) } : {}),
