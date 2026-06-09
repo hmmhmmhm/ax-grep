@@ -37,6 +37,39 @@ const syntheticSearchRefineHtml = `
 
 const syntheticBlockedHtml = "";
 
+const syntheticHiddenMetadataHtml = `
+  <html>
+    <head>
+      <title>Hidden agent payload</title>
+      <meta name="application-name" content="Agent Console">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="al:ios:url" content="agent-console://open/report">
+      <meta name="citation_doi" content="10.5555/agent-check.2026">
+      <meta http-equiv="permissions-policy" content="geolocation=()">
+      <link rel="manifest" href="/app.webmanifest">
+      <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "Dataset",
+          "name": "Agent hidden benchmark dataset",
+          "url": "https://hidden.example/datasets/agent",
+          "license": "https://creativecommons.org/licenses/by/4.0/"
+        }
+      </script>
+      <script>
+        window.__APP_CONFIG__ = {
+          apiBase: "https://hidden.example/api",
+          featureFlags: { agentMode: true }
+        };
+        fetch("/api/agent-report");
+      </script>
+    </head>
+    <body>
+      <main><h1>Hidden agent payload</h1></main>
+    </body>
+  </html>
+`;
+
 export const koreaSocialTargets: BenchmarkTarget[] = [
   {
     category: "Clien home",
@@ -169,6 +202,11 @@ export const agentExecutorTargets: BenchmarkTarget[] = [
     category: "Synthetic browser HTML retry gate",
     url: "https://blocked.example/app-shell",
     html: syntheticBlockedHtml,
+  },
+  {
+    category: "Synthetic hidden metadata gate",
+    url: "https://hidden.example/agent",
+    html: syntheticHiddenMetadataHtml,
   },
   {
     category: "Example baseline",

@@ -116,6 +116,13 @@ can decide whether requested evidence is complete before reading details.
 `agent.responseOk`, `agent.responseContentType`, and `agent.finalUrlChanged`
 mirror the compact envelope response fields, so agents can judge fetch health
 from the top-level `agent` object.
+`averageAgentHiddenSignalScore` tracks whether hidden `pageCheck` groups such
+as hydration, API endpoints, app config, app/mobile hints, provenance,
+policies, JSON-LD facts, and resource metadata are present at valid payload
+paths and discoverable through at least one read target when available. This is
+the executor-focused counterweight to raw accessibility-tree overlap: these
+signals are often useful to subagents but absent from browser accessibility
+snapshots.
 `averageAgentCanContinueScore` tracks whether `agent.canContinue` agrees with
 the primary action execution class, so recoverable errors with runnable actions
 do not look terminal and usage/input errors without actions do not look
@@ -207,9 +214,12 @@ Run with `pnpm compare:static URL...`.
 Run with `pnpm compare:static:agent` for the smaller executor-focused regression
 set that exercises readable pages, listings, forum-style links, and a search
 diagnostic while tracking `averageAgentExecutorScore`.
-In the current run, the gate summary includes 3 targets and excludes 2
-diagnostics; `averageAgentExecutorScore` is 1.00 for the included executor
-targets.
+In the current run, the gate summary includes 7 targets and excludes 4
+diagnostics; `averageAgentExecutorScore` is 0.991 and
+`averageAgentHiddenSignalScore` is 1.00 for the included executor targets.
+The set includes a synthetic hidden-metadata gate whose browser snapshot only
+contains a visible heading while `pageCheck` exposes 13 hidden head, script,
+policy, app-link, provenance, and JSON-LD signals.
 
 This path fetches HTML and runs `extract(html)` from the static entry without
 Chrome, jsdom, WebView, layout, or script execution. `agent-browser` is used only

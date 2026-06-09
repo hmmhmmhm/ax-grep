@@ -75,6 +75,7 @@ type CliAgentSummary = {
   agentDiagnosticCountScore: number;
   agentVerificationCountScore: number;
   agentResponseMetadataScore: number;
+  agentHiddenSignalScore: number;
   agentPrimaryAction?: string;
   agentPrimaryExecution?: ActionExecution;
   agentReadTargetScore: number;
@@ -111,6 +112,7 @@ type CliAgentSummary = {
     actionCount: number;
     recommendedAction?: string;
     nextStepCount: number;
+    hiddenSignalCount: number;
   };
   searchResultCount: number;
   searchResultActionScore: number;
@@ -125,6 +127,28 @@ type CliAgentSummary = {
 type ActionExecution = "run-command" | "read-current" | "interact-browser" | "inspect-output" | "unknown";
 type AgentRoutingIntent = "read-current" | "open-url" | "search" | "browser-html" | "browser-interaction" | "inspect-output" | "none";
 type AgentContinuationMode = "command" | "read" | "browser" | "capture-html" | "inspect" | "stop";
+
+const hiddenPageCheckPaths = [
+  "hydration",
+  "apiEndpoints",
+  "clientState",
+  "runtime",
+  "config",
+  "appHints",
+  "mobileHints",
+  "topics",
+  "keyValues",
+  "metaFacts",
+  "provenance",
+  "httpPolicies",
+  "schemaFacts",
+  "offers",
+  "identities",
+  "datasets",
+  "timeline",
+  "contactPoints",
+  "authorLinks",
+] as const;
 
 type CliActionShape = {
   action?: string;
@@ -448,6 +472,7 @@ type GateSummary = {
   averageAgentDiagnosticCountScore: number;
   averageAgentVerificationCountScore: number;
   averageAgentResponseMetadataScore: number;
+  averageAgentHiddenSignalScore: number;
   averageAgentReadabilityReasonScore: number;
   averageAgentSourceSearchProvenanceScore: number;
   averageAgentRecommendedMetadataScore: number;
@@ -874,6 +899,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
   const confidence = item.pageCheck?.confidence ?? "low";
   const readabilityLevel = item.pageCheck?.readability?.level ?? "low";
   const cliActions = collectCliActions(item);
+  const hiddenSignalCount = countHiddenPageCheckSignals(item.pageCheck);
   const pageCheckSummary: CliAgentSummary["pageCheck"] = {
     confidence,
     readabilityLevel,
@@ -888,6 +914,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     averageSourceScore: averageSourceScore(item.pageCheck?.sourceLinks ?? []),
     actionCount: item.pageCheck?.actions?.length ?? 0,
     nextStepCount: item.pageCheck?.nextSteps?.length ?? 0,
+    hiddenSignalCount,
   };
   if (item.pageCheck?.recommendedAction?.action) pageCheckSummary.recommendedAction = item.pageCheck.recommendedAction.action;
   const summary: CliAgentSummary = {
@@ -926,6 +953,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentDiagnosticCountScore: scoreAgentDiagnosticCounts(item.agent, item.diagnostics ?? []),
     agentVerificationCountScore: scoreAgentVerificationCounts(item.agent, item.verification),
     agentResponseMetadataScore: scoreAgentResponseMetadata(item.agent, item),
+    agentHiddenSignalScore: scoreAgentHiddenSignals(item.pageCheck, item.agent?.readTargets ?? [], item),
     agentReadTargetScore: scoreAgentReadTargets(item.agent?.readTargets ?? [], item.agent?.primaryAction, item),
     agentResultCountScore: scoreAgentResultCount(item.kind ?? "unknown", item.agent?.resultCount, item.searchResults ?? []),
     agentResultChoiceScore: scoreAgentResultChoices(item.agent?.resultChoices ?? [], item.searchResults ?? [], item.recommendedResult, item.agent?.primaryAction),
@@ -988,6 +1016,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentDiagnosticCountScore: 0,
     agentVerificationCountScore: 0,
     agentResponseMetadataScore: 0,
+    agentHiddenSignalScore: 0,
     agentReadTargetScore: 0,
     agentResultCountScore: 0,
     agentResultChoiceScore: 0,
@@ -1021,6 +1050,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
       averageSourceScore: 0,
       actionCount: 0,
       nextStepCount: 0,
+      hiddenSignalCount: 0,
     },
     searchResultCount: 0,
     searchResultActionScore: 1,
@@ -1691,6 +1721,52 @@ function scoreAgentReadTargets(readTargets: CliReadTargetShape[], primaryAction:
   if (primaryAction?.execution !== "read-current" || !primaryAction.readFrom) return validPathScore + 0.5;
   const primaryMatches = readTargets.some((target) => target.path === primaryAction.readFrom && target.primary === true);
   return roundScore(validPathScore + (primaryMatches ? 0.5 : 0));
+}
+
+function countHiddenPageCheckSignals(pageCheck: unknown): number {
+  if (!pageCheck || typeof pageCheck !== "object") return 0;
+  const record = pageCheck as Record<string, unknown>;
+  return hiddenPageCheckPaths.reduce((total, path) => {
+    const value = record[path];
+    return total + (Array.isArray(value) ? value.length : 0);
+  }, 0);
+}
+
+function scoreAgentHiddenSignals(pageCheck: unknown, readTargets: CliReadTargetShape[], envelope: unknown): number {
+  if (!pageCheck || typeof pageCheck !== "object") return 1;
+  const record = pageCheck as Record<string, unknown>;
+  const presentPaths = hiddenPageCheckPaths.filter((path) => {
+    const value = record[path];
+    return Array.isArray(value) && value.length > 0;
+  });
+  if (presentPaths.length === 0) return 1;
+
+  const payloadPathScore = average(presentPaths.map((path) => pathExists(envelope, `pageCheck.${path}`) ? 1 : 0));
+  const readTargetPaths = new Set(readTargets.map((target) => target.path));
+  const readTargetCoverage = presentPaths.some((path) => readTargetPaths.has(`pageCheck.${path}`)) ? 1 : 0;
+  const reasons = Array.isArray((record.readability as { reasons?: unknown[] } | undefined)?.reasons)
+    ? (record.readability as { reasons?: unknown[] }).reasons ?? []
+    : [];
+  const reasonText = reasons.filter((reason): reason is string => typeof reason === "string").join("\n").toLowerCase();
+  const reasonCoverage = presentPaths.some((path) => reasonText.includes(hiddenSignalReasonNeedle(path))) ? 1 : 0;
+
+  return roundScore(payloadPathScore * 0.5 + readTargetCoverage * 0.35 + reasonCoverage * 0.15);
+}
+
+function hiddenSignalReasonNeedle(path: string): string {
+  const labels: Record<string, string> = {
+    apiEndpoints: "api endpoint",
+    clientState: "client state",
+    appHints: "app hint",
+    mobileHints: "mobile hint",
+    keyValues: "key-value",
+    metaFacts: "meta fact",
+    httpPolicies: "http polic",
+    schemaFacts: "schema fact",
+    contactPoints: "contact point",
+    authorLinks: "author link",
+  };
+  return labels[path] ?? path.replace(/[A-Z]/g, (letter) => ` ${letter.toLowerCase()}`).replace(/s$/, "");
 }
 
 function scoreAgentBestReadTarget(agent: {
@@ -2384,6 +2460,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentDiagnosticCountScore * 0.005
     + summary.agentVerificationCountScore * 0.005
     + summary.agentResponseMetadataScore * 0.005
+    + summary.agentHiddenSignalScore * 0.005
     + summary.agentRoutingIntentScore * 0.005
     + summary.agentContinuationModeScore * 0.005
     + summary.agentNextScore * 0.005
@@ -2436,6 +2513,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentResponseMetadataScore,
     summary.agentDiagnosticCountScore,
     summary.agentVerificationCountScore,
+    summary.agentHiddenSignalScore,
   ]));
 }
 
@@ -2508,6 +2586,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentDiagnosticCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentDiagnosticCountScore)),
     averageAgentVerificationCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentVerificationCountScore)),
     averageAgentResponseMetadataScore: average(included.map((comparison) => comparison.cliAgentSummary.agentResponseMetadataScore)),
+    averageAgentHiddenSignalScore: average(included.map((comparison) => comparison.cliAgentSummary.agentHiddenSignalScore)),
     averageAgentReadabilityReasonScore: average(included.map((comparison) => comparison.cliAgentSummary.agentReadabilityReasonScore)),
     averageAgentSourceSearchProvenanceScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSourceSearchProvenanceScore)),
     averageAgentRecommendedMetadataScore: average(included.map((comparison) => comparison.cliAgentSummary.agentRecommendedMetadataScore)),
