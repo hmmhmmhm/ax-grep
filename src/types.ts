@@ -480,6 +480,7 @@ export type AgentContractFeature =
   | "pageCheck.runtime"
   | "pageCheck.config"
   | "pageCheck.appHints"
+  | "pageCheck.mobileHints"
   | "pageCheck.topics"
   | "pageCheck.keyValues"
   | "pageCheck.metaFacts"

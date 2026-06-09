@@ -314,6 +314,7 @@ describe("cli", () => {
             "pageCheck.runtime",
             "pageCheck.config",
             "pageCheck.appHints",
+            "pageCheck.mobileHints",
             "pageCheck.topics",
             "pageCheck.provenance",
             "pageCheck.httpPolicies",
@@ -4047,6 +4048,126 @@ describe("cli", () => {
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "use-evidence",
       readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("summarizes mobile viewport and app-link hints from hidden head metadata", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/mobile", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+            <meta name="format-detection" content="telephone=no">
+            <meta name="apple-itunes-app" content="app-id=123456789, app-argument=https://example.test/open">
+            <meta name="al:ios:url" content="example://article/42">
+            <meta name="al:android:package" content="com.example.reader">
+            <link rel="alternate" href="android-app://com.example.reader/https/example.test/article/42">
+          </head>
+          <body><main><h1>Mobile Article</h1></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.mobileHints).toEqual([
+      {
+        id: "mh1",
+        path: "pageCheck.mobileHints[0]",
+        rank: 1,
+        kind: "viewport",
+        label: "Viewport",
+        value: "width=device-width, initial-scale=1, viewport-fit=cover",
+        text: "Viewport: width=device-width, initial-scale=1, viewport-fit=cover kind=viewport source=meta",
+        source: "meta",
+        selector: "meta[name=\"viewport\"]:nth-of-type(1)",
+      },
+      {
+        id: "mh2",
+        path: "pageCheck.mobileHints[1]",
+        rank: 2,
+        kind: "format-detection",
+        label: "Format detection",
+        value: "telephone=no",
+        text: "Format detection: telephone=no kind=format-detection source=meta",
+        source: "meta",
+        selector: "meta[name=\"format-detection\"]:nth-of-type(2)",
+      },
+      {
+        id: "mh3",
+        path: "pageCheck.mobileHints[2]",
+        rank: 3,
+        kind: "smart-app-banner",
+        label: "Apple Smart App Banner",
+        value: "app-id=123456789, app-argument=https://example.test/open",
+        text: "Apple Smart App Banner: app-id=123456789, app-argument=https://example.test/open kind=smart-app-banner platform=ios url=https://example.test/open source=meta",
+        source: "meta",
+        platform: "ios",
+        url: "https://example.test/open",
+        selector: "meta[name=\"apple-itunes-app\"]:nth-of-type(3)",
+      },
+      {
+        id: "mh4",
+        path: "pageCheck.mobileHints[3]",
+        rank: 4,
+        kind: "app-link",
+        label: "iOS app URL",
+        value: "example://article/42",
+        text: "iOS app URL: example://article/42 kind=app-link platform=ios url=example://article/42 source=meta",
+        source: "meta",
+        platform: "ios",
+        url: "example://article/42",
+        selector: "meta[name=\"al:ios:url\"]:nth-of-type(4)",
+      },
+      {
+        id: "mh5",
+        path: "pageCheck.mobileHints[4]",
+        rank: 5,
+        kind: "app-link",
+        label: "Android package",
+        value: "com.example.reader",
+        text: "Android package: com.example.reader kind=app-link platform=android source=meta",
+        source: "meta",
+        platform: "android",
+        selector: "meta[name=\"al:android:package\"]:nth-of-type(5)",
+      },
+      {
+        id: "mh6",
+        path: "pageCheck.mobileHints[5]",
+        rank: 6,
+        kind: "app-link",
+        label: "android alternate app link",
+        value: "android-app://com.example.reader/https/example.test/article/42",
+        text: "android alternate app link: android-app://com.example.reader/https/example.test/article/42 kind=app-link platform=android url=android-app://com.example.reader/https/example.test/article/42 source=link",
+        source: "link",
+        platform: "android",
+        url: "android-app://com.example.reader/https/example.test/article/42",
+        selector: "link[rel=\"alternate\"]:nth-of-type(1)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("6 mobile hints");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.mobileHints",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.mobileHints",
+      count: 6,
+      primary: true,
+      reason: "Mobile viewport, format detection, color scheme, smart app banner, and app-link hints extracted from hidden head metadata.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.mobileHints",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          id: "mh4",
+          url: "example://article/42",
+        }),
+      ]),
     });
   });
 

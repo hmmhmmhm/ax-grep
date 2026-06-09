@@ -434,6 +434,20 @@ type PageAppHintSummary = {
   selector?: string;
 };
 
+type PageMobileHintSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "viewport" | "format-detection" | "color-scheme" | "smart-app-banner" | "app-link";
+  label: string;
+  value: string;
+  text: string;
+  source: "meta" | "link";
+  platform?: string;
+  url?: string;
+  selector?: string;
+};
+
 type PageTopicSummary = {
   id: string;
   path: string;
@@ -895,6 +909,7 @@ const agentContract: AgentContract = {
     "pageCheck.runtime",
     "pageCheck.config",
     "pageCheck.appHints",
+    "pageCheck.mobileHints",
     "pageCheck.topics",
     "pageCheck.keyValues",
     "pageCheck.metaFacts",
@@ -951,6 +966,7 @@ type PageCheckSummary = {
   runtime: PageRuntimeSummary[];
   config: PageConfigSummary[];
   appHints: PageAppHintSummary[];
+  mobileHints: PageMobileHintSummary[];
   topics: PageTopicSummary[];
   keyValues: PageKeyValueSummary[];
   metaFacts: PageMetaFactSummary[];
@@ -2356,6 +2372,12 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const selector = hint.selector ? ` (${hint.selector})` : "";
     lines.push(`  appHint: ${hint.id} ${hint.path} ${hint.kind}${selector}${url} - ${hint.text}`);
   }
+  for (const hint of pageCheck.mobileHints) {
+    const url = hint.url ? ` <${hint.url}>` : "";
+    const platform = hint.platform ? ` ${hint.platform}` : "";
+    const selector = hint.selector ? ` (${hint.selector})` : "";
+    lines.push(`  mobileHint: ${hint.id} ${hint.path} ${hint.kind}${platform}${selector}${url} - ${hint.text}`);
+  }
   for (const topic of pageCheck.topics) {
     const selector = topic.selector ? ` (${topic.selector})` : "";
     lines.push(`  topic: ${topic.id} ${topic.path} ${topic.kind}${selector} - ${topic.text}`);
@@ -3300,6 +3322,7 @@ function summarizePageCheck(
   const runtime = summarizeRuntime(fetched.html, fetched.finalUrl);
   const config = summarizeConfig(fetched.html);
   const appHints = summarizeAppHints(fetched.html, fetched.finalUrl);
+  const mobileHints = summarizeMobileHints(fetched.html, fetched.finalUrl);
   const topics = summarizeTopics(fetched.html);
   const keyValues = summarizeKeyValues(fetched.html);
   const metaFacts = summarizeMetaFacts(fetched.html, fetched.finalUrl);
@@ -3326,8 +3349,8 @@ function summarizePageCheck(
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, actionTargets, hydration, apiEndpoints, clientState, runtime, config, appHints, topics, keyValues, metaFacts, provenance, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, actionTargets, hydration, apiEndpoints, clientState, runtime, config, appHints, topics, keyValues, metaFacts, provenance, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, actionTargets, hydration, apiEndpoints, clientState, runtime, config, appHints, mobileHints, topics, keyValues, metaFacts, provenance, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, actionTargets, hydration, apiEndpoints, clientState, runtime, config, appHints, mobileHints, topics, keyValues, metaFacts, provenance, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -3341,6 +3364,7 @@ function summarizePageCheck(
     runtime,
     config,
     appHints,
+    mobileHints,
     topics,
     keyValues,
     metaFacts,
@@ -3403,6 +3427,7 @@ function summarizeReadability(
   runtime: PageRuntimeSummary[],
   config: PageConfigSummary[],
   appHints: PageAppHintSummary[],
+  mobileHints: PageMobileHintSummary[],
   topics: PageTopicSummary[],
   keyValues: PageKeyValueSummary[],
   metaFacts: PageMetaFactSummary[],
@@ -3476,6 +3501,10 @@ function summarizeReadability(
   if (appHints.length > 0) {
     score += Math.min(0.06, appHints.length * 0.02);
     reasons.push(`${appHints.length} app hint${appHints.length === 1 ? "" : "s"}`);
+  }
+  if (mobileHints.length > 0) {
+    score += Math.min(0.06, mobileHints.length * 0.02);
+    reasons.push(`${mobileHints.length} mobile hint${mobileHints.length === 1 ? "" : "s"}`);
   }
   if (topics.length > 0) {
     score += Math.min(0.08, topics.length * 0.02);
@@ -3639,6 +3668,7 @@ function recommendedPageCheckAction(
   runtime: PageRuntimeSummary[],
   config: PageConfigSummary[],
   appHints: PageAppHintSummary[],
+  mobileHints: PageMobileHintSummary[],
   topics: PageTopicSummary[],
   keyValues: PageKeyValueSummary[],
   metaFacts: PageMetaFactSummary[],
@@ -3707,7 +3737,9 @@ function recommendedPageCheckAction(
                     ? "pageCheck.config"
           : appHints.length > 0
             ? "pageCheck.appHints"
-            : topics.length > 0
+            : mobileHints.length > 0
+              ? "pageCheck.mobileHints"
+              : topics.length > 0
               ? "pageCheck.topics"
         : keyValues.length > 0
           ? "pageCheck.keyValues"
@@ -3832,6 +3864,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.appHints",
+    };
+  }
+  if (mobileHints.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but mobile viewport and app-link hints are available for agent planning.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.mobileHints",
     };
   }
   if (topics.length > 0) {
@@ -5306,6 +5347,156 @@ function appHintText(kind: PageAppHintSummary["kind"], label: string, value: str
     url ? `url=${url}` : "",
     sizes ? `sizes=${sizes}` : "",
     media ? `media=${media}` : "",
+    `source=${source}`,
+  ].filter(Boolean).join(" "));
+}
+
+function summarizeMobileHints(html: string, baseUrl: string): PageMobileHintSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageMobileHintSummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageMobileHintSummary, "id" | "path" | "rank" | "text">): void => {
+    const label = cleanContentText(item.label).slice(0, 80);
+    const value = cleanContentText(item.value).slice(0, 220);
+    const url = item.url ? normalizeHref(item.url, baseUrl) ?? cleanLinkText(item.url) : "";
+    const platform = cleanContentText(item.platform ?? "").slice(0, 40);
+    const key = `${item.kind}\n${label}\n${value}\n${platform}\n${url}`.toLowerCase();
+    if (!label || !value || seen.has(key)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `mh${rank}`,
+      path: `pageCheck.mobileHints[${rank - 1}]`,
+      rank,
+      kind: item.kind,
+      label,
+      value,
+      source: item.source,
+      ...(platform ? { platform } : {}),
+      ...(url ? { url } : {}),
+      ...(item.selector ? { selector: item.selector } : {}),
+      text: mobileHintText(item.kind, label, value, platform, url, item.source),
+    });
+  };
+
+  for (const [index, meta] of findElements(document.children, (item) => item.name === "meta").entries()) {
+    const name = cleanLinkText(attr(meta, "name") || attr(meta, "property") || "").toLowerCase();
+    const content = cleanContentText(attr(meta, "content") ?? "");
+    if (!name || !content) continue;
+    const hint = mobileHintFromMeta(name, content);
+    if (!hint) continue;
+    add({
+      ...hint,
+      source: "meta",
+      selector: `meta[name="${cssAttributeValue(name)}"]:nth-of-type(${index + 1})`,
+    });
+  }
+
+  for (const [index, link] of findElements(document.children, (item) => item.name === "link").entries()) {
+    const rel = cleanLinkText(attr(link, "rel") ?? "").toLowerCase();
+    const href = cleanLinkText(attr(link, "href") ?? "");
+    if (!href || !rel.split(/\s+/).includes("alternate")) continue;
+    const type = cleanLinkText(attr(link, "type") ?? "").toLowerCase();
+    const platform = mobileAlternatePlatform(type, href);
+    if (!platform) continue;
+    add({
+      kind: "app-link",
+      label: `${platform} alternate app link`,
+      value: href,
+      source: "link",
+      platform,
+      url: href,
+      selector: `link[rel="${cssAttributeValue(rel)}"]:nth-of-type(${index + 1})`,
+    });
+  }
+
+  return items.slice(0, 8);
+}
+
+function mobileHintFromMeta(name: string, content: string): Omit<PageMobileHintSummary, "id" | "path" | "rank" | "text" | "source" | "selector"> | undefined {
+  if (name === "viewport") return { kind: "viewport", label: "Viewport", value: content };
+  if (name === "format-detection") return { kind: "format-detection", label: "Format detection", value: content };
+  if (name === "color-scheme" || name === "supported-color-schemes") return { kind: "color-scheme", label: mobileMetaLabel(name), value: content };
+  if (name === "apple-itunes-app") {
+    const url = appArgumentUrl(content);
+    return {
+      kind: "smart-app-banner",
+      label: "Apple Smart App Banner",
+      value: content,
+      platform: "ios",
+      ...(url ? { url } : {}),
+    };
+  }
+  if (/^(al:ios:url|twitter:app:url:iphone|twitter:app:url:ipad)$/.test(name)) {
+    return { kind: "app-link", label: mobileMetaLabel(name), value: content, platform: "ios", url: content };
+  }
+  if (/^(al:android:url|twitter:app:url:googleplay)$/.test(name)) {
+    return { kind: "app-link", label: mobileMetaLabel(name), value: content, platform: "android", url: content };
+  }
+  if (/^(al:web:url|twitter:app:url)$/.test(name)) {
+    return { kind: "app-link", label: mobileMetaLabel(name), value: content, platform: "web", url: content };
+  }
+  if (/^(al:ios:app_name|al:android:app_name|twitter:app:name:iphone|twitter:app:name:ipad|twitter:app:name:googleplay)$/.test(name)) {
+    return { kind: "app-link", label: mobileMetaLabel(name), value: content, platform: mobileMetaPlatform(name) };
+  }
+  if (/^(al:ios:app_store_id|al:android:package|twitter:app:id:iphone|twitter:app:id:ipad|twitter:app:id:googleplay)$/.test(name)) {
+    return { kind: "app-link", label: mobileMetaLabel(name), value: content, platform: mobileMetaPlatform(name) };
+  }
+  return undefined;
+}
+
+function mobileMetaLabel(name: string): string {
+  const labels: Record<string, string> = {
+    "color-scheme": "Color scheme",
+    "supported-color-schemes": "Supported color schemes",
+    "al:ios:url": "iOS app URL",
+    "al:ios:app_name": "iOS app name",
+    "al:ios:app_store_id": "iOS App Store ID",
+    "al:android:url": "Android app URL",
+    "al:android:app_name": "Android app name",
+    "al:android:package": "Android package",
+    "al:web:url": "Web app URL",
+    "twitter:app:url:iphone": "Twitter iPhone app URL",
+    "twitter:app:url:ipad": "Twitter iPad app URL",
+    "twitter:app:url:googleplay": "Twitter Google Play app URL",
+    "twitter:app:url": "Twitter app URL",
+    "twitter:app:name:iphone": "Twitter iPhone app name",
+    "twitter:app:name:ipad": "Twitter iPad app name",
+    "twitter:app:name:googleplay": "Twitter Google Play app name",
+    "twitter:app:id:iphone": "Twitter iPhone app ID",
+    "twitter:app:id:ipad": "Twitter iPad app ID",
+    "twitter:app:id:googleplay": "Twitter Google Play app ID",
+  };
+  return labels[name] ?? cleanContentText(name.replace(/[:_-]+/g, " "));
+}
+
+function mobileMetaPlatform(name: string): string {
+  if (name.includes("ios") || name.includes("iphone") || name.includes("ipad")) return "ios";
+  if (name.includes("android") || name.includes("googleplay")) return "android";
+  return "web";
+}
+
+function mobileAlternatePlatform(type: string, href: string): string {
+  if (type === "application/vnd.android.package-archive" || /^android-app:\/\//i.test(href)) return "android";
+  if (/^ios-app:\/\//i.test(href)) return "ios";
+  return "";
+}
+
+function appArgumentUrl(content: string): string | undefined {
+  const match = /(?:^|,)\s*app-argument\s*=\s*([^,]+)/i.exec(content);
+  return match?.[1]?.trim();
+}
+
+function mobileHintText(kind: PageMobileHintSummary["kind"], label: string, value: string, platform: string, url: string, source: PageMobileHintSummary["source"]): string {
+  return cleanContentText([
+    `${label}: ${value}`,
+    `kind=${kind}`,
+    platform ? `platform=${platform}` : "",
+    url ? `url=${url}` : "",
     `source=${source}`,
   ].filter(Boolean).join(" "));
 }
@@ -9121,6 +9312,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.appHints" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.mobileHints.length > 0) {
+    add({
+      path: "pageCheck.mobileHints",
+      reason: "Mobile viewport, format detection, color scheme, smart app banner, and app-link hints extracted from hidden head metadata.",
+      count: pageCheck.mobileHints.length,
+      score: roundMetric(Math.min(1, 0.4 + pageCheck.mobileHints.length * 0.06)),
+      ...(primaryReadFrom === "pageCheck.mobileHints" ? { primary: true } : {}),
+    });
+  }
   if (pageCheck.topics.length > 0) {
     add({
       path: "pageCheck.topics",
@@ -9550,6 +9750,7 @@ function agentReadValue(
   if (path === "pageCheck.runtime") return { path, value: pageCheck.runtime };
   if (path === "pageCheck.config") return { path, value: pageCheck.config };
   if (path === "pageCheck.appHints") return { path, value: pageCheck.appHints };
+  if (path === "pageCheck.mobileHints") return { path, value: pageCheck.mobileHints };
   if (path === "pageCheck.topics") return { path, value: pageCheck.topics };
   if (path === "pageCheck.contactPoints") return { path, value: pageCheck.contactPoints };
   if (path === "pageCheck.keyValues") return { path, value: pageCheck.keyValues };
@@ -9995,6 +10196,15 @@ function findCandidates(
       ...(hint.selector ? { selector: hint.selector } : {}),
     });
   }
+  for (const hint of pageCheck.mobileHints) {
+    add({
+      field: "mobileHint",
+      text: hint.text,
+      rank: hint.rank,
+      ...(hint.url ? { url: hint.url } : {}),
+      ...(hint.selector ? { selector: hint.selector } : {}),
+    });
+  }
   for (const topic of pageCheck.topics) {
     add({
       field: "topic",
@@ -10344,6 +10554,7 @@ function emptyPageCheck(): PageCheckSummary {
     runtime: [],
     config: [],
     appHints: [],
+    mobileHints: [],
     topics: [],
     contactPoints: [],
     keyValues: [],
@@ -11319,6 +11530,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.runtime.length > 0 ? { runtime: pageCheck.runtime } : {}),
     ...(pageCheck.config.length > 0 ? { config: pageCheck.config } : {}),
     ...(pageCheck.appHints.length > 0 ? { appHints: pageCheck.appHints } : {}),
+    ...(pageCheck.mobileHints.length > 0 ? { mobileHints: pageCheck.mobileHints } : {}),
     ...(pageCheck.topics.length > 0 ? { topics: pageCheck.topics } : {}),
     ...(pageCheck.contactPoints.length > 0 ? { contactPoints: pageCheck.contactPoints } : {}),
     ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),

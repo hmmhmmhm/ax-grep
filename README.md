@@ -127,184 +127,45 @@ Use `--lang <code>` and `--region <code>` to add search URL parameters and an
 locales.
 
 For agent routing, use `--agent` when you do not need the raw tree or full link
-tables. It prints compact JSON with the top-level `agent` object plus
-`pageCheck`, search results, requested verification results, and warnings when
-they are present. Read `agent` first: it combines page classification,
-readability, verification, diagnostic codes, and recommended result selection
-into `contract`, `status`, `summary`, `routingIntent`, `continuationMode`,
-`next`, `runbook`, `handoff`, `expectedOutcome`, `signals`, `canUseFetchedHtml`, `needsBrowserHtml`,
-`responseStatus`, `responseOk`, `responseContentType`, `finalUrlChanged`,
-`pageKind`, `alternativeActionCount`, `usabilityScore`,
-`evidenceQualityScore`, `sourceQualityScore`, `readabilityScore`,
-`readabilityReasons`, `diagnosticCodes`, `diagnosticErrorCount`,
-`diagnosticWarningCount`, `diagnosticInfoCount`, `verificationRequestedCount`,
-`verificationFoundCount`, `verificationMissingCount`, `readTargets`, `bestReadTarget`,
-`executionPlan`, `primaryExecution`, `primaryAction`, and compact recommended-result metadata
-such as `recommendedRank`, `recommendedSource`, `recommendedRelevance`, and
-`recommendedLikelyOfficial`.
+tables. It returns a compact top-level `agent` object plus the relevant
+`pageCheck`, search, verification, and warning fields.
 
-`routingIntent` explains the next-step intent (`read-current`, `open-url`,
-`search`, `browser-html`, `browser-interaction`, `inspect-output`, or `none`).
-`contract.version` and `contract.features` identify the agent payload contract
-supported by the current CLI output, so executors can check for fields such as
-`next.loop`, `next.readValue`, `next.target`, and `executionPlan` before
-relying on them.
-`continuationMode` is the simpler executor switch for agent loops: `read`,
-`command`, `browser`, `capture-html`, `inspect`, or `stop`.
-`agent.runbook` is the easiest executor entry point. It flattens the canonical
-loop decision, operation, answer readiness, command/read/browser-HTML fields,
-and target metadata into one object, so a subagent can usually switch on
-`runbook.decision` without joining `next`, `executionPlan`, and `answerPlan`.
-`agent.handoff` is the shortest executor handoff. It gives one plain
-`instruction` plus the same decision, mode, operation, action, priority,
-confidence, answer status, citation IDs and resolved answer evidence, result or
-source choices, compact signals/quality gates, read path/value, command, URL,
-target metadata, or browser-HTML fields needed for the immediate next step, so
-a subagent can do the right thing without assembling a sentence from multiple
-objects.
-`agent.next` is the canonical next-step payload for executors. It always has a
-`mode`, `reason`, and `loop`. `next.loop.decision` is the direct executor
-switch: `return`, `execute`, `browser`, `inspect`, or `stop`. When a follow-up
-exists, `next` mirrors the exact fields needed to continue, such as
-`commandArgs`, `readFrom`, `url`, `openResult`, `browserHtml`, or
-`requiresBrowserInteraction`. When `mode` is `read`, `next.readTarget` mirrors
-the matching `agent.readTargets` entry so an executor can understand the target
-without joining arrays itself, and `next.readValue` contains the resolved
-current-payload value for that path. When `mode` is `command` for a result or
-source link, `next.target` carries the target URL's title, source host, rank,
-source-type score, relevance, and official-source hints when known, so an agent
-can decide whether to run the command without looking up the result array.
-When browser-captured HTML is needed, `next.browserHtml` gives the capture
-script, placeholder file name, and the command or after-interaction command that
-should receive the captured HTML file path.
-Text output includes the same loop switch as `nextMode`, `loopDecision`,
-`loopContinue`, `loopTerminal`, `loopMaxIterations`, and `loopReason`, so a
-lightweight executor can still continue without parsing the full JSON envelope.
-`agent.expectedOutcome` states what success should look like after following
-`agent.next`, such as reading evidence, opening a result, retrying a failed
-fetch, running a search, capturing rendered HTML, using a browser inspection,
-inspecting output, or stopping.
-`agent.executionPlan` condenses the executor decision into one checklist:
-`operation` is `return`, `execute-command`, `capture-browser-html`,
-`inspect-browser`, `inspect-output`, or `stop`, and the same object repeats
-trust flags (`useFetchedHtml`, `needsBrowserHtml`, `answerReady`), loop limits,
-expected outcome, and runnable `commandArgs` or `readFrom` fields when present.
-For `capture-browser-html` and `inspect-browser`, the same plan also repeats
-`browserHtml` so an executor can write the captured
-`document.documentElement.outerHTML` to the placeholder file and rerun the
-provided command without inferring the protocol from prose.
-`agent.signals` is a short structured status feed for routing and debugging:
-`content`, `verification`, `search-results`, `source-links`, `browser`,
-`diagnostic`, and `response` signals each carry `info`, `warning`, or `error`
-severity plus a concise message.
-`agent.qualityGates` turns the same extraction state into pass/fail checks for
-fetch, content, source, search, verification, browser, and diagnostic quality,
-plus overall status, including a severity, optional score, and payload path. Use it when a subagent
-needs a quick trust audit before answering or executing the next command.
-`agent.citations` is a compact shortlist of citeable content, verification
-evidence, search results, and source links with stable `id`/`path` references,
-plus `confidence` and `reason`, so an executor can assemble an answer without
-scanning the full tree first.
-`agent.answerPlan` says whether the current payload is ready for a final answer
-(`ready`), needs another command (`needs-more`), needs browser capture
-(`blocked`), or failed (`error`), lists the citation IDs to use, exposes
-`confidence` plus concise `gaps`, mirrors the primary action fields
-(`command`, `commandArgs`, `url`, or `readFrom`) needed to execute or answer
-from the plan directly, and pairs with `agent.answerEvidence`, which contains
-the resolved citation objects for those IDs.
-On recoverable extraction errors, `agent.status` remains `error` while
-`agent.answerPlan.status` becomes `needs-more` or `blocked`, so executors should
-route from `agent.next`/`agent.answerPlan` instead of stopping on status alone.
-`canContinue` is true when the primary action is directly usable by an agent
-(`run-command`, `read-current`, or browser interaction), including recoverable
-error states such as alternate-result recovery or retry-later.
-On search result pages, `agent.resultChoices` mirrors the compact result
-shortlist inside the top-level agent object. It marks the `recommended` and
-`primary` choice, includes the `searchResults[...]` path, and keeps rank,
-source, relevance, source score, match hints, and `selectionReason` together so
-a subagent can compare candidates before drilling into the full result list.
-Text output prints the same shortlist as `resultChoice:` lines and mirrors the
-next handoff as `handoffCommandArgs:` plus `handoffResultChoice:` lines in the
-`agent` block for agents that are inspecting stdout instead of compact JSON.
-Browser-capture handoffs also get flat stdout keys:
-`handoffBrowserHtmlUrl:`, `handoffBrowserHtmlFile:`,
-`handoffBrowserHtmlCaptureScript:`, and `handoffBrowserHtmlCommandArgs:`.
-On normal page checks, `agent.sourceChoices` mirrors `pageCheck.sourceLinks`
-with stable `pageCheck.sourceLinks[...]` paths, source scores, reasons, and
-runnable command fields so an executor can compare source candidates without
-walking the page-check payload first. Text output prints these as
-`sourceChoice:` lines in the `agent` block, while the handoff section also
-exposes direct stdout hints such as `handoffReadFrom:`, `handoffReadValue:`,
-`handoffReadValueType:`, `handoffReadValueItem:`, `handoffEvidence:`,
-`handoffSourceChoice:`, and `handoffQualityGate:`.
-`agent.readTargets` lists the compact payload paths worth reading next, marking
-the primary `read-current` target when one exists. In compact agent
-mode the first action lives in `agent.primaryAction`, while
-`agent.primaryExecution` mirrors that action's `execution` for quick routing.
-`agent.primaryReadFrom`, `agent.primaryCommand`, `agent.primaryCommandArgs`,
-`agent.primaryAfterInteractionCommand`, `agent.primaryAfterInteractionCommandArgs`,
-`agent.primaryUrl`, `agent.primaryRank`, `agent.primaryOpenResult`, and
-`agent.requiresBrowserInteraction` mirror the most common continuation fields
-from that same primary action, so a calling agent can route without drilling
-into the full action object first.
-Agent-facing actions include `priority` and `priorityReason`, so executors can
-compare follow-up alternatives without re-ranking them from prose alone.
-`agent.actions` provides the same deduplicated candidate set in one list,
-marking the first item with `primary: true` and preserving each candidate's
-source path.
-Duplicate `suggestedActions`,
-`pageCheck.recommendedAction`, and `verification.recommendedAction` entries are
-omitted when they repeat that same command, leaving `pageCheck.nextSteps` for
-follow-up alternatives. When verification has already selected `use-evidence`,
-compact output suppresses page-level alternative actions so the agent does not
-branch away from confirmed evidence. Generated follow-up commands preserve
-search and fetch context such as `--lang`, `--region`, `--find`, `--timeout`,
-`--user-agent`, and `--agent` so another agent can continue the same
-investigation without reconstructing flags. Compact search-result entries also
-include citeable `id`/`path` metadata plus rank-specific `openResult`,
-`command`, and `commandArgs`, so an agent can compare, cite, or open result 2
-or 3 without inventing a command from the raw URL; compact
-`pageCheck.primaryLinks` and `pageCheck.sourceLinks` also include `id`, `path`,
-`selectionReason`, `command`, and `commandArgs` in `--agent` output, preserving
-fetch flags for source-link follow-up;
-search-like pages reached by a normal URL expose a direct
-`ax-grep <result-url>` continuation for the selected result;
-fetch errors also emit a
-browser-captured HTML retry command when a URL is known. `run-command` actions
-include both a human-copyable `command` string and raw `commandArgs` for
-`spawn`/`execFile` style execution, so agents do not need to parse shell
-quoting. Terminal actions such
-as `read-content` and `use-evidence` include `execution: "read-current"`,
-`terminal: true`, and a `readFrom` pointer, and intentionally do not include
-commands, so agents read the current evidence instead of refetching the same
-usable page. Browser-interaction actions include `execution: "interact-browser"`
-and `requiresBrowserInteraction: true`. They still omit immediate `command`
-fields when another static fetch would not reveal more information, but may
-include `afterInteractionCommandArgs` for the follow-up `--html-file` run after
-the browser state has been changed and recaptured. When
-`--html-file` or `--stdin` is already supplying browser-captured HTML, compact
-output suppresses another browser retry recommendation. On search result pages,
-compact agent output keeps the ranked `searchResults` list and omits
-duplicate `pageCheck` link lists, search-form actions, and search-page
-follow-up steps that repeat `agent.primaryAction`. Page checks also suppress
-common global-navigation buttons and links so agents are routed toward page
-content instead of site chrome; when `sourceLinks` are present, extra external
-`primaryLinks` are omitted from compact output. To keep payloads small, it emits
-the first five search results plus the recommended result when that result is
-outside the first five; auto-search engine attempts are reduced to status,
-result counts, diagnostic codes, and each engine's top result, and are omitted
-after `--open-result` once `sourceSearch` records the selected result.
-`sourceSearch.alternateResults` keeps the nearby candidate results needed for
-failure recovery while avoiding the full engine-attempt payload. When the
-primary action is `open-alternate-result`, `agent.readTargets` points at
-`sourceSearch.alternateResults` so an agent can inspect the original SERP
-candidates before running the recovery command. After any `--open-result`,
-`agent.readTargets` also points at `sourceSearch.selectedResult`, preserving
-the original SERP title, snippet, rank, relevance, and runnable command as
-page provenance. Text output mirrors that recovery context with flat keys such
-as `handoffSourceSearchQuery:`, `handoffSourceSearchSearchUrl:`,
-`handoffSourceSearchSelectedUrl:`, `handoffSourceSearchFindQueries:`, and
-`handoffSourceSearchAlternateCommandArgs:`.
+Read these fields first:
+
+- `agent.status`: high-level state such as `ready`, `choose-result`,
+  `verify`, `needs-browser`, or `error`.
+- `agent.handoff`: shortest executor handoff, with one instruction and the
+  command, URL, browser HTML capture, or read target needed for the next step.
+- `agent.next`: canonical loop payload with `mode`, `loop.decision`,
+  `commandArgs`, `readFrom`, `readValue`, `target`, or `browserHtml`.
+- `agent.runbook` and `agent.executionPlan`: flattened forms of the same loop
+  decision for simpler executors.
+- `agent.answerPlan`, `agent.citations`, and `agent.answerEvidence`: final
+  answer readiness and the citeable evidence to use.
+- `agent.readTargets`, `agent.resultChoices`, and `agent.sourceChoices`: ranked
+  payload paths worth reading or opening next.
+- `agent.signals` and `agent.qualityGates`: compact diagnostics for routing and
+  trust checks.
+
+`contract.version` and `contract.features` identify the payload contract so an
+executor can check for fields such as `next.loop`, `next.readValue`,
+`next.target`, and `executionPlan` before relying on them. `continuationMode`
+is a simple loop switch: `read`, `command`, `browser`, `capture-html`,
+`inspect`, or `stop`.
+
+Agent actions use an `execution` discriminator:
+
+- `run-command`: execute `commandArgs` with `execFile`-style argument passing.
+- `read-current`: read the current payload path named by `readFrom`.
+- `interact-browser`: use a live browser, then optionally rerun with captured
+  HTML.
+
+Generated commands preserve fetch and search context such as `--lang`,
+`--region`, `--find`, `--timeout`, `--user-agent`, and `--agent`. Compact output
+also removes duplicate follow-up actions, suppresses common global navigation,
+and avoids repeating search-result links in `pageCheck` when `searchResults`
+already contains the ranked candidates. Browser-captured HTML inputs do not ask
+for another browser HTML retry unless a new interaction is needed.
 
 An agent executor can treat `agent.handoff.decision` as the only required switch:
 
@@ -492,92 +353,42 @@ returns exit code `20` and emits a structured JSON error and warning in
 `--json` mode. Use `--html-file` or `--stdin` for browser-captured fallback
 HTML.
 
-`kind` is an agent-facing page classification: `search-results`, `content-page`,
-`interactive-page`, `blocked-page`, `empty`, or `page`. `diagnostics` flags
-states such as `CHALLENGE_LIKELY`, `LOGIN_REQUIRED`, `PAYWALL_LIKELY`,
-`NO_USEFUL_LINKS`, and `NON_HTML_CONTENT_TYPE`; `suggestedActions` gives the
-next useful move, such as opening the strongest matching result or retrying
-with captured browser HTML. For search pages, `recommendedResult` is the result
-an agent should inspect first when it does not have a stronger reason to choose
-another rank. It uses query relevance plus any `--find` matches, so the same
-command can search, identify the likely source, and open it with
-`--open-result best`. `links` always describes links on the current page.
-`pageLinks` is the ranked source-scored view over those links. `results` is a
-backward-compatible alias that contains search candidates on search pages and
-page-link candidates on ordinary pages;
-`searchResults` is populated when the current page is classified as a search
-results page. `pageCheck` is the higher-level page inspection summary agents
-should read first for title, canonical URL, main heading, content excerpts,
-structured content evidence, source-like external links, actions, and
-extraction confidence. When available, it also preserves head provenance fields
-such as `siteName`, `author`, `publishedTime`, and `modifiedTime`, which are
-not normally visible in the accessibility tree. JSON-LD schema.org `@type`
-values are exposed as `structuredDataTypes`, and JSON-LD headline, author, and
-dates are used as fallback provenance when equivalent meta tags are missing.
-Each `contentEvidence` item includes a compact citation `id`, its stable
-payload `path`, plus `source`, `score`, `quality`, and `qualityReason` fields,
-so agents can distinguish semantic page evidence from fallback text, judge
-whether a snippet is strong enough to answer from, and cite exact snippets when
-choosing what to verify or return. `pageCheck.dataTables` captures compact
-table captions, headers, and sample rows from HTML so agents can verify prices,
-specs, rankings, and other tabular facts without reading the full tree.
-`pageCheck.barriers` captures login, paywall, challenge, consent, age, and
-regional barrier signals that affect browser handling.
-`pageCheck.forms` captures form method, action URL, field names, labels, and
-GET query templates so agents can plan searches and filters without inferring
-submission details from controls alone. `pageCheck.actionTargets` captures hidden
-JSON-LD and OpenSearch action endpoints. `pageCheck.hydration` captures app
-hydration scripts and preloaded JSON data endpoints. `pageCheck.apiEndpoints` captures
-inline script API, GraphQL, XHR, and event-stream endpoint hints. `pageCheck.clientState` captures
-inline localStorage, sessionStorage, and cookie key hints. `pageCheck.runtime` captures
-service worker, worker, worklet, dynamic import, and modulepreload URLs. `pageCheck.config` captures
-inline app config, initial state, env, feature flag, and dataLayer keys. `pageCheck.appHints` captures web app
-manifest, icon, theme, and installability metadata. `pageCheck.topics` captures hidden
-keywords, tags, categories, and JSON-LD about/mention topics. `pageCheck.keyValues` captures compact
-facts from definition lists, time elements, and short label/value text.
-`pageCheck.metaFacts` captures robots directives, canonical URLs, alternate
-links, refresh targets, and selected social/article metadata from head tags.
-`pageCheck.provenance` captures DOI, PMID, arXiv, ISBN, publisher, journal, license,
-and citation identifiers from hidden metadata.
-`pageCheck.httpPolicies` captures security, indexing, referrer, embedding, and cache directives.
-`pageCheck.schemaFacts` captures compact facts from hidden JSON-LD schema.org
-data such as product offers, ratings, events, and FAQ answers.
-`pageCheck.offers` captures structured price, availability, rating, and offer URL facts.
-`pageCheck.identities` captures organization, site, person, brand, and sameAs facts.
-`pageCheck.datasets` captures dataset, catalog, license, and data download facts.
-`pageCheck.timeline` captures publication, modification, event, and visible time facts.
-`pageCheck.contactPoints` captures email, phone, address, and contact URL facts.
-`pageCheck.faqs` captures visible FAQ question-answer pairs from details and
-accordion-style HTML.
-`pageCheck.breadcrumbs` captures JSON-LD and HTML breadcrumb trails as ordered
-context. `pageCheck.sections` groups nearby text under headings for fast
-section-level source checking. `pageCheck.pagination` captures next, previous,
-numbered, and current-page navigation.
-`pageCheck.toc` captures table-of-contents and in-page section links.
-`pageCheck.codeBlocks` captures code examples and command snippets from pre/code
-blocks.
-`pageCheck.citations` captures blockquotes, cites, footnotes, and reference-list
-snippets for source verification.
-`pageCheck.media` captures resolved image URLs, alt text, captions, and social
-preview images. `pageCheck.resources` captures feed, alternate, license,
-manifest, sitemap, and document resource links that are often hidden in head
-metadata or download anchors. `pageCheck.embeds` captures iframe, object,
-audio, video, and embed URLs with titles and source metadata. `pageCheck.transcripts`
-captures caption, subtitle, and transcript URLs with language hints. `pageCheck.authorLinks`
-captures author, byline, and profile URLs from HTML and JSON-LD.
-`pageCheck.readability` includes `level`, numeric `score`, and concise
-`reasons`, explaining how directly useful the page is for source checking;
-compact `agent` repeats the score and first few reasons so agents can route
-from the top-level object before drilling into `pageCheck`.
-`pageCheck.recommendedAction` gives the next
-page-level move without requiring the agent to infer it from raw fields.
-`pageCheck.nextSteps` expands that into a deduplicated shortlist of follow-ups
-such as opening the best search result, opening source links, inspecting
-controls, or retrying with browser-captured HTML. Actions include an
-`execution` discriminator: `run-command` means execute the included `command`
-or, preferably, `commandArgs`,
-`read-current` means read the field named by `readFrom`, and
-`interact-browser` means use the live browser before recapturing HTML.
+`kind` is an agent-facing page classification: `search-results`,
+`content-page`, `interactive-page`, `blocked-page`, `empty`, or `page`.
+`diagnostics` flags states such as `CHALLENGE_LIKELY`, `LOGIN_REQUIRED`,
+`PAYWALL_LIKELY`, `NO_USEFUL_LINKS`, and `NON_HTML_CONTENT_TYPE`.
+`suggestedActions` gives the next useful move, such as opening the strongest
+matching result or retrying with captured browser HTML.
+
+For search pages, `recommendedResult` is the result an agent should inspect
+first. `searchResults` contains ranked SERP candidates; `results` remains a
+backward-compatible alias for search candidates or ordinary page links.
+`pageLinks` is the source-scored view over links on the current page.
+
+`pageCheck` is the higher-level page inspection summary agents should read
+before the raw tree. It includes title, canonical URL, main heading, content
+evidence, source-like external links, actions, extraction confidence,
+readability, and page-level follow-up actions.
+
+Useful `pageCheck` groups:
+
+- Content and verification: `contentEvidence`, `dataTables`, `sections`,
+  `toc`, `codeBlocks`, `citations`, `faqs`, and `breadcrumbs`.
+- Interaction and recovery: `barriers`, `forms`, `actionTargets`,
+  `pagination`, `recommendedAction`, and `nextSteps`.
+- Hidden app/page state: `hydration`, `apiEndpoints`, `clientState`, `runtime`,
+  `config`, `appHints`, and `mobileHints`.
+- Metadata and provenance: `topics`, `keyValues`, `metaFacts`, `provenance`,
+  `httpPolicies`, `schemaFacts`, `offers`, `identities`, `datasets`,
+  `timeline`, `contactPoints`, and `authorLinks`.
+- Media and resources: `media`, `resources`, `embeds`, and `transcripts`.
+
+These groups expose details that are often absent from an accessibility tree,
+including JSON-LD facts, head metadata, API endpoints, app configuration,
+HTTP/meta policy directives, source identifiers, feed/license/resource links,
+and mobile app-link hints. Each `contentEvidence` item includes a citation `id`,
+stable payload `path`, `source`, `score`, `quality`, and `qualityReason` so an
+agent can cite or verify a compact snippet without scanning the whole tree.
 
 `agent.status` is the shortest routing signal: `ready` means fetched HTML is
 usable, `choose-result` means open the primary search result action, `verify`
