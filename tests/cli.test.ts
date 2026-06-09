@@ -3286,6 +3286,121 @@ describe("cli", () => {
     });
   });
 
+  it("summarizes embedded frames and media sources for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/dashboard", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <iframe
+            title="Interactive revenue dashboard"
+            src="/embed/dashboard?region=us"
+            sandbox="allow-scripts allow-same-origin"
+            allow="fullscreen"
+            loading="lazy"></iframe>
+          <video title="Product walkthrough" poster="/media/walkthrough.jpg" controls>
+            <source src="/media/walkthrough.mp4" type="video/mp4">
+            <source src="/media/walkthrough.webm" type="video/webm">
+          </video>
+          <object data="/reports/appendix.pdf" type="application/pdf">Appendix PDF</object>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.embeds).toEqual([
+      expect.objectContaining({
+        id: "em1",
+        path: "pageCheck.embeds[0]",
+        rank: 1,
+        kind: "iframe",
+        url: "https://example.test/embed/dashboard?region=us",
+        title: "Interactive revenue dashboard",
+        sandbox: "allow-scripts allow-same-origin",
+        allow: "fullscreen",
+        loading: "lazy",
+        selector: "iframe:nth-of-type(1)",
+      }),
+      expect.objectContaining({
+        id: "em2",
+        path: "pageCheck.embeds[1]",
+        rank: 2,
+        kind: "video",
+        url: "https://example.test/media/walkthrough.mp4",
+        title: "Product walkthrough",
+        type: "video/mp4",
+        posterUrl: "https://example.test/media/walkthrough.jpg",
+        sourceUrls: [
+          "https://example.test/media/walkthrough.mp4",
+          "https://example.test/media/walkthrough.webm",
+        ],
+        selector: "video:nth-of-type(2)",
+      }),
+      expect.objectContaining({
+        id: "em3",
+        path: "pageCheck.embeds[2]",
+        rank: 3,
+        kind: "object",
+        url: "https://example.test/reports/appendix.pdf",
+        type: "application/pdf",
+        selector: "object:nth-of-type(3)",
+      }),
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("3 embeds");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.embeds",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.embeds",
+      count: 3,
+      primary: true,
+      reason: "Iframe, object, embed, audio, and video URLs with titles and source metadata extracted from page HTML.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.embeds",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          id: "em1",
+          url: "https://example.test/embed/dashboard?region=us",
+        }),
+      ]),
+    });
+  });
+
+  it("checks requested text against embedded content summaries", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/dashboard", "--agent", "--find", "allow-same-origin"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <iframe title="Interactive revenue dashboard" src="/embed/dashboard" sandbox="allow-scripts allow-same-origin"></iframe>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "embed",
+        rank: 1,
+        url: "https://example.test/embed/dashboard",
+        selector: "iframe:nth-of-type(1)",
+        text: "iframe: Interactive revenue dashboard https://example.test/embed/dashboard sandbox=allow-scripts allow-same-origin",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
   it("falls back to headings and primary links for forum pages without paragraph roles", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://forum.example/post/456", "--json"], {

@@ -362,6 +362,23 @@ type PageResourceSummary = {
   selector?: string;
 };
 
+type PageEmbedSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "iframe" | "video" | "audio" | "embed" | "object";
+  url: string;
+  text: string;
+  title?: string;
+  type?: string;
+  posterUrl?: string;
+  sourceUrls?: string[];
+  sandbox?: string;
+  allow?: string;
+  loading?: string;
+  selector?: string;
+};
+
 type PageReadabilitySummary = {
   level: "low" | "medium" | "high";
   score: number;
@@ -505,6 +522,7 @@ const agentContract: AgentContract = {
     "pageCheck.keyValues",
     "pageCheck.media",
     "pageCheck.resources",
+    "pageCheck.embeds",
     "readTargets",
     "signals",
     "qualityGates",
@@ -533,6 +551,7 @@ type PageCheckSummary = {
   keyValues: PageKeyValueSummary[];
   media: PageMediaSummary[];
   resources: PageResourceSummary[];
+  embeds: PageEmbedSummary[];
   contentLength: number;
   primaryLinks: PageLinkSummary[];
   sourceLinks: PageLinkSummary[];
@@ -1862,6 +1881,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const type = resource.type ? ` type=${resource.type}` : "";
     lines.push(`  resource: ${resource.id} ${resource.path} ${resource.kind}${rel}${type} <${resource.url}> - ${resource.text}`);
   }
+  for (const embed of pageCheck.embeds) {
+    const type = embed.type ? ` type=${embed.type}` : "";
+    lines.push(`  embed: ${embed.id} ${embed.path} ${embed.kind}${type} <${embed.url}> - ${embed.text}`);
+  }
   for (const link of pageCheck.primaryLinks) lines.push(`  link: ${link.kind} ${link.title} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`);
   for (const link of pageCheck.sourceLinks) lines.push(`  sourceLink: ${link.title} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`);
   for (const action of pageCheck.actions) lines.push(`  action: ${action.type} ${action.text}`);
@@ -2580,11 +2603,12 @@ function summarizePageCheck(
   const keyValues = summarizeKeyValues(fetched.html);
   const media = summarizeMedia(fetched.html, fetched.finalUrl);
   const resources = summarizeResources(fetched.html, fetched.finalUrl);
+  const embeds = summarizeEmbeds(fetched.html, fetched.finalUrl);
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, media, resources, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, media, resources, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, media, resources, embeds, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, media, resources, embeds, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -2593,6 +2617,7 @@ function summarizePageCheck(
     keyValues,
     media,
     resources,
+    embeds,
     contentLength,
     primaryLinks,
     sourceLinks,
@@ -2628,6 +2653,7 @@ function summarizeReadability(
   keyValues: PageKeyValueSummary[],
   media: PageMediaSummary[],
   resources: PageResourceSummary[],
+  embeds: PageEmbedSummary[],
   contentLength: number,
   sourceLinks: PageLinkSummary[],
   actions: ActionSummary[],
@@ -2659,6 +2685,10 @@ function summarizeReadability(
   if (resources.length > 0) {
     score += Math.min(0.06, resources.length * 0.02);
     reasons.push(`${resources.length} resource link${resources.length === 1 ? "" : "s"}`);
+  }
+  if (embeds.length > 0) {
+    score += Math.min(0.06, embeds.length * 0.02);
+    reasons.push(`${embeds.length} embed${embeds.length === 1 ? "" : "s"}`);
   }
   if (contentLength >= 400) {
     score += 0.18;
@@ -2726,6 +2756,7 @@ function recommendedPageCheckAction(
   keyValues: PageKeyValueSummary[],
   media: PageMediaSummary[],
   resources: PageResourceSummary[],
+  embeds: PageEmbedSummary[],
   contentEvidence: PageEvidenceSummary[],
   agentMode = false,
   capturedHtml = false,
@@ -2763,7 +2794,9 @@ function recommendedPageCheckAction(
             ? "pageCheck.media"
             : resources.length > 0
               ? "pageCheck.resources"
-              : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
+              : embeds.length > 0
+                ? "pageCheck.embeds"
+                : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
     return {
       action: "read-content",
       reason: "The page has enough structured evidence for source checking.",
@@ -2806,6 +2839,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.resources",
+    };
+  }
+  if (embeds.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but iframe and media embed URLs are available for agent follow-up.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.embeds",
     };
   }
   if (sourceLinks[0]) {
@@ -3550,6 +3592,107 @@ function resourceText(kind: PageResourceSummary["kind"], title: string, rel: str
     type ? `type=${type}` : "",
     hreflang ? `hreflang=${hreflang}` : "",
     url,
+  ].filter(Boolean).join(" "));
+}
+
+function summarizeEmbeds(html: string, baseUrl: string): PageEmbedSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  return findElements(document.children, isEmbedElement)
+    .map((element, index) => summarizeEmbed(element, index, baseUrl))
+    .filter((embed): embed is PageEmbedSummary => Boolean(embed))
+    .map((embed, index) => ({
+      ...embed,
+      id: `em${index + 1}`,
+      path: `pageCheck.embeds[${index}]`,
+      rank: index + 1,
+    }))
+    .slice(0, 8);
+}
+
+function isEmbedElement(element: Element): boolean {
+  return ["iframe", "video", "audio", "embed", "object"].includes(element.name);
+}
+
+function summarizeEmbed(element: Element, index: number, baseUrl: string): PageEmbedSummary | undefined {
+  const kind = element.name as PageEmbedSummary["kind"];
+  const directUrl = embedDirectUrl(element, baseUrl);
+  const posterUrl = kind === "video" ? normalizedAttributeUrl(element, "poster", baseUrl) : "";
+  const sourceUrls = embedSourceUrls(element, baseUrl);
+  const url = directUrl || sourceUrls[0] || posterUrl;
+  if (!url) return undefined;
+  const title = cleanContentText(attr(element, "title") || attr(element, "aria-label") || descendantText(element) || resourceTitleFromUrl(url));
+  const type = cleanLinkText(attr(element, "type") || firstSourceType(element) || documentMimeHint(url));
+  const sandbox = kind === "iframe" ? cleanLinkText(attr(element, "sandbox") ?? "") : "";
+  const allow = kind === "iframe" ? cleanLinkText(attr(element, "allow") ?? "") : "";
+  const loading = kind === "iframe" ? cleanLinkText(attr(element, "loading") ?? "") : "";
+  return {
+    id: "em1",
+    path: "pageCheck.embeds[0]",
+    rank: 1,
+    kind,
+    url,
+    text: embedText(kind, title, type, url, posterUrl, sourceUrls, sandbox, allow),
+    ...(title ? { title } : {}),
+    ...(type ? { type } : {}),
+    ...(posterUrl ? { posterUrl } : {}),
+    ...(sourceUrls.length > 0 ? { sourceUrls } : {}),
+    ...(sandbox ? { sandbox } : {}),
+    ...(allow ? { allow } : {}),
+    ...(loading ? { loading } : {}),
+    selector: `${kind}:nth-of-type(${index + 1})`,
+  };
+}
+
+function embedDirectUrl(element: Element, baseUrl: string): string {
+  if (element.name === "object") return normalizedAttributeUrl(element, "data", baseUrl);
+  return normalizedAttributeUrl(element, "src", baseUrl);
+}
+
+function normalizedAttributeUrl(element: Element, name: string, baseUrl: string): string {
+  const value = cleanLinkText(attr(element, name) ?? "");
+  return value ? normalizeHref(value, baseUrl) ?? "" : "";
+}
+
+function embedSourceUrls(element: Element, baseUrl: string): string[] {
+  const seen = new Set<string>();
+  const urls: string[] = [];
+  for (const source of findElements(element.children, (item) => item.name === "source")) {
+    const url = normalizedAttributeUrl(source, "src", baseUrl);
+    if (!url || seen.has(url)) continue;
+    seen.add(url);
+    urls.push(url);
+  }
+  return urls.slice(0, 4);
+}
+
+function firstSourceType(element: Element): string {
+  const source = findElement(element.children, (item) => item.name === "source" && Boolean(attr(item, "type")));
+  return source ? cleanLinkText(attr(source, "type") ?? "") : "";
+}
+
+function embedText(
+  kind: PageEmbedSummary["kind"],
+  title: string,
+  type: string,
+  url: string,
+  posterUrl: string,
+  sourceUrls: string[],
+  sandbox: string,
+  allow: string,
+): string {
+  return cleanContentText([
+    `${kind}:`,
+    title,
+    type ? `type=${type}` : "",
+    url,
+    posterUrl ? `poster=${posterUrl}` : "",
+    sourceUrls.length > 0 ? `sources=${sourceUrls.join("|")}` : "",
+    sandbox ? `sandbox=${sandbox}` : "",
+    allow ? `allow=${allow}` : "",
   ].filter(Boolean).join(" "));
 }
 
@@ -4592,6 +4735,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.resources" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.embeds.length > 0) {
+    add({
+      path: "pageCheck.embeds",
+      reason: "Iframe, object, embed, audio, and video URLs with titles and source metadata extracted from page HTML.",
+      count: pageCheck.embeds.length,
+      score: roundMetric(Math.min(1, 0.38 + pageCheck.embeds.length * 0.06)),
+      ...(primaryReadFrom === "pageCheck.embeds" ? { primary: true } : {}),
+    });
+  }
   if (sourceSearch?.selectedResult) {
     add({
       path: "sourceSearch.selectedResult",
@@ -4785,6 +4937,7 @@ function agentReadValue(
   if (path === "pageCheck.keyValues") return { path, value: pageCheck.keyValues };
   if (path === "pageCheck.media") return { path, value: pageCheck.media };
   if (path === "pageCheck.resources") return { path, value: pageCheck.resources };
+  if (path === "pageCheck.embeds") return { path, value: pageCheck.embeds };
   if (path === "searchResults") return { path, value: results };
   if (path === "sourceSearch.selectedResult" && sourceSearch?.selectedResult) return { path, value: sourceSearch.selectedResult };
   if (path === "sourceSearch.alternateResults" && sourceSearch?.alternateResults) return { path, value: sourceSearch.alternateResults };
@@ -5164,6 +5317,15 @@ function findCandidates(
       ...(resource.selector ? { selector: resource.selector } : {}),
     });
   }
+  for (const embed of pageCheck.embeds) {
+    add({
+      field: "embed",
+      text: embed.text,
+      rank: embed.rank,
+      url: embed.url,
+      ...(embed.selector ? { selector: embed.selector } : {}),
+    });
+  }
   for (const link of pageCheck.sourceLinks) add({ field: "sourceLink", text: link.title, rank: link.rank, url: link.url });
   for (const link of pageCheck.primaryLinks) add({ field: "primaryLink", text: link.title, rank: link.rank, url: link.url });
   for (const result of results) add({ field: "result", text: [result.title, result.snippet].filter(Boolean).join(" "), rank: result.rank, url: result.url });
@@ -5311,6 +5473,7 @@ function emptyPageCheck(): PageCheckSummary {
     keyValues: [],
     media: [],
     resources: [],
+    embeds: [],
     contentLength: 0,
     primaryLinks: [],
     sourceLinks: [],
@@ -6258,6 +6421,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),
     ...(pageCheck.media.length > 0 ? { media: pageCheck.media } : {}),
     ...(pageCheck.resources.length > 0 ? { resources: pageCheck.resources } : {}),
+    ...(pageCheck.embeds.length > 0 ? { embeds: pageCheck.embeds } : {}),
     contentLength: pageCheck.contentLength,
     ...(primaryLinks.length > 0 && !omitResultLinkDuplicates ? { primaryLinks: primaryLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `l${index + 1}`, path: `pageCheck.primaryLinks[${index}]` })) } : {}),
     ...(pageCheck.sourceLinks.length > 0 && !omitResultLinkDuplicates ? { sourceLinks: pageCheck.sourceLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `s${index + 1}`, path: `pageCheck.sourceLinks[${index}]` })) } : {}),

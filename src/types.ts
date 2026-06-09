@@ -470,6 +470,7 @@ export type AgentContractFeature =
   | "pageCheck.keyValues"
   | "pageCheck.media"
   | "pageCheck.resources"
+  | "pageCheck.embeds"
   | "readTargets"
   | "signals"
   | "qualityGates"
