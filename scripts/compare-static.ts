@@ -525,7 +525,7 @@ for (const [index, target] of targets.entries()) {
     excludeLikelyBoilerplate: target.excludeLikelyBoilerplate === true,
     includeAttributes: false,
     includeSelectOptions: false,
-    includeTextNodes: false,
+    includeTextNodes: true,
     ...(target.maxChildrenPerNode === undefined ? {} : { maxChildrenPerNode: target.maxChildrenPerNode }),
     ...(target.maxLinkFarmChildren === undefined ? {} : { maxLinkFarmChildren: target.maxLinkFarmChildren }),
   });
@@ -707,9 +707,10 @@ function syntheticAgentBrowserReference(summary: ReturnType<typeof summarizeSema
 }
 
 function normalizeNamedRoles(namedRoles: string[]): NormalizedSummary {
-  const normalizedRoles = namedRoles.map((item) => {
+  const normalizedRoles = namedRoles.flatMap((item) => {
     const [role = "unknown", ...nameParts] = item.split(":");
-    return `${normalizeRole(role)}:${normalizeName(nameParts.join(":"))}`;
+    const normalized = `${normalizeRole(role)}:${normalizeName(nameParts.join(":"))}`;
+    return isComparableNamedRole(normalized) ? [normalized] : [];
   });
   const roleCounts: Record<string, number> = {};
   for (const item of normalizedRoles) {
@@ -720,6 +721,15 @@ function normalizeNamedRoles(namedRoles: string[]): NormalizedSummary {
     roleCounts,
     namedRoles: Array.from(new Set(normalizedRoles)),
   };
+}
+
+function isComparableNamedRole(item: string): boolean {
+  const [role = "unknown", ...nameParts] = item.split(":");
+  const name = nameParts.join(":");
+  if (!name) return false;
+  if (role !== "text") return true;
+  return !/^(?:\\[nrt]\s*)+$/.test(name)
+    && !/^[|/\\\-–—·•,.;:()[\]{}]+$/.test(name);
 }
 
 function emptyNormalizedSummary(): NormalizedSummary {
