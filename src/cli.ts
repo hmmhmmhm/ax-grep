@@ -11720,7 +11720,7 @@ function compactAgentPageCheck(
     ...compactPageCheckArray("clientState", pageCheck.clientState, slimPaths),
     ...compactPageCheckArray("runtime", pageCheck.runtime, slimPaths),
     ...compactPageCheckArray("config", pageCheck.config, slimPaths),
-    ...compactPageCheckArray("appHints", pageCheck.appHints, slimPaths),
+    ...compactPageCheckArray("appHints", compactAgentAppHints(pageCheck.appHints), slimPaths),
     ...compactPageCheckArray("mobileHints", pageCheck.mobileHints, slimPaths),
     ...compactPageCheckArray("topics", pageCheck.topics, slimPaths),
     ...compactPageCheckArray("contactPoints", pageCheck.contactPoints, slimPaths),
@@ -11792,6 +11792,20 @@ function compactPageCheckSlimPaths(pageCheck: PageCheckSummary, readTargets: Age
   return paths;
 }
 
+function compactAgentAppHints(items: PageAppHintSummary[]): object[] {
+  if (items.length < 8 || JSON.stringify(items).length <= 1800) return items;
+  return items.map((item) => ({
+    id: item.id,
+    path: item.path,
+    rank: item.rank,
+    kind: item.kind,
+    label: item.label,
+    ...(item.url ? { url: item.url } : { value: item.value }),
+    ...(item.sizes ? { sizes: item.sizes } : {}),
+    ...(item.media ? { media: item.media } : {}),
+  }));
+}
+
 function compactAgentPageCheckItems<T>(items: T[], aggressiveThreshold = 2400): object[] {
   const aggressive = JSON.stringify(items).length > aggressiveThreshold;
   return items.map((item) => compactAgentPageCheckItem(item, aggressive) as object);
@@ -11853,7 +11867,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     answerPlan: agent.answerPlan,
     ...(agent.searchDecision ? { searchDecision: agent.searchDecision } : {}),
     ...(agent.pageDecision ? { pageDecision: agent.pageDecision } : {}),
-    ...(agent.semanticSummary ? { semanticSummary: agent.semanticSummary } : {}),
+    ...(agent.semanticSummary ? { semanticSummary: compactAgentSemanticSummary(agent.semanticSummary) } : {}),
     ...(agent.signals.length > 0 ? { signals: agent.signals } : {}),
     ...(agent.qualityGates.length > 0 ? { qualityGates: agent.qualityGates } : {}),
     canContinue: agent.canContinue,
@@ -11887,7 +11901,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     ...(agent.citations.length > 0 ? { citations: compactAgentCitationList(agent.citations) } : {}),
     ...(agent.answerEvidence.length > 0 ? { answerEvidence: compactAgentCitationList(agent.answerEvidence, 650) } : {}),
     ...(agent.readTargets.length > 0 ? { readTargets: agent.readTargets } : {}),
-    ...(agent.actions.length > 0 ? { actions: compactAgentActionList(agent.actions.map(compactAgentActionSummary)) } : {}),
+    ...(agent.actions.length > 0 ? { actions: compactAgentActionList(agent.actions.map((action) => compactAgentActionSummary(action, agent.primaryAction))) } : {}),
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
     ...(agent.bestReadTargetReason ? { bestReadTargetReason: agent.bestReadTargetReason } : {}),
@@ -11917,6 +11931,19 @@ function compactAgentContract(contract: AgentContract): object {
     version: contract.version,
     compact: true,
     featureCount: contract.features.length,
+  };
+}
+
+function compactAgentSemanticSummary(summary: AgentSemanticSummary): object {
+  return {
+    nodeCount: summary.nodeCount,
+    namedRoleCount: summary.namedRoleCount,
+    interactiveCount: summary.interactiveCount,
+    roleCounts: summary.roleCounts,
+    topRoles: summary.topRoles.slice(0, 6),
+    landmarks: summary.landmarks.slice(0, 6),
+    headings: summary.headings.slice(0, 6),
+    namedRoles: summary.namedRoles.slice(0, 8),
   };
 }
 
@@ -12293,7 +12320,7 @@ function compactAgentPageLink(
   };
   if (link.sourceType) compact.sourceType = link.sourceType;
   if (typeof link.sourceScore === "number") compact.sourceScore = link.sourceScore;
-  if (link.sourceHints) compact.sourceHints = link.sourceHints;
+  if (link.sourceHints?.length) compact.sourceHints = link.sourceHints;
   if (link.relevance) compact.relevance = link.relevance;
   if (link.matchedTerms) compact.matchedTerms = link.matchedTerms;
   if (link.findMatches) compact.findMatches = link.findMatches;
@@ -12353,7 +12380,19 @@ function compactAgentTarget(target: AgentTarget, action?: string): object {
   };
 }
 
-function compactAgentActionSummary(action: AgentActionSummary): object {
+function compactAgentActionSummary(action: AgentActionSummary, primaryAction?: SuggestedAction): object {
+  if (!action.primary && action.source === "pageCheck.nextSteps" && typeof action.index === "number") {
+    const compactIndex = (primaryAction?.action === "read-content" || primaryAction?.action === "use-evidence") && action.index > 0
+      ? action.index - 1
+      : action.index;
+    return {
+      action: action.action,
+      execution: actionExecution(action),
+      source: action.source,
+      index: action.index,
+      path: `pageCheck.nextSteps[${compactIndex}]`,
+    };
+  }
   return {
     ...compactAgentAction(action),
     source: action.source,

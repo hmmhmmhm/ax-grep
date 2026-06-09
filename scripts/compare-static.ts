@@ -153,6 +153,7 @@ const hiddenPageCheckPaths = [
 
 type CliActionShape = {
   action?: string;
+  path?: string;
   reason?: string;
   url?: string;
   rank?: number;
@@ -1123,6 +1124,7 @@ function normalizedActionExecution(action: CliActionShape): ActionExecution {
 function scoreActionSchema(actions: CliActionShape[]): number {
   if (actions.length === 0) return 0;
   const validCount = actions.filter((action) => {
+    if (typeof action.path === "string" && action.path.length > 0 && typeof action.source === "string" && typeof action.index === "number") return true;
     const hasPriority = (action.priority === "low" || action.priority === "medium" || action.priority === "high")
       && typeof action.priorityReason === "string"
       && action.priorityReason.length > 0;
@@ -2072,6 +2074,7 @@ function scoreAgentActionList(actions: CliActionShape[] | undefined, primaryActi
 
 function scoreOpenActionTarget(action: CliActionShape): number {
   if (action.action !== "open-result" && action.action !== "open-alternate-result" && action.action !== "open-source-link") return typeof action.target === "undefined" ? 1 : 0;
+  if (typeof action.path === "string" && action.path.length > 0) return 1;
   if (!action.target || typeof action.target !== "object") return 0;
   if (typeof action.url === "string" && action.target.url !== action.url) return 0;
   if (typeof action.rank === "number" && action.target.rank !== action.rank) return 0;
