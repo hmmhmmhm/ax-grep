@@ -11707,7 +11707,7 @@ function compactAgentPageCheck(
     ? []
     : primaryAction ? pageCheck.nextSteps.filter((step) => !sameSuggestedAction(step, primaryAction)) : pageCheck.nextSteps;
   const recommendedAction = suppressPageActions || sameSuggestedAction(pageCheck.recommendedAction, primaryAction) ? undefined : pageCheck.recommendedAction;
-  const compactNextSteps = compactAgentCommandList(nextSteps.map((step) => compactAgentAction(step, { omitOpenSourceTarget: true, omitReason: true })), 1500);
+  const compactNextSteps = compactAgentCommandList(nextSteps.map((step) => compactAgentAction(step, { omitOpenSourceTarget: true, omitReason: true })), 900);
   const slimPaths = compactPageCheckSlimPaths(pageCheck, readTargets);
   return {
     contentEvidence: pageCheck.contentEvidence,
@@ -11793,14 +11793,15 @@ function compactPageCheckSlimPaths(pageCheck: PageCheckSummary, readTargets: Age
 }
 
 function compactAgentAppHints(items: PageAppHintSummary[]): object[] {
-  if (items.length < 8 || JSON.stringify(items).length <= 1800) return items;
+  if (items.length < 8 || JSON.stringify(items).length <= 1200) return items;
   return items.map((item) => ({
     id: item.id,
     path: item.path,
     rank: item.rank,
     kind: item.kind,
     label: item.label,
-    ...(item.url ? { url: item.url } : { value: item.value }),
+    ...(item.kind !== "icon" && item.url ? { url: item.url } : {}),
+    ...(item.kind !== "icon" && !item.url ? { value: item.value } : {}),
     ...(item.sizes ? { sizes: item.sizes } : {}),
     ...(item.media ? { media: item.media } : {}),
   }));
@@ -11812,7 +11813,8 @@ function compactAgentPageLinkList(items: object[], threshold = 1500): object[] {
 }
 
 function omitVerboseSourceLinkFields(item: object): object {
-  const { sourceType: _sourceType, sourceHints: _sourceHints, ...rest } = item as {
+  const { source: _source, sourceType: _sourceType, sourceHints: _sourceHints, ...rest } = item as {
+    source?: unknown;
     sourceType?: unknown;
     sourceHints?: unknown;
     [key: string]: unknown;
@@ -12054,6 +12056,7 @@ function omitRedundantCommand<T extends object>(item: T): object {
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(item)) {
     if (key === "command" && Array.isArray((item as { commandArgs?: unknown }).commandArgs)) continue;
+    if (key === "afterInteractionCommand" && Array.isArray((item as { afterInteractionCommandArgs?: unknown }).afterInteractionCommandArgs)) continue;
     if (value && typeof value === "object" && !Array.isArray(value)) {
       result[key] = omitRedundantCommand(value as Record<string, unknown>);
     } else {
