@@ -156,6 +156,7 @@ type CliActionShape = {
   path?: string;
   reason?: string;
   url?: string;
+  urlRef?: string;
   rank?: number;
   openResult?: number | "best";
   execution?: ActionExecution;
@@ -213,6 +214,7 @@ type CliAgentRunbookShape = {
     valuePath?: string;
   };
   url?: string;
+  urlRef?: string;
   target?: CliAgentTargetShape;
   browserHtml?: CliAgentBrowserHtmlShape;
 };
@@ -251,6 +253,7 @@ type CliAgentHandoffShape = {
   afterInteractionCommand?: string;
   afterInteractionCommandArgs?: unknown[];
   url?: string;
+  urlRef?: string;
   target?: CliAgentTargetShape;
   browserHtml?: CliAgentBrowserHtmlShape;
 };
@@ -342,6 +345,7 @@ type CliAgentExecutionPlanShape = {
   afterInteractionCommand?: string;
   afterInteractionCommandArgs?: unknown[];
   url?: string;
+  urlRef?: string;
   browserHtml?: CliAgentBrowserHtmlShape;
 };
 
@@ -385,6 +389,7 @@ type CliAgentAnswerPlanShape = {
   afterInteractionCommand?: string;
   afterInteractionCommandArgs?: unknown[];
   url?: string;
+  urlRef?: string;
   readFrom?: string;
 };
 
@@ -416,6 +421,7 @@ type CliAgentPageDecisionShape = {
   sourceQualityScore?: number;
   readFrom?: string;
   url?: string;
+  urlRef?: string;
   command?: string;
   commandArgs?: unknown[];
 };
@@ -1287,12 +1293,24 @@ function scoreAgentAnswerPlan(
     ? JSON.stringify(answerPlan.afterInteractionCommandArgs) === JSON.stringify(primaryAction.afterInteractionCommandArgs)
     : typeof answerPlan.afterInteractionCommandArgs === "undefined";
   const validUrl = typeof primaryAction?.url === "string"
-    ? answerPlan.url === primaryAction.url
+    ? resolvedAgentUrl(answerPlan, primaryAction) === primaryAction.url
     : typeof answerPlan.url === "undefined";
   const validReadFrom = typeof primaryAction?.readFrom === "string"
     ? answerPlan.readFrom === primaryAction.readFrom
     : typeof answerPlan.readFrom === "undefined";
   return validStatus && validConfidence && validReason && validGaps && validCitations && validNextAction && validCommand && validCommandArgs && validAfterInteractionCommand && validAfterInteractionCommandArgs && validUrl && validReadFrom ? 1 : 0;
+}
+
+function resolvedAgentUrl(item: { url?: string; urlRef?: string } | undefined, primaryAction?: CliActionShape): string | undefined {
+  if (!item) return undefined;
+  if (typeof item.url === "string") return item.url;
+  if (item.urlRef === "agent.primaryUrl") return primaryAction?.url;
+  return undefined;
+}
+
+function sameAgentUrl(left: { url?: string; urlRef?: string } | undefined, right: { url?: string; urlRef?: string } | undefined): boolean {
+  if (left?.urlRef && right?.urlRef) return left.urlRef === right.urlRef;
+  return left?.url === right?.url;
 }
 
 function scoreAgentAnswerEvidence(
@@ -1404,7 +1422,9 @@ function scoreAgentNext(next: CliAgentNextShape | undefined, continuationMode: A
     const actual = next[field];
     if (typeof expected !== "undefined") {
       required += 1;
-      if (JSON.stringify(actual) === JSON.stringify(expected)) matched += 1;
+      if (field === "url"
+        ? resolvedAgentUrl(next, primaryAction) === expected
+        : JSON.stringify(actual) === JSON.stringify(expected)) matched += 1;
     } else if (typeof actual !== "undefined") {
       required += 1;
     }
@@ -1485,6 +1505,10 @@ function scoreAgentRunbook(
     required += 1;
     if (runbook.target?.url === next.target.url) matched += 1;
   }
+  if (next.url || next.urlRef) {
+    required += 1;
+    if (sameAgentUrl(runbook, next)) matched += 1;
+  }
   return roundScore(matched / required);
 }
 
@@ -1562,9 +1586,9 @@ function scoreAgentHandoff(
     if (handoff.readTarget?.path === next.readTarget?.path) matched += 1;
     if (handoff.readValue?.path === next.readValue?.path) matched += 1;
   }
-  if (next.url) {
+  if (next.url || next.urlRef) {
     required += 1;
-    if (handoff.url === next.url) matched += 1;
+    if (sameAgentUrl(handoff, next)) matched += 1;
   }
   if (next.target) {
     required += 1;
@@ -1641,9 +1665,9 @@ function scoreAgentExecutionPlan(
     if (plan.afterInteractionCommand === next.afterInteractionCommand) matched += 1;
     if (JSON.stringify(plan.afterInteractionCommandArgs) === JSON.stringify(next.afterInteractionCommandArgs)) matched += 1;
   }
-  if (next.url) {
+  if (next.url || next.urlRef) {
     required += 1;
-    if (plan.url === next.url) matched += 1;
+    if (sameAgentUrl(plan, next)) matched += 1;
   }
   return roundScore(matched / required);
 }
@@ -2047,7 +2071,7 @@ function scoreAgentAlternativeActionCount(alternativeActionCount: number | undef
     ...(item.pageCheck?.nextSteps ?? []),
     item.verification?.recommendedAction,
   ].filter((action): action is CliActionShape => Boolean(action));
-  const keys = new Set(actions.map(compactActionKey));
+  const keys = new Set(actions.map((action) => compactActionKey(action)));
   return alternativeActionCount === keys.size ? 1 : 0;
 }
 
@@ -2058,7 +2082,7 @@ function scoreAgentActionList(actions: CliActionShape[] | undefined, primaryActi
   if (!firstAction) return 0;
   let required = 5;
   let matched = 0;
-  if (compactActionKey(firstAction) === compactActionKey(primaryAction)) matched += 1;
+  if (compactActionKey(firstAction, primaryAction) === compactActionKey(primaryAction)) matched += 1;
   if (firstAction.primary === true) matched += 1;
   if (typeof firstAction.source === "string" && firstAction.source.length > 0) matched += 1;
   if (scoreOpenActionTarget(firstAction) === 1) matched += 1;
@@ -2154,6 +2178,12 @@ function scoreAgentPageDecision(
     if (decision.command === primaryAction.command) matched += 1;
     if (JSON.stringify(decision.commandArgs) === JSON.stringify(primaryAction.commandArgs)) matched += 1;
   } else if (typeof decision.commandArgs !== "undefined") {
+    required += 1;
+  }
+  if (primaryAction?.url) {
+    required += 1;
+    if (resolvedAgentUrl(decision, primaryAction) === primaryAction.url) matched += 1;
+  } else if (decision.url || decision.urlRef) {
     required += 1;
   }
   return roundScore(matched / required);
@@ -2274,10 +2304,10 @@ function expectedAgentUsabilityScore(item: {
   return roundScore(Math.max(0, Math.min(1, resultScore)));
 }
 
-function compactActionKey(action: CliActionShape): string {
+function compactActionKey(action: CliActionShape, primaryAction?: CliActionShape): string {
   return [
     action.action ?? "",
-    action.url ?? "",
+    resolvedAgentUrl(action, primaryAction) ?? "",
     action.command ?? "",
     action.rank ?? "",
     action.openResult ?? "",

@@ -11887,14 +11887,14 @@ function compactAgentSummary(agent: AgentSummary): object {
     summary: agent.summary,
     routingIntent: agent.routingIntent,
     continuationMode: agent.continuationMode,
-    next: compactAgentNext(agent.next),
-    runbook: compactAgentRunbook(agent.runbook),
-    handoff: compactAgentHandoff(agent.handoff),
+    next: compactAgentNext(agent.next, agent.primaryUrl),
+    runbook: compactAgentRunbook(agent.runbook, agent.primaryUrl),
+    handoff: compactAgentHandoff(agent.handoff, agent.primaryUrl),
     expectedOutcome: agent.expectedOutcome,
-    executionPlan: agent.executionPlan,
-    answerPlan: agent.answerPlan,
+    executionPlan: compactAgentUrlRefs(agent.executionPlan, agent.primaryUrl),
+    answerPlan: compactAgentUrlRefs(agent.answerPlan, agent.primaryUrl),
     ...(agent.searchDecision ? { searchDecision: agent.searchDecision } : {}),
-    ...(agent.pageDecision ? { pageDecision: agent.pageDecision } : {}),
+    ...(agent.pageDecision ? { pageDecision: compactAgentUrlRefs(agent.pageDecision, agent.primaryUrl) } : {}),
     ...(agent.semanticSummary ? { semanticSummary: compactAgentSemanticSummary(agent.semanticSummary) } : {}),
     ...(agent.signals.length > 0 ? { signals: agent.signals } : {}),
     ...(agent.qualityGates.length > 0 ? { qualityGates: compactAgentQualityGates(agent.qualityGates) } : {}),
@@ -11929,7 +11929,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     ...(agent.citations.length > 0 ? { citations: compactAgentCitationList(agent.citations) } : {}),
     ...(agent.answerEvidence.length > 0 ? { answerEvidence: compactAgentCitationList(agent.answerEvidence, 650) } : {}),
     ...(agent.readTargets.length > 0 ? { readTargets: compactAgentReadTargets(agent.readTargets) } : {}),
-    ...(agent.actions.length > 0 ? { actions: compactAgentActionList(agent.actions.map((action) => compactAgentActionSummary(action, agent.primaryAction))) } : {}),
+    ...(agent.actions.length > 0 ? { actions: compactAgentActionList(agent.actions.map((action) => compactAgentActionSummary(action, agent.primaryAction, agent.primaryUrl))) } : {}),
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
     ...(agent.bestReadTargetReason ? { bestReadTargetReason: agent.bestReadTargetReason } : {}),
@@ -11975,29 +11975,29 @@ function compactAgentSemanticSummary(summary: AgentSemanticSummary): object {
   };
 }
 
-function compactAgentNext(next: AgentNext): object {
+function compactAgentNext(next: AgentNext, primaryUrl?: string): object {
   const { readValue, target, ...rest } = next;
-  return {
+  return compactAgentUrlRefs({
     ...rest,
     ...(target ? { target: compactAgentTarget(target, next.action) } : {}),
     ...(readValue ? { readValue: compactAgentReadValue(readValue) } : {}),
-  };
+  }, primaryUrl);
 }
 
-function compactAgentRunbook(runbook: AgentRunbook): object {
+function compactAgentRunbook(runbook: AgentRunbook, primaryUrl?: string): object {
   const { readValue, target, ...rest } = runbook;
-  return {
+  return compactAgentUrlRefs({
     ...rest,
     ...(target ? { target: compactAgentTarget(target, runbook.action) } : {}),
     ...(readValue ? { readValue: compactAgentReadValue(readValue, true) } : {}),
-  };
+  }, primaryUrl);
 }
 
-function compactAgentHandoff(handoff: AgentHandoff): object {
+function compactAgentHandoff(handoff: AgentHandoff, primaryUrl?: string): object {
   const { readValue, readTarget, sourceChoices: _sourceChoices, resultChoices, answerEvidence, target, signals: _signals, qualityGates: _qualityGates, ...rest } = handoff;
   const keepSignals = handoff.signals?.some((signal) => signal.kind === "verification" || signal.kind === "browser") === true;
   const keepQualityGates = handoff.qualityGates?.some((gate) => gate.kind === "verification") === true;
-  return {
+  return compactAgentUrlRefs({
     ...rest,
     ...(keepSignals ? { signals: handoff.signals } : {}),
     ...(keepQualityGates ? { qualityGates: handoff.qualityGates } : {}),
@@ -12006,6 +12006,17 @@ function compactAgentHandoff(handoff: AgentHandoff): object {
     ...(answerEvidence && answerEvidence.length > 0 ? { answerEvidence: answerEvidence.map(compactAgentCitationRef) } : {}),
     ...(resultChoices && resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(resultChoices) } : {}),
     ...(readValue ? { readValue: compactAgentReadValue(readValue, true) } : {}),
+  }, primaryUrl);
+}
+
+function compactAgentUrlRefs<T extends object>(value: T, primaryUrl?: string, threshold = 80): object {
+  if (!primaryUrl || primaryUrl.length <= threshold) return value;
+  const record = value as Record<string, unknown>;
+  if (record.url !== primaryUrl) return value;
+  const { url: _url, ...rest } = record;
+  return {
+    ...rest,
+    urlRef: "agent.primaryUrl",
   };
 }
 
@@ -12407,8 +12418,8 @@ function agentTargetFromResult(result: ResultSummary): AgentTarget {
   };
 }
 
-function compactAgentAction(action: SuggestedAction, options: { omitOpenSourceTarget?: boolean; omitReason?: boolean } = {}): object {
-  return {
+function compactAgentAction(action: SuggestedAction, options: { omitOpenSourceTarget?: boolean; omitReason?: boolean; primaryUrl?: string } = {}): object {
+  return compactAgentUrlRefs({
     action: action.action,
     execution: actionExecution(action),
     priority: action.priority ?? actionPriority(action),
@@ -12425,7 +12436,7 @@ function compactAgentAction(action: SuggestedAction, options: { omitOpenSourceTa
     ...(action.readFrom ? { readFrom: action.readFrom } : {}),
     ...(action.requiresBrowserInteraction ? { requiresBrowserInteraction: action.requiresBrowserInteraction } : {}),
     ...(action.target && !(options.omitOpenSourceTarget && action.action === "open-source-link") ? { target: compactAgentTarget(action.target, action.action) } : {}),
-  };
+  }, options.primaryUrl);
 }
 
 function compactAgentTarget(target: AgentTarget, action?: string): object {
@@ -12437,7 +12448,7 @@ function compactAgentTarget(target: AgentTarget, action?: string): object {
   };
 }
 
-function compactAgentActionSummary(action: AgentActionSummary, primaryAction?: SuggestedAction): object {
+function compactAgentActionSummary(action: AgentActionSummary, primaryAction?: SuggestedAction, primaryUrl?: string): object {
   if (!action.primary && action.source === "pageCheck.nextSteps" && typeof action.index === "number") {
     const compactIndex = (primaryAction?.action === "read-content" || primaryAction?.action === "use-evidence") && action.index > 0
       ? action.index - 1
@@ -12449,8 +12460,9 @@ function compactAgentActionSummary(action: AgentActionSummary, primaryAction?: S
       path: `pageCheck.nextSteps[${compactIndex}]`,
     };
   }
+  const actionOptions = primaryUrl ? { primaryUrl } : {};
   return {
-    ...compactAgentAction(action),
+    ...compactAgentAction(action, actionOptions),
     source: action.source,
     ...(action.primary ? { primary: true } : {}),
     ...(typeof action.index === "number" ? { index: action.index } : {}),
