@@ -11809,7 +11809,7 @@ function compactSuggestedActions(actions: SuggestedAction[], primaryAction?: Sug
 
 function compactAgentSummary(agent: AgentSummary): object {
   return {
-    contract: agent.contract,
+    contract: compactAgentContract(agent.contract),
     status: agent.status,
     pageKind: agent.pageKind,
     summary: agent.summary,
@@ -11879,6 +11879,14 @@ function compactAgentSummary(agent: AgentSummary): object {
     ...(agent.recommendedRelevance ? { recommendedRelevance: agent.recommendedRelevance } : {}),
     ...(typeof agent.recommendedLikelyOfficial === "boolean" ? { recommendedLikelyOfficial: agent.recommendedLikelyOfficial } : {}),
     ...(agent.recommendedSelectionReason ? { recommendedSelectionReason: agent.recommendedSelectionReason } : {}),
+  };
+}
+
+function compactAgentContract(contract: AgentContract): object {
+  return {
+    version: contract.version,
+    compact: true,
+    featureCount: contract.features.length,
   };
 }
 

@@ -1173,9 +1173,8 @@ function scoreReadabilityReasons(reasons: unknown[] | undefined): number {
   return usefulReasons.length > 0 ? 1 : 0;
 }
 
-function scoreAgentContract(contract: { version?: number; features?: unknown[] } | undefined): number {
-  if (!contract || contract.version !== 1 || !Array.isArray(contract.features)) return 0;
-  const features = new Set(contract.features.filter((feature): feature is string => typeof feature === "string"));
+function scoreAgentContract(contract: { version?: number; features?: unknown[]; compact?: boolean; featureCount?: number } | undefined): number {
+  if (!contract || contract.version !== 1) return 0;
   const required = [
     "next.loop",
     "next.readTarget",
@@ -1206,6 +1205,11 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[] }
     "browserHtml",
     "primaryActionShortcuts",
   ];
+  if (contract.compact === true && typeof contract.featureCount === "number") {
+    return contract.featureCount >= required.length ? 1 : 0;
+  }
+  if (!Array.isArray(contract.features)) return 0;
+  const features = new Set(contract.features.filter((feature): feature is string => typeof feature === "string"));
   return required.every((feature) => features.has(feature)) ? 1 : 0;
 }
 

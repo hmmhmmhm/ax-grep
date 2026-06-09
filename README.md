@@ -147,11 +147,10 @@ Read these fields first:
 - `agent.signals` and `agent.qualityGates`: compact diagnostics for routing and
   trust checks.
 
-`contract.version` and `contract.features` identify the payload contract so an
-executor can check for fields such as `next.loop`, `next.readValue`,
-`next.target`, and `executionPlan` before relying on them. `continuationMode`
-is a simple loop switch: `read`, `command`, `browser`, `capture-html`,
-`inspect`, or `stop`.
+`contract.version`, `contract.compact`, and `contract.featureCount` identify the
+payload contract without repeating the full feature list in every prompt.
+`continuationMode` is a simple loop switch: `read`, `command`, `browser`,
+`capture-html`, `inspect`, or `stop`.
 
 Agent actions use an `execution` discriminator:
 
@@ -290,13 +289,8 @@ small; the full CLI output is the tool contract, not README fixture data:
   "agent": {
     "contract": {
       "version": 1,
-      "features": [
-        "next.loop",
-        "next.readValue",
-        "handoff",
-        "handoff.answerEvidence",
-        "handoff.quality"
-      ]
+      "compact": true,
+      "featureCount": 69
     },
     "status": "ready",
     "continuationMode": "read",

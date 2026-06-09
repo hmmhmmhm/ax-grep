@@ -54,13 +54,8 @@ describe("README", () => {
     expect(exampleEnvelope.agent).toMatchObject({
       contract: {
         version: 1,
-        features: expect.arrayContaining([
-          "next.loop",
-          "next.readValue",
-          "handoff",
-          "handoff.answerEvidence",
-          "handoff.quality",
-        ]),
+        compact: true,
+        featureCount: expect.any(Number),
       },
       status: "ready",
       continuationMode: "read",
