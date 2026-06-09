@@ -1011,6 +1011,13 @@ const defaultTimeoutMs = 15_000;
 const defaultUserAgent = "ax-grep/0.1 (+https://github.com/hmmhmmhm/ax-grep)";
 const autoSearchEngines: SearchEngine[] = ["duckduckgo", "bing", "startpage"];
 
+function envelopeAgentCanReadCurrentPayload(envelope: object): boolean {
+  const agent = (envelope as { agent?: Partial<AgentSummary> }).agent;
+  return agent?.needsBrowserHtml === false
+    && agent.primaryAction?.action === "read-content"
+    && actionExecution(agent.primaryAction) === "read-current";
+}
+
 export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
   const stdout = io.stdout ?? process.stdout;
   const stderr = io.stderr ?? process.stderr;
@@ -1029,11 +1036,15 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
       if (isUnavailableTree(openedTree)) {
         const message = "no inspectable content; if the page is challenged or JavaScript-rendered, pass browser-captured HTML to the library API";
         if (opened.options.format === "json") {
-          stdout.write(`${formatJsonOutput(jsonEnvelope(opened.options, opened.fetched, openedTree, [{ code: "NO_INSPECTABLE_CONTENT", message }], {
+          const errorEnvelope = jsonEnvelope(opened.options, opened.fetched, openedTree, [{ code: "NO_INSPECTABLE_CONTENT", message }], {
             code: "NO_INSPECTABLE_CONTENT",
             message,
             status: opened.fetched.status,
-          }), opened.options.agentMode)}\n`);
+          });
+          const canReadCurrentPayload = envelopeAgentCanReadCurrentPayload(errorEnvelope);
+          const outputEnvelope = canReadCurrentPayload ? jsonEnvelope(opened.options, opened.fetched, openedTree) : errorEnvelope;
+          stdout.write(`${formatJsonOutput(outputEnvelope, opened.options.agentMode)}\n`);
+          if (canReadCurrentPayload) return 0;
         } else {
           stderr.write(`ax-grep: warning: ${message}\n`);
           stdout.write(`${formatCliText(openedTree, opened.fetched, opened.options)}\n`);
@@ -1049,11 +1060,15 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
     if (isUnavailableTree(tree)) {
       const message = "no inspectable content; if the page is challenged or JavaScript-rendered, pass browser-captured HTML to the library API";
       if (options.format === "json") {
-        stdout.write(`${formatJsonOutput(jsonEnvelope(options, fetched, tree, [{ code: "NO_INSPECTABLE_CONTENT", message }], {
+        const errorEnvelope = jsonEnvelope(options, fetched, tree, [{ code: "NO_INSPECTABLE_CONTENT", message }], {
           code: "NO_INSPECTABLE_CONTENT",
           message,
           status: fetched.status,
-        }), options.agentMode)}\n`);
+        });
+        const canReadCurrentPayload = envelopeAgentCanReadCurrentPayload(errorEnvelope);
+        const outputEnvelope = canReadCurrentPayload ? jsonEnvelope(options, fetched, tree) : errorEnvelope;
+        stdout.write(`${formatJsonOutput(outputEnvelope, options.agentMode)}\n`);
+        if (canReadCurrentPayload) return 0;
       } else {
         stderr.write(`ax-grep: warning: ${message}\n`);
         stdout.write(`${formatCliText(tree, fetched, options)}\n`);
@@ -3700,7 +3715,7 @@ function recommendedPageCheckAction(
 ): SuggestedAction {
   const searchAction = analysis.suggestedActions.find((action) => action.action === "refine-search" || action.action === "open-result");
   if (searchAction) return searchAction;
-  if ((analysis.kind === "blocked-page" || analysis.kind === "empty") && !capturedHtml) {
+  if (analysis.kind === "blocked-page" && !capturedHtml) {
     return {
       action: "retry-with-browser-html",
       reason: "The page is not reliably readable from fetched HTML.",
@@ -3708,7 +3723,7 @@ function recommendedPageCheckAction(
       ...commandFields(pageCommandSpec(pageUrl, agentMode, true, [], timeoutMs, userAgent)),
     };
   }
-  if ((analysis.kind === "blocked-page" || analysis.kind === "empty") && capturedHtml) {
+  if (analysis.kind === "blocked-page" && capturedHtml) {
     return {
       action: "inspect-browser-state",
       reason: "Browser-captured HTML still appears blocked or empty; inspect the browser state or capture after interacting.",
@@ -4080,6 +4095,23 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.metaFacts",
+    };
+  }
+  if (analysis.kind === "empty" && !capturedHtml) {
+    return {
+      action: "retry-with-browser-html",
+      reason: "The page is not reliably readable from fetched HTML.",
+      url: pageUrl,
+      ...commandFields(pageCommandSpec(pageUrl, agentMode, true, [], timeoutMs, userAgent)),
+    };
+  }
+  if (analysis.kind === "empty" && capturedHtml) {
+    return {
+      action: "inspect-browser-state",
+      reason: "Browser-captured HTML still appears blocked or empty; inspect the browser state or capture after interacting.",
+      url: pageUrl,
+      requiresBrowserInteraction: true,
+      ...afterInteractionCommandFields(pageCommandSpec(pageUrl, agentMode, true, [], timeoutMs, userAgent)),
     };
   }
   if (sourceLinks[0]) {
@@ -8429,10 +8461,11 @@ function summarizeAgent(
   const primaryAction = primaryAgentAction(analysis, pageCheck, verification);
   const hasUsableSearchResults = analysis.kind === "search-results" && results.length > 0;
   const blockedOrEmpty = analysis.kind === "blocked-page" || analysis.kind === "empty";
-  const needsBrowserHtml = Boolean(error)
-    || (!capturedHtml && blockedOrEmpty)
+  const primaryReadsCurrentPayload = primaryAction ? actionExecution(primaryAction) === "read-current" : false;
+  const needsBrowserHtml = (Boolean(error) && !(error?.code === "NO_INSPECTABLE_CONTENT" && primaryReadsCurrentPayload))
+    || (!capturedHtml && blockedOrEmpty && !primaryReadsCurrentPayload)
     || primaryAction?.action === "retry-with-browser-html";
-  const canUseFetchedHtml = !needsBrowserHtml && !blockedOrEmpty && (capturedHtml || hasUsableSearchResults || verification.status === "matched" || pageCheck.readability.level !== "low");
+  const canUseFetchedHtml = !needsBrowserHtml && (!blockedOrEmpty || primaryReadsCurrentPayload) && (capturedHtml || hasUsableSearchResults || verification.status === "matched" || pageCheck.readability.level !== "low" || primaryReadsCurrentPayload);
   const status = agentStatus(analysis, pageCheck, verification, needsBrowserHtml, error);
   const summary = agentSummaryText(status, analysis, pageCheck, verification, recommendedResult);
   const diagnosticCounts = countDiagnosticsBySeverity(analysis.diagnostics);
@@ -10119,6 +10152,9 @@ function agentStatus(
   if (analysis.kind === "search-results") return "choose-result";
   if (verification.status === "partial" || verification.status === "missing") return "verify";
   if (verification.status === "matched") return "ready";
+  if (pageCheck.readability.level === "low"
+    && pageCheck.recommendedAction.action === "read-content"
+    && actionExecution(pageCheck.recommendedAction) === "read-current") return "ready";
   if (pageCheck.readability.level === "low") return "verify";
   return "ready";
 }

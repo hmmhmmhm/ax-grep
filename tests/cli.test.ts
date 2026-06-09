@@ -4075,6 +4075,49 @@ describe("cli", () => {
     }));
   });
 
+  it("uses hidden page-check metadata before browser retry on empty pages", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/hidden-empty", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <meta name="application-name" content="Hidden Console">
+            <meta name="theme-color" content="#0f766e">
+            <link rel="manifest" href="/site.webmanifest">
+          </head>
+          <body></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.kind).toBe("empty");
+    expect(envelope.agent).toMatchObject({
+      status: "ready",
+      needsBrowserHtml: false,
+      canUseFetchedHtml: true,
+      primaryAction: {
+        action: "read-content",
+        execution: "read-current",
+        readFrom: "pageCheck.appHints",
+      },
+      answerPlan: {
+        status: "ready",
+        readFrom: "pageCheck.appHints",
+        useCitationIds: expect.arrayContaining(["pc1"]),
+      },
+    });
+    expect(envelope.agent.citations).toContainEqual(expect.objectContaining({
+      id: "pc1",
+      kind: "page-check",
+      path: "pageCheck.appHints",
+      text: expect.stringContaining("Hidden Console"),
+    }));
+  });
+
   it("checks requested text against app hints", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/app", "--agent", "--find", "Example Console"], {
