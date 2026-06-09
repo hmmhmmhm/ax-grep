@@ -484,6 +484,7 @@ export type AgentContractFeature =
   | "pageCheck.media"
   | "pageCheck.resources"
   | "pageCheck.embeds"
+  | "pageCheck.authorLinks"
   | "readTargets"
   | "signals"
   | "qualityGates"

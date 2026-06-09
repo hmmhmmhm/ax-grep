@@ -492,6 +492,18 @@ type PageEmbedSummary = {
   selector?: string;
 };
 
+type PageAuthorLinkSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  url: string;
+  text: string;
+  source: "json-ld" | "link" | "html";
+  name?: string;
+  rel?: string;
+  selector?: string;
+};
+
 type PageReadabilitySummary = {
   level: "low" | "medium" | "high";
   score: number;
@@ -644,6 +656,7 @@ const agentContract: AgentContract = {
     "pageCheck.media",
     "pageCheck.resources",
     "pageCheck.embeds",
+    "pageCheck.authorLinks",
     "readTargets",
     "signals",
     "qualityGates",
@@ -681,6 +694,7 @@ type PageCheckSummary = {
   media: PageMediaSummary[];
   resources: PageResourceSummary[];
   embeds: PageEmbedSummary[];
+  authorLinks: PageAuthorLinkSummary[];
   contentLength: number;
   primaryLinks: PageLinkSummary[];
   sourceLinks: PageLinkSummary[];
@@ -2054,6 +2068,12 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const type = embed.type ? ` type=${embed.type}` : "";
     lines.push(`  embed: ${embed.id} ${embed.path} ${embed.kind}${type} <${embed.url}> - ${embed.text}`);
   }
+  for (const authorLink of pageCheck.authorLinks) {
+    const name = authorLink.name ? ` ${authorLink.name}` : "";
+    const rel = authorLink.rel ? ` rel=${authorLink.rel}` : "";
+    const selector = authorLink.selector ? ` (${authorLink.selector})` : "";
+    lines.push(`  authorLink: ${authorLink.id} ${authorLink.path} ${authorLink.source}${rel}${selector}${name} <${authorLink.url}> - ${authorLink.text}`);
+  }
   for (const link of pageCheck.primaryLinks) lines.push(`  link: ${link.kind} ${link.title} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`);
   for (const link of pageCheck.sourceLinks) lines.push(`  sourceLink: ${link.title} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`);
   for (const action of pageCheck.actions) lines.push(`  action: ${action.type} ${action.text}`);
@@ -2893,11 +2913,12 @@ function summarizePageCheck(
   const media = summarizeMedia(fetched.html, fetched.finalUrl);
   const resources = summarizeResources(fetched.html, fetched.finalUrl);
   const embeds = summarizeEmbeds(fetched.html, fetched.finalUrl);
+  const authorLinks = summarizeAuthorLinks(fetched.html, fetched.finalUrl);
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, toc, codeBlocks, citations, media, resources, embeds, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, toc, codeBlocks, citations, media, resources, embeds, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -2915,6 +2936,7 @@ function summarizePageCheck(
     media,
     resources,
     embeds,
+    authorLinks,
     contentLength,
     primaryLinks,
     sourceLinks,
@@ -2958,6 +2980,7 @@ function summarizeReadability(
   media: PageMediaSummary[],
   resources: PageResourceSummary[],
   embeds: PageEmbedSummary[],
+  authorLinks: PageAuthorLinkSummary[],
   contentLength: number,
   sourceLinks: PageLinkSummary[],
   actions: ActionSummary[],
@@ -3024,6 +3047,10 @@ function summarizeReadability(
   if (embeds.length > 0) {
     score += Math.min(0.06, embeds.length * 0.02);
     reasons.push(`${embeds.length} embed${embeds.length === 1 ? "" : "s"}`);
+  }
+  if (authorLinks.length > 0) {
+    score += Math.min(0.05, authorLinks.length * 0.025);
+    reasons.push(`${authorLinks.length} author link${authorLinks.length === 1 ? "" : "s"}`);
   }
   if (contentLength >= 400) {
     score += 0.18;
@@ -3099,6 +3126,7 @@ function recommendedPageCheckAction(
   media: PageMediaSummary[],
   resources: PageResourceSummary[],
   embeds: PageEmbedSummary[],
+  authorLinks: PageAuthorLinkSummary[],
   contentEvidence: PageEvidenceSummary[],
   agentMode = false,
   capturedHtml = false,
@@ -3150,7 +3178,9 @@ function recommendedPageCheckAction(
                           ? "pageCheck.resources"
                           : embeds.length > 0
                             ? "pageCheck.embeds"
-                            : metaFacts.length > 0
+                            : authorLinks.length > 0
+                              ? "pageCheck.authorLinks"
+                              : metaFacts.length > 0
                               ? "pageCheck.metaFacts"
                               : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
     return {
@@ -3258,6 +3288,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.embeds",
+    };
+  }
+  if (authorLinks.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but author/profile links are available for provenance checking.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.authorLinks",
     };
   }
   if (metaFacts.length > 0) {
@@ -4905,6 +4944,135 @@ function embedText(
   ].filter(Boolean).join(" "));
 }
 
+function summarizeAuthorLinks(html: string, baseUrl: string): PageAuthorLinkSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageAuthorLinkSummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageAuthorLinkSummary, "id" | "path" | "rank" | "text">): void => {
+    const url = item.url;
+    const name = item.name ? cleanContentText(item.name).slice(0, 120) : "";
+    const key = `${url}\n${name}`.toLowerCase();
+    if (!isUsefulAuthorLink(url, name, baseUrl) || seen.has(key)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `au${rank}`,
+      path: `pageCheck.authorLinks[${rank - 1}]`,
+      rank,
+      ...item,
+      ...(name ? { name } : {}),
+      text: authorLinkText(name, item.source, url),
+    });
+  };
+
+  for (const [scriptIndex, script] of findElements(document.children, (item) => item.name === "script" && /application\/ld\+json/i.test(attr(item, "type") ?? "")).entries()) {
+    for (const value of parseJsonLdValues(scriptText(script))) {
+      for (const author of jsonLdAuthorLinks(value.author, baseUrl)) {
+        add({
+          ...author,
+          source: "json-ld",
+          selector: `script[type="application/ld+json"]:nth-of-type(${scriptIndex + 1})`,
+        });
+      }
+    }
+  }
+
+  for (const [index, link] of findElements(document.children, (item) => item.name === "link").entries()) {
+    const rel = cleanLinkText(attr(link, "rel") ?? "");
+    if (!rel.split(/\s+/).some((part) => part.toLowerCase() === "author")) continue;
+    const href = attr(link, "href") ?? "";
+    const url = href ? normalizeHref(href, baseUrl) : null;
+    if (!url) continue;
+    add({
+      url,
+      source: "link",
+      name: cleanContentText(attr(link, "title") || attr(link, "hreflang") || resourceTitleFromUrl(url)),
+      rel,
+      selector: `link[rel="${cssAttributeValue(rel)}"]:nth-of-type(${index + 1})`,
+    });
+  }
+
+  const authorContainers = findElements(document.children, isLikelyAuthorContainer);
+  for (const [containerIndex, container] of authorContainers.entries()) {
+    for (const anchor of findElements(container.children, (item) => item.name === "a").slice(0, 4)) {
+      const href = attr(anchor, "href") ?? "";
+      const url = href ? normalizeHref(href, baseUrl) : null;
+      if (!url) continue;
+      const rel = cleanLinkText(attr(anchor, "rel") ?? "");
+      add({
+        url,
+        source: "html",
+        name: cleanContentText(descendantText(anchor) || attr(anchor, "title") || attr(anchor, "aria-label") || resourceTitleFromUrl(url)),
+        ...(rel ? { rel } : {}),
+        selector: `${container.name}:nth-of-type(${containerIndex + 1}) a`,
+      });
+    }
+  }
+
+  for (const [index, anchor] of findElements(document.children, (item) => item.name === "a").entries()) {
+    const rel = cleanLinkText(attr(anchor, "rel") ?? "");
+    if (!rel.split(/\s+/).some((part) => /^(author|me)$/.test(part.toLowerCase()))) continue;
+    const href = attr(anchor, "href") ?? "";
+    const url = href ? normalizeHref(href, baseUrl) : null;
+    if (!url) continue;
+    add({
+      url,
+      source: "html",
+      name: cleanContentText(descendantText(anchor) || attr(anchor, "title") || attr(anchor, "aria-label") || resourceTitleFromUrl(url)),
+      rel,
+      selector: `a[rel="${cssAttributeValue(rel)}"]:nth-of-type(${index + 1})`,
+    });
+  }
+
+  return items.slice(0, 6);
+}
+
+function jsonLdAuthorLinks(value: unknown, baseUrl: string): Array<{ name?: string; url: string }> {
+  if (typeof value === "string") return [];
+  return schemaObjectArray(value)
+    .map((author) => {
+      const name = jsonLdString(author.name) || jsonLdString(author.headline);
+      const rawUrl = jsonLdString(author.url) || jsonLdStringArray(author.sameAs)[0];
+      const url = rawUrl ? normalizeHref(rawUrl, baseUrl) : null;
+      return url ? { ...(name ? { name } : {}), url } : undefined;
+    })
+    .filter((item): item is { name?: string; url: string } => Boolean(item));
+}
+
+function isLikelyAuthorContainer(element: Element): boolean {
+  if (!["a", "address", "aside", "div", "footer", "header", "p", "section", "span"].includes(element.name)) return false;
+  const marker = [
+    element.name,
+    attr(element, "class") ?? "",
+    attr(element, "id") ?? "",
+    attr(element, "itemprop") ?? "",
+    attr(element, "rel") ?? "",
+    attr(element, "aria-label") ?? "",
+  ].join(" ").toLowerCase();
+  return /\b(author|byline|profile|contributor|creator|writer|reporter|editor)\b|필자|작성자|저자|기자/.test(marker);
+}
+
+function isUsefulAuthorLink(url: string, name: string, baseUrl: string): boolean {
+  if (!/^https?:\/\//i.test(url)) return false;
+  if (name && /^(home|menu|navigation|login|search|share|profile|author|byline|작성자|저자)$/i.test(name)) return false;
+  try {
+    const parsed = new URL(url);
+    const base = new URL(baseUrl);
+    if (parsed.href === base.href) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function authorLinkText(name: string, source: PageAuthorLinkSummary["source"], url: string): string {
+  return cleanContentText([name || "Author", `source=${source}`, url].join(" "));
+}
+
 function evidenceScore(text: string, role: string, semantic: boolean, hasSelector: boolean): number {
   let score = semantic ? 0.58 : 0.24;
   const length = text.length;
@@ -6030,6 +6198,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.embeds" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.authorLinks.length > 0) {
+    add({
+      path: "pageCheck.authorLinks",
+      reason: "Author, byline, and profile URLs extracted from HTML and JSON-LD.",
+      count: pageCheck.authorLinks.length,
+      score: roundMetric(Math.min(1, 0.4 + pageCheck.authorLinks.length * 0.06)),
+      ...(primaryReadFrom === "pageCheck.authorLinks" ? { primary: true } : {}),
+    });
+  }
   if (sourceSearch?.selectedResult) {
     add({
       path: "sourceSearch.selectedResult",
@@ -6232,6 +6409,7 @@ function agentReadValue(
   if (path === "pageCheck.media") return { path, value: pageCheck.media };
   if (path === "pageCheck.resources") return { path, value: pageCheck.resources };
   if (path === "pageCheck.embeds") return { path, value: pageCheck.embeds };
+  if (path === "pageCheck.authorLinks") return { path, value: pageCheck.authorLinks };
   if (path === "searchResults") return { path, value: results };
   if (path === "sourceSearch.selectedResult" && sourceSearch?.selectedResult) return { path, value: sourceSearch.selectedResult };
   if (path === "sourceSearch.alternateResults" && sourceSearch?.alternateResults) return { path, value: sourceSearch.alternateResults };
@@ -6686,6 +6864,15 @@ function findCandidates(
       ...(embed.selector ? { selector: embed.selector } : {}),
     });
   }
+  for (const authorLink of pageCheck.authorLinks) {
+    add({
+      field: "authorLink",
+      text: authorLink.text,
+      rank: authorLink.rank,
+      url: authorLink.url,
+      ...(authorLink.selector ? { selector: authorLink.selector } : {}),
+    });
+  }
   for (const link of pageCheck.sourceLinks) add({ field: "sourceLink", text: link.title, rank: link.rank, url: link.url });
   for (const link of pageCheck.primaryLinks) add({ field: "primaryLink", text: link.title, rank: link.rank, url: link.url });
   for (const result of results) add({ field: "result", text: resultEvidenceText(result), rank: result.rank, url: result.url });
@@ -6842,6 +7029,7 @@ function emptyPageCheck(): PageCheckSummary {
     media: [],
     resources: [],
     embeds: [],
+    authorLinks: [],
     contentLength: 0,
     primaryLinks: [],
     sourceLinks: [],
@@ -7798,6 +7986,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.media.length > 0 ? { media: pageCheck.media } : {}),
     ...(pageCheck.resources.length > 0 ? { resources: pageCheck.resources } : {}),
     ...(pageCheck.embeds.length > 0 ? { embeds: pageCheck.embeds } : {}),
+    ...(pageCheck.authorLinks.length > 0 ? { authorLinks: pageCheck.authorLinks } : {}),
     contentLength: pageCheck.contentLength,
     ...(primaryLinks.length > 0 && !omitResultLinkDuplicates ? { primaryLinks: primaryLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `l${index + 1}`, path: `pageCheck.primaryLinks[${index}]` })) } : {}),
     ...(pageCheck.sourceLinks.length > 0 && !omitResultLinkDuplicates ? { sourceLinks: pageCheck.sourceLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `s${index + 1}`, path: `pageCheck.sourceLinks[${index}]` })) } : {}),

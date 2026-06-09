@@ -232,6 +232,7 @@ describe("cli", () => {
             <meta name="description" content="Example description">
             <meta property="og:site_name" content="Example Site">
             <meta name="author" content="Example Author">
+            <link rel="author" href="/authors/reporter" title="Reporter Profile">
             <meta property="article:published_time" content="2026-03-04T05:06:07Z">
             <meta property="article:modified_time" content="2026-03-05T06:07:08Z">
             <script type="application/ld+json">
@@ -239,14 +240,19 @@ describe("cli", () => {
                 "@context": "https://schema.org",
                 "@type": "NewsArticle",
                 "headline": "Example",
-                "author": {"@type": "Person", "name": "Structured Author"},
+                "author": {"@type": "Person", "name": "Structured Author", "url": "https://profiles.example/structured-author"},
                 "datePublished": "2026-03-04T05:06:07Z",
                 "dateModified": "2026-03-05T06:07:08Z"
               }
             </script>
           </head>
           <body>
-            <main><h1>Example</h1><p>Example content for agent routing.</p><a href="https://target.example/">Target</a></main>
+            <main>
+              <h1>Example</h1>
+              <p class="byline">By <a href="/authors/reporter">Reporter Profile</a></p>
+              <p>Example content for agent routing.</p>
+              <a href="https://target.example/">Target</a>
+            </main>
           </body>
         </html>
       `, {
@@ -301,6 +307,7 @@ describe("cli", () => {
             "action.priority",
             "actions",
             "contentEvidence.quality",
+            "pageCheck.authorLinks",
             "readTargets",
             "signals",
             "qualityGates",
@@ -535,6 +542,19 @@ describe("cli", () => {
         publishedTime: "2026-03-04T05:06:07Z",
         modifiedTime: "2026-03-05T06:07:08Z",
         structuredDataTypes: ["NewsArticle"],
+        authorLinks: [
+          expect.objectContaining({
+            id: "au1",
+            path: "pageCheck.authorLinks[0]",
+            name: "Structured Author",
+            url: "https://profiles.example/structured-author",
+            source: "json-ld",
+          }),
+          expect.objectContaining({
+            name: "Reporter Profile",
+            url: "https://example.test/authors/reporter",
+          }),
+        ],
       },
     });
     expect(envelope.agent.primaryAction).toMatchObject({
@@ -550,6 +570,10 @@ describe("cli", () => {
       path: "verification.bestEvidence",
       count: 1,
       primary: true,
+    }));
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.authorLinks",
+      count: 2,
     }));
     expect(envelope.agent.next.readTarget).toEqual(
       expect.objectContaining({
@@ -571,6 +595,49 @@ describe("cli", () => {
     expect(envelope.results).toBeUndefined();
     expect(envelope.outline).toBeUndefined();
     expect(envelope.content).toBeUndefined();
+  });
+
+  it("checks requested text against author and profile links", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/report", "--agent", "--find", "authors jane"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <title>Report</title>
+            <link rel="author" href="/authors/jane" title="Jane Doe">
+          </head>
+          <body>
+            <main>
+              <h1>Report</h1>
+              <p>Brief report summary.</p>
+            </main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.authorLinks).toEqual([
+      expect.objectContaining({
+        id: "au1",
+        path: "pageCheck.authorLinks[0]",
+        name: "Jane Doe",
+        url: "https://example.test/authors/jane",
+        source: "link",
+      }),
+    ]);
+    expect(envelope.verification.bestEvidence).toMatchObject({
+      field: "authorLink",
+      text: expect.stringContaining("https://example.test/authors/jane"),
+      url: "https://example.test/authors/jane",
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
   });
 
   it("keeps agent mode in page and verification commands", async () => {
