@@ -478,6 +478,7 @@ export type AgentContractFeature =
   | "pageCheck.schemaFacts"
   | "pageCheck.offers"
   | "pageCheck.identities"
+  | "pageCheck.datasets"
   | "pageCheck.timeline"
   | "pageCheck.contactPoints"
   | "pageCheck.faqs"

@@ -411,6 +411,24 @@ type PageIdentitySummary = {
   selector?: string;
 };
 
+type PageDatasetSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "dataset" | "dataCatalog" | "dataDownload";
+  name: string;
+  text: string;
+  source: "json-ld" | "link";
+  url?: string;
+  distributionUrls?: string[];
+  encodingFormat?: string;
+  licenseUrl?: string;
+  temporalCoverage?: string;
+  spatialCoverage?: string;
+  creator?: string;
+  selector?: string;
+};
+
 type PageTimelineSummary = {
   id: string;
   path: string;
@@ -744,6 +762,7 @@ const agentContract: AgentContract = {
     "pageCheck.schemaFacts",
     "pageCheck.offers",
     "pageCheck.identities",
+    "pageCheck.datasets",
     "pageCheck.timeline",
     "pageCheck.contactPoints",
     "pageCheck.faqs",
@@ -789,6 +808,7 @@ type PageCheckSummary = {
   schemaFacts: PageSchemaFactSummary[];
   offers: PageOfferSummary[];
   identities: PageIdentitySummary[];
+  datasets: PageDatasetSummary[];
   timeline: PageTimelineSummary[];
   contactPoints: PageContactPointSummary[];
   faqs: PageFaqSummary[];
@@ -2148,6 +2168,11 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const selector = identity.selector ? ` (${identity.selector})` : "";
     lines.push(`  identity: ${identity.id} ${identity.path} ${identity.kind}${selector}${url} - ${identity.text}`);
   }
+  for (const dataset of pageCheck.datasets) {
+    const url = dataset.url ? ` <${dataset.url}>` : "";
+    const selector = dataset.selector ? ` (${dataset.selector})` : "";
+    lines.push(`  dataset: ${dataset.id} ${dataset.path} ${dataset.kind}${selector}${url} - ${dataset.text}`);
+  }
   for (const item of pageCheck.timeline) {
     const selector = item.selector ? ` (${item.selector})` : "";
     lines.push(`  timeline: ${item.id} ${item.path} ${item.kind} ${item.source}${selector} - ${item.text}`);
@@ -3050,6 +3075,7 @@ function summarizePageCheck(
   const schemaFacts = summarizeSchemaFacts(fetched.html);
   const offers = summarizeOffers(fetched.html, fetched.finalUrl);
   const identities = summarizeIdentities(fetched.html, fetched.finalUrl);
+  const datasets = summarizeDatasets(fetched.html, fetched.finalUrl);
   const timeline = summarizeTimeline(fetched.html, fetched.page);
   const contactPoints = summarizeContactPoints(fetched.html, fetched.finalUrl);
   const faqs = summarizeFaqs(fetched.html);
@@ -3067,8 +3093,8 @@ function summarizePageCheck(
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, offers, identities, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, offers, identities, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -3080,6 +3106,7 @@ function summarizePageCheck(
     schemaFacts,
     offers,
     identities,
+    datasets,
     timeline,
     contactPoints,
     faqs,
@@ -3131,6 +3158,7 @@ function summarizeReadability(
   schemaFacts: PageSchemaFactSummary[],
   offers: PageOfferSummary[],
   identities: PageIdentitySummary[],
+  datasets: PageDatasetSummary[],
   timeline: PageTimelineSummary[],
   contactPoints: PageContactPointSummary[],
   faqs: PageFaqSummary[],
@@ -3187,6 +3215,10 @@ function summarizeReadability(
   if (identities.length > 0) {
     score += Math.min(0.08, identities.length * 0.03);
     reasons.push(`${identities.length} identity${identities.length === 1 ? "" : " entries"}`);
+  }
+  if (datasets.length > 0) {
+    score += Math.min(0.1, datasets.length * 0.04);
+    reasons.push(`${datasets.length} dataset${datasets.length === 1 ? "" : "s"}`);
   }
   if (timeline.length > 0) {
     score += Math.min(0.08, timeline.length * 0.03);
@@ -3312,6 +3344,7 @@ function recommendedPageCheckAction(
   schemaFacts: PageSchemaFactSummary[],
   offers: PageOfferSummary[],
   identities: PageIdentitySummary[],
+  datasets: PageDatasetSummary[],
   timeline: PageTimelineSummary[],
   contactPoints: PageContactPointSummary[],
   faqs: PageFaqSummary[],
@@ -3365,7 +3398,9 @@ function recommendedPageCheckAction(
               ? "pageCheck.offers"
               : identities.length > 0
                 ? "pageCheck.identities"
-                : timeline.length > 0
+                : datasets.length > 0
+                  ? "pageCheck.datasets"
+                  : timeline.length > 0
               ? "pageCheck.timeline"
               : faqs.length > 0
               ? "pageCheck.faqs"
@@ -3447,6 +3482,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.identities",
+    };
+  }
+  if (datasets.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but dataset and data download provenance is available for verification.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.datasets",
     };
   }
   if (timeline.length > 0) {
@@ -4588,6 +4632,202 @@ function identityText(kind: PageIdentitySummary["kind"], name: string, url: stri
     url ? `url=${url}` : "",
     logoUrl ? `logo=${logoUrl}` : "",
     sameAs.length > 0 ? `sameAs=${sameAs.join("|")}` : "",
+    `source=${source}`,
+  ].filter(Boolean).join(" "));
+}
+
+function summarizeDatasets(html: string, baseUrl: string): PageDatasetSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageDatasetSummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageDatasetSummary, "id" | "path" | "rank" | "text">): void => {
+    const name = cleanContentText(item.name).slice(0, 180);
+    const url = item.url ? normalizeHref(item.url, baseUrl) ?? item.url : "";
+    const distributionUrls = normalizeDatasetUrls(item.distributionUrls ?? [], baseUrl);
+    const licenseUrl = item.licenseUrl ? normalizeHref(item.licenseUrl, baseUrl) ?? item.licenseUrl : "";
+    const encodingFormat = cleanLinkText(item.encodingFormat ?? "").slice(0, 80);
+    const temporalCoverage = cleanContentText(item.temporalCoverage ?? "").slice(0, 120);
+    const spatialCoverage = cleanContentText(item.spatialCoverage ?? "").slice(0, 120);
+    const creator = cleanContentText(item.creator ?? "").slice(0, 120);
+    const key = `${item.kind}\n${name}\n${url}\n${distributionUrls.join("\n")}`.toLowerCase();
+    if (!isUsefulDataset(name, url, distributionUrls, encodingFormat) || seen.has(key)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `ds${rank}`,
+      path: `pageCheck.datasets[${rank - 1}]`,
+      rank,
+      kind: item.kind,
+      name,
+      source: item.source,
+      ...(url ? { url } : {}),
+      ...(distributionUrls.length > 0 ? { distributionUrls } : {}),
+      ...(encodingFormat ? { encodingFormat } : {}),
+      ...(licenseUrl ? { licenseUrl } : {}),
+      ...(temporalCoverage ? { temporalCoverage } : {}),
+      ...(spatialCoverage ? { spatialCoverage } : {}),
+      ...(creator ? { creator } : {}),
+      ...(item.selector ? { selector: item.selector } : {}),
+      text: datasetText(item.kind, name, url, distributionUrls, encodingFormat, licenseUrl, temporalCoverage, spatialCoverage, creator, item.source),
+    });
+  };
+
+  for (const [scriptIndex, script] of findElements(document.children, (item) => item.name === "script" && /application\/ld\+json/i.test(attr(item, "type") ?? "")).entries()) {
+    for (const value of parseJsonLdValues(scriptText(script))) {
+      for (const dataset of datasetsFromJsonLd(value, baseUrl)) {
+        add({
+          ...dataset,
+          source: "json-ld",
+          selector: `script[type="application/ld+json"]:nth-of-type(${scriptIndex + 1})`,
+        });
+      }
+    }
+  }
+
+  for (const [index, anchor] of findElements(document.children, (item) => item.name === "a").entries()) {
+    const href = attr(anchor, "href");
+    const url = href ? normalizeHref(href, baseUrl) : null;
+    if (!url || !isDatasetDownloadUrl(url)) continue;
+    const name = cleanContentText(descendantText(anchor) || attr(anchor, "title") || attr(anchor, "aria-label") || resourceTitleFromUrl(url));
+    const type = cleanLinkText(attr(anchor, "type") || datasetMimeHint(url));
+    add({
+      kind: "dataDownload",
+      name,
+      source: "link",
+      url,
+      distributionUrls: [url],
+      encodingFormat: type || datasetExtension(url).toUpperCase(),
+      selector: `a:nth-of-type(${index + 1})`,
+    });
+  }
+
+  return items.slice(0, 8);
+}
+
+function datasetsFromJsonLd(value: Record<string, unknown>, baseUrl: string): Array<Omit<PageDatasetSummary, "id" | "path" | "rank" | "text" | "source" | "selector">> {
+  const types = jsonLdStringArray(value["@type"]).map((type) => type.toLowerCase());
+  const kind = datasetKind(types);
+  const items: Array<Omit<PageDatasetSummary, "id" | "path" | "rank" | "text" | "source" | "selector">> = [];
+  if (kind) {
+    const name = jsonLdString(value.name) || jsonLdString(value.headline) || resourceTitleFromUrl(jsonLdString(value.url) || jsonLdString(value["@id"]));
+    const rawUrl = jsonLdString(value.url) || jsonLdString(value["@id"]);
+    const distributionUrls = datasetDistributionUrls(value, baseUrl);
+    items.push({
+      kind,
+      name,
+      ...(rawUrl ? { url: normalizeHref(rawUrl, baseUrl) ?? rawUrl } : {}),
+      ...(distributionUrls.length > 0 ? { distributionUrls } : {}),
+      ...(datasetEncodingFormat(value) ? { encodingFormat: datasetEncodingFormat(value) } : {}),
+      ...(schemaLicenseUrl(value.license, baseUrl) ? { licenseUrl: schemaLicenseUrl(value.license, baseUrl) } : {}),
+      ...(jsonLdString(value.temporalCoverage) ? { temporalCoverage: jsonLdString(value.temporalCoverage) } : {}),
+      ...(schemaNamedValue(value.spatialCoverage) ? { spatialCoverage: schemaNamedValue(value.spatialCoverage) } : {}),
+      ...(schemaNamedValue(value.creator ?? value.author ?? value.publisher) ? { creator: schemaNamedValue(value.creator ?? value.author ?? value.publisher) } : {}),
+    });
+  }
+  if (types.includes("datacatalog")) {
+    for (const dataset of schemaObjectArray(value.dataset).slice(0, 4)) {
+      const name = jsonLdString(dataset.name) || jsonLdString(dataset.headline);
+      const rawUrl = jsonLdString(dataset.url) || jsonLdString(dataset["@id"]);
+      const distributionUrls = datasetDistributionUrls(dataset, baseUrl);
+      items.push({
+        kind: "dataset",
+        name,
+        ...(rawUrl ? { url: normalizeHref(rawUrl, baseUrl) ?? rawUrl } : {}),
+        ...(distributionUrls.length > 0 ? { distributionUrls } : {}),
+        ...(datasetEncodingFormat(dataset) ? { encodingFormat: datasetEncodingFormat(dataset) } : {}),
+        ...(schemaLicenseUrl(dataset.license ?? value.license, baseUrl) ? { licenseUrl: schemaLicenseUrl(dataset.license ?? value.license, baseUrl) } : {}),
+        ...(schemaNamedValue(dataset.creator ?? dataset.author ?? value.creator ?? value.publisher) ? { creator: schemaNamedValue(dataset.creator ?? dataset.author ?? value.creator ?? value.publisher) } : {}),
+      });
+    }
+  }
+  return items;
+}
+
+function datasetKind(types: string[]): PageDatasetSummary["kind"] | undefined {
+  if (types.includes("dataset")) return "dataset";
+  if (types.includes("datacatalog")) return "dataCatalog";
+  if (types.includes("datadownload")) return "dataDownload";
+  return undefined;
+}
+
+function datasetDistributionUrls(value: Record<string, unknown>, baseUrl: string): string[] {
+  const urls: string[] = [];
+  for (const raw of jsonLdStringArray(value.contentUrl)) urls.push(raw);
+  for (const distribution of schemaObjectArray(value.distribution).slice(0, 6)) {
+    const raw = jsonLdString(distribution.contentUrl) || jsonLdString(distribution.url) || jsonLdString(distribution["@id"]);
+    if (raw) urls.push(raw);
+  }
+  return normalizeDatasetUrls(urls, baseUrl);
+}
+
+function normalizeDatasetUrls(values: string[], baseUrl: string): string[] {
+  const seen = new Set<string>();
+  const urls: string[] = [];
+  for (const value of values) {
+    const url = normalizeHref(value, baseUrl);
+    if (!url || seen.has(url)) continue;
+    seen.add(url);
+    urls.push(url);
+    if (urls.length >= 6) break;
+  }
+  return urls;
+}
+
+function datasetEncodingFormat(value: Record<string, unknown>): string {
+  return jsonLdString(value.encodingFormat) || jsonLdString(value.fileFormat) || (schemaObjectArray(value.distribution).map((item) => jsonLdString(item.encodingFormat) || jsonLdString(item.fileFormat)).find(Boolean) ?? "");
+}
+
+function schemaLicenseUrl(value: unknown, baseUrl: string): string {
+  const raw = typeof value === "string" ? value : schemaObjectArray(value).map((item) => jsonLdString(item.url) || jsonLdString(item["@id"]) || jsonLdString(item.name)).find(Boolean) ?? "";
+  return raw ? normalizeHref(raw, baseUrl) ?? raw : "";
+}
+
+function isDatasetDownloadUrl(url: string): boolean {
+  return ["csv", "tsv", "parquet", "geojson", "jsonl", "ndjson"].includes(datasetExtension(url));
+}
+
+function datasetExtension(url: string): string {
+  try {
+    const pathname = new URL(url).pathname.toLowerCase();
+    return pathname.match(/\.([a-z0-9]{2,8})$/)?.[1] ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function datasetMimeHint(url: string): string {
+  const extension = datasetExtension(url);
+  const byExtension: Record<string, string> = {
+    csv: "text/csv",
+    tsv: "text/tab-separated-values",
+    parquet: "application/vnd.apache.parquet",
+    geojson: "application/geo+json",
+    jsonl: "application/x-ndjson",
+    ndjson: "application/x-ndjson",
+  };
+  return byExtension[extension] ?? "";
+}
+
+function isUsefulDataset(name: string, url: string, distributionUrls: string[], encodingFormat: string): boolean {
+  if (!name || name.length > 180) return false;
+  if (/^(download|view|open|click here|more|data)$/i.test(name) && distributionUrls.length === 0) return false;
+  return Boolean(url || distributionUrls.length > 0 || encodingFormat);
+}
+
+function datasetText(kind: PageDatasetSummary["kind"], name: string, url: string, distributionUrls: string[], encodingFormat: string, licenseUrl: string, temporalCoverage: string, spatialCoverage: string, creator: string, source: PageDatasetSummary["source"]): string {
+  return cleanContentText([
+    `${kind}: ${name}`,
+    url ? `url=${url}` : "",
+    distributionUrls.length > 0 ? `distributions=${distributionUrls.join("|")}` : "",
+    encodingFormat ? `format=${encodingFormat}` : "",
+    licenseUrl ? `license=${licenseUrl}` : "",
+    temporalCoverage ? `temporal=${temporalCoverage}` : "",
+    spatialCoverage ? `spatial=${spatialCoverage}` : "",
+    creator ? `creator=${creator}` : "",
     `source=${source}`,
   ].filter(Boolean).join(" "));
 }
@@ -7320,6 +7560,15 @@ function summarizeAgentReadTargets(
       primary: true,
     });
   }
+  if (pageCheck.datasets.length > 0 && primaryReadFrom === "pageCheck.datasets") {
+    add({
+      path: "pageCheck.datasets",
+      reason: "Dataset, data catalog, and data download provenance extracted from JSON-LD and data file links.",
+      count: pageCheck.datasets.length,
+      score: roundMetric(Math.min(1, 0.5 + pageCheck.datasets.length * 0.08)),
+      primary: true,
+    });
+  }
   if (pageCheck.faqs.length > 0) {
     add({
       path: "pageCheck.faqs",
@@ -7451,6 +7700,14 @@ function summarizeAgentReadTargets(
       reason: "Organization, website, person, brand, and sameAs identity facts extracted from JSON-LD and metadata.",
       count: pageCheck.identities.length,
       score: roundMetric(Math.min(1, 0.46 + pageCheck.identities.length * 0.06)),
+    });
+  }
+  if (pageCheck.datasets.length > 0) {
+    add({
+      path: "pageCheck.datasets",
+      reason: "Dataset, data catalog, and data download provenance extracted from JSON-LD and data file links.",
+      count: pageCheck.datasets.length,
+      score: roundMetric(Math.min(1, 0.5 + pageCheck.datasets.length * 0.08)),
     });
   }
   if (sourceSearch?.selectedResult) {
@@ -7650,6 +7907,7 @@ function agentReadValue(
   if (path === "pageCheck.schemaFacts") return { path, value: pageCheck.schemaFacts };
   if (path === "pageCheck.offers") return { path, value: pageCheck.offers };
   if (path === "pageCheck.identities") return { path, value: pageCheck.identities };
+  if (path === "pageCheck.datasets") return { path, value: pageCheck.datasets };
   if (path === "pageCheck.timeline") return { path, value: pageCheck.timeline };
   if (path === "pageCheck.faqs") return { path, value: pageCheck.faqs };
   if (path === "pageCheck.breadcrumbs") return { path, value: pageCheck.breadcrumbs };
@@ -8076,6 +8334,15 @@ function findCandidates(
       ...(identity.selector ? { selector: identity.selector } : {}),
     });
   }
+  for (const dataset of pageCheck.datasets) {
+    add({
+      field: "dataset",
+      text: dataset.text,
+      rank: dataset.rank,
+      ...(dataset.url ? { url: dataset.url } : dataset.distributionUrls?.[0] ? { url: dataset.distributionUrls[0] } : {}),
+      ...(dataset.selector ? { selector: dataset.selector } : {}),
+    });
+  }
   for (const item of pageCheck.timeline) {
     add({
       field: "timeline",
@@ -8338,6 +8605,7 @@ function emptyPageCheck(): PageCheckSummary {
     schemaFacts: [],
     offers: [],
     identities: [],
+    datasets: [],
     timeline: [],
     faqs: [],
     breadcrumbs: [],
@@ -9302,6 +9570,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.schemaFacts.length > 0 ? { schemaFacts: pageCheck.schemaFacts } : {}),
     ...(pageCheck.offers.length > 0 ? { offers: pageCheck.offers } : {}),
     ...(pageCheck.identities.length > 0 ? { identities: pageCheck.identities } : {}),
+    ...(pageCheck.datasets.length > 0 ? { datasets: pageCheck.datasets } : {}),
     ...(pageCheck.timeline.length > 0 ? { timeline: pageCheck.timeline } : {}),
     ...(pageCheck.faqs.length > 0 ? { faqs: pageCheck.faqs } : {}),
     ...(pageCheck.breadcrumbs.length > 0 ? { breadcrumbs: pageCheck.breadcrumbs } : {}),

@@ -309,6 +309,7 @@ describe("cli", () => {
             "contentEvidence.quality",
             "pageCheck.offers",
             "pageCheck.identities",
+            "pageCheck.datasets",
             "pageCheck.timeline",
             "pageCheck.contactPoints",
             "pageCheck.authorLinks",
@@ -3596,6 +3597,97 @@ describe("cli", () => {
       text: "organization: Example Labs url=https://example.test/ logo=https://example.test/logo.png sameAs=https://github.com/example|https://www.linkedin.com/company/example-labs source=json-ld",
       url: "https://example.test/",
       selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("summarizes dataset and data download provenance as pageCheck read targets for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/data", "--agent", "--find", "creativecommons.org/licenses/by/4.0"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <script type="application/ld+json">
+              {
+                "@context": "https://schema.org",
+                "@type": "Dataset",
+                "name": "Example emissions dataset",
+                "url": "/datasets/emissions",
+                "creator": { "@type": "Organization", "name": "Example Lab" },
+                "license": "https://creativecommons.org/licenses/by/4.0/",
+                "temporalCoverage": "2020/2025",
+                "spatialCoverage": { "@type": "Place", "name": "United States" },
+                "distribution": [
+                  {
+                    "@type": "DataDownload",
+                    "contentUrl": "/downloads/emissions.csv",
+                    "encodingFormat": "text/csv"
+                  }
+                ]
+              }
+            </script>
+          </head>
+          <body>
+            <main>
+              <h1>Data</h1>
+              <a href="/downloads/population.parquet">Population parquet data</a>
+            </main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.datasets).toEqual([
+      {
+        id: "ds1",
+        path: "pageCheck.datasets[0]",
+        rank: 1,
+        kind: "dataset",
+        name: "Example emissions dataset",
+        text: "dataset: Example emissions dataset url=https://example.test/datasets/emissions distributions=https://example.test/downloads/emissions.csv format=text/csv license=https://creativecommons.org/licenses/by/4.0/ temporal=2020/2025 spatial=United States creator=Example Lab source=json-ld",
+        source: "json-ld",
+        url: "https://example.test/datasets/emissions",
+        distributionUrls: ["https://example.test/downloads/emissions.csv"],
+        encodingFormat: "text/csv",
+        licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+        temporalCoverage: "2020/2025",
+        spatialCoverage: "United States",
+        creator: "Example Lab",
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      },
+      {
+        id: "ds2",
+        path: "pageCheck.datasets[1]",
+        rank: 2,
+        kind: "dataDownload",
+        name: "Population parquet data",
+        text: "dataDownload: Population parquet data url=https://example.test/downloads/population.parquet distributions=https://example.test/downloads/population.parquet format=application/vnd.apache.parquet source=link",
+        source: "link",
+        url: "https://example.test/downloads/population.parquet",
+        distributionUrls: ["https://example.test/downloads/population.parquet"],
+        encodingFormat: "application/vnd.apache.parquet",
+        selector: "a:nth-of-type(1)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("2 datasets");
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.datasets",
+      count: 2,
+      reason: "Dataset, data catalog, and data download provenance extracted from JSON-LD and data file links.",
+    }));
+    expect(envelope.verification.bestEvidence).toMatchObject({
+      field: "dataset",
+      rank: 1,
+      url: "https://example.test/datasets/emissions",
+      selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      text: "dataset: Example emissions dataset url=https://example.test/datasets/emissions distributions=https://example.test/downloads/emissions.csv format=text/csv license=https://creativecommons.org/licenses/by/4.0/ temporal=2020/2025 spatial=United States creator=Example Lab source=json-ld",
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "use-evidence",

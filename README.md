@@ -533,6 +533,7 @@ links, refresh targets, and selected social/article metadata from head tags.
 data such as product offers, ratings, events, and FAQ answers.
 `pageCheck.offers` captures structured price, availability, rating, and offer URL facts.
 `pageCheck.identities` captures organization, site, person, brand, and sameAs facts.
+`pageCheck.datasets` captures dataset, catalog, license, and data download facts.
 `pageCheck.timeline` captures publication, modification, event, and visible time facts.
 `pageCheck.contactPoints` captures email, phone, address, and contact URL facts.
 `pageCheck.faqs` captures visible FAQ question-answer pairs from details and
