@@ -309,6 +309,7 @@ describe("cli", () => {
             "contentEvidence.quality",
             "pageCheck.actionTargets",
             "pageCheck.hydration",
+            "pageCheck.apiEndpoints",
             "pageCheck.appHints",
             "pageCheck.topics",
             "pageCheck.httpPolicies",
@@ -3346,6 +3347,140 @@ describe("cli", () => {
         url: "https://example.test/_next/data/build-123/docs.json",
         selector: "script#__NEXT_DATA__:nth-of-type(1)",
         text: "Next.js data: kind=next-data framework=next route=/docs buildId=build-123 url=https://example.test/_next/data/build-123/docs.json source=script",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("summarizes inline script API endpoints for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/app", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <script>
+              fetch("/api/search?q=agent", { method: "POST" });
+              axios.get("/v1/users");
+              xhr.open("DELETE", "/rest/items/42");
+              const stream = new EventSource("/events/live");
+              fetch("/graphql", { method: "POST" });
+            </script>
+          </head>
+          <body><main><h1>App shell</h1></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.apiEndpoints).toEqual([
+      {
+        id: "api1",
+        path: "pageCheck.apiEndpoints[0]",
+        rank: 1,
+        kind: "fetch",
+        method: "POST",
+        url: "https://example.test/api/search?q=agent",
+        text: "fetch POST https://example.test/api/search?q=agent",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+      {
+        id: "api2",
+        path: "pageCheck.apiEndpoints[1]",
+        rank: 2,
+        kind: "graphql",
+        method: "POST",
+        url: "https://example.test/graphql",
+        text: "graphql POST https://example.test/graphql",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+      {
+        id: "api3",
+        path: "pageCheck.apiEndpoints[2]",
+        rank: 3,
+        kind: "axios",
+        method: "GET",
+        url: "https://example.test/v1/users",
+        text: "axios GET https://example.test/v1/users",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+      {
+        id: "api4",
+        path: "pageCheck.apiEndpoints[3]",
+        rank: 4,
+        kind: "xhr",
+        method: "DELETE",
+        url: "https://example.test/rest/items/42",
+        text: "xhr DELETE https://example.test/rest/items/42",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+      {
+        id: "api5",
+        path: "pageCheck.apiEndpoints[4]",
+        rank: 5,
+        kind: "event-stream",
+        method: "GET",
+        url: "https://example.test/events/live",
+        text: "event-stream GET https://example.test/events/live",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("5 API endpoints");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.apiEndpoints",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.apiEndpoints",
+      count: 5,
+      primary: true,
+      reason: "Inline script API, GraphQL, XHR, and event-stream endpoint hints extracted from page HTML.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.apiEndpoints",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          id: "api2",
+          url: "https://example.test/graphql",
+        }),
+      ]),
+    });
+  });
+
+  it("checks requested text against API endpoint hints", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/app", "--agent", "--find", "/api/search"], {
+      stdout,
+      fetch: async () => new Response(`
+        <script>
+          fetch("/api/search?q=agent", { method: "POST" });
+        </script>
+        <main><h1>App shell</h1></main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "apiEndpoint",
+        rank: 1,
+        url: "https://example.test/api/search?q=agent",
+        selector: "script:nth-of-type(1)",
+        text: "fetch POST https://example.test/api/search?q=agent",
       },
     });
     expect(envelope.agent.primaryAction).toMatchObject({

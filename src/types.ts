@@ -475,6 +475,7 @@ export type AgentContractFeature =
   | "pageCheck.forms"
   | "pageCheck.actionTargets"
   | "pageCheck.hydration"
+  | "pageCheck.apiEndpoints"
   | "pageCheck.appHints"
   | "pageCheck.topics"
   | "pageCheck.keyValues"

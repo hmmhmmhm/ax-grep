@@ -371,6 +371,18 @@ type PageHydrationSummary = {
   selector?: string;
 };
 
+type PageApiEndpointSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "fetch" | "axios" | "xhr" | "graphql" | "event-stream";
+  method?: string;
+  url: string;
+  text: string;
+  source: "script";
+  selector?: string;
+};
+
 type PageAppHintSummary = {
   id: string;
   path: string;
@@ -829,6 +841,7 @@ const agentContract: AgentContract = {
     "pageCheck.forms",
     "pageCheck.actionTargets",
     "pageCheck.hydration",
+    "pageCheck.apiEndpoints",
     "pageCheck.appHints",
     "pageCheck.topics",
     "pageCheck.keyValues",
@@ -880,6 +893,7 @@ type PageCheckSummary = {
   forms: PageFormSummary[];
   actionTargets: PageActionTargetSummary[];
   hydration: PageHydrationSummary[];
+  apiEndpoints: PageApiEndpointSummary[];
   appHints: PageAppHintSummary[];
   topics: PageTopicSummary[];
   keyValues: PageKeyValueSummary[];
@@ -2263,6 +2277,11 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const selector = item.selector ? ` (${item.selector})` : "";
     lines.push(`  hydration: ${item.id} ${item.path} ${item.kind}${selector}${url} - ${item.text}`);
   }
+  for (const endpoint of pageCheck.apiEndpoints) {
+    const method = endpoint.method ? ` ${endpoint.method}` : "";
+    const selector = endpoint.selector ? ` (${endpoint.selector})` : "";
+    lines.push(`  apiEndpoint: ${endpoint.id} ${endpoint.path} ${endpoint.kind}${method}${selector} <${endpoint.url}> - ${endpoint.text}`);
+  }
   for (const hint of pageCheck.appHints) {
     const url = hint.url ? ` <${hint.url}>` : "";
     const selector = hint.selector ? ` (${hint.selector})` : "";
@@ -3202,6 +3221,7 @@ function summarizePageCheck(
   const forms = summarizeForms(fetched.html, fetched.finalUrl);
   const actionTargets = summarizeActionTargets(fetched.html, fetched.finalUrl);
   const hydration = summarizeHydration(fetched.html, fetched.finalUrl);
+  const apiEndpoints = summarizeApiEndpoints(fetched.html, fetched.finalUrl);
   const appHints = summarizeAppHints(fetched.html, fetched.finalUrl);
   const topics = summarizeTopics(fetched.html);
   const keyValues = summarizeKeyValues(fetched.html);
@@ -3228,8 +3248,8 @@ function summarizePageCheck(
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, actionTargets, hydration, appHints, topics, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, actionTargets, hydration, appHints, topics, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, actionTargets, hydration, apiEndpoints, appHints, topics, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, actionTargets, hydration, apiEndpoints, appHints, topics, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -3238,6 +3258,7 @@ function summarizePageCheck(
     forms,
     actionTargets,
     hydration,
+    apiEndpoints,
     appHints,
     topics,
     keyValues,
@@ -3295,6 +3316,7 @@ function summarizeReadability(
   forms: PageFormSummary[],
   actionTargets: PageActionTargetSummary[],
   hydration: PageHydrationSummary[],
+  apiEndpoints: PageApiEndpointSummary[],
   appHints: PageAppHintSummary[],
   topics: PageTopicSummary[],
   keyValues: PageKeyValueSummary[],
@@ -3348,6 +3370,10 @@ function summarizeReadability(
   if (hydration.length > 0) {
     score += Math.min(0.08, hydration.length * 0.03);
     reasons.push(`${hydration.length} hydration hint${hydration.length === 1 ? "" : "s"}`);
+  }
+  if (apiEndpoints.length > 0) {
+    score += Math.min(0.08, apiEndpoints.length * 0.03);
+    reasons.push(`${apiEndpoints.length} API endpoint${apiEndpoints.length === 1 ? "" : "s"}`);
   }
   if (appHints.length > 0) {
     score += Math.min(0.06, appHints.length * 0.02);
@@ -3506,6 +3532,7 @@ function recommendedPageCheckAction(
   forms: PageFormSummary[],
   actionTargets: PageActionTargetSummary[],
   hydration: PageHydrationSummary[],
+  apiEndpoints: PageApiEndpointSummary[],
   appHints: PageAppHintSummary[],
   topics: PageTopicSummary[],
   keyValues: PageKeyValueSummary[],
@@ -3564,6 +3591,8 @@ function recommendedPageCheckAction(
           ? "pageCheck.actionTargets"
           : hydration.length > 0
             ? "pageCheck.hydration"
+            : apiEndpoints.length > 0
+              ? "pageCheck.apiEndpoints"
           : appHints.length > 0
             ? "pageCheck.appHints"
             : topics.length > 0
@@ -3644,6 +3673,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.hydration",
+    };
+  }
+  if (apiEndpoints.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but API endpoint hints are available for agent planning.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.apiEndpoints",
     };
   }
   if (appHints.length > 0) {
@@ -4567,6 +4605,106 @@ function hydrationText(kind: PageHydrationSummary["kind"], label: string, framew
 
 function cssIdentifier(value: string): string {
   return value.replace(/[^a-zA-Z0-9_-]/g, "\\$&");
+}
+
+function summarizeApiEndpoints(html: string, baseUrl: string): PageApiEndpointSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageApiEndpointSummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageApiEndpointSummary, "id" | "path" | "rank" | "text">): void => {
+    const url = normalizeApiEndpointUrl(item.url, baseUrl);
+    const method = cleanLinkText(item.method ?? "").toUpperCase().slice(0, 12);
+    const key = `${item.kind}\n${method}\n${url}`.toLowerCase();
+    if (!isUsefulApiEndpointUrl(url) || seen.has(key)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `api${rank}`,
+      path: `pageCheck.apiEndpoints[${rank - 1}]`,
+      rank,
+      kind: item.kind,
+      url,
+      source: item.source,
+      ...(method ? { method } : {}),
+      ...(item.selector ? { selector: item.selector } : {}),
+      text: apiEndpointText(item.kind, method, url),
+    });
+  };
+
+  for (const [scriptIndex, script] of findElements(document.children, (item) => item.name === "script").entries()) {
+    if (attr(script, "src")) continue;
+    const text = scriptText(script);
+    if (!text || text.length > 160_000) continue;
+    const selector = `script:nth-of-type(${scriptIndex + 1})`;
+    for (const endpoint of apiEndpointsFromScript(text)) {
+      add({ ...endpoint, source: "script", selector });
+    }
+  }
+
+  return items.slice(0, 8);
+}
+
+function apiEndpointsFromScript(text: string): Array<Omit<PageApiEndpointSummary, "id" | "path" | "rank" | "text" | "source" | "selector">> {
+  const items: Array<Omit<PageApiEndpointSummary, "id" | "path" | "rank" | "text" | "source" | "selector">> = [];
+  const add = (kind: PageApiEndpointSummary["kind"], url: string, method?: string): void => {
+    if (url) items.push({ kind, url, ...(method ? { method } : {}) });
+  };
+
+  for (const match of text.matchAll(/\bfetch\s*\(\s*(['"`])([^'"`]+)\1\s*(?:,\s*\{([\s\S]{0,400}?)\})?/g)) {
+    const url = match[2] ?? "";
+    add(apiEndpointKind(url), url, methodFromOptionsSnippet(match[3] ?? ""));
+  }
+  for (const match of text.matchAll(/\baxios(?:\.(get|post|put|patch|delete|head))?\s*\(\s*(['"`])([^'"`]+)\2/g)) {
+    add("axios", match[3] ?? "", match[1]);
+  }
+  for (const match of text.matchAll(/\.open\s*\(\s*(['"`])([A-Z]+)\1\s*,\s*(['"`])([^'"`]+)\3/g)) {
+    add("xhr", match[4] ?? "", match[2]);
+  }
+  for (const match of text.matchAll(/new\s+EventSource\s*\(\s*(['"`])([^'"`]+)\1/g)) {
+    add("event-stream", match[2] ?? "", "GET");
+  }
+  for (const match of text.matchAll(/(['"`])([^'"`]*\/graphql[^'"`]*)\1/g)) {
+    add("graphql", match[2] ?? "", "POST");
+  }
+  return items;
+}
+
+function methodFromOptionsSnippet(snippet: string): string {
+  const match = /\bmethod\s*:\s*(['"`])([A-Za-z]+)\1/i.exec(snippet);
+  return match?.[2] ?? "";
+}
+
+function apiEndpointKind(url: string): PageApiEndpointSummary["kind"] {
+  if (/\/graphql(?:[/?#]|$)/i.test(url)) return "graphql";
+  return "fetch";
+}
+
+function normalizeApiEndpointUrl(value: string, baseUrl: string): string {
+  const trimmed = cleanLinkText(value);
+  if (!trimmed || /[{]|\$\{|^data:|^blob:|^javascript:/i.test(trimmed)) return "";
+  if (/^\/\//.test(trimmed)) {
+    try {
+      const base = new URL(baseUrl);
+      return `${base.protocol}${trimmed}`;
+    } catch {
+      return trimmed;
+    }
+  }
+  return normalizeHref(trimmed, baseUrl) ?? trimmed;
+}
+
+function isUsefulApiEndpointUrl(url: string): boolean {
+  if (!url || url.length > 260) return false;
+  if (!/^https?:\/\//i.test(url)) return false;
+  return /\/(?:api|graphql|rpc|v\d+|rest|search|query|events|stream)(?:[/?#]|$)|\.(?:json|ndjson)(?:[?#]|$)/i.test(url);
+}
+
+function apiEndpointText(kind: PageApiEndpointSummary["kind"], method: string, url: string): string {
+  return cleanContentText([kind, method || "", url].filter(Boolean).join(" "));
 }
 
 function summarizeAppHints(html: string, baseUrl: string): PageAppHintSummary[] {
@@ -8351,6 +8489,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.hydration" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.apiEndpoints.length > 0) {
+    add({
+      path: "pageCheck.apiEndpoints",
+      reason: "Inline script API, GraphQL, XHR, and event-stream endpoint hints extracted from page HTML.",
+      count: pageCheck.apiEndpoints.length,
+      score: roundMetric(Math.min(1, 0.46 + pageCheck.apiEndpoints.length * 0.07)),
+      ...(primaryReadFrom === "pageCheck.apiEndpoints" ? { primary: true } : {}),
+    });
+  }
   if (pageCheck.appHints.length > 0) {
     add({
       path: "pageCheck.appHints",
@@ -8775,6 +8922,7 @@ function agentReadValue(
   if (path === "pageCheck.forms") return { path, value: pageCheck.forms };
   if (path === "pageCheck.actionTargets") return { path, value: pageCheck.actionTargets };
   if (path === "pageCheck.hydration") return { path, value: pageCheck.hydration };
+  if (path === "pageCheck.apiEndpoints") return { path, value: pageCheck.apiEndpoints };
   if (path === "pageCheck.appHints") return { path, value: pageCheck.appHints };
   if (path === "pageCheck.topics") return { path, value: pageCheck.topics };
   if (path === "pageCheck.contactPoints") return { path, value: pageCheck.contactPoints };
@@ -9177,6 +9325,15 @@ function findCandidates(
       ...(item.selector ? { selector: item.selector } : {}),
     });
   }
+  for (const endpoint of pageCheck.apiEndpoints) {
+    add({
+      field: "apiEndpoint",
+      text: endpoint.text,
+      rank: endpoint.rank,
+      url: endpoint.url,
+      ...(endpoint.selector ? { selector: endpoint.selector } : {}),
+    });
+  }
   for (const hint of pageCheck.appHints) {
     add({
       field: "appHint",
@@ -9521,6 +9678,7 @@ function emptyPageCheck(): PageCheckSummary {
     forms: [],
     actionTargets: [],
     hydration: [],
+    apiEndpoints: [],
     appHints: [],
     topics: [],
     contactPoints: [],
@@ -10491,6 +10649,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.forms.length > 0 ? { forms: pageCheck.forms } : {}),
     ...(pageCheck.actionTargets.length > 0 ? { actionTargets: pageCheck.actionTargets } : {}),
     ...(pageCheck.hydration.length > 0 ? { hydration: pageCheck.hydration } : {}),
+    ...(pageCheck.apiEndpoints.length > 0 ? { apiEndpoints: pageCheck.apiEndpoints } : {}),
     ...(pageCheck.appHints.length > 0 ? { appHints: pageCheck.appHints } : {}),
     ...(pageCheck.topics.length > 0 ? { topics: pageCheck.topics } : {}),
     ...(pageCheck.contactPoints.length > 0 ? { contactPoints: pageCheck.contactPoints } : {}),
