@@ -11701,6 +11701,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ? []
     : primaryAction ? pageCheck.nextSteps.filter((step) => !sameSuggestedAction(step, primaryAction)) : pageCheck.nextSteps;
   const recommendedAction = suppressPageActions || sameSuggestedAction(pageCheck.recommendedAction, primaryAction) ? undefined : pageCheck.recommendedAction;
+  const compactNextSteps = compactAgentActionList(nextSteps);
   return {
     contentEvidence: pageCheck.contentEvidence,
     ...(pageCheck.dataTables.length > 0 ? { dataTables: compactAgentPageCheckItems(pageCheck.dataTables) } : {}),
@@ -11739,7 +11740,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.authorLinks.length > 0 ? { authorLinks: compactAgentPageCheckItems(pageCheck.authorLinks) } : {}),
     contentLength: pageCheck.contentLength,
     ...(primaryLinks.length > 0 && !omitResultLinkDuplicates ? { primaryLinks: primaryLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `l${index + 1}`, path: `pageCheck.primaryLinks[${index}]` })) } : {}),
-    ...(pageCheck.sourceLinks.length > 0 && !omitResultLinkDuplicates ? { sourceLinks: pageCheck.sourceLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `s${index + 1}`, path: `pageCheck.sourceLinks[${index}]` })) } : {}),
+    ...(pageCheck.sourceLinks.length > 0 && !omitResultLinkDuplicates ? { sourceLinks: compactAgentCommandList(pageCheck.sourceLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `s${index + 1}`, path: `pageCheck.sourceLinks[${index}]` }))) } : {}),
     ...(pageCheck.actions.length > 0 && !omitResultLinkDuplicates ? { actions: pageCheck.actions } : {}),
     confidence: pageCheck.confidence,
     readability: {
@@ -11748,7 +11749,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
       reasons: pageCheck.readability.reasons,
     },
     ...(recommendedAction ? { recommendedAction: compactAgentAction(recommendedAction) } : {}),
-    ...(nextSteps.length > 0 ? { nextSteps: nextSteps.map(compactAgentAction) } : {}),
+    ...(compactNextSteps.length > 0 ? { nextSteps: compactNextSteps } : {}),
     ...(pageCheck.title ? { title: pageCheck.title } : {}),
     ...(pageCheck.canonicalUrl ? { canonicalUrl: pageCheck.canonicalUrl } : {}),
     ...(pageCheck.mainHeading ? { mainHeading: pageCheck.mainHeading } : {}),
@@ -11845,7 +11846,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     ...(agent.resultChoices.length > 0 ? { resultChoices: agent.resultChoices } : {}),
     evidenceCount: agent.evidenceCount,
     sourceLinkCount: agent.sourceLinkCount,
-    ...(agent.sourceChoices.length > 0 ? { sourceChoices: agent.sourceChoices } : {}),
+    ...(agent.sourceChoices.length > 0 ? { sourceChoices: compactAgentCommandList(agent.sourceChoices) } : {}),
     evidenceQualityScore: agent.evidenceQualityScore,
     sourceQualityScore: agent.sourceQualityScore,
     alternativeActionCount: agent.alternativeActionCount,
@@ -11856,7 +11857,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     ...(agent.citations.length > 0 ? { citations: agent.citations } : {}),
     ...(agent.answerEvidence.length > 0 ? { answerEvidence: agent.answerEvidence } : {}),
     ...(agent.readTargets.length > 0 ? { readTargets: agent.readTargets } : {}),
-    ...(agent.actions.length > 0 ? { actions: agent.actions.map(compactAgentActionSummary) } : {}),
+    ...(agent.actions.length > 0 ? { actions: compactAgentActionList(agent.actions.map(compactAgentActionSummary)) } : {}),
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
     ...(agent.bestReadTargetReason ? { bestReadTargetReason: agent.bestReadTargetReason } : {}),
@@ -11898,11 +11899,35 @@ function compactAgentRunbook(runbook: AgentRunbook): object {
 }
 
 function compactAgentHandoff(handoff: AgentHandoff): object {
-  const { readValue, ...rest } = handoff;
+  const { readValue, sourceChoices, resultChoices, ...rest } = handoff;
   return {
     ...rest,
+    ...(resultChoices && resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(resultChoices) } : {}),
+    ...(sourceChoices && sourceChoices.length > 0 ? { sourceChoices: compactAgentCommandList(sourceChoices) } : {}),
     ...(readValue ? { readValue: compactAgentReadValue(readValue, true) } : {}),
   };
+}
+
+function compactAgentActionList(actions: object[]): object[] {
+  return compactAgentCommandList(actions, 2200);
+}
+
+function compactAgentCommandList<T extends object>(items: T[], threshold = 2200): object[] {
+  const omitCommand = JSON.stringify(items).length > threshold;
+  return items.map((item) => omitCommand ? omitRedundantCommand(item) : item);
+}
+
+function omitRedundantCommand<T extends object>(item: T): object {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(item)) {
+    if (key === "command" && Array.isArray((item as { commandArgs?: unknown }).commandArgs)) continue;
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      result[key] = omitRedundantCommand(value as Record<string, unknown>);
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
 }
 
 function compactAgentReadValue(readValue: AgentReadValue, forceReference = false): object {
@@ -11992,7 +12017,7 @@ function compactAgentSourceSearch(sourceSearch: SourceSearchSummary | undefined)
     selectedTitle: sourceSearch.selectedTitle,
     selectedUrl: sourceSearch.selectedUrl,
     ...(sourceSearch.selectedResult ? { selectedResult: compactAgentSourceSearchResult(sourceSearch, sourceSearch.selectedResult) } : {}),
-    ...(sourceSearch.alternateResults?.length ? { alternateResults: sourceSearch.alternateResults.map((result, index) => compactAgentSourceSearchResult(sourceSearch, result, index)) } : {}),
+    ...(sourceSearch.alternateResults?.length ? { alternateResults: compactAgentCommandList(sourceSearch.alternateResults.map((result, index) => compactAgentSourceSearchResult(sourceSearch, result, index))) as AgentSourceSearchResult[] } : {}),
   };
 }
 
@@ -12101,12 +12126,12 @@ function compactAgentSearchResults(
   if (results.length === 0) return {};
   const selected = selectCompactSearchResults(results, recommendedResult);
   return {
-    searchResults: selected.map((result, index) => compactAgentSearchResult(
+    searchResults: compactAgentCommandList(selected.map((result, index) => compactAgentSearchResult(
       result,
       commandContext,
       { id: `r${result.rank}`, path: `searchResults[${index}]` },
       fallbackCommandContext,
-    )),
+    ))),
   };
 }
 

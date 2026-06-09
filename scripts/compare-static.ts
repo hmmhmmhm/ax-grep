@@ -1126,7 +1126,7 @@ function scoreActionSchema(actions: CliActionShape[]): number {
       && action.priorityReason.length > 0;
     if (!hasPriority) return false;
     const execution = normalizedActionExecution(action);
-    if (execution === "run-command") return Boolean(action.command) && Array.isArray(action.commandArgs) && action.commandArgs.length > 0;
+    if (execution === "run-command") return Array.isArray(action.commandArgs) && action.commandArgs.length > 0;
     if (execution === "read-current") return Boolean(action.readFrom);
     if (execution === "interact-browser") return action.requiresBrowserInteraction === true || action.action === "inspect-browser-state";
     if (execution === "inspect-output") return !action.command;
@@ -1143,7 +1143,6 @@ function scoreSearchResultActions(results: CliSearchResultShape[]): number {
       && typeof result.path === "string"
       && result.path.length > 0
       && typeof result.openResult !== "undefined"
-      && Boolean(result.command)
       && Array.isArray(result.commandArgs)
       && result.commandArgs.length > 0;
   }).length;
@@ -1698,8 +1697,6 @@ function scorePageLinkCommands(
       && link.id.length > 0
       && typeof link.path === "string"
       && link.path.length > 0
-      && typeof link.command === "string"
-      && link.command.length > 0
       && Array.isArray(link.commandArgs)
       && link.commandArgs.length > 0
       && typeof link.selectionReason === "string"
@@ -1952,7 +1949,7 @@ function scoreAgentSourceChoices(
       && choice.selectionReason.length > 0;
   }).length;
   if (validChoices === choices.length) matched += 1;
-  const runnableChoices = choices.filter((choice) => typeof choice.command === "string" && choice.command.length > 0 && Array.isArray(choice.commandArgs) && choice.commandArgs.length > 0).length;
+  const runnableChoices = choices.filter((choice) => Array.isArray(choice.commandArgs) && choice.commandArgs.length > 0).length;
   if (runnableChoices === choices.length) matched += 1;
   const sourcePrimaryAction = primaryAction?.action === "open-source-link"
     || sourceLinks.some((source) => primaryAction?.url && source.url === primaryAction.url);
