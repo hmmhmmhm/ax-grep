@@ -483,6 +483,7 @@ export type AgentContractFeature =
   | "pageCheck.topics"
   | "pageCheck.keyValues"
   | "pageCheck.metaFacts"
+  | "pageCheck.provenance"
   | "pageCheck.httpPolicies"
   | "pageCheck.schemaFacts"
   | "pageCheck.offers"

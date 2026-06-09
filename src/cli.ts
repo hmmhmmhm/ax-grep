@@ -470,6 +470,19 @@ type PageMetaFactSummary = {
   selector?: string;
 };
 
+type PageProvenanceSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "doi" | "pmid" | "arxiv" | "isbn" | "publisher" | "journal" | "license" | "identifier";
+  label: string;
+  value: string;
+  text: string;
+  source: "meta" | "link" | "json-ld";
+  url?: string;
+  selector?: string;
+};
+
 type PageHttpPolicySummary = {
   id: string;
   path: string;
@@ -885,6 +898,7 @@ const agentContract: AgentContract = {
     "pageCheck.topics",
     "pageCheck.keyValues",
     "pageCheck.metaFacts",
+    "pageCheck.provenance",
     "pageCheck.httpPolicies",
     "pageCheck.schemaFacts",
     "pageCheck.offers",
@@ -940,6 +954,7 @@ type PageCheckSummary = {
   topics: PageTopicSummary[];
   keyValues: PageKeyValueSummary[];
   metaFacts: PageMetaFactSummary[];
+  provenance: PageProvenanceSummary[];
   httpPolicies: PageHttpPolicySummary[];
   schemaFacts: PageSchemaFactSummary[];
   offers: PageOfferSummary[];
@@ -2354,6 +2369,11 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const selector = fact.selector ? ` (${fact.selector})` : "";
     lines.push(`  metaFact: ${fact.id} ${fact.path} ${fact.source}${selector}${url} - ${fact.text}`);
   }
+  for (const fact of pageCheck.provenance) {
+    const url = fact.url ? ` <${fact.url}>` : "";
+    const selector = fact.selector ? ` (${fact.selector})` : "";
+    lines.push(`  provenance: ${fact.id} ${fact.path} ${fact.kind}${selector}${url} - ${fact.text}`);
+  }
   for (const policy of pageCheck.httpPolicies) {
     const selector = policy.selector ? ` (${policy.selector})` : "";
     lines.push(`  httpPolicy: ${policy.id} ${policy.path} ${policy.source}${selector} - ${policy.text}`);
@@ -3283,6 +3303,7 @@ function summarizePageCheck(
   const topics = summarizeTopics(fetched.html);
   const keyValues = summarizeKeyValues(fetched.html);
   const metaFacts = summarizeMetaFacts(fetched.html, fetched.finalUrl);
+  const provenance = summarizeProvenance(fetched.html, fetched.finalUrl);
   const httpPolicies = summarizeHttpPolicies(fetched.html, fetched.responseHeaders);
   const schemaFacts = summarizeSchemaFacts(fetched.html);
   const offers = summarizeOffers(fetched.html, fetched.finalUrl);
@@ -3305,8 +3326,8 @@ function summarizePageCheck(
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, actionTargets, hydration, apiEndpoints, clientState, runtime, config, appHints, topics, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, actionTargets, hydration, apiEndpoints, clientState, runtime, config, appHints, topics, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, actionTargets, hydration, apiEndpoints, clientState, runtime, config, appHints, topics, keyValues, metaFacts, provenance, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, actionTargets, hydration, apiEndpoints, clientState, runtime, config, appHints, topics, keyValues, metaFacts, provenance, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -3323,6 +3344,7 @@ function summarizePageCheck(
     topics,
     keyValues,
     metaFacts,
+    provenance,
     httpPolicies,
     schemaFacts,
     offers,
@@ -3384,6 +3406,7 @@ function summarizeReadability(
   topics: PageTopicSummary[],
   keyValues: PageKeyValueSummary[],
   metaFacts: PageMetaFactSummary[],
+  provenance: PageProvenanceSummary[],
   httpPolicies: PageHttpPolicySummary[],
   schemaFacts: PageSchemaFactSummary[],
   offers: PageOfferSummary[],
@@ -3465,6 +3488,10 @@ function summarizeReadability(
   if (metaFacts.length > 0) {
     score += Math.min(0.06, metaFacts.length * 0.02);
     reasons.push(`${metaFacts.length} meta fact${metaFacts.length === 1 ? "" : "s"}`);
+  }
+  if (provenance.length > 0) {
+    score += Math.min(0.1, provenance.length * 0.04);
+    reasons.push(`${provenance.length} provenance fact${provenance.length === 1 ? "" : "s"}`);
   }
   if (httpPolicies.length > 0) {
     score += Math.min(0.08, httpPolicies.length * 0.025);
@@ -3615,6 +3642,7 @@ function recommendedPageCheckAction(
   topics: PageTopicSummary[],
   keyValues: PageKeyValueSummary[],
   metaFacts: PageMetaFactSummary[],
+  provenance: PageProvenanceSummary[],
   httpPolicies: PageHttpPolicySummary[],
   schemaFacts: PageSchemaFactSummary[],
   offers: PageOfferSummary[],
@@ -3721,6 +3749,8 @@ function recommendedPageCheckAction(
                                 ? "pageCheck.authorLinks"
                                 : contactPoints.length > 0
                                   ? "pageCheck.contactPoints"
+                                  : provenance.length > 0
+                                    ? "pageCheck.provenance"
                                   : metaFacts.length > 0
                               ? "pageCheck.metaFacts"
                               : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
@@ -3964,6 +3994,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.resources",
+    };
+  }
+  if (provenance.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but citation and provenance identifiers are available.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.provenance",
     };
   }
   if (embeds.length > 0) {
@@ -5713,6 +5752,122 @@ function refreshContentUrl(content: string, baseUrl: string): string | null {
   const match = /url\s*=\s*([^;]+)/i.exec(content);
   const rawUrl = match?.[1]?.trim().replace(/^['"]|['"]$/g, "");
   return rawUrl ? normalizeHref(rawUrl, baseUrl) : null;
+}
+
+function summarizeProvenance(html: string, baseUrl: string): PageProvenanceSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageProvenanceSummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageProvenanceSummary, "id" | "path" | "rank" | "text">): void => {
+    const value = cleanProvenanceValue(item.value);
+    const label = cleanContentText(item.label).slice(0, 80);
+    const url = item.url ? normalizeHref(item.url, baseUrl) ?? item.url : provenanceUrl(item.kind, value, baseUrl);
+    const key = `${item.kind}\n${label}\n${value}\n${url}`.toLowerCase();
+    if (!label || !value || seen.has(key)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `pv${rank}`,
+      path: `pageCheck.provenance[${rank - 1}]`,
+      rank,
+      kind: item.kind,
+      label,
+      value,
+      text: provenanceText(item.kind, label, value, url, item.source),
+      source: item.source,
+      ...(url ? { url } : {}),
+      ...(item.selector ? { selector: item.selector } : {}),
+    });
+  };
+
+  for (const [index, meta] of findElements(document.children, (item) => item.name === "meta").entries()) {
+    const name = (attr(meta, "name") || attr(meta, "property") || "").toLowerCase();
+    const content = cleanContentText(attr(meta, "content") ?? "");
+    if (!name || !content) continue;
+    const fact = provenanceFromMeta(name, content);
+    if (!fact) continue;
+    add({ ...fact, source: "meta", selector: `meta:nth-of-type(${index + 1})` });
+  }
+
+  for (const [index, link] of findElements(document.children, (item) => item.name === "link").entries()) {
+    const rel = cleanLinkText(attr(link, "rel") ?? "").toLowerCase();
+    const href = attr(link, "href") ?? "";
+    if (!href || !rel.split(/\s+/).includes("license")) continue;
+    add({
+      kind: "license",
+      label: "License",
+      value: href,
+      url: href,
+      source: "link",
+      selector: `link[rel="license"]:nth-of-type(${index + 1})`,
+    });
+  }
+
+  for (const [scriptIndex, script] of findElements(document.children, (item) => item.name === "script" && /application\/ld\+json/i.test(attr(item, "type") ?? "")).entries()) {
+    for (const value of parseJsonLdValues(scriptText(script))) {
+      for (const fact of provenanceFromJsonLd(value, baseUrl)) {
+        add({ ...fact, source: "json-ld", selector: `script[type="application/ld+json"]:nth-of-type(${scriptIndex + 1})` });
+      }
+    }
+  }
+
+  return items.slice(0, 8);
+}
+
+function provenanceFromMeta(name: string, content: string): Omit<PageProvenanceSummary, "id" | "path" | "rank" | "text" | "source" | "selector"> | undefined {
+  if (/^(citation_doi|dc\.identifier|dcterms\.identifier)$/.test(name) && doiValue(content)) return { kind: "doi", label: "DOI", value: doiValue(content) };
+  if (/^citation_pmid$/.test(name)) return { kind: "pmid", label: "PMID", value: content };
+  if (/^(citation_arxiv_id|arxiv_id)$/.test(name)) return { kind: "arxiv", label: "arXiv", value: content };
+  if (/^(citation_isbn|isbn)$/.test(name)) return { kind: "isbn", label: "ISBN", value: content };
+  if (/^citation_journal_title$/.test(name)) return { kind: "journal", label: "Journal", value: content };
+  if (/^(citation_publisher|dc\.publisher|dcterms\.publisher)$/.test(name)) return { kind: "publisher", label: "Publisher", value: content };
+  if (/^(citation_pdf_url|citation_fulltext_html_url)$/.test(name)) return { kind: "identifier", label: name.replace(/^citation_/, "Citation "), value: content, url: content };
+  if (/^(dc\.identifier|dcterms\.identifier)$/.test(name)) return { kind: "identifier", label: "Identifier", value: content };
+  return undefined;
+}
+
+function provenanceFromJsonLd(value: Record<string, unknown>, baseUrl: string): Array<Omit<PageProvenanceSummary, "id" | "path" | "rank" | "text" | "source" | "selector">> {
+  const facts: Array<Omit<PageProvenanceSummary, "id" | "path" | "rank" | "text" | "source" | "selector">> = [];
+  const add = (kind: PageProvenanceSummary["kind"], label: string, raw: string, url?: string): void => {
+    if (raw) facts.push({ kind, label, value: raw, ...(url ? { url } : {}) });
+  };
+  const identifier = jsonLdString(value.identifier) || jsonLdString(value["@id"]);
+  if (doiValue(identifier)) add("doi", "DOI", doiValue(identifier));
+  else add("identifier", "Identifier", identifier);
+  add("isbn", "ISBN", jsonLdString(value.isbn));
+  const publisher = schemaNamedValue(value.publisher);
+  add("publisher", "Publisher", publisher);
+  const journal = schemaNamedValue(value.isPartOf);
+  add("journal", "Journal", journal);
+  const license = schemaLicenseUrl(value.license, baseUrl);
+  add("license", "License", license, license);
+  return facts;
+}
+
+function doiValue(value: string): string {
+  const match = /\b(10\.\d{4,9}\/[-._;()/:A-Z0-9]+)\b/i.exec(value);
+  return match?.[1] ?? "";
+}
+
+function cleanProvenanceValue(value: string): string {
+  return cleanContentText(value).replace(/^doi:\s*/i, "").slice(0, 180);
+}
+
+function provenanceUrl(kind: PageProvenanceSummary["kind"], value: string, baseUrl: string): string {
+  if (kind === "doi" && doiValue(value)) return `https://doi.org/${doiValue(value)}`;
+  if (kind === "pmid" && /^\d+$/.test(value)) return `https://pubmed.ncbi.nlm.nih.gov/${value}/`;
+  if (kind === "arxiv") return `https://arxiv.org/abs/${value.replace(/^arxiv:/i, "")}`;
+  if (kind === "license" && /^https?:\/\//i.test(value)) return normalizeHref(value, baseUrl) ?? value;
+  if (kind === "identifier" && /^https?:\/\//i.test(value)) return normalizeHref(value, baseUrl) ?? value;
+  return "";
+}
+
+function provenanceText(kind: PageProvenanceSummary["kind"], label: string, value: string, url: string, source: PageProvenanceSummary["source"]): string {
+  return cleanContentText([`${label}: ${value}`, `kind=${kind}`, url ? `url=${url}` : "", `source=${source}`].filter(Boolean).join(" "));
 }
 
 function summarizeHttpPolicies(html: string, responseHeaders: Record<string, string>): PageHttpPolicySummary[] {
@@ -9188,6 +9343,15 @@ function summarizeAgentReadTargets(
       score: roundMetric(Math.min(1, 0.5 + pageCheck.datasets.length * 0.08)),
     });
   }
+  if (pageCheck.provenance.length > 0) {
+    add({
+      path: "pageCheck.provenance",
+      reason: "DOI, PMID, arXiv, ISBN, publisher, journal, license, and citation identifiers extracted from hidden metadata.",
+      count: pageCheck.provenance.length,
+      score: roundMetric(Math.min(1, 0.3 + pageCheck.provenance.length * 0.03)),
+      ...(primaryReadFrom === "pageCheck.provenance" ? { primary: true } : {}),
+    });
+  }
   if (sourceSearch?.selectedResult) {
     add({
       path: "sourceSearch.selectedResult",
@@ -9390,6 +9554,7 @@ function agentReadValue(
   if (path === "pageCheck.contactPoints") return { path, value: pageCheck.contactPoints };
   if (path === "pageCheck.keyValues") return { path, value: pageCheck.keyValues };
   if (path === "pageCheck.metaFacts") return { path, value: pageCheck.metaFacts };
+  if (path === "pageCheck.provenance") return { path, value: pageCheck.provenance };
   if (path === "pageCheck.httpPolicies") return { path, value: pageCheck.httpPolicies };
   if (path === "pageCheck.schemaFacts") return { path, value: pageCheck.schemaFacts };
   if (path === "pageCheck.offers") return { path, value: pageCheck.offers };
@@ -9907,6 +10072,15 @@ function findCandidates(
       ...(dataset.selector ? { selector: dataset.selector } : {}),
     });
   }
+  for (const fact of pageCheck.provenance) {
+    add({
+      field: "provenance",
+      text: fact.text,
+      rank: fact.rank,
+      ...(fact.url ? { url: fact.url } : {}),
+      ...(fact.selector ? { selector: fact.selector } : {}),
+    });
+  }
   for (const item of pageCheck.timeline) {
     add({
       field: "timeline",
@@ -10174,6 +10348,7 @@ function emptyPageCheck(): PageCheckSummary {
     contactPoints: [],
     keyValues: [],
     metaFacts: [],
+    provenance: [],
     httpPolicies: [],
     schemaFacts: [],
     offers: [],
@@ -11148,6 +11323,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.contactPoints.length > 0 ? { contactPoints: pageCheck.contactPoints } : {}),
     ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),
     ...(pageCheck.metaFacts.length > 0 ? { metaFacts: pageCheck.metaFacts } : {}),
+    ...(pageCheck.provenance.length > 0 ? { provenance: pageCheck.provenance } : {}),
     ...(pageCheck.httpPolicies.length > 0 ? { httpPolicies: pageCheck.httpPolicies } : {}),
     ...(pageCheck.schemaFacts.length > 0 ? { schemaFacts: pageCheck.schemaFacts } : {}),
     ...(pageCheck.offers.length > 0 ? { offers: pageCheck.offers } : {}),

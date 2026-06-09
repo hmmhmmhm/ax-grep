@@ -315,6 +315,7 @@ describe("cli", () => {
             "pageCheck.config",
             "pageCheck.appHints",
             "pageCheck.topics",
+            "pageCheck.provenance",
             "pageCheck.httpPolicies",
             "pageCheck.offers",
             "pageCheck.identities",
@@ -4421,6 +4422,127 @@ describe("cli", () => {
         rank: 1,
         selector: "meta:nth-of-type(1)",
         text: "robots directives: noindex, noarchive",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("summarizes hidden provenance identifiers for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/paper", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <meta name="citation_doi" content="10.5555/example.2026">
+            <meta name="citation_pmid" content="12345678">
+            <meta name="citation_arxiv_id" content="2606.01234">
+            <meta name="citation_journal_title" content="Journal of Agent Tests">
+          </head>
+          <body><main></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.provenance).toEqual([
+      {
+        id: "pv1",
+        path: "pageCheck.provenance[0]",
+        rank: 1,
+        kind: "doi",
+        label: "DOI",
+        value: "10.5555/example.2026",
+        text: "DOI: 10.5555/example.2026 kind=doi url=https://doi.org/10.5555/example.2026 source=meta",
+        source: "meta",
+        url: "https://doi.org/10.5555/example.2026",
+        selector: "meta:nth-of-type(1)",
+      },
+      {
+        id: "pv2",
+        path: "pageCheck.provenance[1]",
+        rank: 2,
+        kind: "pmid",
+        label: "PMID",
+        value: "12345678",
+        text: "PMID: 12345678 kind=pmid url=https://pubmed.ncbi.nlm.nih.gov/12345678/ source=meta",
+        source: "meta",
+        url: "https://pubmed.ncbi.nlm.nih.gov/12345678/",
+        selector: "meta:nth-of-type(2)",
+      },
+      {
+        id: "pv3",
+        path: "pageCheck.provenance[2]",
+        rank: 3,
+        kind: "arxiv",
+        label: "arXiv",
+        value: "2606.01234",
+        text: "arXiv: 2606.01234 kind=arxiv url=https://arxiv.org/abs/2606.01234 source=meta",
+        source: "meta",
+        url: "https://arxiv.org/abs/2606.01234",
+        selector: "meta:nth-of-type(3)",
+      },
+      {
+        id: "pv4",
+        path: "pageCheck.provenance[3]",
+        rank: 4,
+        kind: "journal",
+        label: "Journal",
+        value: "Journal of Agent Tests",
+        text: "Journal: Journal of Agent Tests kind=journal source=meta",
+        source: "meta",
+        selector: "meta:nth-of-type(4)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("4 provenance facts");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.provenance",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.provenance",
+      count: 4,
+      primary: true,
+      reason: "DOI, PMID, arXiv, ISBN, publisher, journal, license, and citation identifiers extracted from hidden metadata.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.provenance",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          id: "pv1",
+          url: "https://doi.org/10.5555/example.2026",
+        }),
+      ]),
+    });
+  });
+
+  it("checks requested text against provenance identifiers", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/paper", "--agent", "--find", "10.5555/example.2026"], {
+      stdout,
+      fetch: async () => new Response(`
+        <meta name="citation_doi" content="10.5555/example.2026">
+        <main></main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "provenance",
+        rank: 1,
+        url: "https://doi.org/10.5555/example.2026",
+        selector: "meta:nth-of-type(1)",
+        text: "DOI: 10.5555/example.2026 kind=doi url=https://doi.org/10.5555/example.2026 source=meta",
       },
     });
     expect(envelope.agent.primaryAction).toMatchObject({
