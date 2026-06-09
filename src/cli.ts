@@ -340,6 +340,22 @@ type PageFormSummary = {
   selector?: string;
 };
 
+type PageActionTargetSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "search" | "read" | "download" | "subscribe" | "action";
+  name: string;
+  text: string;
+  source: "json-ld" | "link";
+  targetUrl?: string;
+  urlTemplate?: string;
+  queryInput?: string;
+  method?: string;
+  encodingType?: string;
+  selector?: string;
+};
+
 type PageKeyValueSummary = {
   id: string;
   path: string;
@@ -769,6 +785,7 @@ const agentContract: AgentContract = {
     "pageCheck.dataTables",
     "pageCheck.barriers",
     "pageCheck.forms",
+    "pageCheck.actionTargets",
     "pageCheck.keyValues",
     "pageCheck.metaFacts",
     "pageCheck.httpPolicies",
@@ -816,6 +833,7 @@ type PageCheckSummary = {
   dataTables: PageDataTableSummary[];
   barriers: PageBarrierSummary[];
   forms: PageFormSummary[];
+  actionTargets: PageActionTargetSummary[];
   keyValues: PageKeyValueSummary[];
   metaFacts: PageMetaFactSummary[];
   httpPolicies: PageHttpPolicySummary[];
@@ -2186,6 +2204,12 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const template = form.urlTemplate ? ` template=${form.urlTemplate}` : "";
     lines.push(`  form: ${form.id} ${form.path} ${form.method.toUpperCase()} fields=${form.fieldCount}${template} - ${form.text}`);
   }
+  for (const target of pageCheck.actionTargets) {
+    const url = target.targetUrl ? ` <${target.targetUrl}>` : "";
+    const template = target.urlTemplate ? ` template=${target.urlTemplate}` : "";
+    const selector = target.selector ? ` (${target.selector})` : "";
+    lines.push(`  actionTarget: ${target.id} ${target.path} ${target.kind}${template}${selector}${url} - ${target.text}`);
+  }
   for (const fact of pageCheck.keyValues) {
     const datetime = fact.datetime ? ` datetime=${fact.datetime}` : "";
     lines.push(`  keyValue: ${fact.id} ${fact.path} ${fact.source}${datetime} - ${fact.text}`);
@@ -3114,6 +3138,7 @@ function summarizePageCheck(
   const dataTables = summarizeDataTables(fetched.html);
   const barriers = summarizeBarriers(analysis.diagnostics, content, actions);
   const forms = summarizeForms(fetched.html, fetched.finalUrl);
+  const actionTargets = summarizeActionTargets(fetched.html, fetched.finalUrl);
   const keyValues = summarizeKeyValues(fetched.html);
   const metaFacts = summarizeMetaFacts(fetched.html, fetched.finalUrl);
   const httpPolicies = summarizeHttpPolicies(fetched.html, fetched.responseHeaders);
@@ -3138,14 +3163,15 @@ function summarizePageCheck(
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, actionTargets, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, actionTargets, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
     dataTables,
     barriers,
     forms,
+    actionTargets,
     keyValues,
     metaFacts,
     httpPolicies,
@@ -3199,6 +3225,7 @@ function summarizeReadability(
   contentEvidence: PageEvidenceSummary[],
   dataTables: PageDataTableSummary[],
   forms: PageFormSummary[],
+  actionTargets: PageActionTargetSummary[],
   keyValues: PageKeyValueSummary[],
   metaFacts: PageMetaFactSummary[],
   httpPolicies: PageHttpPolicySummary[],
@@ -3242,6 +3269,10 @@ function summarizeReadability(
   }
   if (forms.length > 0 && contentLength < 120) {
     reasons.push(`${forms.length} form${forms.length === 1 ? "" : "s"}`);
+  }
+  if (actionTargets.length > 0) {
+    score += Math.min(0.08, actionTargets.length * 0.03);
+    reasons.push(`${actionTargets.length} action target${actionTargets.length === 1 ? "" : "s"}`);
   }
   if (keyValues.length > 0) {
     score += Math.min(0.08, keyValues.length * 0.02);
@@ -3390,6 +3421,7 @@ function recommendedPageCheckAction(
   sourceLinks: PageLinkSummary[],
   dataTables: PageDataTableSummary[],
   forms: PageFormSummary[],
+  actionTargets: PageActionTargetSummary[],
   keyValues: PageKeyValueSummary[],
   metaFacts: PageMetaFactSummary[],
   httpPolicies: PageHttpPolicySummary[],
@@ -3442,6 +3474,8 @@ function recommendedPageCheckAction(
       ? "pageCheck.contentEvidence"
       : dataTables.length > 0
         ? "pageCheck.dataTables"
+        : actionTargets.length > 0
+          ? "pageCheck.actionTargets"
         : keyValues.length > 0
           ? "pageCheck.keyValues"
           : httpPolicies.length > 0
@@ -3500,6 +3534,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.forms",
+    };
+  }
+  if (actionTargets.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but structured action targets are available for agent planning.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.actionTargets",
     };
   }
   if (keyValues.length > 0) {
@@ -4116,6 +4159,145 @@ function formatFormFieldSummary(field: PageFormFieldSummary): string {
   const required = field.required ? " required" : "";
   const options = field.options?.length ? ` options=${field.options.join("|")}` : "";
   return `${name}${field.type}${required}${label ? ` ${label}` : ""}${options}`;
+}
+
+function summarizeActionTargets(html: string, baseUrl: string): PageActionTargetSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageActionTargetSummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageActionTargetSummary, "id" | "path" | "rank" | "text">): void => {
+    const name = cleanContentText(item.name).slice(0, 140);
+    const targetUrl = item.targetUrl ? normalizeActionTargetUrl(item.targetUrl, baseUrl) : "";
+    const urlTemplate = item.urlTemplate ? normalizeActionTargetUrl(item.urlTemplate, baseUrl) : "";
+    const queryInput = cleanContentText(item.queryInput ?? "").slice(0, 160);
+    const method = cleanLinkText(item.method ?? "").toUpperCase().slice(0, 24);
+    const encodingType = cleanLinkText(item.encodingType ?? "").slice(0, 80);
+    const key = `${item.kind}\n${name}\n${targetUrl}\n${urlTemplate}\n${queryInput}`.toLowerCase();
+    if (!isUsefulActionTarget(name, targetUrl, urlTemplate, queryInput) || seen.has(key)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `at${rank}`,
+      path: `pageCheck.actionTargets[${rank - 1}]`,
+      rank,
+      kind: item.kind,
+      name,
+      source: item.source,
+      ...(targetUrl ? { targetUrl } : {}),
+      ...(urlTemplate ? { urlTemplate } : {}),
+      ...(queryInput ? { queryInput } : {}),
+      ...(method ? { method } : {}),
+      ...(encodingType ? { encodingType } : {}),
+      ...(item.selector ? { selector: item.selector } : {}),
+      text: actionTargetText(item.kind, name, targetUrl, urlTemplate, queryInput, method, encodingType, item.source),
+    });
+  };
+
+  for (const [scriptIndex, script] of findElements(document.children, (item) => item.name === "script" && /application\/ld\+json/i.test(attr(item, "type") ?? "")).entries()) {
+    for (const value of parseJsonLdValues(scriptText(script))) {
+      for (const target of actionTargetsFromJsonLd(value)) {
+        add({
+          ...target,
+          source: "json-ld",
+          selector: `script[type="application/ld+json"]:nth-of-type(${scriptIndex + 1})`,
+        });
+      }
+    }
+  }
+
+  for (const [index, link] of findElements(document.children, (item) => item.name === "link").entries()) {
+    const rel = cleanLinkText(attr(link, "rel") ?? "");
+    if (!rel.split(/\s+/).some((part) => part.toLowerCase() === "search")) continue;
+    const href = attr(link, "href") ?? "";
+    const targetUrl = href ? normalizeHref(href, baseUrl) : null;
+    if (!targetUrl) continue;
+    add({
+      kind: "search",
+      name: cleanContentText(attr(link, "title") || "Search endpoint"),
+      source: "link",
+      targetUrl,
+      encodingType: cleanLinkText(attr(link, "type") ?? ""),
+      selector: `link[rel="${cssAttributeValue(rel)}"]:nth-of-type(${index + 1})`,
+    });
+  }
+
+  return items.slice(0, 8);
+}
+
+function actionTargetsFromJsonLd(value: Record<string, unknown>): Array<Omit<PageActionTargetSummary, "id" | "path" | "rank" | "text" | "source" | "selector">> {
+  const values = [...schemaObjectArray(value.potentialAction)];
+  if (jsonLdStringArray(value["@type"]).some((type) => /Action$/i.test(type))) values.unshift(value);
+  return values
+    .map((action) => actionTargetFromJsonLd(action, value))
+    .filter((target): target is Omit<PageActionTargetSummary, "id" | "path" | "rank" | "text" | "source" | "selector"> => Boolean(target));
+}
+
+function actionTargetFromJsonLd(action: Record<string, unknown>, context: Record<string, unknown>): Omit<PageActionTargetSummary, "id" | "path" | "rank" | "text" | "source" | "selector"> | undefined {
+  const kind = actionTargetKind(jsonLdStringArray(action["@type"]));
+  if (!kind) return undefined;
+  const target = schemaObjectArray(action.target)[0];
+  const rawTarget = target
+    ? jsonLdString(target.urlTemplate) || jsonLdString(target.url) || jsonLdString(target.contentUrl) || jsonLdString(target["@id"])
+    : jsonLdString(action.target);
+  const targetUrl = rawTarget && !/[{]/.test(rawTarget) ? rawTarget : "";
+  const urlTemplate = rawTarget && /[{]/.test(rawTarget) ? rawTarget : "";
+  const name = jsonLdString(action.name) || jsonLdString(context.name) || actionTargetDefaultName(kind);
+  const queryInput = jsonLdString(action["query-input"]) || jsonLdString(target?.["query-input"]);
+  const method = jsonLdString(target?.httpMethod);
+  const encodingType = jsonLdString(target?.encodingType) || jsonLdString(target?.contentType);
+  return {
+    kind,
+    name,
+    ...(targetUrl ? { targetUrl } : {}),
+    ...(urlTemplate ? { urlTemplate } : {}),
+    ...(queryInput ? { queryInput } : {}),
+    ...(method ? { method } : {}),
+    ...(encodingType ? { encodingType } : {}),
+  };
+}
+
+function actionTargetKind(types: string[]): PageActionTargetSummary["kind"] | undefined {
+  const normalized = types.map((type) => type.toLowerCase());
+  if (normalized.includes("searchaction")) return "search";
+  if (normalized.includes("readaction") || normalized.includes("viewaction")) return "read";
+  if (normalized.includes("downloadaction")) return "download";
+  if (normalized.includes("subscribeaction")) return "subscribe";
+  if (normalized.some((type) => type.endsWith("action"))) return "action";
+  return undefined;
+}
+
+function normalizeActionTargetUrl(value: string, baseUrl: string): string {
+  const normalized = normalizeHref(value, baseUrl) ?? value;
+  return normalized.replace(/%7B/gi, "{").replace(/%7D/gi, "}");
+}
+
+function actionTargetDefaultName(kind: PageActionTargetSummary["kind"]): string {
+  if (kind === "search") return "Search action";
+  if (kind === "read") return "Read action";
+  if (kind === "download") return "Download action";
+  if (kind === "subscribe") return "Subscribe action";
+  return "Action";
+}
+
+function isUsefulActionTarget(name: string, targetUrl: string, urlTemplate: string, queryInput: string): boolean {
+  if (!name || name.length > 140) return false;
+  return Boolean(targetUrl || urlTemplate || queryInput);
+}
+
+function actionTargetText(kind: PageActionTargetSummary["kind"], name: string, targetUrl: string, urlTemplate: string, queryInput: string, method: string, encodingType: string, source: PageActionTargetSummary["source"]): string {
+  return cleanContentText([
+    `${kind}: ${name}`,
+    targetUrl ? `target=${targetUrl}` : "",
+    urlTemplate ? `template=${urlTemplate}` : "",
+    queryInput ? `queryInput=${queryInput}` : "",
+    method ? `method=${method}` : "",
+    encodingType ? `type=${encodingType}` : "",
+    `source=${source}`,
+  ].filter(Boolean).join(" "));
 }
 
 function summarizeKeyValues(html: string): PageKeyValueSummary[] {
@@ -7625,6 +7807,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.forms" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.actionTargets.length > 0) {
+    add({
+      path: "pageCheck.actionTargets",
+      reason: "JSON-LD and OpenSearch action targets with URL templates, query inputs, and methods.",
+      count: pageCheck.actionTargets.length,
+      score: roundMetric(Math.min(1, 0.44 + pageCheck.actionTargets.length * 0.07)),
+      ...(primaryReadFrom === "pageCheck.actionTargets" ? { primary: true } : {}),
+    });
+  }
   if (pageCheck.contactPoints.length > 0 && primaryReadFrom === "pageCheck.contactPoints") {
     add({
       path: "pageCheck.contactPoints",
@@ -8029,6 +8220,7 @@ function agentReadValue(
   if (path === "pageCheck.dataTables") return { path, value: pageCheck.dataTables };
   if (path === "pageCheck.barriers") return { path, value: pageCheck.barriers };
   if (path === "pageCheck.forms") return { path, value: pageCheck.forms };
+  if (path === "pageCheck.actionTargets") return { path, value: pageCheck.actionTargets };
   if (path === "pageCheck.contactPoints") return { path, value: pageCheck.contactPoints };
   if (path === "pageCheck.keyValues") return { path, value: pageCheck.keyValues };
   if (path === "pageCheck.metaFacts") return { path, value: pageCheck.metaFacts };
@@ -8411,6 +8603,15 @@ function findCandidates(
       ...(form.selector ? { selector: form.selector } : {}),
     });
   }
+  for (const target of pageCheck.actionTargets) {
+    add({
+      field: "actionTarget",
+      text: target.text,
+      rank: target.rank,
+      ...(target.targetUrl ? { url: target.targetUrl } : target.urlTemplate ? { url: target.urlTemplate } : {}),
+      ...(target.selector ? { selector: target.selector } : {}),
+    });
+  }
   for (const contact of pageCheck.contactPoints) {
     add({
       field: "contactPoint",
@@ -8736,6 +8937,7 @@ function emptyPageCheck(): PageCheckSummary {
     dataTables: [],
     barriers: [],
     forms: [],
+    actionTargets: [],
     contactPoints: [],
     keyValues: [],
     metaFacts: [],
@@ -9702,6 +9904,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.dataTables.length > 0 ? { dataTables: pageCheck.dataTables } : {}),
     ...(pageCheck.barriers.length > 0 ? { barriers: pageCheck.barriers } : {}),
     ...(pageCheck.forms.length > 0 ? { forms: pageCheck.forms } : {}),
+    ...(pageCheck.actionTargets.length > 0 ? { actionTargets: pageCheck.actionTargets } : {}),
     ...(pageCheck.contactPoints.length > 0 ? { contactPoints: pageCheck.contactPoints } : {}),
     ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),
     ...(pageCheck.metaFacts.length > 0 ? { metaFacts: pageCheck.metaFacts } : {}),

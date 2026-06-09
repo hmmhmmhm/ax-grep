@@ -473,6 +473,7 @@ export type AgentContractFeature =
   | "pageCheck.dataTables"
   | "pageCheck.barriers"
   | "pageCheck.forms"
+  | "pageCheck.actionTargets"
   | "pageCheck.keyValues"
   | "pageCheck.metaFacts"
   | "pageCheck.httpPolicies"

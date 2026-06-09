@@ -525,7 +525,8 @@ specs, rankings, and other tabular facts without reading the full tree.
 regional barrier signals that affect browser handling.
 `pageCheck.forms` captures form method, action URL, field names, labels, and
 GET query templates so agents can plan searches and filters without inferring
-submission details from controls alone. `pageCheck.keyValues` captures compact
+submission details from controls alone. `pageCheck.actionTargets` captures hidden
+JSON-LD and OpenSearch action endpoints. `pageCheck.keyValues` captures compact
 facts from definition lists, time elements, and short label/value text.
 `pageCheck.metaFacts` captures robots directives, canonical URLs, alternate
 links, refresh targets, and selected social/article metadata from head tags.

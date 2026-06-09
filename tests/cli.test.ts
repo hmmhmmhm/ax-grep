@@ -307,6 +307,7 @@ describe("cli", () => {
             "action.priority",
             "actions",
             "contentEvidence.quality",
+            "pageCheck.actionTargets",
             "pageCheck.httpPolicies",
             "pageCheck.offers",
             "pageCheck.identities",
@@ -3101,6 +3102,132 @@ describe("cli", () => {
         url: "https://example.test/find",
         selector: "form:nth-of-type(1)",
         text: "GET https://example.test/find; query field: q; submit: Go; q:search Archive search",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("summarizes JSON-LD and OpenSearch action targets for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/docs", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <link rel="search" type="application/opensearchdescription+xml" title="Docs OpenSearch" href="/opensearch.xml">
+            <script type="application/ld+json">
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "Example Docs",
+                "potentialAction": {
+                  "@type": "SearchAction",
+                  "name": "Search docs",
+                  "target": {
+                    "@type": "EntryPoint",
+                    "urlTemplate": "/search?q={search_term_string}",
+                    "httpMethod": "GET",
+                    "encodingType": "application/x-www-form-urlencoded"
+                  },
+                  "query-input": "required name=search_term_string"
+                }
+              }
+            </script>
+          </head>
+          <body><main><h1>Docs</h1></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.actionTargets).toEqual([
+      {
+        id: "at1",
+        path: "pageCheck.actionTargets[0]",
+        rank: 1,
+        kind: "search",
+        name: "Search docs",
+        text: "search: Search docs template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string method=GET type=application/x-www-form-urlencoded source=json-ld",
+        source: "json-ld",
+        urlTemplate: "https://example.test/search?q={search_term_string}",
+        queryInput: "required name=search_term_string",
+        method: "GET",
+        encodingType: "application/x-www-form-urlencoded",
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      },
+      {
+        id: "at2",
+        path: "pageCheck.actionTargets[1]",
+        rank: 2,
+        kind: "search",
+        name: "Docs OpenSearch",
+        text: "search: Docs OpenSearch target=https://example.test/opensearch.xml type=application/opensearchdescription+xml source=link",
+        source: "link",
+        targetUrl: "https://example.test/opensearch.xml",
+        encodingType: "application/opensearchdescription+xml",
+        selector: "link[rel=\"search\"]:nth-of-type(1)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("2 action targets");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.actionTargets",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.actionTargets",
+      count: 2,
+      primary: true,
+      reason: "JSON-LD and OpenSearch action targets with URL templates, query inputs, and methods.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.actionTargets",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          id: "at1",
+          urlTemplate: "https://example.test/search?q={search_term_string}",
+        }),
+      ]),
+    });
+  });
+
+  it("checks requested text against structured action targets", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/docs", "--agent", "--find", "search_term_string"], {
+      stdout,
+      fetch: async () => new Response(`
+        <script type="application/ld+json">
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "Example Docs",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "/search?q={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          }
+        </script>
+        <main><h1>Docs</h1></main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "actionTarget",
+        rank: 1,
+        url: "https://example.test/search?q={search_term_string}",
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+        text: "search: Example Docs template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string source=json-ld",
       },
     });
     expect(envelope.agent.primaryAction).toMatchObject({
