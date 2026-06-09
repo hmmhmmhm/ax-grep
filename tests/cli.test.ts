@@ -393,10 +393,8 @@ describe("cli", () => {
           readFrom: "verification.bestEvidence",
           readValue: {
             path: "verification.bestEvidence",
-            value: expect.objectContaining({
-              field: "title",
-              text: "Example",
-            }),
+            valuePath: "verification.bestEvidence",
+            valueType: "object",
           },
         },
         handoff: {
@@ -422,10 +420,8 @@ describe("cli", () => {
           readFrom: "verification.bestEvidence",
           readValue: {
             path: "verification.bestEvidence",
-            value: expect.objectContaining({
-              field: "title",
-              text: "Example",
-            }),
+            valuePath: "verification.bestEvidence",
+            valueType: "object",
           },
           useCitationIds: expect.arrayContaining(["v1"]),
           answerEvidence: expect.arrayContaining([

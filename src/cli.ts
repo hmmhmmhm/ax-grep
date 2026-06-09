@@ -11703,40 +11703,40 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
   const recommendedAction = suppressPageActions || sameSuggestedAction(pageCheck.recommendedAction, primaryAction) ? undefined : pageCheck.recommendedAction;
   return {
     contentEvidence: pageCheck.contentEvidence,
-    ...(pageCheck.dataTables.length > 0 ? { dataTables: pageCheck.dataTables } : {}),
-    ...(pageCheck.barriers.length > 0 ? { barriers: pageCheck.barriers } : {}),
-    ...(pageCheck.forms.length > 0 ? { forms: pageCheck.forms } : {}),
-    ...(pageCheck.actionTargets.length > 0 ? { actionTargets: pageCheck.actionTargets } : {}),
-    ...(pageCheck.hydration.length > 0 ? { hydration: pageCheck.hydration } : {}),
-    ...(pageCheck.apiEndpoints.length > 0 ? { apiEndpoints: pageCheck.apiEndpoints } : {}),
-    ...(pageCheck.clientState.length > 0 ? { clientState: pageCheck.clientState } : {}),
-    ...(pageCheck.runtime.length > 0 ? { runtime: pageCheck.runtime } : {}),
-    ...(pageCheck.config.length > 0 ? { config: pageCheck.config } : {}),
-    ...(pageCheck.appHints.length > 0 ? { appHints: pageCheck.appHints } : {}),
-    ...(pageCheck.mobileHints.length > 0 ? { mobileHints: pageCheck.mobileHints } : {}),
-    ...(pageCheck.topics.length > 0 ? { topics: pageCheck.topics } : {}),
-    ...(pageCheck.contactPoints.length > 0 ? { contactPoints: pageCheck.contactPoints } : {}),
-    ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),
-    ...(pageCheck.metaFacts.length > 0 ? { metaFacts: pageCheck.metaFacts } : {}),
-    ...(pageCheck.provenance.length > 0 ? { provenance: pageCheck.provenance } : {}),
-    ...(pageCheck.httpPolicies.length > 0 ? { httpPolicies: pageCheck.httpPolicies } : {}),
-    ...(pageCheck.schemaFacts.length > 0 ? { schemaFacts: pageCheck.schemaFacts } : {}),
-    ...(pageCheck.offers.length > 0 ? { offers: pageCheck.offers } : {}),
-    ...(pageCheck.identities.length > 0 ? { identities: pageCheck.identities } : {}),
-    ...(pageCheck.datasets.length > 0 ? { datasets: pageCheck.datasets } : {}),
-    ...(pageCheck.timeline.length > 0 ? { timeline: pageCheck.timeline } : {}),
-    ...(pageCheck.faqs.length > 0 ? { faqs: pageCheck.faqs } : {}),
-    ...(pageCheck.breadcrumbs.length > 0 ? { breadcrumbs: pageCheck.breadcrumbs } : {}),
-    ...(pageCheck.sections.length > 0 ? { sections: pageCheck.sections } : {}),
-    ...(pageCheck.pagination.length > 0 ? { pagination: pageCheck.pagination } : {}),
-    ...(pageCheck.toc.length > 0 ? { toc: pageCheck.toc } : {}),
-    ...(pageCheck.codeBlocks.length > 0 ? { codeBlocks: pageCheck.codeBlocks } : {}),
-    ...(pageCheck.citations.length > 0 ? { citations: pageCheck.citations } : {}),
-    ...(pageCheck.media.length > 0 ? { media: pageCheck.media } : {}),
-    ...(pageCheck.resources.length > 0 ? { resources: pageCheck.resources } : {}),
-    ...(pageCheck.embeds.length > 0 ? { embeds: pageCheck.embeds } : {}),
-    ...(pageCheck.transcripts.length > 0 ? { transcripts: pageCheck.transcripts } : {}),
-    ...(pageCheck.authorLinks.length > 0 ? { authorLinks: pageCheck.authorLinks } : {}),
+    ...(pageCheck.dataTables.length > 0 ? { dataTables: compactAgentPageCheckItems(pageCheck.dataTables) } : {}),
+    ...(pageCheck.barriers.length > 0 ? { barriers: compactAgentPageCheckItems(pageCheck.barriers) } : {}),
+    ...(pageCheck.forms.length > 0 ? { forms: compactAgentPageCheckItems(pageCheck.forms) } : {}),
+    ...(pageCheck.actionTargets.length > 0 ? { actionTargets: compactAgentPageCheckItems(pageCheck.actionTargets) } : {}),
+    ...(pageCheck.hydration.length > 0 ? { hydration: compactAgentPageCheckItems(pageCheck.hydration) } : {}),
+    ...(pageCheck.apiEndpoints.length > 0 ? { apiEndpoints: compactAgentPageCheckItems(pageCheck.apiEndpoints) } : {}),
+    ...(pageCheck.clientState.length > 0 ? { clientState: compactAgentPageCheckItems(pageCheck.clientState) } : {}),
+    ...(pageCheck.runtime.length > 0 ? { runtime: compactAgentPageCheckItems(pageCheck.runtime) } : {}),
+    ...(pageCheck.config.length > 0 ? { config: compactAgentPageCheckItems(pageCheck.config) } : {}),
+    ...(pageCheck.appHints.length > 0 ? { appHints: compactAgentPageCheckItems(pageCheck.appHints) } : {}),
+    ...(pageCheck.mobileHints.length > 0 ? { mobileHints: compactAgentPageCheckItems(pageCheck.mobileHints) } : {}),
+    ...(pageCheck.topics.length > 0 ? { topics: compactAgentPageCheckItems(pageCheck.topics) } : {}),
+    ...(pageCheck.contactPoints.length > 0 ? { contactPoints: compactAgentPageCheckItems(pageCheck.contactPoints) } : {}),
+    ...(pageCheck.keyValues.length > 0 ? { keyValues: compactAgentPageCheckItems(pageCheck.keyValues) } : {}),
+    ...(pageCheck.metaFacts.length > 0 ? { metaFacts: compactAgentPageCheckItems(pageCheck.metaFacts) } : {}),
+    ...(pageCheck.provenance.length > 0 ? { provenance: compactAgentPageCheckItems(pageCheck.provenance) } : {}),
+    ...(pageCheck.httpPolicies.length > 0 ? { httpPolicies: compactAgentPageCheckItems(pageCheck.httpPolicies) } : {}),
+    ...(pageCheck.schemaFacts.length > 0 ? { schemaFacts: compactAgentPageCheckItems(pageCheck.schemaFacts) } : {}),
+    ...(pageCheck.offers.length > 0 ? { offers: compactAgentPageCheckItems(pageCheck.offers) } : {}),
+    ...(pageCheck.identities.length > 0 ? { identities: compactAgentPageCheckItems(pageCheck.identities) } : {}),
+    ...(pageCheck.datasets.length > 0 ? { datasets: compactAgentPageCheckItems(pageCheck.datasets) } : {}),
+    ...(pageCheck.timeline.length > 0 ? { timeline: compactAgentPageCheckItems(pageCheck.timeline) } : {}),
+    ...(pageCheck.faqs.length > 0 ? { faqs: compactAgentPageCheckItems(pageCheck.faqs) } : {}),
+    ...(pageCheck.breadcrumbs.length > 0 ? { breadcrumbs: compactAgentPageCheckItems(pageCheck.breadcrumbs) } : {}),
+    ...(pageCheck.sections.length > 0 ? { sections: compactAgentPageCheckItems(pageCheck.sections) } : {}),
+    ...(pageCheck.pagination.length > 0 ? { pagination: compactAgentPageCheckItems(pageCheck.pagination) } : {}),
+    ...(pageCheck.toc.length > 0 ? { toc: compactAgentPageCheckItems(pageCheck.toc) } : {}),
+    ...(pageCheck.codeBlocks.length > 0 ? { codeBlocks: compactAgentPageCheckItems(pageCheck.codeBlocks) } : {}),
+    ...(pageCheck.citations.length > 0 ? { citations: compactAgentPageCheckItems(pageCheck.citations) } : {}),
+    ...(pageCheck.media.length > 0 ? { media: compactAgentPageCheckItems(pageCheck.media) } : {}),
+    ...(pageCheck.resources.length > 0 ? { resources: compactAgentPageCheckItems(pageCheck.resources) } : {}),
+    ...(pageCheck.embeds.length > 0 ? { embeds: compactAgentPageCheckItems(pageCheck.embeds) } : {}),
+    ...(pageCheck.transcripts.length > 0 ? { transcripts: compactAgentPageCheckItems(pageCheck.transcripts) } : {}),
+    ...(pageCheck.authorLinks.length > 0 ? { authorLinks: compactAgentPageCheckItems(pageCheck.authorLinks) } : {}),
     contentLength: pageCheck.contentLength,
     ...(primaryLinks.length > 0 && !omitResultLinkDuplicates ? { primaryLinks: primaryLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `l${index + 1}`, path: `pageCheck.primaryLinks[${index}]` })) } : {}),
     ...(pageCheck.sourceLinks.length > 0 && !omitResultLinkDuplicates ? { sourceLinks: pageCheck.sourceLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `s${index + 1}`, path: `pageCheck.sourceLinks[${index}]` })) } : {}),
@@ -11759,6 +11759,22 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.modifiedTime ? { modifiedTime: pageCheck.modifiedTime } : {}),
     ...(pageCheck.structuredDataTypes?.length ? { structuredDataTypes: pageCheck.structuredDataTypes } : {}),
   };
+}
+
+function compactAgentPageCheckItems<T>(items: T[]): object[] {
+  return items.map((item) => compactAgentPageCheckItem(item) as object);
+}
+
+function compactAgentPageCheckItem(value: unknown): unknown {
+  if (typeof value === "string") return compactAgentPageCheckString(value);
+  if (Array.isArray(value)) return value.map(compactAgentPageCheckItem);
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, compactAgentPageCheckItem(item)]));
+}
+
+function compactAgentPageCheckString(value: string): string {
+  if (value.length <= 320) return value;
+  return `${value.slice(0, 317)}...`;
 }
 
 function sameSuggestedAction(left: SuggestedAction | undefined, right: SuggestedAction | undefined): boolean {
@@ -11790,9 +11806,9 @@ function compactAgentSummary(agent: AgentSummary): object {
     summary: agent.summary,
     routingIntent: agent.routingIntent,
     continuationMode: agent.continuationMode,
-    next: agent.next,
-    runbook: agent.runbook,
-    handoff: agent.handoff,
+    next: compactAgentNext(agent.next),
+    runbook: compactAgentRunbook(agent.runbook),
+    handoff: compactAgentHandoff(agent.handoff),
     expectedOutcome: agent.expectedOutcome,
     executionPlan: agent.executionPlan,
     answerPlan: agent.answerPlan,
@@ -11854,6 +11870,54 @@ function compactAgentSummary(agent: AgentSummary): object {
     ...(agent.recommendedRelevance ? { recommendedRelevance: agent.recommendedRelevance } : {}),
     ...(typeof agent.recommendedLikelyOfficial === "boolean" ? { recommendedLikelyOfficial: agent.recommendedLikelyOfficial } : {}),
     ...(agent.recommendedSelectionReason ? { recommendedSelectionReason: agent.recommendedSelectionReason } : {}),
+  };
+}
+
+function compactAgentNext(next: AgentNext): object {
+  const { readValue, ...rest } = next;
+  return {
+    ...rest,
+    ...(readValue ? { readValue: compactAgentReadValue(readValue) } : {}),
+  };
+}
+
+function compactAgentRunbook(runbook: AgentRunbook): object {
+  const { readValue, ...rest } = runbook;
+  return {
+    ...rest,
+    ...(readValue ? { readValue: compactAgentReadValue(readValue, true) } : {}),
+  };
+}
+
+function compactAgentHandoff(handoff: AgentHandoff): object {
+  const { readValue, ...rest } = handoff;
+  return {
+    ...rest,
+    ...(readValue ? { readValue: compactAgentReadValue(readValue, true) } : {}),
+  };
+}
+
+function compactAgentReadValue(readValue: AgentReadValue, forceReference = false): object {
+  if (Array.isArray(readValue.value)) {
+    if (!forceReference && (readValue.value.length <= 6 || JSON.stringify(readValue.value).length <= 3000)) return readValue;
+    return {
+      path: readValue.path,
+      valuePath: readValue.path,
+      valueType: "array",
+      count: readValue.value.length,
+    };
+  }
+  if (readValue.value && typeof readValue.value === "object") {
+    if (!forceReference && JSON.stringify(readValue.value).length <= 1200) return readValue;
+    return {
+      path: readValue.path,
+      valuePath: readValue.path,
+      valueType: "object",
+    };
+  }
+  return {
+    path: readValue.path,
+    value: readValue.value,
   };
 }
 
