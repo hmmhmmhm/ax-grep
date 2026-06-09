@@ -466,6 +466,7 @@ export type AgentContractFeature =
   | "actions"
   | "contentEvidence.quality"
   | "pageCheck.dataTables"
+  | "pageCheck.barriers"
   | "pageCheck.forms"
   | "pageCheck.keyValues"
   | "pageCheck.metaFacts"

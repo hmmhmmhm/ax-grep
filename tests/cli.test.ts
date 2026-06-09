@@ -4816,7 +4816,7 @@ npx ax-grep https://example.test --agent</code></pre>
 
   it("detects login and paywall barriers", async () => {
     const stdout = new MemoryWriter();
-    const status = await runCli(["https://news.example/article", "--json"], {
+    const status = await runCli(["https://news.example/article", "--agent"], {
       stdout,
       fetch: async () => new Response(`
         <main>
@@ -4830,10 +4830,93 @@ npx ax-grep https://example.test --agent</code></pre>
 
     expect(status).toBe(0);
     expect(envelope.kind).toBe("blocked-page");
-    expect(envelope.diagnostics.map((item: { code: string }) => item.code)).toEqual(expect.arrayContaining([
+    expect(envelope.agent.diagnosticCodes).toEqual(expect.arrayContaining([
       "LOGIN_REQUIRED",
       "PAYWALL_LIKELY",
     ]));
+    expect(envelope.pageCheck.barriers).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: "br1",
+        path: "pageCheck.barriers[0]",
+        kind: "login",
+        source: "diagnostic",
+        diagnosticCode: "LOGIN_REQUIRED",
+        text: "Login: The page appears to require login or account access.",
+      }),
+      expect.objectContaining({
+        id: "br2",
+        path: "pageCheck.barriers[1]",
+        kind: "paywall",
+        source: "diagnostic",
+        diagnosticCode: "PAYWALL_LIKELY",
+        text: "Paywall: The page appears to be paywalled or subscription-gated.",
+      }),
+    ]));
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.barriers",
+      count: expect.any(Number),
+      reason: "Login, paywall, challenge, consent, or regional barrier signals extracted for browser-handling decisions.",
+    }));
+  });
+
+  it("checks requested text against page barrier summaries", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://news.example/article", "--agent", "--find", "paywalled or subscription-gated"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h1>Premium article</h1>
+          <p>Log in to continue reading this premium article. Subscription required.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "barrier",
+        rank: 2,
+        text: "Paywall: The page appears to be paywalled or subscription-gated.",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("summarizes consent actions as non-blocking page barriers", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://shop.example/product", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h1>Product details</h1>
+          <p>This product page includes enough public content for reading.</p>
+          <button>Accept all cookies</button>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.kind).not.toBe("blocked-page");
+    expect(envelope.pageCheck.barriers).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: "cookie-consent",
+        severity: "info",
+        source: "action",
+        evidence: "Accept all cookies",
+        text: "Cookie consent: Accept all cookies",
+      }),
+    ]));
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.barriers",
+    }));
   });
 
   it("does not treat search result pages as login-gated because of header login links", async () => {

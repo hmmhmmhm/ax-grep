@@ -520,6 +520,8 @@ whether a snippet is strong enough to answer from, and cite exact snippets when
 choosing what to verify or return. `pageCheck.dataTables` captures compact
 table captions, headers, and sample rows from HTML so agents can verify prices,
 specs, rankings, and other tabular facts without reading the full tree.
+`pageCheck.barriers` captures login, paywall, challenge, consent, age, and
+regional barrier signals that affect browser handling.
 `pageCheck.forms` captures form method, action URL, field names, labels, and
 GET query templates so agents can plan searches and filters without inferring
 submission details from controls alone. `pageCheck.keyValues` captures compact

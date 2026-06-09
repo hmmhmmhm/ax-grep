@@ -295,6 +295,19 @@ type PageDataTableSummary = {
   selector?: string;
 };
 
+type PageBarrierSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "challenge" | "login" | "paywall" | "cookie-consent" | "age-gate" | "geo-block";
+  severity: "info" | "warning" | "error";
+  text: string;
+  evidence: string;
+  diagnosticCode?: string;
+  source: "diagnostic" | "content" | "action";
+  selector?: string;
+};
+
 type PageFormFieldSummary = {
   name?: string;
   type: string;
@@ -613,6 +626,7 @@ const agentContract: AgentContract = {
     "actions",
     "contentEvidence.quality",
     "pageCheck.dataTables",
+    "pageCheck.barriers",
     "pageCheck.forms",
     "pageCheck.keyValues",
     "pageCheck.metaFacts",
@@ -649,6 +663,7 @@ type PageCheckSummary = {
   contentPreview: string[];
   contentEvidence: PageEvidenceSummary[];
   dataTables: PageDataTableSummary[];
+  barriers: PageBarrierSummary[];
   forms: PageFormSummary[];
   keyValues: PageKeyValueSummary[];
   metaFacts: PageMetaFactSummary[];
@@ -1972,6 +1987,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const caption = table.caption ? ` caption="${table.caption}"` : "";
     lines.push(`  dataTable: ${table.id} ${table.path} ${table.rowCount}x${table.columnCount}${caption} - ${table.text}`);
   }
+  for (const barrier of pageCheck.barriers) {
+    const selector = barrier.selector ? ` (${barrier.selector})` : "";
+    lines.push(`  barrier: ${barrier.id} ${barrier.path} ${barrier.kind} ${barrier.severity}${selector} - ${barrier.text}`);
+  }
   for (const form of pageCheck.forms) {
     const template = form.urlTemplate ? ` template=${form.urlTemplate}` : "";
     lines.push(`  form: ${form.id} ${form.path} ${form.method.toUpperCase()} fields=${form.fieldCount}${template} - ${form.text}`);
@@ -2740,6 +2759,7 @@ function summarizePageCheck(
     : summarizeFallbackEvidence(fallbackPreview);
   const contentLength = contentPreview.reduce((total, text) => total + text.length, 0);
   const dataTables = summarizeDataTables(fetched.html);
+  const barriers = summarizeBarriers(analysis.diagnostics, content, actions);
   const forms = summarizeForms(fetched.html, fetched.finalUrl);
   const keyValues = summarizeKeyValues(fetched.html);
   const metaFacts = summarizeMetaFacts(fetched.html, fetched.finalUrl);
@@ -2761,6 +2781,7 @@ function summarizePageCheck(
     contentPreview,
     contentEvidence,
     dataTables,
+    barriers,
     forms,
     keyValues,
     metaFacts,
@@ -2832,6 +2853,9 @@ function summarizeReadability(
   if (dataTables.length > 0) {
     score += Math.min(0.12, dataTables.length * 0.06);
     reasons.push(`${dataTables.length} data table${dataTables.length === 1 ? "" : "s"}`);
+  }
+  if (analysis.kind === "blocked-page") {
+    reasons.push("barrier signals detected");
   }
   if (forms.length > 0 && contentLength < 120) {
     reasons.push(`${forms.length} form${forms.length === 1 ? "" : "s"}`);
@@ -3305,6 +3329,90 @@ function tableRowCells(row: Element): { cells: string[]; hasHeader: boolean } {
     cells: cellElements.map((cell) => cleanContentText(descendantText(cell))).filter(Boolean),
     hasHeader: cellElements.some((cell) => cell.name === "th"),
   };
+}
+
+function summarizeBarriers(diagnostics: DiagnosticSummary[], content: ContentSummary[], actions: ActionSummary[]): PageBarrierSummary[] {
+  const items: PageBarrierSummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageBarrierSummary, "id" | "path" | "rank" | "text">): void => {
+    const evidence = cleanContentText(item.evidence).slice(0, 360);
+    if (!evidence) return;
+    const key = `${item.kind}\n${item.source}\n${evidence}`.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `br${rank}`,
+      path: `pageCheck.barriers[${rank - 1}]`,
+      rank,
+      ...item,
+      evidence,
+      text: `${barrierLabel(item.kind)}: ${evidence}`,
+    });
+  };
+
+  for (const diagnostic of diagnostics) {
+    const kind = barrierKindFromDiagnostic(diagnostic.code);
+    if (!kind) continue;
+    add({
+      kind,
+      severity: diagnostic.severity,
+      evidence: diagnostic.message,
+      diagnosticCode: diagnostic.code,
+      source: "diagnostic",
+    });
+  }
+
+  for (const item of content.slice(0, 12)) {
+    const kind = barrierKindFromText(item.text);
+    if (!kind) continue;
+    add({
+      kind,
+      severity: kind === "cookie-consent" ? "info" : "warning",
+      evidence: item.text,
+      source: "content",
+      ...(item.selector ? { selector: item.selector } : {}),
+    });
+  }
+
+  for (const action of actions.slice(0, 20)) {
+    const kind = barrierKindFromText(action.text);
+    if (!kind) continue;
+    add({
+      kind,
+      severity: kind === "cookie-consent" ? "info" : "warning",
+      evidence: action.text,
+      source: "action",
+      ...(action.selector ? { selector: action.selector } : {}),
+    });
+  }
+
+  return items.slice(0, 6);
+}
+
+function barrierKindFromDiagnostic(code: string): PageBarrierSummary["kind"] | undefined {
+  if (code === "CHALLENGE_LIKELY") return "challenge";
+  if (code === "LOGIN_REQUIRED") return "login";
+  if (code === "PAYWALL_LIKELY") return "paywall";
+  return undefined;
+}
+
+function barrierKindFromText(text: string): PageBarrierSummary["kind"] | undefined {
+  const haystack = text.toLowerCase();
+  if (/(captcha|verify you are human|checking your browser|just a moment|cloudflare|access denied|request blocked|enable javascript|봇이 아닙니다|보안문자)/i.test(haystack)) return "challenge";
+  if (/(login required|log in to continue|sign in to continue|please sign in|unauthorized|로그인이 필요|회원만|가입 후)/i.test(haystack)) return "login";
+  if (/(subscribe to continue|subscription required|paywall|premium article|구독|유료기사|유료 기사|결제 후)/i.test(haystack)) return "paywall";
+  if (/(accept all cookies|cookie settings|cookie preferences|we use cookies|쿠키|개인정보 설정)/i.test(haystack)) return "cookie-consent";
+  if (/(age verification|confirm your age|are you over 18|18\+|성인 인증|나이 확인)/i.test(haystack)) return "age-gate";
+  if (/(not available in your region|unavailable in your country|geo[-\s]?blocked|지역.*제한|국가.*제한)/i.test(haystack)) return "geo-block";
+  return undefined;
+}
+
+function barrierLabel(kind: PageBarrierSummary["kind"]): string {
+  if (kind === "cookie-consent") return "Cookie consent";
+  if (kind === "age-gate") return "Age gate";
+  if (kind === "geo-block") return "Geo block";
+  return kind.charAt(0).toUpperCase() + kind.slice(1);
 }
 
 function summarizeForms(html: string, baseUrl: string): PageFormSummary[] {
@@ -5679,6 +5787,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.dataTables" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.barriers.length > 0) {
+    add({
+      path: "pageCheck.barriers",
+      reason: "Login, paywall, challenge, consent, or regional barrier signals extracted for browser-handling decisions.",
+      count: pageCheck.barriers.length,
+      score: roundMetric(Math.min(1, 0.5 + pageCheck.barriers.length * 0.08)),
+      ...(primaryReadFrom === "pageCheck.barriers" ? { primary: true } : {}),
+    });
+  }
   if (pageCheck.forms.length > 0) {
     add({
       path: "pageCheck.forms",
@@ -5976,6 +6093,7 @@ function agentReadValue(
   if (path === "verification.bestEvidence" && verification.bestEvidence) return { path, value: verification.bestEvidence };
   if (path === "pageCheck.contentEvidence") return { path, value: pageCheck.contentEvidence };
   if (path === "pageCheck.dataTables") return { path, value: pageCheck.dataTables };
+  if (path === "pageCheck.barriers") return { path, value: pageCheck.barriers };
   if (path === "pageCheck.forms") return { path, value: pageCheck.forms };
   if (path === "pageCheck.keyValues") return { path, value: pageCheck.keyValues };
   if (path === "pageCheck.metaFacts") return { path, value: pageCheck.metaFacts };
@@ -6332,6 +6450,14 @@ function findCandidates(
       ...(table.selector ? { selector: table.selector } : {}),
     });
   }
+  for (const barrier of pageCheck.barriers) {
+    add({
+      field: "barrier",
+      text: barrier.text,
+      rank: barrier.rank,
+      ...(barrier.selector ? { selector: barrier.selector } : {}),
+    });
+  }
   for (const form of pageCheck.forms) {
     add({
       field: "form",
@@ -6577,6 +6703,7 @@ function emptyPageCheck(): PageCheckSummary {
     contentPreview: [],
     contentEvidence: [],
     dataTables: [],
+    barriers: [],
     forms: [],
     keyValues: [],
     metaFacts: [],
@@ -7532,6 +7659,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
   return {
     contentEvidence: pageCheck.contentEvidence,
     ...(pageCheck.dataTables.length > 0 ? { dataTables: pageCheck.dataTables } : {}),
+    ...(pageCheck.barriers.length > 0 ? { barriers: pageCheck.barriers } : {}),
     ...(pageCheck.forms.length > 0 ? { forms: pageCheck.forms } : {}),
     ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),
     ...(pageCheck.metaFacts.length > 0 ? { metaFacts: pageCheck.metaFacts } : {}),
