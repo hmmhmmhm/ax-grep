@@ -11721,7 +11721,7 @@ function compactAgentPageCheck(
     ...compactPageCheckArray("runtime", pageCheck.runtime, slimPaths),
     ...compactPageCheckArray("config", pageCheck.config, slimPaths),
     ...compactPageCheckArray("appHints", compactAgentAppHints(pageCheck.appHints), slimPaths),
-    ...compactPageCheckArray("mobileHints", pageCheck.mobileHints, slimPaths),
+    ...compactPageCheckArray("mobileHints", compactAgentMobileHints(pageCheck.mobileHints), slimPaths),
     ...compactPageCheckArray("topics", pageCheck.topics, slimPaths),
     ...compactPageCheckArray("contactPoints", pageCheck.contactPoints, slimPaths),
     ...compactPageCheckArray("keyValues", pageCheck.keyValues, slimPaths),
@@ -11804,6 +11804,18 @@ function compactAgentAppHints(items: PageAppHintSummary[]): object[] {
     ...(item.kind !== "icon" && !item.url ? { value: item.value } : {}),
     ...(item.sizes ? { sizes: item.sizes } : {}),
     ...(item.media ? { media: item.media } : {}),
+  }));
+}
+
+function compactAgentMobileHints(items: PageMobileHintSummary[]): object[] {
+  if (items.length < 8 || JSON.stringify(items).length <= 900) return items;
+  return items.map((item) => ({
+    rank: item.rank,
+    kind: item.kind,
+    label: item.label,
+    value: item.value,
+    ...(item.platform ? { platform: item.platform } : {}),
+    ...(item.url ? { url: item.url } : {}),
   }));
 }
 
@@ -11983,8 +11995,8 @@ function compactAgentRunbook(runbook: AgentRunbook): object {
 
 function compactAgentHandoff(handoff: AgentHandoff): object {
   const { readValue, readTarget, sourceChoices: _sourceChoices, resultChoices, answerEvidence, target, signals: _signals, qualityGates: _qualityGates, ...rest } = handoff;
-  const keepSignals = handoff.signals?.some((signal) => signal.kind === "verification" || signal.kind === "browser" || signal.kind === "diagnostic") === true;
-  const keepQualityGates = handoff.qualityGates?.some((gate) => gate.kind === "verification" || gate.kind === "diagnostic" || gate.pass === false) === true;
+  const keepSignals = handoff.signals?.some((signal) => signal.kind === "verification" || signal.kind === "browser") === true;
+  const keepQualityGates = handoff.qualityGates?.some((gate) => gate.kind === "verification") === true;
   return {
     ...rest,
     ...(keepSignals ? { signals: handoff.signals } : {}),
@@ -12004,7 +12016,7 @@ function compactAgentHandoffReadTarget(target: AgentReadTarget): AgentReadTarget
 function compactAgentQualityGates(gates: AgentQualityGate[], threshold = 650): object[] {
   if (JSON.stringify(gates).length <= threshold) return gates;
   return gates.map((gate) => {
-    if (!gate.pass || gate.kind === "verification" || gate.kind === "diagnostic") return gate;
+    if (gate.kind === "verification") return gate;
     const { message: _message, ...rest } = gate;
     return rest;
   });
