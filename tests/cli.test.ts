@@ -3675,6 +3675,101 @@ npx ax-grep https://example.test --agent</code></pre>
     });
   });
 
+  it("summarizes citations and references as pageCheck read targets for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/article", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <body>
+            <main>
+              <cite><a href="/papers/audit">Audit Report 2026</a></cite>
+              <ol class="references">
+                <li id="ref-1">Journal of Tests, 2026. Independent verification of the audited result.</li>
+              </ol>
+            </main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.citations).toEqual([
+      {
+        id: "ct1",
+        path: "pageCheck.citations[0]",
+        rank: 1,
+        source: "cite",
+        text: "Citation: Audit Report 2026 - https://example.test/papers/audit",
+        title: "Audit Report 2026",
+        url: "https://example.test/papers/audit",
+        selector: "cite:nth-of-type(1)",
+      },
+      {
+        id: "ct2",
+        path: "pageCheck.citations[1]",
+        rank: 2,
+        source: "reference",
+        text: "Reference: Journal of Tests, 2026. Independent verification of the audited result.",
+        quote: "Journal of Tests, 2026. Independent verification of the audited result.",
+        selector: "li:nth-of-type(1)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("2 citations");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.citations",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.citations",
+      count: 2,
+      primary: true,
+      reason: "Citations, blockquotes, footnotes, and reference-list snippets extracted from page HTML.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.citations",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          id: "ct1",
+          url: "https://example.test/papers/audit",
+        }),
+      ]),
+    });
+  });
+
+  it("checks requested text against citation summaries", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/article", "--agent", "--find", "https://example.test/papers/audit"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <cite><a href="/papers/audit">Audit Report 2026</a></cite>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "citation",
+        rank: 1,
+        selector: "cite:nth-of-type(1)",
+        text: "Citation: Audit Report 2026 - https://example.test/papers/audit",
+        url: "https://example.test/papers/audit",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
   it("summarizes page media with resolved image urls and captions for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/gallery", "--agent"], {

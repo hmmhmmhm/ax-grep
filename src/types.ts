@@ -474,6 +474,7 @@ export type AgentContractFeature =
   | "pageCheck.breadcrumbs"
   | "pageCheck.toc"
   | "pageCheck.codeBlocks"
+  | "pageCheck.citations"
   | "pageCheck.media"
   | "pageCheck.resources"
   | "pageCheck.embeds"

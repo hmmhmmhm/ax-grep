@@ -535,6 +535,8 @@ context.
 `pageCheck.toc` captures table-of-contents and in-page section links.
 `pageCheck.codeBlocks` captures code examples and command snippets from pre/code
 blocks.
+`pageCheck.citations` captures blockquotes, cites, footnotes, and reference-list
+snippets for source verification.
 `pageCheck.media` captures resolved image URLs, alt text, captions, and social
 preview images. `pageCheck.resources` captures feed, alternate, license,
 manifest, sitemap, and document resource links that are often hidden in head

@@ -445,6 +445,18 @@ type PageResourceSummary = {
   selector?: string;
 };
 
+type PageCitationSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  source: "blockquote" | "cite" | "footnote" | "reference";
+  text: string;
+  quote?: string;
+  title?: string;
+  url?: string;
+  selector?: string;
+};
+
 type PageEmbedSummary = {
   id: string;
   path: string;
@@ -609,6 +621,7 @@ const agentContract: AgentContract = {
     "pageCheck.breadcrumbs",
     "pageCheck.toc",
     "pageCheck.codeBlocks",
+    "pageCheck.citations",
     "pageCheck.media",
     "pageCheck.resources",
     "pageCheck.embeds",
@@ -644,6 +657,7 @@ type PageCheckSummary = {
   breadcrumbs: PageBreadcrumbSummary[];
   toc: PageTocSummary[];
   codeBlocks: PageCodeBlockSummary[];
+  citations: PageCitationSummary[];
   media: PageMediaSummary[];
   resources: PageResourceSummary[];
   embeds: PageEmbedSummary[];
@@ -1993,6 +2007,11 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const selector = codeBlock.selector ? ` (${codeBlock.selector})` : "";
     lines.push(`  codeBlock: ${codeBlock.id} ${codeBlock.path}${language}${commandLike} lines=${codeBlock.lineCount}${selector} - ${codeBlock.text}`);
   }
+  for (const citation of pageCheck.citations) {
+    const url = citation.url ? ` <${citation.url}>` : "";
+    const selector = citation.selector ? ` (${citation.selector})` : "";
+    lines.push(`  citation: ${citation.id} ${citation.path} ${citation.source}${selector}${url} - ${citation.text}`);
+  }
   for (const media of pageCheck.media) {
     const dimensions = media.width && media.height ? ` ${media.width}x${media.height}` : "";
     const selector = media.selector ? ` (${media.selector})` : "";
@@ -2729,14 +2748,15 @@ function summarizePageCheck(
   const breadcrumbs = summarizeBreadcrumbs(fetched.html, fetched.finalUrl);
   const toc = summarizeToc(fetched.html, fetched.finalUrl);
   const codeBlocks = summarizeCodeBlocks(fetched.html);
+  const citations = summarizeCitations(fetched.html, fetched.finalUrl);
   const media = summarizeMedia(fetched.html, fetched.finalUrl);
   const resources = summarizeResources(fetched.html, fetched.finalUrl);
   const embeds = summarizeEmbeds(fetched.html, fetched.finalUrl);
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, toc, codeBlocks, media, resources, embeds, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, toc, codeBlocks, media, resources, embeds, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, toc, codeBlocks, citations, media, resources, embeds, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, toc, codeBlocks, citations, media, resources, embeds, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -2749,6 +2769,7 @@ function summarizePageCheck(
     breadcrumbs,
     toc,
     codeBlocks,
+    citations,
     media,
     resources,
     embeds,
@@ -2791,6 +2812,7 @@ function summarizeReadability(
   breadcrumbs: PageBreadcrumbSummary[],
   toc: PageTocSummary[],
   codeBlocks: PageCodeBlockSummary[],
+  citations: PageCitationSummary[],
   media: PageMediaSummary[],
   resources: PageResourceSummary[],
   embeds: PageEmbedSummary[],
@@ -2841,6 +2863,10 @@ function summarizeReadability(
   if (codeBlocks.length > 0) {
     score += Math.min(0.08, codeBlocks.length * 0.04);
     reasons.push(`${codeBlocks.length} code block${codeBlocks.length === 1 ? "" : "s"}`);
+  }
+  if (citations.length > 0) {
+    score += Math.min(0.08, citations.length * 0.03);
+    reasons.push(`${citations.length} citation${citations.length === 1 ? "" : "s"}`);
   }
   if (media.length > 0) {
     score += Math.min(0.06, media.length * 0.02);
@@ -2924,6 +2950,7 @@ function recommendedPageCheckAction(
   breadcrumbs: PageBreadcrumbSummary[],
   toc: PageTocSummary[],
   codeBlocks: PageCodeBlockSummary[],
+  citations: PageCitationSummary[],
   media: PageMediaSummary[],
   resources: PageResourceSummary[],
   embeds: PageEmbedSummary[],
@@ -2970,15 +2997,17 @@ function recommendedPageCheckAction(
                   ? "pageCheck.toc"
                   : codeBlocks.length > 0
                     ? "pageCheck.codeBlocks"
-                    : media.length > 0
-                      ? "pageCheck.media"
-                      : resources.length > 0
-                        ? "pageCheck.resources"
-                        : embeds.length > 0
-                          ? "pageCheck.embeds"
-                          : metaFacts.length > 0
-                            ? "pageCheck.metaFacts"
-                            : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
+                    : citations.length > 0
+                      ? "pageCheck.citations"
+                      : media.length > 0
+                        ? "pageCheck.media"
+                        : resources.length > 0
+                          ? "pageCheck.resources"
+                          : embeds.length > 0
+                            ? "pageCheck.embeds"
+                            : metaFacts.length > 0
+                              ? "pageCheck.metaFacts"
+                              : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
     return {
       action: "read-content",
       reason: "The page has enough structured evidence for source checking.",
@@ -3048,6 +3077,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.codeBlocks",
+    };
+  }
+  if (citations.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but citation and reference snippets are available for agent verification.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.citations",
     };
   }
   if (media.length > 0) {
@@ -4163,6 +4201,113 @@ function isCommandLikeCodeBlock(text: string, language: string): boolean {
   if (/^(bash|sh|shell|console|terminal|powershell|ps1|zsh|fish)$/.test(language)) return true;
   return /^(?:\$|>|#)\s*\S+/m.test(text)
     || /(?:^|\n)\s*(?:npm|pnpm|yarn|npx|pip|curl|git|docker|kubectl|brew|apt)\s+\S+/i.test(text);
+}
+
+function summarizeCitations(html: string, baseUrl: string): PageCitationSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageCitationSummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageCitationSummary, "id" | "path" | "rank">): void => {
+    const text = cleanContentText(item.text);
+    if (!isLikelyUsefulCitation(text)) return;
+    const key = `${item.source}\n${text}\n${item.url ?? ""}`.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `ct${rank}`,
+      path: `pageCheck.citations[${rank - 1}]`,
+      rank,
+      ...item,
+      text,
+    });
+  };
+
+  for (const [index, blockquote] of findElements(document.children, (item) => item.name === "blockquote").entries()) {
+    const quote = cleanContentText(descendantText(blockquote)).slice(0, 500);
+    const rawUrl = attr(blockquote, "cite") ?? "";
+    const url = rawUrl ? normalizeHref(rawUrl, baseUrl) : null;
+    const cite = findElement(blockquote.children, (item) => item.name === "cite");
+    const title = cite ? cleanContentText(descendantText(cite)) : "";
+    add({
+      source: "blockquote",
+      text: citationText("Quote", quote, title, url ?? ""),
+      ...(quote ? { quote } : {}),
+      ...(title ? { title } : {}),
+      ...(url ? { url } : {}),
+      selector: `blockquote:nth-of-type(${index + 1})`,
+    });
+  }
+
+  for (const [index, cite] of findElements(document.children, (item) => item.name === "cite").entries()) {
+    const title = cleanContentText(descendantText(cite)).slice(0, 300);
+    const url = firstCitationUrl(cite, baseUrl);
+    add({
+      source: "cite",
+      text: citationText("Citation", "", title, url ?? ""),
+      ...(title ? { title } : {}),
+      ...(url ? { url } : {}),
+      selector: `cite:nth-of-type(${index + 1})`,
+    });
+  }
+
+  for (const [index, item] of findElements(document.children, (element) => element.name === "li" && isLikelyReferenceItem(element)).entries()) {
+    const body = cleanContentText(descendantText(item)).slice(0, 500);
+    const url = firstCitationUrl(item, baseUrl);
+    add({
+      source: isFootnoteItem(item) ? "footnote" : "reference",
+      text: citationText(isFootnoteItem(item) ? "Footnote" : "Reference", body, "", url ?? ""),
+      ...(body ? { quote: body } : {}),
+      ...(url ? { url } : {}),
+      selector: `li:nth-of-type(${index + 1})`,
+    });
+  }
+
+  return items.slice(0, 8);
+}
+
+function citationText(label: string, body: string, title: string, url: string): string {
+  return cleanContentText([`${label}: ${body || title}`, title && body ? title : "", url].filter(Boolean).join(" - "));
+}
+
+function firstCitationUrl(element: Element, baseUrl: string): string | null {
+  const anchor = findElements(element.children, (item) => item.name === "a")
+    .find((item) => {
+      const href = attr(item, "href") ?? "";
+      return href && !href.startsWith("#") && !/^javascript:/i.test(href);
+    });
+  const href = anchor ? attr(anchor, "href") : "";
+  return href ? normalizeHref(href, baseUrl) : null;
+}
+
+function isLikelyReferenceItem(element: Element): boolean {
+  const marker = citationMarker(element);
+  if (/(?:^|[-_\s])(footnote|endnote|reference|references|citation|bib|biblio|fn)(?:[-_\s]|\d|$)/i.test(marker)) return true;
+  const parent = element.parent instanceof DomElement ? element.parent : undefined;
+  return parent ? /(?:^|[-_\s])(references|citation|bibliography|footnotes|endnotes)(?:[-_\s]|$)/i.test(citationMarker(parent)) : false;
+}
+
+function isFootnoteItem(element: Element): boolean {
+  return /(?:^|[-_\s])(footnote|endnote|fn)(?:[-_\s]|\d|$)/i.test(citationMarker(element));
+}
+
+function citationMarker(element: Element): string {
+  return [
+    element.name,
+    attr(element, "id") ?? "",
+    attr(element, "class") ?? "",
+    attr(element, "role") ?? "",
+    attr(element, "itemtype") ?? "",
+  ].join(" ");
+}
+
+function isLikelyUsefulCitation(text: string): boolean {
+  if (text.length < 12 || text.length > 800) return false;
+  return !/^(share|copy link|permalink|edit|back to top)$/i.test(text);
 }
 
 function summarizeMedia(html: string, baseUrl: string): PageMediaSummary[] {
@@ -5606,6 +5751,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.codeBlocks" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.citations.length > 0) {
+    add({
+      path: "pageCheck.citations",
+      reason: "Citations, blockquotes, footnotes, and reference-list snippets extracted from page HTML.",
+      count: pageCheck.citations.length,
+      score: roundMetric(Math.min(1, 0.46 + pageCheck.citations.length * 0.08)),
+      ...(primaryReadFrom === "pageCheck.citations" ? { primary: true } : {}),
+    });
+  }
   if (pageCheck.media.length > 0) {
     add({
       path: "pageCheck.media",
@@ -5830,6 +5984,7 @@ function agentReadValue(
   if (path === "pageCheck.breadcrumbs") return { path, value: pageCheck.breadcrumbs };
   if (path === "pageCheck.toc") return { path, value: pageCheck.toc };
   if (path === "pageCheck.codeBlocks") return { path, value: pageCheck.codeBlocks };
+  if (path === "pageCheck.citations") return { path, value: pageCheck.citations };
   if (path === "pageCheck.media") return { path, value: pageCheck.media };
   if (path === "pageCheck.resources") return { path, value: pageCheck.resources };
   if (path === "pageCheck.embeds") return { path, value: pageCheck.embeds };
@@ -6243,6 +6398,15 @@ function findCandidates(
       ...(codeBlock.selector ? { selector: codeBlock.selector } : {}),
     });
   }
+  for (const citation of pageCheck.citations) {
+    add({
+      field: "citation",
+      text: citation.text,
+      rank: citation.rank,
+      ...(citation.url ? { url: citation.url } : {}),
+      ...(citation.selector ? { selector: citation.selector } : {}),
+    });
+  }
   for (const media of pageCheck.media) {
     add({
       field: "media",
@@ -6421,6 +6585,7 @@ function emptyPageCheck(): PageCheckSummary {
     breadcrumbs: [],
     toc: [],
     codeBlocks: [],
+    citations: [],
     media: [],
     resources: [],
     embeds: [],
@@ -7375,6 +7540,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.breadcrumbs.length > 0 ? { breadcrumbs: pageCheck.breadcrumbs } : {}),
     ...(pageCheck.toc.length > 0 ? { toc: pageCheck.toc } : {}),
     ...(pageCheck.codeBlocks.length > 0 ? { codeBlocks: pageCheck.codeBlocks } : {}),
+    ...(pageCheck.citations.length > 0 ? { citations: pageCheck.citations } : {}),
     ...(pageCheck.media.length > 0 ? { media: pageCheck.media } : {}),
     ...(pageCheck.resources.length > 0 ? { resources: pageCheck.resources } : {}),
     ...(pageCheck.embeds.length > 0 ? { embeds: pageCheck.embeds } : {}),
