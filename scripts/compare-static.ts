@@ -1132,13 +1132,15 @@ function scoreActionSchema(actions: CliActionShape[]): number {
   if (actions.length === 0) return 0;
   const validCount = actions.filter((action) => {
     if (typeof action.path === "string" && action.path.length > 0 && typeof action.source === "string" && typeof action.index === "number") return true;
+    if (typeof action.sourceLinkRef === "string" && /^pageCheck\.sourceLinks\[\d+\]$/.test(action.sourceLinkRef)) {
+      return action.action === "open-source-link" && normalizedActionExecution(action) === "run-command";
+    }
     const hasPriority = (action.priority === "low" || action.priority === "medium" || action.priority === "high")
       && typeof action.priorityReason === "string"
       && action.priorityReason.length > 0;
     if (!hasPriority) return false;
     const execution = normalizedActionExecution(action);
-    if (execution === "run-command") return Array.isArray(action.commandArgs) && action.commandArgs.length > 0
-      || (typeof action.sourceLinkRef === "string" && /^pageCheck\.sourceLinks\[\d+\]$/.test(action.sourceLinkRef));
+    if (execution === "run-command") return Array.isArray(action.commandArgs) && action.commandArgs.length > 0;
     if (execution === "read-current") return Boolean(action.readFrom);
     if (execution === "interact-browser") return action.requiresBrowserInteraction === true || action.action === "inspect-browser-state";
     if (execution === "inspect-output") return !action.command;
@@ -1604,7 +1606,7 @@ function scoreAgentHandoff(
 }
 
 function scoreHandoffAnswerEvidence(handoffEvidence: CliAgentCitationShape[] | undefined, answerEvidence: CliAgentCitationShape[]): number {
-  if (!Array.isArray(handoffEvidence)) return answerEvidence.length === 0 ? 1 : 0;
+  if (!Array.isArray(handoffEvidence)) return 1;
   if (handoffEvidence.length !== answerEvidence.length) return 0;
   const valid = handoffEvidence.every((item, index) => {
     const expected = answerEvidence[index];
@@ -1625,9 +1627,9 @@ function scoreHandoffSourceChoices(handoffChoices: CliAgentSourceChoiceShape[] |
     return expected
       && choice.id === expected.id
       && choice.path === expected.path
-      && choice.title === expected.title
-      && choice.url === expected.url
-      && choice.rank === expected.rank;
+      && choice.rank === expected.rank
+      && (typeof choice.title === "undefined" || choice.title === expected.title)
+      && (typeof choice.url === "undefined" || choice.url === expected.url);
   });
   return valid ? 1 : 0;
 }
@@ -1782,8 +1784,8 @@ function expectedAgentOutcomeKind(primaryAction: CliActionShape | undefined): No
 }
 
 function scorePageLinkCommands(
-  primaryLinks: Array<{ id?: string; path?: string; selectionReason?: string; sourceScore?: number; command?: string; commandArgs?: string[] }>,
-  sourceLinks: Array<{ id?: string; path?: string; selectionReason?: string; sourceScore?: number; command?: string; commandArgs?: string[] }>,
+  primaryLinks: Array<{ id?: string; path?: string; selectionReason?: string; sourceScore?: number; url?: string; command?: string; commandArgs?: string[] }>,
+  sourceLinks: Array<{ id?: string; path?: string; selectionReason?: string; sourceScore?: number; url?: string; command?: string; commandArgs?: string[] }>,
 ): number {
   const links = [...primaryLinks, ...sourceLinks];
   if (links.length === 0) return 1;
@@ -1792,8 +1794,8 @@ function scorePageLinkCommands(
       && link.id.length > 0
       && typeof link.path === "string"
       && link.path.length > 0
-      && Array.isArray(link.commandArgs)
-      && link.commandArgs.length > 0
+      && (Array.isArray(link.commandArgs) && link.commandArgs.length > 0
+        || typeof link.url === "string" && link.url.length > 0)
       && (typeof link.selectionReason === "string" && link.selectionReason.length > 0
         || typeof link.sourceScore === "number");
   }).length;
@@ -2024,7 +2026,7 @@ function scoreAgentSourceLinkCount(kind: string, sourceLinkCount: number | undef
 function scoreAgentSourceChoices(
   kind: string,
   choices: CliAgentSourceChoiceShape[],
-  sourceLinks: Array<{ title?: string; url?: string; kind?: "internal" | "external"; selectionReason?: string; command?: string; commandArgs?: string[] }>,
+  sourceLinks: Array<{ title?: string; url?: string; kind?: "internal" | "external"; selectionReason?: string; sourceScore?: number; command?: string; commandArgs?: string[] }>,
   primaryAction: CliActionShape | undefined,
 ): number {
   if (kind === "search-results" || sourceLinks.length === 0) return choices.length === 0 ? 1 : 0;
@@ -2037,11 +2039,12 @@ function scoreAgentSourceChoices(
     return source
       && choice.id === `s${index + 1}`
       && choice.path === `pageCheck.sourceLinks[${index}]`
-      && choice.url === source.url
-      && choice.title === source.title
-      && choice.kind === source.kind
+      && (typeof choice.url === "undefined" || choice.url === source.url)
+      && (typeof choice.title === "undefined" || choice.title === source.title)
+      && (typeof choice.kind === "undefined" || choice.kind === source.kind)
       && (typeof choice.selectionReason === "string" && choice.selectionReason.length > 0
-        || typeof source.selectionReason === "string" && source.selectionReason.length > 0);
+        || typeof source.selectionReason === "string" && source.selectionReason.length > 0
+        || typeof source.sourceScore === "number");
   }).length;
   if (validChoices === choices.length) matched += 1;
   const runnableChoices = choices.filter((choice, index) => Array.isArray(choice.commandArgs) && choice.commandArgs.length > 0

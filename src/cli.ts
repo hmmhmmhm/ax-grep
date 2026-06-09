@@ -11861,8 +11861,8 @@ function compactAgentForms(items: PageFormSummary[], primaryAction?: SuggestedAc
   }));
 }
 
-function compactAgentPageCheckNextSteps(steps: SuggestedAction[], sourceLinks: PageLinkSummary[], threshold = 900): object[] {
-  const compact = compactAgentCommandList(steps.map((step) => compactAgentAction(step, { omitOpenSourceTarget: true, omitReason: true })), threshold);
+function compactAgentPageCheckNextSteps(steps: SuggestedAction[], sourceLinks: PageLinkSummary[], threshold = 650): object[] {
+  const compact = steps.map((step) => compactAgentAction(step, { omitOpenSourceTarget: true, omitReason: true }));
   if (JSON.stringify(compact).length <= threshold) return compact;
   return compact.map((item) => {
     const action = item as Record<string, unknown>;
@@ -11872,17 +11872,28 @@ function compactAgentPageCheckNextSteps(steps: SuggestedAction[], sourceLinks: P
     const { url: _url, command: _command, commandArgs: _commandArgs, ...rest } = action;
     return {
       ...rest,
+      ...(rest.action === "open-source-link" ? { priorityReason: undefined } : {}),
       sourceLinkRef: `pageCheck.sourceLinks[${index}]`,
     };
   });
 }
 
 function omitVerboseSourceLinkFields(item: object): object {
-  const { source: _source, sourceType: _sourceType, sourceHints: _sourceHints, selectionReason: _selectionReason, ...rest } = item as {
+  const {
+    source: _source,
+    sourceType: _sourceType,
+    sourceHints: _sourceHints,
+    selectionReason: _selectionReason,
+    command: _command,
+    commandArgs: _commandArgs,
+    ...rest
+  } = item as {
     source?: unknown;
     sourceType?: unknown;
     sourceHints?: unknown;
     selectionReason?: unknown;
+    command?: unknown;
+    commandArgs?: unknown;
     [key: string]: unknown;
   };
   return rest;
@@ -12017,15 +12028,20 @@ function compactAgentContract(contract: AgentContract): object {
 }
 
 function compactAgentSemanticSummary(summary: AgentSemanticSummary): object {
+  const roleCounts = Object.fromEntries(
+    Object.entries(summary.roleCounts)
+      .sort((left, right) => right[1] - left[1])
+      .slice(0, 6),
+  );
   return {
     nodeCount: summary.nodeCount,
     namedRoleCount: summary.namedRoleCount,
     interactiveCount: summary.interactiveCount,
-    roleCounts: summary.roleCounts,
-    topRoles: summary.topRoles.slice(0, 6),
-    landmarks: summary.landmarks.slice(0, 6),
-    headings: summary.headings.slice(0, 6),
-    namedRoles: summary.namedRoles.slice(0, 8),
+    roleCounts,
+    topRoles: summary.topRoles.slice(0, 4),
+    landmarks: summary.landmarks.slice(0, 4),
+    headings: summary.headings.slice(0, 4),
+    namedRoles: summary.namedRoles.slice(0, 4),
   };
 }
 
@@ -12103,6 +12119,14 @@ function compactAgentReadTargetRef(target: AgentReadTarget): object {
 }
 
 function compactAgentSourceChoiceRef(choice: AgentSourceChoice): object {
+  if (choice.path.startsWith("pageCheck.sourceLinks[")) {
+    return {
+      id: choice.id,
+      path: choice.path,
+      rank: choice.rank,
+      ...(choice.primary ? { primary: true } : {}),
+    };
+  }
   return {
     id: choice.id,
     path: choice.path,
@@ -12125,7 +12149,6 @@ function compactAgentCitationRef(citation: AgentCitation): object {
     id: citation.id,
     path: citation.path,
     confidence: citation.confidence,
-    ...(typeof citation.score === "number" ? { score: citation.score } : {}),
   };
 }
 
@@ -12135,7 +12158,7 @@ function compactAgentCitationList(citations: AgentCitation[], threshold = 1000):
 }
 
 function compactAgentActionList(actions: object[]): object[] {
-  return compactAgentCommandList(actions, 2200);
+  return compactAgentCommandList(actions, 900);
 }
 
 function compactAgentCommandList<T extends object>(items: T[], threshold = 2200): object[] {
