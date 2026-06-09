@@ -302,6 +302,7 @@ describe("cli", () => {
             "resultChoices",
             "sourceChoices",
             "pageDecision",
+            "semanticSummary",
             "searchResult.selectionReason",
             "sourceLink.selectionReason",
             "action.priority",
@@ -333,6 +334,18 @@ describe("cli", () => {
           ]),
         },
         status: "ready",
+        semanticSummary: {
+          nodeCount: expect.any(Number),
+          namedRoleCount: expect.any(Number),
+          interactiveCount: 2,
+          topRoles: expect.arrayContaining([
+            expect.objectContaining({ role: "p", count: 2 }),
+            expect.objectContaining({ role: "link", count: 2 }),
+          ]),
+          landmarks: expect.arrayContaining(["main"]),
+          headings: ["Example"],
+          namedRoles: expect.arrayContaining(["heading:Example", "link:Reporter Profile", "link:Target"]),
+        },
         routingIntent: "read-current",
         continuationMode: "read",
         next: {
@@ -6826,6 +6839,12 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  answerReadFrom: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  answerUrl: https://example.test/article");
     expect(stdout.output).toContain("  signal: content/info - ");
+    expect(stdout.output).toContain("  semanticSummary: nodes=");
+    expect(stdout.output).toContain(" named=");
+    expect(stdout.output).toContain(" interactive=");
+    expect(stdout.output).toContain("  semanticTopRoles:");
+    expect(stdout.output).toContain("  semanticHeading: Article heading");
+    expect(stdout.output).toContain("  semanticLandmark: main");
     expect(stdout.output).toContain("  qualityGate: fetch pass/info score=1 path=agent.responseStatus - Fetched response was converted into an agent payload.");
     expect(stdout.output).toContain("  qualityGate: content pass/info score=");
     expect(stdout.output).toContain("  qualityGate: source pass/info score=");

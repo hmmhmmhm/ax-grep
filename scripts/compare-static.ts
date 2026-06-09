@@ -97,6 +97,7 @@ type CliAgentSummary = {
   agentActionListScore: number;
   agentSearchDecisionScore: number;
   agentPageDecisionScore: number;
+  agentSemanticSummaryScore: number;
   pageCheck: {
     confidence: "low" | "medium" | "high";
     readabilityLevel: "low" | "medium" | "high";
@@ -485,6 +486,7 @@ type GateSummary = {
   averageAgentActionListScore: number;
   averageAgentSearchDecisionScore: number;
   averageAgentPageDecisionScore: number;
+  averageAgentSemanticSummaryScore: number;
   averagePrecision: number;
   averageReferenceRecall: number;
   classifications: Record<StaticClassification, number>;
@@ -872,6 +874,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       citations?: CliAgentCitationShape[];
       answerEvidence?: CliAgentCitationShape[];
       readTargets?: CliReadTargetShape[];
+      semanticSummary?: unknown;
     };
     diagnostics?: Array<{ severity?: "info" | "warning" | "error" }>;
     sourceSearch?: {
@@ -983,6 +986,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentActionListScore: scoreAgentActionList(item.agent?.actions, item.agent?.primaryAction, item.agent?.alternativeActionCount),
     agentSearchDecisionScore: scoreAgentSearchDecision(item.agent?.searchDecision, item.kind, item.agent?.primaryAction, item.searchResults ?? [], item.recommendedResult, item.agent?.resultCount),
     agentPageDecisionScore: scoreAgentPageDecision(item.agent?.pageDecision, item.kind, item.agent?.primaryAction, item.pageCheck),
+    agentSemanticSummaryScore: scoreAgentSemanticSummary(item.agent?.semanticSummary),
     pageCheck: pageCheckSummary,
     searchResultCount: item.searchResults?.length ?? 0,
     searchResultActionScore: scoreSearchResultActions(item.searchResults ?? []),
@@ -1046,6 +1050,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentActionListScore: 0,
     agentSearchDecisionScore: 0,
     agentPageDecisionScore: 0,
+    agentSemanticSummaryScore: 0,
     pageCheck: {
       confidence: "low",
       readabilityLevel: "low",
@@ -1191,6 +1196,7 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[] }
     "resultChoices",
     "sourceChoices",
     "pageDecision",
+    "semanticSummary",
     "readTargets",
     "actions",
     "signals",
@@ -2094,6 +2100,34 @@ function expectedPageDecision(primaryAction: CliActionShape | undefined): NonNul
   return "none";
 }
 
+function scoreAgentSemanticSummary(summary: unknown): number {
+  if (!summary || typeof summary !== "object") return 0;
+  const item = summary as {
+    nodeCount?: unknown;
+    namedRoleCount?: unknown;
+    interactiveCount?: unknown;
+    roleCounts?: unknown;
+    topRoles?: unknown;
+    landmarks?: unknown;
+    headings?: unknown;
+    namedRoles?: unknown;
+  };
+  let matched = 0;
+  if (typeof item.nodeCount === "number" && item.nodeCount > 0) matched += 1;
+  if (typeof item.namedRoleCount === "number" && item.namedRoleCount >= 0) matched += 1;
+  if (typeof item.interactiveCount === "number" && item.interactiveCount >= 0) matched += 1;
+  if (item.roleCounts && typeof item.roleCounts === "object" && Object.keys(item.roleCounts).length > 0) matched += 1;
+  if (Array.isArray(item.topRoles) && item.topRoles.length > 0 && item.topRoles.every((role) => {
+    if (!role || typeof role !== "object") return false;
+    const record = role as { role?: unknown; count?: unknown };
+    return typeof record.role === "string" && record.role.length > 0 && typeof record.count === "number" && record.count > 0;
+  })) matched += 1;
+  if (Array.isArray(item.landmarks)) matched += 1;
+  if (Array.isArray(item.headings)) matched += 1;
+  if (Array.isArray(item.namedRoles)) matched += 1;
+  return roundScore(matched / 8);
+}
+
 function scoreAgentUsabilityScore(usabilityScore: number | undefined, item: {
   agent?: { status?: CliAgentSummary["agentStatus"]; needsBrowserHtml?: boolean };
   pageCheck?: {
@@ -2487,7 +2521,8 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentAnswerEvidenceScore * 0.005
     + summary.agentActionListScore * 0.005
     + summary.agentSearchDecisionScore * 0.005
-    + summary.agentPageDecisionScore * 0.005,
+    + summary.agentPageDecisionScore * 0.005
+    + summary.agentSemanticSummaryScore * 0.005,
   ));
 }
 
@@ -2518,6 +2553,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentActionListScore,
     summary.agentSearchDecisionScore,
     summary.agentPageDecisionScore,
+    summary.agentSemanticSummaryScore,
     summary.searchResultActionScore,
     summary.pageLinkCommandScore,
     summary.agentResponseMetadataScore,
@@ -2609,6 +2645,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentActionListScore: average(included.map((comparison) => comparison.cliAgentSummary.agentActionListScore)),
     averageAgentSearchDecisionScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSearchDecisionScore)),
     averageAgentPageDecisionScore: average(included.map((comparison) => comparison.cliAgentSummary.agentPageDecisionScore)),
+    averageAgentSemanticSummaryScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSemanticSummaryScore)),
     averagePrecision: average(included.map((comparison) => comparison.agentReadiness.candidatePrecision)),
     averageReferenceRecall: average(included.map((comparison) => comparison.agentReadiness.referenceRecall)),
     classifications,

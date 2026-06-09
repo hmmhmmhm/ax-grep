@@ -143,6 +143,17 @@ type AgentPageDecision = {
   commandArgs?: string[];
 };
 
+type AgentSemanticSummary = {
+  nodeCount: number;
+  namedRoleCount: number;
+  interactiveCount: number;
+  roleCounts: Record<string, number>;
+  topRoles: Array<{ role: string; count: number }>;
+  landmarks: string[];
+  headings: string[];
+  namedRoles: string[];
+};
+
 type CliErrorCode = "FETCH_FAILED" | "HTTP_ERROR" | "NO_INSPECTABLE_CONTENT" | "NO_RESULT" | "TIMEOUT" | "USAGE";
 
 type LinkSummary = {
@@ -813,6 +824,7 @@ type AgentSummary = {
   answerPlan: AgentAnswerPlan;
   searchDecision?: AgentSearchDecision;
   pageDecision?: AgentPageDecision;
+  semanticSummary?: AgentSemanticSummary;
   signals: AgentSignal[];
   qualityGates: AgentQualityGate[];
   canContinue: boolean;
@@ -894,6 +906,7 @@ const agentContract: AgentContract = {
     "resultChoices",
     "sourceChoices",
     "pageDecision",
+    "semanticSummary",
     "searchResult.selectionReason",
     "sourceLink.selectionReason",
     "action.priority",
@@ -1968,6 +1981,7 @@ function formatCliText(
     options.findQueries ?? [],
     options.timeoutMs,
     options.userAgent,
+    summarizeAgentSemanticSummary(node),
   );
   appendSection(lines, formatAgentText(agent));
   appendSection(lines, formatAnalysisText(analysis));
@@ -2280,6 +2294,12 @@ function formatAgentText(agent: AgentSummary): string[] {
   for (const signal of agent.handoff.signals ?? []) lines.push(formatAgentSignalText(signal, "handoffSignal"));
   for (const gate of agent.handoff.qualityGates ?? []) lines.push(formatAgentQualityGateText(gate, "handoffQualityGate"));
   for (const signal of agent.signals) lines.push(formatAgentSignalText(signal));
+  if (agent.semanticSummary) {
+    lines.push(`  semanticSummary: nodes=${agent.semanticSummary.nodeCount} named=${agent.semanticSummary.namedRoleCount} interactive=${agent.semanticSummary.interactiveCount}`);
+    if (agent.semanticSummary.topRoles.length > 0) lines.push(`  semanticTopRoles: ${agent.semanticSummary.topRoles.map((item) => `${item.role}=${item.count}`).join(", ")}`);
+    for (const heading of agent.semanticSummary.headings.slice(0, 3)) lines.push(`  semanticHeading: ${heading}`);
+    for (const landmark of agent.semanticSummary.landmarks.slice(0, 3)) lines.push(`  semanticLandmark: ${landmark}`);
+  }
   for (const reason of agent.readabilityReasons) lines.push(`  readabilityReason: ${reason}`);
   for (const gate of agent.qualityGates) lines.push(formatAgentQualityGateText(gate));
   for (const citation of agent.citations) lines.push(formatAgentCitationText(citation));
@@ -8441,6 +8461,50 @@ function sourceSearchAlternateAction(sourceSearch: SourceSearchSummary | undefin
   };
 }
 
+function summarizeAgentSemanticSummary(tree: SemanticNode): AgentSemanticSummary {
+  const roleCounts: Record<string, number> = {};
+  const landmarks: string[] = [];
+  const headings: string[] = [];
+  const namedRoles: string[] = [];
+  let nodeCount = 0;
+  let namedRoleCount = 0;
+  let interactiveCount = 0;
+  const landmarkRoles = new Set(["banner", "main", "navigation", "contentinfo", "complementary", "region", "search", "form"]);
+
+  function visit(node: SemanticNode): void {
+    nodeCount += 1;
+    const role = node.role ?? node.tag;
+    roleCounts[role] = (roleCounts[role] ?? 0) + 1;
+    if (node.interactive) interactiveCount += 1;
+    if (node.role && node.name) {
+      namedRoleCount += 1;
+      if (namedRoles.length < 16) namedRoles.push(`${node.role}:${node.name}`);
+      if (node.role === "heading" && headings.length < 8) headings.push(node.name);
+      if (landmarkRoles.has(node.role) && landmarks.length < 8) landmarks.push(`${node.role}${node.name ? `:${node.name}` : ""}`);
+    } else if (node.role && landmarkRoles.has(node.role) && landmarks.length < 8) {
+      landmarks.push(node.role);
+    }
+    for (const child of node.children) visit(child);
+  }
+
+  visit(tree);
+  const topRoles = Object.entries(roleCounts)
+    .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+    .slice(0, 10)
+    .map(([role, count]) => ({ role, count }));
+
+  return {
+    nodeCount,
+    namedRoleCount,
+    interactiveCount,
+    roleCounts,
+    topRoles,
+    landmarks,
+    headings,
+    namedRoles,
+  };
+}
+
 function summarizeAgent(
   analysis: AnalysisSummary,
   pageCheck: PageCheckSummary,
@@ -8456,6 +8520,7 @@ function summarizeAgent(
   findQueries: string[] = [],
   timeoutMs?: number,
   userAgent?: string,
+  semanticSummary?: AgentSemanticSummary,
 ): AgentSummary {
   const diagnosticCodes = analysis.diagnostics.map((diagnostic) => diagnostic.code);
   const primaryAction = primaryAgentAction(analysis, pageCheck, verification);
@@ -8503,6 +8568,7 @@ function summarizeAgent(
     answerPlan,
     ...(searchDecision ? { searchDecision } : {}),
     ...(pageDecision ? { pageDecision } : {}),
+    ...(semanticSummary ? { semanticSummary } : {}),
     signals,
     qualityGates,
     canContinue: agentCanContinue(primaryAction),
@@ -11376,6 +11442,7 @@ function jsonEnvelope(
     options.findQueries ?? [],
     options.timeoutMs,
     options.userAgent,
+    summarizeAgentSemanticSummary(tree),
   );
   const outputAnalysis = {
     ...analysis,
@@ -11719,6 +11786,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     answerPlan: agent.answerPlan,
     ...(agent.searchDecision ? { searchDecision: agent.searchDecision } : {}),
     ...(agent.pageDecision ? { pageDecision: agent.pageDecision } : {}),
+    ...(agent.semanticSummary ? { semanticSummary: agent.semanticSummary } : {}),
     ...(agent.signals.length > 0 ? { signals: agent.signals } : {}),
     ...(agent.qualityGates.length > 0 ? { qualityGates: agent.qualityGates } : {}),
     canContinue: agent.canContinue,

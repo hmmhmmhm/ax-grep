@@ -386,6 +386,7 @@ export type AgentSummary = {
   answerPlan?: AgentAnswerPlan;
   searchDecision?: Record<string, unknown>;
   pageDecision?: Record<string, unknown>;
+  semanticSummary?: Record<string, unknown>;
   signals?: AgentSignal[];
   qualityGates?: AgentQualityGate[];
   canContinue: boolean;
@@ -465,6 +466,7 @@ export type AgentContractFeature =
   | "resultChoices"
   | "sourceChoices"
   | "pageDecision"
+  | "semanticSummary"
   | "searchResult.selectionReason"
   | "sourceLink.selectionReason"
   | "action.priority"
