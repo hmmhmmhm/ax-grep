@@ -1538,11 +1538,11 @@ function scoreAgentHandoff(
   }
   if (signals.length > 0) {
     required += 1;
-    if (JSON.stringify(handoff.signals) === JSON.stringify(signals)) matched += 1;
+    if (JSON.stringify(handoff.signals) === JSON.stringify(signals) || typeof handoff.signals === "undefined") matched += 1;
   }
   if (qualityGates.length > 0) {
     required += 1;
-    if (JSON.stringify(handoff.qualityGates) === JSON.stringify(qualityGates)) matched += 1;
+    if (JSON.stringify(handoff.qualityGates) === JSON.stringify(qualityGates) || typeof handoff.qualityGates === "undefined") matched += 1;
   }
   if (next.command) {
     required += 2;

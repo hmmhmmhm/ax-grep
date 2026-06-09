@@ -11707,7 +11707,7 @@ function compactAgentPageCheck(
     ? []
     : primaryAction ? pageCheck.nextSteps.filter((step) => !sameSuggestedAction(step, primaryAction)) : pageCheck.nextSteps;
   const recommendedAction = suppressPageActions || sameSuggestedAction(pageCheck.recommendedAction, primaryAction) ? undefined : pageCheck.recommendedAction;
-  const compactNextSteps = compactAgentActionList(nextSteps);
+  const compactNextSteps = compactAgentCommandList(nextSteps.map(compactAgentAction), 1500);
   const slimPaths = compactPageCheckSlimPaths(pageCheck, readTargets);
   return {
     contentEvidence: pageCheck.contentEvidence,
@@ -11939,9 +11939,13 @@ function compactAgentRunbook(runbook: AgentRunbook): object {
 }
 
 function compactAgentHandoff(handoff: AgentHandoff): object {
-  const { readValue, sourceChoices, resultChoices, answerEvidence, target, ...rest } = handoff;
+  const { readValue, sourceChoices, resultChoices, answerEvidence, target, signals: _signals, qualityGates: _qualityGates, ...rest } = handoff;
+  const keepSignals = handoff.signals?.some((signal) => signal.kind === "verification" || signal.kind === "browser" || signal.kind === "diagnostic") === true;
+  const keepQualityGates = handoff.qualityGates?.some((gate) => gate.kind === "verification" || gate.kind === "diagnostic" || gate.pass === false) === true;
   return {
     ...rest,
+    ...(keepSignals ? { signals: handoff.signals } : {}),
+    ...(keepQualityGates ? { qualityGates: handoff.qualityGates } : {}),
     ...(target ? { target: compactAgentTarget(target, handoff.action) } : {}),
     ...(answerEvidence && answerEvidence.length > 0 ? { answerEvidence: answerEvidence.map(compactAgentCitationRef) } : {}),
     ...(resultChoices && resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(resultChoices) } : {}),
@@ -12006,7 +12010,8 @@ function omitRedundantCommand<T extends object>(item: T): object {
 
 function compactAgentReadValue(readValue: AgentReadValue, forceReference = false): object {
   if (Array.isArray(readValue.value)) {
-    const inlineLimit = readValue.path === "pageCheck.contentEvidence" ? 1200 : 3000;
+    if (!forceReference && readValue.path === "pageCheck.contentEvidence" && readValue.value.length < 4) return readValue;
+    const inlineLimit = readValue.path === "pageCheck.contentEvidence" ? 900 : 3000;
     if (!forceReference && JSON.stringify(readValue.value).length <= inlineLimit) return readValue;
     return {
       path: readValue.path,
