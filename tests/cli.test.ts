@@ -4020,6 +4020,61 @@ describe("cli", () => {
     });
   });
 
+  it("promotes hidden read-current pageCheck targets to answer evidence", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/hidden", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <script>
+              window.__APP_CONFIG__ = {
+                apiBase: "https://example.test/api",
+                featureFlags: { agentMode: true }
+              };
+            </script>
+          </head>
+          <body><main><h1>Hidden config</h1></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.config",
+    });
+    expect(envelope.agent.citations).toContainEqual(expect.objectContaining({
+      id: "pc1",
+      kind: "page-check",
+      path: "pageCheck.config",
+      text: expect.stringContaining("__APP_CONFIG__"),
+    }));
+    expect(envelope.agent.answerPlan).toMatchObject({
+      status: "ready",
+      readFrom: "pageCheck.config",
+      useCitationIds: expect.arrayContaining(["pc1"]),
+    });
+    expect(envelope.agent.answerEvidence).toContainEqual(expect.objectContaining({
+      id: "pc1",
+      kind: "page-check",
+      path: "pageCheck.config",
+    }));
+    expect(envelope.agent.handoff).toMatchObject({
+      decision: "return",
+      answerReady: true,
+      readFrom: "pageCheck.config",
+      useCitationIds: expect.arrayContaining(["pc1"]),
+    });
+    expect(envelope.agent.handoff.answerEvidence).toContainEqual(expect.objectContaining({
+      id: "pc1",
+      kind: "page-check",
+    }));
+  });
+
   it("checks requested text against app hints", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/app", "--agent", "--find", "Example Console"], {

@@ -285,7 +285,7 @@ export type AgentReadValue = {
 };
 
 export type AgentCitation = {
-  kind: "content" | "verification" | "search-result" | "source-link";
+  kind: "content" | "verification" | "search-result" | "source-link" | "page-check";
   id: string;
   path: string;
   confidence?: "low" | "medium" | "high";

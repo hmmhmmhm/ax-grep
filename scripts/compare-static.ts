@@ -1208,7 +1208,7 @@ function scoreAgentCitations(
       ? 1
       : 0;
   }
-  const validKinds = new Set(["content", "verification", "search-result", "source-link"]);
+  const validKinds = new Set(["content", "verification", "search-result", "source-link", "page-check"]);
   const validCount = citations.filter((citation) => {
     const hasReference = typeof citation.id === "string"
       && citation.id.length > 0

@@ -215,7 +215,7 @@ Run with `pnpm compare:static:agent` for the smaller executor-focused regression
 set that exercises readable pages, listings, forum-style links, and a search
 diagnostic while tracking `averageAgentExecutorScore`.
 In the current run, the gate summary includes 7 targets and excludes 4
-diagnostics; `averageAgentExecutorScore` is 0.991 and
+diagnostics; `averageAgentExecutorScore` is 1.00 and
 `averageAgentHiddenSignalScore` is 1.00 for the included executor targets.
 The set includes a synthetic hidden-metadata gate whose browser snapshot only
 contains a visible heading while `pageCheck` exposes 13 hidden head, script,

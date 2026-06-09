@@ -8438,7 +8438,7 @@ function summarizeAgent(
   const diagnosticCounts = countDiagnosticsBySeverity(analysis.diagnostics);
   const readTargets = summarizeAgentReadTargets(primaryAction, analysis.kind, pageCheck, verification, results, sourceSearch);
   const bestReadTarget = selectBestReadTarget(readTargets);
-  const citations = summarizeAgentCitations(analysis.kind, pageCheck, verification, recommendedResult, sourceSearch);
+  const citations = summarizeAgentCitations(analysis.kind, pageCheck, verification, primaryAction, recommendedResult, sourceSearch);
   const searchDecision = summarizeAgentSearchDecision(analysis, results, recommendedResult, primaryAction);
   const pageDecision = summarizeAgentPageDecision(analysis, pageCheck, primaryAction);
   const resultChoices = summarizeAgentResultChoices(hasUsableSearchResults ? results : [], recommendedResult, primaryAction);
@@ -8541,6 +8541,7 @@ function summarizeAgentCitations(
   kind: ContentKind,
   pageCheck: PageCheckSummary,
   verification: VerificationSummary,
+  primaryAction: SuggestedAction | undefined,
   recommendedResult?: ResultSummary,
   sourceSearch?: SourceSearchSummary,
 ): AgentCitation[] {
@@ -8572,6 +8573,8 @@ function summarizeAgentCitations(
       score: evidence.score,
     });
   }
+  const readTargetCitation = summarizeReadTargetCitation(primaryAction, pageCheck);
+  if (readTargetCitation) add(readTargetCitation);
   if (recommendedResult) {
     add({
       kind: "search-result",
@@ -8611,6 +8614,61 @@ function summarizeAgentCitations(
     }
   }
   return citations.slice(0, 6);
+}
+
+function summarizeReadTargetCitation(primaryAction: SuggestedAction | undefined, pageCheck: PageCheckSummary): AgentCitation | undefined {
+  if (!primaryAction?.readFrom || actionExecution(primaryAction) !== "read-current") return undefined;
+  if (primaryAction.readFrom === "verification.bestEvidence" || primaryAction.readFrom === "pageCheck.contentEvidence") return undefined;
+  if (!primaryAction.readFrom.startsWith("pageCheck.")) return undefined;
+  const value = pageCheckReadTargetValue(pageCheck, primaryAction.readFrom);
+  const text = summarizeReadTargetCitationText(value);
+  if (!text) return undefined;
+  const url = firstReadTargetUrl(value);
+  return {
+    kind: "page-check",
+    id: "pc1",
+    path: primaryAction.readFrom,
+    confidence: pageCheck.readability.level === "high" ? "high" : pageCheck.readability.level === "medium" ? "medium" : "low",
+    reason: `Primary read-current target ${primaryAction.readFrom} is available in the pageCheck payload.`,
+    text,
+    ...(url ? { url } : {}),
+    score: pageCheck.readability.score,
+  };
+}
+
+function pageCheckReadTargetValue(pageCheck: PageCheckSummary, path: string): unknown {
+  const key = path.slice("pageCheck.".length);
+  if (!key || key.includes(".") || key.includes("[")) return undefined;
+  return (pageCheck as unknown as Record<string, unknown>)[key];
+}
+
+function summarizeReadTargetCitationText(value: unknown): string {
+  if (Array.isArray(value)) {
+    return value
+      .slice(0, 3)
+      .map((item) => readTargetItemText(item))
+      .filter(Boolean)
+      .join(" | ")
+      .slice(0, 500);
+  }
+  return readTargetItemText(value).slice(0, 500);
+}
+
+function readTargetItemText(value: unknown): string {
+  if (!value || typeof value !== "object") return typeof value === "string" ? cleanContentText(value) : "";
+  const record = value as Record<string, unknown>;
+  if (typeof record.text === "string") return cleanContentText(record.text);
+  const parts = ["label", "name", "title", "kind", "value", "url"]
+    .map((key) => typeof record[key] === "string" ? record[key] as string : "")
+    .filter(Boolean);
+  return cleanContentText(parts.join(" "));
+}
+
+function firstReadTargetUrl(value: unknown): string | undefined {
+  const first = Array.isArray(value) ? value.find((item) => item && typeof item === "object") : value;
+  if (!first || typeof first !== "object") return undefined;
+  const url = (first as Record<string, unknown>).url;
+  return typeof url === "string" && url.length > 0 ? url : undefined;
 }
 
 function summarizeAgentAnswerEvidence(citations: AgentCitation[], answerPlan: AgentAnswerPlan): AgentCitation[] {
@@ -9100,7 +9158,7 @@ function summarizeAgentAnswerPlan(
 ): AgentAnswerPlan {
   const actionFields = answerPlanActionFields(primaryAction);
   const citationIds = citations
-    .filter((citation) => citation.kind === "verification" || citation.kind === "content")
+    .filter((citation) => citation.kind === "verification" || citation.kind === "content" || citation.kind === "page-check")
     .map((citation) => citation.id)
     .slice(0, 4);
   if (needsBrowserHtml || status === "needs-browser") {
@@ -9140,6 +9198,16 @@ function summarizeAgentAnswerPlan(
       status: "ready",
       confidence: answerPlanReadConfidence(pageCheck),
       reason: "Readable page evidence is available; answer from the listed citations.",
+      gaps: answerPlanReadGaps(pageCheck, citationIds),
+      useCitationIds: citationIds,
+      ...actionFields,
+    };
+  }
+  if (primaryAction && actionExecution(primaryAction) === "read-current" && citationIds.length > 0) {
+    return {
+      status: "ready",
+      confidence: pageCheck.readability.level === "high" ? "high" : "medium",
+      reason: "The current read target is available as citeable agent evidence.",
       gaps: answerPlanReadGaps(pageCheck, citationIds),
       useCitationIds: citationIds,
       ...actionFields,
