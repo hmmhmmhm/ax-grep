@@ -333,6 +333,18 @@ type PageKeyValueSummary = {
   selector?: string;
 };
 
+type PageMetaFactSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  label: string;
+  value: string;
+  text: string;
+  source: "meta" | "link";
+  url?: string;
+  selector?: string;
+};
+
 type PageSchemaFact = {
   label: string;
   value: string;
@@ -591,6 +603,7 @@ const agentContract: AgentContract = {
     "pageCheck.dataTables",
     "pageCheck.forms",
     "pageCheck.keyValues",
+    "pageCheck.metaFacts",
     "pageCheck.schemaFacts",
     "pageCheck.faqs",
     "pageCheck.breadcrumbs",
@@ -625,6 +638,7 @@ type PageCheckSummary = {
   dataTables: PageDataTableSummary[];
   forms: PageFormSummary[];
   keyValues: PageKeyValueSummary[];
+  metaFacts: PageMetaFactSummary[];
   schemaFacts: PageSchemaFactSummary[];
   faqs: PageFaqSummary[];
   breadcrumbs: PageBreadcrumbSummary[];
@@ -1952,6 +1966,11 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const datetime = fact.datetime ? ` datetime=${fact.datetime}` : "";
     lines.push(`  keyValue: ${fact.id} ${fact.path} ${fact.source}${datetime} - ${fact.text}`);
   }
+  for (const fact of pageCheck.metaFacts) {
+    const url = fact.url ? ` <${fact.url}>` : "";
+    const selector = fact.selector ? ` (${fact.selector})` : "";
+    lines.push(`  metaFact: ${fact.id} ${fact.path} ${fact.source}${selector}${url} - ${fact.text}`);
+  }
   for (const fact of pageCheck.schemaFacts) {
     lines.push(`  schemaFact: ${fact.id} ${fact.path} ${fact.types.join(",") || "unknown"} - ${fact.text}`);
   }
@@ -2704,6 +2723,7 @@ function summarizePageCheck(
   const dataTables = summarizeDataTables(fetched.html);
   const forms = summarizeForms(fetched.html, fetched.finalUrl);
   const keyValues = summarizeKeyValues(fetched.html);
+  const metaFacts = summarizeMetaFacts(fetched.html, fetched.finalUrl);
   const schemaFacts = summarizeSchemaFacts(fetched.html);
   const faqs = summarizeFaqs(fetched.html);
   const breadcrumbs = summarizeBreadcrumbs(fetched.html, fetched.finalUrl);
@@ -2715,14 +2735,15 @@ function summarizePageCheck(
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, schemaFacts, faqs, breadcrumbs, toc, codeBlocks, media, resources, embeds, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, schemaFacts, faqs, breadcrumbs, toc, codeBlocks, media, resources, embeds, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, toc, codeBlocks, media, resources, embeds, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, faqs, breadcrumbs, toc, codeBlocks, media, resources, embeds, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
     dataTables,
     forms,
     keyValues,
+    metaFacts,
     schemaFacts,
     faqs,
     breadcrumbs,
@@ -2764,6 +2785,7 @@ function summarizeReadability(
   dataTables: PageDataTableSummary[],
   forms: PageFormSummary[],
   keyValues: PageKeyValueSummary[],
+  metaFacts: PageMetaFactSummary[],
   schemaFacts: PageSchemaFactSummary[],
   faqs: PageFaqSummary[],
   breadcrumbs: PageBreadcrumbSummary[],
@@ -2795,6 +2817,10 @@ function summarizeReadability(
   if (keyValues.length > 0) {
     score += Math.min(0.08, keyValues.length * 0.02);
     reasons.push(`${keyValues.length} key-value fact${keyValues.length === 1 ? "" : "s"}`);
+  }
+  if (metaFacts.length > 0) {
+    score += Math.min(0.06, metaFacts.length * 0.02);
+    reasons.push(`${metaFacts.length} meta fact${metaFacts.length === 1 ? "" : "s"}`);
   }
   if (schemaFacts.length > 0) {
     score += Math.min(0.1, schemaFacts.length * 0.04);
@@ -2892,6 +2918,7 @@ function recommendedPageCheckAction(
   dataTables: PageDataTableSummary[],
   forms: PageFormSummary[],
   keyValues: PageKeyValueSummary[],
+  metaFacts: PageMetaFactSummary[],
   schemaFacts: PageSchemaFactSummary[],
   faqs: PageFaqSummary[],
   breadcrumbs: PageBreadcrumbSummary[],
@@ -2949,7 +2976,9 @@ function recommendedPageCheckAction(
                         ? "pageCheck.resources"
                         : embeds.length > 0
                           ? "pageCheck.embeds"
-                          : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
+                          : metaFacts.length > 0
+                            ? "pageCheck.metaFacts"
+                            : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
     return {
       action: "read-content",
       reason: "The page has enough structured evidence for source checking.",
@@ -3046,6 +3075,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.embeds",
+    };
+  }
+  if (metaFacts.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but head metadata facts are available for agent verification.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.metaFacts",
     };
   }
   if (sourceLinks[0]) {
@@ -3631,6 +3669,83 @@ function schemaAvailability(value: unknown): string {
 function isLowValueSchemaFact(fact: PageSchemaFact): boolean {
   if (fact.value.length > 280) return true;
   return fact.label.toLowerCase() === fact.value.toLowerCase();
+}
+
+function summarizeMetaFacts(html: string, baseUrl: string): PageMetaFactSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageMetaFactSummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageMetaFactSummary, "id" | "path" | "rank" | "text">): void => {
+    const value = cleanContentText(item.value);
+    if (!value || value.length > 240) return;
+    const key = `${item.label}\n${value}\n${item.url ?? ""}`.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `mf${rank}`,
+      path: `pageCheck.metaFacts[${rank - 1}]`,
+      rank,
+      ...item,
+      value,
+      text: `${item.label}: ${value}`,
+    });
+  };
+
+  for (const [index, link] of findElements(document.children, (item) => item.name === "link").entries()) {
+    const rel = (attr(link, "rel") ?? "").toLowerCase();
+    if (!rel) continue;
+    const href = attr(link, "href") ?? "";
+    const url = href ? normalizeHref(href, baseUrl) : null;
+    if (rel.split(/\s+/).includes("canonical") && url) {
+      add({ label: "Canonical URL", value: url, source: "link", url, selector: `link[rel="canonical"]:nth-of-type(${index + 1})` });
+    } else if (rel.split(/\s+/).includes("alternate") && url) {
+      const hreflang = cleanContentText(attr(link, "hreflang") ?? "");
+      const type = cleanContentText(attr(link, "type") ?? "");
+      const label = hreflang ? `Alternate language ${hreflang}` : type ? `Alternate ${type}` : "Alternate URL";
+      add({ label, value: url, source: "link", url, selector: `link[rel="alternate"]:nth-of-type(${index + 1})` });
+    }
+  }
+
+  for (const [index, meta] of findElements(document.children, (item) => item.name === "meta").entries()) {
+    const name = (attr(meta, "name") || attr(meta, "property") || attr(meta, "http-equiv") || "").toLowerCase();
+    const content = cleanContentText(attr(meta, "content") ?? "");
+    if (!name || !content) continue;
+    const label = metaFactLabel(name);
+    if (!label) continue;
+    const refreshUrl = name === "refresh" ? refreshContentUrl(content, baseUrl) : null;
+    add({
+      label,
+      value: refreshUrl ?? content,
+      source: "meta",
+      ...(refreshUrl ? { url: refreshUrl } : {}),
+      selector: `meta:nth-of-type(${index + 1})`,
+    });
+  }
+  return items.slice(0, 10);
+}
+
+function metaFactLabel(name: string): string {
+  if (/^(robots|googlebot|bingbot|slurp)$/.test(name)) return `${name} directives`;
+  if (name === "refresh") return "Refresh target";
+  if (name === "generator") return "Generator";
+  if (name === "application-name") return "Application name";
+  if (name === "og:type") return "Open Graph type";
+  if (name === "og:locale") return "Open Graph locale";
+  if (name === "article:section") return "Article section";
+  if (name === "article:tag") return "Article tag";
+  if (name === "twitter:card") return "Twitter card";
+  return "";
+}
+
+function refreshContentUrl(content: string, baseUrl: string): string | null {
+  const match = /url\s*=\s*([^;]+)/i.exec(content);
+  const rawUrl = match?.[1]?.trim().replace(/^['"]|['"]$/g, "");
+  return rawUrl ? normalizeHref(rawUrl, baseUrl) : null;
 }
 
 function schemaFactText(types: string[], facts: PageSchemaFact[]): string {
@@ -5437,6 +5552,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.keyValues" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.metaFacts.length > 0) {
+    add({
+      path: "pageCheck.metaFacts",
+      reason: "Head metadata directives and canonical/alternate links extracted from page HTML.",
+      count: pageCheck.metaFacts.length,
+      score: roundMetric(Math.min(1, 0.44 + pageCheck.metaFacts.length * 0.05)),
+      ...(primaryReadFrom === "pageCheck.metaFacts" ? { primary: true } : {}),
+    });
+  }
   if (pageCheck.schemaFacts.length > 0) {
     add({
       path: "pageCheck.schemaFacts",
@@ -5700,6 +5824,7 @@ function agentReadValue(
   if (path === "pageCheck.dataTables") return { path, value: pageCheck.dataTables };
   if (path === "pageCheck.forms") return { path, value: pageCheck.forms };
   if (path === "pageCheck.keyValues") return { path, value: pageCheck.keyValues };
+  if (path === "pageCheck.metaFacts") return { path, value: pageCheck.metaFacts };
   if (path === "pageCheck.schemaFacts") return { path, value: pageCheck.schemaFacts };
   if (path === "pageCheck.faqs") return { path, value: pageCheck.faqs };
   if (path === "pageCheck.breadcrumbs") return { path, value: pageCheck.breadcrumbs };
@@ -6069,6 +6194,15 @@ function findCandidates(
       ...(fact.selector ? { selector: fact.selector } : {}),
     });
   }
+  for (const fact of pageCheck.metaFacts) {
+    add({
+      field: "metaFact",
+      text: fact.text,
+      rank: fact.rank,
+      ...(fact.url ? { url: fact.url } : {}),
+      ...(fact.selector ? { selector: fact.selector } : {}),
+    });
+  }
   for (const fact of pageCheck.schemaFacts) {
     add({
       field: "schemaFact",
@@ -6281,6 +6415,7 @@ function emptyPageCheck(): PageCheckSummary {
     dataTables: [],
     forms: [],
     keyValues: [],
+    metaFacts: [],
     schemaFacts: [],
     faqs: [],
     breadcrumbs: [],
@@ -7234,6 +7369,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.dataTables.length > 0 ? { dataTables: pageCheck.dataTables } : {}),
     ...(pageCheck.forms.length > 0 ? { forms: pageCheck.forms } : {}),
     ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),
+    ...(pageCheck.metaFacts.length > 0 ? { metaFacts: pageCheck.metaFacts } : {}),
     ...(pageCheck.schemaFacts.length > 0 ? { schemaFacts: pageCheck.schemaFacts } : {}),
     ...(pageCheck.faqs.length > 0 ? { faqs: pageCheck.faqs } : {}),
     ...(pageCheck.breadcrumbs.length > 0 ? { breadcrumbs: pageCheck.breadcrumbs } : {}),

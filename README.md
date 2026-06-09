@@ -524,6 +524,8 @@ specs, rankings, and other tabular facts without reading the full tree.
 GET query templates so agents can plan searches and filters without inferring
 submission details from controls alone. `pageCheck.keyValues` captures compact
 facts from definition lists, time elements, and short label/value text.
+`pageCheck.metaFacts` captures robots directives, canonical URLs, alternate
+links, refresh targets, and selected social/article metadata from head tags.
 `pageCheck.schemaFacts` captures compact facts from hidden JSON-LD schema.org
 data such as product offers, ratings, events, and FAQ answers.
 `pageCheck.faqs` captures visible FAQ question-answer pairs from details and

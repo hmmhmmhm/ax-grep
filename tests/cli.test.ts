@@ -3056,6 +3056,115 @@ describe("cli", () => {
     });
   });
 
+  it("summarizes head metadata facts as pageCheck read targets for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/article", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <link rel="canonical" href="/canonical-article">
+            <meta name="robots" content="noindex, noarchive">
+            <meta property="og:type" content="article">
+          </head>
+          <body><main></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.metaFacts).toEqual([
+      {
+        id: "mf1",
+        path: "pageCheck.metaFacts[0]",
+        rank: 1,
+        label: "Canonical URL",
+        value: "https://example.test/canonical-article",
+        text: "Canonical URL: https://example.test/canonical-article",
+        source: "link",
+        url: "https://example.test/canonical-article",
+        selector: "link[rel=\"canonical\"]:nth-of-type(1)",
+      },
+      {
+        id: "mf2",
+        path: "pageCheck.metaFacts[1]",
+        rank: 2,
+        label: "robots directives",
+        value: "noindex, noarchive",
+        text: "robots directives: noindex, noarchive",
+        source: "meta",
+        selector: "meta:nth-of-type(1)",
+      },
+      {
+        id: "mf3",
+        path: "pageCheck.metaFacts[2]",
+        rank: 3,
+        label: "Open Graph type",
+        value: "article",
+        text: "Open Graph type: article",
+        source: "meta",
+        selector: "meta:nth-of-type(2)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("3 meta facts");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.metaFacts",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.metaFacts",
+      count: 3,
+      primary: true,
+      reason: "Head metadata directives and canonical/alternate links extracted from page HTML.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.metaFacts",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          id: "mf1",
+          label: "Canonical URL",
+        }),
+        expect.objectContaining({
+          id: "mf2",
+          value: "noindex, noarchive",
+        }),
+      ]),
+    });
+  });
+
+  it("checks requested text against head metadata summaries", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/article", "--agent", "--find", "noindex"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head><meta name="robots" content="noindex, noarchive"></head>
+          <body><main><h1>Article</h1></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "metaFact",
+        rank: 1,
+        selector: "meta:nth-of-type(1)",
+        text: "robots directives: noindex, noarchive",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
   it("summarizes JSON-LD schema facts as pageCheck read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/product", "--agent"], {
