@@ -397,6 +397,20 @@ type PageOfferSummary = {
   selector?: string;
 };
 
+type PageIdentitySummary = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "organization" | "person" | "website" | "brand" | "thing";
+  name: string;
+  text: string;
+  source: "json-ld" | "meta";
+  url?: string;
+  logoUrl?: string;
+  sameAs?: string[];
+  selector?: string;
+};
+
 type PageTimelineSummary = {
   id: string;
   path: string;
@@ -716,6 +730,7 @@ const agentContract: AgentContract = {
     "pageCheck.metaFacts",
     "pageCheck.schemaFacts",
     "pageCheck.offers",
+    "pageCheck.identities",
     "pageCheck.timeline",
     "pageCheck.contactPoints",
     "pageCheck.faqs",
@@ -759,6 +774,7 @@ type PageCheckSummary = {
   metaFacts: PageMetaFactSummary[];
   schemaFacts: PageSchemaFactSummary[];
   offers: PageOfferSummary[];
+  identities: PageIdentitySummary[];
   timeline: PageTimelineSummary[];
   contactPoints: PageContactPointSummary[];
   faqs: PageFaqSummary[];
@@ -2112,6 +2128,11 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const selector = offer.selector ? ` (${offer.selector})` : "";
     lines.push(`  offer: ${offer.id} ${offer.path}${selector}${url} - ${offer.text}`);
   }
+  for (const identity of pageCheck.identities) {
+    const url = identity.url ? ` <${identity.url}>` : "";
+    const selector = identity.selector ? ` (${identity.selector})` : "";
+    lines.push(`  identity: ${identity.id} ${identity.path} ${identity.kind}${selector}${url} - ${identity.text}`);
+  }
   for (const item of pageCheck.timeline) {
     const selector = item.selector ? ` (${item.selector})` : "";
     lines.push(`  timeline: ${item.id} ${item.path} ${item.kind} ${item.source}${selector} - ${item.text}`);
@@ -3007,6 +3028,7 @@ function summarizePageCheck(
   const metaFacts = summarizeMetaFacts(fetched.html, fetched.finalUrl);
   const schemaFacts = summarizeSchemaFacts(fetched.html);
   const offers = summarizeOffers(fetched.html, fetched.finalUrl);
+  const identities = summarizeIdentities(fetched.html, fetched.finalUrl);
   const timeline = summarizeTimeline(fetched.html, fetched.page);
   const contactPoints = summarizeContactPoints(fetched.html, fetched.finalUrl);
   const faqs = summarizeFaqs(fetched.html);
@@ -3023,8 +3045,8 @@ function summarizePageCheck(
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, offers, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, offers, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, metaFacts, schemaFacts, offers, identities, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, metaFacts, schemaFacts, offers, identities, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -3035,6 +3057,7 @@ function summarizePageCheck(
     metaFacts,
     schemaFacts,
     offers,
+    identities,
     timeline,
     contactPoints,
     faqs,
@@ -3084,6 +3107,7 @@ function summarizeReadability(
   metaFacts: PageMetaFactSummary[],
   schemaFacts: PageSchemaFactSummary[],
   offers: PageOfferSummary[],
+  identities: PageIdentitySummary[],
   timeline: PageTimelineSummary[],
   contactPoints: PageContactPointSummary[],
   faqs: PageFaqSummary[],
@@ -3135,6 +3159,10 @@ function summarizeReadability(
   if (offers.length > 0) {
     score += Math.min(0.09, offers.length * 0.04);
     reasons.push(`${offers.length} offer${offers.length === 1 ? "" : "s"}`);
+  }
+  if (identities.length > 0) {
+    score += Math.min(0.08, identities.length * 0.03);
+    reasons.push(`${identities.length} identity${identities.length === 1 ? "" : " entries"}`);
   }
   if (timeline.length > 0) {
     score += Math.min(0.08, timeline.length * 0.03);
@@ -3255,6 +3283,7 @@ function recommendedPageCheckAction(
   metaFacts: PageMetaFactSummary[],
   schemaFacts: PageSchemaFactSummary[],
   offers: PageOfferSummary[],
+  identities: PageIdentitySummary[],
   timeline: PageTimelineSummary[],
   contactPoints: PageContactPointSummary[],
   faqs: PageFaqSummary[],
@@ -3305,7 +3334,9 @@ function recommendedPageCheckAction(
             ? "pageCheck.schemaFacts"
             : offers.length > 0
               ? "pageCheck.offers"
-              : timeline.length > 0
+              : identities.length > 0
+                ? "pageCheck.identities"
+                : timeline.length > 0
               ? "pageCheck.timeline"
               : faqs.length > 0
               ? "pageCheck.faqs"
@@ -3376,6 +3407,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.offers",
+    };
+  }
+  if (identities.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but identity and official profile facts are available for provenance checks.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.identities",
     };
   }
   if (timeline.length > 0) {
@@ -4390,6 +4430,126 @@ function offerText(offer: Omit<PageOfferSummary, "id" | "path" | "rank" | "text"
 function isUsefulOffer(offer: Omit<PageOfferSummary, "id" | "path" | "rank" | "text" | "source">, text: string): boolean {
   if (!text || text.length > 800) return false;
   return Boolean(offer.price || offer.availability || offer.rating || offer.reviewCount || offer.url);
+}
+
+function summarizeIdentities(html: string, baseUrl: string): PageIdentitySummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageIdentitySummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageIdentitySummary, "id" | "path" | "rank" | "text">): void => {
+    const name = cleanContentText(item.name).slice(0, 160);
+    const url = item.url ? normalizeHref(item.url, baseUrl) ?? item.url : "";
+    const logoUrl = item.logoUrl ? normalizeHref(item.logoUrl, baseUrl) ?? item.logoUrl : "";
+    const sameAs = normalizeSameAsUrls(item.sameAs ?? [], baseUrl);
+    const key = `${item.kind}\n${name}\n${url}\n${sameAs.join("\n")}`.toLowerCase();
+    if (!isUsefulIdentity(name, url, sameAs) || seen.has(key)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `id${rank}`,
+      path: `pageCheck.identities[${rank - 1}]`,
+      rank,
+      ...item,
+      name,
+      ...(url ? { url } : {}),
+      ...(logoUrl ? { logoUrl } : {}),
+      ...(sameAs.length > 0 ? { sameAs } : {}),
+      text: identityText(item.kind, name, url, logoUrl, sameAs, item.source),
+    });
+  };
+
+  const siteName = firstMetaContent(document.children, "og:site_name") || firstMetaContent(document.children, "application-name");
+  if (siteName) {
+    add({
+      kind: "website",
+      name: siteName,
+      source: "meta",
+      url: baseUrl,
+      selector: "meta[property=\"og:site_name\"], meta[name=\"application-name\"]",
+    });
+  }
+
+  for (const [scriptIndex, script] of findElements(document.children, (item) => item.name === "script" && /application\/ld\+json/i.test(attr(item, "type") ?? "")).entries()) {
+    for (const value of parseJsonLdValues(scriptText(script))) {
+      const identity = identityFromJsonLd(value, baseUrl);
+      if (!identity) continue;
+      add({
+        ...identity,
+        source: "json-ld",
+        selector: `script[type="application/ld+json"]:nth-of-type(${scriptIndex + 1})`,
+      });
+    }
+  }
+
+  return items.slice(0, 6);
+}
+
+function identityFromJsonLd(value: Record<string, unknown>, baseUrl: string): Omit<PageIdentitySummary, "id" | "path" | "rank" | "text" | "source" | "selector"> | undefined {
+  const types = jsonLdStringArray(value["@type"]);
+  const kind = identityKind(types);
+  if (!kind) return undefined;
+  const name = jsonLdString(value.name) || jsonLdString(value.headline) || jsonLdString(value.legalName);
+  const rawUrl = jsonLdString(value.url) || jsonLdString(value["@id"]);
+  const url = rawUrl ? normalizeHref(rawUrl, baseUrl) ?? rawUrl : "";
+  const logoUrl = schemaImageUrl(value.logo, baseUrl);
+  const sameAs = normalizeSameAsUrls(jsonLdStringArray(value.sameAs), baseUrl);
+  return {
+    kind,
+    name,
+    ...(url ? { url } : {}),
+    ...(logoUrl ? { logoUrl } : {}),
+    ...(sameAs.length > 0 ? { sameAs } : {}),
+  };
+}
+
+function identityKind(types: string[]): PageIdentitySummary["kind"] | undefined {
+  const normalized = types.map((type) => type.toLowerCase());
+  if (normalized.some((type) => /organization|corporation|localbusiness|governmentorganization|newsmediaorganization|educationalorganization/.test(type))) return "organization";
+  if (normalized.some((type) => type === "website" || type === "webpage")) return "website";
+  if (normalized.some((type) => type === "person")) return "person";
+  if (normalized.some((type) => type === "brand")) return "brand";
+  if (normalized.some((type) => type === "thing")) return "thing";
+  return undefined;
+}
+
+function schemaImageUrl(value: unknown, baseUrl: string): string {
+  const raw = typeof value === "string"
+    ? value
+    : schemaObjectArray(value).map((item) => jsonLdString(item.url) || jsonLdString(item.contentUrl) || jsonLdString(item["@id"])).find(Boolean) ?? "";
+  return raw ? normalizeHref(raw, baseUrl) ?? raw : "";
+}
+
+function normalizeSameAsUrls(values: string[], baseUrl: string): string[] {
+  const seen = new Set<string>();
+  const urls: string[] = [];
+  for (const value of values) {
+    const url = normalizeHref(value, baseUrl);
+    if (!url || seen.has(url)) continue;
+    seen.add(url);
+    urls.push(url);
+    if (urls.length >= 6) break;
+  }
+  return urls;
+}
+
+function isUsefulIdentity(name: string, url: string, sameAs: string[]): boolean {
+  if (!name || name.length > 160) return false;
+  if (/^(home|menu|navigation|login|search|share)$/i.test(name)) return false;
+  return Boolean(url || sameAs.length > 0);
+}
+
+function identityText(kind: PageIdentitySummary["kind"], name: string, url: string, logoUrl: string, sameAs: string[], source: PageIdentitySummary["source"]): string {
+  return cleanContentText([
+    `${kind}: ${name}`,
+    url ? `url=${url}` : "",
+    logoUrl ? `logo=${logoUrl}` : "",
+    sameAs.length > 0 ? `sameAs=${sameAs.join("|")}` : "",
+    `source=${source}`,
+  ].filter(Boolean).join(" "));
 }
 
 function summarizeTimeline(html: string, page: PageSummary): PageTimelineSummary[] {
@@ -7012,6 +7172,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.offers" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.identities.length > 0 && primaryReadFrom === "pageCheck.identities") {
+    add({
+      path: "pageCheck.identities",
+      reason: "Organization, website, person, brand, and sameAs identity facts extracted from JSON-LD and metadata.",
+      count: pageCheck.identities.length,
+      score: roundMetric(Math.min(1, 0.46 + pageCheck.identities.length * 0.06)),
+      primary: true,
+    });
+  }
   if (pageCheck.faqs.length > 0) {
     add({
       path: "pageCheck.faqs",
@@ -7126,6 +7295,14 @@ function summarizeAgentReadTargets(
       reason: "Email, phone, address, and contact URL facts extracted from HTML links, address tags, and JSON-LD.",
       count: pageCheck.contactPoints.length,
       score: roundMetric(Math.min(1, 0.45 + pageCheck.contactPoints.length * 0.06)),
+    });
+  }
+  if (pageCheck.identities.length > 0) {
+    add({
+      path: "pageCheck.identities",
+      reason: "Organization, website, person, brand, and sameAs identity facts extracted from JSON-LD and metadata.",
+      count: pageCheck.identities.length,
+      score: roundMetric(Math.min(1, 0.46 + pageCheck.identities.length * 0.06)),
     });
   }
   if (sourceSearch?.selectedResult) {
@@ -7324,6 +7501,7 @@ function agentReadValue(
   if (path === "pageCheck.metaFacts") return { path, value: pageCheck.metaFacts };
   if (path === "pageCheck.schemaFacts") return { path, value: pageCheck.schemaFacts };
   if (path === "pageCheck.offers") return { path, value: pageCheck.offers };
+  if (path === "pageCheck.identities") return { path, value: pageCheck.identities };
   if (path === "pageCheck.timeline") return { path, value: pageCheck.timeline };
   if (path === "pageCheck.faqs") return { path, value: pageCheck.faqs };
   if (path === "pageCheck.breadcrumbs") return { path, value: pageCheck.breadcrumbs };
@@ -7740,6 +7918,15 @@ function findCandidates(
       ...(offer.selector ? { selector: offer.selector } : {}),
     });
   }
+  for (const identity of pageCheck.identities) {
+    add({
+      field: "identity",
+      text: identity.text,
+      rank: identity.rank,
+      ...(identity.url ? { url: identity.url } : {}),
+      ...(identity.selector ? { selector: identity.selector } : {}),
+    });
+  }
   for (const item of pageCheck.timeline) {
     add({
       field: "timeline",
@@ -7992,6 +8179,7 @@ function emptyPageCheck(): PageCheckSummary {
     metaFacts: [],
     schemaFacts: [],
     offers: [],
+    identities: [],
     timeline: [],
     faqs: [],
     breadcrumbs: [],
@@ -8954,6 +9142,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.metaFacts.length > 0 ? { metaFacts: pageCheck.metaFacts } : {}),
     ...(pageCheck.schemaFacts.length > 0 ? { schemaFacts: pageCheck.schemaFacts } : {}),
     ...(pageCheck.offers.length > 0 ? { offers: pageCheck.offers } : {}),
+    ...(pageCheck.identities.length > 0 ? { identities: pageCheck.identities } : {}),
     ...(pageCheck.timeline.length > 0 ? { timeline: pageCheck.timeline } : {}),
     ...(pageCheck.faqs.length > 0 ? { faqs: pageCheck.faqs } : {}),
     ...(pageCheck.breadcrumbs.length > 0 ? { breadcrumbs: pageCheck.breadcrumbs } : {}),

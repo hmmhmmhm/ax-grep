@@ -308,6 +308,7 @@ describe("cli", () => {
             "actions",
             "contentEvidence.quality",
             "pageCheck.offers",
+            "pageCheck.identities",
             "pageCheck.timeline",
             "pageCheck.contactPoints",
             "pageCheck.authorLinks",
@@ -3496,6 +3497,103 @@ describe("cli", () => {
       rank: 1,
       text: "Name: Agent Browser Pro; Price: USD 19.99; Availability: InStock; Brand: Example Labs; SKU: ABP-2026; Rating: 4.8 / 5; Review count: 128; URL: https://example.test/buy; source=json-ld",
       url: "https://example.test/buy",
+      selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("summarizes JSON-LD identities and sameAs links as pageCheck read targets for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/about", "--agent", "--find", "github.com/example"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <meta property="og:site_name" content="Example Labs">
+            <script type="application/ld+json">
+              [
+                {
+                  "@context": "https://schema.org",
+                  "@type": "Organization",
+                  "name": "Example Labs",
+                  "url": "https://example.test",
+                  "logo": "/logo.png",
+                  "sameAs": [
+                    "https://github.com/example",
+                    "https://www.linkedin.com/company/example-labs"
+                  ]
+                },
+                {
+                  "@context": "https://schema.org",
+                  "@type": "WebSite",
+                  "name": "Example Docs",
+                  "url": "/docs"
+                }
+              ]
+            </script>
+          </head>
+          <body><main><h1>About</h1></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.identities).toEqual([
+      {
+        id: "id1",
+        path: "pageCheck.identities[0]",
+        rank: 1,
+        kind: "website",
+        name: "Example Labs",
+        text: "website: Example Labs url=https://example.test/about source=meta",
+        source: "meta",
+        url: "https://example.test/about",
+        selector: "meta[property=\"og:site_name\"], meta[name=\"application-name\"]",
+      },
+      {
+        id: "id2",
+        path: "pageCheck.identities[1]",
+        rank: 2,
+        kind: "organization",
+        name: "Example Labs",
+        text: "organization: Example Labs url=https://example.test/ logo=https://example.test/logo.png sameAs=https://github.com/example|https://www.linkedin.com/company/example-labs source=json-ld",
+        source: "json-ld",
+        url: "https://example.test/",
+        logoUrl: "https://example.test/logo.png",
+        sameAs: [
+          "https://github.com/example",
+          "https://www.linkedin.com/company/example-labs",
+        ],
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      },
+      {
+        id: "id3",
+        path: "pageCheck.identities[2]",
+        rank: 3,
+        kind: "website",
+        name: "Example Docs",
+        text: "website: Example Docs url=https://example.test/docs source=json-ld",
+        source: "json-ld",
+        url: "https://example.test/docs",
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("3 identity entries");
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.identities",
+      count: 3,
+      reason: "Organization, website, person, brand, and sameAs identity facts extracted from JSON-LD and metadata.",
+    }));
+    expect(envelope.verification.bestEvidence).toMatchObject({
+      field: "identity",
+      rank: 2,
+      text: "organization: Example Labs url=https://example.test/ logo=https://example.test/logo.png sameAs=https://github.com/example|https://www.linkedin.com/company/example-labs source=json-ld",
+      url: "https://example.test/",
       selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
     });
     expect(envelope.agent.primaryAction).toMatchObject({

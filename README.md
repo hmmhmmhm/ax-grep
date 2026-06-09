@@ -532,6 +532,7 @@ links, refresh targets, and selected social/article metadata from head tags.
 `pageCheck.schemaFacts` captures compact facts from hidden JSON-LD schema.org
 data such as product offers, ratings, events, and FAQ answers.
 `pageCheck.offers` captures structured price, availability, rating, and offer URL facts.
+`pageCheck.identities` captures organization, site, person, brand, and sameAs facts.
 `pageCheck.timeline` captures publication, modification, event, and visible time facts.
 `pageCheck.contactPoints` captures email, phone, address, and contact URL facts.
 `pageCheck.faqs` captures visible FAQ question-answer pairs from details and
