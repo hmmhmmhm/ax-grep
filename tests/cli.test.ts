@@ -3056,6 +3056,119 @@ describe("cli", () => {
     });
   });
 
+  it("summarizes page media with resolved image urls and captions for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/gallery", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <title>Gallery</title>
+            <meta property="og:image" content="/share.png">
+            <meta property="og:image:alt" content="Share preview chart">
+          </head>
+          <body>
+            <main>
+              <h1>Gallery</h1>
+              <figure>
+                <img src="/chart.png" alt="Revenue chart" width="640" height="480">
+                <figcaption>Revenue grew 42 percent in 2026.</figcaption>
+              </figure>
+              <img src="/logo.svg" alt="Logo">
+            </main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.media).toEqual([
+      {
+        id: "m1",
+        path: "pageCheck.media[0]",
+        rank: 1,
+        kind: "open-graph",
+        url: "https://example.test/share.png",
+        alt: "Share preview chart",
+        text: "Share preview chart - https://example.test/share.png",
+        selector: "meta[property=\"og:image\"]",
+      },
+      {
+        id: "m2",
+        path: "pageCheck.media[1]",
+        rank: 2,
+        kind: "figure",
+        url: "https://example.test/chart.png",
+        alt: "Revenue chart",
+        caption: "Revenue grew 42 percent in 2026.",
+        width: 640,
+        height: 480,
+        text: "Revenue grew 42 percent in 2026. - Revenue chart - https://example.test/chart.png",
+        selector: "figure:nth-of-type(1)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("2 media items");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.media",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.media",
+      count: 2,
+      primary: true,
+      reason: "Image URLs, alt text, captions, and social preview media extracted from page HTML.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.media",
+      value: [
+        expect.objectContaining({
+          id: "m1",
+          url: "https://example.test/share.png",
+        }),
+        expect.objectContaining({
+          id: "m2",
+          caption: "Revenue grew 42 percent in 2026.",
+        }),
+      ],
+    });
+  });
+
+  it("checks requested text against page media summaries", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/gallery", "--agent", "--find", "Revenue grew 42 percent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <figure>
+            <img src="/chart.png" alt="Revenue chart">
+            <figcaption>Revenue grew 42 percent in 2026.</figcaption>
+          </figure>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "media",
+        rank: 1,
+        url: "https://example.test/chart.png",
+        selector: "figure:nth-of-type(1)",
+        text: "Revenue grew 42 percent in 2026. - Revenue chart - https://example.test/chart.png",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
   it("falls back to headings and primary links for forum pages without paragraph roles", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://forum.example/post/456", "--json"], {

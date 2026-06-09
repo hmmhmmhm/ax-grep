@@ -333,6 +333,21 @@ type PageKeyValueSummary = {
   selector?: string;
 };
 
+type PageMediaSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "open-graph" | "figure" | "image";
+  url: string;
+  text: string;
+  alt?: string;
+  caption?: string;
+  title?: string;
+  width?: number;
+  height?: number;
+  selector?: string;
+};
+
 type PageReadabilitySummary = {
   level: "low" | "medium" | "high";
   score: number;
@@ -474,6 +489,7 @@ const agentContract: AgentContract = {
     "pageCheck.dataTables",
     "pageCheck.forms",
     "pageCheck.keyValues",
+    "pageCheck.media",
     "readTargets",
     "signals",
     "qualityGates",
@@ -500,6 +516,7 @@ type PageCheckSummary = {
   dataTables: PageDataTableSummary[];
   forms: PageFormSummary[];
   keyValues: PageKeyValueSummary[];
+  media: PageMediaSummary[];
   contentLength: number;
   primaryLinks: PageLinkSummary[];
   sourceLinks: PageLinkSummary[];
@@ -1819,6 +1836,11 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const datetime = fact.datetime ? ` datetime=${fact.datetime}` : "";
     lines.push(`  keyValue: ${fact.id} ${fact.path} ${fact.source}${datetime} - ${fact.text}`);
   }
+  for (const media of pageCheck.media) {
+    const dimensions = media.width && media.height ? ` ${media.width}x${media.height}` : "";
+    const selector = media.selector ? ` (${media.selector})` : "";
+    lines.push(`  media: ${media.id} ${media.path} ${media.kind}${dimensions}${selector} <${media.url}> - ${media.text}`);
+  }
   for (const link of pageCheck.primaryLinks) lines.push(`  link: ${link.kind} ${link.title} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`);
   for (const link of pageCheck.sourceLinks) lines.push(`  sourceLink: ${link.title} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`);
   for (const action of pageCheck.actions) lines.push(`  action: ${action.type} ${action.text}`);
@@ -2535,17 +2557,19 @@ function summarizePageCheck(
   const dataTables = summarizeDataTables(fetched.html);
   const forms = summarizeForms(fetched.html, fetched.finalUrl);
   const keyValues = summarizeKeyValues(fetched.html);
+  const media = summarizeMedia(fetched.html, fetched.finalUrl);
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, keyValues, media, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, keyValues, media, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
     dataTables,
     forms,
     keyValues,
+    media,
     contentLength,
     primaryLinks,
     sourceLinks,
@@ -2579,6 +2603,7 @@ function summarizeReadability(
   dataTables: PageDataTableSummary[],
   forms: PageFormSummary[],
   keyValues: PageKeyValueSummary[],
+  media: PageMediaSummary[],
   contentLength: number,
   sourceLinks: PageLinkSummary[],
   actions: ActionSummary[],
@@ -2602,6 +2627,10 @@ function summarizeReadability(
   if (keyValues.length > 0) {
     score += Math.min(0.08, keyValues.length * 0.02);
     reasons.push(`${keyValues.length} key-value fact${keyValues.length === 1 ? "" : "s"}`);
+  }
+  if (media.length > 0) {
+    score += Math.min(0.06, media.length * 0.02);
+    reasons.push(`${media.length} media item${media.length === 1 ? "" : "s"}`);
   }
   if (contentLength >= 400) {
     score += 0.18;
@@ -2667,6 +2696,7 @@ function recommendedPageCheckAction(
   dataTables: PageDataTableSummary[],
   forms: PageFormSummary[],
   keyValues: PageKeyValueSummary[],
+  media: PageMediaSummary[],
   contentEvidence: PageEvidenceSummary[],
   agentMode = false,
   capturedHtml = false,
@@ -2698,9 +2728,11 @@ function recommendedPageCheckAction(
       ? "pageCheck.contentEvidence"
       : dataTables.length > 0
         ? "pageCheck.dataTables"
-        : forms.length > 0
-          ? "pageCheck.forms"
-          : keyValues.length > 0 ? "pageCheck.keyValues" : "pageCheck.contentEvidence";
+        : keyValues.length > 0
+          ? "pageCheck.keyValues"
+          : media.length > 0
+            ? "pageCheck.media"
+            : forms.length > 0 ? "pageCheck.forms" : "pageCheck.contentEvidence";
     return {
       action: "read-content",
       reason: "The page has enough structured evidence for source checking.",
@@ -2725,6 +2757,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.keyValues",
+    };
+  }
+  if (media.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but image URLs, alt text, and captions are available for agent verification.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.media",
     };
   }
   if (sourceLinks[0]) {
@@ -3205,6 +3246,137 @@ function isLowValueKeyValue(label: string, value: string): boolean {
   if (label.length > 48 || value.length > 180) return true;
   if (/^(home|menu|navigation|login|search|share|privacy|terms|cookie|광고|로그인|메뉴|검색)$/i.test(label)) return true;
   return label.toLowerCase() === value.toLowerCase();
+}
+
+function summarizeMedia(html: string, baseUrl: string): PageMediaSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageMediaSummary[] = [];
+  const seenUrls = new Set<string>();
+  const figureImages = new Set<Element>();
+  const add = (item: Omit<PageMediaSummary, "id" | "path" | "rank">): void => {
+    if (!item.url || seenUrls.has(item.url) || isLowValueMedia(item)) return;
+    seenUrls.add(item.url);
+    const rank = items.length + 1;
+    items.push({
+      id: `m${rank}`,
+      path: `pageCheck.media[${rank - 1}]`,
+      rank,
+      ...item,
+    });
+  };
+
+  for (const meta of mediaMetaTags(document.children)) {
+    const url = normalizeHref(meta.content, baseUrl);
+    if (!url) continue;
+    add({
+      kind: "open-graph",
+      url,
+      text: mediaText(meta.alt, "", "", url),
+      ...(meta.alt ? { alt: meta.alt } : {}),
+      selector: `meta[property="${cssAttributeValue(meta.name)}"]`,
+    });
+  }
+
+  for (const [index, figure] of findElements(document.children, (item) => item.name === "figure").entries()) {
+    const image = findElement(figure.children, (item) => item.name === "img");
+    if (!image) continue;
+    figureImages.add(image);
+    const imageSummary = imageMediaParts(image, baseUrl);
+    if (!imageSummary.url) continue;
+    const captionElement = findElement(figure.children, (item) => item.name === "figcaption");
+    const caption = captionElement ? cleanContentText(descendantText(captionElement)) : "";
+    add({
+      kind: "figure",
+      url: imageSummary.url,
+      text: mediaText(imageSummary.alt, caption, imageSummary.title, imageSummary.url),
+      ...(imageSummary.alt ? { alt: imageSummary.alt } : {}),
+      ...(caption ? { caption } : {}),
+      ...(imageSummary.title ? { title: imageSummary.title } : {}),
+      ...(typeof imageSummary.width === "number" ? { width: imageSummary.width } : {}),
+      ...(typeof imageSummary.height === "number" ? { height: imageSummary.height } : {}),
+      selector: `figure:nth-of-type(${index + 1})`,
+    });
+  }
+
+  for (const [index, image] of findElements(document.children, (item) => item.name === "img").entries()) {
+    if (figureImages.has(image)) continue;
+    const imageSummary = imageMediaParts(image, baseUrl);
+    if (!imageSummary.url) continue;
+    add({
+      kind: "image",
+      url: imageSummary.url,
+      text: mediaText(imageSummary.alt, "", imageSummary.title, imageSummary.url),
+      ...(imageSummary.alt ? { alt: imageSummary.alt } : {}),
+      ...(imageSummary.title ? { title: imageSummary.title } : {}),
+      ...(typeof imageSummary.width === "number" ? { width: imageSummary.width } : {}),
+      ...(typeof imageSummary.height === "number" ? { height: imageSummary.height } : {}),
+      selector: `img:nth-of-type(${index + 1})`,
+    });
+  }
+
+  return items.slice(0, 8);
+}
+
+function mediaMetaTags(nodes: AnyNode[]): Array<{ name: string; content: string; alt: string }> {
+  const altByName = new Map<string, string>();
+  for (const meta of findElements(nodes, (item) => item.name === "meta")) {
+    const name = attr(meta, "property") || attr(meta, "name") || "";
+    const content = cleanLinkText(attr(meta, "content") ?? "");
+    if (!name || !content) continue;
+    if (name === "og:image:alt") altByName.set("og:image", content);
+    if (name === "twitter:image:alt") altByName.set("twitter:image", content);
+  }
+  return findElements(nodes, (item) => item.name === "meta")
+    .map((meta) => {
+      const name = attr(meta, "property") || attr(meta, "name") || "";
+      const content = cleanLinkText(attr(meta, "content") ?? "");
+      const alt = name.startsWith("og:image")
+        ? altByName.get("og:image") ?? ""
+        : name.startsWith("twitter:image") ? altByName.get("twitter:image") ?? "" : "";
+      return { name, content, alt };
+    })
+    .filter((meta) => ["og:image", "og:image:url", "twitter:image", "twitter:image:src"].includes(meta.name) && Boolean(meta.content));
+}
+
+function imageMediaParts(image: Element, baseUrl: string): { url: string; alt: string; title: string; width?: number; height?: number } {
+  const src = cleanLinkText(attr(image, "src") || firstSrcsetUrl(attr(image, "srcset") || ""));
+  const url = src ? normalizeHref(src, baseUrl) ?? "" : "";
+  const alt = cleanContentText(attr(image, "alt") ?? "");
+  const title = cleanContentText(attr(image, "title") ?? "");
+  const width = positiveIntegerAttribute(image, "width");
+  const height = positiveIntegerAttribute(image, "height");
+  return {
+    url,
+    alt,
+    title,
+    ...(typeof width === "number" ? { width } : {}),
+    ...(typeof height === "number" ? { height } : {}),
+  };
+}
+
+function firstSrcsetUrl(srcset: string): string {
+  return srcset.split(",").map((part) => part.trim().split(/\s+/)[0] ?? "").find(Boolean) ?? "";
+}
+
+function positiveIntegerAttribute(element: Element, name: string): number | undefined {
+  const parsed = Number(attr(element, name));
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+}
+
+function mediaText(alt: string, caption: string, title: string, url: string): string {
+  return cleanContentText([caption, alt, title, url].filter(Boolean).join(" - "));
+}
+
+function isLowValueMedia(item: Omit<PageMediaSummary, "id" | "path" | "rank">): boolean {
+  if (/^data:/i.test(item.url)) return true;
+  if ((item.width !== undefined && item.width <= 2) || (item.height !== undefined && item.height <= 2)) return true;
+  const label = `${item.alt ?? ""} ${item.caption ?? ""} ${item.title ?? ""}`.trim();
+  if (item.kind === "image" && /^(logo|icon|avatar|profile|spacer|tracking|pixel)$/i.test(label)) return true;
+  return item.kind === "image" && !label && !item.width && !item.height;
 }
 
 function evidenceScore(text: string, role: string, semantic: boolean, hasSelector: boolean): number {
@@ -4228,6 +4400,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.keyValues" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.media.length > 0) {
+    add({
+      path: "pageCheck.media",
+      reason: "Image URLs, alt text, captions, and social preview media extracted from page HTML.",
+      count: pageCheck.media.length,
+      score: roundMetric(Math.min(1, 0.38 + pageCheck.media.length * 0.06)),
+      ...(primaryReadFrom === "pageCheck.media" ? { primary: true } : {}),
+    });
+  }
   if (sourceSearch?.selectedResult) {
     add({
       path: "sourceSearch.selectedResult",
@@ -4419,6 +4600,7 @@ function agentReadValue(
   if (path === "pageCheck.dataTables") return { path, value: pageCheck.dataTables };
   if (path === "pageCheck.forms") return { path, value: pageCheck.forms };
   if (path === "pageCheck.keyValues") return { path, value: pageCheck.keyValues };
+  if (path === "pageCheck.media") return { path, value: pageCheck.media };
   if (path === "searchResults") return { path, value: results };
   if (path === "sourceSearch.selectedResult" && sourceSearch?.selectedResult) return { path, value: sourceSearch.selectedResult };
   if (path === "sourceSearch.alternateResults" && sourceSearch?.alternateResults) return { path, value: sourceSearch.alternateResults };
@@ -4780,6 +4962,15 @@ function findCandidates(
       ...(fact.selector ? { selector: fact.selector } : {}),
     });
   }
+  for (const media of pageCheck.media) {
+    add({
+      field: "media",
+      text: media.text,
+      rank: media.rank,
+      url: media.url,
+      ...(media.selector ? { selector: media.selector } : {}),
+    });
+  }
   for (const link of pageCheck.sourceLinks) add({ field: "sourceLink", text: link.title, rank: link.rank, url: link.url });
   for (const link of pageCheck.primaryLinks) add({ field: "primaryLink", text: link.title, rank: link.rank, url: link.url });
   for (const result of results) add({ field: "result", text: [result.title, result.snippet].filter(Boolean).join(" "), rank: result.rank, url: result.url });
@@ -4925,6 +5116,7 @@ function emptyPageCheck(): PageCheckSummary {
     dataTables: [],
     forms: [],
     keyValues: [],
+    media: [],
     contentLength: 0,
     primaryLinks: [],
     sourceLinks: [],
@@ -5870,6 +6062,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.dataTables.length > 0 ? { dataTables: pageCheck.dataTables } : {}),
     ...(pageCheck.forms.length > 0 ? { forms: pageCheck.forms } : {}),
     ...(pageCheck.keyValues.length > 0 ? { keyValues: pageCheck.keyValues } : {}),
+    ...(pageCheck.media.length > 0 ? { media: pageCheck.media } : {}),
     contentLength: pageCheck.contentLength,
     ...(primaryLinks.length > 0 && !omitResultLinkDuplicates ? { primaryLinks: primaryLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `l${index + 1}`, path: `pageCheck.primaryLinks[${index}]` })) } : {}),
     ...(pageCheck.sourceLinks.length > 0 && !omitResultLinkDuplicates ? { sourceLinks: pageCheck.sourceLinks.map((link, index) => compactAgentPageLink(link, pageLinkContext, { id: `s${index + 1}`, path: `pageCheck.sourceLinks[${index}]` })) } : {}),
