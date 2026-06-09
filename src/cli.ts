@@ -356,6 +356,21 @@ type PageActionTargetSummary = {
   selector?: string;
 };
 
+type PageHydrationSummary = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "next-data" | "nuxt-data" | "gatsby-data" | "fetch-preload" | "json-script";
+  label: string;
+  text: string;
+  source: "script" | "link";
+  framework?: string;
+  route?: string;
+  buildId?: string;
+  url?: string;
+  selector?: string;
+};
+
 type PageAppHintSummary = {
   id: string;
   path: string;
@@ -813,6 +828,7 @@ const agentContract: AgentContract = {
     "pageCheck.barriers",
     "pageCheck.forms",
     "pageCheck.actionTargets",
+    "pageCheck.hydration",
     "pageCheck.appHints",
     "pageCheck.topics",
     "pageCheck.keyValues",
@@ -863,6 +879,7 @@ type PageCheckSummary = {
   barriers: PageBarrierSummary[];
   forms: PageFormSummary[];
   actionTargets: PageActionTargetSummary[];
+  hydration: PageHydrationSummary[];
   appHints: PageAppHintSummary[];
   topics: PageTopicSummary[];
   keyValues: PageKeyValueSummary[];
@@ -2241,6 +2258,11 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const selector = target.selector ? ` (${target.selector})` : "";
     lines.push(`  actionTarget: ${target.id} ${target.path} ${target.kind}${template}${selector}${url} - ${target.text}`);
   }
+  for (const item of pageCheck.hydration) {
+    const url = item.url ? ` <${item.url}>` : "";
+    const selector = item.selector ? ` (${item.selector})` : "";
+    lines.push(`  hydration: ${item.id} ${item.path} ${item.kind}${selector}${url} - ${item.text}`);
+  }
   for (const hint of pageCheck.appHints) {
     const url = hint.url ? ` <${hint.url}>` : "";
     const selector = hint.selector ? ` (${hint.selector})` : "";
@@ -3179,6 +3201,7 @@ function summarizePageCheck(
   const barriers = summarizeBarriers(analysis.diagnostics, content, actions);
   const forms = summarizeForms(fetched.html, fetched.finalUrl);
   const actionTargets = summarizeActionTargets(fetched.html, fetched.finalUrl);
+  const hydration = summarizeHydration(fetched.html, fetched.finalUrl);
   const appHints = summarizeAppHints(fetched.html, fetched.finalUrl);
   const topics = summarizeTopics(fetched.html);
   const keyValues = summarizeKeyValues(fetched.html);
@@ -3205,8 +3228,8 @@ function summarizePageCheck(
   const sourceLinks = summarizeSourcePageLinks(primaryLinks);
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
-  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, actionTargets, appHints, topics, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, actionTargets, appHints, topics, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, actionTargets, hydration, appHints, topics, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, actionTargets, hydration, appHints, topics, keyValues, metaFacts, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -3214,6 +3237,7 @@ function summarizePageCheck(
     barriers,
     forms,
     actionTargets,
+    hydration,
     appHints,
     topics,
     keyValues,
@@ -3270,6 +3294,7 @@ function summarizeReadability(
   dataTables: PageDataTableSummary[],
   forms: PageFormSummary[],
   actionTargets: PageActionTargetSummary[],
+  hydration: PageHydrationSummary[],
   appHints: PageAppHintSummary[],
   topics: PageTopicSummary[],
   keyValues: PageKeyValueSummary[],
@@ -3319,6 +3344,10 @@ function summarizeReadability(
   if (actionTargets.length > 0) {
     score += Math.min(0.08, actionTargets.length * 0.03);
     reasons.push(`${actionTargets.length} action target${actionTargets.length === 1 ? "" : "s"}`);
+  }
+  if (hydration.length > 0) {
+    score += Math.min(0.08, hydration.length * 0.03);
+    reasons.push(`${hydration.length} hydration hint${hydration.length === 1 ? "" : "s"}`);
   }
   if (appHints.length > 0) {
     score += Math.min(0.06, appHints.length * 0.02);
@@ -3476,6 +3505,7 @@ function recommendedPageCheckAction(
   dataTables: PageDataTableSummary[],
   forms: PageFormSummary[],
   actionTargets: PageActionTargetSummary[],
+  hydration: PageHydrationSummary[],
   appHints: PageAppHintSummary[],
   topics: PageTopicSummary[],
   keyValues: PageKeyValueSummary[],
@@ -3532,6 +3562,8 @@ function recommendedPageCheckAction(
         ? "pageCheck.dataTables"
         : actionTargets.length > 0
           ? "pageCheck.actionTargets"
+          : hydration.length > 0
+            ? "pageCheck.hydration"
           : appHints.length > 0
             ? "pageCheck.appHints"
             : topics.length > 0
@@ -3603,6 +3635,15 @@ function recommendedPageCheckAction(
       url: pageUrl,
       terminal: true,
       readFrom: "pageCheck.actionTargets",
+    };
+  }
+  if (hydration.length > 0) {
+    return {
+      action: "read-content",
+      reason: "The page has limited readable content, but hydration and data endpoint hints are available for agent planning.",
+      url: pageUrl,
+      terminal: true,
+      readFrom: "pageCheck.hydration",
     };
   }
   if (appHints.length > 0) {
@@ -4376,6 +4417,156 @@ function actionTargetText(kind: PageActionTargetSummary["kind"], name: string, t
     encodingType ? `type=${encodingType}` : "",
     `source=${source}`,
   ].filter(Boolean).join(" "));
+}
+
+function summarizeHydration(html: string, baseUrl: string): PageHydrationSummary[] {
+  const document = parseDocument(html, {
+    lowerCaseAttributeNames: true,
+    lowerCaseTags: true,
+    recognizeSelfClosing: true,
+  });
+  const items: PageHydrationSummary[] = [];
+  const seen = new Set<string>();
+  const add = (item: Omit<PageHydrationSummary, "id" | "path" | "rank" | "text">): void => {
+    const label = cleanContentText(item.label).slice(0, 100);
+    const route = cleanContentText(item.route ?? "").slice(0, 160);
+    const buildId = cleanLinkText(item.buildId ?? "").slice(0, 120);
+    const framework = cleanLinkText(item.framework ?? "").slice(0, 40);
+    const url = item.url ? normalizeHydrationUrl(item.url, baseUrl) : "";
+    const key = `${item.kind}\n${label}\n${route}\n${buildId}\n${url}`.toLowerCase();
+    if (!label || seen.has(key) || !isUsefulHydrationHint(item.kind, label, route, buildId, url)) return;
+    seen.add(key);
+    const rank = items.length + 1;
+    items.push({
+      id: `hd${rank}`,
+      path: `pageCheck.hydration[${rank - 1}]`,
+      rank,
+      kind: item.kind,
+      label,
+      source: item.source,
+      ...(framework ? { framework } : {}),
+      ...(route ? { route } : {}),
+      ...(buildId ? { buildId } : {}),
+      ...(url ? { url } : {}),
+      ...(item.selector ? { selector: item.selector } : {}),
+      text: hydrationText(item.kind, label, framework, route, buildId, url, item.source),
+    });
+  };
+
+  for (const [scriptIndex, script] of findElements(document.children, (item) => item.name === "script").entries()) {
+    const id = cleanLinkText(attr(script, "id") ?? "");
+    const type = cleanLinkText(attr(script, "type") ?? "").toLowerCase();
+    if (id === "__NEXT_DATA__") {
+      const data = parseJsonObject(scriptText(script));
+      const route = jsonLdString(data?.page);
+      const buildId = jsonLdString(data?.buildId);
+      add({
+        kind: "next-data",
+        label: "Next.js data",
+        source: "script",
+        framework: "next",
+        ...(route ? { route } : {}),
+        ...(buildId ? { buildId } : {}),
+        ...(nextDataUrl(route, buildId) ? { url: nextDataUrl(route, buildId) } : {}),
+        selector: `script#__NEXT_DATA__:nth-of-type(${scriptIndex + 1})`,
+      });
+      continue;
+    }
+    if (id === "__NUXT_DATA__" || id === "__NUXT__") {
+      add({
+        kind: "nuxt-data",
+        label: "Nuxt data",
+        source: "script",
+        framework: "nuxt",
+        selector: `script#${cssIdentifier(id)}:nth-of-type(${scriptIndex + 1})`,
+      });
+      continue;
+    }
+    if (/application\/json/i.test(type) && /(?:gatsby|remix|sveltekit|apollo|payload|data|state)/i.test(id)) {
+      add({
+        kind: "json-script",
+        label: id || "Application JSON data",
+        source: "script",
+        selector: id ? `script#${cssIdentifier(id)}:nth-of-type(${scriptIndex + 1})` : `script[type="${cssAttributeValue(type)}"]:nth-of-type(${scriptIndex + 1})`,
+      });
+    }
+  }
+
+  for (const [index, link] of findElements(document.children, (item) => item.name === "link").entries()) {
+    const rel = cleanLinkText(attr(link, "rel") ?? "");
+    const href = cleanLinkText(attr(link, "href") ?? "");
+    if (!rel || !href) continue;
+    const relParts = rel.toLowerCase().split(/\s+/);
+    const asValue = cleanLinkText(attr(link, "as") ?? "").toLowerCase();
+    const type = cleanLinkText(attr(link, "type") ?? "").toLowerCase();
+    const kind = hydrationLinkKind(href, asValue, type);
+    if (!kind || !relParts.some((part) => /^(preload|prefetch|modulepreload)$/.test(part))) continue;
+    add({
+      kind,
+      label: hydrationLinkLabel(kind),
+      source: "link",
+      url: href,
+      selector: `link[rel="${cssAttributeValue(rel)}"]:nth-of-type(${index + 1})`,
+    });
+  }
+
+  return items.slice(0, 8);
+}
+
+function parseJsonObject(text: string): Record<string, unknown> | undefined {
+  try {
+    const value = JSON.parse(text);
+    return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function nextDataUrl(route: string, buildId: string): string {
+  if (!route || !buildId) return "";
+  const path = route === "/" ? "/index" : route.startsWith("/") ? route : `/${route}`;
+  return `/_next/data/${buildId}${path}.json`;
+}
+
+function normalizeHydrationUrl(value: string, baseUrl: string): string {
+  return normalizeHref(value, baseUrl) ?? value;
+}
+
+function hydrationLinkKind(href: string, asValue: string, type: string): PageHydrationSummary["kind"] | undefined {
+  if (/\/_next\/data\/[^/]+\/.+\.json(?:[?#]|$)/i.test(href)) return "next-data";
+  if (/\/page-data\/.+\/page-data\.json(?:[?#]|$)/i.test(href)) return "gatsby-data";
+  if (asValue === "fetch" || /json/.test(type) || /\.(?:json|ndjson)(?:[?#]|$)/i.test(href)) return "fetch-preload";
+  return undefined;
+}
+
+function hydrationLinkLabel(kind: PageHydrationSummary["kind"]): string {
+  if (kind === "next-data") return "Next.js data URL";
+  if (kind === "gatsby-data") return "Gatsby page data";
+  if (kind === "fetch-preload") return "Fetch preload";
+  if (kind === "nuxt-data") return "Nuxt data";
+  return "Hydration data";
+}
+
+function isUsefulHydrationHint(kind: PageHydrationSummary["kind"], label: string, route: string, buildId: string, url: string): boolean {
+  if (label.length > 120) return false;
+  if (kind === "json-script") return /(?:data|state|payload|gatsby|remix|sveltekit|apollo)/i.test(label);
+  return Boolean(route || buildId || url || kind === "nuxt-data");
+}
+
+function hydrationText(kind: PageHydrationSummary["kind"], label: string, framework: string, route: string, buildId: string, url: string, source: PageHydrationSummary["source"]): string {
+  return cleanContentText([
+    `${label}:`,
+    `kind=${kind}`,
+    framework ? `framework=${framework}` : "",
+    route ? `route=${route}` : "",
+    buildId ? `buildId=${buildId}` : "",
+    url ? `url=${url}` : "",
+    `source=${source}`,
+  ].filter(Boolean).join(" "));
+}
+
+function cssIdentifier(value: string): string {
+  return value.replace(/[^a-zA-Z0-9_-]/g, "\\$&");
 }
 
 function summarizeAppHints(html: string, baseUrl: string): PageAppHintSummary[] {
@@ -8151,6 +8342,15 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "pageCheck.actionTargets" ? { primary: true } : {}),
     });
   }
+  if (pageCheck.hydration.length > 0) {
+    add({
+      path: "pageCheck.hydration",
+      reason: "Hydration scripts and preloaded JSON data endpoints extracted from app-shell HTML.",
+      count: pageCheck.hydration.length,
+      score: roundMetric(Math.min(1, 0.46 + pageCheck.hydration.length * 0.07)),
+      ...(primaryReadFrom === "pageCheck.hydration" ? { primary: true } : {}),
+    });
+  }
   if (pageCheck.appHints.length > 0) {
     add({
       path: "pageCheck.appHints",
@@ -8574,6 +8774,7 @@ function agentReadValue(
   if (path === "pageCheck.barriers") return { path, value: pageCheck.barriers };
   if (path === "pageCheck.forms") return { path, value: pageCheck.forms };
   if (path === "pageCheck.actionTargets") return { path, value: pageCheck.actionTargets };
+  if (path === "pageCheck.hydration") return { path, value: pageCheck.hydration };
   if (path === "pageCheck.appHints") return { path, value: pageCheck.appHints };
   if (path === "pageCheck.topics") return { path, value: pageCheck.topics };
   if (path === "pageCheck.contactPoints") return { path, value: pageCheck.contactPoints };
@@ -8967,6 +9168,15 @@ function findCandidates(
       ...(target.selector ? { selector: target.selector } : {}),
     });
   }
+  for (const item of pageCheck.hydration) {
+    add({
+      field: "hydration",
+      text: item.text,
+      rank: item.rank,
+      ...(item.url ? { url: item.url } : {}),
+      ...(item.selector ? { selector: item.selector } : {}),
+    });
+  }
   for (const hint of pageCheck.appHints) {
     add({
       field: "appHint",
@@ -9310,6 +9520,7 @@ function emptyPageCheck(): PageCheckSummary {
     barriers: [],
     forms: [],
     actionTargets: [],
+    hydration: [],
     appHints: [],
     topics: [],
     contactPoints: [],
@@ -10279,6 +10490,7 @@ function compactAgentPageCheck(pageCheck: PageCheckSummary, primaryAction?: Sugg
     ...(pageCheck.barriers.length > 0 ? { barriers: pageCheck.barriers } : {}),
     ...(pageCheck.forms.length > 0 ? { forms: pageCheck.forms } : {}),
     ...(pageCheck.actionTargets.length > 0 ? { actionTargets: pageCheck.actionTargets } : {}),
+    ...(pageCheck.hydration.length > 0 ? { hydration: pageCheck.hydration } : {}),
     ...(pageCheck.appHints.length > 0 ? { appHints: pageCheck.appHints } : {}),
     ...(pageCheck.topics.length > 0 ? { topics: pageCheck.topics } : {}),
     ...(pageCheck.contactPoints.length > 0 ? { contactPoints: pageCheck.contactPoints } : {}),

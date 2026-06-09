@@ -308,6 +308,7 @@ describe("cli", () => {
             "actions",
             "contentEvidence.quality",
             "pageCheck.actionTargets",
+            "pageCheck.hydration",
             "pageCheck.appHints",
             "pageCheck.topics",
             "pageCheck.httpPolicies",
@@ -3230,6 +3231,121 @@ describe("cli", () => {
         url: "https://example.test/search?q={search_term_string}",
         selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
         text: "search: Example Docs template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string source=json-ld",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("summarizes hydration data and JSON data endpoints for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/docs", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <script id="__NEXT_DATA__" type="application/json">
+              { "buildId": "build-123", "page": "/docs", "props": { "pageProps": { "title": "Docs" } } }
+            </script>
+            <link rel="preload" as="fetch" href="/api/bootstrap.json" type="application/json">
+            <link rel="prefetch" href="/page-data/docs/page-data.json" as="fetch">
+          </head>
+          <body><main><h1>Docs shell</h1></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.hydration).toEqual([
+      {
+        id: "hd1",
+        path: "pageCheck.hydration[0]",
+        rank: 1,
+        kind: "next-data",
+        label: "Next.js data",
+        text: "Next.js data: kind=next-data framework=next route=/docs buildId=build-123 url=https://example.test/_next/data/build-123/docs.json source=script",
+        source: "script",
+        framework: "next",
+        route: "/docs",
+        buildId: "build-123",
+        url: "https://example.test/_next/data/build-123/docs.json",
+        selector: "script#__NEXT_DATA__:nth-of-type(1)",
+      },
+      {
+        id: "hd2",
+        path: "pageCheck.hydration[1]",
+        rank: 2,
+        kind: "fetch-preload",
+        label: "Fetch preload",
+        text: "Fetch preload: kind=fetch-preload url=https://example.test/api/bootstrap.json source=link",
+        source: "link",
+        url: "https://example.test/api/bootstrap.json",
+        selector: "link[rel=\"preload\"]:nth-of-type(1)",
+      },
+      {
+        id: "hd3",
+        path: "pageCheck.hydration[2]",
+        rank: 3,
+        kind: "gatsby-data",
+        label: "Gatsby page data",
+        text: "Gatsby page data: kind=gatsby-data url=https://example.test/page-data/docs/page-data.json source=link",
+        source: "link",
+        url: "https://example.test/page-data/docs/page-data.json",
+        selector: "link[rel=\"prefetch\"]:nth-of-type(2)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("3 hydration hints");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.hydration",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.hydration",
+      count: 3,
+      primary: true,
+      reason: "Hydration scripts and preloaded JSON data endpoints extracted from app-shell HTML.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.hydration",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          id: "hd1",
+          buildId: "build-123",
+        }),
+      ]),
+    });
+  });
+
+  it("checks requested text against hydration hints", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/docs", "--agent", "--find", "build-123"], {
+      stdout,
+      fetch: async () => new Response(`
+        <head>
+          <script id="__NEXT_DATA__" type="application/json">
+            { "buildId": "build-123", "page": "/docs" }
+          </script>
+        </head>
+        <main><h1>Docs shell</h1></main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "hydration",
+        rank: 1,
+        url: "https://example.test/_next/data/build-123/docs.json",
+        selector: "script#__NEXT_DATA__:nth-of-type(1)",
+        text: "Next.js data: kind=next-data framework=next route=/docs buildId=build-123 url=https://example.test/_next/data/build-123/docs.json source=script",
       },
     });
     expect(envelope.agent.primaryAction).toMatchObject({
