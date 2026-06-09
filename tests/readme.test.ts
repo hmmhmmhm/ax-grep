@@ -6,6 +6,18 @@ function jsonBlocks(markdown: string): string[] {
   return [...markdown.matchAll(/```json\n([\s\S]*?)\n```/g)].map((match) => match[1] ?? "");
 }
 
+const forbiddenReadmeFragments = [
+  '"gateSummary"',
+  '"comparisons"',
+  '"generatedAt"',
+  "Total output lines",
+  "\uFFFD",
+  "\u00EC",
+  "\u00EB",
+  "\u00ED",
+  "\u00EA",
+];
+
 describe("README", () => {
   it("keeps JSON examples parseable and documents the agent continuation contract", async () => {
     const readme = await readFile(join(process.cwd(), "README.md"), "utf8");
@@ -17,10 +29,9 @@ describe("README", () => {
       expect(block.length).toBeLessThan(10_000);
       expect(() => JSON.parse(block)).not.toThrow();
     }
-    expect(readme).not.toContain('"gateSummary"');
-    expect(readme).not.toContain('"comparisons"');
-    expect(readme).not.toContain('"generatedAt"');
-    expect(readme).not.toContain("Total output lines");
+    for (const fragment of forbiddenReadmeFragments) {
+      expect(readme).not.toContain(fragment);
+    }
 
     const firstBlock = blocks[0];
     expect(firstBlock).toBeDefined();
