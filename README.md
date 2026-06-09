@@ -529,7 +529,8 @@ submission details from controls alone. `pageCheck.actionTargets` captures hidde
 JSON-LD and OpenSearch action endpoints. `pageCheck.hydration` captures app
 hydration scripts and preloaded JSON data endpoints. `pageCheck.apiEndpoints` captures
 inline script API, GraphQL, XHR, and event-stream endpoint hints. `pageCheck.clientState` captures
-inline localStorage, sessionStorage, and cookie key hints. `pageCheck.appHints` captures web app
+inline localStorage, sessionStorage, and cookie key hints. `pageCheck.runtime` captures
+service worker, worker, worklet, dynamic import, and modulepreload URLs. `pageCheck.appHints` captures web app
 manifest, icon, theme, and installability metadata. `pageCheck.topics` captures hidden
 keywords, tags, categories, and JSON-LD about/mention topics. `pageCheck.keyValues` captures compact
 facts from definition lists, time elements, and short label/value text.

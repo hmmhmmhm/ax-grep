@@ -311,6 +311,7 @@ describe("cli", () => {
             "pageCheck.hydration",
             "pageCheck.apiEndpoints",
             "pageCheck.clientState",
+            "pageCheck.runtime",
             "pageCheck.appHints",
             "pageCheck.topics",
             "pageCheck.httpPolicies",
@@ -3639,6 +3640,146 @@ describe("cli", () => {
         rank: 1,
         selector: "script:nth-of-type(1)",
         text: "session-storage read returnTo",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("summarizes runtime script hints for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/app", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <link rel="modulepreload" href="/assets/app-shell.js">
+            <script>
+              navigator.serviceWorker.register("/sw.js");
+              const worker = new Worker("/workers/search.js");
+              const shared = new SharedWorker("/workers/shared.js");
+              audioWorklet.addModule("/worklets/audio.js");
+              import("/chunks/settings.js");
+            </script>
+          </head>
+          <body><main></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.runtime).toEqual([
+      {
+        id: "rt1",
+        path: "pageCheck.runtime[0]",
+        rank: 1,
+        kind: "service-worker",
+        url: "https://example.test/sw.js",
+        text: "service-worker https://example.test/sw.js",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+      {
+        id: "rt2",
+        path: "pageCheck.runtime[1]",
+        rank: 2,
+        kind: "web-worker",
+        url: "https://example.test/workers/search.js",
+        text: "web-worker https://example.test/workers/search.js",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+      {
+        id: "rt3",
+        path: "pageCheck.runtime[2]",
+        rank: 3,
+        kind: "shared-worker",
+        url: "https://example.test/workers/shared.js",
+        text: "shared-worker https://example.test/workers/shared.js",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+      {
+        id: "rt4",
+        path: "pageCheck.runtime[3]",
+        rank: 4,
+        kind: "worklet",
+        url: "https://example.test/worklets/audio.js",
+        text: "worklet https://example.test/worklets/audio.js",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+      {
+        id: "rt5",
+        path: "pageCheck.runtime[4]",
+        rank: 5,
+        kind: "dynamic-import",
+        url: "https://example.test/chunks/settings.js",
+        text: "dynamic-import https://example.test/chunks/settings.js",
+        source: "script",
+        selector: "script:nth-of-type(1)",
+      },
+      {
+        id: "rt6",
+        path: "pageCheck.runtime[5]",
+        rank: 6,
+        kind: "module-preload",
+        url: "https://example.test/assets/app-shell.js",
+        text: "module-preload https://example.test/assets/app-shell.js",
+        source: "link",
+        selector: "link[rel=\"modulepreload\"]:nth-of-type(1)",
+      },
+    ]);
+    expect(envelope.pageCheck.readability.reasons).toContain("6 runtime hints");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.runtime",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.runtime",
+      count: 6,
+      primary: true,
+      reason: "Service worker, worker, worklet, dynamic import, and modulepreload runtime URLs extracted from page HTML.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.runtime",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          id: "rt1",
+          url: "https://example.test/sw.js",
+        }),
+      ]),
+    });
+  });
+
+  it("checks requested text against runtime hints", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/app", "--agent", "--find", "sw.js"], {
+      stdout,
+      fetch: async () => new Response(`
+        <script>
+          navigator.serviceWorker.register("/sw.js");
+        </script>
+        <main></main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "runtime",
+        rank: 1,
+        url: "https://example.test/sw.js",
+        selector: "script:nth-of-type(1)",
+        text: "service-worker https://example.test/sw.js",
       },
     });
     expect(envelope.agent.primaryAction).toMatchObject({

@@ -477,6 +477,7 @@ export type AgentContractFeature =
   | "pageCheck.hydration"
   | "pageCheck.apiEndpoints"
   | "pageCheck.clientState"
+  | "pageCheck.runtime"
   | "pageCheck.appHints"
   | "pageCheck.topics"
   | "pageCheck.keyValues"
