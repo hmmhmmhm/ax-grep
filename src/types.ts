@@ -469,6 +469,7 @@ export type AgentContractFeature =
   | "pageCheck.forms"
   | "pageCheck.keyValues"
   | "pageCheck.media"
+  | "pageCheck.resources"
   | "readTargets"
   | "signals"
   | "qualityGates"

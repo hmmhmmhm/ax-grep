@@ -3169,6 +3169,123 @@ describe("cli", () => {
     });
   });
 
+  it("summarizes page resource links from head metadata and downloads for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/article", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <title>Article resources</title>
+            <link rel="alternate" type="application/rss+xml" title="Example feed" href="/feed.xml">
+            <link rel="amphtml" href="/amp/article">
+            <link rel="license" href="https://creativecommons.org/licenses/by/4.0/">
+            <link rel="stylesheet" href="/site.css">
+          </head>
+          <body>
+            <a href="/files/report.pdf">Annual report PDF</a>
+            <a href="/site.css">Stylesheet</a>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.resources).toEqual([
+      expect.objectContaining({
+        id: "rs1",
+        path: "pageCheck.resources[0]",
+        rank: 1,
+        kind: "feed",
+        url: "https://example.test/feed.xml",
+        title: "Example feed",
+        rel: "alternate",
+        type: "application/rss+xml",
+        text: "feed: Example feed rel=alternate type=application/rss+xml https://example.test/feed.xml",
+        selector: "link[rel=\"alternate\"]",
+      }),
+      expect.objectContaining({
+        id: "rs2",
+        path: "pageCheck.resources[1]",
+        kind: "amp",
+        url: "https://example.test/amp/article",
+        rel: "amphtml",
+        selector: "link[rel=\"amphtml\"]",
+      }),
+      expect.objectContaining({
+        id: "rs3",
+        path: "pageCheck.resources[2]",
+        kind: "license",
+        url: "https://creativecommons.org/licenses/by/4.0/",
+        rel: "license",
+      }),
+      expect.objectContaining({
+        id: "rs4",
+        path: "pageCheck.resources[3]",
+        kind: "document",
+        url: "https://example.test/files/report.pdf",
+        title: "Annual report PDF",
+        type: "application/pdf",
+        selector: "a:nth-of-type(1)",
+      }),
+    ]);
+    expect(envelope.pageCheck.resources).toHaveLength(4);
+    expect(envelope.pageCheck.readability.reasons).toContain("4 resource links");
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      execution: "read-current",
+      readFrom: "pageCheck.resources",
+    });
+    expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
+      path: "pageCheck.resources",
+      count: 4,
+      primary: true,
+      reason: "Feed, alternate, license, manifest, sitemap, and document resource links extracted from page HTML.",
+    }));
+    expect(envelope.agent.next.readValue).toMatchObject({
+      path: "pageCheck.resources",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          id: "rs1",
+          kind: "feed",
+          url: "https://example.test/feed.xml",
+        }),
+      ]),
+    });
+  });
+
+  it("checks requested text against page resource summaries", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/article", "--agent", "--find", "application/pdf"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <a href="/files/report.pdf">Annual report PDF</a>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "matched",
+      bestEvidence: {
+        field: "resource",
+        rank: 1,
+        url: "https://example.test/files/report.pdf",
+        selector: "a:nth-of-type(1)",
+        text: "document: Annual report PDF type=application/pdf https://example.test/files/report.pdf",
+      },
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "use-evidence",
+      readFrom: "verification.bestEvidence",
+    });
+  });
+
   it("falls back to headings and primary links for forum pages without paragraph roles", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://forum.example/post/456", "--json"], {

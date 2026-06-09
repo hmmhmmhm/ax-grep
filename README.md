@@ -525,7 +525,9 @@ GET query templates so agents can plan searches and filters without inferring
 submission details from controls alone. `pageCheck.keyValues` captures compact
 facts from definition lists, time elements, and short label/value text.
 `pageCheck.media` captures resolved image URLs, alt text, captions, and social
-preview images.
+preview images. `pageCheck.resources` captures feed, alternate, license,
+manifest, sitemap, and document resource links that are often hidden in head
+metadata or download anchors.
 `pageCheck.readability` includes `level`, numeric `score`, and concise
 `reasons`, explaining how directly useful the page is for source checking;
 compact `agent` repeats the score and first few reasons so agents can route
