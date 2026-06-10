@@ -761,6 +761,16 @@ describe("cli", () => {
       if (executor.readFrom) expect(handoff.readFrom).toBe(executor.readFrom);
       if (executor.url) expect(handoff.url).toBe(executor.url);
       if (executor.target) expect(handoff.target.url).toBe(executor.target.url);
+      if (executor.action === "open-result") {
+        expect(handoff.resultChoices).toEqual([
+          expect.objectContaining({
+            path: "searchResults[0]",
+            url: "https://result.example/",
+            primary: true,
+            commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent-brief"],
+          }),
+        ]);
+      }
       if (executor.action === "open-source-link") {
         expect(handoff.sourceChoices).toEqual([
           expect.objectContaining({

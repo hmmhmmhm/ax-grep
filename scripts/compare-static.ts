@@ -310,6 +310,9 @@ type CliAgentResultChoiceShape = CliAgentTargetShape & {
   recommended?: boolean;
   primary?: boolean;
   recommendedPath?: string;
+  openResult?: number | "best";
+  command?: string;
+  commandArgs?: unknown[];
 };
 
 type CliAgentSourceChoiceShape = CliAgentTargetShape & {
@@ -1790,6 +1793,10 @@ function scoreBriefAgentExecutorEnvelope(envelope: unknown): number {
     required += 2;
     if (executor.action === agent.primaryAction.action) matched += 1;
     if (JSON.stringify(executor.commandArgs) === JSON.stringify(agent.primaryAction.commandArgs)) matched += 1;
+  }
+  if (Array.isArray(handoff.resultChoices) && handoff.resultChoices.length > 0) {
+    required += 1;
+    if (handoff.resultChoices.some((choice) => Array.isArray(choice.commandArgs))) matched += 1;
   }
   if (Array.isArray(handoff.sourceChoices) && handoff.sourceChoices.length > 0) {
     required += 1;

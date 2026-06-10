@@ -8677,7 +8677,7 @@ function summarizeAgent(
   const citations = summarizeAgentCitations(analysis.kind, pageCheck, verification, primaryAction, recommendedResult, sourceSearch);
   const searchDecision = summarizeAgentSearchDecision(analysis, results, recommendedResult, primaryAction);
   const pageDecision = summarizeAgentPageDecision(analysis, pageCheck, primaryAction);
-  const resultChoices = summarizeAgentResultChoices(hasUsableSearchResults ? results : [], recommendedResult, primaryAction);
+  const resultChoices = summarizeAgentResultChoices(hasUsableSearchResults ? results : [], recommendedResult, primaryAction, sourceSearch);
   const sourceChoices = summarizeAgentSourceChoices(analysis.kind, pageCheck.sourceLinks, primaryAction, agentMode, findQueries, timeoutMs, userAgent);
   const next = summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch, semanticSummary));
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
@@ -8922,11 +8922,23 @@ function summarizeAgentResultChoices(
   results: ResultSummary[],
   recommendedResult: ResultSummary | undefined,
   primaryAction: SuggestedAction | undefined,
+  sourceSearch?: SourceSearchSummary,
 ): AgentResultChoice[] {
   if (results.length === 0) return [];
   return selectCompactSearchResults(results, recommendedResult).map((result, index) => {
     const recommended = Boolean(recommendedResult && result.rank === recommendedResult.rank && result.url === recommendedResult.url);
     const primary = Boolean(primaryAction?.url === result.url || (typeof primaryAction?.rank === "number" && primaryAction.rank === result.rank));
+    const command = sourceSearch ? searchOpenCommandSpec(
+      sourceSearch.query,
+      sourceSearch.selectedEngine ?? sourceSearch.engine,
+      sourceSearch.findQueries ?? [],
+      true,
+      sourceSearch.lang,
+      sourceSearch.region,
+      result.rank,
+      sourceSearch.timeoutMs,
+      sourceSearch.userAgent,
+    ) : undefined;
     return {
       id: `r${result.rank}`,
       path: `searchResults[${index}]`,
@@ -8947,6 +8959,7 @@ function summarizeAgentResultChoices(
       ...(result.findMatches?.length ? { findMatches: result.findMatches } : {}),
       ...(typeof result.isLikelyOfficial === "boolean" ? { isLikelyOfficial: result.isLikelyOfficial } : {}),
       selectionReason: result.selectionReason ?? searchResultSelectionReason(result),
+      ...(command ? { openResult: result.rank, ...commandFields(command) } : {}),
       ...(recommended ? { recommended: true, recommendedPath: "recommendedResult" } : {}),
       ...(primary ? { primary: true } : {}),
     };
@@ -11801,7 +11814,7 @@ function agentBriefJsonEnvelope(envelope: {
     searchLang: envelope.searchLang,
     searchRegion: envelope.searchRegion,
     ...(envelope.warnings.length > 0 ? { warnings: envelope.warnings } : {}),
-    agent: compactAgentBrief(envelope.agent),
+    agent: compactAgentBrief(envelope.agent, searchCommandContext),
     ...compactAgentPage(envelope.page),
     pageCheck: compactAgentBriefPageCheck(envelope.pageCheck, envelope.agent.primaryAction, envelope.agent.readTargets, pageLinkContext),
     ...compactAgentVerification(envelope.verification, envelope.agent.primaryAction),
@@ -12313,7 +12326,7 @@ function compactAgentSummary(agent: AgentSummary): object {
   };
 }
 
-function compactAgentBrief(agent: AgentSummary): object {
+function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchResultCommandContext): object {
   return {
     contract: {
       version: agent.contract.version,
@@ -12325,7 +12338,7 @@ function compactAgentBrief(agent: AgentSummary): object {
     pageKind: agent.pageKind,
     summary: agent.summary,
     executor: compactAgentExecutor(agent.executor, agent.primaryUrl),
-    handoff: compactAgentBriefHandoff(agent.handoff, agent.primaryUrl),
+    handoff: compactAgentBriefHandoff(agent.handoff, agent.primaryUrl, searchCommandContext),
     canContinue: agent.canContinue,
     needsBrowserHtml: agent.needsBrowserHtml,
     confidence: agent.confidence,
@@ -12355,7 +12368,7 @@ function compactAgentBrief(agent: AgentSummary): object {
   };
 }
 
-function compactAgentBriefHandoff(handoff: AgentHandoff, primaryUrl?: string): object {
+function compactAgentBriefHandoff(handoff: AgentHandoff, primaryUrl?: string, searchCommandContext?: SearchResultCommandContext): object {
   const compact = {
     instruction: handoff.instruction,
     decision: handoff.decision,
@@ -12382,7 +12395,7 @@ function compactAgentBriefHandoff(handoff: AgentHandoff, primaryUrl?: string): o
     ...(handoff.readValue ? { readValue: compactAgentReadValue(handoff.readValue, true) } : {}),
     ...(handoff.browserHtml ? { browserHtml: compactAgentBrowserHtml(handoff.browserHtml) } : {}),
     ...(handoff.sourceSearch ? { sourceSearch: handoff.sourceSearch } : {}),
-    ...(handoff.resultChoices && handoff.resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(handoff.resultChoices, 700) } : {}),
+    ...(handoff.resultChoices && handoff.resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(handoff.resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext)), 900) } : {}),
     ...(handoff.sourceChoices && handoff.sourceChoices.length > 0 ? { sourceChoices: compactAgentSourceChoiceList(handoff.sourceChoices, 900) } : {}),
     ...(handoff.answerEvidence && handoff.answerEvidence.length > 0 ? { answerEvidence: handoff.answerEvidence.map(compactAgentCitationRef) } : {}),
   };
@@ -12599,6 +12612,26 @@ function compactAgentSourceChoiceRef(choice: AgentSourceChoice): object {
 function compactAgentSourceChoiceList(choices: AgentSourceChoice[], threshold = 1500): object[] {
   if (JSON.stringify(choices).length <= threshold) return compactAgentCommandList(choices);
   return choices.map(compactAgentSourceChoiceRef);
+}
+
+function compactAgentResultChoice(choice: AgentResultChoice, commandContext?: SearchResultCommandContext): AgentResultChoice {
+  if (choice.commandArgs || !commandContext) return choice;
+  const command = searchOpenCommandSpec(
+    commandContext.query,
+    commandContext.engine,
+    commandContext.findQueries,
+    commandContext.agentMode,
+    commandContext.lang,
+    commandContext.region,
+    choice.rank ?? 1,
+    commandContext.timeoutMs,
+    commandContext.userAgent,
+  );
+  return {
+    ...choice,
+    openResult: choice.rank ?? 1,
+    ...commandFields(command),
+  };
 }
 
 function compactAgentCitationRef(citation: AgentCitation): object {

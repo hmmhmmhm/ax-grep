@@ -361,6 +361,9 @@ export type AgentResultChoice = AgentTarget & {
   recommended?: boolean;
   primary?: boolean;
   recommendedPath?: string;
+  openResult?: number | "best";
+  command?: string;
+  commandArgs?: string[];
 };
 
 export type AgentSourceChoice = AgentTarget & {
