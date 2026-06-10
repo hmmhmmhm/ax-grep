@@ -123,6 +123,9 @@ paths and discoverable through at least one read target when available. This is
 the executor-focused counterweight to raw accessibility-tree overlap: these
 signals are often useful to subagents but absent from browser accessibility
 snapshots.
+`averageAgentBrowserAdvantageScore` tracks whether those hidden `pageCheck`
+signals create a concrete agent-browser advantage when they exist, rather than
+only matching visible accessibility-tree roles.
 `averageAgentCanContinueScore` tracks whether `agent.canContinue` agrees with
 the primary action execution class, so recoverable errors with runnable actions
 do not look terminal and usage/input errors without actions do not look
@@ -214,9 +217,11 @@ Run with `pnpm compare:static URL...`.
 Run with `pnpm compare:static:agent` for the smaller executor-focused regression
 set that exercises readable pages, listings, forum-style links, and a search
 diagnostic while tracking `averageAgentExecutorScore`.
-In the current run, the gate summary includes 7 targets and excludes 4
+In the current run, the gate summary includes 8 targets and excludes 4
 diagnostics; `averageAgentExecutorScore` is 1.00 and
 `averageAgentHiddenSignalScore` is 1.00 for the included executor targets.
+`averageAgentBrowserAdvantageScore` is also tracked so the hidden-metadata
+fixture proves more than raw accessibility-tree overlap.
 The set includes a synthetic hidden-metadata gate whose browser snapshot only
 contains a visible heading while `pageCheck` exposes 13 hidden head, script,
 policy, app-link, provenance, and JSON-LD signals.

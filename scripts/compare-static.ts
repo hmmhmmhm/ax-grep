@@ -46,6 +46,7 @@ type StaticComparison = {
     contentRecall: number;
     score: number;
   };
+  agentBrowserAdvantageScore: number;
   cliAgentSummary: CliAgentSummary;
   warnings: string[];
 };
@@ -484,6 +485,7 @@ type GateSummary = {
   averageAgentVerificationCountScore: number;
   averageAgentResponseMetadataScore: number;
   averageAgentHiddenSignalScore: number;
+  averageAgentBrowserAdvantageScore: number;
   averageAgentReadabilityReasonScore: number;
   averageAgentSourceSearchProvenanceScore: number;
   averageAgentRecommendedMetadataScore: number;
@@ -550,6 +552,7 @@ for (const [index, target] of targets.entries()) {
 
   const agentReadiness = scoreAgentReadiness(staticNormalized, agentBrowser?.normalized ?? emptyNormalizedSummary());
   const cliAgentSummary = await summarizeCliAgentOutput(target.url, html, source, status, warnings, target.findQueries ?? []);
+  const agentBrowserAdvantageScore = scoreAgentBrowserAdvantage(cliAgentSummary);
   const comparison: StaticComparison = {
     category: target.category,
     url: target.url,
@@ -569,6 +572,7 @@ for (const [index, target] of targets.entries()) {
       ratio: namedRoleTotal === 0 ? 1 : matches / namedRoleTotal,
     },
     agentReadiness,
+    agentBrowserAdvantageScore,
     cliAgentSummary,
     warnings,
   };
@@ -1863,6 +1867,12 @@ function scoreAgentHiddenSignals(pageCheck: unknown, readTargets: CliReadTargetS
   return roundScore(payloadPathScore * 0.5 + readTargetCoverage * 0.35 + reasonCoverage * 0.15);
 }
 
+function scoreAgentBrowserAdvantage(summary: CliAgentSummary): number {
+  const hiddenSignalCount = summary.pageCheck.hiddenSignalCount;
+  if (hiddenSignalCount === 0) return 1;
+  return summary.agentHiddenSignalScore;
+}
+
 function hiddenSignalReasonNeedle(path: string): string {
   const labels: Record<string, string> = {
     apiEndpoints: "api endpoint",
@@ -2751,6 +2761,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentVerificationCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentVerificationCountScore)),
     averageAgentResponseMetadataScore: average(included.map((comparison) => comparison.cliAgentSummary.agentResponseMetadataScore)),
     averageAgentHiddenSignalScore: average(included.map((comparison) => comparison.cliAgentSummary.agentHiddenSignalScore)),
+    averageAgentBrowserAdvantageScore: average(included.map((comparison) => comparison.agentBrowserAdvantageScore)),
     averageAgentReadabilityReasonScore: average(included.map((comparison) => comparison.cliAgentSummary.agentReadabilityReasonScore)),
     averageAgentSourceSearchProvenanceScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSourceSearchProvenanceScore)),
     averageAgentRecommendedMetadataScore: average(included.map((comparison) => comparison.cliAgentSummary.agentRecommendedMetadataScore)),
