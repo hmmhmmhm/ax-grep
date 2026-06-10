@@ -2582,14 +2582,23 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentReadabilityReasonScore * 0.07;
   const effectivePreviewCount = Math.max(summary.pageCheck.contentPreviewCount, summary.pageCheck.contentEvidenceCount);
   const expectedEvidenceCount = summary.pageCheck.contentLength <= 160 ? 1 : summary.pageCheck.contentLength <= 500 ? 2 : 3;
-  const evidenceScore = Math.min(1, effectivePreviewCount / expectedEvidenceCount);
-  const lengthScore = summary.pageCheck.contentLength <= 160
+  const hiddenSignalScore = Math.min(1, summary.pageCheck.hiddenSignalCount / 4);
+  const recoverableBrowserRetry = summary.agentStatus === "needs-browser"
+    && summary.agentPrimaryAction === "retry-with-browser-html"
+    && summary.agentPrimaryExecution === "run-command"
+    && summary.agentBrowserNeedScore === 1
+    && summary.agentBrowserHtmlScore === 1;
+  const evidenceScore = Math.max(
+    Math.min(1, effectivePreviewCount / expectedEvidenceCount),
+    hiddenSignalScore * 0.85,
+  );
+  const lengthScore = Math.max(summary.pageCheck.contentLength <= 160
     ? (summary.pageCheck.contentLength > 0 ? 1 : 0)
-    : Math.min(1, summary.pageCheck.contentLength / 600);
-  const contentScore = evidenceScore * 0.65
+    : Math.min(1, summary.pageCheck.contentLength / 600), hiddenSignalScore * 0.75);
+  const contentScore = Math.max(recoverableBrowserRetry ? 0.45 : 0, evidenceScore * 0.65
     + lengthScore * 0.18
     + Math.min(1, summary.pageCheck.contentEvidenceCount / expectedEvidenceCount) * 0.12
-    + summary.pageCheck.contentEvidenceMetadataScore * 0.05;
+    + Math.max(summary.pageCheck.contentEvidenceMetadataScore, hiddenSignalScore) * 0.05);
   const linkScore = Math.min(1, summary.pageCheck.primaryLinkCount / 4) * 0.65
     + Math.min(1, summary.pageCheck.sourceLinkCount / 2) * 0.25
     + summary.pageCheck.averageSourceScore * 0.1;
@@ -2608,7 +2617,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     : summary.agentStatus === "verify"
       ? 0.55
       : summary.agentStatus === "needs-browser"
-        ? 0.25
+        ? (recoverableBrowserRetry ? 0.75 : 0.25)
         : 0;
   const agentActionScore = summary.agentPrimaryAction ? 1 : 0;
   return roundScore(Math.min(1,

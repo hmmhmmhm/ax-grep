@@ -126,6 +126,10 @@ snapshots.
 `averageAgentBrowserAdvantageScore` tracks whether those hidden `pageCheck`
 signals create a concrete agent-browser advantage when they exist, rather than
 only matching visible accessibility-tree roles.
+The higher-level CLI agent score also credits hidden `pageCheck` signal groups
+and recoverable browser-HTML retry actions. A page with little visible text can
+still be useful to a subagent when it exposes metadata read targets or a
+runnable browser-capture handoff.
 When `ax-grep` produces a ready, high-scoring agent payload with content
 evidence, the static comparison treats the page as usable before applying raw
 tree-size failure classes such as thin-reference challenge or over-collection.
