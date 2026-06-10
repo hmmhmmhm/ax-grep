@@ -12358,7 +12358,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
       },
     } : {}),
     ...(agent.citations.length > 0 ? { citations: agent.citations.map(compactAgentCitationRef) } : {}),
-    ...(agent.readTargets.length > 0 ? { readTargets: agent.readTargets.map(compactAgentReadTargetRef) } : {}),
+    ...(agent.readTargets.length > 0 ? { readTargets: agent.readTargets.map((target) => compactAgentReadTargetRef(target)) } : {}),
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
     ...(agent.primaryExecution ? { primaryExecution: agent.primaryExecution } : {}),
@@ -12560,7 +12560,7 @@ function compactAgentUrlRefs<T extends object>(value: T, primaryUrl?: string, th
 }
 
 function compactAgentHandoffReadTarget(target: AgentReadTarget): AgentReadTarget | object {
-  return target.path.startsWith("verification.") ? target : compactAgentReadTargetRef(target);
+  return target.path.startsWith("verification.") ? target : compactAgentReadTargetRef(target, true);
 }
 
 function compactAgentQualityGates(gates: AgentQualityGate[], threshold = 650): object[] {
@@ -12578,12 +12578,13 @@ function compactAgentReadTargets(targets: AgentReadTarget[], threshold = 700): o
   return targets.map((target) => target.primary ? target : compactAgentReadTargetRef(target));
 }
 
-function compactAgentReadTargetRef(target: AgentReadTarget): object {
+function compactAgentReadTargetRef(target: AgentReadTarget, includeReason = false): object {
   return {
     path: target.path,
     count: target.count,
     ...(typeof target.score === "number" ? { score: target.score } : {}),
     ...(target.primary ? { primary: true } : {}),
+    ...(includeReason ? { reason: target.reason } : {}),
   };
 }
 

@@ -8543,6 +8543,16 @@ npx ax-grep https://example.test --agent</code></pre>
       const executor = payload.agent.executor;
       if (executor.decision === "return") {
         expect(executor.readFrom).toBe("pageCheck.contentEvidence");
+        expect(executor.readTarget).toMatchObject({
+          path: "pageCheck.contentEvidence",
+          reason: "Structured page excerpts suitable for source checking.",
+          primary: true,
+        });
+        expect(payload.agent.handoff.readTarget).toMatchObject({
+          path: "pageCheck.contentEvidence",
+          reason: "Structured page excerpts suitable for source checking.",
+          primary: true,
+        });
         expect(executor.readValue.path).toBe("pageCheck.contentEvidence");
         expect(executor.readValue.value).toEqual(
           expect.arrayContaining([
