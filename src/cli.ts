@@ -12451,7 +12451,7 @@ function compactAgentHandoff(handoff: AgentHandoff, primaryUrl?: string): object
   return compactAgentUrlRefs({
     ...rest,
     ...(keepSignals ? { signals: handoff.signals } : {}),
-    ...(keepQualityGates ? { qualityGates: handoff.qualityGates } : {}),
+    ...(keepQualityGates ? { qualityGates: compactAgentQualityGates(handoff.qualityGates ?? []) } : {}),
     ...(target ? { target: compactAgentTarget(target, handoff.action) } : {}),
     ...(readTarget ? { readTarget: compactAgentHandoffReadTarget(readTarget) } : {}),
     ...(answerEvidence && answerEvidence.length > 0 ? { answerEvidence: answerEvidence.map(compactAgentCitationRef) } : {}),
@@ -12504,7 +12504,9 @@ function compactAgentSourceChoiceRef(choice: AgentSourceChoice): object {
     return {
       id: choice.id,
       path: choice.path,
+      url: choice.url,
       rank: choice.rank,
+      ...(choice.commandArgs ? { commandArgs: choice.commandArgs } : {}),
       ...(choice.primary ? { primary: true } : {}),
     };
   }
