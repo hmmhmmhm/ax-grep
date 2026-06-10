@@ -12359,6 +12359,7 @@ function compactAgentBriefHandoff(handoff: AgentHandoff, primaryUrl?: string): o
   const compact = {
     instruction: handoff.instruction,
     decision: handoff.decision,
+    mode: handoff.mode,
     operation: handoff.operation,
     action: handoff.action,
     confidence: handoff.confidence,
@@ -12366,6 +12367,7 @@ function compactAgentBriefHandoff(handoff: AgentHandoff, primaryUrl?: string): o
     answerReady: handoff.answerReady,
     shouldContinue: handoff.shouldContinue,
     terminal: handoff.terminal,
+    maxSuggestedIterations: handoff.maxSuggestedIterations,
     expectedOutcome: handoff.expectedOutcome,
     ...(handoff.useCitationIds && handoff.useCitationIds.length > 0 ? { useCitationIds: handoff.useCitationIds } : {}),
     ...(handoff.readFrom ? { readFrom: handoff.readFrom } : {}),

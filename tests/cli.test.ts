@@ -657,6 +657,8 @@ describe("cli", () => {
       handoff: {
         instruction: "Run ax-grep 'https://source.example/report' --find 'missing claim' --agent-brief and continue with its output.",
         decision: "execute",
+        mode: "command",
+        maxSuggestedIterations: 1,
         commandArgs: ["ax-grep", "https://source.example/report", "--find", "missing claim", "--agent-brief"],
       },
       primaryAction: {
@@ -3364,7 +3366,9 @@ describe("cli", () => {
       },
       handoff: {
         instruction: "Run ax-grep 'https://example.test/find?query=target%20report' --find 'target report' --agent-brief and continue with its output.",
+        mode: "command",
         action: "open-site-search",
+        maxSuggestedIterations: 1,
         commandArgs: ["ax-grep", "https://example.test/find?query=target%20report", "--find", "target report", "--agent-brief"],
       },
     });
