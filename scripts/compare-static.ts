@@ -1345,6 +1345,11 @@ function scoreAgentAnswerEvidence(
 
 function pathHasCitationPayload(value: unknown, path: string): boolean {
   const target = valueAtPath(value, path);
+  if (Array.isArray(target)) return target.some((item) => citationPayloadRecord(item));
+  return citationPayloadRecord(target);
+}
+
+function citationPayloadRecord(target: unknown): boolean {
   if (!target || typeof target !== "object") return false;
   const record = target as Record<string, unknown>;
   return typeof record.text === "string"
