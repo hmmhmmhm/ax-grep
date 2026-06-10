@@ -7778,6 +7778,68 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(envelope.pageCheck.nextSteps).toBeUndefined();
   });
 
+  it("keeps brief mode in HTTP error recovery commands", async () => {
+    const missingStdout = new MemoryWriter();
+    const missingStatus = await runCli(["https://missing.example/page", "--agent-brief"], {
+      stdout: missingStdout,
+      fetch: async () => new Response("not found", { status: 404, statusText: "Not Found" }),
+    });
+    const blockedStdout = new MemoryWriter();
+    const blockedStatus = await runCli(["https://blocked.example/package", "--agent-brief", "--find", "target claim"], {
+      stdout: blockedStdout,
+      fetch: async () => new Response("blocked", { status: 403, statusText: "Forbidden" }),
+    });
+
+    const missingEnvelope = JSON.parse(missingStdout.output);
+    const blockedEnvelope = JSON.parse(blockedStdout.output);
+
+    expect(missingStatus).toBe(12);
+    expect(missingStdout.output).not.toContain("--agent-brief-brief");
+    expect(missingEnvelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      executor: {
+        instruction: "Run ax-grep --search 'https://missing.example/page' --agent-brief and continue with its output.",
+        action: "check-url-or-search",
+        commandArgs: ["ax-grep", "--search", "https://missing.example/page", "--agent-brief"],
+      },
+      handoff: {
+        instruction: "Run ax-grep --search 'https://missing.example/page' --agent-brief and continue with its output.",
+        action: "check-url-or-search",
+        commandArgs: ["ax-grep", "--search", "https://missing.example/page", "--agent-brief"],
+      },
+      primaryAction: {
+        command: "ax-grep --search 'https://missing.example/page' --agent-brief",
+        commandArgs: ["ax-grep", "--search", "https://missing.example/page", "--agent-brief"],
+      },
+    });
+
+    expect(blockedStatus).toBe(12);
+    expect(blockedStdout.output).not.toContain("--agent-brief-brief");
+    expect(blockedEnvelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      executor: {
+        instruction: "Capture rendered HTML into captured.html, then run ax-grep 'https://blocked.example/package' --html-file captured.html --find 'target claim' --agent-brief.",
+        action: "retry-with-browser-html",
+        commandArgs: ["ax-grep", "https://blocked.example/package", "--html-file", "captured.html", "--find", "target claim", "--agent-brief"],
+        browserHtml: {
+          commandArgs: ["ax-grep", "https://blocked.example/package", "--html-file", "captured.html", "--find", "target claim", "--agent-brief"],
+        },
+      },
+      handoff: {
+        instruction: "Capture rendered HTML into captured.html, then run ax-grep 'https://blocked.example/package' --html-file captured.html --find 'target claim' --agent-brief.",
+        action: "retry-with-browser-html",
+        commandArgs: ["ax-grep", "https://blocked.example/package", "--html-file", "captured.html", "--find", "target claim", "--agent-brief"],
+        browserHtml: {
+          commandArgs: ["ax-grep", "https://blocked.example/package", "--html-file", "captured.html", "--find", "target claim", "--agent-brief"],
+        },
+      },
+      primaryAction: {
+        command: "ax-grep 'https://blocked.example/package' --html-file captured.html --find 'target claim' --agent-brief",
+        commandArgs: ["ax-grep", "https://blocked.example/package", "--html-file", "captured.html", "--find", "target claim", "--agent-brief"],
+      },
+    });
+  });
+
   it("preserves custom fetch options in agent HTTP retry commands", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli([
