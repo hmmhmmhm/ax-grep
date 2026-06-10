@@ -1770,6 +1770,10 @@ function scoreBriefAgentExecutorEnvelope(envelope: unknown): number {
     required += 1;
     if (sameAgentUrl(executor, handoff)) matched += 1;
   }
+  if (handoff.target) {
+    required += 1;
+    if (executor.target?.url === handoff.target.url) matched += 1;
+  }
   if (handoff.browserHtml) {
     required += 1;
     if (sameAgentBrowserHtml(executor.browserHtml, handoff.browserHtml)) matched += 1;

@@ -12374,6 +12374,7 @@ function compactAgentBriefHandoff(handoff: AgentHandoff, primaryUrl?: string): o
     ...(handoff.commandArgs ? { commandArgs: handoff.commandArgs } : {}),
     ...(handoff.afterInteractionCommandArgs ? { afterInteractionCommandArgs: handoff.afterInteractionCommandArgs } : {}),
     ...(handoff.url ? { url: handoff.url } : {}),
+    ...(handoff.target ? { target: compactAgentTarget(handoff.target, handoff.action) } : {}),
     ...(handoff.readTarget ? { readTarget: compactAgentHandoffReadTarget(handoff.readTarget) } : {}),
     ...(handoff.readValue ? { readValue: compactAgentReadValue(handoff.readValue, true) } : {}),
     ...(handoff.browserHtml ? { browserHtml: compactAgentBrowserHtml(handoff.browserHtml) } : {}),

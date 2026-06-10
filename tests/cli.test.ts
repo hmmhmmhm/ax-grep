@@ -660,6 +660,9 @@ describe("cli", () => {
         mode: "command",
         maxSuggestedIterations: 1,
         commandArgs: ["ax-grep", "https://source.example/report", "--find", "missing claim", "--agent-brief"],
+        target: {
+          url: "https://source.example/report",
+        },
       },
       primaryAction: {
         commandArgs: ["ax-grep", "https://source.example/report", "--find", "missing claim", "--agent-brief"],
@@ -8496,6 +8499,12 @@ npx ax-grep https://example.test --agent</code></pre>
       expect(executor.instruction).not.toContain("--agent and continue");
       expect(executor.commandArgs).toContain("--agent-brief");
       expect(payload.agent.handoff.instruction).toContain("--agent-brief");
+      expect(payload.agent.handoff.target).toMatchObject({
+        title: "Agent Browser Guide",
+        url: "https://result.example/guide",
+        rank: 1,
+      });
+      expect(payload.agent.handoff.target.url).toBe(executor.target.url);
       args = executor.commandArgs.slice(1);
     }
 
