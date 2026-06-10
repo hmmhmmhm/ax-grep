@@ -12642,7 +12642,7 @@ function preferBriefAgentCommands(value: unknown): unknown {
         : item;
       continue;
     }
-    if (key === "command" || key === "afterInteractionCommand") {
+    if (key === "command" || key === "afterInteractionCommand" || key === "instruction") {
       result[key] = typeof item === "string" ? item.replaceAll("--agent", "--agent-brief") : item;
       continue;
     }

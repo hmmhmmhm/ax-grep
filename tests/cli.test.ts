@@ -643,6 +643,7 @@ describe("cli", () => {
       },
       status: "verify",
       executor: {
+        instruction: "Run ax-grep 'https://source.example/report' --find 'missing claim' --agent-brief and continue with its output.",
         decision: "execute",
         mode: "command",
         operation: "execute-command",
@@ -653,6 +654,7 @@ describe("cli", () => {
         commandArgs: ["ax-grep", "https://source.example/report", "--find", "missing claim", "--agent-brief"],
       },
       handoff: {
+        instruction: "Run ax-grep 'https://source.example/report' --find 'missing claim' --agent-brief and continue with its output.",
         decision: "execute",
         commandArgs: ["ax-grep", "https://source.example/report", "--find", "missing claim", "--agent-brief"],
       },
@@ -3359,6 +3361,7 @@ describe("cli", () => {
         commandArgs: ["ax-grep", "https://example.test/find?query=target%20report", "--find", "target report", "--agent-brief"],
       },
       handoff: {
+        instruction: "Run ax-grep 'https://example.test/find?query=target%20report' --find 'target report' --agent-brief and continue with its output.",
         action: "open-site-search",
         commandArgs: ["ax-grep", "https://example.test/find?query=target%20report", "--find", "target report", "--agent-brief"],
       },
@@ -8420,7 +8423,10 @@ npx ax-grep https://example.test --agent</code></pre>
         break;
       }
       expect(executor.decision).toBe("execute");
+      expect(executor.instruction).toContain("--agent-brief");
+      expect(executor.instruction).not.toContain("--agent and continue");
       expect(executor.commandArgs).toContain("--agent-brief");
+      expect(payload.agent.handoff.instruction).toContain("--agent-brief");
       args = executor.commandArgs.slice(1);
     }
 
