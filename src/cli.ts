@@ -2195,7 +2195,7 @@ function formatAgentReadValueItemText(value: unknown, fallbackPath: string): str
   return `${path}${id}${rank}${role}${kind}${score}${confidence}${url}${label ? ` - ${label}` : ""}`;
 }
 
-function formatAgentResultChoiceText(choice: AgentResultChoice, prefix = "resultChoice"): string {
+function formatAgentResultChoiceText(choice: AgentResultChoice, prefix = "resultChoice"): string[] {
   const rank = typeof choice.rank === "number" ? ` rank=${choice.rank}` : "";
   const flags = [
     choice.recommended ? "recommended" : "",
@@ -2215,7 +2215,11 @@ function formatAgentResultChoiceText(choice: AgentResultChoice, prefix = "result
   const target = choice.url ? ` <${choice.url}>` : "";
   const reason = choice.selectionReason ? ` - ${choice.selectionReason}` : "";
   const title = choice.title ? ` ${choice.title}` : "";
-  return `  ${prefix}: ${choice.id} ${choice.path}${rank}${flagText}${score}${relevance}${date}${source}${sourceType}${official}${matchedTerms}${findMatches}${sitelinks}${target}${reason}${title}`;
+  const lines = [`  ${prefix}: ${choice.id} ${choice.path}${rank}${flagText}${score}${relevance}${date}${source}${sourceType}${official}${matchedTerms}${findMatches}${sitelinks}${target}${reason}${title}`];
+  if (choice.snippet) lines.push(`    snippet: ${choice.snippet}`);
+  if (choice.command) lines.push(`    command: ${choice.command}`);
+  if (choice.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
+  return lines;
 }
 
 function formatAgentSourceChoiceText(choice: AgentSourceChoice, prefix = "sourceChoice"): string[] {
@@ -2360,7 +2364,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     for (const result of search.alternateResults ?? []) lines.push(...formatAgentSourceSearchResultText(result, "handoffSourceSearchAlternate"));
   }
   for (const citation of agent.handoff.answerEvidence ?? []) lines.push(formatAgentCitationText(citation, "handoffEvidence"));
-  for (const choice of agent.handoff.resultChoices ?? []) lines.push(formatAgentResultChoiceText(choice, "handoffResultChoice"));
+  for (const choice of agent.handoff.resultChoices ?? []) lines.push(...formatAgentResultChoiceText(choice, "handoffResultChoice"));
   for (const choice of agent.handoff.sourceChoices ?? []) lines.push(...formatAgentSourceChoiceText(choice, "handoffSourceChoice"));
   for (const signal of agent.handoff.signals ?? []) lines.push(formatAgentSignalText(signal, "handoffSignal"));
   for (const gate of agent.handoff.qualityGates ?? []) lines.push(formatAgentQualityGateText(gate, "handoffQualityGate"));
@@ -2384,7 +2388,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.recommendedRelevance) lines.push(`  recommendedRelevance: ${agent.recommendedRelevance}`);
   if (typeof agent.recommendedLikelyOfficial === "boolean") lines.push(`  recommendedLikelyOfficial: ${agent.recommendedLikelyOfficial}`);
   if (agent.recommendedSelectionReason) lines.push(`  recommendedSelectionReason: ${agent.recommendedSelectionReason}`);
-  for (const choice of agent.resultChoices) lines.push(formatAgentResultChoiceText(choice));
+  for (const choice of agent.resultChoices) lines.push(...formatAgentResultChoiceText(choice));
   for (const choice of agent.sourceChoices) lines.push(...formatAgentSourceChoiceText(choice));
   for (const target of agent.readTargets) {
     const count = typeof target.count === "number" ? ` count=${target.count}` : "";
@@ -8946,6 +8950,7 @@ function summarizeAgentResultChoices(
       url: result.url,
       source: result.source,
       rank: result.rank,
+      ...(result.snippet ? { snippet: result.snippet } : {}),
       ...(result.sourceType ? { sourceType: result.sourceType } : {}),
       ...(typeof result.sourceScore === "number" ? { sourceScore: result.sourceScore } : {}),
       ...(result.sourceHints?.length ? { sourceHints: result.sourceHints } : {}),

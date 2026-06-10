@@ -692,7 +692,7 @@ describe("cli", () => {
             <ol>
               <li class="b_algo">
                 <h2><a href="https://result.example/">Agent browser result</a></h2>
-                <p>agent browser result</p>
+                <p>agent browser comparison details</p>
               </li>
             </ol>
           </main>
@@ -768,6 +768,7 @@ describe("cli", () => {
           expect.objectContaining({
             path: "searchResults[0]",
             url: "https://result.example/",
+            snippet: "agent browser comparison details",
             primary: true,
             commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent-brief"],
           }),
@@ -870,7 +871,7 @@ describe("cli", () => {
           <ol>
             <li class="b_algo">
               <h2><a href="https://result.example/">Agent browser result</a></h2>
-              <p>agent browser result</p>
+              <p>agent browser comparison details</p>
             </li>
           </ol>
         </main>
@@ -984,6 +985,7 @@ describe("cli", () => {
             title: "Agent browser result",
             url: "https://result.example/",
             rank: 1,
+            snippet: "agent browser comparison details",
             recommended: true,
             primary: true,
             recommendedPath: "recommendedResult",
@@ -1003,7 +1005,7 @@ describe("cli", () => {
       },
       signals: expect.arrayContaining([
         expect.objectContaining({ kind: "search-results", severity: "info" }),
-        expect.objectContaining({ kind: "content", severity: "warning" }),
+        expect.objectContaining({ kind: "content", severity: "info" }),
       ]),
       responseStatus: 200,
       responseOk: true,
@@ -1083,7 +1085,7 @@ describe("cli", () => {
           <ol>
             <li class="b_algo">
               <h2><a href="https://result.example/">Agent browser result</a></h2>
-              <p>agent browser result</p>
+              <p>agent browser comparison details</p>
             </li>
           </ol>
         </main>
@@ -1096,6 +1098,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  executorCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  handoffCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  handoffResultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult");
+    expect(stdout.output).toContain("    snippet: agent browser comparison details");
     expect(stdout.output).toContain("  resultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult");
     expect(stdout.output).toContain("source=result.example <https://result.example/> - Ranked result 1 from result.example. Agent browser result");
   });

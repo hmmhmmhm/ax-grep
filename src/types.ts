@@ -340,6 +340,7 @@ export type AgentTarget = {
   url: string;
   source?: string;
   rank?: number;
+  snippet?: string;
   sourceType?: string;
   sourceScore?: number;
   sourceHints?: string[];
