@@ -23,7 +23,9 @@ describe("README", () => {
     const readme = await readFile(join(process.cwd(), "README.md"), "utf8");
     const blocks = jsonBlocks(readme);
 
-    expect(readme.split(/\r?\n/).length).toBeLessThan(950);
+    const lines = readme.split(/\r?\n/);
+    expect(lines.length).toBeLessThan(280);
+    expect(Math.max(...lines.map((line) => line.length))).toBeLessThan(140);
     expect(blocks.length).toBeGreaterThan(0);
     for (const block of blocks) {
       expect(block.length).toBeLessThan(10_000);
