@@ -159,7 +159,7 @@ async function measureAgentCompact(
 ): Promise<ModeCost> {
   const stdout = createMemoryWriter();
   const stderr = createMemoryWriter();
-  const args = source === "browser-rendered" ? [url, "--stdin", "--agent"] : [url, "--agent"];
+  const args = source === "browser-rendered" ? [url, "--stdin", "--agent-brief"] : [url, "--agent-brief"];
   const cliStatus = await runCli(args, {
     stdout,
     stderr,
@@ -172,7 +172,7 @@ async function measureAgentCompact(
       });
     },
   });
-  if (cliStatus !== 0) warnings.push(`ax-grep agent compact exited ${cliStatus}: ${trimError(stderr.output || stdout.output)}`);
+  if (cliStatus !== 0) warnings.push(`ax-grep agent brief exited ${cliStatus}: ${trimError(stderr.output || stdout.output)}`);
   const text = stdout.output.trim();
   const estimatedTokens = encoder.encode(text).length;
   return {

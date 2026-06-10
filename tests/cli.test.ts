@@ -12,7 +12,8 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("--agent                    Print compact JSON for agent routing; read agent.handoff first.");
-    expect(stdout.output).toContain("--agent implies --json --no-tree and exposes agent.handoff for the next executor step.");
+    expect(stdout.output).toContain("--agent-brief              Print smaller executor JSON for subagent loops.");
+    expect(stdout.output).toContain("--agent and --agent-brief imply --json --no-tree and expose agent.handoff for the next executor step.");
   });
 
   it("fetches a URL and prints the text tree by default", async () => {
@@ -578,6 +579,53 @@ describe("cli", () => {
     expect(envelope.results).toBeUndefined();
     expect(envelope.outline).toBeUndefined();
     expect(envelope.content).toBeUndefined();
+  });
+
+  it("can print a smaller brief agent JSON envelope", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test", "--agent-brief", "--find", "missing claim"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head><title>Example</title></head>
+          <body>
+            <main>
+              <h1>Example</h1>
+              <p>Thin page.</p>
+              <a href="https://source.example/report">Source report</a>
+            </main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: {
+        version: 1,
+        compact: true,
+        profile: "brief",
+        featureCount: expect.any(Number),
+      },
+      status: "verify",
+      handoff: {
+        decision: "execute",
+        commandArgs: ["ax-grep", "https://source.example/report", "--find", "missing claim", "--agent-brief"],
+      },
+      primaryAction: {
+        commandArgs: ["ax-grep", "https://source.example/report", "--find", "missing claim", "--agent-brief"],
+      },
+    });
+    expect(envelope.agent.next).toBeUndefined();
+    expect(envelope.agent.runbook).toBeUndefined();
+    expect(envelope.agent.executionPlan).toBeUndefined();
+    expect(envelope.agent.actions).toBeUndefined();
+    expect(envelope.pageCheck.nextSteps).toBeUndefined();
+    expect(envelope.tree).toBeUndefined();
+    expect(envelope.links).toBeUndefined();
+    expect(envelope.results).toBeUndefined();
   });
 
   it("checks requested text against author and profile links", async () => {

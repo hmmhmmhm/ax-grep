@@ -46,6 +46,7 @@ type CliOptions = {
   linksOnly: boolean;
   omitTree: boolean;
   agentMode: boolean;
+  agentBrief: boolean;
   maxTreeLines?: number;
   input: "fetch" | "html-file" | "stdin";
   htmlFile?: string;
@@ -1097,7 +1098,7 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
     if (error instanceof UsageError) {
       if (wantsJsonOutput(argv)) {
         const cliError = toCliError(error);
-        stdout.write(`${formatJsonOutput(jsonErrorEnvelope(cliError, { ...parseArgMetadata(argv), ...cliError.metadata }), argv.includes("--agent"))}\n`);
+        stdout.write(`${formatJsonOutput(jsonErrorEnvelope(cliError, { ...parseArgMetadata(argv), ...cliError.metadata }), argv.includes("--agent") || argv.includes("--agent-brief"))}\n`);
       } else if (error.exitCode === 0) {
         stdout.write(`${error.message}\n`);
       } else {
@@ -1107,7 +1108,7 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
     }
     if (wantsJsonOutput(argv)) {
       const cliError = toCliError(error);
-      stdout.write(`${formatJsonOutput(jsonErrorEnvelope(cliError, { ...parseArgMetadata(argv), ...cliError.metadata }), argv.includes("--agent"))}\n`);
+      stdout.write(`${formatJsonOutput(jsonErrorEnvelope(cliError, { ...parseArgMetadata(argv), ...cliError.metadata }), argv.includes("--agent") || argv.includes("--agent-brief"))}\n`);
       return cliError.exitCode;
     }
     const message = error instanceof Error ? error.message : String(error);
@@ -1117,7 +1118,7 @@ export async function runCli(argv: string[], io: CliIO = {}): Promise<number> {
 }
 
 function wantsJsonOutput(argv: string[]): boolean {
-  return argv.includes("--json") || argv.includes("--agent");
+  return argv.includes("--json") || argv.includes("--agent") || argv.includes("--agent-brief");
 }
 
 function formatJsonOutput(value: object, compact: boolean): string {
@@ -1131,6 +1132,7 @@ function parseArgs(argv: string[]): CliOptions {
   let linksOnly = false;
   let omitTree = false;
   let agentMode = false;
+  let agentBrief = false;
   let maxTreeLines: number | undefined;
   let input: CliOptions["input"] = "fetch";
   let htmlFile: string | undefined;
@@ -1160,6 +1162,15 @@ function parseArgs(argv: string[]): CliOptions {
     if (arg === "--agent") {
       if (formatOption && formatOption !== "json") throw new UsageError(`--agent and --text cannot be used together`);
       agentMode = true;
+      format = "json";
+      formatOption = "json";
+      omitTree = true;
+      continue;
+    }
+    if (arg === "--agent-brief") {
+      if (formatOption && formatOption !== "json") throw new UsageError(`--agent-brief and --text cannot be used together`);
+      agentMode = true;
+      agentBrief = true;
       format = "json";
       formatOption = "json";
       omitTree = true;
@@ -1284,7 +1295,7 @@ function parseArgs(argv: string[]): CliOptions {
   if (input === "html-file" && !htmlFile) throw new UsageError(`--html-file requires a value`);
   const baseUrl = url || (htmlFile ? pathToFileURL(resolve(htmlFile)).toString() : "stdin://ax-grep");
   if (format === "json" && linksOnly) omitTree = true;
-  const options: CliOptions = { baseUrl, format, linksOnly, omitTree, agentMode, input, timeoutMs, userAgent, extractOptions };
+  const options: CliOptions = { baseUrl, format, linksOnly, omitTree, agentMode, agentBrief, input, timeoutMs, userAgent, extractOptions };
   if (url) options.url = url;
   if (htmlFile) options.htmlFile = htmlFile;
   if (searchQuery) options.searchQuery = searchQuery;
@@ -1902,6 +1913,7 @@ Options:
   --open-result <n|best>     With --search, fetch and analyze the selected result.
   --find <text>              Check whether page summaries contain text. Repeatable.
   --agent                    Print compact JSON for agent routing; read agent.handoff first.
+  --agent-brief              Print smaller executor JSON for subagent loops.
   --json                     Print the SemanticNode tree as JSON.
   --text                     Print the compact text tree. This is the default.
   --mode <compact|interactive|full>
@@ -1924,7 +1936,7 @@ Notes:
   The CLI uses fetch only. It does not run JavaScript or bypass bot checks.
   Use --html-file or --stdin with a URL argument for browser-captured HTML.
   Text output starts with a deduplicated links summary for agent navigation.
-  --agent implies --json --no-tree and exposes agent.handoff for the next executor step.
+  --agent and --agent-brief imply --json --no-tree and expose agent.handoff for the next executor step.
   JSON output is an envelope with fetch metadata, analysis, links, results, warnings, and tree unless --no-tree is set.`;
 }
 
@@ -11502,6 +11514,7 @@ function jsonEnvelope(
     tree: options.omitTree ? undefined : tree,
   };
   if (options.omitTree) delete (envelope as { tree?: SemanticNode }).tree;
+  if (options.agentBrief) return agentBriefJsonEnvelope(envelope, searchResultCommandContext(options), pageLinkCommandContext(options));
   if (options.agentMode) return agentJsonEnvelope(envelope, searchResultCommandContext(options), pageLinkCommandContext(options));
   return envelope;
 }
@@ -11570,9 +11583,67 @@ function agentJsonEnvelope(envelope: {
   };
 }
 
+function agentBriefJsonEnvelope(envelope: {
+  schemaVersion: number;
+  tool: string;
+  ok: boolean;
+  url: string | undefined;
+  searchQuery: string | undefined;
+  searchEngine: SearchEngineOption | undefined;
+  selectedSearchEngine: SearchEngine | undefined;
+  searchEngines: SearchAttemptSummary[] | undefined;
+  searchLang: string | undefined;
+  searchRegion: string | undefined;
+  sourceSearch: SourceSearchSummary | undefined;
+  finalUrl: string;
+  status: number;
+  contentType: string;
+  fetchedAt: string;
+  mode: string;
+  warnings: Array<{ code: string; message: string }>;
+  kind: ContentKind;
+  diagnostics: DiagnosticSummary[];
+  suggestedActions: SuggestedAction[];
+  agent: AgentSummary;
+  page: PageSummary;
+  pageCheck: PageCheckSummary;
+  finds: FindSummary[];
+  verification: VerificationSummary;
+  searchResults: ResultSummary[];
+  recommendedResult: ResultSummary | undefined;
+  error: { code: CliErrorCode; message: string; status?: number } | undefined;
+}, searchCommandContext?: SearchResultCommandContext, pageLinkContext?: PageLinkCommandContext): object {
+  const suggestedActions = compactSuggestedActions(envelope.suggestedActions, envelope.agent.primaryAction);
+  const output = {
+    schemaVersion: envelope.schemaVersion,
+    tool: envelope.tool,
+    ok: envelope.ok,
+    url: envelope.url,
+    finalUrl: envelope.finalUrl,
+    status: envelope.status,
+    kind: envelope.kind,
+    searchQuery: envelope.searchQuery,
+    searchEngine: envelope.searchEngine,
+    selectedSearchEngine: envelope.selectedSearchEngine,
+    searchLang: envelope.searchLang,
+    searchRegion: envelope.searchRegion,
+    ...(envelope.warnings.length > 0 ? { warnings: envelope.warnings } : {}),
+    agent: compactAgentBrief(envelope.agent),
+    ...compactAgentPage(envelope.page),
+    pageCheck: compactAgentBriefPageCheck(envelope.pageCheck, envelope.agent.primaryAction, envelope.agent.readTargets, pageLinkContext),
+    ...compactAgentVerification(envelope.verification, envelope.agent.primaryAction),
+    ...compactAgentSearchResults(envelope.searchResults, envelope.recommendedResult, searchCommandContext, pageLinkContext),
+    ...(envelope.recommendedResult ? { recommendedResult: compactAgentSearchResult(envelope.recommendedResult, searchCommandContext, { id: `r${envelope.recommendedResult.rank}`, path: "recommendedResult" }, pageLinkContext) } : {}),
+    ...(suggestedActions.length > 0 ? { suggestedActions } : {}),
+    ...(envelope.error ? { error: envelope.error } : {}),
+    treeOmitted: true,
+  };
+  return preferBriefAgentCommands(output) as object;
+}
+
 function jsonErrorEnvelope(
   error: CliError,
-  metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "selectedSearchEngine" | "searchAttempts" | "searchLang" | "searchRegion" | "sourceSearch" | "agentMode" | "findQueries" | "timeoutMs" | "userAgent">> = {},
+  metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "selectedSearchEngine" | "searchAttempts" | "searchLang" | "searchRegion" | "sourceSearch" | "agentMode" | "agentBrief" | "findQueries" | "timeoutMs" | "userAgent">> = {},
 ): object {
   const action = errorAction(error, metadata.url, metadata.agentMode ?? false, metadata.findQueries ?? [], metadata.sourceSearch, metadata.timeoutMs, metadata.userAgent);
   const outputAction = action ? withActionExecution(action) : undefined;
@@ -11620,6 +11691,7 @@ function jsonErrorEnvelope(
       ...(typeof error.status === "number" ? { status: error.status } : {}),
     },
   };
+  if (metadata.agentBrief) return agentBriefJsonErrorEnvelope(envelope);
   if (metadata.agentMode) return agentJsonErrorEnvelope(envelope);
   return envelope;
 }
@@ -11688,6 +11760,54 @@ function agentJsonErrorEnvelope(envelope: {
     error: envelope.error,
     treeOmitted: true,
   };
+}
+
+function agentBriefJsonErrorEnvelope(envelope: {
+  schemaVersion: number;
+  tool: string;
+  ok: boolean;
+  url: string | undefined;
+  searchQuery: string | undefined;
+  searchEngine: SearchEngineOption | undefined;
+  selectedSearchEngine: SearchEngine | undefined;
+  searchLang: string | undefined;
+  searchRegion: string | undefined;
+  fetchedAt: string;
+  mode: string;
+  warnings: Array<{ code: string; message: string }>;
+  kind: ContentKind;
+  suggestedActions: SuggestedAction[];
+  agent: AgentSummary;
+  page: PageSummary;
+  pageCheck: PageCheckSummary;
+  verification: VerificationSummary;
+  searchResults: ResultSummary[];
+  error: { code: CliErrorCode; message: string; status?: number };
+}): object {
+  const suggestedActions = compactSuggestedActions(envelope.suggestedActions, envelope.agent.primaryAction);
+  return preferBriefAgentCommands({
+    schemaVersion: envelope.schemaVersion,
+    tool: envelope.tool,
+    ok: envelope.ok,
+    url: envelope.url,
+    searchQuery: envelope.searchQuery,
+    searchEngine: envelope.searchEngine,
+    selectedSearchEngine: envelope.selectedSearchEngine,
+    searchLang: envelope.searchLang,
+    searchRegion: envelope.searchRegion,
+    fetchedAt: envelope.fetchedAt,
+    mode: envelope.mode,
+    kind: envelope.kind,
+    ...(envelope.warnings.length > 0 ? { warnings: envelope.warnings } : {}),
+    ...(suggestedActions.length > 0 ? { suggestedActions } : {}),
+    agent: compactAgentBrief(envelope.agent),
+    ...compactAgentPage(envelope.page),
+    pageCheck: compactAgentBriefPageCheck(envelope.pageCheck, envelope.agent.primaryAction, envelope.agent.readTargets),
+    ...compactAgentVerification(envelope.verification, envelope.agent.primaryAction),
+    ...compactAgentSearchResults(envelope.searchResults),
+    error: envelope.error,
+    treeOmitted: true,
+  }) as object;
 }
 
 function compactAgentPageCheck(
@@ -11994,7 +12114,6 @@ function compactAgentSummary(agent: AgentSummary): object {
     ...(agent.citations.length > 0 ? { citations: compactAgentCitationList(agent.citations) } : {}),
     ...(agent.answerEvidence.length > 0 ? { answerEvidence: compactAgentCitationList(agent.answerEvidence, 650) } : {}),
     ...(agent.readTargets.length > 0 ? { readTargets: compactAgentReadTargets(agent.readTargets) } : {}),
-    ...(agent.actions.length > 0 ? { actions: compactAgentActionList(agent.actions.map((action) => compactAgentActionSummary(action, agent.primaryAction, agent.primaryUrl))) } : {}),
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
     ...(agent.bestReadTargetReason ? { bestReadTargetReason: agent.bestReadTargetReason } : {}),
@@ -12009,6 +12128,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     ...(agent.primaryOpenResult ? { primaryOpenResult: agent.primaryOpenResult } : {}),
     ...(agent.requiresBrowserInteraction ? { requiresBrowserInteraction: true } : {}),
     ...(agent.primaryAction ? { primaryAction: compactAgentAction(agent.primaryAction) } : {}),
+    ...(agent.actions.length > 0 ? { actions: compactAgentActionList(agent.actions.map((action) => compactAgentActionSummary(action, agent.primaryAction, agent.primaryUrl))) } : {}),
     ...(agent.recommendedUrl ? { recommendedUrl: agent.recommendedUrl } : {}),
     ...(agent.recommendedTitle ? { recommendedTitle: agent.recommendedTitle } : {}),
     ...(agent.recommendedRank ? { recommendedRank: agent.recommendedRank } : {}),
@@ -12016,6 +12136,150 @@ function compactAgentSummary(agent: AgentSummary): object {
     ...(agent.recommendedRelevance ? { recommendedRelevance: agent.recommendedRelevance } : {}),
     ...(typeof agent.recommendedLikelyOfficial === "boolean" ? { recommendedLikelyOfficial: agent.recommendedLikelyOfficial } : {}),
     ...(agent.recommendedSelectionReason ? { recommendedSelectionReason: agent.recommendedSelectionReason } : {}),
+  };
+}
+
+function compactAgentBrief(agent: AgentSummary): object {
+  return {
+    contract: {
+      version: agent.contract.version,
+      compact: true,
+      profile: "brief",
+      featureCount: agent.contract.features.length,
+    },
+    status: agent.status,
+    pageKind: agent.pageKind,
+    summary: agent.summary,
+    handoff: compactAgentBriefHandoff(agent.handoff, agent.primaryUrl),
+    canContinue: agent.canContinue,
+    needsBrowserHtml: agent.needsBrowserHtml,
+    confidence: agent.confidence,
+    usabilityScore: agent.usabilityScore,
+    readability: agent.readability,
+    readabilityScore: agent.readabilityScore,
+    verificationStatus: agent.verificationStatus,
+    resultCount: agent.resultCount,
+    evidenceCount: agent.evidenceCount,
+    sourceLinkCount: agent.sourceLinkCount,
+    evidenceQualityScore: agent.evidenceQualityScore,
+    sourceQualityScore: agent.sourceQualityScore,
+    ...(agent.diagnosticErrorCount || agent.diagnosticWarningCount ? {
+      diagnostics: {
+        errors: agent.diagnosticErrorCount,
+        warnings: agent.diagnosticWarningCount,
+      },
+    } : {}),
+    ...(agent.citations.length > 0 ? { citations: agent.citations.map(compactAgentCitationRef) } : {}),
+    ...(agent.readTargets.length > 0 ? { readTargets: agent.readTargets.map(compactAgentReadTargetRef) } : {}),
+    ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
+    ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
+    ...(agent.primaryExecution ? { primaryExecution: agent.primaryExecution } : {}),
+    ...(agent.primaryReadFrom ? { primaryReadFrom: agent.primaryReadFrom } : {}),
+    ...(agent.primaryUrl ? { primaryUrl: agent.primaryUrl } : {}),
+    ...(agent.primaryAction ? { primaryAction: compactAgentAction(agent.primaryAction, agent.primaryUrl ? { primaryUrl: agent.primaryUrl } : {}) } : {}),
+  };
+}
+
+function compactAgentBriefHandoff(handoff: AgentHandoff, primaryUrl?: string): object {
+  const compact = {
+    instruction: handoff.instruction,
+    decision: handoff.decision,
+    operation: handoff.operation,
+    action: handoff.action,
+    confidence: handoff.confidence,
+    answerStatus: handoff.answerStatus,
+    answerReady: handoff.answerReady,
+    shouldContinue: handoff.shouldContinue,
+    terminal: handoff.terminal,
+    expectedOutcome: handoff.expectedOutcome,
+    ...(handoff.useCitationIds && handoff.useCitationIds.length > 0 ? { useCitationIds: handoff.useCitationIds } : {}),
+    ...(handoff.readFrom ? { readFrom: handoff.readFrom } : {}),
+    ...(handoff.commandArgs ? { commandArgs: handoff.commandArgs } : {}),
+    ...(handoff.afterInteractionCommandArgs ? { afterInteractionCommandArgs: handoff.afterInteractionCommandArgs } : {}),
+    ...(handoff.url ? { url: handoff.url } : {}),
+    ...(handoff.readTarget ? { readTarget: compactAgentHandoffReadTarget(handoff.readTarget) } : {}),
+    ...(handoff.readValue ? { readValue: compactAgentReadValue(handoff.readValue, true) } : {}),
+    ...(handoff.browserHtml ? { browserHtml: compactAgentBrowserHtml(handoff.browserHtml) } : {}),
+    ...(handoff.sourceSearch ? { sourceSearch: handoff.sourceSearch } : {}),
+    ...(handoff.resultChoices && handoff.resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(handoff.resultChoices, 700) } : {}),
+    ...(handoff.answerEvidence && handoff.answerEvidence.length > 0 ? { answerEvidence: handoff.answerEvidence.map(compactAgentCitationRef) } : {}),
+  };
+  return compactAgentUrlRefs(compact, primaryUrl);
+}
+
+function compactAgentBrowserHtml(browserHtml: AgentBrowserHtmlCapture): object {
+  return {
+    htmlFile: browserHtml.htmlFile,
+    captureScript: browserHtml.captureScript,
+    ...(browserHtml.url ? { url: browserHtml.url } : {}),
+    ...(browserHtml.commandArgs ? { commandArgs: browserHtml.commandArgs } : {}),
+  };
+}
+
+function compactAgentBriefPageCheck(
+  pageCheck: PageCheckSummary,
+  primaryAction: SuggestedAction | undefined,
+  readTargets: AgentReadTarget[],
+  commandContext?: PageLinkCommandContext,
+): object {
+  const readPaths = new Set(readTargets.map((target) => target.path));
+  if (primaryAction?.readFrom) readPaths.add(primaryAction.readFrom);
+  const primaryReadPath = primaryAction?.readFrom;
+  return {
+    confidence: pageCheck.confidence,
+    readability: pageCheck.readability,
+    contentLength: pageCheck.contentLength,
+    ...(pageCheck.title ? { title: pageCheck.title } : {}),
+    ...(pageCheck.mainHeading ? { mainHeading: pageCheck.mainHeading } : {}),
+    ...(pageCheck.siteName ? { siteName: pageCheck.siteName } : {}),
+    ...(pageCheck.canonicalUrl ? { canonicalUrl: pageCheck.canonicalUrl } : {}),
+    ...(pageCheck.lang ? { lang: pageCheck.lang } : {}),
+    ...compactBriefPageCheckPath("contentEvidence", compactAgentContentEvidence(pageCheck.contentEvidence, primaryAction), readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("dataTables", pageCheck.dataTables, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("barriers", pageCheck.barriers, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("forms", compactAgentForms(pageCheck.forms, primaryAction), readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("actionTargets", pageCheck.actionTargets, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("hydration", pageCheck.hydration, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("apiEndpoints", pageCheck.apiEndpoints, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("clientState", pageCheck.clientState, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("runtime", pageCheck.runtime, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("config", pageCheck.config, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("appHints", compactAgentAppHints(pageCheck.appHints, primaryAction), readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("mobileHints", compactAgentMobileHints(pageCheck.mobileHints), readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("topics", pageCheck.topics, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("keyValues", pageCheck.keyValues, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("metaFacts", pageCheck.metaFacts, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("provenance", pageCheck.provenance, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("httpPolicies", pageCheck.httpPolicies, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("schemaFacts", pageCheck.schemaFacts, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("offers", pageCheck.offers, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("identities", pageCheck.identities, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("datasets", pageCheck.datasets, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("timeline", pageCheck.timeline, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("contactPoints", pageCheck.contactPoints, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("faqs", pageCheck.faqs, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("breadcrumbs", pageCheck.breadcrumbs, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("sections", pageCheck.sections, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("pagination", pageCheck.pagination, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("toc", pageCheck.toc, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("codeBlocks", pageCheck.codeBlocks, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("citations", pageCheck.citations, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("media", pageCheck.media, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("resources", pageCheck.resources, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("embeds", pageCheck.embeds, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("transcripts", pageCheck.transcripts, readPaths, primaryReadPath),
+    ...compactBriefPageCheckPath("authorLinks", pageCheck.authorLinks, readPaths, primaryReadPath),
+    ...(pageCheck.sourceLinks.length > 0 ? { sourceLinks: compactAgentPageLinkList(pageCheck.sourceLinks.map((link) => compactAgentPageLink(link, commandContext))) } : {}),
+    ...(pageCheck.actions.length > 0 ? { actions: compactAgentPageCheckItems(pageCheck.actions, 900).slice(0, 5) } : {}),
+  };
+}
+
+function compactBriefPageCheckPath(key: string, value: object[] | unknown[], readPaths: Set<string>, primaryReadPath?: string): object {
+  const path = `pageCheck.${key}`;
+  if (!readPaths.has(path) && path !== primaryReadPath) return {};
+  if (!Array.isArray(value) || value.length === 0) return {};
+  return {
+    [key]: path === primaryReadPath ? value : compactAgentPageCheckItems(value, 900),
   };
 }
 
@@ -12176,6 +12440,26 @@ function omitRedundantCommand<T extends object>(item: T): object {
     } else {
       result[key] = value;
     }
+  }
+  return result;
+}
+
+function preferBriefAgentCommands(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(preferBriefAgentCommands);
+  if (!value || typeof value !== "object") return value;
+  const result: Record<string, unknown> = {};
+  for (const [key, item] of Object.entries(value)) {
+    if (key === "commandArgs" || key === "afterInteractionCommandArgs") {
+      result[key] = Array.isArray(item)
+        ? item.map((part) => part === "--agent" ? "--agent-brief" : part)
+        : item;
+      continue;
+    }
+    if (key === "command" || key === "afterInteractionCommand") {
+      result[key] = typeof item === "string" ? item.replaceAll("--agent", "--agent-brief") : item;
+      continue;
+    }
+    result[key] = preferBriefAgentCommands(item);
   }
   return result;
 }
@@ -12616,13 +12900,18 @@ function toCliError(error: unknown): CliError {
   return new CliError("FETCH_FAILED", error instanceof Error ? error.message : String(error), 10);
 }
 
-function parseArgMetadata(argv: string[]): Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion" | "agentMode" | "findQueries" | "timeoutMs" | "userAgent">> {
-  const metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion" | "agentMode" | "findQueries" | "timeoutMs" | "userAgent">> = { extractOptions: {}, findQueries: [] };
+function parseArgMetadata(argv: string[]): Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion" | "agentMode" | "agentBrief" | "findQueries" | "timeoutMs" | "userAgent">> {
+  const metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion" | "agentMode" | "agentBrief" | "findQueries" | "timeoutMs" | "userAgent">> = { extractOptions: {}, findQueries: [] };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (!arg) continue;
     if (arg === "--agent") {
       metadata.agentMode = true;
+      continue;
+    }
+    if (arg === "--agent-brief") {
+      metadata.agentMode = true;
+      metadata.agentBrief = true;
       continue;
     }
     if (arg === "--mode") {
