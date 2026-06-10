@@ -681,6 +681,89 @@ describe("cli", () => {
     expect(envelope.results).toBeUndefined();
   });
 
+  it("keeps brief handoff aligned with executor for common agent actions", async () => {
+    const cases = [
+      {
+        args: ["--search", "agent browser", "--engine", "bing", "--agent-brief"],
+        html: `
+          <main>
+            <ol>
+              <li class="b_algo">
+                <h2><a href="https://result.example/">Agent browser result</a></h2>
+                <p>agent browser result</p>
+              </li>
+            </ol>
+          </main>
+        `,
+      },
+      {
+        args: ["https://example.test", "--agent-brief", "--find", "missing claim"],
+        html: `
+          <main>
+            <h1>Example</h1>
+            <p>Thin page.</p>
+            <a href="https://source.example/report">Source report</a>
+          </main>
+        `,
+      },
+      {
+        args: ["https://example.test/search", "--agent-brief", "--find", "target report"],
+        html: `
+          <main>
+            <form method="GET" action="/find">
+              <input name="query" type="search" aria-label="Archive search">
+              <button>Search</button>
+            </form>
+          </main>
+        `,
+      },
+      {
+        args: ["https://example.test", "--agent-brief", "--find", "Example"],
+        html: `
+          <main>
+            <h1>Example</h1>
+            <p>Enough readable content Example to answer directly from the page with confidence.</p>
+          </main>
+        `,
+      },
+      {
+        args: ["https://blocked.example/app", "--agent-brief"],
+        html: "",
+      },
+    ];
+
+    for (const item of cases) {
+      const stdout = new MemoryWriter();
+      await runCli(item.args, {
+        stdout,
+        fetch: async () => new Response(item.html, { headers: { "content-type": "text/html" } }),
+      });
+      const envelope = JSON.parse(stdout.output);
+      const executor = envelope.agent.executor;
+      const handoff = envelope.agent.handoff;
+
+      expect(stdout.output).not.toContain("--agent-brief-brief");
+      expect(envelope.agent.contract.profile).toBe("brief");
+      expect(handoff).toMatchObject({
+        decision: executor.decision,
+        mode: executor.mode,
+        operation: executor.operation,
+        action: executor.action,
+        answerReady: executor.answerReady,
+        shouldContinue: executor.shouldContinue,
+        terminal: executor.terminal,
+        maxSuggestedIterations: executor.maxSuggestedIterations,
+        expectedOutcome: executor.expectedOutcome,
+      });
+      expect(handoff.answerStatus).toBe(executor.status);
+      if (executor.commandArgs) expect(handoff.commandArgs).toEqual(executor.commandArgs);
+      if (executor.readFrom) expect(handoff.readFrom).toBe(executor.readFrom);
+      if (executor.url) expect(handoff.url).toBe(executor.url);
+      if (executor.target) expect(handoff.target.url).toBe(executor.target.url);
+      if (executor.browserHtml?.commandArgs) expect(handoff.browserHtml.commandArgs).toEqual(executor.browserHtml.commandArgs);
+    }
+  });
+
   it("checks requested text against author and profile links", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/report", "--agent", "--find", "authors jane"], {
