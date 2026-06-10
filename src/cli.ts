@@ -11756,7 +11756,7 @@ function agentJsonEnvelope(envelope: {
     searchRegion: envelope.searchRegion,
     sourceSearch: compactAgentSourceSearch(envelope.sourceSearch),
     ...(envelope.warnings.length > 0 ? { warnings: envelope.warnings } : {}),
-    agent: compactAgentSummary(envelope.agent),
+    agent: compactAgentSummary(envelope.agent, searchCommandContext),
     ...compactAgentPage(envelope.page),
     pageCheck: compactAgentPageCheck(envelope.pageCheck, envelope.agent.primaryAction, envelope.searchResults.length > 0, pageLinkContext, envelope.agent.readTargets),
     ...compactAgentVerification(envelope.verification, envelope.agent.primaryAction),
@@ -12250,7 +12250,7 @@ function compactSuggestedActions(actions: SuggestedAction[], primaryAction?: Sug
     .map((action) => compactAgentAction(action));
 }
 
-function compactAgentSummary(agent: AgentSummary): object {
+function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchResultCommandContext): object {
   return {
     contract: compactAgentContract(agent.contract),
     status: agent.status,
@@ -12261,7 +12261,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     next: compactAgentNext(agent.next, agent.primaryUrl),
     runbook: compactAgentRunbook(agent.runbook, agent.primaryUrl),
     executor: compactAgentExecutor(agent.executor, agent.primaryUrl),
-    handoff: compactAgentHandoff(agent.handoff, agent.primaryUrl),
+    handoff: compactAgentHandoff(agent.handoff, agent.primaryUrl, searchCommandContext),
     expectedOutcome: agent.expectedOutcome,
     executionPlan: compactAgentUrlRefs(agent.executionPlan, agent.primaryUrl),
     answerPlan: compactAgentUrlRefs(agent.answerPlan, agent.primaryUrl),
@@ -12287,7 +12287,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     verificationFoundCount: agent.verificationFoundCount,
     verificationMissingCount: agent.verificationMissingCount,
     resultCount: agent.resultCount,
-    ...(agent.resultChoices.length > 0 ? { resultChoices: agent.resultChoices } : {}),
+    ...(agent.resultChoices.length > 0 ? { resultChoices: agent.resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext)) } : {}),
     evidenceCount: agent.evidenceCount,
     sourceLinkCount: agent.sourceLinkCount,
     ...(agent.sourceChoices.length > 0 ? { sourceChoices: compactAgentSourceChoiceList(agent.sourceChoices) } : {}),
@@ -12532,7 +12532,7 @@ function compactAgentExecutor(executor: AgentExecutorStep, primaryUrl?: string):
   }, primaryUrl);
 }
 
-function compactAgentHandoff(handoff: AgentHandoff, primaryUrl?: string): object {
+function compactAgentHandoff(handoff: AgentHandoff, primaryUrl?: string, searchCommandContext?: SearchResultCommandContext): object {
   const { readValue, readTarget, sourceChoices: _sourceChoices, resultChoices, answerEvidence, target, signals: _signals, qualityGates: _qualityGates, ...rest } = handoff;
   const keepSignals = handoff.signals?.some((signal) => signal.kind === "verification" || signal.kind === "browser") === true;
   const keepQualityGates = handoff.qualityGates?.some((gate) => gate.kind === "verification") === true;
@@ -12543,7 +12543,7 @@ function compactAgentHandoff(handoff: AgentHandoff, primaryUrl?: string): object
     ...(target ? { target: compactAgentTarget(target, handoff.action) } : {}),
     ...(readTarget ? { readTarget: compactAgentHandoffReadTarget(readTarget) } : {}),
     ...(answerEvidence && answerEvidence.length > 0 ? { answerEvidence: answerEvidence.map(compactAgentCitationRef) } : {}),
-    ...(resultChoices && resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(resultChoices) } : {}),
+    ...(resultChoices && resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext))) } : {}),
     ...(readValue ? { readValue: compactAgentReadValue(readValue, true) } : {}),
   }, primaryUrl);
 }

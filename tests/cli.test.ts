@@ -986,6 +986,7 @@ describe("cli", () => {
             primary: true,
             recommendedPath: "recommendedResult",
             selectionReason: "High relevance: matched agent, browser.",
+            commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent"],
           }),
         ],
       },
@@ -1040,6 +1041,7 @@ describe("cli", () => {
           primary: true,
           recommendedPath: "recommendedResult",
           selectionReason: "High relevance: matched agent, browser.",
+          commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent"],
         }),
       ],
     });
