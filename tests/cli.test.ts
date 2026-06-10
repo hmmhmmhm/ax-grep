@@ -3263,6 +3263,11 @@ describe("cli", () => {
       action: "open-site-search",
       commandArgs: ["ax-grep", "https://example.test/find?query=target%20report", "--find", "target report", "--agent"],
     });
+    expect(envelope.agent.pageDecision).toMatchObject({
+      decision: "open-site-search",
+      commandArgs: ["ax-grep", "https://example.test/find?query=target%20report", "--find", "target report", "--agent"],
+      url: "https://example.test/find?query=target%20report",
+    });
   });
 
   it("keeps brief mode when using site search form recovery", async () => {

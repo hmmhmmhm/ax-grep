@@ -411,7 +411,7 @@ type CliAgentSearchDecisionShape = {
 };
 
 type CliAgentPageDecisionShape = {
-  decision?: "read-content" | "open-source-link" | "retry-with-browser-html" | "inspect-actions" | "none";
+  decision?: "read-content" | "open-source-link" | "open-site-search" | "retry-with-browser-html" | "inspect-actions" | "none";
   confidence?: "low" | "medium" | "high";
   reason?: string;
   readability?: "low" | "medium" | "high";
@@ -2103,7 +2103,12 @@ function scoreAgentActionList(actions: CliActionShape[] | undefined, primaryActi
 }
 
 function scoreOpenActionTarget(action: CliActionShape): number {
-  if (action.action !== "open-result" && action.action !== "open-alternate-result" && action.action !== "open-source-link") return typeof action.target === "undefined" ? 1 : 0;
+  if (
+    action.action !== "open-result"
+    && action.action !== "open-alternate-result"
+    && action.action !== "open-source-link"
+    && action.action !== "open-site-search"
+  ) return typeof action.target === "undefined" ? 1 : 0;
   if (typeof action.path === "string" && action.path.length > 0) return 1;
   if (!action.target || typeof action.target !== "object") return 0;
   if (typeof action.url === "string" && action.target.url !== action.url) return 0;
@@ -2198,6 +2203,7 @@ function expectedPageDecision(primaryAction: CliActionShape | undefined): NonNul
   if (primaryAction?.action === "use-evidence") return "read-content";
   if (primaryAction?.action === "read-content") return "read-content";
   if (primaryAction?.action === "open-source-link") return "open-source-link";
+  if (primaryAction?.action === "open-site-search") return "open-site-search";
   if (primaryAction?.action === "retry-with-browser-html") return "retry-with-browser-html";
   if (primaryAction?.requiresBrowserInteraction || primaryAction?.execution === "interact-browser") return "inspect-actions";
   return "none";

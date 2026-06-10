@@ -129,7 +129,7 @@ type AgentSearchDecision = {
 };
 
 type AgentPageDecision = {
-  decision: "read-content" | "open-source-link" | "retry-with-browser-html" | "inspect-actions" | "none";
+  decision: "read-content" | "open-source-link" | "open-site-search" | "retry-with-browser-html" | "inspect-actions" | "none";
   confidence: "low" | "medium" | "high";
   reason: string;
   readability: PageReadabilitySummary["level"];
@@ -9151,6 +9151,17 @@ function summarizeAgentPageDecision(
     return {
       decision: "open-source-link",
       confidence: sourceQualityScore >= 0.78 ? "high" : sourceQualityScore >= 0.5 ? "medium" : "low",
+      reason: pageAction.reason,
+      ...base,
+      ...(pageAction.url ? { url: pageAction.url } : {}),
+      ...(pageAction.command ? { command: pageAction.command } : {}),
+      ...(pageAction.commandArgs ? { commandArgs: pageAction.commandArgs } : {}),
+    };
+  }
+  if (pageAction?.action === "open-site-search") {
+    return {
+      decision: "open-site-search",
+      confidence: pageDecisionConfidence(pageCheck, sourceQualityScore),
       reason: pageAction.reason,
       ...base,
       ...(pageAction.url ? { url: pageAction.url } : {}),

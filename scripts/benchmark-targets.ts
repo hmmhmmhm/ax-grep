@@ -35,6 +35,18 @@ const syntheticSearchRefineHtml = `
   </main>
 `;
 
+const syntheticSiteSearchHtml = `
+  <main>
+    <h1>Research archive</h1>
+    <p>Search the archive before broadening to a web search.</p>
+    <form method="GET" action="/find">
+      <label for="archive-query">Archive search</label>
+      <input id="archive-query" name="query" type="search" placeholder="Search reports">
+      <button type="submit">Search</button>
+    </form>
+  </main>
+`;
+
 const syntheticBlockedHtml = "";
 
 const syntheticHiddenMetadataHtml = `
@@ -197,6 +209,12 @@ export const agentExecutorTargets: BenchmarkTarget[] = [
     url: "https://www.baidu.com/s?wd=ax-lite",
     html: syntheticSearchRefineHtml,
     findQueries: ["target claim"],
+  },
+  {
+    category: "Synthetic site search recovery gate",
+    url: "https://archive.example/search",
+    html: syntheticSiteSearchHtml,
+    findQueries: ["target report"],
   },
   {
     category: "Synthetic browser HTML retry gate",
