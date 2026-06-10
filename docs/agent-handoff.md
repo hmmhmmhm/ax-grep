@@ -70,6 +70,12 @@ fields first:
 - `pageCheck`: title, evidence, actions, barriers, forms, sources, and metadata.
 - `agent.citations` and `agent.answerEvidence`: evidence ready for final answers.
 
+`--agent-brief` keeps `agent.executor` and `agent.handoff` as the primary loop
+surface and omits larger planning fields. When there are alternate search
+results or source links, brief mode places executable choices on
+`agent.handoff.resultChoices` and `agent.handoff.sourceChoices`; each choice
+uses raw `commandArgs` so callers can run it without rebuilding a command.
+
 For browser-rendered pages, capture HTML in the agent browser and rerun:
 
 ```sh

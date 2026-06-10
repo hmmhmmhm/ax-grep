@@ -43,6 +43,11 @@ Read these first:
 - `agent.readTargets`, `agent.resultChoices`, and `agent.sourceChoices`: ranked paths to inspect.
 - `agent.signals` and `agent.qualityGates`: compact diagnostics.
 
+In `--agent-brief`, the stable executor surface is `agent.executor` plus
+`agent.handoff`. Brief handoff keeps loop metadata, target URL, priority,
+reason, and executable `resultChoices` or `sourceChoices` when alternates are
+available.
+
 Agent actions use an `execution` discriminator:
 
 - `run-command`: execute `commandArgs` with `execFile`-style argument passing.
