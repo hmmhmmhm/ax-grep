@@ -11,6 +11,14 @@ describe("comparison gate checker", () => {
         averageAgentExecutorScore: 1,
         averageAgentHandoffScore: 1,
         averageAgentBrowserAdvantageScore: 1,
+        averageAgentReadTargetScore: 1,
+        averageAgentResultChoiceScore: 1,
+        averageAgentSourceChoiceScore: 1,
+        averageAgentSourceSearchProvenanceScore: 1,
+        averageAgentRecommendedMetadataScore: 1,
+        averageAgentCitationScore: 1,
+        averageAgentAnswerPlanScore: 1,
+        averageAgentAnswerEvidenceScore: 1,
         averageAgentActionListScore: 1,
         averageAgentSearchDecisionScore: 1,
         averageAgentPageDecisionScore: 1,
@@ -36,6 +44,14 @@ describe("comparison gate checker", () => {
         averageAgentExecutorScore: 1,
         averageAgentHandoffScore: 0.9,
         averageAgentBrowserAdvantageScore: 1,
+        averageAgentReadTargetScore: 1,
+        averageAgentResultChoiceScore: 1,
+        averageAgentSourceChoiceScore: 1,
+        averageAgentSourceSearchProvenanceScore: 0.75,
+        averageAgentRecommendedMetadataScore: 1,
+        averageAgentCitationScore: 1,
+        averageAgentAnswerPlanScore: 1,
+        averageAgentAnswerEvidenceScore: 1,
         averageAgentActionListScore: 1,
         averageAgentSearchDecisionScore: 1,
         averageAgentPageDecisionScore: 1,
@@ -51,6 +67,7 @@ describe("comparison gate checker", () => {
 
     expect(failures.map((failure) => failure.message)).toEqual([
       "averageAgentHandoffScore expected >= 0.995, got 0.9",
+      "averageAgentSourceSearchProvenanceScore expected >= 0.995, got 0.75",
       "classifications.over-collected expected 0, got 1",
     ]);
   });
