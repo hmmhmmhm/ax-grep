@@ -3132,6 +3132,77 @@ describe("cli", () => {
     });
   });
 
+  it("uses site search forms before broadening missing verification searches", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/search", "--agent", "--find", "target report"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h1>Search archive</h1>
+          <form method="GET" action="/find">
+            <label for="q">Archive search</label>
+            <input id="q" name="query" type="search" placeholder="Search reports">
+            <button type="submit">Search</button>
+          </form>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.verification).toMatchObject({
+      status: "missing",
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "open-site-search",
+      execution: "run-command",
+      url: "https://example.test/find?query=target%20report",
+      command: "ax-grep 'https://example.test/find?query=target%20report' --find 'target report' --agent",
+      commandArgs: ["ax-grep", "https://example.test/find?query=target%20report", "--find", "target report", "--agent"],
+    });
+    expect(envelope.agent.handoff).toMatchObject({
+      decision: "execute",
+      operation: "execute-command",
+      action: "open-site-search",
+      commandArgs: ["ax-grep", "https://example.test/find?query=target%20report", "--find", "target report", "--agent"],
+    });
+  });
+
+  it("keeps brief mode when using site search form recovery", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/search", "--agent-brief", "--find", "target report"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <form method="GET" action="/find">
+            <input name="query" type="search" aria-label="Archive search">
+            <button type="submit">Search</button>
+          </form>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: {
+        profile: "brief",
+      },
+      primaryAction: {
+        action: "open-site-search",
+        commandArgs: ["ax-grep", "https://example.test/find?query=target%20report", "--find", "target report", "--agent-brief"],
+      },
+      handoff: {
+        action: "open-site-search",
+        commandArgs: ["ax-grep", "https://example.test/find?query=target%20report", "--find", "target report", "--agent-brief"],
+      },
+    });
+    expect(envelope.agent.actions).toBeUndefined();
+    expect(envelope.pageCheck.nextSteps).toBeUndefined();
+  });
+
   it("summarizes JSON-LD and OpenSearch action targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/docs", "--agent"], {

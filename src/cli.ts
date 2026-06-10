@@ -1589,6 +1589,30 @@ function pageCommandSpec(url: string, agentMode: boolean, browserHtml = false, f
   return { command: shellArgs.join(" "), commandArgs };
 }
 
+function siteSearchCommandSpec(form: PageFormSummary | undefined, findQueries: string[], agentMode: boolean, timeoutMs?: number, userAgent?: string): (CommandSpec & { url: string }) | undefined {
+  if (!form?.urlTemplate || findQueries.length === 0) return undefined;
+  const query = findQueries.join(" ");
+  const url = fillSearchUrlTemplate(form.urlTemplate, query);
+  if (!url) return undefined;
+  return { ...pageCommandSpec(url, agentMode, false, findQueries, timeoutMs, userAgent), url };
+}
+
+function fillSearchUrlTemplate(template: string, query: string): string | undefined {
+  if (!template || !query) return undefined;
+  const encoded = encodeURIComponent(query);
+  const replaced = template
+    .replaceAll("%7Bquery%7D", encoded)
+    .replaceAll("{query}", encoded)
+    .replaceAll("%7Bsearch_term_string%7D", encoded)
+    .replaceAll("{search_term_string}", encoded);
+  if (replaced === template) return undefined;
+  try {
+    return new URL(replaced).toString();
+  } catch {
+    return undefined;
+  }
+}
+
 function appendCommandFetchOptions(commandArgs: string[], shellArgs: string[], timeoutMs?: number, userAgent?: string): void {
   if (typeof timeoutMs === "number" && timeoutMs !== defaultTimeoutMs) pushCommandOption(commandArgs, shellArgs, "--timeout", String(timeoutMs));
   if (userAgent && userAgent !== defaultUserAgent) pushCommandOption(commandArgs, shellArgs, "--user-agent", userAgent, true);
@@ -8409,6 +8433,22 @@ function recommendedVerificationAction(
   if (searchAction) return searchAction;
   const alternateAction = sourceSearchAlternateAction(sourceSearch, missingQueries, agentMode);
   if (alternateAction) return alternateAction;
+  const siteSearchForm = pageCheck.forms.find((form) => form.urlTemplate);
+  const siteSearchCommand = siteSearchCommandSpec(siteSearchForm, missingQueries, agentMode, timeoutMs, userAgent);
+  if (siteSearchForm && siteSearchCommand) {
+    return {
+      action: "open-site-search",
+      reason: "Requested text was not found; use the page's own search form before broadening to web search.",
+      url: siteSearchCommand.url,
+      rank: siteSearchForm.rank,
+      target: {
+        title: siteSearchForm.submitText || siteSearchForm.fields.find((field) => field.label)?.label || "Site search",
+        url: siteSearchCommand.url,
+        rank: siteSearchForm.rank,
+      },
+      ...commandFields(siteSearchCommand),
+    };
+  }
   if (pageCheck.sourceLinks[0]) {
     return {
       action: "open-source-link",
@@ -9786,7 +9826,7 @@ function agentRoutingIntent(primaryAction: SuggestedAction | undefined): AgentRo
   if (primaryAction.requiresBrowserInteraction || actionExecution(primaryAction) === "interact-browser") return "browser-interaction";
   if (primaryAction.action === "read-content" || primaryAction.action === "use-evidence" || actionExecution(primaryAction) === "read-current") return "read-current";
   if (primaryAction.action === "refine-search" || primaryAction.action === "broaden-search" || primaryAction.action === "check-url-or-search") return "search";
-  if (primaryAction.action === "open-result" || primaryAction.action === "open-alternate-result" || primaryAction.action === "open-source-link" || primaryAction.url) return "open-url";
+  if (primaryAction.action === "open-result" || primaryAction.action === "open-alternate-result" || primaryAction.action === "open-source-link" || primaryAction.action === "open-site-search" || primaryAction.url) return "open-url";
   if (actionExecution(primaryAction) === "inspect-output") return "inspect-output";
   return "open-url";
 }
@@ -10011,7 +10051,7 @@ function summarizeAgentExpectedOutcome(primaryAction: SuggestedAction | undefine
       message: "Retry the same URL with the provided command and expect a fresh page check payload.",
     };
   }
-  if (primaryAction.action === "open-result" || primaryAction.action === "open-alternate-result" || primaryAction.action === "open-source-link" || primaryAction.url) {
+  if (primaryAction.action === "open-result" || primaryAction.action === "open-alternate-result" || primaryAction.action === "open-source-link" || primaryAction.action === "open-site-search" || primaryAction.url) {
     return {
       kind: "open-result",
       message: "Open the target URL with the provided command and expect the resulting page check or verification payload.",
@@ -12842,7 +12882,7 @@ function actionPriority(action: SuggestedAction): NonNullable<SuggestedAction["p
   if (action.action === "use-evidence" || action.action === "read-content" || action.terminal) return "high";
   if (action.action === "open-result" || action.action === "open-alternate-result") return "high";
   if (action.action === "retry-with-browser-html") return "high";
-  if (action.action === "open-source-link" || action.action === "refine-search" || action.action === "broaden-search") return "medium";
+  if (action.action === "open-source-link" || action.action === "open-site-search" || action.action === "refine-search" || action.action === "broaden-search") return "medium";
   if (action.requiresBrowserInteraction || actionExecution(action) === "interact-browser") return "medium";
   return "low";
 }
@@ -12853,6 +12893,7 @@ function actionPriorityReason(action: SuggestedAction): string {
   if (action.action === "open-result" || action.action === "open-alternate-result") return "Opening the selected result is the next required executor step.";
   if (action.action === "retry-with-browser-html") return "Browser-captured HTML is required to make progress.";
   if (action.action === "open-source-link") return "External source-like link can improve verification.";
+  if (action.action === "open-site-search") return "The page's own search form can narrow the verification query.";
   if (action.action === "refine-search" || action.action === "broaden-search") return "Search needs refinement before a reliable result can be opened.";
   if (action.requiresBrowserInteraction || actionExecution(action) === "interact-browser") return "Browser interaction may expose additional content or controls.";
   return "Inspect current output before choosing another action.";
