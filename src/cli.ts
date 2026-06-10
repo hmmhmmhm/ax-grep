@@ -14,6 +14,7 @@ import type {
   AgentCitation,
   AgentContract,
   AgentContinuationMode,
+  AgentExecutorStep,
   AgentExecutionPlan,
   AgentExpectedOutcome,
   AgentHandoff,
@@ -819,6 +820,7 @@ type AgentSummary = {
   continuationMode: AgentContinuationMode;
   next: AgentNext;
   runbook: AgentRunbook;
+  executor: AgentExecutorStep;
   handoff: AgentHandoff;
   expectedOutcome: AgentExpectedOutcome;
   executionPlan: AgentExecutionPlan;
@@ -891,6 +893,7 @@ const agentContract: AgentContract = {
     "next.readValue",
     "next.target",
     "runbook",
+    "executor",
     "handoff",
     "handoff.answerEvidence",
     "handoff.choices",
@@ -8672,6 +8675,7 @@ function summarizeAgent(
   const signals = summarizeAgentSignals(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, fetched, error);
   const qualityGates = summarizeAgentQualityGates(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error, usabilityScore, evidenceQualityScore, sourceQualityScore);
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, compactAgentSourceSearch(sourceSearch), signals, qualityGates);
+  const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   const agent: AgentSummary = {
     contract: agentContract,
     status,
@@ -8681,6 +8685,7 @@ function summarizeAgent(
     continuationMode: agentContinuationMode(primaryAction),
     next,
     runbook,
+    executor,
     handoff,
     expectedOutcome,
     executionPlan,
@@ -9252,6 +9257,37 @@ function summarizeAgentRunbook(
     ...(next.afterInteractionCommand ? { afterInteractionCommand: next.afterInteractionCommand } : {}),
     ...(next.afterInteractionCommandArgs ? { afterInteractionCommandArgs: next.afterInteractionCommandArgs } : {}),
     ...(next.readFrom ? { readFrom: next.readFrom } : {}),
+    ...(next.readValue ? { readValue: next.readValue } : {}),
+    ...(next.url ? { url: next.url } : {}),
+    ...(next.target ? { target: next.target } : {}),
+    ...(next.browserHtml ? { browserHtml: next.browserHtml } : {}),
+  };
+}
+
+function summarizeAgentExecutor(
+  next: AgentNext,
+  executionPlan: AgentExecutionPlan,
+  answerPlan: AgentAnswerPlan,
+  handoff: AgentHandoff,
+): AgentExecutorStep {
+  return {
+    instruction: handoff.instruction,
+    decision: next.loop.decision,
+    mode: next.mode,
+    operation: executionPlan.operation,
+    ...(next.action ? { action: next.action } : {}),
+    status: answerPlan.status,
+    confidence: executionPlan.confidence,
+    answerReady: executionPlan.answerReady,
+    shouldContinue: next.loop.shouldContinue,
+    terminal: next.loop.terminal,
+    maxSuggestedIterations: next.loop.maxSuggestedIterations,
+    expectedOutcome: executionPlan.expectedOutcome,
+    ...(answerPlan.useCitationIds.length > 0 ? { useCitationIds: answerPlan.useCitationIds } : {}),
+    ...(next.commandArgs ? { commandArgs: next.commandArgs } : {}),
+    ...(next.afterInteractionCommandArgs ? { afterInteractionCommandArgs: next.afterInteractionCommandArgs } : {}),
+    ...(next.readFrom ? { readFrom: next.readFrom } : {}),
+    ...(next.readTarget ? { readTarget: next.readTarget } : {}),
     ...(next.readValue ? { readValue: next.readValue } : {}),
     ...(next.url ? { url: next.url } : {}),
     ...(next.target ? { target: next.target } : {}),
@@ -10956,6 +10992,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     },
   ];
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, [], [], [], compactAgentSourceSearch(sourceSearch), signals, qualityGates);
+  const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   return {
     contract: agentContract,
     status: "error",
@@ -10965,6 +11002,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     continuationMode: agentContinuationMode(primaryAction),
     next,
     runbook,
+    executor,
     handoff,
     expectedOutcome,
     executionPlan,
@@ -12192,6 +12230,7 @@ function compactAgentSummary(agent: AgentSummary): object {
     continuationMode: agent.continuationMode,
     next: compactAgentNext(agent.next, agent.primaryUrl),
     runbook: compactAgentRunbook(agent.runbook, agent.primaryUrl),
+    executor: compactAgentExecutor(agent.executor, agent.primaryUrl),
     handoff: compactAgentHandoff(agent.handoff, agent.primaryUrl),
     expectedOutcome: agent.expectedOutcome,
     executionPlan: compactAgentUrlRefs(agent.executionPlan, agent.primaryUrl),
@@ -12268,6 +12307,7 @@ function compactAgentBrief(agent: AgentSummary): object {
     status: agent.status,
     pageKind: agent.pageKind,
     summary: agent.summary,
+    executor: compactAgentExecutor(agent.executor, agent.primaryUrl),
     handoff: compactAgentBriefHandoff(agent.handoff, agent.primaryUrl),
     canContinue: agent.canContinue,
     needsBrowserHtml: agent.needsBrowserHtml,
@@ -12441,6 +12481,16 @@ function compactAgentRunbook(runbook: AgentRunbook, primaryUrl?: string): object
   return compactAgentUrlRefs({
     ...rest,
     ...(target ? { target: compactAgentTarget(target, runbook.action) } : {}),
+    ...(readValue ? { readValue: compactAgentReadValue(readValue, true) } : {}),
+  }, primaryUrl);
+}
+
+function compactAgentExecutor(executor: AgentExecutorStep, primaryUrl?: string): object {
+  const { readValue, readTarget, target, ...rest } = executor;
+  return compactAgentUrlRefs({
+    ...rest,
+    ...(target ? { target: compactAgentTarget(target, executor.action) } : {}),
+    ...(readTarget ? { readTarget: compactAgentHandoffReadTarget(readTarget) } : {}),
     ...(readValue ? { readValue: compactAgentReadValue(readValue, true) } : {}),
   }, primaryUrl);
 }

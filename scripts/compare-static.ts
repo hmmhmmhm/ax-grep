@@ -61,6 +61,7 @@ type CliAgentSummary = {
   agentContinuationModeScore: number;
   agentNextScore: number;
   agentRunbookScore: number;
+  agentExecutorStepScore: number;
   agentHandoffScore: number;
   agentExecutionPlanScore: number;
   agentExpectedOutcomeScore: number;
@@ -210,6 +211,35 @@ type CliAgentRunbookShape = {
   afterInteractionCommand?: string;
   afterInteractionCommandArgs?: unknown[];
   readFrom?: string;
+  readValue?: {
+    path?: string;
+    value?: unknown;
+    valuePath?: string;
+  };
+  url?: string;
+  urlRef?: string;
+  target?: CliAgentTargetShape;
+  browserHtml?: CliAgentBrowserHtmlShape;
+};
+
+type CliAgentExecutorShape = {
+  instruction?: string;
+  decision?: CliAgentLoopShape["decision"];
+  mode?: AgentContinuationMode;
+  operation?: CliAgentExecutionPlanShape["operation"];
+  action?: string;
+  status?: CliAgentAnswerPlanShape["status"];
+  confidence?: CliAgentExecutionPlanShape["confidence"];
+  answerReady?: boolean;
+  shouldContinue?: boolean;
+  terminal?: boolean;
+  maxSuggestedIterations?: number;
+  expectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
+  useCitationIds?: unknown[];
+  commandArgs?: unknown[];
+  afterInteractionCommandArgs?: unknown[];
+  readFrom?: string;
+  readTarget?: CliReadTargetShape;
   readValue?: {
     path?: string;
     value?: unknown;
@@ -462,6 +492,7 @@ type GateSummary = {
   averageAgentContinuationModeScore: number;
   averageAgentNextScore: number;
   averageAgentRunbookScore: number;
+  averageAgentExecutorStepScore: number;
   averageAgentHandoffScore: number;
   averageAgentExecutionPlanScore: number;
   averageAgentExpectedOutcomeScore: number;
@@ -835,6 +866,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       continuationMode?: AgentContinuationMode;
       next?: CliAgentNextShape;
       runbook?: CliAgentRunbookShape;
+      executor?: CliAgentExecutorShape;
       handoff?: CliAgentHandoffShape;
       expectedOutcome?: CliAgentExpectedOutcomeShape;
       executionPlan?: CliAgentExecutionPlanShape;
@@ -954,6 +986,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentContinuationModeScore: scoreAgentContinuationMode(item.agent?.continuationMode, item.agent?.primaryAction),
     agentNextScore: scoreAgentNext(item.agent?.next, item.agent?.continuationMode, item.agent?.primaryAction),
     agentRunbookScore: scoreAgentRunbook(item.agent?.runbook, item.agent?.next, item.agent?.executionPlan, item.agent?.answerPlan),
+    agentExecutorStepScore: scoreAgentExecutorStep(item.agent?.executor, item.agent?.next, item.agent?.executionPlan, item.agent?.answerPlan),
     agentHandoffScore: scoreAgentHandoff(
       item.agent?.handoff,
       item.agent?.next,
@@ -1029,6 +1062,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentContinuationModeScore: 0,
     agentNextScore: 0,
     agentRunbookScore: 0,
+    agentExecutorStepScore: 0,
     agentHandoffScore: 0,
     agentExecutionPlanScore: 0,
     agentExpectedOutcomeScore: 0,
@@ -1199,6 +1233,7 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[]; 
     "next.readValue",
     "next.target",
     "runbook",
+    "executor",
     "handoff",
     "handoff.answerEvidence",
     "handoff.choices",
@@ -1521,6 +1556,60 @@ function scoreAgentRunbook(
   if (next.url || next.urlRef) {
     required += 1;
     if (sameAgentUrl(runbook, next)) matched += 1;
+  }
+  return roundScore(matched / required);
+}
+
+function scoreAgentExecutorStep(
+  executor: CliAgentExecutorShape | undefined,
+  next: CliAgentNextShape | undefined,
+  plan: CliAgentExecutionPlanShape | undefined,
+  answerPlan: CliAgentAnswerPlanShape | undefined,
+): number {
+  if (!executor || !next?.loop || !plan || !answerPlan) return 0;
+  let required = 12;
+  let matched = 0;
+  if (typeof executor.instruction === "string" && executor.instruction.length > 0) matched += 1;
+  if (executor.decision === next.loop.decision) matched += 1;
+  if (executor.mode === next.mode) matched += 1;
+  if (executor.operation === plan.operation) matched += 1;
+  if (executor.action === next.action) matched += 1;
+  if (executor.status === answerPlan.status) matched += 1;
+  if (executor.confidence === plan.confidence) matched += 1;
+  if (executor.answerReady === plan.answerReady) matched += 1;
+  if (executor.shouldContinue === next.loop.shouldContinue) matched += 1;
+  if (executor.terminal === next.loop.terminal) matched += 1;
+  if (executor.maxSuggestedIterations === next.loop.maxSuggestedIterations) matched += 1;
+  if (executor.expectedOutcome === plan.expectedOutcome) matched += 1;
+  if (answerPlan.useCitationIds && answerPlan.useCitationIds.length > 0) {
+    required += 1;
+    if (JSON.stringify(executor.useCitationIds) === JSON.stringify(answerPlan.useCitationIds)) matched += 1;
+  }
+  if (next.commandArgs) {
+    required += 1;
+    if (JSON.stringify(executor.commandArgs) === JSON.stringify(next.commandArgs)) matched += 1;
+  }
+  if (next.afterInteractionCommandArgs) {
+    required += 1;
+    if (JSON.stringify(executor.afterInteractionCommandArgs) === JSON.stringify(next.afterInteractionCommandArgs)) matched += 1;
+  }
+  if (next.readFrom) {
+    required += 3;
+    if (executor.readFrom === next.readFrom) matched += 1;
+    if (executor.readTarget?.path === next.readTarget?.path) matched += 1;
+    if (executor.readValue?.path === next.readValue?.path) matched += 1;
+  }
+  if (next.url || next.urlRef) {
+    required += 1;
+    if (sameAgentUrl(executor, next)) matched += 1;
+  }
+  if (next.target) {
+    required += 1;
+    if (executor.target?.url === next.target.url) matched += 1;
+  }
+  if (next.browserHtml) {
+    required += 1;
+    if (JSON.stringify(executor.browserHtml) === JSON.stringify(next.browserHtml)) matched += 1;
   }
   return roundScore(matched / required);
 }
@@ -2663,6 +2752,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentContinuationModeScore * 0.005
     + summary.agentNextScore * 0.005
     + summary.agentRunbookScore * 0.005
+    + summary.agentExecutorStepScore * 0.005
     + summary.agentHandoffScore * 0.005
     + summary.agentExecutionPlanScore * 0.005
     + summary.agentExpectedOutcomeScore * 0.005
@@ -2688,6 +2778,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentContinuationModeScore,
     summary.agentNextScore,
     summary.agentRunbookScore,
+    summary.agentExecutorStepScore,
     summary.agentHandoffScore,
     summary.agentExecutionPlanScore,
     summary.agentExpectedOutcomeScore,
@@ -2775,6 +2866,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentContinuationModeScore: average(included.map((comparison) => comparison.cliAgentSummary.agentContinuationModeScore)),
     averageAgentNextScore: average(included.map((comparison) => comparison.cliAgentSummary.agentNextScore)),
     averageAgentRunbookScore: average(included.map((comparison) => comparison.cliAgentSummary.agentRunbookScore)),
+    averageAgentExecutorStepScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExecutorStepScore)),
     averageAgentHandoffScore: average(included.map((comparison) => comparison.cliAgentSummary.agentHandoffScore)),
     averageAgentExecutionPlanScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExecutionPlanScore)),
     averageAgentExpectedOutcomeScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExpectedOutcomeScore)),

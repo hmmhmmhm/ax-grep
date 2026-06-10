@@ -226,6 +226,30 @@ export type AgentRunbook = {
   browserHtml?: AgentBrowserHtmlCapture;
 };
 
+export type AgentExecutorStep = {
+  instruction: string;
+  decision: AgentLoopDecision;
+  mode: AgentContinuationMode;
+  operation: AgentExecutionPlan["operation"];
+  action?: string;
+  status: AgentAnswerPlan["status"];
+  confidence: AgentExecutionPlan["confidence"];
+  answerReady: boolean;
+  shouldContinue: boolean;
+  terminal: boolean;
+  maxSuggestedIterations: number;
+  expectedOutcome: AgentExpectedOutcomeKind;
+  useCitationIds?: string[];
+  commandArgs?: string[];
+  afterInteractionCommandArgs?: string[];
+  readFrom?: string;
+  readTarget?: AgentReadTarget;
+  readValue?: AgentReadValue;
+  url?: string;
+  target?: AgentTarget;
+  browserHtml?: AgentBrowserHtmlCapture;
+};
+
 export type AgentHandoff = {
   instruction: string;
   decision: AgentLoopDecision;
@@ -380,6 +404,7 @@ export type AgentSummary = {
   continuationMode: AgentContinuationMode;
   next: AgentNext;
   runbook: AgentRunbook;
+  executor: AgentExecutorStep;
   handoff?: AgentHandoff;
   expectedOutcome: AgentExpectedOutcome;
   executionPlan: AgentExecutionPlan;
@@ -450,6 +475,7 @@ export type AgentContractFeature =
   | "next.readValue"
   | "next.target"
   | "runbook"
+  | "executor"
   | "handoff"
   | "handoff.answerEvidence"
   | "handoff.choices"

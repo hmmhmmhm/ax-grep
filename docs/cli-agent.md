@@ -36,6 +36,7 @@ warning fields.
 Read these first:
 
 - `agent.status`: `ready`, `choose-result`, `verify`, `needs-browser`, or `error`.
+- `agent.executor`: one-field executor step with decision, command/read/browser fields.
 - `agent.handoff`: the shortest executor handoff for the next step.
 - `agent.next`: canonical loop payload with command, read target, or browser step.
 - `agent.answerPlan`, `agent.citations`, and `agent.answerEvidence`: final answer evidence.
