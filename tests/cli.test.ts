@@ -3385,6 +3385,76 @@ describe("cli", () => {
     });
   });
 
+  it("keeps executable form details in brief read handoff", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/search", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <form method="GET" action="/find">
+            <label for="q">Archive search</label>
+            <input id="q" name="query" type="search" placeholder="Search reports" required>
+            <select name="category"><option>All</option><option>Reports</option></select>
+            <button type="submit">Search</button>
+          </form>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent.contract.profile).toBe("brief");
+    expect(envelope.agent.executor).toMatchObject({
+      decision: "return",
+      readFrom: "pageCheck.forms",
+      readValue: {
+        path: "pageCheck.forms",
+        value: [
+          expect.objectContaining({
+            id: "f1",
+            path: "pageCheck.forms[0]",
+            method: "get",
+            actionUrl: "https://example.test/find",
+            urlTemplate: "https://example.test/find?query=%7Bquery%7D",
+            queryField: "query",
+            selector: "form:nth-of-type(1)",
+            fields: expect.arrayContaining([
+              expect.objectContaining({
+                name: "query",
+                type: "search",
+                selector: "input[name=\"query\"]",
+                required: true,
+              }),
+            ]),
+          }),
+        ],
+      },
+    });
+    expect(envelope.agent.handoff.readValue).toMatchObject({
+      path: "pageCheck.forms",
+      value: [
+        expect.objectContaining({
+          id: "f1",
+          text: expect.stringContaining("query field: query"),
+          urlTemplate: "https://example.test/find?query=%7Bquery%7D",
+          fields: expect.arrayContaining([
+            expect.objectContaining({
+              name: "query",
+              selector: "input[name=\"query\"]",
+            }),
+          ]),
+        }),
+      ],
+    });
+    expect(envelope.agent.next).toBeUndefined();
+    expect(envelope.pageCheck.forms).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        urlTemplate: "https://example.test/find?query=%7Bquery%7D",
+      }),
+    ]));
+  });
+
   it("checks requested text against page form summaries", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/search", "--agent", "--find", "Archive search"], {

@@ -12718,6 +12718,8 @@ function preferBriefAgentCommandString(value: string): string {
 function compactAgentReadValue(readValue: AgentReadValue, forceReference = false): object {
   if (Array.isArray(readValue.value)) {
     const serialized = JSON.stringify(readValue.value);
+    if (forceReference && readValue.path === "pageCheck.forms") return { path: readValue.path, value: compactAgentFormExecutionRefs(readValue.value as PageFormSummary[]) };
+    if (forceReference && readValue.path === "pageCheck.actionTargets") return { path: readValue.path, value: compactAgentActionTargetExecutionRefs(readValue.value as PageActionTargetSummary[]) };
     if (forceReference && serialized.length <= 1000) return readValue;
     if (!forceReference && readValue.path === "pageCheck.contentEvidence" && readValue.value.length < 4) return readValue;
     const inlineLimit = readValue.path === "pageCheck.contentEvidence" ? 900 : 3000;
@@ -12742,6 +12744,49 @@ function compactAgentReadValue(readValue: AgentReadValue, forceReference = false
     path: readValue.path,
     value: readValue.value,
   };
+}
+
+function compactAgentFormExecutionRefs(forms: PageFormSummary[]): object[] {
+  return forms.slice(0, 4).map((form) => ({
+    id: form.id,
+    path: form.path,
+    rank: form.rank,
+    method: form.method,
+    fieldCount: form.fieldCount,
+    text: form.text,
+    ...(form.actionUrl ? { actionUrl: form.actionUrl } : {}),
+    ...(form.urlTemplate ? { urlTemplate: form.urlTemplate } : {}),
+    ...(form.queryField ? { queryField: form.queryField } : {}),
+    ...(form.submitText ? { submitText: form.submitText } : {}),
+    ...(form.selector ? { selector: form.selector } : {}),
+    fields: form.fields.map((field) => ({
+      type: field.type,
+      ...(field.name ? { name: field.name } : {}),
+      ...(field.label ? { label: field.label } : {}),
+      ...(field.placeholder && field.placeholder !== field.label ? { placeholder: field.placeholder } : {}),
+      ...(field.required ? { required: true } : {}),
+      ...(field.options?.length ? { options: field.options.slice(0, 6) } : {}),
+      ...(field.selector ? { selector: field.selector } : {}),
+    })),
+  }));
+}
+
+function compactAgentActionTargetExecutionRefs(targets: PageActionTargetSummary[]): object[] {
+  return targets.slice(0, 5).map((target) => ({
+    id: target.id,
+    path: target.path,
+    rank: target.rank,
+    kind: target.kind,
+    name: target.name,
+    text: target.text,
+    source: target.source,
+    ...(target.targetUrl ? { targetUrl: target.targetUrl } : {}),
+    ...(target.urlTemplate ? { urlTemplate: target.urlTemplate } : {}),
+    ...(target.queryInput ? { queryInput: target.queryInput } : {}),
+    ...(target.method ? { method: target.method } : {}),
+    ...(target.encodingType ? { encodingType: target.encodingType } : {}),
+    ...(target.selector ? { selector: target.selector } : {}),
+  }));
 }
 
 function compactAgentPage(page: PageSummary): object {
