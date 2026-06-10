@@ -12586,9 +12586,11 @@ function preferBriefAgentCommands(value: unknown): unknown {
 
 function compactAgentReadValue(readValue: AgentReadValue, forceReference = false): object {
   if (Array.isArray(readValue.value)) {
+    const serialized = JSON.stringify(readValue.value);
+    if (forceReference && serialized.length <= 1000) return readValue;
     if (!forceReference && readValue.path === "pageCheck.contentEvidence" && readValue.value.length < 4) return readValue;
     const inlineLimit = readValue.path === "pageCheck.contentEvidence" ? 900 : 3000;
-    if (!forceReference && JSON.stringify(readValue.value).length <= inlineLimit) return readValue;
+    if (!forceReference && serialized.length <= inlineLimit) return readValue;
     return {
       path: readValue.path,
       valuePath: readValue.path,
@@ -12597,7 +12599,8 @@ function compactAgentReadValue(readValue: AgentReadValue, forceReference = false
     };
   }
   if (readValue.value && typeof readValue.value === "object") {
-    if (!forceReference && JSON.stringify(readValue.value).length <= 1200) return readValue;
+    const serialized = JSON.stringify(readValue.value);
+    if (serialized.length <= (forceReference ? 800 : 1200)) return readValue;
     return {
       path: readValue.path,
       valuePath: readValue.path,

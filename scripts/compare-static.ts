@@ -1598,6 +1598,10 @@ function scoreAgentHandoff(
     if (handoff.readFrom === next.readFrom) matched += 1;
     if (handoff.readTarget?.path === next.readTarget?.path) matched += 1;
     if (handoff.readValue?.path === next.readValue?.path) matched += 1;
+    if (hasSmallInlineReadValue(next.readValue)) {
+      required += 1;
+      if (JSON.stringify(handoff.readValue?.value) === JSON.stringify(next.readValue?.value)) matched += 1;
+    }
   }
   if (next.url || next.urlRef) {
     required += 1;
@@ -1612,6 +1616,11 @@ function scoreAgentHandoff(
     if (JSON.stringify(handoff.browserHtml) === JSON.stringify(next.browserHtml)) matched += 1;
   }
   return roundScore(matched / required);
+}
+
+function hasSmallInlineReadValue(readValue: CliAgentNextShape["readValue"]): boolean {
+  if (!readValue || typeof readValue.value === "undefined") return false;
+  return JSON.stringify(readValue.value).length <= 1_000;
 }
 
 function scoreHandoffAnswerEvidence(handoffEvidence: CliAgentCitationShape[] | undefined, answerEvidence: CliAgentCitationShape[]): number {

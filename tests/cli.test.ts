@@ -345,8 +345,10 @@ describe("cli", () => {
           readFrom: "verification.bestEvidence",
           readValue: {
             path: "verification.bestEvidence",
-            valuePath: "verification.bestEvidence",
-            valueType: "object",
+            value: expect.objectContaining({
+              field: "title",
+              text: "Example",
+            }),
           },
         },
         handoff: {
@@ -372,8 +374,10 @@ describe("cli", () => {
           readFrom: "verification.bestEvidence",
           readValue: {
             path: "verification.bestEvidence",
-            valuePath: "verification.bestEvidence",
-            valueType: "object",
+            value: expect.objectContaining({
+              field: "title",
+              text: "Example",
+            }),
           },
           useCitationIds: expect.arrayContaining(["v1"]),
           answerEvidence: expect.arrayContaining([
@@ -3645,6 +3649,38 @@ describe("cli", () => {
           url: "https://example.test/graphql",
         }),
       ]),
+    });
+  });
+
+  it("inlines small hidden read values in agent handoff", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/app", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <script>fetch("/api/agent-report");</script>
+          </head>
+          <body><main><h1>App shell</h1></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "read-content",
+      readFrom: "pageCheck.apiEndpoints",
+    });
+    expect(envelope.agent.handoff.readValue).toMatchObject({
+      path: "pageCheck.apiEndpoints",
+      value: [
+        expect.objectContaining({
+          id: "api1",
+          url: "https://example.test/api/agent-report",
+        }),
+      ],
     });
   });
 
