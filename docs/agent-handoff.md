@@ -1,8 +1,8 @@
 # Agent Handoff Loop
 
-`--agent` returns compact JSON with `agent.handoff`, `agent.next`,
+`--agent` returns compact JSON with `agent.executor`, `agent.handoff`, `agent.next`,
 `pageCheck`, `verification`, and source evidence. Executors can usually switch
-only on `agent.handoff.decision`.
+only on `agent.executor.decision`.
 
 ## Decisions
 
@@ -21,7 +21,7 @@ only on `agent.handoff.decision`.
 ```ts
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import type { AgentHandoff, AgentJsonEnvelope } from "ax-grep";
+import type { AgentExecutorStep, AgentJsonEnvelope } from "ax-grep";
 
 const execFileAsync = promisify(execFile);
 
@@ -34,7 +34,7 @@ async function inspectWithAxGrep(urlOrQuery: string) {
   let payload = await runAxGrep([urlOrQuery, "--agent"]);
 
   for (let iteration = 0; iteration < 4; iteration += 1) {
-    const step: AgentHandoff = payload.agent.handoff;
+    const step: AgentExecutorStep = payload.agent.executor;
 
     if (step.decision === "return") {
       return step.readValue?.value ?? payload;
@@ -64,6 +64,7 @@ The full JSON is intentionally compact but can still be large. Read these
 fields first:
 
 - `agent.handoff`: shortest next-step instruction.
+- `agent.executor`: single-field executor step with command, read, or browser fields.
 - `agent.next`: canonical loop payload with command, read target, or browser step.
 - `verification`: quickest answer for `--find` checks.
 - `pageCheck`: title, evidence, actions, barriers, forms, sources, and metadata.

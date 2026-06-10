@@ -33,8 +33,8 @@ describe("README", () => {
     const handoff = await readFile(join(process.cwd(), "docs", "agent-handoff.md"), "utf8");
 
     expect(handoff).toContain("Executors can usually switch");
-    expect(handoff).toContain("only on `agent.handoff.decision`");
-    expect(handoff).toContain("const step: AgentHandoff = payload.agent.handoff");
+    expect(handoff).toContain("only on `agent.executor.decision`");
+    expect(handoff).toContain("const step: AgentExecutorStep = payload.agent.executor");
     expect(handoff).toContain("commandArgs.slice(1)");
   });
 });

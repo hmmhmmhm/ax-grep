@@ -12508,7 +12508,7 @@ function compactAgentExecutor(executor: AgentExecutorStep, primaryUrl?: string):
     ...rest,
     ...(target ? { target: compactAgentTarget(target, executor.action) } : {}),
     ...(readTarget ? { readTarget: compactAgentHandoffReadTarget(readTarget) } : {}),
-    ...(readValue ? { readValue: compactAgentReadValue(readValue, true) } : {}),
+    ...(readValue ? { readValue: compactAgentReadValue(readValue) } : {}),
   }, primaryUrl);
 }
 

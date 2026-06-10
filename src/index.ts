@@ -8,6 +8,7 @@ export type {
   AgentContinuationMode,
   AgentExpectedOutcome,
   AgentExpectedOutcomeKind,
+  AgentExecutorStep,
   AgentExecutionMode,
   AgentHandoff,
   AgentJsonEnvelope,
