@@ -8006,6 +8006,13 @@ npx ax-grep https://example.test --agent</code></pre>
       primaryAction: {
         action: "inspect-browser-state",
         execution: "interact-browser",
+        reason: "Browser-captured HTML still shows a challenge barrier; handle it in the live browser, then capture HTML again.",
+        target: {
+          title: "Challenge",
+          url: "https://captured.example/challenge",
+          source: "diagnostic",
+          rank: 1,
+        },
         requiresBrowserInteraction: true,
         afterInteractionCommand: "ax-grep 'https://captured.example/challenge' --html-file captured.html --agent",
         afterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent"],

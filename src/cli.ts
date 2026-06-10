@@ -3446,7 +3446,7 @@ function summarizePageCheck(
   const pageActions = summarizePageCheckActions(actions);
   const confidence = pageCheckConfidence(contentLength, outline, dataTables, analysis);
   const readability = summarizeReadability(confidence, contentEvidence, dataTables, forms, actionTargets, hydration, apiEndpoints, clientState, runtime, config, appHints, mobileHints, topics, keyValues, metaFacts, provenance, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentLength, sourceLinks, pageActions, analysis);
-  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, forms, actionTargets, hydration, apiEndpoints, clientState, runtime, config, appHints, mobileHints, topics, keyValues, metaFacts, provenance, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
+  const recommendedAction = recommendedPageCheckAction(readability, analysis, fetched.finalUrl, sourceLinks, dataTables, barriers, forms, actionTargets, hydration, apiEndpoints, clientState, runtime, config, appHints, mobileHints, topics, keyValues, metaFacts, provenance, httpPolicies, schemaFacts, offers, identities, datasets, timeline, contactPoints, faqs, breadcrumbs, sections, pagination, toc, codeBlocks, citations, media, resources, embeds, transcripts, authorLinks, contentEvidence, agentMode, capturedHtml, timeoutMs, userAgent);
   const pageCheck: PageCheckSummary = {
     contentPreview,
     contentEvidence,
@@ -3756,6 +3756,7 @@ function recommendedPageCheckAction(
   pageUrl: string,
   sourceLinks: PageLinkSummary[],
   dataTables: PageDataTableSummary[],
+  barriers: PageBarrierSummary[],
   forms: PageFormSummary[],
   actionTargets: PageActionTargetSummary[],
   hydration: PageHydrationSummary[],
@@ -3805,11 +3806,15 @@ function recommendedPageCheckAction(
     };
   }
   if (analysis.kind === "blocked-page" && capturedHtml) {
+    const barrier = primaryBlockingBarrier(barriers);
     return {
       action: "inspect-browser-state",
-      reason: "Browser-captured HTML still appears blocked or empty; inspect the browser state or capture after interacting.",
+      reason: barrier
+        ? `Browser-captured HTML still shows a ${barrier.kind} barrier; handle it in the live browser, then capture HTML again.`
+        : "Browser-captured HTML still appears blocked or empty; inspect the browser state or capture after interacting.",
       url: pageUrl,
       requiresBrowserInteraction: true,
+      ...(barrier ? { target: barrierAgentTarget(barrier, pageUrl) } : {}),
       ...afterInteractionCommandFields(pageCommandSpec(pageUrl, agentMode, true, [], timeoutMs, userAgent)),
     };
   }
@@ -4187,11 +4192,15 @@ function recommendedPageCheckAction(
     };
   }
   if (analysis.kind === "empty" && capturedHtml) {
+    const barrier = primaryBlockingBarrier(barriers);
     return {
       action: "inspect-browser-state",
-      reason: "Browser-captured HTML still appears blocked or empty; inspect the browser state or capture after interacting.",
+      reason: barrier
+        ? `Browser-captured HTML still shows a ${barrier.kind} barrier; handle it in the live browser, then capture HTML again.`
+        : "Browser-captured HTML still appears blocked or empty; inspect the browser state or capture after interacting.",
       url: pageUrl,
       requiresBrowserInteraction: true,
+      ...(barrier ? { target: barrierAgentTarget(barrier, pageUrl) } : {}),
       ...afterInteractionCommandFields(pageCommandSpec(pageUrl, agentMode, true, [], timeoutMs, userAgent)),
     };
   }
@@ -4460,6 +4469,29 @@ function barrierLabel(kind: PageBarrierSummary["kind"]): string {
   if (kind === "age-gate") return "Age gate";
   if (kind === "geo-block") return "Geo block";
   return kind.charAt(0).toUpperCase() + kind.slice(1);
+}
+
+function primaryBlockingBarrier(barriers: PageBarrierSummary[]): PageBarrierSummary | undefined {
+  const blocking = barriers.filter((barrier) => barrier.kind !== "cookie-consent");
+  return blocking.sort((left, right) => barrierPriority(right) - barrierPriority(left) || left.rank - right.rank)[0];
+}
+
+function barrierPriority(barrier: PageBarrierSummary): number {
+  if (barrier.kind === "challenge") return 6;
+  if (barrier.kind === "login") return 5;
+  if (barrier.kind === "paywall") return 4;
+  if (barrier.kind === "age-gate") return 3;
+  if (barrier.kind === "geo-block") return 2;
+  return 1;
+}
+
+function barrierAgentTarget(barrier: PageBarrierSummary, pageUrl: string): AgentTarget {
+  return {
+    title: barrierLabel(barrier.kind),
+    url: pageUrl,
+    source: barrier.source,
+    rank: barrier.rank,
+  };
 }
 
 function summarizeForms(html: string, baseUrl: string): PageFormSummary[] {
