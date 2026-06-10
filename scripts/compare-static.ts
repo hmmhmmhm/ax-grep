@@ -1,4 +1,7 @@
 import { spawnSync } from "node:child_process";
+import { mkdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import process from "node:process";
 import { Readable } from "node:stream";
 import { extract } from "../src/static";
@@ -62,6 +65,7 @@ type CliAgentSummary = {
   agentNextScore: number;
   agentRunbookScore: number;
   agentExecutorStepScore: number;
+  agentBriefExecutorStepScore: number;
   agentHandoffScore: number;
   agentExecutionPlanScore: number;
   agentExpectedOutcomeScore: number;
@@ -493,6 +497,7 @@ type GateSummary = {
   averageAgentNextScore: number;
   averageAgentRunbookScore: number;
   averageAgentExecutorStepScore: number;
+  averageAgentBriefExecutorStepScore: number;
   averageAgentHandoffScore: number;
   averageAgentExecutionPlanScore: number;
   averageAgentExpectedOutcomeScore: number;
@@ -652,6 +657,14 @@ function runAgentBrowserSnapshot(
   session: string,
   warnings: string[],
 ): StaticComparison["agentBrowser"] {
+  return withAgentBrowserLock(warnings, () => runAgentBrowserSnapshotLocked(url, session, warnings));
+}
+
+function runAgentBrowserSnapshotLocked(
+  url: string,
+  session: string,
+  warnings: string[],
+): StaticComparison["agentBrowser"] {
   const agentBrowserBin = resolveAgentBrowserBin();
   if (!agentBrowserBin) {
     warnings.push("agent-browser binary was not found; skipped reference snapshot");
@@ -682,6 +695,10 @@ function runAgentBrowserSnapshot(
 }
 
 function runAgentBrowserHtml(url: string, session: string, warnings: string[]): { html: string; agentBrowser: StaticComparison["agentBrowser"] } | null {
+  return withAgentBrowserLock(warnings, () => runAgentBrowserHtmlLocked(url, session, warnings));
+}
+
+function runAgentBrowserHtmlLocked(url: string, session: string, warnings: string[]): { html: string; agentBrowser: StaticComparison["agentBrowser"] } | null {
   const agentBrowserBin = resolveAgentBrowserBin();
   if (!agentBrowserBin) {
     warnings.push("agent-browser binary was not found; kept fetched HTML");
@@ -719,6 +736,35 @@ function runAgentBrowserHtml(url: string, session: string, warnings: string[]): 
     html: decodeAgentBrowserEvalHtml(rendered.stdout),
     agentBrowser,
   };
+}
+
+function withAgentBrowserLock<T>(warnings: string[], run: () => T): T | null {
+  const lockDir = join(tmpdir(), "ax-grep-agent-browser.lock");
+  try {
+    mkdirSync(lockDir);
+    writeFileSync(join(lockDir, "pid"), `${process.pid}\n`, "utf8");
+  } catch {
+    try {
+      const ageMs = Date.now() - statSync(lockDir).mtimeMs;
+      if (ageMs > 10 * 60_000) {
+        rmSync(lockDir, { recursive: true, force: true });
+        mkdirSync(lockDir);
+        writeFileSync(join(lockDir, "pid"), `${process.pid}\n`, "utf8");
+      } else {
+        warnings.push("agent-browser is already running for another comparison; skipped browser fallback to avoid overloading the host");
+        return null;
+      }
+    } catch {
+      warnings.push("agent-browser lock could not be acquired; skipped browser fallback to avoid overloading the host");
+      return null;
+    }
+  }
+
+  try {
+    return run();
+  } finally {
+    rmSync(lockDir, { recursive: true, force: true });
+  }
 }
 
 function parseAgentBrowserSnapshot(output: string): NonNullable<StaticComparison["agentBrowser"]> {
@@ -841,10 +887,47 @@ async function summarizeCliAgentOutput(
   });
   if (cliStatus !== 0) warnings.push(`ax-grep CLI summary exited ${cliStatus}: ${trimError(stderr.output || stdout.output)}`);
   try {
-    return summarizeCliEnvelope(JSON.parse(stdout.output));
+    const summary = summarizeCliEnvelope(JSON.parse(stdout.output));
+    summary.agentBriefExecutorStepScore = await summarizeCliBriefExecutorScore(url, html, source, status, warnings, findQueries);
+    summary.agentExecutorScore = scoreAgentExecutorSummary(summary);
+    summary.score = scoreCliAgentSummary(summary);
+    return summary;
   } catch (error) {
     warnings.push(`ax-grep CLI summary parse failed: ${trimError(error)}`);
     return emptyCliAgentSummary();
+  }
+}
+
+async function summarizeCliBriefExecutorScore(
+  url: string,
+  html: string,
+  source: StaticComparison["fetch"]["source"],
+  status: number,
+  warnings: string[],
+  findQueries: string[] = [],
+): Promise<number> {
+  const stdout = createMemoryWriter();
+  const stderr = createMemoryWriter();
+  const args = source === "agent-browser-rendered" ? [url, "--stdin", "--agent-brief"] : [url, "--agent-brief"];
+  for (const query of findQueries) args.push("--find", query);
+  const cliStatus = await runCli(args, {
+    stdout,
+    stderr,
+    ...(source === "agent-browser-rendered" ? { stdin: Readable.from([html]) as NodeJS.ReadStream } : {}),
+    fetch: async () => {
+      if (source === "agent-browser-rendered") throw new Error("compare-static should pass rendered HTML through stdin");
+      return new Response(html, {
+        status: status || 200,
+        headers: { "content-type": "text/html" },
+      });
+    },
+  });
+  if (cliStatus !== 0) warnings.push(`ax-grep brief CLI summary exited ${cliStatus}: ${trimError(stderr.output || stdout.output)}`);
+  try {
+    return scoreBriefAgentExecutorEnvelope(JSON.parse(stdout.output));
+  } catch (error) {
+    warnings.push(`ax-grep brief CLI summary parse failed: ${trimError(error)}`);
+    return 0;
   }
 }
 
@@ -987,6 +1070,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentNextScore: scoreAgentNext(item.agent?.next, item.agent?.continuationMode, item.agent?.primaryAction),
     agentRunbookScore: scoreAgentRunbook(item.agent?.runbook, item.agent?.next, item.agent?.executionPlan, item.agent?.answerPlan),
     agentExecutorStepScore: scoreAgentExecutorStep(item.agent?.executor, item.agent?.next, item.agent?.executionPlan, item.agent?.answerPlan),
+    agentBriefExecutorStepScore: 0,
     agentHandoffScore: scoreAgentHandoff(
       item.agent?.handoff,
       item.agent?.next,
@@ -1063,6 +1147,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentNextScore: 0,
     agentRunbookScore: 0,
     agentExecutorStepScore: 0,
+    agentBriefExecutorStepScore: 0,
     agentHandoffScore: 0,
     agentExecutionPlanScore: 0,
     agentExpectedOutcomeScore: 0,
@@ -1356,6 +1441,19 @@ function sameAgentUrl(left: { url?: string; urlRef?: string } | undefined, right
   return left?.url === right?.url;
 }
 
+function sameAgentBrowserHtml(
+  left: CliAgentBrowserHtmlShape | undefined,
+  right: CliAgentBrowserHtmlShape | undefined,
+): boolean {
+  if (!left || !right) return false;
+  return (!right.url || left.url === right.url)
+    && (!right.htmlFile || left.htmlFile === right.htmlFile)
+    && (!right.captureScript || left.captureScript === right.captureScript)
+    && (!right.afterInteractionCommand || left.afterInteractionCommand === right.afterInteractionCommand)
+    && (!right.afterInteractionCommandArgs
+      || JSON.stringify(left.afterInteractionCommandArgs) === JSON.stringify(right.afterInteractionCommandArgs));
+}
+
 function scoreAgentAnswerEvidence(
   answerEvidence: CliAgentCitationShape[],
   answerPlan: CliAgentAnswerPlanShape | undefined,
@@ -1610,6 +1708,76 @@ function scoreAgentExecutorStep(
   if (next.browserHtml) {
     required += 1;
     if (JSON.stringify(executor.browserHtml) === JSON.stringify(next.browserHtml)) matched += 1;
+  }
+  return roundScore(matched / required);
+}
+
+function scoreBriefAgentExecutorEnvelope(envelope: unknown): number {
+  const item = envelope as {
+    agent?: {
+      contract?: { profile?: string; compact?: boolean };
+      executor?: CliAgentExecutorShape;
+      handoff?: CliAgentHandoffShape;
+      primaryAction?: CliActionShape;
+      next?: unknown;
+      runbook?: unknown;
+      executionPlan?: unknown;
+      actions?: unknown;
+    };
+  };
+  const agent = item.agent;
+  const executor = agent?.executor;
+  const handoff = agent?.handoff;
+  if (!agent || !executor || !handoff) return 0;
+  let required = 14;
+  let matched = 0;
+  if (agent.contract?.profile === "brief" && agent.contract.compact === true) matched += 1;
+  if (typeof agent.next === "undefined") matched += 1;
+  if (typeof agent.runbook === "undefined") matched += 1;
+  if (typeof agent.executionPlan === "undefined") matched += 1;
+  if (typeof agent.actions === "undefined") matched += 1;
+  if (typeof executor.instruction === "string" && executor.instruction.length > 0) matched += 1;
+  if (executor.decision === handoff.decision) matched += 1;
+  if (executor.operation === handoff.operation) matched += 1;
+  if (executor.action === handoff.action) matched += 1;
+  if (executor.status === handoff.answerStatus) matched += 1;
+  if (executor.answerReady === handoff.answerReady) matched += 1;
+  if (executor.shouldContinue === handoff.shouldContinue) matched += 1;
+  if (executor.terminal === handoff.terminal) matched += 1;
+  if (executor.expectedOutcome === handoff.expectedOutcome) matched += 1;
+  if (handoff.mode) {
+    required += 1;
+    if (executor.mode === handoff.mode) matched += 1;
+  }
+  if (typeof handoff.maxSuggestedIterations === "number") {
+    required += 1;
+    if (executor.maxSuggestedIterations === handoff.maxSuggestedIterations) matched += 1;
+  }
+  if (handoff.commandArgs) {
+    required += 1;
+    if (JSON.stringify(executor.commandArgs) === JSON.stringify(handoff.commandArgs)) matched += 1;
+  }
+  if (handoff.afterInteractionCommandArgs) {
+    required += 1;
+    if (JSON.stringify(executor.afterInteractionCommandArgs) === JSON.stringify(handoff.afterInteractionCommandArgs)) matched += 1;
+  }
+  if (handoff.readFrom) {
+    required += 2;
+    if (executor.readFrom === handoff.readFrom) matched += 1;
+    if (executor.readValue?.path === handoff.readValue?.path) matched += 1;
+  }
+  if (handoff.url || handoff.urlRef) {
+    required += 1;
+    if (sameAgentUrl(executor, handoff)) matched += 1;
+  }
+  if (handoff.browserHtml) {
+    required += 1;
+    if (sameAgentBrowserHtml(executor.browserHtml, handoff.browserHtml)) matched += 1;
+  }
+  if (agent.primaryAction) {
+    required += 2;
+    if (executor.action === agent.primaryAction.action) matched += 1;
+    if (JSON.stringify(executor.commandArgs) === JSON.stringify(agent.primaryAction.commandArgs)) matched += 1;
   }
   return roundScore(matched / required);
 }
@@ -2753,6 +2921,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentNextScore * 0.005
     + summary.agentRunbookScore * 0.005
     + summary.agentExecutorStepScore * 0.005
+    + summary.agentBriefExecutorStepScore * 0.005
     + summary.agentHandoffScore * 0.005
     + summary.agentExecutionPlanScore * 0.005
     + summary.agentExpectedOutcomeScore * 0.005
@@ -2779,6 +2948,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentNextScore,
     summary.agentRunbookScore,
     summary.agentExecutorStepScore,
+    summary.agentBriefExecutorStepScore,
     summary.agentHandoffScore,
     summary.agentExecutionPlanScore,
     summary.agentExpectedOutcomeScore,
@@ -2867,6 +3037,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentNextScore: average(included.map((comparison) => comparison.cliAgentSummary.agentNextScore)),
     averageAgentRunbookScore: average(included.map((comparison) => comparison.cliAgentSummary.agentRunbookScore)),
     averageAgentExecutorStepScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExecutorStepScore)),
+    averageAgentBriefExecutorStepScore: average(included.map((comparison) => comparison.cliAgentSummary.agentBriefExecutorStepScore)),
     averageAgentHandoffScore: average(included.map((comparison) => comparison.cliAgentSummary.agentHandoffScore)),
     averageAgentExecutionPlanScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExecutionPlanScore)),
     averageAgentExpectedOutcomeScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExpectedOutcomeScore)),

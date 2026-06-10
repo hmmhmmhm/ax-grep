@@ -14,6 +14,7 @@ describe("comparison gate checker", () => {
         averageAgentNextScore: 1,
         averageAgentRunbookScore: 1,
         averageAgentExecutorStepScore: 1,
+        averageAgentBriefExecutorStepScore: 1,
         averageAgentHandoffScore: 1,
         averageAgentExecutionPlanScore: 1,
         averageAgentExpectedOutcomeScore: 1,
@@ -62,6 +63,7 @@ describe("comparison gate checker", () => {
         averageAgentNextScore: 0.75,
         averageAgentRunbookScore: 1,
         averageAgentExecutorStepScore: 0.8,
+        averageAgentBriefExecutorStepScore: 0.7,
         averageAgentHandoffScore: 0.9,
         averageAgentExecutionPlanScore: 1,
         averageAgentExpectedOutcomeScore: 1,
@@ -98,6 +100,7 @@ describe("comparison gate checker", () => {
     expect(failures.map((failure) => failure.message)).toEqual([
       "averageAgentNextScore expected >= 0.995, got 0.75",
       "averageAgentExecutorStepScore expected >= 0.995, got 0.8",
+      "averageAgentBriefExecutorStepScore expected >= 0.995, got 0.7",
       "averageAgentHandoffScore expected >= 0.995, got 0.9",
       "averageAgentSourceSearchProvenanceScore expected >= 0.995, got 0.75",
       "classifications.over-collected expected 0, got 1",

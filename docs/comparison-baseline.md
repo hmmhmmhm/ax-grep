@@ -5,6 +5,10 @@ Generated on 2026-06-05.
 The comparison harness runs `ax-grep` through Puppeteer and compares named
 role output against `agent-browser snapshot`.
 
+Operational rule: run comparison suites sequentially. `agent-browser` and
+Chromium can exhaust the host when several `compare:static*` runs overlap. Check
+for existing browser processes before a run and confirm cleanup afterward.
+
 The historical `named role overlap` score is intentionally strict: it is an
 exact match over normalized `role:name` pairs, with no fuzzy or containment
 matching. It is useful for tracking whether `ax-grep` is reproducing

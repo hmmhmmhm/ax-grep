@@ -1,5 +1,14 @@
 # Benchmarks and Comparison Gates
 
+Resource safety:
+
+- Run these commands one at a time. Do not parallelize `compare:static*`,
+  `compare:tokens*`, or browser-backed tests.
+- `compare:static*` may launch `agent-browser` and Chromium. Check for existing
+  browser work before starting, and confirm processes are cleaned up afterward.
+- If several target sets are needed, run them sequentially and save each output
+  separately.
+
 ```sh
 pnpm compare:sample
 pnpm compare:static https://example.com https://news.ycombinator.com
