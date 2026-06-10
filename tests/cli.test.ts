@@ -2577,6 +2577,65 @@ describe("cli", () => {
     });
   });
 
+  it("routes missing opened search results to matching alternate candidates", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli([
+      "--search",
+      "agent browser",
+      "--engine",
+      "duckduckgo",
+      "--find",
+      "target claim",
+      "--open-result",
+      "1",
+      "--agent",
+    ], {
+      stdout,
+      fetch: async (input) => {
+        if (String(input).includes("duckduckgo.com")) {
+          return new Response(`
+            <main>
+              <ol>
+                <li><a class="result__a" href="https://missing.example/article">Missing Result</a><p>Missing result snippet.</p></li>
+                <li><a class="result__a" href="https://weak.example/article">Weak Alternate</a><p>General agent browser overview.</p></li>
+                <li><a class="result__a" href="https://match.example/article">Matching Alternate</a><p>This alternate includes the target claim.</p></li>
+              </ol>
+            </main>
+          `, { headers: { "content-type": "text/html" } });
+        }
+        return new Response("not found", { status: 404, statusText: "Not Found" });
+      },
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(12);
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "open-alternate-result",
+      url: "https://match.example/article",
+      rank: 3,
+      target: {
+        title: "Matching Alternate",
+        url: "https://match.example/article",
+        source: "match.example",
+        rank: 3,
+      },
+      command: "ax-grep --search 'agent browser' --engine duckduckgo --find 'target claim' --open-result 3 --agent",
+      commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--find", "target claim", "--open-result", "3", "--agent"],
+    });
+    expect(envelope.agent.handoff.sourceSearch.alternateResults).toEqual([
+      expect.objectContaining({
+        rank: 2,
+        url: "https://weak.example/article",
+      }),
+      expect.objectContaining({
+        rank: 3,
+        url: "https://match.example/article",
+        findMatches: ["target claim"],
+      }),
+    ]);
+  });
+
   it("routes failed opened-result verification to an alternate matching SERP result", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli([

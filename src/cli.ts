@@ -8510,10 +8510,7 @@ function recommendedVerificationAction(
 
 function sourceSearchAlternateAction(sourceSearch: SourceSearchSummary | undefined, missingQueries: string[], agentMode = false): SuggestedAction | undefined {
   if (!sourceSearch || missingQueries.length === 0) return undefined;
-  const alternate = sourceSearch.alternateResults?.find((result) => {
-    const matches = result.findMatches ?? matchedFindQueriesForResult(result, missingQueries);
-    return matches.some((match) => missingQueries.includes(match));
-  });
+  const alternate = bestSourceSearchAlternate(sourceSearch, missingQueries);
   const command = alternate
     ? searchOpenCommandSpec(
         sourceSearch.query,
@@ -8536,6 +8533,18 @@ function sourceSearchAlternateAction(sourceSearch: SourceSearchSummary | undefin
     target: agentTargetFromResult(alternate),
     ...commandFields(command),
   };
+}
+
+function bestSourceSearchAlternate(sourceSearch: SourceSearchSummary | undefined, findQueries: string[] = []): ResultSummary | undefined {
+  const alternates = sourceSearch?.alternateResults ?? [];
+  if (alternates.length === 0) return undefined;
+  const recommended = recommendedSearchResult(alternates, findQueries);
+  if (recommended) return recommended;
+  return [...alternates].sort((left, right) => {
+    const scoreDelta = singleResultRecommendationScore(right, findQueries) - singleResultRecommendationScore(left, findQueries);
+    if (scoreDelta !== 0) return scoreDelta;
+    return left.rank - right.rank;
+  })[0];
 }
 
 function summarizeAgentSemanticSummary(tree: SemanticNode): AgentSemanticSummary {
@@ -11057,7 +11066,7 @@ function errorAction(error: CliError, url?: string, agentMode = false, findQueri
     };
   }
   if (error.code === "HTTP_ERROR" && (error.status === 404 || error.status === 410)) {
-    const alternate = sourceSearch?.alternateResults?.[0];
+    const alternate = bestSourceSearchAlternate(sourceSearch, findQueries);
     const alternateCommand = alternate && sourceSearch
       ? searchOpenCommandSpec(
           sourceSearch.query,
