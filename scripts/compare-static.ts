@@ -2366,6 +2366,14 @@ function scoreAgentBrowserHtml(
     required += 1;
     if (next.browserHtml.url === primaryAction.url) matched += 1;
   }
+  if (primaryAction?.action === "inspect-browser-state") {
+    const target = primaryAction.target;
+    required += 2;
+    if (target) {
+      if (target.url === primaryAction.url && typeof target.title === "string" && target.title.length > 0) matched += 1;
+      if (typeof target.source === "string" && typeof target.rank === "number") matched += 1;
+    }
+  }
   return roundScore(matched / required);
 }
 
