@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import process from "node:process";
+import { pathToFileURL } from "node:url";
 
 type GateSummary = Record<string, unknown> & {
   included?: number;
@@ -26,24 +27,30 @@ type GateFailure = {
   message: string;
 };
 
-const files = process.argv.slice(2);
-if (files.length === 0) {
-  console.error("Usage: pnpm compare:gate <comparison-json> [...]");
-  process.exit(2);
-}
-
-const failures = files.flatMap((file) => checkReport(file, readReport(file)));
-if (failures.length > 0) {
-  for (const failure of failures) {
-    console.error(`${failure.file}: ${failure.message}`);
+if (isMainModule()) {
+  const files = process.argv.slice(2);
+  if (files.length === 0) {
+    console.error("Usage: pnpm compare:gate <comparison-json> [...]");
+    process.exit(2);
   }
-  process.exit(1);
+
+  const failures = files.flatMap((file) => checkReport(file, readReport(file)));
+  if (failures.length > 0) {
+    for (const failure of failures) {
+      console.error(`${failure.file}: ${failure.message}`);
+    }
+    process.exit(1);
+  }
+
+  for (const file of files) {
+    const summary = readReport(file).gateSummary;
+    const included = typeof summary?.included === "number" ? summary.included : 0;
+    console.log(`${file}: gate ok (${included} included)`);
+  }
 }
 
-for (const file of files) {
-  const summary = readReport(file).gateSummary;
-  const included = typeof summary?.included === "number" ? summary.included : 0;
-  console.log(`${file}: gate ok (${included} included)`);
+export function checkComparisonGateReport(report: ComparisonReport, file = "<report>"): GateFailure[] {
+  return checkReport(file, report);
 }
 
 function readReport(file: string): ComparisonReport {
@@ -104,4 +111,10 @@ function requireEqual(file: string, failures: GateFailure[], field: string, valu
 
 function formatValue(value: unknown): string {
   return typeof value === "undefined" ? "undefined" : JSON.stringify(value);
+}
+
+function isMainModule(): boolean {
+  const entrypoint = process.argv[1];
+  if (!entrypoint) return false;
+  return import.meta.url === pathToFileURL(entrypoint).href;
 }
