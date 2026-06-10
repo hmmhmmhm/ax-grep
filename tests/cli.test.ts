@@ -659,6 +659,9 @@ describe("cli", () => {
         decision: "execute",
         mode: "command",
         maxSuggestedIterations: 1,
+        priority: "medium",
+        priorityReason: "External source-like link can improve verification.",
+        reason: "Run the provided command and inspect the next agent payload.",
         commandArgs: ["ax-grep", "https://source.example/report", "--find", "missing claim", "--agent-brief"],
         target: {
           url: "https://source.example/report",
@@ -3372,6 +3375,8 @@ describe("cli", () => {
         mode: "command",
         action: "open-site-search",
         maxSuggestedIterations: 1,
+        priority: "medium",
+        reason: "Run the provided command and inspect the next agent payload.",
         commandArgs: ["ax-grep", "https://example.test/find?query=target%20report", "--find", "target report", "--agent-brief"],
       },
     });

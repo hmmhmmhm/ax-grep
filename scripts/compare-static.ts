@@ -1753,6 +1753,14 @@ function scoreBriefAgentExecutorEnvelope(envelope: unknown): number {
     required += 1;
     if (executor.maxSuggestedIterations === handoff.maxSuggestedIterations) matched += 1;
   }
+  if (handoff.priority) {
+    required += 1;
+    if (handoff.priority === agent.primaryAction?.priority) matched += 1;
+  }
+  if (handoff.reason) {
+    required += 1;
+    if (typeof handoff.reason === "string" && handoff.reason.length > 0) matched += 1;
+  }
   if (handoff.commandArgs) {
     required += 1;
     if (JSON.stringify(executor.commandArgs) === JSON.stringify(handoff.commandArgs)) matched += 1;
