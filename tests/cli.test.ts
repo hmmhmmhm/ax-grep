@@ -413,6 +413,8 @@ describe("cli", () => {
               id: "v1",
               path: "verification.bestEvidence",
               kind: "verification",
+              text: "Example",
+              reason: "Best matching evidence for the requested verification text.",
             }),
           ]),
           signals: expect.arrayContaining([
@@ -8553,6 +8555,17 @@ npx ax-grep https://example.test --agent</code></pre>
           reason: "Structured page excerpts suitable for source checking.",
           primary: true,
         });
+        expect(payload.agent.handoff.answerEvidence).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              kind: "content",
+              id: "e1",
+              path: "pageCheck.contentEvidence[0]",
+              text: "Agent browser extraction details explain how to continue from search to evidence.",
+              reason: "high evidence from semantic extraction",
+            }),
+          ]),
+        );
         expect(executor.readValue.path).toBe("pageCheck.contentEvidence");
         expect(executor.readValue.value).toEqual(
           expect.arrayContaining([

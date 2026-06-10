@@ -12397,7 +12397,7 @@ function compactAgentBriefHandoff(handoff: AgentHandoff, primaryUrl?: string, se
     ...(handoff.sourceSearch ? { sourceSearch: handoff.sourceSearch } : {}),
     ...(handoff.resultChoices && handoff.resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(handoff.resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext)), 900) } : {}),
     ...(handoff.sourceChoices && handoff.sourceChoices.length > 0 ? { sourceChoices: compactAgentSourceChoiceList(handoff.sourceChoices, 900) } : {}),
-    ...(handoff.answerEvidence && handoff.answerEvidence.length > 0 ? { answerEvidence: handoff.answerEvidence.map(compactAgentCitationRef) } : {}),
+    ...(handoff.answerEvidence && handoff.answerEvidence.length > 0 ? { answerEvidence: handoff.answerEvidence.map(compactAgentAnswerEvidenceRef) } : {}),
   };
   return compactAgentUrlRefs(compact, primaryUrl);
 }
@@ -12542,7 +12542,7 @@ function compactAgentHandoff(handoff: AgentHandoff, primaryUrl?: string, searchC
     ...(keepQualityGates ? { qualityGates: compactAgentQualityGates(handoff.qualityGates ?? []) } : {}),
     ...(target ? { target: compactAgentTarget(target, handoff.action) } : {}),
     ...(readTarget ? { readTarget: compactAgentHandoffReadTarget(readTarget) } : {}),
-    ...(answerEvidence && answerEvidence.length > 0 ? { answerEvidence: answerEvidence.map(compactAgentCitationRef) } : {}),
+    ...(answerEvidence && answerEvidence.length > 0 ? { answerEvidence: answerEvidence.map(compactAgentAnswerEvidenceRef) } : {}),
     ...(resultChoices && resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext))) } : {}),
     ...(readValue ? { readValue: compactAgentReadValue(readValue, true) } : {}),
   }, primaryUrl);
@@ -12641,6 +12641,17 @@ function compactAgentCitationRef(citation: AgentCitation): object {
     id: citation.id,
     path: citation.path,
     confidence: citation.confidence,
+  };
+}
+
+function compactAgentAnswerEvidenceRef(citation: AgentCitation): object {
+  return {
+    ...compactAgentCitationRef(citation),
+    ...(citation.text ? { text: citation.text } : {}),
+    ...(citation.title ? { title: citation.title } : {}),
+    ...(citation.url ? { url: citation.url } : {}),
+    ...(citation.reason ? { reason: citation.reason } : {}),
+    ...(typeof citation.score === "number" ? { score: citation.score } : {}),
   };
 }
 
