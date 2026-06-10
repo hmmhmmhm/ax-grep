@@ -272,6 +272,10 @@ agent prompt text and estimates token cost with `cl100k_base`. It also measures
 the recommended `--agent` compact JSON payload, so the benchmark can compare raw
 tree prompts with the actual CLI payload agents should use. The prompt text
 includes role, name, state/value, and selectors for interactive nodes.
+Token gate averages skip browser references that are only a tiny shell while
+static or agent output contains substantially more inspectable payload. Those
+thin browser snapshots are counted separately as `excludedThinBrowserReference`
+instead of distorting static/browser and agent/browser ratios.
 
 | URL | browser nodes | browser tokens | static nodes | static tokens | static delta | static/browser ratio |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |

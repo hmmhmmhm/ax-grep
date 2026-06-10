@@ -43,6 +43,7 @@ type TokenComparison = {
 type TokenGateSummary = {
   included: number;
   excluded: number;
+  excludedThinBrowserReference: number;
   averageStaticToBrowserTokenRatio: number;
   averageAgentToBrowserTokenRatio: number;
   averageStaticMinusBrowserTokens: number;
@@ -246,16 +247,25 @@ function gateInfo(target: BenchmarkTarget): TokenComparison["gate"] {
 }
 
 function summarizeGate(comparisons: TokenComparison[]): TokenGateSummary {
-  const included = comparisons.filter((comparison) => comparison.gate.included);
+  const gateIncluded = comparisons.filter((comparison) => comparison.gate.included);
+  const included = gateIncluded.filter((comparison) => !hasThinBrowserTokenReference(comparison));
   return {
     included: included.length,
     excluded: comparisons.length - included.length,
+    excludedThinBrowserReference: gateIncluded.length - included.length,
     averageStaticToBrowserTokenRatio: averageNumbers(included.map((comparison) => comparison.delta.staticToBrowserTokenRatio)),
     averageAgentToBrowserTokenRatio: averageNumbers(included.map((comparison) => comparison.delta.agentToBrowserTokenRatio)),
     averageStaticMinusBrowserTokens: averageNumbers(included.map((comparison) => comparison.delta.staticMinusBrowserTokens)),
     averageAgentMinusBrowserTokens: averageNumbers(included.map((comparison) => comparison.delta.agentMinusBrowserTokens)),
     averageStaticMinusBrowserNodes: averageNumbers(included.map((comparison) => comparison.delta.staticMinusBrowserNodes)),
   };
+}
+
+function hasThinBrowserTokenReference(comparison: TokenComparison): boolean {
+  if (!comparison.browser.available) return false;
+  if (comparison.browser.estimatedTokens >= 200 && comparison.browser.nodeCount >= 20) return false;
+  return comparison.static.estimatedTokens > comparison.browser.estimatedTokens * 5
+    || comparison.agentCompact.estimatedTokens > comparison.browser.estimatedTokens * 5;
 }
 
 function averageNumbers(values: Array<number | null>): number {
