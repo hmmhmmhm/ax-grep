@@ -1511,6 +1511,43 @@ describe("cli", () => {
     }));
   });
 
+  it("prefers freshness-matching search results for dated queries", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["--search", "ax-grep release 2026", "--engine", "bing", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <ol>
+            <li class="b_algo">
+              <h2><a href="https://ax-grep.example/docs">ax-grep release notes</a></h2>
+              <p>Official ax-grep release notes and installation guide.</p>
+            </li>
+            <li class="b_algo">
+              <h2><a href="https://news.example/ax-grep-2026-release">ax-grep release 2026</a></h2>
+              <p>Updated 2026-05-31 with the latest ax-grep release details.</p>
+            </li>
+          </ol>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.recommendedResult).toMatchObject({
+      rank: 2,
+      url: "https://news.example/ax-grep-2026-release",
+      matchedTerms: ["ax-grep", "release", "2026"],
+      selectionReason: "Freshness match: 2026 (2026-05-31).",
+    });
+    expect(envelope.agent.primaryAction).toMatchObject({
+      action: "open-result",
+      rank: 2,
+      url: "https://news.example/ax-grep-2026-release",
+      reason: "The page looks like search results; open the result matching freshness terms: 2026.",
+    });
+  });
+
   it("matches requested text against search result sitelinks", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["--search", "agent browser", "--engine", "bing", "--find", "API reference", "--agent"], {

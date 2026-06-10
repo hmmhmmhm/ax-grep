@@ -1643,6 +1643,7 @@ function shellQuote(value: string): string {
 function singleResultRecommendationScore(result: ResultSummary, findQueries: string[] = []): number {
   let score = 0;
   score += resultFindMatchScore(result, findQueries);
+  score += resultFreshnessMatchScore(result);
   if (result.isLikelyOfficial) score += 100;
   const sourceWeight = result.relevance === "low" && !result.isLikelyOfficial ? 8 : 35;
   score += (result.sourceScore ?? 0) * sourceWeight;
@@ -1653,9 +1654,23 @@ function singleResultRecommendationScore(result: ResultSummary, findQueries: str
   return score;
 }
 
+function resultFreshnessMatchScore(result: Pick<ResultSummary, "matchedTerms" | "dateText">): number {
+  const matched = result.matchedTerms?.filter(isFreshnessQueryTerm) ?? [];
+  if (matched.length > 0) return 90 + matched.length * 20;
+  return result.dateText && result.matchedTerms?.some((term) => /latest|current|recent|new|update/i.test(term)) ? 45 : 0;
+}
+
+function isFreshnessQueryTerm(term: string): boolean {
+  return /^(?:20\d{2}|latest|current|recent|new|newest|updated?|today|이번|최신|최근)$/.test(term.toLowerCase());
+}
+
 function searchResultActionReason(recommended: ResultSummary, first: ResultSummary): string {
   if ((recommended.findMatches?.length ?? 0) > 0) {
     return `The page looks like search results; open the result matching --find: ${recommended.findMatches?.join(", ")}.`;
+  }
+  const freshnessTerms = recommended.matchedTerms?.filter(isFreshnessQueryTerm) ?? [];
+  if (freshnessTerms.length > 0) {
+    return `The page looks like search results; open the result matching freshness terms: ${freshnessTerms.join(", ")}.`;
   }
   if (recommended.rank === first.rank) {
     return "The page looks like search results; open the highest-ranked relevant result.";
@@ -2812,7 +2827,7 @@ function annotateResults(results: ResultSummary[], query?: string, findQueries: 
     };
     if (terms.length > 0) {
       const essentialTerms = essentialQueryTerms(terms);
-      const matchedTerms = terms.filter((term) => queryTermMatchesResult(term, result, essentialTerms.includes(term)));
+      const matchedTerms = terms.filter((term) => queryTermMatchesResult(term, result, essentialTerms.includes(term)) || queryFreshnessTermMatchesResult(term, result));
       const matchedEssentialTerms = essentialTerms.filter((term) => matchedTerms.includes(term));
       const isLikelyOfficial = likelyOfficialResult(result, terms);
       let relevance: ResultSummary["relevance"] = "low";
@@ -2839,6 +2854,14 @@ function queryTermMatchesResult(term: string, result: ResultSummary, exactNameRe
     || result.sitelinks?.some((link) => exactNameMatchesText(term, link.title) || exactNameMatchesUrl(term, link.url))
     || exactNameMatchesSource(term, result.source)
     || exactNameMatchesUrl(term, result.url);
+}
+
+function queryFreshnessTermMatchesResult(term: string, result: ResultSummary): boolean {
+  if (!isFreshnessQueryTerm(term)) return false;
+  const normalizedTerm = normalizeForMatch(term);
+  return [result.date, result.dateText, result.title, result.snippet]
+    .filter(Boolean)
+    .some((value) => normalizeForMatch(String(value)).includes(normalizedTerm));
 }
 
 function exactNameMatchesText(term: string, text: string): boolean {
@@ -2870,8 +2893,10 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function searchResultSelectionReason(result: Pick<ResultSummary, "rank" | "source" | "sourceHints" | "relevance" | "matchedTerms" | "findMatches" | "isLikelyOfficial">): string {
+function searchResultSelectionReason(result: Pick<ResultSummary, "rank" | "source" | "sourceHints" | "relevance" | "matchedTerms" | "findMatches" | "isLikelyOfficial" | "dateText">): string {
   if (result.findMatches?.length) return `Matches --find: ${result.findMatches.join(", ")}.`;
+  const freshnessTerms = result.matchedTerms?.filter(isFreshnessQueryTerm) ?? [];
+  if (freshnessTerms.length > 0) return `Freshness match: ${freshnessTerms.join(", ")}${result.dateText ? ` (${result.dateText})` : ""}.`;
   if (result.isLikelyOfficial) return "Likely official source for the query.";
   if (result.relevance === "high" && result.matchedTerms?.length) return `High relevance: matched ${result.matchedTerms.join(", ")}.`;
   if (result.relevance === "medium" && result.matchedTerms?.length) return `Medium relevance: matched ${result.matchedTerms.join(", ")}.`;
