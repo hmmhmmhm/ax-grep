@@ -2320,7 +2320,7 @@ function compactActionKey(action: CliActionShape, primaryAction?: CliActionShape
     action.action ?? "",
     resolvedAgentUrl(action, primaryAction) ?? "",
     action.sourceLinkRef ?? "",
-    action.command ?? "",
+    Array.isArray(action.commandArgs) ? JSON.stringify(action.commandArgs) : action.command ?? "",
     action.rank ?? "",
     action.openResult ?? "",
     action.readFrom ?? "",
