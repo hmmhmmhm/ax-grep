@@ -8317,6 +8317,8 @@ npx ax-grep https://example.test --agent</code></pre>
         target: {
           title: "Challenge",
           url: "https://captured.example/challenge",
+          path: "pageCheck.barriers[0]",
+          text: "Challenge: The page appears to contain a bot check, CAPTCHA, or access challenge.",
           source: "diagnostic",
           rank: 1,
         },

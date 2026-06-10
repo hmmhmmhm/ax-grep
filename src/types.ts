@@ -338,9 +338,12 @@ export type AgentAnswerPlan = {
 export type AgentTarget = {
   title?: string;
   url: string;
+  path?: string;
+  text?: string;
   source?: string;
   rank?: number;
   snippet?: string;
+  selector?: string;
   sourceType?: string;
   sourceScore?: number;
   sourceHints?: string[];

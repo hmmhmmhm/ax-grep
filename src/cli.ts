@@ -4513,8 +4513,11 @@ function barrierAgentTarget(barrier: PageBarrierSummary, pageUrl: string): Agent
   return {
     title: barrierLabel(barrier.kind),
     url: pageUrl,
+    path: barrier.path,
+    text: barrier.text,
     source: barrier.source,
     rank: barrier.rank,
+    ...(barrier.selector ? { selector: barrier.selector } : {}),
   };
 }
 
