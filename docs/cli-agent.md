@@ -46,7 +46,9 @@ Read these first:
 In `--agent-brief`, the stable executor surface is `agent.executor` plus
 `agent.handoff`. Brief handoff keeps loop metadata, target URL, priority,
 reason, and executable `resultChoices` or `sourceChoices` when alternates are
-available.
+available. It also keeps the details needed to act without reopening the full
+payload: search snippets, selected answer evidence text, form/action URL
+templates, field selectors, methods, and browser barrier targets.
 
 Agent actions use an `execution` discriminator:
 
