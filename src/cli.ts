@@ -8665,6 +8665,7 @@ function summarizeAgent(
   const answerEvidence = summarizeAgentAnswerEvidence(citations, answerPlan);
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, canUseFetchedHtml, needsBrowserHtml);
   const runbook = summarizeAgentRunbook(next, executionPlan, answerPlan);
+  const actions = summarizeAgentActions(analysis, pageCheck, verification, primaryAction);
   const evidenceQualityScore = averageEvidenceScore(pageCheck.contentEvidence);
   const sourceQualityScore = agentSourceQualityScore(analysis.kind, pageCheck.sourceLinks, results, recommendedResult);
   const usabilityScore = agentUsabilityScore(status, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error);
@@ -8712,7 +8713,7 @@ function summarizeAgent(
     sourceChoices,
     evidenceQualityScore,
     sourceQualityScore,
-    alternativeActionCount: countAlternativeAgentActions(analysis, pageCheck, verification, primaryAction),
+    alternativeActionCount: actions.filter((action) => !action.primary).length,
     diagnosticCodes,
     diagnosticErrorCount: diagnosticCounts.error,
     diagnosticWarningCount: diagnosticCounts.warning,
@@ -8720,7 +8721,7 @@ function summarizeAgent(
     citations,
     answerEvidence,
     readTargets,
-    actions: summarizeAgentActions(analysis, pageCheck, verification, primaryAction),
+    actions,
   };
   if (bestReadTarget) {
     agent.bestReadTarget = bestReadTarget.path;
@@ -12935,6 +12936,7 @@ function compactAgentActionSummary(action: AgentActionSummary, primaryAction?: S
       : action.index;
     return {
       action: action.action,
+      execution: actionExecution(action),
       source: action.source,
       index: action.index,
       path: `pageCheck.nextSteps[${compactIndex}]`,

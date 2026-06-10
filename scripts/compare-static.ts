@@ -972,7 +972,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentQualityGateScore: scoreAgentQualityGates(item.agent?.qualityGates, item),
     pageLinkCommandScore: scorePageLinkCommands(item.pageCheck?.primaryLinks ?? [], item.pageCheck?.sourceLinks ?? []),
     agentPageKindScore: scoreAgentPageKind(item.agent?.pageKind, item.kind),
-    agentAlternativeActionCountScore: scoreAgentAlternativeActionCount(item.agent?.alternativeActionCount, item),
+    agentAlternativeActionCountScore: scoreAgentAlternativeActionCount(item.agent?.alternativeActionCount, item.agent?.actions),
     agentUsabilityScoreConsistency: scoreAgentUsabilityScore(item.agent?.usabilityScore, item),
     agentEvidenceQualityScoreConsistency: scoreAgentEvidenceQualityScore(item.agent?.evidenceQualityScore, item.pageCheck?.contentEvidence ?? []),
     agentSourceQualityScoreConsistency: scoreAgentSourceQualityScore(item.agent?.sourceQualityScore, item.kind, item.pageCheck?.sourceLinks ?? [], item.searchResults ?? []),
@@ -2079,20 +2079,10 @@ function scoreAgentPageKind(pageKind: string | undefined, rootKind: string | und
   return pageKind === rootKind ? 1 : 0;
 }
 
-function scoreAgentAlternativeActionCount(alternativeActionCount: number | undefined, item: {
-  suggestedActions?: CliActionShape[];
-  pageCheck?: { recommendedAction?: CliActionShape; nextSteps?: CliActionShape[] };
-  verification?: { recommendedAction?: CliActionShape };
-}): number {
+function scoreAgentAlternativeActionCount(alternativeActionCount: number | undefined, actions: CliActionShape[] | undefined): number {
   if (typeof alternativeActionCount !== "number") return 0;
-  const actions = [
-    ...(item.suggestedActions ?? []),
-    item.pageCheck?.recommendedAction,
-    ...(item.pageCheck?.nextSteps ?? []),
-    item.verification?.recommendedAction,
-  ].filter((action): action is CliActionShape => Boolean(action));
-  const keys = new Set(actions.map((action) => compactActionKey(action)));
-  return alternativeActionCount === keys.size ? 1 : 0;
+  if (!Array.isArray(actions)) return alternativeActionCount === 0 ? 1 : 0;
+  return alternativeActionCount === actions.filter((action) => action.primary !== true).length ? 1 : 0;
 }
 
 function scoreAgentActionList(actions: CliActionShape[] | undefined, primaryAction: CliActionShape | undefined, alternativeActionCount: number | undefined): number {
@@ -2123,7 +2113,11 @@ function scoreOpenActionTarget(action: CliActionShape): number {
     && action.action !== "open-alternate-result"
     && action.action !== "open-source-link"
     && action.action !== "open-site-search"
-  ) return typeof action.target === "undefined" ? 1 : 0;
+  ) {
+    if (typeof action.target === "undefined") return 1;
+    if (action.action !== "inspect-browser-state" && action.action !== "inspect-actions") return 0;
+    return actionTargetHasTitleAndUrl(action.target) ? 1 : 0;
+  }
   if (typeof action.path === "string" && action.path.length > 0) return 1;
   if (!action.target || typeof action.target !== "object") return 0;
   if (typeof action.url === "string" && action.target.url !== action.url) return 0;
@@ -2132,6 +2126,15 @@ function scoreOpenActionTarget(action: CliActionShape): number {
     && action.target.url.length > 0
     && typeof action.target.title === "string"
     && action.target.title.length > 0 ? 1 : 0;
+}
+
+function actionTargetHasTitleAndUrl(target: unknown): target is { title: string; url: string } {
+  if (!target || typeof target !== "object") return false;
+  const record = target as Record<string, unknown>;
+  return typeof record.title === "string"
+    && record.title.length > 0
+    && typeof record.url === "string"
+    && record.url.length > 0;
 }
 
 function scoreAgentSearchDecision(
