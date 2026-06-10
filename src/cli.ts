@@ -12643,12 +12643,16 @@ function preferBriefAgentCommands(value: unknown): unknown {
       continue;
     }
     if (key === "command" || key === "afterInteractionCommand" || key === "instruction") {
-      result[key] = typeof item === "string" ? item.replaceAll("--agent", "--agent-brief") : item;
+      result[key] = typeof item === "string" ? preferBriefAgentCommandString(item) : item;
       continue;
     }
     result[key] = preferBriefAgentCommands(item);
   }
   return result;
+}
+
+function preferBriefAgentCommandString(value: string): string {
+  return value.replace(/--agent(?!-brief)(?=$|[\s.,;:)])/g, "--agent-brief");
 }
 
 function compactAgentReadValue(readValue: AgentReadValue, forceReference = false): object {

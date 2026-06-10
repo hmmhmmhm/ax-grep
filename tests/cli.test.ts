@@ -634,6 +634,7 @@ describe("cli", () => {
     const envelope = JSON.parse(stdout.output);
 
     expect(status).toBe(0);
+    expect(stdout.output).not.toContain("--agent-brief-brief");
     expect(envelope.agent).toMatchObject({
       contract: {
         version: 1,
@@ -3352,6 +3353,7 @@ describe("cli", () => {
     const envelope = JSON.parse(stdout.output);
 
     expect(status).toBe(0);
+    expect(stdout.output).not.toContain("--agent-brief-brief");
     expect(envelope.agent).toMatchObject({
       contract: {
         profile: "brief",
@@ -8290,6 +8292,7 @@ npx ax-grep https://example.test --agent</code></pre>
       const stdout = new MemoryWriter();
       const status = await runCli(args, { stdout, fetch });
       expect(status).toBe(0);
+      expect(stdout.output).not.toContain("--agent-brief-brief");
       payload = JSON.parse(stdout.output);
       const next = payload.agent.next;
       if (next.loop.decision === "return") {
