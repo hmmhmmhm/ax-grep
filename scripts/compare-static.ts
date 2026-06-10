@@ -344,8 +344,12 @@ type CliAgentLoopShape = {
 type CliAgentTargetShape = {
   title?: string;
   url?: string;
+  path?: string;
+  text?: string;
   source?: string;
   rank?: number;
+  snippet?: string;
+  selector?: string;
   sourceType?: string;
   sourceScore?: number;
   sourceHints?: string[];
@@ -395,6 +399,7 @@ type CliSearchResultShape = {
   rank?: number;
   url?: string;
   source?: string;
+  snippet?: string;
   sourceScore?: number;
   relevance?: "low" | "medium" | "high";
   isLikelyOfficial?: boolean;
@@ -1773,9 +1778,10 @@ function scoreBriefAgentExecutorEnvelope(envelope: unknown): number {
     if (JSON.stringify(executor.afterInteractionCommandArgs) === JSON.stringify(handoff.afterInteractionCommandArgs)) matched += 1;
   }
   if (handoff.readFrom) {
-    required += 2;
+    required += 3;
     if (executor.readFrom === handoff.readFrom) matched += 1;
     if (executor.readValue?.path === handoff.readValue?.path) matched += 1;
+    if (scoreHandoffReadValueDetails(handoff.readFrom, handoff.readValue) === 1) matched += 1;
   }
   if (handoff.url || handoff.urlRef) {
     required += 1;
@@ -1803,6 +1809,29 @@ function scoreBriefAgentExecutorEnvelope(envelope: unknown): number {
     if (handoff.sourceChoices.some((choice) => choice.url === agent.primaryAction?.url)) matched += 1;
   }
   return roundScore(matched / required);
+}
+
+function scoreHandoffReadValueDetails(readFrom: string | undefined, readValue: { path?: string; value?: unknown } | undefined): number {
+  if (!readFrom || !readValue) return 0;
+  if (readFrom !== "pageCheck.forms" && readFrom !== "pageCheck.actionTargets") return 1;
+  if (readValue.path !== readFrom || !Array.isArray(readValue.value) || readValue.value.length === 0) return 0;
+  const items = readValue.value.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object");
+  if (items.length === 0) return 0;
+  if (readFrom === "pageCheck.forms") {
+    return items.some((item) => {
+      const fields = item.fields;
+      return typeof item.path === "string"
+        && (typeof item.actionUrl === "string" || typeof item.urlTemplate === "string")
+        && Array.isArray(fields)
+        && fields.some((field) => Boolean(field) && typeof field === "object" && typeof (field as Record<string, unknown>).name === "string");
+    }) ? 1 : 0;
+  }
+  return items.some((item) => {
+    return typeof item.path === "string"
+      && typeof item.kind === "string"
+      && typeof item.name === "string"
+      && (typeof item.targetUrl === "string" || typeof item.urlTemplate === "string");
+  }) ? 1 : 0;
 }
 
 function scoreAgentHandoff(
@@ -1874,10 +1903,11 @@ function scoreAgentHandoff(
     if (JSON.stringify(handoff.afterInteractionCommandArgs) === JSON.stringify(next.afterInteractionCommandArgs)) matched += 1;
   }
   if (next.readFrom) {
-    required += 3;
+    required += 4;
     if (handoff.readFrom === next.readFrom) matched += 1;
     if (handoff.readTarget?.path === next.readTarget?.path) matched += 1;
     if (handoff.readValue?.path === next.readValue?.path) matched += 1;
+    if (scoreHandoffReadValueDetails(handoff.readFrom, handoff.readValue) === 1) matched += 1;
     if (hasSmallInlineReadValue(next.readValue)) {
       required += 1;
       if (JSON.stringify(handoff.readValue?.value) === JSON.stringify(next.readValue?.value)) matched += 1;
@@ -2313,6 +2343,11 @@ function scoreAgentResultChoices(
   if (recommendedResult) {
     required += 1;
     if (choices.some((choice) => choice.recommended === true && choice.recommendedPath === "recommendedResult" && choice.rank === recommendedResult.rank && choice.url === recommendedResult.url)) matched += 1;
+  }
+  const snippetSources = searchResults.filter((result) => typeof result.snippet === "string" && result.snippet.length > 0);
+  if (snippetSources.length > 0) {
+    required += 1;
+    if (snippetSources.every((result) => choices.some((choice) => choice.rank === result.rank && choice.snippet === result.snippet))) matched += 1;
   }
   const runnableChoices = choices.filter((choice) => Array.isArray(choice.commandArgs) && choice.commandArgs.length > 0).length;
   required += 1;
