@@ -2314,6 +2314,9 @@ function scoreAgentResultChoices(
     required += 1;
     if (choices.some((choice) => choice.recommended === true && choice.recommendedPath === "recommendedResult" && choice.rank === recommendedResult.rank && choice.url === recommendedResult.url)) matched += 1;
   }
+  const runnableChoices = choices.filter((choice) => Array.isArray(choice.commandArgs) && choice.commandArgs.length > 0).length;
+  required += 1;
+  if (runnableChoices === choices.length) matched += 1;
   if (primaryAction?.url || primaryAction?.rank) {
     required += 1;
     if (choices.some((choice) => choice.primary === true && (choice.url === primaryAction.url || choice.rank === primaryAction.rank))) matched += 1;
