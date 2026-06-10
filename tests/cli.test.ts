@@ -7228,6 +7228,9 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  handoffReadTarget: pageCheck.contentEvidence count=1");
     expect(stdout.output).toContain("  handoffEvidence: e1 pageCheck.contentEvidence[0] content high score=");
     expect(stdout.output).toContain("  handoffSourceChoice: s1 pageCheck.sourceLinks[0] rank=1");
+    const sourceChoiceCommandArgs =
+      stdout.output.match(/    commandArgs: \["ax-grep","https:\/\/source\.example\/report","--json","--summary"\]/g)?.length ?? 0;
+    expect(sourceChoiceCommandArgs).toBeGreaterThanOrEqual(2);
     expect(stdout.output).toContain("  handoffSignal: content/info - ");
     expect(stdout.output).toContain("  handoffQualityGate: fetch pass/info score=1 path=agent.responseStatus - Fetched response was converted into an agent payload.");
     expect(stdout.output).toContain("  expectedOutcome: read-evidence - ");
