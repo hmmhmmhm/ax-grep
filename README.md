@@ -26,6 +26,7 @@ npx ax-grep https://example.com --agent
 
 - [Documentation index](./docs/README.md)
 - [CLI and agent mode](./docs/cli-agent.md)
+- [Agent handoff loop](./docs/agent-handoff.md)
 - [Library API](./docs/library-api.md)
 
 ## Notes

@@ -126,10 +126,11 @@ snapshots.
 `averageAgentBrowserAdvantageScore` tracks whether those hidden `pageCheck`
 signals create a concrete agent-browser advantage when they exist, rather than
 only matching visible accessibility-tree roles.
-When the `agent-browser` reference is only a thin snapshot but `ax-grep`
-produces a ready, high-scoring agent payload with content evidence, the static
-comparison treats the page as usable instead of hiding it as a challenge. This
-keeps agent-browser advantage cases visible in the gate.
+When `ax-grep` produces a ready, high-scoring agent payload with content
+evidence, the static comparison treats the page as usable before applying raw
+tree-size failure classes such as thin-reference challenge or over-collection.
+This keeps agent-browser advantage cases visible in the gate even when the raw
+static tree is larger than the browser snapshot.
 `averageAgentCanContinueScore` tracks whether `agent.canContinue` agrees with
 the primary action execution class, so recoverable errors with runnable actions
 do not look terminal and usage/input errors without actions do not look
