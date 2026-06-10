@@ -4,6 +4,7 @@ Start here when README is too small for the detail you need.
 
 | Topic | File |
 | --- | --- |
+| Feature overview | [features.md](./features.md) |
 | CLI flags, search, and `--agent` output | [cli-agent.md](./cli-agent.md) |
 | Minimal executor loop for agent handoff | [agent-handoff.md](./agent-handoff.md) |
 | Package entry points and browser injection | [library-api.md](./library-api.md) |

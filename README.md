@@ -6,10 +6,10 @@
 `ax-grep` turns HTML or a live DOM into a compact semantic tree for agents,
 automation code, browser extensions, WebViews, and Workers.
 
-It focuses on two jobs:
+Core features:
 
-- print a readable semantic tree from a URL or HTML document
-- return compact `--agent` JSON for search, page-check, and browser handoff loops
+- readable semantic trees from URLs, files, stdin, or captured browser HTML
+- compact `--agent` JSON for search, page checks, and browser handoff loops
 
 ## Quick Start
 
@@ -25,11 +25,7 @@ npx ax-grep https://example.com --agent
 ## Docs
 
 - [Documentation index](./docs/README.md)
+- [Feature overview](./docs/features.md)
 - [CLI and agent mode](./docs/cli-agent.md)
 - [Agent handoff loop](./docs/agent-handoff.md)
 - [Library API](./docs/library-api.md)
-
-## Notes
-
-`ax-grep` is not the platform accessibility tree and does not bypass login,
-paywalls, bot checks, or JavaScript-only rendering.
