@@ -2266,6 +2266,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  routingIntent: ${agent.routingIntent}`,
     `  continuationMode: ${agent.continuationMode}`,
     `  nextMode: ${agent.next.mode}`,
+    `  executor: ${agent.executor.decision}/${agent.executor.operation}/${agent.executor.confidence}${agent.executor.action ? ` action=${agent.executor.action}` : ""} status=${agent.executor.status} - ${agent.executor.instruction}`,
     `  handoff: ${agent.handoff.decision}/${agent.handoff.operation}/${agent.handoff.confidence}${agent.handoff.action ? ` action=${agent.handoff.action}` : ""}${agent.handoff.priority ? ` priority=${agent.handoff.priority}` : ""} - ${agent.handoff.instruction}`,
     `  executionPlan: ${agent.executionPlan.operation}/${agent.executionPlan.confidence} - ${agent.executionPlan.reason}`,
     `  loopDecision: ${agent.next.loop.decision}`,
@@ -2304,6 +2305,22 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  verification: ${agent.verificationFoundCount}/${agent.verificationRequestedCount} found, ${agent.verificationMissingCount} missing`,
     `  readability: ${agent.readability} (${agent.readabilityScore})`,
   ];
+  if (agent.executor.readFrom) lines.push(`  executorReadFrom: ${agent.executor.readFrom}`);
+  if (agent.executor.readValue) lines.push(...formatAgentReadValueText(agent.executor.readValue, "executorReadValue"));
+  if (agent.executor.commandArgs) lines.push(`  executorCommandArgs: ${formatCommandArgsText(agent.executor.commandArgs)}`);
+  if (agent.executor.afterInteractionCommandArgs) lines.push(`  executorAfterInteractionCommandArgs: ${formatCommandArgsText(agent.executor.afterInteractionCommandArgs)}`);
+  if (agent.executor.url) lines.push(`  executorUrl: ${agent.executor.url}`);
+  if (agent.executor.readTarget) {
+    const count = typeof agent.executor.readTarget.count === "number" ? ` count=${agent.executor.readTarget.count}` : "";
+    const score = typeof agent.executor.readTarget.score === "number" ? ` score=${agent.executor.readTarget.score}` : "";
+    const primary = agent.executor.readTarget.primary ? " primary" : "";
+    lines.push(`  executorReadTarget: ${agent.executor.readTarget.path}${count}${score}${primary} - ${agent.executor.readTarget.reason}`);
+  }
+  if (agent.executor.browserHtml) {
+    lines.push(`  executorBrowserHtml: ${agent.executor.browserHtml.htmlFile} capture=${agent.executor.browserHtml.captureScript}`);
+    if (agent.executor.browserHtml.url) lines.push(`  executorBrowserHtmlUrl: ${agent.executor.browserHtml.url}`);
+    if (agent.executor.browserHtml.commandArgs) lines.push(`  executorBrowserHtmlCommandArgs: ${formatCommandArgsText(agent.executor.browserHtml.commandArgs)}`);
+  }
   if (agent.handoff.readFrom) lines.push(`  handoffReadFrom: ${agent.handoff.readFrom}`);
   if (agent.handoff.readValue) lines.push(...formatAgentReadValueText(agent.handoff.readValue));
   if (agent.handoff.command) lines.push(`  handoffCommand: ${agent.handoff.command}`);

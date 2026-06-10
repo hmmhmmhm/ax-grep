@@ -51,6 +51,7 @@ Agent actions use an `execution` discriminator:
 
 Generated commands preserve fetch and search context such as `--lang`,
 `--region`, `--find`, `--timeout`, `--user-agent`, and `--agent`.
+Text output also prints `executor*` lines for the same next-step fields.
 
 ## Find and Verification
 

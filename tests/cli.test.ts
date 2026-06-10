@@ -968,6 +968,8 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("  searchDecision: open-result/low - Ranked result 1 from result.example.");
+    expect(stdout.output).toContain("  executor: execute/execute-command/medium action=open-result status=needs-more - Run ax-grep 'https://result.example/' --json --summary and continue with its output.");
+    expect(stdout.output).toContain("  executorCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  handoffCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  handoffResultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult");
     expect(stdout.output).toContain("  resultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult");
@@ -7080,6 +7082,10 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  routingIntent: read-current");
     expect(stdout.output).toContain("  continuationMode: read");
     expect(stdout.output).toContain("  nextMode: read");
+    expect(stdout.output).toContain("  executor: return/return/medium action=read-content status=ready - Answer now from pageCheck.contentEvidence using citations e1.");
+    expect(stdout.output).toContain("  executorReadFrom: pageCheck.contentEvidence");
+    expect(stdout.output).toContain("  executorReadValue: pageCheck.contentEvidence");
+    expect(stdout.output).toContain("  executorReadTarget: pageCheck.contentEvidence count=1");
     expect(stdout.output).toContain("  loopDecision: return");
     expect(stdout.output).toContain("  loopContinue: false");
     expect(stdout.output).toContain("  loopTerminal: true");
@@ -7449,6 +7455,11 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(20);
     expect(stdout.output).toContain("agent\n  status: needs-browser");
     expect(stdout.output).toContain("  continuationMode: capture-html");
+    expect(stdout.output).toContain("  executor: browser/capture-browser-html/low action=retry-with-browser-html status=blocked - ");
+    expect(stdout.output).toContain("  executorCommandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  executorBrowserHtml: captured.html capture=document.documentElement.outerHTML");
+    expect(stdout.output).toContain("  executorBrowserHtmlUrl: https://example.test");
+    expect(stdout.output).toContain("  executorBrowserHtmlCommandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  handoff: browser/capture-browser-html/low action=retry-with-browser-html priority=high - ");
     expect(stdout.output).toContain("  handoffCommandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  handoffUrl: https://example.test");
