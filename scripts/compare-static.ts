@@ -2696,11 +2696,22 @@ function classifyComparison(comparison: StaticComparison): StaticClassification 
   if (!comparison.agentBrowser) return "reference-missing";
   if (isChallengeSnapshot(comparison.agentBrowser.normalized)) return "reference-challenge";
   if (comparison.fetch.htmlBytes > 10_000 && comparison.static.nodeCount <= 5 && comparison.agentBrowser.lineCount <= 5) return "shell";
-  if (comparison.agentBrowser.lineCount <= 2 && comparison.static.nodeCount > 100) return "challenge";
+  if (comparison.agentBrowser.lineCount <= 2 && comparison.static.nodeCount > 100 && !hasAgentUsableThinReference(comparison)) return "challenge";
+  if (hasAgentUsableThinReference(comparison)) return "usable";
   if (isVolatileDiagnostic(comparison)) return "volatile";
   if (comparison.static.nodeCount > Math.max(1_500, comparison.agentBrowser.lineCount * 3)) return "over-collected";
   if (comparison.agentReadiness.score < 0.45) return "needs-browser";
   return "usable";
+}
+
+function hasAgentUsableThinReference(comparison: StaticComparison): boolean {
+  const summary = comparison.cliAgentSummary;
+  return comparison.fetch.source !== "agent-browser-rendered"
+    && summary.ok
+    && summary.agentStatus === "ready"
+    && summary.agentExecutorScore >= 0.99
+    && summary.score >= 0.8
+    && summary.pageCheck.contentEvidenceCount > 0;
 }
 
 function isVolatileDiagnostic(comparison: StaticComparison): boolean {
