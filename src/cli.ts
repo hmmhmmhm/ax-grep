@@ -12383,6 +12383,7 @@ function compactAgentBriefHandoff(handoff: AgentHandoff, primaryUrl?: string): o
     ...(handoff.browserHtml ? { browserHtml: compactAgentBrowserHtml(handoff.browserHtml) } : {}),
     ...(handoff.sourceSearch ? { sourceSearch: handoff.sourceSearch } : {}),
     ...(handoff.resultChoices && handoff.resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(handoff.resultChoices, 700) } : {}),
+    ...(handoff.sourceChoices && handoff.sourceChoices.length > 0 ? { sourceChoices: compactAgentSourceChoiceList(handoff.sourceChoices, 900) } : {}),
     ...(handoff.answerEvidence && handoff.answerEvidence.length > 0 ? { answerEvidence: handoff.answerEvidence.map(compactAgentCitationRef) } : {}),
   };
   return compactAgentUrlRefs(compact, primaryUrl);

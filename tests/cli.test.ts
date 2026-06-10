@@ -703,6 +703,7 @@ describe("cli", () => {
             <h1>Example</h1>
             <p>Thin page.</p>
             <a href="https://source.example/report">Source report</a>
+            <a href="https://source.example/backup">Backup source</a>
           </main>
         `,
       },
@@ -760,6 +761,21 @@ describe("cli", () => {
       if (executor.readFrom) expect(handoff.readFrom).toBe(executor.readFrom);
       if (executor.url) expect(handoff.url).toBe(executor.url);
       if (executor.target) expect(handoff.target.url).toBe(executor.target.url);
+      if (executor.action === "open-source-link") {
+        expect(handoff.sourceChoices).toEqual([
+          expect.objectContaining({
+            path: "pageCheck.sourceLinks[0]",
+            url: "https://source.example/report",
+            primary: true,
+            commandArgs: ["ax-grep", "https://source.example/report", "--find", "missing claim", "--agent-brief"],
+          }),
+          expect.objectContaining({
+            path: "pageCheck.sourceLinks[1]",
+            url: "https://source.example/backup",
+            commandArgs: ["ax-grep", "https://source.example/backup", "--find", "missing claim", "--agent-brief"],
+          }),
+        ]);
+      }
       if (executor.browserHtml?.commandArgs) expect(handoff.browserHtml.commandArgs).toEqual(executor.browserHtml.commandArgs);
     }
   });

@@ -1791,6 +1791,10 @@ function scoreBriefAgentExecutorEnvelope(envelope: unknown): number {
     if (executor.action === agent.primaryAction.action) matched += 1;
     if (JSON.stringify(executor.commandArgs) === JSON.stringify(agent.primaryAction.commandArgs)) matched += 1;
   }
+  if (Array.isArray(handoff.sourceChoices) && handoff.sourceChoices.length > 0) {
+    required += 1;
+    if (handoff.sourceChoices.some((choice) => choice.url === agent.primaryAction?.url)) matched += 1;
+  }
   return roundScore(matched / required);
 }
 
