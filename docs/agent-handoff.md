@@ -16,6 +16,12 @@ only on `agent.executor.decision`.
 `commandArgs` always starts with `ax-grep`. Callers using `execFile` can pass
 `commandArgs.slice(1)` back to the binary.
 
+## Resource Safety
+
+Run executor loops sequentially. Do not fan out `ax-grep`, comparison, or
+browser-backed checks. Before and after browser work, run `pnpm check:processes`
+and clean up any project-owned `agent-browser` or Chromium process.
+
 ## Minimal Executor
 
 ```ts

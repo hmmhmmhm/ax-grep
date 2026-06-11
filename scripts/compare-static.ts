@@ -1737,6 +1737,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopChoiceName?: string;
       semanticTopChoiceState?: string;
       semanticTopChoiceSelected?: boolean;
+      semanticTopChoicePosInSet?: number;
+      semanticTopChoiceSetSize?: number;
       semanticTopChoiceSelector?: string;
       semanticTopStateRole?: string;
       semanticTopStatePath?: string;
@@ -4899,6 +4901,8 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopChoiceName?: string;
   semanticTopChoiceState?: string;
   semanticTopChoiceSelected?: boolean;
+  semanticTopChoicePosInSet?: number;
+  semanticTopChoiceSetSize?: number;
   semanticTopChoiceSelector?: string;
   semanticTopStateRole?: string;
   semanticTopStatePath?: string;
@@ -5676,7 +5680,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopRelationSelector === relationItem.selector) matched += 1;
   }
-  const choice = Array.isArray(item.choiceItems) ? item.choiceItems[0] as { path?: unknown; role?: unknown; name?: unknown; state?: unknown; selector?: unknown } | undefined : undefined;
+  const choice = Array.isArray(item.choiceItems) ? item.choiceItems[0] as { path?: unknown; role?: unknown; name?: unknown; state?: unknown; posInSet?: unknown; setSize?: unknown; selector?: unknown } | undefined : undefined;
   if (choice && typeof choice.role === "string") {
     required += 1;
     if (agent?.semanticTopChoiceRole === choice.role) matched += 1;
@@ -5703,6 +5707,14 @@ function scoreAgentSemanticSummary(agent: {
       required += 1;
       if (agent?.semanticTopChoiceSelected === selected) matched += 1;
     }
+  }
+  if (choice && typeof choice.posInSet === "number") {
+    required += 1;
+    if (agent?.semanticTopChoicePosInSet === choice.posInSet) matched += 1;
+  }
+  if (choice && typeof choice.setSize === "number") {
+    required += 1;
+    if (agent?.semanticTopChoiceSetSize === choice.setSize) matched += 1;
   }
   if (choice && typeof choice.selector === "string") {
     required += 1;

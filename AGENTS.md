@@ -4,6 +4,8 @@
 
 - Do not run project tests, comparison scripts, or browser-backed checks in
   parallel. Use one command at a time.
+- Treat sequential execution as mandatory. A prior multi-agent/browser run
+  exhausted the host and blocked external connections for hours.
 - Treat `agent-browser`, Playwright, Puppeteer, Chromium, and Chrome as scarce
   host resources. Before starting a browser-backed command, check for existing
   processes if there is any chance another run is active.
