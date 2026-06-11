@@ -4942,7 +4942,7 @@ describe("cli", () => {
       fetch: async () => new Response(`
         <html>
           <head>
-            <link rel="search" type="application/opensearchdescription+xml" title="Docs OpenSearch" href="/opensearch.xml">
+            <link rel="search" type="application/opensearchdescription+xml" title="Docs OpenSearch" href="/opensearch.xml" aria-disabled="true" aria-expanded="false" aria-haspopup="dialog" aria-controls="docs-search-panel">
             <script type="application/ld+json">
               {
                 "@context": "https://schema.org",
@@ -4991,10 +4991,14 @@ describe("cli", () => {
         rank: 2,
         kind: "search",
         name: "Docs OpenSearch",
-        text: "search: Docs OpenSearch target=https://example.test/opensearch.xml type=application/opensearchdescription+xml source=link",
+        text: "search: Docs OpenSearch target=https://example.test/opensearch.xml type=application/opensearchdescription+xml disabled=true expanded=false haspopup=dialog controls=docs-search-panel source=link",
         source: "link",
         targetUrl: "https://example.test/opensearch.xml",
         encodingType: "application/opensearchdescription+xml",
+        disabled: true,
+        expanded: false,
+        haspopup: "dialog",
+        controls: "docs-search-panel",
         selector: "link[rel=\"search\"]:nth-of-type(1)",
       },
     ]);
@@ -5029,6 +5033,10 @@ describe("cli", () => {
         name: "Docs OpenSearch",
         source: "link",
         targetUrl: "https://example.test/opensearch.xml",
+        disabled: true,
+        expanded: false,
+        haspopup: "dialog",
+        controls: "docs-search-panel",
       }),
     ]);
     expect(envelope.agent.primaryAction).toMatchObject({
@@ -5060,7 +5068,7 @@ describe("cli", () => {
       fetch: async () => new Response(`
         <html>
           <head>
-            <link rel="search" type="application/opensearchdescription+xml" title="Docs OpenSearch" href="/opensearch.xml">
+            <link rel="search" type="application/opensearchdescription+xml" title="Docs OpenSearch" href="/opensearch.xml" aria-pressed="mixed" aria-haspopup="menu" aria-controls="docs-search-menu">
             <script type="application/ld+json">
               {
                 "@context": "https://schema.org",
@@ -5124,6 +5132,9 @@ describe("cli", () => {
           path: "pageCheck.actionTargets[1]",
           kind: "search",
           targetUrl: "https://example.test/opensearch.xml",
+          pressed: "mixed",
+          haspopup: "menu",
+          controls: "docs-search-menu",
           selector: "link[rel=\"search\"]:nth-of-type(1)",
         }),
       ]),

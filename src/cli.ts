@@ -408,6 +408,11 @@ type PageActionTargetSummary = {
   queryInput?: string;
   method?: string;
   encodingType?: string;
+  disabled?: boolean;
+  pressed?: SemanticNodeState["pressed"];
+  expanded?: boolean;
+  haspopup?: SemanticNodeState["haspopup"];
+  controls?: string;
   selector?: string;
 };
 
@@ -1255,6 +1260,11 @@ type AgentSummary = {
   topActionTargetChoiceUrlTemplate?: string;
   topActionTargetChoiceQueryInput?: string;
   topActionTargetChoiceMethod?: string;
+  topActionTargetChoiceDisabled?: boolean;
+  topActionTargetChoicePressed?: SemanticNodeState["pressed"];
+  topActionTargetChoiceExpanded?: boolean;
+  topActionTargetChoiceHaspopup?: SemanticNodeState["haspopup"];
+  topActionTargetChoiceControls?: string;
   topActionTargetChoiceSelector?: string;
   barrierCount: number;
   topBarrierKind?: PageBarrierSummary["kind"];
@@ -2975,8 +2985,13 @@ function formatAgentActionTargetChoiceText(choice: AgentActionTargetChoice, pref
   const template = choice.urlTemplate ? ` template=${choice.urlTemplate}` : "";
   const query = choice.queryInput ? ` queryInput=${choice.queryInput}` : "";
   const method = choice.method ? ` method=${choice.method}` : "";
+  const disabled = typeof choice.disabled === "boolean" ? ` disabled=${choice.disabled}` : "";
+  const pressed = typeof choice.pressed !== "undefined" ? ` pressed=${choice.pressed}` : "";
+  const expanded = typeof choice.expanded === "boolean" ? ` expanded=${choice.expanded}` : "";
+  const haspopup = typeof choice.haspopup !== "undefined" ? ` haspopup=${choice.haspopup}` : "";
+  const controls = choice.controls ? ` controls=${choice.controls}` : "";
   const selector = choice.selector ? ` selector=${choice.selector}` : "";
-  return [`  ${prefix}: ${choice.id} ${choice.path} rank=${choice.rank} kind=${choice.kind} source=${choice.source}${template}${query}${method}${selector}${target} - ${choice.name}`];
+  return [`  ${prefix}: ${choice.id} ${choice.path} rank=${choice.rank} kind=${choice.kind} source=${choice.source}${template}${query}${method}${disabled}${pressed}${expanded}${haspopup}${controls}${selector}${target} - ${choice.name}`];
 }
 
 function formatAgentSourceSearchResultText(result: AgentSourceSearchResult, prefix: string): string[] {
@@ -5806,8 +5821,20 @@ function summarizeActionTargets(html: string, baseUrl: string): PageActionTarget
       ...(queryInput ? { queryInput } : {}),
       ...(method ? { method } : {}),
       ...(encodingType ? { encodingType } : {}),
+      ...(typeof item.disabled === "boolean" ? { disabled: item.disabled } : {}),
+      ...(typeof item.pressed !== "undefined" ? { pressed: item.pressed } : {}),
+      ...(typeof item.expanded === "boolean" ? { expanded: item.expanded } : {}),
+      ...(typeof item.haspopup !== "undefined" ? { haspopup: item.haspopup } : {}),
+      ...(item.controls ? { controls: item.controls } : {}),
       ...(item.selector ? { selector: item.selector } : {}),
-      text: actionTargetText(item.kind, name, targetUrl, urlTemplate, queryInput, method, encodingType, item.source),
+      text: actionTargetText(item.kind, name, targetUrl, urlTemplate, queryInput, method, encodingType, {
+        disabled: item.disabled,
+        pressed: item.pressed,
+        expanded: item.expanded,
+        haspopup: item.haspopup,
+        controls: item.controls,
+        source: item.source,
+      }),
     });
   };
 
@@ -5835,6 +5862,7 @@ function summarizeActionTargets(html: string, baseUrl: string): PageActionTarget
       source: "link",
       targetUrl,
       encodingType: cleanLinkText(attr(link, "type") ?? ""),
+      ...actionTargetStateFromElement(link),
       selector: `link[rel="${cssAttributeValue(rel)}"]:nth-of-type(${index + 1})`,
     });
   }
@@ -5902,7 +5930,38 @@ function isUsefulActionTarget(name: string, targetUrl: string, urlTemplate: stri
   return Boolean(targetUrl || urlTemplate || queryInput);
 }
 
-function actionTargetText(kind: PageActionTargetSummary["kind"], name: string, targetUrl: string, urlTemplate: string, queryInput: string, method: string, encodingType: string, source: PageActionTargetSummary["source"]): string {
+function actionTargetStateFromElement(element: Element): Pick<PageActionTargetSummary, "disabled" | "pressed" | "expanded" | "haspopup" | "controls"> {
+  const ariaDisabled = cleanLinkText(attr(element, "aria-disabled") ?? "").toLowerCase();
+  const ariaPressed = cleanLinkText(attr(element, "aria-pressed") ?? "").toLowerCase();
+  const ariaExpanded = cleanLinkText(attr(element, "aria-expanded") ?? "").toLowerCase();
+  const ariaHaspopup = cleanLinkText(attr(element, "aria-haspopup") ?? "").toLowerCase();
+  const controls = cleanLinkText(attr(element, "aria-controls") ?? "").slice(0, 160);
+  return {
+    ...(typeof attr(element, "disabled") !== "undefined" || ariaDisabled === "true" ? { disabled: true } : {}),
+    ...(ariaPressed === "true" || ariaPressed === "false" || ariaPressed === "mixed" ? { pressed: ariaPressed === "mixed" ? "mixed" : ariaPressed === "true" } : {}),
+    ...(ariaExpanded === "true" || ariaExpanded === "false" ? { expanded: ariaExpanded === "true" } : {}),
+    ...(ariaHaspopup && ariaHaspopup !== "false" ? { haspopup: ariaHaspopup === "true" ? true : ariaHaspopup as SemanticNodeState["haspopup"] } : {}),
+    ...(controls ? { controls } : {}),
+  };
+}
+
+function actionTargetText(
+  kind: PageActionTargetSummary["kind"],
+  name: string,
+  targetUrl: string,
+  urlTemplate: string,
+  queryInput: string,
+  method: string,
+  encodingType: string,
+  state: {
+    disabled?: boolean | undefined;
+    pressed?: SemanticNodeState["pressed"] | undefined;
+    expanded?: boolean | undefined;
+    haspopup?: SemanticNodeState["haspopup"] | undefined;
+    controls?: string | undefined;
+    source: PageActionTargetSummary["source"];
+  },
+): string {
   return cleanContentText([
     `${kind}: ${name}`,
     targetUrl ? `target=${targetUrl}` : "",
@@ -5910,7 +5969,12 @@ function actionTargetText(kind: PageActionTargetSummary["kind"], name: string, t
     queryInput ? `queryInput=${queryInput}` : "",
     method ? `method=${method}` : "",
     encodingType ? `type=${encodingType}` : "",
-    `source=${source}`,
+    typeof state.disabled === "boolean" ? `disabled=${state.disabled}` : "",
+    typeof state.pressed !== "undefined" ? `pressed=${state.pressed}` : "",
+    typeof state.expanded === "boolean" ? `expanded=${state.expanded}` : "",
+    typeof state.haspopup !== "undefined" ? `haspopup=${state.haspopup}` : "",
+    state.controls ? `controls=${state.controls}` : "",
+    `source=${state.source}`,
   ].filter(Boolean).join(" "));
 }
 
@@ -10855,6 +10919,11 @@ function summarizeAgent(
     ...(actionTargetChoices[0]?.urlTemplate ? { topActionTargetChoiceUrlTemplate: actionTargetChoices[0].urlTemplate } : {}),
     ...(actionTargetChoices[0]?.queryInput ? { topActionTargetChoiceQueryInput: actionTargetChoices[0].queryInput } : {}),
     ...(actionTargetChoices[0]?.method ? { topActionTargetChoiceMethod: actionTargetChoices[0].method } : {}),
+    ...(typeof actionTargetChoices[0]?.disabled === "boolean" ? { topActionTargetChoiceDisabled: actionTargetChoices[0].disabled } : {}),
+    ...(typeof actionTargetChoices[0]?.pressed !== "undefined" ? { topActionTargetChoicePressed: actionTargetChoices[0].pressed } : {}),
+    ...(typeof actionTargetChoices[0]?.expanded === "boolean" ? { topActionTargetChoiceExpanded: actionTargetChoices[0].expanded } : {}),
+    ...(typeof actionTargetChoices[0]?.haspopup !== "undefined" ? { topActionTargetChoiceHaspopup: actionTargetChoices[0].haspopup } : {}),
+    ...(actionTargetChoices[0]?.controls ? { topActionTargetChoiceControls: actionTargetChoices[0].controls } : {}),
     ...(actionTargetChoices[0]?.selector ? { topActionTargetChoiceSelector: actionTargetChoices[0].selector } : {}),
     barrierCount: pageCheck.barriers.length,
     ...(topBarrier ? { topBarrierKind: topBarrier.kind } : {}),
@@ -12854,6 +12923,11 @@ function summarizeAgentActionTargetChoices(targets: PageActionTargetSummary[]): 
     ...(target.queryInput ? { queryInput: target.queryInput } : {}),
     ...(target.method ? { method: target.method } : {}),
     ...(target.encodingType ? { encodingType: target.encodingType } : {}),
+    ...(typeof target.disabled === "boolean" ? { disabled: target.disabled } : {}),
+    ...(typeof target.pressed !== "undefined" ? { pressed: target.pressed } : {}),
+    ...(typeof target.expanded === "boolean" ? { expanded: target.expanded } : {}),
+    ...(typeof target.haspopup !== "undefined" ? { haspopup: target.haspopup } : {}),
+    ...(target.controls ? { controls: target.controls } : {}),
     ...(target.selector ? { selector: target.selector } : {}),
   }));
 }
@@ -15422,6 +15496,11 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topActionTargetChoiceUrlTemplate ? { topActionTargetChoiceUrlTemplate: agent.topActionTargetChoiceUrlTemplate } : {}),
     ...(agent.topActionTargetChoiceQueryInput ? { topActionTargetChoiceQueryInput: agent.topActionTargetChoiceQueryInput } : {}),
     ...(agent.topActionTargetChoiceMethod ? { topActionTargetChoiceMethod: agent.topActionTargetChoiceMethod } : {}),
+    ...(typeof agent.topActionTargetChoiceDisabled === "boolean" ? { topActionTargetChoiceDisabled: agent.topActionTargetChoiceDisabled } : {}),
+    ...(typeof agent.topActionTargetChoicePressed !== "undefined" ? { topActionTargetChoicePressed: agent.topActionTargetChoicePressed } : {}),
+    ...(typeof agent.topActionTargetChoiceExpanded === "boolean" ? { topActionTargetChoiceExpanded: agent.topActionTargetChoiceExpanded } : {}),
+    ...(typeof agent.topActionTargetChoiceHaspopup !== "undefined" ? { topActionTargetChoiceHaspopup: agent.topActionTargetChoiceHaspopup } : {}),
+    ...(agent.topActionTargetChoiceControls ? { topActionTargetChoiceControls: agent.topActionTargetChoiceControls } : {}),
     ...(agent.topActionTargetChoiceSelector ? { topActionTargetChoiceSelector: agent.topActionTargetChoiceSelector } : {}),
     barrierCount: agent.barrierCount,
     ...(agent.topBarrierKind ? { topBarrierKind: agent.topBarrierKind } : {}),
@@ -16070,6 +16149,11 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topActionTargetChoiceUrlTemplate ? { topActionTargetChoiceUrlTemplate: agent.topActionTargetChoiceUrlTemplate } : {}),
     ...(agent.topActionTargetChoiceQueryInput ? { topActionTargetChoiceQueryInput: agent.topActionTargetChoiceQueryInput } : {}),
     ...(agent.topActionTargetChoiceMethod ? { topActionTargetChoiceMethod: agent.topActionTargetChoiceMethod } : {}),
+    ...(typeof agent.topActionTargetChoiceDisabled === "boolean" ? { topActionTargetChoiceDisabled: agent.topActionTargetChoiceDisabled } : {}),
+    ...(typeof agent.topActionTargetChoicePressed !== "undefined" ? { topActionTargetChoicePressed: agent.topActionTargetChoicePressed } : {}),
+    ...(typeof agent.topActionTargetChoiceExpanded === "boolean" ? { topActionTargetChoiceExpanded: agent.topActionTargetChoiceExpanded } : {}),
+    ...(typeof agent.topActionTargetChoiceHaspopup !== "undefined" ? { topActionTargetChoiceHaspopup: agent.topActionTargetChoiceHaspopup } : {}),
+    ...(agent.topActionTargetChoiceControls ? { topActionTargetChoiceControls: agent.topActionTargetChoiceControls } : {}),
     ...(agent.topActionTargetChoiceSelector ? { topActionTargetChoiceSelector: agent.topActionTargetChoiceSelector } : {}),
     barrierCount: agent.barrierCount,
     ...(agent.topBarrierKind ? { topBarrierKind: agent.topBarrierKind } : {}),
@@ -16789,6 +16873,11 @@ function compactAgentActionTargetExecutionRefs(targets: PageActionTargetSummary[
     ...(target.queryInput ? { queryInput: target.queryInput } : {}),
     ...(target.method ? { method: target.method } : {}),
     ...(target.encodingType ? { encodingType: target.encodingType } : {}),
+    ...(typeof target.disabled === "boolean" ? { disabled: target.disabled } : {}),
+    ...(typeof target.pressed !== "undefined" ? { pressed: target.pressed } : {}),
+    ...(typeof target.expanded === "boolean" ? { expanded: target.expanded } : {}),
+    ...(typeof target.haspopup !== "undefined" ? { haspopup: target.haspopup } : {}),
+    ...(target.controls ? { controls: target.controls } : {}),
     ...(target.selector ? { selector: target.selector } : {}),
   }));
 }

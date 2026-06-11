@@ -393,6 +393,11 @@ type CliAgentActionTargetChoiceShape = {
   queryInput?: string;
   method?: string;
   encodingType?: string;
+  disabled?: boolean;
+  pressed?: boolean | "mixed";
+  expanded?: boolean;
+  haspopup?: boolean | string;
+  controls?: string;
   selector?: string;
 };
 
@@ -1298,6 +1303,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topActionTargetChoiceUrlTemplate?: string;
       topActionTargetChoiceQueryInput?: string;
       topActionTargetChoiceMethod?: string;
+      topActionTargetChoiceDisabled?: boolean;
+      topActionTargetChoicePressed?: boolean | "mixed";
+      topActionTargetChoiceExpanded?: boolean;
+      topActionTargetChoiceHaspopup?: boolean | string;
+      topActionTargetChoiceControls?: string;
       topActionTargetChoiceSelector?: string;
       barrierCount?: number;
       topBarrierKind?: CliBarrierShape["kind"];
@@ -4004,6 +4014,18 @@ function scoreAgentActionTargetChoices(choices: CliAgentActionTargetChoiceShape[
       return choice.selector === target.selector;
     })) matched += 1;
   }
+  if (expected.some((target) => typeof (target as { disabled?: unknown }).disabled === "boolean" || typeof (target as { pressed?: unknown }).pressed !== "undefined" || typeof (target as { expanded?: unknown }).expanded === "boolean" || typeof (target as { haspopup?: unknown }).haspopup !== "undefined" || typeof (target as { controls?: unknown }).controls === "string")) {
+    required += 1;
+    if (choices.every((choice, index) => {
+      const target = expected[index];
+      if (!target) return false;
+      return optionalFieldMatches(choice.disabled, target.disabled)
+        && optionalFieldMatches(choice.pressed, target.pressed)
+        && optionalFieldMatches(choice.expanded, target.expanded)
+        && optionalFieldMatches(choice.haspopup, target.haspopup)
+        && optionalFieldMatches(choice.controls, target.controls);
+    })) matched += 1;
+  }
   return roundScore(matched / required);
 }
 
@@ -4031,6 +4053,11 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   topActionTargetChoiceUrlTemplate?: string;
   topActionTargetChoiceQueryInput?: string;
   topActionTargetChoiceMethod?: string;
+  topActionTargetChoiceDisabled?: boolean;
+  topActionTargetChoicePressed?: boolean | "mixed";
+  topActionTargetChoiceExpanded?: boolean;
+  topActionTargetChoiceHaspopup?: boolean | string;
+  topActionTargetChoiceControls?: string;
   topActionTargetChoiceSelector?: string;
 } | undefined): number {
   const form = agent?.formChoices?.[0];
@@ -4074,7 +4101,7 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   }
   if (actionTarget) {
     if (agent?.topActionTargetChoicePath === actionTarget.path) matched += 1;
-    required += 8;
+    required += 13;
     if (agent?.topActionTargetChoiceKind === actionTarget.kind) matched += 1;
     if (agent?.topActionTargetChoiceName === actionTarget.name) matched += 1;
     if (agent?.topActionTargetChoiceSource === actionTarget.source) matched += 1;
@@ -4082,6 +4109,11 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     if (agent?.topActionTargetChoiceUrlTemplate === actionTarget.urlTemplate) matched += 1;
     if (agent?.topActionTargetChoiceQueryInput === actionTarget.queryInput) matched += 1;
     if (agent?.topActionTargetChoiceMethod === actionTarget.method) matched += 1;
+    if (agent?.topActionTargetChoiceDisabled === actionTarget.disabled) matched += 1;
+    if (agent?.topActionTargetChoicePressed === actionTarget.pressed) matched += 1;
+    if (agent?.topActionTargetChoiceExpanded === actionTarget.expanded) matched += 1;
+    if (agent?.topActionTargetChoiceHaspopup === actionTarget.haspopup) matched += 1;
+    if (agent?.topActionTargetChoiceControls === actionTarget.controls) matched += 1;
     if (agent?.topActionTargetChoiceSelector === actionTarget.selector) matched += 1;
   } else if (
     agent?.topActionTargetChoicePath
@@ -4092,6 +4124,11 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     || agent?.topActionTargetChoiceUrlTemplate
     || agent?.topActionTargetChoiceQueryInput
     || agent?.topActionTargetChoiceMethod
+    || typeof agent?.topActionTargetChoiceDisabled === "boolean"
+    || typeof agent?.topActionTargetChoicePressed !== "undefined"
+    || typeof agent?.topActionTargetChoiceExpanded === "boolean"
+    || typeof agent?.topActionTargetChoiceHaspopup !== "undefined"
+    || agent?.topActionTargetChoiceControls
     || agent?.topActionTargetChoiceSelector
   ) {
     required += 1;

@@ -168,6 +168,11 @@ describe("public agent types", () => {
       urlTemplate: "https://example.test/search?q={query}",
       queryInput: "required name=query",
       method: "GET",
+      disabled: true,
+      pressed: false,
+      expanded: true,
+      haspopup: "dialog",
+      controls: "search-dialog",
       selector: "script[type=\"application/ld+json\"]",
     };
     const summary: Pick<
@@ -223,6 +228,11 @@ describe("public agent types", () => {
       | "topActionTargetChoiceUrlTemplate"
       | "topActionTargetChoiceQueryInput"
       | "topActionTargetChoiceMethod"
+      | "topActionTargetChoiceDisabled"
+      | "topActionTargetChoicePressed"
+      | "topActionTargetChoiceExpanded"
+      | "topActionTargetChoiceHaspopup"
+      | "topActionTargetChoiceControls"
       | "topActionTargetChoiceSelector"
       | "barrierCount"
       | "topBarrierKind"
@@ -873,6 +883,11 @@ describe("public agent types", () => {
       topActionTargetChoiceUrlTemplate: "https://example.test/search?q={query}",
       topActionTargetChoiceQueryInput: "required name=query",
       topActionTargetChoiceMethod: "GET",
+      topActionTargetChoiceDisabled: true,
+      topActionTargetChoicePressed: false,
+      topActionTargetChoiceExpanded: true,
+      topActionTargetChoiceHaspopup: "dialog",
+      topActionTargetChoiceControls: "search-dialog",
       topActionTargetChoiceSelector: "script[type=\"application/ld+json\"]",
       barrierCount: 1,
       topBarrierKind: "challenge",

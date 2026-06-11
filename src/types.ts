@@ -463,6 +463,11 @@ export type AgentActionTargetChoice = {
   queryInput?: string;
   method?: string;
   encodingType?: string;
+  disabled?: boolean;
+  pressed?: SemanticNodeState["pressed"];
+  expanded?: boolean;
+  haspopup?: SemanticNodeState["haspopup"];
+  controls?: string;
   selector?: string;
 };
 
@@ -891,6 +896,11 @@ export type AgentSummary = {
   topActionTargetChoiceUrlTemplate?: string;
   topActionTargetChoiceQueryInput?: string;
   topActionTargetChoiceMethod?: string;
+  topActionTargetChoiceDisabled?: boolean;
+  topActionTargetChoicePressed?: SemanticNodeState["pressed"];
+  topActionTargetChoiceExpanded?: boolean;
+  topActionTargetChoiceHaspopup?: SemanticNodeState["haspopup"];
+  topActionTargetChoiceControls?: string;
   topActionTargetChoiceSelector?: string;
   barrierCount?: number;
   topBarrierKind?: string;
