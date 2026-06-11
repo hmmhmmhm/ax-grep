@@ -186,10 +186,8 @@ actionable.
 `averageAgentPrimaryExecutionScore` tracks whether `agent.primaryExecution`
 matches `agent.primaryAction.execution`, so agents can route from the shortcut
 field without rereading the full action object.
-`averageAgentPrimaryShortcutScore` tracks whether `agent.primaryReadFrom`,
-`agent.primaryCommand`, `agent.primaryCommandArgs`, `agent.primaryUrl`,
-`agent.primaryRank`, `agent.primaryOpenResult`, and
-`agent.requiresBrowserInteraction` mirror the matching fields on
+`averageAgentPrimaryShortcutScore` tracks whether `agent.primaryActionName`,
+reason, priority, command, URL, rank, read-from, and browser shortcuts mirror
 `agent.primaryAction`, so agents can continue from top-level routing fields.
 `averageAgentSourceSearchProvenanceScore` tracks whether opened-result payloads
 with `sourceSearch.selectedResult` or `sourceSearch.alternateResults` expose

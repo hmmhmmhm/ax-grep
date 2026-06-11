@@ -552,6 +552,10 @@ export type AgentSummary = {
   bestReadTarget?: string;
   bestReadTargetScore?: number;
   bestReadTargetReason?: string;
+  primaryActionName?: string;
+  primaryReason?: string;
+  primaryPriority?: "low" | "medium" | "high";
+  primaryPriorityReason?: string;
   primaryExecution?: AgentExecutionMode;
   primaryReadFrom?: string;
   primaryCommand?: string;

@@ -177,6 +177,10 @@ describe("public agent types", () => {
       | "signalErrorCount"
       | "qualityGateCount"
       | "qualityGateFailCount"
+      | "primaryActionName"
+      | "primaryReason"
+      | "primaryPriority"
+      | "primaryPriorityReason"
     > = {
       resultCount: 2,
       resultChoiceCount: 2,
@@ -205,6 +209,10 @@ describe("public agent types", () => {
       signalErrorCount: 0,
       qualityGateCount: 4,
       qualityGateFailCount: 1,
+      primaryActionName: "read-content",
+      primaryReason: "Read current evidence.",
+      primaryPriority: "high",
+      primaryPriorityReason: "Readable content is available.",
     };
 
     expect(summary.hiddenSignalCount).toBe(4);
@@ -216,5 +224,6 @@ describe("public agent types", () => {
     expect(summary.verificationMissingQueries).toEqual(["missing"]);
     expect(summary.readTargetCount).toBe(3);
     expect(summary.qualityGateFailCount).toBe(1);
+    expect(summary.primaryActionName).toBe("read-content");
   });
 });

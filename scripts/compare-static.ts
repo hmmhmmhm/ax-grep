@@ -1109,6 +1109,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchSelectedRank?: number;
       sourceSearchSelectedUrl?: string;
       sourceSearchAlternateCount?: number;
+      primaryActionName?: string;
+      primaryReason?: string;
+      primaryPriority?: "low" | "medium" | "high";
+      primaryPriorityReason?: string;
       citationCount?: number;
       answerEvidenceCount?: number;
       readTargetCount?: number;
@@ -3176,6 +3180,10 @@ function scoreAgentPrimaryExecution(primaryExecution: ActionExecution | undefine
 }
 
 function scoreAgentPrimaryShortcuts(agent: {
+  primaryActionName?: string;
+  primaryReason?: string;
+  primaryPriority?: "low" | "medium" | "high";
+  primaryPriorityReason?: string;
   primaryReadFrom?: string;
   primaryCommand?: string;
   primaryCommandArgs?: string[];
@@ -3190,6 +3198,10 @@ function scoreAgentPrimaryShortcuts(agent: {
   const action = agent?.primaryAction;
   if (!action) {
     return agent?.primaryReadFrom
+      || agent?.primaryActionName
+      || agent?.primaryReason
+      || agent?.primaryPriority
+      || agent?.primaryPriorityReason
       || agent?.primaryCommand
       || agent?.primaryCommandArgs
       || agent?.primaryAfterInteractionCommand
@@ -3201,6 +3213,11 @@ function scoreAgentPrimaryShortcuts(agent: {
   }
   let required = 0;
   let matched = 0;
+  required += 4;
+  if (agent?.primaryActionName === action.action) matched += 1;
+  if (agent?.primaryReason === action.reason) matched += 1;
+  if (agent?.primaryPriority === action.priority) matched += 1;
+  if (agent?.primaryPriorityReason === action.priorityReason) matched += 1;
   if (action.readFrom) {
     required += 1;
     if (agent?.primaryReadFrom === action.readFrom) matched += 1;

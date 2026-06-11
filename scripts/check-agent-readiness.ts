@@ -243,6 +243,10 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "signalErrorCount",
           "qualityGateCount",
           "qualityGateFailCount",
+          "primaryActionName",
+          "primaryReason",
+          "primaryPriority",
+          "primaryPriorityReason",
         ]);
         requireFileIncludes(root, failures, "tests/cli.test.ts", [
           "formCount",
@@ -269,6 +273,10 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "signalErrors",
           "qualityGateCount",
           "qualityGateFailures",
+          "primaryActionName",
+          "primaryReason",
+          "primaryPriority",
+          "primaryPriorityReason",
         ]);
       },
     ),
@@ -297,6 +305,10 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "signalErrorCount",
           "qualityGateCount",
           "qualityGateFailCount",
+          "primaryActionName",
+          "primaryReason",
+          "primaryPriority",
+          "primaryPriorityReason",
           "verificationFoundQueries",
           "verificationMissingQueries",
           "sourceSearchSelectedRank",

@@ -7644,6 +7644,10 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("    sourceLinkRef: pageCheck.sourceLinks[0]");
     expect(stdout.output).toContain("  bestReadTarget: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  bestReadTargetReason: Structured page excerpts suitable for source checking.");
+    expect(stdout.output).toContain("  primaryActionName: read-content");
+    expect(stdout.output).toContain("  primaryReason: The page has enough structured evidence for source checking.");
+    expect(stdout.output).toContain("  primaryPriority: high");
+    expect(stdout.output).toContain("  primaryPriorityReason: Readable content evidence is available in the current payload.");
     expect(stdout.output).toContain("  readabilityReason: 1 content evidence item");
     expect(stdout.output).toContain("  recommendedUrl: https://example.test/article");
     expect(stdout.output).toContain("pageCheck\n  confidence: medium");

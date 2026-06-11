@@ -894,6 +894,10 @@ type AgentSummary = {
   bestReadTarget?: string;
   bestReadTargetScore?: number;
   bestReadTargetReason?: string;
+  primaryActionName?: string;
+  primaryReason?: string;
+  primaryPriority?: NonNullable<SuggestedAction["priority"]>;
+  primaryPriorityReason?: string;
   primaryExecution?: NonNullable<SuggestedAction["execution"]>;
   primaryReadFrom?: string;
   primaryCommand?: string;
@@ -2483,6 +2487,10 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.bestReadTarget) lines.push(`  bestReadTarget: ${agent.bestReadTarget}`);
   if (typeof agent.bestReadTargetScore === "number") lines.push(`  bestReadTargetScore: ${agent.bestReadTargetScore}`);
   if (agent.bestReadTargetReason) lines.push(`  bestReadTargetReason: ${agent.bestReadTargetReason}`);
+  if (agent.primaryActionName) lines.push(`  primaryActionName: ${agent.primaryActionName}`);
+  if (agent.primaryReason) lines.push(`  primaryReason: ${agent.primaryReason}`);
+  if (agent.primaryPriority) lines.push(`  primaryPriority: ${agent.primaryPriority}`);
+  if (agent.primaryPriorityReason) lines.push(`  primaryPriorityReason: ${agent.primaryPriorityReason}`);
   if (agent.recommendedUrl) lines.push(`  recommendedUrl: ${agent.recommendedUrl}`);
   if (agent.recommendedTitle) lines.push(`  recommendedTitle: ${agent.recommendedTitle}`);
   if (agent.recommendedRank) lines.push(`  recommendedRank: ${agent.recommendedRank}`);
@@ -8901,6 +8909,10 @@ function summarizeAgent(
     agent.bestReadTargetReason = bestReadTarget.reason;
   }
   if (primaryAction) {
+    agent.primaryActionName = primaryAction.action;
+    agent.primaryReason = primaryAction.reason;
+    agent.primaryPriority = primaryAction.priority ?? actionPriority(primaryAction);
+    agent.primaryPriorityReason = primaryAction.priorityReason ?? actionPriorityReason(primaryAction);
     agent.primaryExecution = actionExecution(primaryAction);
     if (primaryAction.readFrom) agent.primaryReadFrom = primaryAction.readFrom;
     if (primaryAction.command) agent.primaryCommand = primaryAction.command;
@@ -11328,6 +11340,10 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(bestReadTarget ? { bestReadTarget: bestReadTarget.path } : {}),
     ...(typeof bestReadTarget?.score === "number" ? { bestReadTargetScore: bestReadTarget.score } : {}),
     ...(bestReadTarget ? { bestReadTargetReason: bestReadTarget.reason } : {}),
+    ...(primaryAction ? { primaryActionName: primaryAction.action } : {}),
+    ...(primaryAction?.reason ? { primaryReason: primaryAction.reason } : {}),
+    ...(primaryAction ? { primaryPriority: primaryAction.priority ?? actionPriority(primaryAction) } : {}),
+    ...(primaryAction ? { primaryPriorityReason: primaryAction.priorityReason ?? actionPriorityReason(primaryAction) } : {}),
     ...(primaryAction ? { primaryExecution: actionExecution(primaryAction) } : {}),
     ...(primaryAction?.readFrom ? { primaryReadFrom: primaryAction.readFrom } : {}),
     ...(primaryAction?.command ? { primaryCommand: primaryAction.command } : {}),
@@ -12580,6 +12596,10 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
     ...(agent.bestReadTargetReason ? { bestReadTargetReason: agent.bestReadTargetReason } : {}),
+    ...(agent.primaryActionName ? { primaryActionName: agent.primaryActionName } : {}),
+    ...(agent.primaryReason ? { primaryReason: agent.primaryReason } : {}),
+    ...(agent.primaryPriority ? { primaryPriority: agent.primaryPriority } : {}),
+    ...(agent.primaryPriorityReason ? { primaryPriorityReason: agent.primaryPriorityReason } : {}),
     ...(agent.primaryExecution ? { primaryExecution: agent.primaryExecution } : {}),
     ...(agent.primaryReadFrom ? { primaryReadFrom: agent.primaryReadFrom } : {}),
     ...(agent.primaryCommand ? { primaryCommand: agent.primaryCommand } : {}),
@@ -12661,6 +12681,10 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     actionCount: agent.actionCount,
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
+    ...(agent.primaryActionName ? { primaryActionName: agent.primaryActionName } : {}),
+    ...(agent.primaryReason ? { primaryReason: agent.primaryReason } : {}),
+    ...(agent.primaryPriority ? { primaryPriority: agent.primaryPriority } : {}),
+    ...(agent.primaryPriorityReason ? { primaryPriorityReason: agent.primaryPriorityReason } : {}),
     ...(agent.primaryExecution ? { primaryExecution: agent.primaryExecution } : {}),
     ...(agent.primaryReadFrom ? { primaryReadFrom: agent.primaryReadFrom } : {}),
     ...(agent.primaryUrl ? { primaryUrl: agent.primaryUrl } : {}),
