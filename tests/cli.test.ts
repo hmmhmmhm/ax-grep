@@ -4051,10 +4051,16 @@ describe("cli", () => {
       topFormChoicePath: "pageCheck.forms[0]",
       topFormChoiceMethod: "get",
       topFormChoiceActionUrl: "https://example.test/find",
+      topFormChoiceSubmitText: "Search",
       topFormChoiceQueryField: "query",
       topFormChoiceUrlTemplate: "https://example.test/find?query=%7Bquery%7D",
       topFormChoiceFieldCount: 2,
       topFormChoiceSelector: "form:nth-of-type(1)",
+      topFormChoiceFirstFieldName: "query",
+      topFormChoiceFirstFieldType: "search",
+      topFormChoiceFirstFieldLabel: "Archive search",
+      topFormChoiceFirstFieldRequired: true,
+      topFormChoiceFirstFieldSelector: "input[name=\"query\"]",
     });
     expect(envelope.agent.formChoices).toEqual([
       expect.objectContaining({

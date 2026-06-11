@@ -81,7 +81,7 @@ Read these first:
 - `agent.topResultChoice*`: first search-result candidate with URL, rank, and command args.
 - `agent.topSourceChoice*`: first source-link candidate with URL and command args.
 - `agent.topFormChoice*` and `agent.topActionTargetChoice*`: first executable
-  form/action target templates and query inputs.
+  form/action target templates, query inputs, submit text, and first-field hints.
 - `agent.topChoice*`: first executable result, source, form, or action-target choice.
 - `agent.topAction*`: first action candidate with execution, priority, command/read, and URL shortcuts.
 - `agent.primarySourceLinkRef`: primary source-link action's `pageCheck.sourceLinks[n]`.

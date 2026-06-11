@@ -728,10 +728,16 @@ export type AgentSummary = {
   topFormChoicePath?: string;
   topFormChoiceMethod?: string;
   topFormChoiceActionUrl?: string;
+  topFormChoiceSubmitText?: string;
   topFormChoiceQueryField?: string;
   topFormChoiceUrlTemplate?: string;
   topFormChoiceFieldCount?: number;
   topFormChoiceSelector?: string;
+  topFormChoiceFirstFieldName?: string;
+  topFormChoiceFirstFieldType?: string;
+  topFormChoiceFirstFieldLabel?: string;
+  topFormChoiceFirstFieldRequired?: boolean;
+  topFormChoiceFirstFieldSelector?: string;
   actionTargetCount?: number;
   actionTargetChoiceCount?: number;
   actionTargetChoices?: AgentActionTargetChoice[];

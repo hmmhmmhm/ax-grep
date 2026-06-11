@@ -191,10 +191,16 @@ describe("public agent types", () => {
       | "topFormChoicePath"
       | "topFormChoiceMethod"
       | "topFormChoiceActionUrl"
+      | "topFormChoiceSubmitText"
       | "topFormChoiceQueryField"
       | "topFormChoiceUrlTemplate"
       | "topFormChoiceFieldCount"
       | "topFormChoiceSelector"
+      | "topFormChoiceFirstFieldName"
+      | "topFormChoiceFirstFieldType"
+      | "topFormChoiceFirstFieldLabel"
+      | "topFormChoiceFirstFieldRequired"
+      | "topFormChoiceFirstFieldSelector"
       | "actionTargetCount"
       | "actionTargetChoiceCount"
       | "actionTargetChoices"
@@ -642,10 +648,16 @@ describe("public agent types", () => {
       topFormChoicePath: "pageCheck.forms[0]",
       topFormChoiceMethod: "get",
       topFormChoiceActionUrl: "https://example.test/find",
+      topFormChoiceSubmitText: "Search",
       topFormChoiceQueryField: "q",
       topFormChoiceUrlTemplate: "https://example.test/find?q={query}",
       topFormChoiceFieldCount: 1,
       topFormChoiceSelector: "form:nth-of-type(1)",
+      topFormChoiceFirstFieldName: "q",
+      topFormChoiceFirstFieldType: "search",
+      topFormChoiceFirstFieldLabel: "Search",
+      topFormChoiceFirstFieldRequired: true,
+      topFormChoiceFirstFieldSelector: "input[name=\"q\"]",
       actionTargetCount: 2,
       actionTargetChoiceCount: 1,
       actionTargetChoices: [actionTargetChoice],

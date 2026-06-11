@@ -1267,10 +1267,16 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topFormChoicePath?: string;
       topFormChoiceMethod?: string;
       topFormChoiceActionUrl?: string;
+      topFormChoiceSubmitText?: string;
       topFormChoiceQueryField?: string;
       topFormChoiceUrlTemplate?: string;
       topFormChoiceFieldCount?: number;
       topFormChoiceSelector?: string;
+      topFormChoiceFirstFieldName?: string;
+      topFormChoiceFirstFieldType?: string;
+      topFormChoiceFirstFieldLabel?: string;
+      topFormChoiceFirstFieldRequired?: boolean;
+      topFormChoiceFirstFieldSelector?: string;
       topActionTargetChoicePath?: string;
       topActionTargetChoiceKind?: string;
       topActionTargetChoiceName?: string;
@@ -3734,10 +3740,16 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   topFormChoicePath?: string;
   topFormChoiceMethod?: string;
   topFormChoiceActionUrl?: string;
+  topFormChoiceSubmitText?: string;
   topFormChoiceQueryField?: string;
   topFormChoiceUrlTemplate?: string;
   topFormChoiceFieldCount?: number;
   topFormChoiceSelector?: string;
+  topFormChoiceFirstFieldName?: string;
+  topFormChoiceFirstFieldType?: string;
+  topFormChoiceFirstFieldLabel?: string;
+  topFormChoiceFirstFieldRequired?: boolean;
+  topFormChoiceFirstFieldSelector?: string;
   actionTargetChoices?: CliAgentActionTargetChoiceShape[];
   topActionTargetChoicePath?: string;
   topActionTargetChoiceKind?: string;
@@ -3755,21 +3767,34 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   let matched = 0;
   if (form) {
     if (agent?.topFormChoicePath === form.path) matched += 1;
-    required += 6;
+    required += 12;
+    const firstField = Array.isArray(form.fields) ? form.fields[0] as { name?: unknown; type?: unknown; label?: unknown; required?: unknown; selector?: unknown } | undefined : undefined;
     if (agent?.topFormChoiceMethod === form.method) matched += 1;
     if (agent?.topFormChoiceActionUrl === form.actionUrl) matched += 1;
+    if (agent?.topFormChoiceSubmitText === form.submitText) matched += 1;
     if (agent?.topFormChoiceQueryField === form.queryField) matched += 1;
     if (agent?.topFormChoiceUrlTemplate === form.urlTemplate) matched += 1;
     if (agent?.topFormChoiceFieldCount === form.fieldCount) matched += 1;
     if (agent?.topFormChoiceSelector === form.selector) matched += 1;
+    if (agent?.topFormChoiceFirstFieldName === firstField?.name) matched += 1;
+    if (agent?.topFormChoiceFirstFieldType === firstField?.type) matched += 1;
+    if (agent?.topFormChoiceFirstFieldLabel === firstField?.label) matched += 1;
+    if (agent?.topFormChoiceFirstFieldRequired === firstField?.required) matched += 1;
+    if (agent?.topFormChoiceFirstFieldSelector === firstField?.selector) matched += 1;
   } else if (
     agent?.topFormChoicePath
     || agent?.topFormChoiceMethod
     || agent?.topFormChoiceActionUrl
+    || agent?.topFormChoiceSubmitText
     || agent?.topFormChoiceQueryField
     || agent?.topFormChoiceUrlTemplate
     || typeof agent?.topFormChoiceFieldCount === "number"
     || agent?.topFormChoiceSelector
+    || agent?.topFormChoiceFirstFieldName
+    || agent?.topFormChoiceFirstFieldType
+    || agent?.topFormChoiceFirstFieldLabel
+    || typeof agent?.topFormChoiceFirstFieldRequired === "boolean"
+    || agent?.topFormChoiceFirstFieldSelector
   ) {
     required += 1;
   } else {

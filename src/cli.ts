@@ -1098,10 +1098,16 @@ type AgentSummary = {
   topFormChoicePath?: string;
   topFormChoiceMethod?: string;
   topFormChoiceActionUrl?: string;
+  topFormChoiceSubmitText?: string;
   topFormChoiceQueryField?: string;
   topFormChoiceUrlTemplate?: string;
   topFormChoiceFieldCount?: number;
   topFormChoiceSelector?: string;
+  topFormChoiceFirstFieldName?: string;
+  topFormChoiceFirstFieldType?: string;
+  topFormChoiceFirstFieldLabel?: string;
+  topFormChoiceFirstFieldRequired?: boolean;
+  topFormChoiceFirstFieldSelector?: string;
   actionTargetCount: number;
   actionTargetChoiceCount: number;
   actionTargetChoices: AgentActionTargetChoice[];
@@ -2910,6 +2916,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topFormChoicePath ? [`  topFormChoicePath: ${agent.topFormChoicePath}`] : []),
     ...(agent.topFormChoiceUrlTemplate ? [`  topFormChoiceUrlTemplate: ${agent.topFormChoiceUrlTemplate}`] : []),
     ...(agent.topFormChoiceQueryField ? [`  topFormChoiceQueryField: ${agent.topFormChoiceQueryField}`] : []),
+    ...(agent.topFormChoiceSubmitText ? [`  topFormChoiceSubmitText: ${agent.topFormChoiceSubmitText}`] : []),
+    ...(agent.topFormChoiceFirstFieldName || agent.topFormChoiceFirstFieldType ? [`  topFormChoiceFirstField: ${agent.topFormChoiceFirstFieldName ?? ""}${agent.topFormChoiceFirstFieldType ? ` type=${agent.topFormChoiceFirstFieldType}` : ""}${agent.topFormChoiceFirstFieldLabel ? ` label=${agent.topFormChoiceFirstFieldLabel}` : ""}${typeof agent.topFormChoiceFirstFieldRequired === "boolean" ? ` required=${agent.topFormChoiceFirstFieldRequired}` : ""}${agent.topFormChoiceFirstFieldSelector ? ` selector=${agent.topFormChoiceFirstFieldSelector}` : ""}`] : []),
     ...(agent.topActionTargetChoicePath ? [`  topActionTargetChoicePath: ${agent.topActionTargetChoicePath}`] : []),
     ...(agent.topActionTargetChoiceUrlTemplate ? [`  topActionTargetChoiceUrlTemplate: ${agent.topActionTargetChoiceUrlTemplate}`] : []),
     ...(agent.topActionTargetChoiceQueryInput ? [`  topActionTargetChoiceQueryInput: ${agent.topActionTargetChoiceQueryInput}`] : []),
@@ -9862,6 +9870,8 @@ function summarizeAgent(
   const resultChoices = summarizeAgentResultChoices(hasUsableSearchResults ? results : [], recommendedResult, primaryAction, sourceSearch);
   const sourceChoices = summarizeAgentSourceChoices(analysis.kind, pageCheck.sourceLinks, primaryAction, agentMode, findQueries, timeoutMs, userAgent);
   const formChoices = summarizeAgentFormChoices(pageCheck.forms);
+  const topFormChoice = formChoices[0];
+  const topFormChoiceFirstField = topFormChoice?.fields[0];
   const actionTargetChoices = summarizeAgentActionTargetChoices(pageCheck.actionTargets);
   const topChoice = summarizeAgentTopChoice(resultChoices, sourceChoices, formChoices, actionTargetChoices);
   const topBarrier = primaryBlockingBarrier(pageCheck.barriers) ?? pageCheck.barriers[0];
@@ -10156,13 +10166,19 @@ function summarizeAgent(
     actionTargetCount: pageCheck.actionTargets.length,
     actionTargetChoices,
     actionTargetChoiceCount: pageCheck.actionTargets.length,
-    ...(formChoices[0] ? { topFormChoicePath: formChoices[0].path } : {}),
-    ...(formChoices[0]?.method ? { topFormChoiceMethod: formChoices[0].method } : {}),
-    ...(formChoices[0]?.actionUrl ? { topFormChoiceActionUrl: formChoices[0].actionUrl } : {}),
-    ...(formChoices[0]?.queryField ? { topFormChoiceQueryField: formChoices[0].queryField } : {}),
-    ...(formChoices[0]?.urlTemplate ? { topFormChoiceUrlTemplate: formChoices[0].urlTemplate } : {}),
-    ...(typeof formChoices[0]?.fieldCount === "number" ? { topFormChoiceFieldCount: formChoices[0].fieldCount } : {}),
-    ...(formChoices[0]?.selector ? { topFormChoiceSelector: formChoices[0].selector } : {}),
+    ...(topFormChoice ? { topFormChoicePath: topFormChoice.path } : {}),
+    ...(topFormChoice?.method ? { topFormChoiceMethod: topFormChoice.method } : {}),
+    ...(topFormChoice?.actionUrl ? { topFormChoiceActionUrl: topFormChoice.actionUrl } : {}),
+    ...(topFormChoice?.submitText ? { topFormChoiceSubmitText: topFormChoice.submitText } : {}),
+    ...(topFormChoice?.queryField ? { topFormChoiceQueryField: topFormChoice.queryField } : {}),
+    ...(topFormChoice?.urlTemplate ? { topFormChoiceUrlTemplate: topFormChoice.urlTemplate } : {}),
+    ...(typeof topFormChoice?.fieldCount === "number" ? { topFormChoiceFieldCount: topFormChoice.fieldCount } : {}),
+    ...(topFormChoice?.selector ? { topFormChoiceSelector: topFormChoice.selector } : {}),
+    ...(topFormChoiceFirstField?.name ? { topFormChoiceFirstFieldName: topFormChoiceFirstField.name } : {}),
+    ...(topFormChoiceFirstField?.type ? { topFormChoiceFirstFieldType: topFormChoiceFirstField.type } : {}),
+    ...(topFormChoiceFirstField?.label ? { topFormChoiceFirstFieldLabel: topFormChoiceFirstField.label } : {}),
+    ...(typeof topFormChoiceFirstField?.required === "boolean" ? { topFormChoiceFirstFieldRequired: topFormChoiceFirstField.required } : {}),
+    ...(topFormChoiceFirstField?.selector ? { topFormChoiceFirstFieldSelector: topFormChoiceFirstField.selector } : {}),
     ...(actionTargetChoices[0] ? { topActionTargetChoicePath: actionTargetChoices[0].path } : {}),
     ...(actionTargetChoices[0]?.kind ? { topActionTargetChoiceKind: actionTargetChoices[0].kind } : {}),
     ...(actionTargetChoices[0]?.name ? { topActionTargetChoiceName: actionTargetChoices[0].name } : {}),
@@ -14520,10 +14536,16 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topFormChoicePath ? { topFormChoicePath: agent.topFormChoicePath } : {}),
     ...(agent.topFormChoiceMethod ? { topFormChoiceMethod: agent.topFormChoiceMethod } : {}),
     ...(agent.topFormChoiceActionUrl ? { topFormChoiceActionUrl: agent.topFormChoiceActionUrl } : {}),
+    ...(agent.topFormChoiceSubmitText ? { topFormChoiceSubmitText: agent.topFormChoiceSubmitText } : {}),
     ...(agent.topFormChoiceQueryField ? { topFormChoiceQueryField: agent.topFormChoiceQueryField } : {}),
     ...(agent.topFormChoiceUrlTemplate ? { topFormChoiceUrlTemplate: agent.topFormChoiceUrlTemplate } : {}),
     ...(typeof agent.topFormChoiceFieldCount === "number" ? { topFormChoiceFieldCount: agent.topFormChoiceFieldCount } : {}),
     ...(agent.topFormChoiceSelector ? { topFormChoiceSelector: agent.topFormChoiceSelector } : {}),
+    ...(agent.topFormChoiceFirstFieldName ? { topFormChoiceFirstFieldName: agent.topFormChoiceFirstFieldName } : {}),
+    ...(agent.topFormChoiceFirstFieldType ? { topFormChoiceFirstFieldType: agent.topFormChoiceFirstFieldType } : {}),
+    ...(agent.topFormChoiceFirstFieldLabel ? { topFormChoiceFirstFieldLabel: agent.topFormChoiceFirstFieldLabel } : {}),
+    ...(typeof agent.topFormChoiceFirstFieldRequired === "boolean" ? { topFormChoiceFirstFieldRequired: agent.topFormChoiceFirstFieldRequired } : {}),
+    ...(agent.topFormChoiceFirstFieldSelector ? { topFormChoiceFirstFieldSelector: agent.topFormChoiceFirstFieldSelector } : {}),
     ...(agent.topActionTargetChoicePath ? { topActionTargetChoicePath: agent.topActionTargetChoicePath } : {}),
     ...(agent.topActionTargetChoiceKind ? { topActionTargetChoiceKind: agent.topActionTargetChoiceKind } : {}),
     ...(agent.topActionTargetChoiceName ? { topActionTargetChoiceName: agent.topActionTargetChoiceName } : {}),
@@ -14981,10 +15003,16 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topFormChoicePath ? { topFormChoicePath: agent.topFormChoicePath } : {}),
     ...(agent.topFormChoiceMethod ? { topFormChoiceMethod: agent.topFormChoiceMethod } : {}),
     ...(agent.topFormChoiceActionUrl ? { topFormChoiceActionUrl: agent.topFormChoiceActionUrl } : {}),
+    ...(agent.topFormChoiceSubmitText ? { topFormChoiceSubmitText: agent.topFormChoiceSubmitText } : {}),
     ...(agent.topFormChoiceQueryField ? { topFormChoiceQueryField: agent.topFormChoiceQueryField } : {}),
     ...(agent.topFormChoiceUrlTemplate ? { topFormChoiceUrlTemplate: agent.topFormChoiceUrlTemplate } : {}),
     ...(typeof agent.topFormChoiceFieldCount === "number" ? { topFormChoiceFieldCount: agent.topFormChoiceFieldCount } : {}),
     ...(agent.topFormChoiceSelector ? { topFormChoiceSelector: agent.topFormChoiceSelector } : {}),
+    ...(agent.topFormChoiceFirstFieldName ? { topFormChoiceFirstFieldName: agent.topFormChoiceFirstFieldName } : {}),
+    ...(agent.topFormChoiceFirstFieldType ? { topFormChoiceFirstFieldType: agent.topFormChoiceFirstFieldType } : {}),
+    ...(agent.topFormChoiceFirstFieldLabel ? { topFormChoiceFirstFieldLabel: agent.topFormChoiceFirstFieldLabel } : {}),
+    ...(typeof agent.topFormChoiceFirstFieldRequired === "boolean" ? { topFormChoiceFirstFieldRequired: agent.topFormChoiceFirstFieldRequired } : {}),
+    ...(agent.topFormChoiceFirstFieldSelector ? { topFormChoiceFirstFieldSelector: agent.topFormChoiceFirstFieldSelector } : {}),
     ...(agent.topActionTargetChoicePath ? { topActionTargetChoicePath: agent.topActionTargetChoicePath } : {}),
     ...(agent.topActionTargetChoiceKind ? { topActionTargetChoiceKind: agent.topActionTargetChoiceKind } : {}),
     ...(agent.topActionTargetChoiceName ? { topActionTargetChoiceName: agent.topActionTargetChoiceName } : {}),

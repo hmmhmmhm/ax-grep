@@ -163,8 +163,8 @@ and `agent.actionTargetCount` match compact `pageCheck.forms` and
 actions before scanning nested page-check arrays.
 `averageAgentFormActionChoiceScore` tracks whether `agent.formChoices` and
 `agent.actionTargetChoices` preserve the compact form/action target IDs, paths,
-selectors, URL templates, query inputs, and methods needed for subagent
-selection loops.
+selectors, URL templates, query inputs, submit text, first-field hints, and
+methods needed for subagent form execution and selection loops.
 `averageAgentTopFormActionChoiceShortcutScore` tracks whether top-level
 form/action-target shortcuts mirror the first executable form and action target.
 `averagePageLinkCommandScore` tracks whether compact `pageCheck.primaryLinks`
