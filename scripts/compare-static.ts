@@ -1738,6 +1738,9 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopFieldRequired?: boolean;
       semanticTopFieldReadonly?: boolean;
       semanticTopFieldInvalid?: boolean | string;
+      semanticTopFieldExpanded?: boolean;
+      semanticTopFieldHaspopup?: boolean | string;
+      semanticTopFieldControls?: string;
       semanticTopFieldSelector?: string;
       semanticTopDescriptionRole?: string;
       semanticTopDescriptionPath?: string;
@@ -4941,6 +4944,9 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopFieldRequired?: boolean;
   semanticTopFieldReadonly?: boolean;
   semanticTopFieldInvalid?: boolean | string;
+  semanticTopFieldExpanded?: boolean;
+  semanticTopFieldHaspopup?: boolean | string;
+  semanticTopFieldControls?: string;
   semanticTopFieldSelector?: string;
   semanticTopDescriptionRole?: string;
   semanticTopDescriptionPath?: string;
@@ -5771,6 +5777,21 @@ function scoreAgentSemanticSummary(agent: {
     if (typeof invalidState !== "undefined") {
       required += 1;
       if (agent?.semanticTopFieldInvalid === invalidState) matched += 1;
+    }
+    const expandedState = (field.state as { expanded?: unknown }).expanded;
+    if (typeof expandedState === "boolean") {
+      required += 1;
+      if (agent?.semanticTopFieldExpanded === expandedState) matched += 1;
+    }
+    const haspopupState = (field.state as { haspopup?: unknown }).haspopup;
+    if (typeof haspopupState === "string" || typeof haspopupState === "boolean") {
+      required += 1;
+      if (agent?.semanticTopFieldHaspopup === haspopupState) matched += 1;
+    }
+    const controlsState = (field.state as { controls?: unknown }).controls;
+    if (typeof controlsState === "string") {
+      required += 1;
+      if (agent?.semanticTopFieldControls === controlsState) matched += 1;
     }
   }
   if (field && typeof field.selector === "string") {

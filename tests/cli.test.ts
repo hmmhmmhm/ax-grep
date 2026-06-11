@@ -4449,7 +4449,7 @@ describe("cli", () => {
           <form method="GET" action="/find">
             <label id="q-label" for="q">Archive search</label>
             <p id="q-help">Use product or report keywords.</p>
-            <input id="q" name="query" type="search" placeholder="Search reports" aria-placeholder="Report keyword" autocomplete="off" aria-autocomplete="list" inputmode="search" pattern="[A-Za-z0-9 ]+" min="1" max="99" step="1" minlength="2" maxlength="80" required readonly aria-disabled="true" aria-invalid="spelling" aria-labelledby="q-label" aria-describedby="q-help">
+            <input id="q" name="query" type="search" placeholder="Search reports" aria-placeholder="Report keyword" autocomplete="off" aria-autocomplete="list" inputmode="search" pattern="[A-Za-z0-9 ]+" min="1" max="99" step="1" minlength="2" maxlength="80" required readonly aria-disabled="true" aria-invalid="spelling" aria-expanded="true" aria-haspopup="listbox" aria-controls="category" aria-labelledby="q-label" aria-describedby="q-help">
             <select name="category"><option aria-posinset="1" aria-setsize="2">All</option><option>Reports</option></select>
             <input type="hidden" name="csrf" value="secret">
             <button type="submit">Search</button>
@@ -4520,7 +4520,7 @@ describe("cli", () => {
         describedBy: "q-help",
         describedByText: "Use product or report keywords.",
         selector: "#q",
-        state: expect.objectContaining({ disabled: true, required: true, readonly: true, invalid: "spelling" }),
+        state: expect.objectContaining({ disabled: true, required: true, readonly: true, invalid: "spelling", expanded: true, haspopup: "listbox", controls: "category" }),
       }),
       expect.objectContaining({
         path: "agent.semanticSummary.fieldItems[1]",
@@ -4550,8 +4550,8 @@ describe("cli", () => {
         path: "agent.semanticSummary.stateItems[0]",
         role: "searchbox",
         name: "Archive search",
-        state: "disabled=true required=true readonly=true invalid=spelling",
-        stateRaw: { disabled: true, required: true, readonly: true, invalid: "spelling" },
+        state: "disabled=true required=true readonly=true expanded=true invalid=spelling haspopup=listbox controls=category",
+        stateRaw: { disabled: true, required: true, readonly: true, invalid: "spelling", expanded: true, haspopup: "listbox", controls: "category" },
         selector: "#q",
       }),
     ]);
@@ -4580,11 +4580,14 @@ describe("cli", () => {
       semanticTopFieldLabelledByText: "Archive search",
       semanticTopFieldDescribedBy: "q-help",
       semanticTopFieldDescribedByText: "Use product or report keywords.",
-      semanticTopFieldState: "disabled=true required=true readonly=true invalid=spelling",
+      semanticTopFieldState: "disabled=true required=true readonly=true expanded=true invalid=spelling haspopup=listbox controls=category",
       semanticTopFieldDisabled: true,
       semanticTopFieldRequired: true,
       semanticTopFieldReadonly: true,
       semanticTopFieldInvalid: "spelling",
+      semanticTopFieldExpanded: true,
+      semanticTopFieldHaspopup: "listbox",
+      semanticTopFieldControls: "category",
       semanticTopFieldSelector: "#q",
       semanticTopChoiceRole: "option",
       semanticTopChoicePath: "agent.semanticSummary.choiceItems[0]",
@@ -4595,11 +4598,14 @@ describe("cli", () => {
       semanticTopStateRole: "searchbox",
       semanticTopStatePath: "agent.semanticSummary.stateItems[0]",
       semanticTopStateName: "Archive search",
-      semanticTopState: "disabled=true required=true readonly=true invalid=spelling",
+      semanticTopState: "disabled=true required=true readonly=true expanded=true invalid=spelling haspopup=listbox controls=category",
       semanticTopStateDisabled: true,
       semanticTopStateRequired: true,
       semanticTopStateReadonly: true,
+      semanticTopStateExpanded: true,
       semanticTopStateInvalid: "spelling",
+      semanticTopStateHaspopup: "listbox",
+      semanticTopStateControls: "category",
       semanticTopStateSelector: "#q",
     });
     expect(envelope.agent.formCount).toBe(1);
