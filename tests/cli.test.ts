@@ -251,7 +251,7 @@ describe("cli", () => {
             <main>
               <h1 id="content">Example</h1>
               <p id="toggle-desc">Shows extra context</p>
-              <button aria-pressed="false" aria-haspopup="dialog" aria-valuetext="details off" aria-describedby="toggle-desc" aria-controls="details-panel">Toggle details</button>
+              <button type="submit" formaction="/details" formmethod="post" formtarget="_blank" form="details-form" aria-pressed="false" aria-haspopup="dialog" aria-valuetext="details off" aria-describedby="toggle-desc" aria-controls="details-panel">Toggle details</button>
               <a href="#content" class="skip-link" target="_self" rel="bookmark" download="content.html">Skip to content</a>
               <section id="details-panel" aria-label="Details panel">Extra details</section>
               <img src="/hero.png" srcset="/hero.png 1x, /hero@2x.png 2x" sizes="(min-width: 800px) 720px, 100vw" width="720" height="360" loading="lazy" decoding="async" alt="Hero chart">
@@ -486,6 +486,19 @@ describe("cli", () => {
               selector: "button",
             }),
           ],
+          buttons: [
+            expect.objectContaining({
+              path: "agent.semanticSummary.buttons[0]",
+              name: "Toggle details",
+              description: "Shows extra context",
+              type: "submit",
+              formAction: "https://example.test/details",
+              formMethod: "post",
+              formTarget: "_blank",
+              formId: "details-form",
+              selector: "button",
+            }),
+          ],
         },
         semanticNodeCount: expect.any(Number),
         semanticNamedRoleCount: expect.any(Number),
@@ -550,6 +563,11 @@ describe("cli", () => {
         semanticTopButtonName: "Toggle details",
         semanticTopButtonPath: "agent.semanticSummary.buttons[0]",
         semanticTopButtonDescription: "Shows extra context",
+        semanticTopButtonType: "submit",
+        semanticTopButtonFormAction: "https://example.test/details",
+        semanticTopButtonFormMethod: "post",
+        semanticTopButtonFormTarget: "_blank",
+        semanticTopButtonFormId: "details-form",
         semanticTopImagePath: "agent.semanticSummary.imageItems[0]",
         semanticTopImageName: "Hero chart",
         semanticTopImageUrl: "https://example.test/hero.png",

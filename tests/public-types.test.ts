@@ -514,6 +514,11 @@ describe("public agent types", () => {
       | "semanticTopButtonName"
       | "semanticTopButtonPath"
       | "semanticTopButtonDescription"
+      | "semanticTopButtonType"
+      | "semanticTopButtonFormAction"
+      | "semanticTopButtonFormMethod"
+      | "semanticTopButtonFormTarget"
+      | "semanticTopButtonFormId"
       | "semanticTopButtonSelector"
       | "semanticTopImagePath"
       | "semanticTopImageName"
@@ -1101,6 +1106,11 @@ describe("public agent types", () => {
       semanticTopButtonName: "Subscribe",
       semanticTopButtonPath: "agent.semanticSummary.buttons[0]",
       semanticTopButtonDescription: "Opens the subscription dialog",
+      semanticTopButtonType: "submit",
+      semanticTopButtonFormAction: "https://example.test/subscribe",
+      semanticTopButtonFormMethod: "post",
+      semanticTopButtonFormTarget: "_self",
+      semanticTopButtonFormId: "signup-form",
       semanticTopButtonSelector: "button:nth-of-type(1)",
       semanticTopImagePath: "agent.semanticSummary.imageItems[0]",
       semanticTopImageName: "Product screenshot",

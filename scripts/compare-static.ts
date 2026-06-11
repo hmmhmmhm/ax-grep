@@ -1660,6 +1660,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopButtonName?: string;
       semanticTopButtonPath?: string;
       semanticTopButtonDescription?: string;
+      semanticTopButtonType?: string;
+      semanticTopButtonFormAction?: string;
+      semanticTopButtonFormMethod?: string;
+      semanticTopButtonFormTarget?: string;
+      semanticTopButtonFormId?: string;
       semanticTopButtonSelector?: string;
       semanticTopImagePath?: string;
       semanticTopImageName?: string;
@@ -4807,6 +4812,11 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopButtonName?: string;
   semanticTopButtonPath?: string;
   semanticTopButtonDescription?: string;
+  semanticTopButtonType?: string;
+  semanticTopButtonFormAction?: string;
+  semanticTopButtonFormMethod?: string;
+  semanticTopButtonFormTarget?: string;
+  semanticTopButtonFormId?: string;
   semanticTopButtonSelector?: string;
   semanticTopImagePath?: string;
   semanticTopImageName?: string;
@@ -5331,7 +5341,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopInPageLinkSelector === inPageLink.selector) matched += 1;
   }
-  const button = Array.isArray(item.buttons) ? item.buttons[0] as { path?: unknown; name?: unknown; description?: unknown; selector?: unknown } | undefined : undefined;
+  const button = Array.isArray(item.buttons) ? item.buttons[0] as { path?: unknown; name?: unknown; description?: unknown; type?: unknown; formAction?: unknown; formMethod?: unknown; formTarget?: unknown; formId?: unknown; selector?: unknown } | undefined : undefined;
   if (button && typeof button.name === "string") {
     required += 1;
     if (agent?.semanticTopButtonName === button.name) matched += 1;
@@ -5343,6 +5353,26 @@ function scoreAgentSemanticSummary(agent: {
   if (button && typeof button.description === "string") {
     required += 1;
     if (agent?.semanticTopButtonDescription === button.description) matched += 1;
+  }
+  if (button && typeof button.type === "string") {
+    required += 1;
+    if (agent?.semanticTopButtonType === button.type) matched += 1;
+  }
+  if (button && typeof button.formAction === "string") {
+    required += 1;
+    if (agent?.semanticTopButtonFormAction === button.formAction) matched += 1;
+  }
+  if (button && typeof button.formMethod === "string") {
+    required += 1;
+    if (agent?.semanticTopButtonFormMethod === button.formMethod) matched += 1;
+  }
+  if (button && typeof button.formTarget === "string") {
+    required += 1;
+    if (agent?.semanticTopButtonFormTarget === button.formTarget) matched += 1;
+  }
+  if (button && typeof button.formId === "string") {
+    required += 1;
+    if (agent?.semanticTopButtonFormId === button.formId) matched += 1;
   }
   if (button && typeof button.selector === "string") {
     required += 1;
