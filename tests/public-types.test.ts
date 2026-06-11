@@ -382,6 +382,16 @@ describe("public agent types", () => {
       | "topReadTargetScore"
       | "topReadTargetPrimary"
       | "topReadTargetReason"
+      | "topActionName"
+      | "topActionSource"
+      | "topActionExecution"
+      | "topActionPriority"
+      | "topActionReason"
+      | "topActionReadFrom"
+      | "topActionCommandArgs"
+      | "topActionUrl"
+      | "topActionSourceLinkRef"
+      | "topActionRequiresBrowserInteraction"
       | "bestReadTarget"
       | "bestReadTargetCount"
       | "bestReadTargetScore"
@@ -667,6 +677,16 @@ describe("public agent types", () => {
       topReadTargetScore: 0.9,
       topReadTargetPrimary: true,
       topReadTargetReason: "Top evidence.",
+      topActionName: "read-content",
+      topActionSource: "agent.primaryAction",
+      topActionExecution: "read-current",
+      topActionPriority: "high",
+      topActionReason: "Read current evidence.",
+      topActionReadFrom: "pageCheck.contentEvidence",
+      topActionCommandArgs: ["ax-grep", "https://example.test", "--agent"],
+      topActionUrl: "https://example.test",
+      topActionSourceLinkRef: "pageCheck.sourceLinks[0]",
+      topActionRequiresBrowserInteraction: false,
       bestReadTarget: "pageCheck.contentEvidence",
       bestReadTargetCount: 1,
       bestReadTargetScore: 0.9,
@@ -768,6 +788,7 @@ describe("public agent types", () => {
     expect(summary.sourceSearchSelectedCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.sourceSearchAlternateCount).toBe(1);
     expect(summary.sourceSearchAlternatePath).toBe("sourceSearch.alternateResults[0]");
+    expect(summary.topActionName).toBe("read-content");
     expect(summary.verificationMissingQueries).toEqual(["missing"]);
     expect(summary.topVerificationMissingQuery).toBe("missing");
     expect(summary.searchDecisionName).toBe("open-result");

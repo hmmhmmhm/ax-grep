@@ -124,6 +124,7 @@ type CliAgentSummary = {
   agentAnswerPlanScore: number;
   agentAnswerEvidenceScore: number;
   agentActionListScore: number;
+  agentTopActionShortcutScore: number;
   agentSearchDecisionScore: number;
   agentPageDecisionScore: number;
   agentSemanticSummaryScore: number;
@@ -653,6 +654,7 @@ export type GateSummary = {
   averageAgentAnswerPlanScore: number;
   averageAgentAnswerEvidenceScore: number;
   averageAgentActionListScore: number;
+  averageAgentTopActionShortcutScore: number;
   averageAgentSearchDecisionScore: number;
   averageAgentPageDecisionScore: number;
   averageAgentSemanticSummaryScore: number;
@@ -1395,6 +1397,16 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topAnswerEvidenceReason?: string;
       readTargetCount?: number;
       actionCount?: number;
+      topActionName?: string;
+      topActionSource?: string;
+      topActionExecution?: ActionExecution;
+      topActionPriority?: "low" | "medium" | "high";
+      topActionReason?: string;
+      topActionReadFrom?: string;
+      topActionCommandArgs?: string[];
+      topActionUrl?: string;
+      topActionSourceLinkRef?: string;
+      topActionRequiresBrowserInteraction?: boolean;
       primaryExecution?: ActionExecution;
       primaryReadFrom?: string;
       primaryCommand?: string;
@@ -1581,6 +1593,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentAnswerPlanScore: scoreAgentAnswerPlan(item.agent?.answerPlan, item.agent?.citations ?? [], item.agent?.primaryAction, item.agent?.needsBrowserHtml),
     agentAnswerEvidenceScore: scoreAgentAnswerEvidence(item.agent?.answerEvidence ?? [], item.agent?.answerPlan, item.agent?.citations ?? []),
     agentActionListScore: scoreAgentActionList(item.agent?.actions, item.agent?.primaryAction, item.agent?.alternativeActionCount),
+    agentTopActionShortcutScore: scoreAgentTopActionShortcuts(item.agent),
     agentSearchDecisionScore: scoreAgentSearchDecision(item.agent, item.kind, item.agent?.primaryAction, item.searchResults ?? [], item.recommendedResult, item.agent?.resultCount),
     agentPageDecisionScore: scoreAgentPageDecision(item.agent, item.kind, item.agent?.primaryAction, item.pageCheck),
     agentSemanticSummaryScore: scoreAgentSemanticSummary(item.agent),
@@ -1671,6 +1684,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentAnswerPlanScore: 0,
     agentAnswerEvidenceScore: 0,
     agentActionListScore: 0,
+    agentTopActionShortcutScore: 0,
     agentSearchDecisionScore: 0,
     agentPageDecisionScore: 0,
     agentSemanticSummaryScore: 0,
@@ -3839,6 +3853,72 @@ function scoreAgentActionList(actions: CliActionShape[] | undefined, primaryActi
   return roundScore(matched / required);
 }
 
+function scoreAgentTopActionShortcuts(agent: {
+  actions?: CliActionShape[];
+  topActionName?: string;
+  topActionSource?: string;
+  topActionExecution?: ActionExecution;
+  topActionPriority?: "low" | "medium" | "high";
+  topActionReason?: string;
+  topActionReadFrom?: string;
+  topActionCommandArgs?: string[];
+  topActionUrl?: string;
+  topActionSourceLinkRef?: string;
+  topActionRequiresBrowserInteraction?: boolean;
+} | undefined): number {
+  const top = agent?.actions?.[0];
+  if (!top) {
+    return agent?.topActionName
+      || agent?.topActionSource
+      || agent?.topActionExecution
+      || agent?.topActionPriority
+      || agent?.topActionReason
+      || agent?.topActionReadFrom
+      || agent?.topActionCommandArgs
+      || agent?.topActionUrl
+      || agent?.topActionSourceLinkRef
+      || agent?.topActionRequiresBrowserInteraction ? 0 : 1;
+  }
+  let required = 5;
+  let matched = 0;
+  if (agent?.topActionName === top.action) matched += 1;
+  if (agent?.topActionSource === top.source) matched += 1;
+  if (agent?.topActionExecution === normalizedActionExecution(top)) matched += 1;
+  if (agent?.topActionPriority === top.priority) matched += 1;
+  if (agent?.topActionReason === top.reason) matched += 1;
+  if (top.readFrom) {
+    required += 1;
+    if (agent?.topActionReadFrom === top.readFrom) matched += 1;
+  } else if (agent?.topActionReadFrom) {
+    required += 1;
+  }
+  if (top.commandArgs) {
+    required += 1;
+    if (JSON.stringify(agent?.topActionCommandArgs) === JSON.stringify(top.commandArgs)) matched += 1;
+  } else if (agent?.topActionCommandArgs) {
+    required += 1;
+  }
+  if (top.url) {
+    required += 1;
+    if (agent?.topActionUrl === top.url) matched += 1;
+  } else if (agent?.topActionUrl) {
+    required += 1;
+  }
+  if (top.sourceLinkRef) {
+    required += 1;
+    if (agent?.topActionSourceLinkRef === top.sourceLinkRef) matched += 1;
+  } else if (agent?.topActionSourceLinkRef) {
+    required += 1;
+  }
+  if (top.requiresBrowserInteraction) {
+    required += 1;
+    if (agent?.topActionRequiresBrowserInteraction === true) matched += 1;
+  } else if (agent?.topActionRequiresBrowserInteraction) {
+    required += 1;
+  }
+  return roundScore(matched / required);
+}
+
 function scoreOpenActionTarget(action: CliActionShape): number {
   if (
     action.action !== "open-result"
@@ -5276,6 +5356,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentAnswerPlanScore * 0.005
     + summary.agentAnswerEvidenceScore * 0.005
     + summary.agentActionListScore * 0.005
+    + summary.agentTopActionShortcutScore * 0.005
     + summary.agentSearchDecisionScore * 0.005
     + summary.agentPageDecisionScore * 0.005
     + summary.agentSemanticSummaryScore * 0.005
@@ -5326,6 +5407,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentAnswerPlanScore,
     summary.agentAnswerEvidenceScore,
     summary.agentActionListScore,
+    summary.agentTopActionShortcutScore,
     summary.agentSearchDecisionScore,
     summary.agentPageDecisionScore,
     summary.agentSemanticSummaryScore,
@@ -5461,6 +5543,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentAnswerPlanScore: average(included.map((comparison) => comparison.cliAgentSummary.agentAnswerPlanScore)),
     averageAgentAnswerEvidenceScore: average(included.map((comparison) => comparison.cliAgentSummary.agentAnswerEvidenceScore)),
     averageAgentActionListScore: average(included.map((comparison) => comparison.cliAgentSummary.agentActionListScore)),
+    averageAgentTopActionShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentTopActionShortcutScore)),
     averageAgentSearchDecisionScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSearchDecisionScore)),
     averageAgentPageDecisionScore: average(included.map((comparison) => comparison.cliAgentSummary.agentPageDecisionScore)),
     averageAgentSemanticSummaryScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSemanticSummaryScore)),

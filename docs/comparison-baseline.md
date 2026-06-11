@@ -119,6 +119,9 @@ Search choices keep snippets, freshness dates, and sitelinks; source choices
 keep source-link text, snippets, selectors, and executable commands; source-link
 actions keep `sourceLinkRef` so agents can jump back to the exact
 `pageCheck.sourceLinks[n]` item.
+`averageAgentTopActionShortcutScore` tracks whether `agent.topAction*` mirrors
+the first action candidate, including execution, priority, command/read target,
+URL, and source-link reference.
 `averageAgentResultCountScore` tracks whether `agent.resultCount` is zero for
 non-search pages and at least the compact result count for search pages.
 `averageAgentChoiceCountScore` tracks whether executable choice-count shortcuts

@@ -1089,6 +1089,16 @@ type AgentSummary = {
   topReadTargetReason?: string;
   actionCount: number;
   actions: AgentActionSummary[];
+  topActionName?: string;
+  topActionSource?: string;
+  topActionExecution?: NonNullable<SuggestedAction["execution"]>;
+  topActionPriority?: NonNullable<SuggestedAction["priority"]>;
+  topActionReason?: string;
+  topActionReadFrom?: string;
+  topActionCommandArgs?: string[];
+  topActionUrl?: string;
+  topActionSourceLinkRef?: string;
+  topActionRequiresBrowserInteraction?: boolean;
   bestReadTarget?: string;
   bestReadTargetCount?: number;
   bestReadTargetScore?: number;
@@ -2791,6 +2801,16 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topReadTargetPrimary === "boolean" ? [`  topReadTargetPrimary: ${agent.topReadTargetPrimary}`] : []),
     ...(agent.topReadTargetReason ? [`  topReadTargetReason: ${agent.topReadTargetReason}`] : []),
     `  actionCount: ${agent.actionCount}`,
+    ...(agent.topActionName ? [`  topActionName: ${agent.topActionName}`] : []),
+    ...(agent.topActionSource ? [`  topActionSource: ${agent.topActionSource}`] : []),
+    ...(agent.topActionExecution ? [`  topActionExecution: ${agent.topActionExecution}`] : []),
+    ...(agent.topActionPriority ? [`  topActionPriority: ${agent.topActionPriority}`] : []),
+    ...(agent.topActionReason ? [`  topActionReason: ${agent.topActionReason}`] : []),
+    ...(agent.topActionReadFrom ? [`  topActionReadFrom: ${agent.topActionReadFrom}`] : []),
+    ...(agent.topActionCommandArgs ? [`  topActionCommandArgs: ${JSON.stringify(agent.topActionCommandArgs)}`] : []),
+    ...(agent.topActionUrl ? [`  topActionUrl: ${agent.topActionUrl}`] : []),
+    ...(agent.topActionSourceLinkRef ? [`  topActionSourceLinkRef: ${agent.topActionSourceLinkRef}`] : []),
+    ...(agent.topActionRequiresBrowserInteraction ? ["  topActionRequiresBrowserInteraction: true"] : []),
     `  verification: ${agent.verificationFoundCount}/${agent.verificationRequestedCount} found, ${agent.verificationMissingCount} missing`,
     ...(agent.verificationFoundQueries.length > 0 ? [`  verificationFoundQueries: ${agent.verificationFoundQueries.join("; ")}`] : []),
     ...(agent.verificationMissingQueries.length > 0 ? [`  verificationMissingQueries: ${agent.verificationMissingQueries.join("; ")}`] : []),
@@ -9552,6 +9572,16 @@ function summarizeAgent(
     ...(readTargets[0]?.reason ? { topReadTargetReason: readTargets[0].reason } : {}),
     actionCount: actions.length,
     actions,
+    ...(actions[0]?.action ? { topActionName: actions[0].action } : {}),
+    ...(actions[0]?.source ? { topActionSource: actions[0].source } : {}),
+    ...(actions[0]?.execution ? { topActionExecution: actions[0].execution } : {}),
+    ...(actions[0]?.priority ? { topActionPriority: actions[0].priority } : {}),
+    ...(actions[0]?.reason ? { topActionReason: actions[0].reason } : {}),
+    ...(actions[0]?.readFrom ? { topActionReadFrom: actions[0].readFrom } : {}),
+    ...(actions[0]?.commandArgs ? { topActionCommandArgs: actions[0].commandArgs } : {}),
+    ...(actions[0]?.url ? { topActionUrl: actions[0].url } : {}),
+    ...(actions[0]?.sourceLinkRef ? { topActionSourceLinkRef: actions[0].sourceLinkRef } : {}),
+    ...(actions[0]?.requiresBrowserInteraction ? { topActionRequiresBrowserInteraction: true } : {}),
     ...(alternativeAction?.action ? { alternativeActionName: alternativeAction.action } : {}),
     ...(alternativeAction?.source ? { alternativeActionSource: alternativeAction.source } : {}),
     ...(alternativeAction?.execution ? { alternativeActionExecution: alternativeAction.execution } : {}),
@@ -12173,6 +12203,16 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
       source: "agent.primaryAction",
       primary: true,
     }] : [],
+    ...(primaryAction ? { topActionName: primaryAction.action } : {}),
+    ...(primaryAction ? { topActionSource: "agent.primaryAction" } : {}),
+    ...(primaryAction ? { topActionExecution: actionExecution(primaryAction) } : {}),
+    ...(primaryAction ? { topActionPriority: primaryAction.priority ?? actionPriority(primaryAction) } : {}),
+    ...(primaryAction?.reason ? { topActionReason: primaryAction.reason } : {}),
+    ...(primaryAction?.readFrom ? { topActionReadFrom: primaryAction.readFrom } : {}),
+    ...(primaryAction?.commandArgs ? { topActionCommandArgs: primaryAction.commandArgs } : {}),
+    ...(primaryAction?.url ? { topActionUrl: primaryAction.url } : {}),
+    ...(primaryAction?.sourceLinkRef ? { topActionSourceLinkRef: primaryAction.sourceLinkRef } : {}),
+    ...(primaryAction?.requiresBrowserInteraction ? { topActionRequiresBrowserInteraction: true } : {}),
     ...(bestReadTarget ? { bestReadTarget: bestReadTarget.path } : {}),
     ...(typeof bestReadTarget?.count === "number" ? { bestReadTargetCount: bestReadTarget.count } : {}),
     ...(typeof bestReadTarget?.score === "number" ? { bestReadTargetScore: bestReadTarget.score } : {}),
@@ -13692,6 +13732,16 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.topReadTargetPrimary === "boolean" ? { topReadTargetPrimary: agent.topReadTargetPrimary } : {}),
     ...(agent.topReadTargetReason ? { topReadTargetReason: agent.topReadTargetReason } : {}),
     actionCount: agent.actionCount,
+    ...(agent.topActionName ? { topActionName: agent.topActionName } : {}),
+    ...(agent.topActionSource ? { topActionSource: agent.topActionSource } : {}),
+    ...(agent.topActionExecution ? { topActionExecution: agent.topActionExecution } : {}),
+    ...(agent.topActionPriority ? { topActionPriority: agent.topActionPriority } : {}),
+    ...(agent.topActionReason ? { topActionReason: agent.topActionReason } : {}),
+    ...(agent.topActionReadFrom ? { topActionReadFrom: agent.topActionReadFrom } : {}),
+    ...(agent.topActionCommandArgs ? { topActionCommandArgs: agent.topActionCommandArgs } : {}),
+    ...(agent.topActionUrl ? { topActionUrl: agent.topActionUrl } : {}),
+    ...(agent.topActionSourceLinkRef ? { topActionSourceLinkRef: agent.topActionSourceLinkRef } : {}),
+    ...(agent.topActionRequiresBrowserInteraction ? { topActionRequiresBrowserInteraction: true } : {}),
     ...(agent.alternativeActionName ? { alternativeActionName: agent.alternativeActionName } : {}),
     ...(agent.alternativeActionSource ? { alternativeActionSource: agent.alternativeActionSource } : {}),
     ...(agent.alternativeActionExecution ? { alternativeActionExecution: agent.alternativeActionExecution } : {}),
@@ -14000,6 +14050,16 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.topReadTargetPrimary === "boolean" ? { topReadTargetPrimary: agent.topReadTargetPrimary } : {}),
     ...(agent.topReadTargetReason ? { topReadTargetReason: agent.topReadTargetReason } : {}),
     actionCount: agent.actionCount,
+    ...(agent.topActionName ? { topActionName: agent.topActionName } : {}),
+    ...(agent.topActionSource ? { topActionSource: agent.topActionSource } : {}),
+    ...(agent.topActionExecution ? { topActionExecution: agent.topActionExecution } : {}),
+    ...(agent.topActionPriority ? { topActionPriority: agent.topActionPriority } : {}),
+    ...(agent.topActionReason ? { topActionReason: agent.topActionReason } : {}),
+    ...(agent.topActionReadFrom ? { topActionReadFrom: agent.topActionReadFrom } : {}),
+    ...(agent.topActionCommandArgs ? { topActionCommandArgs: agent.topActionCommandArgs } : {}),
+    ...(agent.topActionUrl ? { topActionUrl: agent.topActionUrl } : {}),
+    ...(agent.topActionSourceLinkRef ? { topActionSourceLinkRef: agent.topActionSourceLinkRef } : {}),
+    ...(agent.topActionRequiresBrowserInteraction ? { topActionRequiresBrowserInteraction: true } : {}),
     ...(agent.alternativeActionName ? { alternativeActionName: agent.alternativeActionName } : {}),
     ...(agent.alternativeActionSource ? { alternativeActionSource: agent.alternativeActionSource } : {}),
     ...(agent.alternativeActionExecution ? { alternativeActionExecution: agent.alternativeActionExecution } : {}),

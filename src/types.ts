@@ -747,6 +747,16 @@ export type AgentSummary = {
   topReadTargetReason?: string;
   actionCount?: number;
   actions?: AgentAction[];
+  topActionName?: string;
+  topActionSource?: string;
+  topActionExecution?: AgentAction["execution"];
+  topActionPriority?: AgentAction["priority"];
+  topActionReason?: string;
+  topActionReadFrom?: string;
+  topActionCommandArgs?: string[];
+  topActionUrl?: string;
+  topActionSourceLinkRef?: string;
+  topActionRequiresBrowserInteraction?: boolean;
   bestReadTarget?: string;
   bestReadTargetCount?: number;
   bestReadTargetScore?: number;
