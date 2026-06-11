@@ -298,6 +298,7 @@ describe("cli", () => {
           linkCount: 2,
           buttonCount: 1,
           imageCount: 1,
+          descriptionCount: 1,
           topRoles: expect.arrayContaining([
             expect.objectContaining({ role: "p", count: 3 }),
             expect.objectContaining({ role: "link", count: 2 }),
@@ -337,6 +338,15 @@ describe("cli", () => {
               selector: "img",
             }),
           ],
+          descriptionItems: [
+            expect.objectContaining({
+              path: "agent.semanticSummary.descriptionItems[0]",
+              role: "button",
+              name: "Toggle details",
+              description: "Shows extra context",
+              selector: "button",
+            }),
+          ],
         },
         semanticNodeCount: expect.any(Number),
         semanticNamedRoleCount: expect.any(Number),
@@ -346,6 +356,7 @@ describe("cli", () => {
         semanticLinkCount: 2,
         semanticButtonCount: 1,
         semanticImageCount: 1,
+        semanticDescriptionCount: 1,
         semanticTopRole: "p",
         semanticTopRoleCount: 3,
         semanticTopHeading: "Example",
@@ -373,6 +384,11 @@ describe("cli", () => {
         semanticTopImageName: "Hero chart",
         semanticTopImageUrl: "https://example.test/hero.png",
         semanticTopImageSelector: "img",
+        semanticTopDescriptionRole: "button",
+        semanticTopDescriptionPath: "agent.semanticSummary.descriptionItems[0]",
+        semanticTopDescriptionName: "Toggle details",
+        semanticTopDescriptionText: "Shows extra context",
+        semanticTopDescriptionSelector: "button",
         routingIntent: "read-current",
         continuationMode: "read",
         next: {

@@ -364,6 +364,7 @@ describe("public agent types", () => {
       | "semanticButtonCount"
       | "semanticImageCount"
       | "semanticFieldCount"
+      | "semanticDescriptionCount"
       | "semanticChoiceCount"
       | "semanticStateCount"
       | "semanticTopRole"
@@ -407,6 +408,11 @@ describe("public agent types", () => {
       | "semanticTopFieldState"
       | "semanticTopFieldRequired"
       | "semanticTopFieldSelector"
+      | "semanticTopDescriptionRole"
+      | "semanticTopDescriptionPath"
+      | "semanticTopDescriptionName"
+      | "semanticTopDescriptionText"
+      | "semanticTopDescriptionSelector"
       | "semanticTopChoiceRole"
       | "semanticTopChoicePath"
       | "semanticTopChoiceName"
@@ -767,6 +773,7 @@ describe("public agent types", () => {
       semanticButtonCount: 1,
       semanticImageCount: 1,
       semanticFieldCount: 1,
+      semanticDescriptionCount: 1,
       semanticChoiceCount: 1,
       semanticStateCount: 1,
       semanticTopRole: "link",
@@ -809,6 +816,11 @@ describe("public agent types", () => {
       semanticTopFieldState: "required=true",
       semanticTopFieldRequired: true,
       semanticTopFieldSelector: "input[name=\"email\"]",
+      semanticTopDescriptionRole: "textbox",
+      semanticTopDescriptionPath: "agent.semanticSummary.descriptionItems[0]",
+      semanticTopDescriptionName: "Email",
+      semanticTopDescriptionText: "Used for updates",
+      semanticTopDescriptionSelector: "input[name=\"email\"]",
       semanticTopChoiceRole: "option",
       semanticTopChoicePath: "agent.semanticSummary.choiceItems[0]",
       semanticTopChoiceName: "Reports",
