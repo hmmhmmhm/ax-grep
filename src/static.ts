@@ -223,6 +223,8 @@ function walkElement(element: Element | undefined, context: StaticContext): Sema
     xpath: getXPath(element),
     children,
   };
+  const description = computeDescription(element, context);
+  if (description) node.description = description;
   const text = directText(element, context.options.maxTextLength);
   if (text) node.text = text;
   const value = getValue(element);
@@ -729,6 +731,8 @@ function collectFlattenedBoilerplateItems(element: Element, context: StaticConte
         xpath: getXPath(child),
         children: [],
       };
+      const description = computeDescription(child, context);
+      if (description) node.description = description;
       const value = getValue(child);
       if (value) node.value = value;
       const state = getState(child);
@@ -779,8 +783,23 @@ function normalizeText(value: string, maxLength: number): string {
   return normalized.length > maxLength ? `${normalized.slice(0, maxLength - 1)}...` : normalized;
 }
 
+function computeDescription(element: Element, context: StaticContext): string {
+  const describedBy = attr(element, "aria-describedby");
+  if (describedBy) {
+    const text = describedBy
+      .split(/\s+/)
+      .map((id) => context.ids.get(id))
+      .filter((item): item is Element => Boolean(item))
+      .map((item) => descendantText(item))
+      .filter(Boolean)
+      .join(" ");
+    if (text) return normalizeText(text, context.options.maxTextLength);
+  }
+  return normalizeText(attr(element, "title") ?? "", context.options.maxTextLength);
+}
+
 function getValue(element: Element): string {
-  return normalizeText(attr(element, "value") ?? "", 240);
+  return normalizeText(attr(element, "value") ?? attr(element, "aria-valuetext") ?? attr(element, "aria-valuenow") ?? "", 240);
 }
 
 function getSelector(element: Element): string {

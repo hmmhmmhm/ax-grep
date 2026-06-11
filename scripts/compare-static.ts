@@ -1511,12 +1511,16 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopNamedRole?: string;
       semanticTopInteractiveRole?: string;
       semanticTopInteractiveName?: string;
+      semanticTopInteractiveDescription?: string;
+      semanticTopInteractiveValue?: string;
       semanticTopInteractiveState?: string;
       semanticTopInteractiveDisabled?: boolean;
       semanticTopInteractiveSelector?: string;
       semanticTopLinkName?: string;
+      semanticTopLinkUrl?: string;
       semanticTopLinkSelector?: string;
       semanticTopButtonName?: string;
+      semanticTopButtonDescription?: string;
       semanticTopButtonSelector?: string;
     };
     diagnostics?: Array<{ severity?: "info" | "warning" | "error" }>;
@@ -4392,12 +4396,16 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopNamedRole?: string;
   semanticTopInteractiveRole?: string;
   semanticTopInteractiveName?: string;
+  semanticTopInteractiveDescription?: string;
+  semanticTopInteractiveValue?: string;
   semanticTopInteractiveState?: string;
   semanticTopInteractiveDisabled?: boolean;
   semanticTopInteractiveSelector?: string;
   semanticTopLinkName?: string;
+  semanticTopLinkUrl?: string;
   semanticTopLinkSelector?: string;
   semanticTopButtonName?: string;
+  semanticTopButtonDescription?: string;
   semanticTopButtonSelector?: string;
 } | undefined): number {
   const summary = agent?.semanticSummary;
@@ -4468,7 +4476,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopNamedRole === namedRole) matched += 1;
   }
-  const interactive = Array.isArray(item.interactiveRoles) ? item.interactiveRoles[0] as { role?: unknown; name?: unknown; state?: unknown; selector?: unknown } | undefined : undefined;
+  const interactive = Array.isArray(item.interactiveRoles) ? item.interactiveRoles[0] as { role?: unknown; name?: unknown; description?: unknown; value?: unknown; state?: unknown; selector?: unknown } | undefined : undefined;
   if (interactive && typeof interactive.role === "string") {
     required += 1;
     if (agent?.semanticTopInteractiveRole === interactive.role) matched += 1;
@@ -4476,6 +4484,14 @@ function scoreAgentSemanticSummary(agent: {
   if (interactive && typeof interactive.name === "string") {
     required += 1;
     if (agent?.semanticTopInteractiveName === interactive.name) matched += 1;
+  }
+  if (interactive && typeof interactive.description === "string") {
+    required += 1;
+    if (agent?.semanticTopInteractiveDescription === interactive.description) matched += 1;
+  }
+  if (interactive && typeof interactive.value === "string") {
+    required += 1;
+    if (agent?.semanticTopInteractiveValue === interactive.value) matched += 1;
   }
   if (interactive?.state && typeof interactive.state === "object") {
     const state = Object.entries(interactive.state as Record<string, unknown>)
@@ -4496,19 +4512,27 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopInteractiveSelector === interactive.selector) matched += 1;
   }
-  const link = Array.isArray(item.links) ? item.links[0] as { name?: unknown; selector?: unknown } | undefined : undefined;
+  const link = Array.isArray(item.links) ? item.links[0] as { name?: unknown; url?: unknown; selector?: unknown } | undefined : undefined;
   if (link && typeof link.name === "string") {
     required += 1;
     if (agent?.semanticTopLinkName === link.name) matched += 1;
+  }
+  if (link && typeof link.url === "string") {
+    required += 1;
+    if (agent?.semanticTopLinkUrl === link.url) matched += 1;
   }
   if (link && typeof link.selector === "string") {
     required += 1;
     if (agent?.semanticTopLinkSelector === link.selector) matched += 1;
   }
-  const button = Array.isArray(item.buttons) ? item.buttons[0] as { name?: unknown; selector?: unknown } | undefined : undefined;
+  const button = Array.isArray(item.buttons) ? item.buttons[0] as { name?: unknown; description?: unknown; selector?: unknown } | undefined : undefined;
   if (button && typeof button.name === "string") {
     required += 1;
     if (agent?.semanticTopButtonName === button.name) matched += 1;
+  }
+  if (button && typeof button.description === "string") {
+    required += 1;
+    if (agent?.semanticTopButtonDescription === button.description) matched += 1;
   }
   if (button && typeof button.selector === "string") {
     required += 1;

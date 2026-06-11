@@ -250,7 +250,8 @@ describe("cli", () => {
           <body>
             <main>
               <h1>Example</h1>
-              <button aria-pressed="false">Toggle details</button>
+              <p id="toggle-desc">Shows extra context</p>
+              <button aria-pressed="false" aria-valuetext="details off" aria-describedby="toggle-desc">Toggle details</button>
               <p class="byline">By <a href="/authors/reporter">Reporter Profile</a></p>
               <p>Example content for agent routing.</p>
               <a href="https://target.example/">Target</a>
@@ -292,7 +293,7 @@ describe("cli", () => {
           namedRoleCount: expect.any(Number),
           interactiveCount: 3,
           topRoles: expect.arrayContaining([
-            expect.objectContaining({ role: "p", count: 2 }),
+            expect.objectContaining({ role: "p", count: 3 }),
             expect.objectContaining({ role: "link", count: 2 }),
           ]),
           landmarks: expect.arrayContaining(["main"]),
@@ -302,15 +303,19 @@ describe("cli", () => {
         semanticNodeCount: expect.any(Number),
         semanticNamedRoleCount: expect.any(Number),
         semanticInteractiveCount: 3,
-        semanticTopRole: "link",
-        semanticTopRoleCount: 2,
+        semanticTopRole: "p",
+        semanticTopRoleCount: 3,
         semanticTopHeading: "Example",
         semanticTopLandmark: "main",
         semanticTopNamedRole: "heading:Example",
         semanticTopInteractiveRole: "button",
         semanticTopInteractiveName: "Toggle details",
+        semanticTopInteractiveDescription: "Shows extra context",
+        semanticTopInteractiveValue: "details off",
         semanticTopInteractiveState: "pressed=false",
+        semanticTopLinkUrl: "https://example.test/authors/reporter",
         semanticTopButtonName: "Toggle details",
+        semanticTopButtonDescription: "Shows extra context",
         routingIntent: "read-current",
         continuationMode: "read",
         next: {

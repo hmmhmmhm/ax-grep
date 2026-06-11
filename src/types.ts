@@ -559,12 +559,16 @@ export type AgentSummary = {
   semanticTopNamedRole?: string;
   semanticTopInteractiveRole?: string;
   semanticTopInteractiveName?: string;
+  semanticTopInteractiveDescription?: string;
+  semanticTopInteractiveValue?: string;
   semanticTopInteractiveState?: string;
   semanticTopInteractiveDisabled?: boolean;
   semanticTopInteractiveSelector?: string;
   semanticTopLinkName?: string;
+  semanticTopLinkUrl?: string;
   semanticTopLinkSelector?: string;
   semanticTopButtonName?: string;
+  semanticTopButtonDescription?: string;
   semanticTopButtonSelector?: string;
   signalCount?: number;
   signalWarningCount?: number;

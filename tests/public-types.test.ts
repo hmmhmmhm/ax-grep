@@ -365,12 +365,16 @@ describe("public agent types", () => {
       | "semanticTopNamedRole"
       | "semanticTopInteractiveRole"
       | "semanticTopInteractiveName"
+      | "semanticTopInteractiveDescription"
+      | "semanticTopInteractiveValue"
       | "semanticTopInteractiveState"
       | "semanticTopInteractiveDisabled"
       | "semanticTopInteractiveSelector"
       | "semanticTopLinkName"
+      | "semanticTopLinkUrl"
       | "semanticTopLinkSelector"
       | "semanticTopButtonName"
+      | "semanticTopButtonDescription"
       | "semanticTopButtonSelector"
       | "runbookDecision"
       | "runbookMode"
@@ -722,12 +726,16 @@ describe("public agent types", () => {
       semanticTopNamedRole: "heading:Example",
       semanticTopInteractiveRole: "link",
       semanticTopInteractiveName: "Read more",
+      semanticTopInteractiveDescription: "Opens the article",
+      semanticTopInteractiveValue: "article",
       semanticTopInteractiveState: "expanded=false",
       semanticTopInteractiveDisabled: false,
       semanticTopInteractiveSelector: "main a:nth-of-type(1)",
       semanticTopLinkName: "Read more",
+      semanticTopLinkUrl: "https://example.test/read-more",
       semanticTopLinkSelector: "main a:nth-of-type(1)",
       semanticTopButtonName: "Subscribe",
+      semanticTopButtonDescription: "Opens the subscription dialog",
       semanticTopButtonSelector: "button:nth-of-type(1)",
       runbookDecision: "return",
       runbookMode: "read",
