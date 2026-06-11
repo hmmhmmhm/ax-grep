@@ -362,6 +362,7 @@ describe("public agent types", () => {
       | "semanticLandmarkCount"
       | "semanticLinkCount"
       | "semanticButtonCount"
+      | "semanticFieldCount"
       | "semanticTopRole"
       | "semanticTopRoleCount"
       | "semanticTopHeading"
@@ -391,6 +392,14 @@ describe("public agent types", () => {
       | "semanticTopButtonPath"
       | "semanticTopButtonDescription"
       | "semanticTopButtonSelector"
+      | "semanticTopFieldRole"
+      | "semanticTopFieldPath"
+      | "semanticTopFieldName"
+      | "semanticTopFieldDescription"
+      | "semanticTopFieldValue"
+      | "semanticTopFieldState"
+      | "semanticTopFieldRequired"
+      | "semanticTopFieldSelector"
       | "runbookDecision"
       | "runbookMode"
       | "runbookOperation"
@@ -738,6 +747,7 @@ describe("public agent types", () => {
       semanticLandmarkCount: 1,
       semanticLinkCount: 2,
       semanticButtonCount: 1,
+      semanticFieldCount: 1,
       semanticTopRole: "link",
       semanticTopRoleCount: 2,
       semanticTopHeading: "Example",
@@ -766,6 +776,14 @@ describe("public agent types", () => {
       semanticTopButtonPath: "agent.semanticSummary.buttons[0]",
       semanticTopButtonDescription: "Opens the subscription dialog",
       semanticTopButtonSelector: "button:nth-of-type(1)",
+      semanticTopFieldRole: "textbox",
+      semanticTopFieldPath: "agent.semanticSummary.fieldItems[0]",
+      semanticTopFieldName: "Email",
+      semanticTopFieldDescription: "Used for updates",
+      semanticTopFieldValue: "me@example.test",
+      semanticTopFieldState: "required=true",
+      semanticTopFieldRequired: true,
+      semanticTopFieldSelector: "input[name=\"email\"]",
       runbookDecision: "return",
       runbookMode: "read",
       runbookOperation: "return",

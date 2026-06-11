@@ -1508,6 +1508,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticLandmarkCount?: number;
       semanticLinkCount?: number;
       semanticButtonCount?: number;
+      semanticFieldCount?: number;
       semanticTopRole?: string;
       semanticTopRoleCount?: number;
       semanticTopHeading?: string;
@@ -1537,6 +1538,14 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopButtonPath?: string;
       semanticTopButtonDescription?: string;
       semanticTopButtonSelector?: string;
+      semanticTopFieldRole?: string;
+      semanticTopFieldPath?: string;
+      semanticTopFieldName?: string;
+      semanticTopFieldDescription?: string;
+      semanticTopFieldValue?: string;
+      semanticTopFieldState?: string;
+      semanticTopFieldRequired?: boolean;
+      semanticTopFieldSelector?: string;
     };
     diagnostics?: Array<{ severity?: "info" | "warning" | "error" }>;
     sourceSearch?: {
@@ -4408,6 +4417,7 @@ function scoreAgentSemanticSummary(agent: {
   semanticLandmarkCount?: number;
   semanticLinkCount?: number;
   semanticButtonCount?: number;
+  semanticFieldCount?: number;
   semanticTopRole?: string;
   semanticTopRoleCount?: number;
   semanticTopHeading?: string;
@@ -4437,6 +4447,14 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopButtonPath?: string;
   semanticTopButtonDescription?: string;
   semanticTopButtonSelector?: string;
+  semanticTopFieldRole?: string;
+  semanticTopFieldPath?: string;
+  semanticTopFieldName?: string;
+  semanticTopFieldDescription?: string;
+  semanticTopFieldValue?: string;
+  semanticTopFieldState?: string;
+  semanticTopFieldRequired?: boolean;
+  semanticTopFieldSelector?: string;
 } | undefined): number {
   const summary = agent?.semanticSummary;
   if (!summary || typeof summary !== "object") return 0;
@@ -4448,6 +4466,7 @@ function scoreAgentSemanticSummary(agent: {
     landmarkCount?: unknown;
     linkCount?: unknown;
     buttonCount?: unknown;
+    fieldCount?: unknown;
     roleCounts?: unknown;
     topRoles?: unknown;
     landmarks?: unknown;
@@ -4459,6 +4478,7 @@ function scoreAgentSemanticSummary(agent: {
     interactiveRoles?: unknown;
     links?: unknown;
     buttons?: unknown;
+    fieldItems?: unknown;
   };
   let matched = 0;
   if (typeof item.nodeCount === "number" && item.nodeCount > 0) matched += 1;
@@ -4468,6 +4488,7 @@ function scoreAgentSemanticSummary(agent: {
   if (typeof item.landmarkCount === "number" && item.landmarkCount >= 0) matched += 1;
   if (typeof item.linkCount === "number" && item.linkCount >= 0) matched += 1;
   if (typeof item.buttonCount === "number" && item.buttonCount >= 0) matched += 1;
+  if (typeof item.fieldCount === "number" && item.fieldCount >= 0) matched += 1;
   if (item.roleCounts && typeof item.roleCounts === "object" && Object.keys(item.roleCounts).length > 0) matched += 1;
   if (Array.isArray(item.topRoles) && item.topRoles.length > 0 && item.topRoles.every((role) => {
     if (!role || typeof role !== "object") return false;
@@ -4483,7 +4504,8 @@ function scoreAgentSemanticSummary(agent: {
   if (Array.isArray(item.interactiveRoles)) matched += 1;
   if (Array.isArray(item.links)) matched += 1;
   if (Array.isArray(item.buttons)) matched += 1;
-  let required = 18;
+  if (Array.isArray(item.fieldItems)) matched += 1;
+  let required = 20;
   if (typeof item.nodeCount === "number") {
     required += 1;
     if (agent?.semanticNodeCount === item.nodeCount) matched += 1;
@@ -4511,6 +4533,10 @@ function scoreAgentSemanticSummary(agent: {
   if (typeof item.buttonCount === "number") {
     required += 1;
     if (agent?.semanticButtonCount === item.buttonCount) matched += 1;
+  }
+  if (typeof item.fieldCount === "number") {
+    required += 1;
+    if (agent?.semanticFieldCount === item.fieldCount) matched += 1;
   }
   const topRole = Array.isArray(item.topRoles) ? item.topRoles[0] as { role?: unknown; count?: unknown } | undefined : undefined;
   if (topRole && typeof topRole.role === "string") {
@@ -4644,6 +4670,46 @@ function scoreAgentSemanticSummary(agent: {
   if (button && typeof button.selector === "string") {
     required += 1;
     if (agent?.semanticTopButtonSelector === button.selector) matched += 1;
+  }
+  const field = Array.isArray(item.fieldItems) ? item.fieldItems[0] as { path?: unknown; role?: unknown; name?: unknown; description?: unknown; value?: unknown; state?: unknown; selector?: unknown } | undefined : undefined;
+  if (field && typeof field.role === "string") {
+    required += 1;
+    if (agent?.semanticTopFieldRole === field.role) matched += 1;
+  }
+  if (field && typeof field.path === "string") {
+    required += 1;
+    if (agent?.semanticTopFieldPath === field.path) matched += 1;
+  }
+  if (field && typeof field.name === "string") {
+    required += 1;
+    if (agent?.semanticTopFieldName === field.name) matched += 1;
+  }
+  if (field && typeof field.description === "string") {
+    required += 1;
+    if (agent?.semanticTopFieldDescription === field.description) matched += 1;
+  }
+  if (field && typeof field.value === "string") {
+    required += 1;
+    if (agent?.semanticTopFieldValue === field.value) matched += 1;
+  }
+  if (field?.state && typeof field.state === "object") {
+    const state = Object.entries(field.state as Record<string, unknown>)
+      .filter(([, value]) => value !== undefined)
+      .map(([key, value]) => `${key}=${value}`)
+      .join(" ");
+    if (state) {
+      required += 1;
+      if (agent?.semanticTopFieldState === state) matched += 1;
+    }
+    const requiredState = (field.state as { required?: unknown }).required;
+    if (typeof requiredState === "boolean") {
+      required += 1;
+      if (agent?.semanticTopFieldRequired === requiredState) matched += 1;
+    }
+  }
+  if (field && typeof field.selector === "string") {
+    required += 1;
+    if (agent?.semanticTopFieldSelector === field.selector) matched += 1;
   }
   return roundScore(matched / required);
 }

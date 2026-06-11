@@ -556,6 +556,7 @@ export type AgentSummary = {
   semanticLandmarkCount?: number;
   semanticLinkCount?: number;
   semanticButtonCount?: number;
+  semanticFieldCount?: number;
   semanticTopRole?: string;
   semanticTopRoleCount?: number;
   semanticTopHeading?: string;
@@ -585,6 +586,14 @@ export type AgentSummary = {
   semanticTopButtonPath?: string;
   semanticTopButtonDescription?: string;
   semanticTopButtonSelector?: string;
+  semanticTopFieldRole?: string;
+  semanticTopFieldPath?: string;
+  semanticTopFieldName?: string;
+  semanticTopFieldDescription?: string;
+  semanticTopFieldValue?: string;
+  semanticTopFieldState?: string;
+  semanticTopFieldRequired?: boolean;
+  semanticTopFieldSelector?: string;
   signalCount?: number;
   signalWarningCount?: number;
   signalErrorCount?: number;

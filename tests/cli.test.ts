@@ -3731,6 +3731,30 @@ describe("cli", () => {
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("1 form");
+    expect(envelope.agent.semanticSummary.fieldCount).toBe(2);
+    expect(envelope.agent.semanticSummary.fieldItems).toEqual([
+      expect.objectContaining({
+        path: "agent.semanticSummary.fieldItems[0]",
+        role: "searchbox",
+        name: "Archive search",
+        selector: "#q",
+        state: expect.objectContaining({ required: true }),
+      }),
+      expect.objectContaining({
+        path: "agent.semanticSummary.fieldItems[1]",
+        role: "combobox",
+        selector: "select",
+      }),
+    ]);
+    expect(envelope.agent).toMatchObject({
+      semanticFieldCount: 2,
+      semanticTopFieldRole: "searchbox",
+      semanticTopFieldPath: "agent.semanticSummary.fieldItems[0]",
+      semanticTopFieldName: "Archive search",
+      semanticTopFieldState: "required=true",
+      semanticTopFieldRequired: true,
+      semanticTopFieldSelector: "#q",
+    });
     expect(envelope.agent.formCount).toBe(1);
     expect(envelope.agent.formChoiceCount).toBe(1);
     expect(envelope.agent).toMatchObject({
