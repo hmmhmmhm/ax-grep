@@ -1511,8 +1511,16 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopRole?: string;
       semanticTopRoleCount?: number;
       semanticTopHeading?: string;
+      semanticTopHeadingPath?: string;
+      semanticTopHeadingLevel?: number;
       semanticTopLandmark?: string;
+      semanticTopLandmarkPath?: string;
+      semanticTopLandmarkRole?: string;
+      semanticTopLandmarkName?: string;
       semanticTopNamedRole?: string;
+      semanticTopNamedRolePath?: string;
+      semanticTopNamedRoleRole?: string;
+      semanticTopNamedRoleName?: string;
       semanticTopInteractiveRole?: string;
       semanticTopInteractivePath?: string;
       semanticTopInteractiveName?: string;
@@ -4403,8 +4411,16 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopRole?: string;
   semanticTopRoleCount?: number;
   semanticTopHeading?: string;
+  semanticTopHeadingPath?: string;
+  semanticTopHeadingLevel?: number;
   semanticTopLandmark?: string;
+  semanticTopLandmarkPath?: string;
+  semanticTopLandmarkRole?: string;
+  semanticTopLandmarkName?: string;
   semanticTopNamedRole?: string;
+  semanticTopNamedRolePath?: string;
+  semanticTopNamedRoleRole?: string;
+  semanticTopNamedRoleName?: string;
   semanticTopInteractiveRole?: string;
   semanticTopInteractivePath?: string;
   semanticTopInteractiveName?: string;
@@ -4437,6 +4453,9 @@ function scoreAgentSemanticSummary(agent: {
     landmarks?: unknown;
     headings?: unknown;
     namedRoles?: unknown;
+    headingItems?: unknown;
+    landmarkItems?: unknown;
+    namedRoleItems?: unknown;
     interactiveRoles?: unknown;
     links?: unknown;
     buttons?: unknown;
@@ -4458,10 +4477,13 @@ function scoreAgentSemanticSummary(agent: {
   if (Array.isArray(item.landmarks)) matched += 1;
   if (Array.isArray(item.headings)) matched += 1;
   if (Array.isArray(item.namedRoles)) matched += 1;
+  if (Array.isArray(item.headingItems)) matched += 1;
+  if (Array.isArray(item.landmarkItems)) matched += 1;
+  if (Array.isArray(item.namedRoleItems)) matched += 1;
   if (Array.isArray(item.interactiveRoles)) matched += 1;
   if (Array.isArray(item.links)) matched += 1;
   if (Array.isArray(item.buttons)) matched += 1;
-  let required = 15;
+  let required = 18;
   if (typeof item.nodeCount === "number") {
     required += 1;
     if (agent?.semanticNodeCount === item.nodeCount) matched += 1;
@@ -4504,15 +4526,50 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopHeading === heading) matched += 1;
   }
+  const headingItem = Array.isArray(item.headingItems) ? item.headingItems[0] as { path?: unknown; text?: unknown; level?: unknown } | undefined : undefined;
+  if (headingItem && typeof headingItem.path === "string") {
+    required += 1;
+    if (agent?.semanticTopHeadingPath === headingItem.path) matched += 1;
+  }
+  if (headingItem && typeof headingItem.level === "number") {
+    required += 1;
+    if (agent?.semanticTopHeadingLevel === headingItem.level) matched += 1;
+  }
   const landmark = Array.isArray(item.landmarks) ? item.landmarks[0] : undefined;
   if (typeof landmark === "string") {
     required += 1;
     if (agent?.semanticTopLandmark === landmark) matched += 1;
   }
+  const landmarkItem = Array.isArray(item.landmarkItems) ? item.landmarkItems[0] as { path?: unknown; role?: unknown; name?: unknown } | undefined : undefined;
+  if (landmarkItem && typeof landmarkItem.path === "string") {
+    required += 1;
+    if (agent?.semanticTopLandmarkPath === landmarkItem.path) matched += 1;
+  }
+  if (landmarkItem && typeof landmarkItem.role === "string") {
+    required += 1;
+    if (agent?.semanticTopLandmarkRole === landmarkItem.role) matched += 1;
+  }
+  if (landmarkItem && typeof landmarkItem.name === "string") {
+    required += 1;
+    if (agent?.semanticTopLandmarkName === landmarkItem.name) matched += 1;
+  }
   const namedRole = Array.isArray(item.namedRoles) ? item.namedRoles[0] : undefined;
   if (typeof namedRole === "string") {
     required += 1;
     if (agent?.semanticTopNamedRole === namedRole) matched += 1;
+  }
+  const namedRoleItem = Array.isArray(item.namedRoleItems) ? item.namedRoleItems[0] as { path?: unknown; role?: unknown; name?: unknown } | undefined : undefined;
+  if (namedRoleItem && typeof namedRoleItem.path === "string") {
+    required += 1;
+    if (agent?.semanticTopNamedRolePath === namedRoleItem.path) matched += 1;
+  }
+  if (namedRoleItem && typeof namedRoleItem.role === "string") {
+    required += 1;
+    if (agent?.semanticTopNamedRoleRole === namedRoleItem.role) matched += 1;
+  }
+  if (namedRoleItem && typeof namedRoleItem.name === "string") {
+    required += 1;
+    if (agent?.semanticTopNamedRoleName === namedRoleItem.name) matched += 1;
   }
   const interactive = Array.isArray(item.interactiveRoles) ? item.interactiveRoles[0] as { path?: unknown; role?: unknown; name?: unknown; description?: unknown; value?: unknown; state?: unknown; selector?: unknown } | undefined : undefined;
   if (interactive && typeof interactive.role === "string") {

@@ -365,8 +365,16 @@ describe("public agent types", () => {
       | "semanticTopRole"
       | "semanticTopRoleCount"
       | "semanticTopHeading"
+      | "semanticTopHeadingPath"
+      | "semanticTopHeadingLevel"
       | "semanticTopLandmark"
+      | "semanticTopLandmarkPath"
+      | "semanticTopLandmarkRole"
+      | "semanticTopLandmarkName"
       | "semanticTopNamedRole"
+      | "semanticTopNamedRolePath"
+      | "semanticTopNamedRoleRole"
+      | "semanticTopNamedRoleName"
       | "semanticTopInteractiveRole"
       | "semanticTopInteractivePath"
       | "semanticTopInteractiveName"
@@ -733,8 +741,15 @@ describe("public agent types", () => {
       semanticTopRole: "link",
       semanticTopRoleCount: 2,
       semanticTopHeading: "Example",
+      semanticTopHeadingPath: "agent.semanticSummary.headingItems[0]",
+      semanticTopHeadingLevel: 1,
       semanticTopLandmark: "main",
+      semanticTopLandmarkPath: "agent.semanticSummary.landmarkItems[0]",
+      semanticTopLandmarkRole: "main",
       semanticTopNamedRole: "heading:Example",
+      semanticTopNamedRolePath: "agent.semanticSummary.namedRoleItems[0]",
+      semanticTopNamedRoleRole: "heading",
+      semanticTopNamedRoleName: "Example",
       semanticTopInteractiveRole: "link",
       semanticTopInteractivePath: "agent.semanticSummary.interactiveRoles[0]",
       semanticTopInteractiveName: "Read more",
@@ -943,6 +958,9 @@ describe("public agent types", () => {
     expect(summary.searchDecisionName).toBe("open-result");
     expect(summary.pageDecisionReadFrom).toBe("pageCheck.contentEvidence");
     expect(summary.semanticTopHeading).toBe("Example");
+    expect(summary.semanticTopHeadingPath).toBe("agent.semanticSummary.headingItems[0]");
+    expect(summary.semanticTopLandmarkRole).toBe("main");
+    expect(summary.semanticTopNamedRoleName).toBe("Example");
     expect(summary.readTargetCount).toBe(3);
     expect(summary.topReadTarget).toBe("pageCheck.contentEvidence");
     expect(summary.bestReadTargetCount).toBe(1);

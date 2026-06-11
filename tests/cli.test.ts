@@ -303,6 +303,26 @@ describe("cli", () => {
           landmarks: expect.arrayContaining(["main"]),
           headings: ["Example"],
           namedRoles: expect.arrayContaining(["heading:Example", "link:Reporter Profile", "link:Target"]),
+          headingItems: [
+            expect.objectContaining({
+              path: "agent.semanticSummary.headingItems[0]",
+              text: "Example",
+              level: 1,
+            }),
+          ],
+          landmarkItems: [
+            expect.objectContaining({
+              path: "agent.semanticSummary.landmarkItems[0]",
+              role: "main",
+            }),
+          ],
+          namedRoleItems: expect.arrayContaining([
+            expect.objectContaining({
+              path: "agent.semanticSummary.namedRoleItems[0]",
+              role: "heading",
+              name: "Example",
+            }),
+          ]),
         },
         semanticNodeCount: expect.any(Number),
         semanticNamedRoleCount: expect.any(Number),
@@ -314,8 +334,15 @@ describe("cli", () => {
         semanticTopRole: "p",
         semanticTopRoleCount: 3,
         semanticTopHeading: "Example",
+        semanticTopHeadingPath: "agent.semanticSummary.headingItems[0]",
+        semanticTopHeadingLevel: 1,
         semanticTopLandmark: "main",
+        semanticTopLandmarkPath: "agent.semanticSummary.landmarkItems[0]",
+        semanticTopLandmarkRole: "main",
         semanticTopNamedRole: "heading:Example",
+        semanticTopNamedRolePath: "agent.semanticSummary.namedRoleItems[0]",
+        semanticTopNamedRoleRole: "heading",
+        semanticTopNamedRoleName: "Example",
         semanticTopInteractiveRole: "button",
         semanticTopInteractivePath: "agent.semanticSummary.interactiveRoles[0]",
         semanticTopInteractiveName: "Toggle details",
@@ -644,6 +671,9 @@ describe("cli", () => {
     }));
     expect(envelope.agent.semanticNamedRoleCount).toBe(envelope.agent.semanticSummary.namedRoleCount);
     expect(envelope.agent.semanticTopHeading).toBe(envelope.agent.semanticSummary.headings[0]);
+    expect(envelope.agent.semanticTopHeadingPath).toBe(envelope.agent.semanticSummary.headingItems[0].path);
+    expect(envelope.agent.semanticTopLandmarkPath).toBe(envelope.agent.semanticSummary.landmarkItems[0].path);
+    expect(envelope.agent.semanticTopNamedRolePath).toBe(envelope.agent.semanticSummary.namedRoleItems[0].path);
     expect(envelope.agent.next.readTarget).toEqual(
       expect.objectContaining({
         path: "verification.bestEvidence",
@@ -7898,11 +7928,11 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain(" named=");
     expect(stdout.output).toContain(" interactive=");
     expect(stdout.output).toContain("  semanticTopRoles:");
-    expect(stdout.output).toContain("  semanticHeading: Article heading");
-    expect(stdout.output).toContain("  semanticLandmark: main");
+    expect(stdout.output).toContain("  semanticHeading: agent.semanticSummary.headingItems[0] Article heading");
+    expect(stdout.output).toContain("  semanticLandmark: agent.semanticSummary.landmarkItems[0] main");
     expect(stdout.output).toContain("  semanticNodeCount:");
     expect(stdout.output).toContain("  semanticNamedRoleCount:");
-    expect(stdout.output).toContain("  semanticTopHeading: Article heading");
+    expect(stdout.output).toContain("  semanticTopHeading: agent.semanticSummary.headingItems[0] Article heading");
     expect(stdout.output).toContain("  qualityGate: fetch pass/info score=1 path=agent.responseStatus - Fetched response was converted into an agent payload.");
     expect(stdout.output).toContain("  qualityGate: content pass/info score=");
     expect(stdout.output).toContain("  qualityGate: source pass/info score=");

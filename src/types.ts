@@ -559,8 +559,16 @@ export type AgentSummary = {
   semanticTopRole?: string;
   semanticTopRoleCount?: number;
   semanticTopHeading?: string;
+  semanticTopHeadingPath?: string;
+  semanticTopHeadingLevel?: number;
   semanticTopLandmark?: string;
+  semanticTopLandmarkPath?: string;
+  semanticTopLandmarkRole?: string;
+  semanticTopLandmarkName?: string;
   semanticTopNamedRole?: string;
+  semanticTopNamedRolePath?: string;
+  semanticTopNamedRoleRole?: string;
+  semanticTopNamedRoleName?: string;
   semanticTopInteractiveRole?: string;
   semanticTopInteractivePath?: string;
   semanticTopInteractiveName?: string;
