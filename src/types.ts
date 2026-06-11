@@ -639,6 +639,12 @@ export type AgentSummary = {
   semanticTopImagePath?: string;
   semanticTopImageName?: string;
   semanticTopImageUrl?: string;
+  semanticTopImageWidth?: number;
+  semanticTopImageHeight?: number;
+  semanticTopImageLoading?: string;
+  semanticTopImageDecoding?: string;
+  semanticTopImageSrcset?: string;
+  semanticTopImageSizes?: string;
   semanticTopImageSelector?: string;
   semanticTopTableRole?: string;
   semanticTopTablePath?: string;

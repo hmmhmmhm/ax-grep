@@ -518,6 +518,12 @@ describe("public agent types", () => {
       | "semanticTopImagePath"
       | "semanticTopImageName"
       | "semanticTopImageUrl"
+      | "semanticTopImageWidth"
+      | "semanticTopImageHeight"
+      | "semanticTopImageLoading"
+      | "semanticTopImageDecoding"
+      | "semanticTopImageSrcset"
+      | "semanticTopImageSizes"
       | "semanticTopImageSelector"
       | "semanticTopTableRole"
       | "semanticTopTablePath"
@@ -1099,6 +1105,12 @@ describe("public agent types", () => {
       semanticTopImagePath: "agent.semanticSummary.imageItems[0]",
       semanticTopImageName: "Product screenshot",
       semanticTopImageUrl: "https://example.test/product.png",
+      semanticTopImageWidth: 1280,
+      semanticTopImageHeight: 720,
+      semanticTopImageLoading: "lazy",
+      semanticTopImageDecoding: "async",
+      semanticTopImageSrcset: "/product.png 1x, /product@2x.png 2x",
+      semanticTopImageSizes: "(min-width: 900px) 800px, 100vw",
       semanticTopImageSelector: "img:nth-of-type(1)",
       semanticTopTableRole: "table",
       semanticTopTablePath: "agent.semanticSummary.tableItems[0]",

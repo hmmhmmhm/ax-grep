@@ -1664,6 +1664,12 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopImagePath?: string;
       semanticTopImageName?: string;
       semanticTopImageUrl?: string;
+      semanticTopImageWidth?: number;
+      semanticTopImageHeight?: number;
+      semanticTopImageLoading?: string;
+      semanticTopImageDecoding?: string;
+      semanticTopImageSrcset?: string;
+      semanticTopImageSizes?: string;
       semanticTopImageSelector?: string;
       semanticTopTableRole?: string;
       semanticTopTablePath?: string;
@@ -4805,6 +4811,12 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopImagePath?: string;
   semanticTopImageName?: string;
   semanticTopImageUrl?: string;
+  semanticTopImageWidth?: number;
+  semanticTopImageHeight?: number;
+  semanticTopImageLoading?: string;
+  semanticTopImageDecoding?: string;
+  semanticTopImageSrcset?: string;
+  semanticTopImageSizes?: string;
   semanticTopImageSelector?: string;
   semanticTopTableRole?: string;
   semanticTopTablePath?: string;
@@ -5336,7 +5348,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopButtonSelector === button.selector) matched += 1;
   }
-  const image = Array.isArray(item.imageItems) ? item.imageItems[0] as { path?: unknown; name?: unknown; url?: unknown; selector?: unknown } | undefined : undefined;
+  const image = Array.isArray(item.imageItems) ? item.imageItems[0] as { path?: unknown; name?: unknown; url?: unknown; width?: unknown; height?: unknown; loading?: unknown; decoding?: unknown; srcset?: unknown; sizes?: unknown; selector?: unknown } | undefined : undefined;
   if (image && typeof image.path === "string") {
     required += 1;
     if (agent?.semanticTopImagePath === image.path) matched += 1;
@@ -5348,6 +5360,30 @@ function scoreAgentSemanticSummary(agent: {
   if (image && typeof image.url === "string") {
     required += 1;
     if (agent?.semanticTopImageUrl === image.url) matched += 1;
+  }
+  if (image && typeof image.width === "number") {
+    required += 1;
+    if (agent?.semanticTopImageWidth === image.width) matched += 1;
+  }
+  if (image && typeof image.height === "number") {
+    required += 1;
+    if (agent?.semanticTopImageHeight === image.height) matched += 1;
+  }
+  if (image && typeof image.loading === "string") {
+    required += 1;
+    if (agent?.semanticTopImageLoading === image.loading) matched += 1;
+  }
+  if (image && typeof image.decoding === "string") {
+    required += 1;
+    if (agent?.semanticTopImageDecoding === image.decoding) matched += 1;
+  }
+  if (image && typeof image.srcset === "string") {
+    required += 1;
+    if (agent?.semanticTopImageSrcset === image.srcset) matched += 1;
+  }
+  if (image && typeof image.sizes === "string") {
+    required += 1;
+    if (agent?.semanticTopImageSizes === image.sizes) matched += 1;
   }
   if (image && typeof image.selector === "string") {
     required += 1;

@@ -254,7 +254,7 @@ describe("cli", () => {
               <button aria-pressed="false" aria-haspopup="dialog" aria-valuetext="details off" aria-describedby="toggle-desc" aria-controls="details-panel">Toggle details</button>
               <a href="#content" class="skip-link" target="_self" rel="bookmark" download="content.html">Skip to content</a>
               <section id="details-panel" aria-label="Details panel">Extra details</section>
-              <img src="/hero.png" alt="Hero chart">
+              <img src="/hero.png" srcset="/hero.png 1x, /hero@2x.png 2x" sizes="(min-width: 800px) 720px, 100vw" width="720" height="360" loading="lazy" decoding="async" alt="Hero chart">
               <p class="byline">By <a href="/authors/reporter">Reporter Profile</a></p>
               <p>Example content for agent routing.</p>
               <table aria-label="Metrics">
@@ -424,6 +424,12 @@ describe("cli", () => {
               path: "agent.semanticSummary.imageItems[0]",
               name: "Hero chart",
               url: "https://example.test/hero.png",
+              width: 720,
+              height: 360,
+              loading: "lazy",
+              decoding: "async",
+              srcset: "/hero.png 1x, /hero@2x.png 2x",
+              sizes: "(min-width: 800px) 720px, 100vw",
               selector: "img",
             }),
           ],
@@ -547,6 +553,12 @@ describe("cli", () => {
         semanticTopImagePath: "agent.semanticSummary.imageItems[0]",
         semanticTopImageName: "Hero chart",
         semanticTopImageUrl: "https://example.test/hero.png",
+        semanticTopImageWidth: 720,
+        semanticTopImageHeight: 360,
+        semanticTopImageLoading: "lazy",
+        semanticTopImageDecoding: "async",
+        semanticTopImageSrcset: "/hero.png 1x, /hero@2x.png 2x",
+        semanticTopImageSizes: "(min-width: 800px) 720px, 100vw",
         semanticTopImageSelector: "img",
         semanticTopTableRole: "table",
         semanticTopTablePath: "agent.semanticSummary.tableItems[0]",
