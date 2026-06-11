@@ -2609,10 +2609,16 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   lines.push(`  next: ${formatActionLabel(pageCheck.recommendedAction)} - ${pageCheck.recommendedAction.reason}`);
   lines.push(`  execution: ${actionExecution(pageCheck.recommendedAction)}`);
   lines.push(`  priority: ${pageCheck.recommendedAction.priority ?? actionPriority(pageCheck.recommendedAction)} - ${pageCheck.recommendedAction.priorityReason ?? actionPriorityReason(pageCheck.recommendedAction)}`);
+  if (pageCheck.recommendedAction.url) lines.push(`  url: ${pageCheck.recommendedAction.url}`);
+  if (pageCheck.recommendedAction.rank) lines.push(`  rank: ${pageCheck.recommendedAction.rank}`);
+  if (pageCheck.recommendedAction.openResult) lines.push(`  openResult: ${pageCheck.recommendedAction.openResult}`);
   if (pageCheck.recommendedAction.readFrom) lines.push(`  readFrom: ${pageCheck.recommendedAction.readFrom}`);
+  if (pageCheck.recommendedAction.sourceLinkRef) lines.push(`  sourceLinkRef: ${pageCheck.recommendedAction.sourceLinkRef}`);
   if (pageCheck.recommendedAction.requiresBrowserInteraction) lines.push("  requiresBrowserInteraction: true");
   if (pageCheck.recommendedAction.command) lines.push(`  command: ${pageCheck.recommendedAction.command}`);
   if (pageCheck.recommendedAction.commandArgs) lines.push(`  commandArgs: ${formatCommandArgsText(pageCheck.recommendedAction.commandArgs)}`);
+  if (pageCheck.recommendedAction.afterInteractionCommand) lines.push(`  afterInteractionCommand: ${pageCheck.recommendedAction.afterInteractionCommand}`);
+  if (pageCheck.recommendedAction.afterInteractionCommandArgs) lines.push(`  afterInteractionCommandArgs: ${formatCommandArgsText(pageCheck.recommendedAction.afterInteractionCommandArgs)}`);
   for (const [index, step] of pageCheck.nextSteps.entries()) {
     const target = step.url ? ` <${step.url}>` : "";
     lines.push(`  step: ${index + 1}. ${formatActionLabel(step)}${target} - ${step.reason}`);
