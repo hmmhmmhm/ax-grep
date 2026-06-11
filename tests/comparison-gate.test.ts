@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { checkComparisonGateReport } from "../scripts/check-comparison-gates";
 
 type StaticGateSummary = Record<string, unknown> & {
@@ -9,6 +11,7 @@ function staticSummary(overrides: Partial<StaticGateSummary> = {}): StaticGateSu
   return {
     included: 4,
     excluded: 1,
+    averageCliAgentScore: 1,
     averageAgentExecutorScore: 1,
     averageAgentContractScore: 1,
     averageActionSchemaScore: 1,
@@ -116,6 +119,16 @@ describe("comparison gate checker", () => {
     ]);
   });
 
+  it("rejects static reports below the aggregate CLI agent usefulness floor", () => {
+    const failures = checkComparisonGateReport(staticReport(staticSummary({
+      averageCliAgentScore: 0.79,
+    })), "static.json");
+
+    expect(failures.map((failure) => failure.message)).toEqual([
+      "averageCliAgentScore expected >= 0.8, got 0.79",
+    ]);
+  });
+
   it("rejects static reports that drop result, source, or action detail gates", () => {
     const failures = checkComparisonGateReport(staticReport(staticSummary({
       averageAgentResultChoiceScore: 0.9,
@@ -220,5 +233,23 @@ describe("comparison gate checker", () => {
       "averageAgentToBrowserTokenRatio expected <= 1, got 4.838",
       "missing excludedThinBrowserReference",
     ]);
+  });
+
+  it("keeps produced agent gate metrics wired into compare:gate", () => {
+    const compareStatic = readFileSync(join(process.cwd(), "scripts", "compare-static.ts"), "utf8");
+    const gateChecker = readFileSync(join(process.cwd(), "scripts", "check-comparison-gates.ts"), "utf8");
+    const produced = [...compareStatic.matchAll(/(average[A-Za-z0-9]+): average\(/g)]
+      .map((match) => match[1])
+      .filter((field): field is string => Boolean(field));
+    const required = [...gateChecker.matchAll(/requireAt(?:Least|Most)\([^,]+, [^,]+, "(average[A-Za-z0-9]+)"/g)]
+      .map((match) => match[1])
+      .filter((field): field is string => Boolean(field));
+    const intentionallyDiagnosticOnly = new Set([
+      "averagePrecision",
+      "averageReferenceRecall",
+      "averageScore",
+    ]);
+
+    expect(produced.filter((field) => !required.includes(field) && !intentionallyDiagnosticOnly.has(field)).sort()).toEqual([]);
   });
 });

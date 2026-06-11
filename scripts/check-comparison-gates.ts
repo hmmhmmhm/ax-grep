@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 type GateSummary = Record<string, unknown> & {
   included?: number;
   excluded?: number;
+  averageCliAgentScore?: number;
   averageAgentExecutorScore?: number;
   averageAgentContractScore?: number;
   averageActionSchemaScore?: number;
@@ -114,6 +115,7 @@ function checkReport(file: string, report: ComparisonReport): GateFailure[] {
 function checkStaticGate(file: string, summary: GateSummary): GateFailure[] {
   const failures: GateFailure[] = [];
   requireAtLeast(file, failures, "included", summary.included, 1);
+  requireAtLeast(file, failures, "averageCliAgentScore", summary.averageCliAgentScore, 0.8);
   requireAtLeast(file, failures, "averageAgentExecutorScore", summary.averageAgentExecutorScore, 0.995);
   requireAtLeast(file, failures, "averageAgentContractScore", summary.averageAgentContractScore, 0.995);
   requireAtLeast(file, failures, "averageActionSchemaScore", summary.averageActionSchemaScore, 0.995);
