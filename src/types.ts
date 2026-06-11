@@ -552,6 +552,10 @@ export type AgentSummary = {
   semanticNodeCount?: number;
   semanticNamedRoleCount?: number;
   semanticInteractiveCount?: number;
+  semanticHeadingCount?: number;
+  semanticLandmarkCount?: number;
+  semanticLinkCount?: number;
+  semanticButtonCount?: number;
   semanticTopRole?: string;
   semanticTopRoleCount?: number;
   semanticTopHeading?: string;

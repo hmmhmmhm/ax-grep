@@ -1504,6 +1504,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticNodeCount?: number;
       semanticNamedRoleCount?: number;
       semanticInteractiveCount?: number;
+      semanticHeadingCount?: number;
+      semanticLandmarkCount?: number;
+      semanticLinkCount?: number;
+      semanticButtonCount?: number;
       semanticTopRole?: string;
       semanticTopRoleCount?: number;
       semanticTopHeading?: string;
@@ -4389,6 +4393,10 @@ function scoreAgentSemanticSummary(agent: {
   semanticNodeCount?: number;
   semanticNamedRoleCount?: number;
   semanticInteractiveCount?: number;
+  semanticHeadingCount?: number;
+  semanticLandmarkCount?: number;
+  semanticLinkCount?: number;
+  semanticButtonCount?: number;
   semanticTopRole?: string;
   semanticTopRoleCount?: number;
   semanticTopHeading?: string;
@@ -4414,6 +4422,10 @@ function scoreAgentSemanticSummary(agent: {
     nodeCount?: unknown;
     namedRoleCount?: unknown;
     interactiveCount?: unknown;
+    headingCount?: unknown;
+    landmarkCount?: unknown;
+    linkCount?: unknown;
+    buttonCount?: unknown;
     roleCounts?: unknown;
     topRoles?: unknown;
     landmarks?: unknown;
@@ -4427,6 +4439,10 @@ function scoreAgentSemanticSummary(agent: {
   if (typeof item.nodeCount === "number" && item.nodeCount > 0) matched += 1;
   if (typeof item.namedRoleCount === "number" && item.namedRoleCount >= 0) matched += 1;
   if (typeof item.interactiveCount === "number" && item.interactiveCount >= 0) matched += 1;
+  if (typeof item.headingCount === "number" && item.headingCount >= 0) matched += 1;
+  if (typeof item.landmarkCount === "number" && item.landmarkCount >= 0) matched += 1;
+  if (typeof item.linkCount === "number" && item.linkCount >= 0) matched += 1;
+  if (typeof item.buttonCount === "number" && item.buttonCount >= 0) matched += 1;
   if (item.roleCounts && typeof item.roleCounts === "object" && Object.keys(item.roleCounts).length > 0) matched += 1;
   if (Array.isArray(item.topRoles) && item.topRoles.length > 0 && item.topRoles.every((role) => {
     if (!role || typeof role !== "object") return false;
@@ -4439,7 +4455,7 @@ function scoreAgentSemanticSummary(agent: {
   if (Array.isArray(item.interactiveRoles)) matched += 1;
   if (Array.isArray(item.links)) matched += 1;
   if (Array.isArray(item.buttons)) matched += 1;
-  let required = 11;
+  let required = 15;
   if (typeof item.nodeCount === "number") {
     required += 1;
     if (agent?.semanticNodeCount === item.nodeCount) matched += 1;
@@ -4451,6 +4467,22 @@ function scoreAgentSemanticSummary(agent: {
   if (typeof item.interactiveCount === "number") {
     required += 1;
     if (agent?.semanticInteractiveCount === item.interactiveCount) matched += 1;
+  }
+  if (typeof item.headingCount === "number") {
+    required += 1;
+    if (agent?.semanticHeadingCount === item.headingCount) matched += 1;
+  }
+  if (typeof item.landmarkCount === "number") {
+    required += 1;
+    if (agent?.semanticLandmarkCount === item.landmarkCount) matched += 1;
+  }
+  if (typeof item.linkCount === "number") {
+    required += 1;
+    if (agent?.semanticLinkCount === item.linkCount) matched += 1;
+  }
+  if (typeof item.buttonCount === "number") {
+    required += 1;
+    if (agent?.semanticButtonCount === item.buttonCount) matched += 1;
   }
   const topRole = Array.isArray(item.topRoles) ? item.topRoles[0] as { role?: unknown; count?: unknown } | undefined : undefined;
   if (topRole && typeof topRole.role === "string") {

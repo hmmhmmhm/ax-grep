@@ -94,9 +94,10 @@ the first object before drilling into `pageCheck`.
 root page metadata such as canonical URL, language, author, dates, and
 structured-data types.
 `averageAgentSemanticSummaryScore` tracks whether `agent.semanticSummary` and
-top-level `agent.semantic*` shortcuts preserve semantic tree counts, top role,
-heading, landmark, named role, interactive description/value/state, link URL,
-and button description shortcuts for quick page-shape routing.
+top-level `agent.semantic*` shortcuts preserve semantic tree counts, role-group
+counts, top role, heading, landmark, named role, interactive
+description/value/state, link URL, and button description shortcuts for quick
+page-shape routing.
 `averageAgentBarrierShortcutScore` tracks whether top-level `agent.topBarrier*`
 shortcuts mirror the highest-priority page barrier.
 `averageAgentStructuredShortcutScore` tracks whether top-level structured

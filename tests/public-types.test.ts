@@ -358,6 +358,10 @@ describe("public agent types", () => {
       | "semanticNodeCount"
       | "semanticNamedRoleCount"
       | "semanticInteractiveCount"
+      | "semanticHeadingCount"
+      | "semanticLandmarkCount"
+      | "semanticLinkCount"
+      | "semanticButtonCount"
       | "semanticTopRole"
       | "semanticTopRoleCount"
       | "semanticTopHeading"
@@ -719,6 +723,10 @@ describe("public agent types", () => {
       semanticNodeCount: 12,
       semanticNamedRoleCount: 4,
       semanticInteractiveCount: 2,
+      semanticHeadingCount: 1,
+      semanticLandmarkCount: 1,
+      semanticLinkCount: 2,
+      semanticButtonCount: 1,
       semanticTopRole: "link",
       semanticTopRoleCount: 2,
       semanticTopHeading: "Example",
