@@ -7672,6 +7672,22 @@ npx ax-grep https://example.test --agent</code></pre>
       }),
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("3 embeds");
+    expect(envelope.agent.semanticSummary).toMatchObject({
+      unavailableCount: 1,
+      unavailableItems: [
+        expect.objectContaining({
+          path: "agent.semanticSummary.unavailableItems[0]",
+          tag: "iframe",
+          reason: "iframe content unavailable in static HTML",
+        }),
+      ],
+    });
+    expect(envelope.agent).toMatchObject({
+      semanticUnavailableCount: 1,
+      semanticTopUnavailablePath: "agent.semanticSummary.unavailableItems[0]",
+      semanticTopUnavailableTag: "iframe",
+      semanticTopUnavailableReason: "iframe content unavailable in static HTML",
+    });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",

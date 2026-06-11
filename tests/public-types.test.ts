@@ -370,6 +370,7 @@ describe("public agent types", () => {
       | "semanticDescriptionCount"
       | "semanticChoiceCount"
       | "semanticStateCount"
+      | "semanticUnavailableCount"
       | "semanticTopRole"
       | "semanticTopRoleCount"
       | "semanticTopHeading"
@@ -443,6 +444,12 @@ describe("public agent types", () => {
       | "semanticTopStateName"
       | "semanticTopState"
       | "semanticTopStateSelector"
+      | "semanticTopUnavailablePath"
+      | "semanticTopUnavailableTag"
+      | "semanticTopUnavailableRole"
+      | "semanticTopUnavailableName"
+      | "semanticTopUnavailableReason"
+      | "semanticTopUnavailableSelector"
       | "runbookDecision"
       | "runbookMode"
       | "runbookOperation"
@@ -798,6 +805,7 @@ describe("public agent types", () => {
       semanticDescriptionCount: 1,
       semanticChoiceCount: 1,
       semanticStateCount: 1,
+      semanticUnavailableCount: 1,
       semanticTopRole: "link",
       semanticTopRoleCount: 2,
       semanticTopHeading: "Example",
@@ -870,6 +878,12 @@ describe("public agent types", () => {
       semanticTopStateName: "Email",
       semanticTopState: "required=true",
       semanticTopStateSelector: "input[name=\"email\"]",
+      semanticTopUnavailablePath: "agent.semanticSummary.unavailableItems[0]",
+      semanticTopUnavailableTag: "iframe",
+      semanticTopUnavailableRole: "iframe",
+      semanticTopUnavailableName: "Remote frame",
+      semanticTopUnavailableReason: "cross-origin iframe",
+      semanticTopUnavailableSelector: "iframe:nth-of-type(1)",
       runbookDecision: "return",
       runbookMode: "read",
       runbookOperation: "return",

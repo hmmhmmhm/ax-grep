@@ -200,6 +200,9 @@ function walkElement(element: Element | undefined, context: StaticContext): Sema
   const name = role ? computeName(element, role, context) : "";
   const tag = element.name;
   const children = shouldSkipChildrenForCollapsedElement(element, context) ? [] : collectChildren(element, context);
+  if (tag === "iframe" && children.length === 0 && attr(element, "src") && !attr(element, "srcdoc")) {
+    children.push(unavailableNode(context, "iframe", "iframe content unavailable in static HTML"));
+  }
 
   if (context.options.mode === "interactive" && !interactive) {
     return children.length > 0 ? containerNode(context, tag, children) : null;
@@ -525,6 +528,7 @@ function getRole(element: Element): string | null {
   if (tag === "dialog") return "dialog";
   if (tag === "figure") return "figure";
   if (tag === "form") return "form";
+  if (tag === "iframe") return "iframe";
   if (tag === "img") return "img";
   if (tag === "input") return inputRole(element);
   if (tag === "li") return "listitem";

@@ -553,6 +553,27 @@ describe("static extract", () => {
     expect(flat.some((node) => node.role === "table")).toBe(false);
   });
 
+  it("marks static iframe contents as unavailable when they cannot be inspected", () => {
+    const tree = extract(`
+      <main>
+        <iframe title="Remote frame" src="https://remote.example/embed"></iframe>
+      </main>
+    `);
+    const flat = flattenSemanticTree(tree);
+    const iframe = flat.find((node) => node.role === "iframe");
+    const unavailable = flat.find((node) => node.unavailableReason);
+
+    expect(iframe).toMatchObject({
+      role: "iframe",
+      name: "Remote frame",
+      selector: "iframe",
+    });
+    expect(unavailable).toMatchObject({
+      tag: "iframe",
+      unavailableReason: "iframe content unavailable in static HTML",
+    });
+  });
+
   it("covers static pruning, summarization, and selector edge cases", () => {
     const interactiveTree = extract(`
       <main>

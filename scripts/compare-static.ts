@@ -1516,6 +1516,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticDescriptionCount?: number;
       semanticChoiceCount?: number;
       semanticStateCount?: number;
+      semanticUnavailableCount?: number;
       semanticTopRole?: string;
       semanticTopRoleCount?: number;
       semanticTopHeading?: string;
@@ -1589,6 +1590,12 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopStateName?: string;
       semanticTopState?: string;
       semanticTopStateSelector?: string;
+      semanticTopUnavailablePath?: string;
+      semanticTopUnavailableTag?: string;
+      semanticTopUnavailableRole?: string;
+      semanticTopUnavailableName?: string;
+      semanticTopUnavailableReason?: string;
+      semanticTopUnavailableSelector?: string;
     };
     diagnostics?: Array<{ severity?: "info" | "warning" | "error" }>;
     sourceSearch?: {
@@ -4468,6 +4475,7 @@ function scoreAgentSemanticSummary(agent: {
   semanticDescriptionCount?: number;
   semanticChoiceCount?: number;
   semanticStateCount?: number;
+  semanticUnavailableCount?: number;
   semanticTopRole?: string;
   semanticTopRoleCount?: number;
   semanticTopHeading?: string;
@@ -4541,6 +4549,12 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopStateName?: string;
   semanticTopState?: string;
   semanticTopStateSelector?: string;
+  semanticTopUnavailablePath?: string;
+  semanticTopUnavailableTag?: string;
+  semanticTopUnavailableRole?: string;
+  semanticTopUnavailableName?: string;
+  semanticTopUnavailableReason?: string;
+  semanticTopUnavailableSelector?: string;
 } | undefined): number {
   const summary = agent?.semanticSummary;
   if (!summary || typeof summary !== "object") return 0;
@@ -4560,6 +4574,7 @@ function scoreAgentSemanticSummary(agent: {
     descriptionCount?: unknown;
     choiceCount?: unknown;
     stateCount?: unknown;
+    unavailableCount?: unknown;
     roleCounts?: unknown;
     topRoles?: unknown;
     landmarks?: unknown;
@@ -4579,6 +4594,7 @@ function scoreAgentSemanticSummary(agent: {
     descriptionItems?: unknown;
     choiceItems?: unknown;
     stateItems?: unknown;
+    unavailableItems?: unknown;
   };
   let matched = 0;
   if (typeof item.nodeCount === "number" && item.nodeCount > 0) matched += 1;
@@ -4596,6 +4612,7 @@ function scoreAgentSemanticSummary(agent: {
   if (typeof item.descriptionCount === "number" && item.descriptionCount >= 0) matched += 1;
   if (typeof item.choiceCount === "number" && item.choiceCount >= 0) matched += 1;
   if (typeof item.stateCount === "number" && item.stateCount >= 0) matched += 1;
+  if (typeof item.unavailableCount === "number" && item.unavailableCount >= 0) matched += 1;
   if (item.roleCounts && typeof item.roleCounts === "object" && Object.keys(item.roleCounts).length > 0) matched += 1;
   if (Array.isArray(item.topRoles) && item.topRoles.length > 0 && item.topRoles.every((role) => {
     if (!role || typeof role !== "object") return false;
@@ -4619,7 +4636,8 @@ function scoreAgentSemanticSummary(agent: {
   if (Array.isArray(item.descriptionItems)) matched += 1;
   if (Array.isArray(item.choiceItems)) matched += 1;
   if (Array.isArray(item.stateItems)) matched += 1;
-  let required = 34;
+  if (Array.isArray(item.unavailableItems)) matched += 1;
+  let required = 36;
   if (typeof item.nodeCount === "number") {
     required += 1;
     if (agent?.semanticNodeCount === item.nodeCount) matched += 1;
@@ -4679,6 +4697,10 @@ function scoreAgentSemanticSummary(agent: {
   if (typeof item.stateCount === "number") {
     required += 1;
     if (agent?.semanticStateCount === item.stateCount) matched += 1;
+  }
+  if (typeof item.unavailableCount === "number") {
+    required += 1;
+    if (agent?.semanticUnavailableCount === item.unavailableCount) matched += 1;
   }
   const topRole = Array.isArray(item.topRoles) ? item.topRoles[0] as { role?: unknown; count?: unknown } | undefined : undefined;
   if (topRole && typeof topRole.role === "string") {
@@ -5016,6 +5038,31 @@ function scoreAgentSemanticSummary(agent: {
   if (stateItem && typeof stateItem.selector === "string") {
     required += 1;
     if (agent?.semanticTopStateSelector === stateItem.selector) matched += 1;
+  }
+  const unavailable = Array.isArray(item.unavailableItems) ? item.unavailableItems[0] as { path?: unknown; tag?: unknown; role?: unknown; name?: unknown; reason?: unknown; selector?: unknown } | undefined : undefined;
+  if (unavailable && typeof unavailable.path === "string") {
+    required += 1;
+    if (agent?.semanticTopUnavailablePath === unavailable.path) matched += 1;
+  }
+  if (unavailable && typeof unavailable.tag === "string") {
+    required += 1;
+    if (agent?.semanticTopUnavailableTag === unavailable.tag) matched += 1;
+  }
+  if (unavailable && typeof unavailable.role === "string") {
+    required += 1;
+    if (agent?.semanticTopUnavailableRole === unavailable.role) matched += 1;
+  }
+  if (unavailable && typeof unavailable.name === "string") {
+    required += 1;
+    if (agent?.semanticTopUnavailableName === unavailable.name) matched += 1;
+  }
+  if (unavailable && typeof unavailable.reason === "string") {
+    required += 1;
+    if (agent?.semanticTopUnavailableReason === unavailable.reason) matched += 1;
+  }
+  if (unavailable && typeof unavailable.selector === "string") {
+    required += 1;
+    if (agent?.semanticTopUnavailableSelector === unavailable.selector) matched += 1;
   }
   return roundScore(matched / required);
 }

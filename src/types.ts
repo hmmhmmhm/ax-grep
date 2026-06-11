@@ -569,6 +569,7 @@ export type AgentSummary = {
   semanticDescriptionCount?: number;
   semanticChoiceCount?: number;
   semanticStateCount?: number;
+  semanticUnavailableCount?: number;
   semanticTopRole?: string;
   semanticTopRoleCount?: number;
   semanticTopHeading?: string;
@@ -642,6 +643,12 @@ export type AgentSummary = {
   semanticTopStateName?: string;
   semanticTopState?: string;
   semanticTopStateSelector?: string;
+  semanticTopUnavailablePath?: string;
+  semanticTopUnavailableTag?: string;
+  semanticTopUnavailableRole?: string;
+  semanticTopUnavailableName?: string;
+  semanticTopUnavailableReason?: string;
+  semanticTopUnavailableSelector?: string;
   signalCount?: number;
   signalWarningCount?: number;
   signalErrorCount?: number;
