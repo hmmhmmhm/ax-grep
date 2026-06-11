@@ -1269,25 +1269,46 @@ function normalizedActionExecution(action: CliActionShape): ActionExecution {
     : "unknown";
 }
 
-function scoreActionSchema(actions: CliActionShape[]): number {
+export function scoreActionSchema(actions: CliActionShape[]): number {
   if (actions.length === 0) return 0;
-  const validCount = actions.filter((action) => {
-    if (typeof action.path === "string" && action.path.length > 0 && typeof action.source === "string" && typeof action.index === "number") return true;
-    if (typeof action.sourceLinkRef === "string" && /^pageCheck\.sourceLinks\[\d+\]$/.test(action.sourceLinkRef)) {
-      return action.action === "open-source-link" && normalizedActionExecution(action) === "run-command";
-    }
-    const hasPriority = (action.priority === "low" || action.priority === "medium" || action.priority === "high")
-      && typeof action.priorityReason === "string"
-      && action.priorityReason.length > 0;
-    if (!hasPriority) return false;
-    const execution = normalizedActionExecution(action);
-    if (execution === "run-command") return Array.isArray(action.commandArgs) && action.commandArgs.length > 0;
-    if (execution === "read-current") return Boolean(action.readFrom);
-    if (execution === "interact-browser") return action.requiresBrowserInteraction === true || action.action === "inspect-browser-state";
-    if (execution === "inspect-output") return !action.command;
-    return false;
-  }).length;
+  const validCount = actions.filter((action) => isExecutableActionSchema(action)).length;
   return roundScore(validCount / actions.length);
+}
+
+function isExecutableActionSchema(action: CliActionShape): boolean {
+  if (!hasValidActionProvenance(action)) return false;
+  if (!hasValidActionPriority(action)) return false;
+  if (!hasValidSourceLinkRef(action)) return false;
+  return hasValidActionExecutionFields(action);
+}
+
+function hasValidActionProvenance(action: CliActionShape): boolean {
+  if (typeof action.source !== "undefined" && (typeof action.source !== "string" || action.source.length === 0)) return false;
+  if (typeof action.path !== "undefined" && (typeof action.path !== "string" || action.path.length === 0)) return false;
+  if (typeof action.index !== "undefined" && typeof action.index !== "number") return false;
+  return true;
+}
+
+function hasValidActionPriority(action: CliActionShape): boolean {
+  return (action.priority === "low" || action.priority === "medium" || action.priority === "high")
+    && typeof action.priorityReason === "string"
+    && action.priorityReason.length > 0;
+}
+
+function hasValidSourceLinkRef(action: CliActionShape): boolean {
+  if (typeof action.sourceLinkRef === "undefined") return true;
+  return action.action === "open-source-link"
+    && normalizedActionExecution(action) === "run-command"
+    && /^pageCheck\.sourceLinks\[\d+\]$/.test(action.sourceLinkRef);
+}
+
+function hasValidActionExecutionFields(action: CliActionShape): boolean {
+  const execution = normalizedActionExecution(action);
+  if (execution === "run-command") return Array.isArray(action.commandArgs) && action.commandArgs.length > 0;
+  if (execution === "read-current") return Boolean(action.readFrom);
+  if (execution === "interact-browser") return action.requiresBrowserInteraction === true || action.action === "inspect-browser-state";
+  if (execution === "inspect-output") return !action.command;
+  return false;
 }
 
 function scoreSearchResultActions(results: CliSearchResultShape[]): number {
