@@ -364,6 +364,7 @@ describe("public agent types", () => {
       | "semanticButtonCount"
       | "semanticFieldCount"
       | "semanticChoiceCount"
+      | "semanticStateCount"
       | "semanticTopRole"
       | "semanticTopRoleCount"
       | "semanticTopHeading"
@@ -407,6 +408,11 @@ describe("public agent types", () => {
       | "semanticTopChoiceState"
       | "semanticTopChoiceSelected"
       | "semanticTopChoiceSelector"
+      | "semanticTopStateRole"
+      | "semanticTopStatePath"
+      | "semanticTopStateName"
+      | "semanticTopState"
+      | "semanticTopStateSelector"
       | "runbookDecision"
       | "runbookMode"
       | "runbookOperation"
@@ -756,6 +762,7 @@ describe("public agent types", () => {
       semanticButtonCount: 1,
       semanticFieldCount: 1,
       semanticChoiceCount: 1,
+      semanticStateCount: 1,
       semanticTopRole: "link",
       semanticTopRoleCount: 2,
       semanticTopHeading: "Example",
@@ -798,6 +805,11 @@ describe("public agent types", () => {
       semanticTopChoiceState: "selected=true",
       semanticTopChoiceSelected: true,
       semanticTopChoiceSelector: "option:nth-of-type(2)",
+      semanticTopStateRole: "textbox",
+      semanticTopStatePath: "agent.semanticSummary.stateItems[0]",
+      semanticTopStateName: "Email",
+      semanticTopState: "required=true",
+      semanticTopStateSelector: "input[name=\"email\"]",
       runbookDecision: "return",
       runbookMode: "read",
       runbookOperation: "return",

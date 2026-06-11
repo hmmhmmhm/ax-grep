@@ -1510,6 +1510,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticButtonCount?: number;
       semanticFieldCount?: number;
       semanticChoiceCount?: number;
+      semanticStateCount?: number;
       semanticTopRole?: string;
       semanticTopRoleCount?: number;
       semanticTopHeading?: string;
@@ -1553,6 +1554,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopChoiceState?: string;
       semanticTopChoiceSelected?: boolean;
       semanticTopChoiceSelector?: string;
+      semanticTopStateRole?: string;
+      semanticTopStatePath?: string;
+      semanticTopStateName?: string;
+      semanticTopState?: string;
+      semanticTopStateSelector?: string;
     };
     diagnostics?: Array<{ severity?: "info" | "warning" | "error" }>;
     sourceSearch?: {
@@ -4426,6 +4432,7 @@ function scoreAgentSemanticSummary(agent: {
   semanticButtonCount?: number;
   semanticFieldCount?: number;
   semanticChoiceCount?: number;
+  semanticStateCount?: number;
   semanticTopRole?: string;
   semanticTopRoleCount?: number;
   semanticTopHeading?: string;
@@ -4469,6 +4476,11 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopChoiceState?: string;
   semanticTopChoiceSelected?: boolean;
   semanticTopChoiceSelector?: string;
+  semanticTopStateRole?: string;
+  semanticTopStatePath?: string;
+  semanticTopStateName?: string;
+  semanticTopState?: string;
+  semanticTopStateSelector?: string;
 } | undefined): number {
   const summary = agent?.semanticSummary;
   if (!summary || typeof summary !== "object") return 0;
@@ -4482,6 +4494,7 @@ function scoreAgentSemanticSummary(agent: {
     buttonCount?: unknown;
     fieldCount?: unknown;
     choiceCount?: unknown;
+    stateCount?: unknown;
     roleCounts?: unknown;
     topRoles?: unknown;
     landmarks?: unknown;
@@ -4495,6 +4508,7 @@ function scoreAgentSemanticSummary(agent: {
     buttons?: unknown;
     fieldItems?: unknown;
     choiceItems?: unknown;
+    stateItems?: unknown;
   };
   let matched = 0;
   if (typeof item.nodeCount === "number" && item.nodeCount > 0) matched += 1;
@@ -4506,6 +4520,7 @@ function scoreAgentSemanticSummary(agent: {
   if (typeof item.buttonCount === "number" && item.buttonCount >= 0) matched += 1;
   if (typeof item.fieldCount === "number" && item.fieldCount >= 0) matched += 1;
   if (typeof item.choiceCount === "number" && item.choiceCount >= 0) matched += 1;
+  if (typeof item.stateCount === "number" && item.stateCount >= 0) matched += 1;
   if (item.roleCounts && typeof item.roleCounts === "object" && Object.keys(item.roleCounts).length > 0) matched += 1;
   if (Array.isArray(item.topRoles) && item.topRoles.length > 0 && item.topRoles.every((role) => {
     if (!role || typeof role !== "object") return false;
@@ -4523,7 +4538,8 @@ function scoreAgentSemanticSummary(agent: {
   if (Array.isArray(item.buttons)) matched += 1;
   if (Array.isArray(item.fieldItems)) matched += 1;
   if (Array.isArray(item.choiceItems)) matched += 1;
-  let required = 22;
+  if (Array.isArray(item.stateItems)) matched += 1;
+  let required = 24;
   if (typeof item.nodeCount === "number") {
     required += 1;
     if (agent?.semanticNodeCount === item.nodeCount) matched += 1;
@@ -4559,6 +4575,10 @@ function scoreAgentSemanticSummary(agent: {
   if (typeof item.choiceCount === "number") {
     required += 1;
     if (agent?.semanticChoiceCount === item.choiceCount) matched += 1;
+  }
+  if (typeof item.stateCount === "number") {
+    required += 1;
+    if (agent?.semanticStateCount === item.stateCount) matched += 1;
   }
   const topRole = Array.isArray(item.topRoles) ? item.topRoles[0] as { role?: unknown; count?: unknown } | undefined : undefined;
   if (topRole && typeof topRole.role === "string") {
@@ -4764,6 +4784,27 @@ function scoreAgentSemanticSummary(agent: {
   if (choice && typeof choice.selector === "string") {
     required += 1;
     if (agent?.semanticTopChoiceSelector === choice.selector) matched += 1;
+  }
+  const stateItem = Array.isArray(item.stateItems) ? item.stateItems[0] as { path?: unknown; role?: unknown; name?: unknown; state?: unknown; selector?: unknown } | undefined : undefined;
+  if (stateItem && typeof stateItem.role === "string") {
+    required += 1;
+    if (agent?.semanticTopStateRole === stateItem.role) matched += 1;
+  }
+  if (stateItem && typeof stateItem.path === "string") {
+    required += 1;
+    if (agent?.semanticTopStatePath === stateItem.path) matched += 1;
+  }
+  if (stateItem && typeof stateItem.name === "string") {
+    required += 1;
+    if (agent?.semanticTopStateName === stateItem.name) matched += 1;
+  }
+  if (stateItem && typeof stateItem.state === "string") {
+    required += 1;
+    if (agent?.semanticTopState === stateItem.state) matched += 1;
+  }
+  if (stateItem && typeof stateItem.selector === "string") {
+    required += 1;
+    if (agent?.semanticTopStateSelector === stateItem.selector) matched += 1;
   }
   return roundScore(matched / required);
 }
