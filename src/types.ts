@@ -505,6 +505,8 @@ export type AgentSummary = {
   verificationRequestedCount?: number;
   verificationFoundCount?: number;
   verificationMissingCount?: number;
+  verificationFoundQueries?: string[];
+  verificationMissingQueries?: string[];
   resultCount?: number;
   resultChoices?: AgentResultChoice[];
   evidenceCount?: number;
@@ -569,6 +571,7 @@ export type AgentContractFeature =
   | "answerEvidence"
   | "answerPlan.actionFields"
   | "answerPlan.confidence"
+  | "verification.queries"
   | "searchDecision"
   | "resultChoices"
   | "sourceChoices"

@@ -33,6 +33,7 @@ describe("compare-static fixture comparisons", () => {
     expect(report.gateSummary.averageAgentFormActionCountScore).toBe(1);
     expect(report.gateSummary.averageAgentFormActionChoiceScore).toBe(1);
     expect(report.gateSummary.averageAgentHiddenSignalCountScore).toBe(1);
+    expect(report.gateSummary.averageAgentVerificationQueryScore).toBe(1);
     expect(report.gateSummary.averageAgentHiddenSignalScore).toBe(1);
     expect(checkComparisonGateReport(report)).toEqual([]);
 

@@ -7724,6 +7724,8 @@ npx ax-grep https://example.test --agent</code></pre>
       canUseFetchedHtml: true,
       needsBrowserHtml: false,
       verificationStatus: "partial",
+      verificationFoundQueries: ["page checking summary"],
+      verificationMissingQueries: ["not present"],
       primaryAction: {
         action: "open-source-link",
         url: "https://source.example/report",
@@ -7756,6 +7758,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("agent\n  status: ready");
     expect(stdout.output).toContain("  canUseFetchedHtml: true");
     expect(stdout.output).toContain("verification\n  status: matched\n  found: 1/1");
+    expect(stdout.output).toContain("  verificationFoundQueries: source report");
     expect(stdout.output).toContain("  next: use-evidence - All requested text was found in the page summaries.");
     expect(stdout.output).toContain("finds\n  found: source report");
     expect(stdout.output).toContain("sourceLink: Source report <https://source.example/report>");

@@ -143,6 +143,9 @@ from hard errors before drilling into diagnostic messages.
 `averageAgentVerificationCountScore` tracks whether top-level verification
 requested/found/missing counts match the compact verification object, so agents
 can decide whether requested evidence is complete before reading details.
+`averageAgentVerificationQueryScore` tracks whether
+`agent.verificationFoundQueries` and `agent.verificationMissingQueries` preserve
+the exact matched and missing `--find` query lists.
 `averageAgentResponseMetadataScore` tracks whether `agent.responseStatus`,
 `agent.responseOk`, `agent.responseContentType`, and `agent.finalUrlChanged`
 mirror the compact envelope response fields, so agents can judge fetch health

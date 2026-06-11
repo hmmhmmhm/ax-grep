@@ -851,6 +851,8 @@ type AgentSummary = {
   verificationRequestedCount: number;
   verificationFoundCount: number;
   verificationMissingCount: number;
+  verificationFoundQueries: string[];
+  verificationMissingQueries: string[];
   resultCount: number;
   resultChoices: AgentResultChoice[];
   evidenceCount: number;
@@ -917,6 +919,7 @@ const agentContract: AgentContract = {
     "answerEvidence",
     "answerPlan.actionFields",
     "answerPlan.confidence",
+    "verification.queries",
     "searchDecision",
     "resultChoices",
     "sourceChoices",
@@ -2368,6 +2371,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  diagnosticWarnings: ${agent.diagnosticWarningCount}`,
     `  diagnosticInfo: ${agent.diagnosticInfoCount}`,
     `  verification: ${agent.verificationFoundCount}/${agent.verificationRequestedCount} found, ${agent.verificationMissingCount} missing`,
+    ...(agent.verificationFoundQueries.length > 0 ? [`  verificationFoundQueries: ${agent.verificationFoundQueries.join("; ")}`] : []),
+    ...(agent.verificationMissingQueries.length > 0 ? [`  verificationMissingQueries: ${agent.verificationMissingQueries.join("; ")}`] : []),
     `  readability: ${agent.readability} (${agent.readabilityScore})`,
   ];
   if (agent.executor.readFrom) lines.push(`  executorReadFrom: ${agent.executor.readFrom}`);
@@ -8812,6 +8817,8 @@ function summarizeAgent(
     verificationRequestedCount: verification.requestedCount,
     verificationFoundCount: verification.foundCount,
     verificationMissingCount: verification.missingCount,
+    verificationFoundQueries: verification.foundQueries,
+    verificationMissingQueries: verification.missingQueries,
     resultCount: hasUsableSearchResults ? results.length : 0,
     resultChoices,
     evidenceCount: pageCheck.contentEvidence.length,
@@ -11207,6 +11214,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     verificationRequestedCount: 0,
     verificationFoundCount: 0,
     verificationMissingCount: 0,
+    verificationFoundQueries: [],
+    verificationMissingQueries: [],
     resultCount: 0,
     resultChoices: [],
     evidenceCount: 0,
@@ -12446,6 +12455,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     verificationRequestedCount: agent.verificationRequestedCount,
     verificationFoundCount: agent.verificationFoundCount,
     verificationMissingCount: agent.verificationMissingCount,
+    ...(agent.verificationFoundQueries.length > 0 ? { verificationFoundQueries: agent.verificationFoundQueries } : {}),
+    ...(agent.verificationMissingQueries.length > 0 ? { verificationMissingQueries: agent.verificationMissingQueries } : {}),
     resultCount: agent.resultCount,
     ...(agent.resultChoices.length > 0 ? { resultChoices: agent.resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext, pageLinkContext)) } : {}),
     evidenceCount: agent.evidenceCount,
@@ -12512,6 +12523,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     readability: agent.readability,
     readabilityScore: agent.readabilityScore,
     verificationStatus: agent.verificationStatus,
+    ...(agent.verificationFoundQueries.length > 0 ? { verificationFoundQueries: agent.verificationFoundQueries } : {}),
+    ...(agent.verificationMissingQueries.length > 0 ? { verificationMissingQueries: agent.verificationMissingQueries } : {}),
     resultCount: agent.resultCount,
     evidenceCount: agent.evidenceCount,
     formCount: agent.formCount,
