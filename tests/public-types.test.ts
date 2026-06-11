@@ -616,6 +616,11 @@ describe("public agent types", () => {
       | "semanticTopStateControls"
       | "semanticTopStateLive"
       | "semanticTopStateModal"
+      | "semanticTopStateOrientation"
+      | "semanticTopStateValueMin"
+      | "semanticTopStateValueMax"
+      | "semanticTopStateValueNow"
+      | "semanticTopStateValueText"
       | "semanticTopStateSelector"
       | "semanticTopUnavailablePath"
       | "semanticTopUnavailableTag"
@@ -1223,6 +1228,11 @@ describe("public agent types", () => {
       semanticTopStateControls: "details-panel",
       semanticTopStateLive: "polite",
       semanticTopStateModal: true,
+      semanticTopStateOrientation: "horizontal",
+      semanticTopStateValueMin: 0,
+      semanticTopStateValueMax: 100,
+      semanticTopStateValueNow: 40,
+      semanticTopStateValueText: "40 percent",
       semanticTopStateSelector: "input[name=\"email\"]",
       semanticTopUnavailablePath: "agent.semanticSummary.unavailableItems[0]",
       semanticTopUnavailableTag: "iframe",

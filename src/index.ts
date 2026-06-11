@@ -371,6 +371,16 @@ const __AX_LITE__ = (() => {
     const live = element.getAttribute("aria-live");
     if (live) state.live = normalizeText(live, context.options.maxTextLength);
     if (element.getAttribute("aria-modal") === "true") state.modal = true;
+    const orientation = element.getAttribute("aria-orientation");
+    if (orientation) state.orientation = normalizeText(orientation, 40);
+    const valueMin = ariaNumber(element.getAttribute("aria-valuemin"));
+    if (typeof valueMin === "number") state.valueMin = valueMin;
+    const valueMax = ariaNumber(element.getAttribute("aria-valuemax"));
+    if (typeof valueMax === "number") state.valueMax = valueMax;
+    const valueNow = ariaNumber(element.getAttribute("aria-valuenow"));
+    if (typeof valueNow === "number") state.valueNow = valueNow;
+    const valueText = element.getAttribute("aria-valuetext");
+    if (valueText) state.valueText = normalizeText(valueText, context.options.maxTextLength);
     return state;
   }
   function isHidden(element) {
@@ -445,6 +455,11 @@ const __AX_LITE__ = (() => {
   function inputFallbackName(input) { const type = (input.getAttribute("type") || "").toLowerCase(); if (type === "submit") return "Submit"; if (type === "reset") return "Reset"; return ""; }
   function ariaBoolean(value) { if (value === "true") return true; if (value === "false") return false; return undefined; }
   function ariaBooleanOrMixed(value) { if (value === "mixed") return "mixed"; return ariaBoolean(value); }
+  function ariaNumber(value) {
+    if (value === null || value.trim() === "") return undefined;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
   function formatState(state) { if (!state) return ""; const entries = Object.entries(state).filter(([, value]) => value !== undefined); return entries.length > 0 ? " [" + entries.map(([key, value]) => key + "=" + String(value)).join(" ") + "]" : ""; }
   function nextId(context) { const id = "n" + context.nextId; context.nextId += 1; return id; }
   function round(value) { return Math.round(value * 100) / 100; }

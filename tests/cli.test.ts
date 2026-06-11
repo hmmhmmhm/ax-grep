@@ -542,15 +542,16 @@ describe("cli", () => {
         semanticTopInteractiveRoleDescription: "disclosure toggle",
         semanticTopInteractiveDescription: "Shows extra context",
         semanticTopInteractiveValue: "details off",
-        semanticTopInteractiveState: "pressed=false haspopup=dialog controls=details-panel",
+        semanticTopInteractiveState: "pressed=false haspopup=dialog controls=details-panel valueText=details off",
         semanticTopStatePressed: false,
         semanticTopStateHaspopup: "dialog",
         semanticTopStateControls: "details-panel",
+        semanticTopStateValueText: "details off",
         semanticTopFocusableRole: "button",
         semanticTopFocusablePath: "agent.semanticSummary.focusableItems[0]",
         semanticTopFocusableName: "Toggle details",
         semanticTopFocusableRoleDescription: "disclosure toggle",
-        semanticTopFocusableState: "pressed=false haspopup=dialog controls=details-panel",
+        semanticTopFocusableState: "pressed=false haspopup=dialog controls=details-panel valueText=details off",
         semanticTopFocusableSelector: "button",
         semanticTopLinkPath: "agent.semanticSummary.links[0]",
         semanticTopLinkUrl: "https://example.test/#content",
@@ -4104,6 +4105,51 @@ describe("cli", () => {
       semanticTopStatePath: "agent.semanticSummary.stateItems[0]",
       semanticTopState: "live=polite",
       semanticTopStateLive: "polite",
+      semanticTopStateSelector: "div",
+    });
+  });
+
+  it("exposes parsed range and orientation semantic top-state shortcuts for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/range", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <div role="slider" aria-label="Progress" aria-orientation="horizontal" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" aria-valuetext="40 percent"></div>
+          <p>Readable page content for range state routing.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent.semanticSummary.stateItems).toEqual([
+      expect.objectContaining({
+        path: "agent.semanticSummary.stateItems[0]",
+        role: "slider",
+        name: "Progress",
+        state: "orientation=horizontal valueMin=0 valueMax=100 valueNow=40 valueText=40 percent",
+        stateRaw: {
+          orientation: "horizontal",
+          valueMin: 0,
+          valueMax: 100,
+          valueNow: 40,
+          valueText: "40 percent",
+        },
+        selector: "div",
+      }),
+    ]);
+    expect(envelope.agent).toMatchObject({
+      semanticTopStateRole: "slider",
+      semanticTopStatePath: "agent.semanticSummary.stateItems[0]",
+      semanticTopStateName: "Progress",
+      semanticTopState: "orientation=horizontal valueMin=0 valueMax=100 valueNow=40 valueText=40 percent",
+      semanticTopStateOrientation: "horizontal",
+      semanticTopStateValueMin: 0,
+      semanticTopStateValueMax: 100,
+      semanticTopStateValueNow: 40,
+      semanticTopStateValueText: "40 percent",
       semanticTopStateSelector: "div",
     });
   });

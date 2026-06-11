@@ -414,6 +414,18 @@ function getState(element: Element): SemanticNodeState {
 
   if (element.getAttribute("aria-modal") === "true") state.modal = true;
 
+  const orientation = element.getAttribute("aria-orientation");
+  if (orientation) state.orientation = normalizeText(orientation, 40);
+
+  const valueMin = ariaNumber(element.getAttribute("aria-valuemin"));
+  if (typeof valueMin === "number") state.valueMin = valueMin;
+  const valueMax = ariaNumber(element.getAttribute("aria-valuemax"));
+  if (typeof valueMax === "number") state.valueMax = valueMax;
+  const valueNow = ariaNumber(element.getAttribute("aria-valuenow"));
+  if (typeof valueNow === "number") state.valueNow = valueNow;
+  const valueText = element.getAttribute("aria-valuetext");
+  if (valueText) state.valueText = normalizeText(valueText, 120);
+
   return state;
 }
 
@@ -699,6 +711,12 @@ function ariaBoolean(value: string | null): boolean | undefined {
 function ariaBooleanOrMixed(value: string | null): boolean | "mixed" | undefined {
   if (value === "mixed") return "mixed";
   return ariaBoolean(value);
+}
+
+function ariaNumber(value: string | null): number | undefined {
+  if (value === null || value.trim() === "") return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
 }
 
 function formatState(state: SemanticNodeState | undefined): string {

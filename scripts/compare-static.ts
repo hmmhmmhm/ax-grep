@@ -1762,6 +1762,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopStateControls?: string;
       semanticTopStateLive?: string;
       semanticTopStateModal?: boolean;
+      semanticTopStateOrientation?: string;
+      semanticTopStateValueMin?: number;
+      semanticTopStateValueMax?: number;
+      semanticTopStateValueNow?: number;
+      semanticTopStateValueText?: string;
       semanticTopStateSelector?: string;
       semanticTopUnavailablePath?: string;
       semanticTopUnavailableTag?: string;
@@ -4929,6 +4934,11 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopStateControls?: string;
   semanticTopStateLive?: string;
   semanticTopStateModal?: boolean;
+  semanticTopStateOrientation?: string;
+  semanticTopStateValueMin?: number;
+  semanticTopStateValueMax?: number;
+  semanticTopStateValueNow?: number;
+  semanticTopStateValueText?: string;
   semanticTopStateSelector?: string;
   semanticTopUnavailablePath?: string;
   semanticTopUnavailableTag?: string;
@@ -5772,6 +5782,11 @@ function scoreAgentSemanticSummary(agent: {
       [agent?.semanticTopStateControls, stateItem.stateRaw.controls],
       [agent?.semanticTopStateLive, stateItem.stateRaw.live],
       [agent?.semanticTopStateModal, stateItem.stateRaw.modal],
+      [agent?.semanticTopStateOrientation, stateItem.stateRaw.orientation],
+      [agent?.semanticTopStateValueMin, stateItem.stateRaw.valueMin],
+      [agent?.semanticTopStateValueMax, stateItem.stateRaw.valueMax],
+      [agent?.semanticTopStateValueNow, stateItem.stateRaw.valueNow],
+      [agent?.semanticTopStateValueText, stateItem.stateRaw.valueText],
     ];
     for (const [actual, expected] of checks) {
       if (typeof expected === "undefined") continue;

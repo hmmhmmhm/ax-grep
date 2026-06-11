@@ -49,6 +49,11 @@ export type SemanticNodeState = {
   controls?: string;
   live?: string;
   modal?: boolean;
+  orientation?: string;
+  valueMin?: number;
+  valueMax?: number;
+  valueNow?: number;
+  valueText?: string;
 };
 
 export type SemanticNodeBounds = {
@@ -737,6 +742,11 @@ export type AgentSummary = {
   semanticTopStateControls?: string;
   semanticTopStateLive?: string;
   semanticTopStateModal?: boolean;
+  semanticTopStateOrientation?: string;
+  semanticTopStateValueMin?: number;
+  semanticTopStateValueMax?: number;
+  semanticTopStateValueNow?: number;
+  semanticTopStateValueText?: string;
   semanticTopStateSelector?: string;
   semanticTopUnavailablePath?: string;
   semanticTopUnavailableTag?: string;

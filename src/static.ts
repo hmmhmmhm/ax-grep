@@ -652,7 +652,23 @@ function getState(element: Element): SemanticNodeState {
   const live = attr(element, "aria-live");
   if (live) state.live = normalizeText(live, 120);
   if (attr(element, "aria-modal") === "true") state.modal = true;
+  const orientation = attr(element, "aria-orientation");
+  if (orientation) state.orientation = normalizeText(orientation, 40);
+  const valueMin = ariaNumber(attr(element, "aria-valuemin"));
+  if (typeof valueMin === "number") state.valueMin = valueMin;
+  const valueMax = ariaNumber(attr(element, "aria-valuemax"));
+  if (typeof valueMax === "number") state.valueMax = valueMax;
+  const valueNow = ariaNumber(attr(element, "aria-valuenow"));
+  if (typeof valueNow === "number") state.valueNow = valueNow;
+  const valueText = attr(element, "aria-valuetext");
+  if (valueText) state.valueText = normalizeText(valueText, 120);
   return state;
+}
+
+function ariaNumber(value: string | null): number | undefined {
+  if (value === null || value.trim() === "") return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
 }
 
 function isInteractive(element: Element, role: string | null, focusable: boolean): boolean {
