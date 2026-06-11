@@ -257,6 +257,18 @@ describe("cli", () => {
               <img src="/hero.png" alt="Hero chart">
               <p class="byline">By <a href="/authors/reporter">Reporter Profile</a></p>
               <p>Example content for agent routing.</p>
+              <table aria-label="Metrics">
+                <thead>
+                  <tr><th>Metric</th><th>Value</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Latency</td><td>120 ms</td></tr>
+                </tbody>
+              </table>
+              <ul aria-label="Highlights">
+                <li>Fast setup</li>
+                <li>Clear output</li>
+              </ul>
               <a href="https://target.example/">Target</a>
             </main>
           </body>
@@ -301,6 +313,8 @@ describe("cli", () => {
           linkCount: 3,
           buttonCount: 1,
           imageCount: 1,
+          tableCount: 1,
+          listCount: 1,
           descriptionCount: 1,
           valueCount: 1,
           relationCount: 1,
@@ -396,6 +410,28 @@ describe("cli", () => {
               selector: "img",
             }),
           ],
+          tableItems: [
+            expect.objectContaining({
+              path: "agent.semanticSummary.tableItems[0]",
+              role: "table",
+              name: "Metrics",
+              rowCount: 2,
+              cellCount: 4,
+              headers: ["Metric", "Value"],
+              sampleCells: ["Latency", "120 ms"],
+              selector: "table",
+            }),
+          ],
+          listItems: [
+            expect.objectContaining({
+              path: "agent.semanticSummary.listItems[0]",
+              role: "list",
+              name: "Highlights",
+              itemCount: 2,
+              sampleItems: ["Fast setup", "Clear output"],
+              selector: "ul",
+            }),
+          ],
           descriptionItems: [
             expect.objectContaining({
               path: "agent.semanticSummary.descriptionItems[0]",
@@ -437,6 +473,8 @@ describe("cli", () => {
         semanticLinkCount: 3,
         semanticButtonCount: 1,
         semanticImageCount: 1,
+        semanticTableCount: 1,
+        semanticListCount: 1,
         semanticDescriptionCount: 1,
         semanticValueCount: 1,
         semanticRelationCount: 1,
@@ -489,6 +527,20 @@ describe("cli", () => {
         semanticTopImageName: "Hero chart",
         semanticTopImageUrl: "https://example.test/hero.png",
         semanticTopImageSelector: "img",
+        semanticTopTableRole: "table",
+        semanticTopTablePath: "agent.semanticSummary.tableItems[0]",
+        semanticTopTableName: "Metrics",
+        semanticTopTableRowCount: 2,
+        semanticTopTableCellCount: 4,
+        semanticTopTableHeaders: ["Metric", "Value"],
+        semanticTopTableSampleCells: ["Latency", "120 ms"],
+        semanticTopTableSelector: "table",
+        semanticTopListRole: "list",
+        semanticTopListPath: "agent.semanticSummary.listItems[0]",
+        semanticTopListName: "Highlights",
+        semanticTopListItemCount: 2,
+        semanticTopListItems: ["Fast setup", "Clear output"],
+        semanticTopListSelector: "ul",
         semanticTopDescriptionRole: "button",
         semanticTopDescriptionPath: "agent.semanticSummary.descriptionItems[0]",
         semanticTopDescriptionName: "Toggle details",
@@ -687,13 +739,13 @@ describe("cli", () => {
         ]),
         pageDecision: {
           decision: "read-content",
-          confidence: "medium",
+          confidence: "high",
           readFrom: "pageCheck.contentEvidence",
           evidenceCount: 1,
           sourceLinkCount: 1,
         },
         pageDecisionName: "read-content",
-        pageDecisionConfidence: "medium",
+        pageDecisionConfidence: "high",
         pageDecisionReadFrom: "pageCheck.contentEvidence",
         signals: expect.arrayContaining([
           expect.objectContaining({ kind: "content", severity: "info" }),
@@ -815,7 +867,7 @@ describe("cli", () => {
       primary: true,
     }));
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
-      path: "pageCheck.media",
+      path: "pageCheck.dataTables",
       count: 1,
     }));
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({

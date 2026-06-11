@@ -642,11 +642,14 @@ export type AgentSummary = {
   semanticTopTableName?: string;
   semanticTopTableRowCount?: number;
   semanticTopTableCellCount?: number;
+  semanticTopTableHeaders?: string[];
+  semanticTopTableSampleCells?: string[];
   semanticTopTableSelector?: string;
   semanticTopListRole?: string;
   semanticTopListPath?: string;
   semanticTopListName?: string;
   semanticTopListItemCount?: number;
+  semanticTopListItems?: string[];
   semanticTopListSelector?: string;
   semanticTopFieldRole?: string;
   semanticTopFieldPath?: string;

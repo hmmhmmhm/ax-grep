@@ -1667,11 +1667,14 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopTableName?: string;
       semanticTopTableRowCount?: number;
       semanticTopTableCellCount?: number;
+      semanticTopTableHeaders?: string[];
+      semanticTopTableSampleCells?: string[];
       semanticTopTableSelector?: string;
       semanticTopListRole?: string;
       semanticTopListPath?: string;
       semanticTopListName?: string;
       semanticTopListItemCount?: number;
+      semanticTopListItems?: string[];
       semanticTopListSelector?: string;
       semanticTopFieldRole?: string;
       semanticTopFieldPath?: string;
@@ -4802,11 +4805,14 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopTableName?: string;
   semanticTopTableRowCount?: number;
   semanticTopTableCellCount?: number;
+  semanticTopTableHeaders?: string[];
+  semanticTopTableSampleCells?: string[];
   semanticTopTableSelector?: string;
   semanticTopListRole?: string;
   semanticTopListPath?: string;
   semanticTopListName?: string;
   semanticTopListItemCount?: number;
+  semanticTopListItems?: string[];
   semanticTopListSelector?: string;
   semanticTopFieldRole?: string;
   semanticTopFieldPath?: string;
@@ -5329,7 +5335,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopImageSelector === image.selector) matched += 1;
   }
-  const table = Array.isArray(item.tableItems) ? item.tableItems[0] as { path?: unknown; role?: unknown; name?: unknown; rowCount?: unknown; cellCount?: unknown; selector?: unknown } | undefined : undefined;
+  const table = Array.isArray(item.tableItems) ? item.tableItems[0] as { path?: unknown; role?: unknown; name?: unknown; rowCount?: unknown; cellCount?: unknown; headers?: unknown; sampleCells?: unknown; selector?: unknown } | undefined : undefined;
   if (table && typeof table.role === "string") {
     required += 1;
     if (agent?.semanticTopTableRole === table.role) matched += 1;
@@ -5350,11 +5356,19 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopTableCellCount === table.cellCount) matched += 1;
   }
+  if (table && Array.isArray(table.headers)) {
+    required += 1;
+    if (JSON.stringify(agent?.semanticTopTableHeaders) === JSON.stringify(table.headers)) matched += 1;
+  }
+  if (table && Array.isArray(table.sampleCells)) {
+    required += 1;
+    if (JSON.stringify(agent?.semanticTopTableSampleCells) === JSON.stringify(table.sampleCells)) matched += 1;
+  }
   if (table && typeof table.selector === "string") {
     required += 1;
     if (agent?.semanticTopTableSelector === table.selector) matched += 1;
   }
-  const list = Array.isArray(item.listItems) ? item.listItems[0] as { path?: unknown; role?: unknown; name?: unknown; itemCount?: unknown; selector?: unknown } | undefined : undefined;
+  const list = Array.isArray(item.listItems) ? item.listItems[0] as { path?: unknown; role?: unknown; name?: unknown; itemCount?: unknown; sampleItems?: unknown; selector?: unknown } | undefined : undefined;
   if (list && typeof list.role === "string") {
     required += 1;
     if (agent?.semanticTopListRole === list.role) matched += 1;
@@ -5370,6 +5384,10 @@ function scoreAgentSemanticSummary(agent: {
   if (list && typeof list.itemCount === "number") {
     required += 1;
     if (agent?.semanticTopListItemCount === list.itemCount) matched += 1;
+  }
+  if (list && Array.isArray(list.sampleItems)) {
+    required += 1;
+    if (JSON.stringify(agent?.semanticTopListItems) === JSON.stringify(list.sampleItems)) matched += 1;
   }
   if (list && typeof list.selector === "string") {
     required += 1;

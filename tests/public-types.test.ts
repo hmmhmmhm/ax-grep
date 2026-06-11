@@ -521,11 +521,14 @@ describe("public agent types", () => {
       | "semanticTopTableName"
       | "semanticTopTableRowCount"
       | "semanticTopTableCellCount"
+      | "semanticTopTableHeaders"
+      | "semanticTopTableSampleCells"
       | "semanticTopTableSelector"
       | "semanticTopListRole"
       | "semanticTopListPath"
       | "semanticTopListName"
       | "semanticTopListItemCount"
+      | "semanticTopListItems"
       | "semanticTopListSelector"
       | "semanticTopFieldRole"
       | "semanticTopFieldPath"
@@ -1096,11 +1099,14 @@ describe("public agent types", () => {
       semanticTopTableName: "Pricing",
       semanticTopTableRowCount: 3,
       semanticTopTableCellCount: 6,
+      semanticTopTableHeaders: ["Plan", "Price"],
+      semanticTopTableSampleCells: ["Pro", "$20"],
       semanticTopTableSelector: "table:nth-of-type(1)",
       semanticTopListRole: "list",
       semanticTopListPath: "agent.semanticSummary.listItems[0]",
       semanticTopListName: "Highlights",
       semanticTopListItemCount: 2,
+      semanticTopListItems: ["Fast setup", "Clear output"],
       semanticTopListSelector: "ul:nth-of-type(1)",
       semanticTopFieldRole: "textbox",
       semanticTopFieldPath: "agent.semanticSummary.fieldItems[0]",

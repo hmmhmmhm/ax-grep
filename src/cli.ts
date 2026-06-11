@@ -183,8 +183,8 @@ type AgentSemanticSummary = {
   inPageLinks: Array<{ path: string; kind: "skip" | "anchor"; name: string; url: string; targetId?: string; selector?: string }>;
   buttons: Array<{ path: string; name: string; description?: string; selector?: string }>;
   imageItems: Array<{ path: string; name?: string; url?: string; selector?: string }>;
-  tableItems: Array<{ path: string; role: string; name?: string; rowCount: number; cellCount: number; selector?: string }>;
-  listItems: Array<{ path: string; role: string; name?: string; itemCount: number; selector?: string }>;
+  tableItems: Array<{ path: string; role: string; name?: string; rowCount: number; cellCount: number; headers?: string[]; sampleCells?: string[]; selector?: string }>;
+  listItems: Array<{ path: string; role: string; name?: string; itemCount: number; sampleItems?: string[]; selector?: string }>;
   fieldItems: Array<{ path: string; role: string; name?: string; description?: string; value?: string; placeholder?: string; autocomplete?: string; inputMode?: string; labelledBy?: string; describedBy?: string; selector?: string; state?: SemanticNodeState }>;
   descriptionItems: Array<{ path: string; role: string; name?: string; description: string; selector?: string }>;
   valueItems: Array<{ path: string; role: string; name?: string; value: string; selector?: string }>;
@@ -1015,11 +1015,14 @@ type AgentSummary = {
   semanticTopTableName?: string;
   semanticTopTableRowCount?: number;
   semanticTopTableCellCount?: number;
+  semanticTopTableHeaders?: string[];
+  semanticTopTableSampleCells?: string[];
   semanticTopTableSelector?: string;
   semanticTopListRole?: string;
   semanticTopListPath?: string;
   semanticTopListName?: string;
   semanticTopListItemCount?: number;
+  semanticTopListItems?: string[];
   semanticTopListSelector?: string;
   semanticTopFieldRole?: string;
   semanticTopFieldPath?: string;
@@ -3343,8 +3346,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.semanticTopInPageLinkName) lines.push(`  semanticTopInPageLink: ${agent.semanticTopInPageLinkPath ?? ""} ${agent.semanticTopInPageLinkKind ?? "anchor"}:${agent.semanticTopInPageLinkName}${agent.semanticTopInPageLinkTargetId ? ` target=${agent.semanticTopInPageLinkTargetId}` : ""}${agent.semanticTopInPageLinkUrl ? ` <${agent.semanticTopInPageLinkUrl}>` : ""}${agent.semanticTopInPageLinkSelector ? ` selector=${agent.semanticTopInPageLinkSelector}` : ""}`);
   if (agent.semanticTopButtonName) lines.push(`  semanticTopButton: ${agent.semanticTopButtonPath ?? ""} ${agent.semanticTopButtonName}${agent.semanticTopButtonDescription ? ` description=${agent.semanticTopButtonDescription}` : ""}${agent.semanticTopButtonSelector ? ` selector=${agent.semanticTopButtonSelector}` : ""}`);
   if (agent.semanticTopImagePath) lines.push(`  semanticTopImage: ${agent.semanticTopImagePath} ${agent.semanticTopImageName ?? ""}${agent.semanticTopImageUrl ? ` <${agent.semanticTopImageUrl}>` : ""}${agent.semanticTopImageSelector ? ` selector=${agent.semanticTopImageSelector}` : ""}`);
-  if (agent.semanticTopTableRole) lines.push(`  semanticTopTable: ${agent.semanticTopTablePath ?? ""} ${agent.semanticTopTableRole}${agent.semanticTopTableName ? `:${agent.semanticTopTableName}` : ""} rows=${agent.semanticTopTableRowCount ?? 0} cells=${agent.semanticTopTableCellCount ?? 0}${agent.semanticTopTableSelector ? ` selector=${agent.semanticTopTableSelector}` : ""}`);
-  if (agent.semanticTopListRole) lines.push(`  semanticTopList: ${agent.semanticTopListPath ?? ""} ${agent.semanticTopListRole}${agent.semanticTopListName ? `:${agent.semanticTopListName}` : ""} items=${agent.semanticTopListItemCount ?? 0}${agent.semanticTopListSelector ? ` selector=${agent.semanticTopListSelector}` : ""}`);
+  if (agent.semanticTopTableRole) lines.push(`  semanticTopTable: ${agent.semanticTopTablePath ?? ""} ${agent.semanticTopTableRole}${agent.semanticTopTableName ? `:${agent.semanticTopTableName}` : ""} rows=${agent.semanticTopTableRowCount ?? 0} cells=${agent.semanticTopTableCellCount ?? 0}${agent.semanticTopTableHeaders?.length ? ` headers=${agent.semanticTopTableHeaders.join(", ")}` : ""}${agent.semanticTopTableSampleCells?.length ? ` samples=${agent.semanticTopTableSampleCells.join(", ")}` : ""}${agent.semanticTopTableSelector ? ` selector=${agent.semanticTopTableSelector}` : ""}`);
+  if (agent.semanticTopListRole) lines.push(`  semanticTopList: ${agent.semanticTopListPath ?? ""} ${agent.semanticTopListRole}${agent.semanticTopListName ? `:${agent.semanticTopListName}` : ""} items=${agent.semanticTopListItemCount ?? 0}${agent.semanticTopListItems?.length ? ` samples=${agent.semanticTopListItems.join(", ")}` : ""}${agent.semanticTopListSelector ? ` selector=${agent.semanticTopListSelector}` : ""}`);
   if (agent.semanticTopFieldRole) lines.push(`  semanticTopField: ${agent.semanticTopFieldPath ?? ""} ${agent.semanticTopFieldRole}${agent.semanticTopFieldName ? `:${agent.semanticTopFieldName}` : ""}${agent.semanticTopFieldDescription ? ` description=${agent.semanticTopFieldDescription}` : ""}${agent.semanticTopFieldValue ? ` value=${agent.semanticTopFieldValue}` : ""}${agent.semanticTopFieldPlaceholder ? ` placeholder=${agent.semanticTopFieldPlaceholder}` : ""}${agent.semanticTopFieldAutocomplete ? ` autocomplete=${agent.semanticTopFieldAutocomplete}` : ""}${agent.semanticTopFieldInputMode ? ` inputMode=${agent.semanticTopFieldInputMode}` : ""}${agent.semanticTopFieldLabelledBy ? ` labelledBy=${agent.semanticTopFieldLabelledBy}` : ""}${agent.semanticTopFieldDescribedBy ? ` describedBy=${agent.semanticTopFieldDescribedBy}` : ""}${agent.semanticTopFieldState ? ` state=${agent.semanticTopFieldState}` : ""}${agent.semanticTopFieldSelector ? ` selector=${agent.semanticTopFieldSelector}` : ""}`);
   if (agent.semanticTopDescriptionText) lines.push(`  semanticTopDescription: ${agent.semanticTopDescriptionPath ?? ""} ${agent.semanticTopDescriptionRole ?? ""}${agent.semanticTopDescriptionName ? `:${agent.semanticTopDescriptionName}` : ""} description=${agent.semanticTopDescriptionText}${agent.semanticTopDescriptionSelector ? ` selector=${agent.semanticTopDescriptionSelector}` : ""}`);
   if (agent.semanticTopValue) lines.push(`  semanticTopValue: ${agent.semanticTopValuePath ?? ""} ${agent.semanticTopValueRole ?? ""}${agent.semanticTopValueName ? `:${agent.semanticTopValueName}` : ""} value=${agent.semanticTopValue}${agent.semanticTopValueSelector ? ` selector=${agent.semanticTopValueSelector}` : ""}`);
@@ -9815,12 +9818,16 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
     if (node.role && tableRoles.has(node.role)) {
       tableCount += 1;
       if (tableItems.length < 8) {
+        const headers = semanticDescendantTextsByRole(node, new Set(["columnheader", "rowheader"]), 8);
+        const sampleCells = semanticDescendantTextsByRole(node, new Set(["cell", "gridcell"]), 8);
         tableItems.push({
           path: `agent.semanticSummary.tableItems[${tableItems.length}]`,
           role: node.role,
           ...(node.name ? { name: node.name } : {}),
           rowCount: countSemanticDescendantsByRole(node, new Set(["row"])),
           cellCount: countSemanticDescendantsByRole(node, new Set(["cell", "columnheader", "gridcell", "rowheader"])),
+          ...(headers.length > 0 ? { headers } : {}),
+          ...(sampleCells.length > 0 ? { sampleCells } : {}),
           ...(node.selector ? { selector: node.selector } : {}),
         });
       }
@@ -9828,11 +9835,13 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
     if (node.role && listRoles.has(node.role)) {
       listCount += 1;
       if (listItems.length < 8) {
+        const sampleItems = semanticDescendantTextsByRole(node, new Set(["listitem", "menuitem", "menuitemcheckbox", "menuitemradio", "option", "tab", "treeitem"]), 8);
         listItems.push({
           path: `agent.semanticSummary.listItems[${listItems.length}]`,
           role: node.role,
           ...(node.name ? { name: node.name } : {}),
           itemCount: countSemanticDescendantsByRole(node, new Set(["listitem", "menuitem", "menuitemcheckbox", "menuitemradio", "option", "tab", "treeitem"])),
+          ...(sampleItems.length > 0 ? { sampleItems } : {}),
           ...(node.selector ? { selector: node.selector } : {}),
         });
       }
@@ -10100,6 +10109,24 @@ function countSemanticDescendantsByRole(node: SemanticNode, roles: Set<string>):
   return count;
 }
 
+function semanticDescendantTextsByRole(node: SemanticNode, roles: Set<string>, limit: number): string[] {
+  const values: string[] = [];
+  const seen = new Set<string>();
+  function visit(current: SemanticNode): void {
+    if (values.length >= limit) return;
+    if (current !== node && current.role && roles.has(current.role)) {
+      const value = cleanContentText(current.name || current.text || "").slice(0, 160);
+      if (value && !seen.has(value)) {
+        seen.add(value);
+        values.push(value);
+      }
+    }
+    for (const child of current.children) visit(child);
+  }
+  visit(node);
+  return values;
+}
+
 function summarizeAgent(
   analysis: AnalysisSummary,
   pageCheck: PageCheckSummary,
@@ -10356,11 +10383,14 @@ function summarizeAgent(
     ...(topSemanticTable?.name ? { semanticTopTableName: topSemanticTable.name } : {}),
     ...(topSemanticTable ? { semanticTopTableRowCount: topSemanticTable.rowCount } : {}),
     ...(topSemanticTable ? { semanticTopTableCellCount: topSemanticTable.cellCount } : {}),
+    ...(topSemanticTable?.headers?.length ? { semanticTopTableHeaders: topSemanticTable.headers } : {}),
+    ...(topSemanticTable?.sampleCells?.length ? { semanticTopTableSampleCells: topSemanticTable.sampleCells } : {}),
     ...(topSemanticTable?.selector ? { semanticTopTableSelector: topSemanticTable.selector } : {}),
     ...(topSemanticList ? { semanticTopListRole: topSemanticList.role } : {}),
     ...(topSemanticList ? { semanticTopListPath: topSemanticList.path } : {}),
     ...(topSemanticList?.name ? { semanticTopListName: topSemanticList.name } : {}),
     ...(topSemanticList ? { semanticTopListItemCount: topSemanticList.itemCount } : {}),
+    ...(topSemanticList?.sampleItems?.length ? { semanticTopListItems: topSemanticList.sampleItems } : {}),
     ...(topSemanticList?.selector ? { semanticTopListSelector: topSemanticList.selector } : {}),
     ...(topSemanticField ? { semanticTopFieldRole: topSemanticField.role } : {}),
     ...(topSemanticField ? { semanticTopFieldPath: topSemanticField.path } : {}),
@@ -14848,11 +14878,14 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.semanticTopTableName ? { semanticTopTableName: agent.semanticTopTableName } : {}),
     ...(typeof agent.semanticTopTableRowCount === "number" ? { semanticTopTableRowCount: agent.semanticTopTableRowCount } : {}),
     ...(typeof agent.semanticTopTableCellCount === "number" ? { semanticTopTableCellCount: agent.semanticTopTableCellCount } : {}),
+    ...(agent.semanticTopTableHeaders?.length ? { semanticTopTableHeaders: agent.semanticTopTableHeaders } : {}),
+    ...(agent.semanticTopTableSampleCells?.length ? { semanticTopTableSampleCells: agent.semanticTopTableSampleCells } : {}),
     ...(agent.semanticTopTableSelector ? { semanticTopTableSelector: agent.semanticTopTableSelector } : {}),
     ...(agent.semanticTopListRole ? { semanticTopListRole: agent.semanticTopListRole } : {}),
     ...(agent.semanticTopListPath ? { semanticTopListPath: agent.semanticTopListPath } : {}),
     ...(agent.semanticTopListName ? { semanticTopListName: agent.semanticTopListName } : {}),
     ...(typeof agent.semanticTopListItemCount === "number" ? { semanticTopListItemCount: agent.semanticTopListItemCount } : {}),
+    ...(agent.semanticTopListItems?.length ? { semanticTopListItems: agent.semanticTopListItems } : {}),
     ...(agent.semanticTopListSelector ? { semanticTopListSelector: agent.semanticTopListSelector } : {}),
     ...(agent.semanticTopFieldRole ? { semanticTopFieldRole: agent.semanticTopFieldRole } : {}),
     ...(agent.semanticTopFieldPath ? { semanticTopFieldPath: agent.semanticTopFieldPath } : {}),
@@ -15455,9 +15488,12 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.semanticTopTablePath ? { semanticTopTablePath: agent.semanticTopTablePath } : {}),
     ...(typeof agent.semanticTopTableRowCount === "number" ? { semanticTopTableRowCount: agent.semanticTopTableRowCount } : {}),
     ...(typeof agent.semanticTopTableCellCount === "number" ? { semanticTopTableCellCount: agent.semanticTopTableCellCount } : {}),
+    ...(agent.semanticTopTableHeaders?.length ? { semanticTopTableHeaders: agent.semanticTopTableHeaders } : {}),
+    ...(agent.semanticTopTableSampleCells?.length ? { semanticTopTableSampleCells: agent.semanticTopTableSampleCells } : {}),
     ...(agent.semanticTopListRole ? { semanticTopListRole: agent.semanticTopListRole } : {}),
     ...(agent.semanticTopListPath ? { semanticTopListPath: agent.semanticTopListPath } : {}),
     ...(typeof agent.semanticTopListItemCount === "number" ? { semanticTopListItemCount: agent.semanticTopListItemCount } : {}),
+    ...(agent.semanticTopListItems?.length ? { semanticTopListItems: agent.semanticTopListItems } : {}),
     ...(agent.semanticTopFieldRole ? { semanticTopFieldRole: agent.semanticTopFieldRole } : {}),
     ...(agent.semanticTopFieldPath ? { semanticTopFieldPath: agent.semanticTopFieldPath } : {}),
     ...(agent.semanticTopFieldName ? { semanticTopFieldName: agent.semanticTopFieldName } : {}),
