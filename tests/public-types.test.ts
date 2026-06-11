@@ -223,6 +223,10 @@ describe("public agent types", () => {
       | "executorCommandArgs"
       | "executorReadFrom"
       | "executorUrl"
+      | "executorTargetUrl"
+      | "executorTargetPath"
+      | "executorTargetSelector"
+      | "executorTargetText"
       | "executorExpectedOutcome"
       | "handoffDecision"
       | "handoffMode"
@@ -238,6 +242,10 @@ describe("public agent types", () => {
       | "handoffCommandArgs"
       | "handoffReadFrom"
       | "handoffUrl"
+      | "handoffTargetUrl"
+      | "handoffTargetPath"
+      | "handoffTargetSelector"
+      | "handoffTargetText"
       | "handoffExpectedOutcome"
       | "primaryActionName"
       | "primaryReason"
@@ -321,6 +329,10 @@ describe("public agent types", () => {
       executorCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       executorReadFrom: "pageCheck.contentEvidence",
       executorUrl: "https://example.test",
+      executorTargetUrl: "https://example.test",
+      executorTargetPath: "pageCheck.links[0]",
+      executorTargetSelector: "a.primary",
+      executorTargetText: "Read more",
       executorExpectedOutcome: "read-evidence",
       handoffDecision: "return",
       handoffMode: "read",
@@ -336,6 +348,10 @@ describe("public agent types", () => {
       handoffCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       handoffReadFrom: "pageCheck.contentEvidence",
       handoffUrl: "https://example.test",
+      handoffTargetUrl: "https://example.test",
+      handoffTargetPath: "pageCheck.links[0]",
+      handoffTargetSelector: "a.primary",
+      handoffTargetText: "Read more",
       handoffExpectedOutcome: "read-evidence",
       primaryActionName: "read-content",
       primaryReason: "Read current evidence.",
@@ -368,8 +384,10 @@ describe("public agent types", () => {
     expect(summary.answerPlanStatus).toBe("ready");
     expect(summary.executorOperation).toBe("return");
     expect(summary.executorTerminal).toBe(true);
+    expect(summary.executorTargetSelector).toBe("a.primary");
     expect(summary.handoffAnswerStatus).toBe("ready");
     expect(summary.handoffShouldContinue).toBe(false);
+    expect(summary.handoffTargetPath).toBe("pageCheck.links[0]");
     expect(summary.primaryActionName).toBe("read-content");
     expect(summary.primarySourceLinkRef).toBe("pageCheck.sourceLinks[0]");
     expect(summary.recommendedCommandArgs?.[0]).toBe("ax-grep");

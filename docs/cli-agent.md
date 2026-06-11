@@ -39,11 +39,11 @@ Read these first:
 - `agent.executor`: one-field executor step with decision, command/read/browser fields.
 - `agent.executorActionName`, `agent.executorOperation`, and related `executor*`
   shortcuts: top-level mirror of the next executable step, loop decision, and
-  terminal/continue flags.
+  target, terminal/continue flags.
 - `agent.handoff`: the shortest executor handoff for the next step.
 - `agent.handoffActionName`, `agent.handoffOperation`, and related `handoff*`
   shortcuts: top-level mirror of the brief handoff contract, loop decision, and
-  terminal/continue flags.
+  target, terminal/continue flags.
 - `agent.next`: canonical loop payload with command, read target, or browser step.
 - `agent.answerPlan`, `agent.citations`, and `agent.answerEvidence`: final answer evidence.
 - `agent.answerPlanStatus`, `agent.answerPlanConfidence`, and related `answer*`

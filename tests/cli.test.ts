@@ -794,6 +794,10 @@ describe("cli", () => {
       if (executor.commandArgs) expect(envelope.agent.executorCommandArgs).toEqual(executor.commandArgs);
       if (executor.readFrom) expect(envelope.agent.executorReadFrom).toBe(executor.readFrom);
       if (executor.url) expect(envelope.agent.executorUrl).toBe(executor.url);
+      if (executor.target?.url) expect(envelope.agent.executorTargetUrl).toBe(executor.target.url);
+      if (executor.target?.path) expect(envelope.agent.executorTargetPath).toBe(executor.target.path);
+      if (executor.target?.selector) expect(envelope.agent.executorTargetSelector).toBe(executor.target.selector);
+      if (executor.target?.text) expect(envelope.agent.executorTargetText).toBe(executor.target.text);
       expect(envelope.agent.handoffDecision).toBe(handoff.decision);
       expect(envelope.agent.handoffMode).toBe(handoff.mode);
       expect(envelope.agent.handoffActionName).toBe(handoff.action);
@@ -809,6 +813,10 @@ describe("cli", () => {
       if (handoff.commandArgs) expect(envelope.agent.handoffCommandArgs).toEqual(handoff.commandArgs);
       if (handoff.readFrom) expect(envelope.agent.handoffReadFrom).toBe(handoff.readFrom);
       if (handoff.url) expect(envelope.agent.handoffUrl).toBe(handoff.url);
+      if (handoff.target?.url) expect(envelope.agent.handoffTargetUrl).toBe(handoff.target.url);
+      if (handoff.target?.path) expect(envelope.agent.handoffTargetPath).toBe(handoff.target.path);
+      if (handoff.target?.selector) expect(envelope.agent.handoffTargetSelector).toBe(handoff.target.selector);
+      if (handoff.target?.text) expect(envelope.agent.handoffTargetText).toBe(handoff.target.text);
       expect(envelope.agent.answerPlanStatus).toBe(handoff.answerStatus);
       expect(envelope.agent.answerPlanConfidence).toEqual(expect.stringMatching(/^(low|medium|high)$/));
       expect(envelope.agent.answerGapCount).toEqual(expect.any(Number));

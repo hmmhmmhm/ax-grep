@@ -1150,6 +1150,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       executorCommandArgs?: string[];
       executorReadFrom?: string;
       executorUrl?: string;
+      executorTargetUrl?: string;
+      executorTargetPath?: string;
+      executorTargetSelector?: string;
+      executorTargetText?: string;
       executorExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
       handoffDecision?: CliAgentLoopShape["decision"];
       handoffMode?: AgentContinuationMode;
@@ -1165,6 +1169,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       handoffCommandArgs?: string[];
       handoffReadFrom?: string;
       handoffUrl?: string;
+      handoffTargetUrl?: string;
+      handoffTargetPath?: string;
+      handoffTargetSelector?: string;
+      handoffTargetText?: string;
       handoffExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
       answerPlanStatus?: CliAgentAnswerPlanShape["status"];
       answerPlanConfidence?: CliAgentAnswerPlanShape["confidence"];
@@ -3506,6 +3514,10 @@ function scoreAgentExecutorShortcuts(agent: {
   executorCommandArgs?: string[];
   executorReadFrom?: string;
   executorUrl?: string;
+  executorTargetUrl?: string;
+  executorTargetPath?: string;
+  executorTargetSelector?: string;
+  executorTargetText?: string;
   executorExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
 } | undefined): number {
   const executor = agent?.executor;
@@ -3539,6 +3551,30 @@ function scoreAgentExecutorShortcuts(agent: {
   } else if (agent.executorUrl) {
     required += 1;
   }
+  if (executor.target?.url) {
+    required += 1;
+    if (agent.executorTargetUrl === executor.target.url) matched += 1;
+  } else if (agent.executorTargetUrl) {
+    required += 1;
+  }
+  if (executor.target?.path) {
+    required += 1;
+    if (agent.executorTargetPath === executor.target.path) matched += 1;
+  } else if (agent.executorTargetPath) {
+    required += 1;
+  }
+  if (executor.target?.selector) {
+    required += 1;
+    if (agent.executorTargetSelector === executor.target.selector) matched += 1;
+  } else if (agent.executorTargetSelector) {
+    required += 1;
+  }
+  if (executor.target?.text) {
+    required += 1;
+    if (agent.executorTargetText === executor.target.text) matched += 1;
+  } else if (agent.executorTargetText) {
+    required += 1;
+  }
   return roundScore(matched / required);
 }
 
@@ -3558,6 +3594,10 @@ function scoreAgentHandoffShortcuts(agent: {
   handoffCommandArgs?: string[];
   handoffReadFrom?: string;
   handoffUrl?: string;
+  handoffTargetUrl?: string;
+  handoffTargetPath?: string;
+  handoffTargetSelector?: string;
+  handoffTargetText?: string;
   handoffExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
 } | undefined): number {
   const handoff = agent?.handoff;
@@ -3602,6 +3642,30 @@ function scoreAgentHandoffShortcuts(agent: {
     required += 1;
     if (agent.handoffUrl === handoff.url) matched += 1;
   } else if (agent.handoffUrl) {
+    required += 1;
+  }
+  if (handoff.target?.url) {
+    required += 1;
+    if (agent.handoffTargetUrl === handoff.target.url) matched += 1;
+  } else if (agent.handoffTargetUrl) {
+    required += 1;
+  }
+  if (handoff.target?.path) {
+    required += 1;
+    if (agent.handoffTargetPath === handoff.target.path) matched += 1;
+  } else if (agent.handoffTargetPath) {
+    required += 1;
+  }
+  if (handoff.target?.selector) {
+    required += 1;
+    if (agent.handoffTargetSelector === handoff.target.selector) matched += 1;
+  } else if (agent.handoffTargetSelector) {
+    required += 1;
+  }
+  if (handoff.target?.text) {
+    required += 1;
+    if (agent.handoffTargetText === handoff.target.text) matched += 1;
+  } else if (agent.handoffTargetText) {
     required += 1;
   }
   return roundScore(matched / required);

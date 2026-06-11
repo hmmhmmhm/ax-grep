@@ -595,6 +595,10 @@ export type AgentSummary = {
   executorCommandArgs?: string[];
   executorReadFrom?: string;
   executorUrl?: string;
+  executorTargetUrl?: string;
+  executorTargetPath?: string;
+  executorTargetSelector?: string;
+  executorTargetText?: string;
   executorExpectedOutcome?: AgentExpectedOutcome["kind"];
   handoffDecision?: AgentNext["loop"]["decision"];
   handoffMode?: AgentContinuationMode;
@@ -610,6 +614,10 @@ export type AgentSummary = {
   handoffCommandArgs?: string[];
   handoffReadFrom?: string;
   handoffUrl?: string;
+  handoffTargetUrl?: string;
+  handoffTargetPath?: string;
+  handoffTargetSelector?: string;
+  handoffTargetText?: string;
   handoffExpectedOutcome?: AgentExpectedOutcome["kind"];
   primaryActionName?: string;
   primaryReason?: string;
