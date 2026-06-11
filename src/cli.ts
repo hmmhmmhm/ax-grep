@@ -172,7 +172,7 @@ type AgentSemanticSummary = {
   landmarks: string[];
   headings: string[];
   namedRoles: string[];
-  semanticOutline: Array<{ path: string; kind: "heading" | "landmark"; role: string; text: string; level?: number; depth: number; selector?: string }>;
+  semanticOutline: Array<{ path: string; kind: "heading" | "landmark"; role: string; text: string; level?: number; depth: number; parentPath?: string; parentRole?: string; parentName?: string; selector?: string }>;
   keyboardItems: Array<{ path: string; role: string; name?: string; shortcuts?: string[]; accessKey?: string; tabIndex?: number; focusable: boolean; selector?: string }>;
   headingItems: Array<{ path: string; text: string; level?: number; selector?: string }>;
   landmarkItems: Array<{ path: string; role: string; name?: string; selector?: string }>;
@@ -954,6 +954,9 @@ type AgentSummary = {
   semanticTopOutlineText?: string;
   semanticTopOutlineLevel?: number;
   semanticTopOutlineDepth?: number;
+  semanticTopOutlineParentPath?: string;
+  semanticTopOutlineParentRole?: string;
+  semanticTopOutlineParentName?: string;
   semanticTopOutlineSelector?: string;
   semanticKeyboardShortcutCount?: number;
   semanticTopKeyboardShortcutPath?: string;
@@ -3306,7 +3309,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.semanticSummary) {
     lines.push(`  semanticSummary: nodes=${agent.semanticSummary.nodeCount} named=${agent.semanticSummary.namedRoleCount} interactive=${agent.semanticSummary.interactiveCount}`);
     if (agent.semanticSummary.topRoles.length > 0) lines.push(`  semanticTopRoles: ${agent.semanticSummary.topRoles.map((item) => `${item.role}=${item.count}`).join(", ")}`);
-    for (const item of agent.semanticSummary.semanticOutline.slice(0, 4)) lines.push(`  semanticOutline: ${item.path} ${item.kind}:${item.text} role=${item.role}${typeof item.level === "number" ? ` level=${item.level}` : ""} depth=${item.depth}${item.selector ? ` selector=${item.selector}` : ""}`);
+    for (const item of agent.semanticSummary.semanticOutline.slice(0, 4)) lines.push(`  semanticOutline: ${item.path} ${item.kind}:${item.text} role=${item.role}${typeof item.level === "number" ? ` level=${item.level}` : ""} depth=${item.depth}${item.parentPath ? ` parent=${item.parentPath}` : ""}${item.parentRole ? ` parentRole=${item.parentRole}` : ""}${item.selector ? ` selector=${item.selector}` : ""}`);
     for (const item of agent.semanticSummary.keyboardItems.slice(0, 3)) lines.push(`  semanticKeyboard: ${item.path} ${item.role}${item.name ? `:${item.name}` : ""}${item.shortcuts?.length ? ` shortcuts=${item.shortcuts.join(",")}` : ""}${item.accessKey ? ` accessKey=${item.accessKey}` : ""}${typeof item.tabIndex === "number" ? ` tabIndex=${item.tabIndex}` : ""} focusable=${item.focusable}${item.selector ? ` selector=${item.selector}` : ""}`);
     for (const heading of agent.semanticSummary.headingItems.slice(0, 3)) lines.push(`  semanticHeading: ${heading.path} ${heading.text}${typeof heading.level === "number" ? ` level=${heading.level}` : ""}${heading.selector ? ` selector=${heading.selector}` : ""}`);
     for (const landmark of agent.semanticSummary.landmarkItems.slice(0, 3)) lines.push(`  semanticLandmark: ${landmark.path} ${landmark.role}${landmark.name ? `:${landmark.name}` : ""}${landmark.selector ? ` selector=${landmark.selector}` : ""}`);
@@ -9670,7 +9673,7 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
     });
   }
 
-  function visit(node: SemanticNode, depth = 0): void {
+  function visit(node: SemanticNode, depth = 0, outlineParent?: Pick<AgentSemanticSummary["semanticOutline"][number], "path" | "role" | "text">): void {
     nodeCount += 1;
     const role = node.role ?? node.tag;
     roleCounts[role] = (roleCounts[role] ?? 0) + 1;
@@ -9886,6 +9889,7 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
           text: node.name,
           ...(typeof headingLevel === "number" ? { level: headingLevel } : {}),
           depth,
+          ...(outlineParent ? { parentPath: outlineParent.path, parentRole: outlineParent.role, parentName: outlineParent.text } : {}),
           ...(node.selector ? { selector: node.selector } : {}),
         });
       }
@@ -9930,6 +9934,7 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
           role: node.role,
           text: node.name ?? node.role,
           depth,
+          ...(outlineParent ? { parentPath: outlineParent.path, parentRole: outlineParent.role, parentName: outlineParent.text } : {}),
           ...(node.selector ? { selector: node.selector } : {}),
         });
       }
@@ -9946,10 +9951,12 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
         role: node.role,
         text: node.role,
         depth,
+        ...(outlineParent ? { parentPath: outlineParent.path, parentRole: outlineParent.role, parentName: outlineParent.text } : {}),
         ...(node.selector ? { selector: node.selector } : {}),
       });
     }
-    for (const child of node.children) visit(child, depth + 1);
+    const nextOutlineParent = semanticOutlineParentForChildren(node, semanticOutline, outlineParent);
+    for (const child of node.children) visit(child, depth + 1, nextOutlineParent);
   }
 
   visit(tree);
@@ -10069,6 +10076,18 @@ function semanticUrlHashId(url: string): string | undefined {
   } catch {
     return undefined;
   }
+}
+
+function semanticOutlineParentForChildren(
+  node: SemanticNode,
+  outline: AgentSemanticSummary["semanticOutline"],
+  current?: Pick<AgentSemanticSummary["semanticOutline"][number], "path" | "role" | "text">,
+): Pick<AgentSemanticSummary["semanticOutline"][number], "path" | "role" | "text"> | undefined {
+  const last = outline.at(-1);
+  if (last && last.kind === "landmark" && last.role === node.role && last.text === (node.name || node.role || node.tag)) {
+    return { path: last.path, role: last.role, text: last.text };
+  }
+  return current;
 }
 
 function countSemanticDescendantsByRole(node: SemanticNode, roles: Set<string>): number {
@@ -10276,6 +10295,9 @@ function summarizeAgent(
     ...(topSemanticOutline ? { semanticTopOutlineText: topSemanticOutline.text } : {}),
     ...(typeof topSemanticOutline?.level === "number" ? { semanticTopOutlineLevel: topSemanticOutline.level } : {}),
     ...(typeof topSemanticOutline?.depth === "number" ? { semanticTopOutlineDepth: topSemanticOutline.depth } : {}),
+    ...(topSemanticOutline?.parentPath ? { semanticTopOutlineParentPath: topSemanticOutline.parentPath } : {}),
+    ...(topSemanticOutline?.parentRole ? { semanticTopOutlineParentRole: topSemanticOutline.parentRole } : {}),
+    ...(topSemanticOutline?.parentName ? { semanticTopOutlineParentName: topSemanticOutline.parentName } : {}),
     ...(topSemanticOutline?.selector ? { semanticTopOutlineSelector: topSemanticOutline.selector } : {}),
     ...(semanticSummary ? { semanticKeyboardShortcutCount: semanticSummary.keyboardItems.length } : {}),
     ...(topSemanticKeyboardShortcut ? { semanticTopKeyboardShortcutPath: topSemanticKeyboardShortcut.path } : {}),
@@ -14765,6 +14787,9 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.semanticTopOutlineText ? { semanticTopOutlineText: agent.semanticTopOutlineText } : {}),
     ...(typeof agent.semanticTopOutlineLevel === "number" ? { semanticTopOutlineLevel: agent.semanticTopOutlineLevel } : {}),
     ...(typeof agent.semanticTopOutlineDepth === "number" ? { semanticTopOutlineDepth: agent.semanticTopOutlineDepth } : {}),
+    ...(agent.semanticTopOutlineParentPath ? { semanticTopOutlineParentPath: agent.semanticTopOutlineParentPath } : {}),
+    ...(agent.semanticTopOutlineParentRole ? { semanticTopOutlineParentRole: agent.semanticTopOutlineParentRole } : {}),
+    ...(agent.semanticTopOutlineParentName ? { semanticTopOutlineParentName: agent.semanticTopOutlineParentName } : {}),
     ...(agent.semanticTopOutlineSelector ? { semanticTopOutlineSelector: agent.semanticTopOutlineSelector } : {}),
     ...(typeof agent.semanticKeyboardShortcutCount === "number" ? { semanticKeyboardShortcutCount: agent.semanticKeyboardShortcutCount } : {}),
     ...(agent.semanticTopKeyboardShortcutPath ? { semanticTopKeyboardShortcutPath: agent.semanticTopKeyboardShortcutPath } : {}),
@@ -15378,6 +15403,9 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.semanticTopOutlineText ? { semanticTopOutlineText: agent.semanticTopOutlineText } : {}),
     ...(typeof agent.semanticTopOutlineLevel === "number" ? { semanticTopOutlineLevel: agent.semanticTopOutlineLevel } : {}),
     ...(typeof agent.semanticTopOutlineDepth === "number" ? { semanticTopOutlineDepth: agent.semanticTopOutlineDepth } : {}),
+    ...(agent.semanticTopOutlineParentPath ? { semanticTopOutlineParentPath: agent.semanticTopOutlineParentPath } : {}),
+    ...(agent.semanticTopOutlineParentRole ? { semanticTopOutlineParentRole: agent.semanticTopOutlineParentRole } : {}),
+    ...(agent.semanticTopOutlineParentName ? { semanticTopOutlineParentName: agent.semanticTopOutlineParentName } : {}),
     ...(typeof agent.semanticKeyboardShortcutCount === "number" ? { semanticKeyboardShortcutCount: agent.semanticKeyboardShortcutCount } : {}),
     ...(agent.semanticTopKeyboardShortcutPath ? { semanticTopKeyboardShortcutPath: agent.semanticTopKeyboardShortcutPath } : {}),
     ...(agent.semanticTopKeyboardShortcutRole ? { semanticTopKeyboardShortcutRole: agent.semanticTopKeyboardShortcutRole } : {}),

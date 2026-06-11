@@ -69,7 +69,7 @@ Read these first:
 - `agent.semantic*`: compact semantic tree counts and direct paths to top
   heading/landmark/named role/interactive/focusable/link/button/image/table/list/form-field/description/value/relation/choice/state/unavailable entries.
   `semanticOutline` and `semanticTopOutline*` preserve heading/landmark page flow
-  for fast structural routing. `semanticKeyboardShortcut*` exposes keyboard shortcut,
+  plus parent landmark context for fast structural routing. `semanticKeyboardShortcut*` exposes keyboard shortcut,
   access key, and tabindex hints. Field shortcuts include placeholder/autocomplete/inputmode
   and aria label/description references. `semanticTopInPageLink*` exposes skip
   links and same-page anchors. Relation shortcuts include resolved target role/selector when available.

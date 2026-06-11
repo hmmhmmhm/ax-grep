@@ -327,6 +327,9 @@ describe("cli", () => {
               text: "Example",
               level: 1,
               depth: expect.any(Number),
+              parentPath: "agent.semanticSummary.semanticOutline[0]",
+              parentRole: "main",
+              parentName: "main",
               selector: "#content",
             }),
           ]),
@@ -825,6 +828,8 @@ describe("cli", () => {
     expect(envelope.agent.semanticTopHeadingPath).toBe(envelope.agent.semanticSummary.headingItems[0].path);
     expect(envelope.agent.semanticTopLandmarkPath).toBe(envelope.agent.semanticSummary.landmarkItems[0].path);
     expect(envelope.agent.semanticTopNamedRolePath).toBe(envelope.agent.semanticSummary.namedRoleItems[0].path);
+    expect(envelope.agent.semanticTopOutlineParentPath).toBeUndefined();
+    expect(envelope.agent.semanticTopOutlineParentRole).toBeUndefined();
     expect(envelope.agent.next.readTarget).toEqual(
       expect.objectContaining({
         path: "verification.bestEvidence",

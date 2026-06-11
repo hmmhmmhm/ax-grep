@@ -1606,6 +1606,9 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopOutlineText?: string;
       semanticTopOutlineLevel?: number;
       semanticTopOutlineDepth?: number;
+      semanticTopOutlineParentPath?: string;
+      semanticTopOutlineParentRole?: string;
+      semanticTopOutlineParentName?: string;
       semanticTopOutlineSelector?: string;
       semanticKeyboardShortcutCount?: number;
       semanticTopKeyboardShortcutPath?: string;
@@ -4738,6 +4741,9 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopOutlineText?: string;
   semanticTopOutlineLevel?: number;
   semanticTopOutlineDepth?: number;
+  semanticTopOutlineParentPath?: string;
+  semanticTopOutlineParentRole?: string;
+  semanticTopOutlineParentName?: string;
   semanticTopOutlineSelector?: string;
   semanticKeyboardShortcutCount?: number;
   semanticTopKeyboardShortcutPath?: string;
@@ -5048,7 +5054,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticOutlineCount === item.semanticOutline.length) matched += 1;
   }
-  const outlineItem = Array.isArray(item.semanticOutline) ? item.semanticOutline[0] as { path?: unknown; kind?: unknown; role?: unknown; text?: unknown; level?: unknown; depth?: unknown; selector?: unknown } | undefined : undefined;
+  const outlineItem = Array.isArray(item.semanticOutline) ? item.semanticOutline[0] as { path?: unknown; kind?: unknown; role?: unknown; text?: unknown; level?: unknown; depth?: unknown; parentPath?: unknown; parentRole?: unknown; parentName?: unknown; selector?: unknown } | undefined : undefined;
   if (outlineItem && typeof outlineItem.path === "string") {
     required += 1;
     if (agent?.semanticTopOutlinePath === outlineItem.path) matched += 1;
@@ -5072,6 +5078,18 @@ function scoreAgentSemanticSummary(agent: {
   if (outlineItem && typeof outlineItem.depth === "number") {
     required += 1;
     if (agent?.semanticTopOutlineDepth === outlineItem.depth) matched += 1;
+  }
+  if (outlineItem && typeof outlineItem.parentPath === "string") {
+    required += 1;
+    if (agent?.semanticTopOutlineParentPath === outlineItem.parentPath) matched += 1;
+  }
+  if (outlineItem && typeof outlineItem.parentRole === "string") {
+    required += 1;
+    if (agent?.semanticTopOutlineParentRole === outlineItem.parentRole) matched += 1;
+  }
+  if (outlineItem && typeof outlineItem.parentName === "string") {
+    required += 1;
+    if (agent?.semanticTopOutlineParentName === outlineItem.parentName) matched += 1;
   }
   if (outlineItem && typeof outlineItem.selector === "string") {
     required += 1;

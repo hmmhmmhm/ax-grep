@@ -460,6 +460,9 @@ describe("public agent types", () => {
       | "semanticTopOutlineText"
       | "semanticTopOutlineLevel"
       | "semanticTopOutlineDepth"
+      | "semanticTopOutlineParentPath"
+      | "semanticTopOutlineParentRole"
+      | "semanticTopOutlineParentName"
       | "semanticTopOutlineSelector"
       | "semanticKeyboardShortcutCount"
       | "semanticTopKeyboardShortcutPath"
@@ -1033,6 +1036,9 @@ describe("public agent types", () => {
       semanticTopOutlineText: "Example",
       semanticTopOutlineLevel: 1,
       semanticTopOutlineDepth: 2,
+      semanticTopOutlineParentPath: "agent.semanticSummary.semanticOutline[0]",
+      semanticTopOutlineParentRole: "main",
+      semanticTopOutlineParentName: "main",
       semanticTopOutlineSelector: "h1",
       semanticKeyboardShortcutCount: 1,
       semanticTopKeyboardShortcutPath: "agent.semanticSummary.keyboardItems[0]",

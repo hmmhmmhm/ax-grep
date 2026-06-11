@@ -581,6 +581,9 @@ export type AgentSummary = {
   semanticTopOutlineText?: string;
   semanticTopOutlineLevel?: number;
   semanticTopOutlineDepth?: number;
+  semanticTopOutlineParentPath?: string;
+  semanticTopOutlineParentRole?: string;
+  semanticTopOutlineParentName?: string;
   semanticTopOutlineSelector?: string;
   semanticKeyboardShortcutCount?: number;
   semanticTopKeyboardShortcutPath?: string;
