@@ -864,6 +864,8 @@ type AgentSummary = {
   verificationMissingCount: number;
   verificationFoundQueries: string[];
   verificationMissingQueries: string[];
+  topVerificationFoundQuery?: string;
+  topVerificationMissingQuery?: string;
   resultCount: number;
   resultChoiceCount: number;
   resultChoices: AgentResultChoice[];
@@ -2472,6 +2474,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  verification: ${agent.verificationFoundCount}/${agent.verificationRequestedCount} found, ${agent.verificationMissingCount} missing`,
     ...(agent.verificationFoundQueries.length > 0 ? [`  verificationFoundQueries: ${agent.verificationFoundQueries.join("; ")}`] : []),
     ...(agent.verificationMissingQueries.length > 0 ? [`  verificationMissingQueries: ${agent.verificationMissingQueries.join("; ")}`] : []),
+    ...(agent.topVerificationFoundQuery ? [`  topVerificationFoundQuery: ${agent.topVerificationFoundQuery}`] : []),
+    ...(agent.topVerificationMissingQuery ? [`  topVerificationMissingQuery: ${agent.topVerificationMissingQuery}`] : []),
     `  readability: ${agent.readability} (${agent.readabilityScore})`,
   ];
   if (agent.executorDecision) lines.push(`  executorDecision: ${agent.executorDecision}`);
@@ -8966,6 +8970,8 @@ function summarizeAgent(
     verificationMissingCount: verification.missingCount,
     verificationFoundQueries: verification.foundQueries,
     verificationMissingQueries: verification.missingQueries,
+    ...(verification.foundQueries[0] ? { topVerificationFoundQuery: verification.foundQueries[0] } : {}),
+    ...(verification.missingQueries[0] ? { topVerificationMissingQuery: verification.missingQueries[0] } : {}),
     resultCount: hasUsableSearchResults ? results.length : 0,
     resultChoiceCount: resultChoices.length,
     resultChoices,
@@ -12805,6 +12811,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     verificationMissingCount: agent.verificationMissingCount,
     ...(agent.verificationFoundQueries.length > 0 ? { verificationFoundQueries: agent.verificationFoundQueries } : {}),
     ...(agent.verificationMissingQueries.length > 0 ? { verificationMissingQueries: agent.verificationMissingQueries } : {}),
+    ...(agent.topVerificationFoundQuery ? { topVerificationFoundQuery: agent.topVerificationFoundQuery } : {}),
+    ...(agent.topVerificationMissingQuery ? { topVerificationMissingQuery: agent.topVerificationMissingQuery } : {}),
     resultCount: agent.resultCount,
     resultChoiceCount: agent.resultChoiceCount,
     ...(agent.resultChoices.length > 0 ? { resultChoices: agent.resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext, pageLinkContext)) } : {}),
@@ -12944,6 +12952,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     verificationStatus: agent.verificationStatus,
     ...(agent.verificationFoundQueries.length > 0 ? { verificationFoundQueries: agent.verificationFoundQueries } : {}),
     ...(agent.verificationMissingQueries.length > 0 ? { verificationMissingQueries: agent.verificationMissingQueries } : {}),
+    ...(agent.topVerificationFoundQuery ? { topVerificationFoundQuery: agent.topVerificationFoundQuery } : {}),
+    ...(agent.topVerificationMissingQuery ? { topVerificationMissingQuery: agent.topVerificationMissingQuery } : {}),
     resultCount: agent.resultCount,
     resultChoiceCount: agent.resultChoiceCount,
     evidenceCount: agent.evidenceCount,

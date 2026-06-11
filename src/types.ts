@@ -522,6 +522,8 @@ export type AgentSummary = {
   verificationMissingCount?: number;
   verificationFoundQueries?: string[];
   verificationMissingQueries?: string[];
+  topVerificationFoundQuery?: string;
+  topVerificationMissingQuery?: string;
   resultCount?: number;
   resultChoiceCount?: number;
   resultChoices?: AgentResultChoice[];

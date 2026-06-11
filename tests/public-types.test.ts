@@ -173,6 +173,8 @@ describe("public agent types", () => {
       | "sourceSearchAlternateCount"
       | "verificationFoundQueries"
       | "verificationMissingQueries"
+      | "topVerificationFoundQuery"
+      | "topVerificationMissingQuery"
       | "citationCount"
       | "answerEvidenceCount"
       | "topAnswerEvidenceId"
@@ -263,6 +265,8 @@ describe("public agent types", () => {
       sourceSearchAlternateCount: 1,
       verificationFoundQueries: ["present"],
       verificationMissingQueries: ["missing"],
+      topVerificationFoundQuery: "present",
+      topVerificationMissingQuery: "missing",
       citationCount: 2,
       answerEvidenceCount: 1,
       topAnswerEvidenceId: "e1",
@@ -339,6 +343,7 @@ describe("public agent types", () => {
     expect(summary.topChoiceKind).toBe("source");
     expect(summary.sourceSearchAlternateCount).toBe(1);
     expect(summary.verificationMissingQueries).toEqual(["missing"]);
+    expect(summary.topVerificationMissingQuery).toBe("missing");
     expect(summary.readTargetCount).toBe(3);
     expect(summary.bestReadTargetCount).toBe(1);
     expect(summary.bestReadTargetPrimary).toBe(true);

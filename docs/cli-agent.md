@@ -49,6 +49,8 @@ Read these first:
 - `agent.answerPlanStatus`, `agent.answerPlanConfidence`, and related `answer*`
   shortcuts: top-level answer readiness and citation routing.
 - `agent.topAnswerEvidence*`: first answer evidence item for fast citation/read routing.
+- `agent.topVerificationFoundQuery` and `agent.topVerificationMissingQuery`: first
+  matched or missing `--find` query for fast verification routing.
 - `agent.readTargets` and `agent.bestReadTarget*`: ranked paths to inspect and the
   best path's count/primary flags.
 - `agent.resultChoices` and `agent.sourceChoices`: ranked links to open.

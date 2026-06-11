@@ -1102,6 +1102,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       verificationMissingCount?: number;
       verificationFoundQueries?: unknown[];
       verificationMissingQueries?: unknown[];
+      topVerificationFoundQuery?: string;
+      topVerificationMissingQuery?: string;
       canContinue?: boolean;
       canUseFetchedHtml?: boolean;
       needsBrowserHtml?: boolean;
@@ -2581,6 +2583,8 @@ function scoreAgentVerificationCounts(agent: {
 function scoreAgentVerificationQueries(agent: {
   verificationFoundQueries?: unknown[];
   verificationMissingQueries?: unknown[];
+  topVerificationFoundQuery?: string;
+  topVerificationMissingQuery?: string;
 } | undefined, verification: {
   foundQueries?: unknown[];
   missingQueries?: unknown[];
@@ -2589,12 +2593,27 @@ function scoreAgentVerificationQueries(agent: {
   const expectedMissing = verification?.missingQueries ?? [];
   if (expectedFound.length === 0 && expectedMissing.length === 0) {
     return (agent?.verificationFoundQueries?.length ?? 0) === 0
-      && (agent?.verificationMissingQueries?.length ?? 0) === 0 ? 1 : 0;
+      && (agent?.verificationMissingQueries?.length ?? 0) === 0
+      && !agent?.topVerificationFoundQuery
+      && !agent?.topVerificationMissingQuery ? 1 : 0;
   }
+  let required = 2;
   let matched = 0;
   if (JSON.stringify(agent?.verificationFoundQueries ?? []) === JSON.stringify(expectedFound)) matched += 1;
   if (JSON.stringify(agent?.verificationMissingQueries ?? []) === JSON.stringify(expectedMissing)) matched += 1;
-  return roundScore(matched / 2);
+  if (expectedFound[0]) {
+    required += 1;
+    if (agent?.topVerificationFoundQuery === expectedFound[0]) matched += 1;
+  } else if (agent?.topVerificationFoundQuery) {
+    required += 1;
+  }
+  if (expectedMissing[0]) {
+    required += 1;
+    if (agent?.topVerificationMissingQuery === expectedMissing[0]) matched += 1;
+  } else if (agent?.topVerificationMissingQuery) {
+    required += 1;
+  }
+  return roundScore(matched / required);
 }
 
 function scoreAgentResponseMetadata(agent: {
