@@ -509,6 +509,11 @@ describe("cli", () => {
               roleDescription: "disclosure toggle",
               description: "Shows extra context",
               type: "submit",
+              state: "pressed=false haspopup=dialog controls=details-panel valueText=details off",
+              disabled: false,
+              pressed: false,
+              haspopup: "dialog",
+              controls: "details-panel",
               formAction: "https://example.test/details",
               formMethod: "post",
               formTarget: "_blank",
@@ -592,6 +597,11 @@ describe("cli", () => {
         semanticTopButtonRoleDescription: "disclosure toggle",
         semanticTopButtonDescription: "Shows extra context",
         semanticTopButtonType: "submit",
+        semanticTopButtonState: "pressed=false haspopup=dialog controls=details-panel valueText=details off",
+        semanticTopButtonDisabled: false,
+        semanticTopButtonPressed: false,
+        semanticTopButtonHaspopup: "dialog",
+        semanticTopButtonControls: "details-panel",
         semanticTopButtonFormAction: "https://example.test/details",
         semanticTopButtonFormMethod: "post",
         semanticTopButtonFormTarget: "_blank",
@@ -4003,7 +4013,7 @@ describe("cli", () => {
       fetch: async () => new Response(`
         <main>
           <nav><a href="/reports" aria-current="page" accesskey="r">Reports</a></nav>
-          <button aria-haspopup="dialog" aria-controls="filters" aria-keyshortcuts="Alt+F" tabindex="0">Filters</button>
+          <button aria-expanded="true" aria-haspopup="dialog" aria-controls="filters" aria-keyshortcuts="Alt+F" tabindex="0">Filters</button>
           <dialog id="filters" open aria-label="Filter reports" aria-modal="true">
             <button>Apply</button>
           </dialog>
@@ -4028,7 +4038,7 @@ describe("cli", () => {
         path: "agent.semanticSummary.focusableItems[1]",
         role: "button",
         name: "Filters",
-        state: expect.objectContaining({ haspopup: "dialog", controls: "filters" }),
+        state: expect.objectContaining({ expanded: true, haspopup: "dialog", controls: "filters" }),
         selector: "button",
       }),
       expect.objectContaining({
@@ -4071,8 +4081,8 @@ describe("cli", () => {
         path: "agent.semanticSummary.stateItems[1]",
         role: "button",
         name: "Filters",
-        state: "haspopup=dialog controls=filters",
-        stateRaw: { haspopup: "dialog", controls: "filters" },
+        state: "expanded=true haspopup=dialog controls=filters",
+        stateRaw: { expanded: true, haspopup: "dialog", controls: "filters" },
         selector: "button",
       }),
       expect.objectContaining({
@@ -4105,6 +4115,12 @@ describe("cli", () => {
       semanticTopKeyboardShortcutAccessKey: "r",
       semanticTopKeyboardShortcutFocusable: true,
       semanticTopKeyboardShortcutSelector: "a",
+      semanticTopButtonName: "Filters",
+      semanticTopButtonState: "expanded=true haspopup=dialog controls=filters",
+      semanticTopButtonDisabled: false,
+      semanticTopButtonExpanded: true,
+      semanticTopButtonHaspopup: "dialog",
+      semanticTopButtonControls: "filters",
       semanticStateCount: 4,
       semanticTopStateRole: "link",
       semanticTopStatePath: "agent.semanticSummary.stateItems[0]",

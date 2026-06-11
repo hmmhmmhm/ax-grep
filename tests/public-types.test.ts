@@ -523,6 +523,12 @@ describe("public agent types", () => {
       | "semanticTopButtonRoleDescription"
       | "semanticTopButtonDescription"
       | "semanticTopButtonType"
+      | "semanticTopButtonState"
+      | "semanticTopButtonDisabled"
+      | "semanticTopButtonPressed"
+      | "semanticTopButtonExpanded"
+      | "semanticTopButtonHaspopup"
+      | "semanticTopButtonControls"
       | "semanticTopButtonFormAction"
       | "semanticTopButtonFormMethod"
       | "semanticTopButtonFormTarget"
@@ -1158,6 +1164,12 @@ describe("public agent types", () => {
       semanticTopButtonRoleDescription: "subscription trigger",
       semanticTopButtonDescription: "Opens the subscription dialog",
       semanticTopButtonType: "submit",
+      semanticTopButtonState: "pressed=false expanded=true haspopup=dialog controls=subscribe-dialog",
+      semanticTopButtonDisabled: false,
+      semanticTopButtonPressed: false,
+      semanticTopButtonExpanded: true,
+      semanticTopButtonHaspopup: "dialog",
+      semanticTopButtonControls: "subscribe-dialog",
       semanticTopButtonFormAction: "https://example.test/subscribe",
       semanticTopButtonFormMethod: "post",
       semanticTopButtonFormTarget: "_self",

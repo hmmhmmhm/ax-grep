@@ -655,6 +655,12 @@ export type AgentSummary = {
   semanticTopButtonRoleDescription?: string;
   semanticTopButtonDescription?: string;
   semanticTopButtonType?: string;
+  semanticTopButtonState?: string;
+  semanticTopButtonDisabled?: boolean;
+  semanticTopButtonPressed?: SemanticNodeState["pressed"];
+  semanticTopButtonExpanded?: boolean;
+  semanticTopButtonHaspopup?: SemanticNodeState["haspopup"];
+  semanticTopButtonControls?: string;
   semanticTopButtonFormAction?: string;
   semanticTopButtonFormMethod?: string;
   semanticTopButtonFormTarget?: string;
