@@ -1226,6 +1226,13 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       answerEvidence?: CliAgentCitationShape[];
       readTargets?: CliReadTargetShape[];
       semanticSummary?: unknown;
+      semanticNodeCount?: number;
+      semanticNamedRoleCount?: number;
+      semanticInteractiveCount?: number;
+      semanticTopRole?: string;
+      semanticTopRoleCount?: number;
+      semanticTopHeading?: string;
+      semanticTopLandmark?: string;
     };
     diagnostics?: Array<{ severity?: "info" | "warning" | "error" }>;
     sourceSearch?: {
@@ -1358,7 +1365,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentActionListScore: scoreAgentActionList(item.agent?.actions, item.agent?.primaryAction, item.agent?.alternativeActionCount),
     agentSearchDecisionScore: scoreAgentSearchDecision(item.agent?.searchDecision, item.kind, item.agent?.primaryAction, item.searchResults ?? [], item.recommendedResult, item.agent?.resultCount),
     agentPageDecisionScore: scoreAgentPageDecision(item.agent?.pageDecision, item.kind, item.agent?.primaryAction, item.pageCheck),
-    agentSemanticSummaryScore: scoreAgentSemanticSummary(item.agent?.semanticSummary),
+    agentSemanticSummaryScore: scoreAgentSemanticSummary(item.agent),
     pageCheck: pageCheckSummary,
     searchResultCount: item.searchResults?.length ?? 0,
     searchResultActionScore: scoreSearchResultActions(item.searchResults ?? []),
@@ -3309,7 +3316,17 @@ function expectedPageDecision(primaryAction: CliActionShape | undefined): NonNul
   return "none";
 }
 
-function scoreAgentSemanticSummary(summary: unknown): number {
+function scoreAgentSemanticSummary(agent: {
+  semanticSummary?: unknown;
+  semanticNodeCount?: number;
+  semanticNamedRoleCount?: number;
+  semanticInteractiveCount?: number;
+  semanticTopRole?: string;
+  semanticTopRoleCount?: number;
+  semanticTopHeading?: string;
+  semanticTopLandmark?: string;
+} | undefined): number {
+  const summary = agent?.semanticSummary;
   if (!summary || typeof summary !== "object") return 0;
   const item = summary as {
     nodeCount?: unknown;
@@ -3334,7 +3351,39 @@ function scoreAgentSemanticSummary(summary: unknown): number {
   if (Array.isArray(item.landmarks)) matched += 1;
   if (Array.isArray(item.headings)) matched += 1;
   if (Array.isArray(item.namedRoles)) matched += 1;
-  return roundScore(matched / 8);
+  let required = 8;
+  if (typeof item.nodeCount === "number") {
+    required += 1;
+    if (agent?.semanticNodeCount === item.nodeCount) matched += 1;
+  }
+  if (typeof item.namedRoleCount === "number") {
+    required += 1;
+    if (agent?.semanticNamedRoleCount === item.namedRoleCount) matched += 1;
+  }
+  if (typeof item.interactiveCount === "number") {
+    required += 1;
+    if (agent?.semanticInteractiveCount === item.interactiveCount) matched += 1;
+  }
+  const topRole = Array.isArray(item.topRoles) ? item.topRoles[0] as { role?: unknown; count?: unknown } | undefined : undefined;
+  if (topRole && typeof topRole.role === "string") {
+    required += 1;
+    if (agent?.semanticTopRole === topRole.role) matched += 1;
+  }
+  if (topRole && typeof topRole.count === "number") {
+    required += 1;
+    if (agent?.semanticTopRoleCount === topRole.count) matched += 1;
+  }
+  const heading = Array.isArray(item.headings) ? item.headings[0] : undefined;
+  if (typeof heading === "string") {
+    required += 1;
+    if (agent?.semanticTopHeading === heading) matched += 1;
+  }
+  const landmark = Array.isArray(item.landmarks) ? item.landmarks[0] : undefined;
+  if (typeof landmark === "string") {
+    required += 1;
+    if (agent?.semanticTopLandmark === landmark) matched += 1;
+  }
+  return roundScore(matched / required);
 }
 
 function scoreAgentUsabilityScore(usabilityScore: number | undefined, item: {

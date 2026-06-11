@@ -298,6 +298,13 @@ describe("cli", () => {
           headings: ["Example"],
           namedRoles: expect.arrayContaining(["heading:Example", "link:Reporter Profile", "link:Target"]),
         },
+        semanticNodeCount: expect.any(Number),
+        semanticNamedRoleCount: expect.any(Number),
+        semanticInteractiveCount: 2,
+        semanticTopRole: "link",
+        semanticTopRoleCount: 2,
+        semanticTopHeading: "Example",
+        semanticTopLandmark: "main",
         routingIntent: "read-current",
         continuationMode: "read",
         next: {
@@ -610,6 +617,8 @@ describe("cli", () => {
       count: envelope.agent.semanticSummary.namedRoleCount,
       reason: "Compact semantic tree overview with role counts, top roles, landmarks, headings, and named role samples.",
     }));
+    expect(envelope.agent.semanticNamedRoleCount).toBe(envelope.agent.semanticSummary.namedRoleCount);
+    expect(envelope.agent.semanticTopHeading).toBe(envelope.agent.semanticSummary.headings[0]);
     expect(envelope.agent.next.readTarget).toEqual(
       expect.objectContaining({
         path: "verification.bestEvidence",
@@ -7690,6 +7699,9 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  semanticTopRoles:");
     expect(stdout.output).toContain("  semanticHeading: Article heading");
     expect(stdout.output).toContain("  semanticLandmark: main");
+    expect(stdout.output).toContain("  semanticNodeCount:");
+    expect(stdout.output).toContain("  semanticNamedRoleCount:");
+    expect(stdout.output).toContain("  semanticTopHeading: Article heading");
     expect(stdout.output).toContain("  qualityGate: fetch pass/info score=1 path=agent.responseStatus - Fetched response was converted into an agent payload.");
     expect(stdout.output).toContain("  qualityGate: content pass/info score=");
     expect(stdout.output).toContain("  qualityGate: source pass/info score=");

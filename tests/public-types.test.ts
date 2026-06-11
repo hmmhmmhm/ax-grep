@@ -195,6 +195,13 @@ describe("public agent types", () => {
       | "topAnswerEvidenceUrl"
       | "topAnswerEvidenceConfidence"
       | "topAnswerEvidenceReason"
+      | "semanticNodeCount"
+      | "semanticNamedRoleCount"
+      | "semanticInteractiveCount"
+      | "semanticTopRole"
+      | "semanticTopRoleCount"
+      | "semanticTopHeading"
+      | "semanticTopLandmark"
       | "answerPlanStatus"
       | "answerPlanConfidence"
       | "answerGapCount"
@@ -314,6 +321,13 @@ describe("public agent types", () => {
       topAnswerEvidenceUrl: "https://example.test",
       topAnswerEvidenceConfidence: "high",
       topAnswerEvidenceReason: "Primary answer evidence.",
+      semanticNodeCount: 12,
+      semanticNamedRoleCount: 4,
+      semanticInteractiveCount: 2,
+      semanticTopRole: "link",
+      semanticTopRoleCount: 2,
+      semanticTopHeading: "Example",
+      semanticTopLandmark: "main",
       answerPlanStatus: "ready",
       answerPlanConfidence: "high",
       answerGapCount: 0,
@@ -401,6 +415,7 @@ describe("public agent types", () => {
     expect(summary.sourceSearchAlternateCount).toBe(1);
     expect(summary.verificationMissingQueries).toEqual(["missing"]);
     expect(summary.topVerificationMissingQuery).toBe("missing");
+    expect(summary.semanticTopHeading).toBe("Example");
     expect(summary.readTargetCount).toBe(3);
     expect(summary.bestReadTargetCount).toBe(1);
     expect(summary.bestReadTargetPrimary).toBe(true);

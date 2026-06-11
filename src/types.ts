@@ -491,6 +491,13 @@ export type AgentSummary = {
   searchDecision?: Record<string, unknown>;
   pageDecision?: Record<string, unknown>;
   semanticSummary?: Record<string, unknown>;
+  semanticNodeCount?: number;
+  semanticNamedRoleCount?: number;
+  semanticInteractiveCount?: number;
+  semanticTopRole?: string;
+  semanticTopRoleCount?: number;
+  semanticTopHeading?: string;
+  semanticTopLandmark?: string;
   signalCount?: number;
   signalWarningCount?: number;
   signalErrorCount?: number;

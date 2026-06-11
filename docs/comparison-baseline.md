@@ -83,6 +83,9 @@ thin, blocked, or worth retrying.
 `averageAgentReadabilityReasonScore` tracks whether the compact top-level
 `agent` summary repeats concise readability reasons, so agents can route from
 the first object before drilling into `pageCheck`.
+`averageAgentSemanticSummaryScore` tracks whether `agent.semanticSummary` and
+top-level `agent.semantic*` shortcuts preserve semantic tree counts, top role,
+heading, and landmark for quick page-shape routing.
 `averageAgentReadTargetScore` tracks whether `agent.readTargets` points to
 payload fields that actually exist and are worth reading, and whether
 `read-current` actions mark the matching target as primary.
