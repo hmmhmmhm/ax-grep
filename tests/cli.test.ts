@@ -7314,6 +7314,29 @@ npx ax-grep https://example.test --agent</code></pre>
     ]);
   });
 
+  it("prints the source link reference for a primary source-link action", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://forum.example/thin"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <body>
+            <main>
+              <h1>Thin page</h1>
+              <a href="https://source.example/report">Original source report</a>
+              <button>Load comments</button>
+            </main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("  next: open-source-link - The page has limited readable content, but an external source link is available.");
+    expect(stdout.output).toContain("  url: https://source.example/report");
+    expect(stdout.output).toContain("  sourceLinkRef: pageCheck.sourceLinks[0]");
+  });
+
   it("uses forum HTML content blocks when semantic paragraph content is absent", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://forum.example/post/789", "--json"], {

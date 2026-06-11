@@ -2414,6 +2414,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     if (agent.primaryAction.rank) lines.push(`  rank: ${agent.primaryAction.rank}`);
     if (agent.primaryAction.openResult) lines.push(`  openResult: ${agent.primaryAction.openResult}`);
     if (agent.primaryAction.readFrom) lines.push(`  readFrom: ${agent.primaryAction.readFrom}`);
+    if (agent.primaryAction.sourceLinkRef) lines.push(`  sourceLinkRef: ${agent.primaryAction.sourceLinkRef}`);
     if (agent.primaryAction.requiresBrowserInteraction) lines.push("  requiresBrowserInteraction: true");
     if (agent.primaryAction.command) lines.push(`  command: ${agent.primaryAction.command}`);
     if (agent.primaryAction.commandArgs) lines.push(`  commandArgs: ${formatCommandArgsText(agent.primaryAction.commandArgs)}`);
