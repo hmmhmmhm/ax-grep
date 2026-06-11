@@ -208,8 +208,10 @@ describe("public agent types", () => {
       | "problemSignalSeverity"
       | "problemSignalMessage"
       | "failingQualityGateKind"
+      | "failingQualityGateSeverity"
       | "failingQualityGateMessage"
       | "failingQualityGatePath"
+      | "failingQualityGateScore"
       | "executorDecision"
       | "executorMode"
       | "executorActionName"
@@ -304,8 +306,10 @@ describe("public agent types", () => {
       problemSignalSeverity: "warning",
       problemSignalMessage: "Readable content is thin.",
       failingQualityGateKind: "content",
+      failingQualityGateSeverity: "warning",
       failingQualityGateMessage: "Content evidence is too thin.",
       failingQualityGatePath: "pageCheck.contentEvidence",
+      failingQualityGateScore: 0.4,
       executorDecision: "return",
       executorMode: "read",
       executorActionName: "read-content",
@@ -358,6 +362,8 @@ describe("public agent types", () => {
     expect(summary.qualityGateFailCount).toBe(1);
     expect(summary.problemSignalSeverity).toBe("warning");
     expect(summary.failingQualityGateKind).toBe("content");
+    expect(summary.failingQualityGateSeverity).toBe("warning");
+    expect(summary.failingQualityGateScore).toBe(0.4);
     expect(summary.topAnswerEvidencePath).toBe("pageCheck.contentEvidence[0]");
     expect(summary.answerPlanStatus).toBe("ready");
     expect(summary.executorOperation).toBe("return");

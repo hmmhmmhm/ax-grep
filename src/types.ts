@@ -502,8 +502,10 @@ export type AgentSummary = {
   problemSignalSeverity?: AgentSignalSeverity;
   problemSignalMessage?: string;
   failingQualityGateKind?: AgentQualityGateKind;
+  failingQualityGateSeverity?: AgentSignalSeverity;
   failingQualityGateMessage?: string;
   failingQualityGatePath?: string;
+  failingQualityGateScore?: number;
   canContinue: boolean;
   canUseFetchedHtml: boolean;
   needsBrowserHtml: boolean;

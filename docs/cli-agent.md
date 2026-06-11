@@ -59,7 +59,7 @@ Read these first:
 - `agent.recommended*`: selected search result metadata and command args.
 - `agent.signals` and `agent.qualityGates`: compact diagnostics.
 - `agent.problemSignal*` and `agent.failingQualityGate*`: first blocking or
-  warning reason without scanning diagnostic arrays.
+  warning reason, severity, and score without scanning diagnostic arrays.
 
 In `--agent-brief`, the stable executor surface is `agent.executor` plus
 `agent.handoff`. Brief handoff keeps loop metadata, target URL, priority,

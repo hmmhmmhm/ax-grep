@@ -111,9 +111,9 @@ read-target, and action count shortcuts against their agent arrays.
 `averageAgentSignalCountShortcutScore` tracks signal severity and failing
 quality-gate count shortcuts against `agent.signals` and `agent.qualityGates`.
 `averageAgentProblemShortcutScore` tracks whether `agent.problemSignalKind`,
-severity, message, and `agent.failingQualityGate*` mirror the first warning/error
-signal and first failing quality gate, so agents can explain blocked pages
-without scanning diagnostic arrays.
+severity, message, and `agent.failingQualityGate*` mirror the first
+warning/error signal and first failing quality gate, including gate severity and
+score, so agents can explain blocked pages without scanning diagnostic arrays.
 `averageAgentSourceLinkCountScore` tracks whether `agent.sourceLinkCount` is
 zero for search pages and matches compact `pageCheck.sourceLinks` for ordinary
 content pages.

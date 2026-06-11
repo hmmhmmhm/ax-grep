@@ -844,8 +844,10 @@ type AgentSummary = {
   problemSignalSeverity?: AgentSignal["severity"];
   problemSignalMessage?: string;
   failingQualityGateKind?: AgentQualityGate["kind"];
+  failingQualityGateSeverity?: AgentQualityGate["severity"];
   failingQualityGateMessage?: string;
   failingQualityGatePath?: string;
+  failingQualityGateScore?: number;
   canContinue: boolean;
   canUseFetchedHtml: boolean;
   needsBrowserHtml: boolean;
@@ -2439,7 +2441,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  qualityGateCount: ${agent.qualityGateCount}`,
     `  qualityGateFailures: ${agent.qualityGateFailCount}`,
     ...(agent.problemSignalKind ? [`  problemSignal: ${agent.problemSignalSeverity}/${agent.problemSignalKind} - ${agent.problemSignalMessage}`] : []),
-    ...(agent.failingQualityGateKind ? [`  failingQualityGate: ${agent.failingQualityGateKind}${agent.failingQualityGatePath ? ` path=${agent.failingQualityGatePath}` : ""} - ${agent.failingQualityGateMessage}`] : []),
+    ...(agent.failingQualityGateKind ? [`  failingQualityGate: ${agent.failingQualityGateKind}${agent.failingQualityGateSeverity ? `/${agent.failingQualityGateSeverity}` : ""}${agent.failingQualityGatePath ? ` path=${agent.failingQualityGatePath}` : ""}${typeof agent.failingQualityGateScore === "number" ? ` score=${agent.failingQualityGateScore}` : ""} - ${agent.failingQualityGateMessage}`] : []),
     `  canContinue: ${agent.canContinue}`,
     `  canUseFetchedHtml: ${agent.canUseFetchedHtml}`,
     `  needsBrowserHtml: ${agent.needsBrowserHtml}`,
@@ -8956,8 +8958,10 @@ function summarizeAgent(
     ...(problemSignal ? { problemSignalSeverity: problemSignal.severity } : {}),
     ...(problemSignal ? { problemSignalMessage: problemSignal.message } : {}),
     ...(failingQualityGate ? { failingQualityGateKind: failingQualityGate.kind } : {}),
+    ...(failingQualityGate ? { failingQualityGateSeverity: failingQualityGate.severity } : {}),
     ...(failingQualityGate ? { failingQualityGateMessage: failingQualityGate.message } : {}),
     ...(failingQualityGate?.path ? { failingQualityGatePath: failingQualityGate.path } : {}),
+    ...(typeof failingQualityGate?.score === "number" ? { failingQualityGateScore: failingQualityGate.score } : {}),
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml,
     needsBrowserHtml,
@@ -11498,8 +11502,10 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(problemSignal ? { problemSignalSeverity: problemSignal.severity } : {}),
     ...(problemSignal ? { problemSignalMessage: problemSignal.message } : {}),
     ...(failingQualityGate ? { failingQualityGateKind: failingQualityGate.kind } : {}),
+    ...(failingQualityGate ? { failingQualityGateSeverity: failingQualityGate.severity } : {}),
     ...(failingQualityGate ? { failingQualityGateMessage: failingQualityGate.message } : {}),
     ...(failingQualityGate?.path ? { failingQualityGatePath: failingQualityGate.path } : {}),
+    ...(typeof failingQualityGate?.score === "number" ? { failingQualityGateScore: failingQualityGate.score } : {}),
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml: false,
     needsBrowserHtml,
@@ -12826,8 +12832,10 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.problemSignalSeverity ? { problemSignalSeverity: agent.problemSignalSeverity } : {}),
     ...(agent.problemSignalMessage ? { problemSignalMessage: agent.problemSignalMessage } : {}),
     ...(agent.failingQualityGateKind ? { failingQualityGateKind: agent.failingQualityGateKind } : {}),
+    ...(agent.failingQualityGateSeverity ? { failingQualityGateSeverity: agent.failingQualityGateSeverity } : {}),
     ...(agent.failingQualityGateMessage ? { failingQualityGateMessage: agent.failingQualityGateMessage } : {}),
     ...(agent.failingQualityGatePath ? { failingQualityGatePath: agent.failingQualityGatePath } : {}),
+    ...(typeof agent.failingQualityGateScore === "number" ? { failingQualityGateScore: agent.failingQualityGateScore } : {}),
     canContinue: agent.canContinue,
     canUseFetchedHtml: agent.canUseFetchedHtml,
     needsBrowserHtml: agent.needsBrowserHtml,
@@ -12971,8 +12979,10 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.problemSignalSeverity ? { problemSignalSeverity: agent.problemSignalSeverity } : {}),
     ...(agent.problemSignalMessage ? { problemSignalMessage: agent.problemSignalMessage } : {}),
     ...(agent.failingQualityGateKind ? { failingQualityGateKind: agent.failingQualityGateKind } : {}),
+    ...(agent.failingQualityGateSeverity ? { failingQualityGateSeverity: agent.failingQualityGateSeverity } : {}),
     ...(agent.failingQualityGateMessage ? { failingQualityGateMessage: agent.failingQualityGateMessage } : {}),
     ...(agent.failingQualityGatePath ? { failingQualityGatePath: agent.failingQualityGatePath } : {}),
+    ...(typeof agent.failingQualityGateScore === "number" ? { failingQualityGateScore: agent.failingQualityGateScore } : {}),
     canContinue: agent.canContinue,
     needsBrowserHtml: agent.needsBrowserHtml,
     confidence: agent.confidence,

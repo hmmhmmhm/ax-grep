@@ -8403,6 +8403,8 @@ npx ax-grep https://example.test --agent</code></pre>
       problemSignalKind: "diagnostic",
       problemSignalSeverity: "error",
       failingQualityGateKind: "fetch",
+      failingQualityGateSeverity: "error",
+      failingQualityGateScore: 0,
       primaryAction: {
         command: "ax-grep --search 'https://missing.example/page' --agent-brief",
         commandArgs: ["ax-grep", "--search", "https://missing.example/page", "--agent-brief"],

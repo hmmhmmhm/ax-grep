@@ -1078,8 +1078,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       problemSignalSeverity?: CliAgentSignalShape["severity"];
       problemSignalMessage?: string;
       failingQualityGateKind?: CliAgentQualityGateShape["kind"];
+      failingQualityGateSeverity?: CliAgentQualityGateShape["severity"];
       failingQualityGateMessage?: string;
       failingQualityGatePath?: string;
+      failingQualityGateScore?: number;
       responseStatus?: number;
       responseOk?: boolean;
       responseContentType?: string;
@@ -2783,8 +2785,10 @@ function scoreAgentProblemShortcuts(agent: {
   problemSignalSeverity?: CliAgentSignalShape["severity"];
   problemSignalMessage?: string;
   failingQualityGateKind?: CliAgentQualityGateShape["kind"];
+  failingQualityGateSeverity?: CliAgentQualityGateShape["severity"];
   failingQualityGateMessage?: string;
   failingQualityGatePath?: string;
+  failingQualityGateScore?: number;
 } | undefined): number {
   if (!agent) return 0;
   const problemSignal = (agent.signals ?? []).find((signal) => signal.severity === "error" || signal.severity === "warning");
@@ -2801,15 +2805,17 @@ function scoreAgentProblemShortcuts(agent: {
     matched += 1;
   }
   if (failingGate) {
-    required += 2 + (failingGate.path ? 1 : 0);
+    required += 4 + (failingGate.path ? 1 : 0);
     if (agent.failingQualityGateKind === failingGate.kind) matched += 1;
+    if (agent.failingQualityGateSeverity === failingGate.severity) matched += 1;
+    if (agent.failingQualityGateScore === failingGate.score) matched += 1;
     if (typeof failingGate.message === "string") {
       if (agent.failingQualityGateMessage === failingGate.message) matched += 1;
     } else if (typeof agent.failingQualityGateMessage === "string" && agent.failingQualityGateMessage.length > 0) {
       matched += 1;
     }
     if (failingGate.path && agent.failingQualityGatePath === failingGate.path) matched += 1;
-  } else if (!agent.failingQualityGateKind && !agent.failingQualityGateMessage && !agent.failingQualityGatePath) {
+  } else if (!agent.failingQualityGateKind && !agent.failingQualityGateSeverity && !agent.failingQualityGateMessage && !agent.failingQualityGatePath && typeof agent.failingQualityGateScore !== "number") {
     required += 1;
     matched += 1;
   }
