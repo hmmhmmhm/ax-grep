@@ -1653,6 +1653,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopLinkUrl?: string;
       semanticTopLinkTarget?: string;
       semanticTopLinkRel?: string[];
+      semanticTopLinkType?: string;
+      semanticTopLinkHreflang?: string;
       semanticTopLinkDownload?: string | true;
       semanticTopLinkSelector?: string;
       semanticInPageLinkCount?: number;
@@ -4845,6 +4847,8 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopLinkUrl?: string;
   semanticTopLinkTarget?: string;
   semanticTopLinkRel?: string[];
+  semanticTopLinkType?: string;
+  semanticTopLinkHreflang?: string;
   semanticTopLinkDownload?: string | true;
   semanticTopLinkSelector?: string;
   semanticInPageLinkCount?: number;
@@ -5374,7 +5378,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopFocusableSelector === focusable.selector) matched += 1;
   }
-  const link = Array.isArray(item.links) ? item.links[0] as { path?: unknown; name?: unknown; url?: unknown; target?: unknown; rel?: unknown; download?: unknown; selector?: unknown } | undefined : undefined;
+  const link = Array.isArray(item.links) ? item.links[0] as { path?: unknown; name?: unknown; url?: unknown; target?: unknown; rel?: unknown; type?: unknown; hreflang?: unknown; download?: unknown; selector?: unknown } | undefined : undefined;
   if (link && typeof link.name === "string") {
     required += 1;
     if (agent?.semanticTopLinkName === link.name) matched += 1;
@@ -5394,6 +5398,14 @@ function scoreAgentSemanticSummary(agent: {
   if (link && Array.isArray(link.rel)) {
     required += 1;
     if (JSON.stringify(agent?.semanticTopLinkRel) === JSON.stringify(link.rel)) matched += 1;
+  }
+  if (link && typeof link.type === "string") {
+    required += 1;
+    if (agent?.semanticTopLinkType === link.type) matched += 1;
+  }
+  if (link && typeof link.hreflang === "string") {
+    required += 1;
+    if (agent?.semanticTopLinkHreflang === link.hreflang) matched += 1;
   }
   if (link && (typeof link.download === "string" || link.download === true)) {
     required += 1;
