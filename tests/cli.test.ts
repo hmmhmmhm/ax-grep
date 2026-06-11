@@ -502,6 +502,7 @@ describe("cli", () => {
             expect.objectContaining({
               path: "agent.semanticSummary.buttons[0]",
               name: "Toggle details",
+              roleDescription: "disclosure toggle",
               description: "Shows extra context",
               type: "submit",
               formAction: "https://example.test/details",
@@ -580,6 +581,7 @@ describe("cli", () => {
         semanticTopInPageLinkSelector: "a",
         semanticTopButtonName: "Toggle details",
         semanticTopButtonPath: "agent.semanticSummary.buttons[0]",
+        semanticTopButtonRoleDescription: "disclosure toggle",
         semanticTopButtonDescription: "Shows extra context",
         semanticTopButtonType: "submit",
         semanticTopButtonFormAction: "https://example.test/details",

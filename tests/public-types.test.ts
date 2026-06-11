@@ -516,6 +516,7 @@ describe("public agent types", () => {
       | "semanticTopInPageLinkSelector"
       | "semanticTopButtonName"
       | "semanticTopButtonPath"
+      | "semanticTopButtonRoleDescription"
       | "semanticTopButtonDescription"
       | "semanticTopButtonType"
       | "semanticTopButtonFormAction"
@@ -1145,6 +1146,7 @@ describe("public agent types", () => {
       semanticTopInPageLinkSelector: "a.skip-link",
       semanticTopButtonName: "Subscribe",
       semanticTopButtonPath: "agent.semanticSummary.buttons[0]",
+      semanticTopButtonRoleDescription: "subscription trigger",
       semanticTopButtonDescription: "Opens the subscription dialog",
       semanticTopButtonType: "submit",
       semanticTopButtonFormAction: "https://example.test/subscribe",

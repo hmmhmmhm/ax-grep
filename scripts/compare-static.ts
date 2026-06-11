@@ -1664,6 +1664,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopInPageLinkSelector?: string;
       semanticTopButtonName?: string;
       semanticTopButtonPath?: string;
+      semanticTopButtonRoleDescription?: string;
       semanticTopButtonDescription?: string;
       semanticTopButtonType?: string;
       semanticTopButtonFormAction?: string;
@@ -4855,6 +4856,7 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopInPageLinkSelector?: string;
   semanticTopButtonName?: string;
   semanticTopButtonPath?: string;
+  semanticTopButtonRoleDescription?: string;
   semanticTopButtonDescription?: string;
   semanticTopButtonType?: string;
   semanticTopButtonFormAction?: string;
@@ -5430,7 +5432,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopInPageLinkSelector === inPageLink.selector) matched += 1;
   }
-  const button = Array.isArray(item.buttons) ? item.buttons[0] as { path?: unknown; name?: unknown; description?: unknown; type?: unknown; formAction?: unknown; formMethod?: unknown; formTarget?: unknown; formEncType?: unknown; formNoValidate?: unknown; formId?: unknown; selector?: unknown } | undefined : undefined;
+  const button = Array.isArray(item.buttons) ? item.buttons[0] as { path?: unknown; name?: unknown; roleDescription?: unknown; description?: unknown; type?: unknown; formAction?: unknown; formMethod?: unknown; formTarget?: unknown; formEncType?: unknown; formNoValidate?: unknown; formId?: unknown; selector?: unknown } | undefined : undefined;
   if (button && typeof button.name === "string") {
     required += 1;
     if (agent?.semanticTopButtonName === button.name) matched += 1;
@@ -5438,6 +5440,10 @@ function scoreAgentSemanticSummary(agent: {
   if (button && typeof button.path === "string") {
     required += 1;
     if (agent?.semanticTopButtonPath === button.path) matched += 1;
+  }
+  if (button && typeof button.roleDescription === "string") {
+    required += 1;
+    if (agent?.semanticTopButtonRoleDescription === button.roleDescription) matched += 1;
   }
   if (button && typeof button.description === "string") {
     required += 1;

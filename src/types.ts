@@ -648,6 +648,7 @@ export type AgentSummary = {
   semanticTopInPageLinkSelector?: string;
   semanticTopButtonName?: string;
   semanticTopButtonPath?: string;
+  semanticTopButtonRoleDescription?: string;
   semanticTopButtonDescription?: string;
   semanticTopButtonType?: string;
   semanticTopButtonFormAction?: string;
