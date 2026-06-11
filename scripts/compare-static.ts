@@ -1099,6 +1099,9 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       diagnosticErrorCount?: number;
       diagnosticWarningCount?: number;
       diagnosticInfoCount?: number;
+      topDiagnosticCode?: string;
+      topDiagnosticSeverity?: "info" | "warning" | "error";
+      topDiagnosticMessage?: string;
       verificationRequestedCount?: number;
       verificationFoundCount?: number;
       verificationMissingCount?: number;
@@ -2564,8 +2567,11 @@ function scoreAgentDiagnosticCounts(agent: {
   diagnosticErrorCount?: number;
   diagnosticWarningCount?: number;
   diagnosticInfoCount?: number;
+  topDiagnosticCode?: string;
+  topDiagnosticSeverity?: "info" | "warning" | "error";
+  topDiagnosticMessage?: string;
   signals?: CliAgentSignalShape[];
-} | undefined, diagnostics: Array<{ severity?: "info" | "warning" | "error" }>): number {
+} | undefined, diagnostics: Array<{ severity?: "info" | "warning" | "error"; code?: string; message?: string }>): number {
   if (diagnostics.length === 0 && Array.isArray(agent?.diagnosticCodes)) {
     const total = (agent?.diagnosticErrorCount ?? 0) + (agent?.diagnosticWarningCount ?? 0) + (agent?.diagnosticInfoCount ?? 0);
     return total === agent.diagnosticCodes.length ? 1 : 0;
@@ -2579,9 +2585,21 @@ function scoreAgentDiagnosticCounts(agent: {
     }
     return summary;
   }, { error: 0, warning: 0, info: 0 });
-  return agent?.diagnosticErrorCount === counts.error
-    && agent?.diagnosticWarningCount === counts.warning
-    && agent?.diagnosticInfoCount === counts.info ? 1 : 0;
+  let required = 3;
+  let matched = 0;
+  if (agent?.diagnosticErrorCount === counts.error) matched += 1;
+  if (agent?.diagnosticWarningCount === counts.warning) matched += 1;
+  if (agent?.diagnosticInfoCount === counts.info) matched += 1;
+  const topDiagnostic = diagnostics[0];
+  if (topDiagnostic) {
+    required += 3;
+    if (agent?.topDiagnosticCode === topDiagnostic.code) matched += 1;
+    if (agent?.topDiagnosticSeverity === topDiagnostic.severity) matched += 1;
+    if (agent?.topDiagnosticMessage === topDiagnostic.message) matched += 1;
+  } else if (agent?.topDiagnosticCode || agent?.topDiagnosticSeverity || agent?.topDiagnosticMessage) {
+    required += 3;
+  }
+  return roundScore(matched / required);
 }
 
 function scoreAgentVerificationCounts(agent: {

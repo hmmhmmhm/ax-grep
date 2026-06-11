@@ -152,8 +152,9 @@ count, score, primary flag, and reason match the primary or highest-scored
 `agent.readTargets` entry, so agents can start reading the best compact field
 without sorting candidates.
 `averageAgentDiagnosticCountScore` tracks whether top-level diagnostic severity
-counts match the compact diagnostics array, so agents can distinguish warnings
-from hard errors before drilling into diagnostic messages.
+counts and `agent.topDiagnostic*` match the compact diagnostics array, so agents
+can distinguish warnings from hard errors before drilling into diagnostic
+messages.
 `averageAgentVerificationCountScore` tracks whether top-level verification
 requested/found/missing counts match the compact verification object, so agents
 can decide whether requested evidence is complete before reading details.

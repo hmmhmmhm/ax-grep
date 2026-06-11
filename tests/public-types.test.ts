@@ -217,6 +217,9 @@ describe("public agent types", () => {
       | "failingQualityGateMessage"
       | "failingQualityGatePath"
       | "failingQualityGateScore"
+      | "topDiagnosticCode"
+      | "topDiagnosticSeverity"
+      | "topDiagnosticMessage"
       | "executorDecision"
       | "executorMode"
       | "executorActionName"
@@ -328,6 +331,9 @@ describe("public agent types", () => {
       failingQualityGateMessage: "Content evidence is too thin.",
       failingQualityGatePath: "pageCheck.contentEvidence",
       failingQualityGateScore: 0.4,
+      topDiagnosticCode: "NO_USEFUL_LINKS",
+      topDiagnosticSeverity: "warning",
+      topDiagnosticMessage: "No useful outbound links were found.",
       executorDecision: "return",
       executorMode: "read",
       executorActionName: "read-content",
@@ -392,6 +398,7 @@ describe("public agent types", () => {
     expect(summary.failingQualityGateKind).toBe("content");
     expect(summary.failingQualityGateSeverity).toBe("warning");
     expect(summary.failingQualityGateScore).toBe(0.4);
+    expect(summary.topDiagnosticCode).toBe("NO_USEFUL_LINKS");
     expect(summary.topAnswerEvidencePath).toBe("pageCheck.contentEvidence[0]");
     expect(summary.answerPlanStatus).toBe("ready");
     expect(summary.executorOperation).toBe("return");

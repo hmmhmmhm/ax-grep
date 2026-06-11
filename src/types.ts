@@ -561,6 +561,9 @@ export type AgentSummary = {
   diagnosticErrorCount?: number;
   diagnosticWarningCount?: number;
   diagnosticInfoCount?: number;
+  topDiagnosticCode?: string;
+  topDiagnosticSeverity?: "info" | "warning" | "error";
+  topDiagnosticMessage?: string;
   citationCount?: number;
   citations?: AgentCitation[];
   answerEvidenceCount?: number;

@@ -903,6 +903,9 @@ type AgentSummary = {
   diagnosticErrorCount: number;
   diagnosticWarningCount: number;
   diagnosticInfoCount: number;
+  topDiagnosticCode?: string;
+  topDiagnosticSeverity?: DiagnosticSummary["severity"];
+  topDiagnosticMessage?: string;
   citationCount: number;
   citations: AgentCitation[];
   answerEvidenceCount: number;
@@ -2489,6 +2492,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  diagnosticErrors: ${agent.diagnosticErrorCount}`,
     `  diagnosticWarnings: ${agent.diagnosticWarningCount}`,
     `  diagnosticInfo: ${agent.diagnosticInfoCount}`,
+    ...(agent.topDiagnosticCode ? [`  topDiagnostic: ${agent.topDiagnosticSeverity}/${agent.topDiagnosticCode} - ${agent.topDiagnosticMessage}`] : []),
     `  citationCount: ${agent.citationCount}`,
     `  answerEvidenceCount: ${agent.answerEvidenceCount}`,
     ...(agent.topAnswerEvidenceId ? [`  topAnswerEvidence: ${agent.topAnswerEvidenceId} ${agent.topAnswerEvidencePath}${agent.topAnswerEvidenceText ? ` - ${agent.topAnswerEvidenceText}` : ""}`] : []),
@@ -9043,6 +9047,9 @@ function summarizeAgent(
     diagnosticErrorCount: diagnosticCounts.error,
     diagnosticWarningCount: diagnosticCounts.warning,
     diagnosticInfoCount: diagnosticCounts.info,
+    ...(analysis.diagnostics[0] ? { topDiagnosticCode: analysis.diagnostics[0].code } : {}),
+    ...(analysis.diagnostics[0] ? { topDiagnosticSeverity: analysis.diagnostics[0].severity } : {}),
+    ...(analysis.diagnostics[0] ? { topDiagnosticMessage: analysis.diagnostics[0].message } : {}),
     citationCount: citations.length,
     citations,
     answerEvidenceCount: answerEvidence.length,
@@ -11593,6 +11600,9 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     diagnosticErrorCount: 1,
     diagnosticWarningCount: 0,
     diagnosticInfoCount: 0,
+    topDiagnosticCode: error.code,
+    topDiagnosticSeverity: "error",
+    topDiagnosticMessage: summary,
     citationCount: 0,
     citations: [],
     answerEvidenceCount: 0,
@@ -12939,6 +12949,9 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     diagnosticErrorCount: agent.diagnosticErrorCount,
     diagnosticWarningCount: agent.diagnosticWarningCount,
     diagnosticInfoCount: agent.diagnosticInfoCount,
+    ...(agent.topDiagnosticCode ? { topDiagnosticCode: agent.topDiagnosticCode } : {}),
+    ...(agent.topDiagnosticSeverity ? { topDiagnosticSeverity: agent.topDiagnosticSeverity } : {}),
+    ...(agent.topDiagnosticMessage ? { topDiagnosticMessage: agent.topDiagnosticMessage } : {}),
     citationCount: agent.citationCount,
     ...(agent.citations.length > 0 ? { citations: compactAgentCitationList(agent.citations) } : {}),
     answerEvidenceCount: agent.answerEvidenceCount,
@@ -13089,6 +13102,9 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
         warnings: agent.diagnosticWarningCount,
       },
     } : {}),
+    ...(agent.topDiagnosticCode ? { topDiagnosticCode: agent.topDiagnosticCode } : {}),
+    ...(agent.topDiagnosticSeverity ? { topDiagnosticSeverity: agent.topDiagnosticSeverity } : {}),
+    ...(agent.topDiagnosticMessage ? { topDiagnosticMessage: agent.topDiagnosticMessage } : {}),
     citationCount: agent.citationCount,
     ...(agent.citations.length > 0 ? { citations: agent.citations.map(compactAgentCitationRef) } : {}),
     answerEvidenceCount: agent.answerEvidenceCount,

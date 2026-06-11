@@ -61,6 +61,7 @@ Read these first:
 - `agent.signals` and `agent.qualityGates`: compact diagnostics.
 - `agent.problemSignal*` and `agent.failingQualityGate*`: first blocking or
   warning reason, severity, and score without scanning diagnostic arrays.
+- `agent.topDiagnostic*`: first diagnostic code, severity, and message.
 
 In `--agent-brief`, the stable executor surface is `agent.executor` plus
 `agent.handoff`. Brief handoff keeps loop metadata, target URL, priority,

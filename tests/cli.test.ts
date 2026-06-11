@@ -8136,6 +8136,11 @@ npx ax-grep https://example.test --agent</code></pre>
       "LOGIN_REQUIRED",
       "PAYWALL_LIKELY",
     ]));
+    expect(envelope.agent).toMatchObject({
+      topDiagnosticCode: "LOGIN_REQUIRED",
+      topDiagnosticSeverity: "warning",
+      topDiagnosticMessage: expect.stringContaining("login"),
+    });
     expect(envelope.pageCheck.barriers).toEqual(expect.arrayContaining([
       expect.objectContaining({
         id: "br1",
@@ -8550,6 +8555,9 @@ npx ax-grep https://example.test --agent</code></pre>
         verificationFoundCount: 0,
         verificationMissingCount: 0,
         diagnosticCodes: ["USAGE"],
+        topDiagnosticCode: "USAGE",
+        topDiagnosticSeverity: "error",
+        topDiagnosticMessage: "missing URL",
       },
       error: {
         code: "USAGE",
