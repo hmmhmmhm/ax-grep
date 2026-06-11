@@ -12377,6 +12377,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
 }
 
 function compactAgentBriefHandoff(handoff: AgentHandoff, primaryUrl?: string, searchCommandContext?: SearchResultCommandContext): object {
+  const signals = compactAgentBriefHandoffSignals(handoff.signals);
+  const qualityGates = compactAgentBriefHandoffQualityGates(handoff.qualityGates);
   const compact = {
     instruction: handoff.instruction,
     decision: handoff.decision,
@@ -12406,8 +12408,19 @@ function compactAgentBriefHandoff(handoff: AgentHandoff, primaryUrl?: string, se
     ...(handoff.resultChoices && handoff.resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(handoff.resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext)), 900) } : {}),
     ...(handoff.sourceChoices && handoff.sourceChoices.length > 0 ? { sourceChoices: compactAgentSourceChoiceList(handoff.sourceChoices, 900) } : {}),
     ...(handoff.answerEvidence && handoff.answerEvidence.length > 0 ? { answerEvidence: handoff.answerEvidence.map(compactAgentAnswerEvidenceRef) } : {}),
+    ...(signals.length > 0 ? { signals } : {}),
+    ...(qualityGates.length > 0 ? { qualityGates } : {}),
   };
   return compactAgentUrlRefs(compact, primaryUrl);
+}
+
+function compactAgentBriefHandoffSignals(signals: AgentSignal[] | undefined): AgentSignal[] {
+  return (signals ?? []).filter((signal) => signal.kind === "diagnostic" || signal.kind === "browser" || signal.kind === "response");
+}
+
+function compactAgentBriefHandoffQualityGates(gates: AgentQualityGate[] | undefined): object[] {
+  const keep = (gates ?? []).filter((gate) => gate.kind === "fetch" || gate.kind === "browser" || gate.kind === "diagnostic" || gate.kind === "status");
+  return compactAgentQualityGates(keep, 900);
 }
 
 function compactAgentBrowserHtml(browserHtml: AgentBrowserHtmlCapture): object {

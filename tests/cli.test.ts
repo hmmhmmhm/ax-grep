@@ -8080,6 +8080,13 @@ npx ax-grep https://example.test --agent</code></pre>
         instruction: "Run ax-grep --search 'https://missing.example/page' --agent-brief and continue with its output.",
         action: "check-url-or-search",
         commandArgs: ["ax-grep", "--search", "https://missing.example/page", "--agent-brief"],
+        signals: expect.arrayContaining([
+          expect.objectContaining({ kind: "diagnostic", severity: "error" }),
+        ]),
+        qualityGates: expect.arrayContaining([
+          expect.objectContaining({ kind: "fetch", pass: false, severity: "error" }),
+          expect.objectContaining({ kind: "browser", pass: true }),
+        ]),
       },
       primaryAction: {
         command: "ax-grep --search 'https://missing.example/page' --agent-brief",
@@ -8106,6 +8113,14 @@ npx ax-grep https://example.test --agent</code></pre>
         browserHtml: {
           commandArgs: ["ax-grep", "https://blocked.example/package", "--html-file", "captured.html", "--find", "target claim", "--agent-brief"],
         },
+        signals: expect.arrayContaining([
+          expect.objectContaining({ kind: "diagnostic", severity: "error" }),
+          expect.objectContaining({ kind: "browser", severity: "warning" }),
+        ]),
+        qualityGates: expect.arrayContaining([
+          expect.objectContaining({ kind: "fetch", pass: false, severity: "error" }),
+          expect.objectContaining({ kind: "browser", pass: false, severity: "warning" }),
+        ]),
       },
       primaryAction: {
         command: "ax-grep 'https://blocked.example/package' --html-file captured.html --find 'target claim' --agent-brief",
