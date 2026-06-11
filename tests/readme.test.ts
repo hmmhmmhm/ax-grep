@@ -36,5 +36,6 @@ describe("README", () => {
     expect(handoff).toContain("only on `agent.executor.decision`");
     expect(handoff).toContain("const step: AgentExecutorStep = payload.agent.executor");
     expect(handoff).toContain("commandArgs.slice(1)");
+    expect(handoff).toContain("sourceLinkRef");
   });
 });

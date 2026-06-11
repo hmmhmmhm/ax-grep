@@ -87,6 +87,12 @@ evidence text/reasons; read handoffs for forms and action targets must keep URL
 templates, fields, selectors, methods, and encoding; diagnostic handoffs must
 keep selected signals and quality gates. This prevents the compact handoff from
 turning into an opaque "retry/open this" instruction.
+`averageAgentResultChoiceScore`, `averageAgentSourceChoiceScore`, and
+`averageAgentActionListScore` cover the same problem outside the handoff.
+Search choices keep snippets, freshness dates, and sitelinks; source choices
+keep source-link text, snippets, selectors, and executable commands; source-link
+actions keep `sourceLinkRef` so agents can jump back to the exact
+`pageCheck.sourceLinks[n]` item.
 `averageAgentResultCountScore` tracks whether `agent.resultCount` is zero for
 non-search pages and at least the compact result count for search pages.
 `averageAgentSourceLinkCountScore` tracks whether `agent.sourceLinkCount` is

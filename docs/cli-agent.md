@@ -48,7 +48,8 @@ In `--agent-brief`, the stable executor surface is `agent.executor` plus
 reason, and executable `resultChoices` or `sourceChoices` when alternates are
 available. It also keeps the details needed to act without reopening the full
 payload: search snippets, selected answer evidence text, form/action URL
-templates, field selectors, methods, and browser barrier targets.
+templates, field selectors, methods, browser barrier targets, and source-link
+`sourceLinkRef` pointers.
 
 Agent actions use an `execution` discriminator:
 

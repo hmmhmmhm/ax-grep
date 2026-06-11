@@ -78,7 +78,8 @@ uses raw `commandArgs` so callers can run it without rebuilding a command.
 Search choices keep snippets, answer handoffs keep selected evidence text, and
 form/action-target read handoffs keep URL templates, fields, selectors, and
 methods. Browser-interaction targets keep barrier `path`/`text` and selector
-when available.
+when available. Source-link actions keep `sourceLinkRef` back to
+`pageCheck.sourceLinks[n]`.
 
 For browser-rendered pages, capture HTML in the agent browser and rerun:
 
