@@ -47,6 +47,7 @@ Read these first:
 - `agent.runbook*`: top-level loop reason, mode, confidence, answer status, and
   iteration shortcuts for `--agent-brief` routing without expanding `runbook`.
 - `agent.next`: canonical loop payload with command, read target, or browser step.
+- `agent.next*`: canonical next-step action, execution, command, read, and URL shortcuts.
 - `agent.expectedOutcome*` and `agent.executionPlan*`: top-level success
   condition and execution-plan shortcuts for fast routing without expanding
   nested objects.

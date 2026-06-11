@@ -267,6 +267,14 @@ describe("public agent types", () => {
       | "runbookReadFrom"
       | "runbookCommandArgs"
       | "runbookUrl"
+      | "nextActionName"
+      | "nextExecution"
+      | "nextCommand"
+      | "nextCommandArgs"
+      | "nextAfterInteractionCommand"
+      | "nextAfterInteractionCommandArgs"
+      | "nextReadFrom"
+      | "nextUrl"
       | "expectedOutcomeKind"
       | "expectedOutcomeMessage"
       | "executionPlanOperation"
@@ -486,6 +494,14 @@ describe("public agent types", () => {
       runbookReadFrom: "pageCheck.contentEvidence",
       runbookCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       runbookUrl: "https://example.test",
+      nextActionName: "read-content",
+      nextExecution: "read-current",
+      nextCommand: "ax-grep https://example.test --agent",
+      nextCommandArgs: ["ax-grep", "https://example.test", "--agent"],
+      nextAfterInteractionCommand: "ax-grep https://example.test --html-file captured.html --agent",
+      nextAfterInteractionCommandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--agent"],
+      nextReadFrom: "pageCheck.contentEvidence",
+      nextUrl: "https://example.test",
       expectedOutcomeKind: "read-evidence",
       expectedOutcomeMessage: "Read the current payload evidence.",
       executionPlanOperation: "return",
@@ -623,6 +639,8 @@ describe("public agent types", () => {
     expect(summary.topAnswerEvidencePath).toBe("pageCheck.contentEvidence[0]");
     expect(summary.answerPlanStatus).toBe("ready");
     expect(summary.answerPlanNextAction).toBe("read-content");
+    expect(summary.nextActionName).toBe("read-content");
+    expect(summary.nextReadFrom).toBe("pageCheck.contentEvidence");
     expect(summary.executorOperation).toBe("return");
     expect(summary.executorTerminal).toBe(true);
     expect(summary.executorTargetSelector).toBe("a.primary");

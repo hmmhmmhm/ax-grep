@@ -840,6 +840,14 @@ type AgentSummary = {
   runbookReadFrom?: string;
   runbookCommandArgs?: string[];
   runbookUrl?: string;
+  nextActionName?: string;
+  nextExecution?: NonNullable<SuggestedAction["execution"]>;
+  nextCommand?: string;
+  nextCommandArgs?: string[];
+  nextAfterInteractionCommand?: string;
+  nextAfterInteractionCommandArgs?: string[];
+  nextReadFrom?: string;
+  nextUrl?: string;
   executor: AgentExecutorStep;
   handoff: AgentHandoff;
   expectedOutcome: AgentExpectedOutcome;
@@ -2691,6 +2699,14 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topVerificationMissingQuery ? [`  topVerificationMissingQuery: ${agent.topVerificationMissingQuery}`] : []),
     `  readability: ${agent.readability} (${agent.readabilityScore})`,
   ];
+  if (agent.nextActionName) lines.push(`  nextActionName: ${agent.nextActionName}`);
+  if (agent.nextExecution) lines.push(`  nextExecution: ${agent.nextExecution}`);
+  if (agent.nextReadFrom) lines.push(`  nextReadFrom: ${agent.nextReadFrom}`);
+  if (agent.nextCommand) lines.push(`  nextCommand: ${agent.nextCommand}`);
+  if (agent.nextCommandArgs) lines.push(`  nextCommandArgs: ${formatCommandArgsText(agent.nextCommandArgs)}`);
+  if (agent.nextAfterInteractionCommand) lines.push(`  nextAfterInteractionCommand: ${agent.nextAfterInteractionCommand}`);
+  if (agent.nextAfterInteractionCommandArgs) lines.push(`  nextAfterInteractionCommandArgs: ${formatCommandArgsText(agent.nextAfterInteractionCommandArgs)}`);
+  if (agent.nextUrl) lines.push(`  nextUrl: ${agent.nextUrl}`);
   if (agent.executorDecision) lines.push(`  executorDecision: ${agent.executorDecision}`);
   if (agent.executorMode) lines.push(`  executorMode: ${agent.executorMode}`);
   if (agent.executorActionName) lines.push(`  executorActionName: ${agent.executorActionName}`);
@@ -9185,6 +9201,14 @@ function summarizeAgent(
     ...(runbook.readFrom ? { runbookReadFrom: runbook.readFrom } : {}),
     ...(runbook.commandArgs ? { runbookCommandArgs: runbook.commandArgs } : {}),
     ...(runbook.url ? { runbookUrl: runbook.url } : {}),
+    ...(next.action ? { nextActionName: next.action } : {}),
+    ...(next.execution ? { nextExecution: next.execution } : {}),
+    ...(next.command ? { nextCommand: next.command } : {}),
+    ...(next.commandArgs ? { nextCommandArgs: next.commandArgs } : {}),
+    ...(next.afterInteractionCommand ? { nextAfterInteractionCommand: next.afterInteractionCommand } : {}),
+    ...(next.afterInteractionCommandArgs ? { nextAfterInteractionCommandArgs: next.afterInteractionCommandArgs } : {}),
+    ...(next.readFrom ? { nextReadFrom: next.readFrom } : {}),
+    ...(next.url ? { nextUrl: next.url } : {}),
     executor,
     handoff,
     expectedOutcome,
@@ -11872,6 +11896,14 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     continuationMode: agentContinuationMode(primaryAction),
     next,
     runbook,
+    ...(next.action ? { nextActionName: next.action } : {}),
+    ...(next.execution ? { nextExecution: next.execution } : {}),
+    ...(next.command ? { nextCommand: next.command } : {}),
+    ...(next.commandArgs ? { nextCommandArgs: next.commandArgs } : {}),
+    ...(next.afterInteractionCommand ? { nextAfterInteractionCommand: next.afterInteractionCommand } : {}),
+    ...(next.afterInteractionCommandArgs ? { nextAfterInteractionCommandArgs: next.afterInteractionCommandArgs } : {}),
+    ...(next.readFrom ? { nextReadFrom: next.readFrom } : {}),
+    ...(next.url ? { nextUrl: next.url } : {}),
     executor,
     handoff,
     expectedOutcome,
@@ -13238,6 +13270,14 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.runbookReadFrom ? { runbookReadFrom: agent.runbookReadFrom } : {}),
     ...(agent.runbookCommandArgs ? { runbookCommandArgs: agent.runbookCommandArgs } : {}),
     ...(agent.runbookUrl ? { runbookUrl: agent.runbookUrl } : {}),
+    ...(agent.nextActionName ? { nextActionName: agent.nextActionName } : {}),
+    ...(agent.nextExecution ? { nextExecution: agent.nextExecution } : {}),
+    ...(agent.nextCommand ? { nextCommand: agent.nextCommand } : {}),
+    ...(agent.nextCommandArgs ? { nextCommandArgs: agent.nextCommandArgs } : {}),
+    ...(agent.nextAfterInteractionCommand ? { nextAfterInteractionCommand: agent.nextAfterInteractionCommand } : {}),
+    ...(agent.nextAfterInteractionCommandArgs ? { nextAfterInteractionCommandArgs: agent.nextAfterInteractionCommandArgs } : {}),
+    ...(agent.nextReadFrom ? { nextReadFrom: agent.nextReadFrom } : {}),
+    ...(agent.nextUrl ? { nextUrl: agent.nextUrl } : {}),
     executor: compactAgentExecutor(agent.executor, agent.primaryUrl),
     handoff: compactAgentHandoff(agent.handoff, agent.primaryUrl, searchCommandContext, pageLinkContext),
     expectedOutcome: agent.expectedOutcome,
@@ -13513,6 +13553,14 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.runbookReadFrom ? { runbookReadFrom: agent.runbookReadFrom } : {}),
     ...(agent.runbookCommandArgs ? { runbookCommandArgs: agent.runbookCommandArgs } : {}),
     ...(agent.runbookUrl ? { runbookUrl: agent.runbookUrl } : {}),
+    ...(agent.nextActionName ? { nextActionName: agent.nextActionName } : {}),
+    ...(agent.nextExecution ? { nextExecution: agent.nextExecution } : {}),
+    ...(agent.nextCommand ? { nextCommand: agent.nextCommand } : {}),
+    ...(agent.nextCommandArgs ? { nextCommandArgs: agent.nextCommandArgs } : {}),
+    ...(agent.nextAfterInteractionCommand ? { nextAfterInteractionCommand: agent.nextAfterInteractionCommand } : {}),
+    ...(agent.nextAfterInteractionCommandArgs ? { nextAfterInteractionCommandArgs: agent.nextAfterInteractionCommandArgs } : {}),
+    ...(agent.nextReadFrom ? { nextReadFrom: agent.nextReadFrom } : {}),
+    ...(agent.nextUrl ? { nextUrl: agent.nextUrl } : {}),
     executor: compactAgentExecutor(agent.executor, agent.primaryUrl),
     handoff: compactAgentBriefHandoff(agent.handoff, agent.primaryUrl, searchCommandContext, pageLinkContext),
     ...(agent.expectedOutcomeKind ? { expectedOutcomeKind: agent.expectedOutcomeKind } : {}),

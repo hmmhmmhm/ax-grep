@@ -24,6 +24,7 @@ function staticSummary(overrides: Partial<StaticGateSummary> = {}): StaticGateSu
     averageAgentRoutingIntentScore: 1,
     averageAgentContinuationModeScore: 1,
     averageAgentNextScore: 1,
+    averageAgentNextShortcutScore: 1,
     averageAgentRunbookScore: 1,
     averageAgentRunbookShortcutScore: 1,
     averageAgentExecutorStepScore: 1,
@@ -108,6 +109,7 @@ describe("comparison gate checker", () => {
   it("rejects static reports that regress executor handoff quality", () => {
     const failures = checkComparisonGateReport(staticReport(staticSummary({
       averageAgentNextScore: 0.75,
+      averageAgentNextShortcutScore: 0.74,
       averageAgentExecutorStepScore: 0.8,
       averageAgentBriefExecutorStepScore: 0.7,
       averageAgentHandoffScore: 0.9,
@@ -122,6 +124,7 @@ describe("comparison gate checker", () => {
 
     expect(failures.map((failure) => failure.message)).toEqual([
       "averageAgentNextScore expected >= 0.995, got 0.75",
+      "averageAgentNextShortcutScore expected >= 0.995, got 0.74",
       "averageAgentExecutorStepScore expected >= 0.995, got 0.8",
       "averageAgentBriefExecutorStepScore expected >= 0.995, got 0.7",
       "averageAgentHandoffScore expected >= 0.995, got 0.9",

@@ -68,6 +68,8 @@ maps that intent to the executor-facing mode: `read`, `command`, `browser`,
 `averageAgentNextScore` tracks whether `agent.next` is a canonical executor
 payload that agrees with `continuationMode` and mirrors the primary action's
 command, read pointer, URL, browser interaction, and terminal fields.
+`averageAgentNextShortcutScore` tracks whether top-level `agent.next*`
+shortcuts mirror that canonical `agent.next` payload.
 `averageAgentRunbookShortcutScore` tracks whether top-level `agent.runbook*`
 shortcuts mirror the nested loop runbook contract.
 `averageAgentExpectedOutcomeScore` tracks whether `agent.expectedOutcome`

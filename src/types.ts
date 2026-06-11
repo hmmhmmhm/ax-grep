@@ -498,6 +498,14 @@ export type AgentSummary = {
   runbookReadFrom?: string;
   runbookCommandArgs?: string[];
   runbookUrl?: string;
+  nextActionName?: string;
+  nextExecution?: AgentExecutionMode;
+  nextCommand?: string;
+  nextCommandArgs?: string[];
+  nextAfterInteractionCommand?: string;
+  nextAfterInteractionCommandArgs?: string[];
+  nextReadFrom?: string;
+  nextUrl?: string;
   executor: AgentExecutorStep;
   handoff?: AgentHandoff;
   expectedOutcome: AgentExpectedOutcome;

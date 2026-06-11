@@ -1042,6 +1042,11 @@ describe("cli", () => {
       pageKind: "search-results",
       routingIntent: "open-url",
       continuationMode: "command",
+      nextActionName: "open-result",
+      nextExecution: "run-command",
+      nextCommand: "ax-grep --search 'agent browser' --engine bing --open-result best --agent",
+      nextCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "best", "--agent"],
+      nextUrl: "https://result.example/",
       next: {
         mode: "command",
         action: "open-result",
@@ -8881,6 +8886,9 @@ npx ax-grep https://example.test --agent</code></pre>
       primaryExecution: "run-command",
       primaryCommand: "ax-grep --search 'missing claim' --find 'missing claim' --agent",
       primaryCommandArgs: ["ax-grep", "--search", "missing claim", "--find", "missing claim", "--agent"],
+      nextActionName: "broaden-search",
+      nextExecution: "run-command",
+      nextCommandArgs: ["ax-grep", "--search", "missing claim", "--find", "missing claim", "--agent"],
       primaryAction: {
         action: "broaden-search",
         execution: "run-command",

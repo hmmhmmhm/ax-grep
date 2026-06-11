@@ -64,6 +64,7 @@ type CliAgentSummary = {
   agentRoutingIntentScore: number;
   agentContinuationModeScore: number;
   agentNextScore: number;
+  agentNextShortcutScore: number;
   agentRunbookScore: number;
   agentRunbookShortcutScore: number;
   agentExecutorStepScore: number;
@@ -580,6 +581,7 @@ export type GateSummary = {
   averageAgentRoutingIntentScore: number;
   averageAgentContinuationModeScore: number;
   averageAgentNextScore: number;
+  averageAgentNextShortcutScore: number;
   averageAgentRunbookScore: number;
   averageAgentRunbookShortcutScore: number;
   averageAgentExecutorStepScore: number;
@@ -1096,6 +1098,14 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       runbookReadFrom?: string;
       runbookCommandArgs?: string[];
       runbookUrl?: string;
+      nextActionName?: string;
+      nextExecution?: ActionExecution;
+      nextCommand?: string;
+      nextCommandArgs?: string[];
+      nextAfterInteractionCommand?: string;
+      nextAfterInteractionCommandArgs?: string[];
+      nextReadFrom?: string;
+      nextUrl?: string;
       executor?: CliAgentExecutorShape;
       handoff?: CliAgentHandoffShape;
       expectedOutcome?: CliAgentExpectedOutcomeShape;
@@ -1418,6 +1428,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentRoutingIntentScore: scoreAgentRoutingIntent(item.agent?.routingIntent, item.agent?.primaryAction),
     agentContinuationModeScore: scoreAgentContinuationMode(item.agent?.continuationMode, item.agent?.primaryAction),
     agentNextScore: scoreAgentNext(item.agent?.next, item.agent?.continuationMode, item.agent?.primaryAction),
+    agentNextShortcutScore: scoreAgentNextShortcuts(item.agent),
     agentRunbookScore: scoreAgentRunbook(item.agent?.runbook, item.agent?.next, item.agent?.executionPlan, item.agent?.answerPlan),
     agentRunbookShortcutScore: scoreAgentRunbookShortcuts(item.agent),
     agentExecutorStepScore: scoreAgentExecutorStep(item.agent?.executor, item.agent?.next, item.agent?.executionPlan, item.agent?.answerPlan),
@@ -1515,6 +1526,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentRoutingIntentScore: 0,
     agentContinuationModeScore: 0,
     agentNextScore: 0,
+    agentNextShortcutScore: 0,
     agentRunbookScore: 0,
     agentRunbookShortcutScore: 0,
     agentExecutorStepScore: 0,
@@ -2004,6 +2016,70 @@ function scoreAgentNext(next: CliAgentNextShape | undefined, continuationMode: A
   } else if (typeof next.readTarget !== "undefined") {
     required += 1;
   } else if (typeof next.readValue !== "undefined") {
+    required += 1;
+  }
+  return roundScore(matched / required);
+}
+
+function scoreAgentNextShortcuts(agent: {
+  next?: CliAgentNextShape;
+  nextActionName?: string;
+  nextExecution?: ActionExecution;
+  nextCommand?: string;
+  nextCommandArgs?: string[];
+  nextAfterInteractionCommand?: string;
+  nextAfterInteractionCommandArgs?: string[];
+  nextReadFrom?: string;
+  nextUrl?: string;
+} | undefined): number {
+  const next = agent?.next;
+  if (!next) return 0;
+  let required = 2;
+  let matched = 0;
+  if (next.action) {
+    if (agent.nextActionName === next.action) matched += 1;
+  } else if (typeof agent.nextActionName === "undefined") {
+    matched += 1;
+  }
+  if (next.execution) {
+    if (agent.nextExecution === next.execution) matched += 1;
+  } else if (typeof agent.nextExecution === "undefined") {
+    matched += 1;
+  }
+  if (next.command) {
+    required += 1;
+    if (agent.nextCommand === next.command) matched += 1;
+  } else if (agent.nextCommand) {
+    required += 1;
+  }
+  if (next.commandArgs) {
+    required += 1;
+    if (JSON.stringify(agent.nextCommandArgs) === JSON.stringify(next.commandArgs)) matched += 1;
+  } else if (agent.nextCommandArgs) {
+    required += 1;
+  }
+  if (next.afterInteractionCommand) {
+    required += 1;
+    if (agent.nextAfterInteractionCommand === next.afterInteractionCommand) matched += 1;
+  } else if (agent.nextAfterInteractionCommand) {
+    required += 1;
+  }
+  if (next.afterInteractionCommandArgs) {
+    required += 1;
+    if (JSON.stringify(agent.nextAfterInteractionCommandArgs) === JSON.stringify(next.afterInteractionCommandArgs)) matched += 1;
+  } else if (agent.nextAfterInteractionCommandArgs) {
+    required += 1;
+  }
+  if (next.readFrom) {
+    required += 1;
+    if (agent.nextReadFrom === next.readFrom) matched += 1;
+  } else if (agent.nextReadFrom) {
+    required += 1;
+  }
+  if (next.url || next.urlRef) {
+    required += 1;
+    if (agent.nextUrl === next.url || agent.nextUrl === next.urlRef) matched += 1;
+  } else if (agent.nextUrl) {
     required += 1;
   }
   return roundScore(matched / required);
@@ -4728,6 +4804,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentRoutingIntentScore * 0.005
     + summary.agentContinuationModeScore * 0.005
     + summary.agentNextScore * 0.005
+    + summary.agentNextShortcutScore * 0.005
     + summary.agentRunbookScore * 0.005
     + summary.agentRunbookShortcutScore * 0.005
     + summary.agentExecutorStepScore * 0.005
@@ -4764,6 +4841,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentRoutingIntentScore,
     summary.agentContinuationModeScore,
     summary.agentNextScore,
+    summary.agentNextShortcutScore,
     summary.agentRunbookScore,
     summary.agentRunbookShortcutScore,
     summary.agentExecutorStepScore,
@@ -4868,6 +4946,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentRoutingIntentScore: average(included.map((comparison) => comparison.cliAgentSummary.agentRoutingIntentScore)),
     averageAgentContinuationModeScore: average(included.map((comparison) => comparison.cliAgentSummary.agentContinuationModeScore)),
     averageAgentNextScore: average(included.map((comparison) => comparison.cliAgentSummary.agentNextScore)),
+    averageAgentNextShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentNextShortcutScore)),
     averageAgentRunbookScore: average(included.map((comparison) => comparison.cliAgentSummary.agentRunbookScore)),
     averageAgentRunbookShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentRunbookShortcutScore)),
     averageAgentExecutorStepScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExecutorStepScore)),
