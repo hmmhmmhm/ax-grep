@@ -684,7 +684,18 @@ export type AgentSummary = {
   sourceSearchSelectedRank?: number;
   sourceSearchSelectedTitle?: string;
   sourceSearchSelectedUrl?: string;
+  sourceSearchSelectedPath?: string;
+  sourceSearchSelectedOpenResult?: number | "best";
+  sourceSearchSelectedCommandArgs?: string[];
+  sourceSearchSelectedReason?: string;
   sourceSearchAlternateCount?: number;
+  sourceSearchAlternatePath?: string;
+  sourceSearchAlternateTitle?: string;
+  sourceSearchAlternateUrl?: string;
+  sourceSearchAlternateRank?: number;
+  sourceSearchAlternateOpenResult?: number | "best";
+  sourceSearchAlternateCommandArgs?: string[];
+  sourceSearchAlternateReason?: string;
   evidenceQualityScore?: number;
   sourceQualityScore?: number;
   alternativeActionCount?: number;

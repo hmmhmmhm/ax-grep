@@ -246,9 +246,11 @@ with `sourceSearch.selectedResult` or `sourceSearch.alternateResults` expose
 matching `agent.readTargets`, so agents can inspect original SERP provenance
 before trusting or recovering from an opened page.
 `averageAgentSourceSearchShortcutScore` tracks whether top-level
-`agent.sourceSearchQuery`, engine/search URL, selected rank/title/URL, and
-alternate count mirror the source-search payload for quick SERP recovery
-decisions.
+`agent.sourceSearchQuery`, engine/search URL, selected rank/title/URL,
+selected command, and first alternate command mirror the source-search payload
+for quick SERP recovery decisions.
+The command shortcuts are exposed as `sourceSearchSelectedCommandArgs` and
+`sourceSearchAlternateCommandArgs`.
 `averageAgentRecommendedMetadataScore` tracks whether search pages with a
 `recommendedResult` repeat its URL, title, rank, source, relevance,
 official-source hint, selection reason, and command args on the top-level

@@ -167,6 +167,10 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "averageAgentVerificationQueryScore",
           "averageAgentSourceSearchShortcutScore",
         ]);
+        requireFileIncludes(root, failures, "scripts/compare-static.ts", [
+          "sourceSearchSelectedCommandArgs",
+          "sourceSearchAlternateCommandArgs",
+        ]);
         requireFileIncludes(root, failures, "docs/comparison-baseline.md", [
           "minCliAgentScore",
           "minAgentExecutorScore",
@@ -181,6 +185,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "averageAgentAnswerShortcutScore",
           "averageAgentVerificationQueryScore",
           "averageAgentSourceSearchShortcutScore",
+          "sourceSearchSelectedCommandArgs",
+          "sourceSearchAlternateCommandArgs",
           "agent.handoff",
           "agent.executor",
         ]);

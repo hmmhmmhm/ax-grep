@@ -351,6 +351,14 @@ type CliAgentSourceChoiceShape = CliAgentTargetShape & {
   commandArgs?: string[];
 };
 
+type CliAgentSourceSearchResultShape = CliAgentTargetShape & {
+  id?: string;
+  path?: string;
+  openResult?: number | "best";
+  command?: string;
+  commandArgs?: unknown[];
+};
+
 type CliAgentFormChoiceShape = {
   id?: string;
   path?: string;
@@ -1299,7 +1307,18 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchSelectedRank?: number;
       sourceSearchSelectedTitle?: string;
       sourceSearchSelectedUrl?: string;
+      sourceSearchSelectedPath?: string;
+      sourceSearchSelectedOpenResult?: number | "best";
+      sourceSearchSelectedCommandArgs?: unknown[];
+      sourceSearchSelectedReason?: string;
       sourceSearchAlternateCount?: number;
+      sourceSearchAlternatePath?: string;
+      sourceSearchAlternateTitle?: string;
+      sourceSearchAlternateUrl?: string;
+      sourceSearchAlternateRank?: number;
+      sourceSearchAlternateOpenResult?: number | "best";
+      sourceSearchAlternateCommandArgs?: unknown[];
+      sourceSearchAlternateReason?: string;
       executorDecision?: CliAgentLoopShape["decision"];
       executorMode?: AgentContinuationMode;
       executorActionName?: string;
@@ -1394,8 +1413,15 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     };
     diagnostics?: Array<{ severity?: "info" | "warning" | "error" }>;
     sourceSearch?: {
-      selectedResult?: unknown;
-      alternateResults?: unknown[];
+      query?: string;
+      engine?: string;
+      selectedEngine?: string;
+      searchUrl?: string;
+      selectedRank?: number;
+      selectedTitle?: string;
+      selectedUrl?: string;
+      selectedResult?: CliAgentSourceSearchResultShape;
+      alternateResults?: CliAgentSourceSearchResultShape[];
     };
     pageCheck?: {
       confidence?: "low" | "medium" | "high";
@@ -3628,7 +3654,18 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchSelectedRank?: number;
   sourceSearchSelectedTitle?: string;
   sourceSearchSelectedUrl?: string;
+  sourceSearchSelectedPath?: string;
+  sourceSearchSelectedOpenResult?: number | "best";
+  sourceSearchSelectedCommandArgs?: unknown[];
+  sourceSearchSelectedReason?: string;
   sourceSearchAlternateCount?: number;
+  sourceSearchAlternatePath?: string;
+  sourceSearchAlternateTitle?: string;
+  sourceSearchAlternateUrl?: string;
+  sourceSearchAlternateRank?: number;
+  sourceSearchAlternateOpenResult?: number | "best";
+  sourceSearchAlternateCommandArgs?: unknown[];
+  sourceSearchAlternateReason?: string;
 } | undefined, sourceSearch: {
   query?: string;
   engine?: string;
@@ -3637,7 +3674,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
   selectedRank?: number;
   selectedTitle?: string;
   selectedUrl?: string;
-  alternateResults?: unknown[];
+  selectedResult?: CliAgentSourceSearchResultShape;
+  alternateResults?: CliAgentSourceSearchResultShape[];
 } | undefined): number {
   if (!sourceSearch) {
     return typeof agent?.sourceSearchQuery === "undefined"
@@ -3647,8 +3685,21 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchSelectedRank === "undefined"
       && typeof agent?.sourceSearchSelectedTitle === "undefined"
       && typeof agent?.sourceSearchSelectedUrl === "undefined"
+      && typeof agent?.sourceSearchSelectedPath === "undefined"
+      && typeof agent?.sourceSearchSelectedOpenResult === "undefined"
+      && typeof agent?.sourceSearchSelectedCommandArgs === "undefined"
+      && typeof agent?.sourceSearchSelectedReason === "undefined"
+      && typeof agent?.sourceSearchAlternatePath === "undefined"
+      && typeof agent?.sourceSearchAlternateTitle === "undefined"
+      && typeof agent?.sourceSearchAlternateUrl === "undefined"
+      && typeof agent?.sourceSearchAlternateRank === "undefined"
+      && typeof agent?.sourceSearchAlternateOpenResult === "undefined"
+      && typeof agent?.sourceSearchAlternateCommandArgs === "undefined"
+      && typeof agent?.sourceSearchAlternateReason === "undefined"
       && agent?.sourceSearchAlternateCount === 0 ? 1 : 0;
   }
+  const selected = sourceSearch.selectedResult;
+  const alternate = sourceSearch.alternateResults?.[0];
   let matched = 0;
   let required = 7;
   if (agent?.sourceSearchQuery === sourceSearch.query) matched += 1;
@@ -3662,6 +3713,27 @@ function scoreAgentSourceSearchShortcuts(agent: {
     required += 1;
     if (agent?.sourceSearchSelectedEngine === sourceSearch.selectedEngine) matched += 1;
   } else if (agent?.sourceSearchSelectedEngine) {
+    required += 1;
+  }
+  if (selected) {
+    required += 4;
+    if (agent?.sourceSearchSelectedPath === selected.path) matched += 1;
+    if (JSON.stringify(agent?.sourceSearchSelectedCommandArgs) === JSON.stringify(selected.commandArgs)) matched += 1;
+    if (agent?.sourceSearchSelectedOpenResult === selected.openResult) matched += 1;
+    if (agent?.sourceSearchSelectedReason === selected.selectionReason) matched += 1;
+  } else if (agent?.sourceSearchSelectedPath || agent?.sourceSearchSelectedCommandArgs || agent?.sourceSearchSelectedOpenResult || agent?.sourceSearchSelectedReason) {
+    required += 1;
+  }
+  if (alternate) {
+    required += 7;
+    if (agent?.sourceSearchAlternatePath === alternate.path) matched += 1;
+    if (agent?.sourceSearchAlternateTitle === alternate.title) matched += 1;
+    if (agent?.sourceSearchAlternateUrl === alternate.url) matched += 1;
+    if (agent?.sourceSearchAlternateRank === alternate.rank) matched += 1;
+    if (agent?.sourceSearchAlternateOpenResult === alternate.openResult) matched += 1;
+    if (JSON.stringify(agent?.sourceSearchAlternateCommandArgs) === JSON.stringify(alternate.commandArgs)) matched += 1;
+    if (agent?.sourceSearchAlternateReason === alternate.selectionReason) matched += 1;
+  } else if (agent?.sourceSearchAlternatePath || agent?.sourceSearchAlternateTitle || agent?.sourceSearchAlternateUrl || typeof agent?.sourceSearchAlternateRank === "number" || agent?.sourceSearchAlternateOpenResult || agent?.sourceSearchAlternateCommandArgs || agent?.sourceSearchAlternateReason) {
     required += 1;
   }
   return roundScore(matched / required);

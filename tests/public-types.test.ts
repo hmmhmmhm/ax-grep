@@ -272,7 +272,18 @@ describe("public agent types", () => {
       | "sourceSearchSelectedRank"
       | "sourceSearchSelectedTitle"
       | "sourceSearchSelectedUrl"
+      | "sourceSearchSelectedPath"
+      | "sourceSearchSelectedOpenResult"
+      | "sourceSearchSelectedCommandArgs"
+      | "sourceSearchSelectedReason"
       | "sourceSearchAlternateCount"
+      | "sourceSearchAlternatePath"
+      | "sourceSearchAlternateTitle"
+      | "sourceSearchAlternateUrl"
+      | "sourceSearchAlternateRank"
+      | "sourceSearchAlternateOpenResult"
+      | "sourceSearchAlternateCommandArgs"
+      | "sourceSearchAlternateReason"
       | "verificationFoundQueries"
       | "verificationMissingQueries"
       | "topVerificationFoundQuery"
@@ -532,7 +543,18 @@ describe("public agent types", () => {
       sourceSearchSelectedRank: 2,
       sourceSearchSelectedTitle: "ax-grep documentation",
       sourceSearchSelectedUrl: "https://source.example/result",
+      sourceSearchSelectedPath: "sourceSearch.selectedResult",
+      sourceSearchSelectedOpenResult: 2,
+      sourceSearchSelectedCommandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "2", "--agent"],
+      sourceSearchSelectedReason: "Selected source result.",
       sourceSearchAlternateCount: 1,
+      sourceSearchAlternatePath: "sourceSearch.alternateResults[0]",
+      sourceSearchAlternateTitle: "ax-grep mirror",
+      sourceSearchAlternateUrl: "https://mirror.example/result",
+      sourceSearchAlternateRank: 3,
+      sourceSearchAlternateOpenResult: 3,
+      sourceSearchAlternateCommandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "3", "--agent"],
+      sourceSearchAlternateReason: "Alternate source result.",
       verificationFoundQueries: ["present"],
       verificationMissingQueries: ["missing"],
       topVerificationFoundQuery: "present",
@@ -715,7 +737,9 @@ describe("public agent types", () => {
     expect(summary.topSourceChoiceCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.sourceSearchQuery).toBe("ax-grep docs");
     expect(summary.sourceSearchSelectedTitle).toBe("ax-grep documentation");
+    expect(summary.sourceSearchSelectedCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.sourceSearchAlternateCount).toBe(1);
+    expect(summary.sourceSearchAlternatePath).toBe("sourceSearch.alternateResults[0]");
     expect(summary.verificationMissingQueries).toEqual(["missing"]);
     expect(summary.topVerificationMissingQuery).toBe("missing");
     expect(summary.searchDecisionName).toBe("open-result");
