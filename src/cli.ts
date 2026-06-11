@@ -173,7 +173,9 @@ type ResultSummary = {
   url: string;
   source: string;
   rank: number;
+  text?: string;
   snippet?: string;
+  selector?: string;
   sourceType?: SourceType;
   sourceScore?: number;
   sourceHints?: string[];
@@ -3759,7 +3761,7 @@ function summarizeSourcePageLinks(primaryLinks: PageLinkSummary[]): PageLinkSumm
     .filter((link) => link.kind === "external")
     .sort((left, right) => sourceLinkPriority(right) - sourceLinkPriority(left) || left.rank - right.rank)
     .slice(0, 4)
-    .map((link, index) => ({ ...link, rank: index + 1 }));
+    .map((link, index) => ({ ...link, path: `pageCheck.sourceLinks[${index}]`, rank: index + 1 }));
 }
 
 function sourceLinkPriority(link: PageLinkSummary): number {
@@ -8994,6 +8996,9 @@ function summarizeAgentSourceChoices(
       url: link.url,
       source: link.source,
       rank: link.rank,
+      ...(link.text ? { text: link.text } : {}),
+      ...(link.snippet ? { snippet: link.snippet } : {}),
+      ...(link.selector ? { selector: link.selector } : {}),
       kind: link.kind,
       ...(link.sourceType ? { sourceType: link.sourceType } : {}),
       ...(typeof link.sourceScore === "number" ? { sourceScore: link.sourceScore } : {}),
@@ -10889,6 +10894,7 @@ function summarizePrimaryPageLinks(links: LinkSummary[], baseUrl: string): PageL
         url: link.url,
         source: sourceFromUrl(link.url),
         rank: index + 1,
+        text: link.text,
         kind: samePageOrSameHost(link.url, baseUrl) ? "internal" : "external",
         sourceType: sourceProfile.type,
         sourceScore: sourceProfile.score,
@@ -10902,6 +10908,7 @@ function summarizePrimaryPageLinks(links: LinkSummary[], baseUrl: string): PageL
         }),
       };
       if (link.snippet) summary.snippet = link.snippet;
+      if (link.selector) summary.selector = link.selector;
       return summary;
     });
 }
@@ -12617,6 +12624,9 @@ function compactAgentSourceChoiceRef(choice: AgentSourceChoice): object {
       path: choice.path,
       url: choice.url,
       rank: choice.rank,
+      ...(choice.text ? { text: choice.text } : {}),
+      ...(choice.snippet ? { snippet: choice.snippet } : {}),
+      ...(choice.selector ? { selector: choice.selector } : {}),
       ...(choice.commandArgs ? { commandArgs: choice.commandArgs } : {}),
       ...(choice.primary ? { primary: true } : {}),
     };
@@ -12627,6 +12637,9 @@ function compactAgentSourceChoiceRef(choice: AgentSourceChoice): object {
     title: choice.title,
     url: choice.url,
     rank: choice.rank,
+    ...(choice.text ? { text: choice.text } : {}),
+    ...(choice.snippet ? { snippet: choice.snippet } : {}),
+    ...(choice.selector ? { selector: choice.selector } : {}),
     kind: choice.kind,
     ...(choice.primary ? { primary: true } : {}),
   };
@@ -13058,6 +13071,9 @@ function compactAgentPageLink(
     url: link.url,
     source: link.source,
     rank: link.rank,
+    ...(link.text ? { text: link.text } : {}),
+    ...(link.snippet ? { snippet: link.snippet } : {}),
+    ...(link.selector ? { selector: link.selector } : {}),
     kind: link.kind,
   };
   if (link.sourceType) compact.sourceType = link.sourceType;
@@ -13079,8 +13095,12 @@ function agentTargetFromResult(result: ResultSummary): AgentTarget {
   return {
     title: result.title,
     url: result.url,
+    ...(result.path ? { path: result.path } : {}),
+    ...(result.text ? { text: result.text } : {}),
     source: result.source,
     rank: result.rank,
+    ...(result.snippet ? { snippet: result.snippet } : {}),
+    ...(result.selector ? { selector: result.selector } : {}),
     ...(result.sourceType ? { sourceType: result.sourceType } : {}),
     ...(typeof result.sourceScore === "number" ? { sourceScore: result.sourceScore } : {}),
     ...(result.sourceHints?.length ? { sourceHints: result.sourceHints } : {}),
@@ -13118,7 +13138,16 @@ function compactAgentTarget(target: AgentTarget, action?: string): object {
   return {
     ...(target.title ? { title: target.title } : {}),
     url: target.url,
+    ...(target.path ? { path: target.path } : {}),
+    ...(target.text ? { text: target.text } : {}),
+    ...(target.source ? { source: target.source } : {}),
     ...(typeof target.rank === "number" ? { rank: target.rank } : {}),
+    ...(target.snippet ? { snippet: target.snippet } : {}),
+    ...(target.selector ? { selector: target.selector } : {}),
+    ...(target.sourceType ? { sourceType: target.sourceType } : {}),
+    ...(typeof target.sourceScore === "number" ? { sourceScore: target.sourceScore } : {}),
+    ...(target.sourceHints?.length ? { sourceHints: target.sourceHints } : {}),
+    ...(target.selectionReason ? { selectionReason: target.selectionReason } : {}),
   };
 }
 

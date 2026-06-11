@@ -1981,7 +1981,10 @@ function scoreHandoffSourceChoices(handoffChoices: CliAgentSourceChoiceShape[] |
       && choice.path === expected.path
       && choice.rank === expected.rank
       && (typeof choice.title === "undefined" || choice.title === expected.title)
-      && (typeof choice.url === "undefined" || choice.url === expected.url);
+      && (typeof choice.url === "undefined" || choice.url === expected.url)
+      && (typeof expected.text !== "string" || choice.text === expected.text)
+      && (typeof expected.snippet !== "string" || choice.snippet === expected.snippet)
+      && (typeof expected.selector !== "string" || choice.selector === expected.selector);
   });
   return valid ? 1 : 0;
 }
@@ -2392,7 +2395,7 @@ function scoreAgentSourceLinkCount(kind: string, sourceLinkCount: number | undef
 function scoreAgentSourceChoices(
   kind: string,
   choices: CliAgentSourceChoiceShape[],
-  sourceLinks: Array<{ title?: string; url?: string; kind?: "internal" | "external"; selectionReason?: string; sourceScore?: number; command?: string; commandArgs?: string[] }>,
+  sourceLinks: Array<{ title?: string; url?: string; text?: string; snippet?: string; selector?: string; kind?: "internal" | "external"; selectionReason?: string; sourceScore?: number; command?: string; commandArgs?: string[] }>,
   primaryAction: CliActionShape | undefined,
 ): number {
   if (kind === "search-results" || sourceLinks.length === 0) return choices.length === 0 ? 1 : 0;
@@ -2407,6 +2410,9 @@ function scoreAgentSourceChoices(
       && choice.path === `pageCheck.sourceLinks[${index}]`
       && (typeof choice.url === "undefined" || choice.url === source.url)
       && (typeof choice.title === "undefined" || choice.title === source.title)
+      && (typeof source.text !== "string" || choice.text === source.text)
+      && (typeof source.snippet !== "string" || choice.snippet === source.snippet)
+      && (typeof source.selector !== "string" || choice.selector === source.selector)
       && (typeof choice.kind === "undefined" || choice.kind === source.kind)
       && (typeof choice.selectionReason === "string" && choice.selectionReason.length > 0
         || typeof source.selectionReason === "string" && source.selectionReason.length > 0
