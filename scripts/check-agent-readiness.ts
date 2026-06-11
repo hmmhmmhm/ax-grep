@@ -40,6 +40,7 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
     "Operational rule: run comparison suites sequentially",
     "averageCliAgentScore",
     "minCliAgentScore",
+    "weakAgentTargets",
     "averageAgentExecutorScore",
     "minAgentExecutorScore",
     "averageAgentHiddenSignalScore",

@@ -27,6 +27,7 @@ describe("compare-static fixture comparisons", () => {
     expect(report.gateSummary.minCliAgentScore).toBeGreaterThanOrEqual(0.8);
     expect(report.gateSummary.averageAgentExecutorScore).toBeGreaterThanOrEqual(0.995);
     expect(report.gateSummary.minAgentExecutorScore).toBeGreaterThanOrEqual(0.995);
+    expect(report.gateSummary.weakAgentTargets).toEqual([]);
     expect(report.gateSummary.averageActionSchemaScore).toBe(1);
     expect(report.gateSummary.averageSearchResultActionScore).toBe(1);
     expect(report.gateSummary.averageAgentHiddenSignalScore).toBe(1);

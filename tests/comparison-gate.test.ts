@@ -63,6 +63,7 @@ function staticSummary(overrides: Partial<StaticGateSummary> = {}): StaticGateSu
     averageAgentSearchDecisionScore: 1,
     averageAgentPageDecisionScore: 1,
     averageAgentSemanticSummaryScore: 1,
+    weakAgentTargets: [],
     classifications: {
       usable: 4,
       "over-collected": 0,
@@ -125,11 +126,22 @@ describe("comparison gate checker", () => {
     const failures = checkComparisonGateReport(staticReport(staticSummary({
       averageCliAgentScore: 0.79,
       minCliAgentScore: 0.79,
+      weakAgentTargets: [
+        {
+          category: "Weak search",
+          url: "https://search.example/",
+          cliAgentScore: 0.79,
+          agentExecutorScore: 1,
+          agentStatus: "choose-result",
+          primaryAction: "refine-search",
+        },
+      ],
     })), "static.json");
 
     expect(failures.map((failure) => failure.message)).toEqual([
       "averageCliAgentScore expected >= 0.8, got 0.79",
       "minCliAgentScore expected >= 0.8, got 0.79",
+      "weakAgentTarget Weak search https://search.example/ cli=0.79 executor=1 status=choose-result/refine-search",
     ]);
   });
 
@@ -137,11 +149,22 @@ describe("comparison gate checker", () => {
     const failures = checkComparisonGateReport(staticReport(staticSummary({
       minCliAgentScore: 0.79,
       minAgentExecutorScore: 0.99,
+      weakAgentTargets: [
+        {
+          category: "Weak page",
+          url: "https://page.example/",
+          cliAgentScore: 0.79,
+          agentExecutorScore: 0.99,
+          agentStatus: "verify",
+          primaryAction: "open-site-search",
+        },
+      ],
     })), "static.json");
 
     expect(failures.map((failure) => failure.message)).toEqual([
       "minCliAgentScore expected >= 0.8, got 0.79",
       "minAgentExecutorScore expected >= 0.995, got 0.99",
+      "weakAgentTarget Weak page https://page.example/ cli=0.79 executor=0.99 status=verify/open-site-search",
     ]);
   });
 

@@ -59,7 +59,17 @@ type GateSummary = Record<string, unknown> & {
   averageAgentSemanticSummaryScore?: number;
   averageAgentToBrowserTokenRatio?: number;
   excludedThinBrowserReference?: number;
+  weakAgentTargets?: GateWeakAgentTarget[];
   classifications?: Record<string, number>;
+};
+
+type GateWeakAgentTarget = {
+  category?: string;
+  url?: string;
+  cliAgentScore?: number;
+  agentExecutorScore?: number;
+  agentStatus?: string;
+  primaryAction?: string;
 };
 
 type ComparisonReport = {
@@ -173,6 +183,11 @@ function checkStaticGate(file: string, summary: GateSummary): GateFailure[] {
   requireEqual(file, failures, "classifications.over-collected", classifications["over-collected"], 0);
   requireEqual(file, failures, "classifications.challenge", classifications.challenge, 0);
   requireEqual(file, failures, "classifications.shell", classifications.shell, 0);
+  if (failures.some((failure) => failure.message.startsWith("minCliAgentScore ") || failure.message.startsWith("minAgentExecutorScore "))) {
+    for (const detail of weakAgentTargetMessages(summary.weakAgentTargets)) {
+      failures.push({ file, message: detail });
+    }
+  }
   return failures;
 }
 
@@ -203,6 +218,21 @@ function requireEqual(file: string, failures: GateFailure[], field: string, valu
 
 function formatValue(value: unknown): string {
   return typeof value === "undefined" ? "undefined" : JSON.stringify(value);
+}
+
+function weakAgentTargetMessages(targets: GateWeakAgentTarget[] | undefined): string[] {
+  if (!Array.isArray(targets) || targets.length === 0) return ["weakAgentTargets missing or empty"];
+  return targets.slice(0, 5).map((target) => {
+    const label = [target.category, target.url].filter((item) => typeof item === "string" && item.length > 0).join(" ");
+    const status = [target.agentStatus, target.primaryAction].filter((item) => typeof item === "string" && item.length > 0).join("/");
+    return [
+      "weakAgentTarget",
+      label || "<unknown>",
+      `cli=${formatValue(target.cliAgentScore)}`,
+      `executor=${formatValue(target.agentExecutorScore)}`,
+      status ? `status=${status}` : "",
+    ].filter(Boolean).join(" ");
+  });
 }
 
 function isMainModule(): boolean {

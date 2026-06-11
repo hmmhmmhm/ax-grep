@@ -558,7 +558,17 @@ export type GateSummary = {
   averageAgentSemanticSummaryScore: number;
   averagePrecision: number;
   averageReferenceRecall: number;
+  weakAgentTargets: GateWeakAgentTarget[];
   classifications: Record<StaticClassification, number>;
+};
+
+type GateWeakAgentTarget = {
+  category: string;
+  url: string;
+  cliAgentScore: number;
+  agentExecutorScore: number;
+  agentStatus: CliAgentSummary["agentStatus"];
+  primaryAction?: string;
 };
 
 const actionableRoles = new Set([
@@ -3244,6 +3254,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentSemanticSummaryScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSemanticSummaryScore)),
     averagePrecision: average(included.map((comparison) => comparison.agentReadiness.candidatePrecision)),
     averageReferenceRecall: average(included.map((comparison) => comparison.agentReadiness.referenceRecall)),
+    weakAgentTargets: weakAgentTargets(included),
     classifications,
   };
 }
@@ -3264,6 +3275,22 @@ function average(values: number[]): number {
 function minimum(values: number[]): number {
   if (values.length === 0) return 0;
   return roundScore(Math.min(...values));
+}
+
+function weakAgentTargets(comparisons: StaticComparison[]): GateWeakAgentTarget[] {
+  return comparisons
+    .filter((comparison) => comparison.cliAgentSummary.score < 0.8 || comparison.cliAgentSummary.agentExecutorScore < 0.995)
+    .map((comparison) => {
+      const item: GateWeakAgentTarget = {
+        category: comparison.category,
+        url: comparison.url,
+        cliAgentScore: comparison.cliAgentSummary.score,
+        agentExecutorScore: comparison.cliAgentSummary.agentExecutorScore,
+        agentStatus: comparison.cliAgentSummary.agentStatus,
+      };
+      if (comparison.cliAgentSummary.agentPrimaryAction) item.primaryAction = comparison.cliAgentSummary.agentPrimaryAction;
+      return item;
+    });
 }
 
 function averageSourceScore(links: Array<{ sourceScore?: number }>): number {

@@ -41,6 +41,8 @@ metric.
 `minCliAgentScore` enforces the same readiness floor per included target, so a
 weak search, page-check, or browser-retry case cannot be hidden by strong
 average results.
+When a per-target floor fails, `weakAgentTargets` lists the affected category,
+URL, scores, status, and primary action for quick follow-up.
 `averageAgentExecutorScore` is the executor-focused aggregate. It combines the
 schema, routing, `next`, expected-outcome, signal, read-target, command,
 browser-retry, continuation, response, diagnostic, and verification fields that
