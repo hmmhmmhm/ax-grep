@@ -217,6 +217,9 @@ snapshots.
 `agent.hiddenSignalCount`, `agent.hiddenReadTargetCount`, and
 `agent.bestHiddenReadTarget*` match those hidden groups and read-target
 shortcuts.
+`averageAgentTopHiddenSignalShortcutScore` tracks whether
+`agent.topHiddenSignal*` mirrors the first hidden metadata, API, config, or
+provenance signal.
 `averageAgentBrowserAdvantageScore` tracks whether those hidden `pageCheck`
 signals create a concrete agent-browser advantage when they exist, rather than
 only matching visible accessibility-tree roles.

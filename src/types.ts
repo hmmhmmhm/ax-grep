@@ -673,6 +673,12 @@ export type AgentSummary = {
   bestStructuredReadTargetPrimary?: boolean;
   bestStructuredReadTargetReason?: string;
   hiddenSignalCount?: number;
+  topHiddenSignalGroup?: string;
+  topHiddenSignalPath?: string;
+  topHiddenSignalKind?: string;
+  topHiddenSignalText?: string;
+  topHiddenSignalUrl?: string;
+  topHiddenSignalSource?: string;
   hiddenReadTargetCount?: number;
   bestHiddenReadTarget?: string;
   bestHiddenReadTargetCount?: number;
@@ -931,6 +937,7 @@ export type AgentContractFeature =
   | "qualityGates"
   | "expectedOutcome"
   | "responseMetadata"
+  | "hiddenSignal.shortcuts"
   | "afterInteractionCommand"
   | "browserHtml"
   | "primaryActionShortcuts"

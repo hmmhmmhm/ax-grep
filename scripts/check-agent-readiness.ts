@@ -70,6 +70,7 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
     "averageAgentSourceSearchShortcutScore",
     "averageAgentHiddenSignalScore",
     "averageAgentHiddenSignalCountScore",
+    "averageAgentTopHiddenSignalShortcutScore",
     "averageAgentPageMetadataShortcutScore",
   ]);
   requireFileIncludes(root, failures, "docs/agent-readiness.md", [
@@ -280,6 +281,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "sourceSearchAlternateCount",
           "hiddenSignalCount",
           "hiddenReadTargetCount",
+          "topHiddenSignalPath",
+          "topHiddenSignalText",
           "bestHiddenReadTarget",
           "bestHiddenReadTargetCount",
           "bestHiddenReadTargetPrimary",
@@ -586,6 +589,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "structuredReadTargetCount",
           "bestStructuredReadTarget",
           "bestStructuredReadTargetCount",
+          "topHiddenSignalPath",
           "citationCount",
           "answerEvidenceCount",
           "topAnswerEvidenceId",

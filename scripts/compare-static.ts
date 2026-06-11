@@ -105,6 +105,7 @@ type CliAgentSummary = {
   agentFormActionChoiceScore: number;
   agentTopFormActionChoiceShortcutScore: number;
   agentHiddenSignalCountScore: number;
+  agentTopHiddenSignalShortcutScore: number;
   agentSourceChoiceScore: number;
   agentTopSourceChoiceShortcutScore: number;
   agentSourceSearchShortcutScore: number;
@@ -620,6 +621,7 @@ export type GateSummary = {
   averageAgentFormActionChoiceScore: number;
   averageAgentTopFormActionChoiceShortcutScore: number;
   averageAgentHiddenSignalCountScore: number;
+  averageAgentTopHiddenSignalShortcutScore: number;
   averageAgentSourceChoiceScore: number;
   averageAgentTopSourceChoiceShortcutScore: number;
   averageAgentSourceSearchShortcutScore: number;
@@ -1316,6 +1318,12 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       bestStructuredReadTargetPrimary?: boolean;
       bestStructuredReadTargetReason?: string;
       hiddenSignalCount?: number;
+      topHiddenSignalGroup?: string;
+      topHiddenSignalPath?: string;
+      topHiddenSignalKind?: string;
+      topHiddenSignalText?: string;
+      topHiddenSignalUrl?: string;
+      topHiddenSignalSource?: string;
       hiddenReadTargetCount?: number;
       bestHiddenReadTarget?: string;
       bestHiddenReadTargetCount?: number;
@@ -1605,6 +1613,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentFormActionChoiceScore: scoreAgentFormActionChoices(item.agent?.formChoices ?? [], item.agent?.actionTargetChoices ?? [], item.pageCheck?.forms ?? [], item.pageCheck?.actionTargets ?? []),
     agentTopFormActionChoiceShortcutScore: scoreAgentTopFormActionChoiceShortcuts(item.agent),
     agentHiddenSignalCountScore: scoreAgentHiddenSignalCounts(item.agent, hiddenSignalCount),
+    agentTopHiddenSignalShortcutScore: scoreAgentTopHiddenSignalShortcuts(item.agent, item.pageCheck),
     agentSourceChoiceScore: scoreAgentSourceChoices(item.kind ?? "unknown", item.agent?.sourceChoices ?? [], item.pageCheck?.sourceLinks ?? [], item.agent?.primaryAction),
     agentTopSourceChoiceShortcutScore: scoreAgentTopSourceChoiceShortcuts(item.agent),
     agentSourceSearchShortcutScore: scoreAgentSourceSearchShortcuts(item.agent, item.sourceSearch),
@@ -1698,6 +1707,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentFormActionChoiceScore: 0,
     agentTopFormActionChoiceShortcutScore: 0,
     agentHiddenSignalCountScore: 0,
+    agentTopHiddenSignalShortcutScore: 0,
     agentSourceChoiceScore: 0,
     agentTopSourceChoiceShortcutScore: 0,
     agentSourceSearchShortcutScore: 0,
@@ -1911,6 +1921,7 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[]; 
     "qualityGates",
     "expectedOutcome",
     "responseMetadata",
+    "hiddenSignal.shortcuts",
     "afterInteractionCommand",
     "browserHtml",
     "primaryActionShortcuts",
@@ -3719,6 +3730,75 @@ function scoreAgentHiddenSignalCounts(
   return roundScore(matched / required);
 }
 
+function scoreAgentTopHiddenSignalShortcuts(agent: {
+  topHiddenSignalGroup?: string;
+  topHiddenSignalPath?: string;
+  topHiddenSignalKind?: string;
+  topHiddenSignalText?: string;
+  topHiddenSignalUrl?: string;
+  topHiddenSignalSource?: string;
+} | undefined, pageCheck: unknown): number {
+  const top = firstHiddenPageCheckItem(pageCheck);
+  if (!top) {
+    return agent?.topHiddenSignalGroup
+      || agent?.topHiddenSignalPath
+      || agent?.topHiddenSignalKind
+      || agent?.topHiddenSignalText
+      || agent?.topHiddenSignalUrl
+      || agent?.topHiddenSignalSource ? 0 : 1;
+  }
+  let required = 2;
+  let matched = 0;
+  if (agent?.topHiddenSignalGroup === top.group) matched += 1;
+  if (agent?.topHiddenSignalPath === top.path) matched += 1;
+  if (top.kind) {
+    required += 1;
+    if (agent?.topHiddenSignalKind === top.kind) matched += 1;
+  } else if (agent?.topHiddenSignalKind) {
+    required += 1;
+  }
+  if (top.text) {
+    required += 1;
+    if (agent?.topHiddenSignalText === top.text) matched += 1;
+  } else if (agent?.topHiddenSignalText) {
+    required += 1;
+  }
+  if (top.url) {
+    required += 1;
+    if (agent?.topHiddenSignalUrl === top.url) matched += 1;
+  } else if (agent?.topHiddenSignalUrl) {
+    required += 1;
+  }
+  if (top.source) {
+    required += 1;
+    if (agent?.topHiddenSignalSource === top.source) matched += 1;
+  } else if (agent?.topHiddenSignalSource) {
+    required += 1;
+  }
+  return roundScore(matched / required);
+}
+
+function firstHiddenPageCheckItem(pageCheck: unknown): { group: string; path: string; kind?: string; text?: string; url?: string; source?: string } | undefined {
+  if (!pageCheck || typeof pageCheck !== "object") return undefined;
+  const record = pageCheck as Record<string, unknown>;
+  for (const group of hiddenPageCheckPaths) {
+    const value = record[group];
+    if (!Array.isArray(value) || value.length === 0) continue;
+    const item = value[0];
+    if (!item || typeof item !== "object") continue;
+    const itemRecord = item as Record<string, unknown>;
+    return {
+      group,
+      path: typeof itemRecord.path === "string" ? itemRecord.path : `pageCheck.${group}[0]`,
+      ...(typeof itemRecord.kind === "string" ? { kind: itemRecord.kind } : {}),
+      ...(typeof itemRecord.text === "string" ? { text: itemRecord.text } : {}),
+      ...(typeof itemRecord.url === "string" ? { url: itemRecord.url } : {}),
+      ...(typeof itemRecord.source === "string" ? { source: itemRecord.source } : {}),
+    };
+  }
+  return undefined;
+}
+
 function scoreAgentSourceChoices(
   kind: string,
   choices: CliAgentSourceChoiceShape[],
@@ -5453,6 +5533,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentProblemShortcutScore * 0.005
     + summary.agentResponseMetadataScore * 0.005
     + summary.agentHiddenSignalScore * 0.005
+    + summary.agentTopHiddenSignalShortcutScore * 0.005
     + summary.agentRoutingIntentScore * 0.005
     + summary.agentContinuationModeScore * 0.005
     + summary.agentNextScore * 0.005
@@ -5545,6 +5626,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentEvidenceCountShortcutScore,
     summary.agentSignalCountShortcutScore,
     summary.agentTopQualityShortcutScore,
+    summary.agentTopHiddenSignalShortcutScore,
     summary.agentHiddenSignalScore,
   ]));
 }
@@ -5631,6 +5713,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentFormActionChoiceScore: average(included.map((comparison) => comparison.cliAgentSummary.agentFormActionChoiceScore)),
     averageAgentTopFormActionChoiceShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentTopFormActionChoiceShortcutScore)),
     averageAgentHiddenSignalCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentHiddenSignalCountScore)),
+    averageAgentTopHiddenSignalShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentTopHiddenSignalShortcutScore)),
     averageAgentSourceChoiceScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSourceChoiceScore)),
     averageAgentTopSourceChoiceShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentTopSourceChoiceShortcutScore)),
     averageAgentSourceSearchShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSourceSearchShortcutScore)),

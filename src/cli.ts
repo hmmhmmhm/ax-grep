@@ -1015,6 +1015,12 @@ type AgentSummary = {
   bestStructuredReadTargetPrimary?: boolean;
   bestStructuredReadTargetReason?: string;
   hiddenSignalCount: number;
+  topHiddenSignalGroup?: string;
+  topHiddenSignalPath?: string;
+  topHiddenSignalKind?: string;
+  topHiddenSignalText?: string;
+  topHiddenSignalUrl?: string;
+  topHiddenSignalSource?: string;
   hiddenReadTargetCount: number;
   bestHiddenReadTarget?: string;
   bestHiddenReadTargetCount?: number;
@@ -1277,6 +1283,7 @@ const agentContract: AgentContract = {
     "qualityGates",
     "expectedOutcome",
     "responseMetadata",
+    "hiddenSignal.shortcuts",
     "afterInteractionCommand",
     "browserHtml",
     "primaryActionShortcuts",
@@ -2763,6 +2770,12 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.bestStructuredReadTargetPrimary === "boolean" ? [`  bestStructuredReadTargetPrimary: ${agent.bestStructuredReadTargetPrimary}`] : []),
     ...(agent.bestStructuredReadTargetReason ? [`  bestStructuredReadTargetReason: ${agent.bestStructuredReadTargetReason}`] : []),
     `  hiddenSignalCount: ${agent.hiddenSignalCount}`,
+    ...(agent.topHiddenSignalGroup ? [`  topHiddenSignalGroup: ${agent.topHiddenSignalGroup}`] : []),
+    ...(agent.topHiddenSignalPath ? [`  topHiddenSignalPath: ${agent.topHiddenSignalPath}`] : []),
+    ...(agent.topHiddenSignalKind ? [`  topHiddenSignalKind: ${agent.topHiddenSignalKind}`] : []),
+    ...(agent.topHiddenSignalText ? [`  topHiddenSignalText: ${agent.topHiddenSignalText}`] : []),
+    ...(agent.topHiddenSignalUrl ? [`  topHiddenSignalUrl: ${agent.topHiddenSignalUrl}`] : []),
+    ...(agent.topHiddenSignalSource ? [`  topHiddenSignalSource: ${agent.topHiddenSignalSource}`] : []),
     `  hiddenReadTargetCount: ${agent.hiddenReadTargetCount}`,
     ...(agent.bestHiddenReadTarget ? [`  bestHiddenReadTarget: ${agent.bestHiddenReadTarget}`] : []),
     ...(typeof agent.bestHiddenReadTargetCount === "number" ? [`  bestHiddenReadTargetCount: ${agent.bestHiddenReadTargetCount}`] : []),
@@ -9296,6 +9309,7 @@ function summarizeAgent(
   const bestStructuredReadTarget = selectBestStructuredReadTarget(readTargets);
   const bestHiddenReadTarget = selectBestHiddenReadTarget(readTargets);
   const hiddenSignalCount = countHiddenAgentPageCheckSignals(pageCheck);
+  const topHiddenSignal = selectTopHiddenAgentPageCheckSignal(pageCheck);
   const structuredReadTargetCount = countStructuredAgentReadTargets(readTargets);
   const hiddenReadTargetCount = countHiddenAgentReadTargets(readTargets);
   const citations = summarizeAgentCitations(analysis.kind, pageCheck, verification, primaryAction, recommendedResult, sourceSearch);
@@ -9529,6 +9543,12 @@ function summarizeAgent(
     ...(typeof bestStructuredReadTarget?.primary === "boolean" ? { bestStructuredReadTargetPrimary: bestStructuredReadTarget.primary } : {}),
     ...(bestStructuredReadTarget ? { bestStructuredReadTargetReason: bestStructuredReadTarget.reason } : {}),
     hiddenSignalCount,
+    ...(topHiddenSignal ? { topHiddenSignalGroup: topHiddenSignal.group } : {}),
+    ...(topHiddenSignal ? { topHiddenSignalPath: topHiddenSignal.path } : {}),
+    ...(topHiddenSignal?.kind ? { topHiddenSignalKind: topHiddenSignal.kind } : {}),
+    ...(topHiddenSignal?.text ? { topHiddenSignalText: topHiddenSignal.text } : {}),
+    ...(topHiddenSignal?.url ? { topHiddenSignalUrl: topHiddenSignal.url } : {}),
+    ...(topHiddenSignal?.source ? { topHiddenSignalSource: topHiddenSignal.source } : {}),
     hiddenReadTargetCount,
     ...(bestHiddenReadTarget ? { bestHiddenReadTarget: bestHiddenReadTarget.path } : {}),
     ...(typeof bestHiddenReadTarget?.count === "number" ? { bestHiddenReadTargetCount: bestHiddenReadTarget.count } : {}),
@@ -11461,6 +11481,25 @@ function countHiddenAgentPageCheckSignals(pageCheck: PageCheckSummary): number {
     const value = pageCheck[path];
     return total + (Array.isArray(value) ? value.length : 0);
   }, 0);
+}
+
+function selectTopHiddenAgentPageCheckSignal(pageCheck: PageCheckSummary): { group: string; path: string; kind?: string; text?: string; url?: string; source?: string } | undefined {
+  for (const group of hiddenAgentPageCheckPaths) {
+    const value = pageCheck[group];
+    if (!Array.isArray(value) || value.length === 0) continue;
+    const item = value[0];
+    if (!item || typeof item !== "object") continue;
+    const record = item as Record<string, unknown>;
+    return {
+      group: String(group),
+      path: typeof record.path === "string" ? record.path : `pageCheck.${String(group)}[0]`,
+      ...(typeof record.kind === "string" ? { kind: record.kind } : {}),
+      ...(typeof record.text === "string" ? { text: record.text } : {}),
+      ...(typeof record.url === "string" ? { url: record.url } : {}),
+      ...(typeof record.source === "string" ? { source: record.source } : {}),
+    };
+  }
+  return undefined;
 }
 
 function countHiddenAgentReadTargets(readTargets: AgentReadTarget[]): number {
@@ -13722,6 +13761,12 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.bestStructuredReadTargetPrimary === "boolean" ? { bestStructuredReadTargetPrimary: agent.bestStructuredReadTargetPrimary } : {}),
     ...(agent.bestStructuredReadTargetReason ? { bestStructuredReadTargetReason: agent.bestStructuredReadTargetReason } : {}),
     hiddenSignalCount: agent.hiddenSignalCount,
+    ...(agent.topHiddenSignalGroup ? { topHiddenSignalGroup: agent.topHiddenSignalGroup } : {}),
+    ...(agent.topHiddenSignalPath ? { topHiddenSignalPath: agent.topHiddenSignalPath } : {}),
+    ...(agent.topHiddenSignalKind ? { topHiddenSignalKind: agent.topHiddenSignalKind } : {}),
+    ...(agent.topHiddenSignalText ? { topHiddenSignalText: agent.topHiddenSignalText } : {}),
+    ...(agent.topHiddenSignalUrl ? { topHiddenSignalUrl: agent.topHiddenSignalUrl } : {}),
+    ...(agent.topHiddenSignalSource ? { topHiddenSignalSource: agent.topHiddenSignalSource } : {}),
     hiddenReadTargetCount: agent.hiddenReadTargetCount,
     ...(agent.bestHiddenReadTarget ? { bestHiddenReadTarget: agent.bestHiddenReadTarget } : {}),
     ...(typeof agent.bestHiddenReadTargetCount === "number" ? { bestHiddenReadTargetCount: agent.bestHiddenReadTargetCount } : {}),
@@ -14060,6 +14105,12 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.bestStructuredReadTargetPrimary === "boolean" ? { bestStructuredReadTargetPrimary: agent.bestStructuredReadTargetPrimary } : {}),
     ...(agent.bestStructuredReadTargetReason ? { bestStructuredReadTargetReason: agent.bestStructuredReadTargetReason } : {}),
     hiddenSignalCount: agent.hiddenSignalCount,
+    ...(agent.topHiddenSignalGroup ? { topHiddenSignalGroup: agent.topHiddenSignalGroup } : {}),
+    ...(agent.topHiddenSignalPath ? { topHiddenSignalPath: agent.topHiddenSignalPath } : {}),
+    ...(agent.topHiddenSignalKind ? { topHiddenSignalKind: agent.topHiddenSignalKind } : {}),
+    ...(agent.topHiddenSignalText ? { topHiddenSignalText: agent.topHiddenSignalText } : {}),
+    ...(agent.topHiddenSignalUrl ? { topHiddenSignalUrl: agent.topHiddenSignalUrl } : {}),
+    ...(agent.topHiddenSignalSource ? { topHiddenSignalSource: agent.topHiddenSignalSource } : {}),
     hiddenReadTargetCount: agent.hiddenReadTargetCount,
     ...(agent.bestHiddenReadTarget ? { bestHiddenReadTarget: agent.bestHiddenReadTarget } : {}),
     ...(typeof agent.bestHiddenReadTargetCount === "number" ? { bestHiddenReadTargetCount: agent.bestHiddenReadTargetCount } : {}),
