@@ -558,6 +558,15 @@ export type AgentSummary = {
   executorReadFrom?: string;
   executorUrl?: string;
   executorExpectedOutcome?: AgentExpectedOutcome["kind"];
+  handoffActionName?: string;
+  handoffOperation?: AgentExecutionPlan["operation"];
+  handoffAnswerStatus?: AgentAnswerPlan["status"];
+  handoffPriority?: "low" | "medium" | "high";
+  handoffPriorityReason?: string;
+  handoffCommandArgs?: string[];
+  handoffReadFrom?: string;
+  handoffUrl?: string;
+  handoffExpectedOutcome?: AgentExpectedOutcome["kind"];
   primaryActionName?: string;
   primaryReason?: string;
   primaryPriority?: "low" | "medium" | "high";

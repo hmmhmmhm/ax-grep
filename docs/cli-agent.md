@@ -40,6 +40,8 @@ Read these first:
 - `agent.executorActionName`, `agent.executorOperation`, and related `executor*`
   shortcuts: top-level mirror of the next executable step.
 - `agent.handoff`: the shortest executor handoff for the next step.
+- `agent.handoffActionName`, `agent.handoffOperation`, and related `handoff*`
+  shortcuts: top-level mirror of the brief handoff contract.
 - `agent.next`: canonical loop payload with command, read target, or browser step.
 - `agent.answerPlan`, `agent.citations`, and `agent.answerEvidence`: final answer evidence.
 - `agent.readTargets`, `agent.resultChoices`, and `agent.sourceChoices`: ranked paths to inspect.

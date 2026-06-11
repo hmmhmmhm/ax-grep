@@ -900,6 +900,15 @@ type AgentSummary = {
   executorReadFrom?: string;
   executorUrl?: string;
   executorExpectedOutcome?: AgentExpectedOutcome["kind"];
+  handoffActionName?: string;
+  handoffOperation?: AgentExecutionPlan["operation"];
+  handoffAnswerStatus?: AgentAnswerPlan["status"];
+  handoffPriority?: AgentHandoff["priority"];
+  handoffPriorityReason?: string;
+  handoffCommandArgs?: string[];
+  handoffReadFrom?: string;
+  handoffUrl?: string;
+  handoffExpectedOutcome?: AgentExpectedOutcome["kind"];
   primaryActionName?: string;
   primaryReason?: string;
   primaryPriority?: NonNullable<SuggestedAction["priority"]>;
@@ -2424,6 +2433,12 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.executorActionName) lines.push(`  executorActionName: ${agent.executorActionName}`);
   if (agent.executorOperation) lines.push(`  executorOperation: ${agent.executorOperation}`);
   if (agent.executorExpectedOutcome) lines.push(`  executorExpectedOutcome: ${agent.executorExpectedOutcome}`);
+  if (agent.handoffActionName) lines.push(`  handoffActionName: ${agent.handoffActionName}`);
+  if (agent.handoffOperation) lines.push(`  handoffOperation: ${agent.handoffOperation}`);
+  if (agent.handoffAnswerStatus) lines.push(`  handoffAnswerStatus: ${agent.handoffAnswerStatus}`);
+  if (agent.handoffPriority) lines.push(`  handoffPriority: ${agent.handoffPriority}`);
+  if (agent.handoffPriorityReason) lines.push(`  handoffPriorityReason: ${agent.handoffPriorityReason}`);
+  if (agent.handoffExpectedOutcome) lines.push(`  handoffExpectedOutcome: ${agent.handoffExpectedOutcome}`);
   if (agent.executor.readFrom) lines.push(`  executorReadFrom: ${agent.executor.readFrom}`);
   if (agent.executor.readValue) lines.push(...formatAgentReadValueText(agent.executor.readValue, "executorReadValue"));
   if (agent.executor.commandArgs) lines.push(`  executorCommandArgs: ${formatCommandArgsText(agent.executor.commandArgs)}`);
@@ -8917,6 +8932,15 @@ function summarizeAgent(
     ...(executor.readFrom ? { executorReadFrom: executor.readFrom } : {}),
     ...(executor.url ? { executorUrl: executor.url } : {}),
     executorExpectedOutcome: executor.expectedOutcome,
+    ...(handoff.action ? { handoffActionName: handoff.action } : {}),
+    handoffOperation: handoff.operation,
+    handoffAnswerStatus: handoff.answerStatus,
+    ...(handoff.priority ? { handoffPriority: handoff.priority } : {}),
+    ...(handoff.priorityReason ? { handoffPriorityReason: handoff.priorityReason } : {}),
+    ...(handoff.commandArgs ? { handoffCommandArgs: handoff.commandArgs } : {}),
+    ...(handoff.readFrom ? { handoffReadFrom: handoff.readFrom } : {}),
+    ...(handoff.url ? { handoffUrl: handoff.url } : {}),
+    handoffExpectedOutcome: handoff.expectedOutcome,
   };
   if (bestReadTarget) {
     agent.bestReadTarget = bestReadTarget.path;
@@ -12617,6 +12641,15 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.executorReadFrom ? { executorReadFrom: agent.executorReadFrom } : {}),
     ...(agent.executorUrl ? { executorUrl: agent.executorUrl } : {}),
     ...(agent.executorExpectedOutcome ? { executorExpectedOutcome: agent.executorExpectedOutcome } : {}),
+    ...(agent.handoffActionName ? { handoffActionName: agent.handoffActionName } : {}),
+    ...(agent.handoffOperation ? { handoffOperation: agent.handoffOperation } : {}),
+    ...(agent.handoffAnswerStatus ? { handoffAnswerStatus: agent.handoffAnswerStatus } : {}),
+    ...(agent.handoffPriority ? { handoffPriority: agent.handoffPriority } : {}),
+    ...(agent.handoffPriorityReason ? { handoffPriorityReason: agent.handoffPriorityReason } : {}),
+    ...(agent.handoffCommandArgs ? { handoffCommandArgs: agent.handoffCommandArgs } : {}),
+    ...(agent.handoffReadFrom ? { handoffReadFrom: agent.handoffReadFrom } : {}),
+    ...(agent.handoffUrl ? { handoffUrl: agent.handoffUrl } : {}),
+    ...(agent.handoffExpectedOutcome ? { handoffExpectedOutcome: agent.handoffExpectedOutcome } : {}),
     ...(agent.primaryActionName ? { primaryActionName: agent.primaryActionName } : {}),
     ...(agent.primaryReason ? { primaryReason: agent.primaryReason } : {}),
     ...(agent.primaryPriority ? { primaryPriority: agent.primaryPriority } : {}),
@@ -12708,6 +12741,15 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.executorReadFrom ? { executorReadFrom: agent.executorReadFrom } : {}),
     ...(agent.executorUrl ? { executorUrl: agent.executorUrl } : {}),
     ...(agent.executorExpectedOutcome ? { executorExpectedOutcome: agent.executorExpectedOutcome } : {}),
+    ...(agent.handoffActionName ? { handoffActionName: agent.handoffActionName } : {}),
+    ...(agent.handoffOperation ? { handoffOperation: agent.handoffOperation } : {}),
+    ...(agent.handoffAnswerStatus ? { handoffAnswerStatus: agent.handoffAnswerStatus } : {}),
+    ...(agent.handoffPriority ? { handoffPriority: agent.handoffPriority } : {}),
+    ...(agent.handoffPriorityReason ? { handoffPriorityReason: agent.handoffPriorityReason } : {}),
+    ...(agent.handoffCommandArgs ? { handoffCommandArgs: agent.handoffCommandArgs } : {}),
+    ...(agent.handoffReadFrom ? { handoffReadFrom: agent.handoffReadFrom } : {}),
+    ...(agent.handoffUrl ? { handoffUrl: agent.handoffUrl } : {}),
+    ...(agent.handoffExpectedOutcome ? { handoffExpectedOutcome: agent.handoffExpectedOutcome } : {}),
     ...(agent.primaryActionName ? { primaryActionName: agent.primaryActionName } : {}),
     ...(agent.primaryReason ? { primaryReason: agent.primaryReason } : {}),
     ...(agent.primaryPriority ? { primaryPriority: agent.primaryPriority } : {}),

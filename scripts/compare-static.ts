@@ -107,6 +107,7 @@ type CliAgentSummary = {
   agentPrimaryExecutionScore: number;
   agentPrimaryShortcutScore: number;
   agentExecutorShortcutScore: number;
+  agentHandoffShortcutScore: number;
   agentCitationScore: number;
   agentAnswerPlanScore: number;
   agentAnswerEvidenceScore: number;
@@ -602,6 +603,7 @@ export type GateSummary = {
   averageAgentPrimaryExecutionScore: number;
   averageAgentPrimaryShortcutScore: number;
   averageAgentExecutorShortcutScore: number;
+  averageAgentHandoffShortcutScore: number;
   averageAgentCitationScore: number;
   averageAgentAnswerPlanScore: number;
   averageAgentAnswerEvidenceScore: number;
@@ -1117,6 +1119,15 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       executorReadFrom?: string;
       executorUrl?: string;
       executorExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
+      handoffActionName?: string;
+      handoffOperation?: CliAgentExecutionPlanShape["operation"];
+      handoffAnswerStatus?: CliAgentAnswerPlanShape["status"];
+      handoffPriority?: "low" | "medium" | "high";
+      handoffPriorityReason?: string;
+      handoffCommandArgs?: string[];
+      handoffReadFrom?: string;
+      handoffUrl?: string;
+      handoffExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
       primaryActionName?: string;
       primaryReason?: string;
       primaryPriority?: "low" | "medium" | "high";
@@ -1263,6 +1274,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentPrimaryExecutionScore: scoreAgentPrimaryExecution(item.agent?.primaryExecution, item.agent?.primaryAction),
     agentPrimaryShortcutScore: scoreAgentPrimaryShortcuts(item.agent),
     agentExecutorShortcutScore: scoreAgentExecutorShortcuts(item.agent),
+    agentHandoffShortcutScore: scoreAgentHandoffShortcuts(item.agent),
     agentCitationScore: scoreAgentCitations(item.agent?.citations ?? [], item, item.agent?.answerPlan, item.agent?.primaryAction, item.agent?.needsBrowserHtml),
     agentAnswerPlanScore: scoreAgentAnswerPlan(item.agent?.answerPlan, item.agent?.citations ?? [], item.agent?.primaryAction, item.agent?.needsBrowserHtml),
     agentAnswerEvidenceScore: scoreAgentAnswerEvidence(item.agent?.answerEvidence ?? [], item.agent?.answerPlan, item.agent?.citations ?? []),
@@ -1338,6 +1350,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentPrimaryExecutionScore: 0,
     agentPrimaryShortcutScore: 0,
     agentExecutorShortcutScore: 0,
+    agentHandoffShortcutScore: 0,
     agentCitationScore: 0,
     agentAnswerPlanScore: 0,
     agentAnswerEvidenceScore: 0,
@@ -3322,6 +3335,59 @@ function scoreAgentExecutorShortcuts(agent: {
   return roundScore(matched / required);
 }
 
+function scoreAgentHandoffShortcuts(agent: {
+  handoff?: CliAgentHandoffShape;
+  handoffActionName?: string;
+  handoffOperation?: CliAgentExecutionPlanShape["operation"];
+  handoffAnswerStatus?: CliAgentAnswerPlanShape["status"];
+  handoffPriority?: "low" | "medium" | "high";
+  handoffPriorityReason?: string;
+  handoffCommandArgs?: string[];
+  handoffReadFrom?: string;
+  handoffUrl?: string;
+  handoffExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
+} | undefined): number {
+  const handoff = agent?.handoff;
+  if (!handoff) return 0;
+  let required = 4;
+  let matched = 0;
+  if (agent.handoffActionName === handoff.action) matched += 1;
+  if (agent.handoffOperation === handoff.operation) matched += 1;
+  if (agent.handoffAnswerStatus === handoff.answerStatus) matched += 1;
+  if (agent.handoffExpectedOutcome === handoff.expectedOutcome) matched += 1;
+  if (handoff.priority) {
+    required += 1;
+    if (agent.handoffPriority === handoff.priority) matched += 1;
+  } else if (agent.handoffPriority) {
+    required += 1;
+  }
+  if (handoff.priorityReason) {
+    required += 1;
+    if (agent.handoffPriorityReason === handoff.priorityReason) matched += 1;
+  } else if (agent.handoffPriorityReason) {
+    required += 1;
+  }
+  if (handoff.commandArgs) {
+    required += 1;
+    if (JSON.stringify(agent.handoffCommandArgs) === JSON.stringify(handoff.commandArgs)) matched += 1;
+  } else if (agent.handoffCommandArgs) {
+    required += 1;
+  }
+  if (handoff.readFrom) {
+    required += 1;
+    if (agent.handoffReadFrom === handoff.readFrom) matched += 1;
+  } else if (agent.handoffReadFrom) {
+    required += 1;
+  }
+  if (handoff.url) {
+    required += 1;
+    if (agent.handoffUrl === handoff.url) matched += 1;
+  } else if (agent.handoffUrl) {
+    required += 1;
+  }
+  return roundScore(matched / required);
+}
+
 function scoreAgentSourceSearchProvenance(
   sourceSearch: { selectedResult?: unknown; alternateResults?: unknown[] } | undefined,
   readTargets: CliReadTargetShape[],
@@ -3501,6 +3567,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.pageLinkCommandScore * 0.005
     + summary.agentPrimaryShortcutScore * 0.005
     + summary.agentExecutorShortcutScore * 0.005
+    + summary.agentHandoffShortcutScore * 0.005
     + summary.agentCitationScore * 0.005
     + summary.agentAnswerPlanScore * 0.005
     + summary.agentAnswerEvidenceScore * 0.005
@@ -3660,6 +3727,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentPrimaryExecutionScore: average(included.map((comparison) => comparison.cliAgentSummary.agentPrimaryExecutionScore)),
     averageAgentPrimaryShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentPrimaryShortcutScore)),
     averageAgentExecutorShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExecutorShortcutScore)),
+    averageAgentHandoffShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentHandoffShortcutScore)),
     averageAgentCitationScore: average(included.map((comparison) => comparison.cliAgentSummary.agentCitationScore)),
     averageAgentAnswerPlanScore: average(included.map((comparison) => comparison.cliAgentSummary.agentAnswerPlanScore)),
     averageAgentAnswerEvidenceScore: average(included.map((comparison) => comparison.cliAgentSummary.agentAnswerEvidenceScore)),

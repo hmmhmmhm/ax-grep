@@ -786,6 +786,15 @@ describe("cli", () => {
       if (executor.commandArgs) expect(envelope.agent.executorCommandArgs).toEqual(executor.commandArgs);
       if (executor.readFrom) expect(envelope.agent.executorReadFrom).toBe(executor.readFrom);
       if (executor.url) expect(envelope.agent.executorUrl).toBe(executor.url);
+      expect(envelope.agent.handoffActionName).toBe(handoff.action);
+      expect(envelope.agent.handoffOperation).toBe(handoff.operation);
+      expect(envelope.agent.handoffAnswerStatus).toBe(handoff.answerStatus);
+      expect(envelope.agent.handoffExpectedOutcome).toBe(handoff.expectedOutcome);
+      if (handoff.priority) expect(envelope.agent.handoffPriority).toBe(handoff.priority);
+      if (handoff.priorityReason) expect(envelope.agent.handoffPriorityReason).toBe(handoff.priorityReason);
+      if (handoff.commandArgs) expect(envelope.agent.handoffCommandArgs).toEqual(handoff.commandArgs);
+      if (handoff.readFrom) expect(envelope.agent.handoffReadFrom).toBe(handoff.readFrom);
+      if (handoff.url) expect(envelope.agent.handoffUrl).toBe(handoff.url);
       if (executor.commandArgs) expect(handoff.commandArgs).toEqual(executor.commandArgs);
       if (executor.readFrom) expect(handoff.readFrom).toBe(executor.readFrom);
       if (executor.url) expect(handoff.url).toBe(executor.url);

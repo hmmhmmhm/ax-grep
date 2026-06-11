@@ -193,6 +193,10 @@ reason, priority, command, URL, rank, read-from, and browser shortcuts mirror
 operation, command arguments, read-from, URL, and expected-outcome shortcuts
 mirror `agent.executor`, so subagents can route the next step without parsing
 the full executor object.
+`averageAgentHandoffShortcutScore` tracks whether `agent.handoffActionName`,
+operation, answer status, priority, command arguments, read-from, URL, and
+expected-outcome shortcuts mirror `agent.handoff`, so brief loops can run from
+top-level fields when they do not need the full handoff object.
 `averageAgentSourceSearchProvenanceScore` tracks whether opened-result payloads
 with `sourceSearch.selectedResult` or `sourceSearch.alternateResults` expose
 matching `agent.readTargets`, so agents can inspect original SERP provenance

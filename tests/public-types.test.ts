@@ -183,6 +183,15 @@ describe("public agent types", () => {
       | "executorReadFrom"
       | "executorUrl"
       | "executorExpectedOutcome"
+      | "handoffActionName"
+      | "handoffOperation"
+      | "handoffAnswerStatus"
+      | "handoffPriority"
+      | "handoffPriorityReason"
+      | "handoffCommandArgs"
+      | "handoffReadFrom"
+      | "handoffUrl"
+      | "handoffExpectedOutcome"
       | "primaryActionName"
       | "primaryReason"
       | "primaryPriority"
@@ -221,6 +230,15 @@ describe("public agent types", () => {
       executorReadFrom: "pageCheck.contentEvidence",
       executorUrl: "https://example.test",
       executorExpectedOutcome: "read-evidence",
+      handoffActionName: "read-content",
+      handoffOperation: "return",
+      handoffAnswerStatus: "ready",
+      handoffPriority: "high",
+      handoffPriorityReason: "Readable content is available.",
+      handoffCommandArgs: ["ax-grep", "https://example.test", "--agent"],
+      handoffReadFrom: "pageCheck.contentEvidence",
+      handoffUrl: "https://example.test",
+      handoffExpectedOutcome: "read-evidence",
       primaryActionName: "read-content",
       primaryReason: "Read current evidence.",
       primaryPriority: "high",
@@ -237,6 +255,7 @@ describe("public agent types", () => {
     expect(summary.readTargetCount).toBe(3);
     expect(summary.qualityGateFailCount).toBe(1);
     expect(summary.executorOperation).toBe("return");
+    expect(summary.handoffAnswerStatus).toBe("ready");
     expect(summary.primaryActionName).toBe("read-content");
   });
 });
