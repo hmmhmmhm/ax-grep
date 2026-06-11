@@ -118,4 +118,28 @@ describe("public agent types", () => {
     expect(summary.actions?.[0]?.sourceLinkRef).toBe("pageCheck.sourceLinks[0]");
     expect(summary.primaryAction?.sourceLinkRef).toBe("pageCheck.sourceLinks[0]");
   });
+
+  it("exports top-level agent count shortcuts", () => {
+    const summary: Pick<
+      AgentSummary,
+      | "resultCount"
+      | "evidenceCount"
+      | "formCount"
+      | "actionTargetCount"
+      | "hiddenSignalCount"
+      | "hiddenReadTargetCount"
+      | "sourceLinkCount"
+    > = {
+      resultCount: 2,
+      evidenceCount: 1,
+      formCount: 1,
+      actionTargetCount: 2,
+      hiddenSignalCount: 4,
+      hiddenReadTargetCount: 2,
+      sourceLinkCount: 1,
+    };
+
+    expect(summary.hiddenSignalCount).toBe(4);
+    expect(summary.actionTargetCount).toBe(2);
+  });
 });
