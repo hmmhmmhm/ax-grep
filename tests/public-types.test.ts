@@ -39,6 +39,8 @@ describe("public agent types", () => {
       url: "https://source.example/report",
       selector: "a:nth-of-type(1)",
       kind: "external",
+      sourceScore: 0.91,
+      selectionReason: "High-quality source link.",
       commandArgs: ["ax-grep", "https://source.example/report", "--agent-brief"],
     };
     const evidence: AgentCitation = {
@@ -205,6 +207,13 @@ describe("public agent types", () => {
       | "bestHiddenReadTargetReason"
       | "sourceLinkCount"
       | "sourceChoiceCount"
+      | "topSourceChoicePath"
+      | "topSourceChoiceTitle"
+      | "topSourceChoiceUrl"
+      | "topSourceChoiceCommandArgs"
+      | "topSourceChoiceSourceScore"
+      | "topSourceChoicePrimary"
+      | "topSourceChoiceReason"
       | "topChoiceKind"
       | "topChoicePath"
       | "topChoiceLabel"
@@ -432,6 +441,13 @@ describe("public agent types", () => {
       bestHiddenReadTargetReason: "Hidden API endpoints.",
       sourceLinkCount: 1,
       sourceChoiceCount: 1,
+      topSourceChoicePath: "pageCheck.sourceLinks[0]",
+      topSourceChoiceTitle: "Source",
+      topSourceChoiceUrl: "https://source.example/report",
+      topSourceChoiceCommandArgs: ["ax-grep", "https://source.example/report", "--agent-brief"],
+      topSourceChoiceSourceScore: 0.91,
+      topSourceChoicePrimary: true,
+      topSourceChoiceReason: "High-quality source link.",
       topChoiceKind: "source",
       topChoicePath: "pageCheck.sourceLinks[0]",
       topChoiceLabel: "Source",
@@ -619,6 +635,8 @@ describe("public agent types", () => {
     expect(summary.formChoices?.[0]?.queryField).toBe("q");
     expect(summary.actionTargetChoices?.[0]?.kind).toBe("search");
     expect(summary.topChoiceKind).toBe("source");
+    expect(summary.topSourceChoicePath).toBe("pageCheck.sourceLinks[0]");
+    expect(summary.topSourceChoiceCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.sourceSearchQuery).toBe("ax-grep docs");
     expect(summary.sourceSearchSelectedTitle).toBe("ax-grep documentation");
     expect(summary.sourceSearchAlternateCount).toBe(1);

@@ -9016,6 +9016,11 @@ npx ax-grep https://example.test --agent</code></pre>
       status: "ready",
       resultCount: 0,
       sourceLinkCount: 1,
+      sourceChoiceCount: 1,
+      topSourceChoicePath: "pageCheck.sourceLinks[0]",
+      topSourceChoiceUrl: "https://source.example/reference",
+      topSourceChoiceCommandArgs: ["ax-grep", "https://source.example/reference", "--agent"],
+      topSourceChoiceReason: expect.any(String),
       readabilityScore: expect.any(Number),
       readabilityReasons: expect.arrayContaining([
         "2 content evidence items",

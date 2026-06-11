@@ -640,6 +640,13 @@ export type AgentSummary = {
   sourceLinkCount?: number;
   sourceChoiceCount?: number;
   sourceChoices?: AgentSourceChoice[];
+  topSourceChoicePath?: string;
+  topSourceChoiceTitle?: string;
+  topSourceChoiceUrl?: string;
+  topSourceChoiceCommandArgs?: string[];
+  topSourceChoiceSourceScore?: number;
+  topSourceChoicePrimary?: boolean;
+  topSourceChoiceReason?: string;
   topChoiceKind?: "result" | "source" | "form" | "action-target";
   topChoicePath?: string;
   topChoiceLabel?: string;

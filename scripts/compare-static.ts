@@ -101,6 +101,7 @@ type CliAgentSummary = {
   agentFormActionChoiceScore: number;
   agentHiddenSignalCountScore: number;
   agentSourceChoiceScore: number;
+  agentTopSourceChoiceShortcutScore: number;
   agentSourceSearchShortcutScore: number;
   agentBrowserNeedScore: number;
   agentBrowserHtmlScore: number;
@@ -602,6 +603,7 @@ export type GateSummary = {
   averageAgentFormActionChoiceScore: number;
   averageAgentHiddenSignalCountScore: number;
   averageAgentSourceChoiceScore: number;
+  averageAgentTopSourceChoiceShortcutScore: number;
   averageAgentSourceSearchShortcutScore: number;
   averageAgentBrowserNeedScore: number;
   averageAgentBrowserHtmlScore: number;
@@ -1249,6 +1251,13 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceLinkCount?: number;
       sourceChoiceCount?: number;
       sourceChoices?: CliAgentSourceChoiceShape[];
+      topSourceChoicePath?: string;
+      topSourceChoiceTitle?: string;
+      topSourceChoiceUrl?: string;
+      topSourceChoiceCommandArgs?: string[];
+      topSourceChoiceSourceScore?: number;
+      topSourceChoicePrimary?: boolean;
+      topSourceChoiceReason?: string;
       topChoiceKind?: "result" | "source" | "form" | "action-target";
       topChoicePath?: string;
       topChoiceLabel?: string;
@@ -1476,6 +1485,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentFormActionChoiceScore: scoreAgentFormActionChoices(item.agent?.formChoices ?? [], item.agent?.actionTargetChoices ?? [], item.pageCheck?.forms ?? [], item.pageCheck?.actionTargets ?? []),
     agentHiddenSignalCountScore: scoreAgentHiddenSignalCounts(item.agent, hiddenSignalCount),
     agentSourceChoiceScore: scoreAgentSourceChoices(item.kind ?? "unknown", item.agent?.sourceChoices ?? [], item.pageCheck?.sourceLinks ?? [], item.agent?.primaryAction),
+    agentTopSourceChoiceShortcutScore: scoreAgentTopSourceChoiceShortcuts(item.agent),
     agentSourceSearchShortcutScore: scoreAgentSourceSearchShortcuts(item.agent, item.sourceSearch),
     agentBrowserNeedScore: scoreAgentBrowserNeed(item.agent?.needsBrowserHtml, item.agent?.status, item.agent?.primaryAction),
     agentBrowserHtmlScore: scoreAgentBrowserHtml(item.agent?.next, item.agent?.executionPlan, item.agent?.primaryAction),
@@ -1561,6 +1571,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentFormActionChoiceScore: 0,
     agentHiddenSignalCountScore: 0,
     agentSourceChoiceScore: 0,
+    agentTopSourceChoiceShortcutScore: 0,
     agentSourceSearchShortcutScore: 0,
     agentBrowserNeedScore: 0,
     agentBrowserHtmlScore: 0,
@@ -3381,6 +3392,58 @@ function scoreAgentSourceChoices(
   return roundScore(matched / required);
 }
 
+function scoreAgentTopSourceChoiceShortcuts(agent: {
+  sourceChoices?: CliAgentSourceChoiceShape[];
+  topSourceChoicePath?: string;
+  topSourceChoiceTitle?: string;
+  topSourceChoiceUrl?: string;
+  topSourceChoiceCommandArgs?: string[];
+  topSourceChoiceSourceScore?: number;
+  topSourceChoicePrimary?: boolean;
+  topSourceChoiceReason?: string;
+} | undefined): number {
+  const top = agent?.sourceChoices?.[0];
+  if (!top) {
+    return agent?.topSourceChoicePath
+      || agent?.topSourceChoiceTitle
+      || agent?.topSourceChoiceUrl
+      || agent?.topSourceChoiceCommandArgs
+      || typeof agent?.topSourceChoiceSourceScore === "number"
+      || typeof agent?.topSourceChoicePrimary === "boolean"
+      || agent?.topSourceChoiceReason ? 0 : 1;
+  }
+  let required = 3;
+  let matched = 0;
+  if (agent?.topSourceChoicePath === top.path) matched += 1;
+  if (agent?.topSourceChoiceUrl === top.url) matched += 1;
+  if (JSON.stringify(agent?.topSourceChoiceCommandArgs) === JSON.stringify(top.commandArgs)) matched += 1;
+  if (top.title) {
+    required += 1;
+    if (agent?.topSourceChoiceTitle === top.title) matched += 1;
+  } else if (agent?.topSourceChoiceTitle) {
+    required += 1;
+  }
+  if (typeof top.sourceScore === "number") {
+    required += 1;
+    if (agent?.topSourceChoiceSourceScore === top.sourceScore) matched += 1;
+  } else if (typeof agent?.topSourceChoiceSourceScore === "number") {
+    required += 1;
+  }
+  if (typeof top.primary === "boolean") {
+    required += 1;
+    if (agent?.topSourceChoicePrimary === top.primary) matched += 1;
+  } else if (typeof agent?.topSourceChoicePrimary === "boolean") {
+    required += 1;
+  }
+  if (top.selectionReason) {
+    required += 1;
+    if (agent?.topSourceChoiceReason === top.selectionReason) matched += 1;
+  } else if (agent?.topSourceChoiceReason) {
+    required += 1;
+  }
+  return roundScore(matched / required);
+}
+
 function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchQuery?: string;
   sourceSearchEngine?: string;
@@ -4783,6 +4846,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentResultChoiceScore * 0.005
     + summary.agentSourceLinkCountScore * 0.005
     + summary.agentSourceChoiceScore * 0.005
+    + summary.agentTopSourceChoiceShortcutScore * 0.005
     + summary.agentSourceSearchShortcutScore * 0.005
     + summary.agentFormActionChoiceScore * 0.005
     + summary.agentBrowserNeedScore * 0.005
@@ -4858,6 +4922,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentFormActionChoiceScore,
     summary.agentHiddenSignalCountScore,
     summary.agentSourceChoiceScore,
+    summary.agentTopSourceChoiceShortcutScore,
     summary.agentSourceSearchShortcutScore,
     summary.agentBrowserNeedScore,
     summary.agentBrowserHtmlScore,
@@ -4967,6 +5032,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentFormActionChoiceScore: average(included.map((comparison) => comparison.cliAgentSummary.agentFormActionChoiceScore)),
     averageAgentHiddenSignalCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentHiddenSignalCountScore)),
     averageAgentSourceChoiceScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSourceChoiceScore)),
+    averageAgentTopSourceChoiceShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentTopSourceChoiceShortcutScore)),
     averageAgentSourceSearchShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSourceSearchShortcutScore)),
     averageAgentBrowserNeedScore: average(included.map((comparison) => comparison.cliAgentSummary.agentBrowserNeedScore)),
     averageAgentBrowserHtmlScore: average(included.map((comparison) => comparison.cliAgentSummary.agentBrowserHtmlScore)),
