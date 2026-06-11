@@ -644,6 +644,9 @@ export type AgentSummary = {
   semanticTopRelationName?: string;
   semanticTopRelation?: string;
   semanticTopRelationTarget?: string;
+  semanticTopRelationTargetRole?: string;
+  semanticTopRelationTargetName?: string;
+  semanticTopRelationTargetSelector?: string;
   semanticTopRelationSelector?: string;
   semanticTopChoiceRole?: string;
   semanticTopChoicePath?: string;

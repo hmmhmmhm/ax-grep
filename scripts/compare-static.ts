@@ -1591,6 +1591,9 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopRelationName?: string;
       semanticTopRelation?: string;
       semanticTopRelationTarget?: string;
+      semanticTopRelationTargetRole?: string;
+      semanticTopRelationTargetName?: string;
+      semanticTopRelationTargetSelector?: string;
       semanticTopRelationSelector?: string;
       semanticTopChoiceRole?: string;
       semanticTopChoicePath?: string;
@@ -4563,6 +4566,9 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopRelationName?: string;
   semanticTopRelation?: string;
   semanticTopRelationTarget?: string;
+  semanticTopRelationTargetRole?: string;
+  semanticTopRelationTargetName?: string;
+  semanticTopRelationTargetSelector?: string;
   semanticTopRelationSelector?: string;
   semanticTopChoiceRole?: string;
   semanticTopChoicePath?: string;
@@ -5049,7 +5055,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopValueSelector === valueItem.selector) matched += 1;
   }
-  const relationItem = Array.isArray(item.relationItems) ? item.relationItems[0] as { path?: unknown; role?: unknown; name?: unknown; relation?: unknown; target?: unknown; selector?: unknown } | undefined : undefined;
+  const relationItem = Array.isArray(item.relationItems) ? item.relationItems[0] as { path?: unknown; role?: unknown; name?: unknown; relation?: unknown; target?: unknown; targetRole?: unknown; targetName?: unknown; targetSelector?: unknown; selector?: unknown } | undefined : undefined;
   if (relationItem && typeof relationItem.role === "string") {
     required += 1;
     if (agent?.semanticTopRelationRole === relationItem.role) matched += 1;
@@ -5069,6 +5075,18 @@ function scoreAgentSemanticSummary(agent: {
   if (relationItem && typeof relationItem.target === "string") {
     required += 1;
     if (agent?.semanticTopRelationTarget === relationItem.target) matched += 1;
+  }
+  if (relationItem && typeof relationItem.targetRole === "string") {
+    required += 1;
+    if (agent?.semanticTopRelationTargetRole === relationItem.targetRole) matched += 1;
+  }
+  if (relationItem && typeof relationItem.targetName === "string") {
+    required += 1;
+    if (agent?.semanticTopRelationTargetName === relationItem.targetName) matched += 1;
+  }
+  if (relationItem && typeof relationItem.targetSelector === "string") {
+    required += 1;
+    if (agent?.semanticTopRelationTargetSelector === relationItem.targetSelector) matched += 1;
   }
   if (relationItem && typeof relationItem.selector === "string") {
     required += 1;

@@ -445,6 +445,9 @@ describe("public agent types", () => {
       | "semanticTopRelationName"
       | "semanticTopRelation"
       | "semanticTopRelationTarget"
+      | "semanticTopRelationTargetRole"
+      | "semanticTopRelationTargetName"
+      | "semanticTopRelationTargetSelector"
       | "semanticTopRelationSelector"
       | "semanticTopChoiceRole"
       | "semanticTopChoicePath"
@@ -892,6 +895,9 @@ describe("public agent types", () => {
       semanticTopRelationName: "More filters",
       semanticTopRelation: "controls",
       semanticTopRelationTarget: "filters",
+      semanticTopRelationTargetRole: "dialog",
+      semanticTopRelationTargetName: "Filter reports",
+      semanticTopRelationTargetSelector: "#filters",
       semanticTopRelationSelector: "button[aria-controls=\"filters\"]",
       semanticTopChoiceRole: "option",
       semanticTopChoicePath: "agent.semanticSummary.choiceItems[0]",

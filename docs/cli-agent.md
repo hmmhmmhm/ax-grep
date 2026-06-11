@@ -67,7 +67,7 @@ Read these first:
 - `agent.bestHiddenReadTarget*`: best hidden metadata path to inspect first.
 - `agent.topHiddenSignal*`: first hidden metadata/API/config/provenance signal.
 - `agent.semantic*`: compact semantic tree counts and direct paths to top
-  heading/landmark/named role/interactive/focusable/link/button/image/table/list/form-field/description/value/relation/choice/state/unavailable entries.
+  heading/landmark/named role/interactive/focusable/link/button/image/table/list/form-field/description/value/relation/choice/state/unavailable entries. Relation shortcuts include resolved target role/selector when available.
 - `agent.barrierCount` and `agent.topBarrier*`: primary login, paywall,
   challenge, consent, age, or geo barrier details for browser routing.
 - `agent.dataTableCount`, `agent.faqCount`, `agent.codeBlockCount`,

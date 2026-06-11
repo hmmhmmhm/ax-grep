@@ -252,7 +252,7 @@ describe("cli", () => {
               <h1>Example</h1>
               <p id="toggle-desc">Shows extra context</p>
               <button aria-pressed="false" aria-valuetext="details off" aria-describedby="toggle-desc" aria-controls="details-panel">Toggle details</button>
-              <section id="details-panel">Extra details</section>
+              <section id="details-panel" aria-label="Details panel">Extra details</section>
               <img src="/hero.png" alt="Hero chart">
               <p class="byline">By <a href="/authors/reporter">Reporter Profile</a></p>
               <p>Example content for agent routing.</p>
@@ -296,7 +296,7 @@ describe("cli", () => {
           interactiveCount: 3,
           focusableCount: 3,
           headingCount: 1,
-          landmarkCount: 1,
+          landmarkCount: 2,
           linkCount: 2,
           buttonCount: 1,
           imageCount: 1,
@@ -309,7 +309,7 @@ describe("cli", () => {
           ]),
           landmarks: expect.arrayContaining(["main"]),
           headings: ["Example"],
-          namedRoles: expect.arrayContaining(["heading:Example", "button:Toggle details", "img:Hero chart", "link:Reporter Profile"]),
+          namedRoles: expect.arrayContaining(["heading:Example", "button:Toggle details", "region:Details panel", "img:Hero chart"]),
           headingItems: [
             expect.objectContaining({
               path: "agent.semanticSummary.headingItems[0]",
@@ -317,12 +317,18 @@ describe("cli", () => {
               level: 1,
             }),
           ],
-          landmarkItems: [
+          landmarkItems: expect.arrayContaining([
             expect.objectContaining({
               path: "agent.semanticSummary.landmarkItems[0]",
               role: "main",
             }),
-          ],
+            expect.objectContaining({
+              path: "agent.semanticSummary.landmarkItems[1]",
+              role: "region",
+              name: "Details panel",
+              selector: "#details-panel",
+            }),
+          ]),
           namedRoleItems: expect.arrayContaining([
             expect.objectContaining({
               path: "agent.semanticSummary.namedRoleItems[0]",
@@ -381,6 +387,9 @@ describe("cli", () => {
               name: "Toggle details",
               relation: "controls",
               target: "details-panel",
+              targetRole: "region",
+              targetName: "Details panel",
+              targetSelector: "#details-panel",
               selector: "button",
             }),
           ],
@@ -390,7 +399,7 @@ describe("cli", () => {
         semanticInteractiveCount: 3,
         semanticFocusableCount: 3,
         semanticHeadingCount: 1,
-        semanticLandmarkCount: 1,
+        semanticLandmarkCount: 2,
         semanticLinkCount: 2,
         semanticButtonCount: 1,
         semanticImageCount: 1,
@@ -444,6 +453,9 @@ describe("cli", () => {
         semanticTopRelationName: "Toggle details",
         semanticTopRelation: "controls",
         semanticTopRelationTarget: "details-panel",
+        semanticTopRelationTargetRole: "region",
+        semanticTopRelationTargetName: "Details panel",
+        semanticTopRelationTargetSelector: "#details-panel",
         semanticTopRelationSelector: "button",
         routingIntent: "read-current",
         continuationMode: "read",
