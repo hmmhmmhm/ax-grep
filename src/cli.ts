@@ -8700,7 +8700,7 @@ function summarizeAgent(
   const citations = summarizeAgentCitations(analysis.kind, pageCheck, verification, primaryAction, recommendedResult, sourceSearch);
   const searchDecision = summarizeAgentSearchDecision(analysis, results, recommendedResult, primaryAction);
   const pageDecision = summarizeAgentPageDecision(analysis, pageCheck, primaryAction);
-  const resultChoices = summarizeAgentResultChoices(hasUsableSearchResults ? results : [], recommendedResult, primaryAction, sourceSearch, agentMode, findQueries, timeoutMs, userAgent);
+  const resultChoices = summarizeAgentResultChoices(hasUsableSearchResults ? results : [], recommendedResult, primaryAction, sourceSearch);
   const sourceChoices = summarizeAgentSourceChoices(analysis.kind, pageCheck.sourceLinks, primaryAction, agentMode, findQueries, timeoutMs, userAgent);
   const next = summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch, semanticSummary));
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
@@ -8946,10 +8946,6 @@ function summarizeAgentResultChoices(
   recommendedResult: ResultSummary | undefined,
   primaryAction: SuggestedAction | undefined,
   sourceSearch?: SourceSearchSummary,
-  agentMode = false,
-  findQueries: string[] = [],
-  timeoutMs?: number,
-  userAgent?: string,
 ): AgentResultChoice[] {
   if (results.length === 0) return [];
   return selectCompactSearchResults(results, recommendedResult).map((result, index) => {
@@ -8965,7 +8961,7 @@ function summarizeAgentResultChoices(
       result.rank,
       sourceSearch.timeoutMs,
       sourceSearch.userAgent,
-    ) : pageCommandSpec(result.url, agentMode, false, findQueries, timeoutMs, userAgent);
+    ) : undefined;
     return {
       id: `r${result.rank}`,
       path: `searchResults[${index}]`,
@@ -11789,7 +11785,7 @@ function agentJsonEnvelope(envelope: {
     searchRegion: envelope.searchRegion,
     sourceSearch: compactAgentSourceSearch(envelope.sourceSearch),
     ...(envelope.warnings.length > 0 ? { warnings: envelope.warnings } : {}),
-    agent: compactAgentSummary(envelope.agent, searchCommandContext),
+    agent: compactAgentSummary(envelope.agent, searchCommandContext, pageLinkContext),
     ...compactAgentPage(envelope.page),
     pageCheck: compactAgentPageCheck(envelope.pageCheck, envelope.agent.primaryAction, envelope.searchResults.length > 0, pageLinkContext, envelope.agent.readTargets),
     ...compactAgentVerification(envelope.verification, envelope.agent.primaryAction),
@@ -11847,7 +11843,7 @@ function agentBriefJsonEnvelope(envelope: {
     searchLang: envelope.searchLang,
     searchRegion: envelope.searchRegion,
     ...(envelope.warnings.length > 0 ? { warnings: envelope.warnings } : {}),
-    agent: compactAgentBrief(envelope.agent, searchCommandContext),
+    agent: compactAgentBrief(envelope.agent, searchCommandContext, pageLinkContext),
     ...compactAgentPage(envelope.page),
     pageCheck: compactAgentBriefPageCheck(envelope.pageCheck, envelope.agent.primaryAction, envelope.agent.readTargets, pageLinkContext),
     ...compactAgentVerification(envelope.verification, envelope.agent.primaryAction),
@@ -12285,7 +12281,7 @@ function compactSuggestedActions(actions: SuggestedAction[], primaryAction?: Sug
     .map((action) => compactAgentAction(action));
 }
 
-function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchResultCommandContext): object {
+function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchResultCommandContext, pageLinkContext?: PageLinkCommandContext): object {
   return {
     contract: compactAgentContract(agent.contract),
     status: agent.status,
@@ -12296,7 +12292,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     next: compactAgentNext(agent.next, agent.primaryUrl),
     runbook: compactAgentRunbook(agent.runbook, agent.primaryUrl),
     executor: compactAgentExecutor(agent.executor, agent.primaryUrl),
-    handoff: compactAgentHandoff(agent.handoff, agent.primaryUrl, searchCommandContext),
+    handoff: compactAgentHandoff(agent.handoff, agent.primaryUrl, searchCommandContext, pageLinkContext),
     expectedOutcome: agent.expectedOutcome,
     executionPlan: compactAgentUrlRefs(agent.executionPlan, agent.primaryUrl),
     answerPlan: compactAgentUrlRefs(agent.answerPlan, agent.primaryUrl),
@@ -12322,7 +12318,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     verificationFoundCount: agent.verificationFoundCount,
     verificationMissingCount: agent.verificationMissingCount,
     resultCount: agent.resultCount,
-    ...(agent.resultChoices.length > 0 ? { resultChoices: agent.resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext)) } : {}),
+    ...(agent.resultChoices.length > 0 ? { resultChoices: agent.resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext, pageLinkContext)) } : {}),
     evidenceCount: agent.evidenceCount,
     sourceLinkCount: agent.sourceLinkCount,
     ...(agent.sourceChoices.length > 0 ? { sourceChoices: compactAgentSourceChoiceList(agent.sourceChoices) } : {}),
@@ -12361,7 +12357,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
   };
 }
 
-function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchResultCommandContext): object {
+function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchResultCommandContext, pageLinkContext?: PageLinkCommandContext): object {
   return {
     contract: {
       version: agent.contract.version,
@@ -12373,7 +12369,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     pageKind: agent.pageKind,
     summary: agent.summary,
     executor: compactAgentExecutor(agent.executor, agent.primaryUrl),
-    handoff: compactAgentBriefHandoff(agent.handoff, agent.primaryUrl, searchCommandContext),
+    handoff: compactAgentBriefHandoff(agent.handoff, agent.primaryUrl, searchCommandContext, pageLinkContext),
     canContinue: agent.canContinue,
     needsBrowserHtml: agent.needsBrowserHtml,
     confidence: agent.confidence,
@@ -12403,7 +12399,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
   };
 }
 
-function compactAgentBriefHandoff(handoff: AgentHandoff, primaryUrl?: string, searchCommandContext?: SearchResultCommandContext): object {
+function compactAgentBriefHandoff(handoff: AgentHandoff, primaryUrl?: string, searchCommandContext?: SearchResultCommandContext, pageLinkContext?: PageLinkCommandContext): object {
   const signals = compactAgentBriefHandoffSignals(handoff.signals);
   const qualityGates = compactAgentBriefHandoffQualityGates(handoff.qualityGates);
   const compact = {
@@ -12432,7 +12428,7 @@ function compactAgentBriefHandoff(handoff: AgentHandoff, primaryUrl?: string, se
     ...(handoff.readValue ? { readValue: compactAgentReadValue(handoff.readValue, true) } : {}),
     ...(handoff.browserHtml ? { browserHtml: compactAgentBrowserHtml(handoff.browserHtml) } : {}),
     ...(handoff.sourceSearch ? { sourceSearch: handoff.sourceSearch } : {}),
-    ...(handoff.resultChoices && handoff.resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(handoff.resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext)), 900) } : {}),
+    ...(handoff.resultChoices && handoff.resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(handoff.resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext, pageLinkContext)), 900) } : {}),
     ...(handoff.sourceChoices && handoff.sourceChoices.length > 0 ? { sourceChoices: compactAgentSourceChoiceList(handoff.sourceChoices, 900) } : {}),
     ...(handoff.answerEvidence && handoff.answerEvidence.length > 0 ? { answerEvidence: handoff.answerEvidence.map(compactAgentAnswerEvidenceRef) } : {}),
     ...(signals.length > 0 ? { signals } : {}),
@@ -12580,7 +12576,7 @@ function compactAgentExecutor(executor: AgentExecutorStep, primaryUrl?: string):
   }, primaryUrl);
 }
 
-function compactAgentHandoff(handoff: AgentHandoff, primaryUrl?: string, searchCommandContext?: SearchResultCommandContext): object {
+function compactAgentHandoff(handoff: AgentHandoff, primaryUrl?: string, searchCommandContext?: SearchResultCommandContext, pageLinkContext?: PageLinkCommandContext): object {
   const { readValue, readTarget, sourceChoices, resultChoices, answerEvidence, target, signals: _signals, qualityGates: _qualityGates, ...rest } = handoff;
   const keepSignals = handoff.signals?.some((signal) => signal.kind === "verification" || signal.kind === "browser") === true;
   const keepQualityGates = handoff.qualityGates?.some((gate) => gate.kind === "verification") === true;
@@ -12591,7 +12587,7 @@ function compactAgentHandoff(handoff: AgentHandoff, primaryUrl?: string, searchC
     ...(target ? { target: compactAgentTarget(target, handoff.action) } : {}),
     ...(readTarget ? { readTarget: compactAgentHandoffReadTarget(readTarget) } : {}),
     ...(answerEvidence && answerEvidence.length > 0 ? { answerEvidence: answerEvidence.map(compactAgentAnswerEvidenceRef) } : {}),
-    ...(resultChoices && resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext))) } : {}),
+    ...(resultChoices && resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext, pageLinkContext))) } : {}),
     ...(sourceChoices && sourceChoices.length > 0 ? { sourceChoices: compactAgentSourceChoiceList(sourceChoices) } : {}),
     ...(readValue ? { readValue: compactAgentReadValue(readValue, true) } : {}),
   }, primaryUrl);
@@ -12670,19 +12666,24 @@ function compactAgentSourceChoiceList(choices: AgentSourceChoice[], threshold = 
   return choices.map(compactAgentSourceChoiceRef);
 }
 
-function compactAgentResultChoice(choice: AgentResultChoice, commandContext?: SearchResultCommandContext): AgentResultChoice {
-  if (choice.commandArgs || !commandContext) return choice;
-  const command = searchOpenCommandSpec(
-    commandContext.query,
-    commandContext.engine,
-    commandContext.findQueries,
-    commandContext.agentMode,
-    commandContext.lang,
-    commandContext.region,
-    choice.rank ?? 1,
-    commandContext.timeoutMs,
-    commandContext.userAgent,
-  );
+function compactAgentResultChoice(choice: AgentResultChoice, commandContext?: SearchResultCommandContext, pageLinkContext?: PageLinkCommandContext): AgentResultChoice {
+  if (choice.commandArgs) return choice;
+  const command = commandContext
+    ? searchOpenCommandSpec(
+      commandContext.query,
+      commandContext.engine,
+      commandContext.findQueries,
+      commandContext.agentMode,
+      commandContext.lang,
+      commandContext.region,
+      choice.rank ?? 1,
+      commandContext.timeoutMs,
+      commandContext.userAgent,
+    )
+    : choice.url && pageLinkContext
+      ? pageCommandSpec(choice.url, pageLinkContext.agentMode, false, pageLinkContext.findQueries, pageLinkContext.timeoutMs, pageLinkContext.userAgent)
+      : undefined;
+  if (!command) return choice;
   return {
     ...choice,
     openResult: choice.rank ?? 1,

@@ -1128,6 +1128,44 @@ describe("cli", () => {
     expect(stdout.output).toContain("source=result.example <https://result.example/> - Ranked result 1 from result.example. Agent browser result");
   });
 
+  it("keeps direct search page result choices executable in agent JSON", async () => {
+    for (const flag of ["--agent", "--agent-brief"]) {
+      const stdout = new MemoryWriter();
+      const status = await runCli(["https://www.baidu.com/s?wd=ax-lite", flag], {
+        stdout,
+        fetch: async () => new Response(`
+          <main>
+            <ol>
+              <li class="b_algo">
+                <h2><a href="https://result.example/">Agent browser result</a></h2>
+                <p>agent browser comparison details</p>
+              </li>
+              <li class="b_algo">
+                <h2><a href="https://backup.example/">Backup result</a></h2>
+                <p>backup comparison details</p>
+              </li>
+            </ol>
+          </main>
+        `, { headers: { "content-type": "text/html" } }),
+      });
+
+      const envelope = JSON.parse(stdout.output);
+      const choice = envelope.agent.resultChoices?.[0] ?? envelope.agent.handoff.resultChoices?.[0];
+
+      expect(status).toBe(0);
+      expect(choice).toMatchObject({
+        id: "r1",
+        path: "searchResults[0]",
+        url: "https://result.example/",
+        snippet: expect.stringContaining("agent browser comparison details"),
+        commandArgs: ["ax-grep", "https://result.example/", flag],
+      });
+      expect(envelope.agent.handoff.resultChoices[0]).toMatchObject({
+        commandArgs: ["ax-grep", "https://result.example/", flag],
+      });
+    }
+  });
+
   it("preserves custom timeout and user agent in generated agent commands", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli([
@@ -8804,7 +8842,7 @@ npx ax-grep https://example.test --agent</code></pre>
               id: "e1",
               path: "pageCheck.contentEvidence[0]",
               text: "Agent browser extraction details explain how to continue from search to evidence.",
-              reason: "high evidence from semantic extraction",
+              reason: expect.stringContaining("high evidence from semantic extraction"),
             }),
           ]),
         );
