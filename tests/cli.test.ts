@@ -251,7 +251,7 @@ describe("cli", () => {
             <main>
               <h1>Example</h1>
               <p id="toggle-desc">Shows extra context</p>
-              <button aria-pressed="false" aria-valuetext="details off" aria-describedby="toggle-desc" aria-controls="details-panel">Toggle details</button>
+              <button aria-pressed="false" aria-haspopup="dialog" aria-valuetext="details off" aria-describedby="toggle-desc" aria-controls="details-panel">Toggle details</button>
               <section id="details-panel" aria-label="Details panel">Extra details</section>
               <img src="/hero.png" alt="Hero chart">
               <p class="byline">By <a href="/authors/reporter">Reporter Profile</a></p>
@@ -423,11 +423,14 @@ describe("cli", () => {
         semanticTopInteractiveName: "Toggle details",
         semanticTopInteractiveDescription: "Shows extra context",
         semanticTopInteractiveValue: "details off",
-        semanticTopInteractiveState: "pressed=false controls=details-panel",
+        semanticTopInteractiveState: "pressed=false haspopup=dialog controls=details-panel",
+        semanticTopStatePressed: false,
+        semanticTopStateHaspopup: "dialog",
+        semanticTopStateControls: "details-panel",
         semanticTopFocusableRole: "button",
         semanticTopFocusablePath: "agent.semanticSummary.focusableItems[0]",
         semanticTopFocusableName: "Toggle details",
-        semanticTopFocusableState: "pressed=false controls=details-panel",
+        semanticTopFocusableState: "pressed=false haspopup=dialog controls=details-panel",
         semanticTopFocusableSelector: "button",
         semanticTopLinkPath: "agent.semanticSummary.links[0]",
         semanticTopLinkUrl: "https://example.test/authors/reporter",
@@ -3830,6 +3833,7 @@ describe("cli", () => {
         role: "link",
         name: "Reports",
         state: "current=page",
+        stateRaw: { current: "page" },
         selector: "a",
       }),
       expect.objectContaining({
@@ -3837,6 +3841,7 @@ describe("cli", () => {
         role: "button",
         name: "Filters",
         state: "haspopup=dialog controls=filters",
+        stateRaw: { haspopup: "dialog", controls: "filters" },
         selector: "button",
       }),
       expect.objectContaining({
@@ -3844,12 +3849,14 @@ describe("cli", () => {
         role: "dialog",
         name: "Filter reports",
         state: "modal=true",
+        stateRaw: { modal: true },
         selector: "#filters",
       }),
       expect.objectContaining({
         path: "agent.semanticSummary.stateItems[3]",
         role: "status",
         state: "live=polite",
+        stateRaw: { live: "polite" },
         selector: "div",
       }),
     ]);
@@ -3865,7 +3872,32 @@ describe("cli", () => {
       semanticTopStatePath: "agent.semanticSummary.stateItems[0]",
       semanticTopStateName: "Reports",
       semanticTopState: "current=page",
+      semanticTopStateCurrent: "page",
       semanticTopStateSelector: "a",
+    });
+  });
+
+  it("exposes parsed live semantic top-state shortcuts for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/live", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <div role="status" aria-live="polite">Indexing complete</div>
+          <p>Readable page content for live state routing.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      semanticTopStateRole: "status",
+      semanticTopStatePath: "agent.semanticSummary.stateItems[0]",
+      semanticTopState: "live=polite",
+      semanticTopStateLive: "polite",
+      semanticTopStateSelector: "div",
     });
   });
 
@@ -3941,7 +3973,7 @@ describe("cli", () => {
           <h1>Search archive</h1>
           <form method="GET" action="/find">
             <label for="q">Archive search</label>
-            <input id="q" name="query" type="search" placeholder="Search reports" required>
+            <input id="q" name="query" type="search" placeholder="Search reports" required aria-invalid="spelling">
             <select name="category"><option>All</option><option>Reports</option></select>
             <input type="hidden" name="csrf" value="secret">
             <button type="submit">Search</button>
@@ -4021,7 +4053,8 @@ describe("cli", () => {
         path: "agent.semanticSummary.stateItems[0]",
         role: "searchbox",
         name: "Archive search",
-        state: "required=true",
+        state: "required=true invalid=spelling",
+        stateRaw: { required: true, invalid: "spelling" },
         selector: "#q",
       }),
     ]);
@@ -4032,7 +4065,7 @@ describe("cli", () => {
       semanticTopFieldRole: "searchbox",
       semanticTopFieldPath: "agent.semanticSummary.fieldItems[0]",
       semanticTopFieldName: "Archive search",
-      semanticTopFieldState: "required=true",
+      semanticTopFieldState: "required=true invalid=spelling",
       semanticTopFieldRequired: true,
       semanticTopFieldSelector: "#q",
       semanticTopChoiceRole: "option",
@@ -4042,7 +4075,9 @@ describe("cli", () => {
       semanticTopStateRole: "searchbox",
       semanticTopStatePath: "agent.semanticSummary.stateItems[0]",
       semanticTopStateName: "Archive search",
-      semanticTopState: "required=true",
+      semanticTopState: "required=true invalid=spelling",
+      semanticTopStateRequired: true,
+      semanticTopStateInvalid: "spelling",
       semanticTopStateSelector: "#q",
     });
     expect(envelope.agent.formCount).toBe(1);

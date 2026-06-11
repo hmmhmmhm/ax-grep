@@ -187,7 +187,7 @@ type AgentSemanticSummary = {
   valueItems: Array<{ path: string; role: string; name?: string; value: string; selector?: string }>;
   relationItems: Array<{ path: string; role: string; name?: string; relation: "controls" | "owns" | "flowto"; target: string; targetRole?: string; targetName?: string; targetSelector?: string; selector?: string }>;
   choiceItems: Array<{ path: string; role: string; name: string; selector?: string; state?: SemanticNodeState }>;
-  stateItems: Array<{ path: string; role: string; name?: string; state: string; selector?: string }>;
+  stateItems: Array<{ path: string; role: string; name?: string; state: string; stateRaw?: SemanticNodeState; selector?: string }>;
   unavailableItems: Array<{ path: string; tag: string; role?: string; name?: string; reason: string; selector?: string }>;
 };
 
@@ -1028,6 +1028,21 @@ type AgentSummary = {
   semanticTopStatePath?: string;
   semanticTopStateName?: string;
   semanticTopState?: string;
+  semanticTopStateHidden?: boolean;
+  semanticTopStateDisabled?: boolean;
+  semanticTopStateChecked?: SemanticNodeState["checked"];
+  semanticTopStateSelected?: boolean;
+  semanticTopStateExpanded?: boolean;
+  semanticTopStatePressed?: SemanticNodeState["pressed"];
+  semanticTopStateFocused?: boolean;
+  semanticTopStateRequired?: boolean;
+  semanticTopStateInvalid?: SemanticNodeState["invalid"];
+  semanticTopStateReadonly?: boolean;
+  semanticTopStateCurrent?: SemanticNodeState["current"];
+  semanticTopStateHaspopup?: SemanticNodeState["haspopup"];
+  semanticTopStateControls?: string;
+  semanticTopStateLive?: string;
+  semanticTopStateModal?: boolean;
   semanticTopStateSelector?: string;
   semanticTopUnavailablePath?: string;
   semanticTopUnavailableTag?: string;
@@ -3271,7 +3286,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.semanticTopValue) lines.push(`  semanticTopValue: ${agent.semanticTopValuePath ?? ""} ${agent.semanticTopValueRole ?? ""}${agent.semanticTopValueName ? `:${agent.semanticTopValueName}` : ""} value=${agent.semanticTopValue}${agent.semanticTopValueSelector ? ` selector=${agent.semanticTopValueSelector}` : ""}`);
   if (agent.semanticTopRelation) lines.push(`  semanticTopRelation: ${agent.semanticTopRelationPath ?? ""} ${agent.semanticTopRelationRole ?? ""}${agent.semanticTopRelationName ? `:${agent.semanticTopRelationName}` : ""} ${agent.semanticTopRelation}=${agent.semanticTopRelationTarget ?? ""}${agent.semanticTopRelationTargetRole ? ` targetRole=${agent.semanticTopRelationTargetRole}` : ""}${agent.semanticTopRelationTargetName ? ` targetName=${agent.semanticTopRelationTargetName}` : ""}${agent.semanticTopRelationTargetSelector ? ` targetSelector=${agent.semanticTopRelationTargetSelector}` : ""}${agent.semanticTopRelationSelector ? ` selector=${agent.semanticTopRelationSelector}` : ""}`);
   if (agent.semanticTopChoiceRole) lines.push(`  semanticTopChoice: ${agent.semanticTopChoicePath ?? ""} ${agent.semanticTopChoiceRole}:${agent.semanticTopChoiceName ?? ""}${agent.semanticTopChoiceState ? ` state=${agent.semanticTopChoiceState}` : ""}${agent.semanticTopChoiceSelector ? ` selector=${agent.semanticTopChoiceSelector}` : ""}`);
-  if (agent.semanticTopState) lines.push(`  semanticTopState: ${agent.semanticTopStatePath ?? ""} ${agent.semanticTopStateRole ?? ""}${agent.semanticTopStateName ? `:${agent.semanticTopStateName}` : ""} state=${agent.semanticTopState}${agent.semanticTopStateSelector ? ` selector=${agent.semanticTopStateSelector}` : ""}`);
+  if (agent.semanticTopState) lines.push(`  semanticTopState: ${agent.semanticTopStatePath ?? ""} ${agent.semanticTopStateRole ?? ""}${agent.semanticTopStateName ? `:${agent.semanticTopStateName}` : ""} state=${agent.semanticTopState}${agent.semanticTopStateCurrent ? ` current=${agent.semanticTopStateCurrent}` : ""}${agent.semanticTopStateControls ? ` controls=${agent.semanticTopStateControls}` : ""}${agent.semanticTopStateHaspopup ? ` haspopup=${agent.semanticTopStateHaspopup}` : ""}${typeof agent.semanticTopStateExpanded === "boolean" ? ` expanded=${agent.semanticTopStateExpanded}` : ""}${typeof agent.semanticTopStatePressed !== "undefined" ? ` pressed=${agent.semanticTopStatePressed}` : ""}${agent.semanticTopStateInvalid ? ` invalid=${agent.semanticTopStateInvalid}` : ""}${agent.semanticTopStateLive ? ` live=${agent.semanticTopStateLive}` : ""}${typeof agent.semanticTopStateModal === "boolean" ? ` modal=${agent.semanticTopStateModal}` : ""}${agent.semanticTopStateSelector ? ` selector=${agent.semanticTopStateSelector}` : ""}`);
   if (agent.semanticTopUnavailableReason) lines.push(`  semanticTopUnavailable: ${agent.semanticTopUnavailablePath ?? ""} ${agent.semanticTopUnavailableTag ?? ""}${agent.semanticTopUnavailableRole ? ` role=${agent.semanticTopUnavailableRole}` : ""}${agent.semanticTopUnavailableName ? ` name=${agent.semanticTopUnavailableName}` : ""} reason=${agent.semanticTopUnavailableReason}${agent.semanticTopUnavailableSelector ? ` selector=${agent.semanticTopUnavailableSelector}` : ""}`);
   for (const reason of agent.readabilityReasons) lines.push(`  readabilityReason: ${reason}`);
   for (const gate of agent.qualityGates) lines.push(formatAgentQualityGateText(gate));
@@ -9658,6 +9673,7 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
           role,
           ...(node.name ? { name: node.name } : {}),
           state: stateText,
+          ...(node.state ? { stateRaw: node.state } : {}),
           ...(node.selector ? { selector: node.selector } : {}),
         });
       }
@@ -10171,6 +10187,21 @@ function summarizeAgent(
     ...(topSemanticState ? { semanticTopStatePath: topSemanticState.path } : {}),
     ...(topSemanticState?.name ? { semanticTopStateName: topSemanticState.name } : {}),
     ...(topSemanticState ? { semanticTopState: topSemanticState.state } : {}),
+    ...(typeof topSemanticState?.stateRaw?.hidden === "boolean" ? { semanticTopStateHidden: topSemanticState.stateRaw.hidden } : {}),
+    ...(typeof topSemanticState?.stateRaw?.disabled === "boolean" ? { semanticTopStateDisabled: topSemanticState.stateRaw.disabled } : {}),
+    ...(typeof topSemanticState?.stateRaw?.checked !== "undefined" ? { semanticTopStateChecked: topSemanticState.stateRaw.checked } : {}),
+    ...(typeof topSemanticState?.stateRaw?.selected === "boolean" ? { semanticTopStateSelected: topSemanticState.stateRaw.selected } : {}),
+    ...(typeof topSemanticState?.stateRaw?.expanded === "boolean" ? { semanticTopStateExpanded: topSemanticState.stateRaw.expanded } : {}),
+    ...(typeof topSemanticState?.stateRaw?.pressed !== "undefined" ? { semanticTopStatePressed: topSemanticState.stateRaw.pressed } : {}),
+    ...(typeof topSemanticState?.stateRaw?.focused === "boolean" ? { semanticTopStateFocused: topSemanticState.stateRaw.focused } : {}),
+    ...(typeof topSemanticState?.stateRaw?.required === "boolean" ? { semanticTopStateRequired: topSemanticState.stateRaw.required } : {}),
+    ...(typeof topSemanticState?.stateRaw?.invalid !== "undefined" ? { semanticTopStateInvalid: topSemanticState.stateRaw.invalid } : {}),
+    ...(typeof topSemanticState?.stateRaw?.readonly === "boolean" ? { semanticTopStateReadonly: topSemanticState.stateRaw.readonly } : {}),
+    ...(typeof topSemanticState?.stateRaw?.current !== "undefined" ? { semanticTopStateCurrent: topSemanticState.stateRaw.current } : {}),
+    ...(typeof topSemanticState?.stateRaw?.haspopup !== "undefined" ? { semanticTopStateHaspopup: topSemanticState.stateRaw.haspopup } : {}),
+    ...(topSemanticState?.stateRaw?.controls ? { semanticTopStateControls: topSemanticState.stateRaw.controls } : {}),
+    ...(topSemanticState?.stateRaw?.live ? { semanticTopStateLive: topSemanticState.stateRaw.live } : {}),
+    ...(typeof topSemanticState?.stateRaw?.modal === "boolean" ? { semanticTopStateModal: topSemanticState.stateRaw.modal } : {}),
     ...(topSemanticState?.selector ? { semanticTopStateSelector: topSemanticState.selector } : {}),
     ...(topSemanticUnavailable ? { semanticTopUnavailablePath: topSemanticUnavailable.path } : {}),
     ...(topSemanticUnavailable ? { semanticTopUnavailableTag: topSemanticUnavailable.tag } : {}),
@@ -14603,6 +14634,21 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.semanticTopStatePath ? { semanticTopStatePath: agent.semanticTopStatePath } : {}),
     ...(agent.semanticTopStateName ? { semanticTopStateName: agent.semanticTopStateName } : {}),
     ...(agent.semanticTopState ? { semanticTopState: agent.semanticTopState } : {}),
+    ...(typeof agent.semanticTopStateHidden === "boolean" ? { semanticTopStateHidden: agent.semanticTopStateHidden } : {}),
+    ...(typeof agent.semanticTopStateDisabled === "boolean" ? { semanticTopStateDisabled: agent.semanticTopStateDisabled } : {}),
+    ...(typeof agent.semanticTopStateChecked !== "undefined" ? { semanticTopStateChecked: agent.semanticTopStateChecked } : {}),
+    ...(typeof agent.semanticTopStateSelected === "boolean" ? { semanticTopStateSelected: agent.semanticTopStateSelected } : {}),
+    ...(typeof agent.semanticTopStateExpanded === "boolean" ? { semanticTopStateExpanded: agent.semanticTopStateExpanded } : {}),
+    ...(typeof agent.semanticTopStatePressed !== "undefined" ? { semanticTopStatePressed: agent.semanticTopStatePressed } : {}),
+    ...(typeof agent.semanticTopStateFocused === "boolean" ? { semanticTopStateFocused: agent.semanticTopStateFocused } : {}),
+    ...(typeof agent.semanticTopStateRequired === "boolean" ? { semanticTopStateRequired: agent.semanticTopStateRequired } : {}),
+    ...(typeof agent.semanticTopStateInvalid !== "undefined" ? { semanticTopStateInvalid: agent.semanticTopStateInvalid } : {}),
+    ...(typeof agent.semanticTopStateReadonly === "boolean" ? { semanticTopStateReadonly: agent.semanticTopStateReadonly } : {}),
+    ...(typeof agent.semanticTopStateCurrent !== "undefined" ? { semanticTopStateCurrent: agent.semanticTopStateCurrent } : {}),
+    ...(typeof agent.semanticTopStateHaspopup !== "undefined" ? { semanticTopStateHaspopup: agent.semanticTopStateHaspopup } : {}),
+    ...(agent.semanticTopStateControls ? { semanticTopStateControls: agent.semanticTopStateControls } : {}),
+    ...(agent.semanticTopStateLive ? { semanticTopStateLive: agent.semanticTopStateLive } : {}),
+    ...(typeof agent.semanticTopStateModal === "boolean" ? { semanticTopStateModal: agent.semanticTopStateModal } : {}),
     ...(agent.semanticTopStateSelector ? { semanticTopStateSelector: agent.semanticTopStateSelector } : {}),
     ...(agent.semanticTopUnavailablePath ? { semanticTopUnavailablePath: agent.semanticTopUnavailablePath } : {}),
     ...(agent.semanticTopUnavailableTag ? { semanticTopUnavailableTag: agent.semanticTopUnavailableTag } : {}),
@@ -15145,6 +15191,15 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.semanticTopStatePath ? { semanticTopStatePath: agent.semanticTopStatePath } : {}),
     ...(agent.semanticTopStateName ? { semanticTopStateName: agent.semanticTopStateName } : {}),
     ...(agent.semanticTopState ? { semanticTopState: agent.semanticTopState } : {}),
+    ...(typeof agent.semanticTopStateChecked !== "undefined" ? { semanticTopStateChecked: agent.semanticTopStateChecked } : {}),
+    ...(typeof agent.semanticTopStateExpanded === "boolean" ? { semanticTopStateExpanded: agent.semanticTopStateExpanded } : {}),
+    ...(typeof agent.semanticTopStatePressed !== "undefined" ? { semanticTopStatePressed: agent.semanticTopStatePressed } : {}),
+    ...(typeof agent.semanticTopStateInvalid !== "undefined" ? { semanticTopStateInvalid: agent.semanticTopStateInvalid } : {}),
+    ...(typeof agent.semanticTopStateCurrent !== "undefined" ? { semanticTopStateCurrent: agent.semanticTopStateCurrent } : {}),
+    ...(typeof agent.semanticTopStateHaspopup !== "undefined" ? { semanticTopStateHaspopup: agent.semanticTopStateHaspopup } : {}),
+    ...(agent.semanticTopStateControls ? { semanticTopStateControls: agent.semanticTopStateControls } : {}),
+    ...(agent.semanticTopStateLive ? { semanticTopStateLive: agent.semanticTopStateLive } : {}),
+    ...(typeof agent.semanticTopStateModal === "boolean" ? { semanticTopStateModal: agent.semanticTopStateModal } : {}),
     ...(agent.semanticTopUnavailablePath ? { semanticTopUnavailablePath: agent.semanticTopUnavailablePath } : {}),
     ...(agent.semanticTopUnavailableTag ? { semanticTopUnavailableTag: agent.semanticTopUnavailableTag } : {}),
     ...(agent.semanticTopUnavailableReason ? { semanticTopUnavailableReason: agent.semanticTopUnavailableReason } : {}),

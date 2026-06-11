@@ -1670,6 +1670,21 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopStatePath?: string;
       semanticTopStateName?: string;
       semanticTopState?: string;
+      semanticTopStateHidden?: boolean;
+      semanticTopStateDisabled?: boolean;
+      semanticTopStateChecked?: boolean | "mixed";
+      semanticTopStateSelected?: boolean;
+      semanticTopStateExpanded?: boolean;
+      semanticTopStatePressed?: boolean | "mixed";
+      semanticTopStateFocused?: boolean;
+      semanticTopStateRequired?: boolean;
+      semanticTopStateInvalid?: boolean | string;
+      semanticTopStateReadonly?: boolean;
+      semanticTopStateCurrent?: boolean | string;
+      semanticTopStateHaspopup?: boolean | string;
+      semanticTopStateControls?: string;
+      semanticTopStateLive?: string;
+      semanticTopStateModal?: boolean;
       semanticTopStateSelector?: string;
       semanticTopUnavailablePath?: string;
       semanticTopUnavailableTag?: string;
@@ -4664,6 +4679,21 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopStatePath?: string;
   semanticTopStateName?: string;
   semanticTopState?: string;
+  semanticTopStateHidden?: boolean;
+  semanticTopStateDisabled?: boolean;
+  semanticTopStateChecked?: boolean | "mixed";
+  semanticTopStateSelected?: boolean;
+  semanticTopStateExpanded?: boolean;
+  semanticTopStatePressed?: boolean | "mixed";
+  semanticTopStateFocused?: boolean;
+  semanticTopStateRequired?: boolean;
+  semanticTopStateInvalid?: boolean | string;
+  semanticTopStateReadonly?: boolean;
+  semanticTopStateCurrent?: boolean | string;
+  semanticTopStateHaspopup?: boolean | string;
+  semanticTopStateControls?: string;
+  semanticTopStateLive?: string;
+  semanticTopStateModal?: boolean;
   semanticTopStateSelector?: string;
   semanticTopUnavailablePath?: string;
   semanticTopUnavailableTag?: string;
@@ -5208,7 +5238,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopChoiceSelector === choice.selector) matched += 1;
   }
-  const stateItem = Array.isArray(item.stateItems) ? item.stateItems[0] as { path?: unknown; role?: unknown; name?: unknown; state?: unknown; selector?: unknown } | undefined : undefined;
+  const stateItem = Array.isArray(item.stateItems) ? item.stateItems[0] as { path?: unknown; role?: unknown; name?: unknown; state?: unknown; stateRaw?: Record<string, unknown>; selector?: unknown } | undefined : undefined;
   if (stateItem && typeof stateItem.role === "string") {
     required += 1;
     if (agent?.semanticTopStateRole === stateItem.role) matched += 1;
@@ -5224,6 +5254,30 @@ function scoreAgentSemanticSummary(agent: {
   if (stateItem && typeof stateItem.state === "string") {
     required += 1;
     if (agent?.semanticTopState === stateItem.state) matched += 1;
+  }
+  if (stateItem?.stateRaw && typeof stateItem.stateRaw === "object") {
+    const checks: Array<[unknown, unknown]> = [
+      [agent?.semanticTopStateHidden, stateItem.stateRaw.hidden],
+      [agent?.semanticTopStateDisabled, stateItem.stateRaw.disabled],
+      [agent?.semanticTopStateChecked, stateItem.stateRaw.checked],
+      [agent?.semanticTopStateSelected, stateItem.stateRaw.selected],
+      [agent?.semanticTopStateExpanded, stateItem.stateRaw.expanded],
+      [agent?.semanticTopStatePressed, stateItem.stateRaw.pressed],
+      [agent?.semanticTopStateFocused, stateItem.stateRaw.focused],
+      [agent?.semanticTopStateRequired, stateItem.stateRaw.required],
+      [agent?.semanticTopStateInvalid, stateItem.stateRaw.invalid],
+      [agent?.semanticTopStateReadonly, stateItem.stateRaw.readonly],
+      [agent?.semanticTopStateCurrent, stateItem.stateRaw.current],
+      [agent?.semanticTopStateHaspopup, stateItem.stateRaw.haspopup],
+      [agent?.semanticTopStateControls, stateItem.stateRaw.controls],
+      [agent?.semanticTopStateLive, stateItem.stateRaw.live],
+      [agent?.semanticTopStateModal, stateItem.stateRaw.modal],
+    ];
+    for (const [actual, expected] of checks) {
+      if (typeof expected === "undefined") continue;
+      required += 1;
+      if (actual === expected) matched += 1;
+    }
   }
   if (stateItem && typeof stateItem.selector === "string") {
     required += 1;

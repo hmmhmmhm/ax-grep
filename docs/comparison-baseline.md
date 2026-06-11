@@ -98,6 +98,8 @@ top-level `agent.semantic*` shortcuts preserve semantic tree counts, role-group
 counts, top role/heading/landmark/named role fields with direct paths,
 interactive and focusable state, link URL, button description, image,
 table/list structure, form-field, description, value, resolved relation targets, choice, state, and unavailable-subtree shortcuts for quick page-shape routing.
+State scoring includes parsed top-state fields so agents do not need to parse
+ARIA state strings.
 `averageAgentBarrierShortcutScore` tracks whether top-level `agent.topBarrier*`
 shortcuts mirror the highest-priority page barrier.
 `averageAgentStructuredShortcutScore` tracks whether top-level structured

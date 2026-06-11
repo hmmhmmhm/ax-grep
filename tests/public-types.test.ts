@@ -524,6 +524,21 @@ describe("public agent types", () => {
       | "semanticTopStatePath"
       | "semanticTopStateName"
       | "semanticTopState"
+      | "semanticTopStateHidden"
+      | "semanticTopStateDisabled"
+      | "semanticTopStateChecked"
+      | "semanticTopStateSelected"
+      | "semanticTopStateExpanded"
+      | "semanticTopStatePressed"
+      | "semanticTopStateFocused"
+      | "semanticTopStateRequired"
+      | "semanticTopStateInvalid"
+      | "semanticTopStateReadonly"
+      | "semanticTopStateCurrent"
+      | "semanticTopStateHaspopup"
+      | "semanticTopStateControls"
+      | "semanticTopStateLive"
+      | "semanticTopStateModal"
       | "semanticTopStateSelector"
       | "semanticTopUnavailablePath"
       | "semanticTopUnavailableTag"
@@ -1039,6 +1054,21 @@ describe("public agent types", () => {
       semanticTopStatePath: "agent.semanticSummary.stateItems[0]",
       semanticTopStateName: "Email",
       semanticTopState: "required=true",
+      semanticTopStateHidden: false,
+      semanticTopStateDisabled: false,
+      semanticTopStateChecked: "mixed",
+      semanticTopStateSelected: true,
+      semanticTopStateExpanded: false,
+      semanticTopStatePressed: "mixed",
+      semanticTopStateFocused: true,
+      semanticTopStateRequired: true,
+      semanticTopStateInvalid: "spelling",
+      semanticTopStateReadonly: true,
+      semanticTopStateCurrent: "page",
+      semanticTopStateHaspopup: "dialog",
+      semanticTopStateControls: "details-panel",
+      semanticTopStateLive: "polite",
+      semanticTopStateModal: true,
       semanticTopStateSelector: "input[name=\"email\"]",
       semanticTopUnavailablePath: "agent.semanticSummary.unavailableItems[0]",
       semanticTopUnavailableTag: "iframe",
