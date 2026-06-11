@@ -1170,6 +1170,14 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       primaryPriorityReason?: string;
       citationCount?: number;
       answerEvidenceCount?: number;
+      topAnswerEvidenceId?: string;
+      topAnswerEvidencePath?: string;
+      topAnswerEvidenceKind?: CliAgentCitationShape["kind"];
+      topAnswerEvidenceText?: string;
+      topAnswerEvidenceTitle?: string;
+      topAnswerEvidenceUrl?: string;
+      topAnswerEvidenceConfidence?: CliAgentCitationShape["confidence"];
+      topAnswerEvidenceReason?: string;
       readTargetCount?: number;
       actionCount?: number;
       primaryExecution?: ActionExecution;
@@ -3549,6 +3557,15 @@ function scoreAgentHandoffShortcuts(agent: {
 
 function scoreAgentAnswerShortcuts(agent: {
   answerPlan?: CliAgentAnswerPlanShape;
+  answerEvidence?: CliAgentCitationShape[];
+  topAnswerEvidenceId?: string;
+  topAnswerEvidencePath?: string;
+  topAnswerEvidenceKind?: CliAgentCitationShape["kind"];
+  topAnswerEvidenceText?: string;
+  topAnswerEvidenceTitle?: string;
+  topAnswerEvidenceUrl?: string;
+  topAnswerEvidenceConfidence?: CliAgentCitationShape["confidence"];
+  topAnswerEvidenceReason?: string;
   answerPlanStatus?: CliAgentAnswerPlanShape["status"];
   answerPlanConfidence?: CliAgentAnswerPlanShape["confidence"];
   answerGapCount?: number;
@@ -3587,6 +3604,45 @@ function scoreAgentAnswerShortcuts(agent: {
     if (agent.answerPlanUrl === plan.url) matched += 1;
   } else if (agent.answerPlanUrl) {
     required += 1;
+  }
+  const topEvidence = agent.answerEvidence?.[0];
+  if (topEvidence) {
+    required += 3;
+    if (agent.topAnswerEvidenceId === topEvidence.id) matched += 1;
+    if (agent.topAnswerEvidencePath === topEvidence.path) matched += 1;
+    if (agent.topAnswerEvidenceKind === topEvidence.kind) matched += 1;
+    if (topEvidence.text) {
+      required += 1;
+      if (agent.topAnswerEvidenceText === topEvidence.text) matched += 1;
+    } else if (agent.topAnswerEvidenceText) {
+      required += 1;
+    }
+    if (topEvidence.title) {
+      required += 1;
+      if (agent.topAnswerEvidenceTitle === topEvidence.title) matched += 1;
+    } else if (agent.topAnswerEvidenceTitle) {
+      required += 1;
+    }
+    if (topEvidence.url) {
+      required += 1;
+      if (agent.topAnswerEvidenceUrl === topEvidence.url) matched += 1;
+    } else if (agent.topAnswerEvidenceUrl) {
+      required += 1;
+    }
+    if (topEvidence.confidence) {
+      required += 1;
+      if (agent.topAnswerEvidenceConfidence === topEvidence.confidence) matched += 1;
+    } else if (agent.topAnswerEvidenceConfidence) {
+      required += 1;
+    }
+    if (topEvidence.reason) {
+      required += 1;
+      if (agent.topAnswerEvidenceReason === topEvidence.reason) matched += 1;
+    } else if (agent.topAnswerEvidenceReason) {
+      required += 1;
+    }
+  } else if (agent.topAnswerEvidenceId || agent.topAnswerEvidencePath || agent.topAnswerEvidenceKind) {
+    required += 3;
   }
   return roundScore(matched / required);
 }

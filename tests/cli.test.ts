@@ -810,6 +810,14 @@ describe("cli", () => {
       expect(envelope.agent.answerPlanStatus).toBe(handoff.answerStatus);
       expect(envelope.agent.answerPlanConfidence).toEqual(expect.stringMatching(/^(low|medium|high)$/));
       expect(envelope.agent.answerGapCount).toEqual(expect.any(Number));
+      const topAnswerEvidence = envelope.agent.answerEvidence?.[0] ?? handoff.answerEvidence?.[0];
+      if (topAnswerEvidence) {
+        expect(envelope.agent.topAnswerEvidenceId).toBe(topAnswerEvidence.id);
+        expect(envelope.agent.topAnswerEvidencePath).toBe(topAnswerEvidence.path);
+        expect(envelope.agent.topAnswerEvidenceKind).toBe(topAnswerEvidence.kind);
+        if (topAnswerEvidence.text) expect(envelope.agent.topAnswerEvidenceText).toBe(topAnswerEvidence.text);
+        if (topAnswerEvidence.url) expect(envelope.agent.topAnswerEvidenceUrl).toBe(topAnswerEvidence.url);
+      }
       if (handoff.useCitationIds?.length) expect(envelope.agent.answerUseCitationIds).toEqual(handoff.useCitationIds);
       if (handoff.readFrom) expect(envelope.agent.answerPlanReadFrom).toBe(handoff.readFrom);
       if (handoff.commandArgs) expect(envelope.agent.answerPlanCommandArgs).toEqual(handoff.commandArgs);

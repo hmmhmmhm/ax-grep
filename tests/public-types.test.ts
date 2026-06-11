@@ -175,6 +175,14 @@ describe("public agent types", () => {
       | "verificationMissingQueries"
       | "citationCount"
       | "answerEvidenceCount"
+      | "topAnswerEvidenceId"
+      | "topAnswerEvidencePath"
+      | "topAnswerEvidenceKind"
+      | "topAnswerEvidenceText"
+      | "topAnswerEvidenceTitle"
+      | "topAnswerEvidenceUrl"
+      | "topAnswerEvidenceConfidence"
+      | "topAnswerEvidenceReason"
       | "answerPlanStatus"
       | "answerPlanConfidence"
       | "answerGapCount"
@@ -252,6 +260,14 @@ describe("public agent types", () => {
       verificationMissingQueries: ["missing"],
       citationCount: 2,
       answerEvidenceCount: 1,
+      topAnswerEvidenceId: "e1",
+      topAnswerEvidencePath: "pageCheck.contentEvidence[0]",
+      topAnswerEvidenceKind: "content",
+      topAnswerEvidenceText: "Readable evidence",
+      topAnswerEvidenceTitle: "Example evidence",
+      topAnswerEvidenceUrl: "https://example.test",
+      topAnswerEvidenceConfidence: "high",
+      topAnswerEvidenceReason: "Primary answer evidence.",
       answerPlanStatus: "ready",
       answerPlanConfidence: "high",
       answerGapCount: 0,
@@ -317,6 +333,7 @@ describe("public agent types", () => {
     expect(summary.qualityGateFailCount).toBe(1);
     expect(summary.problemSignalSeverity).toBe("warning");
     expect(summary.failingQualityGateKind).toBe("content");
+    expect(summary.topAnswerEvidencePath).toBe("pageCheck.contentEvidence[0]");
     expect(summary.answerPlanStatus).toBe("ready");
     expect(summary.executorOperation).toBe("return");
     expect(summary.executorTerminal).toBe(true);

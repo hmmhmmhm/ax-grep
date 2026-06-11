@@ -898,6 +898,14 @@ type AgentSummary = {
   citations: AgentCitation[];
   answerEvidenceCount: number;
   answerEvidence: AgentCitation[];
+  topAnswerEvidenceId?: string;
+  topAnswerEvidencePath?: string;
+  topAnswerEvidenceKind?: AgentCitation["kind"];
+  topAnswerEvidenceText?: string;
+  topAnswerEvidenceTitle?: string;
+  topAnswerEvidenceUrl?: string;
+  topAnswerEvidenceConfidence?: AgentCitation["confidence"];
+  topAnswerEvidenceReason?: string;
   answerPlanStatus?: AgentAnswerPlan["status"];
   answerPlanConfidence?: AgentAnswerPlan["confidence"];
   answerGapCount?: number;
@@ -2456,6 +2464,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  diagnosticInfo: ${agent.diagnosticInfoCount}`,
     `  citationCount: ${agent.citationCount}`,
     `  answerEvidenceCount: ${agent.answerEvidenceCount}`,
+    ...(agent.topAnswerEvidenceId ? [`  topAnswerEvidence: ${agent.topAnswerEvidenceId} ${agent.topAnswerEvidencePath}${agent.topAnswerEvidenceText ? ` - ${agent.topAnswerEvidenceText}` : ""}`] : []),
     `  readTargetCount: ${agent.readTargetCount}`,
     `  actionCount: ${agent.actionCount}`,
     `  verification: ${agent.verificationFoundCount}/${agent.verificationRequestedCount} found, ${agent.verificationMissingCount} missing`,
@@ -8987,6 +8996,14 @@ function summarizeAgent(
     citations,
     answerEvidenceCount: answerEvidence.length,
     answerEvidence,
+    ...(answerEvidence[0] ? { topAnswerEvidenceId: answerEvidence[0].id } : {}),
+    ...(answerEvidence[0] ? { topAnswerEvidencePath: answerEvidence[0].path } : {}),
+    ...(answerEvidence[0] ? { topAnswerEvidenceKind: answerEvidence[0].kind } : {}),
+    ...(answerEvidence[0]?.text ? { topAnswerEvidenceText: answerEvidence[0].text } : {}),
+    ...(answerEvidence[0]?.title ? { topAnswerEvidenceTitle: answerEvidence[0].title } : {}),
+    ...(answerEvidence[0]?.url ? { topAnswerEvidenceUrl: answerEvidence[0].url } : {}),
+    ...(answerEvidence[0]?.confidence ? { topAnswerEvidenceConfidence: answerEvidence[0].confidence } : {}),
+    ...(answerEvidence[0]?.reason ? { topAnswerEvidenceReason: answerEvidence[0].reason } : {}),
     answerPlanStatus: answerPlan.status,
     answerPlanConfidence: answerPlan.confidence,
     answerGapCount: answerPlan.gaps.length,
@@ -12810,6 +12827,14 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.citations.length > 0 ? { citations: compactAgentCitationList(agent.citations) } : {}),
     answerEvidenceCount: agent.answerEvidenceCount,
     ...(agent.answerEvidence.length > 0 ? { answerEvidence: compactAgentCitationList(agent.answerEvidence, 650) } : {}),
+    ...(agent.topAnswerEvidenceId ? { topAnswerEvidenceId: agent.topAnswerEvidenceId } : {}),
+    ...(agent.topAnswerEvidencePath ? { topAnswerEvidencePath: agent.topAnswerEvidencePath } : {}),
+    ...(agent.topAnswerEvidenceKind ? { topAnswerEvidenceKind: agent.topAnswerEvidenceKind } : {}),
+    ...(agent.topAnswerEvidenceText ? { topAnswerEvidenceText: agent.topAnswerEvidenceText } : {}),
+    ...(agent.topAnswerEvidenceTitle ? { topAnswerEvidenceTitle: agent.topAnswerEvidenceTitle } : {}),
+    ...(agent.topAnswerEvidenceUrl ? { topAnswerEvidenceUrl: agent.topAnswerEvidenceUrl } : {}),
+    ...(agent.topAnswerEvidenceConfidence ? { topAnswerEvidenceConfidence: agent.topAnswerEvidenceConfidence } : {}),
+    ...(agent.topAnswerEvidenceReason ? { topAnswerEvidenceReason: agent.topAnswerEvidenceReason } : {}),
     ...(agent.answerPlanStatus ? { answerPlanStatus: agent.answerPlanStatus } : {}),
     ...(agent.answerPlanConfidence ? { answerPlanConfidence: agent.answerPlanConfidence } : {}),
     ...(typeof agent.answerGapCount === "number" ? { answerGapCount: agent.answerGapCount } : {}),
@@ -12937,6 +12962,14 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     citationCount: agent.citationCount,
     ...(agent.citations.length > 0 ? { citations: agent.citations.map(compactAgentCitationRef) } : {}),
     answerEvidenceCount: agent.answerEvidenceCount,
+    ...(agent.topAnswerEvidenceId ? { topAnswerEvidenceId: agent.topAnswerEvidenceId } : {}),
+    ...(agent.topAnswerEvidencePath ? { topAnswerEvidencePath: agent.topAnswerEvidencePath } : {}),
+    ...(agent.topAnswerEvidenceKind ? { topAnswerEvidenceKind: agent.topAnswerEvidenceKind } : {}),
+    ...(agent.topAnswerEvidenceText ? { topAnswerEvidenceText: agent.topAnswerEvidenceText } : {}),
+    ...(agent.topAnswerEvidenceTitle ? { topAnswerEvidenceTitle: agent.topAnswerEvidenceTitle } : {}),
+    ...(agent.topAnswerEvidenceUrl ? { topAnswerEvidenceUrl: agent.topAnswerEvidenceUrl } : {}),
+    ...(agent.topAnswerEvidenceConfidence ? { topAnswerEvidenceConfidence: agent.topAnswerEvidenceConfidence } : {}),
+    ...(agent.topAnswerEvidenceReason ? { topAnswerEvidenceReason: agent.topAnswerEvidenceReason } : {}),
     ...(agent.answerPlanStatus ? { answerPlanStatus: agent.answerPlanStatus } : {}),
     ...(agent.answerPlanConfidence ? { answerPlanConfidence: agent.answerPlanConfidence } : {}),
     ...(typeof agent.answerGapCount === "number" ? { answerGapCount: agent.answerGapCount } : {}),

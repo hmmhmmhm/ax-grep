@@ -48,6 +48,7 @@ Read these first:
 - `agent.answerPlan`, `agent.citations`, and `agent.answerEvidence`: final answer evidence.
 - `agent.answerPlanStatus`, `agent.answerPlanConfidence`, and related `answer*`
   shortcuts: top-level answer readiness and citation routing.
+- `agent.topAnswerEvidence*`: first answer evidence item for fast citation/read routing.
 - `agent.readTargets`, `agent.resultChoices`, and `agent.sourceChoices`: ranked paths to inspect.
 - `agent.topChoice*`: first executable result, source, form, or action-target choice.
 - `agent.signals` and `agent.qualityGates`: compact diagnostics.

@@ -556,6 +556,14 @@ export type AgentSummary = {
   citations?: AgentCitation[];
   answerEvidenceCount?: number;
   answerEvidence?: AgentCitation[];
+  topAnswerEvidenceId?: string;
+  topAnswerEvidencePath?: string;
+  topAnswerEvidenceKind?: AgentCitation["kind"];
+  topAnswerEvidenceText?: string;
+  topAnswerEvidenceTitle?: string;
+  topAnswerEvidenceUrl?: string;
+  topAnswerEvidenceConfidence?: AgentCitation["confidence"];
+  topAnswerEvidenceReason?: string;
   answerPlanStatus?: AgentAnswerPlan["status"];
   answerPlanConfidence?: AgentAnswerPlan["confidence"];
   answerGapCount?: number;
