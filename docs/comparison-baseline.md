@@ -101,6 +101,9 @@ resource, media item, section, and best structured read-target shortcut.
 `averageAgentReadTargetScore` tracks whether `agent.readTargets` points to
 payload fields that actually exist and are worth reading, and whether
 `read-current` actions mark the matching target as primary.
+`averageAgentTopReadTargetShortcutScore` tracks whether `agent.topReadTarget*`
+mirrors the first read-target entry for fast routing without scanning
+`agent.readTargets`.
 `averageAgentAlternativeActionShortcutScore` tracks whether top-level
 `agent.alternativeAction*` shortcuts mirror the first non-primary action.
 `averageAgentHandoffScore` and `averageAgentBriefExecutorStepScore` also cover

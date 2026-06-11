@@ -60,7 +60,7 @@ Read these first:
 - `agent.topAnswerEvidence*`: first answer evidence item for fast citation/read routing.
 - `agent.topVerificationFoundQuery` and `agent.topVerificationMissingQuery`: first
   matched or missing `--find` query for fast verification routing.
-- `agent.readTargets` and `agent.bestReadTarget*`: ranked paths to inspect and the
+- `agent.readTargets`, `agent.topReadTarget*`, and `agent.bestReadTarget*`: ranked paths to inspect and the
   best path's count/primary flags.
 - `agent.bestHiddenReadTarget*`: best hidden metadata path to inspect first.
 - `agent.semantic*`: compact semantic tree counts, top role, heading, and landmark.

@@ -377,6 +377,11 @@ describe("public agent types", () => {
       | "answerPlanUrl"
       | "readTargetCount"
       | "actionCount"
+      | "topReadTarget"
+      | "topReadTargetCount"
+      | "topReadTargetScore"
+      | "topReadTargetPrimary"
+      | "topReadTargetReason"
       | "bestReadTarget"
       | "bestReadTargetCount"
       | "bestReadTargetScore"
@@ -657,6 +662,11 @@ describe("public agent types", () => {
       answerPlanUrl: "https://example.test",
       readTargetCount: 3,
       actionCount: 2,
+      topReadTarget: "pageCheck.contentEvidence",
+      topReadTargetCount: 1,
+      topReadTargetScore: 0.9,
+      topReadTargetPrimary: true,
+      topReadTargetReason: "Top evidence.",
       bestReadTarget: "pageCheck.contentEvidence",
       bestReadTargetCount: 1,
       bestReadTargetScore: 0.9,
@@ -764,6 +774,7 @@ describe("public agent types", () => {
     expect(summary.pageDecisionReadFrom).toBe("pageCheck.contentEvidence");
     expect(summary.semanticTopHeading).toBe("Example");
     expect(summary.readTargetCount).toBe(3);
+    expect(summary.topReadTarget).toBe("pageCheck.contentEvidence");
     expect(summary.bestReadTargetCount).toBe(1);
     expect(summary.bestReadTargetPrimary).toBe(true);
     expect(summary.qualityGateFailCount).toBe(1);

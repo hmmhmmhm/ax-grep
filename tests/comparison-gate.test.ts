@@ -36,6 +36,7 @@ function staticSummary(overrides: Partial<StaticGateSummary> = {}): StaticGateSu
     averageAgentQualityGateScore: 1,
     averageAgentBrowserAdvantageScore: 1,
     averageAgentReadTargetScore: 1,
+    averageAgentTopReadTargetShortcutScore: 1,
     averageAgentResultCountScore: 1,
     averageAgentResultChoiceScore: 1,
     averageAgentTopResultChoiceShortcutScore: 1,
@@ -265,6 +266,7 @@ describe("comparison gate checker", () => {
       averageAgentHiddenSignalCountScore: 0.25,
       averageAgentTopSourceChoiceShortcutScore: 0.34,
       averageAgentSourceSearchShortcutScore: 0.35,
+      averageAgentTopReadTargetShortcutScore: 0.36,
       averageAgentRunbookShortcutScore: 0.42,
       averageAgentAlternativeActionShortcutScore: 0.43,
       averageAgentExecutorShortcutScore: 0.45,
@@ -279,6 +281,7 @@ describe("comparison gate checker", () => {
 
     expect(failures.map((failure) => failure.message)).toEqual([
       "averageAgentRunbookShortcutScore expected >= 0.995, got 0.42",
+      "averageAgentTopReadTargetShortcutScore expected >= 0.995, got 0.36",
       "averageAgentTopSourceChoiceShortcutScore expected >= 0.995, got 0.34",
       "averageAgentSourceSearchShortcutScore expected >= 0.995, got 0.35",
       "averageAgentTopCitationShortcutScore expected >= 0.995, got 0.74",

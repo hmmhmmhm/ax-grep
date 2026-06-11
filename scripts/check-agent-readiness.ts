@@ -51,6 +51,7 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
     "weakAgentTargets",
     "averageAgentExecutorScore",
     "minAgentExecutorScore",
+    "averageAgentTopReadTargetShortcutScore",
     "averageAgentFormActionCountScore",
     "averageAgentChoiceCountScore",
     "averageAgentTopChoiceShortcutScore",
@@ -155,6 +156,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "minAgentExecutorScore",
           "averageCliAgentScore",
           "averageAgentExecutorScore",
+          "averageAgentTopReadTargetShortcutScore",
           "averageAgentFormActionChoiceScore",
           "averageAgentChoiceCountScore",
           "averageAgentTopChoiceShortcutScore",
@@ -168,6 +170,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "averageAgentAnswerShortcutScore",
           "averageAgentVerificationQueryScore",
           "averageAgentSourceSearchShortcutScore",
+          "averageAgentTopReadTargetShortcutScore",
         ]);
         requireFileIncludes(root, failures, "scripts/compare-static.ts", [
           "sourceSearchSelectedCommandArgs",
@@ -302,6 +305,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "structuredReadTargetCount",
           "bestStructuredReadTarget",
           "bestStructuredReadTargetCount",
+          "topReadTarget",
+          "topReadTargetCount",
           "citationCount",
           "topCitationId",
           "topCitationPath",

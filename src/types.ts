@@ -740,6 +740,11 @@ export type AgentSummary = {
   answerPlanUrl?: string;
   readTargetCount?: number;
   readTargets?: AgentReadTarget[];
+  topReadTarget?: string;
+  topReadTargetCount?: number;
+  topReadTargetScore?: number;
+  topReadTargetPrimary?: boolean;
+  topReadTargetReason?: string;
   actionCount?: number;
   actions?: AgentAction[];
   bestReadTarget?: string;

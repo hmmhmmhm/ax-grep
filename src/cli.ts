@@ -1082,6 +1082,11 @@ type AgentSummary = {
   answerPlanUrl?: string;
   readTargetCount: number;
   readTargets: AgentReadTarget[];
+  topReadTarget?: string;
+  topReadTargetCount?: number;
+  topReadTargetScore?: number;
+  topReadTargetPrimary?: boolean;
+  topReadTargetReason?: string;
   actionCount: number;
   actions: AgentActionSummary[];
   bestReadTarget?: string;
@@ -2780,6 +2785,11 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  answerEvidenceCount: ${agent.answerEvidenceCount}`,
     ...(agent.topAnswerEvidenceId ? [`  topAnswerEvidence: ${agent.topAnswerEvidenceId} ${agent.topAnswerEvidencePath}${agent.topAnswerEvidenceText ? ` - ${agent.topAnswerEvidenceText}` : ""}`] : []),
     `  readTargetCount: ${agent.readTargetCount}`,
+    ...(agent.topReadTarget ? [`  topReadTarget: ${agent.topReadTarget}`] : []),
+    ...(typeof agent.topReadTargetCount === "number" ? [`  topReadTargetCount: ${agent.topReadTargetCount}`] : []),
+    ...(typeof agent.topReadTargetScore === "number" ? [`  topReadTargetScore: ${agent.topReadTargetScore}`] : []),
+    ...(typeof agent.topReadTargetPrimary === "boolean" ? [`  topReadTargetPrimary: ${agent.topReadTargetPrimary}`] : []),
+    ...(agent.topReadTargetReason ? [`  topReadTargetReason: ${agent.topReadTargetReason}`] : []),
     `  actionCount: ${agent.actionCount}`,
     `  verification: ${agent.verificationFoundCount}/${agent.verificationRequestedCount} found, ${agent.verificationMissingCount} missing`,
     ...(agent.verificationFoundQueries.length > 0 ? [`  verificationFoundQueries: ${agent.verificationFoundQueries.join("; ")}`] : []),
@@ -9535,6 +9545,11 @@ function summarizeAgent(
     ...(answerPlan.url ? { answerPlanUrl: answerPlan.url } : {}),
     readTargetCount: readTargets.length,
     readTargets,
+    ...(readTargets[0] ? { topReadTarget: readTargets[0].path } : {}),
+    ...(typeof readTargets[0]?.count === "number" ? { topReadTargetCount: readTargets[0].count } : {}),
+    ...(typeof readTargets[0]?.score === "number" ? { topReadTargetScore: readTargets[0].score } : {}),
+    ...(typeof readTargets[0]?.primary === "boolean" ? { topReadTargetPrimary: readTargets[0].primary } : {}),
+    ...(readTargets[0]?.reason ? { topReadTargetReason: readTargets[0].reason } : {}),
     actionCount: actions.length,
     actions,
     ...(alternativeAction?.action ? { alternativeActionName: alternativeAction.action } : {}),
@@ -12147,6 +12162,11 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     answerEvidence: [],
     readTargetCount: readTargets.length,
     readTargets,
+    ...(readTargets[0] ? { topReadTarget: readTargets[0].path } : {}),
+    ...(typeof readTargets[0]?.count === "number" ? { topReadTargetCount: readTargets[0].count } : {}),
+    ...(typeof readTargets[0]?.score === "number" ? { topReadTargetScore: readTargets[0].score } : {}),
+    ...(typeof readTargets[0]?.primary === "boolean" ? { topReadTargetPrimary: readTargets[0].primary } : {}),
+    ...(readTargets[0]?.reason ? { topReadTargetReason: readTargets[0].reason } : {}),
     actionCount: primaryAction ? 1 : 0,
     actions: primaryAction ? [{
       ...withActionExecution(primaryAction),
@@ -13666,6 +13686,11 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.answerPlanUrl ? { answerPlanUrl: agent.answerPlanUrl } : {}),
     readTargetCount: agent.readTargetCount,
     ...(agent.readTargets.length > 0 ? { readTargets: compactAgentReadTargets(agent.readTargets) } : {}),
+    ...(agent.topReadTarget ? { topReadTarget: agent.topReadTarget } : {}),
+    ...(typeof agent.topReadTargetCount === "number" ? { topReadTargetCount: agent.topReadTargetCount } : {}),
+    ...(typeof agent.topReadTargetScore === "number" ? { topReadTargetScore: agent.topReadTargetScore } : {}),
+    ...(typeof agent.topReadTargetPrimary === "boolean" ? { topReadTargetPrimary: agent.topReadTargetPrimary } : {}),
+    ...(agent.topReadTargetReason ? { topReadTargetReason: agent.topReadTargetReason } : {}),
     actionCount: agent.actionCount,
     ...(agent.alternativeActionName ? { alternativeActionName: agent.alternativeActionName } : {}),
     ...(agent.alternativeActionSource ? { alternativeActionSource: agent.alternativeActionSource } : {}),
@@ -13969,6 +13994,11 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.answerPlanUrl ? { answerPlanUrl: agent.answerPlanUrl } : {}),
     readTargetCount: agent.readTargetCount,
     ...(agent.readTargets.length > 0 ? { readTargets: agent.readTargets.map((target) => compactAgentReadTargetRef(target)) } : {}),
+    ...(agent.topReadTarget ? { topReadTarget: agent.topReadTarget } : {}),
+    ...(typeof agent.topReadTargetCount === "number" ? { topReadTargetCount: agent.topReadTargetCount } : {}),
+    ...(typeof agent.topReadTargetScore === "number" ? { topReadTargetScore: agent.topReadTargetScore } : {}),
+    ...(typeof agent.topReadTargetPrimary === "boolean" ? { topReadTargetPrimary: agent.topReadTargetPrimary } : {}),
+    ...(agent.topReadTargetReason ? { topReadTargetReason: agent.topReadTargetReason } : {}),
     actionCount: agent.actionCount,
     ...(agent.alternativeActionName ? { alternativeActionName: agent.alternativeActionName } : {}),
     ...(agent.alternativeActionSource ? { alternativeActionSource: agent.alternativeActionSource } : {}),

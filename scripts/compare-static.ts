@@ -92,6 +92,7 @@ type CliAgentSummary = {
   agentPrimaryAction?: string;
   agentPrimaryExecution?: ActionExecution;
   agentReadTargetScore: number;
+  agentTopReadTargetShortcutScore: number;
   agentResultCountScore: number;
   agentChoiceCountScore: number;
   agentTopChoiceShortcutScore: number;
@@ -605,6 +606,7 @@ export type GateSummary = {
   averageAgentQualityGateScore: number;
   averagePageLinkCommandScore: number;
   averageAgentReadTargetScore: number;
+  averageAgentTopReadTargetShortcutScore: number;
   averageAgentResultCountScore: number;
   averageAgentChoiceCountScore: number;
   averageAgentTopChoiceShortcutScore: number;
@@ -1367,6 +1369,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       primaryReason?: string;
       primaryPriority?: "low" | "medium" | "high";
       primaryPriorityReason?: string;
+      topReadTarget?: string;
+      topReadTargetCount?: number;
+      topReadTargetScore?: number;
+      topReadTargetPrimary?: boolean;
+      topReadTargetReason?: string;
       citationCount?: number;
       topCitationId?: string;
       topCitationPath?: string;
@@ -1542,6 +1549,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentResponseMetadataScore: scoreAgentResponseMetadata(item.agent, item),
     agentHiddenSignalScore: scoreAgentHiddenSignals(item.pageCheck, item.agent?.readTargets ?? [], item),
     agentReadTargetScore: scoreAgentReadTargets(item.agent?.readTargets ?? [], item.agent?.primaryAction, item),
+    agentTopReadTargetShortcutScore: scoreAgentTopReadTargetShortcuts(item.agent),
     agentResultCountScore: scoreAgentResultCount(item.kind ?? "unknown", item.agent?.resultCount, item.searchResults ?? []),
     agentChoiceCountScore: scoreAgentChoiceCounts(item.agent),
     agentTopChoiceShortcutScore: scoreAgentTopChoiceShortcuts(item.agent),
@@ -1631,6 +1639,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentResponseMetadataScore: 0,
     agentHiddenSignalScore: 0,
     agentReadTargetScore: 0,
+    agentTopReadTargetShortcutScore: 0,
     agentResultCountScore: 0,
     agentChoiceCountScore: 0,
     agentTopChoiceShortcutScore: 0,
@@ -2918,6 +2927,51 @@ function scoreAgentBestReadTarget(agent: {
   if (best.reason) {
     required += 1;
     if (agent?.bestReadTargetReason === best.reason) matched += 1;
+  }
+  return roundScore(matched / required);
+}
+
+function scoreAgentTopReadTargetShortcuts(agent: {
+  readTargets?: CliReadTargetShape[];
+  topReadTarget?: string;
+  topReadTargetCount?: number;
+  topReadTargetScore?: number;
+  topReadTargetPrimary?: boolean;
+  topReadTargetReason?: string;
+} | undefined): number {
+  const top = agent?.readTargets?.[0];
+  if (!top) {
+    return agent?.topReadTarget
+      || typeof agent?.topReadTargetCount === "number"
+      || typeof agent?.topReadTargetScore === "number"
+      || typeof agent?.topReadTargetPrimary === "boolean"
+      || agent?.topReadTargetReason ? 0 : 1;
+  }
+  let required = 1;
+  let matched = agent?.topReadTarget === top.path ? 1 : 0;
+  if (typeof top.count === "number") {
+    required += 1;
+    if (agent?.topReadTargetCount === top.count) matched += 1;
+  } else if (typeof agent?.topReadTargetCount === "number") {
+    required += 1;
+  }
+  if (typeof top.score === "number") {
+    required += 1;
+    if (agent?.topReadTargetScore === top.score) matched += 1;
+  } else if (typeof agent?.topReadTargetScore === "number") {
+    required += 1;
+  }
+  if (typeof top.primary === "boolean") {
+    required += 1;
+    if (agent?.topReadTargetPrimary === top.primary) matched += 1;
+  } else if (typeof agent?.topReadTargetPrimary === "boolean") {
+    required += 1;
+  }
+  if (top.reason) {
+    required += 1;
+    if (agent?.topReadTargetReason === top.reason) matched += 1;
+  } else if (agent?.topReadTargetReason) {
+    required += 1;
   }
   return roundScore(matched / required);
 }
@@ -5169,6 +5223,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.actionSchemaScore * 0.03
     + summary.searchResultActionScore * 0.005
     + summary.agentReadTargetScore * 0.005
+    + summary.agentTopReadTargetShortcutScore * 0.005
     + summary.agentResultCountScore * 0.005
     + summary.agentChoiceCountScore * 0.005
     + summary.agentTopChoiceShortcutScore * 0.005
@@ -5248,6 +5303,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentSignalScore,
     summary.agentQualityGateScore,
     summary.agentReadTargetScore,
+    summary.agentTopReadTargetShortcutScore,
     summary.agentResultChoiceScore,
     summary.agentTopResultChoiceShortcutScore,
     summary.agentChoiceCountScore,
@@ -5358,6 +5414,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentQualityGateScore: average(included.map((comparison) => comparison.cliAgentSummary.agentQualityGateScore)),
     averagePageLinkCommandScore: average(included.map((comparison) => comparison.cliAgentSummary.pageLinkCommandScore)),
     averageAgentReadTargetScore: average(included.map((comparison) => comparison.cliAgentSummary.agentReadTargetScore)),
+    averageAgentTopReadTargetShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentTopReadTargetShortcutScore)),
     averageAgentResultCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentResultCountScore)),
     averageAgentChoiceCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentChoiceCountScore)),
     averageAgentTopChoiceShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentTopChoiceShortcutScore)),
