@@ -633,6 +633,8 @@ function getState(element: Element): SemanticNodeState {
   const multiselectable = attr(element, "aria-multiselectable");
   if (multiselectable === "true") state.multiselectable = true;
   if (multiselectable === "false") state.multiselectable = false;
+  const sort = attr(element, "aria-sort");
+  if (sort) state.sort = normalizeText(sort, 40);
   if (attr(element, "required") !== null || attr(element, "aria-required") === "true") state.required = true;
   if (attr(element, "readonly") !== null || attr(element, "aria-readonly") === "true") state.readonly = true;
   const checked = attr(element, "aria-checked") ?? (attr(element, "checked") !== null ? "true" : null);

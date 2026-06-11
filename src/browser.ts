@@ -375,6 +375,8 @@ function getState(element: Element): SemanticNodeState {
   if (busy !== undefined) state.busy = busy;
   const multiselectable = ariaBoolean(element.getAttribute("aria-multiselectable"));
   if (multiselectable !== undefined) state.multiselectable = multiselectable;
+  const sort = element.getAttribute("aria-sort");
+  if (sort) state.sort = normalizeText(sort, 40);
   if (element === document.activeElement) state.focused = true;
 
   const checked = ariaBooleanOrMixed(element.getAttribute("aria-checked"));

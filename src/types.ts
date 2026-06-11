@@ -38,6 +38,7 @@ export type SemanticNodeState = {
   disabled?: boolean;
   busy?: boolean;
   multiselectable?: boolean;
+  sort?: string;
   checked?: boolean | "mixed";
   selected?: boolean;
   expanded?: boolean;
@@ -739,6 +740,7 @@ export type AgentSummary = {
   semanticTopStateDisabled?: boolean;
   semanticTopStateBusy?: boolean;
   semanticTopStateMultiselectable?: boolean;
+  semanticTopStateSort?: string;
   semanticTopStateChecked?: boolean | "mixed";
   semanticTopStateSelected?: boolean;
   semanticTopStateExpanded?: boolean;

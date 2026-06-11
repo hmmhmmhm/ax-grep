@@ -4150,6 +4150,41 @@ describe("cli", () => {
     });
   });
 
+  it("exposes parsed sort semantic top-state shortcuts for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/sort", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <table aria-label="Revenue">
+            <thead>
+              <tr>
+                <th aria-sort="descending">Quarter</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Q2</td><td>$20</td></tr>
+            </tbody>
+          </table>
+          <p>Readable page content for sorted table routing.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      semanticTopStateRole: "columnheader",
+      semanticTopStatePath: "agent.semanticSummary.stateItems[0]",
+      semanticTopStateName: "Quarter",
+      semanticTopState: "sort=descending",
+      semanticTopStateSort: "descending",
+      semanticTopStateSelector: "th",
+    });
+  });
+
   it("exposes parsed range and orientation semantic top-state shortcuts for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/range", "--agent"], {
