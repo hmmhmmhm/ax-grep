@@ -685,7 +685,9 @@ export type AgentSummary = {
   semanticTopFieldHtmlName?: string;
   semanticTopFieldHtmlType?: string;
   semanticTopFieldPlaceholder?: string;
+  semanticTopFieldAriaPlaceholder?: string;
   semanticTopFieldAutocomplete?: string;
+  semanticTopFieldAriaAutocomplete?: string;
   semanticTopFieldInputMode?: string;
   semanticTopFieldPattern?: string;
   semanticTopFieldMin?: string;

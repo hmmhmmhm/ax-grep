@@ -558,7 +558,9 @@ describe("public agent types", () => {
       | "semanticTopFieldHtmlName"
       | "semanticTopFieldHtmlType"
       | "semanticTopFieldPlaceholder"
+      | "semanticTopFieldAriaPlaceholder"
       | "semanticTopFieldAutocomplete"
+      | "semanticTopFieldAriaAutocomplete"
       | "semanticTopFieldInputMode"
       | "semanticTopFieldPattern"
       | "semanticTopFieldMin"
@@ -1175,7 +1177,9 @@ describe("public agent types", () => {
       semanticTopFieldHtmlName: "email",
       semanticTopFieldHtmlType: "email",
       semanticTopFieldPlaceholder: "name@example.test",
+      semanticTopFieldAriaPlaceholder: "Email address",
       semanticTopFieldAutocomplete: "email",
+      semanticTopFieldAriaAutocomplete: "list",
       semanticTopFieldInputMode: "email",
       semanticTopFieldPattern: ".+@example\\.test",
       semanticTopFieldMin: "1",

@@ -4320,7 +4320,7 @@ describe("cli", () => {
           <form method="GET" action="/find">
             <label id="q-label" for="q">Archive search</label>
             <p id="q-help">Use product or report keywords.</p>
-            <input id="q" name="query" type="search" placeholder="Search reports" autocomplete="off" inputmode="search" pattern="[A-Za-z0-9 ]+" min="1" max="99" step="1" minlength="2" maxlength="80" required aria-invalid="spelling" aria-labelledby="q-label" aria-describedby="q-help">
+            <input id="q" name="query" type="search" placeholder="Search reports" aria-placeholder="Report keyword" autocomplete="off" aria-autocomplete="list" inputmode="search" pattern="[A-Za-z0-9 ]+" min="1" max="99" step="1" minlength="2" maxlength="80" required aria-invalid="spelling" aria-labelledby="q-label" aria-describedby="q-help">
             <select name="category"><option aria-posinset="1" aria-setsize="2">All</option><option>Reports</option></select>
             <input type="hidden" name="csrf" value="secret">
             <button type="submit">Search</button>
@@ -4376,7 +4376,9 @@ describe("cli", () => {
         htmlName: "query",
         htmlType: "search",
         placeholder: "Search reports",
+        ariaPlaceholder: "Report keyword",
         autocomplete: "off",
+        ariaAutocomplete: "list",
         inputMode: "search",
         pattern: "[A-Za-z0-9 ]+",
         min: "1",
@@ -4435,7 +4437,9 @@ describe("cli", () => {
       semanticTopFieldHtmlName: "query",
       semanticTopFieldHtmlType: "search",
       semanticTopFieldPlaceholder: "Search reports",
+      semanticTopFieldAriaPlaceholder: "Report keyword",
       semanticTopFieldAutocomplete: "off",
+      semanticTopFieldAriaAutocomplete: "list",
       semanticTopFieldInputMode: "search",
       semanticTopFieldPattern: "[A-Za-z0-9 ]+",
       semanticTopFieldMin: "1",

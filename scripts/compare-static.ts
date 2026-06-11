@@ -1704,7 +1704,9 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopFieldHtmlName?: string;
       semanticTopFieldHtmlType?: string;
       semanticTopFieldPlaceholder?: string;
+      semanticTopFieldAriaPlaceholder?: string;
       semanticTopFieldAutocomplete?: string;
+      semanticTopFieldAriaAutocomplete?: string;
       semanticTopFieldInputMode?: string;
       semanticTopFieldPattern?: string;
       semanticTopFieldMin?: string;
@@ -4881,7 +4883,9 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopFieldHtmlName?: string;
   semanticTopFieldHtmlType?: string;
   semanticTopFieldPlaceholder?: string;
+  semanticTopFieldAriaPlaceholder?: string;
   semanticTopFieldAutocomplete?: string;
+  semanticTopFieldAriaAutocomplete?: string;
   semanticTopFieldInputMode?: string;
   semanticTopFieldPattern?: string;
   semanticTopFieldMin?: string;
@@ -5551,7 +5555,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopListSelector === list.selector) matched += 1;
   }
-  const field = Array.isArray(item.fieldItems) ? item.fieldItems[0] as { path?: unknown; role?: unknown; name?: unknown; description?: unknown; value?: unknown; htmlName?: unknown; htmlType?: unknown; placeholder?: unknown; autocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; labelledBy?: unknown; labelledByText?: unknown; describedBy?: unknown; describedByText?: unknown; state?: unknown; selector?: unknown } | undefined : undefined;
+  const field = Array.isArray(item.fieldItems) ? item.fieldItems[0] as { path?: unknown; role?: unknown; name?: unknown; description?: unknown; value?: unknown; htmlName?: unknown; htmlType?: unknown; placeholder?: unknown; ariaPlaceholder?: unknown; autocomplete?: unknown; ariaAutocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; labelledBy?: unknown; labelledByText?: unknown; describedBy?: unknown; describedByText?: unknown; state?: unknown; selector?: unknown } | undefined : undefined;
   if (field && typeof field.role === "string") {
     required += 1;
     if (agent?.semanticTopFieldRole === field.role) matched += 1;
@@ -5584,9 +5588,17 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopFieldPlaceholder === field.placeholder) matched += 1;
   }
+  if (field && typeof field.ariaPlaceholder === "string") {
+    required += 1;
+    if (agent?.semanticTopFieldAriaPlaceholder === field.ariaPlaceholder) matched += 1;
+  }
   if (field && typeof field.autocomplete === "string") {
     required += 1;
     if (agent?.semanticTopFieldAutocomplete === field.autocomplete) matched += 1;
+  }
+  if (field && typeof field.ariaAutocomplete === "string") {
+    required += 1;
+    if (agent?.semanticTopFieldAriaAutocomplete === field.ariaAutocomplete) matched += 1;
   }
   if (field && typeof field.inputMode === "string") {
     required += 1;
