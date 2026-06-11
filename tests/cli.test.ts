@@ -7471,6 +7471,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("source=source.example type=news kind=external <https://source.example/report> - Possible source candidate: news-like. Source report");
     expect(stdout.output).toContain("    command: ax-grep 'https://source.example/report' --json --summary");
     expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://source.example/report\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  actionCandidate: pageCheck.nextSteps open-source-link <https://source.example/report>");
+    expect(stdout.output).toContain("    sourceLinkRef: pageCheck.sourceLinks[0]");
     expect(stdout.output).toContain("  bestReadTarget: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  bestReadTargetReason: Structured page excerpts suitable for source checking.");
     expect(stdout.output).toContain("  readabilityReason: 1 content evidence item");
@@ -7502,6 +7504,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("    readFrom: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  step: 2. open-source-link <https://source.example/report> - Inspect an external source link referenced by the page.");
     expect(stdout.output).toContain("    execution: run-command");
+    expect(stdout.output).toContain("    sourceLinkRef: pageCheck.sourceLinks[0]");
     expect(stdout.output).toContain("    command: ax-grep 'https://source.example/report' --json --summary");
   });
 

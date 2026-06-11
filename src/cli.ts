@@ -2404,6 +2404,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     const primary = action.primary ? " primary" : "";
     const target = action.url ? ` <${action.url}>` : "";
     lines.push(`  actionCandidate: ${action.source}${primary} ${formatActionLabel(action)}${target} - ${action.priority ?? actionPriority(action)} - ${action.reason}`);
+    if (action.sourceLinkRef) lines.push(`    sourceLinkRef: ${action.sourceLinkRef}`);
   }
   if (agent.primaryAction) {
     lines.push(`  next: ${formatActionLabel(agent.primaryAction)} - ${agent.primaryAction.reason}`);
@@ -2617,6 +2618,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`    execution: ${actionExecution(step)}`);
     lines.push(`    priority: ${step.priority ?? actionPriority(step)} - ${step.priorityReason ?? actionPriorityReason(step)}`);
     if (step.readFrom) lines.push(`    readFrom: ${step.readFrom}`);
+    if (step.sourceLinkRef) lines.push(`    sourceLinkRef: ${step.sourceLinkRef}`);
     if (step.requiresBrowserInteraction) lines.push("    requiresBrowserInteraction: true");
     if (step.command) lines.push(`    command: ${step.command}`);
     if (step.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(step.commandArgs)}`);
