@@ -682,7 +682,9 @@ export type AgentSummary = {
   semanticTopFieldMinLength?: number;
   semanticTopFieldMaxLength?: number;
   semanticTopFieldLabelledBy?: string;
+  semanticTopFieldLabelledByText?: string;
   semanticTopFieldDescribedBy?: string;
+  semanticTopFieldDescribedByText?: string;
   semanticTopFieldState?: string;
   semanticTopFieldRequired?: boolean;
   semanticTopFieldSelector?: string;

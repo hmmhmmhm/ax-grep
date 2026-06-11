@@ -561,7 +561,9 @@ describe("public agent types", () => {
       | "semanticTopFieldMinLength"
       | "semanticTopFieldMaxLength"
       | "semanticTopFieldLabelledBy"
+      | "semanticTopFieldLabelledByText"
       | "semanticTopFieldDescribedBy"
+      | "semanticTopFieldDescribedByText"
       | "semanticTopFieldState"
       | "semanticTopFieldRequired"
       | "semanticTopFieldSelector"
@@ -1161,7 +1163,9 @@ describe("public agent types", () => {
       semanticTopFieldMinLength: 3,
       semanticTopFieldMaxLength: 120,
       semanticTopFieldLabelledBy: "email-label",
+      semanticTopFieldLabelledByText: "Email",
       semanticTopFieldDescribedBy: "email-help",
+      semanticTopFieldDescribedByText: "Used for updates",
       semanticTopFieldState: "required=true",
       semanticTopFieldRequired: true,
       semanticTopFieldSelector: "input[name=\"email\"]",
