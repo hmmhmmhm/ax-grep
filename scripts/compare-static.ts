@@ -1109,9 +1109,12 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       needsBrowserHtml?: boolean;
       readabilityReasons?: unknown[];
       recommendedRank?: number;
+      recommendedUrl?: string;
+      recommendedTitle?: string;
       recommendedSource?: string;
       recommendedRelevance?: "low" | "medium" | "high";
       recommendedLikelyOfficial?: boolean;
+      recommendedCommandArgs?: string[];
       resultCount?: number;
       resultChoiceCount?: number;
       resultChoices?: CliAgentResultChoiceShape[];
@@ -3704,9 +3707,12 @@ function scoreAgentSourceSearchProvenance(
 function scoreAgentRecommendedMetadata(
   agent: {
     recommendedRank?: number;
+    recommendedUrl?: string;
+    recommendedTitle?: string;
     recommendedSource?: string;
     recommendedRelevance?: "low" | "medium" | "high";
     recommendedLikelyOfficial?: boolean;
+    recommendedCommandArgs?: string[];
     recommendedSelectionReason?: string;
   } | undefined,
   recommendedResult: CliSearchResultShape | undefined,
@@ -3717,6 +3723,14 @@ function scoreAgentRecommendedMetadata(
   if (typeof recommendedResult.rank === "number") {
     required += 1;
     if (agent?.recommendedRank === recommendedResult.rank) matched += 1;
+  }
+  if (recommendedResult.url) {
+    required += 1;
+    if (agent?.recommendedUrl === recommendedResult.url) matched += 1;
+  }
+  if (recommendedResult.title) {
+    required += 1;
+    if (agent?.recommendedTitle === recommendedResult.title) matched += 1;
   }
   if (recommendedResult.source) {
     required += 1;
@@ -3733,6 +3747,12 @@ function scoreAgentRecommendedMetadata(
   if (recommendedResult.selectionReason) {
     required += 1;
     if (agent?.recommendedSelectionReason === recommendedResult.selectionReason) matched += 1;
+  }
+  if (recommendedResult.commandArgs) {
+    required += 1;
+    if (JSON.stringify(agent?.recommendedCommandArgs) === JSON.stringify(recommendedResult.commandArgs)) matched += 1;
+  } else if (agent?.recommendedCommandArgs) {
+    required += 1;
   }
   return required === 0 ? 1 : roundScore(matched / required);
 }

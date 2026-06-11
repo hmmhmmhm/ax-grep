@@ -631,6 +631,8 @@ export type AgentSummary = {
   recommendedRelevance?: number;
   recommendedLikelyOfficial?: boolean;
   recommendedSelectionReason?: string;
+  recommendedCommand?: string;
+  recommendedCommandArgs?: string[];
 };
 
 export type AgentContractFeature =

@@ -1378,8 +1378,11 @@ describe("cli", () => {
     });
     expect(envelope.agent).toMatchObject({
       recommendedRank: 7,
+      recommendedUrl: "https://result-7.example/",
+      recommendedTitle: "Result 7",
       recommendedSource: "result-7.example",
       recommendedSelectionReason: "Matches --find: target claim.",
+      recommendedCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--find", "target claim", "--open-result", "7", "--agent"],
     });
     const visibleSourceAverage = envelope.searchResults.reduce((total: number, result: { sourceScore?: number }) => total + (result.sourceScore ?? 0), 0) / envelope.searchResults.length;
     expect(envelope.agent.sourceQualityScore).toBeCloseTo(visibleSourceAverage, 3);
@@ -7901,6 +7904,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  recommendedTitle: Result Title");
     expect(stdout.output).toContain("  recommendedRank: 1");
     expect(stdout.output).toContain("  recommendedSource: result.example");
+    expect(stdout.output).toContain("  recommendedCommandArgs: [\"ax-grep\",\"https://result.example/article\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  next: open-result <https://result.example/article>");
     expect(stdout.output).toContain("  execution: run-command");
     expect(stdout.output).toContain("  url: https://result.example/article");

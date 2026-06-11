@@ -305,6 +305,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "bestReadTarget",
           "bestReadTargetCount",
           "bestReadTargetPrimary",
+          "recommendedUrl",
+          "recommendedCommandArgs",
         ]);
         requireFileIncludes(root, failures, "tests/cli.test.ts", [
           "formCount",
@@ -376,6 +378,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "bestReadTarget",
           "bestReadTargetCount",
           "bestReadTargetPrimary",
+          "recommendedUrl",
+          "recommendedCommandArgs",
         ]);
       },
     ),
@@ -446,6 +450,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "bestReadTarget",
           "bestReadTargetCount",
           "bestReadTargetPrimary",
+          "recommendedUrl",
+          "recommendedCommandArgs",
           "verificationFoundQueries",
           "verificationMissingQueries",
           "topVerificationFoundQuery",

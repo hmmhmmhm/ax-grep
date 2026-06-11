@@ -973,6 +973,8 @@ type AgentSummary = {
   recommendedRelevance?: ResultSummary["relevance"];
   recommendedLikelyOfficial?: boolean;
   recommendedSelectionReason?: string;
+  recommendedCommand?: string;
+  recommendedCommandArgs?: string[];
 };
 
 const agentContract: AgentContract = {
@@ -2588,6 +2590,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.recommendedRelevance) lines.push(`  recommendedRelevance: ${agent.recommendedRelevance}`);
   if (typeof agent.recommendedLikelyOfficial === "boolean") lines.push(`  recommendedLikelyOfficial: ${agent.recommendedLikelyOfficial}`);
   if (agent.recommendedSelectionReason) lines.push(`  recommendedSelectionReason: ${agent.recommendedSelectionReason}`);
+  if (agent.recommendedCommand) lines.push(`  recommendedCommand: ${agent.recommendedCommand}`);
+  if (agent.recommendedCommandArgs) lines.push(`  recommendedCommandArgs: ${formatCommandArgsText(agent.recommendedCommandArgs)}`);
   for (const choice of agent.resultChoices) lines.push(...formatAgentResultChoiceText(choice));
   for (const choice of agent.sourceChoices) lines.push(...formatAgentSourceChoiceText(choice));
   for (const choice of agent.formChoices) lines.push(...formatAgentFormChoiceText(choice));
@@ -9085,8 +9089,12 @@ function summarizeAgent(
     if (recommendedResult.relevance) agent.recommendedRelevance = recommendedResult.relevance;
     if (typeof recommendedResult.isLikelyOfficial === "boolean") agent.recommendedLikelyOfficial = recommendedResult.isLikelyOfficial;
     agent.recommendedSelectionReason = recommendedResult.selectionReason ?? searchResultSelectionReason(recommendedResult);
+    if (primaryAction?.command) agent.recommendedCommand = primaryAction.command;
+    if (primaryAction?.commandArgs) agent.recommendedCommandArgs = primaryAction.commandArgs;
   } else if (primaryAction?.url) {
     agent.recommendedUrl = primaryAction.url;
+    if (primaryAction.command) agent.recommendedCommand = primaryAction.command;
+    if (primaryAction.commandArgs) agent.recommendedCommandArgs = primaryAction.commandArgs;
   }
   return agent;
 }
@@ -12762,6 +12770,30 @@ function compactAgentTopChoice(agent: AgentSummary, searchCommandContext?: Searc
   };
 }
 
+function compactAgentRecommended(agent: AgentSummary, searchCommandContext?: SearchResultCommandContext, pageLinkContext?: PageLinkCommandContext): object {
+  if (!agent.recommendedUrl && !agent.recommendedRank) return {};
+  const recommendedChoice = agent.resultChoices.find((choice) => {
+    return choice.recommended
+      || (agent.recommendedRank === choice.rank && agent.recommendedUrl === choice.url);
+  });
+  const compactChoice = recommendedChoice
+    ? compactAgentResultChoice(recommendedChoice, searchCommandContext, pageLinkContext) as { command?: string; commandArgs?: string[] }
+    : undefined;
+  const command = compactChoice?.command ?? agent.recommendedCommand;
+  const commandArgs = compactChoice?.commandArgs ?? agent.recommendedCommandArgs;
+  return {
+    ...(agent.recommendedUrl ? { recommendedUrl: agent.recommendedUrl } : {}),
+    ...(agent.recommendedTitle ? { recommendedTitle: agent.recommendedTitle } : {}),
+    ...(agent.recommendedRank ? { recommendedRank: agent.recommendedRank } : {}),
+    ...(agent.recommendedSource ? { recommendedSource: agent.recommendedSource } : {}),
+    ...(agent.recommendedRelevance ? { recommendedRelevance: agent.recommendedRelevance } : {}),
+    ...(typeof agent.recommendedLikelyOfficial === "boolean" ? { recommendedLikelyOfficial: agent.recommendedLikelyOfficial } : {}),
+    ...(agent.recommendedSelectionReason ? { recommendedSelectionReason: agent.recommendedSelectionReason } : {}),
+    ...(command ? { recommendedCommand: command } : {}),
+    ...(commandArgs ? { recommendedCommandArgs: commandArgs } : {}),
+  };
+}
+
 function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchResultCommandContext, pageLinkContext?: PageLinkCommandContext): object {
   return {
     contract: compactAgentContract(agent.contract),
@@ -12909,13 +12941,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.requiresBrowserInteraction ? { requiresBrowserInteraction: true } : {}),
     ...(agent.primaryAction ? { primaryAction: compactAgentAction(agent.primaryAction) } : {}),
     ...(agent.actions.length > 0 ? { actions: compactAgentActionList(agent.actions.map((action) => compactAgentActionSummary(action, agent.primaryAction, agent.primaryUrl))) } : {}),
-    ...(agent.recommendedUrl ? { recommendedUrl: agent.recommendedUrl } : {}),
-    ...(agent.recommendedTitle ? { recommendedTitle: agent.recommendedTitle } : {}),
-    ...(agent.recommendedRank ? { recommendedRank: agent.recommendedRank } : {}),
-    ...(agent.recommendedSource ? { recommendedSource: agent.recommendedSource } : {}),
-    ...(agent.recommendedRelevance ? { recommendedRelevance: agent.recommendedRelevance } : {}),
-    ...(typeof agent.recommendedLikelyOfficial === "boolean" ? { recommendedLikelyOfficial: agent.recommendedLikelyOfficial } : {}),
-    ...(agent.recommendedSelectionReason ? { recommendedSelectionReason: agent.recommendedSelectionReason } : {}),
+    ...compactAgentRecommended(agent, searchCommandContext, pageLinkContext),
   };
 }
 
@@ -13039,6 +13065,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.primaryReadFrom ? { primaryReadFrom: agent.primaryReadFrom } : {}),
     ...(agent.primaryUrl ? { primaryUrl: agent.primaryUrl } : {}),
     ...(agent.primaryAction ? { primaryAction: compactAgentAction(agent.primaryAction, agent.primaryUrl ? { primaryUrl: agent.primaryUrl } : {}) } : {}),
+    ...compactAgentRecommended(agent, searchCommandContext, pageLinkContext),
   };
 }
 

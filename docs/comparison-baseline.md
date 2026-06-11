@@ -222,8 +222,9 @@ before trusting or recovering from an opened page.
 `agent.sourceSearchAlternateCount` mirror the source-search payload for quick
 SERP recovery decisions.
 `averageAgentRecommendedMetadataScore` tracks whether search pages with a
-`recommendedResult` repeat its rank, source, relevance, and official-source
-hint on the top-level `agent` object for quick routing.
+`recommendedResult` repeat its URL, title, rank, source, relevance,
+official-source hint, selection reason, and command args on the top-level
+`agent` object for quick routing.
 Terminal actions such as `read-content` and `use-evidence` are treated as
 usable without executable commands when `execution` is `read-current` and a
 `readFrom` pointer is present, because the compact payload already contains the

@@ -241,6 +241,9 @@ describe("public agent types", () => {
       | "primaryReason"
       | "primaryPriority"
       | "primaryPriorityReason"
+      | "recommendedUrl"
+      | "recommendedTitle"
+      | "recommendedCommandArgs"
     > = {
       resultCount: 2,
       resultChoiceCount: 2,
@@ -333,6 +336,9 @@ describe("public agent types", () => {
       primaryReason: "Read current evidence.",
       primaryPriority: "high",
       primaryPriorityReason: "Readable content is available.",
+      recommendedUrl: "https://example.test",
+      recommendedTitle: "Example result",
+      recommendedCommandArgs: ["ax-grep", "https://example.test", "--agent"],
     };
 
     expect(summary.hiddenSignalCount).toBe(4);
@@ -357,5 +363,6 @@ describe("public agent types", () => {
     expect(summary.handoffAnswerStatus).toBe("ready");
     expect(summary.handoffShouldContinue).toBe(false);
     expect(summary.primaryActionName).toBe("read-content");
+    expect(summary.recommendedCommandArgs?.[0]).toBe("ax-grep");
   });
 });
