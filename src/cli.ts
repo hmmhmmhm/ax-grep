@@ -13174,19 +13174,18 @@ function compactAgentTarget(target: AgentTarget, action?: string): object {
 }
 
 function compactAgentActionSummary(action: AgentActionSummary, primaryAction?: SuggestedAction, primaryUrl?: string): object {
+  const actionOptions = primaryUrl ? { primaryUrl } : {};
   if (!action.primary && action.source === "pageCheck.nextSteps" && typeof action.index === "number") {
     const compactIndex = (primaryAction?.action === "read-content" || primaryAction?.action === "use-evidence") && action.index > 0
       ? action.index - 1
       : action.index;
     return {
-      action: action.action,
-      execution: actionExecution(action),
+      ...compactAgentAction(action, actionOptions),
       source: action.source,
       index: action.index,
       path: `pageCheck.nextSteps[${compactIndex}]`,
     };
   }
-  const actionOptions = primaryUrl ? { primaryUrl } : {};
   return {
     ...compactAgentAction(action, actionOptions),
     source: action.source,

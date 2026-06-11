@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import process from "node:process";
 import { Readable } from "node:stream";
+import { pathToFileURL } from "node:url";
 import { extract } from "../src/static";
 import { flattenSemanticTree, summarizeSemanticTree, type SemanticNode } from "../src/index";
 import { runCli } from "../src/cli";
@@ -580,63 +581,77 @@ const actionableRoles = new Set([
 const navigationRoles = new Set(["article", "banner", "complementary", "contentinfo", "heading", "link", "main", "navigation", "region", "search"]);
 const contentRoles = new Set(["cell", "columnheader", "definition", "heading", "img", "list", "listitem", "p", "row", "rowheader", "table", "term", "text"]);
 
-const targets = resolveBenchmarkTargets(process.argv.slice(2), ["https://example.com", "https://www.wikipedia.org"]);
-const comparisons: StaticComparison[] = [];
-
-for (const [index, target] of targets.entries()) {
-  const warnings: string[] = [];
-  const { html, source, status, agentBrowser: renderedAgentBrowser } = await fetchOrRenderHtml(target, `ax-grep-static-html-${Date.now()}-${index}`, warnings);
-
-  const tree = extract(html, {
-    mode: "compact",
-    excludeLikelyAds: true,
-    excludeLikelyBoilerplate: target.excludeLikelyBoilerplate === true,
-    includeAttributes: false,
-    includeSelectOptions: false,
-    includeTextNodes: true,
-    ...(target.maxChildrenPerNode === undefined ? {} : { maxChildrenPerNode: target.maxChildrenPerNode }),
-    ...(target.maxLinkFarmChildren === undefined ? {} : { maxLinkFarmChildren: target.maxLinkFarmChildren }),
+if (isMainModule()) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
   });
-  const staticSummary = summarizeSemanticTree(tree);
-  const staticNormalized = normalizeNamedRoles(staticSummary.namedRoles);
-  const agentBrowser = renderedAgentBrowser ?? (source === "fixture" ? syntheticAgentBrowserReference(staticSummary) : runAgentBrowserSnapshot(target.url, `ax-grep-static-${Date.now()}-${index}`, warnings));
-  const agentNamedRoles = new Set(agentBrowser?.normalized.namedRoles ?? []);
-  const matches = staticNormalized.namedRoles.filter((item) => agentNamedRoles.has(item)).length;
-  const namedRoleTotal = Math.max(staticNormalized.namedRoles.length, agentBrowser?.normalized.namedRoles.length ?? 0);
-
-  const agentReadiness = scoreAgentReadiness(staticNormalized, agentBrowser?.normalized ?? emptyNormalizedSummary());
-  const cliAgentSummary = await summarizeCliAgentOutput(target.url, html, source, status, warnings, target.findQueries ?? []);
-  const agentBrowserAdvantageScore = scoreAgentBrowserAdvantage(cliAgentSummary);
-  const comparison: StaticComparison = {
-    category: target.category,
-    url: target.url,
-    gate: gateInfo(target),
-    classification: "usable",
-    fetch: {
-      status,
-      htmlBytes: new TextEncoder().encode(html).length,
-      source,
-    },
-    static: staticSummary,
-    staticNormalized,
-    agentBrowser,
-    overlap: {
-      namedRoleMatches: matches,
-      namedRoleTotal,
-      ratio: namedRoleTotal === 0 ? 1 : matches / namedRoleTotal,
-    },
-    agentReadiness,
-    agentBrowserAdvantageScore,
-    cliAgentSummary,
-    warnings,
-  };
-  comparison.classification = classifyComparison(comparison);
-  comparisons.push(comparison);
-
-  printTreeSample(target.url, tree);
 }
 
-console.log(JSON.stringify({ generatedAt: new Date().toISOString(), gateSummary: summarizeGate(comparisons), comparisons }, null, 2));
+async function main(): Promise<void> {
+  const targets = resolveBenchmarkTargets(process.argv.slice(2), ["https://example.com", "https://www.wikipedia.org"]);
+  const comparisons: StaticComparison[] = [];
+
+  for (const [index, target] of targets.entries()) {
+    const warnings: string[] = [];
+    const { html, source, status, agentBrowser: renderedAgentBrowser } = await fetchOrRenderHtml(target, `ax-grep-static-html-${Date.now()}-${index}`, warnings);
+
+    const tree = extract(html, {
+      mode: "compact",
+      excludeLikelyAds: true,
+      excludeLikelyBoilerplate: target.excludeLikelyBoilerplate === true,
+      includeAttributes: false,
+      includeSelectOptions: false,
+      includeTextNodes: true,
+      ...(target.maxChildrenPerNode === undefined ? {} : { maxChildrenPerNode: target.maxChildrenPerNode }),
+      ...(target.maxLinkFarmChildren === undefined ? {} : { maxLinkFarmChildren: target.maxLinkFarmChildren }),
+    });
+    const staticSummary = summarizeSemanticTree(tree);
+    const staticNormalized = normalizeNamedRoles(staticSummary.namedRoles);
+    const agentBrowser = renderedAgentBrowser ?? (source === "fixture" ? syntheticAgentBrowserReference(staticSummary) : runAgentBrowserSnapshot(target.url, `ax-grep-static-${Date.now()}-${index}`, warnings));
+    const agentNamedRoles = new Set(agentBrowser?.normalized.namedRoles ?? []);
+    const matches = staticNormalized.namedRoles.filter((item) => agentNamedRoles.has(item)).length;
+    const namedRoleTotal = Math.max(staticNormalized.namedRoles.length, agentBrowser?.normalized.namedRoles.length ?? 0);
+
+    const agentReadiness = scoreAgentReadiness(staticNormalized, agentBrowser?.normalized ?? emptyNormalizedSummary());
+    const cliAgentSummary = await summarizeCliAgentOutput(target.url, html, source, status, warnings, target.findQueries ?? []);
+    const agentBrowserAdvantageScore = scoreAgentBrowserAdvantage(cliAgentSummary);
+    const comparison: StaticComparison = {
+      category: target.category,
+      url: target.url,
+      gate: gateInfo(target),
+      classification: "usable",
+      fetch: {
+        status,
+        htmlBytes: new TextEncoder().encode(html).length,
+        source,
+      },
+      static: staticSummary,
+      staticNormalized,
+      agentBrowser,
+      overlap: {
+        namedRoleMatches: matches,
+        namedRoleTotal,
+        ratio: namedRoleTotal === 0 ? 1 : matches / namedRoleTotal,
+      },
+      agentReadiness,
+      agentBrowserAdvantageScore,
+      cliAgentSummary,
+      warnings,
+    };
+    comparison.classification = classifyComparison(comparison);
+    comparisons.push(comparison);
+
+    printTreeSample(target.url, tree);
+  }
+
+  console.log(JSON.stringify({ generatedAt: new Date().toISOString(), gateSummary: summarizeGate(comparisons), comparisons }, null, 2));
+}
+
+function isMainModule(): boolean {
+  const entry = process.argv[1];
+  return typeof entry === "string" && import.meta.url === pathToFileURL(entry).href;
+}
 
 async function fetchOrRenderHtml(
   target: BenchmarkTarget,
