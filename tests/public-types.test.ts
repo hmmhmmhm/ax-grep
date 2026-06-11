@@ -521,6 +521,8 @@ describe("public agent types", () => {
       | "semanticTopButtonFormAction"
       | "semanticTopButtonFormMethod"
       | "semanticTopButtonFormTarget"
+      | "semanticTopButtonFormEncType"
+      | "semanticTopButtonFormNoValidate"
       | "semanticTopButtonFormId"
       | "semanticTopButtonSelector"
       | "semanticTopImagePath"
@@ -1145,6 +1147,8 @@ describe("public agent types", () => {
       semanticTopButtonFormAction: "https://example.test/subscribe",
       semanticTopButtonFormMethod: "post",
       semanticTopButtonFormTarget: "_self",
+      semanticTopButtonFormEncType: "multipart/form-data",
+      semanticTopButtonFormNoValidate: true,
       semanticTopButtonFormId: "signup-form",
       semanticTopButtonSelector: "button:nth-of-type(1)",
       semanticTopImagePath: "agent.semanticSummary.imageItems[0]",

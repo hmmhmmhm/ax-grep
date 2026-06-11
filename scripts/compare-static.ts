@@ -1669,6 +1669,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopButtonFormAction?: string;
       semanticTopButtonFormMethod?: string;
       semanticTopButtonFormTarget?: string;
+      semanticTopButtonFormEncType?: string;
+      semanticTopButtonFormNoValidate?: boolean;
       semanticTopButtonFormId?: string;
       semanticTopButtonSelector?: string;
       semanticTopImagePath?: string;
@@ -4855,6 +4857,8 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopButtonFormAction?: string;
   semanticTopButtonFormMethod?: string;
   semanticTopButtonFormTarget?: string;
+  semanticTopButtonFormEncType?: string;
+  semanticTopButtonFormNoValidate?: boolean;
   semanticTopButtonFormId?: string;
   semanticTopButtonSelector?: string;
   semanticTopImagePath?: string;
@@ -5420,7 +5424,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopInPageLinkSelector === inPageLink.selector) matched += 1;
   }
-  const button = Array.isArray(item.buttons) ? item.buttons[0] as { path?: unknown; name?: unknown; description?: unknown; type?: unknown; formAction?: unknown; formMethod?: unknown; formTarget?: unknown; formId?: unknown; selector?: unknown } | undefined : undefined;
+  const button = Array.isArray(item.buttons) ? item.buttons[0] as { path?: unknown; name?: unknown; description?: unknown; type?: unknown; formAction?: unknown; formMethod?: unknown; formTarget?: unknown; formEncType?: unknown; formNoValidate?: unknown; formId?: unknown; selector?: unknown } | undefined : undefined;
   if (button && typeof button.name === "string") {
     required += 1;
     if (agent?.semanticTopButtonName === button.name) matched += 1;
@@ -5448,6 +5452,14 @@ function scoreAgentSemanticSummary(agent: {
   if (button && typeof button.formTarget === "string") {
     required += 1;
     if (agent?.semanticTopButtonFormTarget === button.formTarget) matched += 1;
+  }
+  if (button && typeof button.formEncType === "string") {
+    required += 1;
+    if (agent?.semanticTopButtonFormEncType === button.formEncType) matched += 1;
+  }
+  if (button && typeof button.formNoValidate === "boolean") {
+    required += 1;
+    if (agent?.semanticTopButtonFormNoValidate === button.formNoValidate) matched += 1;
   }
   if (button && typeof button.formId === "string") {
     required += 1;

@@ -653,6 +653,8 @@ export type AgentSummary = {
   semanticTopButtonFormAction?: string;
   semanticTopButtonFormMethod?: string;
   semanticTopButtonFormTarget?: string;
+  semanticTopButtonFormEncType?: string;
+  semanticTopButtonFormNoValidate?: boolean;
   semanticTopButtonFormId?: string;
   semanticTopButtonSelector?: string;
   semanticTopImagePath?: string;

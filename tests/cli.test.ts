@@ -253,7 +253,7 @@ describe("cli", () => {
             <main>
               <h1 id="content" aria-roledescription="article title">Example</h1>
               <p id="toggle-desc">Shows extra context</p>
-              <button type="submit" formaction="/details" formmethod="post" formtarget="_blank" form="details-form" aria-roledescription="disclosure toggle" aria-pressed="false" aria-haspopup="dialog" aria-valuetext="details off" aria-describedby="toggle-desc" aria-controls="details-panel">Toggle details</button>
+              <button type="submit" formaction="/details" formmethod="post" formtarget="_blank" formenctype="multipart/form-data" formnovalidate form="details-form" aria-roledescription="disclosure toggle" aria-pressed="false" aria-haspopup="dialog" aria-valuetext="details off" aria-describedby="toggle-desc" aria-controls="details-panel">Toggle details</button>
               <a href="#content" class="skip-link" target="_self" rel="bookmark" download="content.html">Skip to content</a>
               <section id="details-panel" aria-label="Details panel">Extra details</section>
               <img src="/hero.png" srcset="/hero.png 1x, /hero@2x.png 2x" sizes="(min-width: 800px) 720px, 100vw" width="720" height="360" loading="lazy" decoding="async" alt="Hero chart">
@@ -507,6 +507,8 @@ describe("cli", () => {
               formAction: "https://example.test/details",
               formMethod: "post",
               formTarget: "_blank",
+              formEncType: "multipart/form-data",
+              formNoValidate: true,
               formId: "details-form",
               selector: "button",
             }),
@@ -583,6 +585,8 @@ describe("cli", () => {
         semanticTopButtonFormAction: "https://example.test/details",
         semanticTopButtonFormMethod: "post",
         semanticTopButtonFormTarget: "_blank",
+        semanticTopButtonFormEncType: "multipart/form-data",
+        semanticTopButtonFormNoValidate: true,
         semanticTopButtonFormId: "details-form",
         semanticTopImagePath: "agent.semanticSummary.imageItems[0]",
         semanticTopImageName: "Hero chart",
