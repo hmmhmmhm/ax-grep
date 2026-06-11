@@ -130,6 +130,9 @@ command arguments, and selection reason.
 top-level shortcuts mirror the first executable source choice.
 `averageAgentEvidenceCountShortcutScore` tracks citation, answer-evidence,
 read-target, and action count shortcuts against their agent arrays.
+`averageAgentTopCitationShortcutScore` tracks whether `agent.topCitation*`
+mirrors the first citation item, including path, kind, confidence, reason, URL,
+and score.
 `averageAgentSignalCountShortcutScore` tracks signal severity and failing
 quality-gate count shortcuts against `agent.signals` and `agent.qualityGates`.
 `averageAgentProblemShortcutScore` tracks whether `agent.problemSignalKind`,

@@ -289,6 +289,15 @@ describe("public agent types", () => {
       | "topVerificationFoundQuery"
       | "topVerificationMissingQuery"
       | "citationCount"
+      | "topCitationId"
+      | "topCitationPath"
+      | "topCitationKind"
+      | "topCitationText"
+      | "topCitationTitle"
+      | "topCitationUrl"
+      | "topCitationConfidence"
+      | "topCitationReason"
+      | "topCitationScore"
       | "answerEvidenceCount"
       | "topAnswerEvidenceId"
       | "topAnswerEvidencePath"
@@ -560,6 +569,15 @@ describe("public agent types", () => {
       topVerificationFoundQuery: "present",
       topVerificationMissingQuery: "missing",
       citationCount: 2,
+      topCitationId: "e1",
+      topCitationPath: "pageCheck.contentEvidence[0]",
+      topCitationKind: "content",
+      topCitationText: "Readable evidence",
+      topCitationTitle: "Example evidence",
+      topCitationUrl: "https://example.test",
+      topCitationConfidence: "high",
+      topCitationReason: "Primary citation.",
+      topCitationScore: 0.9,
       answerEvidenceCount: 1,
       topAnswerEvidenceId: "e1",
       topAnswerEvidencePath: "pageCheck.contentEvidence[0]",
@@ -754,6 +772,7 @@ describe("public agent types", () => {
     expect(summary.failingQualityGateSeverity).toBe("warning");
     expect(summary.failingQualityGateScore).toBe(0.4);
     expect(summary.topDiagnosticCode).toBe("NO_USEFUL_LINKS");
+    expect(summary.topCitationPath).toBe("pageCheck.contentEvidence[0]");
     expect(summary.topAnswerEvidencePath).toBe("pageCheck.contentEvidence[0]");
     expect(summary.answerPlanStatus).toBe("ready");
     expect(summary.answerPlanNextAction).toBe("read-content");

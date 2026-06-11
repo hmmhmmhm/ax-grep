@@ -708,6 +708,15 @@ export type AgentSummary = {
   topDiagnosticMessage?: string;
   citationCount?: number;
   citations?: AgentCitation[];
+  topCitationId?: string;
+  topCitationPath?: string;
+  topCitationKind?: AgentCitation["kind"];
+  topCitationText?: string;
+  topCitationTitle?: string;
+  topCitationUrl?: string;
+  topCitationConfidence?: AgentCitation["confidence"];
+  topCitationReason?: string;
+  topCitationScore?: number;
   answerEvidenceCount?: number;
   answerEvidence?: AgentCitation[];
   topAnswerEvidenceId?: string;

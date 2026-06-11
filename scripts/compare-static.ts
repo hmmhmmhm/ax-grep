@@ -119,6 +119,7 @@ type CliAgentSummary = {
   agentAnswerShortcutScore: number;
   agentPlanShortcutScore: number;
   agentCitationScore: number;
+  agentTopCitationShortcutScore: number;
   agentAnswerPlanScore: number;
   agentAnswerEvidenceScore: number;
   agentActionListScore: number;
@@ -646,6 +647,7 @@ export type GateSummary = {
   averageAgentAnswerShortcutScore: number;
   averageAgentPlanShortcutScore: number;
   averageAgentCitationScore: number;
+  averageAgentTopCitationShortcutScore: number;
   averageAgentAnswerPlanScore: number;
   averageAgentAnswerEvidenceScore: number;
   averageAgentActionListScore: number;
@@ -1366,6 +1368,15 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       primaryPriority?: "low" | "medium" | "high";
       primaryPriorityReason?: string;
       citationCount?: number;
+      topCitationId?: string;
+      topCitationPath?: string;
+      topCitationKind?: CliAgentCitationShape["kind"];
+      topCitationText?: string;
+      topCitationTitle?: string;
+      topCitationUrl?: string;
+      topCitationConfidence?: CliAgentCitationShape["confidence"];
+      topCitationReason?: string;
+      topCitationScore?: number;
       answerEvidenceCount?: number;
       topAnswerEvidenceId?: string;
       topAnswerEvidencePath?: string;
@@ -1558,6 +1569,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentAnswerShortcutScore: scoreAgentAnswerShortcuts(item.agent),
     agentPlanShortcutScore: scoreAgentPlanShortcuts(item.agent),
     agentCitationScore: scoreAgentCitations(item.agent?.citations ?? [], item, item.agent?.answerPlan, item.agent?.primaryAction, item.agent?.needsBrowserHtml),
+    agentTopCitationShortcutScore: scoreAgentTopCitationShortcuts(item.agent),
     agentAnswerPlanScore: scoreAgentAnswerPlan(item.agent?.answerPlan, item.agent?.citations ?? [], item.agent?.primaryAction, item.agent?.needsBrowserHtml),
     agentAnswerEvidenceScore: scoreAgentAnswerEvidence(item.agent?.answerEvidence ?? [], item.agent?.answerPlan, item.agent?.citations ?? []),
     agentActionListScore: scoreAgentActionList(item.agent?.actions, item.agent?.primaryAction, item.agent?.alternativeActionCount),
@@ -1646,6 +1658,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentAnswerShortcutScore: 0,
     agentPlanShortcutScore: 0,
     agentCitationScore: 0,
+    agentTopCitationShortcutScore: 0,
     agentAnswerPlanScore: 0,
     agentAnswerEvidenceScore: 0,
     agentActionListScore: 0,
@@ -4863,6 +4876,74 @@ function scoreAgentAnswerShortcuts(agent: {
   return roundScore(matched / required);
 }
 
+function scoreAgentTopCitationShortcuts(agent: {
+  citations?: CliAgentCitationShape[];
+  topCitationId?: string;
+  topCitationPath?: string;
+  topCitationKind?: CliAgentCitationShape["kind"];
+  topCitationText?: string;
+  topCitationTitle?: string;
+  topCitationUrl?: string;
+  topCitationConfidence?: CliAgentCitationShape["confidence"];
+  topCitationReason?: string;
+  topCitationScore?: number;
+} | undefined): number {
+  const top = agent?.citations?.[0];
+  if (!top) {
+    return agent?.topCitationId
+      || agent?.topCitationPath
+      || agent?.topCitationKind
+      || agent?.topCitationText
+      || agent?.topCitationTitle
+      || agent?.topCitationUrl
+      || agent?.topCitationConfidence
+      || agent?.topCitationReason
+      || typeof agent?.topCitationScore === "number" ? 0 : 1;
+  }
+  let required = 3;
+  let matched = 0;
+  if (agent?.topCitationId === top.id) matched += 1;
+  if (agent?.topCitationPath === top.path) matched += 1;
+  if (agent?.topCitationKind === top.kind) matched += 1;
+  if (top.text) {
+    required += 1;
+    if (agent?.topCitationText === top.text) matched += 1;
+  } else if (agent?.topCitationText) {
+    required += 1;
+  }
+  if (top.title) {
+    required += 1;
+    if (agent?.topCitationTitle === top.title) matched += 1;
+  } else if (agent?.topCitationTitle) {
+    required += 1;
+  }
+  if (top.url) {
+    required += 1;
+    if (agent?.topCitationUrl === top.url) matched += 1;
+  } else if (agent?.topCitationUrl) {
+    required += 1;
+  }
+  if (top.confidence) {
+    required += 1;
+    if (agent?.topCitationConfidence === top.confidence) matched += 1;
+  } else if (agent?.topCitationConfidence) {
+    required += 1;
+  }
+  if (top.reason) {
+    required += 1;
+    if (agent?.topCitationReason === top.reason) matched += 1;
+  } else if (agent?.topCitationReason) {
+    required += 1;
+  }
+  if (typeof top.score === "number") {
+    required += 1;
+    if (agent?.topCitationScore === top.score) matched += 1;
+  } else if (typeof agent?.topCitationScore === "number") {
+    required += 1;
+  }
+  return roundScore(matched / required);
+}
+
 function scoreAgentPlanShortcuts(agent: {
   expectedOutcome?: CliAgentExpectedOutcomeShape;
   executionPlan?: CliAgentExecutionPlanShape;
@@ -5136,6 +5217,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentAnswerShortcutScore * 0.005
     + summary.agentPlanShortcutScore * 0.005
     + summary.agentCitationScore * 0.005
+    + summary.agentTopCitationShortcutScore * 0.005
     + summary.agentAnswerPlanScore * 0.005
     + summary.agentAnswerEvidenceScore * 0.005
     + summary.agentActionListScore * 0.005
@@ -5184,6 +5266,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentAlternativeActionShortcutScore,
     summary.agentPlanShortcutScore,
     summary.agentCitationScore,
+    summary.agentTopCitationShortcutScore,
     summary.agentAnswerPlanScore,
     summary.agentAnswerEvidenceScore,
     summary.agentActionListScore,
@@ -5317,6 +5400,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentAnswerShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentAnswerShortcutScore)),
     averageAgentPlanShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentPlanShortcutScore)),
     averageAgentCitationScore: average(included.map((comparison) => comparison.cliAgentSummary.agentCitationScore)),
+    averageAgentTopCitationShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentTopCitationShortcutScore)),
     averageAgentAnswerPlanScore: average(included.map((comparison) => comparison.cliAgentSummary.agentAnswerPlanScore)),
     averageAgentAnswerEvidenceScore: average(included.map((comparison) => comparison.cliAgentSummary.agentAnswerEvidenceScore)),
     averageAgentActionListScore: average(included.map((comparison) => comparison.cliAgentSummary.agentActionListScore)),

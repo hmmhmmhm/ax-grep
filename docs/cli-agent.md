@@ -56,6 +56,7 @@ Read these first:
 - `agent.answerPlan`, `agent.citations`, and `agent.answerEvidence`: final answer evidence.
 - `agent.answerPlanStatus`, `agent.answerPlanConfidence`, and related `answer*`
   shortcuts: top-level answer readiness, next action, command, and citation routing.
+- `agent.topCitation*`: first citation item for fast source quality checks.
 - `agent.topAnswerEvidence*`: first answer evidence item for fast citation/read routing.
 - `agent.topVerificationFoundQuery` and `agent.topVerificationMissingQuery`: first
   matched or missing `--find` query for fast verification routing.

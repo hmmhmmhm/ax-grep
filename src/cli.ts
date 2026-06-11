@@ -1050,6 +1050,15 @@ type AgentSummary = {
   topDiagnosticMessage?: string;
   citationCount: number;
   citations: AgentCitation[];
+  topCitationId?: string;
+  topCitationPath?: string;
+  topCitationKind?: AgentCitation["kind"];
+  topCitationText?: string;
+  topCitationTitle?: string;
+  topCitationUrl?: string;
+  topCitationConfidence?: AgentCitation["confidence"];
+  topCitationReason?: string;
+  topCitationScore?: number;
   answerEvidenceCount: number;
   answerEvidence: AgentCitation[];
   topAnswerEvidenceId?: string;
@@ -2764,6 +2773,10 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  diagnosticInfo: ${agent.diagnosticInfoCount}`,
     ...(agent.topDiagnosticCode ? [`  topDiagnostic: ${agent.topDiagnosticSeverity}/${agent.topDiagnosticCode} - ${agent.topDiagnosticMessage}`] : []),
     `  citationCount: ${agent.citationCount}`,
+    ...(agent.topCitationId ? [`  topCitation: ${agent.topCitationId} ${agent.topCitationPath} ${agent.topCitationKind}${agent.topCitationConfidence ? ` ${agent.topCitationConfidence}` : ""}${typeof agent.topCitationScore === "number" ? ` score=${agent.topCitationScore}` : ""}${agent.topCitationText ? ` - ${agent.topCitationText}` : ""}`] : []),
+    ...(agent.topCitationTitle ? [`  topCitationTitle: ${agent.topCitationTitle}`] : []),
+    ...(agent.topCitationUrl ? [`  topCitationUrl: ${agent.topCitationUrl}`] : []),
+    ...(agent.topCitationReason ? [`  topCitationReason: ${agent.topCitationReason}`] : []),
     `  answerEvidenceCount: ${agent.answerEvidenceCount}`,
     ...(agent.topAnswerEvidenceId ? [`  topAnswerEvidence: ${agent.topAnswerEvidenceId} ${agent.topAnswerEvidencePath}${agent.topAnswerEvidenceText ? ` - ${agent.topAnswerEvidenceText}` : ""}`] : []),
     `  readTargetCount: ${agent.readTargetCount}`,
@@ -9490,6 +9503,15 @@ function summarizeAgent(
     ...(analysis.diagnostics[0] ? { topDiagnosticMessage: analysis.diagnostics[0].message } : {}),
     citationCount: citations.length,
     citations,
+    ...(citations[0] ? { topCitationId: citations[0].id } : {}),
+    ...(citations[0] ? { topCitationPath: citations[0].path } : {}),
+    ...(citations[0] ? { topCitationKind: citations[0].kind } : {}),
+    ...(citations[0]?.text ? { topCitationText: citations[0].text } : {}),
+    ...(citations[0]?.title ? { topCitationTitle: citations[0].title } : {}),
+    ...(citations[0]?.url ? { topCitationUrl: citations[0].url } : {}),
+    ...(citations[0]?.confidence ? { topCitationConfidence: citations[0].confidence } : {}),
+    ...(citations[0]?.reason ? { topCitationReason: citations[0].reason } : {}),
+    ...(typeof citations[0]?.score === "number" ? { topCitationScore: citations[0].score } : {}),
     answerEvidenceCount: answerEvidence.length,
     answerEvidence,
     ...(answerEvidence[0] ? { topAnswerEvidenceId: answerEvidence[0].id } : {}),
@@ -13612,6 +13634,15 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topDiagnosticMessage ? { topDiagnosticMessage: agent.topDiagnosticMessage } : {}),
     citationCount: agent.citationCount,
     ...(agent.citations.length > 0 ? { citations: compactAgentCitationList(agent.citations) } : {}),
+    ...(agent.topCitationId ? { topCitationId: agent.topCitationId } : {}),
+    ...(agent.topCitationPath ? { topCitationPath: agent.topCitationPath } : {}),
+    ...(agent.topCitationKind ? { topCitationKind: agent.topCitationKind } : {}),
+    ...(agent.topCitationText ? { topCitationText: agent.topCitationText } : {}),
+    ...(agent.topCitationTitle ? { topCitationTitle: agent.topCitationTitle } : {}),
+    ...(agent.topCitationUrl ? { topCitationUrl: agent.topCitationUrl } : {}),
+    ...(agent.topCitationConfidence ? { topCitationConfidence: agent.topCitationConfidence } : {}),
+    ...(agent.topCitationReason ? { topCitationReason: agent.topCitationReason } : {}),
+    ...(typeof agent.topCitationScore === "number" ? { topCitationScore: agent.topCitationScore } : {}),
     answerEvidenceCount: agent.answerEvidenceCount,
     ...(agent.answerEvidence.length > 0 ? { answerEvidence: compactAgentCitationList(agent.answerEvidence, 650) } : {}),
     ...(agent.topAnswerEvidenceId ? { topAnswerEvidenceId: agent.topAnswerEvidenceId } : {}),
@@ -13907,6 +13938,15 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topDiagnosticMessage ? { topDiagnosticMessage: agent.topDiagnosticMessage } : {}),
     citationCount: agent.citationCount,
     ...(agent.citations.length > 0 ? { citations: agent.citations.map(compactAgentCitationRef) } : {}),
+    ...(agent.topCitationId ? { topCitationId: agent.topCitationId } : {}),
+    ...(agent.topCitationPath ? { topCitationPath: agent.topCitationPath } : {}),
+    ...(agent.topCitationKind ? { topCitationKind: agent.topCitationKind } : {}),
+    ...(agent.topCitationText ? { topCitationText: agent.topCitationText } : {}),
+    ...(agent.topCitationTitle ? { topCitationTitle: agent.topCitationTitle } : {}),
+    ...(agent.topCitationUrl ? { topCitationUrl: agent.topCitationUrl } : {}),
+    ...(agent.topCitationConfidence ? { topCitationConfidence: agent.topCitationConfidence } : {}),
+    ...(agent.topCitationReason ? { topCitationReason: agent.topCitationReason } : {}),
+    ...(typeof agent.topCitationScore === "number" ? { topCitationScore: agent.topCitationScore } : {}),
     answerEvidenceCount: agent.answerEvidenceCount,
     ...(agent.topAnswerEvidenceId ? { topAnswerEvidenceId: agent.topAnswerEvidenceId } : {}),
     ...(agent.topAnswerEvidencePath ? { topAnswerEvidencePath: agent.topAnswerEvidencePath } : {}),
