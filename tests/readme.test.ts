@@ -38,4 +38,14 @@ describe("README", () => {
     expect(handoff).toContain("commandArgs.slice(1)");
     expect(handoff).toContain("sourceLinkRef");
   });
+
+  it("keeps agent-readiness evidence outside the root README", async () => {
+    const docsIndex = await readFile(join(process.cwd(), "docs", "README.md"), "utf8");
+    const readiness = await readFile(join(process.cwd(), "docs", "agent-readiness.md"), "utf8");
+
+    expect(docsIndex).toContain("[agent-readiness.md](./agent-readiness.md)");
+    expect(readiness).toContain("Evidence Map");
+    expect(readiness).toContain("Completion Gate");
+    expect(readiness).toContain("Browser-backed comparison suites must run sequentially");
+  });
 });
