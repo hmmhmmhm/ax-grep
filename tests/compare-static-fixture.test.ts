@@ -13,6 +13,8 @@ describe("compare-static fixture comparisons", () => {
 
     expect(report.gateSummary.included).toBe(targets.length);
     expect(report.comparisons.every((comparison) => comparison.fetch.source === "fixture")).toBe(true);
+    expect(report.comparisons.every((comparison) => comparison.warnings.includes("used fixture HTML"))).toBe(true);
+    expect(report.comparisons.every((comparison) => comparison.warnings.every((warning) => !warning.includes("agent-browser")))).toBe(true);
     expect(report.gateSummary.averageCliAgentScore).toBeGreaterThanOrEqual(0.8);
     expect(report.gateSummary.averageAgentExecutorScore).toBeGreaterThanOrEqual(0.995);
     expect(report.gateSummary.averageActionSchemaScore).toBe(1);
