@@ -1695,9 +1695,17 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopFieldName?: string;
       semanticTopFieldDescription?: string;
       semanticTopFieldValue?: string;
+      semanticTopFieldHtmlName?: string;
+      semanticTopFieldHtmlType?: string;
       semanticTopFieldPlaceholder?: string;
       semanticTopFieldAutocomplete?: string;
       semanticTopFieldInputMode?: string;
+      semanticTopFieldPattern?: string;
+      semanticTopFieldMin?: string;
+      semanticTopFieldMax?: string;
+      semanticTopFieldStep?: string;
+      semanticTopFieldMinLength?: number;
+      semanticTopFieldMaxLength?: number;
       semanticTopFieldLabelledBy?: string;
       semanticTopFieldDescribedBy?: string;
       semanticTopFieldState?: string;
@@ -4847,9 +4855,17 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopFieldName?: string;
   semanticTopFieldDescription?: string;
   semanticTopFieldValue?: string;
+  semanticTopFieldHtmlName?: string;
+  semanticTopFieldHtmlType?: string;
   semanticTopFieldPlaceholder?: string;
   semanticTopFieldAutocomplete?: string;
   semanticTopFieldInputMode?: string;
+  semanticTopFieldPattern?: string;
+  semanticTopFieldMin?: string;
+  semanticTopFieldMax?: string;
+  semanticTopFieldStep?: string;
+  semanticTopFieldMinLength?: number;
+  semanticTopFieldMaxLength?: number;
   semanticTopFieldLabelledBy?: string;
   semanticTopFieldDescribedBy?: string;
   semanticTopFieldState?: string;
@@ -5477,7 +5493,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopListSelector === list.selector) matched += 1;
   }
-  const field = Array.isArray(item.fieldItems) ? item.fieldItems[0] as { path?: unknown; role?: unknown; name?: unknown; description?: unknown; value?: unknown; placeholder?: unknown; autocomplete?: unknown; inputMode?: unknown; labelledBy?: unknown; describedBy?: unknown; state?: unknown; selector?: unknown } | undefined : undefined;
+  const field = Array.isArray(item.fieldItems) ? item.fieldItems[0] as { path?: unknown; role?: unknown; name?: unknown; description?: unknown; value?: unknown; htmlName?: unknown; htmlType?: unknown; placeholder?: unknown; autocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; labelledBy?: unknown; describedBy?: unknown; state?: unknown; selector?: unknown } | undefined : undefined;
   if (field && typeof field.role === "string") {
     required += 1;
     if (agent?.semanticTopFieldRole === field.role) matched += 1;
@@ -5498,6 +5514,14 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopFieldValue === field.value) matched += 1;
   }
+  if (field && typeof field.htmlName === "string") {
+    required += 1;
+    if (agent?.semanticTopFieldHtmlName === field.htmlName) matched += 1;
+  }
+  if (field && typeof field.htmlType === "string") {
+    required += 1;
+    if (agent?.semanticTopFieldHtmlType === field.htmlType) matched += 1;
+  }
   if (field && typeof field.placeholder === "string") {
     required += 1;
     if (agent?.semanticTopFieldPlaceholder === field.placeholder) matched += 1;
@@ -5509,6 +5533,30 @@ function scoreAgentSemanticSummary(agent: {
   if (field && typeof field.inputMode === "string") {
     required += 1;
     if (agent?.semanticTopFieldInputMode === field.inputMode) matched += 1;
+  }
+  if (field && typeof field.pattern === "string") {
+    required += 1;
+    if (agent?.semanticTopFieldPattern === field.pattern) matched += 1;
+  }
+  if (field && typeof field.min === "string") {
+    required += 1;
+    if (agent?.semanticTopFieldMin === field.min) matched += 1;
+  }
+  if (field && typeof field.max === "string") {
+    required += 1;
+    if (agent?.semanticTopFieldMax === field.max) matched += 1;
+  }
+  if (field && typeof field.step === "string") {
+    required += 1;
+    if (agent?.semanticTopFieldStep === field.step) matched += 1;
+  }
+  if (field && typeof field.minLength === "number") {
+    required += 1;
+    if (agent?.semanticTopFieldMinLength === field.minLength) matched += 1;
+  }
+  if (field && typeof field.maxLength === "number") {
+    required += 1;
+    if (agent?.semanticTopFieldMaxLength === field.maxLength) matched += 1;
   }
   if (field && typeof field.labelledBy === "string") {
     required += 1;

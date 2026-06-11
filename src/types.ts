@@ -670,9 +670,17 @@ export type AgentSummary = {
   semanticTopFieldName?: string;
   semanticTopFieldDescription?: string;
   semanticTopFieldValue?: string;
+  semanticTopFieldHtmlName?: string;
+  semanticTopFieldHtmlType?: string;
   semanticTopFieldPlaceholder?: string;
   semanticTopFieldAutocomplete?: string;
   semanticTopFieldInputMode?: string;
+  semanticTopFieldPattern?: string;
+  semanticTopFieldMin?: string;
+  semanticTopFieldMax?: string;
+  semanticTopFieldStep?: string;
+  semanticTopFieldMinLength?: number;
+  semanticTopFieldMaxLength?: number;
   semanticTopFieldLabelledBy?: string;
   semanticTopFieldDescribedBy?: string;
   semanticTopFieldState?: string;

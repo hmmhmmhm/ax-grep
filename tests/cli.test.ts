@@ -4176,7 +4176,7 @@ describe("cli", () => {
           <form method="GET" action="/find">
             <label id="q-label" for="q">Archive search</label>
             <p id="q-help">Use product or report keywords.</p>
-            <input id="q" name="query" type="search" placeholder="Search reports" autocomplete="off" inputmode="search" required aria-invalid="spelling" aria-labelledby="q-label" aria-describedby="q-help">
+            <input id="q" name="query" type="search" placeholder="Search reports" autocomplete="off" inputmode="search" pattern="[A-Za-z0-9 ]+" min="1" max="99" step="1" minlength="2" maxlength="80" required aria-invalid="spelling" aria-labelledby="q-label" aria-describedby="q-help">
             <select name="category"><option>All</option><option>Reports</option></select>
             <input type="hidden" name="csrf" value="secret">
             <button type="submit">Search</button>
@@ -4229,9 +4229,17 @@ describe("cli", () => {
         role: "searchbox",
         name: "Archive search",
         description: "Use product or report keywords.",
+        htmlName: "query",
+        htmlType: "search",
         placeholder: "Search reports",
         autocomplete: "off",
         inputMode: "search",
+        pattern: "[A-Za-z0-9 ]+",
+        min: "1",
+        max: "99",
+        step: "1",
+        minLength: 2,
+        maxLength: 80,
         labelledBy: "q-label",
         describedBy: "q-help",
         selector: "#q",
@@ -4240,6 +4248,7 @@ describe("cli", () => {
       expect.objectContaining({
         path: "agent.semanticSummary.fieldItems[1]",
         role: "combobox",
+        htmlName: "category",
         selector: "select",
       }),
     ]);
@@ -4275,9 +4284,17 @@ describe("cli", () => {
       semanticTopFieldPath: "agent.semanticSummary.fieldItems[0]",
       semanticTopFieldName: "Archive search",
       semanticTopFieldDescription: "Use product or report keywords.",
+      semanticTopFieldHtmlName: "query",
+      semanticTopFieldHtmlType: "search",
       semanticTopFieldPlaceholder: "Search reports",
       semanticTopFieldAutocomplete: "off",
       semanticTopFieldInputMode: "search",
+      semanticTopFieldPattern: "[A-Za-z0-9 ]+",
+      semanticTopFieldMin: "1",
+      semanticTopFieldMax: "99",
+      semanticTopFieldStep: "1",
+      semanticTopFieldMinLength: 2,
+      semanticTopFieldMaxLength: 80,
       semanticTopFieldLabelledBy: "q-label",
       semanticTopFieldDescribedBy: "q-help",
       semanticTopFieldState: "required=true invalid=spelling",

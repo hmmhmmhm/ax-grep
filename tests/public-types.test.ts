@@ -549,9 +549,17 @@ describe("public agent types", () => {
       | "semanticTopFieldName"
       | "semanticTopFieldDescription"
       | "semanticTopFieldValue"
+      | "semanticTopFieldHtmlName"
+      | "semanticTopFieldHtmlType"
       | "semanticTopFieldPlaceholder"
       | "semanticTopFieldAutocomplete"
       | "semanticTopFieldInputMode"
+      | "semanticTopFieldPattern"
+      | "semanticTopFieldMin"
+      | "semanticTopFieldMax"
+      | "semanticTopFieldStep"
+      | "semanticTopFieldMinLength"
+      | "semanticTopFieldMaxLength"
       | "semanticTopFieldLabelledBy"
       | "semanticTopFieldDescribedBy"
       | "semanticTopFieldState"
@@ -1141,9 +1149,17 @@ describe("public agent types", () => {
       semanticTopFieldName: "Email",
       semanticTopFieldDescription: "Used for updates",
       semanticTopFieldValue: "me@example.test",
+      semanticTopFieldHtmlName: "email",
+      semanticTopFieldHtmlType: "email",
       semanticTopFieldPlaceholder: "name@example.test",
       semanticTopFieldAutocomplete: "email",
       semanticTopFieldInputMode: "email",
+      semanticTopFieldPattern: ".+@example\\.test",
+      semanticTopFieldMin: "1",
+      semanticTopFieldMax: "99",
+      semanticTopFieldStep: "1",
+      semanticTopFieldMinLength: 3,
+      semanticTopFieldMaxLength: 120,
       semanticTopFieldLabelledBy: "email-label",
       semanticTopFieldDescribedBy: "email-help",
       semanticTopFieldState: "required=true",
