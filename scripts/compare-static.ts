@@ -353,6 +353,11 @@ type CliAgentTargetShape = {
   sourceType?: string;
   sourceScore?: number;
   sourceHints?: string[];
+  dateText?: string;
+  date?: string;
+  datePrecision?: "day" | "month" | "year";
+  dateSource?: "title" | "snippet";
+  sitelinks?: Array<{ title?: string; url?: string }>;
   relevance?: "low" | "medium" | "high";
   matchedTerms?: string[];
   findMatches?: string[];
@@ -400,6 +405,11 @@ type CliSearchResultShape = {
   url?: string;
   source?: string;
   snippet?: string;
+  dateText?: string;
+  date?: string;
+  datePrecision?: "day" | "month" | "year";
+  dateSource?: "title" | "snippet";
+  sitelinks?: Array<{ title?: string; url?: string }>;
   sourceScore?: number;
   relevance?: "low" | "medium" | "high";
   isLikelyOfficial?: boolean;
@@ -2375,6 +2385,21 @@ function scoreAgentResultChoices(
   if (snippetSources.length > 0) {
     required += 1;
     if (snippetSources.every((result) => choices.some((choice) => choice.rank === result.rank && choice.snippet === result.snippet))) matched += 1;
+  }
+  const datedSources = searchResults.filter((result) => typeof result.dateText === "string" && result.dateText.length > 0);
+  if (datedSources.length > 0) {
+    required += 1;
+    if (datedSources.every((result) => choices.some((choice) => choice.rank === result.rank
+      && choice.dateText === result.dateText
+      && (typeof result.date !== "string" || choice.date === result.date)
+      && (typeof result.datePrecision !== "string" || choice.datePrecision === result.datePrecision)
+      && (typeof result.dateSource !== "string" || choice.dateSource === result.dateSource)))) matched += 1;
+  }
+  const sitelinkSources = searchResults.filter((result) => Array.isArray(result.sitelinks) && result.sitelinks.length > 0);
+  if (sitelinkSources.length > 0) {
+    required += 1;
+    if (sitelinkSources.every((result) => choices.some((choice) => choice.rank === result.rank
+      && JSON.stringify(choice.sitelinks) === JSON.stringify(result.sitelinks)))) matched += 1;
   }
   const runnableChoices = choices.filter((choice) => Array.isArray(choice.commandArgs) && choice.commandArgs.length > 0).length;
   required += 1;

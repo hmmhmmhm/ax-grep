@@ -1677,10 +1677,27 @@ describe("cli", () => {
     });
     expect(envelope.tree).toBeUndefined();
     expect(envelope.agent.resultChoices[0]).toMatchObject({
+      dateText: "2026-05-31",
+      date: "2026-05-31",
+      datePrecision: "day",
+      dateSource: "snippet",
       sitelinks: [
         expect.objectContaining({ title: "Readme" }),
         expect.objectContaining({ title: "Versions" }),
       ],
+    });
+    expect(envelope.agent.primaryAction.target).toMatchObject({
+      title: "ax-grep - npm",
+      url: "https://www.npmjs.com/package/ax-grep",
+      dateText: "2026-05-31",
+      date: "2026-05-31",
+      datePrecision: "day",
+      dateSource: "snippet",
+      sitelinks: [
+        expect.objectContaining({ title: "Readme" }),
+        expect.objectContaining({ title: "Versions" }),
+      ],
+      isLikelyOfficial: true,
     });
   });
 
