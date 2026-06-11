@@ -507,6 +507,8 @@ describe("public agent types", () => {
       | "semanticTopLinkRel"
       | "semanticTopLinkType"
       | "semanticTopLinkHreflang"
+      | "semanticTopLinkState"
+      | "semanticTopLinkCurrent"
       | "semanticTopLinkDownload"
       | "semanticTopLinkSelector"
       | "semanticInPageLinkCount"
@@ -1139,6 +1141,8 @@ describe("public agent types", () => {
       semanticTopLinkRel: ["noopener", "external"],
       semanticTopLinkType: "text/html",
       semanticTopLinkHreflang: "en",
+      semanticTopLinkState: "current=page",
+      semanticTopLinkCurrent: "page",
       semanticTopLinkDownload: true,
       semanticTopLinkSelector: "main a:nth-of-type(1)",
       semanticInPageLinkCount: 1,

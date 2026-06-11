@@ -254,7 +254,7 @@ describe("cli", () => {
               <h1 id="content" aria-roledescription="article title">Example</h1>
               <p id="toggle-desc">Shows extra context</p>
               <button type="submit" formaction="/details" formmethod="post" formtarget="_blank" formenctype="multipart/form-data" formnovalidate form="details-form" aria-roledescription="disclosure toggle" aria-pressed="false" aria-haspopup="dialog" aria-valuetext="details off" aria-describedby="toggle-desc" aria-controls="details-panel">Toggle details</button>
-              <a href="#content" class="skip-link" target="_self" rel="bookmark" type="text/html" hreflang="en" download="content.html">Skip to content</a>
+              <a href="#content" class="skip-link" target="_self" rel="bookmark" type="text/html" hreflang="en" aria-current="location" download="content.html">Skip to content</a>
               <section id="details-panel" aria-label="Details panel">Extra details</section>
               <img src="/hero.png" srcset="/hero.png 1x, /hero@2x.png 2x" sizes="(min-width: 800px) 720px, 100vw" width="720" height="360" loading="lazy" decoding="async" alt="Hero chart">
               <p class="byline">By <a href="/authors/reporter">Reporter Profile</a></p>
@@ -407,6 +407,8 @@ describe("cli", () => {
               rel: ["bookmark"],
               type: "text/html",
               hreflang: "en",
+              state: "current=location",
+              current: "location",
               download: "content.html",
               selector: "a",
             }),
@@ -574,6 +576,8 @@ describe("cli", () => {
         semanticTopLinkRel: ["bookmark"],
         semanticTopLinkType: "text/html",
         semanticTopLinkHreflang: "en",
+        semanticTopLinkState: "current=location",
+        semanticTopLinkCurrent: "location",
         semanticTopLinkDownload: "content.html",
         semanticTopLinkSelector: "a",
         semanticInPageLinkCount: 1,
