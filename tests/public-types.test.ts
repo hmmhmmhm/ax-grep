@@ -500,6 +500,9 @@ describe("public agent types", () => {
       | "semanticTopLinkName"
       | "semanticTopLinkPath"
       | "semanticTopLinkUrl"
+      | "semanticTopLinkTarget"
+      | "semanticTopLinkRel"
+      | "semanticTopLinkDownload"
       | "semanticTopLinkSelector"
       | "semanticInPageLinkCount"
       | "semanticTopInPageLinkPath"
@@ -1078,6 +1081,9 @@ describe("public agent types", () => {
       semanticTopLinkName: "Read more",
       semanticTopLinkPath: "agent.semanticSummary.links[0]",
       semanticTopLinkUrl: "https://example.test/read-more",
+      semanticTopLinkTarget: "_blank",
+      semanticTopLinkRel: ["noopener", "external"],
+      semanticTopLinkDownload: true,
       semanticTopLinkSelector: "main a:nth-of-type(1)",
       semanticInPageLinkCount: 1,
       semanticTopInPageLinkPath: "agent.semanticSummary.inPageLinks[0]",

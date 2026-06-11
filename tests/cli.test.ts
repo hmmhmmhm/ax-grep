@@ -252,7 +252,7 @@ describe("cli", () => {
               <h1 id="content">Example</h1>
               <p id="toggle-desc">Shows extra context</p>
               <button aria-pressed="false" aria-haspopup="dialog" aria-valuetext="details off" aria-describedby="toggle-desc" aria-controls="details-panel">Toggle details</button>
-              <a href="#content" class="skip-link">Skip to content</a>
+              <a href="#content" class="skip-link" target="_self" rel="bookmark" download="content.html">Skip to content</a>
               <section id="details-panel" aria-label="Details panel">Extra details</section>
               <img src="/hero.png" alt="Hero chart">
               <p class="byline">By <a href="/authors/reporter">Reporter Profile</a></p>
@@ -392,6 +392,23 @@ describe("cli", () => {
               name: "Reporter Profile",
             }),
           ]),
+          links: [
+            expect.objectContaining({
+              path: "agent.semanticSummary.links[0]",
+              name: "Skip to content",
+              url: "https://example.test/#content",
+              target: "_self",
+              rel: ["bookmark"],
+              download: "content.html",
+              selector: "a",
+            }),
+            expect.objectContaining({
+              name: "Reporter Profile",
+            }),
+            expect.objectContaining({
+              name: "Target",
+            }),
+          ],
           inPageLinks: [
             {
               path: "agent.semanticSummary.inPageLinks[0]",
@@ -513,6 +530,10 @@ describe("cli", () => {
         semanticTopFocusableSelector: "button",
         semanticTopLinkPath: "agent.semanticSummary.links[0]",
         semanticTopLinkUrl: "https://example.test/#content",
+        semanticTopLinkTarget: "_self",
+        semanticTopLinkRel: ["bookmark"],
+        semanticTopLinkDownload: "content.html",
+        semanticTopLinkSelector: "a",
         semanticInPageLinkCount: 1,
         semanticTopInPageLinkPath: "agent.semanticSummary.inPageLinks[0]",
         semanticTopInPageLinkKind: "skip",

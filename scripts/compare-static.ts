@@ -1646,6 +1646,9 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopLinkName?: string;
       semanticTopLinkPath?: string;
       semanticTopLinkUrl?: string;
+      semanticTopLinkTarget?: string;
+      semanticTopLinkRel?: string[];
+      semanticTopLinkDownload?: string | true;
       semanticTopLinkSelector?: string;
       semanticInPageLinkCount?: number;
       semanticTopInPageLinkPath?: string;
@@ -4784,6 +4787,9 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopLinkName?: string;
   semanticTopLinkPath?: string;
   semanticTopLinkUrl?: string;
+  semanticTopLinkTarget?: string;
+  semanticTopLinkRel?: string[];
+  semanticTopLinkDownload?: string | true;
   semanticTopLinkSelector?: string;
   semanticInPageLinkCount?: number;
   semanticTopInPageLinkPath?: string;
@@ -5255,7 +5261,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopFocusableSelector === focusable.selector) matched += 1;
   }
-  const link = Array.isArray(item.links) ? item.links[0] as { path?: unknown; name?: unknown; url?: unknown; selector?: unknown } | undefined : undefined;
+  const link = Array.isArray(item.links) ? item.links[0] as { path?: unknown; name?: unknown; url?: unknown; target?: unknown; rel?: unknown; download?: unknown; selector?: unknown } | undefined : undefined;
   if (link && typeof link.name === "string") {
     required += 1;
     if (agent?.semanticTopLinkName === link.name) matched += 1;
@@ -5267,6 +5273,18 @@ function scoreAgentSemanticSummary(agent: {
   if (link && typeof link.url === "string") {
     required += 1;
     if (agent?.semanticTopLinkUrl === link.url) matched += 1;
+  }
+  if (link && typeof link.target === "string") {
+    required += 1;
+    if (agent?.semanticTopLinkTarget === link.target) matched += 1;
+  }
+  if (link && Array.isArray(link.rel)) {
+    required += 1;
+    if (JSON.stringify(agent?.semanticTopLinkRel) === JSON.stringify(link.rel)) matched += 1;
+  }
+  if (link && (typeof link.download === "string" || link.download === true)) {
+    required += 1;
+    if (agent?.semanticTopLinkDownload === link.download) matched += 1;
   }
   if (link && typeof link.selector === "string") {
     required += 1;

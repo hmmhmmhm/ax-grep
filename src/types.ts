@@ -621,6 +621,9 @@ export type AgentSummary = {
   semanticTopLinkName?: string;
   semanticTopLinkPath?: string;
   semanticTopLinkUrl?: string;
+  semanticTopLinkTarget?: string;
+  semanticTopLinkRel?: string[];
+  semanticTopLinkDownload?: string | true;
   semanticTopLinkSelector?: string;
   semanticInPageLinkCount?: number;
   semanticTopInPageLinkPath?: string;
