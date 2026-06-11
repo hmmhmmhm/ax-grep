@@ -555,6 +555,15 @@ export type AgentSummary = {
   qualityGateCount?: number;
   qualityGateFailCount?: number;
   qualityGates?: AgentQualityGate[];
+  topSignalKind?: AgentSignalKind;
+  topSignalSeverity?: AgentSignalSeverity;
+  topSignalMessage?: string;
+  topQualityGateKind?: AgentQualityGateKind;
+  topQualityGatePass?: boolean;
+  topQualityGateSeverity?: AgentSignalSeverity;
+  topQualityGateMessage?: string;
+  topQualityGatePath?: string;
+  topQualityGateScore?: number;
   problemSignalKind?: AgentSignalKind;
   problemSignalSeverity?: AgentSignalSeverity;
   problemSignalMessage?: string;
@@ -860,6 +869,7 @@ export type AgentContractFeature =
   | "choice.counts"
   | "evidence.counts"
   | "signal.counts"
+  | "quality.shortcuts"
   | "resultChoices"
   | "sourceChoices"
   | "formChoices"

@@ -86,6 +86,7 @@ type CliAgentSummary = {
   agentVerificationQueryScore: number;
   agentEvidenceCountShortcutScore: number;
   agentSignalCountShortcutScore: number;
+  agentTopQualityShortcutScore: number;
   agentProblemShortcutScore: number;
   agentResponseMetadataScore: number;
   agentHiddenSignalScore: number;
@@ -634,6 +635,7 @@ export type GateSummary = {
   averageAgentVerificationQueryScore: number;
   averageAgentEvidenceCountShortcutScore: number;
   averageAgentSignalCountShortcutScore: number;
+  averageAgentTopQualityShortcutScore: number;
   averageAgentProblemShortcutScore: number;
   averageAgentResponseMetadataScore: number;
   averageAgentHiddenSignalScore: number;
@@ -1167,6 +1169,15 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       qualityGateCount?: number;
       qualityGateFailCount?: number;
       qualityGates?: CliAgentQualityGateShape[];
+      topSignalKind?: CliAgentSignalShape["kind"];
+      topSignalSeverity?: CliAgentSignalShape["severity"];
+      topSignalMessage?: string;
+      topQualityGateKind?: CliAgentQualityGateShape["kind"];
+      topQualityGatePass?: boolean;
+      topQualityGateSeverity?: CliAgentQualityGateShape["severity"];
+      topQualityGateMessage?: string;
+      topQualityGatePath?: string;
+      topQualityGateScore?: number;
       problemSignalKind?: CliAgentSignalShape["kind"];
       problemSignalSeverity?: CliAgentSignalShape["severity"];
       problemSignalMessage?: string;
@@ -1557,6 +1568,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentVerificationQueryScore: scoreAgentVerificationQueries(item.agent, item.verification),
     agentEvidenceCountShortcutScore: scoreAgentEvidenceCountShortcuts(item.agent),
     agentSignalCountShortcutScore: scoreAgentSignalCountShortcuts(item.agent),
+    agentTopQualityShortcutScore: scoreAgentTopQualityShortcuts(item.agent),
     agentProblemShortcutScore: scoreAgentProblemShortcuts(item.agent),
     agentResponseMetadataScore: scoreAgentResponseMetadata(item.agent, item),
     agentHiddenSignalScore: scoreAgentHiddenSignals(item.pageCheck, item.agent?.readTargets ?? [], item),
@@ -1648,6 +1660,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentVerificationQueryScore: 0,
     agentEvidenceCountShortcutScore: 0,
     agentSignalCountShortcutScore: 0,
+    agentTopQualityShortcutScore: 0,
     agentProblemShortcutScore: 0,
     agentResponseMetadataScore: 0,
     agentHiddenSignalScore: 0,
@@ -1860,6 +1873,7 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[]; 
     "choice.counts",
     "evidence.counts",
     "signal.counts",
+    "quality.shortcuts",
     "resultChoices",
     "sourceChoices",
     "formChoices",
@@ -3303,6 +3317,52 @@ function scoreAgentSignalCountShortcuts(agent: {
     agent.qualityGateFailCount === failedGateCount,
   ];
   return roundScore(checks.filter(Boolean).length / checks.length);
+}
+
+function scoreAgentTopQualityShortcuts(agent: {
+  signals?: CliAgentSignalShape[];
+  qualityGates?: CliAgentQualityGateShape[];
+  topSignalKind?: CliAgentSignalShape["kind"];
+  topSignalSeverity?: CliAgentSignalShape["severity"];
+  topSignalMessage?: string;
+  topQualityGateKind?: CliAgentQualityGateShape["kind"];
+  topQualityGatePass?: boolean;
+  topQualityGateSeverity?: CliAgentQualityGateShape["severity"];
+  topQualityGateMessage?: string;
+  topQualityGatePath?: string;
+  topQualityGateScore?: number;
+} | undefined): number {
+  if (!agent) return 0;
+  const topSignal = agent.signals?.[0];
+  const topGate = agent.qualityGates?.[0];
+  let required = 0;
+  let matched = 0;
+  if (topSignal) {
+    required += 3;
+    if (agent.topSignalKind === topSignal.kind) matched += 1;
+    if (agent.topSignalSeverity === topSignal.severity) matched += 1;
+    if (agent.topSignalMessage === topSignal.message) matched += 1;
+  } else if (!agent.topSignalKind && !agent.topSignalSeverity && !agent.topSignalMessage) {
+    required += 1;
+    matched += 1;
+  }
+  if (topGate) {
+    required += 4 + (topGate.path ? 1 : 0) + (typeof topGate.score === "number" ? 1 : 0);
+    if (agent.topQualityGateKind === topGate.kind) matched += 1;
+    if (agent.topQualityGatePass === topGate.pass) matched += 1;
+    if (agent.topQualityGateSeverity === topGate.severity) matched += 1;
+    if (typeof topGate.message === "string") {
+      if (agent.topQualityGateMessage === topGate.message) matched += 1;
+    } else if (typeof agent.topQualityGateMessage === "string" && agent.topQualityGateMessage.length > 0) {
+      matched += 1;
+    }
+    if (topGate.path && agent.topQualityGatePath === topGate.path) matched += 1;
+    if (typeof topGate.score === "number" && agent.topQualityGateScore === topGate.score) matched += 1;
+  } else if (!agent.topQualityGateKind && typeof agent.topQualityGatePass !== "boolean" && !agent.topQualityGateSeverity && !agent.topQualityGateMessage && !agent.topQualityGatePath && typeof agent.topQualityGateScore !== "number") {
+    required += 1;
+    matched += 1;
+  }
+  return roundScore(matched / required);
 }
 
 function scoreAgentProblemShortcuts(agent: {
@@ -5328,6 +5388,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentVerificationQueryScore * 0.005
     + summary.agentEvidenceCountShortcutScore * 0.005
     + summary.agentSignalCountShortcutScore * 0.005
+    + summary.agentTopQualityShortcutScore * 0.005
     + summary.agentProblemShortcutScore * 0.005
     + summary.agentResponseMetadataScore * 0.005
     + summary.agentHiddenSignalScore * 0.005
@@ -5421,6 +5482,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentVerificationQueryScore,
     summary.agentEvidenceCountShortcutScore,
     summary.agentSignalCountShortcutScore,
+    summary.agentTopQualityShortcutScore,
     summary.agentHiddenSignalScore,
   ]));
 }
@@ -5523,6 +5585,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentVerificationQueryScore: average(included.map((comparison) => comparison.cliAgentSummary.agentVerificationQueryScore)),
     averageAgentEvidenceCountShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentEvidenceCountShortcutScore)),
     averageAgentSignalCountShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSignalCountShortcutScore)),
+    averageAgentTopQualityShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentTopQualityShortcutScore)),
     averageAgentProblemShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentProblemShortcutScore)),
     averageAgentResponseMetadataScore: average(included.map((comparison) => comparison.cliAgentSummary.agentResponseMetadataScore)),
     averageAgentHiddenSignalScore: average(included.map((comparison) => comparison.cliAgentSummary.agentHiddenSignalScore)),

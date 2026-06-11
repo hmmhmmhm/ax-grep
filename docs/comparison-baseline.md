@@ -141,6 +141,9 @@ mirrors the first citation item, including path, kind, confidence, reason, URL,
 and score.
 `averageAgentSignalCountShortcutScore` tracks signal severity and failing
 quality-gate count shortcuts against `agent.signals` and `agent.qualityGates`.
+`averageAgentTopQualityShortcutScore` tracks whether `agent.topSignal*` and
+`agent.topQualityGate*` mirror the first signal and quality gate for fast
+accept/block routing without scanning diagnostic arrays.
 `averageAgentProblemShortcutScore` tracks whether `agent.problemSignalKind`,
 severity, message, and `agent.failingQualityGate*` mirror the first
 warning/error signal and first failing quality gate, including gate severity and

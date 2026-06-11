@@ -402,6 +402,15 @@ describe("public agent types", () => {
       | "signalErrorCount"
       | "qualityGateCount"
       | "qualityGateFailCount"
+      | "topSignalKind"
+      | "topSignalSeverity"
+      | "topSignalMessage"
+      | "topQualityGateKind"
+      | "topQualityGatePass"
+      | "topQualityGateSeverity"
+      | "topQualityGateMessage"
+      | "topQualityGatePath"
+      | "topQualityGateScore"
       | "problemSignalKind"
       | "problemSignalSeverity"
       | "problemSignalMessage"
@@ -697,6 +706,15 @@ describe("public agent types", () => {
       signalErrorCount: 0,
       qualityGateCount: 4,
       qualityGateFailCount: 1,
+      topSignalKind: "content",
+      topSignalSeverity: "warning",
+      topSignalMessage: "Readable content is thin.",
+      topQualityGateKind: "fetch",
+      topQualityGatePass: true,
+      topQualityGateSeverity: "info",
+      topQualityGateMessage: "Fetched response was converted into an agent payload.",
+      topQualityGatePath: "agent.responseStatus",
+      topQualityGateScore: 1,
       problemSignalKind: "content",
       problemSignalSeverity: "warning",
       problemSignalMessage: "Readable content is thin.",
@@ -799,6 +817,8 @@ describe("public agent types", () => {
     expect(summary.bestReadTargetCount).toBe(1);
     expect(summary.bestReadTargetPrimary).toBe(true);
     expect(summary.qualityGateFailCount).toBe(1);
+    expect(summary.topSignalKind).toBe("content");
+    expect(summary.topQualityGatePass).toBe(true);
     expect(summary.problemSignalSeverity).toBe("warning");
     expect(summary.failingQualityGateKind).toBe("content");
     expect(summary.failingQualityGateSeverity).toBe("warning");

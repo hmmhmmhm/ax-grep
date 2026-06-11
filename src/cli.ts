@@ -897,6 +897,15 @@ type AgentSummary = {
   qualityGateCount: number;
   qualityGateFailCount: number;
   qualityGates: AgentQualityGate[];
+  topSignalKind?: AgentSignal["kind"];
+  topSignalSeverity?: AgentSignal["severity"];
+  topSignalMessage?: string;
+  topQualityGateKind?: AgentQualityGate["kind"];
+  topQualityGatePass?: boolean;
+  topQualityGateSeverity?: AgentQualityGate["severity"];
+  topQualityGateMessage?: string;
+  topQualityGatePath?: string;
+  topQualityGateScore?: number;
   problemSignalKind?: AgentSignal["kind"];
   problemSignalSeverity?: AgentSignal["severity"];
   problemSignalMessage?: string;
@@ -1204,6 +1213,7 @@ const agentContract: AgentContract = {
     "choice.counts",
     "evidence.counts",
     "signal.counts",
+    "quality.shortcuts",
     "resultChoices",
     "sourceChoices",
     "formChoices",
@@ -2680,6 +2690,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  signalErrors: ${agent.signalErrorCount}`,
     `  qualityGateCount: ${agent.qualityGateCount}`,
     `  qualityGateFailures: ${agent.qualityGateFailCount}`,
+    ...(agent.topSignalKind ? [`  topSignal: ${agent.topSignalSeverity}/${agent.topSignalKind} - ${agent.topSignalMessage}`] : []),
+    ...(agent.topQualityGateKind ? [`  topQualityGate: ${agent.topQualityGateKind}${typeof agent.topQualityGatePass === "boolean" ? ` pass=${agent.topQualityGatePass}` : ""}${agent.topQualityGateSeverity ? `/${agent.topQualityGateSeverity}` : ""}${agent.topQualityGatePath ? ` path=${agent.topQualityGatePath}` : ""}${typeof agent.topQualityGateScore === "number" ? ` score=${agent.topQualityGateScore}` : ""} - ${agent.topQualityGateMessage}`] : []),
     ...(agent.problemSignalKind ? [`  problemSignal: ${agent.problemSignalSeverity}/${agent.problemSignalKind} - ${agent.problemSignalMessage}`] : []),
     ...(agent.failingQualityGateKind ? [`  failingQualityGate: ${agent.failingQualityGateKind}${agent.failingQualityGateSeverity ? `/${agent.failingQualityGateSeverity}` : ""}${agent.failingQualityGatePath ? ` path=${agent.failingQualityGatePath}` : ""}${typeof agent.failingQualityGateScore === "number" ? ` score=${agent.failingQualityGateScore}` : ""} - ${agent.failingQualityGateMessage}`] : []),
     `  canContinue: ${agent.canContinue}`,
@@ -9292,6 +9304,8 @@ function summarizeAgent(
   const signals = summarizeAgentSignals(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, fetched, error);
   const qualityGates = summarizeAgentQualityGates(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error, usabilityScore, evidenceQualityScore, sourceQualityScore);
   const signalCounts = countAgentSignalsBySeverity(signals);
+  const topSignal = signals[0];
+  const topQualityGate = qualityGates[0];
   const problemSignal = signals.find((signal) => signal.severity === "error" || signal.severity === "warning");
   const failingQualityGate = qualityGates.find((gate) => !gate.pass);
   const sourceSearchAgent = compactAgentSourceSearch(sourceSearch);
@@ -9380,6 +9394,15 @@ function summarizeAgent(
     qualityGateCount: qualityGates.length,
     qualityGateFailCount: qualityGates.filter((gate) => !gate.pass).length,
     qualityGates,
+    ...(topSignal ? { topSignalKind: topSignal.kind } : {}),
+    ...(topSignal ? { topSignalSeverity: topSignal.severity } : {}),
+    ...(topSignal ? { topSignalMessage: topSignal.message } : {}),
+    ...(topQualityGate ? { topQualityGateKind: topQualityGate.kind } : {}),
+    ...(typeof topQualityGate?.pass === "boolean" ? { topQualityGatePass: topQualityGate.pass } : {}),
+    ...(topQualityGate ? { topQualityGateSeverity: topQualityGate.severity } : {}),
+    ...(topQualityGate ? { topQualityGateMessage: topQualityGate.message } : {}),
+    ...(topQualityGate?.path ? { topQualityGatePath: topQualityGate.path } : {}),
+    ...(typeof topQualityGate?.score === "number" ? { topQualityGateScore: topQualityGate.score } : {}),
     ...(problemSignal ? { problemSignalKind: problemSignal.kind } : {}),
     ...(problemSignal ? { problemSignalSeverity: problemSignal.severity } : {}),
     ...(problemSignal ? { problemSignalMessage: problemSignal.message } : {}),
@@ -12072,6 +12095,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     },
   ];
   const signalCounts = countAgentSignalsBySeverity(signals);
+  const topSignal = signals[0];
+  const topQualityGate = qualityGates[0];
   const problemSignal = signals.find((signal) => signal.severity === "error" || signal.severity === "warning");
   const failingQualityGate = qualityGates.find((gate) => !gate.pass);
   const sourceSearchAgent = compactAgentSourceSearch(sourceSearch);
@@ -12108,6 +12133,15 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     qualityGateCount: qualityGates.length,
     qualityGateFailCount: qualityGates.filter((gate) => !gate.pass).length,
     qualityGates,
+    ...(topSignal ? { topSignalKind: topSignal.kind } : {}),
+    ...(topSignal ? { topSignalSeverity: topSignal.severity } : {}),
+    ...(topSignal ? { topSignalMessage: topSignal.message } : {}),
+    ...(topQualityGate ? { topQualityGateKind: topQualityGate.kind } : {}),
+    ...(typeof topQualityGate?.pass === "boolean" ? { topQualityGatePass: topQualityGate.pass } : {}),
+    ...(topQualityGate ? { topQualityGateSeverity: topQualityGate.severity } : {}),
+    ...(topQualityGate ? { topQualityGateMessage: topQualityGate.message } : {}),
+    ...(topQualityGate?.path ? { topQualityGatePath: topQualityGate.path } : {}),
+    ...(typeof topQualityGate?.score === "number" ? { topQualityGateScore: topQualityGate.score } : {}),
     ...(problemSignal ? { problemSignalKind: problemSignal.kind } : {}),
     ...(problemSignal ? { problemSignalSeverity: problemSignal.severity } : {}),
     ...(problemSignal ? { problemSignalMessage: problemSignal.message } : {}),
@@ -13545,6 +13579,15 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     qualityGateCount: agent.qualityGateCount,
     qualityGateFailCount: agent.qualityGateFailCount,
     ...(agent.qualityGates.length > 0 ? { qualityGates: compactAgentQualityGates(agent.qualityGates) } : {}),
+    ...(agent.topSignalKind ? { topSignalKind: agent.topSignalKind } : {}),
+    ...(agent.topSignalSeverity ? { topSignalSeverity: agent.topSignalSeverity } : {}),
+    ...(agent.topSignalMessage ? { topSignalMessage: agent.topSignalMessage } : {}),
+    ...(agent.topQualityGateKind ? { topQualityGateKind: agent.topQualityGateKind } : {}),
+    ...(typeof agent.topQualityGatePass === "boolean" ? { topQualityGatePass: agent.topQualityGatePass } : {}),
+    ...(agent.topQualityGateSeverity ? { topQualityGateSeverity: agent.topQualityGateSeverity } : {}),
+    ...(agent.topQualityGateMessage ? { topQualityGateMessage: agent.topQualityGateMessage } : {}),
+    ...(agent.topQualityGatePath ? { topQualityGatePath: agent.topQualityGatePath } : {}),
+    ...(typeof agent.topQualityGateScore === "number" ? { topQualityGateScore: agent.topQualityGateScore } : {}),
     ...(agent.problemSignalKind ? { problemSignalKind: agent.problemSignalKind } : {}),
     ...(agent.problemSignalSeverity ? { problemSignalSeverity: agent.problemSignalSeverity } : {}),
     ...(agent.problemSignalMessage ? { problemSignalMessage: agent.problemSignalMessage } : {}),
@@ -13884,6 +13927,15 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     signalErrorCount: agent.signalErrorCount,
     qualityGateCount: agent.qualityGateCount,
     qualityGateFailCount: agent.qualityGateFailCount,
+    ...(agent.topSignalKind ? { topSignalKind: agent.topSignalKind } : {}),
+    ...(agent.topSignalSeverity ? { topSignalSeverity: agent.topSignalSeverity } : {}),
+    ...(agent.topSignalMessage ? { topSignalMessage: agent.topSignalMessage } : {}),
+    ...(agent.topQualityGateKind ? { topQualityGateKind: agent.topQualityGateKind } : {}),
+    ...(typeof agent.topQualityGatePass === "boolean" ? { topQualityGatePass: agent.topQualityGatePass } : {}),
+    ...(agent.topQualityGateSeverity ? { topQualityGateSeverity: agent.topQualityGateSeverity } : {}),
+    ...(agent.topQualityGateMessage ? { topQualityGateMessage: agent.topQualityGateMessage } : {}),
+    ...(agent.topQualityGatePath ? { topQualityGatePath: agent.topQualityGatePath } : {}),
+    ...(typeof agent.topQualityGateScore === "number" ? { topQualityGateScore: agent.topQualityGateScore } : {}),
     ...(agent.problemSignalKind ? { problemSignalKind: agent.problemSignalKind } : {}),
     ...(agent.problemSignalSeverity ? { problemSignalSeverity: agent.problemSignalSeverity } : {}),
     ...(agent.problemSignalMessage ? { problemSignalMessage: agent.problemSignalMessage } : {}),

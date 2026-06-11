@@ -83,6 +83,8 @@ Read these first:
   execution mode, command args, URL, and source-link reference when available.
 - `agent.recommended*`: selected search result metadata and command args.
 - `agent.signals` and `agent.qualityGates`: compact diagnostics.
+- `agent.topSignal*` and `agent.topQualityGate*`: first quality signal and gate
+  shortcuts for fast accept/block routing.
 - `agent.problemSignal*` and `agent.failingQualityGate*`: first blocking or
   warning reason, severity, and score without scanning diagnostic arrays.
 - `agent.topDiagnostic*`: first diagnostic code, severity, and message.
