@@ -894,6 +894,12 @@ type AgentSummary = {
   bestReadTarget?: string;
   bestReadTargetScore?: number;
   bestReadTargetReason?: string;
+  executorActionName?: string;
+  executorOperation?: AgentExecutionPlan["operation"];
+  executorCommandArgs?: string[];
+  executorReadFrom?: string;
+  executorUrl?: string;
+  executorExpectedOutcome?: AgentExpectedOutcome["kind"];
   primaryActionName?: string;
   primaryReason?: string;
   primaryPriority?: NonNullable<SuggestedAction["priority"]>;
@@ -2415,6 +2421,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.verificationMissingQueries.length > 0 ? [`  verificationMissingQueries: ${agent.verificationMissingQueries.join("; ")}`] : []),
     `  readability: ${agent.readability} (${agent.readabilityScore})`,
   ];
+  if (agent.executorActionName) lines.push(`  executorActionName: ${agent.executorActionName}`);
+  if (agent.executorOperation) lines.push(`  executorOperation: ${agent.executorOperation}`);
+  if (agent.executorExpectedOutcome) lines.push(`  executorExpectedOutcome: ${agent.executorExpectedOutcome}`);
   if (agent.executor.readFrom) lines.push(`  executorReadFrom: ${agent.executor.readFrom}`);
   if (agent.executor.readValue) lines.push(...formatAgentReadValueText(agent.executor.readValue, "executorReadValue"));
   if (agent.executor.commandArgs) lines.push(`  executorCommandArgs: ${formatCommandArgsText(agent.executor.commandArgs)}`);
@@ -8902,6 +8911,12 @@ function summarizeAgent(
     readTargets,
     actionCount: actions.length,
     actions,
+    ...(executor.action ? { executorActionName: executor.action } : {}),
+    executorOperation: executor.operation,
+    ...(executor.commandArgs ? { executorCommandArgs: executor.commandArgs } : {}),
+    ...(executor.readFrom ? { executorReadFrom: executor.readFrom } : {}),
+    ...(executor.url ? { executorUrl: executor.url } : {}),
+    executorExpectedOutcome: executor.expectedOutcome,
   };
   if (bestReadTarget) {
     agent.bestReadTarget = bestReadTarget.path;
@@ -12596,6 +12611,12 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
     ...(agent.bestReadTargetReason ? { bestReadTargetReason: agent.bestReadTargetReason } : {}),
+    ...(agent.executorActionName ? { executorActionName: agent.executorActionName } : {}),
+    ...(agent.executorOperation ? { executorOperation: agent.executorOperation } : {}),
+    ...(agent.executorCommandArgs ? { executorCommandArgs: agent.executorCommandArgs } : {}),
+    ...(agent.executorReadFrom ? { executorReadFrom: agent.executorReadFrom } : {}),
+    ...(agent.executorUrl ? { executorUrl: agent.executorUrl } : {}),
+    ...(agent.executorExpectedOutcome ? { executorExpectedOutcome: agent.executorExpectedOutcome } : {}),
     ...(agent.primaryActionName ? { primaryActionName: agent.primaryActionName } : {}),
     ...(agent.primaryReason ? { primaryReason: agent.primaryReason } : {}),
     ...(agent.primaryPriority ? { primaryPriority: agent.primaryPriority } : {}),
@@ -12681,6 +12702,12 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     actionCount: agent.actionCount,
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
+    ...(agent.executorActionName ? { executorActionName: agent.executorActionName } : {}),
+    ...(agent.executorOperation ? { executorOperation: agent.executorOperation } : {}),
+    ...(agent.executorCommandArgs ? { executorCommandArgs: agent.executorCommandArgs } : {}),
+    ...(agent.executorReadFrom ? { executorReadFrom: agent.executorReadFrom } : {}),
+    ...(agent.executorUrl ? { executorUrl: agent.executorUrl } : {}),
+    ...(agent.executorExpectedOutcome ? { executorExpectedOutcome: agent.executorExpectedOutcome } : {}),
     ...(agent.primaryActionName ? { primaryActionName: agent.primaryActionName } : {}),
     ...(agent.primaryReason ? { primaryReason: agent.primaryReason } : {}),
     ...(agent.primaryPriority ? { primaryPriority: agent.primaryPriority } : {}),
@@ -13039,7 +13066,7 @@ function preferBriefAgentCommands(value: unknown): unknown {
   if (!value || typeof value !== "object") return value;
   const result: Record<string, unknown> = {};
   for (const [key, item] of Object.entries(value)) {
-    if (key === "commandArgs" || key === "afterInteractionCommandArgs") {
+    if (key === "commandArgs" || key === "afterInteractionCommandArgs" || key.endsWith("CommandArgs")) {
       result[key] = Array.isArray(item)
         ? item.map((part) => part === "--agent" ? "--agent-brief" : part)
         : item;

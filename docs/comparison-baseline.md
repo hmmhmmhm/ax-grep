@@ -189,6 +189,10 @@ field without rereading the full action object.
 `averageAgentPrimaryShortcutScore` tracks whether `agent.primaryActionName`,
 reason, priority, command, URL, rank, read-from, and browser shortcuts mirror
 `agent.primaryAction`, so agents can continue from top-level routing fields.
+`averageAgentExecutorShortcutScore` tracks whether `agent.executorActionName`,
+operation, command arguments, read-from, URL, and expected-outcome shortcuts
+mirror `agent.executor`, so subagents can route the next step without parsing
+the full executor object.
 `averageAgentSourceSearchProvenanceScore` tracks whether opened-result payloads
 with `sourceSearch.selectedResult` or `sourceSearch.alternateResults` expose
 matching `agent.readTargets`, so agents can inspect original SERP provenance

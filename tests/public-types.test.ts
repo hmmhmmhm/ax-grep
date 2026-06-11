@@ -177,6 +177,12 @@ describe("public agent types", () => {
       | "signalErrorCount"
       | "qualityGateCount"
       | "qualityGateFailCount"
+      | "executorActionName"
+      | "executorOperation"
+      | "executorCommandArgs"
+      | "executorReadFrom"
+      | "executorUrl"
+      | "executorExpectedOutcome"
       | "primaryActionName"
       | "primaryReason"
       | "primaryPriority"
@@ -209,6 +215,12 @@ describe("public agent types", () => {
       signalErrorCount: 0,
       qualityGateCount: 4,
       qualityGateFailCount: 1,
+      executorActionName: "read-content",
+      executorOperation: "return",
+      executorCommandArgs: ["ax-grep", "https://example.test", "--agent"],
+      executorReadFrom: "pageCheck.contentEvidence",
+      executorUrl: "https://example.test",
+      executorExpectedOutcome: "read-evidence",
       primaryActionName: "read-content",
       primaryReason: "Read current evidence.",
       primaryPriority: "high",
@@ -224,6 +236,7 @@ describe("public agent types", () => {
     expect(summary.verificationMissingQueries).toEqual(["missing"]);
     expect(summary.readTargetCount).toBe(3);
     expect(summary.qualityGateFailCount).toBe(1);
+    expect(summary.executorOperation).toBe("return");
     expect(summary.primaryActionName).toBe("read-content");
   });
 });

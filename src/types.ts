@@ -552,6 +552,12 @@ export type AgentSummary = {
   bestReadTarget?: string;
   bestReadTargetScore?: number;
   bestReadTargetReason?: string;
+  executorActionName?: string;
+  executorOperation?: AgentExecutionPlan["operation"];
+  executorCommandArgs?: string[];
+  executorReadFrom?: string;
+  executorUrl?: string;
+  executorExpectedOutcome?: AgentExpectedOutcome["kind"];
   primaryActionName?: string;
   primaryReason?: string;
   primaryPriority?: "low" | "medium" | "high";
