@@ -215,6 +215,20 @@ describe("public agent types", () => {
       | "semanticTopRoleCount"
       | "semanticTopHeading"
       | "semanticTopLandmark"
+      | "expectedOutcomeKind"
+      | "expectedOutcomeMessage"
+      | "executionPlanOperation"
+      | "executionPlanConfidence"
+      | "executionPlanReason"
+      | "executionPlanAnswerReady"
+      | "executionPlanShouldContinue"
+      | "executionPlanTerminal"
+      | "executionPlanExpectedOutcome"
+      | "executionPlanReadFrom"
+      | "executionPlanCommandArgs"
+      | "executionPlanAfterInteractionCommand"
+      | "executionPlanAfterInteractionCommandArgs"
+      | "executionPlanUrl"
       | "answerPlanStatus"
       | "answerPlanConfidence"
       | "answerPlanReason"
@@ -358,6 +372,20 @@ describe("public agent types", () => {
       semanticTopRoleCount: 2,
       semanticTopHeading: "Example",
       semanticTopLandmark: "main",
+      expectedOutcomeKind: "read-evidence",
+      expectedOutcomeMessage: "Read the current payload evidence.",
+      executionPlanOperation: "return",
+      executionPlanConfidence: "high",
+      executionPlanReason: "Ready to answer.",
+      executionPlanAnswerReady: true,
+      executionPlanShouldContinue: false,
+      executionPlanTerminal: true,
+      executionPlanExpectedOutcome: "read-evidence",
+      executionPlanReadFrom: "pageCheck.contentEvidence",
+      executionPlanCommandArgs: ["ax-grep", "https://example.test", "--agent"],
+      executionPlanAfterInteractionCommand: "ax-grep https://example.test --html-file captured.html --agent",
+      executionPlanAfterInteractionCommandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--agent"],
+      executionPlanUrl: "https://example.test",
       answerPlanStatus: "ready",
       answerPlanConfidence: "high",
       answerPlanReason: "Ready to answer.",

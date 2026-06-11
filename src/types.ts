@@ -487,6 +487,20 @@ export type AgentSummary = {
   handoff?: AgentHandoff;
   expectedOutcome: AgentExpectedOutcome;
   executionPlan: AgentExecutionPlan;
+  expectedOutcomeKind?: AgentExpectedOutcome["kind"];
+  expectedOutcomeMessage?: string;
+  executionPlanOperation?: AgentExecutionPlan["operation"];
+  executionPlanConfidence?: AgentExecutionPlan["confidence"];
+  executionPlanReason?: string;
+  executionPlanAnswerReady?: boolean;
+  executionPlanShouldContinue?: boolean;
+  executionPlanTerminal?: boolean;
+  executionPlanExpectedOutcome?: AgentExpectedOutcome["kind"];
+  executionPlanReadFrom?: string;
+  executionPlanCommandArgs?: string[];
+  executionPlanAfterInteractionCommand?: string;
+  executionPlanAfterInteractionCommandArgs?: string[];
+  executionPlanUrl?: string;
   answerPlan?: AgentAnswerPlan;
   searchDecision?: Record<string, unknown>;
   pageDecision?: Record<string, unknown>;
@@ -696,6 +710,7 @@ export type AgentContractFeature =
   | "handoff.sourceSearch"
   | "handoff.quality"
   | "executionPlan"
+  | "executionPlan.shortcuts"
   | "citations"
   | "citation.reason"
   | "answerPlan"

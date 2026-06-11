@@ -45,6 +45,9 @@ Read these first:
   shortcuts: top-level mirror of the brief handoff contract, loop decision, and
   target, terminal/continue flags.
 - `agent.next`: canonical loop payload with command, read target, or browser step.
+- `agent.expectedOutcome*` and `agent.executionPlan*`: top-level success
+  condition and execution-plan shortcuts for fast routing without expanding
+  nested objects.
 - `agent.sourceSearch*`: opened-result query, engine, selected result, and alternate count shortcuts.
 - `agent.searchDecision*` and `agent.pageDecision*`: top-level routing decisions and command/read pointers.
 - `agent.answerPlan`, `agent.citations`, and `agent.answerEvidence`: final answer evidence.

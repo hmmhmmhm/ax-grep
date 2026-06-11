@@ -71,6 +71,9 @@ command, read pointer, URL, browser interaction, and terminal fields.
 `averageAgentExpectedOutcomeScore` tracks whether `agent.expectedOutcome`
 describes the success condition for the next step, including read pointers when
 the next step is evidence reading.
+`averageAgentPlanShortcutScore` tracks whether top-level
+`agent.expectedOutcome*` and `agent.executionPlan*` shortcuts mirror the nested
+next-step contract.
 `averageAgentSignalScore` tracks whether `agent.signals` exposes structured
 content, verification, search result, source link, browser, response, and
 diagnostic signals needed for fast agent routing.

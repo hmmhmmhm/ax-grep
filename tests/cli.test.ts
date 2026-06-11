@@ -803,6 +803,17 @@ describe("cli", () => {
       expect(envelope.agent.executorShouldContinue).toBe(executor.shouldContinue);
       expect(envelope.agent.executorTerminal).toBe(executor.terminal);
       expect(envelope.agent.executorExpectedOutcome).toBe(executor.expectedOutcome);
+      expect(envelope.agent.expectedOutcomeKind).toBe(handoff.expectedOutcome);
+      expect(envelope.agent.expectedOutcomeMessage).toEqual(expect.any(String));
+      expect(envelope.agent.executionPlanOperation).toBe(executor.operation);
+      expect(envelope.agent.executionPlanConfidence).toBe(executor.confidence);
+      expect(envelope.agent.executionPlanAnswerReady).toBe(executor.answerReady);
+      expect(envelope.agent.executionPlanShouldContinue).toBe(executor.shouldContinue);
+      expect(envelope.agent.executionPlanTerminal).toBe(executor.terminal);
+      expect(envelope.agent.executionPlanExpectedOutcome).toBe(executor.expectedOutcome);
+      if (executor.commandArgs) expect(envelope.agent.executionPlanCommandArgs).toEqual(executor.commandArgs);
+      if (executor.readFrom) expect(envelope.agent.executionPlanReadFrom).toBe(executor.readFrom);
+      if (executor.url) expect(envelope.agent.executionPlanUrl).toBe(executor.url);
       if (executor.commandArgs) expect(envelope.agent.executorCommandArgs).toEqual(executor.commandArgs);
       if (executor.readFrom) expect(envelope.agent.executorReadFrom).toBe(executor.readFrom);
       if (executor.url) expect(envelope.agent.executorUrl).toBe(executor.url);
@@ -7712,7 +7723,10 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(sourceChoiceCommandArgs).toBeGreaterThanOrEqual(2);
     expect(stdout.output).toContain("  handoffSignal: content/info - ");
     expect(stdout.output).toContain("  handoffQualityGate: fetch pass/info score=1 path=agent.responseStatus - Fetched response was converted into an agent payload.");
+    expect(stdout.output).toContain("  executionPlanOperation: return");
+    expect(stdout.output).toContain("  executionPlanExpectedOutcome: read-evidence");
     expect(stdout.output).toContain("  expectedOutcome: read-evidence - ");
+    expect(stdout.output).toContain("  expectedOutcomeKind: read-evidence");
     expect(stdout.output).toContain("  answerPlan: ready - Readable page evidence is available; answer from the listed citations.");
     expect(stdout.output).toContain("  answerConfidence: medium");
     expect(stdout.output).toContain("  answerGaps: Page readability is medium.");

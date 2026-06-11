@@ -829,6 +829,20 @@ type AgentSummary = {
   handoff: AgentHandoff;
   expectedOutcome: AgentExpectedOutcome;
   executionPlan: AgentExecutionPlan;
+  expectedOutcomeKind?: AgentExpectedOutcome["kind"];
+  expectedOutcomeMessage?: string;
+  executionPlanOperation?: AgentExecutionPlan["operation"];
+  executionPlanConfidence?: AgentExecutionPlan["confidence"];
+  executionPlanReason?: string;
+  executionPlanAnswerReady?: boolean;
+  executionPlanShouldContinue?: boolean;
+  executionPlanTerminal?: boolean;
+  executionPlanExpectedOutcome?: AgentExpectedOutcome["kind"];
+  executionPlanReadFrom?: string;
+  executionPlanCommandArgs?: string[];
+  executionPlanAfterInteractionCommand?: string;
+  executionPlanAfterInteractionCommandArgs?: string[];
+  executionPlanUrl?: string;
   answerPlan: AgentAnswerPlan;
   searchDecision?: AgentSearchDecision;
   pageDecision?: AgentPageDecision;
@@ -1040,6 +1054,7 @@ const agentContract: AgentContract = {
     "handoff.sourceSearch",
     "handoff.quality",
     "executionPlan",
+    "executionPlan.shortcuts",
     "citations",
     "citation.reason",
     "answerPlan",
@@ -2461,12 +2476,26 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  executor: ${agent.executor.decision}/${agent.executor.operation}/${agent.executor.confidence}${agent.executor.action ? ` action=${agent.executor.action}` : ""} status=${agent.executor.status} - ${agent.executor.instruction}`,
     `  handoff: ${agent.handoff.decision}/${agent.handoff.operation}/${agent.handoff.confidence}${agent.handoff.action ? ` action=${agent.handoff.action}` : ""}${agent.handoff.priority ? ` priority=${agent.handoff.priority}` : ""} - ${agent.handoff.instruction}`,
     `  executionPlan: ${agent.executionPlan.operation}/${agent.executionPlan.confidence} - ${agent.executionPlan.reason}`,
+    `  executionPlanOperation: ${agent.executionPlan.operation}`,
+    `  executionPlanConfidence: ${agent.executionPlan.confidence}`,
+    `  executionPlanReason: ${agent.executionPlan.reason}`,
+    `  executionPlanAnswerReady: ${agent.executionPlan.answerReady}`,
+    `  executionPlanShouldContinue: ${agent.executionPlan.shouldContinue}`,
+    `  executionPlanTerminal: ${agent.executionPlan.terminal}`,
+    `  executionPlanExpectedOutcome: ${agent.executionPlan.expectedOutcome}`,
+    ...(agent.executionPlan.readFrom ? [`  executionPlanReadFrom: ${agent.executionPlan.readFrom}`] : []),
+    ...(agent.executionPlan.commandArgs ? [`  executionPlanCommandArgs: ${JSON.stringify(agent.executionPlan.commandArgs)}`] : []),
+    ...(agent.executionPlan.afterInteractionCommand ? [`  executionPlanAfterInteractionCommand: ${agent.executionPlan.afterInteractionCommand}`] : []),
+    ...(agent.executionPlan.afterInteractionCommandArgs ? [`  executionPlanAfterInteractionCommandArgs: ${JSON.stringify(agent.executionPlan.afterInteractionCommandArgs)}`] : []),
+    ...(agent.executionPlan.url ? [`  executionPlanUrl: ${agent.executionPlan.url}`] : []),
     `  loopDecision: ${agent.next.loop.decision}`,
     `  loopContinue: ${agent.next.loop.shouldContinue}`,
     `  loopTerminal: ${agent.next.loop.terminal}`,
     `  loopMaxIterations: ${agent.next.loop.maxSuggestedIterations}`,
     `  loopReason: ${agent.next.loop.reason}`,
     `  expectedOutcome: ${agent.expectedOutcome.kind} - ${agent.expectedOutcome.message}`,
+    `  expectedOutcomeKind: ${agent.expectedOutcome.kind}`,
+    `  expectedOutcomeMessage: ${agent.expectedOutcome.message}`,
     `  answerPlan: ${agent.answerPlan.status} - ${agent.answerPlan.reason}`,
     `  answerConfidence: ${agent.answerPlan.confidence}`,
     `  answerGaps: ${agent.answerPlan.gaps.join("; ") || "none"}`,
@@ -9029,6 +9058,20 @@ function summarizeAgent(
     handoff,
     expectedOutcome,
     executionPlan,
+    expectedOutcomeKind: expectedOutcome.kind,
+    expectedOutcomeMessage: expectedOutcome.message,
+    executionPlanOperation: executionPlan.operation,
+    executionPlanConfidence: executionPlan.confidence,
+    executionPlanReason: executionPlan.reason,
+    executionPlanAnswerReady: executionPlan.answerReady,
+    executionPlanShouldContinue: executionPlan.shouldContinue,
+    executionPlanTerminal: executionPlan.terminal,
+    executionPlanExpectedOutcome: executionPlan.expectedOutcome,
+    ...(executionPlan.readFrom ? { executionPlanReadFrom: executionPlan.readFrom } : {}),
+    ...(executionPlan.commandArgs ? { executionPlanCommandArgs: executionPlan.commandArgs } : {}),
+    ...(executionPlan.afterInteractionCommand ? { executionPlanAfterInteractionCommand: executionPlan.afterInteractionCommand } : {}),
+    ...(executionPlan.afterInteractionCommandArgs ? { executionPlanAfterInteractionCommandArgs: executionPlan.afterInteractionCommandArgs } : {}),
+    ...(executionPlan.url ? { executionPlanUrl: executionPlan.url } : {}),
     answerPlan,
     ...(searchDecision ? { searchDecision } : {}),
     ...(pageDecision ? { pageDecision } : {}),
@@ -12971,6 +13014,20 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     handoff: compactAgentHandoff(agent.handoff, agent.primaryUrl, searchCommandContext, pageLinkContext),
     expectedOutcome: agent.expectedOutcome,
     executionPlan: compactAgentUrlRefs(agent.executionPlan, agent.primaryUrl),
+    ...(agent.expectedOutcomeKind ? { expectedOutcomeKind: agent.expectedOutcomeKind } : {}),
+    ...(agent.expectedOutcomeMessage ? { expectedOutcomeMessage: agent.expectedOutcomeMessage } : {}),
+    ...(agent.executionPlanOperation ? { executionPlanOperation: agent.executionPlanOperation } : {}),
+    ...(agent.executionPlanConfidence ? { executionPlanConfidence: agent.executionPlanConfidence } : {}),
+    ...(agent.executionPlanReason ? { executionPlanReason: agent.executionPlanReason } : {}),
+    ...(typeof agent.executionPlanAnswerReady === "boolean" ? { executionPlanAnswerReady: agent.executionPlanAnswerReady } : {}),
+    ...(typeof agent.executionPlanShouldContinue === "boolean" ? { executionPlanShouldContinue: agent.executionPlanShouldContinue } : {}),
+    ...(typeof agent.executionPlanTerminal === "boolean" ? { executionPlanTerminal: agent.executionPlanTerminal } : {}),
+    ...(agent.executionPlanExpectedOutcome ? { executionPlanExpectedOutcome: agent.executionPlanExpectedOutcome } : {}),
+    ...(agent.executionPlanReadFrom ? { executionPlanReadFrom: agent.executionPlanReadFrom } : {}),
+    ...(agent.executionPlanCommandArgs ? { executionPlanCommandArgs: agent.executionPlanCommandArgs } : {}),
+    ...(agent.executionPlanAfterInteractionCommand ? { executionPlanAfterInteractionCommand: agent.executionPlanAfterInteractionCommand } : {}),
+    ...(agent.executionPlanAfterInteractionCommandArgs ? { executionPlanAfterInteractionCommandArgs: agent.executionPlanAfterInteractionCommandArgs } : {}),
+    ...(agent.executionPlanUrl ? { executionPlanUrl: agent.executionPlanUrl } : {}),
     answerPlan: compactAgentUrlRefs(agent.answerPlan, agent.primaryUrl),
     ...(agent.searchDecision ? { searchDecision: agent.searchDecision } : {}),
     ...(agent.pageDecision ? { pageDecision: compactAgentUrlRefs(agent.pageDecision, agent.primaryUrl) } : {}),
@@ -13169,6 +13226,19 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     summary: agent.summary,
     executor: compactAgentExecutor(agent.executor, agent.primaryUrl),
     handoff: compactAgentBriefHandoff(agent.handoff, agent.primaryUrl, searchCommandContext, pageLinkContext),
+    ...(agent.expectedOutcomeKind ? { expectedOutcomeKind: agent.expectedOutcomeKind } : {}),
+    ...(agent.expectedOutcomeMessage ? { expectedOutcomeMessage: agent.expectedOutcomeMessage } : {}),
+    ...(agent.executionPlanOperation ? { executionPlanOperation: agent.executionPlanOperation } : {}),
+    ...(agent.executionPlanConfidence ? { executionPlanConfidence: agent.executionPlanConfidence } : {}),
+    ...(typeof agent.executionPlanAnswerReady === "boolean" ? { executionPlanAnswerReady: agent.executionPlanAnswerReady } : {}),
+    ...(typeof agent.executionPlanShouldContinue === "boolean" ? { executionPlanShouldContinue: agent.executionPlanShouldContinue } : {}),
+    ...(typeof agent.executionPlanTerminal === "boolean" ? { executionPlanTerminal: agent.executionPlanTerminal } : {}),
+    ...(agent.executionPlanExpectedOutcome ? { executionPlanExpectedOutcome: agent.executionPlanExpectedOutcome } : {}),
+    ...(agent.executionPlanReadFrom ? { executionPlanReadFrom: agent.executionPlanReadFrom } : {}),
+    ...(agent.executionPlanCommandArgs ? { executionPlanCommandArgs: agent.executionPlanCommandArgs } : {}),
+    ...(agent.executionPlanAfterInteractionCommand ? { executionPlanAfterInteractionCommand: agent.executionPlanAfterInteractionCommand } : {}),
+    ...(agent.executionPlanAfterInteractionCommandArgs ? { executionPlanAfterInteractionCommandArgs: agent.executionPlanAfterInteractionCommandArgs } : {}),
+    ...(agent.executionPlanUrl ? { executionPlanUrl: agent.executionPlanUrl } : {}),
     ...(agent.searchDecisionName ? { searchDecisionName: agent.searchDecisionName } : {}),
     ...(agent.searchDecisionConfidence ? { searchDecisionConfidence: agent.searchDecisionConfidence } : {}),
     ...(typeof agent.searchDecisionResultCount === "number" ? { searchDecisionResultCount: agent.searchDecisionResultCount } : {}),
