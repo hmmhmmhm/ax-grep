@@ -54,6 +54,7 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
     "averageAgentFormActionCountScore",
     "averageAgentFormActionChoiceScore",
     "averageAgentVerificationQueryScore",
+    "averageAgentSourceSearchShortcutScore",
     "averageAgentHiddenSignalScore",
     "averageAgentHiddenSignalCountScore",
   ]);
@@ -146,12 +147,14 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "averageAgentExecutorScore",
           "averageAgentFormActionChoiceScore",
           "averageAgentVerificationQueryScore",
+          "averageAgentSourceSearchShortcutScore",
         ]);
         requireFileIncludes(root, failures, "docs/comparison-baseline.md", [
           "minCliAgentScore",
           "minAgentExecutorScore",
           "averageAgentFormActionChoiceScore",
           "averageAgentVerificationQueryScore",
+          "averageAgentSourceSearchShortcutScore",
           "agent.handoff",
           "agent.executor",
         ]);
@@ -212,6 +215,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "actionTargetChoices",
           "verificationFoundQueries",
           "verificationMissingQueries",
+          "sourceSearchSelectedRank",
+          "sourceSearchAlternateCount",
           "hiddenSignalCount",
           "hiddenReadTargetCount",
           "sourceLinkCount",
@@ -223,6 +228,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "actionTargetChoices",
           "verificationFoundQueries",
           "verificationMissingQueries",
+          "sourceSearchSelectedRank",
+          "sourceSearchAlternateCount",
           "hiddenSignalCount",
           "hiddenReadTargetCount",
           "sourceLinkCount",

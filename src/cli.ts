@@ -864,6 +864,9 @@ type AgentSummary = {
   hiddenReadTargetCount: number;
   sourceLinkCount: number;
   sourceChoices: AgentSourceChoice[];
+  sourceSearchSelectedRank?: number;
+  sourceSearchSelectedUrl?: string;
+  sourceSearchAlternateCount: number;
   evidenceQualityScore: number;
   sourceQualityScore: number;
   alternativeActionCount: number;
@@ -925,6 +928,7 @@ const agentContract: AgentContract = {
     "sourceChoices",
     "formChoices",
     "actionTargetChoices",
+    "sourceSearch.shortcuts",
     "pageDecision",
     "semanticSummary",
     "searchResult.selectionReason",
@@ -2363,6 +2367,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  hiddenSignalCount: ${agent.hiddenSignalCount}`,
     `  hiddenReadTargetCount: ${agent.hiddenReadTargetCount}`,
     `  sourceLinkCount: ${agent.sourceLinkCount}`,
+    ...(typeof agent.sourceSearchSelectedRank === "number" ? [`  sourceSearchSelectedRank: ${agent.sourceSearchSelectedRank}`] : []),
+    ...(agent.sourceSearchSelectedUrl ? [`  sourceSearchSelectedUrl: ${agent.sourceSearchSelectedUrl}`] : []),
+    `  sourceSearchAlternateCount: ${agent.sourceSearchAlternateCount}`,
     `  alternativeActionCount: ${agent.alternativeActionCount}`,
     `  usabilityScore: ${agent.usabilityScore}`,
     `  evidenceQualityScore: ${agent.evidenceQualityScore}`,
@@ -8830,6 +8837,9 @@ function summarizeAgent(
     hiddenReadTargetCount,
     sourceLinkCount: analysis.kind === "search-results" ? 0 : pageCheck.sourceLinks.length,
     sourceChoices,
+    ...(sourceSearch ? { sourceSearchSelectedRank: sourceSearch.selectedRank } : {}),
+    ...(sourceSearch ? { sourceSearchSelectedUrl: sourceSearch.selectedUrl } : {}),
+    sourceSearchAlternateCount: sourceSearch?.alternateResults?.length ?? 0,
     evidenceQualityScore,
     sourceQualityScore,
     alternativeActionCount: actions.filter((action) => !action.primary).length,
@@ -11233,6 +11243,9 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     hiddenReadTargetCount: 0,
     sourceLinkCount: 0,
     sourceChoices: [],
+    sourceSearchAlternateCount: sourceSearch?.alternateResults?.length ?? 0,
+    ...(sourceSearch ? { sourceSearchSelectedRank: sourceSearch.selectedRank } : {}),
+    ...(sourceSearch ? { sourceSearchSelectedUrl: sourceSearch.selectedUrl } : {}),
     evidenceQualityScore: 0,
     sourceQualityScore: 0,
     alternativeActionCount: 0,
@@ -12474,6 +12487,9 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     hiddenReadTargetCount: agent.hiddenReadTargetCount,
     sourceLinkCount: agent.sourceLinkCount,
     ...(agent.sourceChoices.length > 0 ? { sourceChoices: compactAgentSourceChoiceList(agent.sourceChoices) } : {}),
+    ...(typeof agent.sourceSearchSelectedRank === "number" ? { sourceSearchSelectedRank: agent.sourceSearchSelectedRank } : {}),
+    ...(agent.sourceSearchSelectedUrl ? { sourceSearchSelectedUrl: agent.sourceSearchSelectedUrl } : {}),
+    sourceSearchAlternateCount: agent.sourceSearchAlternateCount,
     evidenceQualityScore: agent.evidenceQualityScore,
     sourceQualityScore: agent.sourceQualityScore,
     alternativeActionCount: agent.alternativeActionCount,
@@ -12540,6 +12556,9 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     hiddenSignalCount: agent.hiddenSignalCount,
     hiddenReadTargetCount: agent.hiddenReadTargetCount,
     sourceLinkCount: agent.sourceLinkCount,
+    ...(typeof agent.sourceSearchSelectedRank === "number" ? { sourceSearchSelectedRank: agent.sourceSearchSelectedRank } : {}),
+    ...(agent.sourceSearchSelectedUrl ? { sourceSearchSelectedUrl: agent.sourceSearchSelectedUrl } : {}),
+    sourceSearchAlternateCount: agent.sourceSearchAlternateCount,
     evidenceQualityScore: agent.evidenceQualityScore,
     sourceQualityScore: agent.sourceQualityScore,
     ...(agent.diagnosticErrorCount || agent.diagnosticWarningCount ? {

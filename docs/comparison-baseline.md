@@ -189,6 +189,10 @@ field without rereading the full action object.
 with `sourceSearch.selectedResult` or `sourceSearch.alternateResults` expose
 matching `agent.readTargets`, so agents can inspect original SERP provenance
 before trusting or recovering from an opened page.
+`averageAgentSourceSearchShortcutScore` tracks whether top-level
+`agent.sourceSearchSelectedRank`, `agent.sourceSearchSelectedUrl`, and
+`agent.sourceSearchAlternateCount` mirror the source-search payload for quick
+SERP recovery decisions.
 `averageAgentRecommendedMetadataScore` tracks whether search pages with a
 `recommendedResult` repeat its rank, source, relevance, and official-source
 hint on the top-level `agent` object for quick routing.

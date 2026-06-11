@@ -159,6 +159,9 @@ describe("public agent types", () => {
       | "hiddenSignalCount"
       | "hiddenReadTargetCount"
       | "sourceLinkCount"
+      | "sourceSearchSelectedRank"
+      | "sourceSearchSelectedUrl"
+      | "sourceSearchAlternateCount"
       | "verificationFoundQueries"
       | "verificationMissingQueries"
     > = {
@@ -171,6 +174,9 @@ describe("public agent types", () => {
       hiddenSignalCount: 4,
       hiddenReadTargetCount: 2,
       sourceLinkCount: 1,
+      sourceSearchSelectedRank: 2,
+      sourceSearchSelectedUrl: "https://source.example/result",
+      sourceSearchAlternateCount: 1,
       verificationFoundQueries: ["present"],
       verificationMissingQueries: ["missing"],
     };
@@ -179,6 +185,7 @@ describe("public agent types", () => {
     expect(summary.actionTargetCount).toBe(2);
     expect(summary.formChoices?.[0]?.queryField).toBe("q");
     expect(summary.actionTargetChoices?.[0]?.kind).toBe("search");
+    expect(summary.sourceSearchAlternateCount).toBe(1);
     expect(summary.verificationMissingQueries).toEqual(["missing"]);
   });
 });

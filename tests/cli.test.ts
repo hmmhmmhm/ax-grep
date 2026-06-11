@@ -2382,6 +2382,11 @@ describe("cli", () => {
         isLikelyOfficial: true,
       },
     });
+    expect(envelope.agent).toMatchObject({
+      sourceSearchSelectedRank: 2,
+      sourceSearchSelectedUrl: "https://www.npmjs.com/package/ax-grep",
+      sourceSearchAlternateCount: 1,
+    });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "sourceSearch.selectedResult",
       count: 1,
@@ -2825,6 +2830,11 @@ describe("cli", () => {
         ],
       },
     });
+    expect(envelope.agent).toMatchObject({
+      sourceSearchSelectedRank: 1,
+      sourceSearchSelectedUrl: "https://missing.example/article",
+      sourceSearchAlternateCount: 1,
+    });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "sourceSearch.selectedResult",
       count: 1,
@@ -3035,6 +3045,8 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n  status: verify");
+    expect(stdout.output).toContain("  sourceSearchSelectedRank: 1");
+    expect(stdout.output).toContain("  sourceSearchAlternateCount: 1");
     expect(stdout.output).toContain("  handoff: execute/execute-command/low action=open-alternate-result");
     expect(stdout.output).toContain("  handoffSourceSearch: agent browser engine=duckduckgo selected=1 alternates=1 <https://first.example/article>");
     expect(stdout.output).toContain("  handoffSourceSearchQuery: agent browser");

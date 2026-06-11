@@ -522,6 +522,9 @@ export type AgentSummary = {
   hiddenReadTargetCount?: number;
   sourceLinkCount?: number;
   sourceChoices?: AgentSourceChoice[];
+  sourceSearchSelectedRank?: number;
+  sourceSearchSelectedUrl?: string;
+  sourceSearchAlternateCount?: number;
   evidenceQualityScore?: number;
   sourceQualityScore?: number;
   alternativeActionCount?: number;
@@ -581,6 +584,7 @@ export type AgentContractFeature =
   | "sourceChoices"
   | "formChoices"
   | "actionTargetChoices"
+  | "sourceSearch.shortcuts"
   | "pageDecision"
   | "semanticSummary"
   | "searchResult.selectionReason"
