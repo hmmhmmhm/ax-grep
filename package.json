@@ -39,6 +39,7 @@
     "build": "tsup && tsc --noEmit",
     "check": "tsc --noEmit",
     "check:processes": "tsx scripts/check-project-processes.ts",
+    "readiness:audit": "tsx scripts/check-agent-readiness.ts",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",

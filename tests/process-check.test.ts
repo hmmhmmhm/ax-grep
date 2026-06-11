@@ -25,4 +25,13 @@ describe("project process checker", () => {
 
     expect(matches).toEqual([]);
   });
+
+  it("ignores process probe commands that contain monitored names as arguments", () => {
+    const matches = findProjectProcesses([
+      " 300 1 /bin/bash -lc pnpm check:processes && pgrep -af 'vitest|agent-browser|pnpm test'",
+      " 301 300 pgrep -af vitest|agent-browser|pnpm test",
+    ], 999);
+
+    expect(matches).toEqual([]);
+  });
 });

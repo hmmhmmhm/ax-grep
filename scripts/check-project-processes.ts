@@ -34,7 +34,12 @@ export function findProjectProcesses(lines: string[], currentPid: number): Proce
     .filter((item): item is ProcessInfo => Boolean(item))
     .filter((item) => item.pid !== currentPid)
     .filter((item) => !item.command.includes("scripts/check-project-processes"))
+    .filter((item) => !isProbeCommand(item.command))
     .filter((item) => processPatterns.some((pattern) => pattern.test(item.command)));
+}
+
+function isProbeCommand(command: string): boolean {
+  return /\bpgrep\s+-[^\s]*a[^\s]*f\b/.test(command) || command.includes("pnpm check:processes");
 }
 
 function readProcessTable(): string[] {

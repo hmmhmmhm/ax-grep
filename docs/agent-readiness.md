@@ -23,6 +23,7 @@ Do not call this objective complete from unit tests alone. A completion audit
 must inspect:
 
 - `pnpm exec tsc --noEmit`
+- `pnpm readiness:audit`
 - focused non-browser Vitest coverage for changed contracts
 - `pnpm compare:gate <latest comparison report>` for saved comparison output
 - process cleanup before and after browser-backed comparison commands
