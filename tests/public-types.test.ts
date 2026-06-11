@@ -364,6 +364,8 @@ describe("public agent types", () => {
       | "semanticLinkCount"
       | "semanticButtonCount"
       | "semanticImageCount"
+      | "semanticTableCount"
+      | "semanticListCount"
       | "semanticFieldCount"
       | "semanticDescriptionCount"
       | "semanticChoiceCount"
@@ -406,6 +408,17 @@ describe("public agent types", () => {
       | "semanticTopImageName"
       | "semanticTopImageUrl"
       | "semanticTopImageSelector"
+      | "semanticTopTableRole"
+      | "semanticTopTablePath"
+      | "semanticTopTableName"
+      | "semanticTopTableRowCount"
+      | "semanticTopTableCellCount"
+      | "semanticTopTableSelector"
+      | "semanticTopListRole"
+      | "semanticTopListPath"
+      | "semanticTopListName"
+      | "semanticTopListItemCount"
+      | "semanticTopListSelector"
       | "semanticTopFieldRole"
       | "semanticTopFieldPath"
       | "semanticTopFieldName"
@@ -779,6 +792,8 @@ describe("public agent types", () => {
       semanticLinkCount: 2,
       semanticButtonCount: 1,
       semanticImageCount: 1,
+      semanticTableCount: 1,
+      semanticListCount: 1,
       semanticFieldCount: 1,
       semanticDescriptionCount: 1,
       semanticChoiceCount: 1,
@@ -820,6 +835,17 @@ describe("public agent types", () => {
       semanticTopImageName: "Product screenshot",
       semanticTopImageUrl: "https://example.test/product.png",
       semanticTopImageSelector: "img:nth-of-type(1)",
+      semanticTopTableRole: "table",
+      semanticTopTablePath: "agent.semanticSummary.tableItems[0]",
+      semanticTopTableName: "Pricing",
+      semanticTopTableRowCount: 3,
+      semanticTopTableCellCount: 6,
+      semanticTopTableSelector: "table:nth-of-type(1)",
+      semanticTopListRole: "list",
+      semanticTopListPath: "agent.semanticSummary.listItems[0]",
+      semanticTopListName: "Highlights",
+      semanticTopListItemCount: 2,
+      semanticTopListSelector: "ul:nth-of-type(1)",
       semanticTopFieldRole: "textbox",
       semanticTopFieldPath: "agent.semanticSummary.fieldItems[0]",
       semanticTopFieldName: "Email",

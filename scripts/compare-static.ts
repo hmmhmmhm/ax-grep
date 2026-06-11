@@ -1510,6 +1510,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticLinkCount?: number;
       semanticButtonCount?: number;
       semanticImageCount?: number;
+      semanticTableCount?: number;
+      semanticListCount?: number;
       semanticFieldCount?: number;
       semanticDescriptionCount?: number;
       semanticChoiceCount?: number;
@@ -1552,6 +1554,17 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopImageName?: string;
       semanticTopImageUrl?: string;
       semanticTopImageSelector?: string;
+      semanticTopTableRole?: string;
+      semanticTopTablePath?: string;
+      semanticTopTableName?: string;
+      semanticTopTableRowCount?: number;
+      semanticTopTableCellCount?: number;
+      semanticTopTableSelector?: string;
+      semanticTopListRole?: string;
+      semanticTopListPath?: string;
+      semanticTopListName?: string;
+      semanticTopListItemCount?: number;
+      semanticTopListSelector?: string;
       semanticTopFieldRole?: string;
       semanticTopFieldPath?: string;
       semanticTopFieldName?: string;
@@ -4449,6 +4462,8 @@ function scoreAgentSemanticSummary(agent: {
   semanticLinkCount?: number;
   semanticButtonCount?: number;
   semanticImageCount?: number;
+  semanticTableCount?: number;
+  semanticListCount?: number;
   semanticFieldCount?: number;
   semanticDescriptionCount?: number;
   semanticChoiceCount?: number;
@@ -4491,6 +4506,17 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopImageName?: string;
   semanticTopImageUrl?: string;
   semanticTopImageSelector?: string;
+  semanticTopTableRole?: string;
+  semanticTopTablePath?: string;
+  semanticTopTableName?: string;
+  semanticTopTableRowCount?: number;
+  semanticTopTableCellCount?: number;
+  semanticTopTableSelector?: string;
+  semanticTopListRole?: string;
+  semanticTopListPath?: string;
+  semanticTopListName?: string;
+  semanticTopListItemCount?: number;
+  semanticTopListSelector?: string;
   semanticTopFieldRole?: string;
   semanticTopFieldPath?: string;
   semanticTopFieldName?: string;
@@ -4528,6 +4554,8 @@ function scoreAgentSemanticSummary(agent: {
     linkCount?: unknown;
     buttonCount?: unknown;
     imageCount?: unknown;
+    tableCount?: unknown;
+    listCount?: unknown;
     fieldCount?: unknown;
     descriptionCount?: unknown;
     choiceCount?: unknown;
@@ -4545,6 +4573,8 @@ function scoreAgentSemanticSummary(agent: {
     links?: unknown;
     buttons?: unknown;
     imageItems?: unknown;
+    tableItems?: unknown;
+    listItems?: unknown;
     fieldItems?: unknown;
     descriptionItems?: unknown;
     choiceItems?: unknown;
@@ -4560,6 +4590,8 @@ function scoreAgentSemanticSummary(agent: {
   if (typeof item.linkCount === "number" && item.linkCount >= 0) matched += 1;
   if (typeof item.buttonCount === "number" && item.buttonCount >= 0) matched += 1;
   if (typeof item.imageCount === "number" && item.imageCount >= 0) matched += 1;
+  if (typeof item.tableCount === "number" && item.tableCount >= 0) matched += 1;
+  if (typeof item.listCount === "number" && item.listCount >= 0) matched += 1;
   if (typeof item.fieldCount === "number" && item.fieldCount >= 0) matched += 1;
   if (typeof item.descriptionCount === "number" && item.descriptionCount >= 0) matched += 1;
   if (typeof item.choiceCount === "number" && item.choiceCount >= 0) matched += 1;
@@ -4581,11 +4613,13 @@ function scoreAgentSemanticSummary(agent: {
   if (Array.isArray(item.links)) matched += 1;
   if (Array.isArray(item.buttons)) matched += 1;
   if (Array.isArray(item.imageItems)) matched += 1;
+  if (Array.isArray(item.tableItems)) matched += 1;
+  if (Array.isArray(item.listItems)) matched += 1;
   if (Array.isArray(item.fieldItems)) matched += 1;
   if (Array.isArray(item.descriptionItems)) matched += 1;
   if (Array.isArray(item.choiceItems)) matched += 1;
   if (Array.isArray(item.stateItems)) matched += 1;
-  let required = 30;
+  let required = 34;
   if (typeof item.nodeCount === "number") {
     required += 1;
     if (agent?.semanticNodeCount === item.nodeCount) matched += 1;
@@ -4621,6 +4655,14 @@ function scoreAgentSemanticSummary(agent: {
   if (typeof item.imageCount === "number") {
     required += 1;
     if (agent?.semanticImageCount === item.imageCount) matched += 1;
+  }
+  if (typeof item.tableCount === "number") {
+    required += 1;
+    if (agent?.semanticTableCount === item.tableCount) matched += 1;
+  }
+  if (typeof item.listCount === "number") {
+    required += 1;
+    if (agent?.semanticListCount === item.listCount) matched += 1;
   }
   if (typeof item.fieldCount === "number") {
     required += 1;
@@ -4814,6 +4856,52 @@ function scoreAgentSemanticSummary(agent: {
   if (image && typeof image.selector === "string") {
     required += 1;
     if (agent?.semanticTopImageSelector === image.selector) matched += 1;
+  }
+  const table = Array.isArray(item.tableItems) ? item.tableItems[0] as { path?: unknown; role?: unknown; name?: unknown; rowCount?: unknown; cellCount?: unknown; selector?: unknown } | undefined : undefined;
+  if (table && typeof table.role === "string") {
+    required += 1;
+    if (agent?.semanticTopTableRole === table.role) matched += 1;
+  }
+  if (table && typeof table.path === "string") {
+    required += 1;
+    if (agent?.semanticTopTablePath === table.path) matched += 1;
+  }
+  if (table && typeof table.name === "string") {
+    required += 1;
+    if (agent?.semanticTopTableName === table.name) matched += 1;
+  }
+  if (table && typeof table.rowCount === "number") {
+    required += 1;
+    if (agent?.semanticTopTableRowCount === table.rowCount) matched += 1;
+  }
+  if (table && typeof table.cellCount === "number") {
+    required += 1;
+    if (agent?.semanticTopTableCellCount === table.cellCount) matched += 1;
+  }
+  if (table && typeof table.selector === "string") {
+    required += 1;
+    if (agent?.semanticTopTableSelector === table.selector) matched += 1;
+  }
+  const list = Array.isArray(item.listItems) ? item.listItems[0] as { path?: unknown; role?: unknown; name?: unknown; itemCount?: unknown; selector?: unknown } | undefined : undefined;
+  if (list && typeof list.role === "string") {
+    required += 1;
+    if (agent?.semanticTopListRole === list.role) matched += 1;
+  }
+  if (list && typeof list.path === "string") {
+    required += 1;
+    if (agent?.semanticTopListPath === list.path) matched += 1;
+  }
+  if (list && typeof list.name === "string") {
+    required += 1;
+    if (agent?.semanticTopListName === list.name) matched += 1;
+  }
+  if (list && typeof list.itemCount === "number") {
+    required += 1;
+    if (agent?.semanticTopListItemCount === list.itemCount) matched += 1;
+  }
+  if (list && typeof list.selector === "string") {
+    required += 1;
+    if (agent?.semanticTopListSelector === list.selector) matched += 1;
   }
   const field = Array.isArray(item.fieldItems) ? item.fieldItems[0] as { path?: unknown; role?: unknown; name?: unknown; description?: unknown; value?: unknown; state?: unknown; selector?: unknown } | undefined : undefined;
   if (field && typeof field.role === "string") {

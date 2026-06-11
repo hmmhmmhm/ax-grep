@@ -3822,6 +3822,69 @@ describe("cli", () => {
     });
   });
 
+  it("exposes semantic table and list shortcuts for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/report", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h1>Quarterly report</h1>
+          <table aria-label="Revenue by quarter">
+            <tr><th>Quarter</th><th>Revenue</th></tr>
+            <tr><td>Q1</td><td>$10</td></tr>
+            <tr><td>Q2</td><td>$12</td></tr>
+          </table>
+          <ul aria-label="Highlights">
+            <li>North region grew</li>
+            <li>Renewals improved</li>
+          </ul>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent.semanticSummary).toMatchObject({
+      tableCount: 1,
+      listCount: 1,
+      tableItems: [
+        expect.objectContaining({
+          path: "agent.semanticSummary.tableItems[0]",
+          role: "table",
+          name: "Revenue by quarter",
+          rowCount: 3,
+          cellCount: 6,
+          selector: "table",
+        }),
+      ],
+      listItems: [
+        expect.objectContaining({
+          path: "agent.semanticSummary.listItems[0]",
+          role: "list",
+          name: "Highlights",
+          itemCount: 2,
+          selector: "ul",
+        }),
+      ],
+    });
+    expect(envelope.agent).toMatchObject({
+      semanticTableCount: 1,
+      semanticListCount: 1,
+      semanticTopTableRole: "table",
+      semanticTopTablePath: "agent.semanticSummary.tableItems[0]",
+      semanticTopTableName: "Revenue by quarter",
+      semanticTopTableRowCount: 3,
+      semanticTopTableCellCount: 6,
+      semanticTopTableSelector: "table",
+      semanticTopListRole: "list",
+      semanticTopListPath: "agent.semanticSummary.listItems[0]",
+      semanticTopListName: "Highlights",
+      semanticTopListItemCount: 2,
+      semanticTopListSelector: "ul",
+    });
+  });
+
   it("summarizes forms with action fields and query URL templates for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/search", "--agent"], {
