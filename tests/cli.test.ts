@@ -249,9 +249,10 @@ describe("cli", () => {
           </head>
           <body>
             <main>
-              <h1>Example</h1>
+              <h1 id="content">Example</h1>
               <p id="toggle-desc">Shows extra context</p>
               <button aria-pressed="false" aria-haspopup="dialog" aria-valuetext="details off" aria-describedby="toggle-desc" aria-controls="details-panel">Toggle details</button>
+              <a href="#content" class="skip-link">Skip to content</a>
               <section id="details-panel" aria-label="Details panel">Extra details</section>
               <img src="/hero.png" alt="Hero chart">
               <p class="byline">By <a href="/authors/reporter">Reporter Profile</a></p>
@@ -293,11 +294,11 @@ describe("cli", () => {
         semanticSummary: {
           nodeCount: expect.any(Number),
           namedRoleCount: expect.any(Number),
-          interactiveCount: 3,
-          focusableCount: 3,
+          interactiveCount: 4,
+          focusableCount: 4,
           headingCount: 1,
           landmarkCount: 2,
-          linkCount: 2,
+          linkCount: 3,
           buttonCount: 1,
           imageCount: 1,
           descriptionCount: 1,
@@ -305,11 +306,11 @@ describe("cli", () => {
           relationCount: 1,
           topRoles: expect.arrayContaining([
             expect.objectContaining({ role: "p", count: 3 }),
-            expect.objectContaining({ role: "link", count: 2 }),
+            expect.objectContaining({ role: "link", count: 3 }),
           ]),
           landmarks: expect.arrayContaining(["main"]),
           headings: ["Example"],
-          namedRoles: expect.arrayContaining(["heading:Example", "button:Toggle details", "region:Details panel", "img:Hero chart"]),
+          namedRoles: expect.arrayContaining(["heading:Example", "button:Toggle details", "link:Skip to content", "region:Details panel"]),
           semanticOutline: expect.arrayContaining([
             expect.objectContaining({
               path: "agent.semanticSummary.semanticOutline[0]",
@@ -326,7 +327,7 @@ describe("cli", () => {
               text: "Example",
               level: 1,
               depth: expect.any(Number),
-              selector: "h1",
+              selector: "#content",
             }),
           ]),
           headingItems: [
@@ -354,10 +355,6 @@ describe("cli", () => {
               role: "heading",
               name: "Example",
             }),
-            expect.objectContaining({
-              role: "img",
-              name: "Hero chart",
-            }),
           ]),
           focusableItems: expect.arrayContaining([
             expect.objectContaining({
@@ -368,11 +365,26 @@ describe("cli", () => {
               state: expect.objectContaining({ pressed: false }),
             }),
             expect.objectContaining({
+              path: "agent.semanticSummary.focusableItems[1]",
               role: "link",
-              name: "Reporter Profile",
+              name: "Skip to content",
               selector: "a",
             }),
+            expect.objectContaining({
+              role: "link",
+              name: "Reporter Profile",
+            }),
           ]),
+          inPageLinks: [
+            {
+              path: "agent.semanticSummary.inPageLinks[0]",
+              kind: "skip",
+              name: "Skip to content",
+              url: "https://example.test/#content",
+              targetId: "content",
+              selector: "a",
+            },
+          ],
           imageItems: [
             expect.objectContaining({
               path: "agent.semanticSummary.imageItems[0]",
@@ -415,17 +427,17 @@ describe("cli", () => {
         },
         semanticNodeCount: expect.any(Number),
         semanticNamedRoleCount: expect.any(Number),
-        semanticInteractiveCount: 3,
-        semanticFocusableCount: 3,
+        semanticInteractiveCount: 4,
+        semanticFocusableCount: 4,
         semanticHeadingCount: 1,
         semanticLandmarkCount: 2,
-        semanticLinkCount: 2,
+        semanticLinkCount: 3,
         semanticButtonCount: 1,
         semanticImageCount: 1,
         semanticDescriptionCount: 1,
         semanticValueCount: 1,
         semanticRelationCount: 1,
-        semanticTopRole: "p",
+        semanticTopRole: "link",
         semanticTopRoleCount: 3,
         semanticOutlineCount: 3,
         semanticTopOutlinePath: "agent.semanticSummary.semanticOutline[0]",
@@ -459,7 +471,14 @@ describe("cli", () => {
         semanticTopFocusableState: "pressed=false haspopup=dialog controls=details-panel",
         semanticTopFocusableSelector: "button",
         semanticTopLinkPath: "agent.semanticSummary.links[0]",
-        semanticTopLinkUrl: "https://example.test/authors/reporter",
+        semanticTopLinkUrl: "https://example.test/#content",
+        semanticInPageLinkCount: 1,
+        semanticTopInPageLinkPath: "agent.semanticSummary.inPageLinks[0]",
+        semanticTopInPageLinkKind: "skip",
+        semanticTopInPageLinkName: "Skip to content",
+        semanticTopInPageLinkUrl: "https://example.test/#content",
+        semanticTopInPageLinkTargetId: "content",
+        semanticTopInPageLinkSelector: "a",
         semanticTopButtonName: "Toggle details",
         semanticTopButtonPath: "agent.semanticSummary.buttons[0]",
         semanticTopButtonDescription: "Shows extra context",

@@ -498,6 +498,13 @@ describe("public agent types", () => {
       | "semanticTopLinkPath"
       | "semanticTopLinkUrl"
       | "semanticTopLinkSelector"
+      | "semanticInPageLinkCount"
+      | "semanticTopInPageLinkPath"
+      | "semanticTopInPageLinkKind"
+      | "semanticTopInPageLinkName"
+      | "semanticTopInPageLinkUrl"
+      | "semanticTopInPageLinkTargetId"
+      | "semanticTopInPageLinkSelector"
       | "semanticTopButtonName"
       | "semanticTopButtonPath"
       | "semanticTopButtonDescription"
@@ -1063,6 +1070,13 @@ describe("public agent types", () => {
       semanticTopLinkPath: "agent.semanticSummary.links[0]",
       semanticTopLinkUrl: "https://example.test/read-more",
       semanticTopLinkSelector: "main a:nth-of-type(1)",
+      semanticInPageLinkCount: 1,
+      semanticTopInPageLinkPath: "agent.semanticSummary.inPageLinks[0]",
+      semanticTopInPageLinkKind: "skip",
+      semanticTopInPageLinkName: "Skip to content",
+      semanticTopInPageLinkUrl: "https://example.test/#content",
+      semanticTopInPageLinkTargetId: "content",
+      semanticTopInPageLinkSelector: "a.skip-link",
       semanticTopButtonName: "Subscribe",
       semanticTopButtonPath: "agent.semanticSummary.buttons[0]",
       semanticTopButtonDescription: "Opens the subscription dialog",

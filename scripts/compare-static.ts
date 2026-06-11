@@ -1644,6 +1644,13 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopLinkPath?: string;
       semanticTopLinkUrl?: string;
       semanticTopLinkSelector?: string;
+      semanticInPageLinkCount?: number;
+      semanticTopInPageLinkPath?: string;
+      semanticTopInPageLinkKind?: "skip" | "anchor";
+      semanticTopInPageLinkName?: string;
+      semanticTopInPageLinkUrl?: string;
+      semanticTopInPageLinkTargetId?: string;
+      semanticTopInPageLinkSelector?: string;
       semanticTopButtonName?: string;
       semanticTopButtonPath?: string;
       semanticTopButtonDescription?: string;
@@ -4769,6 +4776,13 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopLinkPath?: string;
   semanticTopLinkUrl?: string;
   semanticTopLinkSelector?: string;
+  semanticInPageLinkCount?: number;
+  semanticTopInPageLinkPath?: string;
+  semanticTopInPageLinkKind?: "skip" | "anchor";
+  semanticTopInPageLinkName?: string;
+  semanticTopInPageLinkUrl?: string;
+  semanticTopInPageLinkTargetId?: string;
+  semanticTopInPageLinkSelector?: string;
   semanticTopButtonName?: string;
   semanticTopButtonPath?: string;
   semanticTopButtonDescription?: string;
@@ -4887,6 +4901,7 @@ function scoreAgentSemanticSummary(agent: {
     interactiveRoles?: unknown;
     focusableItems?: unknown;
     links?: unknown;
+    inPageLinks?: unknown;
     buttons?: unknown;
     imageItems?: unknown;
     tableItems?: unknown;
@@ -4935,6 +4950,7 @@ function scoreAgentSemanticSummary(agent: {
   if (Array.isArray(item.interactiveRoles)) matched += 1;
   if (Array.isArray(item.focusableItems)) matched += 1;
   if (Array.isArray(item.links)) matched += 1;
+  if (Array.isArray(item.inPageLinks)) matched += 1;
   if (Array.isArray(item.buttons)) matched += 1;
   if (Array.isArray(item.imageItems)) matched += 1;
   if (Array.isArray(item.tableItems)) matched += 1;
@@ -4946,7 +4962,7 @@ function scoreAgentSemanticSummary(agent: {
   if (Array.isArray(item.choiceItems)) matched += 1;
   if (Array.isArray(item.stateItems)) matched += 1;
   if (Array.isArray(item.unavailableItems)) matched += 1;
-  let required = 42;
+  let required = 43;
   if (typeof item.nodeCount === "number") {
     required += 1;
     if (agent?.semanticNodeCount === item.nodeCount) matched += 1;
@@ -5231,6 +5247,35 @@ function scoreAgentSemanticSummary(agent: {
   if (link && typeof link.selector === "string") {
     required += 1;
     if (agent?.semanticTopLinkSelector === link.selector) matched += 1;
+  }
+  if (Array.isArray(item.inPageLinks)) {
+    required += 1;
+    if (agent?.semanticInPageLinkCount === item.inPageLinks.length) matched += 1;
+  }
+  const inPageLink = Array.isArray(item.inPageLinks) ? item.inPageLinks[0] as { path?: unknown; kind?: unknown; name?: unknown; url?: unknown; targetId?: unknown; selector?: unknown } | undefined : undefined;
+  if (inPageLink && typeof inPageLink.path === "string") {
+    required += 1;
+    if (agent?.semanticTopInPageLinkPath === inPageLink.path) matched += 1;
+  }
+  if (inPageLink && typeof inPageLink.kind === "string") {
+    required += 1;
+    if (agent?.semanticTopInPageLinkKind === inPageLink.kind) matched += 1;
+  }
+  if (inPageLink && typeof inPageLink.name === "string") {
+    required += 1;
+    if (agent?.semanticTopInPageLinkName === inPageLink.name) matched += 1;
+  }
+  if (inPageLink && typeof inPageLink.url === "string") {
+    required += 1;
+    if (agent?.semanticTopInPageLinkUrl === inPageLink.url) matched += 1;
+  }
+  if (inPageLink && typeof inPageLink.targetId === "string") {
+    required += 1;
+    if (agent?.semanticTopInPageLinkTargetId === inPageLink.targetId) matched += 1;
+  }
+  if (inPageLink && typeof inPageLink.selector === "string") {
+    required += 1;
+    if (agent?.semanticTopInPageLinkSelector === inPageLink.selector) matched += 1;
   }
   const button = Array.isArray(item.buttons) ? item.buttons[0] as { path?: unknown; name?: unknown; description?: unknown; selector?: unknown } | undefined : undefined;
   if (button && typeof button.name === "string") {

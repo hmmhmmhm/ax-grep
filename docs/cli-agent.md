@@ -71,7 +71,8 @@ Read these first:
   `semanticOutline` and `semanticTopOutline*` preserve heading/landmark page flow
   for fast structural routing. `semanticKeyboardShortcut*` exposes keyboard shortcut,
   access key, and tabindex hints. Field shortcuts include placeholder/autocomplete/inputmode
-  and aria label/description references. Relation shortcuts include resolved target role/selector when available.
+  and aria label/description references. `semanticTopInPageLink*` exposes skip
+  links and same-page anchors. Relation shortcuts include resolved target role/selector when available.
   State shortcuts also expose parsed top-state fields such as `semanticTopStateCurrent`,
   `semanticTopStateControls`, `semanticTopStateHaspopup`, and `semanticTopStateInvalid`.
 - `agent.barrierCount` and `agent.topBarrier*`: primary login, paywall,
