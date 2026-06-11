@@ -498,6 +498,12 @@ export type AgentSummary = {
   qualityGateCount?: number;
   qualityGateFailCount?: number;
   qualityGates?: AgentQualityGate[];
+  problemSignalKind?: AgentSignalKind;
+  problemSignalSeverity?: AgentSignalSeverity;
+  problemSignalMessage?: string;
+  failingQualityGateKind?: AgentQualityGateKind;
+  failingQualityGateMessage?: string;
+  failingQualityGatePath?: string;
   canContinue: boolean;
   canUseFetchedHtml: boolean;
   needsBrowserHtml: boolean;

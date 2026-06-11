@@ -7624,6 +7624,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  signalErrors: 0");
     expect(stdout.output).toContain("  qualityGateCount: 6");
     expect(stdout.output).toContain("  qualityGateFailures: 0");
+    expect(stdout.output).toContain("  problemSignal: warning/diagnostic - ");
     expect(stdout.output).toContain("  canContinue: true");
     expect(stdout.output).toContain("  responseStatus: 200");
     expect(stdout.output).toContain("  responseOk: true");
@@ -8347,6 +8348,9 @@ npx ax-grep https://example.test --agent</code></pre>
           expect.objectContaining({ kind: "browser", pass: true }),
         ]),
       },
+      problemSignalKind: "diagnostic",
+      problemSignalSeverity: "error",
+      failingQualityGateKind: "fetch",
       primaryAction: {
         command: "ax-grep --search 'https://missing.example/page' --agent-brief",
         commandArgs: ["ax-grep", "--search", "https://missing.example/page", "--agent-brief"],

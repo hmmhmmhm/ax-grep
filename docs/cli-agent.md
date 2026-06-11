@@ -48,6 +48,8 @@ Read these first:
   shortcuts: top-level answer readiness and citation routing.
 - `agent.readTargets`, `agent.resultChoices`, and `agent.sourceChoices`: ranked paths to inspect.
 - `agent.signals` and `agent.qualityGates`: compact diagnostics.
+- `agent.problemSignal*` and `agent.failingQualityGate*`: first blocking or
+  warning reason without scanning diagnostic arrays.
 
 In `--agent-brief`, the stable executor surface is `agent.executor` plus
 `agent.handoff`. Brief handoff keeps loop metadata, target URL, priority,

@@ -840,6 +840,12 @@ type AgentSummary = {
   qualityGateCount: number;
   qualityGateFailCount: number;
   qualityGates: AgentQualityGate[];
+  problemSignalKind?: AgentSignal["kind"];
+  problemSignalSeverity?: AgentSignal["severity"];
+  problemSignalMessage?: string;
+  failingQualityGateKind?: AgentQualityGate["kind"];
+  failingQualityGateMessage?: string;
+  failingQualityGatePath?: string;
   canContinue: boolean;
   canUseFetchedHtml: boolean;
   needsBrowserHtml: boolean;
@@ -2400,6 +2406,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  signalErrors: ${agent.signalErrorCount}`,
     `  qualityGateCount: ${agent.qualityGateCount}`,
     `  qualityGateFailures: ${agent.qualityGateFailCount}`,
+    ...(agent.problemSignalKind ? [`  problemSignal: ${agent.problemSignalSeverity}/${agent.problemSignalKind} - ${agent.problemSignalMessage}`] : []),
+    ...(agent.failingQualityGateKind ? [`  failingQualityGate: ${agent.failingQualityGateKind}${agent.failingQualityGatePath ? ` path=${agent.failingQualityGatePath}` : ""} - ${agent.failingQualityGateMessage}`] : []),
     `  canContinue: ${agent.canContinue}`,
     `  canUseFetchedHtml: ${agent.canUseFetchedHtml}`,
     `  needsBrowserHtml: ${agent.needsBrowserHtml}`,
@@ -8860,6 +8868,8 @@ function summarizeAgent(
   const signals = summarizeAgentSignals(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, fetched, error);
   const qualityGates = summarizeAgentQualityGates(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error, usabilityScore, evidenceQualityScore, sourceQualityScore);
   const signalCounts = countAgentSignalsBySeverity(signals);
+  const problemSignal = signals.find((signal) => signal.severity === "error" || signal.severity === "warning");
+  const failingQualityGate = qualityGates.find((gate) => !gate.pass);
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, compactAgentSourceSearch(sourceSearch), signals, qualityGates, verification.foundQueries, verification.missingQueries);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   const agent: AgentSummary = {
@@ -8886,6 +8896,12 @@ function summarizeAgent(
     qualityGateCount: qualityGates.length,
     qualityGateFailCount: qualityGates.filter((gate) => !gate.pass).length,
     qualityGates,
+    ...(problemSignal ? { problemSignalKind: problemSignal.kind } : {}),
+    ...(problemSignal ? { problemSignalSeverity: problemSignal.severity } : {}),
+    ...(problemSignal ? { problemSignalMessage: problemSignal.message } : {}),
+    ...(failingQualityGate ? { failingQualityGateKind: failingQualityGate.kind } : {}),
+    ...(failingQualityGate ? { failingQualityGateMessage: failingQualityGate.message } : {}),
+    ...(failingQualityGate?.path ? { failingQualityGatePath: failingQualityGate.path } : {}),
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml,
     needsBrowserHtml,
@@ -11316,6 +11332,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     },
   ];
   const signalCounts = countAgentSignalsBySeverity(signals);
+  const problemSignal = signals.find((signal) => signal.severity === "error" || signal.severity === "warning");
+  const failingQualityGate = qualityGates.find((gate) => !gate.pass);
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, [], [], [], compactAgentSourceSearch(sourceSearch), signals, qualityGates);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   return {
@@ -11339,6 +11357,12 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     qualityGateCount: qualityGates.length,
     qualityGateFailCount: qualityGates.filter((gate) => !gate.pass).length,
     qualityGates,
+    ...(problemSignal ? { problemSignalKind: problemSignal.kind } : {}),
+    ...(problemSignal ? { problemSignalSeverity: problemSignal.severity } : {}),
+    ...(problemSignal ? { problemSignalMessage: problemSignal.message } : {}),
+    ...(failingQualityGate ? { failingQualityGateKind: failingQualityGate.kind } : {}),
+    ...(failingQualityGate ? { failingQualityGateMessage: failingQualityGate.message } : {}),
+    ...(failingQualityGate?.path ? { failingQualityGatePath: failingQualityGate.path } : {}),
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml: false,
     needsBrowserHtml,
@@ -12600,6 +12624,12 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     qualityGateCount: agent.qualityGateCount,
     qualityGateFailCount: agent.qualityGateFailCount,
     ...(agent.qualityGates.length > 0 ? { qualityGates: compactAgentQualityGates(agent.qualityGates) } : {}),
+    ...(agent.problemSignalKind ? { problemSignalKind: agent.problemSignalKind } : {}),
+    ...(agent.problemSignalSeverity ? { problemSignalSeverity: agent.problemSignalSeverity } : {}),
+    ...(agent.problemSignalMessage ? { problemSignalMessage: agent.problemSignalMessage } : {}),
+    ...(agent.failingQualityGateKind ? { failingQualityGateKind: agent.failingQualityGateKind } : {}),
+    ...(agent.failingQualityGateMessage ? { failingQualityGateMessage: agent.failingQualityGateMessage } : {}),
+    ...(agent.failingQualityGatePath ? { failingQualityGatePath: agent.failingQualityGatePath } : {}),
     canContinue: agent.canContinue,
     canUseFetchedHtml: agent.canUseFetchedHtml,
     needsBrowserHtml: agent.needsBrowserHtml,
@@ -12719,6 +12749,12 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     signalErrorCount: agent.signalErrorCount,
     qualityGateCount: agent.qualityGateCount,
     qualityGateFailCount: agent.qualityGateFailCount,
+    ...(agent.problemSignalKind ? { problemSignalKind: agent.problemSignalKind } : {}),
+    ...(agent.problemSignalSeverity ? { problemSignalSeverity: agent.problemSignalSeverity } : {}),
+    ...(agent.problemSignalMessage ? { problemSignalMessage: agent.problemSignalMessage } : {}),
+    ...(agent.failingQualityGateKind ? { failingQualityGateKind: agent.failingQualityGateKind } : {}),
+    ...(agent.failingQualityGateMessage ? { failingQualityGateMessage: agent.failingQualityGateMessage } : {}),
+    ...(agent.failingQualityGatePath ? { failingQualityGatePath: agent.failingQualityGatePath } : {}),
     canContinue: agent.canContinue,
     needsBrowserHtml: agent.needsBrowserHtml,
     confidence: agent.confidence,

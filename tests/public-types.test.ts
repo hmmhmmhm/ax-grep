@@ -184,6 +184,12 @@ describe("public agent types", () => {
       | "signalErrorCount"
       | "qualityGateCount"
       | "qualityGateFailCount"
+      | "problemSignalKind"
+      | "problemSignalSeverity"
+      | "problemSignalMessage"
+      | "failingQualityGateKind"
+      | "failingQualityGateMessage"
+      | "failingQualityGatePath"
       | "executorActionName"
       | "executorOperation"
       | "executorCommandArgs"
@@ -238,6 +244,12 @@ describe("public agent types", () => {
       signalErrorCount: 0,
       qualityGateCount: 4,
       qualityGateFailCount: 1,
+      problemSignalKind: "content",
+      problemSignalSeverity: "warning",
+      problemSignalMessage: "Readable content is thin.",
+      failingQualityGateKind: "content",
+      failingQualityGateMessage: "Content evidence is too thin.",
+      failingQualityGatePath: "pageCheck.contentEvidence",
       executorActionName: "read-content",
       executorOperation: "return",
       executorCommandArgs: ["ax-grep", "https://example.test", "--agent"],
@@ -268,6 +280,8 @@ describe("public agent types", () => {
     expect(summary.verificationMissingQueries).toEqual(["missing"]);
     expect(summary.readTargetCount).toBe(3);
     expect(summary.qualityGateFailCount).toBe(1);
+    expect(summary.problemSignalSeverity).toBe("warning");
+    expect(summary.failingQualityGateKind).toBe("content");
     expect(summary.answerPlanStatus).toBe("ready");
     expect(summary.executorOperation).toBe("return");
     expect(summary.handoffAnswerStatus).toBe("ready");
