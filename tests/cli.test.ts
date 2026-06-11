@@ -4417,7 +4417,7 @@ describe("cli", () => {
           <form method="GET" action="/find">
             <label id="q-label" for="q">Archive search</label>
             <p id="q-help">Use product or report keywords.</p>
-            <input id="q" name="query" type="search" placeholder="Search reports" aria-placeholder="Report keyword" autocomplete="off" aria-autocomplete="list" inputmode="search" pattern="[A-Za-z0-9 ]+" min="1" max="99" step="1" minlength="2" maxlength="80" required aria-invalid="spelling" aria-labelledby="q-label" aria-describedby="q-help">
+            <input id="q" name="query" type="search" placeholder="Search reports" aria-placeholder="Report keyword" autocomplete="off" aria-autocomplete="list" inputmode="search" pattern="[A-Za-z0-9 ]+" min="1" max="99" step="1" minlength="2" maxlength="80" required readonly aria-disabled="true" aria-invalid="spelling" aria-labelledby="q-label" aria-describedby="q-help">
             <select name="category"><option aria-posinset="1" aria-setsize="2">All</option><option>Reports</option></select>
             <input type="hidden" name="csrf" value="secret">
             <button type="submit">Search</button>
@@ -4488,7 +4488,7 @@ describe("cli", () => {
         describedBy: "q-help",
         describedByText: "Use product or report keywords.",
         selector: "#q",
-        state: expect.objectContaining({ required: true }),
+        state: expect.objectContaining({ disabled: true, required: true, readonly: true, invalid: "spelling" }),
       }),
       expect.objectContaining({
         path: "agent.semanticSummary.fieldItems[1]",
@@ -4518,8 +4518,8 @@ describe("cli", () => {
         path: "agent.semanticSummary.stateItems[0]",
         role: "searchbox",
         name: "Archive search",
-        state: "required=true invalid=spelling",
-        stateRaw: { required: true, invalid: "spelling" },
+        state: "disabled=true required=true readonly=true invalid=spelling",
+        stateRaw: { disabled: true, required: true, readonly: true, invalid: "spelling" },
         selector: "#q",
       }),
     ]);
@@ -4548,8 +4548,11 @@ describe("cli", () => {
       semanticTopFieldLabelledByText: "Archive search",
       semanticTopFieldDescribedBy: "q-help",
       semanticTopFieldDescribedByText: "Use product or report keywords.",
-      semanticTopFieldState: "required=true invalid=spelling",
+      semanticTopFieldState: "disabled=true required=true readonly=true invalid=spelling",
+      semanticTopFieldDisabled: true,
       semanticTopFieldRequired: true,
+      semanticTopFieldReadonly: true,
+      semanticTopFieldInvalid: "spelling",
       semanticTopFieldSelector: "#q",
       semanticTopChoiceRole: "option",
       semanticTopChoicePath: "agent.semanticSummary.choiceItems[0]",
@@ -4560,8 +4563,10 @@ describe("cli", () => {
       semanticTopStateRole: "searchbox",
       semanticTopStatePath: "agent.semanticSummary.stateItems[0]",
       semanticTopStateName: "Archive search",
-      semanticTopState: "required=true invalid=spelling",
+      semanticTopState: "disabled=true required=true readonly=true invalid=spelling",
+      semanticTopStateDisabled: true,
       semanticTopStateRequired: true,
+      semanticTopStateReadonly: true,
       semanticTopStateInvalid: "spelling",
       semanticTopStateSelector: "#q",
     });

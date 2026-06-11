@@ -1723,7 +1723,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopFieldDescribedBy?: string;
       semanticTopFieldDescribedByText?: string;
       semanticTopFieldState?: string;
+      semanticTopFieldDisabled?: boolean;
       semanticTopFieldRequired?: boolean;
+      semanticTopFieldReadonly?: boolean;
+      semanticTopFieldInvalid?: boolean | string;
       semanticTopFieldSelector?: string;
       semanticTopDescriptionRole?: string;
       semanticTopDescriptionPath?: string;
@@ -4911,7 +4914,10 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopFieldDescribedBy?: string;
   semanticTopFieldDescribedByText?: string;
   semanticTopFieldState?: string;
+  semanticTopFieldDisabled?: boolean;
   semanticTopFieldRequired?: boolean;
+  semanticTopFieldReadonly?: boolean;
+  semanticTopFieldInvalid?: boolean | string;
   semanticTopFieldSelector?: string;
   semanticTopDescriptionRole?: string;
   semanticTopDescriptionPath?: string;
@@ -5678,10 +5684,25 @@ function scoreAgentSemanticSummary(agent: {
       required += 1;
       if (agent?.semanticTopFieldState === state) matched += 1;
     }
+    const disabledState = (field.state as { disabled?: unknown }).disabled;
+    if (typeof disabledState === "boolean") {
+      required += 1;
+      if (agent?.semanticTopFieldDisabled === disabledState) matched += 1;
+    }
     const requiredState = (field.state as { required?: unknown }).required;
     if (typeof requiredState === "boolean") {
       required += 1;
       if (agent?.semanticTopFieldRequired === requiredState) matched += 1;
+    }
+    const readonlyState = (field.state as { readonly?: unknown }).readonly;
+    if (typeof readonlyState === "boolean") {
+      required += 1;
+      if (agent?.semanticTopFieldReadonly === readonlyState) matched += 1;
+    }
+    const invalidState = (field.state as { invalid?: unknown }).invalid;
+    if (typeof invalidState !== "undefined") {
+      required += 1;
+      if (agent?.semanticTopFieldInvalid === invalidState) matched += 1;
     }
   }
   if (field && typeof field.selector === "string") {
