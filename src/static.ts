@@ -627,6 +627,9 @@ function elementValueName(element: Element): string {
 function getState(element: Element): SemanticNodeState {
   const state: SemanticNodeState = {};
   if (attr(element, "disabled") !== null || attr(element, "aria-disabled") === "true") state.disabled = true;
+  const busy = attr(element, "aria-busy");
+  if (busy === "true") state.busy = true;
+  if (busy === "false") state.busy = false;
   if (attr(element, "required") !== null || attr(element, "aria-required") === "true") state.required = true;
   if (attr(element, "readonly") !== null || attr(element, "aria-readonly") === "true") state.readonly = true;
   const checked = attr(element, "aria-checked") ?? (attr(element, "checked") !== null ? "true" : null);

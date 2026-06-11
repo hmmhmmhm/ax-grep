@@ -36,6 +36,7 @@ export type SemanticTreeObserverOptions = SemanticTreeOptions & {
 export type SemanticNodeState = {
   hidden?: boolean;
   disabled?: boolean;
+  busy?: boolean;
   checked?: boolean | "mixed";
   selected?: boolean;
   expanded?: boolean;
@@ -729,6 +730,7 @@ export type AgentSummary = {
   semanticTopState?: string;
   semanticTopStateHidden?: boolean;
   semanticTopStateDisabled?: boolean;
+  semanticTopStateBusy?: boolean;
   semanticTopStateChecked?: boolean | "mixed";
   semanticTopStateSelected?: boolean;
   semanticTopStateExpanded?: boolean;

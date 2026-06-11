@@ -4091,7 +4091,7 @@ describe("cli", () => {
       stdout,
       fetch: async () => new Response(`
         <main>
-          <div role="status" aria-live="polite">Indexing complete</div>
+          <div role="status" aria-live="polite" aria-busy="true">Indexing complete</div>
           <p>Readable page content for live state routing.</p>
         </main>
       `, { headers: { "content-type": "text/html" } }),
@@ -4103,7 +4103,8 @@ describe("cli", () => {
     expect(envelope.agent).toMatchObject({
       semanticTopStateRole: "status",
       semanticTopStatePath: "agent.semanticSummary.stateItems[0]",
-      semanticTopState: "live=polite",
+      semanticTopState: "busy=true live=polite",
+      semanticTopStateBusy: true,
       semanticTopStateLive: "polite",
       semanticTopStateSelector: "div",
     });

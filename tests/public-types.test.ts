@@ -603,6 +603,7 @@ describe("public agent types", () => {
       | "semanticTopState"
       | "semanticTopStateHidden"
       | "semanticTopStateDisabled"
+      | "semanticTopStateBusy"
       | "semanticTopStateChecked"
       | "semanticTopStateSelected"
       | "semanticTopStateExpanded"
@@ -1215,6 +1216,7 @@ describe("public agent types", () => {
       semanticTopState: "required=true",
       semanticTopStateHidden: false,
       semanticTopStateDisabled: false,
+      semanticTopStateBusy: true,
       semanticTopStateChecked: "mixed",
       semanticTopStateSelected: true,
       semanticTopStateExpanded: false,
