@@ -48,4 +48,16 @@ describe("README", () => {
     expect(readiness).toContain("Completion Gate");
     expect(readiness).toContain("Browser-backed comparison suites must run sequentially");
   });
+
+  it("documents the non-browser fixture gate outside the root README", async () => {
+    const pkg = JSON.parse(await readFile(join(process.cwd(), "package.json"), "utf8")) as {
+      scripts?: Record<string, string>;
+    };
+    const benchmarks = await readFile(join(process.cwd(), "docs", "benchmarks.md"), "utf8");
+
+    expect(pkg.scripts?.["compare:static:fixtures:gate"]).toBe("tsx scripts/check-fixture-static-gate.ts");
+    expect(benchmarks).toContain("pnpm compare:static:fixtures:gate");
+    expect(benchmarks).toContain("non-browser smoke gate");
+    expect(benchmarks).toContain("should not fetch remote pages or launch");
+  });
 });
