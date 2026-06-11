@@ -4189,6 +4189,32 @@ describe("cli", () => {
     });
   });
 
+  it("exposes parsed drag and drop semantic top-state shortcuts for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/drag", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <button aria-label="Move report" aria-grabbed="true" aria-dropeffect="move">Move</button>
+          <p>Readable page content for drag and drop state routing.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      semanticTopStateRole: "button",
+      semanticTopStatePath: "agent.semanticSummary.stateItems[0]",
+      semanticTopStateName: "Move report",
+      semanticTopState: "grabbed=true dropEffect=move",
+      semanticTopStateGrabbed: true,
+      semanticTopStateDropEffect: "move",
+      semanticTopStateSelector: "button",
+    });
+  });
+
   it("exposes parsed range and orientation semantic top-state shortcuts for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/range", "--agent"], {

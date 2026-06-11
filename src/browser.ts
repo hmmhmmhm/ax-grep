@@ -377,6 +377,10 @@ function getState(element: Element): SemanticNodeState {
   if (multiselectable !== undefined) state.multiselectable = multiselectable;
   const sort = element.getAttribute("aria-sort");
   if (sort) state.sort = normalizeText(sort, 40);
+  const grabbed = ariaBoolean(element.getAttribute("aria-grabbed"));
+  if (grabbed !== undefined) state.grabbed = grabbed;
+  const dropEffect = element.getAttribute("aria-dropeffect");
+  if (dropEffect) state.dropEffect = normalizeText(dropEffect, 80);
   if (element === document.activeElement) state.focused = true;
 
   const checked = ariaBooleanOrMixed(element.getAttribute("aria-checked"));
