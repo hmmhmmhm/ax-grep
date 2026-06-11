@@ -585,6 +585,14 @@ export type AgentSummary = {
   actionTargetCount?: number;
   actionTargetChoiceCount?: number;
   actionTargetChoices?: AgentActionTargetChoice[];
+  barrierCount?: number;
+  topBarrierKind?: string;
+  topBarrierSeverity?: "info" | "warning" | "error";
+  topBarrierSource?: string;
+  topBarrierPath?: string;
+  topBarrierText?: string;
+  topBarrierSelector?: string;
+  topBarrierDiagnosticCode?: string;
   hiddenSignalCount?: number;
   hiddenReadTargetCount?: number;
   bestHiddenReadTarget?: string;
@@ -803,7 +811,8 @@ export type AgentContractFeature =
   | "afterInteractionCommand"
   | "browserHtml"
   | "primaryActionShortcuts"
-  | "alternativeActionShortcuts";
+  | "alternativeActionShortcuts"
+  | "barrierShortcuts";
 
 export type AgentContract = {
   version: number;

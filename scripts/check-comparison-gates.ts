@@ -73,6 +73,7 @@ type GateSummary = Record<string, unknown> & {
   averageAgentSearchDecisionScore?: number;
   averageAgentPageDecisionScore?: number;
   averageAgentSemanticSummaryScore?: number;
+  averageAgentBarrierShortcutScore?: number;
   averageAgentToBrowserTokenRatio?: number;
   excludedThinBrowserReference?: number;
   weakAgentTargets?: GateWeakAgentTarget[];
@@ -211,6 +212,7 @@ function checkStaticGate(file: string, summary: GateSummary): GateFailure[] {
   requireAtLeast(file, failures, "averageAgentSearchDecisionScore", summary.averageAgentSearchDecisionScore, 0.995);
   requireAtLeast(file, failures, "averageAgentPageDecisionScore", summary.averageAgentPageDecisionScore, 0.995);
   requireAtLeast(file, failures, "averageAgentSemanticSummaryScore", summary.averageAgentSemanticSummaryScore, 0.995);
+  requireAtLeast(file, failures, "averageAgentBarrierShortcutScore", summary.averageAgentBarrierShortcutScore, 0.995);
   const classifications = summary.classifications ?? {};
   requireEqual(file, failures, "classifications.over-collected", classifications["over-collected"], 0);
   requireEqual(file, failures, "classifications.challenge", classifications.challenge, 0);

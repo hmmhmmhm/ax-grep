@@ -159,6 +159,14 @@ describe("public agent types", () => {
       | "actionTargetCount"
       | "actionTargetChoiceCount"
       | "actionTargetChoices"
+      | "barrierCount"
+      | "topBarrierKind"
+      | "topBarrierSeverity"
+      | "topBarrierSource"
+      | "topBarrierPath"
+      | "topBarrierText"
+      | "topBarrierSelector"
+      | "topBarrierDiagnosticCode"
       | "hiddenSignalCount"
       | "hiddenReadTargetCount"
       | "bestHiddenReadTarget"
@@ -341,6 +349,14 @@ describe("public agent types", () => {
       actionTargetCount: 2,
       actionTargetChoiceCount: 1,
       actionTargetChoices: [actionTargetChoice],
+      barrierCount: 1,
+      topBarrierKind: "challenge",
+      topBarrierSeverity: "warning",
+      topBarrierSource: "diagnostic",
+      topBarrierPath: "pageCheck.barriers[0]",
+      topBarrierText: "Challenge: verify you are human",
+      topBarrierSelector: "main > h1",
+      topBarrierDiagnosticCode: "CHALLENGE_LIKELY",
       hiddenSignalCount: 4,
       hiddenReadTargetCount: 2,
       bestHiddenReadTarget: "pageCheck.apiEndpoints",
@@ -519,6 +535,8 @@ describe("public agent types", () => {
     expect(summary.bestHiddenReadTarget).toBe("pageCheck.apiEndpoints");
     expect(summary.actionTargetCount).toBe(2);
     expect(summary.actionTargetChoiceCount).toBe(1);
+    expect(summary.topBarrierKind).toBe("challenge");
+    expect(summary.topBarrierPath).toBe("pageCheck.barriers[0]");
     expect(summary.formChoices?.[0]?.queryField).toBe("q");
     expect(summary.actionTargetChoices?.[0]?.kind).toBe("search");
     expect(summary.topChoiceKind).toBe("source");

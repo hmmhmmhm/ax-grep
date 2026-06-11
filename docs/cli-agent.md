@@ -62,6 +62,8 @@ Read these first:
   best path's count/primary flags.
 - `agent.bestHiddenReadTarget*`: best hidden metadata path to inspect first.
 - `agent.semantic*`: compact semantic tree counts, top role, heading, and landmark.
+- `agent.barrierCount` and `agent.topBarrier*`: primary login, paywall,
+  challenge, consent, age, or geo barrier details for browser routing.
 - `agent.resultChoices` and `agent.sourceChoices`: ranked links to open.
 - `agent.topChoice*`: first executable result, source, form, or action-target choice.
 - `agent.primarySourceLinkRef`: primary source-link action's `pageCheck.sourceLinks[n]`.

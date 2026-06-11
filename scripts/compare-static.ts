@@ -121,6 +121,7 @@ type CliAgentSummary = {
   agentSearchDecisionScore: number;
   agentPageDecisionScore: number;
   agentSemanticSummaryScore: number;
+  agentBarrierShortcutScore: number;
   pageCheck: {
     confidence: "low" | "medium" | "high";
     readabilityLevel: "low" | "medium" | "high";
@@ -423,6 +424,17 @@ type CliAgentSignalShape = {
   message?: string;
 };
 
+type CliBarrierShape = {
+  kind?: "challenge" | "login" | "paywall" | "cookie-consent" | "age-gate" | "geo-block";
+  severity?: "info" | "warning" | "error";
+  source?: string;
+  path?: string;
+  text?: string;
+  selector?: string;
+  diagnosticCode?: string;
+  rank?: number;
+};
+
 type CliAgentExpectedOutcomeShape = {
   kind?: "read-evidence" | "open-result" | "retry-fetch" | "run-search" | "capture-html" | "browser-inspection" | "inspect-output" | "stop";
   message?: string;
@@ -623,6 +635,7 @@ export type GateSummary = {
   averageAgentSearchDecisionScore: number;
   averageAgentPageDecisionScore: number;
   averageAgentSemanticSummaryScore: number;
+  averageAgentBarrierShortcutScore: number;
   averagePrecision: number;
   averageReferenceRecall: number;
   weakAgentTargets: GateWeakAgentTarget[];
@@ -1177,6 +1190,14 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       actionTargetCount?: number;
       actionTargetChoiceCount?: number;
       actionTargetChoices?: CliAgentActionTargetChoiceShape[];
+      barrierCount?: number;
+      topBarrierKind?: CliBarrierShape["kind"];
+      topBarrierSeverity?: CliBarrierShape["severity"];
+      topBarrierSource?: string;
+      topBarrierPath?: string;
+      topBarrierText?: string;
+      topBarrierSelector?: string;
+      topBarrierDiagnosticCode?: string;
       hiddenSignalCount?: number;
       hiddenReadTargetCount?: number;
       bestHiddenReadTarget?: string;
@@ -1309,6 +1330,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       contentLength?: number;
       primaryLinks?: Array<{ id?: string; path?: string; title?: string; url?: string; sourceScore?: number; selectionReason?: string; command?: string; commandArgs?: string[] }>;
       sourceLinks?: Array<{ id?: string; path?: string; title?: string; url?: string; kind?: "internal" | "external"; sourceScore?: number; selectionReason?: string; command?: string; commandArgs?: string[] }>;
+      barriers?: CliBarrierShape[];
       forms?: unknown[];
       actionTargets?: unknown[];
       actions?: unknown[];
@@ -1427,6 +1449,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentSearchDecisionScore: scoreAgentSearchDecision(item.agent, item.kind, item.agent?.primaryAction, item.searchResults ?? [], item.recommendedResult, item.agent?.resultCount),
     agentPageDecisionScore: scoreAgentPageDecision(item.agent, item.kind, item.agent?.primaryAction, item.pageCheck),
     agentSemanticSummaryScore: scoreAgentSemanticSummary(item.agent),
+    agentBarrierShortcutScore: scoreAgentBarrierShortcuts(item.agent, item.pageCheck?.barriers ?? []),
     pageCheck: pageCheckSummary,
     searchResultCount: item.searchResults?.length ?? 0,
     searchResultActionScore: scoreSearchResultActions(item.searchResults ?? []),
@@ -1509,6 +1532,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentSearchDecisionScore: 0,
     agentPageDecisionScore: 0,
     agentSemanticSummaryScore: 0,
+    agentBarrierShortcutScore: 0,
     pageCheck: {
       confidence: "low",
       readabilityLevel: "low",
@@ -1697,6 +1721,7 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[]; 
     "browserHtml",
     "primaryActionShortcuts",
     "alternativeActionShortcuts",
+    "barrierShortcuts",
   ];
   if (contract.compact === true && typeof contract.featureCount === "number") {
     return contract.featureCount >= required.length ? 1 : 0;
@@ -3575,6 +3600,66 @@ function scoreAgentSemanticSummary(agent: {
   return roundScore(matched / required);
 }
 
+function scoreAgentBarrierShortcuts(agent: {
+  barrierCount?: number;
+  topBarrierKind?: CliBarrierShape["kind"];
+  topBarrierSeverity?: CliBarrierShape["severity"];
+  topBarrierSource?: string;
+  topBarrierPath?: string;
+  topBarrierText?: string;
+  topBarrierSelector?: string;
+  topBarrierDiagnosticCode?: string;
+} | undefined, barriers: CliBarrierShape[]): number {
+  if (!agent) return 0;
+  const top = selectTopCliBarrier(barriers);
+  let required = 1;
+  let matched = agent.barrierCount === barriers.length ? 1 : 0;
+  if (!top) {
+    return agent.topBarrierKind
+      || agent.topBarrierSeverity
+      || agent.topBarrierSource
+      || agent.topBarrierPath
+      || agent.topBarrierText
+      || agent.topBarrierSelector
+      || agent.topBarrierDiagnosticCode ? 0 : matched;
+  }
+  required += 5;
+  if (agent.topBarrierKind === top.kind) matched += 1;
+  if (agent.topBarrierSeverity === top.severity) matched += 1;
+  if (agent.topBarrierSource === top.source) matched += 1;
+  if (agent.topBarrierPath === top.path) matched += 1;
+  if (agent.topBarrierText === top.text) matched += 1;
+  if (top.selector) {
+    required += 1;
+    if (agent.topBarrierSelector === top.selector) matched += 1;
+  } else if (agent.topBarrierSelector) {
+    required += 1;
+  }
+  if (top.diagnosticCode) {
+    required += 1;
+    if (agent.topBarrierDiagnosticCode === top.diagnosticCode) matched += 1;
+  } else if (agent.topBarrierDiagnosticCode) {
+    required += 1;
+  }
+  return roundScore(matched / required);
+}
+
+function selectTopCliBarrier(barriers: CliBarrierShape[]): CliBarrierShape | undefined {
+  const candidates = barriers.filter((barrier) => barrier.kind !== "cookie-consent");
+  return (candidates.length > 0 ? candidates : barriers)
+    .slice()
+    .sort((left, right) => cliBarrierPriority(right) - cliBarrierPriority(left) || (left.rank ?? 0) - (right.rank ?? 0))[0];
+}
+
+function cliBarrierPriority(barrier: CliBarrierShape): number {
+  if (barrier.kind === "challenge") return 6;
+  if (barrier.kind === "login") return 5;
+  if (barrier.kind === "paywall") return 4;
+  if (barrier.kind === "age-gate") return 3;
+  if (barrier.kind === "geo-block") return 2;
+  return 1;
+}
+
 function scoreAgentUsabilityScore(usabilityScore: number | undefined, item: {
   agent?: { status?: CliAgentSummary["agentStatus"]; needsBrowserHtml?: boolean };
   pageCheck?: {
@@ -4462,7 +4547,8 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentActionListScore * 0.005
     + summary.agentSearchDecisionScore * 0.005
     + summary.agentPageDecisionScore * 0.005
-    + summary.agentSemanticSummaryScore * 0.005,
+    + summary.agentSemanticSummaryScore * 0.005
+    + summary.agentBarrierShortcutScore * 0.005,
   ));
   return recoverableBrowserRetry || recoverableCommandContinuation ? Math.max(score, 0.8) : score;
 }
@@ -4505,6 +4591,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentSearchDecisionScore,
     summary.agentPageDecisionScore,
     summary.agentSemanticSummaryScore,
+    summary.agentBarrierShortcutScore,
     summary.searchResultActionScore,
     summary.pageLinkCommandScore,
     summary.agentResponseMetadataScore,
@@ -4632,6 +4719,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentSearchDecisionScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSearchDecisionScore)),
     averageAgentPageDecisionScore: average(included.map((comparison) => comparison.cliAgentSummary.agentPageDecisionScore)),
     averageAgentSemanticSummaryScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSemanticSummaryScore)),
+    averageAgentBarrierShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentBarrierShortcutScore)),
     averagePrecision: average(included.map((comparison) => comparison.agentReadiness.candidatePrecision)),
     averageReferenceRecall: average(included.map((comparison) => comparison.agentReadiness.referenceRecall)),
     weakAgentTargets: weakAgentTargets(included),

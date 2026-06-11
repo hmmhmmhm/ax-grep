@@ -8231,6 +8231,13 @@ npx ax-grep https://example.test --agent</code></pre>
       topDiagnosticCode: "LOGIN_REQUIRED",
       topDiagnosticSeverity: "warning",
       topDiagnosticMessage: expect.stringContaining("login"),
+      barrierCount: 3,
+      topBarrierKind: "login",
+      topBarrierSeverity: "warning",
+      topBarrierSource: "diagnostic",
+      topBarrierPath: "pageCheck.barriers[0]",
+      topBarrierText: "Login: The page appears to require login or account access.",
+      topBarrierDiagnosticCode: "LOGIN_REQUIRED",
     });
     expect(envelope.pageCheck.barriers).toEqual(expect.arrayContaining([
       expect.objectContaining({

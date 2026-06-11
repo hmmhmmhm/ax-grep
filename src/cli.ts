@@ -927,6 +927,14 @@ type AgentSummary = {
   actionTargetCount: number;
   actionTargetChoiceCount: number;
   actionTargetChoices: AgentActionTargetChoice[];
+  barrierCount: number;
+  topBarrierKind?: PageBarrierSummary["kind"];
+  topBarrierSeverity?: PageBarrierSummary["severity"];
+  topBarrierSource?: PageBarrierSummary["source"];
+  topBarrierPath?: string;
+  topBarrierText?: string;
+  topBarrierSelector?: string;
+  topBarrierDiagnosticCode?: string;
   hiddenSignalCount: number;
   hiddenReadTargetCount: number;
   bestHiddenReadTarget?: string;
@@ -1105,6 +1113,7 @@ const agentContract: AgentContract = {
     "action.sourceLinkRef",
     "actions",
     "alternativeActionShortcuts",
+    "barrierShortcuts",
     "contentEvidence.quality",
     "pageCheck.dataTables",
     "pageCheck.barriers",
@@ -2583,6 +2592,11 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  formChoiceCount: ${agent.formChoiceCount}`,
     `  actionTargetCount: ${agent.actionTargetCount}`,
     `  actionTargetChoiceCount: ${agent.actionTargetChoiceCount}`,
+    `  barrierCount: ${agent.barrierCount}`,
+    ...(agent.topBarrierKind ? [`  topBarrier: ${agent.topBarrierSeverity}/${agent.topBarrierKind} ${agent.topBarrierPath} - ${agent.topBarrierText}`] : []),
+    ...(agent.topBarrierSource ? [`  topBarrierSource: ${agent.topBarrierSource}`] : []),
+    ...(agent.topBarrierSelector ? [`  topBarrierSelector: ${agent.topBarrierSelector}`] : []),
+    ...(agent.topBarrierDiagnosticCode ? [`  topBarrierDiagnosticCode: ${agent.topBarrierDiagnosticCode}`] : []),
     `  hiddenSignalCount: ${agent.hiddenSignalCount}`,
     `  hiddenReadTargetCount: ${agent.hiddenReadTargetCount}`,
     ...(agent.bestHiddenReadTarget ? [`  bestHiddenReadTarget: ${agent.bestHiddenReadTarget}`] : []),
@@ -9080,6 +9094,7 @@ function summarizeAgent(
   const formChoices = summarizeAgentFormChoices(pageCheck.forms);
   const actionTargetChoices = summarizeAgentActionTargetChoices(pageCheck.actionTargets);
   const topChoice = summarizeAgentTopChoice(resultChoices, sourceChoices, formChoices, actionTargetChoices);
+  const topBarrier = primaryBlockingBarrier(pageCheck.barriers) ?? pageCheck.barriers[0];
   const next = summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch, semanticSummary));
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
   const answerPlan = summarizeAgentAnswerPlan(status, primaryAction, pageCheck, verification, citations, needsBrowserHtml, error);
@@ -9209,6 +9224,14 @@ function summarizeAgent(
     actionTargetCount: pageCheck.actionTargets.length,
     actionTargetChoices,
     actionTargetChoiceCount: pageCheck.actionTargets.length,
+    barrierCount: pageCheck.barriers.length,
+    ...(topBarrier ? { topBarrierKind: topBarrier.kind } : {}),
+    ...(topBarrier ? { topBarrierSeverity: topBarrier.severity } : {}),
+    ...(topBarrier ? { topBarrierSource: topBarrier.source } : {}),
+    ...(topBarrier ? { topBarrierPath: topBarrier.path } : {}),
+    ...(topBarrier ? { topBarrierText: topBarrier.text } : {}),
+    ...(topBarrier?.selector ? { topBarrierSelector: topBarrier.selector } : {}),
+    ...(topBarrier?.diagnosticCode ? { topBarrierDiagnosticCode: topBarrier.diagnosticCode } : {}),
     hiddenSignalCount,
     hiddenReadTargetCount,
     ...(bestHiddenReadTarget ? { bestHiddenReadTarget: bestHiddenReadTarget.path } : {}),
@@ -11793,6 +11816,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     actionTargetCount: 0,
     actionTargetChoiceCount: 0,
     actionTargetChoices: [],
+    barrierCount: 0,
     hiddenSignalCount: 0,
     hiddenReadTargetCount: 0,
     sourceLinkCount: 0,
@@ -13190,6 +13214,14 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     actionTargetCount: agent.actionTargetCount,
     actionTargetChoiceCount: agent.actionTargetChoiceCount,
     ...(agent.actionTargetChoices.length > 0 ? { actionTargetChoices: compactAgentActionTargetExecutionRefs(agent.actionTargetChoices) } : {}),
+    barrierCount: agent.barrierCount,
+    ...(agent.topBarrierKind ? { topBarrierKind: agent.topBarrierKind } : {}),
+    ...(agent.topBarrierSeverity ? { topBarrierSeverity: agent.topBarrierSeverity } : {}),
+    ...(agent.topBarrierSource ? { topBarrierSource: agent.topBarrierSource } : {}),
+    ...(agent.topBarrierPath ? { topBarrierPath: agent.topBarrierPath } : {}),
+    ...(agent.topBarrierText ? { topBarrierText: agent.topBarrierText } : {}),
+    ...(agent.topBarrierSelector ? { topBarrierSelector: agent.topBarrierSelector } : {}),
+    ...(agent.topBarrierDiagnosticCode ? { topBarrierDiagnosticCode: agent.topBarrierDiagnosticCode } : {}),
     hiddenSignalCount: agent.hiddenSignalCount,
     hiddenReadTargetCount: agent.hiddenReadTargetCount,
     ...(agent.bestHiddenReadTarget ? { bestHiddenReadTarget: agent.bestHiddenReadTarget } : {}),
@@ -13407,6 +13439,12 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     actionTargetCount: agent.actionTargetCount,
     actionTargetChoiceCount: agent.actionTargetChoiceCount,
     ...(agent.actionTargetChoices.length > 0 ? { actionTargetChoices: compactAgentActionTargetExecutionRefs(agent.actionTargetChoices) } : {}),
+    barrierCount: agent.barrierCount,
+    ...(agent.topBarrierKind ? { topBarrierKind: agent.topBarrierKind } : {}),
+    ...(agent.topBarrierSeverity ? { topBarrierSeverity: agent.topBarrierSeverity } : {}),
+    ...(agent.topBarrierPath ? { topBarrierPath: agent.topBarrierPath } : {}),
+    ...(agent.topBarrierText ? { topBarrierText: agent.topBarrierText } : {}),
+    ...(agent.topBarrierSelector ? { topBarrierSelector: agent.topBarrierSelector } : {}),
     hiddenSignalCount: agent.hiddenSignalCount,
     hiddenReadTargetCount: agent.hiddenReadTargetCount,
     ...(agent.bestHiddenReadTarget ? { bestHiddenReadTarget: agent.bestHiddenReadTarget } : {}),

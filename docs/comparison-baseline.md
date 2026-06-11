@@ -91,6 +91,8 @@ the first object before drilling into `pageCheck`.
 `averageAgentSemanticSummaryScore` tracks whether `agent.semanticSummary` and
 top-level `agent.semantic*` shortcuts preserve semantic tree counts, top role,
 heading, and landmark for quick page-shape routing.
+`averageAgentBarrierShortcutScore` tracks whether top-level `agent.topBarrier*`
+shortcuts mirror the highest-priority page barrier.
 `averageAgentReadTargetScore` tracks whether `agent.readTargets` points to
 payload fields that actually exist and are worth reading, and whether
 `read-current` actions mark the matching target as primary.
