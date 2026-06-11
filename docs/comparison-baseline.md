@@ -93,6 +93,9 @@ top-level `agent.semantic*` shortcuts preserve semantic tree counts, top role,
 heading, and landmark for quick page-shape routing.
 `averageAgentBarrierShortcutScore` tracks whether top-level `agent.topBarrier*`
 shortcuts mirror the highest-priority page barrier.
+`averageAgentStructuredShortcutScore` tracks whether top-level structured
+content counts and `top*` shortcuts mirror the first table, FAQ, code block,
+resource, media item, and section.
 `averageAgentReadTargetScore` tracks whether `agent.readTargets` points to
 payload fields that actually exist and are worth reading, and whether
 `read-current` actions mark the matching target as primary.

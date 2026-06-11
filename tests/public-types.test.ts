@@ -167,6 +167,29 @@ describe("public agent types", () => {
       | "topBarrierText"
       | "topBarrierSelector"
       | "topBarrierDiagnosticCode"
+      | "dataTableCount"
+      | "faqCount"
+      | "codeBlockCount"
+      | "resourceCount"
+      | "mediaCount"
+      | "sectionCount"
+      | "topDataTablePath"
+      | "topDataTableCaption"
+      | "topDataTableRowCount"
+      | "topDataTableColumnCount"
+      | "topFaqQuestion"
+      | "topFaqAnswer"
+      | "topCodeBlockLanguage"
+      | "topCodeBlockLineCount"
+      | "topCodeBlockText"
+      | "topResourceKind"
+      | "topResourceUrl"
+      | "topResourceTitle"
+      | "topMediaKind"
+      | "topMediaUrl"
+      | "topMediaText"
+      | "topSectionHeading"
+      | "topSectionText"
       | "hiddenSignalCount"
       | "hiddenReadTargetCount"
       | "bestHiddenReadTarget"
@@ -357,6 +380,29 @@ describe("public agent types", () => {
       topBarrierText: "Challenge: verify you are human",
       topBarrierSelector: "main > h1",
       topBarrierDiagnosticCode: "CHALLENGE_LIKELY",
+      dataTableCount: 1,
+      faqCount: 1,
+      codeBlockCount: 1,
+      resourceCount: 2,
+      mediaCount: 1,
+      sectionCount: 1,
+      topDataTablePath: "pageCheck.dataTables[0]",
+      topDataTableCaption: "Plan comparison",
+      topDataTableRowCount: 2,
+      topDataTableColumnCount: 3,
+      topFaqQuestion: "How do I install it?",
+      topFaqAnswer: "Run pnpm install.",
+      topCodeBlockLanguage: "bash",
+      topCodeBlockLineCount: 1,
+      topCodeBlockText: "pnpm install",
+      topResourceKind: "download",
+      topResourceUrl: "https://example.test/guide.pdf",
+      topResourceTitle: "Guide PDF",
+      topMediaKind: "image",
+      topMediaUrl: "https://example.test/diagram.png",
+      topMediaText: "Architecture diagram",
+      topSectionHeading: "Install",
+      topSectionText: "Install the package.",
       hiddenSignalCount: 4,
       hiddenReadTargetCount: 2,
       bestHiddenReadTarget: "pageCheck.apiEndpoints",
@@ -537,6 +583,9 @@ describe("public agent types", () => {
     expect(summary.actionTargetChoiceCount).toBe(1);
     expect(summary.topBarrierKind).toBe("challenge");
     expect(summary.topBarrierPath).toBe("pageCheck.barriers[0]");
+    expect(summary.dataTableCount).toBe(1);
+    expect(summary.topFaqQuestion).toBe("How do I install it?");
+    expect(summary.topResourceUrl).toBe("https://example.test/guide.pdf");
     expect(summary.formChoices?.[0]?.queryField).toBe("q");
     expect(summary.actionTargetChoices?.[0]?.kind).toBe("search");
     expect(summary.topChoiceKind).toBe("source");

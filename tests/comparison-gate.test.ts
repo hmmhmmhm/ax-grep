@@ -80,6 +80,7 @@ function staticSummary(overrides: Partial<StaticGateSummary> = {}): StaticGateSu
     averageAgentPageDecisionScore: 1,
     averageAgentSemanticSummaryScore: 1,
     averageAgentBarrierShortcutScore: 1,
+    averageAgentStructuredShortcutScore: 1,
     weakAgentTargets: [],
     classifications: {
       usable: 4,
@@ -260,6 +261,7 @@ describe("comparison gate checker", () => {
       averageAgentAnswerShortcutScore: 0.65,
       averageAgentPlanShortcutScore: 0.75,
       averageAgentBarrierShortcutScore: 0.78,
+      averageAgentStructuredShortcutScore: 0.79,
       averageAgentReadabilityReasonScore: 0.85,
     })), "static.json");
 
@@ -290,6 +292,7 @@ describe("comparison gate checker", () => {
       "averageAgentAnswerShortcutScore expected >= 0.995, got 0.65",
       "averageAgentPlanShortcutScore expected >= 0.995, got 0.75",
       "averageAgentBarrierShortcutScore expected >= 0.995, got 0.78",
+      "averageAgentStructuredShortcutScore expected >= 0.995, got 0.79",
     ]);
   });
 

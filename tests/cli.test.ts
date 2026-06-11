@@ -3494,6 +3494,18 @@ describe("cli", () => {
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("1 data table");
+    expect(envelope.agent).toMatchObject({
+      dataTableCount: 1,
+      faqCount: 0,
+      codeBlockCount: 0,
+      resourceCount: 0,
+      mediaCount: 0,
+      sectionCount: 0,
+      topDataTablePath: "pageCheck.dataTables[0]",
+      topDataTableCaption: "Plan comparison",
+      topDataTableRowCount: 2,
+      topDataTableColumnCount: 3,
+    });
     expect(envelope.pageCheck.recommendedAction).toBeUndefined();
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
@@ -6371,6 +6383,11 @@ describe("cli", () => {
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("1 FAQ item");
+    expect(envelope.agent).toMatchObject({
+      faqCount: 1,
+      topFaqQuestion: "How do I install ax-grep?",
+      topFaqAnswer: "Run pnpm add ax-grep and then call the CLI with --agent.",
+    });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -6579,6 +6596,11 @@ describe("cli", () => {
       }),
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("1 content section");
+    expect(envelope.agent).toMatchObject({
+      sectionCount: 1,
+      topSectionHeading: "Latency budgets",
+      topSectionText: "Latency budgets; Production agents should compare timeout ceilings before retrying a browser capture.; Keep follow-up checks short when the current payload already has enough evidence.",
+    });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.sections",
       count: 1,
@@ -6793,6 +6815,12 @@ npx ax-grep https://example.test --agent</code></pre>
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("1 code block");
+    expect(envelope.agent).toMatchObject({
+      codeBlockCount: 1,
+      topCodeBlockLanguage: "bash",
+      topCodeBlockLineCount: 2,
+      topCodeBlockText: "pnpm add ax-grep\nnpx ax-grep https://example.test --agent",
+    });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -6999,6 +7027,12 @@ npx ax-grep https://example.test --agent</code></pre>
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("2 media items");
+    expect(envelope.agent).toMatchObject({
+      mediaCount: 2,
+      topMediaKind: "open-graph",
+      topMediaUrl: "https://example.test/share.png",
+      topMediaText: "Share preview chart - https://example.test/share.png",
+    });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -7122,6 +7156,12 @@ npx ax-grep https://example.test --agent</code></pre>
     ]);
     expect(envelope.pageCheck.resources).toHaveLength(4);
     expect(envelope.pageCheck.readability.reasons).toContain("4 resource links");
+    expect(envelope.agent).toMatchObject({
+      resourceCount: 4,
+      topResourceKind: "feed",
+      topResourceUrl: "https://example.test/feed.xml",
+      topResourceTitle: "Example feed",
+    });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",

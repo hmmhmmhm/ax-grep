@@ -122,6 +122,7 @@ type CliAgentSummary = {
   agentPageDecisionScore: number;
   agentSemanticSummaryScore: number;
   agentBarrierShortcutScore: number;
+  agentStructuredShortcutScore: number;
   pageCheck: {
     confidence: "low" | "medium" | "high";
     readabilityLevel: "low" | "medium" | "high";
@@ -636,6 +637,7 @@ export type GateSummary = {
   averageAgentPageDecisionScore: number;
   averageAgentSemanticSummaryScore: number;
   averageAgentBarrierShortcutScore: number;
+  averageAgentStructuredShortcutScore: number;
   averagePrecision: number;
   averageReferenceRecall: number;
   weakAgentTargets: GateWeakAgentTarget[];
@@ -1198,6 +1200,29 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topBarrierText?: string;
       topBarrierSelector?: string;
       topBarrierDiagnosticCode?: string;
+      dataTableCount?: number;
+      faqCount?: number;
+      codeBlockCount?: number;
+      resourceCount?: number;
+      mediaCount?: number;
+      sectionCount?: number;
+      topDataTablePath?: string;
+      topDataTableCaption?: string;
+      topDataTableRowCount?: number;
+      topDataTableColumnCount?: number;
+      topFaqQuestion?: string;
+      topFaqAnswer?: string;
+      topCodeBlockLanguage?: string;
+      topCodeBlockLineCount?: number;
+      topCodeBlockText?: string;
+      topResourceKind?: string;
+      topResourceUrl?: string;
+      topResourceTitle?: string;
+      topMediaKind?: string;
+      topMediaUrl?: string;
+      topMediaText?: string;
+      topSectionHeading?: string;
+      topSectionText?: string;
       hiddenSignalCount?: number;
       hiddenReadTargetCount?: number;
       bestHiddenReadTarget?: string;
@@ -1331,6 +1356,12 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       primaryLinks?: Array<{ id?: string; path?: string; title?: string; url?: string; sourceScore?: number; selectionReason?: string; command?: string; commandArgs?: string[] }>;
       sourceLinks?: Array<{ id?: string; path?: string; title?: string; url?: string; kind?: "internal" | "external"; sourceScore?: number; selectionReason?: string; command?: string; commandArgs?: string[] }>;
       barriers?: CliBarrierShape[];
+      dataTables?: Array<{ path?: string; caption?: string; rowCount?: number; columnCount?: number }>;
+      faqs?: Array<{ question?: string; answer?: string }>;
+      codeBlocks?: Array<{ language?: string; lineCount?: number; text?: string }>;
+      resources?: Array<{ kind?: string; url?: string; title?: string }>;
+      media?: Array<{ kind?: string; url?: string; text?: string }>;
+      sections?: Array<{ heading?: string; text?: string }>;
       forms?: unknown[];
       actionTargets?: unknown[];
       actions?: unknown[];
@@ -1450,6 +1481,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentPageDecisionScore: scoreAgentPageDecision(item.agent, item.kind, item.agent?.primaryAction, item.pageCheck),
     agentSemanticSummaryScore: scoreAgentSemanticSummary(item.agent),
     agentBarrierShortcutScore: scoreAgentBarrierShortcuts(item.agent, item.pageCheck?.barriers ?? []),
+    agentStructuredShortcutScore: scoreAgentStructuredShortcuts(item.agent, item.pageCheck),
     pageCheck: pageCheckSummary,
     searchResultCount: item.searchResults?.length ?? 0,
     searchResultActionScore: scoreSearchResultActions(item.searchResults ?? []),
@@ -1533,6 +1565,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentPageDecisionScore: 0,
     agentSemanticSummaryScore: 0,
     agentBarrierShortcutScore: 0,
+    agentStructuredShortcutScore: 0,
     pageCheck: {
       confidence: "low",
       readabilityLevel: "low",
@@ -3644,6 +3677,115 @@ function scoreAgentBarrierShortcuts(agent: {
   return roundScore(matched / required);
 }
 
+function scoreAgentStructuredShortcuts(agent: {
+  dataTableCount?: number;
+  faqCount?: number;
+  codeBlockCount?: number;
+  resourceCount?: number;
+  mediaCount?: number;
+  sectionCount?: number;
+  topDataTablePath?: string;
+  topDataTableCaption?: string;
+  topDataTableRowCount?: number;
+  topDataTableColumnCount?: number;
+  topFaqQuestion?: string;
+  topFaqAnswer?: string;
+  topCodeBlockLanguage?: string;
+  topCodeBlockLineCount?: number;
+  topCodeBlockText?: string;
+  topResourceKind?: string;
+  topResourceUrl?: string;
+  topResourceTitle?: string;
+  topMediaKind?: string;
+  topMediaUrl?: string;
+  topMediaText?: string;
+  topSectionHeading?: string;
+  topSectionText?: string;
+} | undefined, pageCheck: {
+  dataTables?: Array<{ path?: string; caption?: string; rowCount?: number; columnCount?: number }>;
+  faqs?: Array<{ question?: string; answer?: string }>;
+  codeBlocks?: Array<{ language?: string; lineCount?: number; text?: string }>;
+  resources?: Array<{ kind?: string; url?: string; title?: string }>;
+  media?: Array<{ kind?: string; url?: string; text?: string }>;
+  sections?: Array<{ heading?: string; text?: string }>;
+} | undefined): number {
+  if (!agent) return 0;
+  let required = 6;
+  let matched = 0;
+  const dataTables = pageCheck?.dataTables ?? [];
+  const faqs = pageCheck?.faqs ?? [];
+  const codeBlocks = pageCheck?.codeBlocks ?? [];
+  const resources = pageCheck?.resources ?? [];
+  const media = pageCheck?.media ?? [];
+  const sections = pageCheck?.sections ?? [];
+  if (agent.dataTableCount === dataTables.length) matched += 1;
+  if (agent.faqCount === faqs.length) matched += 1;
+  if (agent.codeBlockCount === codeBlocks.length) matched += 1;
+  if (agent.resourceCount === resources.length) matched += 1;
+  if (agent.mediaCount === media.length) matched += 1;
+  if (agent.sectionCount === sections.length) matched += 1;
+
+  const topDataTable = dataTables[0];
+  if (topDataTable) {
+    required += 4;
+    if (agent.topDataTablePath === topDataTable.path) matched += 1;
+    if (agent.topDataTableCaption === topDataTable.caption) matched += 1;
+    if (agent.topDataTableRowCount === topDataTable.rowCount) matched += 1;
+    if (agent.topDataTableColumnCount === topDataTable.columnCount) matched += 1;
+  } else if (agent.topDataTablePath || agent.topDataTableCaption || typeof agent.topDataTableRowCount === "number" || typeof agent.topDataTableColumnCount === "number") {
+    required += 1;
+  }
+
+  const topFaq = faqs[0];
+  if (topFaq) {
+    required += 2;
+    if (agent.topFaqQuestion === topFaq.question) matched += 1;
+    if (agent.topFaqAnswer === topFaq.answer) matched += 1;
+  } else if (agent.topFaqQuestion || agent.topFaqAnswer) {
+    required += 1;
+  }
+
+  const topCodeBlock = codeBlocks[0];
+  if (topCodeBlock) {
+    required += 3;
+    if (agent.topCodeBlockLanguage === topCodeBlock.language) matched += 1;
+    if (agent.topCodeBlockLineCount === topCodeBlock.lineCount) matched += 1;
+    if (agent.topCodeBlockText === topCodeBlock.text) matched += 1;
+  } else if (agent.topCodeBlockLanguage || typeof agent.topCodeBlockLineCount === "number" || agent.topCodeBlockText) {
+    required += 1;
+  }
+
+  const topResource = resources[0];
+  if (topResource) {
+    required += 3;
+    if (agent.topResourceKind === topResource.kind) matched += 1;
+    if (agent.topResourceUrl === topResource.url) matched += 1;
+    if (agent.topResourceTitle === topResource.title) matched += 1;
+  } else if (agent.topResourceKind || agent.topResourceUrl || agent.topResourceTitle) {
+    required += 1;
+  }
+
+  const topMedia = media[0];
+  if (topMedia) {
+    required += 3;
+    if (agent.topMediaKind === topMedia.kind) matched += 1;
+    if (agent.topMediaUrl === topMedia.url) matched += 1;
+    if (agent.topMediaText === topMedia.text) matched += 1;
+  } else if (agent.topMediaKind || agent.topMediaUrl || agent.topMediaText) {
+    required += 1;
+  }
+
+  const topSection = sections[0];
+  if (topSection) {
+    required += 2;
+    if (agent.topSectionHeading === topSection.heading) matched += 1;
+    if (agent.topSectionText === topSection.text) matched += 1;
+  } else if (agent.topSectionHeading || agent.topSectionText) {
+    required += 1;
+  }
+  return roundScore(matched / required);
+}
+
 function selectTopCliBarrier(barriers: CliBarrierShape[]): CliBarrierShape | undefined {
   const candidates = barriers.filter((barrier) => barrier.kind !== "cookie-consent");
   return (candidates.length > 0 ? candidates : barriers)
@@ -4548,7 +4690,8 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentSearchDecisionScore * 0.005
     + summary.agentPageDecisionScore * 0.005
     + summary.agentSemanticSummaryScore * 0.005
-    + summary.agentBarrierShortcutScore * 0.005,
+    + summary.agentBarrierShortcutScore * 0.005
+    + summary.agentStructuredShortcutScore * 0.005,
   ));
   return recoverableBrowserRetry || recoverableCommandContinuation ? Math.max(score, 0.8) : score;
 }
@@ -4592,6 +4735,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentPageDecisionScore,
     summary.agentSemanticSummaryScore,
     summary.agentBarrierShortcutScore,
+    summary.agentStructuredShortcutScore,
     summary.searchResultActionScore,
     summary.pageLinkCommandScore,
     summary.agentResponseMetadataScore,
@@ -4720,6 +4864,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentPageDecisionScore: average(included.map((comparison) => comparison.cliAgentSummary.agentPageDecisionScore)),
     averageAgentSemanticSummaryScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSemanticSummaryScore)),
     averageAgentBarrierShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentBarrierShortcutScore)),
+    averageAgentStructuredShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentStructuredShortcutScore)),
     averagePrecision: average(included.map((comparison) => comparison.agentReadiness.candidatePrecision)),
     averageReferenceRecall: average(included.map((comparison) => comparison.agentReadiness.referenceRecall)),
     weakAgentTargets: weakAgentTargets(included),
