@@ -9,6 +9,7 @@ import { Element as DomElement } from "domhandler";
 import type { AnyNode, Element } from "domhandler";
 import { extract, type StaticSemanticTreeOptions } from "./static";
 import type {
+  AgentActionTargetChoice,
   AgentAnswerPlan,
   AgentBrowserHtmlCapture,
   AgentCitation,
@@ -17,6 +18,7 @@ import type {
   AgentExecutorStep,
   AgentExecutionPlan,
   AgentExpectedOutcome,
+  AgentFormChoice,
   AgentHandoff,
   AgentLoopDirective,
   AgentNext,
@@ -853,7 +855,9 @@ type AgentSummary = {
   resultChoices: AgentResultChoice[];
   evidenceCount: number;
   formCount: number;
+  formChoices: AgentFormChoice[];
   actionTargetCount: number;
+  actionTargetChoices: AgentActionTargetChoice[];
   hiddenSignalCount: number;
   hiddenReadTargetCount: number;
   sourceLinkCount: number;
@@ -2269,6 +2273,24 @@ function formatAgentSourceChoiceText(choice: AgentSourceChoice, prefix = "source
   return lines;
 }
 
+function formatAgentFormChoiceText(choice: AgentFormChoice, prefix = "formChoice"): string[] {
+  const action = choice.actionUrl ? ` <${choice.actionUrl}>` : "";
+  const query = choice.queryField ? ` query=${choice.queryField}` : "";
+  const template = choice.urlTemplate ? ` template=${choice.urlTemplate}` : "";
+  const selector = choice.selector ? ` selector=${choice.selector}` : "";
+  const submit = choice.submitText ? ` submit=${choice.submitText}` : "";
+  return [`  ${prefix}: ${choice.id} ${choice.path} rank=${choice.rank} method=${choice.method} fields=${choice.fieldCount}${query}${template}${selector}${action}${submit} - ${choice.text}`];
+}
+
+function formatAgentActionTargetChoiceText(choice: AgentActionTargetChoice, prefix = "actionTargetChoice"): string[] {
+  const target = choice.targetUrl ? ` <${choice.targetUrl}>` : "";
+  const template = choice.urlTemplate ? ` template=${choice.urlTemplate}` : "";
+  const query = choice.queryInput ? ` queryInput=${choice.queryInput}` : "";
+  const method = choice.method ? ` method=${choice.method}` : "";
+  const selector = choice.selector ? ` selector=${choice.selector}` : "";
+  return [`  ${prefix}: ${choice.id} ${choice.path} rank=${choice.rank} kind=${choice.kind} source=${choice.source}${template}${query}${method}${selector}${target} - ${choice.name}`];
+}
+
 function formatAgentSourceSearchResultText(result: AgentSourceSearchResult, prefix: string): string[] {
   const rank = typeof result.rank === "number" ? ` rank=${result.rank}` : "";
   const openResult = result.openResult ? ` openResult=${result.openResult}` : "";
@@ -2427,6 +2449,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.recommendedSelectionReason) lines.push(`  recommendedSelectionReason: ${agent.recommendedSelectionReason}`);
   for (const choice of agent.resultChoices) lines.push(...formatAgentResultChoiceText(choice));
   for (const choice of agent.sourceChoices) lines.push(...formatAgentSourceChoiceText(choice));
+  for (const choice of agent.formChoices) lines.push(...formatAgentFormChoiceText(choice));
+  for (const choice of agent.actionTargetChoices) lines.push(...formatAgentActionTargetChoiceText(choice));
   for (const target of agent.readTargets) {
     const count = typeof target.count === "number" ? ` count=${target.count}` : "";
     const score = typeof target.score === "number" ? ` score=${target.score}` : "";
@@ -8790,7 +8814,9 @@ function summarizeAgent(
     resultChoices,
     evidenceCount: pageCheck.contentEvidence.length,
     formCount: pageCheck.forms.length,
+    formChoices: summarizeAgentFormChoices(pageCheck.forms),
     actionTargetCount: pageCheck.actionTargets.length,
+    actionTargetChoices: summarizeAgentActionTargetChoices(pageCheck.actionTargets),
     hiddenSignalCount,
     hiddenReadTargetCount,
     sourceLinkCount: analysis.kind === "search-results" ? 0 : pageCheck.sourceLinks.length,
@@ -10452,6 +10478,50 @@ function summarizeAgentActions(
   return actions;
 }
 
+function summarizeAgentFormChoices(forms: PageFormSummary[]): AgentFormChoice[] {
+  return forms.map((form) => ({
+    id: form.id,
+    path: form.path,
+    rank: form.rank,
+    method: form.method,
+    fieldCount: form.fieldCount,
+    text: form.text,
+    ...(form.actionUrl ? { actionUrl: form.actionUrl } : {}),
+    ...(form.submitText ? { submitText: form.submitText } : {}),
+    ...(form.queryField ? { queryField: form.queryField } : {}),
+    ...(form.urlTemplate ? { urlTemplate: form.urlTemplate } : {}),
+    ...(form.selector ? { selector: form.selector } : {}),
+    fields: form.fields.map((field) => ({
+      type: field.type,
+      ...(field.name ? { name: field.name } : {}),
+      ...(field.label ? { label: field.label } : {}),
+      ...(field.placeholder ? { placeholder: field.placeholder } : {}),
+      ...(field.value ? { value: field.value } : {}),
+      ...(field.required ? { required: true } : {}),
+      ...(field.selector ? { selector: field.selector } : {}),
+      ...(field.options?.length ? { options: field.options.slice() } : {}),
+    })),
+  }));
+}
+
+function summarizeAgentActionTargetChoices(targets: PageActionTargetSummary[]): AgentActionTargetChoice[] {
+  return targets.map((target) => ({
+    id: target.id,
+    path: target.path,
+    rank: target.rank,
+    kind: target.kind,
+    name: target.name,
+    text: target.text,
+    source: target.source,
+    ...(target.targetUrl ? { targetUrl: target.targetUrl } : {}),
+    ...(target.urlTemplate ? { urlTemplate: target.urlTemplate } : {}),
+    ...(target.queryInput ? { queryInput: target.queryInput } : {}),
+    ...(target.method ? { method: target.method } : {}),
+    ...(target.encodingType ? { encodingType: target.encodingType } : {}),
+    ...(target.selector ? { selector: target.selector } : {}),
+  }));
+}
+
 function averageResultSourceScore(results: ResultSummary[]): number {
   const scores = results.map((result) => result.sourceScore).filter((score): score is number => typeof score === "number");
   if (scores.length === 0) return 0;
@@ -11139,7 +11209,9 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     resultChoices: [],
     evidenceCount: 0,
     formCount: 0,
+    formChoices: [],
     actionTargetCount: 0,
+    actionTargetChoices: [],
     hiddenSignalCount: 0,
     hiddenReadTargetCount: 0,
     sourceLinkCount: 0,
@@ -12376,7 +12448,9 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.resultChoices.length > 0 ? { resultChoices: agent.resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext, pageLinkContext)) } : {}),
     evidenceCount: agent.evidenceCount,
     formCount: agent.formCount,
+    ...(agent.formChoices.length > 0 ? { formChoices: compactAgentFormExecutionRefs(agent.formChoices) } : {}),
     actionTargetCount: agent.actionTargetCount,
+    ...(agent.actionTargetChoices.length > 0 ? { actionTargetChoices: compactAgentActionTargetExecutionRefs(agent.actionTargetChoices) } : {}),
     hiddenSignalCount: agent.hiddenSignalCount,
     hiddenReadTargetCount: agent.hiddenReadTargetCount,
     sourceLinkCount: agent.sourceLinkCount,
@@ -12439,7 +12513,9 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     resultCount: agent.resultCount,
     evidenceCount: agent.evidenceCount,
     formCount: agent.formCount,
+    ...(agent.formChoices.length > 0 ? { formChoices: compactAgentFormExecutionRefs(agent.formChoices) } : {}),
     actionTargetCount: agent.actionTargetCount,
+    ...(agent.actionTargetChoices.length > 0 ? { actionTargetChoices: compactAgentActionTargetExecutionRefs(agent.actionTargetChoices) } : {}),
     hiddenSignalCount: agent.hiddenSignalCount,
     hiddenReadTargetCount: agent.hiddenReadTargetCount,
     sourceLinkCount: agent.sourceLinkCount,

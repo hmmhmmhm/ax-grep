@@ -3450,6 +3450,24 @@ describe("cli", () => {
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("1 form");
     expect(envelope.agent.formCount).toBe(1);
+    expect(envelope.agent.formChoices).toEqual([
+      expect.objectContaining({
+        id: "f1",
+        path: "pageCheck.forms[0]",
+        method: "get",
+        actionUrl: "https://example.test/find",
+        urlTemplate: "https://example.test/find?query=%7Bquery%7D",
+        queryField: "query",
+        selector: "form:nth-of-type(1)",
+        fields: expect.arrayContaining([
+          expect.objectContaining({
+            name: "query",
+            type: "search",
+            selector: "input[name=\"query\"]",
+          }),
+        ]),
+      }),
+    ]);
     expect(envelope.agent.actionTargetCount).toBe(0);
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
@@ -3495,6 +3513,16 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(envelope.agent.contract.profile).toBe("brief");
     expect(envelope.agent.formCount).toBe(1);
+    expect(envelope.agent.formChoices).toEqual([
+      expect.objectContaining({
+        id: "f1",
+        path: "pageCheck.forms[0]",
+        actionUrl: "https://example.test/find",
+        urlTemplate: "https://example.test/find?query=%7Bquery%7D",
+        queryField: "query",
+        selector: "form:nth-of-type(1)",
+      }),
+    ]);
     expect(envelope.agent.actionTargetCount).toBe(0);
     expect(envelope.agent.executor).toMatchObject({
       decision: "return",
@@ -3727,6 +3755,26 @@ describe("cli", () => {
     expect(envelope.pageCheck.readability.reasons).toContain("2 action targets");
     expect(envelope.agent.formCount).toBe(0);
     expect(envelope.agent.actionTargetCount).toBe(2);
+    expect(envelope.agent.actionTargetChoices).toEqual([
+      expect.objectContaining({
+        id: "at1",
+        path: "pageCheck.actionTargets[0]",
+        kind: "search",
+        name: "Search docs",
+        source: "json-ld",
+        urlTemplate: "https://example.test/search?q={search_term_string}",
+        queryInput: "required name=search_term_string",
+        method: "GET",
+      }),
+      expect.objectContaining({
+        id: "at2",
+        path: "pageCheck.actionTargets[1]",
+        kind: "search",
+        name: "Docs OpenSearch",
+        source: "link",
+        targetUrl: "https://example.test/opensearch.xml",
+      }),
+    ]);
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -3787,6 +3835,14 @@ describe("cli", () => {
     expect(envelope.agent.contract.profile).toBe("brief");
     expect(envelope.agent.formCount).toBe(0);
     expect(envelope.agent.actionTargetCount).toBe(2);
+    expect(envelope.agent.actionTargetChoices).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: "at1",
+        path: "pageCheck.actionTargets[0]",
+        kind: "search",
+        urlTemplate: "https://example.test/search?q={search_term_string}",
+      }),
+    ]));
     expect(envelope.agent.executor).toMatchObject({
       decision: "return",
       readFrom: "pageCheck.actionTargets",

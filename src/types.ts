@@ -407,6 +407,46 @@ export type AgentSourceChoice = AgentTarget & {
   commandArgs?: string[];
 };
 
+export type AgentFormChoice = {
+  id: string;
+  path: string;
+  rank: number;
+  method: string;
+  fieldCount: number;
+  text: string;
+  actionUrl?: string;
+  submitText?: string;
+  queryField?: string;
+  urlTemplate?: string;
+  selector?: string;
+  fields: Array<{
+    name?: string;
+    type: string;
+    label?: string;
+    placeholder?: string;
+    value?: string;
+    required?: boolean;
+    selector?: string;
+    options?: string[];
+  }>;
+};
+
+export type AgentActionTargetChoice = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "search" | "read" | "download" | "subscribe" | "action";
+  name: string;
+  text: string;
+  source: "json-ld" | "link";
+  targetUrl?: string;
+  urlTemplate?: string;
+  queryInput?: string;
+  method?: string;
+  encodingType?: string;
+  selector?: string;
+};
+
 export type AgentSourceSearchResult = AgentTarget & {
   id: string;
   path: string;
@@ -469,7 +509,9 @@ export type AgentSummary = {
   resultChoices?: AgentResultChoice[];
   evidenceCount?: number;
   formCount?: number;
+  formChoices?: AgentFormChoice[];
   actionTargetCount?: number;
+  actionTargetChoices?: AgentActionTargetChoice[];
   hiddenSignalCount?: number;
   hiddenReadTargetCount?: number;
   sourceLinkCount?: number;

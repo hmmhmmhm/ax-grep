@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type {
   AgentAction,
+  AgentActionTargetChoice,
   AgentAnswerPlan,
   AgentCitation,
+  AgentFormChoice,
   AgentHandoff,
   AgentResultChoice,
   AgentSourceChoice,
@@ -120,12 +122,37 @@ describe("public agent types", () => {
   });
 
   it("exports top-level agent count shortcuts", () => {
+    const formChoice: AgentFormChoice = {
+      id: "f1",
+      path: "pageCheck.forms[0]",
+      rank: 1,
+      method: "get",
+      fieldCount: 1,
+      text: "GET https://example.test/find; query field: q",
+      actionUrl: "https://example.test/find",
+      queryField: "q",
+      urlTemplate: "https://example.test/find?q={query}",
+      fields: [{ name: "q", type: "search", selector: "input[name=\"q\"]" }],
+    };
+    const actionTargetChoice: AgentActionTargetChoice = {
+      id: "at1",
+      path: "pageCheck.actionTargets[0]",
+      rank: 1,
+      kind: "search",
+      name: "Search docs",
+      text: "search: Search docs template=https://example.test/search?q={query}",
+      source: "json-ld",
+      urlTemplate: "https://example.test/search?q={query}",
+      queryInput: "required name=query",
+    };
     const summary: Pick<
       AgentSummary,
       | "resultCount"
       | "evidenceCount"
       | "formCount"
+      | "formChoices"
       | "actionTargetCount"
+      | "actionTargetChoices"
       | "hiddenSignalCount"
       | "hiddenReadTargetCount"
       | "sourceLinkCount"
@@ -133,7 +160,9 @@ describe("public agent types", () => {
       resultCount: 2,
       evidenceCount: 1,
       formCount: 1,
+      formChoices: [formChoice],
       actionTargetCount: 2,
+      actionTargetChoices: [actionTargetChoice],
       hiddenSignalCount: 4,
       hiddenReadTargetCount: 2,
       sourceLinkCount: 1,
@@ -141,5 +170,7 @@ describe("public agent types", () => {
 
     expect(summary.hiddenSignalCount).toBe(4);
     expect(summary.actionTargetCount).toBe(2);
+    expect(summary.formChoices?.[0]?.queryField).toBe("q");
+    expect(summary.actionTargetChoices?.[0]?.kind).toBe("search");
   });
 });

@@ -177,6 +177,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "resultChoices",
           "commandArgs",
           "sourceLinkRef",
+          "formChoices",
+          "actionTargetChoices",
           "forms",
           "actionTargets",
         ]);
@@ -195,14 +197,18 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
         requireFileIncludes(root, failures, "src/types.ts", [
           "resultCount",
           "formCount",
+          "formChoices",
           "actionTargetCount",
+          "actionTargetChoices",
           "hiddenSignalCount",
           "hiddenReadTargetCount",
           "sourceLinkCount",
         ]);
         requireFileIncludes(root, failures, "tests/cli.test.ts", [
           "formCount",
+          "formChoices",
           "actionTargetCount",
+          "actionTargetChoices",
           "hiddenSignalCount",
           "hiddenReadTargetCount",
           "sourceLinkCount",
@@ -218,6 +224,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
         requireFileIncludes(root, failures, "tests/public-types.test.ts", [
           "AgentSummary",
           "sourceLinkRef",
+          "AgentFormChoice",
+          "AgentActionTargetChoice",
           "hiddenSignalCount",
           "actionTargetCount",
         ]);
