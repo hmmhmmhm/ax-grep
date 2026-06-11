@@ -3656,6 +3656,79 @@ describe("cli", () => {
     });
   });
 
+  it("keeps executable action target details in brief read handoff", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/docs", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <link rel="search" type="application/opensearchdescription+xml" title="Docs OpenSearch" href="/opensearch.xml">
+            <script type="application/ld+json">
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "Example Docs",
+                "potentialAction": {
+                  "@type": "SearchAction",
+                  "name": "Search docs",
+                  "target": {
+                    "@type": "EntryPoint",
+                    "urlTemplate": "/search?q={search_term_string}",
+                    "httpMethod": "GET",
+                    "encodingType": "application/x-www-form-urlencoded"
+                  },
+                  "query-input": "required name=search_term_string"
+                }
+              }
+            </script>
+          </head>
+          <body><main><h1>Docs</h1></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent.contract.profile).toBe("brief");
+    expect(envelope.agent.executor).toMatchObject({
+      decision: "return",
+      readFrom: "pageCheck.actionTargets",
+    });
+    expect(envelope.agent.handoff.readValue).toMatchObject({
+      path: "pageCheck.actionTargets",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          id: "at1",
+          path: "pageCheck.actionTargets[0]",
+          kind: "search",
+          name: "Search docs",
+          text: expect.stringContaining("template=https://example.test/search?q={search_term_string}"),
+          source: "json-ld",
+          urlTemplate: "https://example.test/search?q={search_term_string}",
+          queryInput: "required name=search_term_string",
+          method: "GET",
+          encodingType: "application/x-www-form-urlencoded",
+          selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+        }),
+        expect.objectContaining({
+          id: "at2",
+          path: "pageCheck.actionTargets[1]",
+          kind: "search",
+          targetUrl: "https://example.test/opensearch.xml",
+          selector: "link[rel=\"search\"]:nth-of-type(1)",
+        }),
+      ]),
+    });
+    expect(envelope.agent.next).toBeUndefined();
+    expect(envelope.pageCheck.actionTargets).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        urlTemplate: "https://example.test/search?q={search_term_string}",
+      }),
+    ]));
+  });
+
   it("checks requested text against structured action targets", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/docs", "--agent", "--find", "search_term_string"], {
