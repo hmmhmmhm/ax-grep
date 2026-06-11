@@ -369,6 +369,7 @@ describe("public agent types", () => {
       | "semanticFieldCount"
       | "semanticDescriptionCount"
       | "semanticValueCount"
+      | "semanticRelationCount"
       | "semanticChoiceCount"
       | "semanticStateCount"
       | "semanticUnavailableCount"
@@ -439,6 +440,12 @@ describe("public agent types", () => {
       | "semanticTopValueName"
       | "semanticTopValue"
       | "semanticTopValueSelector"
+      | "semanticTopRelationRole"
+      | "semanticTopRelationPath"
+      | "semanticTopRelationName"
+      | "semanticTopRelation"
+      | "semanticTopRelationTarget"
+      | "semanticTopRelationSelector"
       | "semanticTopChoiceRole"
       | "semanticTopChoicePath"
       | "semanticTopChoiceName"
@@ -810,6 +817,7 @@ describe("public agent types", () => {
       semanticFieldCount: 1,
       semanticDescriptionCount: 1,
       semanticValueCount: 1,
+      semanticRelationCount: 1,
       semanticChoiceCount: 1,
       semanticStateCount: 1,
       semanticUnavailableCount: 1,
@@ -879,6 +887,12 @@ describe("public agent types", () => {
       semanticTopValueName: "Email",
       semanticTopValue: "me@example.test",
       semanticTopValueSelector: "input[name=\"email\"]",
+      semanticTopRelationRole: "button",
+      semanticTopRelationPath: "agent.semanticSummary.relationItems[0]",
+      semanticTopRelationName: "More filters",
+      semanticTopRelation: "controls",
+      semanticTopRelationTarget: "filters",
+      semanticTopRelationSelector: "button[aria-controls=\"filters\"]",
       semanticTopChoiceRole: "option",
       semanticTopChoicePath: "agent.semanticSummary.choiceItems[0]",
       semanticTopChoiceName: "Reports",

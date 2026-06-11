@@ -251,7 +251,8 @@ describe("cli", () => {
             <main>
               <h1>Example</h1>
               <p id="toggle-desc">Shows extra context</p>
-              <button aria-pressed="false" aria-valuetext="details off" aria-describedby="toggle-desc">Toggle details</button>
+              <button aria-pressed="false" aria-valuetext="details off" aria-describedby="toggle-desc" aria-controls="details-panel">Toggle details</button>
+              <section id="details-panel">Extra details</section>
               <img src="/hero.png" alt="Hero chart">
               <p class="byline">By <a href="/authors/reporter">Reporter Profile</a></p>
               <p>Example content for agent routing.</p>
@@ -301,6 +302,7 @@ describe("cli", () => {
           imageCount: 1,
           descriptionCount: 1,
           valueCount: 1,
+          relationCount: 1,
           topRoles: expect.arrayContaining([
             expect.objectContaining({ role: "p", count: 3 }),
             expect.objectContaining({ role: "link", count: 2 }),
@@ -372,6 +374,16 @@ describe("cli", () => {
               selector: "button",
             }),
           ],
+          relationItems: [
+            expect.objectContaining({
+              path: "agent.semanticSummary.relationItems[0]",
+              role: "button",
+              name: "Toggle details",
+              relation: "controls",
+              target: "details-panel",
+              selector: "button",
+            }),
+          ],
         },
         semanticNodeCount: expect.any(Number),
         semanticNamedRoleCount: expect.any(Number),
@@ -384,6 +396,7 @@ describe("cli", () => {
         semanticImageCount: 1,
         semanticDescriptionCount: 1,
         semanticValueCount: 1,
+        semanticRelationCount: 1,
         semanticTopRole: "p",
         semanticTopRoleCount: 3,
         semanticTopHeading: "Example",
@@ -401,11 +414,11 @@ describe("cli", () => {
         semanticTopInteractiveName: "Toggle details",
         semanticTopInteractiveDescription: "Shows extra context",
         semanticTopInteractiveValue: "details off",
-        semanticTopInteractiveState: "pressed=false",
+        semanticTopInteractiveState: "pressed=false controls=details-panel",
         semanticTopFocusableRole: "button",
         semanticTopFocusablePath: "agent.semanticSummary.focusableItems[0]",
         semanticTopFocusableName: "Toggle details",
-        semanticTopFocusableState: "pressed=false",
+        semanticTopFocusableState: "pressed=false controls=details-panel",
         semanticTopFocusableSelector: "button",
         semanticTopLinkPath: "agent.semanticSummary.links[0]",
         semanticTopLinkUrl: "https://example.test/authors/reporter",
@@ -426,6 +439,12 @@ describe("cli", () => {
         semanticTopValueName: "Toggle details",
         semanticTopValue: "details off",
         semanticTopValueSelector: "button",
+        semanticTopRelationRole: "button",
+        semanticTopRelationPath: "agent.semanticSummary.relationItems[0]",
+        semanticTopRelationName: "Toggle details",
+        semanticTopRelation: "controls",
+        semanticTopRelationTarget: "details-panel",
+        semanticTopRelationSelector: "button",
         routingIntent: "read-current",
         continuationMode: "read",
         next: {

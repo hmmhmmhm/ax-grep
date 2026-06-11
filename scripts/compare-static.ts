@@ -1515,6 +1515,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticFieldCount?: number;
       semanticDescriptionCount?: number;
       semanticValueCount?: number;
+      semanticRelationCount?: number;
       semanticChoiceCount?: number;
       semanticStateCount?: number;
       semanticUnavailableCount?: number;
@@ -1585,6 +1586,12 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopValueName?: string;
       semanticTopValue?: string;
       semanticTopValueSelector?: string;
+      semanticTopRelationRole?: string;
+      semanticTopRelationPath?: string;
+      semanticTopRelationName?: string;
+      semanticTopRelation?: string;
+      semanticTopRelationTarget?: string;
+      semanticTopRelationSelector?: string;
       semanticTopChoiceRole?: string;
       semanticTopChoicePath?: string;
       semanticTopChoiceName?: string;
@@ -4480,6 +4487,7 @@ function scoreAgentSemanticSummary(agent: {
   semanticFieldCount?: number;
   semanticDescriptionCount?: number;
   semanticValueCount?: number;
+  semanticRelationCount?: number;
   semanticChoiceCount?: number;
   semanticStateCount?: number;
   semanticUnavailableCount?: number;
@@ -4550,6 +4558,12 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopValueName?: string;
   semanticTopValue?: string;
   semanticTopValueSelector?: string;
+  semanticTopRelationRole?: string;
+  semanticTopRelationPath?: string;
+  semanticTopRelationName?: string;
+  semanticTopRelation?: string;
+  semanticTopRelationTarget?: string;
+  semanticTopRelationSelector?: string;
   semanticTopChoiceRole?: string;
   semanticTopChoicePath?: string;
   semanticTopChoiceName?: string;
@@ -4585,6 +4599,7 @@ function scoreAgentSemanticSummary(agent: {
     fieldCount?: unknown;
     descriptionCount?: unknown;
     valueCount?: unknown;
+    relationCount?: unknown;
     choiceCount?: unknown;
     stateCount?: unknown;
     unavailableCount?: unknown;
@@ -4606,6 +4621,7 @@ function scoreAgentSemanticSummary(agent: {
     fieldItems?: unknown;
     descriptionItems?: unknown;
     valueItems?: unknown;
+    relationItems?: unknown;
     choiceItems?: unknown;
     stateItems?: unknown;
     unavailableItems?: unknown;
@@ -4625,6 +4641,7 @@ function scoreAgentSemanticSummary(agent: {
   if (typeof item.fieldCount === "number" && item.fieldCount >= 0) matched += 1;
   if (typeof item.descriptionCount === "number" && item.descriptionCount >= 0) matched += 1;
   if (typeof item.valueCount === "number" && item.valueCount >= 0) matched += 1;
+  if (typeof item.relationCount === "number" && item.relationCount >= 0) matched += 1;
   if (typeof item.choiceCount === "number" && item.choiceCount >= 0) matched += 1;
   if (typeof item.stateCount === "number" && item.stateCount >= 0) matched += 1;
   if (typeof item.unavailableCount === "number" && item.unavailableCount >= 0) matched += 1;
@@ -4650,10 +4667,11 @@ function scoreAgentSemanticSummary(agent: {
   if (Array.isArray(item.fieldItems)) matched += 1;
   if (Array.isArray(item.descriptionItems)) matched += 1;
   if (Array.isArray(item.valueItems)) matched += 1;
+  if (Array.isArray(item.relationItems)) matched += 1;
   if (Array.isArray(item.choiceItems)) matched += 1;
   if (Array.isArray(item.stateItems)) matched += 1;
   if (Array.isArray(item.unavailableItems)) matched += 1;
-  let required = 38;
+  let required = 40;
   if (typeof item.nodeCount === "number") {
     required += 1;
     if (agent?.semanticNodeCount === item.nodeCount) matched += 1;
@@ -4709,6 +4727,10 @@ function scoreAgentSemanticSummary(agent: {
   if (typeof item.valueCount === "number") {
     required += 1;
     if (agent?.semanticValueCount === item.valueCount) matched += 1;
+  }
+  if (typeof item.relationCount === "number") {
+    required += 1;
+    if (agent?.semanticRelationCount === item.relationCount) matched += 1;
   }
   if (typeof item.choiceCount === "number") {
     required += 1;
@@ -5026,6 +5048,31 @@ function scoreAgentSemanticSummary(agent: {
   if (valueItem && typeof valueItem.selector === "string") {
     required += 1;
     if (agent?.semanticTopValueSelector === valueItem.selector) matched += 1;
+  }
+  const relationItem = Array.isArray(item.relationItems) ? item.relationItems[0] as { path?: unknown; role?: unknown; name?: unknown; relation?: unknown; target?: unknown; selector?: unknown } | undefined : undefined;
+  if (relationItem && typeof relationItem.role === "string") {
+    required += 1;
+    if (agent?.semanticTopRelationRole === relationItem.role) matched += 1;
+  }
+  if (relationItem && typeof relationItem.path === "string") {
+    required += 1;
+    if (agent?.semanticTopRelationPath === relationItem.path) matched += 1;
+  }
+  if (relationItem && typeof relationItem.name === "string") {
+    required += 1;
+    if (agent?.semanticTopRelationName === relationItem.name) matched += 1;
+  }
+  if (relationItem && typeof relationItem.relation === "string") {
+    required += 1;
+    if (agent?.semanticTopRelation === relationItem.relation) matched += 1;
+  }
+  if (relationItem && typeof relationItem.target === "string") {
+    required += 1;
+    if (agent?.semanticTopRelationTarget === relationItem.target) matched += 1;
+  }
+  if (relationItem && typeof relationItem.selector === "string") {
+    required += 1;
+    if (agent?.semanticTopRelationSelector === relationItem.selector) matched += 1;
   }
   const choice = Array.isArray(item.choiceItems) ? item.choiceItems[0] as { path?: unknown; role?: unknown; name?: unknown; state?: unknown; selector?: unknown } | undefined : undefined;
   if (choice && typeof choice.role === "string") {
