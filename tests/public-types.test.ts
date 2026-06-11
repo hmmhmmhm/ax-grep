@@ -236,6 +236,9 @@ describe("public agent types", () => {
       | "provenanceCount"
       | "offerCount"
       | "datasetCount"
+      | "identityCount"
+      | "timelineCount"
+      | "contactPointCount"
       | "topDataTablePath"
       | "topDataTableCaption"
       | "topDataTableRowCount"
@@ -304,6 +307,27 @@ describe("public agent types", () => {
       | "topDatasetLicenseUrl"
       | "topDatasetEncodingFormat"
       | "topDatasetSelector"
+      | "topIdentityPath"
+      | "topIdentityKind"
+      | "topIdentityName"
+      | "topIdentityUrl"
+      | "topIdentityLogoUrl"
+      | "topIdentitySameAsUrl"
+      | "topIdentitySource"
+      | "topIdentitySelector"
+      | "topTimelinePath"
+      | "topTimelineKind"
+      | "topTimelineLabel"
+      | "topTimelineValue"
+      | "topTimelineSource"
+      | "topTimelineSelector"
+      | "topContactPointPath"
+      | "topContactPointKind"
+      | "topContactPointLabel"
+      | "topContactPointValue"
+      | "topContactPointUrl"
+      | "topContactPointSource"
+      | "topContactPointSelector"
       | "structuredReadTargetCount"
       | "bestStructuredReadTarget"
       | "bestStructuredReadTargetCount"
@@ -728,6 +752,9 @@ describe("public agent types", () => {
       provenanceCount: 1,
       offerCount: 1,
       datasetCount: 1,
+      identityCount: 1,
+      timelineCount: 1,
+      contactPointCount: 1,
       topDataTablePath: "pageCheck.dataTables[0]",
       topDataTableCaption: "Plan comparison",
       topDataTableRowCount: 2,
@@ -796,6 +823,27 @@ describe("public agent types", () => {
       topDatasetLicenseUrl: "https://creativecommons.org/licenses/by/4.0/",
       topDatasetEncodingFormat: "text/csv",
       topDatasetSelector: "script[type=\"application/ld+json\"]:nth-of-type(2)",
+      topIdentityPath: "pageCheck.identities[0]",
+      topIdentityKind: "organization",
+      topIdentityName: "Example Labs",
+      topIdentityUrl: "https://example.test",
+      topIdentityLogoUrl: "https://example.test/logo.png",
+      topIdentitySameAsUrl: "https://github.com/example",
+      topIdentitySource: "json-ld",
+      topIdentitySelector: "script[type=\"application/ld+json\"]:nth-of-type(3)",
+      topTimelinePath: "pageCheck.timeline[0]",
+      topTimelineKind: "published",
+      topTimelineLabel: "Published",
+      topTimelineValue: "2026-06-01T09:00:00Z",
+      topTimelineSource: "meta",
+      topTimelineSelector: "meta[property=\"article:published_time\"]",
+      topContactPointPath: "pageCheck.contactPoints[0]",
+      topContactPointKind: "email",
+      topContactPointLabel: "Press",
+      topContactPointValue: "press@example.test",
+      topContactPointUrl: "mailto:press@example.test",
+      topContactPointSource: "link",
+      topContactPointSelector: "a[href^=\"mailto:\"]",
       structuredReadTargetCount: 2,
       bestStructuredReadTarget: "pageCheck.dataTables",
       bestStructuredReadTargetCount: 1,

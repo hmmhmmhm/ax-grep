@@ -1309,6 +1309,9 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       provenanceCount?: number;
       offerCount?: number;
       datasetCount?: number;
+      identityCount?: number;
+      timelineCount?: number;
+      contactPointCount?: number;
       topDataTablePath?: string;
       topDataTableCaption?: string;
       topDataTableRowCount?: number;
@@ -1377,6 +1380,27 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topDatasetLicenseUrl?: string;
       topDatasetEncodingFormat?: string;
       topDatasetSelector?: string;
+      topIdentityPath?: string;
+      topIdentityKind?: string;
+      topIdentityName?: string;
+      topIdentityUrl?: string;
+      topIdentityLogoUrl?: string;
+      topIdentitySameAsUrl?: string;
+      topIdentitySource?: string;
+      topIdentitySelector?: string;
+      topTimelinePath?: string;
+      topTimelineKind?: string;
+      topTimelineLabel?: string;
+      topTimelineValue?: string;
+      topTimelineSource?: string;
+      topTimelineSelector?: string;
+      topContactPointPath?: string;
+      topContactPointKind?: string;
+      topContactPointLabel?: string;
+      topContactPointValue?: string;
+      topContactPointUrl?: string;
+      topContactPointSource?: string;
+      topContactPointSelector?: string;
       structuredReadTargetCount?: number;
       bestStructuredReadTarget?: string;
       bestStructuredReadTargetCount?: number;
@@ -5293,6 +5317,9 @@ function scoreAgentStructuredShortcuts(agent: {
   provenanceCount?: number;
   offerCount?: number;
   datasetCount?: number;
+  identityCount?: number;
+  timelineCount?: number;
+  contactPointCount?: number;
   topDataTablePath?: string;
   topDataTableCaption?: string;
   topDataTableRowCount?: number;
@@ -5361,6 +5388,27 @@ function scoreAgentStructuredShortcuts(agent: {
   topDatasetLicenseUrl?: string;
   topDatasetEncodingFormat?: string;
   topDatasetSelector?: string;
+  topIdentityPath?: string;
+  topIdentityKind?: string;
+  topIdentityName?: string;
+  topIdentityUrl?: string;
+  topIdentityLogoUrl?: string;
+  topIdentitySameAsUrl?: string;
+  topIdentitySource?: string;
+  topIdentitySelector?: string;
+  topTimelinePath?: string;
+  topTimelineKind?: string;
+  topTimelineLabel?: string;
+  topTimelineValue?: string;
+  topTimelineSource?: string;
+  topTimelineSelector?: string;
+  topContactPointPath?: string;
+  topContactPointKind?: string;
+  topContactPointLabel?: string;
+  topContactPointValue?: string;
+  topContactPointUrl?: string;
+  topContactPointSource?: string;
+  topContactPointSelector?: string;
   structuredReadTargetCount?: number;
   bestStructuredReadTarget?: string;
   bestStructuredReadTargetCount?: number;
@@ -5384,6 +5432,9 @@ function scoreAgentStructuredShortcuts(agent: {
   provenance?: Array<{ path?: string; kind?: string; label?: string; value?: string; url?: string; source?: string; selector?: string }>;
   offers?: Array<{ path?: string; name?: string; price?: string; currency?: string; availability?: string; url?: string; selector?: string }>;
   datasets?: Array<{ path?: string; kind?: string; name?: string; url?: string; distributionUrls?: string[]; licenseUrl?: string; encodingFormat?: string; selector?: string }>;
+  identities?: Array<{ path?: string; kind?: string; name?: string; url?: string; logoUrl?: string; sameAs?: string[]; source?: string; selector?: string }>;
+  timeline?: Array<{ path?: string; kind?: string; label?: string; value?: string; source?: string; selector?: string }>;
+  contactPoints?: Array<{ path?: string; kind?: string; label?: string; value?: string; url?: string; source?: string; selector?: string }>;
 } | undefined): number {
   if (!agent) return 0;
   let required = 12;
@@ -5403,7 +5454,10 @@ function scoreAgentStructuredShortcuts(agent: {
   const provenance = pageCheck?.provenance ?? [];
   const offers = pageCheck?.offers ?? [];
   const datasets = pageCheck?.datasets ?? [];
-  required += 3;
+  const identities = pageCheck?.identities ?? [];
+  const timeline = pageCheck?.timeline ?? [];
+  const contactPoints = pageCheck?.contactPoints ?? [];
+  required += 6;
   if (agent.dataTableCount === dataTables.length) matched += 1;
   if (agent.faqCount === faqs.length) matched += 1;
   if (agent.codeBlockCount === codeBlocks.length) matched += 1;
@@ -5419,6 +5473,9 @@ function scoreAgentStructuredShortcuts(agent: {
   if (agent.provenanceCount === provenance.length) matched += 1;
   if (agent.offerCount === offers.length) matched += 1;
   if (agent.datasetCount === datasets.length) matched += 1;
+  if (agent.identityCount === identities.length) matched += 1;
+  if (agent.timelineCount === timeline.length) matched += 1;
+  if (agent.contactPointCount === contactPoints.length) matched += 1;
 
   const topDataTable = dataTables[0];
   if (topDataTable) {
@@ -5590,6 +5647,48 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topDatasetEncodingFormat === topDataset.encodingFormat) matched += 1;
     if (agent.topDatasetSelector === topDataset.selector) matched += 1;
   } else if (agent.topDatasetPath || agent.topDatasetKind || agent.topDatasetName || agent.topDatasetUrl || agent.topDatasetDistributionUrl || agent.topDatasetLicenseUrl || agent.topDatasetEncodingFormat || agent.topDatasetSelector) {
+    required += 1;
+  }
+
+  const topIdentity = identities[0];
+  if (topIdentity) {
+    required += 8;
+    if (agent.topIdentityPath === topIdentity.path) matched += 1;
+    if (agent.topIdentityKind === topIdentity.kind) matched += 1;
+    if (agent.topIdentityName === topIdentity.name) matched += 1;
+    if (agent.topIdentityUrl === topIdentity.url) matched += 1;
+    if (agent.topIdentityLogoUrl === topIdentity.logoUrl) matched += 1;
+    if (agent.topIdentitySameAsUrl === topIdentity.sameAs?.[0]) matched += 1;
+    if (agent.topIdentitySource === topIdentity.source) matched += 1;
+    if (agent.topIdentitySelector === topIdentity.selector) matched += 1;
+  } else if (agent.topIdentityPath || agent.topIdentityKind || agent.topIdentityName || agent.topIdentityUrl || agent.topIdentityLogoUrl || agent.topIdentitySameAsUrl || agent.topIdentitySource || agent.topIdentitySelector) {
+    required += 1;
+  }
+
+  const topTimeline = timeline[0];
+  if (topTimeline) {
+    required += 6;
+    if (agent.topTimelinePath === topTimeline.path) matched += 1;
+    if (agent.topTimelineKind === topTimeline.kind) matched += 1;
+    if (agent.topTimelineLabel === topTimeline.label) matched += 1;
+    if (agent.topTimelineValue === topTimeline.value) matched += 1;
+    if (agent.topTimelineSource === topTimeline.source) matched += 1;
+    if (agent.topTimelineSelector === topTimeline.selector) matched += 1;
+  } else if (agent.topTimelinePath || agent.topTimelineKind || agent.topTimelineLabel || agent.topTimelineValue || agent.topTimelineSource || agent.topTimelineSelector) {
+    required += 1;
+  }
+
+  const topContactPoint = contactPoints[0];
+  if (topContactPoint) {
+    required += 7;
+    if (agent.topContactPointPath === topContactPoint.path) matched += 1;
+    if (agent.topContactPointKind === topContactPoint.kind) matched += 1;
+    if (agent.topContactPointLabel === topContactPoint.label) matched += 1;
+    if (agent.topContactPointValue === topContactPoint.value) matched += 1;
+    if (agent.topContactPointUrl === topContactPoint.url) matched += 1;
+    if (agent.topContactPointSource === topContactPoint.source) matched += 1;
+    if (agent.topContactPointSelector === topContactPoint.selector) matched += 1;
+  } else if (agent.topContactPointPath || agent.topContactPointKind || agent.topContactPointLabel || agent.topContactPointValue || agent.topContactPointUrl || agent.topContactPointSource || agent.topContactPointSelector) {
     required += 1;
   }
 

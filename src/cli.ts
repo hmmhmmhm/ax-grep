@@ -1143,6 +1143,9 @@ type AgentSummary = {
   provenanceCount: number;
   offerCount: number;
   datasetCount: number;
+  identityCount: number;
+  timelineCount: number;
+  contactPointCount: number;
   topDataTablePath?: string;
   topDataTableCaption?: string;
   topDataTableRowCount?: number;
@@ -1211,6 +1214,27 @@ type AgentSummary = {
   topDatasetLicenseUrl?: string;
   topDatasetEncodingFormat?: string;
   topDatasetSelector?: string;
+  topIdentityPath?: string;
+  topIdentityKind?: PageIdentitySummary["kind"];
+  topIdentityName?: string;
+  topIdentityUrl?: string;
+  topIdentityLogoUrl?: string;
+  topIdentitySameAsUrl?: string;
+  topIdentitySource?: PageIdentitySummary["source"];
+  topIdentitySelector?: string;
+  topTimelinePath?: string;
+  topTimelineKind?: PageTimelineSummary["kind"];
+  topTimelineLabel?: string;
+  topTimelineValue?: string;
+  topTimelineSource?: PageTimelineSummary["source"];
+  topTimelineSelector?: string;
+  topContactPointPath?: string;
+  topContactPointKind?: PageContactPointSummary["kind"];
+  topContactPointLabel?: string;
+  topContactPointValue?: string;
+  topContactPointUrl?: string;
+  topContactPointSource?: PageContactPointSummary["source"];
+  topContactPointSelector?: string;
   structuredReadTargetCount: number;
   bestStructuredReadTarget?: string;
   bestStructuredReadTargetCount?: number;
@@ -2976,6 +3000,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  provenanceCount: ${agent.provenanceCount}`,
     `  offerCount: ${agent.offerCount}`,
     `  datasetCount: ${agent.datasetCount}`,
+    `  identityCount: ${agent.identityCount}`,
+    `  timelineCount: ${agent.timelineCount}`,
+    `  contactPointCount: ${agent.contactPointCount}`,
     ...(agent.topFaqQuestion ? [`  topFaqQuestion: ${agent.topFaqQuestion}`] : []),
     ...(agent.topCodeBlockText ? [`  topCodeBlockText: ${agent.topCodeBlockText}`] : []),
     ...(agent.topResourceUrl ? [`  topResourceUrl: ${agent.topResourceUrl}`] : []),
@@ -2991,6 +3018,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topProvenanceValue ? [`  topProvenance: ${agent.topProvenancePath ?? ""} ${agent.topProvenanceKind ?? ""}=${agent.topProvenanceValue}${agent.topProvenanceUrl ? ` <${agent.topProvenanceUrl}>` : ""}`] : []),
     ...(agent.topOfferPrice ? [`  topOffer: ${agent.topOfferPath ?? ""} ${agent.topOfferCurrency ?? ""} ${agent.topOfferPrice}${agent.topOfferAvailability ? ` availability=${agent.topOfferAvailability}` : ""}${agent.topOfferUrl ? ` <${agent.topOfferUrl}>` : ""}`] : []),
     ...(agent.topDatasetName ? [`  topDataset: ${agent.topDatasetPath ?? ""} ${agent.topDatasetKind ?? ""}:${agent.topDatasetName}${agent.topDatasetUrl ? ` <${agent.topDatasetUrl}>` : ""}`] : []),
+    ...(agent.topIdentityName ? [`  topIdentity: ${agent.topIdentityPath ?? ""} ${agent.topIdentityKind ?? ""}:${agent.topIdentityName}${agent.topIdentityUrl ? ` <${agent.topIdentityUrl}>` : ""}`] : []),
+    ...(agent.topTimelineValue ? [`  topTimeline: ${agent.topTimelinePath ?? ""} ${agent.topTimelineKind ?? ""}:${agent.topTimelineValue}`] : []),
+    ...(agent.topContactPointValue ? [`  topContactPoint: ${agent.topContactPointPath ?? ""} ${agent.topContactPointKind ?? ""}:${agent.topContactPointValue}${agent.topContactPointUrl ? ` <${agent.topContactPointUrl}>` : ""}`] : []),
     ...(agent.topEmbedUrl ? [`  topEmbedUrl: ${agent.topEmbedUrl}`] : []),
     ...(agent.topTranscriptUrl ? [`  topTranscriptUrl: ${agent.topTranscriptUrl}`] : []),
     ...(agent.topAuthorLinkUrl ? [`  topAuthorLinkUrl: ${agent.topAuthorLinkUrl}`] : []),
@@ -10256,6 +10286,9 @@ function summarizeAgent(
     provenanceCount: pageCheck.provenance.length,
     offerCount: pageCheck.offers.length,
     datasetCount: pageCheck.datasets.length,
+    identityCount: pageCheck.identities.length,
+    timelineCount: pageCheck.timeline.length,
+    contactPointCount: pageCheck.contactPoints.length,
     ...(pageCheck.dataTables[0] ? { topDataTablePath: pageCheck.dataTables[0].path } : {}),
     ...(pageCheck.dataTables[0]?.caption ? { topDataTableCaption: pageCheck.dataTables[0].caption } : {}),
     ...(pageCheck.dataTables[0] ? { topDataTableRowCount: pageCheck.dataTables[0].rowCount } : {}),
@@ -10324,6 +10357,27 @@ function summarizeAgent(
     ...(pageCheck.datasets[0]?.licenseUrl ? { topDatasetLicenseUrl: pageCheck.datasets[0].licenseUrl } : {}),
     ...(pageCheck.datasets[0]?.encodingFormat ? { topDatasetEncodingFormat: pageCheck.datasets[0].encodingFormat } : {}),
     ...(pageCheck.datasets[0]?.selector ? { topDatasetSelector: pageCheck.datasets[0].selector } : {}),
+    ...(pageCheck.identities[0] ? { topIdentityPath: pageCheck.identities[0].path } : {}),
+    ...(pageCheck.identities[0] ? { topIdentityKind: pageCheck.identities[0].kind } : {}),
+    ...(pageCheck.identities[0]?.name ? { topIdentityName: pageCheck.identities[0].name } : {}),
+    ...(pageCheck.identities[0]?.url ? { topIdentityUrl: pageCheck.identities[0].url } : {}),
+    ...(pageCheck.identities[0]?.logoUrl ? { topIdentityLogoUrl: pageCheck.identities[0].logoUrl } : {}),
+    ...(pageCheck.identities[0]?.sameAs?.[0] ? { topIdentitySameAsUrl: pageCheck.identities[0].sameAs[0] } : {}),
+    ...(pageCheck.identities[0] ? { topIdentitySource: pageCheck.identities[0].source } : {}),
+    ...(pageCheck.identities[0]?.selector ? { topIdentitySelector: pageCheck.identities[0].selector } : {}),
+    ...(pageCheck.timeline[0] ? { topTimelinePath: pageCheck.timeline[0].path } : {}),
+    ...(pageCheck.timeline[0] ? { topTimelineKind: pageCheck.timeline[0].kind } : {}),
+    ...(pageCheck.timeline[0]?.label ? { topTimelineLabel: pageCheck.timeline[0].label } : {}),
+    ...(pageCheck.timeline[0]?.value ? { topTimelineValue: pageCheck.timeline[0].value } : {}),
+    ...(pageCheck.timeline[0] ? { topTimelineSource: pageCheck.timeline[0].source } : {}),
+    ...(pageCheck.timeline[0]?.selector ? { topTimelineSelector: pageCheck.timeline[0].selector } : {}),
+    ...(pageCheck.contactPoints[0] ? { topContactPointPath: pageCheck.contactPoints[0].path } : {}),
+    ...(pageCheck.contactPoints[0] ? { topContactPointKind: pageCheck.contactPoints[0].kind } : {}),
+    ...(pageCheck.contactPoints[0]?.label ? { topContactPointLabel: pageCheck.contactPoints[0].label } : {}),
+    ...(pageCheck.contactPoints[0]?.value ? { topContactPointValue: pageCheck.contactPoints[0].value } : {}),
+    ...(pageCheck.contactPoints[0]?.url ? { topContactPointUrl: pageCheck.contactPoints[0].url } : {}),
+    ...(pageCheck.contactPoints[0] ? { topContactPointSource: pageCheck.contactPoints[0].source } : {}),
+    ...(pageCheck.contactPoints[0]?.selector ? { topContactPointSelector: pageCheck.contactPoints[0].selector } : {}),
     structuredReadTargetCount,
     ...(bestStructuredReadTarget ? { bestStructuredReadTarget: bestStructuredReadTarget.path } : {}),
     ...(typeof bestStructuredReadTarget?.count === "number" ? { bestStructuredReadTargetCount: bestStructuredReadTarget.count } : {}),
@@ -13050,6 +13104,9 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     provenanceCount: 0,
     offerCount: 0,
     datasetCount: 0,
+    identityCount: 0,
+    timelineCount: 0,
+    contactPointCount: 0,
     structuredReadTargetCount: 0,
     hiddenSignalCount: 0,
     hiddenReadTargetCount: 0,
@@ -14661,6 +14718,9 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     provenanceCount: agent.provenanceCount,
     offerCount: agent.offerCount,
     datasetCount: agent.datasetCount,
+    identityCount: agent.identityCount,
+    timelineCount: agent.timelineCount,
+    contactPointCount: agent.contactPointCount,
     ...(agent.topDataTablePath ? { topDataTablePath: agent.topDataTablePath } : {}),
     ...(agent.topDataTableCaption ? { topDataTableCaption: agent.topDataTableCaption } : {}),
     ...(typeof agent.topDataTableRowCount === "number" ? { topDataTableRowCount: agent.topDataTableRowCount } : {}),
@@ -14729,6 +14789,27 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topDatasetLicenseUrl ? { topDatasetLicenseUrl: agent.topDatasetLicenseUrl } : {}),
     ...(agent.topDatasetEncodingFormat ? { topDatasetEncodingFormat: agent.topDatasetEncodingFormat } : {}),
     ...(agent.topDatasetSelector ? { topDatasetSelector: agent.topDatasetSelector } : {}),
+    ...(agent.topIdentityPath ? { topIdentityPath: agent.topIdentityPath } : {}),
+    ...(agent.topIdentityKind ? { topIdentityKind: agent.topIdentityKind } : {}),
+    ...(agent.topIdentityName ? { topIdentityName: agent.topIdentityName } : {}),
+    ...(agent.topIdentityUrl ? { topIdentityUrl: agent.topIdentityUrl } : {}),
+    ...(agent.topIdentityLogoUrl ? { topIdentityLogoUrl: agent.topIdentityLogoUrl } : {}),
+    ...(agent.topIdentitySameAsUrl ? { topIdentitySameAsUrl: agent.topIdentitySameAsUrl } : {}),
+    ...(agent.topIdentitySource ? { topIdentitySource: agent.topIdentitySource } : {}),
+    ...(agent.topIdentitySelector ? { topIdentitySelector: agent.topIdentitySelector } : {}),
+    ...(agent.topTimelinePath ? { topTimelinePath: agent.topTimelinePath } : {}),
+    ...(agent.topTimelineKind ? { topTimelineKind: agent.topTimelineKind } : {}),
+    ...(agent.topTimelineLabel ? { topTimelineLabel: agent.topTimelineLabel } : {}),
+    ...(agent.topTimelineValue ? { topTimelineValue: agent.topTimelineValue } : {}),
+    ...(agent.topTimelineSource ? { topTimelineSource: agent.topTimelineSource } : {}),
+    ...(agent.topTimelineSelector ? { topTimelineSelector: agent.topTimelineSelector } : {}),
+    ...(agent.topContactPointPath ? { topContactPointPath: agent.topContactPointPath } : {}),
+    ...(agent.topContactPointKind ? { topContactPointKind: agent.topContactPointKind } : {}),
+    ...(agent.topContactPointLabel ? { topContactPointLabel: agent.topContactPointLabel } : {}),
+    ...(agent.topContactPointValue ? { topContactPointValue: agent.topContactPointValue } : {}),
+    ...(agent.topContactPointUrl ? { topContactPointUrl: agent.topContactPointUrl } : {}),
+    ...(agent.topContactPointSource ? { topContactPointSource: agent.topContactPointSource } : {}),
+    ...(agent.topContactPointSelector ? { topContactPointSelector: agent.topContactPointSelector } : {}),
     structuredReadTargetCount: agent.structuredReadTargetCount,
     ...(agent.bestStructuredReadTarget ? { bestStructuredReadTarget: agent.bestStructuredReadTarget } : {}),
     ...(typeof agent.bestStructuredReadTargetCount === "number" ? { bestStructuredReadTargetCount: agent.bestStructuredReadTargetCount } : {}),
@@ -15201,6 +15282,18 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topDatasetName ? { topDatasetName: agent.topDatasetName } : {}),
     ...(agent.topDatasetUrl ? { topDatasetUrl: agent.topDatasetUrl } : {}),
     ...(agent.topDatasetLicenseUrl ? { topDatasetLicenseUrl: agent.topDatasetLicenseUrl } : {}),
+    ...(agent.topIdentityPath ? { topIdentityPath: agent.topIdentityPath } : {}),
+    ...(agent.topIdentityKind ? { topIdentityKind: agent.topIdentityKind } : {}),
+    ...(agent.topIdentityName ? { topIdentityName: agent.topIdentityName } : {}),
+    ...(agent.topIdentityUrl ? { topIdentityUrl: agent.topIdentityUrl } : {}),
+    ...(agent.topIdentitySameAsUrl ? { topIdentitySameAsUrl: agent.topIdentitySameAsUrl } : {}),
+    ...(agent.topTimelinePath ? { topTimelinePath: agent.topTimelinePath } : {}),
+    ...(agent.topTimelineKind ? { topTimelineKind: agent.topTimelineKind } : {}),
+    ...(agent.topTimelineValue ? { topTimelineValue: agent.topTimelineValue } : {}),
+    ...(agent.topContactPointPath ? { topContactPointPath: agent.topContactPointPath } : {}),
+    ...(agent.topContactPointKind ? { topContactPointKind: agent.topContactPointKind } : {}),
+    ...(agent.topContactPointValue ? { topContactPointValue: agent.topContactPointValue } : {}),
+    ...(agent.topContactPointUrl ? { topContactPointUrl: agent.topContactPointUrl } : {}),
     structuredReadTargetCount: agent.structuredReadTargetCount,
     ...(agent.bestStructuredReadTarget ? { bestStructuredReadTarget: agent.bestStructuredReadTarget } : {}),
     ...(typeof agent.bestStructuredReadTargetCount === "number" ? { bestStructuredReadTargetCount: agent.bestStructuredReadTargetCount } : {}),

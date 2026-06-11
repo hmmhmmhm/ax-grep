@@ -6522,6 +6522,15 @@ describe("cli", () => {
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("3 identity entries");
+    expect(envelope.agent).toMatchObject({
+      identityCount: 3,
+      topIdentityPath: "pageCheck.identities[0]",
+      topIdentityKind: "website",
+      topIdentityName: "Example Labs",
+      topIdentityUrl: "https://example.test/about",
+      topIdentitySource: "meta",
+      topIdentitySelector: "meta[property=\"og:site_name\"], meta[name=\"application-name\"]",
+    });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.identities",
       count: 3,
@@ -6707,6 +6716,14 @@ describe("cli", () => {
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("3 timeline facts");
+    expect(envelope.agent).toMatchObject({
+      timelineCount: 3,
+      topTimelinePath: "pageCheck.timeline[0]",
+      topTimelineKind: "published",
+      topTimelineLabel: "Published",
+      topTimelineValue: "2026-06-01T09:00:00Z",
+      topTimelineSource: "page",
+    });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.timeline",
       count: 3,
@@ -6809,6 +6826,15 @@ describe("cli", () => {
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("4 contact points");
+    expect(envelope.agent).toMatchObject({
+      contactPointCount: 4,
+      topContactPointPath: "pageCheck.contactPoints[0]",
+      topContactPointKind: "phone",
+      topContactPointLabel: "Support",
+      topContactPointValue: "+1-555-0100",
+      topContactPointSource: "json-ld",
+      topContactPointSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+    });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.contactPoints",
       count: 4,
