@@ -7527,6 +7527,13 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  responseOk: true");
     expect(stdout.output).toContain("  responseContentType: text/plain;charset=UTF-8");
     expect(stdout.output).toContain("  finalUrlChanged: false");
+    expect(stdout.output).toContain("  resultCount: 0");
+    expect(stdout.output).toContain("  evidenceCount: 1");
+    expect(stdout.output).toContain("  formCount: 0");
+    expect(stdout.output).toContain("  actionTargetCount: 0");
+    expect(stdout.output).toContain("  hiddenSignalCount: 4");
+    expect(stdout.output).toContain("  hiddenReadTargetCount: 2");
+    expect(stdout.output).toContain("  sourceLinkCount: 1");
     expect(stdout.output).toContain("  alternativeActionCount: 1");
     expect(stdout.output).toContain("  usabilityScore:");
     expect(stdout.output).toContain("  evidenceQualityScore:");
