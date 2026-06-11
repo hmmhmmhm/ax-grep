@@ -252,6 +252,7 @@ describe("cli", () => {
               <h1>Example</h1>
               <p id="toggle-desc">Shows extra context</p>
               <button aria-pressed="false" aria-valuetext="details off" aria-describedby="toggle-desc">Toggle details</button>
+              <img src="/hero.png" alt="Hero chart">
               <p class="byline">By <a href="/authors/reporter">Reporter Profile</a></p>
               <p>Example content for agent routing.</p>
               <a href="https://target.example/">Target</a>
@@ -296,13 +297,14 @@ describe("cli", () => {
           landmarkCount: 1,
           linkCount: 2,
           buttonCount: 1,
+          imageCount: 1,
           topRoles: expect.arrayContaining([
             expect.objectContaining({ role: "p", count: 3 }),
             expect.objectContaining({ role: "link", count: 2 }),
           ]),
           landmarks: expect.arrayContaining(["main"]),
           headings: ["Example"],
-          namedRoles: expect.arrayContaining(["heading:Example", "link:Reporter Profile", "link:Target"]),
+          namedRoles: expect.arrayContaining(["heading:Example", "button:Toggle details", "img:Hero chart", "link:Reporter Profile"]),
           headingItems: [
             expect.objectContaining({
               path: "agent.semanticSummary.headingItems[0]",
@@ -322,7 +324,19 @@ describe("cli", () => {
               role: "heading",
               name: "Example",
             }),
+            expect.objectContaining({
+              role: "img",
+              name: "Hero chart",
+            }),
           ]),
+          imageItems: [
+            expect.objectContaining({
+              path: "agent.semanticSummary.imageItems[0]",
+              name: "Hero chart",
+              url: "https://example.test/hero.png",
+              selector: "img",
+            }),
+          ],
         },
         semanticNodeCount: expect.any(Number),
         semanticNamedRoleCount: expect.any(Number),
@@ -331,6 +345,7 @@ describe("cli", () => {
         semanticLandmarkCount: 1,
         semanticLinkCount: 2,
         semanticButtonCount: 1,
+        semanticImageCount: 1,
         semanticTopRole: "p",
         semanticTopRoleCount: 3,
         semanticTopHeading: "Example",
@@ -354,6 +369,10 @@ describe("cli", () => {
         semanticTopButtonName: "Toggle details",
         semanticTopButtonPath: "agent.semanticSummary.buttons[0]",
         semanticTopButtonDescription: "Shows extra context",
+        semanticTopImagePath: "agent.semanticSummary.imageItems[0]",
+        semanticTopImageName: "Hero chart",
+        semanticTopImageUrl: "https://example.test/hero.png",
+        semanticTopImageSelector: "img",
         routingIntent: "read-current",
         continuationMode: "read",
         next: {
@@ -661,8 +680,8 @@ describe("cli", () => {
       primary: true,
     }));
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
-      path: "pageCheck.authorLinks",
-      count: 2,
+      path: "pageCheck.media",
+      count: 1,
     }));
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "agent.semanticSummary",

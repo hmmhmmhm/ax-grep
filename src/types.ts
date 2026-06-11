@@ -556,6 +556,7 @@ export type AgentSummary = {
   semanticLandmarkCount?: number;
   semanticLinkCount?: number;
   semanticButtonCount?: number;
+  semanticImageCount?: number;
   semanticFieldCount?: number;
   semanticChoiceCount?: number;
   semanticStateCount?: number;
@@ -588,6 +589,10 @@ export type AgentSummary = {
   semanticTopButtonPath?: string;
   semanticTopButtonDescription?: string;
   semanticTopButtonSelector?: string;
+  semanticTopImagePath?: string;
+  semanticTopImageName?: string;
+  semanticTopImageUrl?: string;
+  semanticTopImageSelector?: string;
   semanticTopFieldRole?: string;
   semanticTopFieldPath?: string;
   semanticTopFieldName?: string;

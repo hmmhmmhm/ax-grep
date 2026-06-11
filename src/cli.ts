@@ -156,6 +156,7 @@ type AgentSemanticSummary = {
   landmarkCount: number;
   linkCount: number;
   buttonCount: number;
+  imageCount: number;
   fieldCount: number;
   choiceCount: number;
   stateCount: number;
@@ -170,6 +171,7 @@ type AgentSemanticSummary = {
   interactiveRoles: Array<{ path: string; role: string; name: string; description?: string; value?: string; selector?: string; state?: SemanticNodeState }>;
   links: Array<{ path: string; name: string; url?: string; selector?: string }>;
   buttons: Array<{ path: string; name: string; description?: string; selector?: string }>;
+  imageItems: Array<{ path: string; name?: string; url?: string; selector?: string }>;
   fieldItems: Array<{ path: string; role: string; name?: string; description?: string; value?: string; selector?: string; state?: SemanticNodeState }>;
   choiceItems: Array<{ path: string; role: string; name: string; selector?: string; state?: SemanticNodeState }>;
   stateItems: Array<{ path: string; role: string; name?: string; state: string; selector?: string }>;
@@ -915,6 +917,7 @@ type AgentSummary = {
   semanticLandmarkCount?: number;
   semanticLinkCount?: number;
   semanticButtonCount?: number;
+  semanticImageCount?: number;
   semanticFieldCount?: number;
   semanticChoiceCount?: number;
   semanticStateCount?: number;
@@ -947,6 +950,10 @@ type AgentSummary = {
   semanticTopButtonPath?: string;
   semanticTopButtonDescription?: string;
   semanticTopButtonSelector?: string;
+  semanticTopImagePath?: string;
+  semanticTopImageName?: string;
+  semanticTopImageUrl?: string;
+  semanticTopImageSelector?: string;
   semanticTopFieldRole?: string;
   semanticTopFieldPath?: string;
   semanticTopFieldName?: string;
@@ -3092,6 +3099,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (typeof agent.semanticLandmarkCount === "number") lines.push(`  semanticLandmarkCount: ${agent.semanticLandmarkCount}`);
   if (typeof agent.semanticLinkCount === "number") lines.push(`  semanticLinkCount: ${agent.semanticLinkCount}`);
   if (typeof agent.semanticButtonCount === "number") lines.push(`  semanticButtonCount: ${agent.semanticButtonCount}`);
+  if (typeof agent.semanticImageCount === "number") lines.push(`  semanticImageCount: ${agent.semanticImageCount}`);
   if (typeof agent.semanticFieldCount === "number") lines.push(`  semanticFieldCount: ${agent.semanticFieldCount}`);
   if (typeof agent.semanticChoiceCount === "number") lines.push(`  semanticChoiceCount: ${agent.semanticChoiceCount}`);
   if (typeof agent.semanticStateCount === "number") lines.push(`  semanticStateCount: ${agent.semanticStateCount}`);
@@ -3102,6 +3110,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.semanticTopInteractiveRole) lines.push(`  semanticTopInteractive: ${agent.semanticTopInteractivePath ?? ""} ${agent.semanticTopInteractiveRole}:${agent.semanticTopInteractiveName ?? ""}${agent.semanticTopInteractiveDescription ? ` description=${agent.semanticTopInteractiveDescription}` : ""}${agent.semanticTopInteractiveValue ? ` value=${agent.semanticTopInteractiveValue}` : ""}${agent.semanticTopInteractiveState ? ` state=${agent.semanticTopInteractiveState}` : ""}${agent.semanticTopInteractiveSelector ? ` selector=${agent.semanticTopInteractiveSelector}` : ""}`);
   if (agent.semanticTopLinkName) lines.push(`  semanticTopLink: ${agent.semanticTopLinkPath ?? ""} ${agent.semanticTopLinkName}${agent.semanticTopLinkUrl ? ` <${agent.semanticTopLinkUrl}>` : ""}${agent.semanticTopLinkSelector ? ` selector=${agent.semanticTopLinkSelector}` : ""}`);
   if (agent.semanticTopButtonName) lines.push(`  semanticTopButton: ${agent.semanticTopButtonPath ?? ""} ${agent.semanticTopButtonName}${agent.semanticTopButtonDescription ? ` description=${agent.semanticTopButtonDescription}` : ""}${agent.semanticTopButtonSelector ? ` selector=${agent.semanticTopButtonSelector}` : ""}`);
+  if (agent.semanticTopImagePath) lines.push(`  semanticTopImage: ${agent.semanticTopImagePath} ${agent.semanticTopImageName ?? ""}${agent.semanticTopImageUrl ? ` <${agent.semanticTopImageUrl}>` : ""}${agent.semanticTopImageSelector ? ` selector=${agent.semanticTopImageSelector}` : ""}`);
   if (agent.semanticTopFieldRole) lines.push(`  semanticTopField: ${agent.semanticTopFieldPath ?? ""} ${agent.semanticTopFieldRole}${agent.semanticTopFieldName ? `:${agent.semanticTopFieldName}` : ""}${agent.semanticTopFieldDescription ? ` description=${agent.semanticTopFieldDescription}` : ""}${agent.semanticTopFieldValue ? ` value=${agent.semanticTopFieldValue}` : ""}${agent.semanticTopFieldState ? ` state=${agent.semanticTopFieldState}` : ""}${agent.semanticTopFieldSelector ? ` selector=${agent.semanticTopFieldSelector}` : ""}`);
   if (agent.semanticTopChoiceRole) lines.push(`  semanticTopChoice: ${agent.semanticTopChoicePath ?? ""} ${agent.semanticTopChoiceRole}:${agent.semanticTopChoiceName ?? ""}${agent.semanticTopChoiceState ? ` state=${agent.semanticTopChoiceState}` : ""}${agent.semanticTopChoiceSelector ? ` selector=${agent.semanticTopChoiceSelector}` : ""}`);
   if (agent.semanticTopState) lines.push(`  semanticTopState: ${agent.semanticTopStatePath ?? ""} ${agent.semanticTopStateRole ?? ""}${agent.semanticTopStateName ? `:${agent.semanticTopStateName}` : ""} state=${agent.semanticTopState}${agent.semanticTopStateSelector ? ` selector=${agent.semanticTopStateSelector}` : ""}`);
@@ -9382,12 +9391,14 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
   const interactiveRoles: AgentSemanticSummary["interactiveRoles"] = [];
   const links: AgentSemanticSummary["links"] = [];
   const buttons: AgentSemanticSummary["buttons"] = [];
+  const imageItems: AgentSemanticSummary["imageItems"] = [];
   const fieldItems: AgentSemanticSummary["fieldItems"] = [];
   const choiceItems: AgentSemanticSummary["choiceItems"] = [];
   const stateItems: AgentSemanticSummary["stateItems"] = [];
   let nodeCount = 0;
   let namedRoleCount = 0;
   let interactiveCount = 0;
+  let imageCount = 0;
   let fieldCount = 0;
   let choiceCount = 0;
   let stateCount = 0;
@@ -9435,6 +9446,19 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
           role: node.role,
           name: node.name,
           ...(node.state ? { state: node.state } : {}),
+          ...(node.selector ? { selector: node.selector } : {}),
+        });
+      }
+    }
+    if (node.role === "img") {
+      imageCount += 1;
+      if (imageItems.length < 8) {
+        const src = node.attributes?.src;
+        const url = src && baseUrl ? normalizeHref(src, baseUrl) : src;
+        imageItems.push({
+          path: `agent.semanticSummary.imageItems[${imageItems.length}]`,
+          ...(node.name ? { name: node.name } : {}),
+          ...(url ? { url } : {}),
           ...(node.selector ? { selector: node.selector } : {}),
         });
       }
@@ -9530,6 +9554,7 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
     landmarkCount,
     linkCount: roleCounts.link ?? 0,
     buttonCount: roleCounts.button ?? 0,
+    imageCount,
     fieldCount,
     choiceCount,
     stateCount,
@@ -9544,6 +9569,7 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
     interactiveRoles,
     links,
     buttons,
+    imageItems,
     fieldItems,
     choiceItems,
     stateItems,
@@ -9633,6 +9659,7 @@ function summarizeAgent(
   const topSemanticNamedRole = semanticSummary?.namedRoleItems[0];
   const topSemanticInteractive = semanticSummary?.interactiveRoles[0];
   const topSemanticInteractiveState = formatSemanticState(topSemanticInteractive?.state);
+  const topSemanticImage = semanticSummary?.imageItems[0];
   const topSemanticField = semanticSummary?.fieldItems[0];
   const topSemanticFieldState = formatSemanticState(topSemanticField?.state);
   const topSemanticChoice = semanticSummary?.choiceItems[0];
@@ -9720,6 +9747,7 @@ function summarizeAgent(
     ...(semanticSummary ? { semanticLandmarkCount: semanticSummary.landmarkCount } : {}),
     ...(semanticSummary ? { semanticLinkCount: semanticSummary.linkCount } : {}),
     ...(semanticSummary ? { semanticButtonCount: semanticSummary.buttonCount } : {}),
+    ...(semanticSummary ? { semanticImageCount: semanticSummary.imageCount } : {}),
     ...(semanticSummary ? { semanticFieldCount: semanticSummary.fieldCount } : {}),
     ...(semanticSummary ? { semanticChoiceCount: semanticSummary.choiceCount } : {}),
     ...(semanticSummary ? { semanticStateCount: semanticSummary.stateCount } : {}),
@@ -9752,6 +9780,10 @@ function summarizeAgent(
     ...(semanticSummary?.buttons[0] ? { semanticTopButtonPath: semanticSummary.buttons[0].path } : {}),
     ...(semanticSummary?.buttons[0]?.description ? { semanticTopButtonDescription: semanticSummary.buttons[0].description } : {}),
     ...(semanticSummary?.buttons[0]?.selector ? { semanticTopButtonSelector: semanticSummary.buttons[0].selector } : {}),
+    ...(topSemanticImage ? { semanticTopImagePath: topSemanticImage.path } : {}),
+    ...(topSemanticImage?.name ? { semanticTopImageName: topSemanticImage.name } : {}),
+    ...(topSemanticImage?.url ? { semanticTopImageUrl: topSemanticImage.url } : {}),
+    ...(topSemanticImage?.selector ? { semanticTopImageSelector: topSemanticImage.selector } : {}),
     ...(topSemanticField ? { semanticTopFieldRole: topSemanticField.role } : {}),
     ...(topSemanticField ? { semanticTopFieldPath: topSemanticField.path } : {}),
     ...(topSemanticField?.name ? { semanticTopFieldName: topSemanticField.name } : {}),
@@ -14028,6 +14060,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.semanticLandmarkCount === "number" ? { semanticLandmarkCount: agent.semanticLandmarkCount } : {}),
     ...(typeof agent.semanticLinkCount === "number" ? { semanticLinkCount: agent.semanticLinkCount } : {}),
     ...(typeof agent.semanticButtonCount === "number" ? { semanticButtonCount: agent.semanticButtonCount } : {}),
+    ...(typeof agent.semanticImageCount === "number" ? { semanticImageCount: agent.semanticImageCount } : {}),
     ...(typeof agent.semanticFieldCount === "number" ? { semanticFieldCount: agent.semanticFieldCount } : {}),
     ...(typeof agent.semanticChoiceCount === "number" ? { semanticChoiceCount: agent.semanticChoiceCount } : {}),
     ...(typeof agent.semanticStateCount === "number" ? { semanticStateCount: agent.semanticStateCount } : {}),
@@ -14060,6 +14093,10 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.semanticTopButtonPath ? { semanticTopButtonPath: agent.semanticTopButtonPath } : {}),
     ...(agent.semanticTopButtonDescription ? { semanticTopButtonDescription: agent.semanticTopButtonDescription } : {}),
     ...(agent.semanticTopButtonSelector ? { semanticTopButtonSelector: agent.semanticTopButtonSelector } : {}),
+    ...(agent.semanticTopImagePath ? { semanticTopImagePath: agent.semanticTopImagePath } : {}),
+    ...(agent.semanticTopImageName ? { semanticTopImageName: agent.semanticTopImageName } : {}),
+    ...(agent.semanticTopImageUrl ? { semanticTopImageUrl: agent.semanticTopImageUrl } : {}),
+    ...(agent.semanticTopImageSelector ? { semanticTopImageSelector: agent.semanticTopImageSelector } : {}),
     ...(agent.semanticTopFieldRole ? { semanticTopFieldRole: agent.semanticTopFieldRole } : {}),
     ...(agent.semanticTopFieldPath ? { semanticTopFieldPath: agent.semanticTopFieldPath } : {}),
     ...(agent.semanticTopFieldName ? { semanticTopFieldName: agent.semanticTopFieldName } : {}),
@@ -14472,6 +14509,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.semanticLandmarkCount === "number" ? { semanticLandmarkCount: agent.semanticLandmarkCount } : {}),
     ...(typeof agent.semanticLinkCount === "number" ? { semanticLinkCount: agent.semanticLinkCount } : {}),
     ...(typeof agent.semanticButtonCount === "number" ? { semanticButtonCount: agent.semanticButtonCount } : {}),
+    ...(typeof agent.semanticImageCount === "number" ? { semanticImageCount: agent.semanticImageCount } : {}),
     ...(typeof agent.semanticFieldCount === "number" ? { semanticFieldCount: agent.semanticFieldCount } : {}),
     ...(agent.semanticTopRole ? { semanticTopRole: agent.semanticTopRole } : {}),
     ...(typeof agent.semanticTopRoleCount === "number" ? { semanticTopRoleCount: agent.semanticTopRoleCount } : {}),
@@ -14499,6 +14537,9 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.semanticTopButtonName ? { semanticTopButtonName: agent.semanticTopButtonName } : {}),
     ...(agent.semanticTopButtonPath ? { semanticTopButtonPath: agent.semanticTopButtonPath } : {}),
     ...(agent.semanticTopButtonDescription ? { semanticTopButtonDescription: agent.semanticTopButtonDescription } : {}),
+    ...(agent.semanticTopImagePath ? { semanticTopImagePath: agent.semanticTopImagePath } : {}),
+    ...(agent.semanticTopImageName ? { semanticTopImageName: agent.semanticTopImageName } : {}),
+    ...(agent.semanticTopImageUrl ? { semanticTopImageUrl: agent.semanticTopImageUrl } : {}),
     ...(agent.semanticTopFieldRole ? { semanticTopFieldRole: agent.semanticTopFieldRole } : {}),
     ...(agent.semanticTopFieldPath ? { semanticTopFieldPath: agent.semanticTopFieldPath } : {}),
     ...(agent.semanticTopFieldName ? { semanticTopFieldName: agent.semanticTopFieldName } : {}),
@@ -14935,6 +14976,7 @@ function compactAgentSemanticSummary(summary: AgentSemanticSummary): object {
     landmarkCount: summary.landmarkCount,
     linkCount: summary.linkCount,
     buttonCount: summary.buttonCount,
+    imageCount: summary.imageCount,
     fieldCount: summary.fieldCount,
     choiceCount: summary.choiceCount,
     stateCount: summary.stateCount,
@@ -14949,6 +14991,7 @@ function compactAgentSemanticSummary(summary: AgentSemanticSummary): object {
     interactiveRoles: summary.interactiveRoles.slice(0, 4),
     links: summary.links.slice(0, 4),
     buttons: summary.buttons.slice(0, 4),
+    imageItems: summary.imageItems.slice(0, 4),
     fieldItems: summary.fieldItems.slice(0, 4),
     choiceItems: summary.choiceItems.slice(0, 4),
     stateItems: summary.stateItems.slice(0, 4),

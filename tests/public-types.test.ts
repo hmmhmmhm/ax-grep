@@ -362,6 +362,7 @@ describe("public agent types", () => {
       | "semanticLandmarkCount"
       | "semanticLinkCount"
       | "semanticButtonCount"
+      | "semanticImageCount"
       | "semanticFieldCount"
       | "semanticChoiceCount"
       | "semanticStateCount"
@@ -394,6 +395,10 @@ describe("public agent types", () => {
       | "semanticTopButtonPath"
       | "semanticTopButtonDescription"
       | "semanticTopButtonSelector"
+      | "semanticTopImagePath"
+      | "semanticTopImageName"
+      | "semanticTopImageUrl"
+      | "semanticTopImageSelector"
       | "semanticTopFieldRole"
       | "semanticTopFieldPath"
       | "semanticTopFieldName"
@@ -760,6 +765,7 @@ describe("public agent types", () => {
       semanticLandmarkCount: 1,
       semanticLinkCount: 2,
       semanticButtonCount: 1,
+      semanticImageCount: 1,
       semanticFieldCount: 1,
       semanticChoiceCount: 1,
       semanticStateCount: 1,
@@ -791,6 +797,10 @@ describe("public agent types", () => {
       semanticTopButtonPath: "agent.semanticSummary.buttons[0]",
       semanticTopButtonDescription: "Opens the subscription dialog",
       semanticTopButtonSelector: "button:nth-of-type(1)",
+      semanticTopImagePath: "agent.semanticSummary.imageItems[0]",
+      semanticTopImageName: "Product screenshot",
+      semanticTopImageUrl: "https://example.test/product.png",
+      semanticTopImageSelector: "img:nth-of-type(1)",
       semanticTopFieldRole: "textbox",
       semanticTopFieldPath: "agent.semanticSummary.fieldItems[0]",
       semanticTopFieldName: "Email",
