@@ -77,7 +77,10 @@ const syntheticHiddenMetadataHtml = `
       </script>
     </head>
     <body>
-      <main><h1>Hidden agent payload</h1></main>
+      <main>
+        <h1>Hidden agent payload</h1>
+        <p>This fixture gives agents readable content plus hidden metadata for page-check routing.</p>
+      </main>
     </body>
   </html>
 `;
@@ -198,12 +201,21 @@ export const chinaJapanTargets: BenchmarkTarget[] = [
   },
 ];
 
-export const agentExecutorTargets: BenchmarkTarget[] = [
+export const agentFixtureTargets: BenchmarkTarget[] = [
   {
     category: "Synthetic search open gate",
     url: "https://www.bing.com/search?q=ax-grep",
     html: syntheticSearchHtml,
   },
+  {
+    category: "Synthetic hidden metadata gate",
+    url: "https://hidden.example/agent",
+    html: syntheticHiddenMetadataHtml,
+  },
+];
+
+export const agentExecutorTargets: BenchmarkTarget[] = [
+  ...agentFixtureTargets,
   {
     category: "Synthetic search refine gate",
     url: "https://www.baidu.com/s?wd=ax-lite",
@@ -220,11 +232,6 @@ export const agentExecutorTargets: BenchmarkTarget[] = [
     category: "Synthetic browser HTML retry gate",
     url: "https://blocked.example/app-shell",
     html: syntheticBlockedHtml,
-  },
-  {
-    category: "Synthetic hidden metadata gate",
-    url: "https://hidden.example/agent",
-    html: syntheticHiddenMetadataHtml,
   },
   {
     category: "Example baseline",
@@ -266,6 +273,7 @@ export function resolveBenchmarkTargets(args: string[], fallback: string[]): Ben
   const targetSetIndex = args.indexOf("--target-set");
   if (targetSetIndex >= 0) {
     const name = args[targetSetIndex + 1];
+    if (name === "agent-fixtures") return agentFixtureTargets;
     if (name === "agent-executor") return agentExecutorTargets;
     if (name === "korea-social") return koreaSocialTargets;
     if (name === "china-japan") return chinaJapanTargets;
