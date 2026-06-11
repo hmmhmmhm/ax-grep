@@ -945,10 +945,14 @@ type AgentSummary = {
   topAnswerEvidenceReason?: string;
   answerPlanStatus?: AgentAnswerPlan["status"];
   answerPlanConfidence?: AgentAnswerPlan["confidence"];
+  answerPlanReason?: string;
+  answerPlanNextAction?: string;
   answerGapCount?: number;
   answerUseCitationIds?: string[];
   answerPlanReadFrom?: string;
   answerPlanCommandArgs?: string[];
+  answerPlanAfterInteractionCommand?: string;
+  answerPlanAfterInteractionCommandArgs?: string[];
   answerPlanUrl?: string;
   readTargetCount: number;
   readTargets: AgentReadTarget[];
@@ -2577,8 +2581,12 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.handoffTargetText) lines.push(`  handoffTargetText: ${agent.handoffTargetText}`);
   if (agent.answerPlanStatus) lines.push(`  answerPlanStatus: ${agent.answerPlanStatus}`);
   if (agent.answerPlanConfidence) lines.push(`  answerPlanConfidence: ${agent.answerPlanConfidence}`);
+  if (agent.answerPlanReason) lines.push(`  answerPlanReason: ${agent.answerPlanReason}`);
+  if (agent.answerPlanNextAction) lines.push(`  answerPlanNextAction: ${agent.answerPlanNextAction}`);
   if (typeof agent.answerGapCount === "number") lines.push(`  answerGapCount: ${agent.answerGapCount}`);
   if (agent.answerUseCitationIds?.length) lines.push(`  answerUseCitationIds: ${agent.answerUseCitationIds.join(", ")}`);
+  if (agent.answerPlanAfterInteractionCommand) lines.push(`  answerPlanAfterInteractionCommand: ${agent.answerPlanAfterInteractionCommand}`);
+  if (agent.answerPlanAfterInteractionCommandArgs?.length) lines.push(`  answerPlanAfterInteractionCommandArgs: ${JSON.stringify(agent.answerPlanAfterInteractionCommandArgs)}`);
   if (agent.executor.readFrom) lines.push(`  executorReadFrom: ${agent.executor.readFrom}`);
   if (agent.executor.readValue) lines.push(...formatAgentReadValueText(agent.executor.readValue, "executorReadValue"));
   if (agent.executor.commandArgs) lines.push(`  executorCommandArgs: ${formatCommandArgsText(agent.executor.commandArgs)}`);
@@ -9137,10 +9145,14 @@ function summarizeAgent(
     ...(answerEvidence[0]?.reason ? { topAnswerEvidenceReason: answerEvidence[0].reason } : {}),
     answerPlanStatus: answerPlan.status,
     answerPlanConfidence: answerPlan.confidence,
+    answerPlanReason: answerPlan.reason,
+    ...(answerPlan.nextAction ? { answerPlanNextAction: answerPlan.nextAction } : {}),
     answerGapCount: answerPlan.gaps.length,
     ...(answerPlan.useCitationIds.length > 0 ? { answerUseCitationIds: answerPlan.useCitationIds } : {}),
     ...(answerPlan.readFrom ? { answerPlanReadFrom: answerPlan.readFrom } : {}),
     ...(answerPlan.commandArgs ? { answerPlanCommandArgs: answerPlan.commandArgs } : {}),
+    ...(answerPlan.afterInteractionCommand ? { answerPlanAfterInteractionCommand: answerPlan.afterInteractionCommand } : {}),
+    ...(answerPlan.afterInteractionCommandArgs ? { answerPlanAfterInteractionCommandArgs: answerPlan.afterInteractionCommandArgs } : {}),
     ...(answerPlan.url ? { answerPlanUrl: answerPlan.url } : {}),
     readTargetCount: readTargets.length,
     readTargets,
@@ -13071,10 +13083,14 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topAnswerEvidenceReason ? { topAnswerEvidenceReason: agent.topAnswerEvidenceReason } : {}),
     ...(agent.answerPlanStatus ? { answerPlanStatus: agent.answerPlanStatus } : {}),
     ...(agent.answerPlanConfidence ? { answerPlanConfidence: agent.answerPlanConfidence } : {}),
+    ...(agent.answerPlanReason ? { answerPlanReason: agent.answerPlanReason } : {}),
+    ...(agent.answerPlanNextAction ? { answerPlanNextAction: agent.answerPlanNextAction } : {}),
     ...(typeof agent.answerGapCount === "number" ? { answerGapCount: agent.answerGapCount } : {}),
     ...(agent.answerUseCitationIds && agent.answerUseCitationIds.length > 0 ? { answerUseCitationIds: agent.answerUseCitationIds } : {}),
     ...(agent.answerPlanReadFrom ? { answerPlanReadFrom: agent.answerPlanReadFrom } : {}),
     ...(agent.answerPlanCommandArgs ? { answerPlanCommandArgs: agent.answerPlanCommandArgs } : {}),
+    ...(agent.answerPlanAfterInteractionCommand ? { answerPlanAfterInteractionCommand: agent.answerPlanAfterInteractionCommand } : {}),
+    ...(agent.answerPlanAfterInteractionCommandArgs ? { answerPlanAfterInteractionCommandArgs: agent.answerPlanAfterInteractionCommandArgs } : {}),
     ...(agent.answerPlanUrl ? { answerPlanUrl: agent.answerPlanUrl } : {}),
     readTargetCount: agent.readTargetCount,
     ...(agent.readTargets.length > 0 ? { readTargets: compactAgentReadTargets(agent.readTargets) } : {}),
@@ -13245,10 +13261,14 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topAnswerEvidenceReason ? { topAnswerEvidenceReason: agent.topAnswerEvidenceReason } : {}),
     ...(agent.answerPlanStatus ? { answerPlanStatus: agent.answerPlanStatus } : {}),
     ...(agent.answerPlanConfidence ? { answerPlanConfidence: agent.answerPlanConfidence } : {}),
+    ...(agent.answerPlanReason ? { answerPlanReason: agent.answerPlanReason } : {}),
+    ...(agent.answerPlanNextAction ? { answerPlanNextAction: agent.answerPlanNextAction } : {}),
     ...(typeof agent.answerGapCount === "number" ? { answerGapCount: agent.answerGapCount } : {}),
     ...(agent.answerUseCitationIds && agent.answerUseCitationIds.length > 0 ? { answerUseCitationIds: agent.answerUseCitationIds } : {}),
     ...(agent.answerPlanReadFrom ? { answerPlanReadFrom: agent.answerPlanReadFrom } : {}),
     ...(agent.answerPlanCommandArgs ? { answerPlanCommandArgs: agent.answerPlanCommandArgs } : {}),
+    ...(agent.answerPlanAfterInteractionCommand ? { answerPlanAfterInteractionCommand: agent.answerPlanAfterInteractionCommand } : {}),
+    ...(agent.answerPlanAfterInteractionCommandArgs ? { answerPlanAfterInteractionCommandArgs: agent.answerPlanAfterInteractionCommandArgs } : {}),
     ...(agent.answerPlanUrl ? { answerPlanUrl: agent.answerPlanUrl } : {}),
     readTargetCount: agent.readTargetCount,
     ...(agent.readTargets.length > 0 ? { readTargets: agent.readTargets.map((target) => compactAgentReadTargetRef(target)) } : {}),

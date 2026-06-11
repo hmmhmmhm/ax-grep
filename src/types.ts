@@ -603,10 +603,14 @@ export type AgentSummary = {
   topAnswerEvidenceReason?: string;
   answerPlanStatus?: AgentAnswerPlan["status"];
   answerPlanConfidence?: AgentAnswerPlan["confidence"];
+  answerPlanReason?: string;
+  answerPlanNextAction?: string;
   answerGapCount?: number;
   answerUseCitationIds?: string[];
   answerPlanReadFrom?: string;
   answerPlanCommandArgs?: string[];
+  answerPlanAfterInteractionCommand?: string;
+  answerPlanAfterInteractionCommandArgs?: string[];
   answerPlanUrl?: string;
   readTargetCount?: number;
   readTargets?: AgentReadTarget[];

@@ -49,7 +49,7 @@ Read these first:
 - `agent.searchDecision*` and `agent.pageDecision*`: top-level routing decisions and command/read pointers.
 - `agent.answerPlan`, `agent.citations`, and `agent.answerEvidence`: final answer evidence.
 - `agent.answerPlanStatus`, `agent.answerPlanConfidence`, and related `answer*`
-  shortcuts: top-level answer readiness and citation routing.
+  shortcuts: top-level answer readiness, next action, command, and citation routing.
 - `agent.topAnswerEvidence*`: first answer evidence item for fast citation/read routing.
 - `agent.topVerificationFoundQuery` and `agent.topVerificationMissingQuery`: first
   matched or missing `--find` query for fast verification routing.

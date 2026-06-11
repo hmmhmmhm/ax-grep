@@ -215,8 +215,9 @@ priority, command arguments, read-from, URL, target, and expected-outcome shortc
 mirror `agent.handoff`, so brief loops can run from top-level fields when they
 do not need the full handoff object.
 `averageAgentAnswerShortcutScore` tracks whether `agent.answerPlanStatus`,
-confidence, gap count, citation IDs, first answer-evidence metadata, command
-arguments, read-from, and URL shortcuts mirror `agent.answerPlan` and
+confidence, reason, next action, gap count, citation IDs, first answer-evidence
+metadata, command arguments, after-interaction command, read-from, and URL
+shortcuts mirror `agent.answerPlan` and
 `agent.answerEvidence`, so agents can decide whether to answer or continue
 without parsing the full plan object.
 `averageAgentSourceSearchProvenanceScore` tracks whether opened-result payloads

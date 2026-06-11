@@ -831,6 +831,8 @@ describe("cli", () => {
       if (handoff.target?.text) expect(envelope.agent.handoffTargetText).toBe(handoff.target.text);
       expect(envelope.agent.answerPlanStatus).toBe(handoff.answerStatus);
       expect(envelope.agent.answerPlanConfidence).toEqual(expect.stringMatching(/^(low|medium|high)$/));
+      if (envelope.agent.answerPlan?.reason) expect(envelope.agent.answerPlanReason).toBe(envelope.agent.answerPlan.reason);
+      if (envelope.agent.answerPlan?.nextAction) expect(envelope.agent.answerPlanNextAction).toBe(envelope.agent.answerPlan.nextAction);
       expect(envelope.agent.answerGapCount).toEqual(expect.any(Number));
       const topAnswerEvidence = envelope.agent.answerEvidence?.[0] ?? handoff.answerEvidence?.[0];
       if (topAnswerEvidence) {
@@ -1111,6 +1113,8 @@ describe("cli", () => {
         commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "best", "--agent"],
         url: "https://result.example/",
       },
+      answerPlanReason: "Follow the next action before producing a final answer.",
+      answerPlanNextAction: "open-result",
       signals: expect.arrayContaining([
         expect.objectContaining({ kind: "search-results", severity: "info" }),
         expect.objectContaining({ kind: "content", severity: "info" }),
@@ -8068,6 +8072,7 @@ npx ax-grep https://example.test --agent</code></pre>
         commandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--json", "--summary"],
         gaps: expect.arrayContaining(["Extraction failed with NO_INSPECTABLE_CONTENT.", "Browser-captured HTML or browser inspection is needed."]),
       },
+      answerPlanNextAction: "retry-with-browser-html",
       executionPlan: {
         operation: "capture-browser-html",
         expectedOutcome: "capture-html",
@@ -8838,6 +8843,9 @@ npx ax-grep https://example.test --agent</code></pre>
         afterInteractionCommand: "ax-grep 'https://captured.example/challenge' --html-file captured.html --agent",
         afterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent"],
       },
+      answerPlanNextAction: "inspect-browser-state",
+      answerPlanAfterInteractionCommand: "ax-grep 'https://captured.example/challenge' --html-file captured.html --agent",
+      answerPlanAfterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent"],
       executionPlan: {
         operation: "inspect-browser",
         expectedOutcome: "browser-inspection",

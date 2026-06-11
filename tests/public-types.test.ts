@@ -217,10 +217,14 @@ describe("public agent types", () => {
       | "semanticTopLandmark"
       | "answerPlanStatus"
       | "answerPlanConfidence"
+      | "answerPlanReason"
+      | "answerPlanNextAction"
       | "answerGapCount"
       | "answerUseCitationIds"
       | "answerPlanReadFrom"
       | "answerPlanCommandArgs"
+      | "answerPlanAfterInteractionCommand"
+      | "answerPlanAfterInteractionCommandArgs"
       | "answerPlanUrl"
       | "readTargetCount"
       | "actionCount"
@@ -356,10 +360,14 @@ describe("public agent types", () => {
       semanticTopLandmark: "main",
       answerPlanStatus: "ready",
       answerPlanConfidence: "high",
+      answerPlanReason: "Ready to answer.",
+      answerPlanNextAction: "read-content",
       answerGapCount: 0,
       answerUseCitationIds: ["e1"],
       answerPlanReadFrom: "pageCheck.contentEvidence",
       answerPlanCommandArgs: ["ax-grep", "https://example.test", "--agent"],
+      answerPlanAfterInteractionCommand: "ax-grep https://example.test --html-file captured.html --agent",
+      answerPlanAfterInteractionCommandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--agent"],
       answerPlanUrl: "https://example.test",
       readTargetCount: 3,
       actionCount: 2,
@@ -455,6 +463,7 @@ describe("public agent types", () => {
     expect(summary.topDiagnosticCode).toBe("NO_USEFUL_LINKS");
     expect(summary.topAnswerEvidencePath).toBe("pageCheck.contentEvidence[0]");
     expect(summary.answerPlanStatus).toBe("ready");
+    expect(summary.answerPlanNextAction).toBe("read-content");
     expect(summary.executorOperation).toBe("return");
     expect(summary.executorTerminal).toBe(true);
     expect(summary.executorTargetSelector).toBe("a.primary");
