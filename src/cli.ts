@@ -188,7 +188,7 @@ type AgentSemanticSummary = {
   fieldItems: Array<{ path: string; role: string; name?: string; description?: string; value?: string; htmlName?: string; htmlType?: string; placeholder?: string; autocomplete?: string; inputMode?: string; pattern?: string; min?: string; max?: string; step?: string; minLength?: number; maxLength?: number; labelledBy?: string; labelledByText?: string; describedBy?: string; describedByText?: string; selector?: string; state?: SemanticNodeState }>;
   descriptionItems: Array<{ path: string; role: string; name?: string; description: string; selector?: string }>;
   valueItems: Array<{ path: string; role: string; name?: string; value: string; selector?: string }>;
-  relationItems: Array<{ path: string; role: string; name?: string; relation: "controls" | "owns" | "flowto"; target: string; targetRole?: string; targetName?: string; targetSelector?: string; selector?: string }>;
+  relationItems: Array<{ path: string; role: string; name?: string; relation: "controls" | "owns" | "flowto" | "activeDescendant" | "details" | "errorMessage"; target: string; targetRole?: string; targetName?: string; targetSelector?: string; selector?: string }>;
   choiceItems: Array<{ path: string; role: string; name: string; posInSet?: number; setSize?: number; selector?: string; state?: SemanticNodeState }>;
   stateItems: Array<{ path: string; role: string; name?: string; state: string; stateRaw?: SemanticNodeState; selector?: string }>;
   unavailableItems: Array<{ path: string; tag: string; role?: string; name?: string; reason: string; selector?: string }>;
@@ -9771,6 +9771,9 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
       { relation: "controls" as const, target: node.state?.controls ?? node.attributes?.["aria-controls"] },
       { relation: "owns" as const, target: node.attributes?.["aria-owns"] },
       { relation: "flowto" as const, target: node.attributes?.["aria-flowto"] },
+      { relation: "activeDescendant" as const, target: node.attributes?.["aria-activedescendant"] },
+      { relation: "details" as const, target: node.attributes?.["aria-details"] },
+      { relation: "errorMessage" as const, target: node.attributes?.["aria-errormessage"] },
     ];
     for (const item of semanticRelations) {
       const targets = semanticRelationTargets(item.target);

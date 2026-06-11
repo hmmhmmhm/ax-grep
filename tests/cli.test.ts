@@ -4154,6 +4154,72 @@ describe("cli", () => {
     });
   });
 
+  it("exposes idref semantic relation shortcuts for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/relations", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <input id="q" type="search" aria-label="Archive search" aria-activedescendant="suggestion-1" aria-details="q-details" aria-errormessage="q-error">
+          <p id="q-details">Search across public and private archive records.</p>
+          <p id="q-error">Use at least two letters.</p>
+          <div id="suggestion-1" role="option">Quarterly reports</div>
+          <p>Readable page content for relation routing.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent.semanticSummary.relationCount).toBe(3);
+    expect(envelope.agent.semanticSummary.relationItems).toEqual([
+      expect.objectContaining({
+        path: "agent.semanticSummary.relationItems[0]",
+        role: "searchbox",
+        name: "Archive search",
+        relation: "activeDescendant",
+        target: "suggestion-1",
+        targetRole: "option",
+        targetName: "Quarterly reports",
+        targetSelector: "#suggestion-1",
+        selector: "#q",
+      }),
+      expect.objectContaining({
+        path: "agent.semanticSummary.relationItems[1]",
+        role: "searchbox",
+        name: "Archive search",
+        relation: "details",
+        target: "q-details",
+        targetRole: "p",
+        targetSelector: "#q-details",
+        selector: "#q",
+      }),
+      expect.objectContaining({
+        path: "agent.semanticSummary.relationItems[2]",
+        role: "searchbox",
+        name: "Archive search",
+        relation: "errorMessage",
+        target: "q-error",
+        targetRole: "p",
+        targetSelector: "#q-error",
+        selector: "#q",
+      }),
+    ]);
+    expect(envelope.agent).toMatchObject({
+      semanticRelationCount: 3,
+      semanticTopRelationRole: "searchbox",
+      semanticTopRelationPath: "agent.semanticSummary.relationItems[0]",
+      semanticTopRelationName: "Archive search",
+      semanticTopRelation: "activeDescendant",
+      semanticTopRelationTarget: "suggestion-1",
+      semanticTopRelationTargetRole: "option",
+      semanticTopRelationTargetName: "Quarterly reports",
+      semanticTopRelationTargetSelector: "#suggestion-1",
+      semanticTopRelationSelector: "#q",
+    });
+  });
+
   it("exposes semantic table and list shortcuts for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/report", "--agent"], {
