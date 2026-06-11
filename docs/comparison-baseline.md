@@ -80,6 +80,13 @@ the first object before drilling into `pageCheck`.
 `averageAgentReadTargetScore` tracks whether `agent.readTargets` points to
 payload fields that actually exist and are worth reading, and whether
 `read-current` actions mark the matching target as primary.
+`averageAgentHandoffScore` and `averageAgentBriefExecutorStepScore` also cover
+handoff detail preservation. Search handoffs must keep executable result/source
+choices with snippets and command args; answer handoffs must keep selected
+evidence text/reasons; read handoffs for forms and action targets must keep URL
+templates, fields, selectors, methods, and encoding; diagnostic handoffs must
+keep selected signals and quality gates. This prevents the compact handoff from
+turning into an opaque "retry/open this" instruction.
 `averageAgentResultCountScore` tracks whether `agent.resultCount` is zero for
 non-search pages and at least the compact result count for search pages.
 `averageAgentSourceLinkCountScore` tracks whether `agent.sourceLinkCount` is
