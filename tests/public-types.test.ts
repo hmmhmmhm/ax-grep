@@ -358,6 +358,7 @@ describe("public agent types", () => {
       | "semanticNodeCount"
       | "semanticNamedRoleCount"
       | "semanticInteractiveCount"
+      | "semanticFocusableCount"
       | "semanticHeadingCount"
       | "semanticLandmarkCount"
       | "semanticLinkCount"
@@ -388,6 +389,11 @@ describe("public agent types", () => {
       | "semanticTopInteractiveState"
       | "semanticTopInteractiveDisabled"
       | "semanticTopInteractiveSelector"
+      | "semanticTopFocusableRole"
+      | "semanticTopFocusablePath"
+      | "semanticTopFocusableName"
+      | "semanticTopFocusableState"
+      | "semanticTopFocusableSelector"
       | "semanticTopLinkName"
       | "semanticTopLinkPath"
       | "semanticTopLinkUrl"
@@ -767,6 +773,7 @@ describe("public agent types", () => {
       semanticNodeCount: 12,
       semanticNamedRoleCount: 4,
       semanticInteractiveCount: 2,
+      semanticFocusableCount: 2,
       semanticHeadingCount: 1,
       semanticLandmarkCount: 1,
       semanticLinkCount: 2,
@@ -796,6 +803,11 @@ describe("public agent types", () => {
       semanticTopInteractiveState: "expanded=false",
       semanticTopInteractiveDisabled: false,
       semanticTopInteractiveSelector: "main a:nth-of-type(1)",
+      semanticTopFocusableRole: "link",
+      semanticTopFocusablePath: "agent.semanticSummary.focusableItems[0]",
+      semanticTopFocusableName: "Read more",
+      semanticTopFocusableState: "expanded=false",
+      semanticTopFocusableSelector: "main a:nth-of-type(1)",
       semanticTopLinkName: "Read more",
       semanticTopLinkPath: "agent.semanticSummary.links[0]",
       semanticTopLinkUrl: "https://example.test/read-more",

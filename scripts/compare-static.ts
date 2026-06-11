@@ -1504,6 +1504,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticNodeCount?: number;
       semanticNamedRoleCount?: number;
       semanticInteractiveCount?: number;
+      semanticFocusableCount?: number;
       semanticHeadingCount?: number;
       semanticLandmarkCount?: number;
       semanticLinkCount?: number;
@@ -1534,6 +1535,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopInteractiveState?: string;
       semanticTopInteractiveDisabled?: boolean;
       semanticTopInteractiveSelector?: string;
+      semanticTopFocusableRole?: string;
+      semanticTopFocusablePath?: string;
+      semanticTopFocusableName?: string;
+      semanticTopFocusableState?: string;
+      semanticTopFocusableSelector?: string;
       semanticTopLinkName?: string;
       semanticTopLinkPath?: string;
       semanticTopLinkUrl?: string;
@@ -4437,6 +4443,7 @@ function scoreAgentSemanticSummary(agent: {
   semanticNodeCount?: number;
   semanticNamedRoleCount?: number;
   semanticInteractiveCount?: number;
+  semanticFocusableCount?: number;
   semanticHeadingCount?: number;
   semanticLandmarkCount?: number;
   semanticLinkCount?: number;
@@ -4467,6 +4474,11 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopInteractiveState?: string;
   semanticTopInteractiveDisabled?: boolean;
   semanticTopInteractiveSelector?: string;
+  semanticTopFocusableRole?: string;
+  semanticTopFocusablePath?: string;
+  semanticTopFocusableName?: string;
+  semanticTopFocusableState?: string;
+  semanticTopFocusableSelector?: string;
   semanticTopLinkName?: string;
   semanticTopLinkPath?: string;
   semanticTopLinkUrl?: string;
@@ -4510,6 +4522,7 @@ function scoreAgentSemanticSummary(agent: {
     nodeCount?: unknown;
     namedRoleCount?: unknown;
     interactiveCount?: unknown;
+    focusableCount?: unknown;
     headingCount?: unknown;
     landmarkCount?: unknown;
     linkCount?: unknown;
@@ -4528,6 +4541,7 @@ function scoreAgentSemanticSummary(agent: {
     landmarkItems?: unknown;
     namedRoleItems?: unknown;
     interactiveRoles?: unknown;
+    focusableItems?: unknown;
     links?: unknown;
     buttons?: unknown;
     imageItems?: unknown;
@@ -4540,6 +4554,7 @@ function scoreAgentSemanticSummary(agent: {
   if (typeof item.nodeCount === "number" && item.nodeCount > 0) matched += 1;
   if (typeof item.namedRoleCount === "number" && item.namedRoleCount >= 0) matched += 1;
   if (typeof item.interactiveCount === "number" && item.interactiveCount >= 0) matched += 1;
+  if (typeof item.focusableCount === "number" && item.focusableCount >= 0) matched += 1;
   if (typeof item.headingCount === "number" && item.headingCount >= 0) matched += 1;
   if (typeof item.landmarkCount === "number" && item.landmarkCount >= 0) matched += 1;
   if (typeof item.linkCount === "number" && item.linkCount >= 0) matched += 1;
@@ -4562,6 +4577,7 @@ function scoreAgentSemanticSummary(agent: {
   if (Array.isArray(item.landmarkItems)) matched += 1;
   if (Array.isArray(item.namedRoleItems)) matched += 1;
   if (Array.isArray(item.interactiveRoles)) matched += 1;
+  if (Array.isArray(item.focusableItems)) matched += 1;
   if (Array.isArray(item.links)) matched += 1;
   if (Array.isArray(item.buttons)) matched += 1;
   if (Array.isArray(item.imageItems)) matched += 1;
@@ -4569,7 +4585,7 @@ function scoreAgentSemanticSummary(agent: {
   if (Array.isArray(item.descriptionItems)) matched += 1;
   if (Array.isArray(item.choiceItems)) matched += 1;
   if (Array.isArray(item.stateItems)) matched += 1;
-  let required = 28;
+  let required = 30;
   if (typeof item.nodeCount === "number") {
     required += 1;
     if (agent?.semanticNodeCount === item.nodeCount) matched += 1;
@@ -4581,6 +4597,10 @@ function scoreAgentSemanticSummary(agent: {
   if (typeof item.interactiveCount === "number") {
     required += 1;
     if (agent?.semanticInteractiveCount === item.interactiveCount) matched += 1;
+  }
+  if (typeof item.focusableCount === "number") {
+    required += 1;
+    if (agent?.semanticFocusableCount === item.focusableCount) matched += 1;
   }
   if (typeof item.headingCount === "number") {
     required += 1;
@@ -4716,6 +4736,33 @@ function scoreAgentSemanticSummary(agent: {
   if (interactive && typeof interactive.selector === "string") {
     required += 1;
     if (agent?.semanticTopInteractiveSelector === interactive.selector) matched += 1;
+  }
+  const focusable = Array.isArray(item.focusableItems) ? item.focusableItems[0] as { path?: unknown; role?: unknown; name?: unknown; state?: unknown; selector?: unknown } | undefined : undefined;
+  if (focusable && typeof focusable.role === "string") {
+    required += 1;
+    if (agent?.semanticTopFocusableRole === focusable.role) matched += 1;
+  }
+  if (focusable && typeof focusable.path === "string") {
+    required += 1;
+    if (agent?.semanticTopFocusablePath === focusable.path) matched += 1;
+  }
+  if (focusable && typeof focusable.name === "string") {
+    required += 1;
+    if (agent?.semanticTopFocusableName === focusable.name) matched += 1;
+  }
+  if (focusable?.state && typeof focusable.state === "object") {
+    const state = Object.entries(focusable.state as Record<string, unknown>)
+      .filter(([, value]) => value !== undefined)
+      .map(([key, value]) => `${key}=${value}`)
+      .join(" ");
+    if (state) {
+      required += 1;
+      if (agent?.semanticTopFocusableState === state) matched += 1;
+    }
+  }
+  if (focusable && typeof focusable.selector === "string") {
+    required += 1;
+    if (agent?.semanticTopFocusableSelector === focusable.selector) matched += 1;
   }
   const link = Array.isArray(item.links) ? item.links[0] as { path?: unknown; name?: unknown; url?: unknown; selector?: unknown } | undefined : undefined;
   if (link && typeof link.name === "string") {

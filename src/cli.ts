@@ -152,6 +152,7 @@ type AgentSemanticSummary = {
   nodeCount: number;
   namedRoleCount: number;
   interactiveCount: number;
+  focusableCount: number;
   headingCount: number;
   landmarkCount: number;
   linkCount: number;
@@ -170,6 +171,7 @@ type AgentSemanticSummary = {
   landmarkItems: Array<{ path: string; role: string; name?: string; selector?: string }>;
   namedRoleItems: Array<{ path: string; role: string; name: string; selector?: string }>;
   interactiveRoles: Array<{ path: string; role: string; name: string; description?: string; value?: string; selector?: string; state?: SemanticNodeState }>;
+  focusableItems: Array<{ path: string; role: string; name?: string; selector?: string; state?: SemanticNodeState }>;
   links: Array<{ path: string; name: string; url?: string; selector?: string }>;
   buttons: Array<{ path: string; name: string; description?: string; selector?: string }>;
   imageItems: Array<{ path: string; name?: string; url?: string; selector?: string }>;
@@ -915,6 +917,7 @@ type AgentSummary = {
   semanticNodeCount?: number;
   semanticNamedRoleCount?: number;
   semanticInteractiveCount?: number;
+  semanticFocusableCount?: number;
   semanticHeadingCount?: number;
   semanticLandmarkCount?: number;
   semanticLinkCount?: number;
@@ -945,6 +948,11 @@ type AgentSummary = {
   semanticTopInteractiveState?: string;
   semanticTopInteractiveDisabled?: boolean;
   semanticTopInteractiveSelector?: string;
+  semanticTopFocusableRole?: string;
+  semanticTopFocusablePath?: string;
+  semanticTopFocusableName?: string;
+  semanticTopFocusableState?: string;
+  semanticTopFocusableSelector?: string;
   semanticTopLinkName?: string;
   semanticTopLinkPath?: string;
   semanticTopLinkUrl?: string;
@@ -3103,6 +3111,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (typeof agent.semanticNodeCount === "number") lines.push(`  semanticNodeCount: ${agent.semanticNodeCount}`);
   if (typeof agent.semanticNamedRoleCount === "number") lines.push(`  semanticNamedRoleCount: ${agent.semanticNamedRoleCount}`);
   if (typeof agent.semanticInteractiveCount === "number") lines.push(`  semanticInteractiveCount: ${agent.semanticInteractiveCount}`);
+  if (typeof agent.semanticFocusableCount === "number") lines.push(`  semanticFocusableCount: ${agent.semanticFocusableCount}`);
   if (typeof agent.semanticHeadingCount === "number") lines.push(`  semanticHeadingCount: ${agent.semanticHeadingCount}`);
   if (typeof agent.semanticLandmarkCount === "number") lines.push(`  semanticLandmarkCount: ${agent.semanticLandmarkCount}`);
   if (typeof agent.semanticLinkCount === "number") lines.push(`  semanticLinkCount: ${agent.semanticLinkCount}`);
@@ -3117,6 +3126,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.semanticTopLandmark) lines.push(`  semanticTopLandmark: ${agent.semanticTopLandmarkPath ?? ""} ${agent.semanticTopLandmark}`);
   if (agent.semanticTopNamedRole) lines.push(`  semanticTopNamedRole: ${agent.semanticTopNamedRolePath ?? ""} ${agent.semanticTopNamedRole}`);
   if (agent.semanticTopInteractiveRole) lines.push(`  semanticTopInteractive: ${agent.semanticTopInteractivePath ?? ""} ${agent.semanticTopInteractiveRole}:${agent.semanticTopInteractiveName ?? ""}${agent.semanticTopInteractiveDescription ? ` description=${agent.semanticTopInteractiveDescription}` : ""}${agent.semanticTopInteractiveValue ? ` value=${agent.semanticTopInteractiveValue}` : ""}${agent.semanticTopInteractiveState ? ` state=${agent.semanticTopInteractiveState}` : ""}${agent.semanticTopInteractiveSelector ? ` selector=${agent.semanticTopInteractiveSelector}` : ""}`);
+  if (agent.semanticTopFocusableRole) lines.push(`  semanticTopFocusable: ${agent.semanticTopFocusablePath ?? ""} ${agent.semanticTopFocusableRole}${agent.semanticTopFocusableName ? `:${agent.semanticTopFocusableName}` : ""}${agent.semanticTopFocusableState ? ` state=${agent.semanticTopFocusableState}` : ""}${agent.semanticTopFocusableSelector ? ` selector=${agent.semanticTopFocusableSelector}` : ""}`);
   if (agent.semanticTopLinkName) lines.push(`  semanticTopLink: ${agent.semanticTopLinkPath ?? ""} ${agent.semanticTopLinkName}${agent.semanticTopLinkUrl ? ` <${agent.semanticTopLinkUrl}>` : ""}${agent.semanticTopLinkSelector ? ` selector=${agent.semanticTopLinkSelector}` : ""}`);
   if (agent.semanticTopButtonName) lines.push(`  semanticTopButton: ${agent.semanticTopButtonPath ?? ""} ${agent.semanticTopButtonName}${agent.semanticTopButtonDescription ? ` description=${agent.semanticTopButtonDescription}` : ""}${agent.semanticTopButtonSelector ? ` selector=${agent.semanticTopButtonSelector}` : ""}`);
   if (agent.semanticTopImagePath) lines.push(`  semanticTopImage: ${agent.semanticTopImagePath} ${agent.semanticTopImageName ?? ""}${agent.semanticTopImageUrl ? ` <${agent.semanticTopImageUrl}>` : ""}${agent.semanticTopImageSelector ? ` selector=${agent.semanticTopImageSelector}` : ""}`);
@@ -9399,6 +9409,7 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
   const landmarkItems: AgentSemanticSummary["landmarkItems"] = [];
   const namedRoleItems: AgentSemanticSummary["namedRoleItems"] = [];
   const interactiveRoles: AgentSemanticSummary["interactiveRoles"] = [];
+  const focusableItems: AgentSemanticSummary["focusableItems"] = [];
   const links: AgentSemanticSummary["links"] = [];
   const buttons: AgentSemanticSummary["buttons"] = [];
   const imageItems: AgentSemanticSummary["imageItems"] = [];
@@ -9409,6 +9420,7 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
   let nodeCount = 0;
   let namedRoleCount = 0;
   let interactiveCount = 0;
+  let focusableCount = 0;
   let imageCount = 0;
   let fieldCount = 0;
   let descriptionCount = 0;
@@ -9501,6 +9513,18 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
         });
       }
     }
+    if (node.focusable) {
+      focusableCount += 1;
+      if (focusableItems.length < 8) {
+        focusableItems.push({
+          path: `agent.semanticSummary.focusableItems[${focusableItems.length}]`,
+          role,
+          ...(node.name ? { name: node.name } : {}),
+          ...(node.state ? { state: node.state } : {}),
+          ...(node.selector ? { selector: node.selector } : {}),
+        });
+      }
+    }
     if (node.role && node.name) {
       namedRoleCount += 1;
       if (namedRoles.length < 16) {
@@ -9574,6 +9598,7 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
     nodeCount,
     namedRoleCount,
     interactiveCount,
+    focusableCount,
     headingCount: roleCounts.heading ?? 0,
     landmarkCount,
     linkCount: roleCounts.link ?? 0,
@@ -9592,6 +9617,7 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
     landmarkItems,
     namedRoleItems,
     interactiveRoles,
+    focusableItems,
     links,
     buttons,
     imageItems,
@@ -9685,6 +9711,8 @@ function summarizeAgent(
   const topSemanticNamedRole = semanticSummary?.namedRoleItems[0];
   const topSemanticInteractive = semanticSummary?.interactiveRoles[0];
   const topSemanticInteractiveState = formatSemanticState(topSemanticInteractive?.state);
+  const topSemanticFocusable = semanticSummary?.focusableItems[0];
+  const topSemanticFocusableState = formatSemanticState(topSemanticFocusable?.state);
   const topSemanticImage = semanticSummary?.imageItems[0];
   const topSemanticField = semanticSummary?.fieldItems[0];
   const topSemanticFieldState = formatSemanticState(topSemanticField?.state);
@@ -9770,6 +9798,7 @@ function summarizeAgent(
     ...(semanticSummary ? { semanticNodeCount: semanticSummary.nodeCount } : {}),
     ...(semanticSummary ? { semanticNamedRoleCount: semanticSummary.namedRoleCount } : {}),
     ...(semanticSummary ? { semanticInteractiveCount: semanticSummary.interactiveCount } : {}),
+    ...(semanticSummary ? { semanticFocusableCount: semanticSummary.focusableCount } : {}),
     ...(semanticSummary ? { semanticHeadingCount: semanticSummary.headingCount } : {}),
     ...(semanticSummary ? { semanticLandmarkCount: semanticSummary.landmarkCount } : {}),
     ...(semanticSummary ? { semanticLinkCount: semanticSummary.linkCount } : {}),
@@ -9800,6 +9829,11 @@ function summarizeAgent(
     ...(topSemanticInteractiveState ? { semanticTopInteractiveState: topSemanticInteractiveState } : {}),
     ...(typeof topSemanticInteractive?.state?.disabled === "boolean" ? { semanticTopInteractiveDisabled: topSemanticInteractive.state.disabled } : {}),
     ...(topSemanticInteractive?.selector ? { semanticTopInteractiveSelector: topSemanticInteractive.selector } : {}),
+    ...(topSemanticFocusable ? { semanticTopFocusableRole: topSemanticFocusable.role } : {}),
+    ...(topSemanticFocusable ? { semanticTopFocusablePath: topSemanticFocusable.path } : {}),
+    ...(topSemanticFocusable?.name ? { semanticTopFocusableName: topSemanticFocusable.name } : {}),
+    ...(topSemanticFocusableState ? { semanticTopFocusableState: topSemanticFocusableState } : {}),
+    ...(topSemanticFocusable?.selector ? { semanticTopFocusableSelector: topSemanticFocusable.selector } : {}),
     ...(semanticSummary?.links[0]?.name ? { semanticTopLinkName: semanticSummary.links[0].name } : {}),
     ...(semanticSummary?.links[0] ? { semanticTopLinkPath: semanticSummary.links[0].path } : {}),
     ...(semanticSummary?.links[0]?.url ? { semanticTopLinkUrl: semanticSummary.links[0].url } : {}),
@@ -14089,6 +14123,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.semanticNodeCount === "number" ? { semanticNodeCount: agent.semanticNodeCount } : {}),
     ...(typeof agent.semanticNamedRoleCount === "number" ? { semanticNamedRoleCount: agent.semanticNamedRoleCount } : {}),
     ...(typeof agent.semanticInteractiveCount === "number" ? { semanticInteractiveCount: agent.semanticInteractiveCount } : {}),
+    ...(typeof agent.semanticFocusableCount === "number" ? { semanticFocusableCount: agent.semanticFocusableCount } : {}),
     ...(typeof agent.semanticHeadingCount === "number" ? { semanticHeadingCount: agent.semanticHeadingCount } : {}),
     ...(typeof agent.semanticLandmarkCount === "number" ? { semanticLandmarkCount: agent.semanticLandmarkCount } : {}),
     ...(typeof agent.semanticLinkCount === "number" ? { semanticLinkCount: agent.semanticLinkCount } : {}),
@@ -14119,6 +14154,11 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.semanticTopInteractiveState ? { semanticTopInteractiveState: agent.semanticTopInteractiveState } : {}),
     ...(typeof agent.semanticTopInteractiveDisabled === "boolean" ? { semanticTopInteractiveDisabled: agent.semanticTopInteractiveDisabled } : {}),
     ...(agent.semanticTopInteractiveSelector ? { semanticTopInteractiveSelector: agent.semanticTopInteractiveSelector } : {}),
+    ...(agent.semanticTopFocusableRole ? { semanticTopFocusableRole: agent.semanticTopFocusableRole } : {}),
+    ...(agent.semanticTopFocusablePath ? { semanticTopFocusablePath: agent.semanticTopFocusablePath } : {}),
+    ...(agent.semanticTopFocusableName ? { semanticTopFocusableName: agent.semanticTopFocusableName } : {}),
+    ...(agent.semanticTopFocusableState ? { semanticTopFocusableState: agent.semanticTopFocusableState } : {}),
+    ...(agent.semanticTopFocusableSelector ? { semanticTopFocusableSelector: agent.semanticTopFocusableSelector } : {}),
     ...(agent.semanticTopLinkName ? { semanticTopLinkName: agent.semanticTopLinkName } : {}),
     ...(agent.semanticTopLinkPath ? { semanticTopLinkPath: agent.semanticTopLinkPath } : {}),
     ...(agent.semanticTopLinkUrl ? { semanticTopLinkUrl: agent.semanticTopLinkUrl } : {}),
@@ -14544,6 +14584,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.semanticNodeCount === "number" ? { semanticNodeCount: agent.semanticNodeCount } : {}),
     ...(typeof agent.semanticNamedRoleCount === "number" ? { semanticNamedRoleCount: agent.semanticNamedRoleCount } : {}),
     ...(typeof agent.semanticInteractiveCount === "number" ? { semanticInteractiveCount: agent.semanticInteractiveCount } : {}),
+    ...(typeof agent.semanticFocusableCount === "number" ? { semanticFocusableCount: agent.semanticFocusableCount } : {}),
     ...(typeof agent.semanticHeadingCount === "number" ? { semanticHeadingCount: agent.semanticHeadingCount } : {}),
     ...(typeof agent.semanticLandmarkCount === "number" ? { semanticLandmarkCount: agent.semanticLandmarkCount } : {}),
     ...(typeof agent.semanticLinkCount === "number" ? { semanticLinkCount: agent.semanticLinkCount } : {}),
@@ -14570,6 +14611,10 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.semanticTopInteractiveValue ? { semanticTopInteractiveValue: agent.semanticTopInteractiveValue } : {}),
     ...(agent.semanticTopInteractiveState ? { semanticTopInteractiveState: agent.semanticTopInteractiveState } : {}),
     ...(typeof agent.semanticTopInteractiveDisabled === "boolean" ? { semanticTopInteractiveDisabled: agent.semanticTopInteractiveDisabled } : {}),
+    ...(agent.semanticTopFocusableRole ? { semanticTopFocusableRole: agent.semanticTopFocusableRole } : {}),
+    ...(agent.semanticTopFocusablePath ? { semanticTopFocusablePath: agent.semanticTopFocusablePath } : {}),
+    ...(agent.semanticTopFocusableName ? { semanticTopFocusableName: agent.semanticTopFocusableName } : {}),
+    ...(agent.semanticTopFocusableState ? { semanticTopFocusableState: agent.semanticTopFocusableState } : {}),
     ...(agent.semanticTopLinkName ? { semanticTopLinkName: agent.semanticTopLinkName } : {}),
     ...(agent.semanticTopLinkPath ? { semanticTopLinkPath: agent.semanticTopLinkPath } : {}),
     ...(agent.semanticTopLinkUrl ? { semanticTopLinkUrl: agent.semanticTopLinkUrl } : {}),
@@ -15015,6 +15060,7 @@ function compactAgentSemanticSummary(summary: AgentSemanticSummary): object {
     nodeCount: summary.nodeCount,
     namedRoleCount: summary.namedRoleCount,
     interactiveCount: summary.interactiveCount,
+    focusableCount: summary.focusableCount,
     headingCount: summary.headingCount,
     landmarkCount: summary.landmarkCount,
     linkCount: summary.linkCount,
@@ -15033,6 +15079,7 @@ function compactAgentSemanticSummary(summary: AgentSemanticSummary): object {
     landmarkItems: summary.landmarkItems.slice(0, 4),
     namedRoleItems: summary.namedRoleItems.slice(0, 4),
     interactiveRoles: summary.interactiveRoles.slice(0, 4),
+    focusableItems: summary.focusableItems.slice(0, 4),
     links: summary.links.slice(0, 4),
     buttons: summary.buttons.slice(0, 4),
     imageItems: summary.imageItems.slice(0, 4),

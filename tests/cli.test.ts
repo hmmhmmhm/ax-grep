@@ -293,6 +293,7 @@ describe("cli", () => {
           nodeCount: expect.any(Number),
           namedRoleCount: expect.any(Number),
           interactiveCount: 3,
+          focusableCount: 3,
           headingCount: 1,
           landmarkCount: 1,
           linkCount: 2,
@@ -330,6 +331,20 @@ describe("cli", () => {
               name: "Hero chart",
             }),
           ]),
+          focusableItems: expect.arrayContaining([
+            expect.objectContaining({
+              path: "agent.semanticSummary.focusableItems[0]",
+              role: "button",
+              name: "Toggle details",
+              selector: "button",
+              state: expect.objectContaining({ pressed: false }),
+            }),
+            expect.objectContaining({
+              role: "link",
+              name: "Reporter Profile",
+              selector: "a",
+            }),
+          ]),
           imageItems: [
             expect.objectContaining({
               path: "agent.semanticSummary.imageItems[0]",
@@ -351,6 +366,7 @@ describe("cli", () => {
         semanticNodeCount: expect.any(Number),
         semanticNamedRoleCount: expect.any(Number),
         semanticInteractiveCount: 3,
+        semanticFocusableCount: 3,
         semanticHeadingCount: 1,
         semanticLandmarkCount: 1,
         semanticLinkCount: 2,
@@ -375,6 +391,11 @@ describe("cli", () => {
         semanticTopInteractiveDescription: "Shows extra context",
         semanticTopInteractiveValue: "details off",
         semanticTopInteractiveState: "pressed=false",
+        semanticTopFocusableRole: "button",
+        semanticTopFocusablePath: "agent.semanticSummary.focusableItems[0]",
+        semanticTopFocusableName: "Toggle details",
+        semanticTopFocusableState: "pressed=false",
+        semanticTopFocusableSelector: "button",
         semanticTopLinkPath: "agent.semanticSummary.links[0]",
         semanticTopLinkUrl: "https://example.test/authors/reporter",
         semanticTopButtonName: "Toggle details",
@@ -3732,6 +3753,29 @@ describe("cli", () => {
     const envelope = JSON.parse(stdout.output);
 
     expect(status).toBe(0);
+    expect(envelope.agent.semanticSummary.focusableCount).toBe(3);
+    expect(envelope.agent.semanticSummary.focusableItems).toEqual([
+      expect.objectContaining({
+        path: "agent.semanticSummary.focusableItems[0]",
+        role: "link",
+        name: "Reports",
+        state: expect.objectContaining({ current: "page" }),
+        selector: "a",
+      }),
+      expect.objectContaining({
+        path: "agent.semanticSummary.focusableItems[1]",
+        role: "button",
+        name: "Filters",
+        state: expect.objectContaining({ haspopup: "dialog", controls: "filters" }),
+        selector: "button",
+      }),
+      expect.objectContaining({
+        path: "agent.semanticSummary.focusableItems[2]",
+        role: "button",
+        name: "Apply",
+        selector: "button",
+      }),
+    ]);
     expect(envelope.agent.semanticSummary.stateCount).toBe(4);
     expect(envelope.agent.semanticSummary.stateItems).toEqual([
       expect.objectContaining({
@@ -3763,6 +3807,12 @@ describe("cli", () => {
       }),
     ]);
     expect(envelope.agent).toMatchObject({
+      semanticFocusableCount: 3,
+      semanticTopFocusableRole: "link",
+      semanticTopFocusablePath: "agent.semanticSummary.focusableItems[0]",
+      semanticTopFocusableName: "Reports",
+      semanticTopFocusableState: "current=page",
+      semanticTopFocusableSelector: "a",
       semanticStateCount: 4,
       semanticTopStateRole: "link",
       semanticTopStatePath: "agent.semanticSummary.stateItems[0]",

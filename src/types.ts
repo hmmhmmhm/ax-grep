@@ -557,6 +557,7 @@ export type AgentSummary = {
   semanticNodeCount?: number;
   semanticNamedRoleCount?: number;
   semanticInteractiveCount?: number;
+  semanticFocusableCount?: number;
   semanticHeadingCount?: number;
   semanticLandmarkCount?: number;
   semanticLinkCount?: number;
@@ -587,6 +588,11 @@ export type AgentSummary = {
   semanticTopInteractiveState?: string;
   semanticTopInteractiveDisabled?: boolean;
   semanticTopInteractiveSelector?: string;
+  semanticTopFocusableRole?: string;
+  semanticTopFocusablePath?: string;
+  semanticTopFocusableName?: string;
+  semanticTopFocusableState?: string;
+  semanticTopFocusableSelector?: string;
   semanticTopLinkName?: string;
   semanticTopLinkPath?: string;
   semanticTopLinkUrl?: string;
