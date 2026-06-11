@@ -643,6 +643,11 @@ export type AgentSummary = {
   semanticTopFieldName?: string;
   semanticTopFieldDescription?: string;
   semanticTopFieldValue?: string;
+  semanticTopFieldPlaceholder?: string;
+  semanticTopFieldAutocomplete?: string;
+  semanticTopFieldInputMode?: string;
+  semanticTopFieldLabelledBy?: string;
+  semanticTopFieldDescribedBy?: string;
   semanticTopFieldState?: string;
   semanticTopFieldRequired?: boolean;
   semanticTopFieldSelector?: string;

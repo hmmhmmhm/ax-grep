@@ -4047,8 +4047,9 @@ describe("cli", () => {
         <main>
           <h1>Search archive</h1>
           <form method="GET" action="/find">
-            <label for="q">Archive search</label>
-            <input id="q" name="query" type="search" placeholder="Search reports" required aria-invalid="spelling">
+            <label id="q-label" for="q">Archive search</label>
+            <p id="q-help">Use product or report keywords.</p>
+            <input id="q" name="query" type="search" placeholder="Search reports" autocomplete="off" inputmode="search" required aria-invalid="spelling" aria-labelledby="q-label" aria-describedby="q-help">
             <select name="category"><option>All</option><option>Reports</option></select>
             <input type="hidden" name="csrf" value="secret">
             <button type="submit">Search</button>
@@ -4100,6 +4101,12 @@ describe("cli", () => {
         path: "agent.semanticSummary.fieldItems[0]",
         role: "searchbox",
         name: "Archive search",
+        description: "Use product or report keywords.",
+        placeholder: "Search reports",
+        autocomplete: "off",
+        inputMode: "search",
+        labelledBy: "q-label",
+        describedBy: "q-help",
         selector: "#q",
         state: expect.objectContaining({ required: true }),
       }),
@@ -4140,6 +4147,12 @@ describe("cli", () => {
       semanticTopFieldRole: "searchbox",
       semanticTopFieldPath: "agent.semanticSummary.fieldItems[0]",
       semanticTopFieldName: "Archive search",
+      semanticTopFieldDescription: "Use product or report keywords.",
+      semanticTopFieldPlaceholder: "Search reports",
+      semanticTopFieldAutocomplete: "off",
+      semanticTopFieldInputMode: "search",
+      semanticTopFieldLabelledBy: "q-label",
+      semanticTopFieldDescribedBy: "q-help",
       semanticTopFieldState: "required=true invalid=spelling",
       semanticTopFieldRequired: true,
       semanticTopFieldSelector: "#q",

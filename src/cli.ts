@@ -184,7 +184,7 @@ type AgentSemanticSummary = {
   imageItems: Array<{ path: string; name?: string; url?: string; selector?: string }>;
   tableItems: Array<{ path: string; role: string; name?: string; rowCount: number; cellCount: number; selector?: string }>;
   listItems: Array<{ path: string; role: string; name?: string; itemCount: number; selector?: string }>;
-  fieldItems: Array<{ path: string; role: string; name?: string; description?: string; value?: string; selector?: string; state?: SemanticNodeState }>;
+  fieldItems: Array<{ path: string; role: string; name?: string; description?: string; value?: string; placeholder?: string; autocomplete?: string; inputMode?: string; labelledBy?: string; describedBy?: string; selector?: string; state?: SemanticNodeState }>;
   descriptionItems: Array<{ path: string; role: string; name?: string; description: string; selector?: string }>;
   valueItems: Array<{ path: string; role: string; name?: string; value: string; selector?: string }>;
   relationItems: Array<{ path: string; role: string; name?: string; relation: "controls" | "owns" | "flowto"; target: string; targetRole?: string; targetName?: string; targetSelector?: string; selector?: string }>;
@@ -1015,6 +1015,11 @@ type AgentSummary = {
   semanticTopFieldName?: string;
   semanticTopFieldDescription?: string;
   semanticTopFieldValue?: string;
+  semanticTopFieldPlaceholder?: string;
+  semanticTopFieldAutocomplete?: string;
+  semanticTopFieldInputMode?: string;
+  semanticTopFieldLabelledBy?: string;
+  semanticTopFieldDescribedBy?: string;
   semanticTopFieldState?: string;
   semanticTopFieldRequired?: boolean;
   semanticTopFieldSelector?: string;
@@ -3328,7 +3333,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.semanticTopImagePath) lines.push(`  semanticTopImage: ${agent.semanticTopImagePath} ${agent.semanticTopImageName ?? ""}${agent.semanticTopImageUrl ? ` <${agent.semanticTopImageUrl}>` : ""}${agent.semanticTopImageSelector ? ` selector=${agent.semanticTopImageSelector}` : ""}`);
   if (agent.semanticTopTableRole) lines.push(`  semanticTopTable: ${agent.semanticTopTablePath ?? ""} ${agent.semanticTopTableRole}${agent.semanticTopTableName ? `:${agent.semanticTopTableName}` : ""} rows=${agent.semanticTopTableRowCount ?? 0} cells=${agent.semanticTopTableCellCount ?? 0}${agent.semanticTopTableSelector ? ` selector=${agent.semanticTopTableSelector}` : ""}`);
   if (agent.semanticTopListRole) lines.push(`  semanticTopList: ${agent.semanticTopListPath ?? ""} ${agent.semanticTopListRole}${agent.semanticTopListName ? `:${agent.semanticTopListName}` : ""} items=${agent.semanticTopListItemCount ?? 0}${agent.semanticTopListSelector ? ` selector=${agent.semanticTopListSelector}` : ""}`);
-  if (agent.semanticTopFieldRole) lines.push(`  semanticTopField: ${agent.semanticTopFieldPath ?? ""} ${agent.semanticTopFieldRole}${agent.semanticTopFieldName ? `:${agent.semanticTopFieldName}` : ""}${agent.semanticTopFieldDescription ? ` description=${agent.semanticTopFieldDescription}` : ""}${agent.semanticTopFieldValue ? ` value=${agent.semanticTopFieldValue}` : ""}${agent.semanticTopFieldState ? ` state=${agent.semanticTopFieldState}` : ""}${agent.semanticTopFieldSelector ? ` selector=${agent.semanticTopFieldSelector}` : ""}`);
+  if (agent.semanticTopFieldRole) lines.push(`  semanticTopField: ${agent.semanticTopFieldPath ?? ""} ${agent.semanticTopFieldRole}${agent.semanticTopFieldName ? `:${agent.semanticTopFieldName}` : ""}${agent.semanticTopFieldDescription ? ` description=${agent.semanticTopFieldDescription}` : ""}${agent.semanticTopFieldValue ? ` value=${agent.semanticTopFieldValue}` : ""}${agent.semanticTopFieldPlaceholder ? ` placeholder=${agent.semanticTopFieldPlaceholder}` : ""}${agent.semanticTopFieldAutocomplete ? ` autocomplete=${agent.semanticTopFieldAutocomplete}` : ""}${agent.semanticTopFieldInputMode ? ` inputMode=${agent.semanticTopFieldInputMode}` : ""}${agent.semanticTopFieldLabelledBy ? ` labelledBy=${agent.semanticTopFieldLabelledBy}` : ""}${agent.semanticTopFieldDescribedBy ? ` describedBy=${agent.semanticTopFieldDescribedBy}` : ""}${agent.semanticTopFieldState ? ` state=${agent.semanticTopFieldState}` : ""}${agent.semanticTopFieldSelector ? ` selector=${agent.semanticTopFieldSelector}` : ""}`);
   if (agent.semanticTopDescriptionText) lines.push(`  semanticTopDescription: ${agent.semanticTopDescriptionPath ?? ""} ${agent.semanticTopDescriptionRole ?? ""}${agent.semanticTopDescriptionName ? `:${agent.semanticTopDescriptionName}` : ""} description=${agent.semanticTopDescriptionText}${agent.semanticTopDescriptionSelector ? ` selector=${agent.semanticTopDescriptionSelector}` : ""}`);
   if (agent.semanticTopValue) lines.push(`  semanticTopValue: ${agent.semanticTopValuePath ?? ""} ${agent.semanticTopValueRole ?? ""}${agent.semanticTopValueName ? `:${agent.semanticTopValueName}` : ""} value=${agent.semanticTopValue}${agent.semanticTopValueSelector ? ` selector=${agent.semanticTopValueSelector}` : ""}`);
   if (agent.semanticTopRelation) lines.push(`  semanticTopRelation: ${agent.semanticTopRelationPath ?? ""} ${agent.semanticTopRelationRole ?? ""}${agent.semanticTopRelationName ? `:${agent.semanticTopRelationName}` : ""} ${agent.semanticTopRelation}=${agent.semanticTopRelationTarget ?? ""}${agent.semanticTopRelationTargetRole ? ` targetRole=${agent.semanticTopRelationTargetRole}` : ""}${agent.semanticTopRelationTargetName ? ` targetName=${agent.semanticTopRelationTargetName}` : ""}${agent.semanticTopRelationTargetSelector ? ` targetSelector=${agent.semanticTopRelationTargetSelector}` : ""}${agent.semanticTopRelationSelector ? ` selector=${agent.semanticTopRelationSelector}` : ""}`);
@@ -9759,6 +9764,11 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
           ...(node.name ? { name: node.name } : {}),
           ...(node.description ? { description: node.description } : {}),
           ...(node.value ? { value: node.value } : {}),
+          ...(node.attributes?.placeholder ? { placeholder: cleanContentText(node.attributes.placeholder).slice(0, 160) } : {}),
+          ...(node.attributes?.autocomplete ? { autocomplete: cleanContentText(node.attributes.autocomplete).slice(0, 80) } : {}),
+          ...(node.attributes?.inputmode ? { inputMode: cleanContentText(node.attributes.inputmode).slice(0, 80) } : {}),
+          ...(node.attributes?.["aria-labelledby"] ? { labelledBy: cleanContentText(node.attributes["aria-labelledby"]).slice(0, 160) } : {}),
+          ...(node.attributes?.["aria-describedby"] ? { describedBy: cleanContentText(node.attributes["aria-describedby"]).slice(0, 160) } : {}),
           ...(node.state ? { state: node.state } : {}),
           ...(node.selector ? { selector: node.selector } : {}),
         });
@@ -10284,6 +10294,11 @@ function summarizeAgent(
     ...(topSemanticField?.name ? { semanticTopFieldName: topSemanticField.name } : {}),
     ...(topSemanticField?.description ? { semanticTopFieldDescription: topSemanticField.description } : {}),
     ...(topSemanticField?.value ? { semanticTopFieldValue: topSemanticField.value } : {}),
+    ...(topSemanticField?.placeholder ? { semanticTopFieldPlaceholder: topSemanticField.placeholder } : {}),
+    ...(topSemanticField?.autocomplete ? { semanticTopFieldAutocomplete: topSemanticField.autocomplete } : {}),
+    ...(topSemanticField?.inputMode ? { semanticTopFieldInputMode: topSemanticField.inputMode } : {}),
+    ...(topSemanticField?.labelledBy ? { semanticTopFieldLabelledBy: topSemanticField.labelledBy } : {}),
+    ...(topSemanticField?.describedBy ? { semanticTopFieldDescribedBy: topSemanticField.describedBy } : {}),
     ...(topSemanticFieldState ? { semanticTopFieldState: topSemanticFieldState } : {}),
     ...(typeof topSemanticField?.state?.required === "boolean" ? { semanticTopFieldRequired: topSemanticField.state.required } : {}),
     ...(topSemanticField?.selector ? { semanticTopFieldSelector: topSemanticField.selector } : {}),
@@ -14761,6 +14776,11 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.semanticTopFieldName ? { semanticTopFieldName: agent.semanticTopFieldName } : {}),
     ...(agent.semanticTopFieldDescription ? { semanticTopFieldDescription: agent.semanticTopFieldDescription } : {}),
     ...(agent.semanticTopFieldValue ? { semanticTopFieldValue: agent.semanticTopFieldValue } : {}),
+    ...(agent.semanticTopFieldPlaceholder ? { semanticTopFieldPlaceholder: agent.semanticTopFieldPlaceholder } : {}),
+    ...(agent.semanticTopFieldAutocomplete ? { semanticTopFieldAutocomplete: agent.semanticTopFieldAutocomplete } : {}),
+    ...(agent.semanticTopFieldInputMode ? { semanticTopFieldInputMode: agent.semanticTopFieldInputMode } : {}),
+    ...(agent.semanticTopFieldLabelledBy ? { semanticTopFieldLabelledBy: agent.semanticTopFieldLabelledBy } : {}),
+    ...(agent.semanticTopFieldDescribedBy ? { semanticTopFieldDescribedBy: agent.semanticTopFieldDescribedBy } : {}),
     ...(agent.semanticTopFieldState ? { semanticTopFieldState: agent.semanticTopFieldState } : {}),
     ...(typeof agent.semanticTopFieldRequired === "boolean" ? { semanticTopFieldRequired: agent.semanticTopFieldRequired } : {}),
     ...(agent.semanticTopFieldSelector ? { semanticTopFieldSelector: agent.semanticTopFieldSelector } : {}),
@@ -15351,6 +15371,11 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.semanticTopFieldName ? { semanticTopFieldName: agent.semanticTopFieldName } : {}),
     ...(agent.semanticTopFieldDescription ? { semanticTopFieldDescription: agent.semanticTopFieldDescription } : {}),
     ...(agent.semanticTopFieldValue ? { semanticTopFieldValue: agent.semanticTopFieldValue } : {}),
+    ...(agent.semanticTopFieldPlaceholder ? { semanticTopFieldPlaceholder: agent.semanticTopFieldPlaceholder } : {}),
+    ...(agent.semanticTopFieldAutocomplete ? { semanticTopFieldAutocomplete: agent.semanticTopFieldAutocomplete } : {}),
+    ...(agent.semanticTopFieldInputMode ? { semanticTopFieldInputMode: agent.semanticTopFieldInputMode } : {}),
+    ...(agent.semanticTopFieldLabelledBy ? { semanticTopFieldLabelledBy: agent.semanticTopFieldLabelledBy } : {}),
+    ...(agent.semanticTopFieldDescribedBy ? { semanticTopFieldDescribedBy: agent.semanticTopFieldDescribedBy } : {}),
     ...(agent.semanticTopFieldState ? { semanticTopFieldState: agent.semanticTopFieldState } : {}),
     ...(typeof agent.semanticTopFieldRequired === "boolean" ? { semanticTopFieldRequired: agent.semanticTopFieldRequired } : {}),
     ...(agent.semanticTopDescriptionRole ? { semanticTopDescriptionRole: agent.semanticTopDescriptionRole } : {}),
