@@ -1742,6 +1742,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopFieldExpanded?: boolean;
       semanticTopFieldHaspopup?: boolean | string;
       semanticTopFieldControls?: string;
+      semanticTopFieldValueMin?: number;
+      semanticTopFieldValueMax?: number;
+      semanticTopFieldValueNow?: number;
+      semanticTopFieldValueText?: string;
       semanticTopFieldSelector?: string;
       semanticTopDescriptionRole?: string;
       semanticTopDescriptionPath?: string;
@@ -4949,6 +4953,10 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopFieldExpanded?: boolean;
   semanticTopFieldHaspopup?: boolean | string;
   semanticTopFieldControls?: string;
+  semanticTopFieldValueMin?: number;
+  semanticTopFieldValueMax?: number;
+  semanticTopFieldValueNow?: number;
+  semanticTopFieldValueText?: string;
   semanticTopFieldSelector?: string;
   semanticTopDescriptionRole?: string;
   semanticTopDescriptionPath?: string;
@@ -5799,6 +5807,26 @@ function scoreAgentSemanticSummary(agent: {
     if (typeof controlsState === "string") {
       required += 1;
       if (agent?.semanticTopFieldControls === controlsState) matched += 1;
+    }
+    const valueMin = (field.state as { valueMin?: unknown }).valueMin;
+    if (typeof valueMin === "number") {
+      required += 1;
+      if (agent?.semanticTopFieldValueMin === valueMin) matched += 1;
+    }
+    const valueMax = (field.state as { valueMax?: unknown }).valueMax;
+    if (typeof valueMax === "number") {
+      required += 1;
+      if (agent?.semanticTopFieldValueMax === valueMax) matched += 1;
+    }
+    const valueNow = (field.state as { valueNow?: unknown }).valueNow;
+    if (typeof valueNow === "number") {
+      required += 1;
+      if (agent?.semanticTopFieldValueNow === valueNow) matched += 1;
+    }
+    const valueText = (field.state as { valueText?: unknown }).valueText;
+    if (typeof valueText === "string") {
+      required += 1;
+      if (agent?.semanticTopFieldValueText === valueText) matched += 1;
     }
   }
   if (field && typeof field.selector === "string") {

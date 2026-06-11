@@ -4260,6 +4260,21 @@ describe("cli", () => {
     const envelope = JSON.parse(stdout.output);
 
     expect(status).toBe(0);
+    expect(envelope.agent.semanticSummary.fieldItems).toEqual([
+      expect.objectContaining({
+        path: "agent.semanticSummary.fieldItems[0]",
+        role: "slider",
+        name: "Progress",
+        state: expect.objectContaining({
+          orientation: "horizontal",
+          valueMin: 0,
+          valueMax: 100,
+          valueNow: 40,
+          valueText: "40 percent",
+        }),
+        selector: "div",
+      }),
+    ]);
     expect(envelope.agent.semanticSummary.stateItems).toEqual([
       expect.objectContaining({
         path: "agent.semanticSummary.stateItems[0]",
@@ -4277,6 +4292,15 @@ describe("cli", () => {
       }),
     ]);
     expect(envelope.agent).toMatchObject({
+      semanticTopFieldRole: "slider",
+      semanticTopFieldPath: "agent.semanticSummary.fieldItems[0]",
+      semanticTopFieldName: "Progress",
+      semanticTopFieldState: "orientation=horizontal valueMin=0 valueMax=100 valueNow=40 valueText=40 percent",
+      semanticTopFieldValueMin: 0,
+      semanticTopFieldValueMax: 100,
+      semanticTopFieldValueNow: 40,
+      semanticTopFieldValueText: "40 percent",
+      semanticTopFieldSelector: "div",
       semanticTopStateRole: "slider",
       semanticTopStatePath: "agent.semanticSummary.stateItems[0]",
       semanticTopStateName: "Progress",

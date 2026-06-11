@@ -594,6 +594,10 @@ describe("public agent types", () => {
       | "semanticTopFieldExpanded"
       | "semanticTopFieldHaspopup"
       | "semanticTopFieldControls"
+      | "semanticTopFieldValueMin"
+      | "semanticTopFieldValueMax"
+      | "semanticTopFieldValueNow"
+      | "semanticTopFieldValueText"
       | "semanticTopFieldSelector"
       | "semanticTopDescriptionRole"
       | "semanticTopDescriptionPath"
@@ -1239,6 +1243,10 @@ describe("public agent types", () => {
       semanticTopFieldExpanded: true,
       semanticTopFieldHaspopup: "listbox",
       semanticTopFieldControls: "email-suggestions",
+      semanticTopFieldValueMin: 0,
+      semanticTopFieldValueMax: 100,
+      semanticTopFieldValueNow: 40,
+      semanticTopFieldValueText: "40 percent",
       semanticTopFieldSelector: "input[name=\"email\"]",
       semanticTopDescriptionRole: "textbox",
       semanticTopDescriptionPath: "agent.semanticSummary.descriptionItems[0]",
