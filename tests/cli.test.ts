@@ -3732,6 +3732,7 @@ describe("cli", () => {
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("1 form");
     expect(envelope.agent.semanticSummary.fieldCount).toBe(2);
+    expect(envelope.agent.semanticSummary.choiceCount).toBe(2);
     expect(envelope.agent.semanticSummary.fieldItems).toEqual([
       expect.objectContaining({
         path: "agent.semanticSummary.fieldItems[0]",
@@ -3746,14 +3747,33 @@ describe("cli", () => {
         selector: "select",
       }),
     ]);
+    expect(envelope.agent.semanticSummary.choiceItems).toEqual([
+      expect.objectContaining({
+        path: "agent.semanticSummary.choiceItems[0]",
+        role: "option",
+        name: "All",
+        selector: "option",
+      }),
+      expect.objectContaining({
+        path: "agent.semanticSummary.choiceItems[1]",
+        role: "option",
+        name: "Reports",
+        selector: "option:nth-of-type(2)",
+      }),
+    ]);
     expect(envelope.agent).toMatchObject({
       semanticFieldCount: 2,
+      semanticChoiceCount: 2,
       semanticTopFieldRole: "searchbox",
       semanticTopFieldPath: "agent.semanticSummary.fieldItems[0]",
       semanticTopFieldName: "Archive search",
       semanticTopFieldState: "required=true",
       semanticTopFieldRequired: true,
       semanticTopFieldSelector: "#q",
+      semanticTopChoiceRole: "option",
+      semanticTopChoicePath: "agent.semanticSummary.choiceItems[0]",
+      semanticTopChoiceName: "All",
+      semanticTopChoiceSelector: "option",
     });
     expect(envelope.agent.formCount).toBe(1);
     expect(envelope.agent.formChoiceCount).toBe(1);
