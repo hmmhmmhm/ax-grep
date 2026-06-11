@@ -832,6 +832,19 @@ type AgentSummary = {
   answerPlan: AgentAnswerPlan;
   searchDecision?: AgentSearchDecision;
   pageDecision?: AgentPageDecision;
+  searchDecisionName?: AgentSearchDecision["decision"];
+  searchDecisionConfidence?: AgentSearchDecision["confidence"];
+  searchDecisionReason?: string;
+  searchDecisionResultCount?: number;
+  searchDecisionRecommendedRank?: number;
+  searchDecisionRecommendedUrl?: string;
+  searchDecisionCommandArgs?: string[];
+  pageDecisionName?: AgentPageDecision["decision"];
+  pageDecisionConfidence?: AgentPageDecision["confidence"];
+  pageDecisionReason?: string;
+  pageDecisionReadFrom?: string;
+  pageDecisionUrl?: string;
+  pageDecisionCommandArgs?: string[];
   semanticSummary?: AgentSemanticSummary;
   semanticNodeCount?: number;
   semanticNamedRoleCount?: number;
@@ -2461,7 +2474,18 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.answerPlan.afterInteractionCommand ? [`  answerAfterInteractionCommand: ${agent.answerPlan.afterInteractionCommand}`] : []),
     ...(agent.answerPlan.afterInteractionCommandArgs ? [`  answerAfterInteractionCommandArgs: ${JSON.stringify(agent.answerPlan.afterInteractionCommandArgs)}`] : []),
     ...(agent.searchDecision ? [`  searchDecision: ${agent.searchDecision.decision}/${agent.searchDecision.confidence} - ${agent.searchDecision.reason}`] : []),
+    ...(agent.searchDecisionName ? [`  searchDecisionName: ${agent.searchDecisionName}`] : []),
+    ...(agent.searchDecisionConfidence ? [`  searchDecisionConfidence: ${agent.searchDecisionConfidence}`] : []),
+    ...(agent.searchDecisionReason ? [`  searchDecisionReason: ${agent.searchDecisionReason}`] : []),
+    ...(typeof agent.searchDecisionResultCount === "number" ? [`  searchDecisionResultCount: ${agent.searchDecisionResultCount}`] : []),
+    ...(typeof agent.searchDecisionRecommendedRank === "number" ? [`  searchDecisionRecommendedRank: ${agent.searchDecisionRecommendedRank}`] : []),
+    ...(agent.searchDecisionRecommendedUrl ? [`  searchDecisionRecommendedUrl: ${agent.searchDecisionRecommendedUrl}`] : []),
     ...(agent.pageDecision ? [`  pageDecision: ${agent.pageDecision.decision}/${agent.pageDecision.confidence} - ${agent.pageDecision.reason}`] : []),
+    ...(agent.pageDecisionName ? [`  pageDecisionName: ${agent.pageDecisionName}`] : []),
+    ...(agent.pageDecisionConfidence ? [`  pageDecisionConfidence: ${agent.pageDecisionConfidence}`] : []),
+    ...(agent.pageDecisionReason ? [`  pageDecisionReason: ${agent.pageDecisionReason}`] : []),
+    ...(agent.pageDecisionReadFrom ? [`  pageDecisionReadFrom: ${agent.pageDecisionReadFrom}`] : []),
+    ...(agent.pageDecisionUrl ? [`  pageDecisionUrl: ${agent.pageDecisionUrl}`] : []),
     `  summary: ${agent.summary}`,
     `  signalCount: ${agent.signalCount}`,
     `  signalWarnings: ${agent.signalWarningCount}`,
@@ -9000,6 +9024,19 @@ function summarizeAgent(
     answerPlan,
     ...(searchDecision ? { searchDecision } : {}),
     ...(pageDecision ? { pageDecision } : {}),
+    ...(searchDecision ? { searchDecisionName: searchDecision.decision } : {}),
+    ...(searchDecision ? { searchDecisionConfidence: searchDecision.confidence } : {}),
+    ...(searchDecision ? { searchDecisionReason: searchDecision.reason } : {}),
+    ...(searchDecision ? { searchDecisionResultCount: searchDecision.resultCount } : {}),
+    ...(typeof searchDecision?.recommendedRank === "number" ? { searchDecisionRecommendedRank: searchDecision.recommendedRank } : {}),
+    ...(searchDecision?.recommendedUrl ? { searchDecisionRecommendedUrl: searchDecision.recommendedUrl } : {}),
+    ...(searchDecision?.commandArgs ? { searchDecisionCommandArgs: searchDecision.commandArgs } : {}),
+    ...(pageDecision ? { pageDecisionName: pageDecision.decision } : {}),
+    ...(pageDecision ? { pageDecisionConfidence: pageDecision.confidence } : {}),
+    ...(pageDecision ? { pageDecisionReason: pageDecision.reason } : {}),
+    ...(pageDecision?.readFrom ? { pageDecisionReadFrom: pageDecision.readFrom } : {}),
+    ...(pageDecision?.url ? { pageDecisionUrl: pageDecision.url } : {}),
+    ...(pageDecision?.commandArgs ? { pageDecisionCommandArgs: pageDecision.commandArgs } : {}),
     ...(semanticSummary ? { semanticSummary } : {}),
     ...(semanticSummary ? { semanticNodeCount: semanticSummary.nodeCount } : {}),
     ...(semanticSummary ? { semanticNamedRoleCount: semanticSummary.namedRoleCount } : {}),
@@ -12925,6 +12962,19 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     answerPlan: compactAgentUrlRefs(agent.answerPlan, agent.primaryUrl),
     ...(agent.searchDecision ? { searchDecision: agent.searchDecision } : {}),
     ...(agent.pageDecision ? { pageDecision: compactAgentUrlRefs(agent.pageDecision, agent.primaryUrl) } : {}),
+    ...(agent.searchDecisionName ? { searchDecisionName: agent.searchDecisionName } : {}),
+    ...(agent.searchDecisionConfidence ? { searchDecisionConfidence: agent.searchDecisionConfidence } : {}),
+    ...(agent.searchDecisionReason ? { searchDecisionReason: agent.searchDecisionReason } : {}),
+    ...(typeof agent.searchDecisionResultCount === "number" ? { searchDecisionResultCount: agent.searchDecisionResultCount } : {}),
+    ...(typeof agent.searchDecisionRecommendedRank === "number" ? { searchDecisionRecommendedRank: agent.searchDecisionRecommendedRank } : {}),
+    ...(agent.searchDecisionRecommendedUrl ? { searchDecisionRecommendedUrl: agent.searchDecisionRecommendedUrl } : {}),
+    ...(agent.searchDecisionCommandArgs ? { searchDecisionCommandArgs: agent.searchDecisionCommandArgs } : {}),
+    ...(agent.pageDecisionName ? { pageDecisionName: agent.pageDecisionName } : {}),
+    ...(agent.pageDecisionConfidence ? { pageDecisionConfidence: agent.pageDecisionConfidence } : {}),
+    ...(agent.pageDecisionReason ? { pageDecisionReason: agent.pageDecisionReason } : {}),
+    ...(agent.pageDecisionReadFrom ? { pageDecisionReadFrom: agent.pageDecisionReadFrom } : {}),
+    ...(agent.pageDecisionUrl ? { pageDecisionUrl: agent.pageDecisionUrl } : {}),
+    ...(agent.pageDecisionCommandArgs ? { pageDecisionCommandArgs: agent.pageDecisionCommandArgs } : {}),
     ...(agent.semanticSummary ? { semanticSummary: compactAgentSemanticSummary(agent.semanticSummary) } : {}),
     ...(typeof agent.semanticNodeCount === "number" ? { semanticNodeCount: agent.semanticNodeCount } : {}),
     ...(typeof agent.semanticNamedRoleCount === "number" ? { semanticNamedRoleCount: agent.semanticNamedRoleCount } : {}),
@@ -13103,6 +13153,17 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     summary: agent.summary,
     executor: compactAgentExecutor(agent.executor, agent.primaryUrl),
     handoff: compactAgentBriefHandoff(agent.handoff, agent.primaryUrl, searchCommandContext, pageLinkContext),
+    ...(agent.searchDecisionName ? { searchDecisionName: agent.searchDecisionName } : {}),
+    ...(agent.searchDecisionConfidence ? { searchDecisionConfidence: agent.searchDecisionConfidence } : {}),
+    ...(typeof agent.searchDecisionResultCount === "number" ? { searchDecisionResultCount: agent.searchDecisionResultCount } : {}),
+    ...(typeof agent.searchDecisionRecommendedRank === "number" ? { searchDecisionRecommendedRank: agent.searchDecisionRecommendedRank } : {}),
+    ...(agent.searchDecisionRecommendedUrl ? { searchDecisionRecommendedUrl: agent.searchDecisionRecommendedUrl } : {}),
+    ...(agent.searchDecisionCommandArgs ? { searchDecisionCommandArgs: agent.searchDecisionCommandArgs } : {}),
+    ...(agent.pageDecisionName ? { pageDecisionName: agent.pageDecisionName } : {}),
+    ...(agent.pageDecisionConfidence ? { pageDecisionConfidence: agent.pageDecisionConfidence } : {}),
+    ...(agent.pageDecisionReadFrom ? { pageDecisionReadFrom: agent.pageDecisionReadFrom } : {}),
+    ...(agent.pageDecisionUrl ? { pageDecisionUrl: agent.pageDecisionUrl } : {}),
+    ...(agent.pageDecisionCommandArgs ? { pageDecisionCommandArgs: agent.pageDecisionCommandArgs } : {}),
     ...(typeof agent.semanticNodeCount === "number" ? { semanticNodeCount: agent.semanticNodeCount } : {}),
     ...(typeof agent.semanticNamedRoleCount === "number" ? { semanticNamedRoleCount: agent.semanticNamedRoleCount } : {}),
     ...(typeof agent.semanticInteractiveCount === "number" ? { semanticInteractiveCount: agent.semanticInteractiveCount } : {}),

@@ -231,6 +231,9 @@ decisions.
 `recommendedResult` repeat its URL, title, rank, source, relevance,
 official-source hint, selection reason, and command args on the top-level
 `agent` object for quick routing.
+`averageAgentSearchDecisionScore` and `averageAgentPageDecisionScore` also check
+top-level `agent.searchDecision*` and `agent.pageDecision*` shortcuts, so agents
+can route without reopening the nested decision objects.
 Terminal actions such as `read-content` and `use-evidence` are treated as
 usable without executable commands when `execution` is `read-current` and a
 `readFrom` pointer is present, because the compact payload already contains the

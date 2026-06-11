@@ -195,6 +195,19 @@ describe("public agent types", () => {
       | "topAnswerEvidenceUrl"
       | "topAnswerEvidenceConfidence"
       | "topAnswerEvidenceReason"
+      | "searchDecisionName"
+      | "searchDecisionConfidence"
+      | "searchDecisionReason"
+      | "searchDecisionResultCount"
+      | "searchDecisionRecommendedRank"
+      | "searchDecisionRecommendedUrl"
+      | "searchDecisionCommandArgs"
+      | "pageDecisionName"
+      | "pageDecisionConfidence"
+      | "pageDecisionReason"
+      | "pageDecisionReadFrom"
+      | "pageDecisionUrl"
+      | "pageDecisionCommandArgs"
       | "semanticNodeCount"
       | "semanticNamedRoleCount"
       | "semanticInteractiveCount"
@@ -321,6 +334,19 @@ describe("public agent types", () => {
       topAnswerEvidenceUrl: "https://example.test",
       topAnswerEvidenceConfidence: "high",
       topAnswerEvidenceReason: "Primary answer evidence.",
+      searchDecisionName: "open-result",
+      searchDecisionConfidence: "high",
+      searchDecisionReason: "Use the best result.",
+      searchDecisionResultCount: 2,
+      searchDecisionRecommendedRank: 1,
+      searchDecisionRecommendedUrl: "https://example.test",
+      searchDecisionCommandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent"],
+      pageDecisionName: "read-content",
+      pageDecisionConfidence: "high",
+      pageDecisionReason: "Readable content is available.",
+      pageDecisionReadFrom: "pageCheck.contentEvidence",
+      pageDecisionUrl: "https://example.test",
+      pageDecisionCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       semanticNodeCount: 12,
       semanticNamedRoleCount: 4,
       semanticInteractiveCount: 2,
@@ -415,6 +441,8 @@ describe("public agent types", () => {
     expect(summary.sourceSearchAlternateCount).toBe(1);
     expect(summary.verificationMissingQueries).toEqual(["missing"]);
     expect(summary.topVerificationMissingQuery).toBe("missing");
+    expect(summary.searchDecisionName).toBe("open-result");
+    expect(summary.pageDecisionReadFrom).toBe("pageCheck.contentEvidence");
     expect(summary.semanticTopHeading).toBe("Example");
     expect(summary.readTargetCount).toBe(3);
     expect(summary.bestReadTargetCount).toBe(1);

@@ -46,6 +46,7 @@ Read these first:
   target, terminal/continue flags.
 - `agent.next`: canonical loop payload with command, read target, or browser step.
 - `agent.sourceSearch*`: opened-result query, engine, selected result, and alternate count shortcuts.
+- `agent.searchDecision*` and `agent.pageDecision*`: top-level routing decisions and command/read pointers.
 - `agent.answerPlan`, `agent.citations`, and `agent.answerEvidence`: final answer evidence.
 - `agent.answerPlanStatus`, `agent.answerPlanConfidence`, and related `answer*`
   shortcuts: top-level answer readiness and citation routing.

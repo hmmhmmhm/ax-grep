@@ -1067,6 +1067,19 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       answerPlan?: CliAgentAnswerPlanShape;
       searchDecision?: CliAgentSearchDecisionShape;
       pageDecision?: CliAgentPageDecisionShape;
+      searchDecisionName?: CliAgentSearchDecisionShape["decision"];
+      searchDecisionConfidence?: CliAgentSearchDecisionShape["confidence"];
+      searchDecisionReason?: string;
+      searchDecisionResultCount?: number;
+      searchDecisionRecommendedRank?: number;
+      searchDecisionRecommendedUrl?: string;
+      searchDecisionCommandArgs?: string[];
+      pageDecisionName?: CliAgentPageDecisionShape["decision"];
+      pageDecisionConfidence?: CliAgentPageDecisionShape["confidence"];
+      pageDecisionReason?: string;
+      pageDecisionReadFrom?: string;
+      pageDecisionUrl?: string;
+      pageDecisionCommandArgs?: string[];
       signalCount?: number;
       signalWarningCount?: number;
       signalErrorCount?: number;
@@ -1363,8 +1376,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentAnswerPlanScore: scoreAgentAnswerPlan(item.agent?.answerPlan, item.agent?.citations ?? [], item.agent?.primaryAction, item.agent?.needsBrowserHtml),
     agentAnswerEvidenceScore: scoreAgentAnswerEvidence(item.agent?.answerEvidence ?? [], item.agent?.answerPlan, item.agent?.citations ?? []),
     agentActionListScore: scoreAgentActionList(item.agent?.actions, item.agent?.primaryAction, item.agent?.alternativeActionCount),
-    agentSearchDecisionScore: scoreAgentSearchDecision(item.agent?.searchDecision, item.kind, item.agent?.primaryAction, item.searchResults ?? [], item.recommendedResult, item.agent?.resultCount),
-    agentPageDecisionScore: scoreAgentPageDecision(item.agent?.pageDecision, item.kind, item.agent?.primaryAction, item.pageCheck),
+    agentSearchDecisionScore: scoreAgentSearchDecision(item.agent, item.kind, item.agent?.primaryAction, item.searchResults ?? [], item.recommendedResult, item.agent?.resultCount),
+    agentPageDecisionScore: scoreAgentPageDecision(item.agent, item.kind, item.agent?.primaryAction, item.pageCheck),
     agentSemanticSummaryScore: scoreAgentSemanticSummary(item.agent),
     pageCheck: pageCheckSummary,
     searchResultCount: item.searchResults?.length ?? 0,
@@ -3227,13 +3240,23 @@ function actionTargetHasTitleAndUrl(target: unknown): target is { title: string;
 }
 
 function scoreAgentSearchDecision(
-  decision: CliAgentSearchDecisionShape | undefined,
+  agent: {
+    searchDecision?: CliAgentSearchDecisionShape;
+    searchDecisionName?: CliAgentSearchDecisionShape["decision"];
+    searchDecisionConfidence?: CliAgentSearchDecisionShape["confidence"];
+    searchDecisionReason?: string;
+    searchDecisionResultCount?: number;
+    searchDecisionRecommendedRank?: number;
+    searchDecisionRecommendedUrl?: string;
+    searchDecisionCommandArgs?: string[];
+  } | undefined,
   kind: string | undefined,
   primaryAction: CliActionShape | undefined,
   searchResults: CliSearchResultShape[],
   recommendedResult: CliSearchResultShape | undefined,
   agentResultCount: number | undefined,
 ): number {
+  const decision = agent?.searchDecision;
   if (kind !== "search-results") return typeof decision === "undefined" ? 1 : 0;
   if (!decision) return 0;
   let required = 5;
@@ -3261,6 +3284,29 @@ function scoreAgentSearchDecision(
   } else if (typeof decision.commandArgs !== "undefined") {
     required += 1;
   }
+  required += 4;
+  if (agent?.searchDecisionName === decision.decision) matched += 1;
+  if (agent?.searchDecisionConfidence === decision.confidence) matched += 1;
+  if (agent?.searchDecisionReason === decision.reason) matched += 1;
+  if (agent?.searchDecisionResultCount === decision.resultCount) matched += 1;
+  if (typeof decision.recommendedRank === "number") {
+    required += 1;
+    if (agent?.searchDecisionRecommendedRank === decision.recommendedRank) matched += 1;
+  } else if (typeof agent?.searchDecisionRecommendedRank === "number") {
+    required += 1;
+  }
+  if (decision.recommendedUrl) {
+    required += 1;
+    if (agent?.searchDecisionRecommendedUrl === decision.recommendedUrl) matched += 1;
+  } else if (agent?.searchDecisionRecommendedUrl) {
+    required += 1;
+  }
+  if (decision.commandArgs) {
+    required += 1;
+    if (JSON.stringify(agent?.searchDecisionCommandArgs) === JSON.stringify(decision.commandArgs)) matched += 1;
+  } else if (agent?.searchDecisionCommandArgs) {
+    required += 1;
+  }
   return roundScore(matched / required);
 }
 
@@ -3271,11 +3317,20 @@ function expectedSearchDecision(primaryAction: CliActionShape | undefined, recom
 }
 
 function scoreAgentPageDecision(
-  decision: CliAgentPageDecisionShape | undefined,
+  agent: {
+    pageDecision?: CliAgentPageDecisionShape;
+    pageDecisionName?: CliAgentPageDecisionShape["decision"];
+    pageDecisionConfidence?: CliAgentPageDecisionShape["confidence"];
+    pageDecisionReason?: string;
+    pageDecisionReadFrom?: string;
+    pageDecisionUrl?: string;
+    pageDecisionCommandArgs?: string[];
+  } | undefined,
   kind: string | undefined,
   primaryAction: CliActionShape | undefined,
   pageCheck: { contentEvidence?: CliContentEvidenceShape[]; sourceLinks?: Array<{ sourceScore?: number }>; readability?: { level?: "low" | "medium" | "high"; score?: number } } | undefined,
 ): number {
+  const decision = agent?.pageDecision;
   if (kind === "search-results") return typeof decision === "undefined" ? 1 : 0;
   if (!decision) return 0;
   let required = 6;
@@ -3301,6 +3356,28 @@ function scoreAgentPageDecision(
     required += 1;
     if (resolvedAgentUrl(decision, primaryAction) === primaryAction.url) matched += 1;
   } else if (decision.url || decision.urlRef) {
+    required += 1;
+  }
+  required += 3;
+  if (agent?.pageDecisionName === decision.decision) matched += 1;
+  if (agent?.pageDecisionConfidence === decision.confidence) matched += 1;
+  if (agent?.pageDecisionReason === decision.reason) matched += 1;
+  if (decision.readFrom) {
+    required += 1;
+    if (agent?.pageDecisionReadFrom === decision.readFrom) matched += 1;
+  } else if (agent?.pageDecisionReadFrom) {
+    required += 1;
+  }
+  if (decision.url) {
+    required += 1;
+    if (agent?.pageDecisionUrl === decision.url) matched += 1;
+  } else if (agent?.pageDecisionUrl) {
+    required += 1;
+  }
+  if (decision.commandArgs) {
+    required += 1;
+    if (JSON.stringify(agent?.pageDecisionCommandArgs) === JSON.stringify(decision.commandArgs)) matched += 1;
+  } else if (agent?.pageDecisionCommandArgs) {
     required += 1;
   }
   return roundScore(matched / required);

@@ -489,6 +489,9 @@ describe("cli", () => {
           evidenceCount: 1,
           sourceLinkCount: 1,
         },
+        pageDecisionName: "read-content",
+        pageDecisionConfidence: "medium",
+        pageDecisionReadFrom: "pageCheck.contentEvidence",
         signals: expect.arrayContaining([
           expect.objectContaining({ kind: "content", severity: "info" }),
           expect.objectContaining({ kind: "verification", severity: "info" }),
@@ -1140,6 +1143,12 @@ describe("cli", () => {
         command: "ax-grep --search 'agent browser' --engine bing --open-result best --agent",
         commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "best", "--agent"],
       },
+      searchDecisionName: "open-result",
+      searchDecisionConfidence: "high",
+      searchDecisionResultCount: 1,
+      searchDecisionRecommendedRank: 1,
+      searchDecisionRecommendedUrl: "https://result.example/",
+      searchDecisionCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "best", "--agent"],
       resultChoices: [
         expect.objectContaining({
           id: "r1",
@@ -1200,6 +1209,8 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("  searchDecision: open-result/low - Ranked result 1 from result.example.");
+    expect(stdout.output).toContain("  searchDecisionName: open-result");
+    expect(stdout.output).toContain("  searchDecisionResultCount: 1");
     expect(stdout.output).toContain("  executor: execute/execute-command/medium action=open-result status=needs-more - Run ax-grep 'https://result.example/' --json --summary and continue with its output.");
     expect(stdout.output).toContain("  executorCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  handoffCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
@@ -1980,6 +1991,12 @@ describe("cli", () => {
       findMatchCount: 0,
       command: "ax-grep --search '\"ax-grep\"' --engine duckduckgo --agent",
       commandArgs: ["ax-grep", "--search", "\"ax-grep\"", "--engine", "duckduckgo", "--agent"],
+    });
+    expect(envelope.agent).toMatchObject({
+      searchDecisionName: "refine-search",
+      searchDecisionConfidence: "low",
+      searchDecisionResultCount: 1,
+      searchDecisionCommandArgs: ["ax-grep", "--search", "\"ax-grep\"", "--engine", "duckduckgo", "--agent"],
     });
   });
 
@@ -3760,6 +3777,12 @@ describe("cli", () => {
       decision: "open-site-search",
       commandArgs: ["ax-grep", "https://example.test/find?query=target%20report", "--find", "target report", "--agent"],
       url: "https://example.test/find?query=target%20report",
+    });
+    expect(envelope.agent).toMatchObject({
+      pageDecisionName: "open-site-search",
+      pageDecisionConfidence: expect.stringMatching(/^(low|medium|high)$/),
+      pageDecisionUrl: "https://example.test/find?query=target%20report",
+      pageDecisionCommandArgs: ["ax-grep", "https://example.test/find?query=target%20report", "--find", "target report", "--agent"],
     });
   });
 
