@@ -168,7 +168,12 @@ describe("public agent types", () => {
       | "topChoiceLabel"
       | "topChoiceUrl"
       | "topChoiceCommandArgs"
+      | "sourceSearchQuery"
+      | "sourceSearchEngine"
+      | "sourceSearchSelectedEngine"
+      | "sourceSearchSearchUrl"
       | "sourceSearchSelectedRank"
+      | "sourceSearchSelectedTitle"
       | "sourceSearchSelectedUrl"
       | "sourceSearchAlternateCount"
       | "verificationFoundQueries"
@@ -274,7 +279,12 @@ describe("public agent types", () => {
       topChoiceLabel: "Source",
       topChoiceUrl: "https://source.example/report",
       topChoiceCommandArgs: ["ax-grep", "https://source.example/report", "--agent"],
+      sourceSearchQuery: "ax-grep docs",
+      sourceSearchEngine: "auto",
+      sourceSearchSelectedEngine: "duckduckgo",
+      sourceSearchSearchUrl: "https://duckduckgo.com/html/?q=ax-grep%20docs",
       sourceSearchSelectedRank: 2,
+      sourceSearchSelectedTitle: "ax-grep documentation",
       sourceSearchSelectedUrl: "https://source.example/result",
       sourceSearchAlternateCount: 1,
       verificationFoundQueries: ["present"],
@@ -369,6 +379,8 @@ describe("public agent types", () => {
     expect(summary.formChoices?.[0]?.queryField).toBe("q");
     expect(summary.actionTargetChoices?.[0]?.kind).toBe("search");
     expect(summary.topChoiceKind).toBe("source");
+    expect(summary.sourceSearchQuery).toBe("ax-grep docs");
+    expect(summary.sourceSearchSelectedTitle).toBe("ax-grep documentation");
     expect(summary.sourceSearchAlternateCount).toBe(1);
     expect(summary.verificationMissingQueries).toEqual(["missing"]);
     expect(summary.topVerificationMissingQuery).toBe("missing");

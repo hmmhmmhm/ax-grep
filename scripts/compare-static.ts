@@ -1136,7 +1136,12 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topChoiceLabel?: string;
       topChoiceUrl?: string;
       topChoiceCommandArgs?: string[];
+      sourceSearchQuery?: string;
+      sourceSearchEngine?: string;
+      sourceSearchSelectedEngine?: string;
+      sourceSearchSearchUrl?: string;
       sourceSearchSelectedRank?: number;
+      sourceSearchSelectedTitle?: string;
       sourceSearchSelectedUrl?: string;
       sourceSearchAlternateCount?: number;
       executorDecision?: CliAgentLoopShape["decision"];
@@ -3039,24 +3044,50 @@ function scoreAgentSourceChoices(
 }
 
 function scoreAgentSourceSearchShortcuts(agent: {
+  sourceSearchQuery?: string;
+  sourceSearchEngine?: string;
+  sourceSearchSelectedEngine?: string;
+  sourceSearchSearchUrl?: string;
   sourceSearchSelectedRank?: number;
+  sourceSearchSelectedTitle?: string;
   sourceSearchSelectedUrl?: string;
   sourceSearchAlternateCount?: number;
 } | undefined, sourceSearch: {
+  query?: string;
+  engine?: string;
+  selectedEngine?: string;
+  searchUrl?: string;
   selectedRank?: number;
+  selectedTitle?: string;
   selectedUrl?: string;
   alternateResults?: unknown[];
 } | undefined): number {
   if (!sourceSearch) {
-    return typeof agent?.sourceSearchSelectedRank === "undefined"
+    return typeof agent?.sourceSearchQuery === "undefined"
+      && typeof agent?.sourceSearchEngine === "undefined"
+      && typeof agent?.sourceSearchSelectedEngine === "undefined"
+      && typeof agent?.sourceSearchSearchUrl === "undefined"
+      && typeof agent?.sourceSearchSelectedRank === "undefined"
+      && typeof agent?.sourceSearchSelectedTitle === "undefined"
       && typeof agent?.sourceSearchSelectedUrl === "undefined"
       && agent?.sourceSearchAlternateCount === 0 ? 1 : 0;
   }
   let matched = 0;
+  let required = 7;
+  if (agent?.sourceSearchQuery === sourceSearch.query) matched += 1;
+  if (agent?.sourceSearchEngine === sourceSearch.engine) matched += 1;
+  if (agent?.sourceSearchSearchUrl === sourceSearch.searchUrl) matched += 1;
   if (agent?.sourceSearchSelectedRank === sourceSearch.selectedRank) matched += 1;
+  if (agent?.sourceSearchSelectedTitle === sourceSearch.selectedTitle) matched += 1;
   if (agent?.sourceSearchSelectedUrl === sourceSearch.selectedUrl) matched += 1;
   if (agent?.sourceSearchAlternateCount === (sourceSearch.alternateResults?.length ?? 0)) matched += 1;
-  return roundScore(matched / 3);
+  if (sourceSearch.selectedEngine) {
+    required += 1;
+    if (agent?.sourceSearchSelectedEngine === sourceSearch.selectedEngine) matched += 1;
+  } else if (agent?.sourceSearchSelectedEngine) {
+    required += 1;
+  }
+  return roundScore(matched / required);
 }
 
 function scoreAgentPageKind(pageKind: string | undefined, rootKind: string | undefined): number {

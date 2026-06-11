@@ -546,7 +546,12 @@ export type AgentSummary = {
   topChoiceLabel?: string;
   topChoiceUrl?: string;
   topChoiceCommandArgs?: string[];
+  sourceSearchQuery?: string;
+  sourceSearchEngine?: string;
+  sourceSearchSelectedEngine?: string;
+  sourceSearchSearchUrl?: string;
   sourceSearchSelectedRank?: number;
+  sourceSearchSelectedTitle?: string;
   sourceSearchSelectedUrl?: string;
   sourceSearchAlternateCount?: number;
   evidenceQualityScore?: number;
