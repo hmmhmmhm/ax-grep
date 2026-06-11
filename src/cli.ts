@@ -918,7 +918,9 @@ type AgentSummary = {
   actionCount: number;
   actions: AgentActionSummary[];
   bestReadTarget?: string;
+  bestReadTargetCount?: number;
   bestReadTargetScore?: number;
+  bestReadTargetPrimary?: boolean;
   bestReadTargetReason?: string;
   executorDecision?: AgentNext["loop"]["decision"];
   executorMode?: AgentContinuationMode;
@@ -2567,7 +2569,9 @@ function formatAgentText(agent: AgentSummary): string[] {
   for (const gate of agent.qualityGates) lines.push(formatAgentQualityGateText(gate));
   for (const citation of agent.citations) lines.push(formatAgentCitationText(citation));
   if (agent.bestReadTarget) lines.push(`  bestReadTarget: ${agent.bestReadTarget}`);
+  if (typeof agent.bestReadTargetCount === "number") lines.push(`  bestReadTargetCount: ${agent.bestReadTargetCount}`);
   if (typeof agent.bestReadTargetScore === "number") lines.push(`  bestReadTargetScore: ${agent.bestReadTargetScore}`);
+  if (typeof agent.bestReadTargetPrimary === "boolean") lines.push(`  bestReadTargetPrimary: ${agent.bestReadTargetPrimary}`);
   if (agent.bestReadTargetReason) lines.push(`  bestReadTargetReason: ${agent.bestReadTargetReason}`);
   if (agent.primaryActionName) lines.push(`  primaryActionName: ${agent.primaryActionName}`);
   if (agent.primaryReason) lines.push(`  primaryReason: ${agent.primaryReason}`);
@@ -9045,7 +9049,9 @@ function summarizeAgent(
   };
   if (bestReadTarget) {
     agent.bestReadTarget = bestReadTarget.path;
+    if (typeof bestReadTarget.count === "number") agent.bestReadTargetCount = bestReadTarget.count;
     if (typeof bestReadTarget.score === "number") agent.bestReadTargetScore = bestReadTarget.score;
+    if (typeof bestReadTarget.primary === "boolean") agent.bestReadTargetPrimary = bestReadTarget.primary;
     agent.bestReadTargetReason = bestReadTarget.reason;
   }
   if (primaryAction) {
@@ -11533,7 +11539,9 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
       primary: true,
     }] : [],
     ...(bestReadTarget ? { bestReadTarget: bestReadTarget.path } : {}),
+    ...(typeof bestReadTarget?.count === "number" ? { bestReadTargetCount: bestReadTarget.count } : {}),
     ...(typeof bestReadTarget?.score === "number" ? { bestReadTargetScore: bestReadTarget.score } : {}),
+    ...(typeof bestReadTarget?.primary === "boolean" ? { bestReadTargetPrimary: bestReadTarget.primary } : {}),
     ...(bestReadTarget ? { bestReadTargetReason: bestReadTarget.reason } : {}),
     executorDecision: executor.decision,
     executorMode: executor.mode,
@@ -12846,7 +12854,9 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.readTargets.length > 0 ? { readTargets: compactAgentReadTargets(agent.readTargets) } : {}),
     actionCount: agent.actionCount,
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
+    ...(typeof agent.bestReadTargetCount === "number" ? { bestReadTargetCount: agent.bestReadTargetCount } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
+    ...(typeof agent.bestReadTargetPrimary === "boolean" ? { bestReadTargetPrimary: agent.bestReadTargetPrimary } : {}),
     ...(agent.bestReadTargetReason ? { bestReadTargetReason: agent.bestReadTargetReason } : {}),
     ...(agent.executorDecision ? { executorDecision: agent.executorDecision } : {}),
     ...(agent.executorMode ? { executorMode: agent.executorMode } : {}),
@@ -12981,7 +12991,9 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.readTargets.length > 0 ? { readTargets: agent.readTargets.map((target) => compactAgentReadTargetRef(target)) } : {}),
     actionCount: agent.actionCount,
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
+    ...(typeof agent.bestReadTargetCount === "number" ? { bestReadTargetCount: agent.bestReadTargetCount } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
+    ...(typeof agent.bestReadTargetPrimary === "boolean" ? { bestReadTargetPrimary: agent.bestReadTargetPrimary } : {}),
     ...(agent.executorDecision ? { executorDecision: agent.executorDecision } : {}),
     ...(agent.executorMode ? { executorMode: agent.executorMode } : {}),
     ...(agent.executorActionName ? { executorActionName: agent.executorActionName } : {}),

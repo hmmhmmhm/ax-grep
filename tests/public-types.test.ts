@@ -192,6 +192,11 @@ describe("public agent types", () => {
       | "answerPlanUrl"
       | "readTargetCount"
       | "actionCount"
+      | "bestReadTarget"
+      | "bestReadTargetCount"
+      | "bestReadTargetScore"
+      | "bestReadTargetPrimary"
+      | "bestReadTargetReason"
       | "signalCount"
       | "signalWarningCount"
       | "signalErrorCount"
@@ -277,6 +282,11 @@ describe("public agent types", () => {
       answerPlanUrl: "https://example.test",
       readTargetCount: 3,
       actionCount: 2,
+      bestReadTarget: "pageCheck.contentEvidence",
+      bestReadTargetCount: 1,
+      bestReadTargetScore: 0.9,
+      bestReadTargetPrimary: true,
+      bestReadTargetReason: "Best evidence.",
       signalCount: 2,
       signalWarningCount: 1,
       signalErrorCount: 0,
@@ -330,6 +340,8 @@ describe("public agent types", () => {
     expect(summary.sourceSearchAlternateCount).toBe(1);
     expect(summary.verificationMissingQueries).toEqual(["missing"]);
     expect(summary.readTargetCount).toBe(3);
+    expect(summary.bestReadTargetCount).toBe(1);
+    expect(summary.bestReadTargetPrimary).toBe(true);
     expect(summary.qualityGateFailCount).toBe(1);
     expect(summary.problemSignalSeverity).toBe("warning");
     expect(summary.failingQualityGateKind).toBe("content");

@@ -1090,7 +1090,9 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceQualityScore?: number;
       alternativeActionCount?: number;
       bestReadTarget?: string;
+      bestReadTargetCount?: number;
       bestReadTargetScore?: number;
+      bestReadTargetPrimary?: boolean;
       bestReadTargetReason?: string;
       diagnosticErrorCount?: number;
       diagnosticWarningCount?: number;
@@ -2498,7 +2500,9 @@ function hiddenSignalReasonNeedle(path: string): string {
 function scoreAgentBestReadTarget(agent: {
   readTargets?: CliReadTargetShape[];
   bestReadTarget?: string;
+  bestReadTargetCount?: number;
   bestReadTargetScore?: number;
+  bestReadTargetPrimary?: boolean;
   bestReadTargetReason?: string;
 } | undefined): number {
   const readTargets = agent?.readTargets ?? [];
@@ -2510,10 +2514,22 @@ function scoreAgentBestReadTarget(agent: {
   if (!best) return typeof agent?.bestReadTarget === "undefined" ? 1 : 0;
   let required = 1;
   let matched = agent?.bestReadTarget === best.path ? 1 : 0;
+  if (typeof best.count === "number") {
+    required += 1;
+    if (agent?.bestReadTargetCount === best.count) matched += 1;
+  } else if (typeof agent?.bestReadTargetCount === "number") {
+    required += 1;
+  }
   if (typeof best.score === "number") {
     required += 1;
     if (agent?.bestReadTargetScore === best.score) matched += 1;
   } else if (typeof agent?.bestReadTargetScore === "number") {
+    required += 1;
+  }
+  if (typeof best.primary === "boolean") {
+    required += 1;
+    if (agent?.bestReadTargetPrimary === best.primary) matched += 1;
+  } else if (typeof agent?.bestReadTargetPrimary === "boolean") {
     required += 1;
   }
   if (best.reason) {

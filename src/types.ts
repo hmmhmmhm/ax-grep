@@ -576,7 +576,9 @@ export type AgentSummary = {
   actionCount?: number;
   actions?: AgentAction[];
   bestReadTarget?: string;
+  bestReadTargetCount?: number;
   bestReadTargetScore?: number;
+  bestReadTargetPrimary?: boolean;
   bestReadTargetReason?: string;
   executorDecision?: AgentNext["loop"]["decision"];
   executorMode?: AgentContinuationMode;

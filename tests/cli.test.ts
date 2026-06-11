@@ -527,6 +527,8 @@ describe("cli", () => {
         ],
         readabilityScore: expect.any(Number),
         bestReadTarget: "verification.bestEvidence",
+        bestReadTargetCount: 1,
+        bestReadTargetPrimary: true,
         bestReadTargetReason: "Best matching evidence for the requested --find text.",
         diagnosticErrorCount: 0,
         diagnosticWarningCount: 0,
@@ -1102,6 +1104,7 @@ describe("cli", () => {
       evidenceQualityScore: expect.any(Number),
       sourceQualityScore: expect.any(Number),
       bestReadTarget: "pageCheck.contentEvidence",
+      bestReadTargetCount: 1,
       bestReadTargetScore: expect.any(Number),
       bestReadTargetReason: "Structured page excerpts suitable for source checking.",
       diagnosticErrorCount: 0,
@@ -7705,6 +7708,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  actionCandidate: pageCheck.nextSteps open-source-link <https://source.example/report>");
     expect(stdout.output).toContain("    sourceLinkRef: pageCheck.sourceLinks[0]");
     expect(stdout.output).toContain("  bestReadTarget: pageCheck.contentEvidence");
+    expect(stdout.output).toContain("  bestReadTargetCount: 1");
+    expect(stdout.output).toContain("  bestReadTargetPrimary: true");
     expect(stdout.output).toContain("  bestReadTargetReason: Structured page excerpts suitable for source checking.");
     expect(stdout.output).toContain("  primaryActionName: read-content");
     expect(stdout.output).toContain("  primaryReason: The page has enough structured evidence for source checking.");

@@ -49,7 +49,9 @@ Read these first:
 - `agent.answerPlanStatus`, `agent.answerPlanConfidence`, and related `answer*`
   shortcuts: top-level answer readiness and citation routing.
 - `agent.topAnswerEvidence*`: first answer evidence item for fast citation/read routing.
-- `agent.readTargets`, `agent.resultChoices`, and `agent.sourceChoices`: ranked paths to inspect.
+- `agent.readTargets` and `agent.bestReadTarget*`: ranked paths to inspect and the
+  best path's count/primary flags.
+- `agent.resultChoices` and `agent.sourceChoices`: ranked links to open.
 - `agent.topChoice*`: first executable result, source, form, or action-target choice.
 - `agent.signals` and `agent.qualityGates`: compact diagnostics.
 - `agent.problemSignal*` and `agent.failingQualityGate*`: first blocking or
