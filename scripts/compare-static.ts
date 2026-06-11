@@ -1724,6 +1724,8 @@ function scoreBriefAgentExecutorEnvelope(envelope: unknown): number {
   const item = envelope as {
     agent?: {
       contract?: { profile?: string; compact?: boolean };
+      status?: string;
+      needsBrowserHtml?: boolean;
       executor?: CliAgentExecutorShape;
       handoff?: CliAgentHandoffShape;
       primaryAction?: CliActionShape;
@@ -1808,7 +1810,29 @@ function scoreBriefAgentExecutorEnvelope(envelope: unknown): number {
     required += 1;
     if (handoff.sourceChoices.some((choice) => choice.url === agent.primaryAction?.url)) matched += 1;
   }
+  if (agent.status === "error" || agent.needsBrowserHtml === true) {
+    required += 2;
+    if (scoreBriefHandoffSignals(handoff.signals) === 1) matched += 1;
+    if (scoreBriefHandoffQualityGates(handoff.qualityGates, agent.needsBrowserHtml === true) === 1) matched += 1;
+  }
   return roundScore(matched / required);
+}
+
+function scoreBriefHandoffSignals(signals: unknown[] | undefined): number {
+  if (!Array.isArray(signals) || signals.length === 0) return 0;
+  const valid = signals.filter((signal): signal is CliAgentSignalShape => Boolean(signal) && typeof signal === "object");
+  return valid.some((signal) => signal.kind === "diagnostic" && signal.severity === "error")
+    && valid.every((signal) => typeof signal.message === "string" && signal.message.length > 0)
+    ? 1
+    : 0;
+}
+
+function scoreBriefHandoffQualityGates(gates: unknown[] | undefined, needsBrowserHtml: boolean): number {
+  if (!Array.isArray(gates) || gates.length === 0) return 0;
+  const valid = gates.filter((gate): gate is CliAgentQualityGateShape => Boolean(gate) && typeof gate === "object");
+  const hasFetchFailure = valid.some((gate) => gate.kind === "fetch" && gate.pass === false && gate.severity === "error");
+  const hasBrowserGate = valid.some((gate) => gate.kind === "browser" && gate.pass === !needsBrowserHtml);
+  return hasFetchFailure && hasBrowserGate ? 1 : 0;
 }
 
 function scoreHandoffReadValueDetails(readFrom: string | undefined, readValue: { path?: string; value?: unknown } | undefined): number {
