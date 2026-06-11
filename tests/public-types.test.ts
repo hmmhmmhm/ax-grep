@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type {
+  AgentAction,
   AgentAnswerPlan,
   AgentCitation,
   AgentHandoff,
   AgentResultChoice,
   AgentSourceChoice,
   AgentSourceSearchResult,
+  AgentSummary,
   AgentTarget,
 } from "../src/index";
 
@@ -98,5 +100,22 @@ describe("public agent types", () => {
     expect(handoff.resultChoices?.[0]?.snippet).toBe("Result summary");
     expect(handoff.sourceChoices?.[0]?.selector).toBe("a:nth-of-type(1)");
     expect(handoff.answerEvidence?.[0]?.text).toBe("Readable evidence");
+  });
+
+  it("exports source-link action references for agent action lists", () => {
+    const sourceAction: AgentAction = {
+      action: "open-source-link",
+      execution: "run-command",
+      sourceLinkRef: "pageCheck.sourceLinks[0]",
+      commandArgs: ["ax-grep", "https://source.example/report", "--agent"],
+      source: "pageCheck.nextSteps",
+    };
+    const summary: Pick<AgentSummary, "actions" | "primaryAction"> = {
+      actions: [sourceAction],
+      primaryAction: sourceAction,
+    };
+
+    expect(summary.actions?.[0]?.sourceLinkRef).toBe("pageCheck.sourceLinks[0]");
+    expect(summary.primaryAction?.sourceLinkRef).toBe("pageCheck.sourceLinks[0]");
   });
 });

@@ -5,6 +5,7 @@ import type { ExtractorScriptOptions, ObserverScriptOptions, SemanticNode, Seman
 export type {
   AgentContract,
   AgentContractFeature,
+  AgentAction,
   AgentAnswerPlan,
   AgentBrowserHtmlCapture,
   AgentCitation,

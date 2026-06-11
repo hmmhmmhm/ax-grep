@@ -917,6 +917,7 @@ const agentContract: AgentContract = {
     "searchResult.selectionReason",
     "sourceLink.selectionReason",
     "action.priority",
+    "action.sourceLinkRef",
     "actions",
     "contentEvidence.quality",
     "pageCheck.dataTables",

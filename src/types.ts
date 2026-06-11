@@ -95,6 +95,30 @@ export type AgentContinuationMode = "command" | "read" | "browser" | "capture-ht
 
 export type AgentExecutionMode = "run-command" | "read-current" | "interact-browser" | "inspect-output";
 
+export type AgentAction = {
+  action?: string;
+  execution?: AgentExecutionMode;
+  priority?: "low" | "medium" | "high";
+  priorityReason?: string;
+  reason?: string;
+  url?: string;
+  rank?: number;
+  openResult?: number | "best";
+  command?: string;
+  commandArgs?: string[];
+  afterInteractionCommand?: string;
+  afterInteractionCommandArgs?: string[];
+  terminal?: boolean;
+  readFrom?: string;
+  sourceLinkRef?: string;
+  requiresBrowserInteraction?: boolean;
+  target?: AgentTarget;
+  source?: string;
+  primary?: boolean;
+  index?: number;
+  path?: string;
+};
+
 export type AgentNext = {
   mode: AgentContinuationMode;
   reason: string;
@@ -113,6 +137,7 @@ export type AgentNext = {
   afterInteractionCommandArgs?: string[];
   requiresBrowserInteraction?: boolean;
   terminal?: boolean;
+  sourceLinkRef?: string;
   readTarget?: AgentReadTarget;
   readValue?: AgentReadValue;
   target?: AgentTarget;
@@ -222,6 +247,7 @@ export type AgentRunbook = {
   readFrom?: string;
   readValue?: AgentReadValue;
   url?: string;
+  sourceLinkRef?: string;
   target?: AgentTarget;
   browserHtml?: AgentBrowserHtmlCapture;
 };
@@ -246,6 +272,7 @@ export type AgentExecutorStep = {
   readTarget?: AgentReadTarget;
   readValue?: AgentReadValue;
   url?: string;
+  sourceLinkRef?: string;
   target?: AgentTarget;
   browserHtml?: AgentBrowserHtmlCapture;
 };
@@ -281,6 +308,7 @@ export type AgentHandoff = {
   afterInteractionCommand?: string;
   afterInteractionCommandArgs?: string[];
   url?: string;
+  sourceLinkRef?: string;
   target?: AgentTarget;
   browserHtml?: AgentBrowserHtmlCapture;
 };
@@ -452,7 +480,7 @@ export type AgentSummary = {
   citations?: AgentCitation[];
   answerEvidence?: AgentCitation[];
   readTargets?: AgentReadTarget[];
-  actions?: Array<Record<string, unknown>>;
+  actions?: AgentAction[];
   bestReadTarget?: string;
   bestReadTargetScore?: number;
   bestReadTargetReason?: string;
@@ -466,7 +494,7 @@ export type AgentSummary = {
   primaryRank?: number;
   primaryOpenResult?: number | "best";
   requiresBrowserInteraction?: boolean;
-  primaryAction?: Record<string, unknown>;
+  primaryAction?: AgentAction;
   recommendedUrl?: string;
   recommendedTitle?: string;
   recommendedRank?: number;
@@ -503,6 +531,7 @@ export type AgentContractFeature =
   | "searchResult.selectionReason"
   | "sourceLink.selectionReason"
   | "action.priority"
+  | "action.sourceLinkRef"
   | "actions"
   | "contentEvidence.quality"
   | "pageCheck.dataTables"

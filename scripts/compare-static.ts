@@ -1352,6 +1352,7 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[]; 
     "pageDecision",
     "semanticSummary",
     "readTargets",
+    "action.sourceLinkRef",
     "actions",
     "signals",
     "qualityGates",
