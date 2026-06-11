@@ -4164,7 +4164,7 @@ describe("cli", () => {
           <input id="q" type="search" aria-label="Archive search" aria-activedescendant="suggestion-1" aria-details="q-details" aria-errormessage="q-error">
           <p id="q-details">Search across public and private archive records.</p>
           <p id="q-error">Use at least two letters.</p>
-          <div id="suggestion-1" role="option">Quarterly reports</div>
+          <div id="suggestion-1" role="option" aria-level="2">Quarterly reports</div>
           <p>Readable page content for relation routing.</p>
         </main>
       `, { headers: { "content-type": "text/html" } }),
@@ -4207,8 +4207,22 @@ describe("cli", () => {
         selector: "#q",
       }),
     ]);
+    expect(envelope.agent.semanticSummary.choiceItems).toEqual([
+      expect.objectContaining({
+        path: "agent.semanticSummary.choiceItems[0]",
+        role: "option",
+        name: "Quarterly reports",
+        level: 2,
+        selector: "#suggestion-1",
+      }),
+    ]);
     expect(envelope.agent).toMatchObject({
       semanticRelationCount: 3,
+      semanticTopChoiceRole: "option",
+      semanticTopChoicePath: "agent.semanticSummary.choiceItems[0]",
+      semanticTopChoiceName: "Quarterly reports",
+      semanticTopChoiceLevel: 2,
+      semanticTopChoiceSelector: "#suggestion-1",
       semanticTopRelationRole: "searchbox",
       semanticTopRelationPath: "agent.semanticSummary.relationItems[0]",
       semanticTopRelationName: "Archive search",
