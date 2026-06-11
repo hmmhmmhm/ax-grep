@@ -1427,7 +1427,9 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topSourceChoiceTitle?: string;
       topSourceChoiceUrl?: string;
       topSourceChoiceCommandArgs?: string[];
+      topSourceChoiceSourceType?: string;
       topSourceChoiceSourceScore?: number;
+      topSourceChoiceSourceHints?: string[];
       topSourceChoicePrimary?: boolean;
       topSourceChoiceReason?: string;
       topChoiceKind?: "result" | "source" | "form" | "action-target";
@@ -4079,7 +4081,9 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
   topSourceChoiceTitle?: string;
   topSourceChoiceUrl?: string;
   topSourceChoiceCommandArgs?: string[];
+  topSourceChoiceSourceType?: string;
   topSourceChoiceSourceScore?: number;
+  topSourceChoiceSourceHints?: string[];
   topSourceChoicePrimary?: boolean;
   topSourceChoiceReason?: string;
 } | undefined): number {
@@ -4089,7 +4093,9 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
       || agent?.topSourceChoiceTitle
       || agent?.topSourceChoiceUrl
       || agent?.topSourceChoiceCommandArgs
+      || agent?.topSourceChoiceSourceType
       || typeof agent?.topSourceChoiceSourceScore === "number"
+      || agent?.topSourceChoiceSourceHints
       || typeof agent?.topSourceChoicePrimary === "boolean"
       || agent?.topSourceChoiceReason ? 0 : 1;
   }
@@ -4104,10 +4110,22 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
   } else if (agent?.topSourceChoiceTitle) {
     required += 1;
   }
+  if (top.sourceType) {
+    required += 1;
+    if (agent?.topSourceChoiceSourceType === top.sourceType) matched += 1;
+  } else if (agent?.topSourceChoiceSourceType) {
+    required += 1;
+  }
   if (typeof top.sourceScore === "number") {
     required += 1;
     if (agent?.topSourceChoiceSourceScore === top.sourceScore) matched += 1;
   } else if (typeof agent?.topSourceChoiceSourceScore === "number") {
+    required += 1;
+  }
+  if (top.sourceHints?.length) {
+    required += 1;
+    if (JSON.stringify(agent?.topSourceChoiceSourceHints) === JSON.stringify(top.sourceHints)) matched += 1;
+  } else if (agent?.topSourceChoiceSourceHints) {
     required += 1;
   }
   if (typeof top.primary === "boolean") {

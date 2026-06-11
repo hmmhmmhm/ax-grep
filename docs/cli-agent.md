@@ -83,7 +83,7 @@ Read these first:
   read before scanning all `readTargets`.
 - `agent.resultChoices` and `agent.sourceChoices`: ranked links to open.
 - `agent.topResultChoice*`: first search-result candidate with URL, rank, and command args.
-- `agent.topSourceChoice*`: first source-link candidate with URL and command args.
+- `agent.topSourceChoice*`: first source-link candidate with URL, command args, source type, source hints, and source score.
 - `agent.topFormChoice*` and `agent.topActionTargetChoice*`: first executable
   form/action target templates, query inputs, submit text, and first-field hints.
 - `agent.topChoice*`: first executable result, source, form, or action-target choice.

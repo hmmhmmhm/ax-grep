@@ -142,7 +142,8 @@ source, form, or action-target choice for fast subagent routing.
 mirrors the first search result choice, including URL, rank, open-result value,
 command arguments, and selection reason.
 `averageAgentTopSourceChoiceShortcutScore` tracks whether source-link specific
-top-level shortcuts mirror the first executable source choice.
+top-level shortcuts mirror the first executable source choice, including source
+type, hints, score, and selection reason.
 `averageAgentEvidenceCountShortcutScore` tracks citation, answer-evidence,
 read-target, and action count shortcuts against their agent arrays.
 `averageAgentTopCitationShortcutScore` tracks whether `agent.topCitation*`

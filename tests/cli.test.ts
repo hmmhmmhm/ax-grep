@@ -3648,6 +3648,11 @@ describe("cli", () => {
       semanticTopInteractiveName: expect.any(String),
       semanticTopLinkName: expect.any(String),
       semanticTopButtonName: "Reply",
+      topSourceChoicePath: "pageCheck.sourceLinks[0]",
+      topSourceChoiceUrl: "https://source.example/report",
+      topSourceChoiceSourceType: "unknown",
+      topSourceChoiceSourceScore: 0.35,
+      topSourceChoiceReason: "External link from source.example.",
     }));
     expect(envelope.pageCheck.primaryLinks.map((link: { title: string }) => link.title)).not.toContain("Login");
     expect(envelope.pageCheck.actions).toEqual([

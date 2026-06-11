@@ -353,7 +353,9 @@ describe("public agent types", () => {
       | "topSourceChoiceTitle"
       | "topSourceChoiceUrl"
       | "topSourceChoiceCommandArgs"
+      | "topSourceChoiceSourceType"
       | "topSourceChoiceSourceScore"
+      | "topSourceChoiceSourceHints"
       | "topSourceChoicePrimary"
       | "topSourceChoiceReason"
       | "topChoiceKind"
@@ -884,7 +886,9 @@ describe("public agent types", () => {
       topSourceChoiceTitle: "Source",
       topSourceChoiceUrl: "https://source.example/report",
       topSourceChoiceCommandArgs: ["ax-grep", "https://source.example/report", "--agent-brief"],
+      topSourceChoiceSourceType: "report",
       topSourceChoiceSourceScore: 0.91,
+      topSourceChoiceSourceHints: ["report", "external"],
       topSourceChoicePrimary: true,
       topSourceChoiceReason: "High-quality source link.",
       topChoiceKind: "source",

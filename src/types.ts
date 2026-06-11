@@ -906,7 +906,9 @@ export type AgentSummary = {
   topSourceChoiceTitle?: string;
   topSourceChoiceUrl?: string;
   topSourceChoiceCommandArgs?: string[];
+  topSourceChoiceSourceType?: string;
   topSourceChoiceSourceScore?: number;
+  topSourceChoiceSourceHints?: string[];
   topSourceChoicePrimary?: boolean;
   topSourceChoiceReason?: string;
   topChoiceKind?: "result" | "source" | "form" | "action-target";
