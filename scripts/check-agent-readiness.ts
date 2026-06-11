@@ -216,6 +216,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "verificationFoundQueries",
           "verificationMissingQueries",
           "sourceSearchSelectedRank",
+          "sourceSearchSelectedUrl",
           "sourceSearchAlternateCount",
           "hiddenSignalCount",
           "hiddenReadTargetCount",
@@ -229,6 +230,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "verificationFoundQueries",
           "verificationMissingQueries",
           "sourceSearchSelectedRank",
+          "sourceSearchSelectedUrl",
           "sourceSearchAlternateCount",
           "hiddenSignalCount",
           "hiddenReadTargetCount",
@@ -244,9 +246,15 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
       (failures) => {
         requireFileIncludes(root, failures, "tests/public-types.test.ts", [
           "AgentSummary",
+          "AgentHandoff",
           "sourceLinkRef",
           "AgentFormChoice",
           "AgentActionTargetChoice",
+          "verificationFoundQueries",
+          "verificationMissingQueries",
+          "sourceSearchSelectedRank",
+          "sourceSearchSelectedUrl",
+          "sourceSearchAlternateCount",
           "hiddenSignalCount",
           "actionTargetCount",
         ]);
