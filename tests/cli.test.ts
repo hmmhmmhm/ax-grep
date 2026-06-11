@@ -257,7 +257,7 @@ describe("cli", () => {
               <img src="/hero.png" srcset="/hero.png 1x, /hero@2x.png 2x" sizes="(min-width: 800px) 720px, 100vw" width="720" height="360" loading="lazy" decoding="async" alt="Hero chart">
               <p class="byline">By <a href="/authors/reporter">Reporter Profile</a></p>
               <p>Example content for agent routing.</p>
-              <table aria-label="Metrics">
+              <table aria-label="Metrics" aria-rowcount="100" aria-colcount="4">
                 <thead>
                   <tr><th>Metric</th><th>Value</th></tr>
                 </thead>
@@ -442,6 +442,8 @@ describe("cli", () => {
               name: "Metrics",
               rowCount: 2,
               cellCount: 4,
+              declaredRowCount: 100,
+              declaredColumnCount: 4,
               headers: ["Metric", "Value"],
               sampleCells: ["Latency", "120 ms"],
               selector: "table",
@@ -589,6 +591,8 @@ describe("cli", () => {
         semanticTopTableName: "Metrics",
         semanticTopTableRowCount: 2,
         semanticTopTableCellCount: 4,
+        semanticTopTableDeclaredRowCount: 100,
+        semanticTopTableDeclaredColumnCount: 4,
         semanticTopTableHeaders: ["Metric", "Value"],
         semanticTopTableSampleCells: ["Latency", "120 ms"],
         semanticTopTableSelector: "table",

@@ -538,6 +538,8 @@ describe("public agent types", () => {
       | "semanticTopTableName"
       | "semanticTopTableRowCount"
       | "semanticTopTableCellCount"
+      | "semanticTopTableDeclaredRowCount"
+      | "semanticTopTableDeclaredColumnCount"
       | "semanticTopTableHeaders"
       | "semanticTopTableSampleCells"
       | "semanticTopTableSelector"
@@ -1152,6 +1154,8 @@ describe("public agent types", () => {
       semanticTopTableName: "Pricing",
       semanticTopTableRowCount: 3,
       semanticTopTableCellCount: 6,
+      semanticTopTableDeclaredRowCount: 100,
+      semanticTopTableDeclaredColumnCount: 4,
       semanticTopTableHeaders: ["Plan", "Price"],
       semanticTopTableSampleCells: ["Pro", "$20"],
       semanticTopTableSelector: "table:nth-of-type(1)",

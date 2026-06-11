@@ -1684,6 +1684,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopTableName?: string;
       semanticTopTableRowCount?: number;
       semanticTopTableCellCount?: number;
+      semanticTopTableDeclaredRowCount?: number;
+      semanticTopTableDeclaredColumnCount?: number;
       semanticTopTableHeaders?: string[];
       semanticTopTableSampleCells?: string[];
       semanticTopTableSelector?: string;
@@ -4858,6 +4860,8 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopTableName?: string;
   semanticTopTableRowCount?: number;
   semanticTopTableCellCount?: number;
+  semanticTopTableDeclaredRowCount?: number;
+  semanticTopTableDeclaredColumnCount?: number;
   semanticTopTableHeaders?: string[];
   semanticTopTableSampleCells?: string[];
   semanticTopTableSelector?: string;
@@ -5475,7 +5479,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopImageSelector === image.selector) matched += 1;
   }
-  const table = Array.isArray(item.tableItems) ? item.tableItems[0] as { path?: unknown; role?: unknown; name?: unknown; rowCount?: unknown; cellCount?: unknown; headers?: unknown; sampleCells?: unknown; selector?: unknown } | undefined : undefined;
+  const table = Array.isArray(item.tableItems) ? item.tableItems[0] as { path?: unknown; role?: unknown; name?: unknown; rowCount?: unknown; cellCount?: unknown; declaredRowCount?: unknown; declaredColumnCount?: unknown; headers?: unknown; sampleCells?: unknown; selector?: unknown } | undefined : undefined;
   if (table && typeof table.role === "string") {
     required += 1;
     if (agent?.semanticTopTableRole === table.role) matched += 1;
@@ -5495,6 +5499,14 @@ function scoreAgentSemanticSummary(agent: {
   if (table && typeof table.cellCount === "number") {
     required += 1;
     if (agent?.semanticTopTableCellCount === table.cellCount) matched += 1;
+  }
+  if (table && typeof table.declaredRowCount === "number") {
+    required += 1;
+    if (agent?.semanticTopTableDeclaredRowCount === table.declaredRowCount) matched += 1;
+  }
+  if (table && typeof table.declaredColumnCount === "number") {
+    required += 1;
+    if (agent?.semanticTopTableDeclaredColumnCount === table.declaredColumnCount) matched += 1;
   }
   if (table && Array.isArray(table.headers)) {
     required += 1;

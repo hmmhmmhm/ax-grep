@@ -665,6 +665,8 @@ export type AgentSummary = {
   semanticTopTableName?: string;
   semanticTopTableRowCount?: number;
   semanticTopTableCellCount?: number;
+  semanticTopTableDeclaredRowCount?: number;
+  semanticTopTableDeclaredColumnCount?: number;
   semanticTopTableHeaders?: string[];
   semanticTopTableSampleCells?: string[];
   semanticTopTableSelector?: string;
