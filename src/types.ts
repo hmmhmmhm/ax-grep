@@ -605,9 +605,11 @@ export type AgentSummary = {
   semanticTopNamedRolePath?: string;
   semanticTopNamedRoleRole?: string;
   semanticTopNamedRoleName?: string;
+  semanticTopNamedRoleDescription?: string;
   semanticTopInteractiveRole?: string;
   semanticTopInteractivePath?: string;
   semanticTopInteractiveName?: string;
+  semanticTopInteractiveRoleDescription?: string;
   semanticTopInteractiveDescription?: string;
   semanticTopInteractiveValue?: string;
   semanticTopInteractiveState?: string;
@@ -616,6 +618,7 @@ export type AgentSummary = {
   semanticTopFocusableRole?: string;
   semanticTopFocusablePath?: string;
   semanticTopFocusableName?: string;
+  semanticTopFocusableRoleDescription?: string;
   semanticTopFocusableState?: string;
   semanticTopFocusableSelector?: string;
   semanticTopLinkName?: string;

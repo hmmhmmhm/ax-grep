@@ -249,9 +249,9 @@ describe("cli", () => {
           </head>
           <body>
             <main>
-              <h1 id="content">Example</h1>
+              <h1 id="content" aria-roledescription="article title">Example</h1>
               <p id="toggle-desc">Shows extra context</p>
-              <button type="submit" formaction="/details" formmethod="post" formtarget="_blank" form="details-form" aria-pressed="false" aria-haspopup="dialog" aria-valuetext="details off" aria-describedby="toggle-desc" aria-controls="details-panel">Toggle details</button>
+              <button type="submit" formaction="/details" formmethod="post" formtarget="_blank" form="details-form" aria-roledescription="disclosure toggle" aria-pressed="false" aria-haspopup="dialog" aria-valuetext="details off" aria-describedby="toggle-desc" aria-controls="details-panel">Toggle details</button>
               <a href="#content" class="skip-link" target="_self" rel="bookmark" download="content.html">Skip to content</a>
               <section id="details-panel" aria-label="Details panel">Extra details</section>
               <img src="/hero.png" srcset="/hero.png 1x, /hero@2x.png 2x" sizes="(min-width: 800px) 720px, 100vw" width="720" height="360" loading="lazy" decoding="async" alt="Hero chart">
@@ -371,6 +371,7 @@ describe("cli", () => {
               path: "agent.semanticSummary.namedRoleItems[0]",
               role: "heading",
               name: "Example",
+              roleDescription: "article title",
             }),
           ]),
           focusableItems: expect.arrayContaining([
@@ -378,6 +379,7 @@ describe("cli", () => {
               path: "agent.semanticSummary.focusableItems[0]",
               role: "button",
               name: "Toggle details",
+              roleDescription: "disclosure toggle",
               selector: "button",
               state: expect.objectContaining({ pressed: false }),
             }),
@@ -533,9 +535,11 @@ describe("cli", () => {
         semanticTopNamedRolePath: "agent.semanticSummary.namedRoleItems[0]",
         semanticTopNamedRoleRole: "heading",
         semanticTopNamedRoleName: "Example",
+        semanticTopNamedRoleDescription: "article title",
         semanticTopInteractiveRole: "button",
         semanticTopInteractivePath: "agent.semanticSummary.interactiveRoles[0]",
         semanticTopInteractiveName: "Toggle details",
+        semanticTopInteractiveRoleDescription: "disclosure toggle",
         semanticTopInteractiveDescription: "Shows extra context",
         semanticTopInteractiveValue: "details off",
         semanticTopInteractiveState: "pressed=false haspopup=dialog controls=details-panel",
@@ -545,6 +549,7 @@ describe("cli", () => {
         semanticTopFocusableRole: "button",
         semanticTopFocusablePath: "agent.semanticSummary.focusableItems[0]",
         semanticTopFocusableName: "Toggle details",
+        semanticTopFocusableRoleDescription: "disclosure toggle",
         semanticTopFocusableState: "pressed=false haspopup=dialog controls=details-panel",
         semanticTopFocusableSelector: "button",
         semanticTopLinkPath: "agent.semanticSummary.links[0]",

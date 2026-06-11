@@ -484,9 +484,11 @@ describe("public agent types", () => {
       | "semanticTopNamedRolePath"
       | "semanticTopNamedRoleRole"
       | "semanticTopNamedRoleName"
+      | "semanticTopNamedRoleDescription"
       | "semanticTopInteractiveRole"
       | "semanticTopInteractivePath"
       | "semanticTopInteractiveName"
+      | "semanticTopInteractiveRoleDescription"
       | "semanticTopInteractiveDescription"
       | "semanticTopInteractiveValue"
       | "semanticTopInteractiveState"
@@ -495,6 +497,7 @@ describe("public agent types", () => {
       | "semanticTopFocusableRole"
       | "semanticTopFocusablePath"
       | "semanticTopFocusableName"
+      | "semanticTopFocusableRoleDescription"
       | "semanticTopFocusableState"
       | "semanticTopFocusableSelector"
       | "semanticTopLinkName"
@@ -1088,9 +1091,11 @@ describe("public agent types", () => {
       semanticTopNamedRolePath: "agent.semanticSummary.namedRoleItems[0]",
       semanticTopNamedRoleRole: "heading",
       semanticTopNamedRoleName: "Example",
+      semanticTopNamedRoleDescription: "article title",
       semanticTopInteractiveRole: "link",
       semanticTopInteractivePath: "agent.semanticSummary.interactiveRoles[0]",
       semanticTopInteractiveName: "Read more",
+      semanticTopInteractiveRoleDescription: "card link",
       semanticTopInteractiveDescription: "Opens the article",
       semanticTopInteractiveValue: "article",
       semanticTopInteractiveState: "expanded=false",
@@ -1099,6 +1104,7 @@ describe("public agent types", () => {
       semanticTopFocusableRole: "link",
       semanticTopFocusablePath: "agent.semanticSummary.focusableItems[0]",
       semanticTopFocusableName: "Read more",
+      semanticTopFocusableRoleDescription: "card link",
       semanticTopFocusableState: "expanded=false",
       semanticTopFocusableSelector: "main a:nth-of-type(1)",
       semanticTopLinkName: "Read more",
