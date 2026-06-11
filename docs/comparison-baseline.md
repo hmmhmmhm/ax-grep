@@ -104,6 +104,10 @@ non-search pages and at least the compact result count for search pages.
 `averageAgentSourceLinkCountScore` tracks whether `agent.sourceLinkCount` is
 zero for search pages and matches compact `pageCheck.sourceLinks` for ordinary
 content pages.
+`averageAgentFormActionCountScore` tracks whether top-level `agent.formCount`
+and `agent.actionTargetCount` match compact `pageCheck.forms` and
+`pageCheck.actionTargets`, so agents can detect hidden forms and JSON-LD/OpenSearch
+actions before scanning nested page-check arrays.
 `averagePageLinkCommandScore` tracks whether compact `pageCheck.primaryLinks`
 and `pageCheck.sourceLinks` include direct `command` and `commandArgs`, so
 agents can open page links without reconstructing fetch flags.

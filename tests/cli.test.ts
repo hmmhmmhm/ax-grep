@@ -3449,6 +3449,8 @@ describe("cli", () => {
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("1 form");
+    expect(envelope.agent.formCount).toBe(1);
+    expect(envelope.agent.actionTargetCount).toBe(0);
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -3492,6 +3494,8 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(envelope.agent.contract.profile).toBe("brief");
+    expect(envelope.agent.formCount).toBe(1);
+    expect(envelope.agent.actionTargetCount).toBe(0);
     expect(envelope.agent.executor).toMatchObject({
       decision: "return",
       readFrom: "pageCheck.forms",
@@ -3721,6 +3725,8 @@ describe("cli", () => {
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("2 action targets");
+    expect(envelope.agent.formCount).toBe(0);
+    expect(envelope.agent.actionTargetCount).toBe(2);
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -3779,6 +3785,8 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(envelope.agent.contract.profile).toBe("brief");
+    expect(envelope.agent.formCount).toBe(0);
+    expect(envelope.agent.actionTargetCount).toBe(2);
     expect(envelope.agent.executor).toMatchObject({
       decision: "return",
       readFrom: "pageCheck.actionTargets",

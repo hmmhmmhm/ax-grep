@@ -852,6 +852,8 @@ type AgentSummary = {
   resultCount: number;
   resultChoices: AgentResultChoice[];
   evidenceCount: number;
+  formCount: number;
+  actionTargetCount: number;
   sourceLinkCount: number;
   sourceChoices: AgentSourceChoice[];
   evidenceQualityScore: number;
@@ -8754,6 +8756,8 @@ function summarizeAgent(
     resultCount: hasUsableSearchResults ? results.length : 0,
     resultChoices,
     evidenceCount: pageCheck.contentEvidence.length,
+    formCount: pageCheck.forms.length,
+    actionTargetCount: pageCheck.actionTargets.length,
     sourceLinkCount: analysis.kind === "search-results" ? 0 : pageCheck.sourceLinks.length,
     sourceChoices,
     evidenceQualityScore,
@@ -11087,6 +11091,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     resultCount: 0,
     resultChoices: [],
     evidenceCount: 0,
+    formCount: 0,
+    actionTargetCount: 0,
     sourceLinkCount: 0,
     sourceChoices: [],
     evidenceQualityScore: 0,
@@ -12320,6 +12326,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     resultCount: agent.resultCount,
     ...(agent.resultChoices.length > 0 ? { resultChoices: agent.resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext, pageLinkContext)) } : {}),
     evidenceCount: agent.evidenceCount,
+    formCount: agent.formCount,
+    actionTargetCount: agent.actionTargetCount,
     sourceLinkCount: agent.sourceLinkCount,
     ...(agent.sourceChoices.length > 0 ? { sourceChoices: compactAgentSourceChoiceList(agent.sourceChoices) } : {}),
     evidenceQualityScore: agent.evidenceQualityScore,
@@ -12379,6 +12387,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     verificationStatus: agent.verificationStatus,
     resultCount: agent.resultCount,
     evidenceCount: agent.evidenceCount,
+    formCount: agent.formCount,
+    actionTargetCount: agent.actionTargetCount,
     sourceLinkCount: agent.sourceLinkCount,
     evidenceQualityScore: agent.evidenceQualityScore,
     sourceQualityScore: agent.sourceQualityScore,

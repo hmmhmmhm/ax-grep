@@ -43,6 +43,7 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
     "weakAgentTargets",
     "averageAgentExecutorScore",
     "minAgentExecutorScore",
+    "averageAgentFormActionCountScore",
     "averageAgentHiddenSignalScore",
   ]);
   requireFileIncludes(root, failures, "docs/agent-readiness.md", [
