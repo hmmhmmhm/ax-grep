@@ -137,6 +137,7 @@ describe("public agent types", () => {
       actionUrl: "https://example.test/find",
       queryField: "q",
       urlTemplate: "https://example.test/find?q={query}",
+      selector: "form:nth-of-type(1)",
       fields: [{ name: "q", type: "search", selector: "input[name=\"q\"]" }],
     };
     const actionTargetChoice: AgentActionTargetChoice = {
@@ -147,8 +148,11 @@ describe("public agent types", () => {
       name: "Search docs",
       text: "search: Search docs template=https://example.test/search?q={query}",
       source: "json-ld",
+      targetUrl: "https://example.test/search",
       urlTemplate: "https://example.test/search?q={query}",
       queryInput: "required name=query",
+      method: "GET",
+      selector: "script[type=\"application/ld+json\"]",
     };
     const summary: Pick<
       AgentSummary,
@@ -158,9 +162,25 @@ describe("public agent types", () => {
       | "formCount"
       | "formChoiceCount"
       | "formChoices"
+      | "topFormChoicePath"
+      | "topFormChoiceMethod"
+      | "topFormChoiceActionUrl"
+      | "topFormChoiceQueryField"
+      | "topFormChoiceUrlTemplate"
+      | "topFormChoiceFieldCount"
+      | "topFormChoiceSelector"
       | "actionTargetCount"
       | "actionTargetChoiceCount"
       | "actionTargetChoices"
+      | "topActionTargetChoicePath"
+      | "topActionTargetChoiceKind"
+      | "topActionTargetChoiceName"
+      | "topActionTargetChoiceSource"
+      | "topActionTargetChoiceTargetUrl"
+      | "topActionTargetChoiceUrlTemplate"
+      | "topActionTargetChoiceQueryInput"
+      | "topActionTargetChoiceMethod"
+      | "topActionTargetChoiceSelector"
       | "barrierCount"
       | "topBarrierKind"
       | "topBarrierSeverity"
@@ -392,9 +412,25 @@ describe("public agent types", () => {
       formCount: 1,
       formChoiceCount: 1,
       formChoices: [formChoice],
+      topFormChoicePath: "pageCheck.forms[0]",
+      topFormChoiceMethod: "get",
+      topFormChoiceActionUrl: "https://example.test/find",
+      topFormChoiceQueryField: "q",
+      topFormChoiceUrlTemplate: "https://example.test/find?q={query}",
+      topFormChoiceFieldCount: 1,
+      topFormChoiceSelector: "form:nth-of-type(1)",
       actionTargetCount: 2,
       actionTargetChoiceCount: 1,
       actionTargetChoices: [actionTargetChoice],
+      topActionTargetChoicePath: "pageCheck.actionTargets[0]",
+      topActionTargetChoiceKind: "search",
+      topActionTargetChoiceName: "Search docs",
+      topActionTargetChoiceSource: "json-ld",
+      topActionTargetChoiceTargetUrl: "https://example.test/search",
+      topActionTargetChoiceUrlTemplate: "https://example.test/search?q={query}",
+      topActionTargetChoiceQueryInput: "required name=query",
+      topActionTargetChoiceMethod: "GET",
+      topActionTargetChoiceSelector: "script[type=\"application/ld+json\"]",
       barrierCount: 1,
       topBarrierKind: "challenge",
       topBarrierSeverity: "warning",
@@ -634,6 +670,8 @@ describe("public agent types", () => {
     expect(summary.bestStructuredReadTargetPrimary).toBe(true);
     expect(summary.formChoices?.[0]?.queryField).toBe("q");
     expect(summary.actionTargetChoices?.[0]?.kind).toBe("search");
+    expect(summary.topFormChoiceUrlTemplate).toBe("https://example.test/find?q={query}");
+    expect(summary.topActionTargetChoiceUrlTemplate).toBe("https://example.test/search?q={query}");
     expect(summary.topChoiceKind).toBe("source");
     expect(summary.topSourceChoicePath).toBe("pageCheck.sourceLinks[0]");
     expect(summary.topSourceChoiceCommandArgs?.[0]).toBe("ax-grep");

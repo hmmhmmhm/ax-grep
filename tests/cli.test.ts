@@ -3636,6 +3636,15 @@ describe("cli", () => {
     expect(envelope.pageCheck.readability.reasons).toContain("1 form");
     expect(envelope.agent.formCount).toBe(1);
     expect(envelope.agent.formChoiceCount).toBe(1);
+    expect(envelope.agent).toMatchObject({
+      topFormChoicePath: "pageCheck.forms[0]",
+      topFormChoiceMethod: "get",
+      topFormChoiceActionUrl: "https://example.test/find",
+      topFormChoiceQueryField: "query",
+      topFormChoiceUrlTemplate: "https://example.test/find?query=%7Bquery%7D",
+      topFormChoiceFieldCount: 2,
+      topFormChoiceSelector: "form:nth-of-type(1)",
+    });
     expect(envelope.agent.formChoices).toEqual([
       expect.objectContaining({
         id: "f1",
@@ -3950,6 +3959,16 @@ describe("cli", () => {
     expect(envelope.pageCheck.readability.reasons).toContain("2 action targets");
     expect(envelope.agent.formCount).toBe(0);
     expect(envelope.agent.actionTargetCount).toBe(2);
+    expect(envelope.agent).toMatchObject({
+      topActionTargetChoicePath: "pageCheck.actionTargets[0]",
+      topActionTargetChoiceKind: "search",
+      topActionTargetChoiceName: "Search docs",
+      topActionTargetChoiceSource: "json-ld",
+      topActionTargetChoiceUrlTemplate: "https://example.test/search?q={search_term_string}",
+      topActionTargetChoiceQueryInput: "required name=search_term_string",
+      topActionTargetChoiceMethod: "GET",
+      topActionTargetChoiceSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+    });
     expect(envelope.agent.actionTargetChoices).toEqual([
       expect.objectContaining({
         id: "at1",

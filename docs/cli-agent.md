@@ -72,6 +72,8 @@ Read these first:
   read before scanning all `readTargets`.
 - `agent.resultChoices` and `agent.sourceChoices`: ranked links to open.
 - `agent.topSourceChoice*`: first source-link candidate with URL and command args.
+- `agent.topFormChoice*` and `agent.topActionTargetChoice*`: first executable
+  form/action target templates and query inputs.
 - `agent.topChoice*`: first executable result, source, form, or action-target choice.
 - `agent.primarySourceLinkRef`: primary source-link action's `pageCheck.sourceLinks[n]`.
 - `agent.alternativeAction*`: first non-primary action candidate, including source,
