@@ -4668,6 +4668,44 @@ describe("cli", () => {
     });
   });
 
+  it("exposes checked semantic field shortcuts for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/consent", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <label><input id="consent" name="consent" type="checkbox" checked> Email me updates</label>
+          <p>Readable page content for consent routing.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent.semanticSummary.fieldItems).toEqual([
+      expect.objectContaining({
+        path: "agent.semanticSummary.fieldItems[0]",
+        role: "checkbox",
+        name: "Email me updates",
+        htmlName: "consent",
+        htmlType: "checkbox",
+        state: expect.objectContaining({ checked: true }),
+        selector: "#consent",
+      }),
+    ]);
+    expect(envelope.agent).toMatchObject({
+      semanticTopFieldRole: "checkbox",
+      semanticTopFieldPath: "agent.semanticSummary.fieldItems[0]",
+      semanticTopFieldName: "Email me updates",
+      semanticTopFieldHtmlName: "consent",
+      semanticTopFieldHtmlType: "checkbox",
+      semanticTopFieldState: "checked=true",
+      semanticTopFieldChecked: true,
+      semanticTopFieldSelector: "#consent",
+    });
+  });
+
   it("keeps executable form details in brief read handoff", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/search", "--agent-brief"], {

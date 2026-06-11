@@ -590,6 +590,7 @@ describe("public agent types", () => {
       | "semanticTopFieldRequired"
       | "semanticTopFieldReadonly"
       | "semanticTopFieldInvalid"
+      | "semanticTopFieldChecked"
       | "semanticTopFieldExpanded"
       | "semanticTopFieldHaspopup"
       | "semanticTopFieldControls"
@@ -1229,11 +1230,12 @@ describe("public agent types", () => {
       semanticTopFieldLabelledByText: "Email",
       semanticTopFieldDescribedBy: "email-help",
       semanticTopFieldDescribedByText: "Used for updates",
-      semanticTopFieldState: "disabled=true required=true readonly=true expanded=true invalid=spelling haspopup=listbox controls=email-suggestions",
+      semanticTopFieldState: "disabled=true required=true readonly=true checked=true expanded=true invalid=spelling haspopup=listbox controls=email-suggestions",
       semanticTopFieldDisabled: true,
       semanticTopFieldRequired: true,
       semanticTopFieldReadonly: true,
       semanticTopFieldInvalid: "spelling",
+      semanticTopFieldChecked: true,
       semanticTopFieldExpanded: true,
       semanticTopFieldHaspopup: "listbox",
       semanticTopFieldControls: "email-suggestions",

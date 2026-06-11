@@ -1738,6 +1738,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopFieldRequired?: boolean;
       semanticTopFieldReadonly?: boolean;
       semanticTopFieldInvalid?: boolean | string;
+      semanticTopFieldChecked?: boolean | "mixed";
       semanticTopFieldExpanded?: boolean;
       semanticTopFieldHaspopup?: boolean | string;
       semanticTopFieldControls?: string;
@@ -4944,6 +4945,7 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopFieldRequired?: boolean;
   semanticTopFieldReadonly?: boolean;
   semanticTopFieldInvalid?: boolean | string;
+  semanticTopFieldChecked?: boolean | "mixed";
   semanticTopFieldExpanded?: boolean;
   semanticTopFieldHaspopup?: boolean | string;
   semanticTopFieldControls?: string;
@@ -5777,6 +5779,11 @@ function scoreAgentSemanticSummary(agent: {
     if (typeof invalidState !== "undefined") {
       required += 1;
       if (agent?.semanticTopFieldInvalid === invalidState) matched += 1;
+    }
+    const checkedState = (field.state as { checked?: unknown }).checked;
+    if (typeof checkedState === "boolean" || checkedState === "mixed") {
+      required += 1;
+      if (agent?.semanticTopFieldChecked === checkedState) matched += 1;
     }
     const expandedState = (field.state as { expanded?: unknown }).expanded;
     if (typeof expandedState === "boolean") {

@@ -722,6 +722,7 @@ export type AgentSummary = {
   semanticTopFieldRequired?: boolean;
   semanticTopFieldReadonly?: boolean;
   semanticTopFieldInvalid?: boolean | string;
+  semanticTopFieldChecked?: SemanticNodeState["checked"];
   semanticTopFieldExpanded?: boolean;
   semanticTopFieldHaspopup?: SemanticNodeState["haspopup"];
   semanticTopFieldControls?: string;
