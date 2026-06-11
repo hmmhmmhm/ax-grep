@@ -59,6 +59,7 @@ function staticSummary(overrides: Partial<StaticGateSummary> = {}): StaticGateSu
     averageAgentBrowserNeedScore: 1,
     averageAgentBrowserHtmlScore: 1,
     averageAgentPageKindScore: 1,
+    averageAgentPageMetadataShortcutScore: 1,
     averageAgentAlternativeActionCountScore: 1,
     averageAgentUsabilityScoreConsistency: 1,
     averageAgentEvidenceQualityScoreConsistency: 1,
@@ -249,6 +250,7 @@ describe("comparison gate checker", () => {
   it("rejects static reports that drop top-level agent consistency gates", () => {
     const failures = checkComparisonGateReport(staticReport(staticSummary({
       averageAgentPageKindScore: 0.9,
+      averageAgentPageMetadataShortcutScore: 0.88,
       averageAgentAlternativeActionCountScore: 0.8,
       averageAgentUsabilityScoreConsistency: 0.7,
       averageAgentEvidenceQualityScoreConsistency: 0.6,
@@ -290,6 +292,7 @@ describe("comparison gate checker", () => {
       "averageAgentSourceSearchShortcutScore expected >= 0.995, got 0.35",
       "averageAgentTopCitationShortcutScore expected >= 0.995, got 0.74",
       "averageAgentPageKindScore expected >= 0.995, got 0.9",
+      "averageAgentPageMetadataShortcutScore expected >= 0.995, got 0.88",
       "averageAgentAlternativeActionCountScore expected >= 0.995, got 0.8",
       "averageAgentUsabilityScoreConsistency expected >= 0.995, got 0.7",
       "averageAgentEvidenceQualityScoreConsistency expected >= 0.995, got 0.6",

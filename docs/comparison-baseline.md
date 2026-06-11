@@ -90,6 +90,9 @@ thin, blocked, or worth retrying.
 `averageAgentReadabilityReasonScore` tracks whether the compact top-level
 `agent` summary repeats concise readability reasons, so agents can route from
 the first object before drilling into `pageCheck`.
+`averageAgentPageMetadataShortcutScore` tracks whether `agent.page*` mirrors
+root page metadata such as canonical URL, language, author, dates, and
+structured-data types.
 `averageAgentSemanticSummaryScore` tracks whether `agent.semanticSummary` and
 top-level `agent.semantic*` shortcuts preserve semantic tree counts, top role,
 heading, and landmark for quick page-shape routing.

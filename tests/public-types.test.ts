@@ -377,6 +377,14 @@ describe("public agent types", () => {
       | "answerPlanUrl"
       | "readTargetCount"
       | "actionCount"
+      | "pageTitle"
+      | "pageCanonicalUrl"
+      | "pageLang"
+      | "pageSiteName"
+      | "pageAuthor"
+      | "pagePublishedTime"
+      | "pageModifiedTime"
+      | "pageStructuredDataTypes"
       | "topReadTarget"
       | "topReadTargetCount"
       | "topReadTargetScore"
@@ -681,6 +689,14 @@ describe("public agent types", () => {
       answerPlanUrl: "https://example.test",
       readTargetCount: 3,
       actionCount: 2,
+      pageTitle: "Example article",
+      pageCanonicalUrl: "https://example.test/article",
+      pageLang: "en",
+      pageSiteName: "Example Site",
+      pageAuthor: "Example Author",
+      pagePublishedTime: "2026-02-03T04:05:06Z",
+      pageModifiedTime: "2026-02-04T05:06:07Z",
+      pageStructuredDataTypes: ["NewsArticle"],
       topReadTarget: "pageCheck.contentEvidence",
       topReadTargetCount: 1,
       topReadTargetScore: 0.9,
@@ -807,6 +823,7 @@ describe("public agent types", () => {
     expect(summary.sourceSearchAlternateCount).toBe(1);
     expect(summary.sourceSearchAlternatePath).toBe("sourceSearch.alternateResults[0]");
     expect(summary.topActionName).toBe("read-content");
+    expect(summary.pagePublishedTime).toBe("2026-02-03T04:05:06Z");
     expect(summary.verificationMissingQueries).toEqual(["missing"]);
     expect(summary.topVerificationMissingQuery).toBe("missing");
     expect(summary.searchDecisionName).toBe("open-result");

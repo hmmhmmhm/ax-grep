@@ -478,6 +478,14 @@ export type AgentSummary = {
   contract: AgentContract;
   status: AgentStatus;
   pageKind: string;
+  pageTitle?: string;
+  pageCanonicalUrl?: string;
+  pageLang?: string;
+  pageSiteName?: string;
+  pageAuthor?: string;
+  pagePublishedTime?: string;
+  pageModifiedTime?: string;
+  pageStructuredDataTypes?: string[];
   summary: string;
   routingIntent: AgentRoutingIntent;
   continuationMode: AgentContinuationMode;
@@ -876,6 +884,7 @@ export type AgentContractFeature =
   | "actionTargetChoices"
   | "sourceSearch.shortcuts"
   | "pageDecision"
+  | "pageMetadata.shortcuts"
   | "semanticSummary"
   | "searchResult.selectionReason"
   | "sourceLink.selectionReason"

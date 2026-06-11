@@ -53,6 +53,7 @@ describe("compare-static fixture comparisons", () => {
     expect(report.gateSummary.averageAgentSourceSearchShortcutScore).toBe(1);
     expect(report.gateSummary.averageAgentHiddenSignalScore).toBe(1);
     expect(report.gateSummary.averageAgentStructuredShortcutScore).toBe(1);
+    expect(report.gateSummary.averageAgentPageMetadataShortcutScore).toBe(1);
     expect(checkComparisonGateReport(report)).toEqual([]);
 
     expect(summaryFor(report, "Synthetic search open gate")?.agentPrimaryAction).toBe("open-result");

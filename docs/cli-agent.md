@@ -48,6 +48,7 @@ Read these first:
   iteration shortcuts for `--agent-brief` routing without expanding `runbook`.
 - `agent.next`: canonical loop payload with command, read target, or browser step.
 - `agent.next*`: canonical next-step action, execution, command, read, and URL shortcuts.
+- `agent.page*`: title, canonical URL, language, author, dates, and structured-data type shortcuts.
 - `agent.expectedOutcome*` and `agent.executionPlan*`: top-level success
   condition and execution-plan shortcuts for fast routing without expanding
   nested objects.

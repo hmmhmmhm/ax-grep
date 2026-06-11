@@ -70,6 +70,7 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
     "averageAgentSourceSearchShortcutScore",
     "averageAgentHiddenSignalScore",
     "averageAgentHiddenSignalCountScore",
+    "averageAgentPageMetadataShortcutScore",
   ]);
   requireFileIncludes(root, failures, "docs/agent-readiness.md", [
     "Do not call this objective complete from unit tests alone",
@@ -338,6 +339,9 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "runbookOperation",
           "runbookReason",
           "runbookExpectedOutcome",
+          "pageTitle",
+          "pageCanonicalUrl",
+          "pagePublishedTime",
           "nextActionName",
           "nextExecution",
           "nextCommandArgs",
@@ -601,6 +605,9 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "runbookDecision",
           "runbookOperation",
           "runbookExpectedOutcome",
+          "pageTitle",
+          "pageCanonicalUrl",
+          "pagePublishedTime",
           "nextActionName",
           "nextExecution",
           "nextCommandArgs",

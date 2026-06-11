@@ -820,6 +820,14 @@ type AgentSummary = {
   contract: AgentContract;
   status: AgentStatus;
   pageKind: ContentKind;
+  pageTitle?: string;
+  pageCanonicalUrl?: string;
+  pageLang?: string;
+  pageSiteName?: string;
+  pageAuthor?: string;
+  pagePublishedTime?: string;
+  pageModifiedTime?: string;
+  pageStructuredDataTypes?: string[];
   summary: string;
   routingIntent: AgentRoutingIntent;
   continuationMode: AgentContinuationMode;
@@ -1220,6 +1228,7 @@ const agentContract: AgentContract = {
     "actionTargetChoices",
     "sourceSearch.shortcuts",
     "pageDecision",
+    "pageMetadata.shortcuts",
     "semanticSummary",
     "searchResult.selectionReason",
     "sourceLink.selectionReason",
@@ -2620,6 +2629,14 @@ function formatAgentText(agent: AgentSummary): string[] {
     "agent",
     `  status: ${agent.status}`,
     `  pageKind: ${agent.pageKind}`,
+    ...(agent.pageTitle ? [`  pageTitle: ${agent.pageTitle}`] : []),
+    ...(agent.pageCanonicalUrl ? [`  pageCanonicalUrl: ${agent.pageCanonicalUrl}`] : []),
+    ...(agent.pageLang ? [`  pageLang: ${agent.pageLang}`] : []),
+    ...(agent.pageSiteName ? [`  pageSiteName: ${agent.pageSiteName}`] : []),
+    ...(agent.pageAuthor ? [`  pageAuthor: ${agent.pageAuthor}`] : []),
+    ...(agent.pagePublishedTime ? [`  pagePublishedTime: ${agent.pagePublishedTime}`] : []),
+    ...(agent.pageModifiedTime ? [`  pageModifiedTime: ${agent.pageModifiedTime}`] : []),
+    ...(agent.pageStructuredDataTypes?.length ? [`  pageStructuredDataTypes: ${agent.pageStructuredDataTypes.join(", ")}`] : []),
     `  routingIntent: ${agent.routingIntent}`,
     `  continuationMode: ${agent.continuationMode}`,
     `  nextMode: ${agent.next.mode}`,
@@ -9317,6 +9334,14 @@ function summarizeAgent(
     contract: agentContract,
     status,
     pageKind: analysis.kind,
+    ...(fetched?.page.title ? { pageTitle: fetched.page.title } : {}),
+    ...(fetched?.page.canonicalUrl ? { pageCanonicalUrl: fetched.page.canonicalUrl } : {}),
+    ...(fetched?.page.lang ? { pageLang: fetched.page.lang } : {}),
+    ...(fetched?.page.siteName ? { pageSiteName: fetched.page.siteName } : {}),
+    ...(fetched?.page.author ? { pageAuthor: fetched.page.author } : {}),
+    ...(fetched?.page.publishedTime ? { pagePublishedTime: fetched.page.publishedTime } : {}),
+    ...(fetched?.page.modifiedTime ? { pageModifiedTime: fetched.page.modifiedTime } : {}),
+    ...(fetched?.page.structuredDataTypes?.length ? { pageStructuredDataTypes: fetched.page.structuredDataTypes } : {}),
     summary,
     routingIntent: agentRoutingIntent(primaryAction),
     continuationMode: agentContinuationMode(primaryAction),
@@ -13502,6 +13527,14 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     contract: compactAgentContract(agent.contract),
     status: agent.status,
     pageKind: agent.pageKind,
+    ...(agent.pageTitle ? { pageTitle: agent.pageTitle } : {}),
+    ...(agent.pageCanonicalUrl ? { pageCanonicalUrl: agent.pageCanonicalUrl } : {}),
+    ...(agent.pageLang ? { pageLang: agent.pageLang } : {}),
+    ...(agent.pageSiteName ? { pageSiteName: agent.pageSiteName } : {}),
+    ...(agent.pageAuthor ? { pageAuthor: agent.pageAuthor } : {}),
+    ...(agent.pagePublishedTime ? { pagePublishedTime: agent.pagePublishedTime } : {}),
+    ...(agent.pageModifiedTime ? { pageModifiedTime: agent.pageModifiedTime } : {}),
+    ...(agent.pageStructuredDataTypes?.length ? { pageStructuredDataTypes: agent.pageStructuredDataTypes } : {}),
     summary: agent.summary,
     routingIntent: agent.routingIntent,
     continuationMode: agent.continuationMode,
@@ -13866,6 +13899,14 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     },
     status: agent.status,
     pageKind: agent.pageKind,
+    ...(agent.pageTitle ? { pageTitle: agent.pageTitle } : {}),
+    ...(agent.pageCanonicalUrl ? { pageCanonicalUrl: agent.pageCanonicalUrl } : {}),
+    ...(agent.pageLang ? { pageLang: agent.pageLang } : {}),
+    ...(agent.pageSiteName ? { pageSiteName: agent.pageSiteName } : {}),
+    ...(agent.pageAuthor ? { pageAuthor: agent.pageAuthor } : {}),
+    ...(agent.pagePublishedTime ? { pagePublishedTime: agent.pagePublishedTime } : {}),
+    ...(agent.pageModifiedTime ? { pageModifiedTime: agent.pageModifiedTime } : {}),
+    ...(agent.pageStructuredDataTypes?.length ? { pageStructuredDataTypes: agent.pageStructuredDataTypes } : {}),
     summary: agent.summary,
     ...(agent.runbookDecision ? { runbookDecision: agent.runbookDecision } : {}),
     ...(agent.runbookMode ? { runbookMode: agent.runbookMode } : {}),
