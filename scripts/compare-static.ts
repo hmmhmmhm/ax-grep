@@ -1294,6 +1294,12 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       resourceCount?: number;
       mediaCount?: number;
       sectionCount?: number;
+      breadcrumbCount?: number;
+      paginationCount?: number;
+      tocCount?: number;
+      embedCount?: number;
+      transcriptCount?: number;
+      authorLinkCount?: number;
       topDataTablePath?: string;
       topDataTableCaption?: string;
       topDataTableRowCount?: number;
@@ -1311,6 +1317,25 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topMediaText?: string;
       topSectionHeading?: string;
       topSectionText?: string;
+      topBreadcrumbPath?: string;
+      topBreadcrumbText?: string;
+      topBreadcrumbSource?: string;
+      topPaginationKind?: string;
+      topPaginationLabel?: string;
+      topPaginationUrl?: string;
+      topTocTitle?: string;
+      topTocItemCount?: number;
+      topTocText?: string;
+      topEmbedKind?: string;
+      topEmbedUrl?: string;
+      topEmbedTitle?: string;
+      topTranscriptKind?: string;
+      topTranscriptUrl?: string;
+      topTranscriptLabel?: string;
+      topTranscriptLanguage?: string;
+      topAuthorLinkName?: string;
+      topAuthorLinkUrl?: string;
+      topAuthorLinkSource?: string;
       structuredReadTargetCount?: number;
       bestStructuredReadTarget?: string;
       bestStructuredReadTargetCount?: number;
@@ -4466,6 +4491,12 @@ function scoreAgentStructuredShortcuts(agent: {
   resourceCount?: number;
   mediaCount?: number;
   sectionCount?: number;
+  breadcrumbCount?: number;
+  paginationCount?: number;
+  tocCount?: number;
+  embedCount?: number;
+  transcriptCount?: number;
+  authorLinkCount?: number;
   topDataTablePath?: string;
   topDataTableCaption?: string;
   topDataTableRowCount?: number;
@@ -4483,6 +4514,25 @@ function scoreAgentStructuredShortcuts(agent: {
   topMediaText?: string;
   topSectionHeading?: string;
   topSectionText?: string;
+  topBreadcrumbPath?: string;
+  topBreadcrumbText?: string;
+  topBreadcrumbSource?: string;
+  topPaginationKind?: string;
+  topPaginationLabel?: string;
+  topPaginationUrl?: string;
+  topTocTitle?: string;
+  topTocItemCount?: number;
+  topTocText?: string;
+  topEmbedKind?: string;
+  topEmbedUrl?: string;
+  topEmbedTitle?: string;
+  topTranscriptKind?: string;
+  topTranscriptUrl?: string;
+  topTranscriptLabel?: string;
+  topTranscriptLanguage?: string;
+  topAuthorLinkName?: string;
+  topAuthorLinkUrl?: string;
+  topAuthorLinkSource?: string;
   structuredReadTargetCount?: number;
   bestStructuredReadTarget?: string;
   bestStructuredReadTargetCount?: number;
@@ -4497,9 +4547,15 @@ function scoreAgentStructuredShortcuts(agent: {
   resources?: Array<{ kind?: string; url?: string; title?: string }>;
   media?: Array<{ kind?: string; url?: string; text?: string }>;
   sections?: Array<{ heading?: string; text?: string }>;
+  breadcrumbs?: Array<{ path?: string; text?: string; source?: string }>;
+  pagination?: Array<{ kind?: string; label?: string; url?: string }>;
+  toc?: Array<{ title?: string; items?: unknown[]; text?: string }>;
+  embeds?: Array<{ kind?: string; url?: string; title?: string }>;
+  transcripts?: Array<{ kind?: string; url?: string; label?: string; language?: string }>;
+  authorLinks?: Array<{ name?: string; url?: string; source?: string }>;
 } | undefined): number {
   if (!agent) return 0;
-  let required = 6;
+  let required = 12;
   let matched = 0;
   const dataTables = pageCheck?.dataTables ?? [];
   const faqs = pageCheck?.faqs ?? [];
@@ -4507,12 +4563,24 @@ function scoreAgentStructuredShortcuts(agent: {
   const resources = pageCheck?.resources ?? [];
   const media = pageCheck?.media ?? [];
   const sections = pageCheck?.sections ?? [];
+  const breadcrumbs = pageCheck?.breadcrumbs ?? [];
+  const pagination = pageCheck?.pagination ?? [];
+  const toc = pageCheck?.toc ?? [];
+  const embeds = pageCheck?.embeds ?? [];
+  const transcripts = pageCheck?.transcripts ?? [];
+  const authorLinks = pageCheck?.authorLinks ?? [];
   if (agent.dataTableCount === dataTables.length) matched += 1;
   if (agent.faqCount === faqs.length) matched += 1;
   if (agent.codeBlockCount === codeBlocks.length) matched += 1;
   if (agent.resourceCount === resources.length) matched += 1;
   if (agent.mediaCount === media.length) matched += 1;
   if (agent.sectionCount === sections.length) matched += 1;
+  if (agent.breadcrumbCount === breadcrumbs.length) matched += 1;
+  if (agent.paginationCount === pagination.length) matched += 1;
+  if (agent.tocCount === toc.length) matched += 1;
+  if (agent.embedCount === embeds.length) matched += 1;
+  if (agent.transcriptCount === transcripts.length) matched += 1;
+  if (agent.authorLinkCount === authorLinks.length) matched += 1;
 
   const topDataTable = dataTables[0];
   if (topDataTable) {
@@ -4572,6 +4640,68 @@ function scoreAgentStructuredShortcuts(agent: {
   } else if (agent.topSectionHeading || agent.topSectionText) {
     required += 1;
   }
+
+  const topBreadcrumb = breadcrumbs[0];
+  if (topBreadcrumb) {
+    required += 3;
+    if (agent.topBreadcrumbPath === topBreadcrumb.path) matched += 1;
+    if (agent.topBreadcrumbText === topBreadcrumb.text) matched += 1;
+    if (agent.topBreadcrumbSource === topBreadcrumb.source) matched += 1;
+  } else if (agent.topBreadcrumbPath || agent.topBreadcrumbText || agent.topBreadcrumbSource) {
+    required += 1;
+  }
+
+  const topPagination = pagination[0];
+  if (topPagination) {
+    required += 3;
+    if (agent.topPaginationKind === topPagination.kind) matched += 1;
+    if (agent.topPaginationLabel === topPagination.label) matched += 1;
+    if (agent.topPaginationUrl === topPagination.url) matched += 1;
+  } else if (agent.topPaginationKind || agent.topPaginationLabel || agent.topPaginationUrl) {
+    required += 1;
+  }
+
+  const topToc = toc[0];
+  if (topToc) {
+    required += 3;
+    if (agent.topTocTitle === topToc.title) matched += 1;
+    if (agent.topTocItemCount === (topToc.items ?? []).length) matched += 1;
+    if (agent.topTocText === topToc.text) matched += 1;
+  } else if (agent.topTocTitle || typeof agent.topTocItemCount === "number" || agent.topTocText) {
+    required += 1;
+  }
+
+  const topEmbed = embeds[0];
+  if (topEmbed) {
+    required += 3;
+    if (agent.topEmbedKind === topEmbed.kind) matched += 1;
+    if (agent.topEmbedUrl === topEmbed.url) matched += 1;
+    if (agent.topEmbedTitle === topEmbed.title) matched += 1;
+  } else if (agent.topEmbedKind || agent.topEmbedUrl || agent.topEmbedTitle) {
+    required += 1;
+  }
+
+  const topTranscript = transcripts[0];
+  if (topTranscript) {
+    required += 4;
+    if (agent.topTranscriptKind === topTranscript.kind) matched += 1;
+    if (agent.topTranscriptUrl === topTranscript.url) matched += 1;
+    if (agent.topTranscriptLabel === topTranscript.label) matched += 1;
+    if (agent.topTranscriptLanguage === topTranscript.language) matched += 1;
+  } else if (agent.topTranscriptKind || agent.topTranscriptUrl || agent.topTranscriptLabel || agent.topTranscriptLanguage) {
+    required += 1;
+  }
+
+  const topAuthorLink = authorLinks[0];
+  if (topAuthorLink) {
+    required += 3;
+    if (agent.topAuthorLinkName === topAuthorLink.name) matched += 1;
+    if (agent.topAuthorLinkUrl === topAuthorLink.url) matched += 1;
+    if (agent.topAuthorLinkSource === topAuthorLink.source) matched += 1;
+  } else if (agent.topAuthorLinkName || agent.topAuthorLinkUrl || agent.topAuthorLinkSource) {
+    required += 1;
+  }
+
   const structuredTargets = (agent.readTargets ?? []).filter(isStructuredCliReadTarget);
   const bestStructuredTarget = selectBestCliReadTarget(structuredTargets);
   required += 1;

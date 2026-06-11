@@ -991,6 +991,12 @@ type AgentSummary = {
   resourceCount: number;
   mediaCount: number;
   sectionCount: number;
+  breadcrumbCount: number;
+  paginationCount: number;
+  tocCount: number;
+  embedCount: number;
+  transcriptCount: number;
+  authorLinkCount: number;
   topDataTablePath?: string;
   topDataTableCaption?: string;
   topDataTableRowCount?: number;
@@ -1008,6 +1014,25 @@ type AgentSummary = {
   topMediaText?: string;
   topSectionHeading?: string;
   topSectionText?: string;
+  topBreadcrumbPath?: string;
+  topBreadcrumbText?: string;
+  topBreadcrumbSource?: PageBreadcrumbSummary["source"];
+  topPaginationKind?: PagePaginationSummary["kind"];
+  topPaginationLabel?: string;
+  topPaginationUrl?: string;
+  topTocTitle?: string;
+  topTocItemCount?: number;
+  topTocText?: string;
+  topEmbedKind?: PageEmbedSummary["kind"];
+  topEmbedUrl?: string;
+  topEmbedTitle?: string;
+  topTranscriptKind?: PageTranscriptSummary["kind"];
+  topTranscriptUrl?: string;
+  topTranscriptLabel?: string;
+  topTranscriptLanguage?: string;
+  topAuthorLinkName?: string;
+  topAuthorLinkUrl?: string;
+  topAuthorLinkSource?: PageAuthorLinkSummary["source"];
   structuredReadTargetCount: number;
   bestStructuredReadTarget?: string;
   bestStructuredReadTargetCount?: number;
@@ -2762,11 +2787,23 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  resourceCount: ${agent.resourceCount}`,
     `  mediaCount: ${agent.mediaCount}`,
     `  sectionCount: ${agent.sectionCount}`,
+    `  breadcrumbCount: ${agent.breadcrumbCount}`,
+    `  paginationCount: ${agent.paginationCount}`,
+    `  tocCount: ${agent.tocCount}`,
+    `  embedCount: ${agent.embedCount}`,
+    `  transcriptCount: ${agent.transcriptCount}`,
+    `  authorLinkCount: ${agent.authorLinkCount}`,
     ...(agent.topFaqQuestion ? [`  topFaqQuestion: ${agent.topFaqQuestion}`] : []),
     ...(agent.topCodeBlockText ? [`  topCodeBlockText: ${agent.topCodeBlockText}`] : []),
     ...(agent.topResourceUrl ? [`  topResourceUrl: ${agent.topResourceUrl}`] : []),
     ...(agent.topMediaUrl ? [`  topMediaUrl: ${agent.topMediaUrl}`] : []),
     ...(agent.topSectionHeading ? [`  topSectionHeading: ${agent.topSectionHeading}`] : []),
+    ...(agent.topBreadcrumbText ? [`  topBreadcrumbText: ${agent.topBreadcrumbText}`] : []),
+    ...(agent.topPaginationUrl ? [`  topPaginationUrl: ${agent.topPaginationUrl}`] : []),
+    ...(agent.topTocText ? [`  topTocText: ${agent.topTocText}`] : []),
+    ...(agent.topEmbedUrl ? [`  topEmbedUrl: ${agent.topEmbedUrl}`] : []),
+    ...(agent.topTranscriptUrl ? [`  topTranscriptUrl: ${agent.topTranscriptUrl}`] : []),
+    ...(agent.topAuthorLinkUrl ? [`  topAuthorLinkUrl: ${agent.topAuthorLinkUrl}`] : []),
     `  structuredReadTargetCount: ${agent.structuredReadTargetCount}`,
     ...(agent.bestStructuredReadTarget ? [`  bestStructuredReadTarget: ${agent.bestStructuredReadTarget}`] : []),
     ...(typeof agent.bestStructuredReadTargetCount === "number" ? [`  bestStructuredReadTargetCount: ${agent.bestStructuredReadTargetCount}`] : []),
@@ -9527,6 +9564,12 @@ function summarizeAgent(
     resourceCount: pageCheck.resources.length,
     mediaCount: pageCheck.media.length,
     sectionCount: pageCheck.sections.length,
+    breadcrumbCount: pageCheck.breadcrumbs.length,
+    paginationCount: pageCheck.pagination.length,
+    tocCount: pageCheck.toc.length,
+    embedCount: pageCheck.embeds.length,
+    transcriptCount: pageCheck.transcripts.length,
+    authorLinkCount: pageCheck.authorLinks.length,
     ...(pageCheck.dataTables[0] ? { topDataTablePath: pageCheck.dataTables[0].path } : {}),
     ...(pageCheck.dataTables[0]?.caption ? { topDataTableCaption: pageCheck.dataTables[0].caption } : {}),
     ...(pageCheck.dataTables[0] ? { topDataTableRowCount: pageCheck.dataTables[0].rowCount } : {}),
@@ -9544,6 +9587,25 @@ function summarizeAgent(
     ...(pageCheck.media[0]?.text ? { topMediaText: pageCheck.media[0].text } : {}),
     ...(pageCheck.sections[0]?.heading ? { topSectionHeading: pageCheck.sections[0].heading } : {}),
     ...(pageCheck.sections[0]?.text ? { topSectionText: pageCheck.sections[0].text } : {}),
+    ...(pageCheck.breadcrumbs[0] ? { topBreadcrumbPath: pageCheck.breadcrumbs[0].path } : {}),
+    ...(pageCheck.breadcrumbs[0]?.text ? { topBreadcrumbText: pageCheck.breadcrumbs[0].text } : {}),
+    ...(pageCheck.breadcrumbs[0] ? { topBreadcrumbSource: pageCheck.breadcrumbs[0].source } : {}),
+    ...(pageCheck.pagination[0] ? { topPaginationKind: pageCheck.pagination[0].kind } : {}),
+    ...(pageCheck.pagination[0]?.label ? { topPaginationLabel: pageCheck.pagination[0].label } : {}),
+    ...(pageCheck.pagination[0]?.url ? { topPaginationUrl: pageCheck.pagination[0].url } : {}),
+    ...(pageCheck.toc[0]?.title ? { topTocTitle: pageCheck.toc[0].title } : {}),
+    ...(pageCheck.toc[0] ? { topTocItemCount: pageCheck.toc[0].items.length } : {}),
+    ...(pageCheck.toc[0]?.text ? { topTocText: pageCheck.toc[0].text } : {}),
+    ...(pageCheck.embeds[0] ? { topEmbedKind: pageCheck.embeds[0].kind } : {}),
+    ...(pageCheck.embeds[0]?.url ? { topEmbedUrl: pageCheck.embeds[0].url } : {}),
+    ...(pageCheck.embeds[0]?.title ? { topEmbedTitle: pageCheck.embeds[0].title } : {}),
+    ...(pageCheck.transcripts[0] ? { topTranscriptKind: pageCheck.transcripts[0].kind } : {}),
+    ...(pageCheck.transcripts[0]?.url ? { topTranscriptUrl: pageCheck.transcripts[0].url } : {}),
+    ...(pageCheck.transcripts[0]?.label ? { topTranscriptLabel: pageCheck.transcripts[0].label } : {}),
+    ...(pageCheck.transcripts[0]?.language ? { topTranscriptLanguage: pageCheck.transcripts[0].language } : {}),
+    ...(pageCheck.authorLinks[0]?.name ? { topAuthorLinkName: pageCheck.authorLinks[0].name } : {}),
+    ...(pageCheck.authorLinks[0]?.url ? { topAuthorLinkUrl: pageCheck.authorLinks[0].url } : {}),
+    ...(pageCheck.authorLinks[0] ? { topAuthorLinkSource: pageCheck.authorLinks[0].source } : {}),
     structuredReadTargetCount,
     ...(bestStructuredReadTarget ? { bestStructuredReadTarget: bestStructuredReadTarget.path } : {}),
     ...(typeof bestStructuredReadTarget?.count === "number" ? { bestStructuredReadTargetCount: bestStructuredReadTarget.count } : {}),
@@ -12261,6 +12323,12 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     resourceCount: 0,
     mediaCount: 0,
     sectionCount: 0,
+    breadcrumbCount: 0,
+    paginationCount: 0,
+    tocCount: 0,
+    embedCount: 0,
+    transcriptCount: 0,
+    authorLinkCount: 0,
     structuredReadTargetCount: 0,
     hiddenSignalCount: 0,
     hiddenReadTargetCount: 0,
@@ -13753,6 +13821,12 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     resourceCount: agent.resourceCount,
     mediaCount: agent.mediaCount,
     sectionCount: agent.sectionCount,
+    breadcrumbCount: agent.breadcrumbCount,
+    paginationCount: agent.paginationCount,
+    tocCount: agent.tocCount,
+    embedCount: agent.embedCount,
+    transcriptCount: agent.transcriptCount,
+    authorLinkCount: agent.authorLinkCount,
     ...(agent.topDataTablePath ? { topDataTablePath: agent.topDataTablePath } : {}),
     ...(agent.topDataTableCaption ? { topDataTableCaption: agent.topDataTableCaption } : {}),
     ...(typeof agent.topDataTableRowCount === "number" ? { topDataTableRowCount: agent.topDataTableRowCount } : {}),
@@ -13770,6 +13844,25 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topMediaText ? { topMediaText: agent.topMediaText } : {}),
     ...(agent.topSectionHeading ? { topSectionHeading: agent.topSectionHeading } : {}),
     ...(agent.topSectionText ? { topSectionText: agent.topSectionText } : {}),
+    ...(agent.topBreadcrumbPath ? { topBreadcrumbPath: agent.topBreadcrumbPath } : {}),
+    ...(agent.topBreadcrumbText ? { topBreadcrumbText: agent.topBreadcrumbText } : {}),
+    ...(agent.topBreadcrumbSource ? { topBreadcrumbSource: agent.topBreadcrumbSource } : {}),
+    ...(agent.topPaginationKind ? { topPaginationKind: agent.topPaginationKind } : {}),
+    ...(agent.topPaginationLabel ? { topPaginationLabel: agent.topPaginationLabel } : {}),
+    ...(agent.topPaginationUrl ? { topPaginationUrl: agent.topPaginationUrl } : {}),
+    ...(agent.topTocTitle ? { topTocTitle: agent.topTocTitle } : {}),
+    ...(typeof agent.topTocItemCount === "number" ? { topTocItemCount: agent.topTocItemCount } : {}),
+    ...(agent.topTocText ? { topTocText: agent.topTocText } : {}),
+    ...(agent.topEmbedKind ? { topEmbedKind: agent.topEmbedKind } : {}),
+    ...(agent.topEmbedUrl ? { topEmbedUrl: agent.topEmbedUrl } : {}),
+    ...(agent.topEmbedTitle ? { topEmbedTitle: agent.topEmbedTitle } : {}),
+    ...(agent.topTranscriptKind ? { topTranscriptKind: agent.topTranscriptKind } : {}),
+    ...(agent.topTranscriptUrl ? { topTranscriptUrl: agent.topTranscriptUrl } : {}),
+    ...(agent.topTranscriptLabel ? { topTranscriptLabel: agent.topTranscriptLabel } : {}),
+    ...(agent.topTranscriptLanguage ? { topTranscriptLanguage: agent.topTranscriptLanguage } : {}),
+    ...(agent.topAuthorLinkName ? { topAuthorLinkName: agent.topAuthorLinkName } : {}),
+    ...(agent.topAuthorLinkUrl ? { topAuthorLinkUrl: agent.topAuthorLinkUrl } : {}),
+    ...(agent.topAuthorLinkSource ? { topAuthorLinkSource: agent.topAuthorLinkSource } : {}),
     structuredReadTargetCount: agent.structuredReadTargetCount,
     ...(agent.bestStructuredReadTarget ? { bestStructuredReadTarget: agent.bestStructuredReadTarget } : {}),
     ...(typeof agent.bestStructuredReadTargetCount === "number" ? { bestStructuredReadTargetCount: agent.bestStructuredReadTargetCount } : {}),
@@ -14107,6 +14200,12 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     resourceCount: agent.resourceCount,
     mediaCount: agent.mediaCount,
     sectionCount: agent.sectionCount,
+    breadcrumbCount: agent.breadcrumbCount,
+    paginationCount: agent.paginationCount,
+    tocCount: agent.tocCount,
+    embedCount: agent.embedCount,
+    transcriptCount: agent.transcriptCount,
+    authorLinkCount: agent.authorLinkCount,
     ...(agent.topDataTableCaption ? { topDataTableCaption: agent.topDataTableCaption } : {}),
     ...(typeof agent.topDataTableRowCount === "number" ? { topDataTableRowCount: agent.topDataTableRowCount } : {}),
     ...(typeof agent.topDataTableColumnCount === "number" ? { topDataTableColumnCount: agent.topDataTableColumnCount } : {}),
@@ -14118,6 +14217,12 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topMediaKind ? { topMediaKind: agent.topMediaKind } : {}),
     ...(agent.topMediaUrl ? { topMediaUrl: agent.topMediaUrl } : {}),
     ...(agent.topSectionHeading ? { topSectionHeading: agent.topSectionHeading } : {}),
+    ...(agent.topBreadcrumbText ? { topBreadcrumbText: agent.topBreadcrumbText } : {}),
+    ...(agent.topPaginationUrl ? { topPaginationUrl: agent.topPaginationUrl } : {}),
+    ...(agent.topTocText ? { topTocText: agent.topTocText } : {}),
+    ...(agent.topEmbedUrl ? { topEmbedUrl: agent.topEmbedUrl } : {}),
+    ...(agent.topTranscriptUrl ? { topTranscriptUrl: agent.topTranscriptUrl } : {}),
+    ...(agent.topAuthorLinkUrl ? { topAuthorLinkUrl: agent.topAuthorLinkUrl } : {}),
     structuredReadTargetCount: agent.structuredReadTargetCount,
     ...(agent.bestStructuredReadTarget ? { bestStructuredReadTarget: agent.bestStructuredReadTarget } : {}),
     ...(typeof agent.bestStructuredReadTargetCount === "number" ? { bestStructuredReadTargetCount: agent.bestStructuredReadTargetCount } : {}),

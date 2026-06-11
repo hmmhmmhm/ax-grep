@@ -70,8 +70,10 @@ Read these first:
 - `agent.barrierCount` and `agent.topBarrier*`: primary login, paywall,
   challenge, consent, age, or geo barrier details for browser routing.
 - `agent.dataTableCount`, `agent.faqCount`, `agent.codeBlockCount`,
-  `agent.resourceCount`, `agent.mediaCount`, `agent.sectionCount`, and matching
-  `top*` fields: first structured page item shortcuts.
+  `agent.resourceCount`, `agent.mediaCount`, `agent.sectionCount`,
+  `agent.breadcrumbCount`, `agent.paginationCount`, `agent.tocCount`,
+  `agent.embedCount`, `agent.transcriptCount`, `agent.authorLinkCount`, and
+  matching `top*` fields: first structured page item shortcuts.
 - `agent.bestStructuredReadTarget*`: highest-priority structured content path to
   read before scanning all `readTargets`.
 - `agent.resultChoices` and `agent.sourceChoices`: ranked links to open.

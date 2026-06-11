@@ -221,6 +221,12 @@ describe("public agent types", () => {
       | "resourceCount"
       | "mediaCount"
       | "sectionCount"
+      | "breadcrumbCount"
+      | "paginationCount"
+      | "tocCount"
+      | "embedCount"
+      | "transcriptCount"
+      | "authorLinkCount"
       | "topDataTablePath"
       | "topDataTableCaption"
       | "topDataTableRowCount"
@@ -238,6 +244,25 @@ describe("public agent types", () => {
       | "topMediaText"
       | "topSectionHeading"
       | "topSectionText"
+      | "topBreadcrumbPath"
+      | "topBreadcrumbText"
+      | "topBreadcrumbSource"
+      | "topPaginationKind"
+      | "topPaginationLabel"
+      | "topPaginationUrl"
+      | "topTocTitle"
+      | "topTocItemCount"
+      | "topTocText"
+      | "topEmbedKind"
+      | "topEmbedUrl"
+      | "topEmbedTitle"
+      | "topTranscriptKind"
+      | "topTranscriptUrl"
+      | "topTranscriptLabel"
+      | "topTranscriptLanguage"
+      | "topAuthorLinkName"
+      | "topAuthorLinkUrl"
+      | "topAuthorLinkSource"
       | "structuredReadTargetCount"
       | "bestStructuredReadTarget"
       | "bestStructuredReadTargetCount"
@@ -543,6 +568,12 @@ describe("public agent types", () => {
       resourceCount: 2,
       mediaCount: 1,
       sectionCount: 1,
+      breadcrumbCount: 1,
+      paginationCount: 1,
+      tocCount: 1,
+      embedCount: 1,
+      transcriptCount: 1,
+      authorLinkCount: 1,
       topDataTablePath: "pageCheck.dataTables[0]",
       topDataTableCaption: "Plan comparison",
       topDataTableRowCount: 2,
@@ -560,6 +591,25 @@ describe("public agent types", () => {
       topMediaText: "Architecture diagram",
       topSectionHeading: "Install",
       topSectionText: "Install the package.",
+      topBreadcrumbPath: "pageCheck.breadcrumbs[0]",
+      topBreadcrumbText: "Docs > Install",
+      topBreadcrumbSource: "html",
+      topPaginationKind: "next",
+      topPaginationLabel: "Next",
+      topPaginationUrl: "https://example.test/next",
+      topTocTitle: "On this page",
+      topTocItemCount: 2,
+      topTocText: "Install; Configure",
+      topEmbedKind: "iframe",
+      topEmbedUrl: "https://example.test/embed",
+      topEmbedTitle: "Dashboard",
+      topTranscriptKind: "transcript",
+      topTranscriptUrl: "https://example.test/transcript.txt",
+      topTranscriptLabel: "Full transcript",
+      topTranscriptLanguage: "en",
+      topAuthorLinkName: "Example Author",
+      topAuthorLinkUrl: "https://example.test/author",
+      topAuthorLinkSource: "html",
       structuredReadTargetCount: 2,
       bestStructuredReadTarget: "pageCheck.dataTables",
       bestStructuredReadTargetCount: 1,
