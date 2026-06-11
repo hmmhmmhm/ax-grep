@@ -15,7 +15,7 @@ type NormalizedSummary = {
   namedRoles: string[];
 };
 
-type StaticComparison = {
+export type StaticComparison = {
   category: string;
   url: string;
   gate: {
@@ -500,7 +500,7 @@ type CliContentEvidenceShape = {
 
 type StaticClassification = "usable" | "needs-browser" | "challenge" | "shell" | "over-collected" | "reference-challenge" | "reference-missing" | "volatile";
 
-type GateSummary = {
+export type GateSummary = {
   included: number;
   excluded: number;
   averageScore: number;
@@ -590,6 +590,11 @@ if (isMainModule()) {
 
 async function main(): Promise<void> {
   const targets = resolveBenchmarkTargets(process.argv.slice(2), ["https://example.com", "https://www.wikipedia.org"]);
+  const report = await runStaticComparisons(targets, { printSamples: true });
+  console.log(JSON.stringify(report, null, 2));
+}
+
+export async function runStaticComparisons(targets: BenchmarkTarget[], options: { printSamples?: boolean } = {}): Promise<{ generatedAt: string; gateSummary: GateSummary; comparisons: StaticComparison[] }> {
   const comparisons: StaticComparison[] = [];
 
   for (const [index, target] of targets.entries()) {
@@ -642,10 +647,10 @@ async function main(): Promise<void> {
     comparison.classification = classifyComparison(comparison);
     comparisons.push(comparison);
 
-    printTreeSample(target.url, tree);
+    if (options.printSamples) printTreeSample(target.url, tree);
   }
 
-  console.log(JSON.stringify({ generatedAt: new Date().toISOString(), gateSummary: summarizeGate(comparisons), comparisons }, null, 2));
+  return { generatedAt: new Date().toISOString(), gateSummary: summarizeGate(comparisons), comparisons };
 }
 
 function isMainModule(): boolean {
