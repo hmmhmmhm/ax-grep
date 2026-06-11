@@ -30,6 +30,10 @@ describe("public agent types", () => {
       url: "https://example.test/result",
       rank: 1,
       snippet: "Result summary",
+      openResult: 1,
+      recommended: true,
+      primary: true,
+      selectionReason: "High relevance.",
       commandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent-brief"],
     };
     const sourceChoice: AgentSourceChoice = {
@@ -127,6 +131,18 @@ describe("public agent types", () => {
   });
 
   it("exports top-level agent count shortcuts", () => {
+    const resultChoice: AgentResultChoice = {
+      id: "r1",
+      path: "searchResults[0]",
+      title: "Example result",
+      url: "https://example.test/result",
+      rank: 1,
+      openResult: 1,
+      recommended: true,
+      primary: true,
+      selectionReason: "High relevance.",
+      commandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent-brief"],
+    };
     const formChoice: AgentFormChoice = {
       id: "f1",
       path: "pageCheck.forms[0]",
@@ -158,6 +174,16 @@ describe("public agent types", () => {
       AgentSummary,
       | "resultCount"
       | "resultChoiceCount"
+      | "resultChoices"
+      | "topResultChoicePath"
+      | "topResultChoiceTitle"
+      | "topResultChoiceUrl"
+      | "topResultChoiceCommandArgs"
+      | "topResultChoiceRank"
+      | "topResultChoiceOpenResult"
+      | "topResultChoiceRecommended"
+      | "topResultChoicePrimary"
+      | "topResultChoiceReason"
       | "evidenceCount"
       | "formCount"
       | "formChoiceCount"
@@ -408,6 +434,16 @@ describe("public agent types", () => {
     > = {
       resultCount: 2,
       resultChoiceCount: 2,
+      resultChoices: [resultChoice],
+      topResultChoicePath: "searchResults[0]",
+      topResultChoiceTitle: "Example result",
+      topResultChoiceUrl: "https://example.test/result",
+      topResultChoiceCommandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent-brief"],
+      topResultChoiceRank: 1,
+      topResultChoiceOpenResult: 1,
+      topResultChoiceRecommended: true,
+      topResultChoicePrimary: true,
+      topResultChoiceReason: "High relevance.",
       evidenceCount: 1,
       formCount: 1,
       formChoiceCount: 1,
@@ -673,6 +709,8 @@ describe("public agent types", () => {
     expect(summary.topFormChoiceUrlTemplate).toBe("https://example.test/find?q={query}");
     expect(summary.topActionTargetChoiceUrlTemplate).toBe("https://example.test/search?q={query}");
     expect(summary.topChoiceKind).toBe("source");
+    expect(summary.topResultChoicePath).toBe("searchResults[0]");
+    expect(summary.topResultChoiceCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.topSourceChoicePath).toBe("pageCheck.sourceLinks[0]");
     expect(summary.topSourceChoiceCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.sourceSearchQuery).toBe("ax-grep docs");

@@ -586,6 +586,15 @@ export type AgentSummary = {
   resultCount?: number;
   resultChoiceCount?: number;
   resultChoices?: AgentResultChoice[];
+  topResultChoicePath?: string;
+  topResultChoiceTitle?: string;
+  topResultChoiceUrl?: string;
+  topResultChoiceCommandArgs?: string[];
+  topResultChoiceRank?: number;
+  topResultChoiceOpenResult?: number | "best";
+  topResultChoiceRecommended?: boolean;
+  topResultChoicePrimary?: boolean;
+  topResultChoiceReason?: string;
   evidenceCount?: number;
   formCount?: number;
   formChoiceCount?: number;

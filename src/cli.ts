@@ -928,6 +928,15 @@ type AgentSummary = {
   resultCount: number;
   resultChoiceCount: number;
   resultChoices: AgentResultChoice[];
+  topResultChoicePath?: string;
+  topResultChoiceTitle?: string;
+  topResultChoiceUrl?: string;
+  topResultChoiceCommandArgs?: string[];
+  topResultChoiceRank?: number;
+  topResultChoiceOpenResult?: AgentResultChoice["openResult"];
+  topResultChoiceRecommended?: boolean;
+  topResultChoicePrimary?: boolean;
+  topResultChoiceReason?: string;
   evidenceCount: number;
   formCount: number;
   formChoiceCount: number;
@@ -2647,6 +2656,15 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  finalUrlChanged: ${agent.finalUrlChanged}`,
     `  resultCount: ${agent.resultCount}`,
     `  resultChoiceCount: ${agent.resultChoiceCount}`,
+    ...(agent.topResultChoicePath ? [`  topResultChoicePath: ${agent.topResultChoicePath}`] : []),
+    ...(agent.topResultChoiceUrl ? [`  topResultChoiceUrl: ${agent.topResultChoiceUrl}`] : []),
+    ...(agent.topResultChoiceTitle ? [`  topResultChoiceTitle: ${agent.topResultChoiceTitle}`] : []),
+    ...(agent.topResultChoiceCommandArgs ? [`  topResultChoiceCommandArgs: ${JSON.stringify(agent.topResultChoiceCommandArgs)}`] : []),
+    ...(typeof agent.topResultChoiceRank === "number" ? [`  topResultChoiceRank: ${agent.topResultChoiceRank}`] : []),
+    ...(agent.topResultChoiceOpenResult ? [`  topResultChoiceOpenResult: ${agent.topResultChoiceOpenResult}`] : []),
+    ...(typeof agent.topResultChoiceRecommended === "boolean" ? [`  topResultChoiceRecommended: ${agent.topResultChoiceRecommended}`] : []),
+    ...(typeof agent.topResultChoicePrimary === "boolean" ? [`  topResultChoicePrimary: ${agent.topResultChoicePrimary}`] : []),
+    ...(agent.topResultChoiceReason ? [`  topResultChoiceReason: ${agent.topResultChoiceReason}`] : []),
     `  evidenceCount: ${agent.evidenceCount}`,
     `  formCount: ${agent.formCount}`,
     `  formChoiceCount: ${agent.formChoiceCount}`,
@@ -9325,6 +9343,15 @@ function summarizeAgent(
     resultCount: hasUsableSearchResults ? results.length : 0,
     resultChoiceCount: resultChoices.length,
     resultChoices,
+    ...(resultChoices[0] ? { topResultChoicePath: resultChoices[0].path } : {}),
+    ...(resultChoices[0]?.title ? { topResultChoiceTitle: resultChoices[0].title } : {}),
+    ...(resultChoices[0]?.url ? { topResultChoiceUrl: resultChoices[0].url } : {}),
+    ...(resultChoices[0]?.commandArgs ? { topResultChoiceCommandArgs: resultChoices[0].commandArgs } : {}),
+    ...(typeof resultChoices[0]?.rank === "number" ? { topResultChoiceRank: resultChoices[0].rank } : {}),
+    ...(resultChoices[0]?.openResult ? { topResultChoiceOpenResult: resultChoices[0].openResult } : {}),
+    ...(typeof resultChoices[0]?.recommended === "boolean" ? { topResultChoiceRecommended: resultChoices[0].recommended } : {}),
+    ...(typeof resultChoices[0]?.primary === "boolean" ? { topResultChoicePrimary: resultChoices[0].primary } : {}),
+    ...(resultChoices[0]?.selectionReason ? { topResultChoiceReason: resultChoices[0].selectionReason } : {}),
     evidenceCount: pageCheck.contentEvidence.length,
     formCount: pageCheck.forms.length,
     formChoices,
@@ -13417,6 +13444,15 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     resultCount: agent.resultCount,
     resultChoiceCount: agent.resultChoiceCount,
     ...(agent.resultChoices.length > 0 ? { resultChoices: agent.resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext, pageLinkContext)) } : {}),
+    ...(agent.topResultChoicePath ? { topResultChoicePath: agent.topResultChoicePath } : {}),
+    ...(agent.topResultChoiceTitle ? { topResultChoiceTitle: agent.topResultChoiceTitle } : {}),
+    ...(agent.topResultChoiceUrl ? { topResultChoiceUrl: agent.topResultChoiceUrl } : {}),
+    ...(agent.topResultChoiceCommandArgs ? { topResultChoiceCommandArgs: agent.topResultChoiceCommandArgs } : agent.resultChoices[0] ? { topResultChoiceCommandArgs: compactAgentResultChoice(agent.resultChoices[0], searchCommandContext, pageLinkContext).commandArgs } : {}),
+    ...(typeof agent.topResultChoiceRank === "number" ? { topResultChoiceRank: agent.topResultChoiceRank } : {}),
+    ...(agent.topResultChoiceOpenResult ? { topResultChoiceOpenResult: agent.topResultChoiceOpenResult } : agent.resultChoices[0] ? { topResultChoiceOpenResult: compactAgentResultChoice(agent.resultChoices[0], searchCommandContext, pageLinkContext).openResult } : {}),
+    ...(typeof agent.topResultChoiceRecommended === "boolean" ? { topResultChoiceRecommended: agent.topResultChoiceRecommended } : {}),
+    ...(typeof agent.topResultChoicePrimary === "boolean" ? { topResultChoicePrimary: agent.topResultChoicePrimary } : {}),
+    ...(agent.topResultChoiceReason ? { topResultChoiceReason: agent.topResultChoiceReason } : {}),
     evidenceCount: agent.evidenceCount,
     formCount: agent.formCount,
     formChoiceCount: agent.formChoiceCount,
@@ -13702,6 +13738,15 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topVerificationMissingQuery ? { topVerificationMissingQuery: agent.topVerificationMissingQuery } : {}),
     resultCount: agent.resultCount,
     resultChoiceCount: agent.resultChoiceCount,
+    ...(agent.topResultChoicePath ? { topResultChoicePath: agent.topResultChoicePath } : {}),
+    ...(agent.topResultChoiceTitle ? { topResultChoiceTitle: agent.topResultChoiceTitle } : {}),
+    ...(agent.topResultChoiceUrl ? { topResultChoiceUrl: agent.topResultChoiceUrl } : {}),
+    ...(agent.topResultChoiceCommandArgs ? { topResultChoiceCommandArgs: agent.topResultChoiceCommandArgs } : agent.resultChoices[0] ? { topResultChoiceCommandArgs: compactAgentResultChoice(agent.resultChoices[0], searchCommandContext, pageLinkContext).commandArgs } : {}),
+    ...(typeof agent.topResultChoiceRank === "number" ? { topResultChoiceRank: agent.topResultChoiceRank } : {}),
+    ...(agent.topResultChoiceOpenResult ? { topResultChoiceOpenResult: agent.topResultChoiceOpenResult } : agent.resultChoices[0] ? { topResultChoiceOpenResult: compactAgentResultChoice(agent.resultChoices[0], searchCommandContext, pageLinkContext).openResult } : {}),
+    ...(typeof agent.topResultChoiceRecommended === "boolean" ? { topResultChoiceRecommended: agent.topResultChoiceRecommended } : {}),
+    ...(typeof agent.topResultChoicePrimary === "boolean" ? { topResultChoicePrimary: agent.topResultChoicePrimary } : {}),
+    ...(agent.topResultChoiceReason ? { topResultChoiceReason: agent.topResultChoiceReason } : {}),
     evidenceCount: agent.evidenceCount,
     formCount: agent.formCount,
     formChoiceCount: agent.formChoiceCount,

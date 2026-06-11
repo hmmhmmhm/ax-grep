@@ -54,6 +54,7 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
     "averageAgentFormActionCountScore",
     "averageAgentChoiceCountScore",
     "averageAgentTopChoiceShortcutScore",
+    "averageAgentTopResultChoiceShortcutScore",
     "averageAgentEvidenceCountShortcutScore",
     "averageAgentSignalCountShortcutScore",
     "averageAgentProblemShortcutScore",
@@ -156,6 +157,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "averageAgentFormActionChoiceScore",
           "averageAgentChoiceCountScore",
           "averageAgentTopChoiceShortcutScore",
+          "averageAgentTopResultChoiceShortcutScore",
           "averageAgentEvidenceCountShortcutScore",
           "averageAgentSignalCountShortcutScore",
           "averageAgentProblemShortcutScore",
@@ -210,6 +212,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
       (failures) => {
         requireFileIncludes(root, failures, "tests/cli.test.ts", [
           "resultChoices",
+          "topResultChoicePath",
+          "topResultChoiceCommandArgs",
           "commandArgs",
           "sourceLinkRef",
           "formChoices",

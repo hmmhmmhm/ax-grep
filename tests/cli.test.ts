@@ -885,6 +885,11 @@ describe("cli", () => {
         expect(envelope.agent.topChoiceKind).toBe("result");
         expect(envelope.agent.topChoicePath).toBe(topResultChoice.path);
         expect(envelope.agent.topChoiceCommandArgs).toEqual(topResultChoice.commandArgs);
+        expect(envelope.agent.topResultChoicePath).toBe(topResultChoice.path);
+        expect(envelope.agent.topResultChoiceUrl).toBe(topResultChoice.url);
+        expect(envelope.agent.topResultChoiceCommandArgs).toEqual(topResultChoice.commandArgs);
+        if (topResultChoice.title) expect(envelope.agent.topResultChoiceTitle).toBe(topResultChoice.title);
+        if (typeof topResultChoice.rank === "number") expect(envelope.agent.topResultChoiceRank).toBe(topResultChoice.rank);
       } else if (topSourceChoice) {
         expect(envelope.agent.topChoiceKind).toBe("source");
         expect(envelope.agent.topChoicePath).toBe(topSourceChoice.path);
@@ -1189,6 +1194,15 @@ describe("cli", () => {
       searchDecisionRecommendedRank: 1,
       searchDecisionRecommendedUrl: "https://result.example/",
       searchDecisionCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "best", "--agent"],
+      topResultChoicePath: "searchResults[0]",
+      topResultChoiceTitle: "Agent browser result",
+      topResultChoiceUrl: "https://result.example/",
+      topResultChoiceCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent"],
+      topResultChoiceRank: 1,
+      topResultChoiceOpenResult: 1,
+      topResultChoiceRecommended: true,
+      topResultChoicePrimary: true,
+      topResultChoiceReason: "High relevance: matched agent, browser.",
       resultChoices: [
         expect.objectContaining({
           id: "r1",
