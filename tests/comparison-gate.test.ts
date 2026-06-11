@@ -9,6 +9,7 @@ describe("comparison gate checker", () => {
         included: 4,
         excluded: 1,
         averageAgentExecutorScore: 1,
+        averageAgentContractScore: 1,
         averageAgentRoutingIntentScore: 1,
         averageAgentContinuationModeScore: 1,
         averageAgentNextScore: 1,
@@ -58,6 +59,7 @@ describe("comparison gate checker", () => {
         included: 4,
         excluded: 1,
         averageAgentExecutorScore: 1,
+        averageAgentContractScore: 1,
         averageAgentRoutingIntentScore: 1,
         averageAgentContinuationModeScore: 1,
         averageAgentNextScore: 0.75,
@@ -107,6 +109,58 @@ describe("comparison gate checker", () => {
     ]);
   });
 
+  it("rejects static reports with incomplete agent contract features", () => {
+    const failures = checkComparisonGateReport({
+      generatedAt: "2026-06-10T00:00:00.000Z",
+      gateSummary: {
+        included: 4,
+        excluded: 1,
+        averageAgentExecutorScore: 1,
+        averageAgentContractScore: 0.75,
+        averageAgentRoutingIntentScore: 1,
+        averageAgentContinuationModeScore: 1,
+        averageAgentNextScore: 1,
+        averageAgentRunbookScore: 1,
+        averageAgentExecutorStepScore: 1,
+        averageAgentBriefExecutorStepScore: 1,
+        averageAgentHandoffScore: 1,
+        averageAgentExecutionPlanScore: 1,
+        averageAgentExpectedOutcomeScore: 1,
+        averageAgentSignalScore: 1,
+        averageAgentQualityGateScore: 1,
+        averageAgentBrowserAdvantageScore: 1,
+        averageAgentReadTargetScore: 1,
+        averageAgentResultChoiceScore: 1,
+        averageAgentSourceChoiceScore: 1,
+        averageAgentSourceSearchProvenanceScore: 1,
+        averageAgentRecommendedMetadataScore: 1,
+        averageAgentCitationScore: 1,
+        averageAgentAnswerPlanScore: 1,
+        averageAgentAnswerEvidenceScore: 1,
+        averageAgentBrowserNeedScore: 1,
+        averageAgentBrowserHtmlScore: 1,
+        averageAgentCanContinueScore: 1,
+        averageAgentPrimaryExecutionScore: 1,
+        averageAgentPrimaryShortcutScore: 1,
+        averageAgentActionListScore: 1,
+        averageAgentSearchDecisionScore: 1,
+        averageAgentPageDecisionScore: 1,
+        averageAgentSemanticSummaryScore: 1,
+        classifications: {
+          usable: 4,
+          "over-collected": 0,
+          challenge: 0,
+          shell: 0,
+        },
+      },
+      comparisons: [],
+    }, "static.json");
+
+    expect(failures.map((failure) => failure.message)).toEqual([
+      "averageAgentContractScore expected >= 0.995, got 0.75",
+    ]);
+  });
+
   it("rejects static reports that drop result, source, or action detail gates", () => {
     const failures = checkComparisonGateReport({
       generatedAt: "2026-06-10T00:00:00.000Z",
@@ -114,6 +168,7 @@ describe("comparison gate checker", () => {
         included: 4,
         excluded: 1,
         averageAgentExecutorScore: 1,
+        averageAgentContractScore: 1,
         averageAgentRoutingIntentScore: 1,
         averageAgentContinuationModeScore: 1,
         averageAgentNextScore: 1,
