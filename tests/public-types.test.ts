@@ -161,6 +161,11 @@ describe("public agent types", () => {
       | "actionTargetChoices"
       | "hiddenSignalCount"
       | "hiddenReadTargetCount"
+      | "bestHiddenReadTarget"
+      | "bestHiddenReadTargetCount"
+      | "bestHiddenReadTargetScore"
+      | "bestHiddenReadTargetPrimary"
+      | "bestHiddenReadTargetReason"
       | "sourceLinkCount"
       | "sourceChoiceCount"
       | "topChoiceKind"
@@ -275,6 +280,11 @@ describe("public agent types", () => {
       actionTargetChoices: [actionTargetChoice],
       hiddenSignalCount: 4,
       hiddenReadTargetCount: 2,
+      bestHiddenReadTarget: "pageCheck.apiEndpoints",
+      bestHiddenReadTargetCount: 4,
+      bestHiddenReadTargetScore: 0.74,
+      bestHiddenReadTargetPrimary: true,
+      bestHiddenReadTargetReason: "Hidden API endpoints.",
       sourceLinkCount: 1,
       sourceChoiceCount: 1,
       topChoiceKind: "source",
@@ -380,6 +390,7 @@ describe("public agent types", () => {
     };
 
     expect(summary.hiddenSignalCount).toBe(4);
+    expect(summary.bestHiddenReadTarget).toBe("pageCheck.apiEndpoints");
     expect(summary.actionTargetCount).toBe(2);
     expect(summary.actionTargetChoiceCount).toBe(1);
     expect(summary.formChoices?.[0]?.queryField).toBe("q");

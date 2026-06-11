@@ -4223,6 +4223,12 @@ describe("cli", () => {
     expect(envelope.pageCheck.readability.reasons).toContain("5 API endpoints");
     expect(envelope.agent.hiddenSignalCount).toBe(5);
     expect(envelope.agent.hiddenReadTargetCount).toBe(1);
+    expect(envelope.agent).toMatchObject({
+      bestHiddenReadTarget: "pageCheck.apiEndpoints",
+      bestHiddenReadTargetCount: 5,
+      bestHiddenReadTargetPrimary: true,
+      bestHiddenReadTargetReason: "Inline script API, GraphQL, XHR, and event-stream endpoint hints extracted from page HTML.",
+    });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -4918,6 +4924,9 @@ describe("cli", () => {
         execution: "read-current",
         readFrom: "pageCheck.appHints",
       },
+      bestHiddenReadTarget: "pageCheck.appHints",
+      bestHiddenReadTargetCount: 3,
+      bestHiddenReadTargetPrimary: true,
       answerPlan: {
         status: "ready",
         readFrom: "pageCheck.appHints",
@@ -7704,6 +7713,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  actionTargetChoiceCount: 0");
     expect(stdout.output).toContain("  hiddenSignalCount: 4");
     expect(stdout.output).toContain("  hiddenReadTargetCount: 2");
+    expect(stdout.output).toContain("  bestHiddenReadTarget:");
+    expect(stdout.output).toContain("  bestHiddenReadTargetCount:");
     expect(stdout.output).toContain("  sourceLinkCount: 1");
     expect(stdout.output).toContain("  sourceChoiceCount: 1");
     expect(stdout.output).toContain("  alternativeActionCount: 1");

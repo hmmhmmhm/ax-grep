@@ -538,6 +538,11 @@ export type AgentSummary = {
   actionTargetChoices?: AgentActionTargetChoice[];
   hiddenSignalCount?: number;
   hiddenReadTargetCount?: number;
+  bestHiddenReadTarget?: string;
+  bestHiddenReadTargetCount?: number;
+  bestHiddenReadTargetScore?: number;
+  bestHiddenReadTargetPrimary?: boolean;
+  bestHiddenReadTargetReason?: string;
   sourceLinkCount?: number;
   sourceChoiceCount?: number;
   sourceChoices?: AgentSourceChoice[];

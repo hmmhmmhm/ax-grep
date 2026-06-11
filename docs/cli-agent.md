@@ -54,6 +54,7 @@ Read these first:
   matched or missing `--find` query for fast verification routing.
 - `agent.readTargets` and `agent.bestReadTarget*`: ranked paths to inspect and the
   best path's count/primary flags.
+- `agent.bestHiddenReadTarget*`: best hidden metadata path to inspect first.
 - `agent.resultChoices` and `agent.sourceChoices`: ranked links to open.
 - `agent.topChoice*`: first executable result, source, form, or action-target choice.
 - `agent.primarySourceLinkRef`: primary source-link action's `pageCheck.sourceLinks[n]`.

@@ -1131,6 +1131,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       actionTargetChoices?: CliAgentActionTargetChoiceShape[];
       hiddenSignalCount?: number;
       hiddenReadTargetCount?: number;
+      bestHiddenReadTarget?: string;
+      bestHiddenReadTargetCount?: number;
+      bestHiddenReadTargetScore?: number;
+      bestHiddenReadTargetPrimary?: boolean;
+      bestHiddenReadTargetReason?: string;
       sourceLinkCount?: number;
       sourceChoiceCount?: number;
       sourceChoices?: CliAgentSourceChoiceShape[];
@@ -1333,7 +1338,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentSourceLinkCountScore: scoreAgentSourceLinkCount(item.kind ?? "unknown", item.agent?.sourceLinkCount, item.pageCheck?.sourceLinks ?? []),
     agentFormActionCountScore: scoreAgentFormActionCounts(item.agent?.formCount, item.agent?.actionTargetCount, item.pageCheck?.forms ?? [], item.pageCheck?.actionTargets ?? []),
     agentFormActionChoiceScore: scoreAgentFormActionChoices(item.agent?.formChoices ?? [], item.agent?.actionTargetChoices ?? [], item.pageCheck?.forms ?? [], item.pageCheck?.actionTargets ?? []),
-    agentHiddenSignalCountScore: scoreAgentHiddenSignalCounts(item.agent?.hiddenSignalCount, item.agent?.hiddenReadTargetCount, hiddenSignalCount, item.agent?.readTargets ?? []),
+    agentHiddenSignalCountScore: scoreAgentHiddenSignalCounts(item.agent, hiddenSignalCount),
     agentSourceChoiceScore: scoreAgentSourceChoices(item.kind ?? "unknown", item.agent?.sourceChoices ?? [], item.pageCheck?.sourceLinks ?? [], item.agent?.primaryAction),
     agentSourceSearchShortcutScore: scoreAgentSourceSearchShortcuts(item.agent, item.sourceSearch),
     agentBrowserNeedScore: scoreAgentBrowserNeed(item.agent?.needsBrowserHtml, item.agent?.status, item.agent?.primaryAction),
@@ -3008,18 +3013,61 @@ function optionalFieldMatches(actual: unknown, expected: unknown): boolean {
 }
 
 function scoreAgentHiddenSignalCounts(
-  hiddenSignalCount: number | undefined,
-  hiddenReadTargetCount: number | undefined,
+  agent: {
+    hiddenSignalCount?: number;
+    hiddenReadTargetCount?: number;
+    bestHiddenReadTarget?: string;
+    bestHiddenReadTargetCount?: number;
+    bestHiddenReadTargetScore?: number;
+    bestHiddenReadTargetPrimary?: boolean;
+    bestHiddenReadTargetReason?: string;
+    readTargets?: CliReadTargetShape[];
+  } | undefined,
   expectedHiddenSignalCount: number,
-  readTargets: CliReadTargetShape[],
 ): number {
   let matched = 0;
+  let required = 2;
+  const readTargets = agent?.readTargets ?? [];
   const expectedReadTargetCount = readTargets.filter((target) => {
     return typeof target.path === "string" && hiddenPageCheckPaths.some((path) => target.path === `pageCheck.${path}`);
   }).length;
-  if (typeof hiddenSignalCount === "number" && hiddenSignalCount === expectedHiddenSignalCount) matched += 1;
-  if (typeof hiddenReadTargetCount === "number" && hiddenReadTargetCount === expectedReadTargetCount) matched += 1;
-  return roundScore(matched / 2);
+  if (typeof agent?.hiddenSignalCount === "number" && agent.hiddenSignalCount === expectedHiddenSignalCount) matched += 1;
+  if (typeof agent?.hiddenReadTargetCount === "number" && agent.hiddenReadTargetCount === expectedReadTargetCount) matched += 1;
+  const best = [...readTargets.filter((target) => {
+    return typeof target.path === "string" && hiddenPageCheckPaths.some((path) => target.path === `pageCheck.${path}`);
+  })].sort((left, right) => {
+    if (left.primary !== right.primary) return left.primary ? -1 : 1;
+    return (right.score ?? 0) - (left.score ?? 0);
+  })[0];
+  if (best) {
+    required += 1;
+    if (agent?.bestHiddenReadTarget === best.path) matched += 1;
+    if (typeof best.count === "number") {
+      required += 1;
+      if (agent?.bestHiddenReadTargetCount === best.count) matched += 1;
+    } else if (typeof agent?.bestHiddenReadTargetCount === "number") {
+      required += 1;
+    }
+    if (typeof best.score === "number") {
+      required += 1;
+      if (agent?.bestHiddenReadTargetScore === best.score) matched += 1;
+    } else if (typeof agent?.bestHiddenReadTargetScore === "number") {
+      required += 1;
+    }
+    if (typeof best.primary === "boolean") {
+      required += 1;
+      if (agent?.bestHiddenReadTargetPrimary === best.primary) matched += 1;
+    } else if (typeof agent?.bestHiddenReadTargetPrimary === "boolean") {
+      required += 1;
+    }
+    if (best.reason) {
+      required += 1;
+      if (agent?.bestHiddenReadTargetReason === best.reason) matched += 1;
+    }
+  } else if (agent?.bestHiddenReadTarget) {
+    required += 1;
+  }
+  return roundScore(matched / required);
 }
 
 function scoreAgentSourceChoices(
