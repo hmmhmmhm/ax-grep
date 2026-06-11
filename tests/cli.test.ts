@@ -795,6 +795,13 @@ describe("cli", () => {
       if (handoff.commandArgs) expect(envelope.agent.handoffCommandArgs).toEqual(handoff.commandArgs);
       if (handoff.readFrom) expect(envelope.agent.handoffReadFrom).toBe(handoff.readFrom);
       if (handoff.url) expect(envelope.agent.handoffUrl).toBe(handoff.url);
+      expect(envelope.agent.answerPlanStatus).toBe(handoff.answerStatus);
+      expect(envelope.agent.answerPlanConfidence).toEqual(expect.stringMatching(/^(low|medium|high)$/));
+      expect(envelope.agent.answerGapCount).toEqual(expect.any(Number));
+      if (handoff.useCitationIds?.length) expect(envelope.agent.answerUseCitationIds).toEqual(handoff.useCitationIds);
+      if (handoff.readFrom) expect(envelope.agent.answerPlanReadFrom).toBe(handoff.readFrom);
+      if (handoff.commandArgs) expect(envelope.agent.answerPlanCommandArgs).toEqual(handoff.commandArgs);
+      if (handoff.url) expect(envelope.agent.answerPlanUrl).toBe(handoff.url);
       if (executor.commandArgs) expect(handoff.commandArgs).toEqual(executor.commandArgs);
       if (executor.readFrom) expect(handoff.readFrom).toBe(executor.readFrom);
       if (executor.url) expect(handoff.url).toBe(executor.url);

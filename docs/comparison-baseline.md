@@ -197,6 +197,10 @@ the full executor object.
 operation, answer status, priority, command arguments, read-from, URL, and
 expected-outcome shortcuts mirror `agent.handoff`, so brief loops can run from
 top-level fields when they do not need the full handoff object.
+`averageAgentAnswerShortcutScore` tracks whether `agent.answerPlanStatus`,
+confidence, gap count, citation IDs, command arguments, read-from, and URL
+shortcuts mirror `agent.answerPlan`, so agents can decide whether to answer or
+continue without parsing the full plan object.
 `averageAgentSourceSearchProvenanceScore` tracks whether opened-result payloads
 with `sourceSearch.selectedResult` or `sourceSearch.alternateResults` expose
 matching `agent.readTargets`, so agents can inspect original SERP provenance

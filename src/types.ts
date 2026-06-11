@@ -545,6 +545,13 @@ export type AgentSummary = {
   citations?: AgentCitation[];
   answerEvidenceCount?: number;
   answerEvidence?: AgentCitation[];
+  answerPlanStatus?: AgentAnswerPlan["status"];
+  answerPlanConfidence?: AgentAnswerPlan["confidence"];
+  answerGapCount?: number;
+  answerUseCitationIds?: string[];
+  answerPlanReadFrom?: string;
+  answerPlanCommandArgs?: string[];
+  answerPlanUrl?: string;
   readTargetCount?: number;
   readTargets?: AgentReadTarget[];
   actionCount?: number;

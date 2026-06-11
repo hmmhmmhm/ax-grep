@@ -108,6 +108,7 @@ type CliAgentSummary = {
   agentPrimaryShortcutScore: number;
   agentExecutorShortcutScore: number;
   agentHandoffShortcutScore: number;
+  agentAnswerShortcutScore: number;
   agentCitationScore: number;
   agentAnswerPlanScore: number;
   agentAnswerEvidenceScore: number;
@@ -604,6 +605,7 @@ export type GateSummary = {
   averageAgentPrimaryShortcutScore: number;
   averageAgentExecutorShortcutScore: number;
   averageAgentHandoffShortcutScore: number;
+  averageAgentAnswerShortcutScore: number;
   averageAgentCitationScore: number;
   averageAgentAnswerPlanScore: number;
   averageAgentAnswerEvidenceScore: number;
@@ -1128,6 +1130,13 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       handoffReadFrom?: string;
       handoffUrl?: string;
       handoffExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
+      answerPlanStatus?: CliAgentAnswerPlanShape["status"];
+      answerPlanConfidence?: CliAgentAnswerPlanShape["confidence"];
+      answerGapCount?: number;
+      answerUseCitationIds?: string[];
+      answerPlanReadFrom?: string;
+      answerPlanCommandArgs?: string[];
+      answerPlanUrl?: string;
       primaryActionName?: string;
       primaryReason?: string;
       primaryPriority?: "low" | "medium" | "high";
@@ -1275,6 +1284,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentPrimaryShortcutScore: scoreAgentPrimaryShortcuts(item.agent),
     agentExecutorShortcutScore: scoreAgentExecutorShortcuts(item.agent),
     agentHandoffShortcutScore: scoreAgentHandoffShortcuts(item.agent),
+    agentAnswerShortcutScore: scoreAgentAnswerShortcuts(item.agent),
     agentCitationScore: scoreAgentCitations(item.agent?.citations ?? [], item, item.agent?.answerPlan, item.agent?.primaryAction, item.agent?.needsBrowserHtml),
     agentAnswerPlanScore: scoreAgentAnswerPlan(item.agent?.answerPlan, item.agent?.citations ?? [], item.agent?.primaryAction, item.agent?.needsBrowserHtml),
     agentAnswerEvidenceScore: scoreAgentAnswerEvidence(item.agent?.answerEvidence ?? [], item.agent?.answerPlan, item.agent?.citations ?? []),
@@ -1351,6 +1361,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentPrimaryShortcutScore: 0,
     agentExecutorShortcutScore: 0,
     agentHandoffShortcutScore: 0,
+    agentAnswerShortcutScore: 0,
     agentCitationScore: 0,
     agentAnswerPlanScore: 0,
     agentAnswerEvidenceScore: 0,
@@ -3388,6 +3399,50 @@ function scoreAgentHandoffShortcuts(agent: {
   return roundScore(matched / required);
 }
 
+function scoreAgentAnswerShortcuts(agent: {
+  answerPlan?: CliAgentAnswerPlanShape;
+  answerPlanStatus?: CliAgentAnswerPlanShape["status"];
+  answerPlanConfidence?: CliAgentAnswerPlanShape["confidence"];
+  answerGapCount?: number;
+  answerUseCitationIds?: string[];
+  answerPlanReadFrom?: string;
+  answerPlanCommandArgs?: string[];
+  answerPlanUrl?: string;
+} | undefined): number {
+  const plan = agent?.answerPlan;
+  if (!plan) return 0;
+  let required = 3;
+  let matched = 0;
+  if (agent.answerPlanStatus === plan.status) matched += 1;
+  if (agent.answerPlanConfidence === plan.confidence) matched += 1;
+  if (agent.answerGapCount === (plan.gaps?.length ?? 0)) matched += 1;
+  if (plan.useCitationIds && plan.useCitationIds.length > 0) {
+    required += 1;
+    if (JSON.stringify(agent.answerUseCitationIds) === JSON.stringify(plan.useCitationIds)) matched += 1;
+  } else if (agent.answerUseCitationIds) {
+    required += 1;
+  }
+  if (plan.readFrom) {
+    required += 1;
+    if (agent.answerPlanReadFrom === plan.readFrom) matched += 1;
+  } else if (agent.answerPlanReadFrom) {
+    required += 1;
+  }
+  if (plan.commandArgs) {
+    required += 1;
+    if (JSON.stringify(agent.answerPlanCommandArgs) === JSON.stringify(plan.commandArgs)) matched += 1;
+  } else if (agent.answerPlanCommandArgs) {
+    required += 1;
+  }
+  if (plan.url) {
+    required += 1;
+    if (agent.answerPlanUrl === plan.url) matched += 1;
+  } else if (agent.answerPlanUrl) {
+    required += 1;
+  }
+  return roundScore(matched / required);
+}
+
 function scoreAgentSourceSearchProvenance(
   sourceSearch: { selectedResult?: unknown; alternateResults?: unknown[] } | undefined,
   readTargets: CliReadTargetShape[],
@@ -3568,6 +3623,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentPrimaryShortcutScore * 0.005
     + summary.agentExecutorShortcutScore * 0.005
     + summary.agentHandoffShortcutScore * 0.005
+    + summary.agentAnswerShortcutScore * 0.005
     + summary.agentCitationScore * 0.005
     + summary.agentAnswerPlanScore * 0.005
     + summary.agentAnswerEvidenceScore * 0.005
@@ -3728,6 +3784,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentPrimaryShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentPrimaryShortcutScore)),
     averageAgentExecutorShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExecutorShortcutScore)),
     averageAgentHandoffShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentHandoffShortcutScore)),
+    averageAgentAnswerShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentAnswerShortcutScore)),
     averageAgentCitationScore: average(included.map((comparison) => comparison.cliAgentSummary.agentCitationScore)),
     averageAgentAnswerPlanScore: average(included.map((comparison) => comparison.cliAgentSummary.agentAnswerPlanScore)),
     averageAgentAnswerEvidenceScore: average(included.map((comparison) => comparison.cliAgentSummary.agentAnswerEvidenceScore)),

@@ -887,6 +887,13 @@ type AgentSummary = {
   citations: AgentCitation[];
   answerEvidenceCount: number;
   answerEvidence: AgentCitation[];
+  answerPlanStatus?: AgentAnswerPlan["status"];
+  answerPlanConfidence?: AgentAnswerPlan["confidence"];
+  answerGapCount?: number;
+  answerUseCitationIds?: string[];
+  answerPlanReadFrom?: string;
+  answerPlanCommandArgs?: string[];
+  answerPlanUrl?: string;
   readTargetCount: number;
   readTargets: AgentReadTarget[];
   actionCount: number;
@@ -2439,6 +2446,10 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.handoffPriority) lines.push(`  handoffPriority: ${agent.handoffPriority}`);
   if (agent.handoffPriorityReason) lines.push(`  handoffPriorityReason: ${agent.handoffPriorityReason}`);
   if (agent.handoffExpectedOutcome) lines.push(`  handoffExpectedOutcome: ${agent.handoffExpectedOutcome}`);
+  if (agent.answerPlanStatus) lines.push(`  answerPlanStatus: ${agent.answerPlanStatus}`);
+  if (agent.answerPlanConfidence) lines.push(`  answerPlanConfidence: ${agent.answerPlanConfidence}`);
+  if (typeof agent.answerGapCount === "number") lines.push(`  answerGapCount: ${agent.answerGapCount}`);
+  if (agent.answerUseCitationIds?.length) lines.push(`  answerUseCitationIds: ${agent.answerUseCitationIds.join(", ")}`);
   if (agent.executor.readFrom) lines.push(`  executorReadFrom: ${agent.executor.readFrom}`);
   if (agent.executor.readValue) lines.push(...formatAgentReadValueText(agent.executor.readValue, "executorReadValue"));
   if (agent.executor.commandArgs) lines.push(`  executorCommandArgs: ${formatCommandArgsText(agent.executor.commandArgs)}`);
@@ -8922,6 +8933,13 @@ function summarizeAgent(
     citations,
     answerEvidenceCount: answerEvidence.length,
     answerEvidence,
+    answerPlanStatus: answerPlan.status,
+    answerPlanConfidence: answerPlan.confidence,
+    answerGapCount: answerPlan.gaps.length,
+    ...(answerPlan.useCitationIds.length > 0 ? { answerUseCitationIds: answerPlan.useCitationIds } : {}),
+    ...(answerPlan.readFrom ? { answerPlanReadFrom: answerPlan.readFrom } : {}),
+    ...(answerPlan.commandArgs ? { answerPlanCommandArgs: answerPlan.commandArgs } : {}),
+    ...(answerPlan.url ? { answerPlanUrl: answerPlan.url } : {}),
     readTargetCount: readTargets.length,
     readTargets,
     actionCount: actions.length,
@@ -12629,6 +12647,13 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.citations.length > 0 ? { citations: compactAgentCitationList(agent.citations) } : {}),
     answerEvidenceCount: agent.answerEvidenceCount,
     ...(agent.answerEvidence.length > 0 ? { answerEvidence: compactAgentCitationList(agent.answerEvidence, 650) } : {}),
+    ...(agent.answerPlanStatus ? { answerPlanStatus: agent.answerPlanStatus } : {}),
+    ...(agent.answerPlanConfidence ? { answerPlanConfidence: agent.answerPlanConfidence } : {}),
+    ...(typeof agent.answerGapCount === "number" ? { answerGapCount: agent.answerGapCount } : {}),
+    ...(agent.answerUseCitationIds && agent.answerUseCitationIds.length > 0 ? { answerUseCitationIds: agent.answerUseCitationIds } : {}),
+    ...(agent.answerPlanReadFrom ? { answerPlanReadFrom: agent.answerPlanReadFrom } : {}),
+    ...(agent.answerPlanCommandArgs ? { answerPlanCommandArgs: agent.answerPlanCommandArgs } : {}),
+    ...(agent.answerPlanUrl ? { answerPlanUrl: agent.answerPlanUrl } : {}),
     readTargetCount: agent.readTargetCount,
     ...(agent.readTargets.length > 0 ? { readTargets: compactAgentReadTargets(agent.readTargets) } : {}),
     actionCount: agent.actionCount,
@@ -12730,6 +12755,13 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     citationCount: agent.citationCount,
     ...(agent.citations.length > 0 ? { citations: agent.citations.map(compactAgentCitationRef) } : {}),
     answerEvidenceCount: agent.answerEvidenceCount,
+    ...(agent.answerPlanStatus ? { answerPlanStatus: agent.answerPlanStatus } : {}),
+    ...(agent.answerPlanConfidence ? { answerPlanConfidence: agent.answerPlanConfidence } : {}),
+    ...(typeof agent.answerGapCount === "number" ? { answerGapCount: agent.answerGapCount } : {}),
+    ...(agent.answerUseCitationIds && agent.answerUseCitationIds.length > 0 ? { answerUseCitationIds: agent.answerUseCitationIds } : {}),
+    ...(agent.answerPlanReadFrom ? { answerPlanReadFrom: agent.answerPlanReadFrom } : {}),
+    ...(agent.answerPlanCommandArgs ? { answerPlanCommandArgs: agent.answerPlanCommandArgs } : {}),
+    ...(agent.answerPlanUrl ? { answerPlanUrl: agent.answerPlanUrl } : {}),
     readTargetCount: agent.readTargetCount,
     ...(agent.readTargets.length > 0 ? { readTargets: agent.readTargets.map((target) => compactAgentReadTargetRef(target)) } : {}),
     actionCount: agent.actionCount,

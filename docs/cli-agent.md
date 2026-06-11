@@ -44,6 +44,8 @@ Read these first:
   shortcuts: top-level mirror of the brief handoff contract.
 - `agent.next`: canonical loop payload with command, read target, or browser step.
 - `agent.answerPlan`, `agent.citations`, and `agent.answerEvidence`: final answer evidence.
+- `agent.answerPlanStatus`, `agent.answerPlanConfidence`, and related `answer*`
+  shortcuts: top-level answer readiness and citation routing.
 - `agent.readTargets`, `agent.resultChoices`, and `agent.sourceChoices`: ranked paths to inspect.
 - `agent.signals` and `agent.qualityGates`: compact diagnostics.
 

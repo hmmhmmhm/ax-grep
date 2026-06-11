@@ -170,6 +170,13 @@ describe("public agent types", () => {
       | "verificationMissingQueries"
       | "citationCount"
       | "answerEvidenceCount"
+      | "answerPlanStatus"
+      | "answerPlanConfidence"
+      | "answerGapCount"
+      | "answerUseCitationIds"
+      | "answerPlanReadFrom"
+      | "answerPlanCommandArgs"
+      | "answerPlanUrl"
       | "readTargetCount"
       | "actionCount"
       | "signalCount"
@@ -217,6 +224,13 @@ describe("public agent types", () => {
       verificationMissingQueries: ["missing"],
       citationCount: 2,
       answerEvidenceCount: 1,
+      answerPlanStatus: "ready",
+      answerPlanConfidence: "high",
+      answerGapCount: 0,
+      answerUseCitationIds: ["e1"],
+      answerPlanReadFrom: "pageCheck.contentEvidence",
+      answerPlanCommandArgs: ["ax-grep", "https://example.test", "--agent"],
+      answerPlanUrl: "https://example.test",
       readTargetCount: 3,
       actionCount: 2,
       signalCount: 2,
@@ -254,6 +268,7 @@ describe("public agent types", () => {
     expect(summary.verificationMissingQueries).toEqual(["missing"]);
     expect(summary.readTargetCount).toBe(3);
     expect(summary.qualityGateFailCount).toBe(1);
+    expect(summary.answerPlanStatus).toBe("ready");
     expect(summary.executorOperation).toBe("return");
     expect(summary.handoffAnswerStatus).toBe("ready");
     expect(summary.primaryActionName).toBe("read-content");
