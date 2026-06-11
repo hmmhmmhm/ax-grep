@@ -491,7 +491,12 @@ export type AgentSummary = {
   searchDecision?: Record<string, unknown>;
   pageDecision?: Record<string, unknown>;
   semanticSummary?: Record<string, unknown>;
+  signalCount?: number;
+  signalWarningCount?: number;
+  signalErrorCount?: number;
   signals?: AgentSignal[];
+  qualityGateCount?: number;
+  qualityGateFailCount?: number;
   qualityGates?: AgentQualityGate[];
   canContinue: boolean;
   canUseFetchedHtml: boolean;
@@ -590,6 +595,7 @@ export type AgentContractFeature =
   | "searchDecision"
   | "choice.counts"
   | "evidence.counts"
+  | "signal.counts"
   | "resultChoices"
   | "sourceChoices"
   | "formChoices"

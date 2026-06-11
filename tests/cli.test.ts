@@ -7597,6 +7597,11 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  qualityGate: fetch pass/info score=1 path=agent.responseStatus - Fetched response was converted into an agent payload.");
     expect(stdout.output).toContain("  qualityGate: content pass/info score=");
     expect(stdout.output).toContain("  qualityGate: source pass/info score=");
+    expect(stdout.output).toContain("  signalCount: 3");
+    expect(stdout.output).toContain("  signalWarnings: 1");
+    expect(stdout.output).toContain("  signalErrors: 0");
+    expect(stdout.output).toContain("  qualityGateCount: 6");
+    expect(stdout.output).toContain("  qualityGateFailures: 0");
     expect(stdout.output).toContain("  canContinue: true");
     expect(stdout.output).toContain("  responseStatus: 200");
     expect(stdout.output).toContain("  responseOk: true");

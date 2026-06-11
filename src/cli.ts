@@ -833,7 +833,12 @@ type AgentSummary = {
   searchDecision?: AgentSearchDecision;
   pageDecision?: AgentPageDecision;
   semanticSummary?: AgentSemanticSummary;
+  signalCount: number;
+  signalWarningCount: number;
+  signalErrorCount: number;
   signals: AgentSignal[];
+  qualityGateCount: number;
+  qualityGateFailCount: number;
   qualityGates: AgentQualityGate[];
   canContinue: boolean;
   canUseFetchedHtml: boolean;
@@ -934,6 +939,7 @@ const agentContract: AgentContract = {
     "searchDecision",
     "choice.counts",
     "evidence.counts",
+    "signal.counts",
     "resultChoices",
     "sourceChoices",
     "formChoices",
@@ -2363,6 +2369,11 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.searchDecision ? [`  searchDecision: ${agent.searchDecision.decision}/${agent.searchDecision.confidence} - ${agent.searchDecision.reason}`] : []),
     ...(agent.pageDecision ? [`  pageDecision: ${agent.pageDecision.decision}/${agent.pageDecision.confidence} - ${agent.pageDecision.reason}`] : []),
     `  summary: ${agent.summary}`,
+    `  signalCount: ${agent.signalCount}`,
+    `  signalWarnings: ${agent.signalWarningCount}`,
+    `  signalErrors: ${agent.signalErrorCount}`,
+    `  qualityGateCount: ${agent.qualityGateCount}`,
+    `  qualityGateFailures: ${agent.qualityGateFailCount}`,
     `  canContinue: ${agent.canContinue}`,
     `  canUseFetchedHtml: ${agent.canUseFetchedHtml}`,
     `  needsBrowserHtml: ${agent.needsBrowserHtml}`,
@@ -8805,6 +8816,7 @@ function summarizeAgent(
   const usabilityScore = agentUsabilityScore(status, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error);
   const signals = summarizeAgentSignals(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, fetched, error);
   const qualityGates = summarizeAgentQualityGates(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error, usabilityScore, evidenceQualityScore, sourceQualityScore);
+  const signalCounts = countAgentSignalsBySeverity(signals);
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, compactAgentSourceSearch(sourceSearch), signals, qualityGates, verification.foundQueries, verification.missingQueries);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   const agent: AgentSummary = {
@@ -8824,7 +8836,12 @@ function summarizeAgent(
     ...(searchDecision ? { searchDecision } : {}),
     ...(pageDecision ? { pageDecision } : {}),
     ...(semanticSummary ? { semanticSummary } : {}),
+    signalCount: signals.length,
+    signalWarningCount: signalCounts.warning ?? 0,
+    signalErrorCount: signalCounts.error ?? 0,
     signals,
+    qualityGateCount: qualityGates.length,
+    qualityGateFailCount: qualityGates.filter((gate) => !gate.pass).length,
     qualityGates,
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml,
@@ -10441,6 +10458,13 @@ function countDiagnosticsBySeverity(diagnostics: DiagnosticSummary[]): Record<Di
   }, { info: 0, warning: 0, error: 0 });
 }
 
+function countAgentSignalsBySeverity(signals: AgentSignal[]): Record<AgentSignal["severity"], number> {
+  return signals.reduce((counts, signal) => {
+    counts[signal.severity] += 1;
+    return counts;
+  }, { info: 0, warning: 0, error: 0 });
+}
+
 function agentUsabilityScore(
   status: AgentStatus,
   pageCheck: PageCheckSummary,
@@ -11222,6 +11246,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
       path: "agent.needsBrowserHtml",
     },
   ];
+  const signalCounts = countAgentSignalsBySeverity(signals);
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, [], [], [], compactAgentSourceSearch(sourceSearch), signals, qualityGates);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   return {
@@ -11238,7 +11263,12 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     expectedOutcome,
     executionPlan,
     answerPlan,
+    signalCount: signals.length,
+    signalWarningCount: signalCounts.warning ?? 0,
+    signalErrorCount: signalCounts.error ?? 0,
     signals,
+    qualityGateCount: qualityGates.length,
+    qualityGateFailCount: qualityGates.filter((gate) => !gate.pass).length,
     qualityGates,
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml: false,
@@ -12490,7 +12520,12 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.searchDecision ? { searchDecision: agent.searchDecision } : {}),
     ...(agent.pageDecision ? { pageDecision: compactAgentUrlRefs(agent.pageDecision, agent.primaryUrl) } : {}),
     ...(agent.semanticSummary ? { semanticSummary: compactAgentSemanticSummary(agent.semanticSummary) } : {}),
+    signalCount: agent.signalCount,
+    signalWarningCount: agent.signalWarningCount,
+    signalErrorCount: agent.signalErrorCount,
     ...(agent.signals.length > 0 ? { signals: agent.signals } : {}),
+    qualityGateCount: agent.qualityGateCount,
+    qualityGateFailCount: agent.qualityGateFailCount,
     ...(agent.qualityGates.length > 0 ? { qualityGates: compactAgentQualityGates(agent.qualityGates) } : {}),
     canContinue: agent.canContinue,
     canUseFetchedHtml: agent.canUseFetchedHtml,
@@ -12580,6 +12615,11 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     summary: agent.summary,
     executor: compactAgentExecutor(agent.executor, agent.primaryUrl),
     handoff: compactAgentBriefHandoff(agent.handoff, agent.primaryUrl, searchCommandContext, pageLinkContext),
+    signalCount: agent.signalCount,
+    signalWarningCount: agent.signalWarningCount,
+    signalErrorCount: agent.signalErrorCount,
+    qualityGateCount: agent.qualityGateCount,
+    qualityGateFailCount: agent.qualityGateFailCount,
     canContinue: agent.canContinue,
     needsBrowserHtml: agent.needsBrowserHtml,
     confidence: agent.confidence,

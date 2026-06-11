@@ -172,6 +172,11 @@ describe("public agent types", () => {
       | "answerEvidenceCount"
       | "readTargetCount"
       | "actionCount"
+      | "signalCount"
+      | "signalWarningCount"
+      | "signalErrorCount"
+      | "qualityGateCount"
+      | "qualityGateFailCount"
     > = {
       resultCount: 2,
       resultChoiceCount: 2,
@@ -195,6 +200,11 @@ describe("public agent types", () => {
       answerEvidenceCount: 1,
       readTargetCount: 3,
       actionCount: 2,
+      signalCount: 2,
+      signalWarningCount: 1,
+      signalErrorCount: 0,
+      qualityGateCount: 4,
+      qualityGateFailCount: 1,
     };
 
     expect(summary.hiddenSignalCount).toBe(4);
@@ -205,5 +215,6 @@ describe("public agent types", () => {
     expect(summary.sourceSearchAlternateCount).toBe(1);
     expect(summary.verificationMissingQueries).toEqual(["missing"]);
     expect(summary.readTargetCount).toBe(3);
+    expect(summary.qualityGateFailCount).toBe(1);
   });
 });

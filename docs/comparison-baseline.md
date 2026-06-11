@@ -105,6 +105,8 @@ non-search pages and at least the compact result count for search pages.
 match their result, form, action-target, and source-link source counts.
 `averageAgentEvidenceCountShortcutScore` tracks citation, answer-evidence,
 read-target, and action count shortcuts against their agent arrays.
+`averageAgentSignalCountShortcutScore` tracks signal severity and failing
+quality-gate count shortcuts against `agent.signals` and `agent.qualityGates`.
 `averageAgentSourceLinkCountScore` tracks whether `agent.sourceLinkCount` is
 zero for search pages and matches compact `pageCheck.sourceLinks` for ordinary
 content pages.
