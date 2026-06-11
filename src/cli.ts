@@ -35,6 +35,7 @@ import type {
   AgentStatus,
   AgentTarget,
   SemanticNode,
+  SemanticNodeState,
 } from "./types";
 
 type CliFormat = "text" | "json";
@@ -156,7 +157,7 @@ type AgentSemanticSummary = {
   landmarks: string[];
   headings: string[];
   namedRoles: string[];
-  interactiveRoles: Array<{ role: string; name: string; selector?: string }>;
+  interactiveRoles: Array<{ role: string; name: string; selector?: string; state?: SemanticNodeState }>;
   links: Array<{ name: string; selector?: string }>;
   buttons: Array<{ name: string; selector?: string }>;
 };
@@ -904,6 +905,8 @@ type AgentSummary = {
   semanticTopNamedRole?: string;
   semanticTopInteractiveRole?: string;
   semanticTopInteractiveName?: string;
+  semanticTopInteractiveState?: string;
+  semanticTopInteractiveDisabled?: boolean;
   semanticTopInteractiveSelector?: string;
   semanticTopLinkName?: string;
   semanticTopLinkSelector?: string;
@@ -3026,7 +3029,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     if (agent.semanticSummary.topRoles.length > 0) lines.push(`  semanticTopRoles: ${agent.semanticSummary.topRoles.map((item) => `${item.role}=${item.count}`).join(", ")}`);
     for (const heading of agent.semanticSummary.headings.slice(0, 3)) lines.push(`  semanticHeading: ${heading}`);
     for (const landmark of agent.semanticSummary.landmarks.slice(0, 3)) lines.push(`  semanticLandmark: ${landmark}`);
-    for (const interactive of agent.semanticSummary.interactiveRoles.slice(0, 3)) lines.push(`  semanticInteractive: ${interactive.role}:${interactive.name}${interactive.selector ? ` selector=${interactive.selector}` : ""}`);
+    for (const interactive of agent.semanticSummary.interactiveRoles.slice(0, 3)) lines.push(`  semanticInteractive: ${interactive.role}:${interactive.name}${interactive.state ? ` state=${formatSemanticState(interactive.state) ?? ""}` : ""}${interactive.selector ? ` selector=${interactive.selector}` : ""}`);
   }
   if (typeof agent.semanticNodeCount === "number") lines.push(`  semanticNodeCount: ${agent.semanticNodeCount}`);
   if (typeof agent.semanticNamedRoleCount === "number") lines.push(`  semanticNamedRoleCount: ${agent.semanticNamedRoleCount}`);
@@ -3035,7 +3038,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.semanticTopHeading) lines.push(`  semanticTopHeading: ${agent.semanticTopHeading}`);
   if (agent.semanticTopLandmark) lines.push(`  semanticTopLandmark: ${agent.semanticTopLandmark}`);
   if (agent.semanticTopNamedRole) lines.push(`  semanticTopNamedRole: ${agent.semanticTopNamedRole}`);
-  if (agent.semanticTopInteractiveRole) lines.push(`  semanticTopInteractive: ${agent.semanticTopInteractiveRole}:${agent.semanticTopInteractiveName ?? ""}${agent.semanticTopInteractiveSelector ? ` selector=${agent.semanticTopInteractiveSelector}` : ""}`);
+  if (agent.semanticTopInteractiveRole) lines.push(`  semanticTopInteractive: ${agent.semanticTopInteractiveRole}:${agent.semanticTopInteractiveName ?? ""}${agent.semanticTopInteractiveState ? ` state=${agent.semanticTopInteractiveState}` : ""}${agent.semanticTopInteractiveSelector ? ` selector=${agent.semanticTopInteractiveSelector}` : ""}`);
   if (agent.semanticTopLinkName) lines.push(`  semanticTopLink: ${agent.semanticTopLinkName}${agent.semanticTopLinkSelector ? ` selector=${agent.semanticTopLinkSelector}` : ""}`);
   if (agent.semanticTopButtonName) lines.push(`  semanticTopButton: ${agent.semanticTopButtonName}${agent.semanticTopButtonSelector ? ` selector=${agent.semanticTopButtonSelector}` : ""}`);
   for (const reason of agent.readabilityReasons) lines.push(`  readabilityReason: ${reason}`);
@@ -3409,8 +3412,20 @@ function decodeBingTarget(value: string | null): URL | null {
 
 function formatState(node: SemanticNode): string {
   if (!node.state || Object.keys(node.state).length === 0) return "";
-  const parts = Object.entries(node.state).map(([key, value]) => `${key}=${value}`);
+  const parts = formatSemanticStateParts(node.state);
   return ` [${parts.join(" ")}]`;
+}
+
+function formatSemanticStateParts(state: SemanticNodeState): string[] {
+  return Object.entries(state)
+    .filter(([, value]) => value !== undefined)
+    .map(([key, value]) => `${key}=${value}`);
+}
+
+function formatSemanticState(state: SemanticNodeState | undefined): string | undefined {
+  if (!state) return undefined;
+  const parts = formatSemanticStateParts(state);
+  return parts.length > 0 ? parts.join(" ") : undefined;
 }
 
 function summarizeLinks(node: SemanticNode, baseUrl: string): LinkSummary[] {
@@ -9297,7 +9312,7 @@ function summarizeAgentSemanticSummary(tree: SemanticNode): AgentSemanticSummary
   const landmarks: string[] = [];
   const headings: string[] = [];
   const namedRoles: string[] = [];
-  const interactiveRoles: Array<{ role: string; name: string; selector?: string }> = [];
+  const interactiveRoles: Array<{ role: string; name: string; selector?: string; state?: SemanticNodeState }> = [];
   const links: Array<{ name: string; selector?: string }> = [];
   const buttons: Array<{ name: string; selector?: string }> = [];
   let nodeCount = 0;
@@ -9315,6 +9330,7 @@ function summarizeAgentSemanticSummary(tree: SemanticNode): AgentSemanticSummary
         interactiveRoles.push({
           role: node.role,
           name: node.name,
+          ...(node.state ? { state: node.state } : {}),
           ...(node.selector ? { selector: node.selector } : {}),
         });
       }
@@ -9432,6 +9448,8 @@ function summarizeAgent(
   const sourceSearchAlternateResult = sourceSearchAgent?.alternateResults?.[0];
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, sourceSearchAgent, signals, qualityGates, verification.foundQueries, verification.missingQueries);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
+  const topSemanticInteractive = semanticSummary?.interactiveRoles[0];
+  const topSemanticInteractiveState = formatSemanticState(topSemanticInteractive?.state);
   const agent: AgentSummary = {
     contract: agentContract,
     status,
@@ -9515,9 +9533,11 @@ function summarizeAgent(
     ...(semanticSummary?.headings[0] ? { semanticTopHeading: semanticSummary.headings[0] } : {}),
     ...(semanticSummary?.landmarks[0] ? { semanticTopLandmark: semanticSummary.landmarks[0] } : {}),
     ...(semanticSummary?.namedRoles[0] ? { semanticTopNamedRole: semanticSummary.namedRoles[0] } : {}),
-    ...(semanticSummary?.interactiveRoles[0] ? { semanticTopInteractiveRole: semanticSummary.interactiveRoles[0].role } : {}),
-    ...(semanticSummary?.interactiveRoles[0]?.name ? { semanticTopInteractiveName: semanticSummary.interactiveRoles[0].name } : {}),
-    ...(semanticSummary?.interactiveRoles[0]?.selector ? { semanticTopInteractiveSelector: semanticSummary.interactiveRoles[0].selector } : {}),
+    ...(topSemanticInteractive ? { semanticTopInteractiveRole: topSemanticInteractive.role } : {}),
+    ...(topSemanticInteractive?.name ? { semanticTopInteractiveName: topSemanticInteractive.name } : {}),
+    ...(topSemanticInteractiveState ? { semanticTopInteractiveState: topSemanticInteractiveState } : {}),
+    ...(typeof topSemanticInteractive?.state?.disabled === "boolean" ? { semanticTopInteractiveDisabled: topSemanticInteractive.state.disabled } : {}),
+    ...(topSemanticInteractive?.selector ? { semanticTopInteractiveSelector: topSemanticInteractive.selector } : {}),
     ...(semanticSummary?.links[0]?.name ? { semanticTopLinkName: semanticSummary.links[0].name } : {}),
     ...(semanticSummary?.links[0]?.selector ? { semanticTopLinkSelector: semanticSummary.links[0].selector } : {}),
     ...(semanticSummary?.buttons[0]?.name ? { semanticTopButtonName: semanticSummary.buttons[0].name } : {}),
@@ -13782,6 +13802,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.semanticTopNamedRole ? { semanticTopNamedRole: agent.semanticTopNamedRole } : {}),
     ...(agent.semanticTopInteractiveRole ? { semanticTopInteractiveRole: agent.semanticTopInteractiveRole } : {}),
     ...(agent.semanticTopInteractiveName ? { semanticTopInteractiveName: agent.semanticTopInteractiveName } : {}),
+    ...(agent.semanticTopInteractiveState ? { semanticTopInteractiveState: agent.semanticTopInteractiveState } : {}),
+    ...(typeof agent.semanticTopInteractiveDisabled === "boolean" ? { semanticTopInteractiveDisabled: agent.semanticTopInteractiveDisabled } : {}),
     ...(agent.semanticTopInteractiveSelector ? { semanticTopInteractiveSelector: agent.semanticTopInteractiveSelector } : {}),
     ...(agent.semanticTopLinkName ? { semanticTopLinkName: agent.semanticTopLinkName } : {}),
     ...(agent.semanticTopLinkSelector ? { semanticTopLinkSelector: agent.semanticTopLinkSelector } : {}),
@@ -14180,6 +14202,13 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.semanticTopRoleCount === "number" ? { semanticTopRoleCount: agent.semanticTopRoleCount } : {}),
     ...(agent.semanticTopHeading ? { semanticTopHeading: agent.semanticTopHeading } : {}),
     ...(agent.semanticTopLandmark ? { semanticTopLandmark: agent.semanticTopLandmark } : {}),
+    ...(agent.semanticTopNamedRole ? { semanticTopNamedRole: agent.semanticTopNamedRole } : {}),
+    ...(agent.semanticTopInteractiveRole ? { semanticTopInteractiveRole: agent.semanticTopInteractiveRole } : {}),
+    ...(agent.semanticTopInteractiveName ? { semanticTopInteractiveName: agent.semanticTopInteractiveName } : {}),
+    ...(agent.semanticTopInteractiveState ? { semanticTopInteractiveState: agent.semanticTopInteractiveState } : {}),
+    ...(typeof agent.semanticTopInteractiveDisabled === "boolean" ? { semanticTopInteractiveDisabled: agent.semanticTopInteractiveDisabled } : {}),
+    ...(agent.semanticTopLinkName ? { semanticTopLinkName: agent.semanticTopLinkName } : {}),
+    ...(agent.semanticTopButtonName ? { semanticTopButtonName: agent.semanticTopButtonName } : {}),
     signalCount: agent.signalCount,
     signalWarningCount: agent.signalWarningCount,
     signalErrorCount: agent.signalErrorCount,

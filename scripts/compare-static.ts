@@ -1511,6 +1511,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopNamedRole?: string;
       semanticTopInteractiveRole?: string;
       semanticTopInteractiveName?: string;
+      semanticTopInteractiveState?: string;
+      semanticTopInteractiveDisabled?: boolean;
       semanticTopInteractiveSelector?: string;
       semanticTopLinkName?: string;
       semanticTopLinkSelector?: string;
@@ -4390,6 +4392,8 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopNamedRole?: string;
   semanticTopInteractiveRole?: string;
   semanticTopInteractiveName?: string;
+  semanticTopInteractiveState?: string;
+  semanticTopInteractiveDisabled?: boolean;
   semanticTopInteractiveSelector?: string;
   semanticTopLinkName?: string;
   semanticTopLinkSelector?: string;
@@ -4464,7 +4468,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopNamedRole === namedRole) matched += 1;
   }
-  const interactive = Array.isArray(item.interactiveRoles) ? item.interactiveRoles[0] as { role?: unknown; name?: unknown; selector?: unknown } | undefined : undefined;
+  const interactive = Array.isArray(item.interactiveRoles) ? item.interactiveRoles[0] as { role?: unknown; name?: unknown; state?: unknown; selector?: unknown } | undefined : undefined;
   if (interactive && typeof interactive.role === "string") {
     required += 1;
     if (agent?.semanticTopInteractiveRole === interactive.role) matched += 1;
@@ -4472,6 +4476,21 @@ function scoreAgentSemanticSummary(agent: {
   if (interactive && typeof interactive.name === "string") {
     required += 1;
     if (agent?.semanticTopInteractiveName === interactive.name) matched += 1;
+  }
+  if (interactive?.state && typeof interactive.state === "object") {
+    const state = Object.entries(interactive.state as Record<string, unknown>)
+      .filter(([, value]) => value !== undefined)
+      .map(([key, value]) => `${key}=${value}`)
+      .join(" ");
+    if (state) {
+      required += 1;
+      if (agent?.semanticTopInteractiveState === state) matched += 1;
+    }
+    const disabled = (interactive.state as { disabled?: unknown }).disabled;
+    if (typeof disabled === "boolean") {
+      required += 1;
+      if (agent?.semanticTopInteractiveDisabled === disabled) matched += 1;
+    }
   }
   if (interactive && typeof interactive.selector === "string") {
     required += 1;

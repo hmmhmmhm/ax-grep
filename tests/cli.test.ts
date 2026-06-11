@@ -250,6 +250,7 @@ describe("cli", () => {
           <body>
             <main>
               <h1>Example</h1>
+              <button aria-pressed="false">Toggle details</button>
               <p class="byline">By <a href="/authors/reporter">Reporter Profile</a></p>
               <p>Example content for agent routing.</p>
               <a href="https://target.example/">Target</a>
@@ -289,7 +290,7 @@ describe("cli", () => {
         semanticSummary: {
           nodeCount: expect.any(Number),
           namedRoleCount: expect.any(Number),
-          interactiveCount: 2,
+          interactiveCount: 3,
           topRoles: expect.arrayContaining([
             expect.objectContaining({ role: "p", count: 2 }),
             expect.objectContaining({ role: "link", count: 2 }),
@@ -300,11 +301,16 @@ describe("cli", () => {
         },
         semanticNodeCount: expect.any(Number),
         semanticNamedRoleCount: expect.any(Number),
-        semanticInteractiveCount: 2,
+        semanticInteractiveCount: 3,
         semanticTopRole: "link",
         semanticTopRoleCount: 2,
         semanticTopHeading: "Example",
         semanticTopLandmark: "main",
+        semanticTopNamedRole: "heading:Example",
+        semanticTopInteractiveRole: "button",
+        semanticTopInteractiveName: "Toggle details",
+        semanticTopInteractiveState: "pressed=false",
+        semanticTopButtonName: "Toggle details",
         routingIntent: "read-current",
         continuationMode: "read",
         next: {

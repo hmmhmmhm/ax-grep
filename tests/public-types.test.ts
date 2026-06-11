@@ -365,6 +365,8 @@ describe("public agent types", () => {
       | "semanticTopNamedRole"
       | "semanticTopInteractiveRole"
       | "semanticTopInteractiveName"
+      | "semanticTopInteractiveState"
+      | "semanticTopInteractiveDisabled"
       | "semanticTopInteractiveSelector"
       | "semanticTopLinkName"
       | "semanticTopLinkSelector"
@@ -720,6 +722,8 @@ describe("public agent types", () => {
       semanticTopNamedRole: "heading:Example",
       semanticTopInteractiveRole: "link",
       semanticTopInteractiveName: "Read more",
+      semanticTopInteractiveState: "expanded=false",
+      semanticTopInteractiveDisabled: false,
       semanticTopInteractiveSelector: "main a:nth-of-type(1)",
       semanticTopLinkName: "Read more",
       semanticTopLinkSelector: "main a:nth-of-type(1)",
