@@ -2,11 +2,26 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { checkAgentReadinessProject } from "../scripts/check-agent-readiness";
+import { checkAgentReadinessProject, collectAgentReadinessEvidence } from "../scripts/check-agent-readiness";
 
 describe("agent readiness audit", () => {
   it("accepts the current project wiring", () => {
     expect(checkAgentReadinessProject()).toEqual([]);
+  });
+
+  it("tracks explicit evidence for the agent readiness requirements", () => {
+    const checks = collectAgentReadinessEvidence();
+    expect(checks.map((check) => check.id)).toEqual([
+      "resource-safety",
+      "fixture-loop-coverage",
+      "per-target-gates",
+      "weak-target-diagnostics",
+      "executable-agent-continuations",
+      "count-shortcuts",
+      "public-type-shortcuts",
+      "readme-doc-split",
+    ]);
+    expect(checks.every((check) => check.status === "pass")).toBe(true);
   });
 
   it("rejects missing safety and completion wiring", () => {

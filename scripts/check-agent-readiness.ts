@@ -8,6 +8,14 @@ type ReadinessFailure = {
   message: string;
 };
 
+export type ReadinessEvidence = {
+  id: string;
+  requirement: string;
+  evidence: string;
+  status: "pass" | "fail";
+  failures: ReadinessFailure[];
+};
+
 type PackageJson = {
   scripts?: Record<string, string>;
 };
@@ -69,8 +77,167 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
   ]);
 
   checkReadmeSplit(root, failures);
+  for (const evidence of collectAgentReadinessEvidence(root)) {
+    if (evidence.status === "pass") continue;
+    for (const failure of evidence.failures) {
+      failures.push({
+        file: failure.file,
+        message: `[${evidence.id}] ${failure.message}`,
+      });
+    }
+  }
 
   return failures;
+}
+
+export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEvidence[] {
+  return [
+    evidenceCheck(
+      root,
+      "resource-safety",
+      "Project validation must run with concurrency 1 and leave no project browser/test processes behind.",
+      "AGENTS.md, vitest.config.ts, docs, and pnpm check:processes encode the operational safety rule.",
+      (failures) => {
+        const packageJson = readJson<PackageJson>(root, "package.json", failures);
+        requireScript(failures, packageJson?.scripts ?? {}, "check:processes", "scripts/check-project-processes.ts");
+        requireFileIncludes(root, failures, "vitest.config.ts", ["fileParallelism: false", "maxWorkers: 1"]);
+        requireFileIncludes(root, failures, "AGENTS.md", [
+          "Do not run project tests, comparison scripts, or browser-backed checks in\n  parallel",
+          "After any browser-backed command, verify that no project-owned browser or\n  `agent-browser` process was left behind",
+        ]);
+        requireFileIncludes(root, failures, "docs/benchmarks.md", ["pnpm check:processes"]);
+      },
+    ),
+    evidenceCheck(
+      root,
+      "fixture-loop-coverage",
+      "Search and page-check agent loops must be covered without starting browsers or remote fetches.",
+      "The fixture gate uses synthetic HTML targets for search open/refine, site search, hidden metadata, actions, and browser HTML retry.",
+      (failures) => {
+        requireFileIncludes(root, failures, "scripts/benchmark-targets.ts", [
+          "Synthetic search open gate",
+          "Synthetic search refine gate",
+          "Synthetic site search recovery gate",
+          "Synthetic hidden metadata gate",
+          "Synthetic action target gate",
+          "Synthetic browser HTML retry gate",
+        ]);
+        requireFileIncludes(root, failures, "tests/compare-static-fixture.test.ts", [
+          "open-result",
+          "refine-search",
+          "open-site-search",
+          "retry-with-browser-html",
+          "!warning.includes(\"agent-browser\")",
+        ]);
+      },
+    ),
+    evidenceCheck(
+      root,
+      "per-target-gates",
+      "No included target may hide behind good averages when agent output is too weak.",
+      "Static comparison gates enforce per-target CLI and executor floors in addition to average scores.",
+      (failures) => {
+        requireFileIncludes(root, failures, "scripts/check-comparison-gates.ts", [
+          "minCliAgentScore",
+          "minAgentExecutorScore",
+          "averageCliAgentScore",
+          "averageAgentExecutorScore",
+        ]);
+        requireFileIncludes(root, failures, "docs/comparison-baseline.md", [
+          "minCliAgentScore",
+          "minAgentExecutorScore",
+        ]);
+      },
+    ),
+    evidenceCheck(
+      root,
+      "weak-target-diagnostics",
+      "When a target fails the floor, the report must name the weak target and its agent status/action.",
+      "compare:gate emits weakAgentTargets with category, URL, scores, status, and primary action.",
+      (failures) => {
+        requireFileIncludes(root, failures, "scripts/check-comparison-gates.ts", [
+          "weakAgentTargets",
+          "weakAgentTarget",
+          "primaryAction",
+          "agentStatus",
+        ]);
+        requireFileIncludes(root, failures, "tests/comparison-gate.test.ts", [
+          "weakAgentTarget",
+          "minCliAgentScore",
+        ]);
+      },
+    ),
+    evidenceCheck(
+      root,
+      "executable-agent-continuations",
+      "Subagents must receive executable next commands for search, source, form, action-target, and browser-retry loops.",
+      "CLI tests and fixture gates cover commandArgs/result/source choices, page actions, and browser HTML retry actions.",
+      (failures) => {
+        requireFileIncludes(root, failures, "tests/cli.test.ts", [
+          "resultChoices",
+          "commandArgs",
+          "sourceLinkRef",
+          "forms",
+          "actionTargets",
+        ]);
+        requireFileIncludes(root, failures, "tests/compare-static-fixture.test.ts", [
+          "agentPrimaryAction",
+          "retry-with-browser-html",
+        ]);
+      },
+    ),
+    evidenceCheck(
+      root,
+      "count-shortcuts",
+      "Agent output must expose quick count shortcuts so subagents can judge page richness without parsing nested arrays.",
+      "Agent summaries and text output expose result, evidence, form/action, hidden-signal, read-target, and source-link counts.",
+      (failures) => {
+        requireFileIncludes(root, failures, "src/types.ts", [
+          "resultCount",
+          "formCount",
+          "actionTargetCount",
+          "hiddenSignalCount",
+          "hiddenReadTargetCount",
+          "sourceLinkCount",
+        ]);
+        requireFileIncludes(root, failures, "tests/cli.test.ts", [
+          "formCount",
+          "actionTargetCount",
+          "hiddenSignalCount",
+          "hiddenReadTargetCount",
+          "sourceLinkCount",
+        ]);
+      },
+    ),
+    evidenceCheck(
+      root,
+      "public-type-shortcuts",
+      "Public TypeScript consumers must see the same action references and count shortcuts as the CLI JSON output.",
+      "Public type tests compile the count shortcut and source-link reference surface.",
+      (failures) => {
+        requireFileIncludes(root, failures, "tests/public-types.test.ts", [
+          "AgentSummary",
+          "sourceLinkRef",
+          "hiddenSignalCount",
+          "actionTargetCount",
+        ]);
+      },
+    ),
+    evidenceCheck(
+      root,
+      "readme-doc-split",
+      "README must stay concise; long operational and agent details belong under docs/.",
+      "README line limits and docs index links are enforced by tests and readiness audit.",
+      (failures) => {
+        checkReadmeSplit(root, failures);
+        requireFileIncludes(root, failures, "tests/readme.test.ts", [
+          "stays concise",
+          "docs",
+          "README.md",
+        ]);
+      },
+    ),
+  ];
 }
 
 if (isMainModule()) {
@@ -81,7 +248,25 @@ if (isMainModule()) {
     }
     process.exit(1);
   }
-  console.log("agent-readiness: audit ok");
+  console.log(`agent-readiness: audit ok (${collectAgentReadinessEvidence().length} evidence checks)`);
+}
+
+function evidenceCheck(
+  root: string,
+  id: string,
+  requirement: string,
+  evidence: string,
+  inspect: (failures: ReadinessFailure[]) => void,
+): ReadinessEvidence {
+  const failures: ReadinessFailure[] = [];
+  inspect(failures);
+  return {
+    id,
+    requirement,
+    evidence,
+    status: failures.length === 0 ? "pass" : "fail",
+    failures,
+  };
 }
 
 function readJson<T>(root: string, relativePath: string, failures: ReadinessFailure[]): T | undefined {
