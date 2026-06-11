@@ -920,6 +920,8 @@ const agentContract: AgentContract = {
     "searchDecision",
     "resultChoices",
     "sourceChoices",
+    "formChoices",
+    "actionTargetChoices",
     "pageDecision",
     "semanticSummary",
     "searchResult.selectionReason",

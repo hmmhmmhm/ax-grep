@@ -52,6 +52,7 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
     "averageAgentExecutorScore",
     "minAgentExecutorScore",
     "averageAgentFormActionCountScore",
+    "averageAgentFormActionChoiceScore",
     "averageAgentHiddenSignalScore",
     "averageAgentHiddenSignalCountScore",
   ]);
@@ -142,10 +143,12 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "minAgentExecutorScore",
           "averageCliAgentScore",
           "averageAgentExecutorScore",
+          "averageAgentFormActionChoiceScore",
         ]);
         requireFileIncludes(root, failures, "docs/comparison-baseline.md", [
           "minCliAgentScore",
           "minAgentExecutorScore",
+          "averageAgentFormActionChoiceScore",
         ]);
       },
     ),

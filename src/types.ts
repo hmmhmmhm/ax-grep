@@ -572,6 +572,8 @@ export type AgentContractFeature =
   | "searchDecision"
   | "resultChoices"
   | "sourceChoices"
+  | "formChoices"
+  | "actionTargetChoices"
   | "pageDecision"
   | "semanticSummary"
   | "searchResult.selectionReason"

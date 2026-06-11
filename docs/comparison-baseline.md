@@ -108,6 +108,10 @@ content pages.
 and `agent.actionTargetCount` match compact `pageCheck.forms` and
 `pageCheck.actionTargets`, so agents can detect hidden forms and JSON-LD/OpenSearch
 actions before scanning nested page-check arrays.
+`averageAgentFormActionChoiceScore` tracks whether `agent.formChoices` and
+`agent.actionTargetChoices` preserve the compact form/action target IDs, paths,
+selectors, URL templates, query inputs, and methods needed for subagent
+selection loops.
 `averagePageLinkCommandScore` tracks whether compact `pageCheck.primaryLinks`
 and `pageCheck.sourceLinks` include direct `command` and `commandArgs`, so
 agents can open page links without reconstructing fetch flags.
