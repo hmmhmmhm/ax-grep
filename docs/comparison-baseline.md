@@ -97,7 +97,7 @@ structured-data types.
 top-level `agent.semantic*` shortcuts preserve semantic tree counts, role-group
 counts, top role/heading/landmark/named role fields with direct paths,
 interactive and focusable state, link URL, button description, image,
-table/list structure, form-field, description, choice, state, and unavailable-subtree shortcuts for quick page-shape routing.
+table/list structure, form-field, description, value, choice, state, and unavailable-subtree shortcuts for quick page-shape routing.
 `averageAgentBarrierShortcutScore` tracks whether top-level `agent.topBarrier*`
 shortcuts mirror the highest-priority page barrier.
 `averageAgentStructuredShortcutScore` tracks whether top-level structured
