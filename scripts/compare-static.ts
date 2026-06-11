@@ -1321,17 +1321,27 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topMediaKind?: string;
       topMediaUrl?: string;
       topMediaText?: string;
+      topSectionPath?: string;
       topSectionHeading?: string;
+      topSectionLevel?: number;
       topSectionText?: string;
+      topSectionSelector?: string;
       topBreadcrumbPath?: string;
       topBreadcrumbText?: string;
       topBreadcrumbSource?: string;
+      topPaginationPath?: string;
       topPaginationKind?: string;
       topPaginationLabel?: string;
       topPaginationUrl?: string;
+      topPaginationCurrent?: boolean;
+      topPaginationSelector?: string;
+      topTocPath?: string;
       topTocTitle?: string;
       topTocItemCount?: number;
       topTocText?: string;
+      topTocFirstItemLabel?: string;
+      topTocFirstItemUrl?: string;
+      topTocSelector?: string;
       topEmbedKind?: string;
       topEmbedUrl?: string;
       topEmbedTitle?: string;
@@ -5270,17 +5280,27 @@ function scoreAgentStructuredShortcuts(agent: {
   topMediaKind?: string;
   topMediaUrl?: string;
   topMediaText?: string;
+  topSectionPath?: string;
   topSectionHeading?: string;
+  topSectionLevel?: number;
   topSectionText?: string;
+  topSectionSelector?: string;
   topBreadcrumbPath?: string;
   topBreadcrumbText?: string;
   topBreadcrumbSource?: string;
+  topPaginationPath?: string;
   topPaginationKind?: string;
   topPaginationLabel?: string;
   topPaginationUrl?: string;
+  topPaginationCurrent?: boolean;
+  topPaginationSelector?: string;
+  topTocPath?: string;
   topTocTitle?: string;
   topTocItemCount?: number;
   topTocText?: string;
+  topTocFirstItemLabel?: string;
+  topTocFirstItemUrl?: string;
+  topTocSelector?: string;
   topEmbedKind?: string;
   topEmbedUrl?: string;
   topEmbedTitle?: string;
@@ -5304,10 +5324,10 @@ function scoreAgentStructuredShortcuts(agent: {
   codeBlocks?: Array<{ language?: string; lineCount?: number; text?: string }>;
   resources?: Array<{ kind?: string; url?: string; title?: string }>;
   media?: Array<{ kind?: string; url?: string; text?: string }>;
-  sections?: Array<{ heading?: string; text?: string }>;
+  sections?: Array<{ path?: string; heading?: string; level?: number; text?: string; selector?: string }>;
   breadcrumbs?: Array<{ path?: string; text?: string; source?: string }>;
-  pagination?: Array<{ kind?: string; label?: string; url?: string }>;
-  toc?: Array<{ title?: string; items?: unknown[]; text?: string }>;
+  pagination?: Array<{ path?: string; kind?: string; label?: string; url?: string; current?: boolean; selector?: string }>;
+  toc?: Array<{ path?: string; title?: string; items?: Array<{ label?: string; url?: string }>; text?: string; selector?: string }>;
   embeds?: Array<{ kind?: string; url?: string; title?: string }>;
   transcripts?: Array<{ kind?: string; url?: string; label?: string; language?: string }>;
   authorLinks?: Array<{ name?: string; url?: string; source?: string }>;
@@ -5392,10 +5412,13 @@ function scoreAgentStructuredShortcuts(agent: {
 
   const topSection = sections[0];
   if (topSection) {
-    required += 2;
+    required += 5;
+    if (agent.topSectionPath === topSection.path) matched += 1;
     if (agent.topSectionHeading === topSection.heading) matched += 1;
+    if (agent.topSectionLevel === topSection.level) matched += 1;
     if (agent.topSectionText === topSection.text) matched += 1;
-  } else if (agent.topSectionHeading || agent.topSectionText) {
+    if (agent.topSectionSelector === topSection.selector) matched += 1;
+  } else if (agent.topSectionPath || agent.topSectionHeading || typeof agent.topSectionLevel === "number" || agent.topSectionText || agent.topSectionSelector) {
     required += 1;
   }
 
@@ -5411,21 +5434,28 @@ function scoreAgentStructuredShortcuts(agent: {
 
   const topPagination = pagination[0];
   if (topPagination) {
-    required += 3;
+    required += 6;
+    if (agent.topPaginationPath === topPagination.path) matched += 1;
     if (agent.topPaginationKind === topPagination.kind) matched += 1;
     if (agent.topPaginationLabel === topPagination.label) matched += 1;
     if (agent.topPaginationUrl === topPagination.url) matched += 1;
-  } else if (agent.topPaginationKind || agent.topPaginationLabel || agent.topPaginationUrl) {
+    if (agent.topPaginationCurrent === topPagination.current) matched += 1;
+    if (agent.topPaginationSelector === topPagination.selector) matched += 1;
+  } else if (agent.topPaginationPath || agent.topPaginationKind || agent.topPaginationLabel || agent.topPaginationUrl || typeof agent.topPaginationCurrent === "boolean" || agent.topPaginationSelector) {
     required += 1;
   }
 
   const topToc = toc[0];
   if (topToc) {
-    required += 3;
+    required += 7;
+    if (agent.topTocPath === topToc.path) matched += 1;
     if (agent.topTocTitle === topToc.title) matched += 1;
     if (agent.topTocItemCount === (topToc.items ?? []).length) matched += 1;
     if (agent.topTocText === topToc.text) matched += 1;
-  } else if (agent.topTocTitle || typeof agent.topTocItemCount === "number" || agent.topTocText) {
+    if (agent.topTocFirstItemLabel === topToc.items?.[0]?.label) matched += 1;
+    if (agent.topTocFirstItemUrl === topToc.items?.[0]?.url) matched += 1;
+    if (agent.topTocSelector === topToc.selector) matched += 1;
+  } else if (agent.topTocPath || agent.topTocTitle || typeof agent.topTocItemCount === "number" || agent.topTocText || agent.topTocFirstItemLabel || agent.topTocFirstItemUrl || agent.topTocSelector) {
     required += 1;
   }
 

@@ -102,7 +102,7 @@ table/list structure, form-field, description, value, resolved relation targets,
 shortcuts mirror the highest-priority page barrier.
 `averageAgentStructuredShortcutScore` tracks whether top-level structured
 content counts and `top*` shortcuts mirror the first table, FAQ, code block,
-resource, media item, section, navigation/media structure, and best structured
+resource, media item, section paths/selectors, navigation/media structure, and best structured
 read-target shortcut.
 `averageAgentReadTargetScore` tracks whether `agent.readTargets` points to
 payload fields that actually exist and are worth reading, and whether

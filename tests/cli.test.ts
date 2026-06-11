@@ -7045,7 +7045,9 @@ describe("cli", () => {
     expect(envelope.pageCheck.readability.reasons).toContain("1 content section");
     expect(envelope.agent).toMatchObject({
       sectionCount: 1,
+      topSectionPath: "pageCheck.sections[0]",
       topSectionHeading: "Latency budgets",
+      topSectionLevel: 2,
       topSectionText: "Latency budgets; Production agents should compare timeout ceilings before retrying a browser capture.; Keep follow-up checks short when the current payload already has enough evidence.",
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
@@ -7122,6 +7124,13 @@ describe("cli", () => {
       count: 3,
       reason: "Pagination and next/previous links extracted from rel metadata and page navigation.",
     }));
+    expect(envelope.agent).toMatchObject({
+      paginationCount: 3,
+      topPaginationPath: "pageCheck.pagination[0]",
+      topPaginationKind: "prev",
+      topPaginationLabel: "Previous page",
+      topPaginationUrl: "https://example.test/blog?page=1",
+    });
     expect(envelope.verification.bestEvidence).toMatchObject({
       field: "pagination",
       rank: 2,
@@ -7182,6 +7191,16 @@ describe("cli", () => {
       primary: true,
       reason: "Table-of-contents and in-page section links extracted from document navigation.",
     }));
+    expect(envelope.agent).toMatchObject({
+      tocCount: 1,
+      topTocPath: "pageCheck.toc[0]",
+      topTocTitle: "On this page",
+      topTocItemCount: 3,
+      topTocText: "Installation; Configuration; API reference",
+      topTocFirstItemLabel: "Installation",
+      topTocFirstItemUrl: "https://example.test/docs/guide#install",
+      topTocSelector: "nav:nth-of-type(1)",
+    });
     expect(envelope.agent.next.readValue).toMatchObject({
       path: "pageCheck.toc",
       value: [

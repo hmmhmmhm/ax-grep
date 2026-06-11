@@ -1155,17 +1155,27 @@ type AgentSummary = {
   topMediaKind?: PageMediaSummary["kind"];
   topMediaUrl?: string;
   topMediaText?: string;
+  topSectionPath?: string;
   topSectionHeading?: string;
+  topSectionLevel?: number;
   topSectionText?: string;
+  topSectionSelector?: string;
   topBreadcrumbPath?: string;
   topBreadcrumbText?: string;
   topBreadcrumbSource?: PageBreadcrumbSummary["source"];
+  topPaginationPath?: string;
   topPaginationKind?: PagePaginationSummary["kind"];
   topPaginationLabel?: string;
   topPaginationUrl?: string;
+  topPaginationCurrent?: boolean;
+  topPaginationSelector?: string;
+  topTocPath?: string;
   topTocTitle?: string;
   topTocItemCount?: number;
   topTocText?: string;
+  topTocFirstItemLabel?: string;
+  topTocFirstItemUrl?: string;
+  topTocSelector?: string;
   topEmbedKind?: PageEmbedSummary["kind"];
   topEmbedUrl?: string;
   topEmbedTitle?: string;
@@ -2942,9 +2952,13 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topCodeBlockText ? [`  topCodeBlockText: ${agent.topCodeBlockText}`] : []),
     ...(agent.topResourceUrl ? [`  topResourceUrl: ${agent.topResourceUrl}`] : []),
     ...(agent.topMediaUrl ? [`  topMediaUrl: ${agent.topMediaUrl}`] : []),
+    ...(agent.topSectionPath ? [`  topSectionPath: ${agent.topSectionPath}`] : []),
     ...(agent.topSectionHeading ? [`  topSectionHeading: ${agent.topSectionHeading}`] : []),
+    ...(typeof agent.topSectionLevel === "number" ? [`  topSectionLevel: ${agent.topSectionLevel}`] : []),
     ...(agent.topBreadcrumbText ? [`  topBreadcrumbText: ${agent.topBreadcrumbText}`] : []),
+    ...(agent.topPaginationPath ? [`  topPaginationPath: ${agent.topPaginationPath}`] : []),
     ...(agent.topPaginationUrl ? [`  topPaginationUrl: ${agent.topPaginationUrl}`] : []),
+    ...(agent.topTocPath ? [`  topTocPath: ${agent.topTocPath}`] : []),
     ...(agent.topTocText ? [`  topTocText: ${agent.topTocText}`] : []),
     ...(agent.topEmbedUrl ? [`  topEmbedUrl: ${agent.topEmbedUrl}`] : []),
     ...(agent.topTranscriptUrl ? [`  topTranscriptUrl: ${agent.topTranscriptUrl}`] : []),
@@ -10223,17 +10237,27 @@ function summarizeAgent(
     ...(pageCheck.media[0] ? { topMediaKind: pageCheck.media[0].kind } : {}),
     ...(pageCheck.media[0]?.url ? { topMediaUrl: pageCheck.media[0].url } : {}),
     ...(pageCheck.media[0]?.text ? { topMediaText: pageCheck.media[0].text } : {}),
+    ...(pageCheck.sections[0] ? { topSectionPath: pageCheck.sections[0].path } : {}),
     ...(pageCheck.sections[0]?.heading ? { topSectionHeading: pageCheck.sections[0].heading } : {}),
+    ...(pageCheck.sections[0] ? { topSectionLevel: pageCheck.sections[0].level } : {}),
     ...(pageCheck.sections[0]?.text ? { topSectionText: pageCheck.sections[0].text } : {}),
+    ...(pageCheck.sections[0]?.selector ? { topSectionSelector: pageCheck.sections[0].selector } : {}),
     ...(pageCheck.breadcrumbs[0] ? { topBreadcrumbPath: pageCheck.breadcrumbs[0].path } : {}),
     ...(pageCheck.breadcrumbs[0]?.text ? { topBreadcrumbText: pageCheck.breadcrumbs[0].text } : {}),
     ...(pageCheck.breadcrumbs[0] ? { topBreadcrumbSource: pageCheck.breadcrumbs[0].source } : {}),
+    ...(pageCheck.pagination[0] ? { topPaginationPath: pageCheck.pagination[0].path } : {}),
     ...(pageCheck.pagination[0] ? { topPaginationKind: pageCheck.pagination[0].kind } : {}),
     ...(pageCheck.pagination[0]?.label ? { topPaginationLabel: pageCheck.pagination[0].label } : {}),
     ...(pageCheck.pagination[0]?.url ? { topPaginationUrl: pageCheck.pagination[0].url } : {}),
+    ...(typeof pageCheck.pagination[0]?.current === "boolean" ? { topPaginationCurrent: pageCheck.pagination[0].current } : {}),
+    ...(pageCheck.pagination[0]?.selector ? { topPaginationSelector: pageCheck.pagination[0].selector } : {}),
+    ...(pageCheck.toc[0] ? { topTocPath: pageCheck.toc[0].path } : {}),
     ...(pageCheck.toc[0]?.title ? { topTocTitle: pageCheck.toc[0].title } : {}),
     ...(pageCheck.toc[0] ? { topTocItemCount: pageCheck.toc[0].items.length } : {}),
     ...(pageCheck.toc[0]?.text ? { topTocText: pageCheck.toc[0].text } : {}),
+    ...(pageCheck.toc[0]?.items[0]?.label ? { topTocFirstItemLabel: pageCheck.toc[0].items[0].label } : {}),
+    ...(pageCheck.toc[0]?.items[0]?.url ? { topTocFirstItemUrl: pageCheck.toc[0].items[0].url } : {}),
+    ...(pageCheck.toc[0]?.selector ? { topTocSelector: pageCheck.toc[0].selector } : {}),
     ...(pageCheck.embeds[0] ? { topEmbedKind: pageCheck.embeds[0].kind } : {}),
     ...(pageCheck.embeds[0]?.url ? { topEmbedUrl: pageCheck.embeds[0].url } : {}),
     ...(pageCheck.embeds[0]?.title ? { topEmbedTitle: pageCheck.embeds[0].title } : {}),
@@ -14590,17 +14614,27 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topMediaKind ? { topMediaKind: agent.topMediaKind } : {}),
     ...(agent.topMediaUrl ? { topMediaUrl: agent.topMediaUrl } : {}),
     ...(agent.topMediaText ? { topMediaText: agent.topMediaText } : {}),
+    ...(agent.topSectionPath ? { topSectionPath: agent.topSectionPath } : {}),
     ...(agent.topSectionHeading ? { topSectionHeading: agent.topSectionHeading } : {}),
+    ...(typeof agent.topSectionLevel === "number" ? { topSectionLevel: agent.topSectionLevel } : {}),
     ...(agent.topSectionText ? { topSectionText: agent.topSectionText } : {}),
+    ...(agent.topSectionSelector ? { topSectionSelector: agent.topSectionSelector } : {}),
     ...(agent.topBreadcrumbPath ? { topBreadcrumbPath: agent.topBreadcrumbPath } : {}),
     ...(agent.topBreadcrumbText ? { topBreadcrumbText: agent.topBreadcrumbText } : {}),
     ...(agent.topBreadcrumbSource ? { topBreadcrumbSource: agent.topBreadcrumbSource } : {}),
+    ...(agent.topPaginationPath ? { topPaginationPath: agent.topPaginationPath } : {}),
     ...(agent.topPaginationKind ? { topPaginationKind: agent.topPaginationKind } : {}),
     ...(agent.topPaginationLabel ? { topPaginationLabel: agent.topPaginationLabel } : {}),
     ...(agent.topPaginationUrl ? { topPaginationUrl: agent.topPaginationUrl } : {}),
+    ...(typeof agent.topPaginationCurrent === "boolean" ? { topPaginationCurrent: agent.topPaginationCurrent } : {}),
+    ...(agent.topPaginationSelector ? { topPaginationSelector: agent.topPaginationSelector } : {}),
+    ...(agent.topTocPath ? { topTocPath: agent.topTocPath } : {}),
     ...(agent.topTocTitle ? { topTocTitle: agent.topTocTitle } : {}),
     ...(typeof agent.topTocItemCount === "number" ? { topTocItemCount: agent.topTocItemCount } : {}),
     ...(agent.topTocText ? { topTocText: agent.topTocText } : {}),
+    ...(agent.topTocFirstItemLabel ? { topTocFirstItemLabel: agent.topTocFirstItemLabel } : {}),
+    ...(agent.topTocFirstItemUrl ? { topTocFirstItemUrl: agent.topTocFirstItemUrl } : {}),
+    ...(agent.topTocSelector ? { topTocSelector: agent.topTocSelector } : {}),
     ...(agent.topEmbedKind ? { topEmbedKind: agent.topEmbedKind } : {}),
     ...(agent.topEmbedUrl ? { topEmbedUrl: agent.topEmbedUrl } : {}),
     ...(agent.topEmbedTitle ? { topEmbedTitle: agent.topEmbedTitle } : {}),
@@ -15050,10 +15084,20 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topResourceUrl ? { topResourceUrl: agent.topResourceUrl } : {}),
     ...(agent.topMediaKind ? { topMediaKind: agent.topMediaKind } : {}),
     ...(agent.topMediaUrl ? { topMediaUrl: agent.topMediaUrl } : {}),
+    ...(agent.topSectionPath ? { topSectionPath: agent.topSectionPath } : {}),
     ...(agent.topSectionHeading ? { topSectionHeading: agent.topSectionHeading } : {}),
+    ...(typeof agent.topSectionLevel === "number" ? { topSectionLevel: agent.topSectionLevel } : {}),
+    ...(agent.topSectionSelector ? { topSectionSelector: agent.topSectionSelector } : {}),
     ...(agent.topBreadcrumbText ? { topBreadcrumbText: agent.topBreadcrumbText } : {}),
+    ...(agent.topPaginationPath ? { topPaginationPath: agent.topPaginationPath } : {}),
     ...(agent.topPaginationUrl ? { topPaginationUrl: agent.topPaginationUrl } : {}),
+    ...(typeof agent.topPaginationCurrent === "boolean" ? { topPaginationCurrent: agent.topPaginationCurrent } : {}),
+    ...(agent.topPaginationSelector ? { topPaginationSelector: agent.topPaginationSelector } : {}),
+    ...(agent.topTocPath ? { topTocPath: agent.topTocPath } : {}),
     ...(agent.topTocText ? { topTocText: agent.topTocText } : {}),
+    ...(agent.topTocFirstItemLabel ? { topTocFirstItemLabel: agent.topTocFirstItemLabel } : {}),
+    ...(agent.topTocFirstItemUrl ? { topTocFirstItemUrl: agent.topTocFirstItemUrl } : {}),
+    ...(agent.topTocSelector ? { topTocSelector: agent.topTocSelector } : {}),
     ...(agent.topEmbedUrl ? { topEmbedUrl: agent.topEmbedUrl } : {}),
     ...(agent.topTranscriptUrl ? { topTranscriptUrl: agent.topTranscriptUrl } : {}),
     ...(agent.topAuthorLinkUrl ? { topAuthorLinkUrl: agent.topAuthorLinkUrl } : {}),

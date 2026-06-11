@@ -74,7 +74,7 @@ Read these first:
   `agent.resourceCount`, `agent.mediaCount`, `agent.sectionCount`,
   `agent.breadcrumbCount`, `agent.paginationCount`, `agent.tocCount`,
   `agent.embedCount`, `agent.transcriptCount`, `agent.authorLinkCount`, and
-  matching `top*` fields: first structured page item shortcuts.
+  matching `top*` fields: first structured page item shortcuts with direct paths/selectors when available.
 - `agent.bestStructuredReadTarget*`: highest-priority structured content path to
   read before scanning all `readTargets`.
 - `agent.resultChoices` and `agent.sourceChoices`: ranked links to open.

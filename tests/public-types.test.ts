@@ -248,17 +248,27 @@ describe("public agent types", () => {
       | "topMediaKind"
       | "topMediaUrl"
       | "topMediaText"
+      | "topSectionPath"
       | "topSectionHeading"
+      | "topSectionLevel"
       | "topSectionText"
+      | "topSectionSelector"
       | "topBreadcrumbPath"
       | "topBreadcrumbText"
       | "topBreadcrumbSource"
+      | "topPaginationPath"
       | "topPaginationKind"
       | "topPaginationLabel"
       | "topPaginationUrl"
+      | "topPaginationCurrent"
+      | "topPaginationSelector"
+      | "topTocPath"
       | "topTocTitle"
       | "topTocItemCount"
       | "topTocText"
+      | "topTocFirstItemLabel"
+      | "topTocFirstItemUrl"
+      | "topTocSelector"
       | "topEmbedKind"
       | "topEmbedUrl"
       | "topEmbedTitle"
@@ -705,17 +715,27 @@ describe("public agent types", () => {
       topMediaKind: "image",
       topMediaUrl: "https://example.test/diagram.png",
       topMediaText: "Architecture diagram",
+      topSectionPath: "pageCheck.sections[0]",
       topSectionHeading: "Install",
+      topSectionLevel: 2,
       topSectionText: "Install the package.",
+      topSectionSelector: "h2:nth-of-type(1)",
       topBreadcrumbPath: "pageCheck.breadcrumbs[0]",
       topBreadcrumbText: "Docs > Install",
       topBreadcrumbSource: "html",
+      topPaginationPath: "pageCheck.pagination[0]",
       topPaginationKind: "next",
       topPaginationLabel: "Next",
       topPaginationUrl: "https://example.test/next",
+      topPaginationCurrent: false,
+      topPaginationSelector: "a[rel=\"next\"]",
+      topTocPath: "pageCheck.toc[0]",
       topTocTitle: "On this page",
       topTocItemCount: 2,
       topTocText: "Install; Configure",
+      topTocFirstItemLabel: "Install",
+      topTocFirstItemUrl: "https://example.test/install#install",
+      topTocSelector: "nav[aria-label=\"On this page\"]",
       topEmbedKind: "iframe",
       topEmbedUrl: "https://example.test/embed",
       topEmbedTitle: "Dashboard",
