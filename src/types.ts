@@ -562,6 +562,7 @@ export type AgentSummary = {
   semanticTopLandmark?: string;
   semanticTopNamedRole?: string;
   semanticTopInteractiveRole?: string;
+  semanticTopInteractivePath?: string;
   semanticTopInteractiveName?: string;
   semanticTopInteractiveDescription?: string;
   semanticTopInteractiveValue?: string;
@@ -569,9 +570,11 @@ export type AgentSummary = {
   semanticTopInteractiveDisabled?: boolean;
   semanticTopInteractiveSelector?: string;
   semanticTopLinkName?: string;
+  semanticTopLinkPath?: string;
   semanticTopLinkUrl?: string;
   semanticTopLinkSelector?: string;
   semanticTopButtonName?: string;
+  semanticTopButtonPath?: string;
   semanticTopButtonDescription?: string;
   semanticTopButtonSelector?: string;
   signalCount?: number;
