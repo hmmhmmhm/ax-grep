@@ -1688,6 +1688,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopTableDeclaredColumnCount?: number;
       semanticTopTableHeaders?: string[];
       semanticTopTableSampleCells?: string[];
+      semanticTopTableSampleCellRefs?: Array<{ text?: string; rowIndex?: number; columnIndex?: number; selector?: string }>;
       semanticTopTableSelector?: string;
       semanticTopListRole?: string;
       semanticTopListPath?: string;
@@ -4864,6 +4865,7 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopTableDeclaredColumnCount?: number;
   semanticTopTableHeaders?: string[];
   semanticTopTableSampleCells?: string[];
+  semanticTopTableSampleCellRefs?: Array<{ text?: string; rowIndex?: number; columnIndex?: number; selector?: string }>;
   semanticTopTableSelector?: string;
   semanticTopListRole?: string;
   semanticTopListPath?: string;
@@ -5479,7 +5481,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopImageSelector === image.selector) matched += 1;
   }
-  const table = Array.isArray(item.tableItems) ? item.tableItems[0] as { path?: unknown; role?: unknown; name?: unknown; rowCount?: unknown; cellCount?: unknown; declaredRowCount?: unknown; declaredColumnCount?: unknown; headers?: unknown; sampleCells?: unknown; selector?: unknown } | undefined : undefined;
+  const table = Array.isArray(item.tableItems) ? item.tableItems[0] as { path?: unknown; role?: unknown; name?: unknown; rowCount?: unknown; cellCount?: unknown; declaredRowCount?: unknown; declaredColumnCount?: unknown; headers?: unknown; sampleCells?: unknown; sampleCellRefs?: unknown; selector?: unknown } | undefined : undefined;
   if (table && typeof table.role === "string") {
     required += 1;
     if (agent?.semanticTopTableRole === table.role) matched += 1;
@@ -5515,6 +5517,10 @@ function scoreAgentSemanticSummary(agent: {
   if (table && Array.isArray(table.sampleCells)) {
     required += 1;
     if (JSON.stringify(agent?.semanticTopTableSampleCells) === JSON.stringify(table.sampleCells)) matched += 1;
+  }
+  if (table && Array.isArray(table.sampleCellRefs)) {
+    required += 1;
+    if (JSON.stringify(agent?.semanticTopTableSampleCellRefs) === JSON.stringify(table.sampleCellRefs)) matched += 1;
   }
   if (table && typeof table.selector === "string") {
     required += 1;

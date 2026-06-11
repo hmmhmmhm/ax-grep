@@ -542,6 +542,7 @@ describe("public agent types", () => {
       | "semanticTopTableDeclaredColumnCount"
       | "semanticTopTableHeaders"
       | "semanticTopTableSampleCells"
+      | "semanticTopTableSampleCellRefs"
       | "semanticTopTableSelector"
       | "semanticTopListRole"
       | "semanticTopListPath"
@@ -1158,6 +1159,7 @@ describe("public agent types", () => {
       semanticTopTableDeclaredColumnCount: 4,
       semanticTopTableHeaders: ["Plan", "Price"],
       semanticTopTableSampleCells: ["Pro", "$20"],
+      semanticTopTableSampleCellRefs: [{ text: "Pro", rowIndex: 2, columnIndex: 1, selector: "td:nth-of-type(1)" }],
       semanticTopTableSelector: "table:nth-of-type(1)",
       semanticTopListRole: "list",
       semanticTopListPath: "agent.semanticSummary.listItems[0]",
