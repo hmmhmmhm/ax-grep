@@ -609,6 +609,7 @@ describe("public agent types", () => {
       | "semanticTopChoiceName"
       | "semanticTopChoiceState"
       | "semanticTopChoiceSelected"
+      | "semanticTopChoiceCurrent"
       | "semanticTopChoiceLevel"
       | "semanticTopChoicePosInSet"
       | "semanticTopChoiceSetSize"
@@ -1241,8 +1242,9 @@ describe("public agent types", () => {
       semanticTopChoiceRole: "option",
       semanticTopChoicePath: "agent.semanticSummary.choiceItems[0]",
       semanticTopChoiceName: "Reports",
-      semanticTopChoiceState: "selected=true",
+      semanticTopChoiceState: "selected=true current=page",
       semanticTopChoiceSelected: true,
+      semanticTopChoiceCurrent: "page",
       semanticTopChoiceLevel: 2,
       semanticTopChoicePosInSet: 2,
       semanticTopChoiceSetSize: 5,

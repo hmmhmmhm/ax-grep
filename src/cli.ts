@@ -189,7 +189,7 @@ type AgentSemanticSummary = {
   descriptionItems: Array<{ path: string; role: string; name?: string; description: string; selector?: string }>;
   valueItems: Array<{ path: string; role: string; name?: string; value: string; selector?: string }>;
   relationItems: Array<{ path: string; role: string; name?: string; relation: "controls" | "owns" | "flowto" | "activeDescendant" | "details" | "errorMessage"; target: string; targetRole?: string; targetName?: string; targetSelector?: string; selector?: string }>;
-  choiceItems: Array<{ path: string; role: string; name: string; level?: number; posInSet?: number; setSize?: number; selector?: string; state?: SemanticNodeState }>;
+  choiceItems: Array<{ path: string; role: string; name: string; level?: number; posInSet?: number; setSize?: number; selected?: boolean; current?: SemanticNodeState["current"]; selector?: string; state?: SemanticNodeState }>;
   stateItems: Array<{ path: string; role: string; name?: string; state: string; stateRaw?: SemanticNodeState; selector?: string }>;
   unavailableItems: Array<{ path: string; tag: string; role?: string; name?: string; reason: string; selector?: string }>;
 };
@@ -1105,6 +1105,7 @@ type AgentSummary = {
   semanticTopChoiceName?: string;
   semanticTopChoiceState?: string;
   semanticTopChoiceSelected?: boolean;
+  semanticTopChoiceCurrent?: SemanticNodeState["current"];
   semanticTopChoiceLevel?: number;
   semanticTopChoicePosInSet?: number;
   semanticTopChoiceSetSize?: number;
@@ -3412,7 +3413,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.semanticTopDescriptionText) lines.push(`  semanticTopDescription: ${agent.semanticTopDescriptionPath ?? ""} ${agent.semanticTopDescriptionRole ?? ""}${agent.semanticTopDescriptionName ? `:${agent.semanticTopDescriptionName}` : ""} description=${agent.semanticTopDescriptionText}${agent.semanticTopDescriptionSelector ? ` selector=${agent.semanticTopDescriptionSelector}` : ""}`);
   if (agent.semanticTopValue) lines.push(`  semanticTopValue: ${agent.semanticTopValuePath ?? ""} ${agent.semanticTopValueRole ?? ""}${agent.semanticTopValueName ? `:${agent.semanticTopValueName}` : ""} value=${agent.semanticTopValue}${agent.semanticTopValueSelector ? ` selector=${agent.semanticTopValueSelector}` : ""}`);
   if (agent.semanticTopRelation) lines.push(`  semanticTopRelation: ${agent.semanticTopRelationPath ?? ""} ${agent.semanticTopRelationRole ?? ""}${agent.semanticTopRelationName ? `:${agent.semanticTopRelationName}` : ""} ${agent.semanticTopRelation}=${agent.semanticTopRelationTarget ?? ""}${agent.semanticTopRelationTargetRole ? ` targetRole=${agent.semanticTopRelationTargetRole}` : ""}${agent.semanticTopRelationTargetName ? ` targetName=${agent.semanticTopRelationTargetName}` : ""}${agent.semanticTopRelationTargetSelector ? ` targetSelector=${agent.semanticTopRelationTargetSelector}` : ""}${agent.semanticTopRelationSelector ? ` selector=${agent.semanticTopRelationSelector}` : ""}`);
-  if (agent.semanticTopChoiceRole) lines.push(`  semanticTopChoice: ${agent.semanticTopChoicePath ?? ""} ${agent.semanticTopChoiceRole}:${agent.semanticTopChoiceName ?? ""}${agent.semanticTopChoiceState ? ` state=${agent.semanticTopChoiceState}` : ""}${typeof agent.semanticTopChoiceLevel === "number" ? ` level=${agent.semanticTopChoiceLevel}` : ""}${typeof agent.semanticTopChoicePosInSet === "number" ? ` posInSet=${agent.semanticTopChoicePosInSet}` : ""}${typeof agent.semanticTopChoiceSetSize === "number" ? ` setSize=${agent.semanticTopChoiceSetSize}` : ""}${agent.semanticTopChoiceSelector ? ` selector=${agent.semanticTopChoiceSelector}` : ""}`);
+  if (agent.semanticTopChoiceRole) lines.push(`  semanticTopChoice: ${agent.semanticTopChoicePath ?? ""} ${agent.semanticTopChoiceRole}:${agent.semanticTopChoiceName ?? ""}${agent.semanticTopChoiceState ? ` state=${agent.semanticTopChoiceState}` : ""}${typeof agent.semanticTopChoiceSelected === "boolean" ? ` selected=${agent.semanticTopChoiceSelected}` : ""}${typeof agent.semanticTopChoiceCurrent !== "undefined" ? ` current=${agent.semanticTopChoiceCurrent}` : ""}${typeof agent.semanticTopChoiceLevel === "number" ? ` level=${agent.semanticTopChoiceLevel}` : ""}${typeof agent.semanticTopChoicePosInSet === "number" ? ` posInSet=${agent.semanticTopChoicePosInSet}` : ""}${typeof agent.semanticTopChoiceSetSize === "number" ? ` setSize=${agent.semanticTopChoiceSetSize}` : ""}${agent.semanticTopChoiceSelector ? ` selector=${agent.semanticTopChoiceSelector}` : ""}`);
   if (agent.semanticTopState) lines.push(`  semanticTopState: ${agent.semanticTopStatePath ?? ""} ${agent.semanticTopStateRole ?? ""}${agent.semanticTopStateName ? `:${agent.semanticTopStateName}` : ""} state=${agent.semanticTopState}${typeof agent.semanticTopStateBusy === "boolean" ? ` busy=${agent.semanticTopStateBusy}` : ""}${typeof agent.semanticTopStateMultiselectable === "boolean" ? ` multiselectable=${agent.semanticTopStateMultiselectable}` : ""}${agent.semanticTopStateSort ? ` sort=${agent.semanticTopStateSort}` : ""}${typeof agent.semanticTopStateGrabbed === "boolean" ? ` grabbed=${agent.semanticTopStateGrabbed}` : ""}${agent.semanticTopStateDropEffect ? ` dropEffect=${agent.semanticTopStateDropEffect}` : ""}${agent.semanticTopStateCurrent ? ` current=${agent.semanticTopStateCurrent}` : ""}${agent.semanticTopStateControls ? ` controls=${agent.semanticTopStateControls}` : ""}${agent.semanticTopStateHaspopup ? ` haspopup=${agent.semanticTopStateHaspopup}` : ""}${typeof agent.semanticTopStateExpanded === "boolean" ? ` expanded=${agent.semanticTopStateExpanded}` : ""}${typeof agent.semanticTopStatePressed !== "undefined" ? ` pressed=${agent.semanticTopStatePressed}` : ""}${agent.semanticTopStateInvalid ? ` invalid=${agent.semanticTopStateInvalid}` : ""}${agent.semanticTopStateLive ? ` live=${agent.semanticTopStateLive}` : ""}${typeof agent.semanticTopStateModal === "boolean" ? ` modal=${agent.semanticTopStateModal}` : ""}${agent.semanticTopStateOrientation ? ` orientation=${agent.semanticTopStateOrientation}` : ""}${typeof agent.semanticTopStateValueMin === "number" ? ` valueMin=${agent.semanticTopStateValueMin}` : ""}${typeof agent.semanticTopStateValueMax === "number" ? ` valueMax=${agent.semanticTopStateValueMax}` : ""}${typeof agent.semanticTopStateValueNow === "number" ? ` valueNow=${agent.semanticTopStateValueNow}` : ""}${agent.semanticTopStateValueText ? ` valueText=${agent.semanticTopStateValueText}` : ""}${agent.semanticTopStateSelector ? ` selector=${agent.semanticTopStateSelector}` : ""}`);
   if (agent.semanticTopUnavailableReason) lines.push(`  semanticTopUnavailable: ${agent.semanticTopUnavailablePath ?? ""} ${agent.semanticTopUnavailableTag ?? ""}${agent.semanticTopUnavailableRole ? ` role=${agent.semanticTopUnavailableRole}` : ""}${agent.semanticTopUnavailableName ? ` name=${agent.semanticTopUnavailableName}` : ""} reason=${agent.semanticTopUnavailableReason}${agent.semanticTopUnavailableSelector ? ` selector=${agent.semanticTopUnavailableSelector}` : ""}`);
   for (const reason of agent.readabilityReasons) lines.push(`  readabilityReason: ${reason}`);
@@ -9890,6 +9891,8 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
           ...(typeof level === "number" ? { level } : {}),
           ...(typeof posInSet === "number" ? { posInSet } : {}),
           ...(typeof setSize === "number" ? { setSize } : {}),
+          ...(typeof node.state?.selected === "boolean" ? { selected: node.state.selected } : {}),
+          ...(typeof node.state?.current !== "undefined" ? { current: node.state.current } : {}),
           ...(node.state ? { state: node.state } : {}),
           ...(node.selector ? { selector: node.selector } : {}),
         });
@@ -10681,6 +10684,7 @@ function summarizeAgent(
     ...(topSemanticChoice?.name ? { semanticTopChoiceName: topSemanticChoice.name } : {}),
     ...(topSemanticChoiceState ? { semanticTopChoiceState: topSemanticChoiceState } : {}),
     ...(typeof topSemanticChoice?.state?.selected === "boolean" ? { semanticTopChoiceSelected: topSemanticChoice.state.selected } : {}),
+    ...(typeof topSemanticChoice?.state?.current !== "undefined" ? { semanticTopChoiceCurrent: topSemanticChoice.state.current } : {}),
     ...(typeof topSemanticChoice?.level === "number" ? { semanticTopChoiceLevel: topSemanticChoice.level } : {}),
     ...(typeof topSemanticChoice?.posInSet === "number" ? { semanticTopChoicePosInSet: topSemanticChoice.posInSet } : {}),
     ...(typeof topSemanticChoice?.setSize === "number" ? { semanticTopChoiceSetSize: topSemanticChoice.setSize } : {}),
@@ -15233,6 +15237,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.semanticTopChoiceName ? { semanticTopChoiceName: agent.semanticTopChoiceName } : {}),
     ...(agent.semanticTopChoiceState ? { semanticTopChoiceState: agent.semanticTopChoiceState } : {}),
     ...(typeof agent.semanticTopChoiceSelected === "boolean" ? { semanticTopChoiceSelected: agent.semanticTopChoiceSelected } : {}),
+    ...(typeof agent.semanticTopChoiceCurrent !== "undefined" ? { semanticTopChoiceCurrent: agent.semanticTopChoiceCurrent } : {}),
     ...(typeof agent.semanticTopChoiceLevel === "number" ? { semanticTopChoiceLevel: agent.semanticTopChoiceLevel } : {}),
     ...(typeof agent.semanticTopChoicePosInSet === "number" ? { semanticTopChoicePosInSet: agent.semanticTopChoicePosInSet } : {}),
     ...(typeof agent.semanticTopChoiceSetSize === "number" ? { semanticTopChoiceSetSize: agent.semanticTopChoiceSetSize } : {}),
@@ -15892,6 +15897,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.semanticTopChoiceName ? { semanticTopChoiceName: agent.semanticTopChoiceName } : {}),
     ...(agent.semanticTopChoiceState ? { semanticTopChoiceState: agent.semanticTopChoiceState } : {}),
     ...(typeof agent.semanticTopChoiceSelected === "boolean" ? { semanticTopChoiceSelected: agent.semanticTopChoiceSelected } : {}),
+    ...(typeof agent.semanticTopChoiceCurrent !== "undefined" ? { semanticTopChoiceCurrent: agent.semanticTopChoiceCurrent } : {}),
     ...(typeof agent.semanticTopChoiceLevel === "number" ? { semanticTopChoiceLevel: agent.semanticTopChoiceLevel } : {}),
     ...(typeof agent.semanticTopChoicePosInSet === "number" ? { semanticTopChoicePosInSet: agent.semanticTopChoicePosInSet } : {}),
     ...(typeof agent.semanticTopChoiceSetSize === "number" ? { semanticTopChoiceSetSize: agent.semanticTopChoiceSetSize } : {}),

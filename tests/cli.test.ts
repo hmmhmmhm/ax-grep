@@ -4283,7 +4283,7 @@ describe("cli", () => {
           <input id="q" type="search" aria-label="Archive search" aria-activedescendant="suggestion-1" aria-details="q-details" aria-errormessage="q-error">
           <p id="q-details">Search across public and private archive records.</p>
           <p id="q-error">Use at least two letters.</p>
-          <div id="suggestion-1" role="option" aria-level="2">Quarterly reports</div>
+          <div id="suggestion-1" role="option" aria-selected="true" aria-current="page" aria-level="2">Quarterly reports</div>
           <p>Readable page content for relation routing.</p>
         </main>
       `, { headers: { "content-type": "text/html" } }),
@@ -4331,6 +4331,9 @@ describe("cli", () => {
         path: "agent.semanticSummary.choiceItems[0]",
         role: "option",
         name: "Quarterly reports",
+        selected: true,
+        current: "page",
+        state: expect.objectContaining({ selected: true, current: "page" }),
         level: 2,
         selector: "#suggestion-1",
       }),
@@ -4340,6 +4343,9 @@ describe("cli", () => {
       semanticTopChoiceRole: "option",
       semanticTopChoicePath: "agent.semanticSummary.choiceItems[0]",
       semanticTopChoiceName: "Quarterly reports",
+      semanticTopChoiceState: "selected=true current=page",
+      semanticTopChoiceSelected: true,
+      semanticTopChoiceCurrent: "page",
       semanticTopChoiceLevel: 2,
       semanticTopChoiceSelector: "#suggestion-1",
       semanticTopRelationRole: "searchbox",

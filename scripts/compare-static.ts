@@ -1757,6 +1757,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopChoiceName?: string;
       semanticTopChoiceState?: string;
       semanticTopChoiceSelected?: boolean;
+      semanticTopChoiceCurrent?: boolean | string;
       semanticTopChoiceLevel?: number;
       semanticTopChoicePosInSet?: number;
       semanticTopChoiceSetSize?: number;
@@ -4953,6 +4954,7 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopChoiceName?: string;
   semanticTopChoiceState?: string;
   semanticTopChoiceSelected?: boolean;
+  semanticTopChoiceCurrent?: boolean | string;
   semanticTopChoiceLevel?: number;
   semanticTopChoicePosInSet?: number;
   semanticTopChoiceSetSize?: number;
@@ -5818,7 +5820,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopRelationSelector === relationItem.selector) matched += 1;
   }
-  const choice = Array.isArray(item.choiceItems) ? item.choiceItems[0] as { path?: unknown; role?: unknown; name?: unknown; state?: unknown; level?: unknown; posInSet?: unknown; setSize?: unknown; selector?: unknown } | undefined : undefined;
+  const choice = Array.isArray(item.choiceItems) ? item.choiceItems[0] as { path?: unknown; role?: unknown; name?: unknown; state?: unknown; selected?: unknown; current?: unknown; level?: unknown; posInSet?: unknown; setSize?: unknown; selector?: unknown } | undefined : undefined;
   if (choice && typeof choice.role === "string") {
     required += 1;
     if (agent?.semanticTopChoiceRole === choice.role) matched += 1;
@@ -5845,6 +5847,19 @@ function scoreAgentSemanticSummary(agent: {
       required += 1;
       if (agent?.semanticTopChoiceSelected === selected) matched += 1;
     }
+    const current = (choice.state as { current?: unknown }).current;
+    if (typeof current === "string" || typeof current === "boolean") {
+      required += 1;
+      if (agent?.semanticTopChoiceCurrent === current) matched += 1;
+    }
+  }
+  if (choice && typeof choice.selected === "boolean") {
+    required += 1;
+    if (agent?.semanticTopChoiceSelected === choice.selected) matched += 1;
+  }
+  if (choice && (typeof choice.current === "string" || typeof choice.current === "boolean")) {
+    required += 1;
+    if (agent?.semanticTopChoiceCurrent === choice.current) matched += 1;
   }
   if (choice && typeof choice.level === "number") {
     required += 1;
