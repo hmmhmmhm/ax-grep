@@ -15,11 +15,31 @@ describe("compare-static fixture comparisons", () => {
     expect(report.comparisons.every((comparison) => comparison.fetch.source === "fixture")).toBe(true);
     expect(report.comparisons.every((comparison) => comparison.warnings.includes("used fixture HTML"))).toBe(true);
     expect(report.comparisons.every((comparison) => comparison.warnings.every((warning) => !warning.includes("agent-browser")))).toBe(true);
+    expect(report.comparisons.map((comparison) => comparison.category).sort()).toEqual([
+      "Synthetic action target gate",
+      "Synthetic browser HTML retry gate",
+      "Synthetic hidden metadata gate",
+      "Synthetic search open gate",
+      "Synthetic search refine gate",
+      "Synthetic site search recovery gate",
+    ]);
     expect(report.gateSummary.averageCliAgentScore).toBeGreaterThanOrEqual(0.8);
     expect(report.gateSummary.averageAgentExecutorScore).toBeGreaterThanOrEqual(0.995);
     expect(report.gateSummary.averageActionSchemaScore).toBe(1);
     expect(report.gateSummary.averageSearchResultActionScore).toBe(1);
     expect(report.gateSummary.averageAgentHiddenSignalScore).toBe(1);
     expect(checkComparisonGateReport(report)).toEqual([]);
+
+    expect(summaryFor(report, "Synthetic search open gate")?.agentPrimaryAction).toBe("open-result");
+    expect(summaryFor(report, "Synthetic search refine gate")?.agentPrimaryAction).toBe("refine-search");
+    expect(summaryFor(report, "Synthetic site search recovery gate")?.agentPrimaryAction).toBe("open-site-search");
+    expect(summaryFor(report, "Synthetic browser HTML retry gate")?.agentPrimaryAction).toBe("retry-with-browser-html");
+    expect(summaryFor(report, "Synthetic browser HTML retry gate")?.score).toBeGreaterThanOrEqual(0.8);
+    expect(summaryFor(report, "Synthetic action target gate")?.pageCheck.hiddenSignalCount).toBeGreaterThan(0);
+    expect(summaryFor(report, "Synthetic action target gate")?.actionExecutionCounts["read-current"]).toBeGreaterThan(0);
   });
 });
+
+function summaryFor(report: Awaited<ReturnType<typeof runStaticComparisons>>, category: string) {
+  return report.comparisons.find((comparison) => comparison.category === category)?.cliAgentSummary;
+}

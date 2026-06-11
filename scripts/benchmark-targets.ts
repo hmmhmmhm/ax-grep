@@ -28,9 +28,13 @@ const syntheticSearchHtml = `
 
 const syntheticSearchRefineHtml = `
   <main>
-    <div class="result" tpl="se_com_default">
+    <div class="b_algo">
       <h3><a href="https://target.example/first">Unrelated Baidu Result</a></h3>
-      <div class="c-abstract">This result does not contain the requested text.</div>
+      <p class="b_snippet">This result covers nearby background but not the requested phrase.</p>
+    </div>
+    <div class="b_algo">
+      <h3><a href="https://target.example/second">Background source</a></h3>
+      <p class="b_snippet">Another result that helps the agent choose an alternate result.</p>
     </div>
   </main>
 `;
@@ -45,6 +49,49 @@ const syntheticSiteSearchHtml = `
       <button type="submit">Search</button>
     </form>
   </main>
+`;
+
+const syntheticActionTargetHtml = `
+  <html>
+    <head>
+      <title>Action target report</title>
+      <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "Dataset",
+          "name": "Quarterly agent report",
+          "potentialAction": [
+            {
+              "@type": "SearchAction",
+              "name": "Search reports",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://actions.example/reports?q={search_term_string}",
+                "httpMethod": "GET"
+              },
+              "query-input": "required name=search_term_string"
+            },
+            {
+              "@type": "DownloadAction",
+              "name": "Download CSV",
+              "target": {
+                "@type": "EntryPoint",
+                "url": "https://actions.example/report.csv",
+                "encodingType": "text/csv"
+              }
+            }
+          ]
+        }
+      </script>
+    </head>
+    <body>
+      <main>
+        <h1>Quarterly agent report</h1>
+        <p>This page exposes structured action targets that are not visible as ordinary accessibility-tree controls.</p>
+        <a href="https://actions.example/report-source">Source dataset</a>
+      </main>
+    </body>
+  </html>
 `;
 
 const syntheticBlockedHtml = "";
@@ -208,15 +255,6 @@ export const agentFixtureTargets: BenchmarkTarget[] = [
     html: syntheticSearchHtml,
   },
   {
-    category: "Synthetic hidden metadata gate",
-    url: "https://hidden.example/agent",
-    html: syntheticHiddenMetadataHtml,
-  },
-];
-
-export const agentExecutorTargets: BenchmarkTarget[] = [
-  ...agentFixtureTargets,
-  {
     category: "Synthetic search refine gate",
     url: "https://www.baidu.com/s?wd=ax-lite",
     html: syntheticSearchRefineHtml,
@@ -229,10 +267,24 @@ export const agentExecutorTargets: BenchmarkTarget[] = [
     findQueries: ["target report"],
   },
   {
+    category: "Synthetic hidden metadata gate",
+    url: "https://hidden.example/agent",
+    html: syntheticHiddenMetadataHtml,
+  },
+  {
+    category: "Synthetic action target gate",
+    url: "https://actions.example/report",
+    html: syntheticActionTargetHtml,
+  },
+  {
     category: "Synthetic browser HTML retry gate",
     url: "https://blocked.example/app-shell",
     html: syntheticBlockedHtml,
   },
+];
+
+export const agentExecutorTargets: BenchmarkTarget[] = [
+  ...agentFixtureTargets,
   {
     category: "Example baseline",
     url: "https://example.com",

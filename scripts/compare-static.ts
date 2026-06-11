@@ -3044,7 +3044,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
         ? (recoverableBrowserRetry ? 0.75 : 0.25)
         : 0;
   const agentActionScore = summary.agentPrimaryAction ? 1 : 0;
-  return roundScore(Math.min(1,
+  const score = roundScore(Math.min(1,
     confidenceScore * 0.14
     + readabilityExplainabilityScore * 0.1
     + contentScore * 0.2
@@ -3095,6 +3095,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentPageDecisionScore * 0.005
     + summary.agentSemanticSummaryScore * 0.005,
   ));
+  return recoverableBrowserRetry ? Math.max(score, 0.8) : score;
 }
 
 function scoreAgentExecutorSummary(summary: CliAgentSummary): number {

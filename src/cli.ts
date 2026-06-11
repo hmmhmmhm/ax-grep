@@ -8700,7 +8700,7 @@ function summarizeAgent(
   const citations = summarizeAgentCitations(analysis.kind, pageCheck, verification, primaryAction, recommendedResult, sourceSearch);
   const searchDecision = summarizeAgentSearchDecision(analysis, results, recommendedResult, primaryAction);
   const pageDecision = summarizeAgentPageDecision(analysis, pageCheck, primaryAction);
-  const resultChoices = summarizeAgentResultChoices(hasUsableSearchResults ? results : [], recommendedResult, primaryAction, sourceSearch);
+  const resultChoices = summarizeAgentResultChoices(hasUsableSearchResults ? results : [], recommendedResult, primaryAction, sourceSearch, agentMode, findQueries, timeoutMs, userAgent);
   const sourceChoices = summarizeAgentSourceChoices(analysis.kind, pageCheck.sourceLinks, primaryAction, agentMode, findQueries, timeoutMs, userAgent);
   const next = summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch, semanticSummary));
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
@@ -8946,6 +8946,10 @@ function summarizeAgentResultChoices(
   recommendedResult: ResultSummary | undefined,
   primaryAction: SuggestedAction | undefined,
   sourceSearch?: SourceSearchSummary,
+  agentMode = false,
+  findQueries: string[] = [],
+  timeoutMs?: number,
+  userAgent?: string,
 ): AgentResultChoice[] {
   if (results.length === 0) return [];
   return selectCompactSearchResults(results, recommendedResult).map((result, index) => {
@@ -8961,7 +8965,7 @@ function summarizeAgentResultChoices(
       result.rank,
       sourceSearch.timeoutMs,
       sourceSearch.userAgent,
-    ) : undefined;
+    ) : pageCommandSpec(result.url, agentMode, false, findQueries, timeoutMs, userAgent);
     return {
       id: `r${result.rank}`,
       path: `searchResults[${index}]`,
