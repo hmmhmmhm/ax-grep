@@ -81,6 +81,8 @@ describe("public agent types", () => {
       target,
       resultChoices: [resultChoice],
       sourceChoices: [sourceChoice],
+      verificationFoundQueries: ["present"],
+      verificationMissingQueries: ["missing"],
       answerEvidence: [evidence],
       sourceSearch: {
         query: "source",
@@ -101,6 +103,7 @@ describe("public agent types", () => {
     expect(handoff.target?.selector).toBe("main > h1");
     expect(handoff.resultChoices?.[0]?.snippet).toBe("Result summary");
     expect(handoff.sourceChoices?.[0]?.selector).toBe("a:nth-of-type(1)");
+    expect(handoff.verificationMissingQueries).toEqual(["missing"]);
     expect(handoff.answerEvidence?.[0]?.text).toBe("Readable evidence");
   });
 

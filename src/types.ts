@@ -266,6 +266,8 @@ export type AgentExecutorStep = {
   maxSuggestedIterations: number;
   expectedOutcome: AgentExpectedOutcomeKind;
   useCitationIds?: string[];
+  verificationFoundQueries?: string[];
+  verificationMissingQueries?: string[];
   commandArgs?: string[];
   afterInteractionCommandArgs?: string[];
   readFrom?: string;
@@ -294,6 +296,8 @@ export type AgentHandoff = {
   expectedOutcome: AgentExpectedOutcomeKind;
   reason: string;
   useCitationIds?: string[];
+  verificationFoundQueries?: string[];
+  verificationMissingQueries?: string[];
   answerEvidence?: AgentCitation[];
   resultChoices?: AgentResultChoice[];
   sourceChoices?: AgentSourceChoice[];

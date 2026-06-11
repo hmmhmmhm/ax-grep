@@ -245,6 +245,8 @@ type CliAgentExecutorShape = {
   maxSuggestedIterations?: number;
   expectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
   useCitationIds?: unknown[];
+  verificationFoundQueries?: unknown[];
+  verificationMissingQueries?: unknown[];
   commandArgs?: unknown[];
   afterInteractionCommandArgs?: unknown[];
   readFrom?: string;
@@ -277,6 +279,8 @@ type CliAgentHandoffShape = {
   expectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
   reason?: string;
   useCitationIds?: unknown[];
+  verificationFoundQueries?: unknown[];
+  verificationMissingQueries?: unknown[];
   answerEvidence?: CliAgentCitationShape[];
   resultChoices?: CliAgentResultChoiceShape[];
   sourceChoices?: CliAgentSourceChoiceShape[];
@@ -1183,6 +1187,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       item.sourceSearch,
       item.agent?.signals ?? [],
       item.agent?.qualityGates ?? [],
+      item.agent?.verificationFoundQueries ?? [],
+      item.agent?.verificationMissingQueries ?? [],
     ),
     agentExecutionPlanScore: scoreAgentExecutionPlan(item.agent?.executionPlan, item.agent?.next, item.agent?.answerPlan, item.agent?.canUseFetchedHtml, item.agent?.needsBrowserHtml, item.agent?.expectedOutcome),
     agentExpectedOutcomeScore: scoreAgentExpectedOutcome(item.agent?.expectedOutcome, item.agent?.primaryAction),
@@ -1995,6 +2001,8 @@ function scoreAgentHandoff(
   sourceSearch?: unknown,
   signals: unknown[] = [],
   qualityGates: unknown[] = [],
+  verificationFoundQueries: unknown[] = [],
+  verificationMissingQueries: unknown[] = [],
 ): number {
   if (!handoff || !next?.loop || !plan || !answerPlan) return 0;
   let required = 14;
@@ -2021,6 +2029,14 @@ function scoreAgentHandoff(
     required += 2;
     if (JSON.stringify(handoff.useCitationIds) === JSON.stringify(answerPlan.useCitationIds)) matched += 1;
     if (scoreHandoffAnswerEvidence(handoff.answerEvidence, answerEvidence) === 1) matched += 1;
+  }
+  if (verificationFoundQueries.length > 0) {
+    required += 1;
+    if (JSON.stringify(handoff.verificationFoundQueries) === JSON.stringify(verificationFoundQueries)) matched += 1;
+  }
+  if (verificationMissingQueries.length > 0) {
+    required += 1;
+    if (JSON.stringify(handoff.verificationMissingQueries) === JSON.stringify(verificationMissingQueries)) matched += 1;
   }
   if (resultChoices.length > 0) {
     required += 1;

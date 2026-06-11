@@ -8780,7 +8780,7 @@ function summarizeAgent(
   const usabilityScore = agentUsabilityScore(status, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error);
   const signals = summarizeAgentSignals(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, fetched, error);
   const qualityGates = summarizeAgentQualityGates(status, analysis, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error, usabilityScore, evidenceQualityScore, sourceQualityScore);
-  const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, compactAgentSourceSearch(sourceSearch), signals, qualityGates);
+  const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, compactAgentSourceSearch(sourceSearch), signals, qualityGates, verification.foundQueries, verification.missingQueries);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   const agent: AgentSummary = {
     contract: agentContract,
@@ -9415,6 +9415,8 @@ function summarizeAgentExecutor(
     maxSuggestedIterations: next.loop.maxSuggestedIterations,
     expectedOutcome: executionPlan.expectedOutcome,
     ...(answerPlan.useCitationIds.length > 0 ? { useCitationIds: answerPlan.useCitationIds } : {}),
+    ...(handoff.verificationFoundQueries && handoff.verificationFoundQueries.length > 0 ? { verificationFoundQueries: handoff.verificationFoundQueries } : {}),
+    ...(handoff.verificationMissingQueries && handoff.verificationMissingQueries.length > 0 ? { verificationMissingQueries: handoff.verificationMissingQueries } : {}),
     ...(next.commandArgs ? { commandArgs: next.commandArgs } : {}),
     ...(next.afterInteractionCommandArgs ? { afterInteractionCommandArgs: next.afterInteractionCommandArgs } : {}),
     ...(next.readFrom ? { readFrom: next.readFrom } : {}),
@@ -9436,6 +9438,8 @@ function summarizeAgentHandoff(
   sourceSearch?: AgentSourceSearch,
   signals: AgentSignal[] = [],
   qualityGates: AgentQualityGate[] = [],
+  verificationFoundQueries: string[] = [],
+  verificationMissingQueries: string[] = [],
 ): AgentHandoff {
   return {
     instruction: agentHandoffInstruction(next, executionPlan, answerPlan),
@@ -9454,6 +9458,8 @@ function summarizeAgentHandoff(
     expectedOutcome: executionPlan.expectedOutcome,
     reason: next.loop.reason || next.reason || executionPlan.reason,
     ...(answerPlan.useCitationIds.length > 0 ? { useCitationIds: answerPlan.useCitationIds } : {}),
+    ...(verificationFoundQueries.length > 0 ? { verificationFoundQueries } : {}),
+    ...(verificationMissingQueries.length > 0 ? { verificationMissingQueries } : {}),
     ...(answerEvidence.length > 0 ? { answerEvidence } : {}),
     ...(resultChoices.length > 0 ? { resultChoices } : {}),
     ...(sourceChoices.length > 0 ? { sourceChoices } : {}),
@@ -12573,6 +12579,8 @@ function compactAgentBriefHandoff(handoff: AgentHandoff, primaryUrl?: string, se
     expectedOutcome: handoff.expectedOutcome,
     reason: handoff.reason,
     ...(handoff.useCitationIds && handoff.useCitationIds.length > 0 ? { useCitationIds: handoff.useCitationIds } : {}),
+    ...(handoff.verificationFoundQueries && handoff.verificationFoundQueries.length > 0 ? { verificationFoundQueries: handoff.verificationFoundQueries } : {}),
+    ...(handoff.verificationMissingQueries && handoff.verificationMissingQueries.length > 0 ? { verificationMissingQueries: handoff.verificationMissingQueries } : {}),
     ...(handoff.readFrom ? { readFrom: handoff.readFrom } : {}),
     ...(handoff.commandArgs ? { commandArgs: handoff.commandArgs } : {}),
     ...(handoff.afterInteractionCommandArgs ? { afterInteractionCommandArgs: handoff.afterInteractionCommandArgs } : {}),

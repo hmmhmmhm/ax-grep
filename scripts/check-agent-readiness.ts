@@ -152,6 +152,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "minAgentExecutorScore",
           "averageAgentFormActionChoiceScore",
           "averageAgentVerificationQueryScore",
+          "agent.handoff",
+          "agent.executor",
         ]);
       },
     ),
@@ -185,6 +187,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "sourceLinkRef",
           "formChoices",
           "actionTargetChoices",
+          "executor",
+          "handoff",
           "forms",
           "actionTargets",
         ]);

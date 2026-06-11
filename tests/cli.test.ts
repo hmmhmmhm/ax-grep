@@ -7726,6 +7726,14 @@ npx ax-grep https://example.test --agent</code></pre>
       verificationStatus: "partial",
       verificationFoundQueries: ["page checking summary"],
       verificationMissingQueries: ["not present"],
+      executor: {
+        verificationFoundQueries: ["page checking summary"],
+        verificationMissingQueries: ["not present"],
+      },
+      handoff: {
+        verificationFoundQueries: ["page checking summary"],
+        verificationMissingQueries: ["not present"],
+      },
       primaryAction: {
         action: "open-source-link",
         url: "https://source.example/report",
