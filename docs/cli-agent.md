@@ -44,6 +44,8 @@ Read these first:
 - `agent.handoffActionName`, `agent.handoffOperation`, and related `handoff*`
   shortcuts: top-level mirror of the brief handoff contract, loop decision, and
   target, terminal/continue flags.
+- `agent.runbook*`: top-level loop reason, mode, confidence, answer status, and
+  iteration shortcuts for `--agent-brief` routing without expanding `runbook`.
 - `agent.next`: canonical loop payload with command, read target, or browser step.
 - `agent.expectedOutcome*` and `agent.executionPlan*`: top-level success
   condition and execution-plan shortcuts for fast routing without expanding

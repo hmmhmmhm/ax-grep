@@ -483,6 +483,21 @@ export type AgentSummary = {
   continuationMode: AgentContinuationMode;
   next: AgentNext;
   runbook: AgentRunbook;
+  runbookDecision?: AgentRunbook["decision"];
+  runbookMode?: AgentRunbook["mode"];
+  runbookOperation?: AgentRunbook["operation"];
+  runbookActionName?: string;
+  runbookReason?: string;
+  runbookConfidence?: AgentRunbook["confidence"];
+  runbookAnswerStatus?: AgentRunbook["answerStatus"];
+  runbookAnswerReady?: boolean;
+  runbookShouldContinue?: boolean;
+  runbookTerminal?: boolean;
+  runbookMaxSuggestedIterations?: number;
+  runbookExpectedOutcome?: AgentRunbook["expectedOutcome"];
+  runbookReadFrom?: string;
+  runbookCommandArgs?: string[];
+  runbookUrl?: string;
   executor: AgentExecutorStep;
   handoff?: AgentHandoff;
   expectedOutcome: AgentExpectedOutcome;
@@ -703,6 +718,7 @@ export type AgentContractFeature =
   | "next.readValue"
   | "next.target"
   | "runbook"
+  | "runbook.shortcuts"
   | "executor"
   | "handoff"
   | "handoff.answerEvidence"

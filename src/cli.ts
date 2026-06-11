@@ -825,6 +825,21 @@ type AgentSummary = {
   continuationMode: AgentContinuationMode;
   next: AgentNext;
   runbook: AgentRunbook;
+  runbookDecision?: AgentRunbook["decision"];
+  runbookMode?: AgentRunbook["mode"];
+  runbookOperation?: AgentRunbook["operation"];
+  runbookActionName?: string;
+  runbookReason?: string;
+  runbookConfidence?: AgentRunbook["confidence"];
+  runbookAnswerStatus?: AgentRunbook["answerStatus"];
+  runbookAnswerReady?: boolean;
+  runbookShouldContinue?: boolean;
+  runbookTerminal?: boolean;
+  runbookMaxSuggestedIterations?: number;
+  runbookExpectedOutcome?: AgentRunbook["expectedOutcome"];
+  runbookReadFrom?: string;
+  runbookCommandArgs?: string[];
+  runbookUrl?: string;
   executor: AgentExecutorStep;
   handoff: AgentHandoff;
   expectedOutcome: AgentExpectedOutcome;
@@ -1047,6 +1062,7 @@ const agentContract: AgentContract = {
     "next.readValue",
     "next.target",
     "runbook",
+    "runbook.shortcuts",
     "executor",
     "handoff",
     "handoff.answerEvidence",
@@ -2473,6 +2489,21 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  routingIntent: ${agent.routingIntent}`,
     `  continuationMode: ${agent.continuationMode}`,
     `  nextMode: ${agent.next.mode}`,
+    `  runbookDecision: ${agent.runbook.decision}`,
+    `  runbookMode: ${agent.runbook.mode}`,
+    `  runbookOperation: ${agent.runbook.operation}`,
+    ...(agent.runbook.action ? [`  runbookActionName: ${agent.runbook.action}`] : []),
+    `  runbookReason: ${agent.runbook.reason}`,
+    `  runbookConfidence: ${agent.runbook.confidence}`,
+    `  runbookAnswerStatus: ${agent.runbook.answerStatus}`,
+    `  runbookAnswerReady: ${agent.runbook.answerReady}`,
+    `  runbookShouldContinue: ${agent.runbook.shouldContinue}`,
+    `  runbookTerminal: ${agent.runbook.terminal}`,
+    `  runbookMaxSuggestedIterations: ${agent.runbook.maxSuggestedIterations}`,
+    `  runbookExpectedOutcome: ${agent.runbook.expectedOutcome}`,
+    ...(agent.runbook.readFrom ? [`  runbookReadFrom: ${agent.runbook.readFrom}`] : []),
+    ...(agent.runbook.commandArgs ? [`  runbookCommandArgs: ${JSON.stringify(agent.runbook.commandArgs)}`] : []),
+    ...(agent.runbook.url ? [`  runbookUrl: ${agent.runbook.url}`] : []),
     `  executor: ${agent.executor.decision}/${agent.executor.operation}/${agent.executor.confidence}${agent.executor.action ? ` action=${agent.executor.action}` : ""} status=${agent.executor.status} - ${agent.executor.instruction}`,
     `  handoff: ${agent.handoff.decision}/${agent.handoff.operation}/${agent.handoff.confidence}${agent.handoff.action ? ` action=${agent.handoff.action}` : ""}${agent.handoff.priority ? ` priority=${agent.handoff.priority}` : ""} - ${agent.handoff.instruction}`,
     `  executionPlan: ${agent.executionPlan.operation}/${agent.executionPlan.confidence} - ${agent.executionPlan.reason}`,
@@ -9054,6 +9085,21 @@ function summarizeAgent(
     continuationMode: agentContinuationMode(primaryAction),
     next,
     runbook,
+    runbookDecision: runbook.decision,
+    runbookMode: runbook.mode,
+    runbookOperation: runbook.operation,
+    ...(runbook.action ? { runbookActionName: runbook.action } : {}),
+    runbookReason: runbook.reason,
+    runbookConfidence: runbook.confidence,
+    runbookAnswerStatus: runbook.answerStatus,
+    runbookAnswerReady: runbook.answerReady,
+    runbookShouldContinue: runbook.shouldContinue,
+    runbookTerminal: runbook.terminal,
+    runbookMaxSuggestedIterations: runbook.maxSuggestedIterations,
+    runbookExpectedOutcome: runbook.expectedOutcome,
+    ...(runbook.readFrom ? { runbookReadFrom: runbook.readFrom } : {}),
+    ...(runbook.commandArgs ? { runbookCommandArgs: runbook.commandArgs } : {}),
+    ...(runbook.url ? { runbookUrl: runbook.url } : {}),
     executor,
     handoff,
     expectedOutcome,
@@ -13010,6 +13056,21 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     continuationMode: agent.continuationMode,
     next: compactAgentNext(agent.next, agent.primaryUrl),
     runbook: compactAgentRunbook(agent.runbook, agent.primaryUrl),
+    ...(agent.runbookDecision ? { runbookDecision: agent.runbookDecision } : {}),
+    ...(agent.runbookMode ? { runbookMode: agent.runbookMode } : {}),
+    ...(agent.runbookOperation ? { runbookOperation: agent.runbookOperation } : {}),
+    ...(agent.runbookActionName ? { runbookActionName: agent.runbookActionName } : {}),
+    ...(agent.runbookReason ? { runbookReason: agent.runbookReason } : {}),
+    ...(agent.runbookConfidence ? { runbookConfidence: agent.runbookConfidence } : {}),
+    ...(agent.runbookAnswerStatus ? { runbookAnswerStatus: agent.runbookAnswerStatus } : {}),
+    ...(typeof agent.runbookAnswerReady === "boolean" ? { runbookAnswerReady: agent.runbookAnswerReady } : {}),
+    ...(typeof agent.runbookShouldContinue === "boolean" ? { runbookShouldContinue: agent.runbookShouldContinue } : {}),
+    ...(typeof agent.runbookTerminal === "boolean" ? { runbookTerminal: agent.runbookTerminal } : {}),
+    ...(typeof agent.runbookMaxSuggestedIterations === "number" ? { runbookMaxSuggestedIterations: agent.runbookMaxSuggestedIterations } : {}),
+    ...(agent.runbookExpectedOutcome ? { runbookExpectedOutcome: agent.runbookExpectedOutcome } : {}),
+    ...(agent.runbookReadFrom ? { runbookReadFrom: agent.runbookReadFrom } : {}),
+    ...(agent.runbookCommandArgs ? { runbookCommandArgs: agent.runbookCommandArgs } : {}),
+    ...(agent.runbookUrl ? { runbookUrl: agent.runbookUrl } : {}),
     executor: compactAgentExecutor(agent.executor, agent.primaryUrl),
     handoff: compactAgentHandoff(agent.handoff, agent.primaryUrl, searchCommandContext, pageLinkContext),
     expectedOutcome: agent.expectedOutcome,
@@ -13224,6 +13285,20 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     status: agent.status,
     pageKind: agent.pageKind,
     summary: agent.summary,
+    ...(agent.runbookDecision ? { runbookDecision: agent.runbookDecision } : {}),
+    ...(agent.runbookMode ? { runbookMode: agent.runbookMode } : {}),
+    ...(agent.runbookOperation ? { runbookOperation: agent.runbookOperation } : {}),
+    ...(agent.runbookActionName ? { runbookActionName: agent.runbookActionName } : {}),
+    ...(agent.runbookConfidence ? { runbookConfidence: agent.runbookConfidence } : {}),
+    ...(agent.runbookAnswerStatus ? { runbookAnswerStatus: agent.runbookAnswerStatus } : {}),
+    ...(typeof agent.runbookAnswerReady === "boolean" ? { runbookAnswerReady: agent.runbookAnswerReady } : {}),
+    ...(typeof agent.runbookShouldContinue === "boolean" ? { runbookShouldContinue: agent.runbookShouldContinue } : {}),
+    ...(typeof agent.runbookTerminal === "boolean" ? { runbookTerminal: agent.runbookTerminal } : {}),
+    ...(typeof agent.runbookMaxSuggestedIterations === "number" ? { runbookMaxSuggestedIterations: agent.runbookMaxSuggestedIterations } : {}),
+    ...(agent.runbookExpectedOutcome ? { runbookExpectedOutcome: agent.runbookExpectedOutcome } : {}),
+    ...(agent.runbookReadFrom ? { runbookReadFrom: agent.runbookReadFrom } : {}),
+    ...(agent.runbookCommandArgs ? { runbookCommandArgs: agent.runbookCommandArgs } : {}),
+    ...(agent.runbookUrl ? { runbookUrl: agent.runbookUrl } : {}),
     executor: compactAgentExecutor(agent.executor, agent.primaryUrl),
     handoff: compactAgentBriefHandoff(agent.handoff, agent.primaryUrl, searchCommandContext, pageLinkContext),
     ...(agent.expectedOutcomeKind ? { expectedOutcomeKind: agent.expectedOutcomeKind } : {}),

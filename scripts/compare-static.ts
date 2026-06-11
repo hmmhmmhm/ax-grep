@@ -65,6 +65,7 @@ type CliAgentSummary = {
   agentContinuationModeScore: number;
   agentNextScore: number;
   agentRunbookScore: number;
+  agentRunbookShortcutScore: number;
   agentExecutorStepScore: number;
   agentBriefExecutorStepScore: number;
   agentHandoffScore: number;
@@ -566,6 +567,7 @@ export type GateSummary = {
   averageAgentContinuationModeScore: number;
   averageAgentNextScore: number;
   averageAgentRunbookScore: number;
+  averageAgentRunbookShortcutScore: number;
   averageAgentExecutorStepScore: number;
   averageAgentBriefExecutorStepScore: number;
   averageAgentHandoffScore: number;
@@ -1062,6 +1064,21 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       continuationMode?: AgentContinuationMode;
       next?: CliAgentNextShape;
       runbook?: CliAgentRunbookShape;
+      runbookDecision?: CliAgentRunbookShape["decision"];
+      runbookMode?: CliAgentRunbookShape["mode"];
+      runbookOperation?: CliAgentRunbookShape["operation"];
+      runbookActionName?: string;
+      runbookReason?: string;
+      runbookConfidence?: CliAgentRunbookShape["confidence"];
+      runbookAnswerStatus?: CliAgentRunbookShape["answerStatus"];
+      runbookAnswerReady?: boolean;
+      runbookShouldContinue?: boolean;
+      runbookTerminal?: boolean;
+      runbookMaxSuggestedIterations?: number;
+      runbookExpectedOutcome?: CliAgentRunbookShape["expectedOutcome"];
+      runbookReadFrom?: string;
+      runbookCommandArgs?: string[];
+      runbookUrl?: string;
       executor?: CliAgentExecutorShape;
       handoff?: CliAgentHandoffShape;
       expectedOutcome?: CliAgentExpectedOutcomeShape;
@@ -1331,6 +1348,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentContinuationModeScore: scoreAgentContinuationMode(item.agent?.continuationMode, item.agent?.primaryAction),
     agentNextScore: scoreAgentNext(item.agent?.next, item.agent?.continuationMode, item.agent?.primaryAction),
     agentRunbookScore: scoreAgentRunbook(item.agent?.runbook, item.agent?.next, item.agent?.executionPlan, item.agent?.answerPlan),
+    agentRunbookShortcutScore: scoreAgentRunbookShortcuts(item.agent),
     agentExecutorStepScore: scoreAgentExecutorStep(item.agent?.executor, item.agent?.next, item.agent?.executionPlan, item.agent?.answerPlan),
     agentBriefExecutorStepScore: 0,
     agentHandoffScore: scoreAgentHandoff(
@@ -1424,6 +1442,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentContinuationModeScore: 0,
     agentNextScore: 0,
     agentRunbookScore: 0,
+    agentRunbookShortcutScore: 0,
     agentExecutorStepScore: 0,
     agentBriefExecutorStepScore: 0,
     agentHandoffScore: 0,
@@ -1975,6 +1994,66 @@ function scoreAgentRunbook(
   if (next.url || next.urlRef) {
     required += 1;
     if (sameAgentUrl(runbook, next)) matched += 1;
+  }
+  return roundScore(matched / required);
+}
+
+function scoreAgentRunbookShortcuts(agent: {
+  runbook?: CliAgentRunbookShape;
+  runbookDecision?: CliAgentRunbookShape["decision"];
+  runbookMode?: CliAgentRunbookShape["mode"];
+  runbookOperation?: CliAgentRunbookShape["operation"];
+  runbookActionName?: string;
+  runbookReason?: string;
+  runbookConfidence?: CliAgentRunbookShape["confidence"];
+  runbookAnswerStatus?: CliAgentRunbookShape["answerStatus"];
+  runbookAnswerReady?: boolean;
+  runbookShouldContinue?: boolean;
+  runbookTerminal?: boolean;
+  runbookMaxSuggestedIterations?: number;
+  runbookExpectedOutcome?: CliAgentRunbookShape["expectedOutcome"];
+  runbookReadFrom?: string;
+  runbookCommandArgs?: string[];
+  runbookUrl?: string;
+} | undefined): number {
+  const runbook = agent?.runbook;
+  if (!runbook) return 0;
+  let required = 11;
+  let matched = 0;
+  if (agent.runbookDecision === runbook.decision) matched += 1;
+  if (agent.runbookMode === runbook.mode) matched += 1;
+  if (agent.runbookOperation === runbook.operation) matched += 1;
+  if (agent.runbookReason === runbook.reason) matched += 1;
+  if (agent.runbookConfidence === runbook.confidence) matched += 1;
+  if (agent.runbookAnswerStatus === runbook.answerStatus) matched += 1;
+  if (agent.runbookAnswerReady === runbook.answerReady) matched += 1;
+  if (agent.runbookShouldContinue === runbook.shouldContinue) matched += 1;
+  if (agent.runbookTerminal === runbook.terminal) matched += 1;
+  if (agent.runbookMaxSuggestedIterations === runbook.maxSuggestedIterations) matched += 1;
+  if (agent.runbookExpectedOutcome === runbook.expectedOutcome) matched += 1;
+  if (runbook.action) {
+    required += 1;
+    if (agent.runbookActionName === runbook.action) matched += 1;
+  } else if (agent.runbookActionName) {
+    required += 1;
+  }
+  if (runbook.readFrom) {
+    required += 1;
+    if (agent.runbookReadFrom === runbook.readFrom) matched += 1;
+  } else if (agent.runbookReadFrom) {
+    required += 1;
+  }
+  if (runbook.commandArgs) {
+    required += 1;
+    if (JSON.stringify(agent.runbookCommandArgs) === JSON.stringify(runbook.commandArgs)) matched += 1;
+  } else if (agent.runbookCommandArgs) {
+    required += 1;
+  }
+  if (runbook.url || runbook.urlRef) {
+    required += 1;
+    if (agent.runbookUrl === runbook.url || agent.runbookUrl === runbook.urlRef) matched += 1;
+  } else if (agent.runbookUrl) {
+    required += 1;
   }
   return roundScore(matched / required);
 }
@@ -4281,6 +4360,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentContinuationModeScore * 0.005
     + summary.agentNextScore * 0.005
     + summary.agentRunbookScore * 0.005
+    + summary.agentRunbookShortcutScore * 0.005
     + summary.agentExecutorStepScore * 0.005
     + summary.agentBriefExecutorStepScore * 0.005
     + summary.agentHandoffScore * 0.005
@@ -4313,6 +4393,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentContinuationModeScore,
     summary.agentNextScore,
     summary.agentRunbookScore,
+    summary.agentRunbookShortcutScore,
     summary.agentExecutorStepScore,
     summary.agentBriefExecutorStepScore,
     summary.agentHandoffScore,
@@ -4413,6 +4494,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentContinuationModeScore: average(included.map((comparison) => comparison.cliAgentSummary.agentContinuationModeScore)),
     averageAgentNextScore: average(included.map((comparison) => comparison.cliAgentSummary.agentNextScore)),
     averageAgentRunbookScore: average(included.map((comparison) => comparison.cliAgentSummary.agentRunbookScore)),
+    averageAgentRunbookShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentRunbookShortcutScore)),
     averageAgentExecutorStepScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExecutorStepScore)),
     averageAgentBriefExecutorStepScore: average(included.map((comparison) => comparison.cliAgentSummary.agentBriefExecutorStepScore)),
     averageAgentHandoffScore: average(included.map((comparison) => comparison.cliAgentSummary.agentHandoffScore)),

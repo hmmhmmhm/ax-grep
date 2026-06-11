@@ -215,6 +215,21 @@ describe("public agent types", () => {
       | "semanticTopRoleCount"
       | "semanticTopHeading"
       | "semanticTopLandmark"
+      | "runbookDecision"
+      | "runbookMode"
+      | "runbookOperation"
+      | "runbookActionName"
+      | "runbookReason"
+      | "runbookConfidence"
+      | "runbookAnswerStatus"
+      | "runbookAnswerReady"
+      | "runbookShouldContinue"
+      | "runbookTerminal"
+      | "runbookMaxSuggestedIterations"
+      | "runbookExpectedOutcome"
+      | "runbookReadFrom"
+      | "runbookCommandArgs"
+      | "runbookUrl"
       | "expectedOutcomeKind"
       | "expectedOutcomeMessage"
       | "executionPlanOperation"
@@ -372,6 +387,21 @@ describe("public agent types", () => {
       semanticTopRoleCount: 2,
       semanticTopHeading: "Example",
       semanticTopLandmark: "main",
+      runbookDecision: "return",
+      runbookMode: "read",
+      runbookOperation: "return",
+      runbookActionName: "read-content",
+      runbookReason: "Return the resolved value.",
+      runbookConfidence: "high",
+      runbookAnswerStatus: "ready",
+      runbookAnswerReady: true,
+      runbookShouldContinue: false,
+      runbookTerminal: true,
+      runbookMaxSuggestedIterations: 0,
+      runbookExpectedOutcome: "read-evidence",
+      runbookReadFrom: "pageCheck.contentEvidence",
+      runbookCommandArgs: ["ax-grep", "https://example.test", "--agent"],
+      runbookUrl: "https://example.test",
       expectedOutcomeKind: "read-evidence",
       expectedOutcomeMessage: "Read the current payload evidence.",
       executionPlanOperation: "return",

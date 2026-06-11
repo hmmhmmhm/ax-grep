@@ -794,6 +794,20 @@ describe("cli", () => {
         expectedOutcome: executor.expectedOutcome,
       });
       expect(handoff.answerStatus).toBe(executor.status);
+      expect(envelope.agent.runbookDecision).toBe(executor.decision);
+      expect(envelope.agent.runbookMode).toBe(executor.mode);
+      expect(envelope.agent.runbookOperation).toBe(executor.operation);
+      expect(envelope.agent.runbookActionName).toBe(executor.action);
+      expect(envelope.agent.runbookConfidence).toBe(executor.confidence);
+      expect(envelope.agent.runbookAnswerStatus).toBe(executor.status);
+      expect(envelope.agent.runbookAnswerReady).toBe(executor.answerReady);
+      expect(envelope.agent.runbookShouldContinue).toBe(executor.shouldContinue);
+      expect(envelope.agent.runbookTerminal).toBe(executor.terminal);
+      expect(envelope.agent.runbookMaxSuggestedIterations).toBe(executor.maxSuggestedIterations);
+      expect(envelope.agent.runbookExpectedOutcome).toBe(executor.expectedOutcome);
+      if (executor.commandArgs) expect(envelope.agent.runbookCommandArgs).toEqual(executor.commandArgs);
+      if (executor.readFrom) expect(envelope.agent.runbookReadFrom).toBe(executor.readFrom);
+      if (executor.url) expect(envelope.agent.runbookUrl).toBe(executor.url);
       expect(envelope.agent.executorDecision).toBe(executor.decision);
       expect(envelope.agent.executorMode).toBe(executor.mode);
       expect(envelope.agent.executorActionName).toBe(executor.action);
@@ -7709,6 +7723,9 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  loopTerminal: true");
     expect(stdout.output).toContain("  loopMaxIterations: 0");
     expect(stdout.output).toContain("  loopReason: Return the resolved value for pageCheck.contentEvidence.");
+    expect(stdout.output).toContain("  runbookDecision: return");
+    expect(stdout.output).toContain("  runbookOperation: return");
+    expect(stdout.output).toContain("  runbookExpectedOutcome: read-evidence");
     expect(stdout.output).toContain("  handoff: return/return/medium action=read-content priority=high - Answer now from pageCheck.contentEvidence using citations e1.");
     expect(stdout.output).toContain("  handoffReadFrom: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  handoffReadValue: pageCheck.contentEvidence");
