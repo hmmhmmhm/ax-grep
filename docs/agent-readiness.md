@@ -8,7 +8,7 @@ or blocked pages with less guesswork than an `agent-browser snapshot` alone.
 
 | Requirement | Current evidence | Completion note |
 | --- | --- | --- |
-| Aggregate CLI agent usefulness stays above the readiness floor. | `averageCliAgentScore` must stay at or above `0.8`; raw accessibility overlap metrics remain diagnostic only. | Covered by `compare:gate` and comparison-gate tests. |
+| CLI agent usefulness stays above the readiness floor for every gate-included target. | `averageCliAgentScore` and `minCliAgentScore` must stay at or above `0.8`; `averageAgentExecutorScore` and `minAgentExecutorScore` must stay at or above `0.995`; raw accessibility overlap metrics remain diagnostic only. | Covered by `compare:gate` and comparison-gate tests. |
 | Search agents can open the best or alternate result without rebuilding commands. | `agent.resultChoices`, `openResult`, `commandArgs`; covered by `tests/cli.test.ts` and `averageSearchResultActionScore`. | Covered by focused tests and comparison gate metrics. |
 | Page-check agents can read structured evidence instead of raw tree text. | `pageCheck.contentEvidence`, citations, `agent.readTargets`, `bestReadTarget`; covered by read-target, citation, answer-plan, evidence metadata, readability reason, and consistency gates. | Covered by tests and static comparison scoring. |
 | Source-link follow-up keeps a stable pointer back to the source array. | `sourceLinkRef` on actions, compact actions, page steps, and text output; covered by CLI and public type tests. | Covered for JSON and text output. |

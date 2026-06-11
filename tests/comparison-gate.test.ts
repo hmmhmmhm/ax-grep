@@ -12,7 +12,9 @@ function staticSummary(overrides: Partial<StaticGateSummary> = {}): StaticGateSu
     included: 4,
     excluded: 1,
     averageCliAgentScore: 1,
+    minCliAgentScore: 1,
     averageAgentExecutorScore: 1,
+    minAgentExecutorScore: 1,
     averageAgentContractScore: 1,
     averageActionSchemaScore: 1,
     averageSearchResultActionScore: 1,
@@ -122,10 +124,24 @@ describe("comparison gate checker", () => {
   it("rejects static reports below the aggregate CLI agent usefulness floor", () => {
     const failures = checkComparisonGateReport(staticReport(staticSummary({
       averageCliAgentScore: 0.79,
+      minCliAgentScore: 0.79,
     })), "static.json");
 
     expect(failures.map((failure) => failure.message)).toEqual([
       "averageCliAgentScore expected >= 0.8, got 0.79",
+      "minCliAgentScore expected >= 0.8, got 0.79",
+    ]);
+  });
+
+  it("rejects static reports with weak per-target agent floors", () => {
+    const failures = checkComparisonGateReport(staticReport(staticSummary({
+      minCliAgentScore: 0.79,
+      minAgentExecutorScore: 0.99,
+    })), "static.json");
+
+    expect(failures.map((failure) => failure.message)).toEqual([
+      "minCliAgentScore expected >= 0.8, got 0.79",
+      "minAgentExecutorScore expected >= 0.995, got 0.99",
     ]);
   });
 

@@ -38,11 +38,15 @@ decide whether to read, open, or retry a page. `averageCliAgentScore`
 in `gateSummary` tracks that higher-level usefulness separately from
 `agentReadiness`, which remains an exact `agent-browser snapshot` overlap
 metric.
+`minCliAgentScore` enforces the same readiness floor per included target, so a
+weak search, page-check, or browser-retry case cannot be hidden by strong
+average results.
 `averageAgentExecutorScore` is the executor-focused aggregate. It combines the
 schema, routing, `next`, expected-outcome, signal, read-target, command,
 browser-retry, continuation, response, diagnostic, and verification fields that
 subagents need to run a search/page-check loop without reconstructing intent
 from the raw tree.
+`minAgentExecutorScore` applies the executor floor per included target.
 The score includes action-schema completeness, so `run-command` actions need
 both a human-readable command and raw `commandArgs`, `read-current` actions need
 `readFrom`, and `interact-browser` actions need an explicit browser-interaction

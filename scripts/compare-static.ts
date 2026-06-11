@@ -505,7 +505,9 @@ export type GateSummary = {
   excluded: number;
   averageScore: number;
   averageCliAgentScore: number;
+  minCliAgentScore: number;
   averageAgentExecutorScore: number;
+  minAgentExecutorScore: number;
   averageAgentContractScore: number;
   averageActionSchemaScore: number;
   averageSearchResultActionScore: number;
@@ -3012,6 +3014,10 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     && summary.agentPrimaryExecution === "run-command"
     && summary.agentBrowserNeedScore === 1
     && summary.agentBrowserHtmlScore === 1;
+  const recoverableCommandContinuation = summary.agentPrimaryExecution === "run-command"
+    && summary.agentCanContinueScore === 1
+    && summary.actionSchemaScore === 1
+    && ["refine-search", "open-site-search", "open-source-link", "open-alternate-result", "open-result", "broaden-search"].includes(summary.agentPrimaryAction ?? "");
   const evidenceScore = Math.max(
     Math.min(1, effectivePreviewCount / expectedEvidenceCount),
     hiddenSignalScore * 0.85,
@@ -3095,7 +3101,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentPageDecisionScore * 0.005
     + summary.agentSemanticSummaryScore * 0.005,
   ));
-  return recoverableBrowserRetry ? Math.max(score, 0.8) : score;
+  return recoverableBrowserRetry || recoverableCommandContinuation ? Math.max(score, 0.8) : score;
 }
 
 function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
@@ -3185,7 +3191,9 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     excluded: comparisons.length - included.length,
     averageScore: average(included.map((comparison) => comparison.agentReadiness.score)),
     averageCliAgentScore: average(included.map((comparison) => comparison.cliAgentSummary.score)),
+    minCliAgentScore: minimum(included.map((comparison) => comparison.cliAgentSummary.score)),
     averageAgentExecutorScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExecutorScore)),
+    minAgentExecutorScore: minimum(included.map((comparison) => comparison.cliAgentSummary.agentExecutorScore)),
     averageAgentContractScore: average(included.map((comparison) => comparison.cliAgentSummary.agentContractScore)),
     averageActionSchemaScore: average(included.map((comparison) => comparison.cliAgentSummary.actionSchemaScore)),
     averageSearchResultActionScore: average(included.map((comparison) => comparison.cliAgentSummary.searchResultActionScore)),
@@ -3251,6 +3259,11 @@ function isGateEligible(comparison: StaticComparison): boolean {
 function average(values: number[]): number {
   if (values.length === 0) return 0;
   return roundScore(values.reduce((sum, value) => sum + value, 0) / values.length);
+}
+
+function minimum(values: number[]): number {
+  if (values.length === 0) return 0;
+  return roundScore(Math.min(...values));
 }
 
 function averageSourceScore(links: Array<{ sourceScore?: number }>): number {

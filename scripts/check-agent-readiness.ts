@@ -39,7 +39,9 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
   requireFileIncludes(root, failures, "docs/comparison-baseline.md", [
     "Operational rule: run comparison suites sequentially",
     "averageCliAgentScore",
+    "minCliAgentScore",
     "averageAgentExecutorScore",
+    "minAgentExecutorScore",
     "averageAgentHiddenSignalScore",
   ]);
   requireFileIncludes(root, failures, "docs/agent-readiness.md", [

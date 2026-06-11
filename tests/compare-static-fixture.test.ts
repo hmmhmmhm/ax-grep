@@ -24,7 +24,9 @@ describe("compare-static fixture comparisons", () => {
       "Synthetic site search recovery gate",
     ]);
     expect(report.gateSummary.averageCliAgentScore).toBeGreaterThanOrEqual(0.8);
+    expect(report.gateSummary.minCliAgentScore).toBeGreaterThanOrEqual(0.8);
     expect(report.gateSummary.averageAgentExecutorScore).toBeGreaterThanOrEqual(0.995);
+    expect(report.gateSummary.minAgentExecutorScore).toBeGreaterThanOrEqual(0.995);
     expect(report.gateSummary.averageActionSchemaScore).toBe(1);
     expect(report.gateSummary.averageSearchResultActionScore).toBe(1);
     expect(report.gateSummary.averageAgentHiddenSignalScore).toBe(1);

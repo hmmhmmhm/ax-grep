@@ -6,7 +6,9 @@ type GateSummary = Record<string, unknown> & {
   included?: number;
   excluded?: number;
   averageCliAgentScore?: number;
+  minCliAgentScore?: number;
   averageAgentExecutorScore?: number;
+  minAgentExecutorScore?: number;
   averageAgentContractScore?: number;
   averageActionSchemaScore?: number;
   averageSearchResultActionScore?: number;
@@ -116,7 +118,9 @@ function checkStaticGate(file: string, summary: GateSummary): GateFailure[] {
   const failures: GateFailure[] = [];
   requireAtLeast(file, failures, "included", summary.included, 1);
   requireAtLeast(file, failures, "averageCliAgentScore", summary.averageCliAgentScore, 0.8);
+  requireAtLeast(file, failures, "minCliAgentScore", summary.minCliAgentScore, 0.8);
   requireAtLeast(file, failures, "averageAgentExecutorScore", summary.averageAgentExecutorScore, 0.995);
+  requireAtLeast(file, failures, "minAgentExecutorScore", summary.minAgentExecutorScore, 0.995);
   requireAtLeast(file, failures, "averageAgentContractScore", summary.averageAgentContractScore, 0.995);
   requireAtLeast(file, failures, "averageActionSchemaScore", summary.averageActionSchemaScore, 0.995);
   requireAtLeast(file, failures, "averageSearchResultActionScore", summary.averageSearchResultActionScore, 0.995);
