@@ -1508,6 +1508,14 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopRoleCount?: number;
       semanticTopHeading?: string;
       semanticTopLandmark?: string;
+      semanticTopNamedRole?: string;
+      semanticTopInteractiveRole?: string;
+      semanticTopInteractiveName?: string;
+      semanticTopInteractiveSelector?: string;
+      semanticTopLinkName?: string;
+      semanticTopLinkSelector?: string;
+      semanticTopButtonName?: string;
+      semanticTopButtonSelector?: string;
     };
     diagnostics?: Array<{ severity?: "info" | "warning" | "error" }>;
     sourceSearch?: {
@@ -4379,6 +4387,14 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopRoleCount?: number;
   semanticTopHeading?: string;
   semanticTopLandmark?: string;
+  semanticTopNamedRole?: string;
+  semanticTopInteractiveRole?: string;
+  semanticTopInteractiveName?: string;
+  semanticTopInteractiveSelector?: string;
+  semanticTopLinkName?: string;
+  semanticTopLinkSelector?: string;
+  semanticTopButtonName?: string;
+  semanticTopButtonSelector?: string;
 } | undefined): number {
   const summary = agent?.semanticSummary;
   if (!summary || typeof summary !== "object") return 0;
@@ -4391,6 +4407,9 @@ function scoreAgentSemanticSummary(agent: {
     landmarks?: unknown;
     headings?: unknown;
     namedRoles?: unknown;
+    interactiveRoles?: unknown;
+    links?: unknown;
+    buttons?: unknown;
   };
   let matched = 0;
   if (typeof item.nodeCount === "number" && item.nodeCount > 0) matched += 1;
@@ -4405,7 +4424,10 @@ function scoreAgentSemanticSummary(agent: {
   if (Array.isArray(item.landmarks)) matched += 1;
   if (Array.isArray(item.headings)) matched += 1;
   if (Array.isArray(item.namedRoles)) matched += 1;
-  let required = 8;
+  if (Array.isArray(item.interactiveRoles)) matched += 1;
+  if (Array.isArray(item.links)) matched += 1;
+  if (Array.isArray(item.buttons)) matched += 1;
+  let required = 11;
   if (typeof item.nodeCount === "number") {
     required += 1;
     if (agent?.semanticNodeCount === item.nodeCount) matched += 1;
@@ -4436,6 +4458,42 @@ function scoreAgentSemanticSummary(agent: {
   if (typeof landmark === "string") {
     required += 1;
     if (agent?.semanticTopLandmark === landmark) matched += 1;
+  }
+  const namedRole = Array.isArray(item.namedRoles) ? item.namedRoles[0] : undefined;
+  if (typeof namedRole === "string") {
+    required += 1;
+    if (agent?.semanticTopNamedRole === namedRole) matched += 1;
+  }
+  const interactive = Array.isArray(item.interactiveRoles) ? item.interactiveRoles[0] as { role?: unknown; name?: unknown; selector?: unknown } | undefined : undefined;
+  if (interactive && typeof interactive.role === "string") {
+    required += 1;
+    if (agent?.semanticTopInteractiveRole === interactive.role) matched += 1;
+  }
+  if (interactive && typeof interactive.name === "string") {
+    required += 1;
+    if (agent?.semanticTopInteractiveName === interactive.name) matched += 1;
+  }
+  if (interactive && typeof interactive.selector === "string") {
+    required += 1;
+    if (agent?.semanticTopInteractiveSelector === interactive.selector) matched += 1;
+  }
+  const link = Array.isArray(item.links) ? item.links[0] as { name?: unknown; selector?: unknown } | undefined : undefined;
+  if (link && typeof link.name === "string") {
+    required += 1;
+    if (agent?.semanticTopLinkName === link.name) matched += 1;
+  }
+  if (link && typeof link.selector === "string") {
+    required += 1;
+    if (agent?.semanticTopLinkSelector === link.selector) matched += 1;
+  }
+  const button = Array.isArray(item.buttons) ? item.buttons[0] as { name?: unknown; selector?: unknown } | undefined : undefined;
+  if (button && typeof button.name === "string") {
+    required += 1;
+    if (agent?.semanticTopButtonName === button.name) matched += 1;
+  }
+  if (button && typeof button.selector === "string") {
+    required += 1;
+    if (agent?.semanticTopButtonSelector === button.selector) matched += 1;
   }
   return roundScore(matched / required);
 }

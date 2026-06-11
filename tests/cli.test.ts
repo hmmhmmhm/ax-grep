@@ -3485,6 +3485,12 @@ describe("cli", () => {
       sourceLinkRef: "pageCheck.sourceLinks[0]",
       url: "https://source.example/report",
     }));
+    expect(envelope.agent).toEqual(expect.objectContaining({
+      semanticTopNamedRole: expect.any(String),
+      semanticTopInteractiveName: expect.any(String),
+      semanticTopLinkName: expect.any(String),
+      semanticTopButtonName: "Reply",
+    }));
     expect(envelope.pageCheck.primaryLinks.map((link: { title: string }) => link.title)).not.toContain("Login");
     expect(envelope.pageCheck.actions).toEqual([
       expect.objectContaining({ type: "button", text: "Reply" }),

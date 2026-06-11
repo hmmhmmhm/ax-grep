@@ -362,6 +362,14 @@ describe("public agent types", () => {
       | "semanticTopRoleCount"
       | "semanticTopHeading"
       | "semanticTopLandmark"
+      | "semanticTopNamedRole"
+      | "semanticTopInteractiveRole"
+      | "semanticTopInteractiveName"
+      | "semanticTopInteractiveSelector"
+      | "semanticTopLinkName"
+      | "semanticTopLinkSelector"
+      | "semanticTopButtonName"
+      | "semanticTopButtonSelector"
       | "runbookDecision"
       | "runbookMode"
       | "runbookOperation"
@@ -709,6 +717,14 @@ describe("public agent types", () => {
       semanticTopRoleCount: 2,
       semanticTopHeading: "Example",
       semanticTopLandmark: "main",
+      semanticTopNamedRole: "heading:Example",
+      semanticTopInteractiveRole: "link",
+      semanticTopInteractiveName: "Read more",
+      semanticTopInteractiveSelector: "main a:nth-of-type(1)",
+      semanticTopLinkName: "Read more",
+      semanticTopLinkSelector: "main a:nth-of-type(1)",
+      semanticTopButtonName: "Subscribe",
+      semanticTopButtonSelector: "button:nth-of-type(1)",
       runbookDecision: "return",
       runbookMode: "read",
       runbookOperation: "return",

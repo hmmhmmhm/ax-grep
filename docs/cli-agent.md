@@ -66,7 +66,8 @@ Read these first:
   best path's count/primary flags.
 - `agent.bestHiddenReadTarget*`: best hidden metadata path to inspect first.
 - `agent.topHiddenSignal*`: first hidden metadata/API/config/provenance signal.
-- `agent.semantic*`: compact semantic tree counts, top role, heading, and landmark.
+- `agent.semantic*`: compact semantic tree counts plus top role, heading,
+  landmark, named role, interactive control, link, and button shortcuts.
 - `agent.barrierCount` and `agent.topBarrier*`: primary login, paywall,
   challenge, consent, age, or geo barrier details for browser routing.
 - `agent.dataTableCount`, `agent.faqCount`, `agent.codeBlockCount`,
