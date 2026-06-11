@@ -12,6 +12,7 @@ Resource safety:
 ```sh
 pnpm compare:sample
 pnpm compare:static:fixtures
+pnpm compare:static:fixtures:gate
 pnpm compare:static https://example.com https://news.ycombinator.com
 pnpm compare:tokens https://example.com https://news.ycombinator.com
 pnpm compare:static:agent
@@ -35,8 +36,9 @@ Search, social, challenge, and volatile targets may be diagnostic-only and
 excluded from gate averages. Check each run's `included` and `excluded` counts
 before treating an average as release-gating coverage.
 
-`compare:static:fixtures` is the non-browser smoke gate: it uses synthetic HTML
-fixtures only, so it should not fetch remote pages or launch `agent-browser`.
+`compare:static:fixtures:gate` is the non-browser smoke gate: it uses synthetic
+HTML fixtures only, so it should not fetch remote pages or launch
+`agent-browser`. Use `compare:static:fixtures` when you need the JSON report.
 
 `compare:gate` checks saved JSON output from `compare:static*` and
 `compare:tokens*`. Static gates require executor, handoff, browser-advantage,
