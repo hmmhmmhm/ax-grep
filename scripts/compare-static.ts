@@ -1756,6 +1756,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopStateHidden?: boolean;
       semanticTopStateDisabled?: boolean;
       semanticTopStateBusy?: boolean;
+      semanticTopStateMultiselectable?: boolean;
       semanticTopStateChecked?: boolean | "mixed";
       semanticTopStateSelected?: boolean;
       semanticTopStateExpanded?: boolean;
@@ -4935,6 +4936,7 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopStateHidden?: boolean;
   semanticTopStateDisabled?: boolean;
   semanticTopStateBusy?: boolean;
+  semanticTopStateMultiselectable?: boolean;
   semanticTopStateChecked?: boolean | "mixed";
   semanticTopStateSelected?: boolean;
   semanticTopStateExpanded?: boolean;
@@ -5808,6 +5810,7 @@ function scoreAgentSemanticSummary(agent: {
       [agent?.semanticTopStateHidden, stateItem.stateRaw.hidden],
       [agent?.semanticTopStateDisabled, stateItem.stateRaw.disabled],
       [agent?.semanticTopStateBusy, stateItem.stateRaw.busy],
+      [agent?.semanticTopStateMultiselectable, stateItem.stateRaw.multiselectable],
       [agent?.semanticTopStateChecked, stateItem.stateRaw.checked],
       [agent?.semanticTopStateSelected, stateItem.stateRaw.selected],
       [agent?.semanticTopStateExpanded, stateItem.stateRaw.expanded],

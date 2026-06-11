@@ -4122,6 +4122,34 @@ describe("cli", () => {
     });
   });
 
+  it("exposes parsed multiselectable semantic top-state shortcuts for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/multiselect", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <div role="listbox" aria-label="Reports" aria-multiselectable="true">
+            <div role="option">Q1</div>
+            <div role="option">Q2</div>
+          </div>
+          <p>Readable page content for multiselect state routing.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      semanticTopStateRole: "listbox",
+      semanticTopStatePath: "agent.semanticSummary.stateItems[0]",
+      semanticTopStateName: "Reports",
+      semanticTopState: "multiselectable=true",
+      semanticTopStateMultiselectable: true,
+      semanticTopStateSelector: "div",
+    });
+  });
+
   it("exposes parsed range and orientation semantic top-state shortcuts for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/range", "--agent"], {

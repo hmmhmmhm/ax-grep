@@ -347,6 +347,8 @@ const __AX_LITE__ = (() => {
     if (isDisabled(element)) state.disabled = true;
     const busy = ariaBoolean(element.getAttribute("aria-busy"));
     if (busy !== undefined) state.busy = busy;
+    const multiselectable = ariaBoolean(element.getAttribute("aria-multiselectable"));
+    if (multiselectable !== undefined) state.multiselectable = multiselectable;
     if (element === document.activeElement) state.focused = true;
     const checked = ariaBooleanOrMixed(element.getAttribute("aria-checked"));
     if (checked !== undefined) state.checked = checked;
