@@ -183,6 +183,17 @@ describe("public agent types", () => {
       | "topResultChoiceOpenResult"
       | "topResultChoiceRecommended"
       | "topResultChoicePrimary"
+      | "topResultChoiceSourceType"
+      | "topResultChoiceSourceScore"
+      | "topResultChoiceSourceHints"
+      | "topResultChoiceDateText"
+      | "topResultChoiceRelevance"
+      | "topResultChoiceMatchedTerm"
+      | "topResultChoiceFindMatch"
+      | "topResultChoiceLikelyOfficial"
+      | "topResultChoiceSitelinkCount"
+      | "topResultChoiceFirstSitelinkTitle"
+      | "topResultChoiceFirstSitelinkUrl"
       | "topResultChoiceReason"
       | "evidenceCount"
       | "formCount"
@@ -716,6 +727,17 @@ describe("public agent types", () => {
       topResultChoiceOpenResult: 1,
       topResultChoiceRecommended: true,
       topResultChoicePrimary: true,
+      topResultChoiceSourceType: "official",
+      topResultChoiceSourceScore: 0.9,
+      topResultChoiceSourceHints: ["package-registry"],
+      topResultChoiceDateText: "2026-05-31",
+      topResultChoiceRelevance: "high",
+      topResultChoiceMatchedTerm: "example",
+      topResultChoiceFindMatch: "Example result",
+      topResultChoiceLikelyOfficial: true,
+      topResultChoiceSitelinkCount: 1,
+      topResultChoiceFirstSitelinkTitle: "Readme",
+      topResultChoiceFirstSitelinkUrl: "https://example.test/result#readme",
       topResultChoiceReason: "High relevance.",
       evidenceCount: 1,
       formCount: 1,

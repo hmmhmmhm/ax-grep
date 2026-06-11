@@ -140,7 +140,8 @@ path, label, URL, and command arguments mirror the first executable result,
 source, form, or action-target choice for fast subagent routing.
 `averageAgentTopResultChoiceShortcutScore` tracks whether `agent.topResultChoice*`
 mirrors the first search result choice, including URL, rank, open-result value,
-command arguments, and selection reason.
+command arguments, source quality, freshness/relevance, matches, sitelinks, and
+selection reason.
 `averageAgentTopSourceChoiceShortcutScore` tracks whether source-link specific
 top-level shortcuts mirror the first executable source choice, including source
 type, hints, score, and selection reason.

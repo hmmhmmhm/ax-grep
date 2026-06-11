@@ -82,7 +82,8 @@ Read these first:
 - `agent.bestStructuredReadTarget*`: highest-priority structured content path to
   read before scanning all `readTargets`.
 - `agent.resultChoices` and `agent.sourceChoices`: ranked links to open.
-- `agent.topResultChoice*`: first search-result candidate with URL, rank, and command args.
+- `agent.topResultChoice*`: first search-result candidate with URL, rank,
+  command args, source quality, freshness/relevance, match, and sitelink hints.
 - `agent.topSourceChoice*`: first source-link candidate with URL, command args, source type, source hints, and source score.
 - `agent.topFormChoice*` and `agent.topActionTargetChoice*`: first executable
   form/action target templates, query inputs, submit text, and first-field hints.

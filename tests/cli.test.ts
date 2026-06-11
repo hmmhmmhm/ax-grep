@@ -2034,6 +2034,18 @@ describe("cli", () => {
         expect.objectContaining({ title: "Versions" }),
       ],
     });
+    expect(envelope.agent).toMatchObject({
+      topResultChoiceSourceType: "official",
+      topResultChoiceSourceScore: 0.9,
+      topResultChoiceSourceHints: ["package-registry"],
+      topResultChoiceDateText: "2026-05-31",
+      topResultChoiceRelevance: "high",
+      topResultChoiceMatchedTerm: "ax-grep",
+      topResultChoiceLikelyOfficial: true,
+      topResultChoiceSitelinkCount: 2,
+      topResultChoiceFirstSitelinkTitle: "Readme",
+      topResultChoiceFirstSitelinkUrl: "https://www.npmjs.com/package/ax-grep?activeTab=readme",
+    });
     expect(envelope.agent.primaryAction.target).toMatchObject({
       title: "ax-grep - npm",
       url: "https://www.npmjs.com/package/ax-grep",
@@ -2160,6 +2172,12 @@ describe("cli", () => {
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "open-result",
       openResult: "best",
+    });
+    expect(envelope.agent).toMatchObject({
+      topResultChoiceFindMatch: "API reference",
+      topResultChoiceSitelinkCount: 1,
+      topResultChoiceFirstSitelinkTitle: "API reference",
+      topResultChoiceFirstSitelinkUrl: "https://docs.example/agent-browser/api",
     });
   });
 

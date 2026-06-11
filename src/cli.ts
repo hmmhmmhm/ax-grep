@@ -1105,6 +1105,17 @@ type AgentSummary = {
   topResultChoiceOpenResult?: AgentResultChoice["openResult"];
   topResultChoiceRecommended?: boolean;
   topResultChoicePrimary?: boolean;
+  topResultChoiceSourceType?: string;
+  topResultChoiceSourceScore?: number;
+  topResultChoiceSourceHints?: string[];
+  topResultChoiceDateText?: string;
+  topResultChoiceRelevance?: AgentResultChoice["relevance"];
+  topResultChoiceMatchedTerm?: string;
+  topResultChoiceFindMatch?: string;
+  topResultChoiceLikelyOfficial?: boolean;
+  topResultChoiceSitelinkCount?: number;
+  topResultChoiceFirstSitelinkTitle?: string;
+  topResultChoiceFirstSitelinkUrl?: string;
   topResultChoiceReason?: string;
   evidenceCount: number;
   formCount: number;
@@ -2983,6 +2994,17 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topResultChoiceOpenResult ? [`  topResultChoiceOpenResult: ${agent.topResultChoiceOpenResult}`] : []),
     ...(typeof agent.topResultChoiceRecommended === "boolean" ? [`  topResultChoiceRecommended: ${agent.topResultChoiceRecommended}`] : []),
     ...(typeof agent.topResultChoicePrimary === "boolean" ? [`  topResultChoicePrimary: ${agent.topResultChoicePrimary}`] : []),
+    ...(agent.topResultChoiceSourceType ? [`  topResultChoiceSourceType: ${agent.topResultChoiceSourceType}`] : []),
+    ...(typeof agent.topResultChoiceSourceScore === "number" ? [`  topResultChoiceSourceScore: ${agent.topResultChoiceSourceScore}`] : []),
+    ...(agent.topResultChoiceSourceHints?.length ? [`  topResultChoiceSourceHints: ${agent.topResultChoiceSourceHints.join(",")}`] : []),
+    ...(agent.topResultChoiceDateText ? [`  topResultChoiceDateText: ${agent.topResultChoiceDateText}`] : []),
+    ...(agent.topResultChoiceRelevance ? [`  topResultChoiceRelevance: ${agent.topResultChoiceRelevance}`] : []),
+    ...(agent.topResultChoiceMatchedTerm ? [`  topResultChoiceMatchedTerm: ${agent.topResultChoiceMatchedTerm}`] : []),
+    ...(agent.topResultChoiceFindMatch ? [`  topResultChoiceFindMatch: ${agent.topResultChoiceFindMatch}`] : []),
+    ...(typeof agent.topResultChoiceLikelyOfficial === "boolean" ? [`  topResultChoiceLikelyOfficial: ${agent.topResultChoiceLikelyOfficial}`] : []),
+    ...(typeof agent.topResultChoiceSitelinkCount === "number" ? [`  topResultChoiceSitelinkCount: ${agent.topResultChoiceSitelinkCount}`] : []),
+    ...(agent.topResultChoiceFirstSitelinkTitle ? [`  topResultChoiceFirstSitelinkTitle: ${agent.topResultChoiceFirstSitelinkTitle}`] : []),
+    ...(agent.topResultChoiceFirstSitelinkUrl ? [`  topResultChoiceFirstSitelinkUrl: ${agent.topResultChoiceFirstSitelinkUrl}`] : []),
     ...(agent.topResultChoiceReason ? [`  topResultChoiceReason: ${agent.topResultChoiceReason}`] : []),
     `  evidenceCount: ${agent.evidenceCount}`,
     `  formCount: ${agent.formCount}`,
@@ -10268,6 +10290,17 @@ function summarizeAgent(
     ...(resultChoices[0]?.openResult ? { topResultChoiceOpenResult: resultChoices[0].openResult } : {}),
     ...(typeof resultChoices[0]?.recommended === "boolean" ? { topResultChoiceRecommended: resultChoices[0].recommended } : {}),
     ...(typeof resultChoices[0]?.primary === "boolean" ? { topResultChoicePrimary: resultChoices[0].primary } : {}),
+    ...(resultChoices[0]?.sourceType ? { topResultChoiceSourceType: resultChoices[0].sourceType } : {}),
+    ...(typeof resultChoices[0]?.sourceScore === "number" ? { topResultChoiceSourceScore: resultChoices[0].sourceScore } : {}),
+    ...(resultChoices[0]?.sourceHints?.length ? { topResultChoiceSourceHints: resultChoices[0].sourceHints } : {}),
+    ...(resultChoices[0]?.dateText ? { topResultChoiceDateText: resultChoices[0].dateText } : {}),
+    ...(resultChoices[0]?.relevance ? { topResultChoiceRelevance: resultChoices[0].relevance } : {}),
+    ...(resultChoices[0]?.matchedTerms?.[0] ? { topResultChoiceMatchedTerm: resultChoices[0].matchedTerms[0] } : {}),
+    ...(resultChoices[0]?.findMatches?.[0] ? { topResultChoiceFindMatch: resultChoices[0].findMatches[0] } : {}),
+    ...(typeof resultChoices[0]?.isLikelyOfficial === "boolean" ? { topResultChoiceLikelyOfficial: resultChoices[0].isLikelyOfficial } : {}),
+    ...(resultChoices[0]?.sitelinks?.length ? { topResultChoiceSitelinkCount: resultChoices[0].sitelinks.length } : {}),
+    ...(resultChoices[0]?.sitelinks?.[0]?.title ? { topResultChoiceFirstSitelinkTitle: resultChoices[0].sitelinks[0].title } : {}),
+    ...(resultChoices[0]?.sitelinks?.[0]?.url ? { topResultChoiceFirstSitelinkUrl: resultChoices[0].sitelinks[0].url } : {}),
     ...(resultChoices[0]?.selectionReason ? { topResultChoiceReason: resultChoices[0].selectionReason } : {}),
     evidenceCount: pageCheck.contentEvidence.length,
     formCount: pageCheck.forms.length,
@@ -14717,6 +14750,17 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topResultChoiceOpenResult ? { topResultChoiceOpenResult: agent.topResultChoiceOpenResult } : agent.resultChoices[0] ? { topResultChoiceOpenResult: compactAgentResultChoice(agent.resultChoices[0], searchCommandContext, pageLinkContext).openResult } : {}),
     ...(typeof agent.topResultChoiceRecommended === "boolean" ? { topResultChoiceRecommended: agent.topResultChoiceRecommended } : {}),
     ...(typeof agent.topResultChoicePrimary === "boolean" ? { topResultChoicePrimary: agent.topResultChoicePrimary } : {}),
+    ...(agent.topResultChoiceSourceType ? { topResultChoiceSourceType: agent.topResultChoiceSourceType } : {}),
+    ...(typeof agent.topResultChoiceSourceScore === "number" ? { topResultChoiceSourceScore: agent.topResultChoiceSourceScore } : {}),
+    ...(agent.topResultChoiceSourceHints?.length ? { topResultChoiceSourceHints: agent.topResultChoiceSourceHints } : {}),
+    ...(agent.topResultChoiceDateText ? { topResultChoiceDateText: agent.topResultChoiceDateText } : {}),
+    ...(agent.topResultChoiceRelevance ? { topResultChoiceRelevance: agent.topResultChoiceRelevance } : {}),
+    ...(agent.topResultChoiceMatchedTerm ? { topResultChoiceMatchedTerm: agent.topResultChoiceMatchedTerm } : {}),
+    ...(agent.topResultChoiceFindMatch ? { topResultChoiceFindMatch: agent.topResultChoiceFindMatch } : {}),
+    ...(typeof agent.topResultChoiceLikelyOfficial === "boolean" ? { topResultChoiceLikelyOfficial: agent.topResultChoiceLikelyOfficial } : {}),
+    ...(typeof agent.topResultChoiceSitelinkCount === "number" ? { topResultChoiceSitelinkCount: agent.topResultChoiceSitelinkCount } : {}),
+    ...(agent.topResultChoiceFirstSitelinkTitle ? { topResultChoiceFirstSitelinkTitle: agent.topResultChoiceFirstSitelinkTitle } : {}),
+    ...(agent.topResultChoiceFirstSitelinkUrl ? { topResultChoiceFirstSitelinkUrl: agent.topResultChoiceFirstSitelinkUrl } : {}),
     ...(agent.topResultChoiceReason ? { topResultChoiceReason: agent.topResultChoiceReason } : {}),
     evidenceCount: agent.evidenceCount,
     formCount: agent.formCount,
@@ -15254,6 +15298,14 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topResultChoiceOpenResult ? { topResultChoiceOpenResult: agent.topResultChoiceOpenResult } : agent.resultChoices[0] ? { topResultChoiceOpenResult: compactAgentResultChoice(agent.resultChoices[0], searchCommandContext, pageLinkContext).openResult } : {}),
     ...(typeof agent.topResultChoiceRecommended === "boolean" ? { topResultChoiceRecommended: agent.topResultChoiceRecommended } : {}),
     ...(typeof agent.topResultChoicePrimary === "boolean" ? { topResultChoicePrimary: agent.topResultChoicePrimary } : {}),
+    ...(agent.topResultChoiceSourceType ? { topResultChoiceSourceType: agent.topResultChoiceSourceType } : {}),
+    ...(typeof agent.topResultChoiceSourceScore === "number" ? { topResultChoiceSourceScore: agent.topResultChoiceSourceScore } : {}),
+    ...(agent.topResultChoiceDateText ? { topResultChoiceDateText: agent.topResultChoiceDateText } : {}),
+    ...(agent.topResultChoiceRelevance ? { topResultChoiceRelevance: agent.topResultChoiceRelevance } : {}),
+    ...(agent.topResultChoiceMatchedTerm ? { topResultChoiceMatchedTerm: agent.topResultChoiceMatchedTerm } : {}),
+    ...(agent.topResultChoiceFindMatch ? { topResultChoiceFindMatch: agent.topResultChoiceFindMatch } : {}),
+    ...(typeof agent.topResultChoiceLikelyOfficial === "boolean" ? { topResultChoiceLikelyOfficial: agent.topResultChoiceLikelyOfficial } : {}),
+    ...(typeof agent.topResultChoiceSitelinkCount === "number" ? { topResultChoiceSitelinkCount: agent.topResultChoiceSitelinkCount } : {}),
     ...(agent.topResultChoiceReason ? { topResultChoiceReason: agent.topResultChoiceReason } : {}),
     evidenceCount: agent.evidenceCount,
     formCount: agent.formCount,

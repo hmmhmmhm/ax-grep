@@ -735,6 +735,17 @@ export type AgentSummary = {
   topResultChoiceOpenResult?: number | "best";
   topResultChoiceRecommended?: boolean;
   topResultChoicePrimary?: boolean;
+  topResultChoiceSourceType?: string;
+  topResultChoiceSourceScore?: number;
+  topResultChoiceSourceHints?: string[];
+  topResultChoiceDateText?: string;
+  topResultChoiceRelevance?: "low" | "medium" | "high";
+  topResultChoiceMatchedTerm?: string;
+  topResultChoiceFindMatch?: string;
+  topResultChoiceLikelyOfficial?: boolean;
+  topResultChoiceSitelinkCount?: number;
+  topResultChoiceFirstSitelinkTitle?: string;
+  topResultChoiceFirstSitelinkUrl?: string;
   topResultChoiceReason?: string;
   evidenceCount?: number;
   formCount?: number;

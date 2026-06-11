@@ -1257,6 +1257,17 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topResultChoiceOpenResult?: number | "best";
       topResultChoiceRecommended?: boolean;
       topResultChoicePrimary?: boolean;
+      topResultChoiceSourceType?: string;
+      topResultChoiceSourceScore?: number;
+      topResultChoiceSourceHints?: string[];
+      topResultChoiceDateText?: string;
+      topResultChoiceRelevance?: "low" | "medium" | "high";
+      topResultChoiceMatchedTerm?: string;
+      topResultChoiceFindMatch?: string;
+      topResultChoiceLikelyOfficial?: boolean;
+      topResultChoiceSitelinkCount?: number;
+      topResultChoiceFirstSitelinkTitle?: string;
+      topResultChoiceFirstSitelinkUrl?: string;
       topResultChoiceReason?: string;
       formCount?: number;
       formChoiceCount?: number;
@@ -3467,6 +3478,17 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
   topResultChoiceOpenResult?: number | "best";
   topResultChoiceRecommended?: boolean;
   topResultChoicePrimary?: boolean;
+  topResultChoiceSourceType?: string;
+  topResultChoiceSourceScore?: number;
+  topResultChoiceSourceHints?: string[];
+  topResultChoiceDateText?: string;
+  topResultChoiceRelevance?: "low" | "medium" | "high";
+  topResultChoiceMatchedTerm?: string;
+  topResultChoiceFindMatch?: string;
+  topResultChoiceLikelyOfficial?: boolean;
+  topResultChoiceSitelinkCount?: number;
+  topResultChoiceFirstSitelinkTitle?: string;
+  topResultChoiceFirstSitelinkUrl?: string;
   topResultChoiceReason?: string;
 } | undefined): number {
   const top = agent?.resultChoices?.[0];
@@ -3479,6 +3501,17 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
       || agent?.topResultChoiceOpenResult
       || typeof agent?.topResultChoiceRecommended === "boolean"
       || typeof agent?.topResultChoicePrimary === "boolean"
+      || agent?.topResultChoiceSourceType
+      || typeof agent?.topResultChoiceSourceScore === "number"
+      || agent?.topResultChoiceSourceHints
+      || agent?.topResultChoiceDateText
+      || agent?.topResultChoiceRelevance
+      || agent?.topResultChoiceMatchedTerm
+      || agent?.topResultChoiceFindMatch
+      || typeof agent?.topResultChoiceLikelyOfficial === "boolean"
+      || typeof agent?.topResultChoiceSitelinkCount === "number"
+      || agent?.topResultChoiceFirstSitelinkTitle
+      || agent?.topResultChoiceFirstSitelinkUrl
       || agent?.topResultChoiceReason ? 0 : 1;
   }
   let required = 3;
@@ -3514,6 +3547,62 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
     required += 1;
     if (agent?.topResultChoicePrimary === top.primary) matched += 1;
   } else if (typeof agent?.topResultChoicePrimary === "boolean") {
+    required += 1;
+  }
+  if (top.sourceType) {
+    required += 1;
+    if (agent?.topResultChoiceSourceType === top.sourceType) matched += 1;
+  } else if (agent?.topResultChoiceSourceType) {
+    required += 1;
+  }
+  if (typeof top.sourceScore === "number") {
+    required += 1;
+    if (agent?.topResultChoiceSourceScore === top.sourceScore) matched += 1;
+  } else if (typeof agent?.topResultChoiceSourceScore === "number") {
+    required += 1;
+  }
+  if (top.sourceHints?.length) {
+    required += 1;
+    if (JSON.stringify(agent?.topResultChoiceSourceHints) === JSON.stringify(top.sourceHints)) matched += 1;
+  } else if (agent?.topResultChoiceSourceHints) {
+    required += 1;
+  }
+  if (top.dateText) {
+    required += 1;
+    if (agent?.topResultChoiceDateText === top.dateText) matched += 1;
+  } else if (agent?.topResultChoiceDateText) {
+    required += 1;
+  }
+  if (top.relevance) {
+    required += 1;
+    if (agent?.topResultChoiceRelevance === top.relevance) matched += 1;
+  } else if (agent?.topResultChoiceRelevance) {
+    required += 1;
+  }
+  if (top.matchedTerms?.[0]) {
+    required += 1;
+    if (agent?.topResultChoiceMatchedTerm === top.matchedTerms[0]) matched += 1;
+  } else if (agent?.topResultChoiceMatchedTerm) {
+    required += 1;
+  }
+  if (top.findMatches?.[0]) {
+    required += 1;
+    if (agent?.topResultChoiceFindMatch === top.findMatches[0]) matched += 1;
+  } else if (agent?.topResultChoiceFindMatch) {
+    required += 1;
+  }
+  if (typeof top.isLikelyOfficial === "boolean") {
+    required += 1;
+    if (agent?.topResultChoiceLikelyOfficial === top.isLikelyOfficial) matched += 1;
+  } else if (typeof agent?.topResultChoiceLikelyOfficial === "boolean") {
+    required += 1;
+  }
+  if (top.sitelinks?.length) {
+    required += 3;
+    if (agent?.topResultChoiceSitelinkCount === top.sitelinks.length) matched += 1;
+    if (agent?.topResultChoiceFirstSitelinkTitle === top.sitelinks[0]?.title) matched += 1;
+    if (agent?.topResultChoiceFirstSitelinkUrl === top.sitelinks[0]?.url) matched += 1;
+  } else if (typeof agent?.topResultChoiceSitelinkCount === "number" || agent?.topResultChoiceFirstSitelinkTitle || agent?.topResultChoiceFirstSitelinkUrl) {
     required += 1;
   }
   if (top.selectionReason) {
