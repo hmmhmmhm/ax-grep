@@ -196,8 +196,9 @@ actionable.
 matches `agent.primaryAction.execution`, so agents can route from the shortcut
 field without rereading the full action object.
 `averageAgentPrimaryShortcutScore` tracks whether `agent.primaryActionName`,
-reason, priority, command, URL, rank, read-from, and browser shortcuts mirror
-`agent.primaryAction`, so agents can continue from top-level routing fields.
+reason, priority, command, URL, rank, read-from, source-link reference, and
+browser shortcuts mirror `agent.primaryAction`, so agents can continue from
+top-level routing fields.
 `averageAgentExecutorShortcutScore` tracks whether `agent.executorActionName`,
 decision, mode, operation, confidence, terminal/continue flags, command
 arguments, read-from, URL, and expected-outcome shortcuts mirror

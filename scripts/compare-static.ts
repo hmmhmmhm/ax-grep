@@ -3394,6 +3394,7 @@ function scoreAgentPrimaryShortcuts(agent: {
   primaryAfterInteractionCommand?: string;
   primaryAfterInteractionCommandArgs?: string[];
   primaryUrl?: string;
+  primarySourceLinkRef?: string;
   primaryRank?: number;
   primaryOpenResult?: number | "best";
   requiresBrowserInteraction?: boolean;
@@ -3411,6 +3412,7 @@ function scoreAgentPrimaryShortcuts(agent: {
       || agent?.primaryAfterInteractionCommand
       || agent?.primaryAfterInteractionCommandArgs
       || agent?.primaryUrl
+      || agent?.primarySourceLinkRef
       || agent?.primaryRank
       || agent?.primaryOpenResult
       || agent?.requiresBrowserInteraction ? 0 : 1;
@@ -3456,6 +3458,12 @@ function scoreAgentPrimaryShortcuts(agent: {
     required += 1;
     if (agent?.primaryUrl === action.url) matched += 1;
   } else if (agent?.primaryUrl) {
+    required += 1;
+  }
+  if (action.sourceLinkRef) {
+    required += 1;
+    if (agent?.primarySourceLinkRef === action.sourceLinkRef) matched += 1;
+  } else if (agent?.primarySourceLinkRef) {
     required += 1;
   }
   if (action.rank) {

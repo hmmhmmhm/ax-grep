@@ -620,6 +620,7 @@ export type AgentSummary = {
   primaryAfterInteractionCommand?: string;
   primaryAfterInteractionCommandArgs?: string[];
   primaryUrl?: string;
+  primarySourceLinkRef?: string;
   primaryRank?: number;
   primaryOpenResult?: number | "best";
   requiresBrowserInteraction?: boolean;

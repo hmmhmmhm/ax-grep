@@ -962,6 +962,7 @@ type AgentSummary = {
   primaryAfterInteractionCommand?: string;
   primaryAfterInteractionCommandArgs?: string[];
   primaryUrl?: string;
+  primarySourceLinkRef?: string;
   primaryRank?: number;
   primaryOpenResult?: number | "best";
   requiresBrowserInteraction?: boolean;
@@ -2583,6 +2584,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.primaryReason) lines.push(`  primaryReason: ${agent.primaryReason}`);
   if (agent.primaryPriority) lines.push(`  primaryPriority: ${agent.primaryPriority}`);
   if (agent.primaryPriorityReason) lines.push(`  primaryPriorityReason: ${agent.primaryPriorityReason}`);
+  if (agent.primarySourceLinkRef) lines.push(`  primarySourceLinkRef: ${agent.primarySourceLinkRef}`);
   if (agent.recommendedUrl) lines.push(`  recommendedUrl: ${agent.recommendedUrl}`);
   if (agent.recommendedTitle) lines.push(`  recommendedTitle: ${agent.recommendedTitle}`);
   if (agent.recommendedRank) lines.push(`  recommendedRank: ${agent.recommendedRank}`);
@@ -9076,6 +9078,7 @@ function summarizeAgent(
     if (primaryAction.afterInteractionCommand) agent.primaryAfterInteractionCommand = primaryAction.afterInteractionCommand;
     if (primaryAction.afterInteractionCommandArgs) agent.primaryAfterInteractionCommandArgs = primaryAction.afterInteractionCommandArgs;
     if (primaryAction.url) agent.primaryUrl = primaryAction.url;
+    if (primaryAction.sourceLinkRef) agent.primarySourceLinkRef = primaryAction.sourceLinkRef;
     if (primaryAction.rank) agent.primaryRank = primaryAction.rank;
     if (primaryAction.openResult) agent.primaryOpenResult = primaryAction.openResult;
     if (primaryAction.requiresBrowserInteraction) agent.requiresBrowserInteraction = true;
@@ -12936,6 +12939,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.primaryAfterInteractionCommand ? { primaryAfterInteractionCommand: agent.primaryAfterInteractionCommand } : {}),
     ...(agent.primaryAfterInteractionCommandArgs ? { primaryAfterInteractionCommandArgs: agent.primaryAfterInteractionCommandArgs } : {}),
     ...(agent.primaryUrl ? { primaryUrl: agent.primaryUrl } : {}),
+    ...(agent.primarySourceLinkRef ? { primarySourceLinkRef: agent.primarySourceLinkRef } : {}),
     ...(agent.primaryRank ? { primaryRank: agent.primaryRank } : {}),
     ...(agent.primaryOpenResult ? { primaryOpenResult: agent.primaryOpenResult } : {}),
     ...(agent.requiresBrowserInteraction ? { requiresBrowserInteraction: true } : {}),
@@ -13064,6 +13068,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.primaryExecution ? { primaryExecution: agent.primaryExecution } : {}),
     ...(agent.primaryReadFrom ? { primaryReadFrom: agent.primaryReadFrom } : {}),
     ...(agent.primaryUrl ? { primaryUrl: agent.primaryUrl } : {}),
+    ...(agent.primarySourceLinkRef ? { primarySourceLinkRef: agent.primarySourceLinkRef } : {}),
     ...(agent.primaryAction ? { primaryAction: compactAgentAction(agent.primaryAction, agent.primaryUrl ? { primaryUrl: agent.primaryUrl } : {}) } : {}),
     ...compactAgentRecommended(agent, searchCommandContext, pageLinkContext),
   };

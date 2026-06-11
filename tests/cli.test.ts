@@ -7524,6 +7524,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(0);
     expect(stdout.output).toContain("  next: open-source-link - The page has limited readable content, but an external source link is available.");
     expect(stdout.output).toContain("  url: https://source.example/report");
+    expect(stdout.output).toContain("  primarySourceLinkRef: pageCheck.sourceLinks[0]");
     expect(stdout.output).toContain("  sourceLinkRef: pageCheck.sourceLinks[0]");
     expect(stdout.output).toMatch(
       /pageCheck[\s\S]*  next: open-source-link - The page has limited readable content, but an external source link is available\.[\s\S]*  url: https:\/\/source\.example\/report[\s\S]*  sourceLinkRef: pageCheck\.sourceLinks\[0\]/,
