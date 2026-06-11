@@ -470,6 +470,8 @@ export type AgentSummary = {
   evidenceCount?: number;
   formCount?: number;
   actionTargetCount?: number;
+  hiddenSignalCount?: number;
+  hiddenReadTargetCount?: number;
   sourceLinkCount?: number;
   sourceChoices?: AgentSourceChoice[];
   evidenceQualityScore?: number;

@@ -150,6 +150,9 @@ paths and discoverable through at least one read target when available. This is
 the executor-focused counterweight to raw accessibility-tree overlap: these
 signals are often useful to subagents but absent from browser accessibility
 snapshots.
+`averageAgentHiddenSignalCountScore` tracks whether top-level
+`agent.hiddenSignalCount` and `agent.hiddenReadTargetCount` match those hidden
+groups and read-target shortcuts.
 `averageAgentBrowserAdvantageScore` tracks whether those hidden `pageCheck`
 signals create a concrete agent-browser advantage when they exist, rather than
 only matching visible accessibility-tree roles.

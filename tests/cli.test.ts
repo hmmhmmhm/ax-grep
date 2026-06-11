@@ -4060,6 +4060,8 @@ describe("cli", () => {
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("5 API endpoints");
+    expect(envelope.agent.hiddenSignalCount).toBe(5);
+    expect(envelope.agent.hiddenReadTargetCount).toBe(1);
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",

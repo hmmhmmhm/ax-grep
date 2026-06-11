@@ -45,6 +45,7 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
     "minAgentExecutorScore",
     "averageAgentFormActionCountScore",
     "averageAgentHiddenSignalScore",
+    "averageAgentHiddenSignalCountScore",
   ]);
   requireFileIncludes(root, failures, "docs/agent-readiness.md", [
     "Do not call this objective complete from unit tests alone",

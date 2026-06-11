@@ -854,6 +854,8 @@ type AgentSummary = {
   evidenceCount: number;
   formCount: number;
   actionTargetCount: number;
+  hiddenSignalCount: number;
+  hiddenReadTargetCount: number;
   sourceLinkCount: number;
   sourceChoices: AgentSourceChoice[];
   evidenceQualityScore: number;
@@ -1022,6 +1024,28 @@ type PageCheckSummary = {
   recommendedAction: SuggestedAction;
   nextSteps: SuggestedAction[];
 };
+
+const hiddenAgentPageCheckPaths: Array<keyof PageCheckSummary> = [
+  "hydration",
+  "apiEndpoints",
+  "clientState",
+  "runtime",
+  "config",
+  "appHints",
+  "mobileHints",
+  "topics",
+  "keyValues",
+  "metaFacts",
+  "provenance",
+  "httpPolicies",
+  "schemaFacts",
+  "offers",
+  "identities",
+  "datasets",
+  "timeline",
+  "contactPoints",
+  "authorLinks",
+];
 
 type CliIO = {
   fetch?: typeof fetch;
@@ -8699,6 +8723,8 @@ function summarizeAgent(
   const diagnosticCounts = countDiagnosticsBySeverity(analysis.diagnostics);
   const readTargets = summarizeAgentReadTargets(primaryAction, analysis.kind, pageCheck, verification, results, sourceSearch, semanticSummary);
   const bestReadTarget = selectBestReadTarget(readTargets);
+  const hiddenSignalCount = countHiddenAgentPageCheckSignals(pageCheck);
+  const hiddenReadTargetCount = countHiddenAgentReadTargets(readTargets);
   const citations = summarizeAgentCitations(analysis.kind, pageCheck, verification, primaryAction, recommendedResult, sourceSearch);
   const searchDecision = summarizeAgentSearchDecision(analysis, results, recommendedResult, primaryAction);
   const pageDecision = summarizeAgentPageDecision(analysis, pageCheck, primaryAction);
@@ -8758,6 +8784,8 @@ function summarizeAgent(
     evidenceCount: pageCheck.contentEvidence.length,
     formCount: pageCheck.forms.length,
     actionTargetCount: pageCheck.actionTargets.length,
+    hiddenSignalCount,
+    hiddenReadTargetCount,
     sourceLinkCount: analysis.kind === "search-results" ? 0 : pageCheck.sourceLinks.length,
     sourceChoices,
     evidenceQualityScore,
@@ -10429,6 +10457,18 @@ function agentSourceQualityScore(kind: ContentKind, sourceLinks: PageLinkSummary
   return roundMetric(sourceLinks.reduce((total, link) => total + (link.sourceScore ?? 0), 0) / sourceLinks.length);
 }
 
+function countHiddenAgentPageCheckSignals(pageCheck: PageCheckSummary): number {
+  return hiddenAgentPageCheckPaths.reduce((total, path) => {
+    const value = pageCheck[path];
+    return total + (Array.isArray(value) ? value.length : 0);
+  }, 0);
+}
+
+function countHiddenAgentReadTargets(readTargets: AgentReadTarget[]): number {
+  const hiddenPaths = new Set(hiddenAgentPageCheckPaths.map((path) => `pageCheck.${String(path)}`));
+  return readTargets.filter((target) => hiddenPaths.has(target.path)).length;
+}
+
 function averageEvidenceScore(evidence: PageEvidenceSummary[]): number {
   if (evidence.length === 0) return 0;
   return roundMetric(evidence.reduce((total, item) => total + item.score, 0) / evidence.length);
@@ -11093,6 +11133,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     evidenceCount: 0,
     formCount: 0,
     actionTargetCount: 0,
+    hiddenSignalCount: 0,
+    hiddenReadTargetCount: 0,
     sourceLinkCount: 0,
     sourceChoices: [],
     evidenceQualityScore: 0,
@@ -12328,6 +12370,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     evidenceCount: agent.evidenceCount,
     formCount: agent.formCount,
     actionTargetCount: agent.actionTargetCount,
+    hiddenSignalCount: agent.hiddenSignalCount,
+    hiddenReadTargetCount: agent.hiddenReadTargetCount,
     sourceLinkCount: agent.sourceLinkCount,
     ...(agent.sourceChoices.length > 0 ? { sourceChoices: compactAgentSourceChoiceList(agent.sourceChoices) } : {}),
     evidenceQualityScore: agent.evidenceQualityScore,
@@ -12389,6 +12433,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     evidenceCount: agent.evidenceCount,
     formCount: agent.formCount,
     actionTargetCount: agent.actionTargetCount,
+    hiddenSignalCount: agent.hiddenSignalCount,
+    hiddenReadTargetCount: agent.hiddenReadTargetCount,
     sourceLinkCount: agent.sourceLinkCount,
     evidenceQualityScore: agent.evidenceQualityScore,
     sourceQualityScore: agent.sourceQualityScore,
