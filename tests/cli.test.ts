@@ -1163,6 +1163,7 @@ describe("cli", () => {
       expect(envelope.agent.handoff.resultChoices[0]).toMatchObject({
         commandArgs: ["ax-grep", "https://result.example/", flag],
       });
+      expect(envelope.agent.resultChoiceCount).toBe(2);
     }
   });
 
@@ -1238,6 +1239,8 @@ describe("cli", () => {
     expect(envelope.pageCheck.nextSteps).toBeUndefined();
     expect(envelope.agent.sourceLinkCount).toBe(0);
     expect(envelope.agent.resultCount).toBe(1);
+    expect(envelope.agent.resultChoiceCount).toBe(1);
+    expect(envelope.agent.sourceChoiceCount).toBe(0);
     expect(envelope.agent.citations).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({ kind: "source-link" }),
@@ -3462,6 +3465,7 @@ describe("cli", () => {
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("1 form");
     expect(envelope.agent.formCount).toBe(1);
+    expect(envelope.agent.formChoiceCount).toBe(1);
     expect(envelope.agent.formChoices).toEqual([
       expect.objectContaining({
         id: "f1",
@@ -3481,6 +3485,7 @@ describe("cli", () => {
       }),
     ]);
     expect(envelope.agent.actionTargetCount).toBe(0);
+    expect(envelope.agent.actionTargetChoiceCount).toBe(0);
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -3525,6 +3530,7 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(envelope.agent.contract.profile).toBe("brief");
     expect(envelope.agent.formCount).toBe(1);
+    expect(envelope.agent.formChoiceCount).toBe(1);
     expect(envelope.agent.formChoices).toEqual([
       expect.objectContaining({
         id: "f1",
@@ -3536,6 +3542,7 @@ describe("cli", () => {
       }),
     ]);
     expect(envelope.agent.actionTargetCount).toBe(0);
+    expect(envelope.agent.actionTargetChoiceCount).toBe(0);
     expect(envelope.agent.executor).toMatchObject({
       decision: "return",
       readFrom: "pageCheck.forms",
@@ -7596,12 +7603,16 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  responseContentType: text/plain;charset=UTF-8");
     expect(stdout.output).toContain("  finalUrlChanged: false");
     expect(stdout.output).toContain("  resultCount: 0");
+    expect(stdout.output).toContain("  resultChoiceCount: 0");
     expect(stdout.output).toContain("  evidenceCount: 1");
     expect(stdout.output).toContain("  formCount: 0");
+    expect(stdout.output).toContain("  formChoiceCount: 0");
     expect(stdout.output).toContain("  actionTargetCount: 0");
+    expect(stdout.output).toContain("  actionTargetChoiceCount: 0");
     expect(stdout.output).toContain("  hiddenSignalCount: 4");
     expect(stdout.output).toContain("  hiddenReadTargetCount: 2");
     expect(stdout.output).toContain("  sourceLinkCount: 1");
+    expect(stdout.output).toContain("  sourceChoiceCount: 1");
     expect(stdout.output).toContain("  alternativeActionCount: 1");
     expect(stdout.output).toContain("  usabilityScore:");
     expect(stdout.output).toContain("  evidenceQualityScore:");

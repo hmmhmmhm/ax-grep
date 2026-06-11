@@ -88,6 +88,7 @@ type CliAgentSummary = {
   agentPrimaryExecution?: ActionExecution;
   agentReadTargetScore: number;
   agentResultCountScore: number;
+  agentChoiceCountScore: number;
   agentResultChoiceScore: number;
   agentSourceLinkCountScore: number;
   agentFormActionCountScore: number;
@@ -567,6 +568,7 @@ export type GateSummary = {
   averagePageLinkCommandScore: number;
   averageAgentReadTargetScore: number;
   averageAgentResultCountScore: number;
+  averageAgentChoiceCountScore: number;
   averageAgentResultChoiceScore: number;
   averageAgentSourceLinkCountScore: number;
   averageAgentFormActionCountScore: number;
@@ -1082,14 +1084,18 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       recommendedRelevance?: "low" | "medium" | "high";
       recommendedLikelyOfficial?: boolean;
       resultCount?: number;
+      resultChoiceCount?: number;
       resultChoices?: CliAgentResultChoiceShape[];
       formCount?: number;
+      formChoiceCount?: number;
       formChoices?: CliAgentFormChoiceShape[];
       actionTargetCount?: number;
+      actionTargetChoiceCount?: number;
       actionTargetChoices?: CliAgentActionTargetChoiceShape[];
       hiddenSignalCount?: number;
       hiddenReadTargetCount?: number;
       sourceLinkCount?: number;
+      sourceChoiceCount?: number;
       sourceChoices?: CliAgentSourceChoiceShape[];
       sourceSearchSelectedRank?: number;
       sourceSearchSelectedUrl?: string;
@@ -1213,6 +1219,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentHiddenSignalScore: scoreAgentHiddenSignals(item.pageCheck, item.agent?.readTargets ?? [], item),
     agentReadTargetScore: scoreAgentReadTargets(item.agent?.readTargets ?? [], item.agent?.primaryAction, item),
     agentResultCountScore: scoreAgentResultCount(item.kind ?? "unknown", item.agent?.resultCount, item.searchResults ?? []),
+    agentChoiceCountScore: scoreAgentChoiceCounts(item.agent),
     agentResultChoiceScore: scoreAgentResultChoices(item.agent?.resultChoices ?? [], item.searchResults ?? [], item.recommendedResult, item.agent?.primaryAction),
     agentSourceLinkCountScore: scoreAgentSourceLinkCount(item.kind ?? "unknown", item.agent?.sourceLinkCount, item.pageCheck?.sourceLinks ?? []),
     agentFormActionCountScore: scoreAgentFormActionCounts(item.agent?.formCount, item.agent?.actionTargetCount, item.pageCheck?.forms ?? [], item.pageCheck?.actionTargets ?? []),
@@ -1284,6 +1291,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentHiddenSignalScore: 0,
     agentReadTargetScore: 0,
     agentResultCountScore: 0,
+    agentChoiceCountScore: 0,
     agentResultChoiceScore: 0,
     agentSourceLinkCountScore: 0,
     agentFormActionCountScore: 0,
@@ -1473,6 +1481,7 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[]; 
     "answerEvidence",
     "verification.queries",
     "searchDecision",
+    "choice.counts",
     "resultChoices",
     "sourceChoices",
     "formChoices",
@@ -2513,6 +2522,27 @@ function scoreAgentResultCount(kind: string, resultCount: number | undefined, se
   return resultCount >= searchResults.length ? 1 : 0;
 }
 
+function scoreAgentChoiceCounts(agent: {
+  resultCount?: number;
+  resultChoiceCount?: number;
+  formCount?: number;
+  formChoiceCount?: number;
+  actionTargetCount?: number;
+  actionTargetChoiceCount?: number;
+  sourceLinkCount?: number;
+  sourceChoiceCount?: number;
+} | undefined): number {
+  if (!agent) return 0;
+  const checks = [
+    [agent.resultChoiceCount, agent.resultCount],
+    [agent.formChoiceCount, agent.formCount],
+    [agent.actionTargetChoiceCount, agent.actionTargetCount],
+    [agent.sourceChoiceCount, agent.sourceLinkCount],
+  ] as const;
+  const matched = checks.filter(([choiceCount, sourceCount]) => typeof choiceCount === "number" && choiceCount === (sourceCount ?? 0)).length;
+  return roundScore(matched / checks.length);
+}
+
 function scoreAgentResultChoices(
   choices: CliAgentResultChoiceShape[],
   searchResults: CliSearchResultShape[],
@@ -3307,6 +3337,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.searchResultActionScore * 0.005
     + summary.agentReadTargetScore * 0.005
     + summary.agentResultCountScore * 0.005
+    + summary.agentChoiceCountScore * 0.005
     + summary.agentResultChoiceScore * 0.005
     + summary.agentSourceLinkCountScore * 0.005
     + summary.agentSourceChoiceScore * 0.005
@@ -3366,6 +3397,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentQualityGateScore,
     summary.agentReadTargetScore,
     summary.agentResultChoiceScore,
+    summary.agentChoiceCountScore,
     summary.agentFormActionCountScore,
     summary.agentFormActionChoiceScore,
     summary.agentHiddenSignalCountScore,
@@ -3463,6 +3495,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averagePageLinkCommandScore: average(included.map((comparison) => comparison.cliAgentSummary.pageLinkCommandScore)),
     averageAgentReadTargetScore: average(included.map((comparison) => comparison.cliAgentSummary.agentReadTargetScore)),
     averageAgentResultCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentResultCountScore)),
+    averageAgentChoiceCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentChoiceCountScore)),
     averageAgentResultChoiceScore: average(included.map((comparison) => comparison.cliAgentSummary.agentResultChoiceScore)),
     averageAgentSourceLinkCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSourceLinkCountScore)),
     averageAgentFormActionCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentFormActionCountScore)),

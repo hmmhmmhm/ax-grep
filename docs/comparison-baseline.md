@@ -101,6 +101,8 @@ actions keep `sourceLinkRef` so agents can jump back to the exact
 `pageCheck.sourceLinks[n]` item.
 `averageAgentResultCountScore` tracks whether `agent.resultCount` is zero for
 non-search pages and at least the compact result count for search pages.
+`averageAgentChoiceCountScore` tracks whether executable choice-count shortcuts
+match their result, form, action-target, and source-link source counts.
 `averageAgentSourceLinkCountScore` tracks whether `agent.sourceLinkCount` is
 zero for search pages and matches compact `pageCheck.sourceLinks` for ordinary
 content pages.

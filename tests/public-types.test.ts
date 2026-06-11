@@ -151,14 +151,18 @@ describe("public agent types", () => {
     const summary: Pick<
       AgentSummary,
       | "resultCount"
+      | "resultChoiceCount"
       | "evidenceCount"
       | "formCount"
+      | "formChoiceCount"
       | "formChoices"
       | "actionTargetCount"
+      | "actionTargetChoiceCount"
       | "actionTargetChoices"
       | "hiddenSignalCount"
       | "hiddenReadTargetCount"
       | "sourceLinkCount"
+      | "sourceChoiceCount"
       | "sourceSearchSelectedRank"
       | "sourceSearchSelectedUrl"
       | "sourceSearchAlternateCount"
@@ -166,14 +170,18 @@ describe("public agent types", () => {
       | "verificationMissingQueries"
     > = {
       resultCount: 2,
+      resultChoiceCount: 2,
       evidenceCount: 1,
       formCount: 1,
+      formChoiceCount: 1,
       formChoices: [formChoice],
       actionTargetCount: 2,
+      actionTargetChoiceCount: 1,
       actionTargetChoices: [actionTargetChoice],
       hiddenSignalCount: 4,
       hiddenReadTargetCount: 2,
       sourceLinkCount: 1,
+      sourceChoiceCount: 1,
       sourceSearchSelectedRank: 2,
       sourceSearchSelectedUrl: "https://source.example/result",
       sourceSearchAlternateCount: 1,
@@ -183,6 +191,7 @@ describe("public agent types", () => {
 
     expect(summary.hiddenSignalCount).toBe(4);
     expect(summary.actionTargetCount).toBe(2);
+    expect(summary.actionTargetChoiceCount).toBe(1);
     expect(summary.formChoices?.[0]?.queryField).toBe("q");
     expect(summary.actionTargetChoices?.[0]?.kind).toBe("search");
     expect(summary.sourceSearchAlternateCount).toBe(1);

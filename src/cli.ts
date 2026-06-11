@@ -854,15 +854,19 @@ type AgentSummary = {
   verificationFoundQueries: string[];
   verificationMissingQueries: string[];
   resultCount: number;
+  resultChoiceCount: number;
   resultChoices: AgentResultChoice[];
   evidenceCount: number;
   formCount: number;
+  formChoiceCount: number;
   formChoices: AgentFormChoice[];
   actionTargetCount: number;
+  actionTargetChoiceCount: number;
   actionTargetChoices: AgentActionTargetChoice[];
   hiddenSignalCount: number;
   hiddenReadTargetCount: number;
   sourceLinkCount: number;
+  sourceChoiceCount: number;
   sourceChoices: AgentSourceChoice[];
   sourceSearchSelectedRank?: number;
   sourceSearchSelectedUrl?: string;
@@ -924,6 +928,7 @@ const agentContract: AgentContract = {
     "answerPlan.confidence",
     "verification.queries",
     "searchDecision",
+    "choice.counts",
     "resultChoices",
     "sourceChoices",
     "formChoices",
@@ -2361,12 +2366,16 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  responseContentType: ${agent.responseContentType || "unknown"}`,
     `  finalUrlChanged: ${agent.finalUrlChanged}`,
     `  resultCount: ${agent.resultCount}`,
+    `  resultChoiceCount: ${agent.resultChoiceCount}`,
     `  evidenceCount: ${agent.evidenceCount}`,
     `  formCount: ${agent.formCount}`,
+    `  formChoiceCount: ${agent.formChoiceCount}`,
     `  actionTargetCount: ${agent.actionTargetCount}`,
+    `  actionTargetChoiceCount: ${agent.actionTargetChoiceCount}`,
     `  hiddenSignalCount: ${agent.hiddenSignalCount}`,
     `  hiddenReadTargetCount: ${agent.hiddenReadTargetCount}`,
     `  sourceLinkCount: ${agent.sourceLinkCount}`,
+    `  sourceChoiceCount: ${agent.sourceChoiceCount}`,
     ...(typeof agent.sourceSearchSelectedRank === "number" ? [`  sourceSearchSelectedRank: ${agent.sourceSearchSelectedRank}`] : []),
     ...(agent.sourceSearchSelectedUrl ? [`  sourceSearchSelectedUrl: ${agent.sourceSearchSelectedUrl}`] : []),
     `  sourceSearchAlternateCount: ${agent.sourceSearchAlternateCount}`,
@@ -8827,15 +8836,19 @@ function summarizeAgent(
     verificationFoundQueries: verification.foundQueries,
     verificationMissingQueries: verification.missingQueries,
     resultCount: hasUsableSearchResults ? results.length : 0,
+    resultChoiceCount: resultChoices.length,
     resultChoices,
     evidenceCount: pageCheck.contentEvidence.length,
     formCount: pageCheck.forms.length,
     formChoices: summarizeAgentFormChoices(pageCheck.forms),
+    formChoiceCount: pageCheck.forms.length,
     actionTargetCount: pageCheck.actionTargets.length,
     actionTargetChoices: summarizeAgentActionTargetChoices(pageCheck.actionTargets),
+    actionTargetChoiceCount: pageCheck.actionTargets.length,
     hiddenSignalCount,
     hiddenReadTargetCount,
     sourceLinkCount: analysis.kind === "search-results" ? 0 : pageCheck.sourceLinks.length,
+    sourceChoiceCount: sourceChoices.length,
     sourceChoices,
     ...(sourceSearch ? { sourceSearchSelectedRank: sourceSearch.selectedRank } : {}),
     ...(sourceSearch ? { sourceSearchSelectedUrl: sourceSearch.selectedUrl } : {}),
@@ -11233,15 +11246,19 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     verificationFoundQueries: [],
     verificationMissingQueries: [],
     resultCount: 0,
+    resultChoiceCount: 0,
     resultChoices: [],
     evidenceCount: 0,
     formCount: 0,
+    formChoiceCount: 0,
     formChoices: [],
     actionTargetCount: 0,
+    actionTargetChoiceCount: 0,
     actionTargetChoices: [],
     hiddenSignalCount: 0,
     hiddenReadTargetCount: 0,
     sourceLinkCount: 0,
+    sourceChoiceCount: 0,
     sourceChoices: [],
     sourceSearchAlternateCount: sourceSearch?.alternateResults?.length ?? 0,
     ...(sourceSearch ? { sourceSearchSelectedRank: sourceSearch.selectedRank } : {}),
@@ -12477,15 +12494,19 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.verificationFoundQueries.length > 0 ? { verificationFoundQueries: agent.verificationFoundQueries } : {}),
     ...(agent.verificationMissingQueries.length > 0 ? { verificationMissingQueries: agent.verificationMissingQueries } : {}),
     resultCount: agent.resultCount,
+    resultChoiceCount: agent.resultChoiceCount,
     ...(agent.resultChoices.length > 0 ? { resultChoices: agent.resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext, pageLinkContext)) } : {}),
     evidenceCount: agent.evidenceCount,
     formCount: agent.formCount,
+    formChoiceCount: agent.formChoiceCount,
     ...(agent.formChoices.length > 0 ? { formChoices: compactAgentFormExecutionRefs(agent.formChoices) } : {}),
     actionTargetCount: agent.actionTargetCount,
+    actionTargetChoiceCount: agent.actionTargetChoiceCount,
     ...(agent.actionTargetChoices.length > 0 ? { actionTargetChoices: compactAgentActionTargetExecutionRefs(agent.actionTargetChoices) } : {}),
     hiddenSignalCount: agent.hiddenSignalCount,
     hiddenReadTargetCount: agent.hiddenReadTargetCount,
     sourceLinkCount: agent.sourceLinkCount,
+    sourceChoiceCount: agent.sourceChoiceCount,
     ...(agent.sourceChoices.length > 0 ? { sourceChoices: compactAgentSourceChoiceList(agent.sourceChoices) } : {}),
     ...(typeof agent.sourceSearchSelectedRank === "number" ? { sourceSearchSelectedRank: agent.sourceSearchSelectedRank } : {}),
     ...(agent.sourceSearchSelectedUrl ? { sourceSearchSelectedUrl: agent.sourceSearchSelectedUrl } : {}),
@@ -12548,14 +12569,18 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.verificationFoundQueries.length > 0 ? { verificationFoundQueries: agent.verificationFoundQueries } : {}),
     ...(agent.verificationMissingQueries.length > 0 ? { verificationMissingQueries: agent.verificationMissingQueries } : {}),
     resultCount: agent.resultCount,
+    resultChoiceCount: agent.resultChoiceCount,
     evidenceCount: agent.evidenceCount,
     formCount: agent.formCount,
+    formChoiceCount: agent.formChoiceCount,
     ...(agent.formChoices.length > 0 ? { formChoices: compactAgentFormExecutionRefs(agent.formChoices) } : {}),
     actionTargetCount: agent.actionTargetCount,
+    actionTargetChoiceCount: agent.actionTargetChoiceCount,
     ...(agent.actionTargetChoices.length > 0 ? { actionTargetChoices: compactAgentActionTargetExecutionRefs(agent.actionTargetChoices) } : {}),
     hiddenSignalCount: agent.hiddenSignalCount,
     hiddenReadTargetCount: agent.hiddenReadTargetCount,
     sourceLinkCount: agent.sourceLinkCount,
+    sourceChoiceCount: agent.sourceChoiceCount,
     ...(typeof agent.sourceSearchSelectedRank === "number" ? { sourceSearchSelectedRank: agent.sourceSearchSelectedRank } : {}),
     ...(agent.sourceSearchSelectedUrl ? { sourceSearchSelectedUrl: agent.sourceSearchSelectedUrl } : {}),
     sourceSearchAlternateCount: agent.sourceSearchAlternateCount,

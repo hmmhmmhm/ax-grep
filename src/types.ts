@@ -512,15 +512,19 @@ export type AgentSummary = {
   verificationFoundQueries?: string[];
   verificationMissingQueries?: string[];
   resultCount?: number;
+  resultChoiceCount?: number;
   resultChoices?: AgentResultChoice[];
   evidenceCount?: number;
   formCount?: number;
+  formChoiceCount?: number;
   formChoices?: AgentFormChoice[];
   actionTargetCount?: number;
+  actionTargetChoiceCount?: number;
   actionTargetChoices?: AgentActionTargetChoice[];
   hiddenSignalCount?: number;
   hiddenReadTargetCount?: number;
   sourceLinkCount?: number;
+  sourceChoiceCount?: number;
   sourceChoices?: AgentSourceChoice[];
   sourceSearchSelectedRank?: number;
   sourceSearchSelectedUrl?: string;
@@ -580,6 +584,7 @@ export type AgentContractFeature =
   | "answerPlan.confidence"
   | "verification.queries"
   | "searchDecision"
+  | "choice.counts"
   | "resultChoices"
   | "sourceChoices"
   | "formChoices"

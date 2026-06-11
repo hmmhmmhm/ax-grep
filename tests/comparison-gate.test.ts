@@ -36,6 +36,7 @@ function staticSummary(overrides: Partial<StaticGateSummary> = {}): StaticGateSu
     averageAgentReadTargetScore: 1,
     averageAgentResultCountScore: 1,
     averageAgentResultChoiceScore: 1,
+    averageAgentChoiceCountScore: 1,
     averageAgentSourceLinkCountScore: 1,
     averageAgentFormActionCountScore: 1,
     averageAgentFormActionChoiceScore: 1,
@@ -176,12 +177,14 @@ describe("comparison gate checker", () => {
   it("rejects static reports that drop result, source, or action detail gates", () => {
     const failures = checkComparisonGateReport(staticReport(staticSummary({
       averageAgentResultChoiceScore: 0.9,
+      averageAgentChoiceCountScore: 0.85,
       averageAgentSourceChoiceScore: 0.8,
       averageAgentActionListScore: 0.75,
     })), "static.json");
 
     expect(failures.map((failure) => failure.message)).toEqual([
       "averageAgentResultChoiceScore expected >= 0.995, got 0.9",
+      "averageAgentChoiceCountScore expected >= 0.995, got 0.85",
       "averageAgentSourceChoiceScore expected >= 0.995, got 0.8",
       "averageAgentActionListScore expected >= 0.995, got 0.75",
     ]);
