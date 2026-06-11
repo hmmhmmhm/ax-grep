@@ -244,6 +244,7 @@ type SuggestedAction = {
   afterInteractionCommandArgs?: string[];
   terminal?: boolean;
   readFrom?: string;
+  sourceLinkRef?: string;
   requiresBrowserInteraction?: boolean;
   execution?: "run-command" | "read-current" | "interact-browser" | "inspect-output";
   target?: AgentTarget;
@@ -12183,18 +12184,20 @@ function compactAgentForms(items: PageFormSummary[], primaryAction?: SuggestedAc
 }
 
 function compactAgentPageCheckNextSteps(steps: SuggestedAction[], sourceLinks: PageLinkSummary[], threshold = 650): object[] {
-  const compact = steps.map((step) => compactAgentAction(step, { omitOpenSourceTarget: true, omitReason: true }));
+  const compact = steps.map((step) => {
+    const action = compactAgentAction(step, { omitOpenSourceTarget: true, omitReason: true }) as Record<string, unknown>;
+    if (action.action !== "open-source-link" || typeof action.url !== "string") return action;
+    const index = sourceLinks.findIndex((link) => link.url === action.url);
+    return index < 0 ? action : { ...action, sourceLinkRef: `pageCheck.sourceLinks[${index}]` };
+  });
   if (JSON.stringify(compact).length <= threshold) return compact;
   return compact.map((item) => {
     const action = item as Record<string, unknown>;
-    if (action.action !== "open-source-link" || typeof action.url !== "string") return item;
-    const index = sourceLinks.findIndex((link) => link.url === action.url);
-    if (index < 0) return item;
+    if (action.action !== "open-source-link" || typeof action.sourceLinkRef !== "string") return item;
     const { url: _url, command: _command, commandArgs: _commandArgs, ...rest } = action;
     return {
       ...rest,
       ...(rest.action === "open-source-link" ? { priorityReason: undefined } : {}),
-      sourceLinkRef: `pageCheck.sourceLinks[${index}]`,
     };
   });
 }
@@ -13217,10 +13220,16 @@ function withActionExecution(action: SuggestedAction): SuggestedAction {
 }
 
 function withPageCheckActionExecution(pageCheck: PageCheckSummary): PageCheckSummary {
+  const addSourceLinkRef = (action: SuggestedAction): SuggestedAction => {
+    const executable = withActionExecution(action);
+    if (executable.sourceLinkRef || executable.action !== "open-source-link" || !executable.url) return executable;
+    const index = pageCheck.sourceLinks.findIndex((link) => link.url === executable.url);
+    return index < 0 ? executable : { ...executable, sourceLinkRef: `pageCheck.sourceLinks[${index}]` };
+  };
   return {
     ...pageCheck,
-    recommendedAction: withActionExecution(pageCheck.recommendedAction),
-    nextSteps: pageCheck.nextSteps.map(withActionExecution),
+    recommendedAction: addSourceLinkRef(pageCheck.recommendedAction),
+    nextSteps: pageCheck.nextSteps.map(addSourceLinkRef),
   };
 }
 

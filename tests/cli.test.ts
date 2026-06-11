@@ -3178,6 +3178,7 @@ describe("cli", () => {
           action: "open-source-link",
           execution: "run-command",
           url: "https://source.example/report",
+          sourceLinkRef: "pageCheck.sourceLinks[0]",
         }),
         expect.objectContaining({
           action: "inspect-actions",
@@ -7293,6 +7294,7 @@ npx ax-grep https://example.test --agent</code></pre>
       expect.objectContaining({
         action: "open-source-link",
         url: "https://source.example/report",
+        sourceLinkRef: "pageCheck.sourceLinks[0]",
       }),
       expect.objectContaining({
         action: "inspect-actions",
