@@ -1349,6 +1349,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchEngine?: string;
       sourceSearchSelectedEngine?: string;
       sourceSearchSearchUrl?: string;
+      sourceSearchLang?: string;
+      sourceSearchRegion?: string;
+      sourceSearchFindQueryCount?: number;
+      sourceSearchTopFindQuery?: string;
       sourceSearchSelectedRank?: number;
       sourceSearchSelectedTitle?: string;
       sourceSearchSelectedUrl?: string;
@@ -1486,6 +1490,9 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       engine?: string;
       selectedEngine?: string;
       searchUrl?: string;
+      lang?: string;
+      region?: string;
+      findQueries?: unknown[];
       selectedRank?: number;
       selectedTitle?: string;
       selectedUrl?: string;
@@ -3895,6 +3902,10 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchEngine?: string;
   sourceSearchSelectedEngine?: string;
   sourceSearchSearchUrl?: string;
+  sourceSearchLang?: string;
+  sourceSearchRegion?: string;
+  sourceSearchFindQueryCount?: number;
+  sourceSearchTopFindQuery?: string;
   sourceSearchSelectedRank?: number;
   sourceSearchSelectedTitle?: string;
   sourceSearchSelectedUrl?: string;
@@ -3915,6 +3926,9 @@ function scoreAgentSourceSearchShortcuts(agent: {
   engine?: string;
   selectedEngine?: string;
   searchUrl?: string;
+  lang?: string;
+  region?: string;
+  findQueries?: unknown[];
   selectedRank?: number;
   selectedTitle?: string;
   selectedUrl?: string;
@@ -3926,6 +3940,10 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchEngine === "undefined"
       && typeof agent?.sourceSearchSelectedEngine === "undefined"
       && typeof agent?.sourceSearchSearchUrl === "undefined"
+      && typeof agent?.sourceSearchLang === "undefined"
+      && typeof agent?.sourceSearchRegion === "undefined"
+      && typeof agent?.sourceSearchFindQueryCount === "undefined"
+      && typeof agent?.sourceSearchTopFindQuery === "undefined"
       && typeof agent?.sourceSearchSelectedRank === "undefined"
       && typeof agent?.sourceSearchSelectedTitle === "undefined"
       && typeof agent?.sourceSearchSelectedUrl === "undefined"
@@ -3953,6 +3971,30 @@ function scoreAgentSourceSearchShortcuts(agent: {
   if (agent?.sourceSearchSelectedTitle === sourceSearch.selectedTitle) matched += 1;
   if (agent?.sourceSearchSelectedUrl === sourceSearch.selectedUrl) matched += 1;
   if (agent?.sourceSearchAlternateCount === (sourceSearch.alternateResults?.length ?? 0)) matched += 1;
+  if (sourceSearch.lang) {
+    required += 1;
+    if (agent?.sourceSearchLang === sourceSearch.lang) matched += 1;
+  } else if (agent?.sourceSearchLang) {
+    required += 1;
+  }
+  if (sourceSearch.region) {
+    required += 1;
+    if (agent?.sourceSearchRegion === sourceSearch.region) matched += 1;
+  } else if (agent?.sourceSearchRegion) {
+    required += 1;
+  }
+  if (Array.isArray(sourceSearch.findQueries)) {
+    required += 1;
+    if (agent?.sourceSearchFindQueryCount === sourceSearch.findQueries.length) matched += 1;
+    if (sourceSearch.findQueries[0]) {
+      required += 1;
+      if (agent?.sourceSearchTopFindQuery === sourceSearch.findQueries[0]) matched += 1;
+    } else if (agent?.sourceSearchTopFindQuery) {
+      required += 1;
+    }
+  } else if (typeof agent?.sourceSearchFindQueryCount === "number" || agent?.sourceSearchTopFindQuery) {
+    required += 1;
+  }
   if (sourceSearch.selectedEngine) {
     required += 1;
     if (agent?.sourceSearchSelectedEngine === sourceSearch.selectedEngine) matched += 1;

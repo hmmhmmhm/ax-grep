@@ -3232,6 +3232,8 @@ describe("cli", () => {
     expect(stdout.output).toContain("agent\n  status: verify");
     expect(stdout.output).toContain("  sourceSearchQuery: agent browser");
     expect(stdout.output).toContain("  sourceSearchEngine: duckduckgo");
+    expect(stdout.output).toContain("  sourceSearchFindQueryCount: 1");
+    expect(stdout.output).toContain("  sourceSearchTopFindQuery: target claim");
     expect(stdout.output).toContain("  sourceSearchSelectedRank: 1");
     expect(stdout.output).toContain("  sourceSearchSelectedTitle: Agent browser overview");
     expect(stdout.output).toContain("  sourceSearchSelectedPath: sourceSearch.selectedResult");

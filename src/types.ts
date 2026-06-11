@@ -704,6 +704,10 @@ export type AgentSummary = {
   sourceSearchEngine?: string;
   sourceSearchSelectedEngine?: string;
   sourceSearchSearchUrl?: string;
+  sourceSearchLang?: string;
+  sourceSearchRegion?: string;
+  sourceSearchFindQueryCount?: number;
+  sourceSearchTopFindQuery?: string;
   sourceSearchSelectedRank?: number;
   sourceSearchSelectedTitle?: string;
   sourceSearchSelectedUrl?: string;

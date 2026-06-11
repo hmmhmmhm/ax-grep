@@ -275,6 +275,10 @@ describe("public agent types", () => {
       | "sourceSearchEngine"
       | "sourceSearchSelectedEngine"
       | "sourceSearchSearchUrl"
+      | "sourceSearchLang"
+      | "sourceSearchRegion"
+      | "sourceSearchFindQueryCount"
+      | "sourceSearchTopFindQuery"
       | "sourceSearchSelectedRank"
       | "sourceSearchSelectedTitle"
       | "sourceSearchSelectedUrl"
@@ -593,6 +597,10 @@ describe("public agent types", () => {
       sourceSearchEngine: "auto",
       sourceSearchSelectedEngine: "duckduckgo",
       sourceSearchSearchUrl: "https://duckduckgo.com/html/?q=ax-grep%20docs",
+      sourceSearchLang: "en",
+      sourceSearchRegion: "us",
+      sourceSearchFindQueryCount: 1,
+      sourceSearchTopFindQuery: "install",
       sourceSearchSelectedRank: 2,
       sourceSearchSelectedTitle: "ax-grep documentation",
       sourceSearchSelectedUrl: "https://source.example/result",
@@ -831,6 +839,7 @@ describe("public agent types", () => {
     expect(summary.topSourceChoicePath).toBe("pageCheck.sourceLinks[0]");
     expect(summary.topSourceChoiceCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.sourceSearchQuery).toBe("ax-grep docs");
+    expect(summary.sourceSearchTopFindQuery).toBe("install");
     expect(summary.sourceSearchSelectedTitle).toBe("ax-grep documentation");
     expect(summary.sourceSearchSelectedCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.sourceSearchAlternateCount).toBe(1);
