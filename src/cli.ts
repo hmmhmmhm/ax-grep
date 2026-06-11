@@ -1043,6 +1043,16 @@ type AgentSummary = {
   primaryOpenResult?: number | "best";
   requiresBrowserInteraction?: boolean;
   primaryAction?: SuggestedAction;
+  alternativeActionName?: string;
+  alternativeActionSource?: string;
+  alternativeActionExecution?: NonNullable<SuggestedAction["execution"]>;
+  alternativeActionPriority?: NonNullable<SuggestedAction["priority"]>;
+  alternativeActionReason?: string;
+  alternativeActionReadFrom?: string;
+  alternativeActionCommandArgs?: string[];
+  alternativeActionUrl?: string;
+  alternativeActionSourceLinkRef?: string;
+  alternativeActionRequiresBrowserInteraction?: boolean;
   recommendedUrl?: string;
   recommendedTitle?: string;
   recommendedRank?: number;
@@ -1094,6 +1104,7 @@ const agentContract: AgentContract = {
     "action.priority",
     "action.sourceLinkRef",
     "actions",
+    "alternativeActionShortcuts",
     "contentEvidence.quality",
     "pageCheck.dataTables",
     "pageCheck.barriers",
@@ -2591,6 +2602,16 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.sourceSearchSelectedUrl ? [`  sourceSearchSelectedUrl: ${agent.sourceSearchSelectedUrl}`] : []),
     `  sourceSearchAlternateCount: ${agent.sourceSearchAlternateCount}`,
     `  alternativeActionCount: ${agent.alternativeActionCount}`,
+    ...(agent.alternativeActionName ? [`  alternativeActionName: ${agent.alternativeActionName}`] : []),
+    ...(agent.alternativeActionSource ? [`  alternativeActionSource: ${agent.alternativeActionSource}`] : []),
+    ...(agent.alternativeActionExecution ? [`  alternativeActionExecution: ${agent.alternativeActionExecution}`] : []),
+    ...(agent.alternativeActionPriority ? [`  alternativeActionPriority: ${agent.alternativeActionPriority}`] : []),
+    ...(agent.alternativeActionReason ? [`  alternativeActionReason: ${agent.alternativeActionReason}`] : []),
+    ...(agent.alternativeActionReadFrom ? [`  alternativeActionReadFrom: ${agent.alternativeActionReadFrom}`] : []),
+    ...(agent.alternativeActionCommandArgs ? [`  alternativeActionCommandArgs: ${JSON.stringify(agent.alternativeActionCommandArgs)}`] : []),
+    ...(agent.alternativeActionUrl ? [`  alternativeActionUrl: ${agent.alternativeActionUrl}`] : []),
+    ...(agent.alternativeActionSourceLinkRef ? [`  alternativeActionSourceLinkRef: ${agent.alternativeActionSourceLinkRef}`] : []),
+    ...(agent.alternativeActionRequiresBrowserInteraction ? ["  alternativeActionRequiresBrowserInteraction: true"] : []),
     `  usabilityScore: ${agent.usabilityScore}`,
     `  evidenceQualityScore: ${agent.evidenceQualityScore}`,
     `  sourceQualityScore: ${agent.sourceQualityScore}`,
@@ -9066,6 +9087,7 @@ function summarizeAgent(
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, canUseFetchedHtml, needsBrowserHtml);
   const runbook = summarizeAgentRunbook(next, executionPlan, answerPlan);
   const actions = summarizeAgentActions(analysis, pageCheck, verification, primaryAction);
+  const alternativeAction = actions.find((action) => !action.primary);
   const evidenceQualityScore = averageEvidenceScore(pageCheck.contentEvidence);
   const sourceQualityScore = agentSourceQualityScore(analysis.kind, pageCheck.sourceLinks, results, recommendedResult);
   const usabilityScore = agentUsabilityScore(status, pageCheck, verification, hasUsableSearchResults ? results : [], needsBrowserHtml, error);
@@ -9247,6 +9269,16 @@ function summarizeAgent(
     readTargets,
     actionCount: actions.length,
     actions,
+    ...(alternativeAction?.action ? { alternativeActionName: alternativeAction.action } : {}),
+    ...(alternativeAction?.source ? { alternativeActionSource: alternativeAction.source } : {}),
+    ...(alternativeAction?.execution ? { alternativeActionExecution: alternativeAction.execution } : {}),
+    ...(alternativeAction?.priority ? { alternativeActionPriority: alternativeAction.priority } : {}),
+    ...(alternativeAction?.reason ? { alternativeActionReason: alternativeAction.reason } : {}),
+    ...(alternativeAction?.readFrom ? { alternativeActionReadFrom: alternativeAction.readFrom } : {}),
+    ...(alternativeAction?.commandArgs ? { alternativeActionCommandArgs: alternativeAction.commandArgs } : {}),
+    ...(alternativeAction?.url ? { alternativeActionUrl: alternativeAction.url } : {}),
+    ...(alternativeAction?.sourceLinkRef ? { alternativeActionSourceLinkRef: alternativeAction.sourceLinkRef } : {}),
+    ...(alternativeAction?.requiresBrowserInteraction ? { alternativeActionRequiresBrowserInteraction: true } : {}),
     executorDecision: executor.decision,
     executorMode: executor.mode,
     ...(executor.action ? { executorActionName: executor.action } : {}),
@@ -13177,9 +13209,9 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.sourceSearchSelectedTitle ? { sourceSearchSelectedTitle: agent.sourceSearchSelectedTitle } : {}),
     ...(agent.sourceSearchSelectedUrl ? { sourceSearchSelectedUrl: agent.sourceSearchSelectedUrl } : {}),
     sourceSearchAlternateCount: agent.sourceSearchAlternateCount,
+    alternativeActionCount: agent.alternativeActionCount,
     evidenceQualityScore: agent.evidenceQualityScore,
     sourceQualityScore: agent.sourceQualityScore,
-    alternativeActionCount: agent.alternativeActionCount,
     ...(agent.diagnosticCodes.length > 0 ? { diagnosticCodes: agent.diagnosticCodes } : {}),
     diagnosticErrorCount: agent.diagnosticErrorCount,
     diagnosticWarningCount: agent.diagnosticWarningCount,
@@ -13213,6 +13245,16 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     readTargetCount: agent.readTargetCount,
     ...(agent.readTargets.length > 0 ? { readTargets: compactAgentReadTargets(agent.readTargets) } : {}),
     actionCount: agent.actionCount,
+    ...(agent.alternativeActionName ? { alternativeActionName: agent.alternativeActionName } : {}),
+    ...(agent.alternativeActionSource ? { alternativeActionSource: agent.alternativeActionSource } : {}),
+    ...(agent.alternativeActionExecution ? { alternativeActionExecution: agent.alternativeActionExecution } : {}),
+    ...(agent.alternativeActionPriority ? { alternativeActionPriority: agent.alternativeActionPriority } : {}),
+    ...(agent.alternativeActionReason ? { alternativeActionReason: agent.alternativeActionReason } : {}),
+    ...(agent.alternativeActionReadFrom ? { alternativeActionReadFrom: agent.alternativeActionReadFrom } : {}),
+    ...(agent.alternativeActionCommandArgs ? { alternativeActionCommandArgs: agent.alternativeActionCommandArgs } : {}),
+    ...(agent.alternativeActionUrl ? { alternativeActionUrl: agent.alternativeActionUrl } : {}),
+    ...(agent.alternativeActionSourceLinkRef ? { alternativeActionSourceLinkRef: agent.alternativeActionSourceLinkRef } : {}),
+    ...(agent.alternativeActionRequiresBrowserInteraction ? { alternativeActionRequiresBrowserInteraction: true } : {}),
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetCount === "number" ? { bestReadTargetCount: agent.bestReadTargetCount } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
@@ -13418,6 +13460,15 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     readTargetCount: agent.readTargetCount,
     ...(agent.readTargets.length > 0 ? { readTargets: agent.readTargets.map((target) => compactAgentReadTargetRef(target)) } : {}),
     actionCount: agent.actionCount,
+    ...(agent.alternativeActionName ? { alternativeActionName: agent.alternativeActionName } : {}),
+    ...(agent.alternativeActionSource ? { alternativeActionSource: agent.alternativeActionSource } : {}),
+    ...(agent.alternativeActionExecution ? { alternativeActionExecution: agent.alternativeActionExecution } : {}),
+    ...(agent.alternativeActionPriority ? { alternativeActionPriority: agent.alternativeActionPriority } : {}),
+    ...(agent.alternativeActionReadFrom ? { alternativeActionReadFrom: agent.alternativeActionReadFrom } : {}),
+    ...(agent.alternativeActionCommandArgs ? { alternativeActionCommandArgs: agent.alternativeActionCommandArgs } : {}),
+    ...(agent.alternativeActionUrl ? { alternativeActionUrl: agent.alternativeActionUrl } : {}),
+    ...(agent.alternativeActionSourceLinkRef ? { alternativeActionSourceLinkRef: agent.alternativeActionSourceLinkRef } : {}),
+    ...(agent.alternativeActionRequiresBrowserInteraction ? { alternativeActionRequiresBrowserInteraction: true } : {}),
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetCount === "number" ? { bestReadTargetCount: agent.bestReadTargetCount } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),

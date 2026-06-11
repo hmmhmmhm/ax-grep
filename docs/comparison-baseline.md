@@ -94,6 +94,8 @@ heading, and landmark for quick page-shape routing.
 `averageAgentReadTargetScore` tracks whether `agent.readTargets` points to
 payload fields that actually exist and are worth reading, and whether
 `read-current` actions mark the matching target as primary.
+`averageAgentAlternativeActionShortcutScore` tracks whether top-level
+`agent.alternativeAction*` shortcuts mirror the first non-primary action.
 `averageAgentHandoffScore` and `averageAgentBriefExecutorStepScore` also cover
 handoff detail preservation. Search handoffs must keep executable result/source
 choices with snippets and command args; answer handoffs must keep selected

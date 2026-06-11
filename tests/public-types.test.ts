@@ -318,6 +318,16 @@ describe("public agent types", () => {
       | "primaryPriority"
       | "primaryPriorityReason"
       | "primarySourceLinkRef"
+      | "alternativeActionName"
+      | "alternativeActionSource"
+      | "alternativeActionExecution"
+      | "alternativeActionPriority"
+      | "alternativeActionReason"
+      | "alternativeActionReadFrom"
+      | "alternativeActionCommandArgs"
+      | "alternativeActionUrl"
+      | "alternativeActionSourceLinkRef"
+      | "alternativeActionRequiresBrowserInteraction"
       | "recommendedUrl"
       | "recommendedTitle"
       | "recommendedCommandArgs"
@@ -490,6 +500,16 @@ describe("public agent types", () => {
       primaryPriority: "high",
       primaryPriorityReason: "Readable content is available.",
       primarySourceLinkRef: "pageCheck.sourceLinks[0]",
+      alternativeActionName: "open-source-link",
+      alternativeActionSource: "pageCheck.nextSteps",
+      alternativeActionExecution: "run-command",
+      alternativeActionPriority: "medium",
+      alternativeActionReason: "Open the cited source.",
+      alternativeActionReadFrom: "pageCheck.sourceLinks",
+      alternativeActionCommandArgs: ["ax-grep", "https://source.example/report", "--agent"],
+      alternativeActionUrl: "https://source.example/report",
+      alternativeActionSourceLinkRef: "pageCheck.sourceLinks[0]",
+      alternativeActionRequiresBrowserInteraction: false,
       recommendedUrl: "https://example.test",
       recommendedTitle: "Example result",
       recommendedCommandArgs: ["ax-grep", "https://example.test", "--agent"],
@@ -530,6 +550,8 @@ describe("public agent types", () => {
     expect(summary.handoffTargetPath).toBe("pageCheck.links[0]");
     expect(summary.primaryActionName).toBe("read-content");
     expect(summary.primarySourceLinkRef).toBe("pageCheck.sourceLinks[0]");
+    expect(summary.alternativeActionName).toBe("open-source-link");
+    expect(summary.alternativeActionCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.recommendedCommandArgs?.[0]).toBe("ax-grep");
   });
 });

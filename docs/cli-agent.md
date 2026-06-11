@@ -65,6 +65,8 @@ Read these first:
 - `agent.resultChoices` and `agent.sourceChoices`: ranked links to open.
 - `agent.topChoice*`: first executable result, source, form, or action-target choice.
 - `agent.primarySourceLinkRef`: primary source-link action's `pageCheck.sourceLinks[n]`.
+- `agent.alternativeAction*`: first non-primary action candidate, including source,
+  execution mode, command args, URL, and source-link reference when available.
 - `agent.recommended*`: selected search result metadata and command args.
 - `agent.signals` and `agent.qualityGates`: compact diagnostics.
 - `agent.problemSignal*` and `agent.failingQualityGate*`: first blocking or

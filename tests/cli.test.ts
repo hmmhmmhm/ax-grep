@@ -871,6 +871,12 @@ describe("cli", () => {
       if (handoff.readFrom) expect(envelope.agent.answerPlanReadFrom).toBe(handoff.readFrom);
       if (handoff.commandArgs) expect(envelope.agent.answerPlanCommandArgs).toEqual(handoff.commandArgs);
       if (handoff.url) expect(envelope.agent.answerPlanUrl).toBe(handoff.url);
+      if (envelope.agent.alternativeActionCount > 0) {
+        expect(envelope.agent.alternativeActionName).toEqual(expect.any(String));
+        expect(envelope.agent.alternativeActionSource).toEqual(expect.any(String));
+        expect(envelope.agent.alternativeActionExecution).toEqual(expect.stringMatching(/^(run-command|read-current|interact-browser|inspect-output)$/));
+        expect(envelope.agent.alternativeActionPriority).toEqual(expect.stringMatching(/^(low|medium|high)$/));
+      }
       const topResultChoice = envelope.agent.resultChoices?.[0] ?? handoff.resultChoices?.[0];
       const topSourceChoice = envelope.agent.sourceChoices?.[0] ?? handoff.sourceChoices?.[0];
       const topFormChoice = envelope.agent.formChoices?.[0];
@@ -7788,6 +7794,9 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  sourceLinkCount: 1");
     expect(stdout.output).toContain("  sourceChoiceCount: 1");
     expect(stdout.output).toContain("  alternativeActionCount: 1");
+    expect(stdout.output).toContain("  alternativeActionName:");
+    expect(stdout.output).toContain("  alternativeActionExecution:");
+    expect(stdout.output).toContain("  alternativeActionCommandArgs:");
     expect(stdout.output).toContain("  usabilityScore:");
     expect(stdout.output).toContain("  evidenceQualityScore:");
     expect(stdout.output).toContain("  sourceQualityScore:");

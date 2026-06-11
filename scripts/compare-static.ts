@@ -109,6 +109,7 @@ type CliAgentSummary = {
   agentCanContinueScore: number;
   agentPrimaryExecutionScore: number;
   agentPrimaryShortcutScore: number;
+  agentAlternativeActionShortcutScore: number;
   agentExecutorShortcutScore: number;
   agentHandoffShortcutScore: number;
   agentAnswerShortcutScore: number;
@@ -610,6 +611,7 @@ export type GateSummary = {
   averageAgentCanContinueScore: number;
   averageAgentPrimaryExecutionScore: number;
   averageAgentPrimaryShortcutScore: number;
+  averageAgentAlternativeActionShortcutScore: number;
   averageAgentExecutorShortcutScore: number;
   averageAgentHandoffShortcutScore: number;
   averageAgentAnswerShortcutScore: number;
@@ -1267,6 +1269,16 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       primaryOpenResult?: number | "best";
       requiresBrowserInteraction?: boolean;
       primaryAction?: CliActionShape;
+      alternativeActionName?: string;
+      alternativeActionSource?: string;
+      alternativeActionExecution?: ActionExecution;
+      alternativeActionPriority?: "low" | "medium" | "high";
+      alternativeActionReason?: string;
+      alternativeActionReadFrom?: string;
+      alternativeActionCommandArgs?: string[];
+      alternativeActionUrl?: string;
+      alternativeActionSourceLinkRef?: string;
+      alternativeActionRequiresBrowserInteraction?: boolean;
       actions?: CliActionShape[];
       citations?: CliAgentCitationShape[];
       answerEvidence?: CliAgentCitationShape[];
@@ -1403,6 +1415,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentCanContinueScore: scoreAgentCanContinue(item.agent?.canContinue, item.agent?.primaryAction),
     agentPrimaryExecutionScore: scoreAgentPrimaryExecution(item.agent?.primaryExecution, item.agent?.primaryAction),
     agentPrimaryShortcutScore: scoreAgentPrimaryShortcuts(item.agent),
+    agentAlternativeActionShortcutScore: scoreAgentAlternativeActionShortcuts(item.agent),
     agentExecutorShortcutScore: scoreAgentExecutorShortcuts(item.agent),
     agentHandoffShortcutScore: scoreAgentHandoffShortcuts(item.agent),
     agentAnswerShortcutScore: scoreAgentAnswerShortcuts(item.agent),
@@ -1484,6 +1497,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentCanContinueScore: 0,
     agentPrimaryExecutionScore: 0,
     agentPrimaryShortcutScore: 0,
+    agentAlternativeActionShortcutScore: 0,
     agentExecutorShortcutScore: 0,
     agentHandoffShortcutScore: 0,
     agentAnswerShortcutScore: 0,
@@ -1682,6 +1696,7 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[]; 
     "afterInteractionCommand",
     "browserHtml",
     "primaryActionShortcuts",
+    "alternativeActionShortcuts",
   ];
   if (contract.compact === true && typeof contract.featureCount === "number") {
     return contract.featureCount >= required.length ? 1 : 0;
@@ -3821,6 +3836,72 @@ function scoreAgentPrimaryShortcuts(agent: {
   return required === 0 ? 1 : matched / required;
 }
 
+function scoreAgentAlternativeActionShortcuts(agent: {
+  actions?: CliActionShape[];
+  alternativeActionName?: string;
+  alternativeActionSource?: string;
+  alternativeActionExecution?: ActionExecution;
+  alternativeActionPriority?: "low" | "medium" | "high";
+  alternativeActionReason?: string;
+  alternativeActionReadFrom?: string;
+  alternativeActionCommandArgs?: string[];
+  alternativeActionUrl?: string;
+  alternativeActionSourceLinkRef?: string;
+  alternativeActionRequiresBrowserInteraction?: boolean;
+} | undefined): number {
+  const action = agent?.actions?.find((item) => item.primary !== true);
+  if (!action) {
+    return agent?.alternativeActionName
+      || agent?.alternativeActionSource
+      || agent?.alternativeActionExecution
+      || agent?.alternativeActionPriority
+      || agent?.alternativeActionReason
+      || agent?.alternativeActionReadFrom
+      || agent?.alternativeActionCommandArgs
+      || agent?.alternativeActionUrl
+      || agent?.alternativeActionSourceLinkRef
+      || agent?.alternativeActionRequiresBrowserInteraction ? 0 : 1;
+  }
+  let required = 5;
+  let matched = 0;
+  if (agent?.alternativeActionName === action.action) matched += 1;
+  if (agent?.alternativeActionSource === action.source) matched += 1;
+  if (agent?.alternativeActionExecution === normalizedActionExecution(action)) matched += 1;
+  if (agent?.alternativeActionPriority === action.priority) matched += 1;
+  if (agent?.alternativeActionReason === action.reason) matched += 1;
+  if (action.readFrom) {
+    required += 1;
+    if (agent?.alternativeActionReadFrom === action.readFrom) matched += 1;
+  } else if (agent?.alternativeActionReadFrom) {
+    required += 1;
+  }
+  if (action.commandArgs) {
+    required += 1;
+    if (JSON.stringify(agent?.alternativeActionCommandArgs) === JSON.stringify(action.commandArgs)) matched += 1;
+  } else if (agent?.alternativeActionCommandArgs) {
+    required += 1;
+  }
+  if (action.url) {
+    required += 1;
+    if (agent?.alternativeActionUrl === action.url) matched += 1;
+  } else if (agent?.alternativeActionUrl) {
+    required += 1;
+  }
+  if (action.sourceLinkRef) {
+    required += 1;
+    if (agent?.alternativeActionSourceLinkRef === action.sourceLinkRef) matched += 1;
+  } else if (agent?.alternativeActionSourceLinkRef) {
+    required += 1;
+  }
+  if (action.requiresBrowserInteraction) {
+    required += 1;
+    if (agent?.alternativeActionRequiresBrowserInteraction === true) matched += 1;
+  } else if (agent?.alternativeActionRequiresBrowserInteraction) {
+    required += 1;
+  }
+  return roundScore(matched / required);
+}
+
 function scoreAgentExecutorShortcuts(agent: {
   executor?: CliAgentExecutorShape;
   executorDecision?: CliAgentLoopShape["decision"];
@@ -4370,6 +4451,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentQualityGateScore * 0.005
     + summary.pageLinkCommandScore * 0.005
     + summary.agentPrimaryShortcutScore * 0.005
+    + summary.agentAlternativeActionShortcutScore * 0.005
     + summary.agentExecutorShortcutScore * 0.005
     + summary.agentHandoffShortcutScore * 0.005
     + summary.agentAnswerShortcutScore * 0.005
@@ -4414,6 +4496,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentCanContinueScore,
     summary.agentPrimaryExecutionScore,
     summary.agentPrimaryShortcutScore,
+    summary.agentAlternativeActionShortcutScore,
     summary.agentPlanShortcutScore,
     summary.agentCitationScore,
     summary.agentAnswerPlanScore,
@@ -4537,6 +4620,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentCanContinueScore: average(included.map((comparison) => comparison.cliAgentSummary.agentCanContinueScore)),
     averageAgentPrimaryExecutionScore: average(included.map((comparison) => comparison.cliAgentSummary.agentPrimaryExecutionScore)),
     averageAgentPrimaryShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentPrimaryShortcutScore)),
+    averageAgentAlternativeActionShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentAlternativeActionShortcutScore)),
     averageAgentExecutorShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentExecutorShortcutScore)),
     averageAgentHandoffShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentHandoffShortcutScore)),
     averageAgentAnswerShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentAnswerShortcutScore)),

@@ -701,6 +701,16 @@ export type AgentSummary = {
   primaryOpenResult?: number | "best";
   requiresBrowserInteraction?: boolean;
   primaryAction?: AgentAction;
+  alternativeActionName?: string;
+  alternativeActionSource?: string;
+  alternativeActionExecution?: AgentExecutionMode;
+  alternativeActionPriority?: "low" | "medium" | "high";
+  alternativeActionReason?: string;
+  alternativeActionReadFrom?: string;
+  alternativeActionCommandArgs?: string[];
+  alternativeActionUrl?: string;
+  alternativeActionSourceLinkRef?: string;
+  alternativeActionRequiresBrowserInteraction?: boolean;
   recommendedUrl?: string;
   recommendedTitle?: string;
   recommendedRank?: number;
@@ -792,7 +802,8 @@ export type AgentContractFeature =
   | "responseMetadata"
   | "afterInteractionCommand"
   | "browserHtml"
-  | "primaryActionShortcuts";
+  | "primaryActionShortcuts"
+  | "alternativeActionShortcuts";
 
 export type AgentContract = {
   version: number;
