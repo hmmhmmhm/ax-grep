@@ -574,6 +574,14 @@ export type AgentSummary = {
   semanticUnavailableCount?: number;
   semanticTopRole?: string;
   semanticTopRoleCount?: number;
+  semanticOutlineCount?: number;
+  semanticTopOutlinePath?: string;
+  semanticTopOutlineKind?: "heading" | "landmark";
+  semanticTopOutlineRole?: string;
+  semanticTopOutlineText?: string;
+  semanticTopOutlineLevel?: number;
+  semanticTopOutlineDepth?: number;
+  semanticTopOutlineSelector?: string;
   semanticTopHeading?: string;
   semanticTopHeadingPath?: string;
   semanticTopHeadingLevel?: number;

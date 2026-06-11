@@ -453,6 +453,14 @@ describe("public agent types", () => {
       | "semanticUnavailableCount"
       | "semanticTopRole"
       | "semanticTopRoleCount"
+      | "semanticOutlineCount"
+      | "semanticTopOutlinePath"
+      | "semanticTopOutlineKind"
+      | "semanticTopOutlineRole"
+      | "semanticTopOutlineText"
+      | "semanticTopOutlineLevel"
+      | "semanticTopOutlineDepth"
+      | "semanticTopOutlineSelector"
       | "semanticTopHeading"
       | "semanticTopHeadingPath"
       | "semanticTopHeadingLevel"
@@ -997,6 +1005,14 @@ describe("public agent types", () => {
       semanticUnavailableCount: 1,
       semanticTopRole: "link",
       semanticTopRoleCount: 2,
+      semanticOutlineCount: 2,
+      semanticTopOutlinePath: "agent.semanticSummary.semanticOutline[0]",
+      semanticTopOutlineKind: "heading",
+      semanticTopOutlineRole: "heading",
+      semanticTopOutlineText: "Example",
+      semanticTopOutlineLevel: 1,
+      semanticTopOutlineDepth: 2,
+      semanticTopOutlineSelector: "h1",
       semanticTopHeading: "Example",
       semanticTopHeadingPath: "agent.semanticSummary.headingItems[0]",
       semanticTopHeadingLevel: 1,

@@ -1599,6 +1599,14 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticUnavailableCount?: number;
       semanticTopRole?: string;
       semanticTopRoleCount?: number;
+      semanticOutlineCount?: number;
+      semanticTopOutlinePath?: string;
+      semanticTopOutlineKind?: "heading" | "landmark";
+      semanticTopOutlineRole?: string;
+      semanticTopOutlineText?: string;
+      semanticTopOutlineLevel?: number;
+      semanticTopOutlineDepth?: number;
+      semanticTopOutlineSelector?: string;
       semanticTopHeading?: string;
       semanticTopHeadingPath?: string;
       semanticTopHeadingLevel?: number;
@@ -4702,6 +4710,14 @@ function scoreAgentSemanticSummary(agent: {
   semanticUnavailableCount?: number;
   semanticTopRole?: string;
   semanticTopRoleCount?: number;
+  semanticOutlineCount?: number;
+  semanticTopOutlinePath?: string;
+  semanticTopOutlineKind?: "heading" | "landmark";
+  semanticTopOutlineRole?: string;
+  semanticTopOutlineText?: string;
+  semanticTopOutlineLevel?: number;
+  semanticTopOutlineDepth?: number;
+  semanticTopOutlineSelector?: string;
   semanticTopHeading?: string;
   semanticTopHeadingPath?: string;
   semanticTopHeadingLevel?: number;
@@ -4835,6 +4851,7 @@ function scoreAgentSemanticSummary(agent: {
     landmarks?: unknown;
     headings?: unknown;
     namedRoles?: unknown;
+    semanticOutline?: unknown;
     headingItems?: unknown;
     landmarkItems?: unknown;
     namedRoleItems?: unknown;
@@ -4881,6 +4898,7 @@ function scoreAgentSemanticSummary(agent: {
   if (Array.isArray(item.landmarks)) matched += 1;
   if (Array.isArray(item.headings)) matched += 1;
   if (Array.isArray(item.namedRoles)) matched += 1;
+  if (Array.isArray(item.semanticOutline)) matched += 1;
   if (Array.isArray(item.headingItems)) matched += 1;
   if (Array.isArray(item.landmarkItems)) matched += 1;
   if (Array.isArray(item.namedRoleItems)) matched += 1;
@@ -4898,7 +4916,7 @@ function scoreAgentSemanticSummary(agent: {
   if (Array.isArray(item.choiceItems)) matched += 1;
   if (Array.isArray(item.stateItems)) matched += 1;
   if (Array.isArray(item.unavailableItems)) matched += 1;
-  let required = 40;
+  let required = 41;
   if (typeof item.nodeCount === "number") {
     required += 1;
     if (agent?.semanticNodeCount === item.nodeCount) matched += 1;
@@ -4979,6 +4997,39 @@ function scoreAgentSemanticSummary(agent: {
   if (topRole && typeof topRole.count === "number") {
     required += 1;
     if (agent?.semanticTopRoleCount === topRole.count) matched += 1;
+  }
+  if (Array.isArray(item.semanticOutline)) {
+    required += 1;
+    if (agent?.semanticOutlineCount === item.semanticOutline.length) matched += 1;
+  }
+  const outlineItem = Array.isArray(item.semanticOutline) ? item.semanticOutline[0] as { path?: unknown; kind?: unknown; role?: unknown; text?: unknown; level?: unknown; depth?: unknown; selector?: unknown } | undefined : undefined;
+  if (outlineItem && typeof outlineItem.path === "string") {
+    required += 1;
+    if (agent?.semanticTopOutlinePath === outlineItem.path) matched += 1;
+  }
+  if (outlineItem && typeof outlineItem.kind === "string") {
+    required += 1;
+    if (agent?.semanticTopOutlineKind === outlineItem.kind) matched += 1;
+  }
+  if (outlineItem && typeof outlineItem.role === "string") {
+    required += 1;
+    if (agent?.semanticTopOutlineRole === outlineItem.role) matched += 1;
+  }
+  if (outlineItem && typeof outlineItem.text === "string") {
+    required += 1;
+    if (agent?.semanticTopOutlineText === outlineItem.text) matched += 1;
+  }
+  if (outlineItem && typeof outlineItem.level === "number") {
+    required += 1;
+    if (agent?.semanticTopOutlineLevel === outlineItem.level) matched += 1;
+  }
+  if (outlineItem && typeof outlineItem.depth === "number") {
+    required += 1;
+    if (agent?.semanticTopOutlineDepth === outlineItem.depth) matched += 1;
+  }
+  if (outlineItem && typeof outlineItem.selector === "string") {
+    required += 1;
+    if (agent?.semanticTopOutlineSelector === outlineItem.selector) matched += 1;
   }
   const heading = Array.isArray(item.headings) ? item.headings[0] : undefined;
   if (typeof heading === "string") {

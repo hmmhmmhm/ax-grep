@@ -310,6 +310,25 @@ describe("cli", () => {
           landmarks: expect.arrayContaining(["main"]),
           headings: ["Example"],
           namedRoles: expect.arrayContaining(["heading:Example", "button:Toggle details", "region:Details panel", "img:Hero chart"]),
+          semanticOutline: expect.arrayContaining([
+            expect.objectContaining({
+              path: "agent.semanticSummary.semanticOutline[0]",
+              kind: "landmark",
+              role: "main",
+              text: "main",
+              depth: expect.any(Number),
+              selector: "main",
+            }),
+            expect.objectContaining({
+              path: "agent.semanticSummary.semanticOutline[1]",
+              kind: "heading",
+              role: "heading",
+              text: "Example",
+              level: 1,
+              depth: expect.any(Number),
+              selector: "h1",
+            }),
+          ]),
           headingItems: [
             expect.objectContaining({
               path: "agent.semanticSummary.headingItems[0]",
@@ -408,6 +427,13 @@ describe("cli", () => {
         semanticRelationCount: 1,
         semanticTopRole: "p",
         semanticTopRoleCount: 3,
+        semanticOutlineCount: 3,
+        semanticTopOutlinePath: "agent.semanticSummary.semanticOutline[0]",
+        semanticTopOutlineKind: "landmark",
+        semanticTopOutlineRole: "main",
+        semanticTopOutlineText: "main",
+        semanticTopOutlineDepth: expect.any(Number),
+        semanticTopOutlineSelector: "main",
         semanticTopHeading: "Example",
         semanticTopHeadingPath: "agent.semanticSummary.headingItems[0]",
         semanticTopHeadingLevel: 1,
@@ -8398,6 +8424,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain(" named=");
     expect(stdout.output).toContain(" interactive=");
     expect(stdout.output).toContain("  semanticTopRoles:");
+    expect(stdout.output).toContain("  semanticOutline: agent.semanticSummary.semanticOutline[0] landmark:main role=main");
     expect(stdout.output).toContain("  semanticHeading: agent.semanticSummary.headingItems[0] Article heading");
     expect(stdout.output).toContain("  semanticLandmark: agent.semanticSummary.landmarkItems[0] main");
     expect(stdout.output).toContain("  semanticNodeCount:");

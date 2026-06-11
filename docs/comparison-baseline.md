@@ -95,7 +95,7 @@ root page metadata such as canonical URL, language, author, dates, and
 structured-data types.
 `averageAgentSemanticSummaryScore` tracks whether `agent.semanticSummary` and
 top-level `agent.semantic*` shortcuts preserve semantic tree counts, role-group
-counts, top role/heading/landmark/named role fields with direct paths,
+counts, heading/landmark outline flow, top role/heading/landmark/named role fields with direct paths,
 interactive and focusable state, link URL, button description, image,
 table/list structure, form-field, description, value, resolved relation targets, choice, state, and unavailable-subtree shortcuts for quick page-shape routing.
 State scoring includes parsed top-state fields so agents do not need to parse
