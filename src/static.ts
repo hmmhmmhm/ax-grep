@@ -639,6 +639,15 @@ function getState(element: Element): SemanticNodeState {
   if (pressed === "mixed") state.pressed = "mixed";
   const invalid = attr(element, "aria-invalid");
   if (invalid && invalid !== "false") state.invalid = invalid === "true" ? true : invalid;
+  const current = attr(element, "aria-current");
+  if (current && current !== "false") state.current = current === "true" ? true : current;
+  const haspopup = attr(element, "aria-haspopup");
+  if (haspopup && haspopup !== "false") state.haspopup = haspopup === "true" ? true : haspopup;
+  const controls = attr(element, "aria-controls");
+  if (controls) state.controls = normalizeText(controls, 120);
+  const live = attr(element, "aria-live");
+  if (live) state.live = normalizeText(live, 120);
+  if (attr(element, "aria-modal") === "true") state.modal = true;
   return state;
 }
 

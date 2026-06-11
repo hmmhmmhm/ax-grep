@@ -3713,6 +3713,65 @@ describe("cli", () => {
     ]));
   });
 
+  it("exposes advanced aria state shortcuts for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/app", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <nav><a href="/reports" aria-current="page">Reports</a></nav>
+          <button aria-haspopup="dialog" aria-controls="filters">Filters</button>
+          <dialog id="filters" open aria-label="Filter reports" aria-modal="true">
+            <button>Apply</button>
+          </dialog>
+          <div role="status" aria-live="polite">Saved</div>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent.semanticSummary.stateCount).toBe(4);
+    expect(envelope.agent.semanticSummary.stateItems).toEqual([
+      expect.objectContaining({
+        path: "agent.semanticSummary.stateItems[0]",
+        role: "link",
+        name: "Reports",
+        state: "current=page",
+        selector: "a",
+      }),
+      expect.objectContaining({
+        path: "agent.semanticSummary.stateItems[1]",
+        role: "button",
+        name: "Filters",
+        state: "haspopup=dialog controls=filters",
+        selector: "button",
+      }),
+      expect.objectContaining({
+        path: "agent.semanticSummary.stateItems[2]",
+        role: "dialog",
+        name: "Filter reports",
+        state: "modal=true",
+        selector: "#filters",
+      }),
+      expect.objectContaining({
+        path: "agent.semanticSummary.stateItems[3]",
+        role: "status",
+        state: "live=polite",
+        selector: "div",
+      }),
+    ]);
+    expect(envelope.agent).toMatchObject({
+      semanticStateCount: 4,
+      semanticTopStateRole: "link",
+      semanticTopStatePath: "agent.semanticSummary.stateItems[0]",
+      semanticTopStateName: "Reports",
+      semanticTopState: "current=page",
+      semanticTopStateSelector: "a",
+    });
+  });
+
   it("summarizes forms with action fields and query URL templates for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/search", "--agent"], {

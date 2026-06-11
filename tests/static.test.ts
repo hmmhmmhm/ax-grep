@@ -445,7 +445,7 @@ describe("static extract", () => {
             <section aria-label="Named section">
               <form aria-label="Search form">
                 <label id="query-label">Query</label>
-                <input id="query" aria-labelledby="query-label" type="search" aria-invalid="spelling">
+                <input id="query" aria-labelledby="query-label" type="search" aria-invalid="spelling" aria-controls="results">
                 <input type="button" value="Input button">
                 <input type="submit" value="Submit search">
                 <input type="reset" value="Reset search">
@@ -460,12 +460,14 @@ describe("static extract", () => {
                 <textarea aria-required="true">Draft</textarea>
                 <progress value="1"></progress>
               </form>
-              <fieldset><button aria-pressed="false">Toggle</button></fieldset>
+              <fieldset><button aria-pressed="false" aria-haspopup="dialog">Toggle</button></fieldset>
+              <nav><a href="/page/2" aria-current="page">Page 2</a></nav>
+              <div role="status" aria-live="polite">Saved</div>
               <dialog open><button>Open dialog button</button></dialog>
               <dialog><button>Closed dialog button</button></dialog>
               <div popover open><button>Open popover button</button></div>
               <div popover><button>Closed popover button</button></div>
-              <div class="modal" aria-modal="true"><button>Modal button</button></div>
+              <div class="modal" role="dialog" aria-label="Modal" aria-modal="true"><button>Modal button</button></div>
               <div class="drawer" data-open="true"><button>Drawer button</button></div>
               <div class="sheet" data-state="open"><button>Sheet button</button></div>
               <div class="overlay" tabindex="0"><button>Focusable overlay button</button></div>
@@ -512,6 +514,7 @@ describe("static extract", () => {
       "button:Toggle",
       "button:Open dialog but...",
       "button:Open popover bu...",
+      "dialog:Modal",
       "button:Modal button",
       "button:Drawer button",
       "button:Sheet button",
@@ -532,13 +535,16 @@ describe("static extract", () => {
     expect(roles).not.toContain("button:Zero height button");
     expect(roles).not.toContain("button:No pointer button");
 
-    expect(flat.find((node) => node.role === "searchbox")?.state?.invalid).toBe("spelling");
+    expect(flat.find((node) => node.role === "searchbox")?.state).toMatchObject({ invalid: "spelling", controls: "results" });
     expect(flat.some((node) => node.role === "button" && node.name === "")).toBe(true);
     expect(flat.find((node) => node.role === "checkbox")?.state?.checked).toBe(true);
     expect(flat.filter((node) => node.role === "radio").map((node) => node.state?.checked)).toEqual([false, "mixed"]);
     expect(flat.find((node) => node.role === "slider")?.state?.disabled).toBe(true);
     expect(flat.find((node) => node.role === "spinbutton")?.state).toMatchObject({ readonly: true, required: true });
-    expect(flat.find((node) => node.role === "button" && node.name === "Toggle")?.state?.pressed).toBe(false);
+    expect(flat.find((node) => node.role === "button" && node.name === "Toggle")?.state).toMatchObject({ pressed: false, haspopup: "dialog" });
+    expect(flat.find((node) => node.role === "link" && node.name === "Page 2")?.state?.current).toBe("page");
+    expect(flat.find((node) => node.role === "status")?.state?.live).toBe("polite");
+    expect(flat.find((node) => node.role === "dialog" && node.name === "Modal")?.state?.modal).toBe(true);
     expect(flat.some((node) => node.role === "listbox")).toBe(true);
     expect(flat.some((node) => node.role === "textbox")).toBe(true);
     expect(flat.some((node) => node.role === "progressbar")).toBe(true);

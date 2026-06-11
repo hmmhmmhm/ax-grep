@@ -362,6 +362,15 @@ const __AX_LITE__ = (() => {
     const invalid = element.getAttribute("aria-invalid");
     if (invalid && invalid !== "false") state.invalid = invalid === "true" ? true : invalid;
     if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) if (element.readOnly) state.readonly = true;
+    const current = element.getAttribute("aria-current");
+    if (current && current !== "false") state.current = current === "true" ? true : current;
+    const haspopup = element.getAttribute("aria-haspopup");
+    if (haspopup && haspopup !== "false") state.haspopup = haspopup === "true" ? true : haspopup;
+    const controls = element.getAttribute("aria-controls");
+    if (controls) state.controls = normalizeText(controls, context.options.maxTextLength);
+    const live = element.getAttribute("aria-live");
+    if (live) state.live = normalizeText(live, context.options.maxTextLength);
+    if (element.getAttribute("aria-modal") === "true") state.modal = true;
     return state;
   }
   function isHidden(element) {

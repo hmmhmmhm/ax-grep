@@ -400,6 +400,20 @@ function getState(element: Element): SemanticNodeState {
     if (element.readOnly) state.readonly = true;
   }
 
+  const current = element.getAttribute("aria-current");
+  if (current && current !== "false") state.current = current === "true" ? true : current;
+
+  const haspopup = element.getAttribute("aria-haspopup");
+  if (haspopup && haspopup !== "false") state.haspopup = haspopup === "true" ? true : haspopup;
+
+  const controls = element.getAttribute("aria-controls");
+  if (controls) state.controls = normalizeText(controls, 120);
+
+  const live = element.getAttribute("aria-live");
+  if (live) state.live = normalizeText(live, 120);
+
+  if (element.getAttribute("aria-modal") === "true") state.modal = true;
+
   return state;
 }
 

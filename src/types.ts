@@ -44,6 +44,11 @@ export type SemanticNodeState = {
   required?: boolean;
   invalid?: boolean | string;
   readonly?: boolean;
+  current?: boolean | string;
+  haspopup?: boolean | string;
+  controls?: string;
+  live?: string;
+  modal?: boolean;
 };
 
 export type SemanticNodeBounds = {
