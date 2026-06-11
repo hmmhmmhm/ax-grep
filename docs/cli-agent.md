@@ -67,6 +67,8 @@ Read these first:
 - `agent.dataTableCount`, `agent.faqCount`, `agent.codeBlockCount`,
   `agent.resourceCount`, `agent.mediaCount`, `agent.sectionCount`, and matching
   `top*` fields: first structured page item shortcuts.
+- `agent.bestStructuredReadTarget*`: highest-priority structured content path to
+  read before scanning all `readTargets`.
 - `agent.resultChoices` and `agent.sourceChoices`: ranked links to open.
 - `agent.topChoice*`: first executable result, source, form, or action-target choice.
 - `agent.primarySourceLinkRef`: primary source-link action's `pageCheck.sourceLinks[n]`.

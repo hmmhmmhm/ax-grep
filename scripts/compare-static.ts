@@ -1223,6 +1223,12 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topMediaText?: string;
       topSectionHeading?: string;
       topSectionText?: string;
+      structuredReadTargetCount?: number;
+      bestStructuredReadTarget?: string;
+      bestStructuredReadTargetCount?: number;
+      bestStructuredReadTargetScore?: number;
+      bestStructuredReadTargetPrimary?: boolean;
+      bestStructuredReadTargetReason?: string;
       hiddenSignalCount?: number;
       hiddenReadTargetCount?: number;
       bestHiddenReadTarget?: string;
@@ -3701,6 +3707,13 @@ function scoreAgentStructuredShortcuts(agent: {
   topMediaText?: string;
   topSectionHeading?: string;
   topSectionText?: string;
+  structuredReadTargetCount?: number;
+  bestStructuredReadTarget?: string;
+  bestStructuredReadTargetCount?: number;
+  bestStructuredReadTargetScore?: number;
+  bestStructuredReadTargetPrimary?: boolean;
+  bestStructuredReadTargetReason?: string;
+  readTargets?: CliReadTargetShape[];
 } | undefined, pageCheck: {
   dataTables?: Array<{ path?: string; caption?: string; rowCount?: number; columnCount?: number }>;
   faqs?: Array<{ question?: string; answer?: string }>;
@@ -3783,8 +3796,56 @@ function scoreAgentStructuredShortcuts(agent: {
   } else if (agent.topSectionHeading || agent.topSectionText) {
     required += 1;
   }
+  const structuredTargets = (agent.readTargets ?? []).filter(isStructuredCliReadTarget);
+  const bestStructuredTarget = selectBestCliReadTarget(structuredTargets);
+  required += 1;
+  if (agent.structuredReadTargetCount === structuredTargets.length) matched += 1;
+  if (bestStructuredTarget) {
+    required += 5;
+    if (agent.bestStructuredReadTarget === bestStructuredTarget.path) matched += 1;
+    if (agent.bestStructuredReadTargetCount === bestStructuredTarget.count) matched += 1;
+    if (agent.bestStructuredReadTargetScore === bestStructuredTarget.score) matched += 1;
+    if (agent.bestStructuredReadTargetPrimary === bestStructuredTarget.primary) matched += 1;
+    if (bestStructuredTarget.reason
+      ? agent.bestStructuredReadTargetReason === bestStructuredTarget.reason
+      : typeof agent.bestStructuredReadTargetReason === "string" && agent.bestStructuredReadTargetReason.length > 0) matched += 1;
+  } else if (
+    agent.bestStructuredReadTarget
+    || typeof agent.bestStructuredReadTargetCount === "number"
+    || typeof agent.bestStructuredReadTargetScore === "number"
+    || typeof agent.bestStructuredReadTargetPrimary === "boolean"
+    || agent.bestStructuredReadTargetReason
+  ) {
+    required += 1;
+  }
   return roundScore(matched / required);
 }
+
+function selectBestCliReadTarget(readTargets: CliReadTargetShape[]): CliReadTargetShape | undefined {
+  return [...readTargets].sort((left, right) => {
+    if (left.primary !== right.primary) return left.primary ? -1 : 1;
+    return (right.score ?? 0) - (left.score ?? 0);
+  })[0];
+}
+
+function isStructuredCliReadTarget(target: CliReadTargetShape): boolean {
+  return typeof target.path === "string" && structuredCliReadTargetPaths.has(target.path);
+}
+
+const structuredCliReadTargetPaths = new Set<string>([
+  "pageCheck.dataTables",
+  "pageCheck.faqs",
+  "pageCheck.sections",
+  "pageCheck.toc",
+  "pageCheck.codeBlocks",
+  "pageCheck.citations",
+  "pageCheck.media",
+  "pageCheck.resources",
+  "pageCheck.embeds",
+  "pageCheck.transcripts",
+  "pageCheck.breadcrumbs",
+  "pageCheck.pagination",
+]);
 
 function selectTopCliBarrier(barriers: CliBarrierShape[]): CliBarrierShape | undefined {
   const candidates = barriers.filter((barrier) => barrier.kind !== "cookie-consent");

@@ -95,7 +95,7 @@ heading, and landmark for quick page-shape routing.
 shortcuts mirror the highest-priority page barrier.
 `averageAgentStructuredShortcutScore` tracks whether top-level structured
 content counts and `top*` shortcuts mirror the first table, FAQ, code block,
-resource, media item, and section.
+resource, media item, section, and best structured read-target shortcut.
 `averageAgentReadTargetScore` tracks whether `agent.readTargets` points to
 payload fields that actually exist and are worth reading, and whether
 `read-current` actions mark the matching target as primary.

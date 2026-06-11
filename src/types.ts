@@ -616,6 +616,12 @@ export type AgentSummary = {
   topMediaText?: string;
   topSectionHeading?: string;
   topSectionText?: string;
+  structuredReadTargetCount?: number;
+  bestStructuredReadTarget?: string;
+  bestStructuredReadTargetCount?: number;
+  bestStructuredReadTargetScore?: number;
+  bestStructuredReadTargetPrimary?: boolean;
+  bestStructuredReadTargetReason?: string;
   hiddenSignalCount?: number;
   hiddenReadTargetCount?: number;
   bestHiddenReadTarget?: string;

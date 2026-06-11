@@ -958,6 +958,12 @@ type AgentSummary = {
   topMediaText?: string;
   topSectionHeading?: string;
   topSectionText?: string;
+  structuredReadTargetCount: number;
+  bestStructuredReadTarget?: string;
+  bestStructuredReadTargetCount?: number;
+  bestStructuredReadTargetScore?: number;
+  bestStructuredReadTargetPrimary?: boolean;
+  bestStructuredReadTargetReason?: string;
   hiddenSignalCount: number;
   hiddenReadTargetCount: number;
   bestHiddenReadTarget?: string;
@@ -2631,6 +2637,12 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topResourceUrl ? [`  topResourceUrl: ${agent.topResourceUrl}`] : []),
     ...(agent.topMediaUrl ? [`  topMediaUrl: ${agent.topMediaUrl}`] : []),
     ...(agent.topSectionHeading ? [`  topSectionHeading: ${agent.topSectionHeading}`] : []),
+    `  structuredReadTargetCount: ${agent.structuredReadTargetCount}`,
+    ...(agent.bestStructuredReadTarget ? [`  bestStructuredReadTarget: ${agent.bestStructuredReadTarget}`] : []),
+    ...(typeof agent.bestStructuredReadTargetCount === "number" ? [`  bestStructuredReadTargetCount: ${agent.bestStructuredReadTargetCount}`] : []),
+    ...(typeof agent.bestStructuredReadTargetScore === "number" ? [`  bestStructuredReadTargetScore: ${agent.bestStructuredReadTargetScore}`] : []),
+    ...(typeof agent.bestStructuredReadTargetPrimary === "boolean" ? [`  bestStructuredReadTargetPrimary: ${agent.bestStructuredReadTargetPrimary}`] : []),
+    ...(agent.bestStructuredReadTargetReason ? [`  bestStructuredReadTargetReason: ${agent.bestStructuredReadTargetReason}`] : []),
     `  hiddenSignalCount: ${agent.hiddenSignalCount}`,
     `  hiddenReadTargetCount: ${agent.hiddenReadTargetCount}`,
     ...(agent.bestHiddenReadTarget ? [`  bestHiddenReadTarget: ${agent.bestHiddenReadTarget}`] : []),
@@ -9117,8 +9129,10 @@ function summarizeAgent(
   const diagnosticCounts = countDiagnosticsBySeverity(analysis.diagnostics);
   const readTargets = summarizeAgentReadTargets(primaryAction, analysis.kind, pageCheck, verification, results, sourceSearch, semanticSummary);
   const bestReadTarget = selectBestReadTarget(readTargets);
+  const bestStructuredReadTarget = selectBestStructuredReadTarget(readTargets);
   const bestHiddenReadTarget = selectBestHiddenReadTarget(readTargets);
   const hiddenSignalCount = countHiddenAgentPageCheckSignals(pageCheck);
+  const structuredReadTargetCount = countStructuredAgentReadTargets(readTargets);
   const hiddenReadTargetCount = countHiddenAgentReadTargets(readTargets);
   const citations = summarizeAgentCitations(analysis.kind, pageCheck, verification, primaryAction, recommendedResult, sourceSearch);
   const searchDecision = summarizeAgentSearchDecision(analysis, results, recommendedResult, primaryAction);
@@ -9289,6 +9303,12 @@ function summarizeAgent(
     ...(pageCheck.media[0]?.text ? { topMediaText: pageCheck.media[0].text } : {}),
     ...(pageCheck.sections[0]?.heading ? { topSectionHeading: pageCheck.sections[0].heading } : {}),
     ...(pageCheck.sections[0]?.text ? { topSectionText: pageCheck.sections[0].text } : {}),
+    structuredReadTargetCount,
+    ...(bestStructuredReadTarget ? { bestStructuredReadTarget: bestStructuredReadTarget.path } : {}),
+    ...(typeof bestStructuredReadTarget?.count === "number" ? { bestStructuredReadTargetCount: bestStructuredReadTarget.count } : {}),
+    ...(typeof bestStructuredReadTarget?.score === "number" ? { bestStructuredReadTargetScore: bestStructuredReadTarget.score } : {}),
+    ...(typeof bestStructuredReadTarget?.primary === "boolean" ? { bestStructuredReadTargetPrimary: bestStructuredReadTarget.primary } : {}),
+    ...(bestStructuredReadTarget ? { bestStructuredReadTargetReason: bestStructuredReadTarget.reason } : {}),
     hiddenSignalCount,
     hiddenReadTargetCount,
     ...(bestHiddenReadTarget ? { bestHiddenReadTarget: bestHiddenReadTarget.path } : {}),
@@ -10966,6 +10986,10 @@ function selectBestHiddenReadTarget(readTargets: AgentReadTarget[]): AgentReadTa
   return selectBestReadTarget(readTargets.filter(isHiddenAgentReadTarget));
 }
 
+function selectBestStructuredReadTarget(readTargets: AgentReadTarget[]): AgentReadTarget | undefined {
+  return selectBestReadTarget(readTargets.filter(isStructuredAgentReadTarget));
+}
+
 function countDiagnosticsBySeverity(diagnostics: DiagnosticSummary[]): Record<DiagnosticSummary["severity"], number> {
   return diagnostics.reduce((counts, diagnostic) => {
     counts[diagnostic.severity] += 1;
@@ -11182,9 +11206,32 @@ function countHiddenAgentReadTargets(readTargets: AgentReadTarget[]): number {
   return readTargets.filter(isHiddenAgentReadTarget).length;
 }
 
+function countStructuredAgentReadTargets(readTargets: AgentReadTarget[]): number {
+  return readTargets.filter(isStructuredAgentReadTarget).length;
+}
+
+function isStructuredAgentReadTarget(target: AgentReadTarget): boolean {
+  return structuredAgentReadTargetPaths.has(target.path);
+}
+
 function isHiddenAgentReadTarget(target: AgentReadTarget): boolean {
   return hiddenAgentPageCheckPaths.some((path) => target.path === `pageCheck.${String(path)}`);
 }
+
+const structuredAgentReadTargetPaths = new Set<string>([
+  "pageCheck.dataTables",
+  "pageCheck.faqs",
+  "pageCheck.sections",
+  "pageCheck.toc",
+  "pageCheck.codeBlocks",
+  "pageCheck.citations",
+  "pageCheck.media",
+  "pageCheck.resources",
+  "pageCheck.embeds",
+  "pageCheck.transcripts",
+  "pageCheck.breadcrumbs",
+  "pageCheck.pagination",
+]);
 
 function averageEvidenceScore(evidence: PageEvidenceSummary[]): number {
   if (evidence.length === 0) return 0;
@@ -11880,6 +11927,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     resourceCount: 0,
     mediaCount: 0,
     sectionCount: 0,
+    structuredReadTargetCount: 0,
     hiddenSignalCount: 0,
     hiddenReadTargetCount: 0,
     sourceLinkCount: 0,
@@ -13308,6 +13356,12 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topMediaText ? { topMediaText: agent.topMediaText } : {}),
     ...(agent.topSectionHeading ? { topSectionHeading: agent.topSectionHeading } : {}),
     ...(agent.topSectionText ? { topSectionText: agent.topSectionText } : {}),
+    structuredReadTargetCount: agent.structuredReadTargetCount,
+    ...(agent.bestStructuredReadTarget ? { bestStructuredReadTarget: agent.bestStructuredReadTarget } : {}),
+    ...(typeof agent.bestStructuredReadTargetCount === "number" ? { bestStructuredReadTargetCount: agent.bestStructuredReadTargetCount } : {}),
+    ...(typeof agent.bestStructuredReadTargetScore === "number" ? { bestStructuredReadTargetScore: agent.bestStructuredReadTargetScore } : {}),
+    ...(typeof agent.bestStructuredReadTargetPrimary === "boolean" ? { bestStructuredReadTargetPrimary: agent.bestStructuredReadTargetPrimary } : {}),
+    ...(agent.bestStructuredReadTargetReason ? { bestStructuredReadTargetReason: agent.bestStructuredReadTargetReason } : {}),
     hiddenSignalCount: agent.hiddenSignalCount,
     hiddenReadTargetCount: agent.hiddenReadTargetCount,
     ...(agent.bestHiddenReadTarget ? { bestHiddenReadTarget: agent.bestHiddenReadTarget } : {}),
@@ -13548,6 +13602,12 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topMediaKind ? { topMediaKind: agent.topMediaKind } : {}),
     ...(agent.topMediaUrl ? { topMediaUrl: agent.topMediaUrl } : {}),
     ...(agent.topSectionHeading ? { topSectionHeading: agent.topSectionHeading } : {}),
+    structuredReadTargetCount: agent.structuredReadTargetCount,
+    ...(agent.bestStructuredReadTarget ? { bestStructuredReadTarget: agent.bestStructuredReadTarget } : {}),
+    ...(typeof agent.bestStructuredReadTargetCount === "number" ? { bestStructuredReadTargetCount: agent.bestStructuredReadTargetCount } : {}),
+    ...(typeof agent.bestStructuredReadTargetScore === "number" ? { bestStructuredReadTargetScore: agent.bestStructuredReadTargetScore } : {}),
+    ...(typeof agent.bestStructuredReadTargetPrimary === "boolean" ? { bestStructuredReadTargetPrimary: agent.bestStructuredReadTargetPrimary } : {}),
+    ...(agent.bestStructuredReadTargetReason ? { bestStructuredReadTargetReason: agent.bestStructuredReadTargetReason } : {}),
     hiddenSignalCount: agent.hiddenSignalCount,
     hiddenReadTargetCount: agent.hiddenReadTargetCount,
     ...(agent.bestHiddenReadTarget ? { bestHiddenReadTarget: agent.bestHiddenReadTarget } : {}),

@@ -3505,6 +3505,12 @@ describe("cli", () => {
       topDataTableCaption: "Plan comparison",
       topDataTableRowCount: 2,
       topDataTableColumnCount: 3,
+      structuredReadTargetCount: 1,
+      bestStructuredReadTarget: "pageCheck.dataTables",
+      bestStructuredReadTargetCount: 1,
+      bestStructuredReadTargetScore: 0.55,
+      bestStructuredReadTargetPrimary: true,
+      bestStructuredReadTargetReason: "Structured table captions, headers, and sample rows extracted from the page HTML.",
     });
     expect(envelope.pageCheck.recommendedAction).toBeUndefined();
     expect(envelope.agent.primaryAction).toMatchObject({

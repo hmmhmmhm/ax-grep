@@ -190,6 +190,12 @@ describe("public agent types", () => {
       | "topMediaText"
       | "topSectionHeading"
       | "topSectionText"
+      | "structuredReadTargetCount"
+      | "bestStructuredReadTarget"
+      | "bestStructuredReadTargetCount"
+      | "bestStructuredReadTargetScore"
+      | "bestStructuredReadTargetPrimary"
+      | "bestStructuredReadTargetReason"
       | "hiddenSignalCount"
       | "hiddenReadTargetCount"
       | "bestHiddenReadTarget"
@@ -403,6 +409,12 @@ describe("public agent types", () => {
       topMediaText: "Architecture diagram",
       topSectionHeading: "Install",
       topSectionText: "Install the package.",
+      structuredReadTargetCount: 2,
+      bestStructuredReadTarget: "pageCheck.dataTables",
+      bestStructuredReadTargetCount: 1,
+      bestStructuredReadTargetScore: 0.55,
+      bestStructuredReadTargetPrimary: true,
+      bestStructuredReadTargetReason: "Structured table captions, headers, and sample rows extracted from the page HTML.",
       hiddenSignalCount: 4,
       hiddenReadTargetCount: 2,
       bestHiddenReadTarget: "pageCheck.apiEndpoints",
@@ -586,6 +598,8 @@ describe("public agent types", () => {
     expect(summary.dataTableCount).toBe(1);
     expect(summary.topFaqQuestion).toBe("How do I install it?");
     expect(summary.topResourceUrl).toBe("https://example.test/guide.pdf");
+    expect(summary.bestStructuredReadTarget).toBe("pageCheck.dataTables");
+    expect(summary.bestStructuredReadTargetPrimary).toBe(true);
     expect(summary.formChoices?.[0]?.queryField).toBe("q");
     expect(summary.actionTargetChoices?.[0]?.kind).toBe("search");
     expect(summary.topChoiceKind).toBe("source");
