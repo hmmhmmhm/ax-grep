@@ -236,6 +236,7 @@ type PageSummary = {
   description?: string;
   canonicalUrl?: string;
   lang?: string;
+  dir?: string;
   siteName?: string;
   author?: string;
   publishedTime?: string;
@@ -859,6 +860,7 @@ type AgentSummary = {
   pageTitle?: string;
   pageCanonicalUrl?: string;
   pageLang?: string;
+  pageDir?: string;
   pageSiteName?: string;
   pageAuthor?: string;
   pagePublishedTime?: string;
@@ -1635,6 +1637,7 @@ type PageCheckSummary = {
   canonicalUrl?: string;
   mainHeading?: string;
   lang?: string;
+  dir?: string;
   siteName?: string;
   author?: string;
   publishedTime?: string;
@@ -2780,6 +2783,7 @@ function formatPageText(page: PageSummary): string[] {
   if (page.description) lines.push(`  description: ${page.description}`);
   if (page.canonicalUrl) lines.push(`  canonical: ${page.canonicalUrl}`);
   if (page.lang) lines.push(`  lang: ${page.lang}`);
+  if (page.dir) lines.push(`  dir: ${page.dir}`);
   if (page.siteName) lines.push(`  site: ${page.siteName}`);
   if (page.author) lines.push(`  author: ${page.author}`);
   if (page.publishedTime) lines.push(`  published: ${page.publishedTime}`);
@@ -2979,6 +2983,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.pageTitle ? [`  pageTitle: ${agent.pageTitle}`] : []),
     ...(agent.pageCanonicalUrl ? [`  pageCanonicalUrl: ${agent.pageCanonicalUrl}`] : []),
     ...(agent.pageLang ? [`  pageLang: ${agent.pageLang}`] : []),
+    ...(agent.pageDir ? [`  pageDir: ${agent.pageDir}`] : []),
     ...(agent.pageSiteName ? [`  pageSiteName: ${agent.pageSiteName}`] : []),
     ...(agent.pageAuthor ? [`  pageAuthor: ${agent.pageAuthor}`] : []),
     ...(agent.pagePublishedTime ? [`  pagePublishedTime: ${agent.pagePublishedTime}`] : []),
@@ -3463,6 +3468,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   if (pageCheck.title) lines.push(`  title: ${pageCheck.title}`);
   if (pageCheck.mainHeading) lines.push(`  mainHeading: ${pageCheck.mainHeading}`);
   if (pageCheck.canonicalUrl) lines.push(`  canonical: ${pageCheck.canonicalUrl}`);
+  if (pageCheck.lang) lines.push(`  lang: ${pageCheck.lang}`);
+  if (pageCheck.dir) lines.push(`  dir: ${pageCheck.dir}`);
   if (pageCheck.siteName) lines.push(`  site: ${pageCheck.siteName}`);
   if (pageCheck.author) lines.push(`  author: ${pageCheck.author}`);
   if (pageCheck.publishedTime) lines.push(`  published: ${pageCheck.publishedTime}`);
@@ -4399,6 +4406,8 @@ function extractPageSummary(html: string, baseUrl: string): PageSummary {
   if (canonicalHref) summary.canonicalUrl = normalizeHref(canonicalHref, baseUrl) ?? canonicalHref;
   const lang = htmlElement ? attr(htmlElement, "lang") : "";
   if (lang) summary.lang = lang;
+  const dir = htmlElement ? attr(htmlElement, "dir") : "";
+  if (dir) summary.dir = cleanContentText(dir).slice(0, 12);
   if (siteName) summary.siteName = siteName;
   if (resolvedAuthor) summary.author = resolvedAuthor;
   if (resolvedPublishedTime) summary.publishedTime = resolvedPublishedTime;
@@ -4575,6 +4584,7 @@ function summarizePageCheck(
   if (fetched.page.title) pageCheck.title = fetched.page.title;
   if (fetched.page.canonicalUrl) pageCheck.canonicalUrl = fetched.page.canonicalUrl;
   if (fetched.page.lang) pageCheck.lang = fetched.page.lang;
+  if (fetched.page.dir) pageCheck.dir = fetched.page.dir;
   if (fetched.page.siteName) pageCheck.siteName = fetched.page.siteName;
   if (fetched.page.author) pageCheck.author = fetched.page.author;
   if (fetched.page.publishedTime) pageCheck.publishedTime = fetched.page.publishedTime;
@@ -10398,6 +10408,7 @@ function summarizeAgent(
     ...(fetched?.page.title ? { pageTitle: fetched.page.title } : {}),
     ...(fetched?.page.canonicalUrl ? { pageCanonicalUrl: fetched.page.canonicalUrl } : {}),
     ...(fetched?.page.lang ? { pageLang: fetched.page.lang } : {}),
+    ...(fetched?.page.dir ? { pageDir: fetched.page.dir } : {}),
     ...(fetched?.page.siteName ? { pageSiteName: fetched.page.siteName } : {}),
     ...(fetched?.page.author ? { pageAuthor: fetched.page.author } : {}),
     ...(fetched?.page.publishedTime ? { pagePublishedTime: fetched.page.publishedTime } : {}),
@@ -14701,6 +14712,7 @@ function compactAgentPageCheck(
     ...(pageCheck.canonicalUrl ? { canonicalUrl: pageCheck.canonicalUrl } : {}),
     ...(pageCheck.mainHeading ? { mainHeading: pageCheck.mainHeading } : {}),
     ...(pageCheck.lang ? { lang: pageCheck.lang } : {}),
+    ...(pageCheck.dir ? { dir: pageCheck.dir } : {}),
     ...(pageCheck.siteName ? { siteName: pageCheck.siteName } : {}),
     ...(pageCheck.author ? { author: pageCheck.author } : {}),
     ...(pageCheck.publishedTime ? { publishedTime: pageCheck.publishedTime } : {}),
@@ -14936,6 +14948,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.pageTitle ? { pageTitle: agent.pageTitle } : {}),
     ...(agent.pageCanonicalUrl ? { pageCanonicalUrl: agent.pageCanonicalUrl } : {}),
     ...(agent.pageLang ? { pageLang: agent.pageLang } : {}),
+    ...(agent.pageDir ? { pageDir: agent.pageDir } : {}),
     ...(agent.pageSiteName ? { pageSiteName: agent.pageSiteName } : {}),
     ...(agent.pageAuthor ? { pageAuthor: agent.pageAuthor } : {}),
     ...(agent.pagePublishedTime ? { pagePublishedTime: agent.pagePublishedTime } : {}),
@@ -15618,6 +15631,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.pageTitle ? { pageTitle: agent.pageTitle } : {}),
     ...(agent.pageCanonicalUrl ? { pageCanonicalUrl: agent.pageCanonicalUrl } : {}),
     ...(agent.pageLang ? { pageLang: agent.pageLang } : {}),
+    ...(agent.pageDir ? { pageDir: agent.pageDir } : {}),
     ...(agent.pageSiteName ? { pageSiteName: agent.pageSiteName } : {}),
     ...(agent.pageAuthor ? { pageAuthor: agent.pageAuthor } : {}),
     ...(agent.pagePublishedTime ? { pagePublishedTime: agent.pagePublishedTime } : {}),
@@ -16246,6 +16260,7 @@ function compactAgentBriefPageCheck(
     ...(pageCheck.siteName ? { siteName: pageCheck.siteName } : {}),
     ...(pageCheck.canonicalUrl ? { canonicalUrl: pageCheck.canonicalUrl } : {}),
     ...(pageCheck.lang ? { lang: pageCheck.lang } : {}),
+    ...(pageCheck.dir ? { dir: pageCheck.dir } : {}),
     ...compactBriefPageCheckPath("contentEvidence", compactAgentContentEvidence(pageCheck.contentEvidence, primaryAction), readPaths, primaryReadPath),
     ...compactBriefPageCheckPath("dataTables", pageCheck.dataTables, readPaths, primaryReadPath),
     ...compactBriefPageCheckPath("barriers", pageCheck.barriers, readPaths, primaryReadPath),
@@ -16648,6 +16663,8 @@ function compactAgentActionTargetExecutionRefs(targets: PageActionTargetSummary[
 function compactAgentPage(page: PageSummary): object {
   const compact = {
     ...(page.description ? { description: page.description } : {}),
+    ...(page.lang ? { lang: page.lang } : {}),
+    ...(page.dir ? { dir: page.dir } : {}),
     ...(page.siteName ? { siteName: page.siteName } : {}),
     ...(page.author ? { author: page.author } : {}),
     ...(page.publishedTime ? { publishedTime: page.publishedTime } : {}),

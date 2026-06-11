@@ -21,7 +21,7 @@ describe("cli", () => {
     const status = await runCli(["https://example.test"], {
       stdout,
       fetch: async () => new Response(`
-        <html lang="en">
+        <html lang="en" dir="ltr">
           <head><title>Example page</title><meta name="description" content="Useful description"></head>
           <body><main><h1>Example</h1><button>Run</button><a href="/docs">Docs</a></main></body>
         </html>
@@ -31,6 +31,7 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("links\n  1. Docs <https://example.test/docs>");
     expect(stdout.output).toContain("page\n  title: Example page\n  description: Useful description\n  lang: en");
+    expect(stdout.output).toContain("  dir: ltr");
     expect(stdout.output).toContain("analysis\n  kind: page");
     expect(stdout.output).toContain("outline\n  1. h1 Example");
     expect(stdout.output).toContain("actions\n  1. button Run");
@@ -82,7 +83,7 @@ describe("cli", () => {
     const status = await runCli(["https://example.test", "--json"], {
       stdout,
       fetch: async () => new Response(`
-        <html lang="ko">
+        <html lang="ko" dir="rtl">
           <head>
             <title>Docs page</title>
             <meta name="description" content="Docs description">
@@ -129,6 +130,7 @@ describe("cli", () => {
       description: "Docs description",
       canonicalUrl: "https://example.test/canonical",
       lang: "ko",
+      dir: "rtl",
     });
     expect(envelope.kind).toBe("page");
     expect(envelope.diagnostics).toEqual([]);
@@ -227,7 +229,7 @@ describe("cli", () => {
     const status = await runCli(["https://example.test", "--agent", "--find", "Example"], {
       stdout,
       fetch: async () => new Response(`
-        <html>
+        <html dir="ltr">
           <head>
             <title>Example</title>
             <meta name="description" content="Example description">
@@ -290,6 +292,7 @@ describe("cli", () => {
       treeOmitted: true,
       page: {
         description: "Example description",
+        dir: "ltr",
         siteName: "Example Site",
         author: "Example Author",
         publishedTime: "2026-03-04T05:06:07Z",
@@ -303,6 +306,7 @@ describe("cli", () => {
           featureCount: expect.any(Number),
         },
         status: "ready",
+        pageDir: "ltr",
         semanticSummary: {
           nodeCount: expect.any(Number),
           namedRoleCount: expect.any(Number),

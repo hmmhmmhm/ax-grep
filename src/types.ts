@@ -494,6 +494,7 @@ export type AgentSummary = {
   pageTitle?: string;
   pageCanonicalUrl?: string;
   pageLang?: string;
+  pageDir?: string;
   pageSiteName?: string;
   pageAuthor?: string;
   pagePublishedTime?: string;

@@ -1103,6 +1103,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       title?: string;
       canonicalUrl?: string;
       lang?: string;
+      dir?: string;
       siteName?: string;
       author?: string;
       publishedTime?: string;
@@ -1208,6 +1209,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       pageTitle?: string;
       pageCanonicalUrl?: string;
       pageLang?: string;
+      pageDir?: string;
       pageSiteName?: string;
       pageAuthor?: string;
       pagePublishedTime?: string;
@@ -4447,6 +4449,7 @@ function scoreAgentPageMetadataShortcuts(agent: {
   pageTitle?: string;
   pageCanonicalUrl?: string;
   pageLang?: string;
+  pageDir?: string;
   pageSiteName?: string;
   pageAuthor?: string;
   pagePublishedTime?: string;
@@ -4456,6 +4459,7 @@ function scoreAgentPageMetadataShortcuts(agent: {
   title?: string;
   canonicalUrl?: string;
   lang?: string;
+  dir?: string;
   siteName?: string;
   author?: string;
   publishedTime?: string;
@@ -4470,6 +4474,7 @@ function scoreAgentPageMetadataShortcuts(agent: {
   checkString(agent.pageTitle, page?.title);
   checkString(agent.pageCanonicalUrl, page?.canonicalUrl);
   checkString(agent.pageLang, page?.lang);
+  checkString(agent.pageDir, page?.dir);
   checkString(agent.pageSiteName, page?.siteName);
   checkString(agent.pageAuthor, page?.author);
   checkString(agent.pagePublishedTime, page?.publishedTime);

@@ -690,6 +690,7 @@ describe("public agent types", () => {
       | "pageTitle"
       | "pageCanonicalUrl"
       | "pageLang"
+      | "pageDir"
       | "pageSiteName"
       | "pageAuthor"
       | "pagePublishedTime"
@@ -1311,6 +1312,7 @@ describe("public agent types", () => {
       pageTitle: "Example article",
       pageCanonicalUrl: "https://example.test/article",
       pageLang: "en",
+      pageDir: "ltr",
       pageSiteName: "Example Site",
       pageAuthor: "Example Author",
       pagePublishedTime: "2026-02-03T04:05:06Z",
