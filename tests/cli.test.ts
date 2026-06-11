@@ -428,6 +428,17 @@ describe("cli", () => {
               path: "verification.bestEvidence",
             }),
           ]),
+          sourceChoices: [
+            expect.objectContaining({
+              id: "s1",
+              path: "pageCheck.sourceLinks[0]",
+              title: "Target",
+              url: "https://target.example/",
+              kind: "external",
+              selectionReason: expect.any(String),
+              commandArgs: ["ax-grep", "https://target.example/", "--find", "Example", "--agent"],
+            }),
+          ],
         },
         expectedOutcome: {
           kind: "read-evidence",

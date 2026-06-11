@@ -12554,7 +12554,7 @@ function compactAgentExecutor(executor: AgentExecutorStep, primaryUrl?: string):
 }
 
 function compactAgentHandoff(handoff: AgentHandoff, primaryUrl?: string, searchCommandContext?: SearchResultCommandContext): object {
-  const { readValue, readTarget, sourceChoices: _sourceChoices, resultChoices, answerEvidence, target, signals: _signals, qualityGates: _qualityGates, ...rest } = handoff;
+  const { readValue, readTarget, sourceChoices, resultChoices, answerEvidence, target, signals: _signals, qualityGates: _qualityGates, ...rest } = handoff;
   const keepSignals = handoff.signals?.some((signal) => signal.kind === "verification" || signal.kind === "browser") === true;
   const keepQualityGates = handoff.qualityGates?.some((gate) => gate.kind === "verification") === true;
   return compactAgentUrlRefs({
@@ -12565,6 +12565,7 @@ function compactAgentHandoff(handoff: AgentHandoff, primaryUrl?: string, searchC
     ...(readTarget ? { readTarget: compactAgentHandoffReadTarget(readTarget) } : {}),
     ...(answerEvidence && answerEvidence.length > 0 ? { answerEvidence: answerEvidence.map(compactAgentAnswerEvidenceRef) } : {}),
     ...(resultChoices && resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext))) } : {}),
+    ...(sourceChoices && sourceChoices.length > 0 ? { sourceChoices: compactAgentSourceChoiceList(sourceChoices) } : {}),
     ...(readValue ? { readValue: compactAgentReadValue(readValue, true) } : {}),
   }, primaryUrl);
 }
