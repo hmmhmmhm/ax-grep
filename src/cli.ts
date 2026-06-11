@@ -173,6 +173,7 @@ type AgentSemanticSummary = {
   headings: string[];
   namedRoles: string[];
   semanticOutline: Array<{ path: string; kind: "heading" | "landmark"; role: string; text: string; level?: number; depth: number; selector?: string }>;
+  keyboardItems: Array<{ path: string; role: string; name?: string; shortcuts?: string[]; accessKey?: string; tabIndex?: number; focusable: boolean; selector?: string }>;
   headingItems: Array<{ path: string; text: string; level?: number; selector?: string }>;
   landmarkItems: Array<{ path: string; role: string; name?: string; selector?: string }>;
   namedRoleItems: Array<{ path: string; role: string; name: string; selector?: string }>;
@@ -953,6 +954,15 @@ type AgentSummary = {
   semanticTopOutlineLevel?: number;
   semanticTopOutlineDepth?: number;
   semanticTopOutlineSelector?: string;
+  semanticKeyboardShortcutCount?: number;
+  semanticTopKeyboardShortcutPath?: string;
+  semanticTopKeyboardShortcutRole?: string;
+  semanticTopKeyboardShortcutName?: string;
+  semanticTopKeyboardShortcutKeys?: string[];
+  semanticTopKeyboardShortcutAccessKey?: string;
+  semanticTopKeyboardShortcutTabIndex?: number;
+  semanticTopKeyboardShortcutFocusable?: boolean;
+  semanticTopKeyboardShortcutSelector?: string;
   semanticTopHeading?: string;
   semanticTopHeadingPath?: string;
   semanticTopHeadingLevel?: number;
@@ -3284,6 +3294,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     lines.push(`  semanticSummary: nodes=${agent.semanticSummary.nodeCount} named=${agent.semanticSummary.namedRoleCount} interactive=${agent.semanticSummary.interactiveCount}`);
     if (agent.semanticSummary.topRoles.length > 0) lines.push(`  semanticTopRoles: ${agent.semanticSummary.topRoles.map((item) => `${item.role}=${item.count}`).join(", ")}`);
     for (const item of agent.semanticSummary.semanticOutline.slice(0, 4)) lines.push(`  semanticOutline: ${item.path} ${item.kind}:${item.text} role=${item.role}${typeof item.level === "number" ? ` level=${item.level}` : ""} depth=${item.depth}${item.selector ? ` selector=${item.selector}` : ""}`);
+    for (const item of agent.semanticSummary.keyboardItems.slice(0, 3)) lines.push(`  semanticKeyboard: ${item.path} ${item.role}${item.name ? `:${item.name}` : ""}${item.shortcuts?.length ? ` shortcuts=${item.shortcuts.join(",")}` : ""}${item.accessKey ? ` accessKey=${item.accessKey}` : ""}${typeof item.tabIndex === "number" ? ` tabIndex=${item.tabIndex}` : ""} focusable=${item.focusable}${item.selector ? ` selector=${item.selector}` : ""}`);
     for (const heading of agent.semanticSummary.headingItems.slice(0, 3)) lines.push(`  semanticHeading: ${heading.path} ${heading.text}${typeof heading.level === "number" ? ` level=${heading.level}` : ""}${heading.selector ? ` selector=${heading.selector}` : ""}`);
     for (const landmark of agent.semanticSummary.landmarkItems.slice(0, 3)) lines.push(`  semanticLandmark: ${landmark.path} ${landmark.role}${landmark.name ? `:${landmark.name}` : ""}${landmark.selector ? ` selector=${landmark.selector}` : ""}`);
     for (const interactive of agent.semanticSummary.interactiveRoles.slice(0, 3)) lines.push(`  semanticInteractive: ${interactive.path} ${interactive.role}:${interactive.name}${interactive.description ? ` description=${interactive.description}` : ""}${interactive.value ? ` value=${interactive.value}` : ""}${interactive.state ? ` state=${formatSemanticState(interactive.state) ?? ""}` : ""}${interactive.selector ? ` selector=${interactive.selector}` : ""}`);
@@ -9596,6 +9607,7 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
   const headings: string[] = [];
   const namedRoles: string[] = [];
   const semanticOutline: AgentSemanticSummary["semanticOutline"] = [];
+  const keyboardItems: AgentSemanticSummary["keyboardItems"] = [];
   const headingItems: AgentSemanticSummary["headingItems"] = [];
   const landmarkItems: AgentSemanticSummary["landmarkItems"] = [];
   const namedRoleItems: AgentSemanticSummary["namedRoleItems"] = [];
@@ -9647,6 +9659,21 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
     nodeCount += 1;
     const role = node.role ?? node.tag;
     roleCounts[role] = (roleCounts[role] ?? 0) + 1;
+    const shortcuts = semanticKeyboardShortcuts(node.attributes?.["aria-keyshortcuts"]);
+    const accessKey = cleanContentText(node.attributes?.accesskey ?? "").slice(0, 80);
+    const tabIndex = semanticTabIndex(node.attributes?.tabindex);
+    if ((shortcuts.length > 0 || accessKey || typeof tabIndex === "number") && keyboardItems.length < 8) {
+      keyboardItems.push({
+        path: `agent.semanticSummary.keyboardItems[${keyboardItems.length}]`,
+        role,
+        ...(node.name ? { name: node.name } : {}),
+        ...(shortcuts.length > 0 ? { shortcuts } : {}),
+        ...(accessKey ? { accessKey } : {}),
+        ...(typeof tabIndex === "number" ? { tabIndex } : {}),
+        focusable: node.focusable,
+        ...(node.selector ? { selector: node.selector } : {}),
+      });
+    }
     if (node.unavailableReason) {
       unavailableCount += 1;
       if (unavailableItems.length < 8) {
@@ -9929,6 +9956,7 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
     headings,
     namedRoles,
     semanticOutline,
+    keyboardItems,
     headingItems,
     landmarkItems,
     namedRoleItems,
@@ -9974,6 +10002,20 @@ function semanticHeadingLevel(node: SemanticNode): number | undefined {
   if (!ariaLevel) return undefined;
   const parsed = Number(ariaLevel);
   return Number.isInteger(parsed) && parsed >= 1 ? parsed : undefined;
+}
+
+function semanticKeyboardShortcuts(value: string | undefined): string[] {
+  return cleanContentText(value ?? "")
+    .split(/\s+/)
+    .map((item) => item.trim().slice(0, 80))
+    .filter(Boolean)
+    .slice(0, 8);
+}
+
+function semanticTabIndex(value: string | undefined): number | undefined {
+  if (typeof value !== "string" || value.trim() === "") return undefined;
+  const parsed = Number(value);
+  return Number.isInteger(parsed) ? parsed : undefined;
 }
 
 function countSemanticDescendantsByRole(node: SemanticNode, roles: Set<string>): number {
@@ -10060,6 +10102,7 @@ function summarizeAgent(
   const topSemanticHeading = semanticSummary?.headingItems[0];
   const topSemanticLandmark = semanticSummary?.landmarkItems[0];
   const topSemanticOutline = semanticSummary?.semanticOutline[0];
+  const topSemanticKeyboardShortcut = semanticSummary?.keyboardItems[0];
   const topSemanticNamedRole = semanticSummary?.namedRoleItems[0];
   const topSemanticInteractive = semanticSummary?.interactiveRoles[0];
   const topSemanticInteractiveState = formatSemanticState(topSemanticInteractive?.state);
@@ -10180,6 +10223,15 @@ function summarizeAgent(
     ...(typeof topSemanticOutline?.level === "number" ? { semanticTopOutlineLevel: topSemanticOutline.level } : {}),
     ...(typeof topSemanticOutline?.depth === "number" ? { semanticTopOutlineDepth: topSemanticOutline.depth } : {}),
     ...(topSemanticOutline?.selector ? { semanticTopOutlineSelector: topSemanticOutline.selector } : {}),
+    ...(semanticSummary ? { semanticKeyboardShortcutCount: semanticSummary.keyboardItems.length } : {}),
+    ...(topSemanticKeyboardShortcut ? { semanticTopKeyboardShortcutPath: topSemanticKeyboardShortcut.path } : {}),
+    ...(topSemanticKeyboardShortcut ? { semanticTopKeyboardShortcutRole: topSemanticKeyboardShortcut.role } : {}),
+    ...(topSemanticKeyboardShortcut?.name ? { semanticTopKeyboardShortcutName: topSemanticKeyboardShortcut.name } : {}),
+    ...(topSemanticKeyboardShortcut?.shortcuts?.length ? { semanticTopKeyboardShortcutKeys: topSemanticKeyboardShortcut.shortcuts } : {}),
+    ...(topSemanticKeyboardShortcut?.accessKey ? { semanticTopKeyboardShortcutAccessKey: topSemanticKeyboardShortcut.accessKey } : {}),
+    ...(typeof topSemanticKeyboardShortcut?.tabIndex === "number" ? { semanticTopKeyboardShortcutTabIndex: topSemanticKeyboardShortcut.tabIndex } : {}),
+    ...(typeof topSemanticKeyboardShortcut?.focusable === "boolean" ? { semanticTopKeyboardShortcutFocusable: topSemanticKeyboardShortcut.focusable } : {}),
+    ...(topSemanticKeyboardShortcut?.selector ? { semanticTopKeyboardShortcutSelector: topSemanticKeyboardShortcut.selector } : {}),
     ...(semanticSummary?.headings[0] ? { semanticTopHeading: semanticSummary.headings[0] } : {}),
     ...(topSemanticHeading ? { semanticTopHeadingPath: topSemanticHeading.path } : {}),
     ...(typeof topSemanticHeading?.level === "number" ? { semanticTopHeadingLevel: topSemanticHeading.level } : {}),
@@ -14648,6 +14700,15 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.semanticTopOutlineLevel === "number" ? { semanticTopOutlineLevel: agent.semanticTopOutlineLevel } : {}),
     ...(typeof agent.semanticTopOutlineDepth === "number" ? { semanticTopOutlineDepth: agent.semanticTopOutlineDepth } : {}),
     ...(agent.semanticTopOutlineSelector ? { semanticTopOutlineSelector: agent.semanticTopOutlineSelector } : {}),
+    ...(typeof agent.semanticKeyboardShortcutCount === "number" ? { semanticKeyboardShortcutCount: agent.semanticKeyboardShortcutCount } : {}),
+    ...(agent.semanticTopKeyboardShortcutPath ? { semanticTopKeyboardShortcutPath: agent.semanticTopKeyboardShortcutPath } : {}),
+    ...(agent.semanticTopKeyboardShortcutRole ? { semanticTopKeyboardShortcutRole: agent.semanticTopKeyboardShortcutRole } : {}),
+    ...(agent.semanticTopKeyboardShortcutName ? { semanticTopKeyboardShortcutName: agent.semanticTopKeyboardShortcutName } : {}),
+    ...(agent.semanticTopKeyboardShortcutKeys?.length ? { semanticTopKeyboardShortcutKeys: agent.semanticTopKeyboardShortcutKeys } : {}),
+    ...(agent.semanticTopKeyboardShortcutAccessKey ? { semanticTopKeyboardShortcutAccessKey: agent.semanticTopKeyboardShortcutAccessKey } : {}),
+    ...(typeof agent.semanticTopKeyboardShortcutTabIndex === "number" ? { semanticTopKeyboardShortcutTabIndex: agent.semanticTopKeyboardShortcutTabIndex } : {}),
+    ...(typeof agent.semanticTopKeyboardShortcutFocusable === "boolean" ? { semanticTopKeyboardShortcutFocusable: agent.semanticTopKeyboardShortcutFocusable } : {}),
+    ...(agent.semanticTopKeyboardShortcutSelector ? { semanticTopKeyboardShortcutSelector: agent.semanticTopKeyboardShortcutSelector } : {}),
     ...(agent.semanticTopHeading ? { semanticTopHeading: agent.semanticTopHeading } : {}),
     ...(agent.semanticTopHeadingPath ? { semanticTopHeadingPath: agent.semanticTopHeadingPath } : {}),
     ...(typeof agent.semanticTopHeadingLevel === "number" ? { semanticTopHeadingLevel: agent.semanticTopHeadingLevel } : {}),
@@ -15239,6 +15300,14 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.semanticTopOutlineText ? { semanticTopOutlineText: agent.semanticTopOutlineText } : {}),
     ...(typeof agent.semanticTopOutlineLevel === "number" ? { semanticTopOutlineLevel: agent.semanticTopOutlineLevel } : {}),
     ...(typeof agent.semanticTopOutlineDepth === "number" ? { semanticTopOutlineDepth: agent.semanticTopOutlineDepth } : {}),
+    ...(typeof agent.semanticKeyboardShortcutCount === "number" ? { semanticKeyboardShortcutCount: agent.semanticKeyboardShortcutCount } : {}),
+    ...(agent.semanticTopKeyboardShortcutPath ? { semanticTopKeyboardShortcutPath: agent.semanticTopKeyboardShortcutPath } : {}),
+    ...(agent.semanticTopKeyboardShortcutRole ? { semanticTopKeyboardShortcutRole: agent.semanticTopKeyboardShortcutRole } : {}),
+    ...(agent.semanticTopKeyboardShortcutName ? { semanticTopKeyboardShortcutName: agent.semanticTopKeyboardShortcutName } : {}),
+    ...(agent.semanticTopKeyboardShortcutKeys?.length ? { semanticTopKeyboardShortcutKeys: agent.semanticTopKeyboardShortcutKeys } : {}),
+    ...(agent.semanticTopKeyboardShortcutAccessKey ? { semanticTopKeyboardShortcutAccessKey: agent.semanticTopKeyboardShortcutAccessKey } : {}),
+    ...(typeof agent.semanticTopKeyboardShortcutTabIndex === "number" ? { semanticTopKeyboardShortcutTabIndex: agent.semanticTopKeyboardShortcutTabIndex } : {}),
+    ...(typeof agent.semanticTopKeyboardShortcutFocusable === "boolean" ? { semanticTopKeyboardShortcutFocusable: agent.semanticTopKeyboardShortcutFocusable } : {}),
     ...(agent.semanticTopHeading ? { semanticTopHeading: agent.semanticTopHeading } : {}),
     ...(agent.semanticTopHeadingPath ? { semanticTopHeadingPath: agent.semanticTopHeadingPath } : {}),
     ...(typeof agent.semanticTopHeadingLevel === "number" ? { semanticTopHeadingLevel: agent.semanticTopHeadingLevel } : {}),
@@ -15812,6 +15881,7 @@ function compactAgentSemanticSummary(summary: AgentSemanticSummary): object {
     headings: summary.headings.slice(0, 4),
     namedRoles: summary.namedRoles.slice(0, 4),
     semanticOutline: summary.semanticOutline.slice(0, 8),
+    keyboardItems: summary.keyboardItems.slice(0, 4),
     headingItems: summary.headingItems.slice(0, 4),
     landmarkItems: summary.landmarkItems.slice(0, 4),
     namedRoleItems: summary.namedRoleItems.slice(0, 4),

@@ -3839,8 +3839,8 @@ describe("cli", () => {
       stdout,
       fetch: async () => new Response(`
         <main>
-          <nav><a href="/reports" aria-current="page">Reports</a></nav>
-          <button aria-haspopup="dialog" aria-controls="filters">Filters</button>
+          <nav><a href="/reports" aria-current="page" accesskey="r">Reports</a></nav>
+          <button aria-haspopup="dialog" aria-controls="filters" aria-keyshortcuts="Alt+F" tabindex="0">Filters</button>
           <dialog id="filters" open aria-label="Filter reports" aria-modal="true">
             <button>Apply</button>
           </dialog>
@@ -3872,6 +3872,25 @@ describe("cli", () => {
         path: "agent.semanticSummary.focusableItems[2]",
         role: "button",
         name: "Apply",
+        selector: "button",
+      }),
+    ]);
+    expect(envelope.agent.semanticSummary.keyboardItems).toEqual([
+      expect.objectContaining({
+        path: "agent.semanticSummary.keyboardItems[0]",
+        role: "link",
+        name: "Reports",
+        accessKey: "r",
+        focusable: true,
+        selector: "a",
+      }),
+      expect.objectContaining({
+        path: "agent.semanticSummary.keyboardItems[1]",
+        role: "button",
+        name: "Filters",
+        shortcuts: ["Alt+F"],
+        tabIndex: 0,
+        focusable: true,
         selector: "button",
       }),
     ]);
@@ -3916,6 +3935,13 @@ describe("cli", () => {
       semanticTopFocusableName: "Reports",
       semanticTopFocusableState: "current=page",
       semanticTopFocusableSelector: "a",
+      semanticKeyboardShortcutCount: 2,
+      semanticTopKeyboardShortcutPath: "agent.semanticSummary.keyboardItems[0]",
+      semanticTopKeyboardShortcutRole: "link",
+      semanticTopKeyboardShortcutName: "Reports",
+      semanticTopKeyboardShortcutAccessKey: "r",
+      semanticTopKeyboardShortcutFocusable: true,
+      semanticTopKeyboardShortcutSelector: "a",
       semanticStateCount: 4,
       semanticTopStateRole: "link",
       semanticTopStatePath: "agent.semanticSummary.stateItems[0]",

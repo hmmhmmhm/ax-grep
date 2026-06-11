@@ -461,6 +461,15 @@ describe("public agent types", () => {
       | "semanticTopOutlineLevel"
       | "semanticTopOutlineDepth"
       | "semanticTopOutlineSelector"
+      | "semanticKeyboardShortcutCount"
+      | "semanticTopKeyboardShortcutPath"
+      | "semanticTopKeyboardShortcutRole"
+      | "semanticTopKeyboardShortcutName"
+      | "semanticTopKeyboardShortcutKeys"
+      | "semanticTopKeyboardShortcutAccessKey"
+      | "semanticTopKeyboardShortcutTabIndex"
+      | "semanticTopKeyboardShortcutFocusable"
+      | "semanticTopKeyboardShortcutSelector"
       | "semanticTopHeading"
       | "semanticTopHeadingPath"
       | "semanticTopHeadingLevel"
@@ -1013,6 +1022,15 @@ describe("public agent types", () => {
       semanticTopOutlineLevel: 1,
       semanticTopOutlineDepth: 2,
       semanticTopOutlineSelector: "h1",
+      semanticKeyboardShortcutCount: 1,
+      semanticTopKeyboardShortcutPath: "agent.semanticSummary.keyboardItems[0]",
+      semanticTopKeyboardShortcutRole: "button",
+      semanticTopKeyboardShortcutName: "Save",
+      semanticTopKeyboardShortcutKeys: ["Control+S"],
+      semanticTopKeyboardShortcutAccessKey: "s",
+      semanticTopKeyboardShortcutTabIndex: 0,
+      semanticTopKeyboardShortcutFocusable: true,
+      semanticTopKeyboardShortcutSelector: "button",
       semanticTopHeading: "Example",
       semanticTopHeadingPath: "agent.semanticSummary.headingItems[0]",
       semanticTopHeadingLevel: 1,

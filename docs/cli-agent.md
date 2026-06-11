@@ -69,7 +69,8 @@ Read these first:
 - `agent.semantic*`: compact semantic tree counts and direct paths to top
   heading/landmark/named role/interactive/focusable/link/button/image/table/list/form-field/description/value/relation/choice/state/unavailable entries.
   `semanticOutline` and `semanticTopOutline*` preserve heading/landmark page flow
-  for fast structural routing. Relation shortcuts include resolved target role/selector when available.
+  for fast structural routing. `semanticKeyboardShortcut*` exposes keyboard shortcut,
+  access key, and tabindex hints. Relation shortcuts include resolved target role/selector when available.
   State shortcuts also expose parsed top-state fields such as `semanticTopStateCurrent`,
   `semanticTopStateControls`, `semanticTopStateHaspopup`, and `semanticTopStateInvalid`.
 - `agent.barrierCount` and `agent.topBarrier*`: primary login, paywall,

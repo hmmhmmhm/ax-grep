@@ -1607,6 +1607,15 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopOutlineLevel?: number;
       semanticTopOutlineDepth?: number;
       semanticTopOutlineSelector?: string;
+      semanticKeyboardShortcutCount?: number;
+      semanticTopKeyboardShortcutPath?: string;
+      semanticTopKeyboardShortcutRole?: string;
+      semanticTopKeyboardShortcutName?: string;
+      semanticTopKeyboardShortcutKeys?: string[];
+      semanticTopKeyboardShortcutAccessKey?: string;
+      semanticTopKeyboardShortcutTabIndex?: number;
+      semanticTopKeyboardShortcutFocusable?: boolean;
+      semanticTopKeyboardShortcutSelector?: string;
       semanticTopHeading?: string;
       semanticTopHeadingPath?: string;
       semanticTopHeadingLevel?: number;
@@ -4718,6 +4727,15 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopOutlineLevel?: number;
   semanticTopOutlineDepth?: number;
   semanticTopOutlineSelector?: string;
+  semanticKeyboardShortcutCount?: number;
+  semanticTopKeyboardShortcutPath?: string;
+  semanticTopKeyboardShortcutRole?: string;
+  semanticTopKeyboardShortcutName?: string;
+  semanticTopKeyboardShortcutKeys?: string[];
+  semanticTopKeyboardShortcutAccessKey?: string;
+  semanticTopKeyboardShortcutTabIndex?: number;
+  semanticTopKeyboardShortcutFocusable?: boolean;
+  semanticTopKeyboardShortcutSelector?: string;
   semanticTopHeading?: string;
   semanticTopHeadingPath?: string;
   semanticTopHeadingLevel?: number;
@@ -4852,6 +4870,7 @@ function scoreAgentSemanticSummary(agent: {
     headings?: unknown;
     namedRoles?: unknown;
     semanticOutline?: unknown;
+    keyboardItems?: unknown;
     headingItems?: unknown;
     landmarkItems?: unknown;
     namedRoleItems?: unknown;
@@ -4899,6 +4918,7 @@ function scoreAgentSemanticSummary(agent: {
   if (Array.isArray(item.headings)) matched += 1;
   if (Array.isArray(item.namedRoles)) matched += 1;
   if (Array.isArray(item.semanticOutline)) matched += 1;
+  if (Array.isArray(item.keyboardItems)) matched += 1;
   if (Array.isArray(item.headingItems)) matched += 1;
   if (Array.isArray(item.landmarkItems)) matched += 1;
   if (Array.isArray(item.namedRoleItems)) matched += 1;
@@ -4916,7 +4936,7 @@ function scoreAgentSemanticSummary(agent: {
   if (Array.isArray(item.choiceItems)) matched += 1;
   if (Array.isArray(item.stateItems)) matched += 1;
   if (Array.isArray(item.unavailableItems)) matched += 1;
-  let required = 41;
+  let required = 42;
   if (typeof item.nodeCount === "number") {
     required += 1;
     if (agent?.semanticNodeCount === item.nodeCount) matched += 1;
@@ -5030,6 +5050,43 @@ function scoreAgentSemanticSummary(agent: {
   if (outlineItem && typeof outlineItem.selector === "string") {
     required += 1;
     if (agent?.semanticTopOutlineSelector === outlineItem.selector) matched += 1;
+  }
+  if (Array.isArray(item.keyboardItems)) {
+    required += 1;
+    if (agent?.semanticKeyboardShortcutCount === item.keyboardItems.length) matched += 1;
+  }
+  const keyboardItem = Array.isArray(item.keyboardItems) ? item.keyboardItems[0] as { path?: unknown; role?: unknown; name?: unknown; shortcuts?: unknown; accessKey?: unknown; tabIndex?: unknown; focusable?: unknown; selector?: unknown } | undefined : undefined;
+  if (keyboardItem && typeof keyboardItem.path === "string") {
+    required += 1;
+    if (agent?.semanticTopKeyboardShortcutPath === keyboardItem.path) matched += 1;
+  }
+  if (keyboardItem && typeof keyboardItem.role === "string") {
+    required += 1;
+    if (agent?.semanticTopKeyboardShortcutRole === keyboardItem.role) matched += 1;
+  }
+  if (keyboardItem && typeof keyboardItem.name === "string") {
+    required += 1;
+    if (agent?.semanticTopKeyboardShortcutName === keyboardItem.name) matched += 1;
+  }
+  if (keyboardItem && Array.isArray(keyboardItem.shortcuts)) {
+    required += 1;
+    if (JSON.stringify(agent?.semanticTopKeyboardShortcutKeys) === JSON.stringify(keyboardItem.shortcuts)) matched += 1;
+  }
+  if (keyboardItem && typeof keyboardItem.accessKey === "string") {
+    required += 1;
+    if (agent?.semanticTopKeyboardShortcutAccessKey === keyboardItem.accessKey) matched += 1;
+  }
+  if (keyboardItem && typeof keyboardItem.tabIndex === "number") {
+    required += 1;
+    if (agent?.semanticTopKeyboardShortcutTabIndex === keyboardItem.tabIndex) matched += 1;
+  }
+  if (keyboardItem && typeof keyboardItem.focusable === "boolean") {
+    required += 1;
+    if (agent?.semanticTopKeyboardShortcutFocusable === keyboardItem.focusable) matched += 1;
+  }
+  if (keyboardItem && typeof keyboardItem.selector === "string") {
+    required += 1;
+    if (agent?.semanticTopKeyboardShortcutSelector === keyboardItem.selector) matched += 1;
   }
   const heading = Array.isArray(item.headings) ? item.headings[0] : undefined;
   if (typeof heading === "string") {

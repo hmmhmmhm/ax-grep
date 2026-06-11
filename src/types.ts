@@ -582,6 +582,15 @@ export type AgentSummary = {
   semanticTopOutlineLevel?: number;
   semanticTopOutlineDepth?: number;
   semanticTopOutlineSelector?: string;
+  semanticKeyboardShortcutCount?: number;
+  semanticTopKeyboardShortcutPath?: string;
+  semanticTopKeyboardShortcutRole?: string;
+  semanticTopKeyboardShortcutName?: string;
+  semanticTopKeyboardShortcutKeys?: string[];
+  semanticTopKeyboardShortcutAccessKey?: string;
+  semanticTopKeyboardShortcutTabIndex?: number;
+  semanticTopKeyboardShortcutFocusable?: boolean;
+  semanticTopKeyboardShortcutSelector?: string;
   semanticTopHeading?: string;
   semanticTopHeadingPath?: string;
   semanticTopHeadingLevel?: number;
