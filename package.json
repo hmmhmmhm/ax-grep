@@ -38,6 +38,7 @@
   "scripts": {
     "build": "tsup && tsc --noEmit",
     "check": "tsc --noEmit",
+    "check:processes": "tsx scripts/check-project-processes.ts",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
