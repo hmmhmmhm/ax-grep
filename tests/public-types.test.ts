@@ -195,15 +195,27 @@ describe("public agent types", () => {
       | "failingQualityGateKind"
       | "failingQualityGateMessage"
       | "failingQualityGatePath"
+      | "executorDecision"
+      | "executorMode"
       | "executorActionName"
       | "executorOperation"
+      | "executorConfidence"
+      | "executorAnswerReady"
+      | "executorShouldContinue"
+      | "executorTerminal"
       | "executorCommandArgs"
       | "executorReadFrom"
       | "executorUrl"
       | "executorExpectedOutcome"
+      | "handoffDecision"
+      | "handoffMode"
       | "handoffActionName"
       | "handoffOperation"
       | "handoffAnswerStatus"
+      | "handoffConfidence"
+      | "handoffAnswerReady"
+      | "handoffShouldContinue"
+      | "handoffTerminal"
       | "handoffPriority"
       | "handoffPriorityReason"
       | "handoffCommandArgs"
@@ -260,15 +272,27 @@ describe("public agent types", () => {
       failingQualityGateKind: "content",
       failingQualityGateMessage: "Content evidence is too thin.",
       failingQualityGatePath: "pageCheck.contentEvidence",
+      executorDecision: "return",
+      executorMode: "read",
       executorActionName: "read-content",
       executorOperation: "return",
+      executorConfidence: "high",
+      executorAnswerReady: true,
+      executorShouldContinue: false,
+      executorTerminal: true,
       executorCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       executorReadFrom: "pageCheck.contentEvidence",
       executorUrl: "https://example.test",
       executorExpectedOutcome: "read-evidence",
+      handoffDecision: "return",
+      handoffMode: "read",
       handoffActionName: "read-content",
       handoffOperation: "return",
       handoffAnswerStatus: "ready",
+      handoffConfidence: "high",
+      handoffAnswerReady: true,
+      handoffShouldContinue: false,
+      handoffTerminal: true,
       handoffPriority: "high",
       handoffPriorityReason: "Readable content is available.",
       handoffCommandArgs: ["ax-grep", "https://example.test", "--agent"],
@@ -295,7 +319,9 @@ describe("public agent types", () => {
     expect(summary.failingQualityGateKind).toBe("content");
     expect(summary.answerPlanStatus).toBe("ready");
     expect(summary.executorOperation).toBe("return");
+    expect(summary.executorTerminal).toBe(true);
     expect(summary.handoffAnswerStatus).toBe("ready");
+    expect(summary.handoffShouldContinue).toBe(false);
     expect(summary.primaryActionName).toBe("read-content");
   });
 });

@@ -197,13 +197,15 @@ field without rereading the full action object.
 reason, priority, command, URL, rank, read-from, and browser shortcuts mirror
 `agent.primaryAction`, so agents can continue from top-level routing fields.
 `averageAgentExecutorShortcutScore` tracks whether `agent.executorActionName`,
-operation, command arguments, read-from, URL, and expected-outcome shortcuts
-mirror `agent.executor`, so subagents can route the next step without parsing
-the full executor object.
+decision, mode, operation, confidence, terminal/continue flags, command
+arguments, read-from, URL, and expected-outcome shortcuts mirror
+`agent.executor`, so subagents can route the next step without parsing the full
+executor object.
 `averageAgentHandoffShortcutScore` tracks whether `agent.handoffActionName`,
-operation, answer status, priority, command arguments, read-from, URL, and
-expected-outcome shortcuts mirror `agent.handoff`, so brief loops can run from
-top-level fields when they do not need the full handoff object.
+decision, mode, operation, answer status, confidence, terminal/continue flags,
+priority, command arguments, read-from, URL, and expected-outcome shortcuts
+mirror `agent.handoff`, so brief loops can run from top-level fields when they
+do not need the full handoff object.
 `averageAgentAnswerShortcutScore` tracks whether `agent.answerPlanStatus`,
 confidence, gap count, citation IDs, command arguments, read-from, and URL
 shortcuts mirror `agent.answerPlan`, so agents can decide whether to answer or

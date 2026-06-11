@@ -912,15 +912,27 @@ type AgentSummary = {
   bestReadTarget?: string;
   bestReadTargetScore?: number;
   bestReadTargetReason?: string;
+  executorDecision?: AgentNext["loop"]["decision"];
+  executorMode?: AgentContinuationMode;
   executorActionName?: string;
   executorOperation?: AgentExecutionPlan["operation"];
+  executorConfidence?: AgentExecutionPlan["confidence"];
+  executorAnswerReady?: boolean;
+  executorShouldContinue?: boolean;
+  executorTerminal?: boolean;
   executorCommandArgs?: string[];
   executorReadFrom?: string;
   executorUrl?: string;
   executorExpectedOutcome?: AgentExpectedOutcome["kind"];
+  handoffDecision?: AgentNext["loop"]["decision"];
+  handoffMode?: AgentContinuationMode;
   handoffActionName?: string;
   handoffOperation?: AgentExecutionPlan["operation"];
   handoffAnswerStatus?: AgentAnswerPlan["status"];
+  handoffConfidence?: AgentExecutionPlan["confidence"];
+  handoffAnswerReady?: boolean;
+  handoffShouldContinue?: boolean;
+  handoffTerminal?: boolean;
   handoffPriority?: AgentHandoff["priority"];
   handoffPriorityReason?: string;
   handoffCommandArgs?: string[];
@@ -2451,12 +2463,24 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.verificationMissingQueries.length > 0 ? [`  verificationMissingQueries: ${agent.verificationMissingQueries.join("; ")}`] : []),
     `  readability: ${agent.readability} (${agent.readabilityScore})`,
   ];
+  if (agent.executorDecision) lines.push(`  executorDecision: ${agent.executorDecision}`);
+  if (agent.executorMode) lines.push(`  executorMode: ${agent.executorMode}`);
   if (agent.executorActionName) lines.push(`  executorActionName: ${agent.executorActionName}`);
   if (agent.executorOperation) lines.push(`  executorOperation: ${agent.executorOperation}`);
+  if (agent.executorConfidence) lines.push(`  executorConfidence: ${agent.executorConfidence}`);
+  if (typeof agent.executorAnswerReady === "boolean") lines.push(`  executorAnswerReady: ${agent.executorAnswerReady}`);
+  if (typeof agent.executorShouldContinue === "boolean") lines.push(`  executorShouldContinue: ${agent.executorShouldContinue}`);
+  if (typeof agent.executorTerminal === "boolean") lines.push(`  executorTerminal: ${agent.executorTerminal}`);
   if (agent.executorExpectedOutcome) lines.push(`  executorExpectedOutcome: ${agent.executorExpectedOutcome}`);
+  if (agent.handoffDecision) lines.push(`  handoffDecision: ${agent.handoffDecision}`);
+  if (agent.handoffMode) lines.push(`  handoffMode: ${agent.handoffMode}`);
   if (agent.handoffActionName) lines.push(`  handoffActionName: ${agent.handoffActionName}`);
   if (agent.handoffOperation) lines.push(`  handoffOperation: ${agent.handoffOperation}`);
   if (agent.handoffAnswerStatus) lines.push(`  handoffAnswerStatus: ${agent.handoffAnswerStatus}`);
+  if (agent.handoffConfidence) lines.push(`  handoffConfidence: ${agent.handoffConfidence}`);
+  if (typeof agent.handoffAnswerReady === "boolean") lines.push(`  handoffAnswerReady: ${agent.handoffAnswerReady}`);
+  if (typeof agent.handoffShouldContinue === "boolean") lines.push(`  handoffShouldContinue: ${agent.handoffShouldContinue}`);
+  if (typeof agent.handoffTerminal === "boolean") lines.push(`  handoffTerminal: ${agent.handoffTerminal}`);
   if (agent.handoffPriority) lines.push(`  handoffPriority: ${agent.handoffPriority}`);
   if (agent.handoffPriorityReason) lines.push(`  handoffPriorityReason: ${agent.handoffPriorityReason}`);
   if (agent.handoffExpectedOutcome) lines.push(`  handoffExpectedOutcome: ${agent.handoffExpectedOutcome}`);
@@ -8974,15 +8998,27 @@ function summarizeAgent(
     readTargets,
     actionCount: actions.length,
     actions,
+    executorDecision: executor.decision,
+    executorMode: executor.mode,
     ...(executor.action ? { executorActionName: executor.action } : {}),
     executorOperation: executor.operation,
+    executorConfidence: executor.confidence,
+    executorAnswerReady: executor.answerReady,
+    executorShouldContinue: executor.shouldContinue,
+    executorTerminal: executor.terminal,
     ...(executor.commandArgs ? { executorCommandArgs: executor.commandArgs } : {}),
     ...(executor.readFrom ? { executorReadFrom: executor.readFrom } : {}),
     ...(executor.url ? { executorUrl: executor.url } : {}),
     executorExpectedOutcome: executor.expectedOutcome,
+    handoffDecision: handoff.decision,
+    handoffMode: handoff.mode,
     ...(handoff.action ? { handoffActionName: handoff.action } : {}),
     handoffOperation: handoff.operation,
     handoffAnswerStatus: handoff.answerStatus,
+    handoffConfidence: handoff.confidence,
+    handoffAnswerReady: handoff.answerReady,
+    handoffShouldContinue: handoff.shouldContinue,
+    handoffTerminal: handoff.terminal,
     ...(handoff.priority ? { handoffPriority: handoff.priority } : {}),
     ...(handoff.priorityReason ? { handoffPriorityReason: handoff.priorityReason } : {}),
     ...(handoff.commandArgs ? { handoffCommandArgs: handoff.commandArgs } : {}),
@@ -11482,6 +11518,23 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(bestReadTarget ? { bestReadTarget: bestReadTarget.path } : {}),
     ...(typeof bestReadTarget?.score === "number" ? { bestReadTargetScore: bestReadTarget.score } : {}),
     ...(bestReadTarget ? { bestReadTargetReason: bestReadTarget.reason } : {}),
+    executorDecision: executor.decision,
+    executorMode: executor.mode,
+    executorOperation: executor.operation,
+    executorConfidence: executor.confidence,
+    executorAnswerReady: executor.answerReady,
+    executorShouldContinue: executor.shouldContinue,
+    executorTerminal: executor.terminal,
+    executorExpectedOutcome: executor.expectedOutcome,
+    handoffDecision: handoff.decision,
+    handoffMode: handoff.mode,
+    handoffOperation: handoff.operation,
+    handoffAnswerStatus: handoff.answerStatus,
+    handoffConfidence: handoff.confidence,
+    handoffAnswerReady: handoff.answerReady,
+    handoffShouldContinue: handoff.shouldContinue,
+    handoffTerminal: handoff.terminal,
+    handoffExpectedOutcome: handoff.expectedOutcome,
     ...(primaryAction ? { primaryActionName: primaryAction.action } : {}),
     ...(primaryAction?.reason ? { primaryReason: primaryAction.reason } : {}),
     ...(primaryAction ? { primaryPriority: primaryAction.priority ?? actionPriority(primaryAction) } : {}),
@@ -12770,15 +12823,27 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
     ...(agent.bestReadTargetReason ? { bestReadTargetReason: agent.bestReadTargetReason } : {}),
+    ...(agent.executorDecision ? { executorDecision: agent.executorDecision } : {}),
+    ...(agent.executorMode ? { executorMode: agent.executorMode } : {}),
     ...(agent.executorActionName ? { executorActionName: agent.executorActionName } : {}),
     ...(agent.executorOperation ? { executorOperation: agent.executorOperation } : {}),
+    ...(agent.executorConfidence ? { executorConfidence: agent.executorConfidence } : {}),
+    ...(typeof agent.executorAnswerReady === "boolean" ? { executorAnswerReady: agent.executorAnswerReady } : {}),
+    ...(typeof agent.executorShouldContinue === "boolean" ? { executorShouldContinue: agent.executorShouldContinue } : {}),
+    ...(typeof agent.executorTerminal === "boolean" ? { executorTerminal: agent.executorTerminal } : {}),
     ...(agent.executorCommandArgs ? { executorCommandArgs: agent.executorCommandArgs } : {}),
     ...(agent.executorReadFrom ? { executorReadFrom: agent.executorReadFrom } : {}),
     ...(agent.executorUrl ? { executorUrl: agent.executorUrl } : {}),
     ...(agent.executorExpectedOutcome ? { executorExpectedOutcome: agent.executorExpectedOutcome } : {}),
+    ...(agent.handoffDecision ? { handoffDecision: agent.handoffDecision } : {}),
+    ...(agent.handoffMode ? { handoffMode: agent.handoffMode } : {}),
     ...(agent.handoffActionName ? { handoffActionName: agent.handoffActionName } : {}),
     ...(agent.handoffOperation ? { handoffOperation: agent.handoffOperation } : {}),
     ...(agent.handoffAnswerStatus ? { handoffAnswerStatus: agent.handoffAnswerStatus } : {}),
+    ...(agent.handoffConfidence ? { handoffConfidence: agent.handoffConfidence } : {}),
+    ...(typeof agent.handoffAnswerReady === "boolean" ? { handoffAnswerReady: agent.handoffAnswerReady } : {}),
+    ...(typeof agent.handoffShouldContinue === "boolean" ? { handoffShouldContinue: agent.handoffShouldContinue } : {}),
+    ...(typeof agent.handoffTerminal === "boolean" ? { handoffTerminal: agent.handoffTerminal } : {}),
     ...(agent.handoffPriority ? { handoffPriority: agent.handoffPriority } : {}),
     ...(agent.handoffPriorityReason ? { handoffPriorityReason: agent.handoffPriorityReason } : {}),
     ...(agent.handoffCommandArgs ? { handoffCommandArgs: agent.handoffCommandArgs } : {}),
@@ -12884,15 +12949,27 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     actionCount: agent.actionCount,
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
+    ...(agent.executorDecision ? { executorDecision: agent.executorDecision } : {}),
+    ...(agent.executorMode ? { executorMode: agent.executorMode } : {}),
     ...(agent.executorActionName ? { executorActionName: agent.executorActionName } : {}),
     ...(agent.executorOperation ? { executorOperation: agent.executorOperation } : {}),
+    ...(agent.executorConfidence ? { executorConfidence: agent.executorConfidence } : {}),
+    ...(typeof agent.executorAnswerReady === "boolean" ? { executorAnswerReady: agent.executorAnswerReady } : {}),
+    ...(typeof agent.executorShouldContinue === "boolean" ? { executorShouldContinue: agent.executorShouldContinue } : {}),
+    ...(typeof agent.executorTerminal === "boolean" ? { executorTerminal: agent.executorTerminal } : {}),
     ...(agent.executorCommandArgs ? { executorCommandArgs: agent.executorCommandArgs } : {}),
     ...(agent.executorReadFrom ? { executorReadFrom: agent.executorReadFrom } : {}),
     ...(agent.executorUrl ? { executorUrl: agent.executorUrl } : {}),
     ...(agent.executorExpectedOutcome ? { executorExpectedOutcome: agent.executorExpectedOutcome } : {}),
+    ...(agent.handoffDecision ? { handoffDecision: agent.handoffDecision } : {}),
+    ...(agent.handoffMode ? { handoffMode: agent.handoffMode } : {}),
     ...(agent.handoffActionName ? { handoffActionName: agent.handoffActionName } : {}),
     ...(agent.handoffOperation ? { handoffOperation: agent.handoffOperation } : {}),
     ...(agent.handoffAnswerStatus ? { handoffAnswerStatus: agent.handoffAnswerStatus } : {}),
+    ...(agent.handoffConfidence ? { handoffConfidence: agent.handoffConfidence } : {}),
+    ...(typeof agent.handoffAnswerReady === "boolean" ? { handoffAnswerReady: agent.handoffAnswerReady } : {}),
+    ...(typeof agent.handoffShouldContinue === "boolean" ? { handoffShouldContinue: agent.handoffShouldContinue } : {}),
+    ...(typeof agent.handoffTerminal === "boolean" ? { handoffTerminal: agent.handoffTerminal } : {}),
     ...(agent.handoffPriority ? { handoffPriority: agent.handoffPriority } : {}),
     ...(agent.handoffPriorityReason ? { handoffPriorityReason: agent.handoffPriorityReason } : {}),
     ...(agent.handoffCommandArgs ? { handoffCommandArgs: agent.handoffCommandArgs } : {}),

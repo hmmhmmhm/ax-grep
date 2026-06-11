@@ -1130,15 +1130,27 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchSelectedRank?: number;
       sourceSearchSelectedUrl?: string;
       sourceSearchAlternateCount?: number;
+      executorDecision?: CliAgentLoopShape["decision"];
+      executorMode?: AgentContinuationMode;
       executorActionName?: string;
       executorOperation?: CliAgentExecutionPlanShape["operation"];
+      executorConfidence?: CliAgentExecutionPlanShape["confidence"];
+      executorAnswerReady?: boolean;
+      executorShouldContinue?: boolean;
+      executorTerminal?: boolean;
       executorCommandArgs?: string[];
       executorReadFrom?: string;
       executorUrl?: string;
       executorExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
+      handoffDecision?: CliAgentLoopShape["decision"];
+      handoffMode?: AgentContinuationMode;
       handoffActionName?: string;
       handoffOperation?: CliAgentExecutionPlanShape["operation"];
       handoffAnswerStatus?: CliAgentAnswerPlanShape["status"];
+      handoffConfidence?: CliAgentExecutionPlanShape["confidence"];
+      handoffAnswerReady?: boolean;
+      handoffShouldContinue?: boolean;
+      handoffTerminal?: boolean;
       handoffPriority?: "low" | "medium" | "high";
       handoffPriorityReason?: string;
       handoffCommandArgs?: string[];
@@ -3423,8 +3435,14 @@ function scoreAgentPrimaryShortcuts(agent: {
 
 function scoreAgentExecutorShortcuts(agent: {
   executor?: CliAgentExecutorShape;
+  executorDecision?: CliAgentLoopShape["decision"];
+  executorMode?: AgentContinuationMode;
   executorActionName?: string;
   executorOperation?: CliAgentExecutionPlanShape["operation"];
+  executorConfidence?: CliAgentExecutionPlanShape["confidence"];
+  executorAnswerReady?: boolean;
+  executorShouldContinue?: boolean;
+  executorTerminal?: boolean;
   executorCommandArgs?: string[];
   executorReadFrom?: string;
   executorUrl?: string;
@@ -3432,10 +3450,16 @@ function scoreAgentExecutorShortcuts(agent: {
 } | undefined): number {
   const executor = agent?.executor;
   if (!executor) return 0;
-  let required = 3;
+  let required = 9;
   let matched = 0;
+  if (agent.executorDecision === executor.decision) matched += 1;
+  if (agent.executorMode === executor.mode) matched += 1;
   if (agent.executorActionName === executor.action) matched += 1;
   if (agent.executorOperation === executor.operation) matched += 1;
+  if (agent.executorConfidence === executor.confidence) matched += 1;
+  if (agent.executorAnswerReady === executor.answerReady) matched += 1;
+  if (agent.executorShouldContinue === executor.shouldContinue) matched += 1;
+  if (agent.executorTerminal === executor.terminal) matched += 1;
   if (agent.executorExpectedOutcome === executor.expectedOutcome) matched += 1;
   if (executor.commandArgs) {
     required += 1;
@@ -3460,9 +3484,15 @@ function scoreAgentExecutorShortcuts(agent: {
 
 function scoreAgentHandoffShortcuts(agent: {
   handoff?: CliAgentHandoffShape;
+  handoffDecision?: CliAgentLoopShape["decision"];
+  handoffMode?: AgentContinuationMode;
   handoffActionName?: string;
   handoffOperation?: CliAgentExecutionPlanShape["operation"];
   handoffAnswerStatus?: CliAgentAnswerPlanShape["status"];
+  handoffConfidence?: CliAgentExecutionPlanShape["confidence"];
+  handoffAnswerReady?: boolean;
+  handoffShouldContinue?: boolean;
+  handoffTerminal?: boolean;
   handoffPriority?: "low" | "medium" | "high";
   handoffPriorityReason?: string;
   handoffCommandArgs?: string[];
@@ -3472,11 +3502,17 @@ function scoreAgentHandoffShortcuts(agent: {
 } | undefined): number {
   const handoff = agent?.handoff;
   if (!handoff) return 0;
-  let required = 4;
+  let required = 10;
   let matched = 0;
+  if (agent.handoffDecision === handoff.decision) matched += 1;
+  if (agent.handoffMode === handoff.mode) matched += 1;
   if (agent.handoffActionName === handoff.action) matched += 1;
   if (agent.handoffOperation === handoff.operation) matched += 1;
   if (agent.handoffAnswerStatus === handoff.answerStatus) matched += 1;
+  if (agent.handoffConfidence === handoff.confidence) matched += 1;
+  if (agent.handoffAnswerReady === handoff.answerReady) matched += 1;
+  if (agent.handoffShouldContinue === handoff.shouldContinue) matched += 1;
+  if (agent.handoffTerminal === handoff.terminal) matched += 1;
   if (agent.handoffExpectedOutcome === handoff.expectedOutcome) matched += 1;
   if (handoff.priority) {
     required += 1;

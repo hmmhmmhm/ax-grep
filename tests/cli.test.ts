@@ -780,15 +780,27 @@ describe("cli", () => {
         expectedOutcome: executor.expectedOutcome,
       });
       expect(handoff.answerStatus).toBe(executor.status);
+      expect(envelope.agent.executorDecision).toBe(executor.decision);
+      expect(envelope.agent.executorMode).toBe(executor.mode);
       expect(envelope.agent.executorActionName).toBe(executor.action);
       expect(envelope.agent.executorOperation).toBe(executor.operation);
+      expect(envelope.agent.executorConfidence).toBe(executor.confidence);
+      expect(envelope.agent.executorAnswerReady).toBe(executor.answerReady);
+      expect(envelope.agent.executorShouldContinue).toBe(executor.shouldContinue);
+      expect(envelope.agent.executorTerminal).toBe(executor.terminal);
       expect(envelope.agent.executorExpectedOutcome).toBe(executor.expectedOutcome);
       if (executor.commandArgs) expect(envelope.agent.executorCommandArgs).toEqual(executor.commandArgs);
       if (executor.readFrom) expect(envelope.agent.executorReadFrom).toBe(executor.readFrom);
       if (executor.url) expect(envelope.agent.executorUrl).toBe(executor.url);
+      expect(envelope.agent.handoffDecision).toBe(handoff.decision);
+      expect(envelope.agent.handoffMode).toBe(handoff.mode);
       expect(envelope.agent.handoffActionName).toBe(handoff.action);
       expect(envelope.agent.handoffOperation).toBe(handoff.operation);
       expect(envelope.agent.handoffAnswerStatus).toBe(handoff.answerStatus);
+      expect(envelope.agent.handoffConfidence).toBe(handoff.confidence);
+      expect(envelope.agent.handoffAnswerReady).toBe(handoff.answerReady);
+      expect(envelope.agent.handoffShouldContinue).toBe(handoff.shouldContinue);
+      expect(envelope.agent.handoffTerminal).toBe(handoff.terminal);
       expect(envelope.agent.handoffExpectedOutcome).toBe(handoff.expectedOutcome);
       if (handoff.priority) expect(envelope.agent.handoffPriority).toBe(handoff.priority);
       if (handoff.priorityReason) expect(envelope.agent.handoffPriorityReason).toBe(handoff.priorityReason);
