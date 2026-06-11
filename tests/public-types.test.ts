@@ -168,6 +168,10 @@ describe("public agent types", () => {
       | "sourceSearchAlternateCount"
       | "verificationFoundQueries"
       | "verificationMissingQueries"
+      | "citationCount"
+      | "answerEvidenceCount"
+      | "readTargetCount"
+      | "actionCount"
     > = {
       resultCount: 2,
       resultChoiceCount: 2,
@@ -187,6 +191,10 @@ describe("public agent types", () => {
       sourceSearchAlternateCount: 1,
       verificationFoundQueries: ["present"],
       verificationMissingQueries: ["missing"],
+      citationCount: 2,
+      answerEvidenceCount: 1,
+      readTargetCount: 3,
+      actionCount: 2,
     };
 
     expect(summary.hiddenSignalCount).toBe(4);
@@ -196,5 +204,6 @@ describe("public agent types", () => {
     expect(summary.actionTargetChoices?.[0]?.kind).toBe("search");
     expect(summary.sourceSearchAlternateCount).toBe(1);
     expect(summary.verificationMissingQueries).toEqual(["missing"]);
+    expect(summary.readTargetCount).toBe(3);
   });
 });

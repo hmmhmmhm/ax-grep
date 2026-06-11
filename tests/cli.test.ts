@@ -7620,6 +7620,10 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  diagnosticErrors: 0");
     expect(stdout.output).toContain("  diagnosticWarnings: 1");
     expect(stdout.output).toContain("  diagnosticInfo: 0");
+    expect(stdout.output).toContain("  citationCount: 2");
+    expect(stdout.output).toContain("  answerEvidenceCount: 1");
+    expect(stdout.output).toContain("  readTargetCount: 5");
+    expect(stdout.output).toContain("  actionCount: 2");
     expect(stdout.output).toContain("  verification: 0/0 found, 0 missing");
     expect(stdout.output).toContain("  readability: medium");
     expect(stdout.output).toContain("  citation: e1 pageCheck.contentEvidence[0] content high score=");

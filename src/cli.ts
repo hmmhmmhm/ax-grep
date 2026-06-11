@@ -878,9 +878,13 @@ type AgentSummary = {
   diagnosticErrorCount: number;
   diagnosticWarningCount: number;
   diagnosticInfoCount: number;
+  citationCount: number;
   citations: AgentCitation[];
+  answerEvidenceCount: number;
   answerEvidence: AgentCitation[];
+  readTargetCount: number;
   readTargets: AgentReadTarget[];
+  actionCount: number;
   actions: AgentActionSummary[];
   bestReadTarget?: string;
   bestReadTargetScore?: number;
@@ -929,6 +933,7 @@ const agentContract: AgentContract = {
     "verification.queries",
     "searchDecision",
     "choice.counts",
+    "evidence.counts",
     "resultChoices",
     "sourceChoices",
     "formChoices",
@@ -2386,6 +2391,10 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  diagnosticErrors: ${agent.diagnosticErrorCount}`,
     `  diagnosticWarnings: ${agent.diagnosticWarningCount}`,
     `  diagnosticInfo: ${agent.diagnosticInfoCount}`,
+    `  citationCount: ${agent.citationCount}`,
+    `  answerEvidenceCount: ${agent.answerEvidenceCount}`,
+    `  readTargetCount: ${agent.readTargetCount}`,
+    `  actionCount: ${agent.actionCount}`,
     `  verification: ${agent.verificationFoundCount}/${agent.verificationRequestedCount} found, ${agent.verificationMissingCount} missing`,
     ...(agent.verificationFoundQueries.length > 0 ? [`  verificationFoundQueries: ${agent.verificationFoundQueries.join("; ")}`] : []),
     ...(agent.verificationMissingQueries.length > 0 ? [`  verificationMissingQueries: ${agent.verificationMissingQueries.join("; ")}`] : []),
@@ -8860,9 +8869,13 @@ function summarizeAgent(
     diagnosticErrorCount: diagnosticCounts.error,
     diagnosticWarningCount: diagnosticCounts.warning,
     diagnosticInfoCount: diagnosticCounts.info,
+    citationCount: citations.length,
     citations,
+    answerEvidenceCount: answerEvidence.length,
     answerEvidence,
+    readTargetCount: readTargets.length,
     readTargets,
+    actionCount: actions.length,
     actions,
   };
   if (bestReadTarget) {
@@ -11270,9 +11283,13 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     diagnosticErrorCount: 1,
     diagnosticWarningCount: 0,
     diagnosticInfoCount: 0,
+    citationCount: 0,
     citations: [],
+    answerEvidenceCount: 0,
     answerEvidence: [],
+    readTargetCount: readTargets.length,
     readTargets,
+    actionCount: primaryAction ? 1 : 0,
     actions: primaryAction ? [{
       ...withActionExecution(primaryAction),
       source: "agent.primaryAction",
@@ -12518,9 +12535,13 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     diagnosticErrorCount: agent.diagnosticErrorCount,
     diagnosticWarningCount: agent.diagnosticWarningCount,
     diagnosticInfoCount: agent.diagnosticInfoCount,
+    citationCount: agent.citationCount,
     ...(agent.citations.length > 0 ? { citations: compactAgentCitationList(agent.citations) } : {}),
+    answerEvidenceCount: agent.answerEvidenceCount,
     ...(agent.answerEvidence.length > 0 ? { answerEvidence: compactAgentCitationList(agent.answerEvidence, 650) } : {}),
+    readTargetCount: agent.readTargetCount,
     ...(agent.readTargets.length > 0 ? { readTargets: compactAgentReadTargets(agent.readTargets) } : {}),
+    actionCount: agent.actionCount,
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
     ...(agent.bestReadTargetReason ? { bestReadTargetReason: agent.bestReadTargetReason } : {}),
@@ -12592,8 +12613,12 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
         warnings: agent.diagnosticWarningCount,
       },
     } : {}),
+    citationCount: agent.citationCount,
     ...(agent.citations.length > 0 ? { citations: agent.citations.map(compactAgentCitationRef) } : {}),
+    answerEvidenceCount: agent.answerEvidenceCount,
+    readTargetCount: agent.readTargetCount,
     ...(agent.readTargets.length > 0 ? { readTargets: agent.readTargets.map((target) => compactAgentReadTargetRef(target)) } : {}),
+    actionCount: agent.actionCount,
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
     ...(agent.primaryExecution ? { primaryExecution: agent.primaryExecution } : {}),

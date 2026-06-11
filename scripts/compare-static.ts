@@ -82,6 +82,7 @@ type CliAgentSummary = {
   agentDiagnosticCountScore: number;
   agentVerificationCountScore: number;
   agentVerificationQueryScore: number;
+  agentEvidenceCountShortcutScore: number;
   agentResponseMetadataScore: number;
   agentHiddenSignalScore: number;
   agentPrimaryAction?: string;
@@ -587,6 +588,7 @@ export type GateSummary = {
   averageAgentDiagnosticCountScore: number;
   averageAgentVerificationCountScore: number;
   averageAgentVerificationQueryScore: number;
+  averageAgentEvidenceCountShortcutScore: number;
   averageAgentResponseMetadataScore: number;
   averageAgentHiddenSignalScore: number;
   averageAgentBrowserAdvantageScore: number;
@@ -1100,6 +1102,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchSelectedRank?: number;
       sourceSearchSelectedUrl?: string;
       sourceSearchAlternateCount?: number;
+      citationCount?: number;
+      answerEvidenceCount?: number;
+      readTargetCount?: number;
+      actionCount?: number;
       primaryExecution?: ActionExecution;
       primaryReadFrom?: string;
       primaryCommand?: string;
@@ -1215,6 +1221,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentDiagnosticCountScore: scoreAgentDiagnosticCounts(item.agent, item.diagnostics ?? []),
     agentVerificationCountScore: scoreAgentVerificationCounts(item.agent, item.verification),
     agentVerificationQueryScore: scoreAgentVerificationQueries(item.agent, item.verification),
+    agentEvidenceCountShortcutScore: scoreAgentEvidenceCountShortcuts(item.agent),
     agentResponseMetadataScore: scoreAgentResponseMetadata(item.agent, item),
     agentHiddenSignalScore: scoreAgentHiddenSignals(item.pageCheck, item.agent?.readTargets ?? [], item),
     agentReadTargetScore: scoreAgentReadTargets(item.agent?.readTargets ?? [], item.agent?.primaryAction, item),
@@ -1287,6 +1294,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentDiagnosticCountScore: 0,
     agentVerificationCountScore: 0,
     agentVerificationQueryScore: 0,
+    agentEvidenceCountShortcutScore: 0,
     agentResponseMetadataScore: 0,
     agentHiddenSignalScore: 0,
     agentReadTargetScore: 0,
@@ -1482,6 +1490,7 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[]; 
     "verification.queries",
     "searchDecision",
     "choice.counts",
+    "evidence.counts",
     "resultChoices",
     "sourceChoices",
     "formChoices",
@@ -2543,6 +2552,27 @@ function scoreAgentChoiceCounts(agent: {
   return roundScore(matched / checks.length);
 }
 
+function scoreAgentEvidenceCountShortcuts(agent: {
+  citationCount?: number;
+  citations?: unknown[];
+  answerEvidenceCount?: number;
+  answerEvidence?: unknown[];
+  readTargetCount?: number;
+  readTargets?: unknown[];
+  actionCount?: number;
+  actions?: unknown[];
+} | undefined): number {
+  if (!agent) return 0;
+  const checks = [
+    [agent.citationCount, agent.citations],
+    [agent.answerEvidenceCount, agent.answerEvidence],
+    [agent.readTargetCount, agent.readTargets],
+    [agent.actionCount, agent.actions],
+  ] as const;
+  const matched = checks.filter(([count, items]) => typeof count === "number" && count === (items?.length ?? 0)).length;
+  return roundScore(matched / checks.length);
+}
+
 function scoreAgentResultChoices(
   choices: CliAgentResultChoiceShape[],
   searchResults: CliSearchResultShape[],
@@ -3354,6 +3384,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentDiagnosticCountScore * 0.005
     + summary.agentVerificationCountScore * 0.005
     + summary.agentVerificationQueryScore * 0.005
+    + summary.agentEvidenceCountShortcutScore * 0.005
     + summary.agentResponseMetadataScore * 0.005
     + summary.agentHiddenSignalScore * 0.005
     + summary.agentRoutingIntentScore * 0.005
@@ -3421,6 +3452,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentDiagnosticCountScore,
     summary.agentVerificationCountScore,
     summary.agentVerificationQueryScore,
+    summary.agentEvidenceCountShortcutScore,
     summary.agentHiddenSignalScore,
   ]));
 }
@@ -3514,6 +3546,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentDiagnosticCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentDiagnosticCountScore)),
     averageAgentVerificationCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentVerificationCountScore)),
     averageAgentVerificationQueryScore: average(included.map((comparison) => comparison.cliAgentSummary.agentVerificationQueryScore)),
+    averageAgentEvidenceCountShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentEvidenceCountShortcutScore)),
     averageAgentResponseMetadataScore: average(included.map((comparison) => comparison.cliAgentSummary.agentResponseMetadataScore)),
     averageAgentHiddenSignalScore: average(included.map((comparison) => comparison.cliAgentSummary.agentHiddenSignalScore)),
     averageAgentBrowserAdvantageScore: average(included.map((comparison) => comparison.agentBrowserAdvantageScore)),

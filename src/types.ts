@@ -536,9 +536,13 @@ export type AgentSummary = {
   diagnosticErrorCount?: number;
   diagnosticWarningCount?: number;
   diagnosticInfoCount?: number;
+  citationCount?: number;
   citations?: AgentCitation[];
+  answerEvidenceCount?: number;
   answerEvidence?: AgentCitation[];
+  readTargetCount?: number;
   readTargets?: AgentReadTarget[];
+  actionCount?: number;
   actions?: AgentAction[];
   bestReadTarget?: string;
   bestReadTargetScore?: number;
@@ -585,6 +589,7 @@ export type AgentContractFeature =
   | "verification.queries"
   | "searchDecision"
   | "choice.counts"
+  | "evidence.counts"
   | "resultChoices"
   | "sourceChoices"
   | "formChoices"
