@@ -1306,6 +1306,9 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       embedCount?: number;
       transcriptCount?: number;
       authorLinkCount?: number;
+      provenanceCount?: number;
+      offerCount?: number;
+      datasetCount?: number;
       topDataTablePath?: string;
       topDataTableCaption?: string;
       topDataTableRowCount?: number;
@@ -1352,6 +1355,28 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topAuthorLinkName?: string;
       topAuthorLinkUrl?: string;
       topAuthorLinkSource?: string;
+      topProvenancePath?: string;
+      topProvenanceKind?: string;
+      topProvenanceLabel?: string;
+      topProvenanceValue?: string;
+      topProvenanceUrl?: string;
+      topProvenanceSource?: string;
+      topProvenanceSelector?: string;
+      topOfferPath?: string;
+      topOfferName?: string;
+      topOfferPrice?: string;
+      topOfferCurrency?: string;
+      topOfferAvailability?: string;
+      topOfferUrl?: string;
+      topOfferSelector?: string;
+      topDatasetPath?: string;
+      topDatasetKind?: string;
+      topDatasetName?: string;
+      topDatasetUrl?: string;
+      topDatasetDistributionUrl?: string;
+      topDatasetLicenseUrl?: string;
+      topDatasetEncodingFormat?: string;
+      topDatasetSelector?: string;
       structuredReadTargetCount?: number;
       bestStructuredReadTarget?: string;
       bestStructuredReadTargetCount?: number;
@@ -5265,6 +5290,9 @@ function scoreAgentStructuredShortcuts(agent: {
   embedCount?: number;
   transcriptCount?: number;
   authorLinkCount?: number;
+  provenanceCount?: number;
+  offerCount?: number;
+  datasetCount?: number;
   topDataTablePath?: string;
   topDataTableCaption?: string;
   topDataTableRowCount?: number;
@@ -5311,6 +5339,28 @@ function scoreAgentStructuredShortcuts(agent: {
   topAuthorLinkName?: string;
   topAuthorLinkUrl?: string;
   topAuthorLinkSource?: string;
+  topProvenancePath?: string;
+  topProvenanceKind?: string;
+  topProvenanceLabel?: string;
+  topProvenanceValue?: string;
+  topProvenanceUrl?: string;
+  topProvenanceSource?: string;
+  topProvenanceSelector?: string;
+  topOfferPath?: string;
+  topOfferName?: string;
+  topOfferPrice?: string;
+  topOfferCurrency?: string;
+  topOfferAvailability?: string;
+  topOfferUrl?: string;
+  topOfferSelector?: string;
+  topDatasetPath?: string;
+  topDatasetKind?: string;
+  topDatasetName?: string;
+  topDatasetUrl?: string;
+  topDatasetDistributionUrl?: string;
+  topDatasetLicenseUrl?: string;
+  topDatasetEncodingFormat?: string;
+  topDatasetSelector?: string;
   structuredReadTargetCount?: number;
   bestStructuredReadTarget?: string;
   bestStructuredReadTargetCount?: number;
@@ -5331,6 +5381,9 @@ function scoreAgentStructuredShortcuts(agent: {
   embeds?: Array<{ kind?: string; url?: string; title?: string }>;
   transcripts?: Array<{ kind?: string; url?: string; label?: string; language?: string }>;
   authorLinks?: Array<{ name?: string; url?: string; source?: string }>;
+  provenance?: Array<{ path?: string; kind?: string; label?: string; value?: string; url?: string; source?: string; selector?: string }>;
+  offers?: Array<{ path?: string; name?: string; price?: string; currency?: string; availability?: string; url?: string; selector?: string }>;
+  datasets?: Array<{ path?: string; kind?: string; name?: string; url?: string; distributionUrls?: string[]; licenseUrl?: string; encodingFormat?: string; selector?: string }>;
 } | undefined): number {
   if (!agent) return 0;
   let required = 12;
@@ -5347,6 +5400,10 @@ function scoreAgentStructuredShortcuts(agent: {
   const embeds = pageCheck?.embeds ?? [];
   const transcripts = pageCheck?.transcripts ?? [];
   const authorLinks = pageCheck?.authorLinks ?? [];
+  const provenance = pageCheck?.provenance ?? [];
+  const offers = pageCheck?.offers ?? [];
+  const datasets = pageCheck?.datasets ?? [];
+  required += 3;
   if (agent.dataTableCount === dataTables.length) matched += 1;
   if (agent.faqCount === faqs.length) matched += 1;
   if (agent.codeBlockCount === codeBlocks.length) matched += 1;
@@ -5359,6 +5416,9 @@ function scoreAgentStructuredShortcuts(agent: {
   if (agent.embedCount === embeds.length) matched += 1;
   if (agent.transcriptCount === transcripts.length) matched += 1;
   if (agent.authorLinkCount === authorLinks.length) matched += 1;
+  if (agent.provenanceCount === provenance.length) matched += 1;
+  if (agent.offerCount === offers.length) matched += 1;
+  if (agent.datasetCount === datasets.length) matched += 1;
 
   const topDataTable = dataTables[0];
   if (topDataTable) {
@@ -5487,6 +5547,49 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topAuthorLinkUrl === topAuthorLink.url) matched += 1;
     if (agent.topAuthorLinkSource === topAuthorLink.source) matched += 1;
   } else if (agent.topAuthorLinkName || agent.topAuthorLinkUrl || agent.topAuthorLinkSource) {
+    required += 1;
+  }
+
+  const topProvenance = provenance[0];
+  if (topProvenance) {
+    required += 7;
+    if (agent.topProvenancePath === topProvenance.path) matched += 1;
+    if (agent.topProvenanceKind === topProvenance.kind) matched += 1;
+    if (agent.topProvenanceLabel === topProvenance.label) matched += 1;
+    if (agent.topProvenanceValue === topProvenance.value) matched += 1;
+    if (agent.topProvenanceUrl === topProvenance.url) matched += 1;
+    if (agent.topProvenanceSource === topProvenance.source) matched += 1;
+    if (agent.topProvenanceSelector === topProvenance.selector) matched += 1;
+  } else if (agent.topProvenancePath || agent.topProvenanceKind || agent.topProvenanceValue || agent.topProvenanceUrl || agent.topProvenanceSource || agent.topProvenanceSelector) {
+    required += 1;
+  }
+
+  const topOffer = offers[0];
+  if (topOffer) {
+    required += 7;
+    if (agent.topOfferPath === topOffer.path) matched += 1;
+    if (agent.topOfferName === topOffer.name) matched += 1;
+    if (agent.topOfferPrice === topOffer.price) matched += 1;
+    if (agent.topOfferCurrency === topOffer.currency) matched += 1;
+    if (agent.topOfferAvailability === topOffer.availability) matched += 1;
+    if (agent.topOfferUrl === topOffer.url) matched += 1;
+    if (agent.topOfferSelector === topOffer.selector) matched += 1;
+  } else if (agent.topOfferPath || agent.topOfferName || agent.topOfferPrice || agent.topOfferCurrency || agent.topOfferAvailability || agent.topOfferUrl || agent.topOfferSelector) {
+    required += 1;
+  }
+
+  const topDataset = datasets[0];
+  if (topDataset) {
+    required += 8;
+    if (agent.topDatasetPath === topDataset.path) matched += 1;
+    if (agent.topDatasetKind === topDataset.kind) matched += 1;
+    if (agent.topDatasetName === topDataset.name) matched += 1;
+    if (agent.topDatasetUrl === topDataset.url) matched += 1;
+    if (agent.topDatasetDistributionUrl === topDataset.distributionUrls?.[0]) matched += 1;
+    if (agent.topDatasetLicenseUrl === topDataset.licenseUrl) matched += 1;
+    if (agent.topDatasetEncodingFormat === topDataset.encodingFormat) matched += 1;
+    if (agent.topDatasetSelector === topDataset.selector) matched += 1;
+  } else if (agent.topDatasetPath || agent.topDatasetKind || agent.topDatasetName || agent.topDatasetUrl || agent.topDatasetDistributionUrl || agent.topDatasetLicenseUrl || agent.topDatasetEncodingFormat || agent.topDatasetSelector) {
     required += 1;
   }
 

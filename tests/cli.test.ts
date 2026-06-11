@@ -6068,6 +6068,16 @@ describe("cli", () => {
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("4 provenance facts");
+    expect(envelope.agent).toMatchObject({
+      provenanceCount: 4,
+      topProvenancePath: "pageCheck.provenance[0]",
+      topProvenanceKind: "doi",
+      topProvenanceLabel: "DOI",
+      topProvenanceValue: "10.5555/example.2026",
+      topProvenanceUrl: "https://doi.org/10.5555/example.2026",
+      topProvenanceSource: "meta",
+      topProvenanceSelector: "meta:nth-of-type(1)",
+    });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -6405,6 +6415,16 @@ describe("cli", () => {
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("1 offer");
+    expect(envelope.agent).toMatchObject({
+      offerCount: 1,
+      topOfferPath: "pageCheck.offers[0]",
+      topOfferName: "Agent Browser Pro",
+      topOfferPrice: "19.99",
+      topOfferCurrency: "USD",
+      topOfferAvailability: "InStock",
+      topOfferUrl: "https://example.test/buy",
+      topOfferSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+    });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.offers",
       count: 1,
@@ -6593,6 +6613,17 @@ describe("cli", () => {
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("2 datasets");
+    expect(envelope.agent).toMatchObject({
+      datasetCount: 2,
+      topDatasetPath: "pageCheck.datasets[0]",
+      topDatasetKind: "dataset",
+      topDatasetName: "Example emissions dataset",
+      topDatasetUrl: "https://example.test/datasets/emissions",
+      topDatasetDistributionUrl: "https://example.test/downloads/emissions.csv",
+      topDatasetLicenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+      topDatasetEncodingFormat: "text/csv",
+      topDatasetSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+    });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.datasets",
       count: 2,

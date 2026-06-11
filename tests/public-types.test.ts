@@ -233,6 +233,9 @@ describe("public agent types", () => {
       | "embedCount"
       | "transcriptCount"
       | "authorLinkCount"
+      | "provenanceCount"
+      | "offerCount"
+      | "datasetCount"
       | "topDataTablePath"
       | "topDataTableCaption"
       | "topDataTableRowCount"
@@ -279,6 +282,28 @@ describe("public agent types", () => {
       | "topAuthorLinkName"
       | "topAuthorLinkUrl"
       | "topAuthorLinkSource"
+      | "topProvenancePath"
+      | "topProvenanceKind"
+      | "topProvenanceLabel"
+      | "topProvenanceValue"
+      | "topProvenanceUrl"
+      | "topProvenanceSource"
+      | "topProvenanceSelector"
+      | "topOfferPath"
+      | "topOfferName"
+      | "topOfferPrice"
+      | "topOfferCurrency"
+      | "topOfferAvailability"
+      | "topOfferUrl"
+      | "topOfferSelector"
+      | "topDatasetPath"
+      | "topDatasetKind"
+      | "topDatasetName"
+      | "topDatasetUrl"
+      | "topDatasetDistributionUrl"
+      | "topDatasetLicenseUrl"
+      | "topDatasetEncodingFormat"
+      | "topDatasetSelector"
       | "structuredReadTargetCount"
       | "bestStructuredReadTarget"
       | "bestStructuredReadTargetCount"
@@ -700,6 +725,9 @@ describe("public agent types", () => {
       embedCount: 1,
       transcriptCount: 1,
       authorLinkCount: 1,
+      provenanceCount: 1,
+      offerCount: 1,
+      datasetCount: 1,
       topDataTablePath: "pageCheck.dataTables[0]",
       topDataTableCaption: "Plan comparison",
       topDataTableRowCount: 2,
@@ -746,6 +774,28 @@ describe("public agent types", () => {
       topAuthorLinkName: "Example Author",
       topAuthorLinkUrl: "https://example.test/author",
       topAuthorLinkSource: "html",
+      topProvenancePath: "pageCheck.provenance[0]",
+      topProvenanceKind: "doi",
+      topProvenanceLabel: "DOI",
+      topProvenanceValue: "10.5555/example.2026",
+      topProvenanceUrl: "https://doi.org/10.5555/example.2026",
+      topProvenanceSource: "meta",
+      topProvenanceSelector: "meta:nth-of-type(1)",
+      topOfferPath: "pageCheck.offers[0]",
+      topOfferName: "Agent Browser Pro",
+      topOfferPrice: "19.99",
+      topOfferCurrency: "USD",
+      topOfferAvailability: "InStock",
+      topOfferUrl: "https://example.test/buy",
+      topOfferSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      topDatasetPath: "pageCheck.datasets[0]",
+      topDatasetKind: "dataset",
+      topDatasetName: "Example dataset",
+      topDatasetUrl: "https://example.test/datasets/example",
+      topDatasetDistributionUrl: "https://example.test/downloads/example.csv",
+      topDatasetLicenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+      topDatasetEncodingFormat: "text/csv",
+      topDatasetSelector: "script[type=\"application/ld+json\"]:nth-of-type(2)",
       structuredReadTargetCount: 2,
       bestStructuredReadTarget: "pageCheck.dataTables",
       bestStructuredReadTargetCount: 1,

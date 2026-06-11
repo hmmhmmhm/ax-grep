@@ -73,7 +73,8 @@ Read these first:
 - `agent.dataTableCount`, `agent.faqCount`, `agent.codeBlockCount`,
   `agent.resourceCount`, `agent.mediaCount`, `agent.sectionCount`,
   `agent.breadcrumbCount`, `agent.paginationCount`, `agent.tocCount`,
-  `agent.embedCount`, `agent.transcriptCount`, `agent.authorLinkCount`, and
+  `agent.embedCount`, `agent.transcriptCount`, `agent.authorLinkCount`,
+  `agent.provenanceCount`, `agent.offerCount`, `agent.datasetCount`, and
   matching `top*` fields: first structured page item shortcuts with direct paths/selectors when available.
 - `agent.bestStructuredReadTarget*`: highest-priority structured content path to
   read before scanning all `readTargets`.
