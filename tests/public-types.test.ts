@@ -163,6 +163,11 @@ describe("public agent types", () => {
       | "hiddenReadTargetCount"
       | "sourceLinkCount"
       | "sourceChoiceCount"
+      | "topChoiceKind"
+      | "topChoicePath"
+      | "topChoiceLabel"
+      | "topChoiceUrl"
+      | "topChoiceCommandArgs"
       | "sourceSearchSelectedRank"
       | "sourceSearchSelectedUrl"
       | "sourceSearchAlternateCount"
@@ -223,6 +228,11 @@ describe("public agent types", () => {
       hiddenReadTargetCount: 2,
       sourceLinkCount: 1,
       sourceChoiceCount: 1,
+      topChoiceKind: "source",
+      topChoicePath: "pageCheck.sourceLinks[0]",
+      topChoiceLabel: "Source",
+      topChoiceUrl: "https://source.example/report",
+      topChoiceCommandArgs: ["ax-grep", "https://source.example/report", "--agent"],
       sourceSearchSelectedRank: 2,
       sourceSearchSelectedUrl: "https://source.example/result",
       sourceSearchAlternateCount: 1,
@@ -276,6 +286,7 @@ describe("public agent types", () => {
     expect(summary.actionTargetChoiceCount).toBe(1);
     expect(summary.formChoices?.[0]?.queryField).toBe("q");
     expect(summary.actionTargetChoices?.[0]?.kind).toBe("search");
+    expect(summary.topChoiceKind).toBe("source");
     expect(summary.sourceSearchAlternateCount).toBe(1);
     expect(summary.verificationMissingQueries).toEqual(["missing"]);
     expect(summary.readTargetCount).toBe(3);

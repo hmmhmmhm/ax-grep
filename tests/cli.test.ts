@@ -802,6 +802,25 @@ describe("cli", () => {
       if (handoff.readFrom) expect(envelope.agent.answerPlanReadFrom).toBe(handoff.readFrom);
       if (handoff.commandArgs) expect(envelope.agent.answerPlanCommandArgs).toEqual(handoff.commandArgs);
       if (handoff.url) expect(envelope.agent.answerPlanUrl).toBe(handoff.url);
+      const topResultChoice = envelope.agent.resultChoices?.[0] ?? handoff.resultChoices?.[0];
+      const topSourceChoice = envelope.agent.sourceChoices?.[0] ?? handoff.sourceChoices?.[0];
+      const topFormChoice = envelope.agent.formChoices?.[0];
+      const topActionTargetChoice = envelope.agent.actionTargetChoices?.[0];
+      if (topResultChoice) {
+        expect(envelope.agent.topChoiceKind).toBe("result");
+        expect(envelope.agent.topChoicePath).toBe(topResultChoice.path);
+        expect(envelope.agent.topChoiceCommandArgs).toEqual(topResultChoice.commandArgs);
+      } else if (topSourceChoice) {
+        expect(envelope.agent.topChoiceKind).toBe("source");
+        expect(envelope.agent.topChoicePath).toBe(topSourceChoice.path);
+        expect(envelope.agent.topChoiceCommandArgs).toEqual(topSourceChoice.commandArgs);
+      } else if (topFormChoice) {
+        expect(envelope.agent.topChoiceKind).toBe("form");
+        expect(envelope.agent.topChoicePath).toBe(topFormChoice.path);
+      } else if (topActionTargetChoice) {
+        expect(envelope.agent.topChoiceKind).toBe("action-target");
+        expect(envelope.agent.topChoicePath).toBe(topActionTargetChoice.path);
+      }
       if (executor.commandArgs) expect(handoff.commandArgs).toEqual(executor.commandArgs);
       if (executor.readFrom) expect(handoff.readFrom).toBe(executor.readFrom);
       if (executor.url) expect(handoff.url).toBe(executor.url);

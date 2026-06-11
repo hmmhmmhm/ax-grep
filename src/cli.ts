@@ -879,6 +879,11 @@ type AgentSummary = {
   sourceLinkCount: number;
   sourceChoiceCount: number;
   sourceChoices: AgentSourceChoice[];
+  topChoiceKind?: "result" | "source" | "form" | "action-target";
+  topChoicePath?: string;
+  topChoiceLabel?: string;
+  topChoiceUrl?: string;
+  topChoiceCommandArgs?: string[];
   sourceSearchSelectedRank?: number;
   sourceSearchSelectedUrl?: string;
   sourceSearchAlternateCount: number;
@@ -2426,6 +2431,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  hiddenReadTargetCount: ${agent.hiddenReadTargetCount}`,
     `  sourceLinkCount: ${agent.sourceLinkCount}`,
     `  sourceChoiceCount: ${agent.sourceChoiceCount}`,
+    ...(agent.topChoiceKind ? [`  topChoice: ${agent.topChoiceKind} ${agent.topChoicePath}${agent.topChoiceUrl ? ` <${agent.topChoiceUrl}>` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
     ...(typeof agent.sourceSearchSelectedRank === "number" ? [`  sourceSearchSelectedRank: ${agent.sourceSearchSelectedRank}`] : []),
     ...(agent.sourceSearchSelectedUrl ? [`  sourceSearchSelectedUrl: ${agent.sourceSearchSelectedUrl}`] : []),
     `  sourceSearchAlternateCount: ${agent.sourceSearchAlternateCount}`,
@@ -8855,6 +8861,9 @@ function summarizeAgent(
   const pageDecision = summarizeAgentPageDecision(analysis, pageCheck, primaryAction);
   const resultChoices = summarizeAgentResultChoices(hasUsableSearchResults ? results : [], recommendedResult, primaryAction, sourceSearch);
   const sourceChoices = summarizeAgentSourceChoices(analysis.kind, pageCheck.sourceLinks, primaryAction, agentMode, findQueries, timeoutMs, userAgent);
+  const formChoices = summarizeAgentFormChoices(pageCheck.forms);
+  const actionTargetChoices = summarizeAgentActionTargetChoices(pageCheck.actionTargets);
+  const topChoice = summarizeAgentTopChoice(resultChoices, sourceChoices, formChoices, actionTargetChoices);
   const next = summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch, semanticSummary));
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
   const answerPlan = summarizeAgentAnswerPlan(status, primaryAction, pageCheck, verification, citations, needsBrowserHtml, error);
@@ -8925,16 +8934,21 @@ function summarizeAgent(
     resultChoices,
     evidenceCount: pageCheck.contentEvidence.length,
     formCount: pageCheck.forms.length,
-    formChoices: summarizeAgentFormChoices(pageCheck.forms),
+    formChoices,
     formChoiceCount: pageCheck.forms.length,
     actionTargetCount: pageCheck.actionTargets.length,
-    actionTargetChoices: summarizeAgentActionTargetChoices(pageCheck.actionTargets),
+    actionTargetChoices,
     actionTargetChoiceCount: pageCheck.actionTargets.length,
     hiddenSignalCount,
     hiddenReadTargetCount,
     sourceLinkCount: analysis.kind === "search-results" ? 0 : pageCheck.sourceLinks.length,
     sourceChoiceCount: sourceChoices.length,
     sourceChoices,
+    ...(topChoice ? { topChoiceKind: topChoice.kind } : {}),
+    ...(topChoice ? { topChoicePath: topChoice.path } : {}),
+    ...(topChoice?.label ? { topChoiceLabel: topChoice.label } : {}),
+    ...(topChoice?.url ? { topChoiceUrl: topChoice.url } : {}),
+    ...(topChoice?.commandArgs ? { topChoiceCommandArgs: topChoice.commandArgs } : {}),
     ...(sourceSearch ? { sourceSearchSelectedRank: sourceSearch.selectedRank } : {}),
     ...(sourceSearch ? { sourceSearchSelectedUrl: sourceSearch.selectedUrl } : {}),
     sourceSearchAlternateCount: sourceSearch?.alternateResults?.length ?? 0,
@@ -10680,6 +10694,53 @@ function summarizeAgentActionTargetChoices(targets: PageActionTargetSummary[]): 
     ...(target.encodingType ? { encodingType: target.encodingType } : {}),
     ...(target.selector ? { selector: target.selector } : {}),
   }));
+}
+
+function summarizeAgentTopChoice(
+  resultChoices: AgentResultChoice[],
+  sourceChoices: AgentSourceChoice[],
+  formChoices: AgentFormChoice[],
+  actionTargetChoices: AgentActionTargetChoice[],
+): { kind: "result" | "source" | "form" | "action-target"; path: string; label?: string; url?: string; commandArgs?: string[] } | undefined {
+  const result = resultChoices[0];
+  if (result) {
+    return {
+      kind: "result",
+      path: result.path,
+      url: result.url,
+      ...(result.title ? { label: result.title } : {}),
+      ...(result.commandArgs ? { commandArgs: result.commandArgs } : {}),
+    };
+  }
+  const source = sourceChoices[0];
+  if (source) {
+    return {
+      kind: "source",
+      path: source.path,
+      url: source.url,
+      ...(source.title || source.text ? { label: source.title || source.text } : {}),
+      ...(source.commandArgs ? { commandArgs: source.commandArgs } : {}),
+    };
+  }
+  const form = formChoices[0];
+  if (form) {
+    return {
+      kind: "form",
+      path: form.path,
+      label: form.text,
+      ...(form.actionUrl || form.urlTemplate ? { url: form.actionUrl ?? form.urlTemplate } : {}),
+    };
+  }
+  const actionTarget = actionTargetChoices[0];
+  if (actionTarget) {
+    return {
+      kind: "action-target",
+      path: actionTarget.path,
+      label: actionTarget.name || actionTarget.text,
+      ...(actionTarget.targetUrl || actionTarget.urlTemplate ? { url: actionTarget.targetUrl ?? actionTarget.urlTemplate } : {}),
+    };
+  }
+  return undefined;
 }
 
 function averageResultSourceScore(results: ResultSummary[]): number {
@@ -12599,6 +12660,24 @@ function compactSuggestedActions(actions: SuggestedAction[], primaryAction?: Sug
     .map((action) => compactAgentAction(action));
 }
 
+function compactAgentTopChoice(agent: AgentSummary, searchCommandContext?: SearchResultCommandContext, pageLinkContext?: PageLinkCommandContext): object {
+  if (!agent.topChoiceKind || !agent.topChoicePath) return {};
+  let commandArgs = agent.topChoiceCommandArgs;
+  if (!commandArgs && agent.topChoiceKind === "result" && agent.resultChoices[0]) {
+    commandArgs = compactAgentResultChoice(agent.resultChoices[0], searchCommandContext, pageLinkContext).commandArgs;
+  }
+  if (!commandArgs && agent.topChoiceKind === "source" && agent.sourceChoices[0]) {
+    commandArgs = agent.sourceChoices[0].commandArgs;
+  }
+  return {
+    topChoiceKind: agent.topChoiceKind,
+    topChoicePath: agent.topChoicePath,
+    ...(agent.topChoiceLabel ? { topChoiceLabel: agent.topChoiceLabel } : {}),
+    ...(agent.topChoiceUrl ? { topChoiceUrl: agent.topChoiceUrl } : {}),
+    ...(commandArgs ? { topChoiceCommandArgs: commandArgs } : {}),
+  };
+}
+
 function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchResultCommandContext, pageLinkContext?: PageLinkCommandContext): object {
   return {
     contract: compactAgentContract(agent.contract),
@@ -12663,6 +12742,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     sourceLinkCount: agent.sourceLinkCount,
     sourceChoiceCount: agent.sourceChoiceCount,
     ...(agent.sourceChoices.length > 0 ? { sourceChoices: compactAgentSourceChoiceList(agent.sourceChoices) } : {}),
+    ...compactAgentTopChoice(agent, searchCommandContext, pageLinkContext),
     ...(typeof agent.sourceSearchSelectedRank === "number" ? { sourceSearchSelectedRank: agent.sourceSearchSelectedRank } : {}),
     ...(agent.sourceSearchSelectedUrl ? { sourceSearchSelectedUrl: agent.sourceSearchSelectedUrl } : {}),
     sourceSearchAlternateCount: agent.sourceSearchAlternateCount,
@@ -12777,6 +12857,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     hiddenReadTargetCount: agent.hiddenReadTargetCount,
     sourceLinkCount: agent.sourceLinkCount,
     sourceChoiceCount: agent.sourceChoiceCount,
+    ...compactAgentTopChoice(agent, searchCommandContext, pageLinkContext),
     ...(typeof agent.sourceSearchSelectedRank === "number" ? { sourceSearchSelectedRank: agent.sourceSearchSelectedRank } : {}),
     ...(agent.sourceSearchSelectedUrl ? { sourceSearchSelectedUrl: agent.sourceSearchSelectedUrl } : {}),
     sourceSearchAlternateCount: agent.sourceSearchAlternateCount,

@@ -103,6 +103,9 @@ actions keep `sourceLinkRef` so agents can jump back to the exact
 non-search pages and at least the compact result count for search pages.
 `averageAgentChoiceCountScore` tracks whether executable choice-count shortcuts
 match their result, form, action-target, and source-link source counts.
+`averageAgentTopChoiceShortcutScore` tracks whether `agent.topChoiceKind`,
+path, label, URL, and command arguments mirror the first executable result,
+source, form, or action-target choice for fast subagent routing.
 `averageAgentEvidenceCountShortcutScore` tracks citation, answer-evidence,
 read-target, and action count shortcuts against their agent arrays.
 `averageAgentSignalCountShortcutScore` tracks signal severity and failing

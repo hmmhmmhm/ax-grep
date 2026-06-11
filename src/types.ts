@@ -537,6 +537,11 @@ export type AgentSummary = {
   sourceLinkCount?: number;
   sourceChoiceCount?: number;
   sourceChoices?: AgentSourceChoice[];
+  topChoiceKind?: "result" | "source" | "form" | "action-target";
+  topChoicePath?: string;
+  topChoiceLabel?: string;
+  topChoiceUrl?: string;
+  topChoiceCommandArgs?: string[];
   sourceSearchSelectedRank?: number;
   sourceSearchSelectedUrl?: string;
   sourceSearchAlternateCount?: number;
