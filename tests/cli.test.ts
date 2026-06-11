@@ -3235,6 +3235,12 @@ describe("cli", () => {
         selectionReason: "External link from source.example.",
       }),
     ]);
+    expect(envelope.agent.actions).toContainEqual(expect.objectContaining({
+      action: "open-source-link",
+      source: "pageCheck.nextSteps",
+      sourceLinkRef: "pageCheck.sourceLinks[0]",
+      url: "https://source.example/report",
+    }));
     expect(envelope.pageCheck.primaryLinks.map((link: { title: string }) => link.title)).not.toContain("Login");
     expect(envelope.pageCheck.actions).toEqual([
       expect.objectContaining({ type: "button", text: "Reply" }),

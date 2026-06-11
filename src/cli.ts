@@ -4237,6 +4237,7 @@ function recommendedPageCheckAction(
       reason: "The page has limited readable content, but an external source link is available.",
       url: sourceLinks[0].url,
       rank: sourceLinks[0].rank,
+      ...(sourceLinks[0].path ? { sourceLinkRef: sourceLinks[0].path } : {}),
       target: agentTargetFromResult(sourceLinks[0]),
       ...commandFields(pageCommandSpec(sourceLinks[0].url, agentMode, false, [], timeoutMs, userAgent)),
     };
@@ -4283,6 +4284,7 @@ function summarizePageCheckNextSteps(
         reason: "Inspect an external source link referenced by the page.",
         url: link.url,
         rank: link.rank,
+        ...(link.path ? { sourceLinkRef: link.path } : {}),
         target: agentTargetFromResult(link),
         ...commandFields(pageCommandSpec(link.url, agentMode, false, [], timeoutMs, userAgent)),
       });
@@ -8542,6 +8544,7 @@ function recommendedVerificationAction(
       reason: "Some requested text was not found; inspect the strongest external source link.",
       url: pageCheck.sourceLinks[0].url,
       rank: pageCheck.sourceLinks[0].rank,
+      ...(pageCheck.sourceLinks[0].path ? { sourceLinkRef: pageCheck.sourceLinks[0].path } : {}),
       target: agentTargetFromResult(pageCheck.sourceLinks[0]),
       ...commandFields(pageCommandSpec(pageCheck.sourceLinks[0].url, agentMode, false, missingQueries, timeoutMs, userAgent)),
     };
@@ -13136,6 +13139,7 @@ function compactAgentAction(action: SuggestedAction, options: { omitOpenSourceTa
     ...(action.afterInteractionCommandArgs ? { afterInteractionCommandArgs: action.afterInteractionCommandArgs } : {}),
     ...(action.terminal ? { terminal: action.terminal } : {}),
     ...(action.readFrom ? { readFrom: action.readFrom } : {}),
+    ...(action.sourceLinkRef ? { sourceLinkRef: action.sourceLinkRef } : {}),
     ...(action.requiresBrowserInteraction ? { requiresBrowserInteraction: action.requiresBrowserInteraction } : {}),
     ...(action.target && !(options.omitOpenSourceTarget && action.action === "open-source-link") ? { target: compactAgentTarget(action.target, action.action) } : {}),
   }, options.primaryUrl);
