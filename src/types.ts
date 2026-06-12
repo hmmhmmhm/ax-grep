@@ -1045,6 +1045,7 @@ export type AgentSummary = {
   canContinue: boolean;
   canUseFetchedHtml: boolean;
   needsBrowserHtml: boolean;
+  needsBrowserInteraction: boolean;
   staticReadiness?: AgentStaticReadiness;
   staticReadinessReasonCode?: AgentStaticReadinessReasonCode;
   staticReadinessReason?: string;

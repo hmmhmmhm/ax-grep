@@ -1386,6 +1386,7 @@ type AgentSummary = {
   canContinue: boolean;
   canUseFetchedHtml: boolean;
   needsBrowserHtml: boolean;
+  needsBrowserInteraction: boolean;
   staticReadiness?: AgentStaticReadiness;
   staticReadinessReasonCode?: AgentStaticReadinessReasonCode;
   staticReadinessReason?: string;
@@ -3603,6 +3604,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  canContinue: ${agent.canContinue}`,
     `  canUseFetchedHtml: ${agent.canUseFetchedHtml}`,
     `  needsBrowserHtml: ${agent.needsBrowserHtml}`,
+    `  needsBrowserInteraction: ${agent.needsBrowserInteraction}`,
     ...(agent.staticReadiness ? [`  staticReadiness: ${agent.staticReadiness}`] : []),
     ...(agent.staticReadinessReasonCode ? [`  staticReadinessReasonCode: ${agent.staticReadinessReasonCode}`] : []),
     ...(agent.staticReadinessReason ? [`  staticReadinessReason: ${agent.staticReadinessReason}`] : []),
@@ -11491,6 +11493,7 @@ function summarizeAgent(
   const next = summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch, semanticSummary));
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
   const answerPlan = summarizeAgentAnswerPlan(status, primaryAction, pageCheck, verification, citations, needsBrowserHtml, error);
+  const needsBrowserInteraction = Boolean(primaryAction?.requiresBrowserInteraction || (primaryAction && actionExecution(primaryAction) === "interact-browser"));
   const browserHtmlReason = summarizeBrowserHtmlReason(needsBrowserHtml, answerPlan, primaryAction);
   const answerEvidence = summarizeAgentAnswerEvidence(citations, answerPlan);
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, canUseFetchedHtml, needsBrowserHtml);
@@ -12047,6 +12050,7 @@ function summarizeAgent(
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml,
     needsBrowserHtml,
+    needsBrowserInteraction,
     staticReadiness: staticReadiness.status,
     staticReadinessReasonCode: staticReadiness.reasonCode,
     staticReadinessReason: staticReadiness.reason,
@@ -15372,6 +15376,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
   const needsBrowserHtml = errorNeedsBrowserHtml(primaryAction);
   const answerPlan = summarizeErrorAgentAnswerPlan(error, primaryAction, needsBrowserHtml);
+  const needsBrowserInteraction = Boolean(primaryAction?.requiresBrowserInteraction || (primaryAction && actionExecution(primaryAction) === "interact-browser"));
   const browserHtmlReason = summarizeBrowserHtmlReason(needsBrowserHtml, answerPlan, primaryAction);
   const browserHtmlReasonCode = summarizeBrowserHtmlReasonCode(needsBrowserHtml, { kind: "empty", diagnostics: [], suggestedActions: [] }, primaryAction, error);
   const staticReadiness = summarizeStaticReadiness(false, needsBrowserHtml, emptyPageCheck(), primaryAction, error);
@@ -15460,6 +15465,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml: false,
     needsBrowserHtml,
+    needsBrowserInteraction,
     staticReadiness: staticReadiness.status,
     staticReadinessReasonCode: staticReadiness.reasonCode,
     staticReadinessReason: staticReadiness.reason,
@@ -17516,6 +17522,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     canContinue: agent.canContinue,
     canUseFetchedHtml: agent.canUseFetchedHtml,
     needsBrowserHtml: agent.needsBrowserHtml,
+    needsBrowserInteraction: agent.needsBrowserInteraction,
     ...(agent.staticReadiness ? { staticReadiness: agent.staticReadiness } : {}),
     ...(agent.staticReadinessReasonCode ? { staticReadinessReasonCode: agent.staticReadinessReasonCode } : {}),
     ...(agent.staticReadinessReason ? { staticReadinessReason: agent.staticReadinessReason } : {}),
@@ -18599,6 +18606,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     canContinue: agent.canContinue,
     canUseFetchedHtml: agent.canUseFetchedHtml,
     needsBrowserHtml: agent.needsBrowserHtml,
+    needsBrowserInteraction: agent.needsBrowserInteraction,
     ...(agent.staticReadiness ? { staticReadiness: agent.staticReadiness } : {}),
     ...(agent.staticReadinessReasonCode ? { staticReadinessReasonCode: agent.staticReadinessReasonCode } : {}),
     ...(agent.staticReadinessReason ? { staticReadinessReason: agent.staticReadinessReason } : {}),

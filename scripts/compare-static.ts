@@ -1300,6 +1300,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       canContinue?: boolean;
       canUseFetchedHtml?: boolean;
       needsBrowserHtml?: boolean;
+      needsBrowserInteraction?: boolean;
       staticReadiness?: string;
       staticReadinessReason?: string;
       staticReadinessReadFrom?: string;
@@ -2307,7 +2308,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentSourceChoiceScore: scoreAgentSourceChoices(item.kind ?? "unknown", item.agent?.sourceChoices ?? [], item.pageCheck?.sourceLinks ?? [], item.agent?.primaryAction),
     agentTopSourceChoiceShortcutScore: scoreAgentTopSourceChoiceShortcuts(item.agent),
     agentSourceSearchShortcutScore: scoreAgentSourceSearchShortcuts(item.agent, item.sourceSearch, item.error),
-    agentBrowserNeedScore: scoreAgentBrowserNeed(item.agent?.needsBrowserHtml, item.agent?.browserHtmlReason, item.agent?.browserHtmlReasonCode, item.agent?.staticReadiness, item.agent?.staticReadinessReason, item.agent?.status, item.agent?.primaryAction),
+    agentBrowserNeedScore: scoreAgentBrowserNeed(item.agent?.needsBrowserHtml, item.agent?.needsBrowserInteraction, item.agent?.browserHtmlReason, item.agent?.browserHtmlReasonCode, item.agent?.staticReadiness, item.agent?.staticReadinessReason, item.agent?.status, item.agent?.primaryAction),
     agentBrowserHtmlScore: scoreAgentBrowserHtml(item.agent, item.agent?.next, item.agent?.executionPlan, item.agent?.primaryAction),
     agentReadabilityReasonScore: scoreReadabilityReasons(item.agent?.readabilityReasons),
     agentSourceSearchProvenanceScore: scoreAgentSourceSearchProvenance(item.sourceSearch, item.agent?.readTargets ?? []),
@@ -8351,6 +8352,7 @@ function compactActionKey(action: CliActionShape, primaryAction?: CliActionShape
 
 function scoreAgentBrowserNeed(
   needsBrowserHtml: boolean | undefined,
+  needsBrowserInteraction: boolean | undefined,
   browserHtmlReason: string | undefined,
   browserHtmlReasonCode: string | undefined,
   staticReadiness: string | undefined,
@@ -8359,19 +8361,20 @@ function scoreAgentBrowserNeed(
   primaryAction: CliActionShape | undefined,
 ): number {
   if (typeof needsBrowserHtml !== "boolean") return 0;
-  const needsBrowserInteraction = Boolean(primaryAction?.requiresBrowserInteraction || (primaryAction && normalizedActionExecution(primaryAction) === "interact-browser"));
-  const needsBrowserReason = needsBrowserHtml || needsBrowserInteraction;
+  const expectedNeedsBrowserInteraction = Boolean(primaryAction?.requiresBrowserInteraction || (primaryAction && normalizedActionExecution(primaryAction) === "interact-browser"));
+  const needsBrowserInteractionScore = needsBrowserInteraction === expectedNeedsBrowserInteraction ? 0.08 : 0;
+  const needsBrowserReason = needsBrowserHtml || expectedNeedsBrowserInteraction;
   const validReasonCodes = new Set(["no-inspectable-content", "client-rendered", "http-error", "fetch-error", "challenge", "login-required", "paywall", "blocked-or-empty", "retry-action", "interaction-required", "browser-interaction", "unknown"]);
   const validStaticReadiness = new Set(["usable-content", "usable-structured-data", "usable-hidden-data", "thin", "needs-browser", "error"]);
   const reasonScore = needsBrowserReason
-    ? typeof browserHtmlReason === "string" && /browser/i.test(browserHtmlReason) ? 0.15 : 0
-    : typeof browserHtmlReason === "undefined" ? 0.15 : 0;
+    ? typeof browserHtmlReason === "string" && /browser/i.test(browserHtmlReason) ? 0.12 : 0
+    : typeof browserHtmlReason === "undefined" ? 0.12 : 0;
   const reasonCodeScore = needsBrowserReason
-    ? typeof browserHtmlReasonCode === "string" && validReasonCodes.has(browserHtmlReasonCode) ? 0.1 : 0
-    : typeof browserHtmlReasonCode === "undefined" ? 0.1 : 0;
-  const staticReadinessScore = typeof staticReadiness === "string" && validStaticReadiness.has(staticReadiness) ? 0.07 : 0;
+    ? typeof browserHtmlReasonCode === "string" && validReasonCodes.has(browserHtmlReasonCode) ? 0.08 : 0
+    : typeof browserHtmlReasonCode === "undefined" ? 0.08 : 0;
+  const staticReadinessScore = typeof staticReadiness === "string" && validStaticReadiness.has(staticReadiness) ? 0.04 : 0;
   const staticReasonScore = typeof staticReadinessReason === "string" && staticReadinessReason.length > 12 ? 0.03 : 0;
-  const metadataScore = reasonScore + reasonCodeScore + staticReadinessScore + staticReasonScore;
+  const metadataScore = reasonScore + reasonCodeScore + staticReadinessScore + staticReasonScore + needsBrowserInteractionScore;
   if (primaryAction?.action === "retry-with-browser-html") return (needsBrowserHtml ? 0.65 : 0) + metadataScore;
   if (status === "needs-browser") return (needsBrowserHtml ? 0.65 : 0) + metadataScore;
   if (primaryAction?.action && ["check-url-or-search", "retry-later", "open-alternate-result"].includes(primaryAction.action)) {

@@ -11065,6 +11065,7 @@ npx ax-grep https://example.test --agent</code></pre>
       ]),
       canUseFetchedHtml: false,
       needsBrowserHtml: true,
+      needsBrowserInteraction: false,
       staticReadinessReasonCode: "browser-required",
       browserHtmlReason: "Browser-captured HTML or browser inspection is needed.",
       browserHtmlReasonCode: "no-inspectable-content",
@@ -11948,6 +11949,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(blockedStatus).toBe(0);
     expect(blockedEnvelope.agent).toMatchObject({
       primaryExecution: "interact-browser",
+      needsBrowserInteraction: true,
       primaryAfterInteractionCommand: "ax-grep 'https://captured.example/challenge' --html-file captured.html --agent",
       primaryAfterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent-brief"],
       requiresBrowserInteraction: true,
@@ -12026,6 +12028,7 @@ npx ax-grep https://example.test --agent</code></pre>
       ]),
       canUseFetchedHtml: false,
       needsBrowserHtml: false,
+      needsBrowserInteraction: true,
       browserHtmlReasonCode: "challenge",
       primaryExecution: "interact-browser",
       primaryAfterInteractionCommand: "ax-grep 'https://captured.example/challenge' --html-file captured.html --agent",

@@ -363,6 +363,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "sourceSearchFailureHost",
           "sourceSearchAlternateCount",
           "sourceSearchAlternateDifferentHost",
+          "needsBrowserInteraction",
           "hiddenSignalCount",
           "hiddenReadTargetCount",
           "topHiddenSignalPath",

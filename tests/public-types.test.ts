@@ -1107,6 +1107,7 @@ describe("public agent types", () => {
       | "failingQualityGateMessage"
       | "failingQualityGatePath"
       | "failingQualityGateScore"
+      | "needsBrowserInteraction"
       | "staticReadiness"
       | "staticReadinessReasonCode"
       | "staticReadinessReason"
@@ -2165,6 +2166,7 @@ describe("public agent types", () => {
       failingQualityGateMessage: "Content evidence is too thin.",
       failingQualityGatePath: "pageCheck.contentEvidence",
       failingQualityGateScore: 0.4,
+      needsBrowserInteraction: false,
       staticReadiness: "needs-browser",
       staticReadinessReasonCode: "browser-required",
       staticReadinessReason: "Static fetched HTML is not enough; browser-captured HTML or browser inspection is required.",
