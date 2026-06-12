@@ -186,6 +186,30 @@ const fixtures: Fixture[] = [
   </body>
 </html>`,
   },
+  {
+    id: "range-value-state",
+    url: "https://fixture.local/browser-parity/range-value-state",
+    checks: buildRangeValueStateChecks,
+    html: `<!doctype html>
+<html lang="en">
+  <head>
+    <title>Range value state fixture</title>
+  </head>
+  <body>
+    <main>
+      <div
+        role="slider"
+        aria-label="Release progress"
+        aria-orientation="horizontal"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="40"
+        aria-valuetext="40 percent"
+      ></div>
+    </main>
+  </body>
+</html>`,
+  },
 ];
 
 const browser = await puppeteer.launch({ headless: true });
@@ -270,7 +294,13 @@ function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
     semanticNodeCount: agent.semanticNodeCount,
     semanticNamedRoleCount: agent.semanticNamedRoleCount,
     semanticTopTableName: agent.semanticTopTableName,
+    semanticTopFieldRole: agent.semanticTopFieldRole,
     semanticTopFieldName: agent.semanticTopFieldName,
+    semanticTopFieldValue: agent.semanticTopFieldValue,
+    semanticTopFieldValueMin: agent.semanticTopFieldValueMin,
+    semanticTopFieldValueMax: agent.semanticTopFieldValueMax,
+    semanticTopFieldValueNow: agent.semanticTopFieldValueNow,
+    semanticTopFieldValueText: agent.semanticTopFieldValueText,
     semanticTopButtonName: agent.semanticTopButtonName,
     semanticTopButtonExpanded: agent.semanticTopButtonExpanded,
     semanticTopButtonHaspopup: agent.semanticTopButtonHaspopup,
@@ -285,6 +315,12 @@ function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
     semanticTopStateCurrent: agent.semanticTopStateCurrent,
     semanticTopStateLive: agent.semanticTopStateLive,
     semanticTopStateModal: agent.semanticTopStateModal,
+    semanticTopStateOrientation: agent.semanticTopStateOrientation,
+    semanticTopStateValueMin: agent.semanticTopStateValueMin,
+    semanticTopStateValueMax: agent.semanticTopStateValueMax,
+    semanticTopStateValueNow: agent.semanticTopStateValueNow,
+    semanticTopStateValueText: agent.semanticTopStateValueText,
+    semanticTopStateSelector: agent.semanticTopStateSelector,
     semanticTopModalStateRole: agent.semanticTopModalStateRole,
     semanticTopModalStateName: agent.semanticTopModalStateName,
     semanticTopModalState: agent.semanticTopModalState,
@@ -297,6 +333,10 @@ function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
     semanticTopRelationTarget: agent.semanticTopRelationTarget,
     semanticTopRelationTargetRole: agent.semanticTopRelationTargetRole,
     semanticTopRelationTargetName: agent.semanticTopRelationTargetName,
+    semanticTopValueRole: agent.semanticTopValueRole,
+    semanticTopValueName: agent.semanticTopValueName,
+    semanticTopValue: agent.semanticTopValue,
+    semanticTopValueSelector: agent.semanticTopValueSelector,
     semanticTopChoiceRole: agent.semanticTopChoiceRole,
     semanticTopChoiceName: agent.semanticTopChoiceName,
     semanticTopChoiceSelected: agent.semanticTopChoiceSelected,
@@ -613,6 +653,68 @@ function buildGridSelectedCellChecks(namedRoles: string[], nodes: SemanticNode[]
         && agent.semanticTopSelectedTableCellRowIndex === 2
         && agent.semanticTopSelectedTableCellColumnIndex === 2
         && agent.semanticTopSelectedTableCellSelector === "span:nth-of-type(2)",
+    },
+  ];
+}
+
+function buildRangeValueStateChecks(namedRoles: string[], nodes: SemanticNode[], agent: AgentSummary): Check[] {
+  const slider = nodes.find((node) => node.role === "slider" && node.name === "Release progress");
+  return [
+    {
+      id: "range-value-state-parity",
+      browserEvidence: JSON.stringify({
+        namedRoles: evidence(namedRoles, ["slider:Release progress"]),
+        orientation: slider?.state?.orientation,
+        valueMin: slider?.state?.valueMin,
+        valueMax: slider?.state?.valueMax,
+        valueNow: slider?.state?.valueNow,
+        valueText: slider?.state?.valueText,
+      }),
+      agentEvidence: JSON.stringify({
+        fieldRole: agent.semanticTopFieldRole,
+        fieldName: agent.semanticTopFieldName,
+        fieldValue: agent.semanticTopFieldValue,
+        fieldValueMin: agent.semanticTopFieldValueMin,
+        fieldValueMax: agent.semanticTopFieldValueMax,
+        fieldValueNow: agent.semanticTopFieldValueNow,
+        fieldValueText: agent.semanticTopFieldValueText,
+        valueRole: agent.semanticTopValueRole,
+        valueName: agent.semanticTopValueName,
+        value: agent.semanticTopValue,
+        stateRole: agent.semanticTopStateRole,
+        stateName: agent.semanticTopStateName,
+        stateOrientation: agent.semanticTopStateOrientation,
+        stateValueMin: agent.semanticTopStateValueMin,
+        stateValueMax: agent.semanticTopStateValueMax,
+        stateValueNow: agent.semanticTopStateValueNow,
+        stateValueText: agent.semanticTopStateValueText,
+        stateSelector: agent.semanticTopStateSelector,
+      }),
+      decision: "covered",
+      pass: includesAll(namedRoles, ["slider:Release progress"])
+        && slider?.state?.orientation === "horizontal"
+        && slider?.state?.valueMin === 0
+        && slider?.state?.valueMax === 100
+        && slider?.state?.valueNow === 40
+        && slider?.state?.valueText === "40 percent"
+        && agent.semanticTopFieldRole === "slider"
+        && agent.semanticTopFieldName === "Release progress"
+        && agent.semanticTopFieldValue === "40 percent"
+        && agent.semanticTopFieldValueMin === 0
+        && agent.semanticTopFieldValueMax === 100
+        && agent.semanticTopFieldValueNow === 40
+        && agent.semanticTopFieldValueText === "40 percent"
+        && agent.semanticTopValueRole === "slider"
+        && agent.semanticTopValueName === "Release progress"
+        && agent.semanticTopValue === "40 percent"
+        && agent.semanticTopStateRole === "slider"
+        && agent.semanticTopStateName === "Release progress"
+        && agent.semanticTopStateOrientation === "horizontal"
+        && agent.semanticTopStateValueMin === 0
+        && agent.semanticTopStateValueMax === 100
+        && agent.semanticTopStateValueNow === 40
+        && agent.semanticTopStateValueText === "40 percent"
+        && typeof agent.semanticTopStateSelector === "string",
     },
   ];
 }
