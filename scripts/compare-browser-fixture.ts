@@ -302,6 +302,23 @@ const fixtures: Fixture[] = [
   </body>
 </html>`,
   },
+  {
+    id: "disabled-readonly-field-state",
+    url: "https://fixture.local/browser-parity/disabled-readonly-field-state",
+    checks: buildDisabledReadonlyFieldStateChecks,
+    html: `<!doctype html>
+<html lang="en">
+  <head>
+    <title>Disabled readonly field state fixture</title>
+  </head>
+  <body>
+    <main>
+      <label for="archive-code">Archive code</label>
+      <input id="archive-code" value="AR-42" disabled readonly>
+    </main>
+  </body>
+</html>`,
+  },
 ];
 
 const browser = await puppeteer.launch({ headless: true });
@@ -397,6 +414,8 @@ function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
     semanticTopFieldValueMax: agent.semanticTopFieldValueMax,
     semanticTopFieldValueNow: agent.semanticTopFieldValueNow,
     semanticTopFieldValueText: agent.semanticTopFieldValueText,
+    semanticTopFieldDisabled: agent.semanticTopFieldDisabled,
+    semanticTopFieldReadonly: agent.semanticTopFieldReadonly,
     semanticTopFieldInvalid: agent.semanticTopFieldInvalid,
     semanticTopFieldErrorMessageText: agent.semanticTopFieldErrorMessageText,
     semanticTopButtonName: agent.semanticTopButtonName,
@@ -408,6 +427,8 @@ function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
     semanticTopStateRole: agent.semanticTopStateRole,
     semanticTopStateName: agent.semanticTopStateName,
     semanticTopStateExpanded: agent.semanticTopStateExpanded,
+    semanticTopStateDisabled: agent.semanticTopStateDisabled,
+    semanticTopStateReadonly: agent.semanticTopStateReadonly,
     semanticTopStateHaspopup: agent.semanticTopStateHaspopup,
     semanticTopStateControls: agent.semanticTopStateControls,
     semanticTopStateCurrent: agent.semanticTopStateCurrent,
@@ -1005,6 +1026,48 @@ function buildDragDropStateChecks(namedRoles: string[], nodes: SemanticNode[], a
         && agent.semanticTopStateName === "Move report"
         && agent.semanticTopStateGrabbed === true
         && agent.semanticTopStateDropEffect === "move"
+        && typeof agent.semanticTopStateSelector === "string",
+    },
+  ];
+}
+
+function buildDisabledReadonlyFieldStateChecks(namedRoles: string[], nodes: SemanticNode[], agent: AgentSummary): Check[] {
+  const textbox = nodes.find((node) => node.role === "textbox" && node.name === "Archive code");
+  return [
+    {
+      id: "disabled-readonly-field-state-parity",
+      browserEvidence: JSON.stringify({
+        namedRoles: evidence(namedRoles, ["textbox:Archive code"]),
+        disabled: textbox?.state?.disabled,
+        readonly: textbox?.state?.readonly,
+        value: textbox?.value,
+      }),
+      agentEvidence: JSON.stringify({
+        fieldRole: agent.semanticTopFieldRole,
+        fieldName: agent.semanticTopFieldName,
+        fieldValue: agent.semanticTopFieldValue,
+        fieldDisabled: agent.semanticTopFieldDisabled,
+        fieldReadonly: agent.semanticTopFieldReadonly,
+        stateRole: agent.semanticTopStateRole,
+        stateName: agent.semanticTopStateName,
+        stateDisabled: agent.semanticTopStateDisabled,
+        stateReadonly: agent.semanticTopStateReadonly,
+        stateSelector: agent.semanticTopStateSelector,
+      }),
+      decision: "covered",
+      pass: includesAll(namedRoles, ["textbox:Archive code"])
+        && textbox?.state?.disabled === true
+        && textbox?.state?.readonly === true
+        && textbox?.value === "AR-42"
+        && agent.semanticTopFieldRole === "textbox"
+        && agent.semanticTopFieldName === "Archive code"
+        && agent.semanticTopFieldValue === "AR-42"
+        && agent.semanticTopFieldDisabled === true
+        && agent.semanticTopFieldReadonly === true
+        && agent.semanticTopStateRole === "textbox"
+        && agent.semanticTopStateName === "Archive code"
+        && agent.semanticTopStateDisabled === true
+        && agent.semanticTopStateReadonly === true
         && typeof agent.semanticTopStateSelector === "string",
     },
   ];
