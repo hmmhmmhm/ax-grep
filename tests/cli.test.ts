@@ -4591,6 +4591,36 @@ describe("cli", () => {
     });
   });
 
+  it("keeps top actionable semantic selectors in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/actions", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <a href="#content" aria-current="location">Skip to content</a>
+          <button type="button" aria-label="Open filters" aria-haspopup="dialog">Filters</button>
+          <img src="/chart.png" alt="Revenue chart" width="640" height="320">
+          <section id="content"><h1>Report</h1><p>Readable report content.</p></section>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      semanticTopLinkName: "Skip to content",
+      semanticTopLinkSelector: "a",
+      semanticTopInPageLinkName: "Skip to content",
+      semanticTopInPageLinkSelector: "a",
+      semanticTopButtonName: "Open filters",
+      semanticTopButtonSelector: "button",
+      semanticTopImageName: "Revenue chart",
+      semanticTopImageSelector: "img",
+    });
+  });
+
   it("exposes semantic table and list shortcuts for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/report", "--agent"], {
