@@ -286,6 +286,22 @@ const fixtures: Fixture[] = [
   </body>
 </html>`,
   },
+  {
+    id: "drag-drop-state",
+    url: "https://fixture.local/browser-parity/drag-drop-state",
+    checks: buildDragDropStateChecks,
+    html: `<!doctype html>
+<html lang="en">
+  <head>
+    <title>Drag drop state fixture</title>
+  </head>
+  <body>
+    <main>
+      <button aria-label="Move report" aria-grabbed="true" aria-dropeffect="move">Move</button>
+    </main>
+  </body>
+</html>`,
+  },
 ];
 
 const browser = await puppeteer.launch({ headless: true });
@@ -397,6 +413,8 @@ function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
     semanticTopStateCurrent: agent.semanticTopStateCurrent,
     semanticTopStateBusy: agent.semanticTopStateBusy,
     semanticTopStateMultiselectable: agent.semanticTopStateMultiselectable,
+    semanticTopStateGrabbed: agent.semanticTopStateGrabbed,
+    semanticTopStateDropEffect: agent.semanticTopStateDropEffect,
     semanticTopStateInvalid: agent.semanticTopStateInvalid,
     semanticTopStateSort: agent.semanticTopStateSort,
     semanticTopStateLive: agent.semanticTopStateLive,
@@ -956,6 +974,38 @@ function buildMultiselectListboxStateChecks(namedRoles: string[], nodes: Semanti
         && agent.semanticTopSelectedChoiceSelected === true
         && agent.semanticTopSelectedChoicePosInSet === 1
         && agent.semanticTopSelectedChoiceSetSize === 2,
+    },
+  ];
+}
+
+function buildDragDropStateChecks(namedRoles: string[], nodes: SemanticNode[], agent: AgentSummary): Check[] {
+  const button = nodes.find((node) => node.role === "button" && node.name === "Move report");
+  return [
+    {
+      id: "drag-drop-state-parity",
+      browserEvidence: JSON.stringify({
+        namedRoles: evidence(namedRoles, ["button:Move report"]),
+        grabbed: button?.state?.grabbed,
+        dropEffect: button?.state?.dropEffect,
+      }),
+      agentEvidence: JSON.stringify({
+        buttonName: agent.semanticTopButtonName,
+        stateRole: agent.semanticTopStateRole,
+        stateName: agent.semanticTopStateName,
+        stateGrabbed: agent.semanticTopStateGrabbed,
+        stateDropEffect: agent.semanticTopStateDropEffect,
+        stateSelector: agent.semanticTopStateSelector,
+      }),
+      decision: "covered",
+      pass: includesAll(namedRoles, ["button:Move report"])
+        && button?.state?.grabbed === true
+        && button?.state?.dropEffect === "move"
+        && agent.semanticTopButtonName === "Move report"
+        && agent.semanticTopStateRole === "button"
+        && agent.semanticTopStateName === "Move report"
+        && agent.semanticTopStateGrabbed === true
+        && agent.semanticTopStateDropEffect === "move"
+        && typeof agent.semanticTopStateSelector === "string",
     },
   ];
 }
