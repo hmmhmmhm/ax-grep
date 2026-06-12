@@ -929,6 +929,7 @@ describe("public agent types", () => {
       | "pageModifiedTime"
       | "pageStructuredDataTypes"
       | "topReadTarget"
+      | "topReadTargetKind"
       | "topReadTargetCount"
       | "topReadTargetScore"
       | "topReadTargetPrimary"
@@ -1864,6 +1865,7 @@ describe("public agent types", () => {
       pageModifiedTime: "2026-02-04T05:06:07Z",
       pageStructuredDataTypes: ["NewsArticle"],
       topReadTarget: "pageCheck.contentEvidence",
+      topReadTargetKind: "evidence",
       topReadTargetCount: 1,
       topReadTargetScore: 0.9,
       topReadTargetPrimary: true,
@@ -2144,6 +2146,7 @@ describe("public agent types", () => {
     expect(summary.semanticTopNamedRoleName).toBe("Example");
     expect(summary.readTargetCount).toBe(3);
     expect(summary.topReadTarget).toBe("pageCheck.contentEvidence");
+    expect(summary.topReadTargetKind).toBe("evidence");
     expect(summary.bestReadTargetCount).toBe(1);
     expect(summary.bestReadTargetPrimary).toBe(true);
     expect(summary.qualityGateFailCount).toBe(1);

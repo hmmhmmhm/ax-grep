@@ -1703,6 +1703,7 @@ type AgentSummary = {
   readTargetCount: number;
   readTargets: AgentReadTarget[];
   topReadTarget?: string;
+  topReadTargetKind?: AgentReadTarget["kind"];
   topReadTargetCount?: number;
   topReadTargetScore?: number;
   topReadTargetPrimary?: boolean;
@@ -3674,6 +3675,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topAnswerEvidenceId ? [`  topAnswerEvidence: ${agent.topAnswerEvidenceId} ${agent.topAnswerEvidencePath}${typeof agent.topAnswerEvidenceScore === "number" ? ` score=${agent.topAnswerEvidenceScore}` : ""}${agent.topAnswerEvidenceText ? ` - ${agent.topAnswerEvidenceText}` : ""}`] : []),
     `  readTargetCount: ${agent.readTargetCount}`,
     ...(agent.topReadTarget ? [`  topReadTarget: ${agent.topReadTarget}`] : []),
+    ...(agent.topReadTargetKind ? [`  topReadTargetKind: ${agent.topReadTargetKind}`] : []),
     ...(typeof agent.topReadTargetCount === "number" ? [`  topReadTargetCount: ${agent.topReadTargetCount}`] : []),
     ...(typeof agent.topReadTargetScore === "number" ? [`  topReadTargetScore: ${agent.topReadTargetScore}`] : []),
     ...(typeof agent.topReadTargetPrimary === "boolean" ? [`  topReadTargetPrimary: ${agent.topReadTargetPrimary}`] : []),
@@ -11976,6 +11978,7 @@ function summarizeAgent(
     readTargetCount: readTargets.length,
     readTargets,
     ...(readTargets[0] ? { topReadTarget: readTargets[0].path } : {}),
+    ...(readTargets[0]?.kind ? { topReadTargetKind: readTargets[0].kind } : {}),
     ...(typeof readTargets[0]?.count === "number" ? { topReadTargetCount: readTargets[0].count } : {}),
     ...(typeof readTargets[0]?.score === "number" ? { topReadTargetScore: readTargets[0].score } : {}),
     ...(typeof readTargets[0]?.primary === "boolean" ? { topReadTargetPrimary: readTargets[0].primary } : {}),
@@ -13073,7 +13076,7 @@ function summarizeAgentReadTargets(
   const targets: AgentReadTarget[] = [];
   const add = (target: AgentReadTarget): void => {
     if (targets.some((item) => item.path === target.path)) return;
-    targets.push(target);
+    targets.push({ ...target, kind: target.kind ?? agentReadTargetKind(target.path) });
   };
   const primaryReadFrom = primaryAction && actionExecution(primaryAction) === "read-current" ? primaryAction.readFrom : undefined;
   if (verification.bestEvidence) {
@@ -13797,6 +13800,22 @@ function selectBestReadTarget(readTargets: AgentReadTarget[]): AgentReadTarget |
     if (left.primary !== right.primary) return left.primary ? -1 : 1;
     return (right.score ?? 0) - (left.score ?? 0);
   })[0];
+}
+
+function agentReadTargetKind(path: string): NonNullable<AgentReadTarget["kind"]> {
+  if (path.startsWith("verification.")) return "verification";
+  if (path.startsWith("sourceSearch.")) return "source-search";
+  if (path === "agent.semanticSummary") return "semantic";
+  if (path === "pageCheck.contentEvidence" || path === "pageCheck.citations") return "evidence";
+  if (path === "pageCheck.forms" || path === "pageCheck.actionTargets") return "interaction";
+  if (path === "pageCheck.barriers") return "barrier";
+  if (path === "pageCheck.pagination" || path === "pageCheck.toc" || path === "pageCheck.breadcrumbs") return "navigation";
+  if (path === "pageCheck.codeBlocks") return "code";
+  if (path === "pageCheck.media" || path === "pageCheck.embeds" || path === "pageCheck.transcripts") return "media";
+  if (path === "pageCheck.resources" || path === "pageCheck.authorLinks" || path === "pageCheck.sourceLinks") return "resource";
+  if (path === "pageCheck.hydration" || path === "pageCheck.apiEndpoints" || path === "pageCheck.clientState" || path === "pageCheck.runtime" || path === "pageCheck.config" || path === "pageCheck.appHints" || path === "pageCheck.mobileHints" || path === "pageCheck.httpPolicies") return "hidden-data";
+  if (path.startsWith("pageCheck.")) return "structured";
+  return "page-check";
 }
 
 function selectBestHiddenReadTarget(readTargets: AgentReadTarget[]): AgentReadTarget | undefined {
@@ -14986,6 +15005,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     readTargetCount: readTargets.length,
     readTargets,
     ...(readTargets[0] ? { topReadTarget: readTargets[0].path } : {}),
+    ...(readTargets[0]?.kind ? { topReadTargetKind: readTargets[0].kind } : {}),
     ...(typeof readTargets[0]?.count === "number" ? { topReadTargetCount: readTargets[0].count } : {}),
     ...(typeof readTargets[0]?.score === "number" ? { topReadTargetScore: readTargets[0].score } : {}),
     ...(typeof readTargets[0]?.primary === "boolean" ? { topReadTargetPrimary: readTargets[0].primary } : {}),
@@ -15151,6 +15171,7 @@ function summarizeErrorAgentReadTargets(primaryAction: SuggestedAction | undefin
   if (sourceSearch?.selectedResult) {
     targets.push({
       path: "sourceSearch.selectedResult",
+      kind: "source-search",
       reason: "Original SERP metadata for the selected result that failed.",
       count: 1,
       ...(typeof sourceSearch.selectedResult.sourceScore === "number" ? { score: sourceSearch.selectedResult.sourceScore } : {}),
@@ -15159,6 +15180,7 @@ function summarizeErrorAgentReadTargets(primaryAction: SuggestedAction | undefin
   if (primaryAction?.action !== "open-alternate-result" || !sourceSearch?.alternateResults?.length) return targets;
   targets.push({
     path: "sourceSearch.alternateResults",
+    kind: "source-search",
     reason: "Original SERP candidates available for recovery after the selected result failed.",
     count: sourceSearch.alternateResults.length,
     score: averageResultSourceScore(sourceSearch.alternateResults),
@@ -17155,6 +17177,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     readTargetCount: agent.readTargetCount,
     ...(agent.readTargets.length > 0 ? { readTargets: compactAgentReadTargets(agent.readTargets) } : {}),
     ...(agent.topReadTarget ? { topReadTarget: agent.topReadTarget } : {}),
+    ...(agent.topReadTargetKind ? { topReadTargetKind: agent.topReadTargetKind } : {}),
     ...(typeof agent.topReadTargetCount === "number" ? { topReadTargetCount: agent.topReadTargetCount } : {}),
     ...(typeof agent.topReadTargetScore === "number" ? { topReadTargetScore: agent.topReadTargetScore } : {}),
     ...(typeof agent.topReadTargetPrimary === "boolean" ? { topReadTargetPrimary: agent.topReadTargetPrimary } : {}),
@@ -18116,6 +18139,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     readTargetCount: agent.readTargetCount,
     ...(agent.readTargets.length > 0 ? { readTargets: agent.readTargets.map((target) => compactAgentReadTargetRef(target)) } : {}),
     ...(agent.topReadTarget ? { topReadTarget: agent.topReadTarget } : {}),
+    ...(agent.topReadTargetKind ? { topReadTargetKind: agent.topReadTargetKind } : {}),
     ...(typeof agent.topReadTargetCount === "number" ? { topReadTargetCount: agent.topReadTargetCount } : {}),
     ...(typeof agent.topReadTargetScore === "number" ? { topReadTargetScore: agent.topReadTargetScore } : {}),
     ...(typeof agent.topReadTargetPrimary === "boolean" ? { topReadTargetPrimary: agent.topReadTargetPrimary } : {}),
@@ -18532,6 +18556,7 @@ function compactAgentReadTargets(targets: AgentReadTarget[], threshold = 700): o
 function compactAgentReadTargetRef(target: AgentReadTarget, includeReason = false): object {
   return {
     path: target.path,
+    ...(target.kind ? { kind: target.kind } : {}),
     count: target.count,
     ...(typeof target.score === "number" ? { score: target.score } : {}),
     ...(target.primary ? { primary: true } : {}),

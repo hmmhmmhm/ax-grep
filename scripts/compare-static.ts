@@ -581,6 +581,7 @@ type CliAgentPageDecisionShape = {
 
 type CliReadTargetShape = {
   path?: string;
+  kind?: string;
   reason?: string;
   count?: number;
   score?: number;
@@ -1680,6 +1681,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       primaryPriority?: "low" | "medium" | "high";
       primaryPriorityReason?: string;
       topReadTarget?: string;
+      topReadTargetKind?: string;
       topReadTargetCount?: number;
       topReadTargetScore?: number;
       topReadTargetPrimary?: boolean;
@@ -3580,6 +3582,7 @@ function scoreAgentBestReadTarget(agent: {
 function scoreAgentTopReadTargetShortcuts(agent: {
   readTargets?: CliReadTargetShape[];
   topReadTarget?: string;
+  topReadTargetKind?: string;
   topReadTargetCount?: number;
   topReadTargetScore?: number;
   topReadTargetPrimary?: boolean;
@@ -3588,6 +3591,7 @@ function scoreAgentTopReadTargetShortcuts(agent: {
   const top = agent?.readTargets?.[0];
   if (!top) {
     return agent?.topReadTarget
+      || agent?.topReadTargetKind
       || typeof agent?.topReadTargetCount === "number"
       || typeof agent?.topReadTargetScore === "number"
       || typeof agent?.topReadTargetPrimary === "boolean"
@@ -3595,6 +3599,12 @@ function scoreAgentTopReadTargetShortcuts(agent: {
   }
   let required = 1;
   let matched = agent?.topReadTarget === top.path ? 1 : 0;
+  if (top.kind) {
+    required += 1;
+    if (agent?.topReadTargetKind === top.kind) matched += 1;
+  } else if (agent?.topReadTargetKind) {
+    required += 1;
+  }
   if (typeof top.count === "number") {
     required += 1;
     if (agent?.topReadTargetCount === top.count) matched += 1;

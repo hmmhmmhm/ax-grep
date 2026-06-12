@@ -370,6 +370,7 @@ export type AgentBrowserHtmlCapture = {
 
 export type AgentReadTarget = {
   path: string;
+  kind?: "verification" | "evidence" | "semantic" | "structured" | "hidden-data" | "interaction" | "barrier" | "navigation" | "code" | "media" | "resource" | "source-search" | "page-check";
   reason: string;
   count?: number;
   score?: number;
@@ -1354,6 +1355,7 @@ export type AgentSummary = {
   readTargetCount?: number;
   readTargets?: AgentReadTarget[];
   topReadTarget?: string;
+  topReadTargetKind?: AgentReadTarget["kind"];
   topReadTargetCount?: number;
   topReadTargetScore?: number;
   topReadTargetPrimary?: boolean;
