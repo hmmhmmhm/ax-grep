@@ -983,7 +983,11 @@ describe("public agent types", () => {
       | "alternativeActionSourceLinkRef"
       | "alternativeActionRequiresBrowserInteraction"
       | "recommendedUrl"
+      | "recommendedPath"
       | "recommendedTitle"
+      | "recommendedRank"
+      | "recommendedSource"
+      | "recommendedSourceScore"
       | "recommendedCommandArgs"
     > = {
       resultCount: 2,
@@ -1786,7 +1790,11 @@ describe("public agent types", () => {
       alternativeActionSourceLinkRef: "pageCheck.sourceLinks[0]",
       alternativeActionRequiresBrowserInteraction: false,
       recommendedUrl: "https://example.test",
+      recommendedPath: "recommendedResult",
       recommendedTitle: "Example result",
+      recommendedRank: 1,
+      recommendedSource: "example.test",
+      recommendedSourceScore: 0.92,
       recommendedCommandArgs: ["ax-grep", "https://example.test", "--agent"],
     };
 
@@ -1867,6 +1875,8 @@ describe("public agent types", () => {
     expect(summary.primarySourceLinkRef).toBe("pageCheck.sourceLinks[0]");
     expect(summary.alternativeActionName).toBe("open-source-link");
     expect(summary.alternativeActionCommandArgs?.[0]).toBe("ax-grep");
+    expect(summary.recommendedPath).toBe("recommendedResult");
+    expect(summary.recommendedSourceScore).toBe(0.92);
     expect(summary.recommendedCommandArgs?.[0]).toBe("ax-grep");
   });
 });

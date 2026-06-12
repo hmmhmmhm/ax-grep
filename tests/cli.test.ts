@@ -1917,8 +1917,10 @@ describe("cli", () => {
     expect(envelope.agent).toMatchObject({
       recommendedRank: 7,
       recommendedUrl: "https://result-7.example/",
+      recommendedPath: "recommendedResult",
       recommendedTitle: "Result 7",
       recommendedSource: "result-7.example",
+      recommendedSourceScore: envelope.recommendedResult.sourceScore,
       recommendedSelectionReason: "Matches --find: target claim.",
       recommendedCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--find", "target claim", "--open-result", "7", "--agent"],
     });

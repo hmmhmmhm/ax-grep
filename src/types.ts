@@ -1379,9 +1379,11 @@ export type AgentSummary = {
   alternativeActionSourceLinkRef?: string;
   alternativeActionRequiresBrowserInteraction?: boolean;
   recommendedUrl?: string;
+  recommendedPath?: string;
   recommendedTitle?: string;
   recommendedRank?: number;
   recommendedSource?: string;
+  recommendedSourceScore?: number;
   recommendedRelevance?: number;
   recommendedLikelyOfficial?: boolean;
   recommendedSelectionReason?: string;

@@ -1722,9 +1722,11 @@ type AgentSummary = {
   alternativeActionSourceLinkRef?: string;
   alternativeActionRequiresBrowserInteraction?: boolean;
   recommendedUrl?: string;
+  recommendedPath?: string;
   recommendedTitle?: string;
   recommendedRank?: number;
   recommendedSource?: string;
+  recommendedSourceScore?: number;
   recommendedRelevance?: ResultSummary["relevance"];
   recommendedLikelyOfficial?: boolean;
   recommendedSelectionReason?: string;
@@ -3671,9 +3673,11 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.primaryPriorityReason) lines.push(`  primaryPriorityReason: ${agent.primaryPriorityReason}`);
   if (agent.primarySourceLinkRef) lines.push(`  primarySourceLinkRef: ${agent.primarySourceLinkRef}`);
   if (agent.recommendedUrl) lines.push(`  recommendedUrl: ${agent.recommendedUrl}`);
+  if (agent.recommendedPath) lines.push(`  recommendedPath: ${agent.recommendedPath}`);
   if (agent.recommendedTitle) lines.push(`  recommendedTitle: ${agent.recommendedTitle}`);
   if (agent.recommendedRank) lines.push(`  recommendedRank: ${agent.recommendedRank}`);
   if (agent.recommendedSource) lines.push(`  recommendedSource: ${agent.recommendedSource}`);
+  if (typeof agent.recommendedSourceScore === "number") lines.push(`  recommendedSourceScore: ${agent.recommendedSourceScore}`);
   if (agent.recommendedRelevance) lines.push(`  recommendedRelevance: ${agent.recommendedRelevance}`);
   if (typeof agent.recommendedLikelyOfficial === "boolean") lines.push(`  recommendedLikelyOfficial: ${agent.recommendedLikelyOfficial}`);
   if (agent.recommendedSelectionReason) lines.push(`  recommendedSelectionReason: ${agent.recommendedSelectionReason}`);
@@ -11763,9 +11767,11 @@ function summarizeAgent(
   }
   if (recommendedResult) {
     agent.recommendedUrl = recommendedResult.url;
+    agent.recommendedPath = "recommendedResult";
     agent.recommendedTitle = recommendedResult.title;
     agent.recommendedRank = recommendedResult.rank;
     agent.recommendedSource = recommendedResult.source;
+    if (typeof recommendedResult.sourceScore === "number") agent.recommendedSourceScore = recommendedResult.sourceScore;
     if (recommendedResult.relevance) agent.recommendedRelevance = recommendedResult.relevance;
     if (typeof recommendedResult.isLikelyOfficial === "boolean") agent.recommendedLikelyOfficial = recommendedResult.isLikelyOfficial;
     agent.recommendedSelectionReason = recommendedResult.selectionReason ?? searchResultSelectionReason(recommendedResult);
@@ -15826,9 +15832,11 @@ function compactAgentRecommended(agent: AgentSummary, searchCommandContext?: Sea
   const commandArgs = compactChoice?.commandArgs ?? agent.recommendedCommandArgs;
   return {
     ...(agent.recommendedUrl ? { recommendedUrl: agent.recommendedUrl } : {}),
+    ...(agent.recommendedPath ? { recommendedPath: agent.recommendedPath } : {}),
     ...(agent.recommendedTitle ? { recommendedTitle: agent.recommendedTitle } : {}),
     ...(agent.recommendedRank ? { recommendedRank: agent.recommendedRank } : {}),
     ...(agent.recommendedSource ? { recommendedSource: agent.recommendedSource } : {}),
+    ...(typeof agent.recommendedSourceScore === "number" ? { recommendedSourceScore: agent.recommendedSourceScore } : {}),
     ...(agent.recommendedRelevance ? { recommendedRelevance: agent.recommendedRelevance } : {}),
     ...(typeof agent.recommendedLikelyOfficial === "boolean" ? { recommendedLikelyOfficial: agent.recommendedLikelyOfficial } : {}),
     ...(agent.recommendedSelectionReason ? { recommendedSelectionReason: agent.recommendedSelectionReason } : {}),

@@ -1276,8 +1276,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       readabilityReasons?: unknown[];
       recommendedRank?: number;
       recommendedUrl?: string;
+      recommendedPath?: string;
       recommendedTitle?: string;
       recommendedSource?: string;
+      recommendedSourceScore?: number;
       recommendedRelevance?: "low" | "medium" | "high";
       recommendedLikelyOfficial?: boolean;
       recommendedCommandArgs?: string[];
@@ -7769,8 +7771,10 @@ function scoreAgentRecommendedMetadata(
   agent: {
     recommendedRank?: number;
     recommendedUrl?: string;
+    recommendedPath?: string;
     recommendedTitle?: string;
     recommendedSource?: string;
+    recommendedSourceScore?: number;
     recommendedRelevance?: "low" | "medium" | "high";
     recommendedLikelyOfficial?: boolean;
     recommendedCommandArgs?: string[];
@@ -7789,6 +7793,10 @@ function scoreAgentRecommendedMetadata(
     required += 1;
     if (agent?.recommendedUrl === recommendedResult.url) matched += 1;
   }
+  if (recommendedResult.path) {
+    required += 1;
+    if (agent?.recommendedPath === recommendedResult.path) matched += 1;
+  }
   if (recommendedResult.title) {
     required += 1;
     if (agent?.recommendedTitle === recommendedResult.title) matched += 1;
@@ -7796,6 +7804,10 @@ function scoreAgentRecommendedMetadata(
   if (recommendedResult.source) {
     required += 1;
     if (agent?.recommendedSource === recommendedResult.source) matched += 1;
+  }
+  if (typeof recommendedResult.sourceScore === "number") {
+    required += 1;
+    if (agent?.recommendedSourceScore === recommendedResult.sourceScore) matched += 1;
   }
   if (recommendedResult.relevance) {
     required += 1;
