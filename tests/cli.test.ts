@@ -908,6 +908,10 @@ describe("cli", () => {
         pageDecisionSourceLinkCount: 1,
         pageDecisionSourceQualityScore: expect.any(Number),
         pageDecisionReadFrom: "pageCheck.contentEvidence",
+        pageDecisionReadTargetKind: "evidence",
+        pageDecisionReadTargetCount: expect.any(Number),
+        pageDecisionReadTargetScore: expect.any(Number),
+        pageDecisionReadTargetReason: expect.any(String),
         signals: expect.arrayContaining([
           expect.objectContaining({ kind: "content", severity: "info" }),
           expect.objectContaining({ kind: "verification", severity: "info" }),
@@ -10217,6 +10221,9 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  routingIntent: read-current");
     expect(stdout.output).toContain("  continuationMode: read");
     expect(stdout.output).toContain("  nextMode: read");
+    expect(stdout.output).toContain("  pageDecisionReadTargetKind: evidence");
+    expect(stdout.output).toContain("  pageDecisionReadTargetReason: Content evidence is ready.");
+    expect(stdout.output).toContain("  staticReadinessReadTargetKind: evidence");
     expect(stdout.output).toContain("  executor: return/return/medium action=read-content status=ready - Answer now from pageCheck.contentEvidence using citations e1.");
     expect(stdout.output).toContain("  executorReadFrom: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  executorReadTargetKind: evidence");

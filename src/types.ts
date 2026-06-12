@@ -627,6 +627,11 @@ export type AgentSummary = {
   pageDecisionSourceLinkCount?: number;
   pageDecisionSourceQualityScore?: number;
   pageDecisionReadFrom?: string;
+  pageDecisionReadTargetKind?: AgentReadTarget["kind"];
+  pageDecisionReadTargetCount?: number;
+  pageDecisionReadTargetScore?: number;
+  pageDecisionReadTargetPrimary?: boolean;
+  pageDecisionReadTargetReason?: string;
   pageDecisionUrl?: string;
   pageDecisionCommandArgs?: string[];
   semanticSummary?: Record<string, unknown>;
@@ -973,6 +978,11 @@ export type AgentSummary = {
   staticReadinessReasonCode?: AgentStaticReadinessReasonCode;
   staticReadinessReason?: string;
   staticReadinessReadFrom?: string;
+  staticReadinessReadTargetKind?: AgentReadTarget["kind"];
+  staticReadinessReadTargetCount?: number;
+  staticReadinessReadTargetScore?: number;
+  staticReadinessReadTargetPrimary?: boolean;
+  staticReadinessReadTargetReason?: string;
   browserHtmlReason?: string;
   browserHtmlReasonCode?: AgentBrowserHtmlReasonCode;
   browserHtmlActionName?: string;

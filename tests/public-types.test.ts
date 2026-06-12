@@ -553,6 +553,11 @@ describe("public agent types", () => {
       | "pageDecisionSourceLinkCount"
       | "pageDecisionSourceQualityScore"
       | "pageDecisionReadFrom"
+      | "pageDecisionReadTargetKind"
+      | "pageDecisionReadTargetCount"
+      | "pageDecisionReadTargetScore"
+      | "pageDecisionReadTargetPrimary"
+      | "pageDecisionReadTargetReason"
       | "pageDecisionUrl"
       | "pageDecisionCommandArgs"
       | "semanticNodeCount"
@@ -1015,6 +1020,11 @@ describe("public agent types", () => {
       | "staticReadinessReasonCode"
       | "staticReadinessReason"
       | "staticReadinessReadFrom"
+      | "staticReadinessReadTargetKind"
+      | "staticReadinessReadTargetCount"
+      | "staticReadinessReadTargetScore"
+      | "staticReadinessReadTargetPrimary"
+      | "staticReadinessReadTargetReason"
       | "browserHtmlReason"
       | "browserHtmlReasonCode"
       | "browserHtmlActionName"
@@ -1531,6 +1541,11 @@ describe("public agent types", () => {
       pageDecisionSourceLinkCount: 1,
       pageDecisionSourceQualityScore: 0.92,
       pageDecisionReadFrom: "pageCheck.contentEvidence",
+      pageDecisionReadTargetKind: "evidence",
+      pageDecisionReadTargetCount: 1,
+      pageDecisionReadTargetScore: 0.9,
+      pageDecisionReadTargetPrimary: true,
+      pageDecisionReadTargetReason: "Top evidence.",
       pageDecisionUrl: "https://example.test",
       pageDecisionCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       semanticNodeCount: 12,
@@ -1982,6 +1997,11 @@ describe("public agent types", () => {
       staticReadinessReasonCode: "browser-required",
       staticReadinessReason: "Static fetched HTML is not enough; browser-captured HTML or browser inspection is required.",
       staticReadinessReadFrom: "pageCheck.contentEvidence",
+      staticReadinessReadTargetKind: "evidence",
+      staticReadinessReadTargetCount: 1,
+      staticReadinessReadTargetScore: 0.9,
+      staticReadinessReadTargetPrimary: true,
+      staticReadinessReadTargetReason: "Top evidence.",
       browserHtmlReason: "Browser-captured HTML or browser inspection is needed.",
       browserHtmlReasonCode: "challenge",
       browserHtmlActionName: "retry-with-browser-html",
@@ -2199,6 +2219,9 @@ describe("public agent types", () => {
     expect(summary.topVerificationMissingQuery).toBe("missing");
     expect(summary.searchDecisionName).toBe("open-result");
     expect(summary.pageDecisionReadFrom).toBe("pageCheck.contentEvidence");
+    expect(summary.pageDecisionReadTargetKind).toBe("evidence");
+    expect(summary.pageDecisionReadTargetScore).toBe(0.9);
+    expect(summary.pageDecisionReadTargetReason).toBe("Top evidence.");
     expect(summary.pageDecisionReadability).toBe("high");
     expect(summary.pageDecisionEvidenceQualityScore).toBe(0.9);
     expect(summary.pageDecisionSourceQualityScore).toBe(0.92);
@@ -2219,6 +2242,8 @@ describe("public agent types", () => {
     expect(summary.failingQualityGateKind).toBe("content");
     expect(summary.failingQualityGateSeverity).toBe("warning");
     expect(summary.failingQualityGateScore).toBe(0.4);
+    expect(summary.staticReadinessReadTargetKind).toBe("evidence");
+    expect(summary.staticReadinessReadTargetPrimary).toBe(true);
     expect(summary.browserHtmlReason).toContain("Browser-captured HTML");
     expect(summary.topDiagnosticCode).toBe("NO_USEFUL_LINKS");
     expect(summary.topCitationPath).toBe("pageCheck.contentEvidence[0]");

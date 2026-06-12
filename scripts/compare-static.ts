@@ -5775,6 +5775,7 @@ function expectedSearchDecision(primaryAction: CliActionShape | undefined, recom
 function scoreAgentPageDecision(
   agent: {
     pageDecision?: CliAgentPageDecisionShape;
+    readTargets?: CliReadTargetShape[];
     pageDecisionName?: CliAgentPageDecisionShape["decision"];
     pageDecisionConfidence?: CliAgentPageDecisionShape["confidence"];
     pageDecisionReason?: string;
@@ -5785,6 +5786,11 @@ function scoreAgentPageDecision(
     pageDecisionSourceLinkCount?: number;
     pageDecisionSourceQualityScore?: number;
     pageDecisionReadFrom?: string;
+    pageDecisionReadTargetKind?: string;
+    pageDecisionReadTargetCount?: number;
+    pageDecisionReadTargetScore?: number;
+    pageDecisionReadTargetPrimary?: boolean;
+    pageDecisionReadTargetReason?: string;
     pageDecisionUrl?: string;
     pageDecisionCommandArgs?: string[];
   } | undefined,
@@ -5835,6 +5841,39 @@ function scoreAgentPageDecision(
     if (agent?.pageDecisionReadFrom === decision.readFrom) matched += 1;
   } else if (agent?.pageDecisionReadFrom) {
     required += 1;
+  }
+  if (decision.readFrom) {
+    const readTarget = agent?.readTargets?.find((target) => target.path === decision.readFrom);
+    if (readTarget?.kind) {
+      required += 1;
+      if (agent?.pageDecisionReadTargetKind === readTarget.kind) matched += 1;
+    } else if (agent?.pageDecisionReadTargetKind) {
+      required += 1;
+    }
+    if (typeof readTarget?.count === "number") {
+      required += 1;
+      if (agent?.pageDecisionReadTargetCount === readTarget.count) matched += 1;
+    } else if (typeof agent?.pageDecisionReadTargetCount === "number") {
+      required += 1;
+    }
+    if (typeof readTarget?.score === "number") {
+      required += 1;
+      if (agent?.pageDecisionReadTargetScore === readTarget.score) matched += 1;
+    } else if (typeof agent?.pageDecisionReadTargetScore === "number") {
+      required += 1;
+    }
+    if (typeof readTarget?.primary === "boolean") {
+      required += 1;
+      if (agent?.pageDecisionReadTargetPrimary === readTarget.primary) matched += 1;
+    } else if (typeof agent?.pageDecisionReadTargetPrimary === "boolean") {
+      required += 1;
+    }
+    if (readTarget?.reason) {
+      required += 1;
+      if (agent?.pageDecisionReadTargetReason === readTarget.reason) matched += 1;
+    } else if (agent?.pageDecisionReadTargetReason) {
+      required += 1;
+    }
   }
   if (decision.url) {
     required += 1;

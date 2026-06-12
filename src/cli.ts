@@ -975,6 +975,11 @@ type AgentSummary = {
   pageDecisionSourceLinkCount?: number;
   pageDecisionSourceQualityScore?: number;
   pageDecisionReadFrom?: string;
+  pageDecisionReadTargetKind?: AgentReadTarget["kind"];
+  pageDecisionReadTargetCount?: number;
+  pageDecisionReadTargetScore?: number;
+  pageDecisionReadTargetPrimary?: boolean;
+  pageDecisionReadTargetReason?: string;
   pageDecisionUrl?: string;
   pageDecisionCommandArgs?: string[];
   semanticSummary?: AgentSemanticSummary;
@@ -1321,6 +1326,11 @@ type AgentSummary = {
   staticReadinessReasonCode?: AgentStaticReadinessReasonCode;
   staticReadinessReason?: string;
   staticReadinessReadFrom?: string;
+  staticReadinessReadTargetKind?: AgentReadTarget["kind"];
+  staticReadinessReadTargetCount?: number;
+  staticReadinessReadTargetScore?: number;
+  staticReadinessReadTargetPrimary?: boolean;
+  staticReadinessReadTargetReason?: string;
   browserHtmlReason?: string;
   browserHtmlReasonCode?: AgentBrowserHtmlReasonCode;
   browserHtmlActionName?: SuggestedAction["action"];
@@ -3441,6 +3451,11 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.pageDecisionSourceLinkCount === "number" ? [`  pageDecisionSourceLinkCount: ${agent.pageDecisionSourceLinkCount}`] : []),
     ...(typeof agent.pageDecisionSourceQualityScore === "number" ? [`  pageDecisionSourceQualityScore: ${agent.pageDecisionSourceQualityScore}`] : []),
     ...(agent.pageDecisionReadFrom ? [`  pageDecisionReadFrom: ${agent.pageDecisionReadFrom}`] : []),
+    ...(agent.pageDecisionReadTargetKind ? [`  pageDecisionReadTargetKind: ${agent.pageDecisionReadTargetKind}`] : []),
+    ...(typeof agent.pageDecisionReadTargetCount === "number" ? [`  pageDecisionReadTargetCount: ${agent.pageDecisionReadTargetCount}`] : []),
+    ...(typeof agent.pageDecisionReadTargetScore === "number" ? [`  pageDecisionReadTargetScore: ${agent.pageDecisionReadTargetScore}`] : []),
+    ...(typeof agent.pageDecisionReadTargetPrimary === "boolean" ? [`  pageDecisionReadTargetPrimary: ${agent.pageDecisionReadTargetPrimary}`] : []),
+    ...(agent.pageDecisionReadTargetReason ? [`  pageDecisionReadTargetReason: ${agent.pageDecisionReadTargetReason}`] : []),
     ...(agent.pageDecisionUrl ? [`  pageDecisionUrl: ${agent.pageDecisionUrl}`] : []),
     `  summary: ${agent.summary}`,
     `  signalCount: ${agent.signalCount}`,
@@ -3459,6 +3474,11 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.staticReadinessReasonCode ? [`  staticReadinessReasonCode: ${agent.staticReadinessReasonCode}`] : []),
     ...(agent.staticReadinessReason ? [`  staticReadinessReason: ${agent.staticReadinessReason}`] : []),
     ...(agent.staticReadinessReadFrom ? [`  staticReadinessReadFrom: ${agent.staticReadinessReadFrom}`] : []),
+    ...(agent.staticReadinessReadTargetKind ? [`  staticReadinessReadTargetKind: ${agent.staticReadinessReadTargetKind}`] : []),
+    ...(typeof agent.staticReadinessReadTargetCount === "number" ? [`  staticReadinessReadTargetCount: ${agent.staticReadinessReadTargetCount}`] : []),
+    ...(typeof agent.staticReadinessReadTargetScore === "number" ? [`  staticReadinessReadTargetScore: ${agent.staticReadinessReadTargetScore}`] : []),
+    ...(typeof agent.staticReadinessReadTargetPrimary === "boolean" ? [`  staticReadinessReadTargetPrimary: ${agent.staticReadinessReadTargetPrimary}`] : []),
+    ...(agent.staticReadinessReadTargetReason ? [`  staticReadinessReadTargetReason: ${agent.staticReadinessReadTargetReason}`] : []),
     ...(agent.browserHtmlReason ? [`  browserHtmlReason: ${agent.browserHtmlReason}`] : []),
     ...(agent.browserHtmlReasonCode ? [`  browserHtmlReasonCode: ${agent.browserHtmlReasonCode}`] : []),
     ...(agent.browserHtmlActionName ? [`  browserHtmlActionName: ${agent.browserHtmlActionName}`] : []),
@@ -11220,6 +11240,8 @@ function summarizeAgent(
   const nextReadTarget = next.readTarget ?? readTargetFor(next.readFrom);
   const executionPlanReadTarget = readTargetFor(executionPlan.readFrom);
   const answerPlanReadTarget = readTargetFor(answerPlan.readFrom);
+  const pageDecisionReadTarget = readTargetFor(pageDecision?.readFrom);
+  const staticReadinessReadTarget = readTargetFor(staticReadiness.readFrom);
   const executorReadTarget = executor.readTarget ?? readTargetFor(executor.readFrom);
   const handoffReadTarget = handoff.readTarget ?? readTargetFor(handoff.readFrom);
   const agent: AgentSummary = {
@@ -11327,6 +11349,11 @@ function summarizeAgent(
     ...(pageDecision ? { pageDecisionSourceLinkCount: pageDecision.sourceLinkCount } : {}),
     ...(pageDecision ? { pageDecisionSourceQualityScore: pageDecision.sourceQualityScore } : {}),
     ...(pageDecision?.readFrom ? { pageDecisionReadFrom: pageDecision.readFrom } : {}),
+    ...(pageDecisionReadTarget?.kind ? { pageDecisionReadTargetKind: pageDecisionReadTarget.kind } : {}),
+    ...(typeof pageDecisionReadTarget?.count === "number" ? { pageDecisionReadTargetCount: pageDecisionReadTarget.count } : {}),
+    ...(typeof pageDecisionReadTarget?.score === "number" ? { pageDecisionReadTargetScore: pageDecisionReadTarget.score } : {}),
+    ...(typeof pageDecisionReadTarget?.primary === "boolean" ? { pageDecisionReadTargetPrimary: pageDecisionReadTarget.primary } : {}),
+    ...(pageDecisionReadTarget?.reason ? { pageDecisionReadTargetReason: pageDecisionReadTarget.reason } : {}),
     ...(pageDecision?.url ? { pageDecisionUrl: pageDecision.url } : {}),
     ...(pageDecision?.commandArgs ? { pageDecisionCommandArgs: pageDecision.commandArgs } : {}),
     ...(semanticSummary ? { semanticSummary } : {}),
@@ -11673,6 +11700,11 @@ function summarizeAgent(
     staticReadinessReasonCode: staticReadiness.reasonCode,
     staticReadinessReason: staticReadiness.reason,
     ...(staticReadiness.readFrom ? { staticReadinessReadFrom: staticReadiness.readFrom } : {}),
+    ...(staticReadinessReadTarget?.kind ? { staticReadinessReadTargetKind: staticReadinessReadTarget.kind } : {}),
+    ...(typeof staticReadinessReadTarget?.count === "number" ? { staticReadinessReadTargetCount: staticReadinessReadTarget.count } : {}),
+    ...(typeof staticReadinessReadTarget?.score === "number" ? { staticReadinessReadTargetScore: staticReadinessReadTarget.score } : {}),
+    ...(typeof staticReadinessReadTarget?.primary === "boolean" ? { staticReadinessReadTargetPrimary: staticReadinessReadTarget.primary } : {}),
+    ...(staticReadinessReadTarget?.reason ? { staticReadinessReadTargetReason: staticReadinessReadTarget.reason } : {}),
     ...(browserHtmlReason ? { browserHtmlReason } : {}),
     ...(browserHtmlReasonCode ? { browserHtmlReasonCode } : {}),
     ...(next.browserHtml ? { browserHtmlActionName: next.action } : {}),
@@ -16573,6 +16605,11 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.pageDecisionSourceLinkCount === "number" ? { pageDecisionSourceLinkCount: agent.pageDecisionSourceLinkCount } : {}),
     ...(typeof agent.pageDecisionSourceQualityScore === "number" ? { pageDecisionSourceQualityScore: agent.pageDecisionSourceQualityScore } : {}),
     ...(agent.pageDecisionReadFrom ? { pageDecisionReadFrom: agent.pageDecisionReadFrom } : {}),
+    ...(agent.pageDecisionReadTargetKind ? { pageDecisionReadTargetKind: agent.pageDecisionReadTargetKind } : {}),
+    ...(typeof agent.pageDecisionReadTargetCount === "number" ? { pageDecisionReadTargetCount: agent.pageDecisionReadTargetCount } : {}),
+    ...(typeof agent.pageDecisionReadTargetScore === "number" ? { pageDecisionReadTargetScore: agent.pageDecisionReadTargetScore } : {}),
+    ...(typeof agent.pageDecisionReadTargetPrimary === "boolean" ? { pageDecisionReadTargetPrimary: agent.pageDecisionReadTargetPrimary } : {}),
+    ...(agent.pageDecisionReadTargetReason ? { pageDecisionReadTargetReason: agent.pageDecisionReadTargetReason } : {}),
     ...(agent.pageDecisionUrl ? { pageDecisionUrl: agent.pageDecisionUrl } : {}),
     ...(agent.pageDecisionCommandArgs ? { pageDecisionCommandArgs: agent.pageDecisionCommandArgs } : {}),
     ...(agent.semanticSummary ? { semanticSummary: compactAgentSemanticSummary(agent.semanticSummary) } : {}),
@@ -16919,6 +16956,11 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.staticReadinessReasonCode ? { staticReadinessReasonCode: agent.staticReadinessReasonCode } : {}),
     ...(agent.staticReadinessReason ? { staticReadinessReason: agent.staticReadinessReason } : {}),
     ...(agent.staticReadinessReadFrom ? { staticReadinessReadFrom: agent.staticReadinessReadFrom } : {}),
+    ...(agent.staticReadinessReadTargetKind ? { staticReadinessReadTargetKind: agent.staticReadinessReadTargetKind } : {}),
+    ...(typeof agent.staticReadinessReadTargetCount === "number" ? { staticReadinessReadTargetCount: agent.staticReadinessReadTargetCount } : {}),
+    ...(typeof agent.staticReadinessReadTargetScore === "number" ? { staticReadinessReadTargetScore: agent.staticReadinessReadTargetScore } : {}),
+    ...(typeof agent.staticReadinessReadTargetPrimary === "boolean" ? { staticReadinessReadTargetPrimary: agent.staticReadinessReadTargetPrimary } : {}),
+    ...(agent.staticReadinessReadTargetReason ? { staticReadinessReadTargetReason: agent.staticReadinessReadTargetReason } : {}),
     ...(agent.browserHtmlReason ? { browserHtmlReason: agent.browserHtmlReason } : {}),
     ...(agent.browserHtmlReasonCode ? { browserHtmlReasonCode: agent.browserHtmlReasonCode } : {}),
     ...(agent.browserHtmlActionName ? { browserHtmlActionName: agent.browserHtmlActionName } : {}),
@@ -17569,6 +17611,11 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.pageDecisionSourceLinkCount === "number" ? { pageDecisionSourceLinkCount: agent.pageDecisionSourceLinkCount } : {}),
     ...(typeof agent.pageDecisionSourceQualityScore === "number" ? { pageDecisionSourceQualityScore: agent.pageDecisionSourceQualityScore } : {}),
     ...(agent.pageDecisionReadFrom ? { pageDecisionReadFrom: agent.pageDecisionReadFrom } : {}),
+    ...(agent.pageDecisionReadTargetKind ? { pageDecisionReadTargetKind: agent.pageDecisionReadTargetKind } : {}),
+    ...(typeof agent.pageDecisionReadTargetCount === "number" ? { pageDecisionReadTargetCount: agent.pageDecisionReadTargetCount } : {}),
+    ...(typeof agent.pageDecisionReadTargetScore === "number" ? { pageDecisionReadTargetScore: agent.pageDecisionReadTargetScore } : {}),
+    ...(typeof agent.pageDecisionReadTargetPrimary === "boolean" ? { pageDecisionReadTargetPrimary: agent.pageDecisionReadTargetPrimary } : {}),
+    ...(agent.pageDecisionReadTargetReason ? { pageDecisionReadTargetReason: agent.pageDecisionReadTargetReason } : {}),
     ...(agent.pageDecisionUrl ? { pageDecisionUrl: agent.pageDecisionUrl } : {}),
     ...(agent.pageDecisionCommandArgs ? { pageDecisionCommandArgs: agent.pageDecisionCommandArgs } : {}),
     ...(typeof agent.semanticNodeCount === "number" ? { semanticNodeCount: agent.semanticNodeCount } : {}),
@@ -17912,6 +17959,11 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.staticReadinessReasonCode ? { staticReadinessReasonCode: agent.staticReadinessReasonCode } : {}),
     ...(agent.staticReadinessReason ? { staticReadinessReason: agent.staticReadinessReason } : {}),
     ...(agent.staticReadinessReadFrom ? { staticReadinessReadFrom: agent.staticReadinessReadFrom } : {}),
+    ...(agent.staticReadinessReadTargetKind ? { staticReadinessReadTargetKind: agent.staticReadinessReadTargetKind } : {}),
+    ...(typeof agent.staticReadinessReadTargetCount === "number" ? { staticReadinessReadTargetCount: agent.staticReadinessReadTargetCount } : {}),
+    ...(typeof agent.staticReadinessReadTargetScore === "number" ? { staticReadinessReadTargetScore: agent.staticReadinessReadTargetScore } : {}),
+    ...(typeof agent.staticReadinessReadTargetPrimary === "boolean" ? { staticReadinessReadTargetPrimary: agent.staticReadinessReadTargetPrimary } : {}),
+    ...(agent.staticReadinessReadTargetReason ? { staticReadinessReadTargetReason: agent.staticReadinessReadTargetReason } : {}),
     ...(agent.browserHtmlReason ? { browserHtmlReason: agent.browserHtmlReason } : {}),
     ...(agent.browserHtmlReasonCode ? { browserHtmlReasonCode: agent.browserHtmlReasonCode } : {}),
     ...(agent.browserHtmlActionName ? { browserHtmlActionName: agent.browserHtmlActionName } : {}),
