@@ -562,6 +562,11 @@ describe("public agent types", () => {
       | "semanticTopFocusableName"
       | "semanticTopFocusableRoleDescription"
       | "semanticTopFocusableState"
+      | "semanticTopFocusableDisabled"
+      | "semanticTopFocusablePressed"
+      | "semanticTopFocusableExpanded"
+      | "semanticTopFocusableHaspopup"
+      | "semanticTopFocusableControls"
       | "semanticTopFocusableSelector"
       | "semanticTopLinkName"
       | "semanticTopLinkPath"
@@ -1308,6 +1313,7 @@ describe("public agent types", () => {
       semanticTopFocusableName: "Read more",
       semanticTopFocusableRoleDescription: "card link",
       semanticTopFocusableState: "expanded=false",
+      semanticTopFocusableExpanded: false,
       semanticTopFocusableSelector: "main a:nth-of-type(1)",
       semanticTopLinkName: "Read more",
       semanticTopLinkPath: "agent.semanticSummary.links[0]",

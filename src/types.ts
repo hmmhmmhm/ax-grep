@@ -670,6 +670,11 @@ export type AgentSummary = {
   semanticTopFocusableName?: string;
   semanticTopFocusableRoleDescription?: string;
   semanticTopFocusableState?: string;
+  semanticTopFocusableDisabled?: boolean;
+  semanticTopFocusablePressed?: SemanticNodeState["pressed"];
+  semanticTopFocusableExpanded?: boolean;
+  semanticTopFocusableHaspopup?: SemanticNodeState["haspopup"];
+  semanticTopFocusableControls?: string;
   semanticTopFocusableSelector?: string;
   semanticTopLinkName?: string;
   semanticTopLinkPath?: string;
