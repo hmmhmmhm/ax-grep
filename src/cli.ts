@@ -1742,6 +1742,17 @@ type AgentSummary = {
   primarySourceLinkRef?: string;
   primaryRank?: number;
   primaryOpenResult?: number | "best";
+  primaryTargetUrl?: string;
+  primaryTargetPath?: string;
+  primaryTargetTitle?: string;
+  primaryTargetHost?: string;
+  primaryTargetSource?: string;
+  primaryTargetRank?: number;
+  primaryTargetSourceScore?: number;
+  primaryTargetRelevance?: AgentTarget["relevance"];
+  primaryTargetLikelyOfficial?: boolean;
+  primaryTargetSelector?: string;
+  primaryTargetText?: string;
   requiresBrowserInteraction?: boolean;
   primaryAction?: SuggestedAction;
   alternativeActionName?: string;
@@ -3731,6 +3742,17 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.primaryPriority) lines.push(`  primaryPriority: ${agent.primaryPriority}`);
   if (agent.primaryPriorityReason) lines.push(`  primaryPriorityReason: ${agent.primaryPriorityReason}`);
   if (agent.primarySourceLinkRef) lines.push(`  primarySourceLinkRef: ${agent.primarySourceLinkRef}`);
+  if (agent.primaryTargetUrl) lines.push(`  primaryTargetUrl: ${agent.primaryTargetUrl}`);
+  if (agent.primaryTargetPath) lines.push(`  primaryTargetPath: ${agent.primaryTargetPath}`);
+  if (agent.primaryTargetTitle) lines.push(`  primaryTargetTitle: ${agent.primaryTargetTitle}`);
+  if (agent.primaryTargetHost) lines.push(`  primaryTargetHost: ${agent.primaryTargetHost}`);
+  if (agent.primaryTargetSource) lines.push(`  primaryTargetSource: ${agent.primaryTargetSource}`);
+  if (typeof agent.primaryTargetRank === "number") lines.push(`  primaryTargetRank: ${agent.primaryTargetRank}`);
+  if (typeof agent.primaryTargetSourceScore === "number") lines.push(`  primaryTargetSourceScore: ${agent.primaryTargetSourceScore}`);
+  if (agent.primaryTargetRelevance) lines.push(`  primaryTargetRelevance: ${agent.primaryTargetRelevance}`);
+  if (typeof agent.primaryTargetLikelyOfficial === "boolean") lines.push(`  primaryTargetLikelyOfficial: ${agent.primaryTargetLikelyOfficial}`);
+  if (agent.primaryTargetSelector) lines.push(`  primaryTargetSelector: ${agent.primaryTargetSelector}`);
+  if (agent.primaryTargetText) lines.push(`  primaryTargetText: ${agent.primaryTargetText}`);
   if (agent.recommendedUrl) lines.push(`  recommendedUrl: ${agent.recommendedUrl}`);
   if (agent.recommendedPath) lines.push(`  recommendedPath: ${agent.recommendedPath}`);
   if (agent.recommendedTitle) lines.push(`  recommendedTitle: ${agent.recommendedTitle}`);
@@ -11848,6 +11870,17 @@ function summarizeAgent(
     if (primaryAction.sourceLinkRef) agent.primarySourceLinkRef = primaryAction.sourceLinkRef;
     if (primaryAction.rank) agent.primaryRank = primaryAction.rank;
     if (primaryAction.openResult) agent.primaryOpenResult = primaryAction.openResult;
+    if (primaryAction.target?.url) agent.primaryTargetUrl = primaryAction.target.url;
+    if (primaryAction.target?.path) agent.primaryTargetPath = primaryAction.target.path;
+    if (primaryAction.target?.title) agent.primaryTargetTitle = primaryAction.target.title;
+    if (primaryAction.target?.host) agent.primaryTargetHost = primaryAction.target.host;
+    if (primaryAction.target?.source) agent.primaryTargetSource = primaryAction.target.source;
+    if (typeof primaryAction.target?.rank === "number") agent.primaryTargetRank = primaryAction.target.rank;
+    if (typeof primaryAction.target?.sourceScore === "number") agent.primaryTargetSourceScore = primaryAction.target.sourceScore;
+    if (primaryAction.target?.relevance) agent.primaryTargetRelevance = primaryAction.target.relevance;
+    if (typeof primaryAction.target?.isLikelyOfficial === "boolean") agent.primaryTargetLikelyOfficial = primaryAction.target.isLikelyOfficial;
+    if (primaryAction.target?.selector) agent.primaryTargetSelector = primaryAction.target.selector;
+    if (primaryAction.target?.text) agent.primaryTargetText = primaryAction.target.text;
     if (primaryAction.requiresBrowserInteraction) agent.requiresBrowserInteraction = true;
     agent.primaryAction = primaryAction;
   }
@@ -14731,6 +14764,17 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(primaryAction?.url ? { primaryUrl: primaryAction.url } : {}),
     ...(primaryAction?.rank ? { primaryRank: primaryAction.rank } : {}),
     ...(primaryAction?.openResult ? { primaryOpenResult: primaryAction.openResult } : {}),
+    ...(primaryAction?.target?.url ? { primaryTargetUrl: primaryAction.target.url } : {}),
+    ...(primaryAction?.target?.path ? { primaryTargetPath: primaryAction.target.path } : {}),
+    ...(primaryAction?.target?.title ? { primaryTargetTitle: primaryAction.target.title } : {}),
+    ...(primaryAction?.target?.host ? { primaryTargetHost: primaryAction.target.host } : {}),
+    ...(primaryAction?.target?.source ? { primaryTargetSource: primaryAction.target.source } : {}),
+    ...(typeof primaryAction?.target?.rank === "number" ? { primaryTargetRank: primaryAction.target.rank } : {}),
+    ...(typeof primaryAction?.target?.sourceScore === "number" ? { primaryTargetSourceScore: primaryAction.target.sourceScore } : {}),
+    ...(primaryAction?.target?.relevance ? { primaryTargetRelevance: primaryAction.target.relevance } : {}),
+    ...(typeof primaryAction?.target?.isLikelyOfficial === "boolean" ? { primaryTargetLikelyOfficial: primaryAction.target.isLikelyOfficial } : {}),
+    ...(primaryAction?.target?.selector ? { primaryTargetSelector: primaryAction.target.selector } : {}),
+    ...(primaryAction?.target?.text ? { primaryTargetText: primaryAction.target.text } : {}),
     ...(primaryAction?.requiresBrowserInteraction ? { requiresBrowserInteraction: true } : {}),
     ...(primaryAction ? { primaryAction } : {}),
   };
@@ -16826,6 +16870,17 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.primarySourceLinkRef ? { primarySourceLinkRef: agent.primarySourceLinkRef } : {}),
     ...(agent.primaryRank ? { primaryRank: agent.primaryRank } : {}),
     ...(agent.primaryOpenResult ? { primaryOpenResult: agent.primaryOpenResult } : {}),
+    ...(agent.primaryTargetUrl ? { primaryTargetUrl: agent.primaryTargetUrl } : {}),
+    ...(agent.primaryTargetPath ? { primaryTargetPath: agent.primaryTargetPath } : {}),
+    ...(agent.primaryTargetTitle ? { primaryTargetTitle: agent.primaryTargetTitle } : {}),
+    ...(agent.primaryTargetHost ? { primaryTargetHost: agent.primaryTargetHost } : {}),
+    ...(agent.primaryTargetSource ? { primaryTargetSource: agent.primaryTargetSource } : {}),
+    ...(typeof agent.primaryTargetRank === "number" ? { primaryTargetRank: agent.primaryTargetRank } : {}),
+    ...(typeof agent.primaryTargetSourceScore === "number" ? { primaryTargetSourceScore: agent.primaryTargetSourceScore } : {}),
+    ...(agent.primaryTargetRelevance ? { primaryTargetRelevance: agent.primaryTargetRelevance } : {}),
+    ...(typeof agent.primaryTargetLikelyOfficial === "boolean" ? { primaryTargetLikelyOfficial: agent.primaryTargetLikelyOfficial } : {}),
+    ...(agent.primaryTargetSelector ? { primaryTargetSelector: agent.primaryTargetSelector } : {}),
+    ...(agent.primaryTargetText ? { primaryTargetText: agent.primaryTargetText } : {}),
     ...(agent.requiresBrowserInteraction ? { requiresBrowserInteraction: true } : {}),
     ...(agent.primaryAction ? { primaryAction: compactAgentAction(agent.primaryAction) } : {}),
     ...(agent.actions.length > 0 ? { actions: compactAgentActionList(agent.actions.map((action) => compactAgentActionSummary(action, agent.primaryAction, agent.primaryUrl))) } : {}),
@@ -17704,6 +17759,17 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.primarySourceLinkRef ? { primarySourceLinkRef: agent.primarySourceLinkRef } : {}),
     ...(agent.primaryRank ? { primaryRank: agent.primaryRank } : {}),
     ...(agent.primaryOpenResult ? { primaryOpenResult: agent.primaryOpenResult } : {}),
+    ...(agent.primaryTargetUrl ? { primaryTargetUrl: agent.primaryTargetUrl } : {}),
+    ...(agent.primaryTargetPath ? { primaryTargetPath: agent.primaryTargetPath } : {}),
+    ...(agent.primaryTargetTitle ? { primaryTargetTitle: agent.primaryTargetTitle } : {}),
+    ...(agent.primaryTargetHost ? { primaryTargetHost: agent.primaryTargetHost } : {}),
+    ...(agent.primaryTargetSource ? { primaryTargetSource: agent.primaryTargetSource } : {}),
+    ...(typeof agent.primaryTargetRank === "number" ? { primaryTargetRank: agent.primaryTargetRank } : {}),
+    ...(typeof agent.primaryTargetSourceScore === "number" ? { primaryTargetSourceScore: agent.primaryTargetSourceScore } : {}),
+    ...(agent.primaryTargetRelevance ? { primaryTargetRelevance: agent.primaryTargetRelevance } : {}),
+    ...(typeof agent.primaryTargetLikelyOfficial === "boolean" ? { primaryTargetLikelyOfficial: agent.primaryTargetLikelyOfficial } : {}),
+    ...(agent.primaryTargetSelector ? { primaryTargetSelector: agent.primaryTargetSelector } : {}),
+    ...(agent.primaryTargetText ? { primaryTargetText: agent.primaryTargetText } : {}),
     ...(agent.requiresBrowserInteraction ? { requiresBrowserInteraction: true } : {}),
     ...(agent.primaryAction ? { primaryAction: compactAgentAction(agent.primaryAction, agent.primaryUrl ? { primaryUrl: agent.primaryUrl } : {}) } : {}),
     ...compactAgentRecommended(agent, searchCommandContext, pageLinkContext),

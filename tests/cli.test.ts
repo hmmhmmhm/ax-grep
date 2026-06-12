@@ -1258,6 +1258,17 @@ describe("cli", () => {
       if (executor.readFrom) expect(envelope.agent.executorReadFrom).toBe(executor.readFrom);
       if (executor.url) expect(envelope.agent.executorUrl).toBe(executor.url);
       if (item.args[0] === "--search") expect(envelope.agent.searchDecisionReason).toEqual(expect.any(String));
+      if (envelope.agent.primaryAction?.target?.url) expect(envelope.agent.primaryTargetUrl).toBe(envelope.agent.primaryAction.target.url);
+      if (envelope.agent.primaryAction?.target?.path) expect(envelope.agent.primaryTargetPath).toBe(envelope.agent.primaryAction.target.path);
+      if (envelope.agent.primaryAction?.target?.title) expect(envelope.agent.primaryTargetTitle).toBe(envelope.agent.primaryAction.target.title);
+      if (envelope.agent.primaryAction?.target?.host) expect(envelope.agent.primaryTargetHost).toBe(envelope.agent.primaryAction.target.host);
+      if (envelope.agent.primaryAction?.target?.source) expect(envelope.agent.primaryTargetSource).toBe(envelope.agent.primaryAction.target.source);
+      if (typeof envelope.agent.primaryAction?.target?.rank === "number") expect(envelope.agent.primaryTargetRank).toBe(envelope.agent.primaryAction.target.rank);
+      if (typeof envelope.agent.primaryAction?.target?.sourceScore === "number") expect(envelope.agent.primaryTargetSourceScore).toBe(envelope.agent.primaryAction.target.sourceScore);
+      if (envelope.agent.primaryAction?.target?.relevance) expect(envelope.agent.primaryTargetRelevance).toBe(envelope.agent.primaryAction.target.relevance);
+      if (typeof envelope.agent.primaryAction?.target?.isLikelyOfficial === "boolean") expect(envelope.agent.primaryTargetLikelyOfficial).toBe(envelope.agent.primaryAction.target.isLikelyOfficial);
+      if (envelope.agent.primaryAction?.target?.selector) expect(envelope.agent.primaryTargetSelector).toBe(envelope.agent.primaryAction.target.selector);
+      if (envelope.agent.primaryAction?.target?.text) expect(envelope.agent.primaryTargetText).toBe(envelope.agent.primaryAction.target.text);
       if (executor.target?.url) expect(envelope.agent.executorTargetUrl).toBe(executor.target.url);
       if (executor.target?.path) expect(envelope.agent.executorTargetPath).toBe(executor.target.path);
       if (executor.target?.title) expect(envelope.agent.executorTargetTitle).toBe(executor.target.title);

@@ -999,6 +999,17 @@ describe("public agent types", () => {
       | "primaryPriority"
       | "primaryPriorityReason"
       | "primarySourceLinkRef"
+      | "primaryTargetUrl"
+      | "primaryTargetPath"
+      | "primaryTargetTitle"
+      | "primaryTargetHost"
+      | "primaryTargetSource"
+      | "primaryTargetRank"
+      | "primaryTargetSourceScore"
+      | "primaryTargetRelevance"
+      | "primaryTargetLikelyOfficial"
+      | "primaryTargetSelector"
+      | "primaryTargetText"
       | "alternativeActionName"
       | "alternativeActionSource"
       | "alternativeActionExecution"
@@ -1833,6 +1844,17 @@ describe("public agent types", () => {
       primaryPriority: "high",
       primaryPriorityReason: "Readable content is available.",
       primarySourceLinkRef: "pageCheck.sourceLinks[0]",
+      primaryTargetUrl: "https://example.test",
+      primaryTargetPath: "pageCheck.links[0]",
+      primaryTargetTitle: "Example target",
+      primaryTargetHost: "example.test",
+      primaryTargetSource: "source-link",
+      primaryTargetRank: 1,
+      primaryTargetSourceScore: 0.92,
+      primaryTargetRelevance: "high",
+      primaryTargetLikelyOfficial: true,
+      primaryTargetSelector: "a.primary",
+      primaryTargetText: "Read more",
       alternativeActionName: "open-source-link",
       alternativeActionSource: "pageCheck.nextSteps",
       alternativeActionExecution: "run-command",
@@ -1935,6 +1957,9 @@ describe("public agent types", () => {
     expect(summary.handoffTargetRelevance).toBe("high");
     expect(summary.primaryActionName).toBe("read-content");
     expect(summary.primarySourceLinkRef).toBe("pageCheck.sourceLinks[0]");
+    expect(summary.primaryTargetTitle).toBe("Example target");
+    expect(summary.primaryTargetSourceScore).toBe(0.92);
+    expect(summary.primaryTargetLikelyOfficial).toBe(true);
     expect(summary.alternativeActionName).toBe("open-source-link");
     expect(summary.alternativeActionCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.recommendedPath).toBe("recommendedResult");

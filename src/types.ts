@@ -1393,6 +1393,17 @@ export type AgentSummary = {
   primarySourceLinkRef?: string;
   primaryRank?: number;
   primaryOpenResult?: number | "best";
+  primaryTargetUrl?: string;
+  primaryTargetPath?: string;
+  primaryTargetTitle?: string;
+  primaryTargetHost?: string;
+  primaryTargetSource?: string;
+  primaryTargetRank?: number;
+  primaryTargetSourceScore?: number;
+  primaryTargetRelevance?: AgentTarget["relevance"];
+  primaryTargetLikelyOfficial?: boolean;
+  primaryTargetSelector?: string;
+  primaryTargetText?: string;
   requiresBrowserInteraction?: boolean;
   primaryAction?: AgentAction;
   alternativeActionName?: string;
