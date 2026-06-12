@@ -1623,6 +1623,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topAnswerEvidenceUrl?: string;
       topAnswerEvidenceConfidence?: CliAgentCitationShape["confidence"];
       topAnswerEvidenceReason?: string;
+      topAnswerEvidenceScore?: number;
       readTargetCount?: number;
       actionCount?: number;
       topActionName?: string;
@@ -7503,6 +7504,7 @@ function scoreAgentAnswerShortcuts(agent: {
   topAnswerEvidenceUrl?: string;
   topAnswerEvidenceConfidence?: CliAgentCitationShape["confidence"];
   topAnswerEvidenceReason?: string;
+  topAnswerEvidenceScore?: number;
   answerPlanStatus?: CliAgentAnswerPlanShape["status"];
   answerPlanConfidence?: CliAgentAnswerPlanShape["confidence"];
   answerPlanReason?: string;
@@ -7607,6 +7609,12 @@ function scoreAgentAnswerShortcuts(agent: {
       required += 1;
       if (agent.topAnswerEvidenceReason === topEvidence.reason) matched += 1;
     } else if (agent.topAnswerEvidenceReason) {
+      required += 1;
+    }
+    if (typeof topEvidence.score === "number") {
+      required += 1;
+      if (agent.topAnswerEvidenceScore === topEvidence.score) matched += 1;
+    } else if (typeof agent.topAnswerEvidenceScore === "number") {
       required += 1;
     }
   } else if (agent.topAnswerEvidenceId || agent.topAnswerEvidencePath || agent.topAnswerEvidenceKind) {

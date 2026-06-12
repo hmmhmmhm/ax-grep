@@ -481,6 +481,7 @@ describe("public agent types", () => {
       | "topAnswerEvidenceUrl"
       | "topAnswerEvidenceConfidence"
       | "topAnswerEvidenceReason"
+      | "topAnswerEvidenceScore"
       | "searchDecisionName"
       | "searchDecisionConfidence"
       | "searchDecisionReason"
@@ -1299,6 +1300,7 @@ describe("public agent types", () => {
       topAnswerEvidenceUrl: "https://example.test",
       topAnswerEvidenceConfidence: "high",
       topAnswerEvidenceReason: "Primary answer evidence.",
+      topAnswerEvidenceScore: 0.9,
       searchDecisionName: "open-result",
       searchDecisionConfidence: "high",
       searchDecisionReason: "Use the best result.",
@@ -1861,6 +1863,7 @@ describe("public agent types", () => {
     expect(summary.topDiagnosticCode).toBe("NO_USEFUL_LINKS");
     expect(summary.topCitationPath).toBe("pageCheck.contentEvidence[0]");
     expect(summary.topAnswerEvidencePath).toBe("pageCheck.contentEvidence[0]");
+    expect(summary.topAnswerEvidenceScore).toBe(0.9);
     expect(summary.answerPlanStatus).toBe("ready");
     expect(summary.answerPlanNextAction).toBe("read-content");
     expect(summary.nextActionName).toBe("read-content");

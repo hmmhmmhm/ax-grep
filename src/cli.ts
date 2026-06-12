@@ -1623,6 +1623,7 @@ type AgentSummary = {
   topAnswerEvidenceUrl?: string;
   topAnswerEvidenceConfidence?: AgentCitation["confidence"];
   topAnswerEvidenceReason?: string;
+  topAnswerEvidenceScore?: number;
   answerPlanStatus?: AgentAnswerPlan["status"];
   answerPlanConfidence?: AgentAnswerPlan["confidence"];
   answerPlanReason?: string;
@@ -3475,7 +3476,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topCitationUrl ? [`  topCitationUrl: ${agent.topCitationUrl}`] : []),
     ...(agent.topCitationReason ? [`  topCitationReason: ${agent.topCitationReason}`] : []),
     `  answerEvidenceCount: ${agent.answerEvidenceCount}`,
-    ...(agent.topAnswerEvidenceId ? [`  topAnswerEvidence: ${agent.topAnswerEvidenceId} ${agent.topAnswerEvidencePath}${agent.topAnswerEvidenceText ? ` - ${agent.topAnswerEvidenceText}` : ""}`] : []),
+    ...(agent.topAnswerEvidenceId ? [`  topAnswerEvidence: ${agent.topAnswerEvidenceId} ${agent.topAnswerEvidencePath}${typeof agent.topAnswerEvidenceScore === "number" ? ` score=${agent.topAnswerEvidenceScore}` : ""}${agent.topAnswerEvidenceText ? ` - ${agent.topAnswerEvidenceText}` : ""}`] : []),
     `  readTargetCount: ${agent.readTargetCount}`,
     ...(agent.topReadTarget ? [`  topReadTarget: ${agent.topReadTarget}`] : []),
     ...(typeof agent.topReadTargetCount === "number" ? [`  topReadTargetCount: ${agent.topReadTargetCount}`] : []),
@@ -11662,6 +11663,7 @@ function summarizeAgent(
     ...(answerEvidence[0]?.url ? { topAnswerEvidenceUrl: answerEvidence[0].url } : {}),
     ...(answerEvidence[0]?.confidence ? { topAnswerEvidenceConfidence: answerEvidence[0].confidence } : {}),
     ...(answerEvidence[0]?.reason ? { topAnswerEvidenceReason: answerEvidence[0].reason } : {}),
+    ...(typeof answerEvidence[0]?.score === "number" ? { topAnswerEvidenceScore: answerEvidence[0].score } : {}),
     answerPlanStatus: answerPlan.status,
     answerPlanConfidence: answerPlan.confidence,
     answerPlanReason: answerPlan.reason,
@@ -16598,6 +16600,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topAnswerEvidenceUrl ? { topAnswerEvidenceUrl: agent.topAnswerEvidenceUrl } : {}),
     ...(agent.topAnswerEvidenceConfidence ? { topAnswerEvidenceConfidence: agent.topAnswerEvidenceConfidence } : {}),
     ...(agent.topAnswerEvidenceReason ? { topAnswerEvidenceReason: agent.topAnswerEvidenceReason } : {}),
+    ...(typeof agent.topAnswerEvidenceScore === "number" ? { topAnswerEvidenceScore: agent.topAnswerEvidenceScore } : {}),
     ...(agent.answerPlanStatus ? { answerPlanStatus: agent.answerPlanStatus } : {}),
     ...(agent.answerPlanConfidence ? { answerPlanConfidence: agent.answerPlanConfidence } : {}),
     ...(agent.answerPlanReason ? { answerPlanReason: agent.answerPlanReason } : {}),
@@ -17448,6 +17451,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topAnswerEvidenceUrl ? { topAnswerEvidenceUrl: agent.topAnswerEvidenceUrl } : {}),
     ...(agent.topAnswerEvidenceConfidence ? { topAnswerEvidenceConfidence: agent.topAnswerEvidenceConfidence } : {}),
     ...(agent.topAnswerEvidenceReason ? { topAnswerEvidenceReason: agent.topAnswerEvidenceReason } : {}),
+    ...(typeof agent.topAnswerEvidenceScore === "number" ? { topAnswerEvidenceScore: agent.topAnswerEvidenceScore } : {}),
     ...(agent.answerPlanStatus ? { answerPlanStatus: agent.answerPlanStatus } : {}),
     ...(agent.answerPlanConfidence ? { answerPlanConfidence: agent.answerPlanConfidence } : {}),
     ...(agent.answerPlanReason ? { answerPlanReason: agent.answerPlanReason } : {}),

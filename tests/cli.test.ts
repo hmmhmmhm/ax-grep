@@ -1289,6 +1289,7 @@ describe("cli", () => {
         expect(envelope.agent.topAnswerEvidenceKind).toBe(topAnswerEvidence.kind);
         if (topAnswerEvidence.text) expect(envelope.agent.topAnswerEvidenceText).toBe(topAnswerEvidence.text);
         if (topAnswerEvidence.url) expect(envelope.agent.topAnswerEvidenceUrl).toBe(topAnswerEvidence.url);
+        if (typeof topAnswerEvidence.score === "number") expect(envelope.agent.topAnswerEvidenceScore).toBe(topAnswerEvidence.score);
       }
       if (handoff.useCitationIds?.length) expect(envelope.agent.answerUseCitationIds).toEqual(handoff.useCitationIds);
       if (handoff.readFrom) expect(envelope.agent.answerPlanReadFrom).toBe(handoff.readFrom);

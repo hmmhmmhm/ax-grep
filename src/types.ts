@@ -1280,6 +1280,7 @@ export type AgentSummary = {
   topAnswerEvidenceUrl?: string;
   topAnswerEvidenceConfidence?: AgentCitation["confidence"];
   topAnswerEvidenceReason?: string;
+  topAnswerEvidenceScore?: number;
   answerPlanStatus?: AgentAnswerPlan["status"];
   answerPlanConfidence?: AgentAnswerPlan["confidence"];
   answerPlanReason?: string;
