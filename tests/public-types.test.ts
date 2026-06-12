@@ -430,6 +430,7 @@ describe("public agent types", () => {
       | "sourceSearchSelectedRank"
       | "sourceSearchSelectedTitle"
       | "sourceSearchSelectedUrl"
+      | "sourceSearchSelectedHost"
       | "sourceSearchSelectedPath"
       | "sourceSearchSelectedOpenResult"
       | "sourceSearchSelectedCommandArgs"
@@ -438,6 +439,7 @@ describe("public agent types", () => {
       | "sourceSearchAlternatePath"
       | "sourceSearchAlternateTitle"
       | "sourceSearchAlternateUrl"
+      | "sourceSearchAlternateHost"
       | "sourceSearchAlternateRank"
       | "sourceSearchAlternateOpenResult"
       | "sourceSearchAlternateCommandArgs"
@@ -1161,6 +1163,7 @@ describe("public agent types", () => {
       sourceSearchSelectedRank: 2,
       sourceSearchSelectedTitle: "ax-grep documentation",
       sourceSearchSelectedUrl: "https://source.example/result",
+      sourceSearchSelectedHost: "source.example",
       sourceSearchSelectedPath: "sourceSearch.selectedResult",
       sourceSearchSelectedOpenResult: 2,
       sourceSearchSelectedCommandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "2", "--agent"],
@@ -1169,6 +1172,7 @@ describe("public agent types", () => {
       sourceSearchAlternatePath: "sourceSearch.alternateResults[0]",
       sourceSearchAlternateTitle: "ax-grep mirror",
       sourceSearchAlternateUrl: "https://mirror.example/result",
+      sourceSearchAlternateHost: "mirror.example",
       sourceSearchAlternateRank: 3,
       sourceSearchAlternateOpenResult: 3,
       sourceSearchAlternateCommandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "3", "--agent"],

@@ -1505,6 +1505,7 @@ type AgentSummary = {
   sourceSearchSelectedRank?: number;
   sourceSearchSelectedTitle?: string;
   sourceSearchSelectedUrl?: string;
+  sourceSearchSelectedHost?: string;
   sourceSearchSelectedPath?: string;
   sourceSearchSelectedOpenResult?: AgentSourceSearchResult["openResult"];
   sourceSearchSelectedCommandArgs?: string[];
@@ -1513,6 +1514,7 @@ type AgentSummary = {
   sourceSearchAlternatePath?: string;
   sourceSearchAlternateTitle?: string;
   sourceSearchAlternateUrl?: string;
+  sourceSearchAlternateHost?: string;
   sourceSearchAlternateRank?: number;
   sourceSearchAlternateOpenResult?: AgentSourceSearchResult["openResult"];
   sourceSearchAlternateCommandArgs?: string[];
@@ -3351,6 +3353,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.sourceSearchSelectedRank === "number" ? [`  sourceSearchSelectedRank: ${agent.sourceSearchSelectedRank}`] : []),
     ...(agent.sourceSearchSelectedTitle ? [`  sourceSearchSelectedTitle: ${agent.sourceSearchSelectedTitle}`] : []),
     ...(agent.sourceSearchSelectedUrl ? [`  sourceSearchSelectedUrl: ${agent.sourceSearchSelectedUrl}`] : []),
+    ...(agent.sourceSearchSelectedHost ? [`  sourceSearchSelectedHost: ${agent.sourceSearchSelectedHost}`] : []),
     ...(agent.sourceSearchSelectedPath ? [`  sourceSearchSelectedPath: ${agent.sourceSearchSelectedPath}`] : []),
     ...(agent.sourceSearchSelectedOpenResult ? [`  sourceSearchSelectedOpenResult: ${agent.sourceSearchSelectedOpenResult}`] : []),
     ...(agent.sourceSearchSelectedCommandArgs ? [`  sourceSearchSelectedCommandArgs: ${JSON.stringify(agent.sourceSearchSelectedCommandArgs)}`] : []),
@@ -3358,6 +3361,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  sourceSearchAlternateCount: ${agent.sourceSearchAlternateCount}`,
     ...(agent.sourceSearchAlternatePath ? [`  sourceSearchAlternatePath: ${agent.sourceSearchAlternatePath}`] : []),
     ...(agent.sourceSearchAlternateUrl ? [`  sourceSearchAlternateUrl: ${agent.sourceSearchAlternateUrl}`] : []),
+    ...(agent.sourceSearchAlternateHost ? [`  sourceSearchAlternateHost: ${agent.sourceSearchAlternateHost}`] : []),
     ...(agent.sourceSearchAlternateTitle ? [`  sourceSearchAlternateTitle: ${agent.sourceSearchAlternateTitle}`] : []),
     ...(typeof agent.sourceSearchAlternateRank === "number" ? [`  sourceSearchAlternateRank: ${agent.sourceSearchAlternateRank}`] : []),
     ...(agent.sourceSearchAlternateOpenResult ? [`  sourceSearchAlternateOpenResult: ${agent.sourceSearchAlternateOpenResult}`] : []),
@@ -11412,6 +11416,7 @@ function summarizeAgent(
     ...(sourceSearch ? { sourceSearchSelectedRank: sourceSearch.selectedRank } : {}),
     ...(sourceSearch ? { sourceSearchSelectedTitle: sourceSearch.selectedTitle } : {}),
     ...(sourceSearch ? { sourceSearchSelectedUrl: sourceSearch.selectedUrl } : {}),
+    ...(sourceSearchSelectedResult?.host ? { sourceSearchSelectedHost: sourceSearchSelectedResult.host } : {}),
     ...(sourceSearchSelectedResult ? { sourceSearchSelectedPath: sourceSearchSelectedResult.path } : {}),
     ...(sourceSearchSelectedResult?.openResult ? { sourceSearchSelectedOpenResult: sourceSearchSelectedResult.openResult } : {}),
     ...(sourceSearchSelectedResult?.commandArgs ? { sourceSearchSelectedCommandArgs: sourceSearchSelectedResult.commandArgs } : {}),
@@ -11420,6 +11425,7 @@ function summarizeAgent(
     ...(sourceSearchAlternateResult ? { sourceSearchAlternatePath: sourceSearchAlternateResult.path } : {}),
     ...(sourceSearchAlternateResult?.title ? { sourceSearchAlternateTitle: sourceSearchAlternateResult.title } : {}),
     ...(sourceSearchAlternateResult?.url ? { sourceSearchAlternateUrl: sourceSearchAlternateResult.url } : {}),
+    ...(sourceSearchAlternateResult?.host ? { sourceSearchAlternateHost: sourceSearchAlternateResult.host } : {}),
     ...(typeof sourceSearchAlternateResult?.rank === "number" ? { sourceSearchAlternateRank: sourceSearchAlternateResult.rank } : {}),
     ...(sourceSearchAlternateResult?.openResult ? { sourceSearchAlternateOpenResult: sourceSearchAlternateResult.openResult } : {}),
     ...(sourceSearchAlternateResult?.commandArgs ? { sourceSearchAlternateCommandArgs: sourceSearchAlternateResult.commandArgs } : {}),
@@ -14239,6 +14245,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(sourceSearch ? { sourceSearchSelectedRank: sourceSearch.selectedRank } : {}),
     ...(sourceSearch ? { sourceSearchSelectedTitle: sourceSearch.selectedTitle } : {}),
     ...(sourceSearch ? { sourceSearchSelectedUrl: sourceSearch.selectedUrl } : {}),
+    ...(sourceSearchSelectedResult?.host ? { sourceSearchSelectedHost: sourceSearchSelectedResult.host } : {}),
     ...(sourceSearchSelectedResult ? { sourceSearchSelectedPath: sourceSearchSelectedResult.path } : {}),
     ...(sourceSearchSelectedResult?.openResult ? { sourceSearchSelectedOpenResult: sourceSearchSelectedResult.openResult } : {}),
     ...(sourceSearchSelectedResult?.commandArgs ? { sourceSearchSelectedCommandArgs: sourceSearchSelectedResult.commandArgs } : {}),
@@ -14246,6 +14253,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(sourceSearchAlternateResult ? { sourceSearchAlternatePath: sourceSearchAlternateResult.path } : {}),
     ...(sourceSearchAlternateResult?.title ? { sourceSearchAlternateTitle: sourceSearchAlternateResult.title } : {}),
     ...(sourceSearchAlternateResult?.url ? { sourceSearchAlternateUrl: sourceSearchAlternateResult.url } : {}),
+    ...(sourceSearchAlternateResult?.host ? { sourceSearchAlternateHost: sourceSearchAlternateResult.host } : {}),
     ...(typeof sourceSearchAlternateResult?.rank === "number" ? { sourceSearchAlternateRank: sourceSearchAlternateResult.rank } : {}),
     ...(sourceSearchAlternateResult?.openResult ? { sourceSearchAlternateOpenResult: sourceSearchAlternateResult.openResult } : {}),
     ...(sourceSearchAlternateResult?.commandArgs ? { sourceSearchAlternateCommandArgs: sourceSearchAlternateResult.commandArgs } : {}),
@@ -16179,6 +16187,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.sourceSearchSelectedRank === "number" ? { sourceSearchSelectedRank: agent.sourceSearchSelectedRank } : {}),
     ...(agent.sourceSearchSelectedTitle ? { sourceSearchSelectedTitle: agent.sourceSearchSelectedTitle } : {}),
     ...(agent.sourceSearchSelectedUrl ? { sourceSearchSelectedUrl: agent.sourceSearchSelectedUrl } : {}),
+    ...(agent.sourceSearchSelectedHost ? { sourceSearchSelectedHost: agent.sourceSearchSelectedHost } : {}),
     ...(agent.sourceSearchSelectedPath ? { sourceSearchSelectedPath: agent.sourceSearchSelectedPath } : {}),
     ...(agent.sourceSearchSelectedOpenResult ? { sourceSearchSelectedOpenResult: agent.sourceSearchSelectedOpenResult } : {}),
     ...(agent.sourceSearchSelectedCommandArgs ? { sourceSearchSelectedCommandArgs: agent.sourceSearchSelectedCommandArgs } : {}),
@@ -16187,6 +16196,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.sourceSearchAlternatePath ? { sourceSearchAlternatePath: agent.sourceSearchAlternatePath } : {}),
     ...(agent.sourceSearchAlternateTitle ? { sourceSearchAlternateTitle: agent.sourceSearchAlternateTitle } : {}),
     ...(agent.sourceSearchAlternateUrl ? { sourceSearchAlternateUrl: agent.sourceSearchAlternateUrl } : {}),
+    ...(agent.sourceSearchAlternateHost ? { sourceSearchAlternateHost: agent.sourceSearchAlternateHost } : {}),
     ...(typeof agent.sourceSearchAlternateRank === "number" ? { sourceSearchAlternateRank: agent.sourceSearchAlternateRank } : {}),
     ...(agent.sourceSearchAlternateOpenResult ? { sourceSearchAlternateOpenResult: agent.sourceSearchAlternateOpenResult } : {}),
     ...(agent.sourceSearchAlternateCommandArgs ? { sourceSearchAlternateCommandArgs: agent.sourceSearchAlternateCommandArgs } : {}),
@@ -16864,6 +16874,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.sourceSearchSelectedRank === "number" ? { sourceSearchSelectedRank: agent.sourceSearchSelectedRank } : {}),
     ...(agent.sourceSearchSelectedTitle ? { sourceSearchSelectedTitle: agent.sourceSearchSelectedTitle } : {}),
     ...(agent.sourceSearchSelectedUrl ? { sourceSearchSelectedUrl: agent.sourceSearchSelectedUrl } : {}),
+    ...(agent.sourceSearchSelectedHost ? { sourceSearchSelectedHost: agent.sourceSearchSelectedHost } : {}),
     ...(agent.sourceSearchSelectedPath ? { sourceSearchSelectedPath: agent.sourceSearchSelectedPath } : {}),
     ...(agent.sourceSearchSelectedOpenResult ? { sourceSearchSelectedOpenResult: agent.sourceSearchSelectedOpenResult } : {}),
     ...(agent.sourceSearchSelectedCommandArgs ? { sourceSearchSelectedCommandArgs: agent.sourceSearchSelectedCommandArgs } : {}),
@@ -16872,6 +16883,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.sourceSearchAlternatePath ? { sourceSearchAlternatePath: agent.sourceSearchAlternatePath } : {}),
     ...(agent.sourceSearchAlternateTitle ? { sourceSearchAlternateTitle: agent.sourceSearchAlternateTitle } : {}),
     ...(agent.sourceSearchAlternateUrl ? { sourceSearchAlternateUrl: agent.sourceSearchAlternateUrl } : {}),
+    ...(agent.sourceSearchAlternateHost ? { sourceSearchAlternateHost: agent.sourceSearchAlternateHost } : {}),
     ...(typeof agent.sourceSearchAlternateRank === "number" ? { sourceSearchAlternateRank: agent.sourceSearchAlternateRank } : {}),
     ...(agent.sourceSearchAlternateOpenResult ? { sourceSearchAlternateOpenResult: agent.sourceSearchAlternateOpenResult } : {}),
     ...(agent.sourceSearchAlternateCommandArgs ? { sourceSearchAlternateCommandArgs: agent.sourceSearchAlternateCommandArgs } : {}),

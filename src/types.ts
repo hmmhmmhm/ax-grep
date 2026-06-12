@@ -1141,6 +1141,7 @@ export type AgentSummary = {
   sourceSearchSelectedRank?: number;
   sourceSearchSelectedTitle?: string;
   sourceSearchSelectedUrl?: string;
+  sourceSearchSelectedHost?: string;
   sourceSearchSelectedPath?: string;
   sourceSearchSelectedOpenResult?: number | "best";
   sourceSearchSelectedCommandArgs?: string[];
@@ -1149,6 +1150,7 @@ export type AgentSummary = {
   sourceSearchAlternatePath?: string;
   sourceSearchAlternateTitle?: string;
   sourceSearchAlternateUrl?: string;
+  sourceSearchAlternateHost?: string;
   sourceSearchAlternateRank?: number;
   sourceSearchAlternateOpenResult?: number | "best";
   sourceSearchAlternateCommandArgs?: string[];

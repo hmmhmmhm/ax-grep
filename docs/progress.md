@@ -16,7 +16,7 @@ percentage as a fixed contract.
 | --- | ---: | --- |
 | README/docs hygiene | 90% | Root README is short; detailed docs live under `docs/`. |
 | Process safety | 85% | `AGENTS.md`, `pnpm check:processes`, and non-browser gates are in place. |
-| Search result handoff | 82% | Result choices, host shortcuts, source hints, verification, decision counts, and command args are exposed. |
+| Search result handoff | 83% | Result choices, host shortcuts, source-search selected/alternate host shortcuts, source hints, verification, decision counts, and command args are exposed. |
 | Page check handoff | 86% | Forms, action targets, table navigation shortcuts, hidden signal group counts/top shortcuts/selectors, static-readiness reasons, browser-capture reasons/codes/execution shortcuts, barriers, and read targets are exposed. |
 | Semantic accessibility signals | 78% | Landmarks, headings, links, buttons, fields, values, relations, choices, states, list item refs, and table header/cell navigation shortcuts are exposed. |
 | Browser-tree parity research | 60% | Static gates exist; browser-backed checks must stay sequential and limited. |
@@ -58,7 +58,7 @@ estimate whether the overall percentage should move.
 | ID | Item | Progress | Current output | Still needed | Completion signal | Estimate impact |
 | --- | --- | ---: | --- | --- | --- | ---: |
 | A1 | Answer/evidence citation shortcuts | 100% | Top-level citation count and first citation id were implemented, validated, committed, and pushed. | Watch for regressions only. | Typecheck, focused CLI tests, static comparison gate, readiness audit, and process check passed. | Landed. |
-| A2 | Static-vs-browser gap ledger | 45% | Research scope ledger exists and requires every new signal to be tracked. | Add observed gap rows from the next sequential fixture comparison instead of generic placeholders. | Each new gap has source, priority, decision, status, and next command. | +3-5% to browser parity research. |
+| A2 | Static-vs-browser gap ledger | 55% | Research scope ledger exists and observed gap rows now track evidence, decision, status, validation, and estimate impact. | Add new rows whenever comparison finds a browser-tree or handoff signal not represented in static output. | Each new gap has source, priority, decision, status, and next command. | +2-4% to browser parity research. |
 | A3 | Table/grid ownership research | 65% | Header refs now include path, role, row/column index, sort state, and selector; cell refs keep row/column/header context. | Decide whether deeper grid ownership such as `aria-owns`/virtualized rows needs separate table-level shortcuts. | Either implement missing static shortcuts or mark as `browser-only`/`defer` with evidence. | +1-3% more to semantic accessibility. |
 | A4 | Browser fallback policy | 70% | Browser HTML reason/code/action/operation/args/capture shortcuts and static-readiness status/reason/readFrom shortcuts exist. | Add more observed low-content, blocked, client-rendered, and interaction-required categories. | Fixtures show clear `use static` or `need browser capture` reasons without manual interpretation. | +1-3% more to page handoff. |
 | A5 | Process-safety guardrails | 85% | `AGENTS.md`, progress rules, and `pnpm check:processes` are in place. | Keep every validation run sequential and document any browser-backed exception before running it. | No leftover browser/test/comparison processes before final handoff. | Prevents regression rather than raising feature %. |
@@ -95,6 +95,17 @@ estimates stay honest.
 | Browser-only fallback reasons for client-rendered or blocked pages. | Failed or low-content page checks. | P1 | Added `staticReadiness`, `staticReadinessReason`, and `staticReadinessReadFrom` so agents can distinguish usable content, structured data, hidden app data, thin output, and browser-required cases. | In progress. |
 | Search-result provenance and failed-open reasons. | Search handoff review. | P2 | Added result/source choice host shortcuts so agents can compare provenance without parsing URLs; keep failed-open reason work as a candidate. | In progress. |
 | Additional browser accessibility-tree signals discovered during sequential comparison. | Future research. | P1/P2 after triage. | Add to this ledger, then classify as `implement`, `browser-only`, or `defer`. | Watch. |
+
+## Observed Gap Records
+
+Use this table to keep research scope honest. A row can raise or lower the
+percentage depending on whether it is implemented, documented as browser-only,
+or deferred.
+
+| ID | Observed gap | Evidence | Priority | Decision | Status | Validation / next command | Estimate impact |
+| --- | --- | --- | --- | --- | --- | --- | ---: |
+| G1 | `--open-result` failure recovery exposed selected/alternate result metadata, but not selected/alternate hosts as top-level shortcuts. Agents had to parse URLs or nested `sourceSearch` objects before choosing a replacement result. | `tests/cli.test.ts` missing-result fixture and source-search shortcut review. | P2 | Implement top-level `sourceSearchSelectedHost` and `sourceSearchAlternateHost`; keep failed-open reason categories as a later candidate. | Landed. | Typecheck, focused CLI/public type tests, readiness audit, static fixture gate, README test, diff check, and process check passed. | +1% search handoff. |
+| G2 | Browser accessibility-tree comparison may reveal signals that static HTML cannot safely infer. | Future sequential fixture comparison only; no broad browser run allowed. | P1 after evidence | Track first, then classify as `implement`, `browser-only`, or `defer`. | Watch. | Add the smallest fixture command here before running any browser-backed check; run `pnpm check:processes` afterward. | Unknown until observed. |
 
 When research expands:
 
