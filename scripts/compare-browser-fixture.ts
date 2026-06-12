@@ -267,6 +267,25 @@ const fixtures: Fixture[] = [
   </body>
 </html>`,
   },
+  {
+    id: "multiselect-listbox-state",
+    url: "https://fixture.local/browser-parity/multiselect-listbox-state",
+    checks: buildMultiselectListboxStateChecks,
+    html: `<!doctype html>
+<html lang="en">
+  <head>
+    <title>Multiselect listbox state fixture</title>
+  </head>
+  <body>
+    <main>
+      <div role="listbox" aria-label="Report filters" aria-multiselectable="true">
+        <div role="option" aria-selected="true" aria-posinset="1" aria-setsize="2">Open reports</div>
+        <div role="option" aria-selected="false" aria-posinset="2" aria-setsize="2">Closed reports</div>
+      </div>
+    </main>
+  </body>
+</html>`,
+  },
 ];
 
 const browser = await puppeteer.launch({ headless: true });
@@ -377,6 +396,7 @@ function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
     semanticTopStateControls: agent.semanticTopStateControls,
     semanticTopStateCurrent: agent.semanticTopStateCurrent,
     semanticTopStateBusy: agent.semanticTopStateBusy,
+    semanticTopStateMultiselectable: agent.semanticTopStateMultiselectable,
     semanticTopStateInvalid: agent.semanticTopStateInvalid,
     semanticTopStateSort: agent.semanticTopStateSort,
     semanticTopStateLive: agent.semanticTopStateLive,
@@ -893,6 +913,49 @@ function buildSortedHeaderStateChecks(namedRoles: string[], nodes: SemanticNode[
         && agent.semanticTopStateName === "Quarter"
         && agent.semanticTopStateSort === "descending"
         && typeof agent.semanticTopStateSelector === "string",
+    },
+  ];
+}
+
+function buildMultiselectListboxStateChecks(namedRoles: string[], nodes: SemanticNode[], agent: AgentSummary): Check[] {
+  const listbox = nodes.find((node) => node.role === "listbox" && node.name === "Report filters");
+  const selectedOption = nodes.find((node) => node.role === "option" && node.name === "Open reports");
+  return [
+    {
+      id: "multiselect-listbox-state-parity",
+      browserEvidence: JSON.stringify({
+        namedRoles: evidence(namedRoles, ["listbox:Report filters", "option:Open reports", "option:Closed reports"]),
+        multiselectable: listbox?.state?.multiselectable,
+        selected: selectedOption?.state?.selected,
+        posInSet: selectedOption?.attributes?.["aria-posinset"],
+        setSize: selectedOption?.attributes?.["aria-setsize"],
+      }),
+      agentEvidence: JSON.stringify({
+        stateRole: agent.semanticTopStateRole,
+        stateName: agent.semanticTopStateName,
+        stateMultiselectable: agent.semanticTopStateMultiselectable,
+        stateSelector: agent.semanticTopStateSelector,
+        selectedChoiceRole: agent.semanticTopSelectedChoiceRole,
+        selectedChoiceName: agent.semanticTopSelectedChoiceName,
+        selectedChoiceSelected: agent.semanticTopSelectedChoiceSelected,
+        selectedChoicePosInSet: agent.semanticTopSelectedChoicePosInSet,
+        selectedChoiceSetSize: agent.semanticTopSelectedChoiceSetSize,
+      }),
+      decision: "covered",
+      pass: includesAll(namedRoles, ["listbox:Report filters", "option:Open reports", "option:Closed reports"])
+        && listbox?.state?.multiselectable === true
+        && selectedOption?.state?.selected === true
+        && selectedOption?.attributes?.["aria-posinset"] === "1"
+        && selectedOption?.attributes?.["aria-setsize"] === "2"
+        && agent.semanticTopStateRole === "listbox"
+        && agent.semanticTopStateName === "Report filters"
+        && agent.semanticTopStateMultiselectable === true
+        && typeof agent.semanticTopStateSelector === "string"
+        && agent.semanticTopSelectedChoiceRole === "option"
+        && agent.semanticTopSelectedChoiceName === "Open reports"
+        && agent.semanticTopSelectedChoiceSelected === true
+        && agent.semanticTopSelectedChoicePosInSet === 1
+        && agent.semanticTopSelectedChoiceSetSize === 2,
     },
   ];
 }
