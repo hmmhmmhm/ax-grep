@@ -734,7 +734,7 @@ export type AgentSummary = {
   semanticTopTableOwnedCount?: number;
   semanticTopTableOwnedRefs?: Array<{ target: string; role?: string; name?: string; selector?: string }>;
   semanticTopTableSampleCells?: string[];
-  semanticTopTableSampleCellRefs?: Array<{ path?: string; text: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; rowHeaders?: string[]; columnHeaders?: string[]; selector?: string }>;
+  semanticTopTableSampleCellRefs?: Array<{ path?: string; text: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; rowHeaders?: string[]; columnHeaders?: string[]; selected?: boolean; current?: SemanticNodeState["current"]; selector?: string }>;
   semanticTopTableFirstHeader?: string;
   semanticTopTableFirstHeaderPath?: string;
   semanticTopTableFirstHeaderRole?: string;
@@ -755,7 +755,16 @@ export type AgentSummary = {
   semanticTopTableFirstSampleCellHeaders?: string[];
   semanticTopTableFirstSampleCellRowHeaders?: string[];
   semanticTopTableFirstSampleCellColumnHeaders?: string[];
+  semanticTopTableFirstSampleCellSelected?: boolean;
+  semanticTopTableFirstSampleCellCurrent?: SemanticNodeState["current"];
   semanticTopTableFirstSampleCellSelector?: string;
+  semanticTopSelectedTableCellPath?: string;
+  semanticTopSelectedTableCellText?: string;
+  semanticTopSelectedTableCellRowIndex?: number;
+  semanticTopSelectedTableCellColumnIndex?: number;
+  semanticTopSelectedTableCellSelected?: boolean;
+  semanticTopSelectedTableCellCurrent?: SemanticNodeState["current"];
+  semanticTopSelectedTableCellSelector?: string;
   semanticTopTableSelector?: string;
   semanticTopListRole?: string;
   semanticTopListPath?: string;

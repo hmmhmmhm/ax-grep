@@ -4598,6 +4598,48 @@ describe("cli", () => {
     });
   });
 
+  it("keeps selected grid cell state in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/grid", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <div role="grid" aria-label="Issue board" aria-rowcount="3" aria-colcount="3">
+            <div role="row" aria-rowindex="1">
+              <span role="columnheader" aria-colindex="1">ID</span>
+              <span role="columnheader" aria-colindex="2">Status</span>
+              <span role="columnheader" aria-colindex="3">Owner</span>
+            </div>
+            <div role="row" aria-rowindex="2">
+              <span role="rowheader" aria-colindex="1">BUG-1</span>
+              <span role="gridcell" aria-colindex="2" aria-selected="true">Blocked</span>
+              <span role="gridcell" aria-colindex="3">Mina</span>
+            </div>
+          </div>
+          <p>Issue board data is available.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      semanticTopTableRole: "grid",
+      semanticTopTableName: "Issue board",
+      semanticTopTableFirstSampleCellText: "Blocked",
+      semanticTopTableFirstSampleCellRowIndex: 2,
+      semanticTopTableFirstSampleCellColumnIndex: 2,
+      semanticTopTableFirstSampleCellSelected: true,
+      semanticTopSelectedTableCellText: "Blocked",
+      semanticTopSelectedTableCellRowIndex: 2,
+      semanticTopSelectedTableCellColumnIndex: 2,
+      semanticTopSelectedTableCellSelected: true,
+      semanticTopSelectedTableCellSelector: "span:nth-of-type(2)",
+    });
+  });
+
   it("keeps semantic selectors and core states in agent brief output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/relations", "--agent-brief"], {

@@ -647,7 +647,16 @@ describe("public agent types", () => {
       | "semanticTopTableFirstSampleCellHeaders"
       | "semanticTopTableFirstSampleCellRowHeaders"
       | "semanticTopTableFirstSampleCellColumnHeaders"
+      | "semanticTopTableFirstSampleCellSelected"
+      | "semanticTopTableFirstSampleCellCurrent"
       | "semanticTopTableFirstSampleCellSelector"
+      | "semanticTopSelectedTableCellPath"
+      | "semanticTopSelectedTableCellText"
+      | "semanticTopSelectedTableCellRowIndex"
+      | "semanticTopSelectedTableCellColumnIndex"
+      | "semanticTopSelectedTableCellSelected"
+      | "semanticTopSelectedTableCellCurrent"
+      | "semanticTopSelectedTableCellSelector"
       | "semanticTopTableSelector"
       | "semanticTopListRole"
       | "semanticTopListPath"
@@ -1407,7 +1416,7 @@ describe("public agent types", () => {
       semanticTopTableOwnedCount: 1,
       semanticTopTableOwnedRefs: [{ target: "virtual-rows", role: "rowgroup", name: "Virtual rows", selector: "#virtual-rows" }],
       semanticTopTableSampleCells: ["Pro", "$20"],
-      semanticTopTableSampleCellRefs: [{ path: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]", text: "Pro", rowIndex: 2, columnIndex: 1, rowSpan: 2, columnSpan: 3, headers: ["Plan", "Price"], rowHeaders: ["Plan"], columnHeaders: ["Price"], selector: "td:nth-of-type(1)" }],
+      semanticTopTableSampleCellRefs: [{ path: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]", text: "Pro", rowIndex: 2, columnIndex: 1, rowSpan: 2, columnSpan: 3, headers: ["Plan", "Price"], rowHeaders: ["Plan"], columnHeaders: ["Price"], selected: true, current: "page", selector: "td:nth-of-type(1)" }],
       semanticTopTableFirstHeader: "Plan",
       semanticTopTableFirstHeaderPath: "agent.semanticSummary.tableItems[0].headerRefs[0]",
       semanticTopTableFirstHeaderRole: "columnheader",
@@ -1428,7 +1437,16 @@ describe("public agent types", () => {
       semanticTopTableFirstSampleCellHeaders: ["Plan", "Price"],
       semanticTopTableFirstSampleCellRowHeaders: ["Plan"],
       semanticTopTableFirstSampleCellColumnHeaders: ["Price"],
+      semanticTopTableFirstSampleCellSelected: true,
+      semanticTopTableFirstSampleCellCurrent: "page",
       semanticTopTableFirstSampleCellSelector: "td:nth-of-type(1)",
+      semanticTopSelectedTableCellPath: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]",
+      semanticTopSelectedTableCellText: "Pro",
+      semanticTopSelectedTableCellRowIndex: 2,
+      semanticTopSelectedTableCellColumnIndex: 1,
+      semanticTopSelectedTableCellSelected: true,
+      semanticTopSelectedTableCellCurrent: "page",
+      semanticTopSelectedTableCellSelector: "td:nth-of-type(1)",
       semanticTopTableSelector: "table:nth-of-type(1)",
       semanticTopListRole: "list",
       semanticTopListPath: "agent.semanticSummary.listItems[0]",

@@ -159,6 +159,33 @@ const fixtures: Fixture[] = [
   </body>
 </html>`,
   },
+  {
+    id: "grid-selected-cell",
+    url: "https://fixture.local/browser-parity/grid-selected-cell",
+    checks: buildGridSelectedCellChecks,
+    html: `<!doctype html>
+<html lang="en">
+  <head>
+    <title>Grid selected cell fixture</title>
+  </head>
+  <body>
+    <main>
+      <div role="grid" aria-label="Issue board" aria-rowcount="3" aria-colcount="3">
+        <div role="row" aria-rowindex="1">
+          <span role="columnheader" aria-colindex="1">ID</span>
+          <span role="columnheader" aria-colindex="2">Status</span>
+          <span role="columnheader" aria-colindex="3">Owner</span>
+        </div>
+        <div role="row" aria-rowindex="2">
+          <span role="rowheader" aria-colindex="1">BUG-1</span>
+          <span role="gridcell" aria-colindex="2" aria-selected="true">Blocked</span>
+          <span role="gridcell" aria-colindex="3">Mina</span>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>`,
+  },
 ];
 
 const browser = await puppeteer.launch({ headless: true });
@@ -286,6 +313,12 @@ function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
     semanticTopSelectedChoiceControlsTargetRole: agent.semanticTopSelectedChoiceControlsTargetRole,
     semanticTopSelectedChoiceControlsTargetName: agent.semanticTopSelectedChoiceControlsTargetName,
     semanticTopSelectedChoiceControlsTargetSelector: agent.semanticTopSelectedChoiceControlsTargetSelector,
+    semanticTopSelectedTableCellText: agent.semanticTopSelectedTableCellText,
+    semanticTopSelectedTableCellRowIndex: agent.semanticTopSelectedTableCellRowIndex,
+    semanticTopSelectedTableCellColumnIndex: agent.semanticTopSelectedTableCellColumnIndex,
+    semanticTopSelectedTableCellSelected: agent.semanticTopSelectedTableCellSelected,
+    semanticTopSelectedTableCellCurrent: agent.semanticTopSelectedTableCellCurrent,
+    semanticTopSelectedTableCellSelector: agent.semanticTopSelectedTableCellSelector,
     semanticTopKeyboardShortcutName: agent.semanticTopKeyboardShortcutName,
   };
 }
@@ -546,6 +579,40 @@ function buildTablistSelectedPanelChecks(namedRoles: string[], nodes: SemanticNo
         && agent.semanticTopSelectedChoiceControlsTargetRole === "tabpanel"
         && agent.semanticTopSelectedChoiceControlsTargetName === "Details"
         && agent.semanticTopSelectedChoiceControlsTargetSelector === "#panel-details",
+    },
+  ];
+}
+
+function buildGridSelectedCellChecks(namedRoles: string[], nodes: SemanticNode[], agent: AgentSummary): Check[] {
+  const selectedCell = nodes.find((node) => node.role === "gridcell" && node.text === "Blocked" && node.state?.selected === true);
+  return [
+    {
+      id: "selected-gridcell-parity",
+      browserEvidence: JSON.stringify({
+        namedRoles: evidence(namedRoles, ["grid:Issue board", "columnheader:Status", "rowheader:BUG-1"]),
+        selected: selectedCell?.state?.selected,
+        columnIndex: selectedCell?.attributes?.["aria-colindex"],
+        text: selectedCell?.text,
+      }),
+      agentEvidence: JSON.stringify({
+        table: agent.semanticTopTableName,
+        selectedText: agent.semanticTopSelectedTableCellText,
+        selected: agent.semanticTopSelectedTableCellSelected,
+        rowIndex: agent.semanticTopSelectedTableCellRowIndex,
+        columnIndex: agent.semanticTopSelectedTableCellColumnIndex,
+        selector: agent.semanticTopSelectedTableCellSelector,
+      }),
+      decision: "covered",
+      pass: includesAll(namedRoles, ["grid:Issue board", "columnheader:Status", "rowheader:BUG-1"])
+        && selectedCell?.state?.selected === true
+        && selectedCell?.attributes?.["aria-colindex"] === "2"
+        && selectedCell?.text === "Blocked"
+        && agent.semanticTopTableName === "Issue board"
+        && agent.semanticTopSelectedTableCellText === "Blocked"
+        && agent.semanticTopSelectedTableCellSelected === true
+        && agent.semanticTopSelectedTableCellRowIndex === 2
+        && agent.semanticTopSelectedTableCellColumnIndex === 2
+        && agent.semanticTopSelectedTableCellSelector === "span:nth-of-type(2)",
     },
   ];
 }
