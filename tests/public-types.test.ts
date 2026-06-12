@@ -758,6 +758,7 @@ describe("public agent types", () => {
       | "semanticTopTablePath"
       | "semanticTopTableName"
       | "semanticTopTableRowCount"
+      | "semanticTopTableColumnCount"
       | "semanticTopTableCellCount"
       | "semanticTopTableDeclaredRowCount"
       | "semanticTopTableDeclaredColumnCount"
@@ -1820,6 +1821,7 @@ describe("public agent types", () => {
       semanticTopTablePath: "agent.semanticSummary.tableItems[0]",
       semanticTopTableName: "Pricing",
       semanticTopTableRowCount: 3,
+      semanticTopTableColumnCount: 3,
       semanticTopTableCellCount: 6,
       semanticTopTableDeclaredRowCount: 100,
       semanticTopTableDeclaredColumnCount: 4,

@@ -2000,6 +2000,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopTablePath?: string;
       semanticTopTableName?: string;
       semanticTopTableRowCount?: number;
+      semanticTopTableColumnCount?: number;
       semanticTopTableCellCount?: number;
       semanticTopTableDeclaredRowCount?: number;
       semanticTopTableDeclaredColumnCount?: number;
@@ -6358,6 +6359,40 @@ function scoreOwnedSampleCellShortcuts(agentRecord: Record<string, unknown>, sam
   return { matched, required };
 }
 
+function observedSemanticTableColumnCount(table: {
+  headerRefs?: unknown;
+  sampleCellRefs?: unknown;
+}): number | undefined {
+  const refs: Array<{ columnIndex?: number; columnSpan?: number }> = [];
+  if (Array.isArray(table.headerRefs)) {
+    for (const ref of table.headerRefs) {
+      if (ref && typeof ref === "object") {
+        const record = ref as Record<string, unknown>;
+        refs.push({
+          ...(typeof record.columnIndex === "number" ? { columnIndex: record.columnIndex } : {}),
+        });
+      }
+    }
+  }
+  if (Array.isArray(table.sampleCellRefs)) {
+    for (const ref of table.sampleCellRefs) {
+      if (ref && typeof ref === "object") {
+        const record = ref as Record<string, unknown>;
+        refs.push({
+          ...(typeof record.columnIndex === "number" ? { columnIndex: record.columnIndex } : {}),
+          ...(typeof record.columnSpan === "number" ? { columnSpan: record.columnSpan } : {}),
+        });
+      }
+    }
+  }
+  const maxColumn = refs.reduce((max, ref) => {
+    if (typeof ref.columnIndex !== "number") return max;
+    const span = typeof ref.columnSpan === "number" && ref.columnSpan > 0 ? ref.columnSpan : 1;
+    return Math.max(max, ref.columnIndex + span - 1);
+  }, 0);
+  return maxColumn > 0 ? maxColumn : undefined;
+}
+
 function scoreAgentSemanticSummary(agent: {
   semanticSummary?: unknown;
   semanticNodeCount?: number;
@@ -6484,6 +6519,7 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopTablePath?: string;
   semanticTopTableName?: string;
   semanticTopTableRowCount?: number;
+  semanticTopTableColumnCount?: number;
   semanticTopTableCellCount?: number;
   semanticTopTableDeclaredRowCount?: number;
   semanticTopTableDeclaredColumnCount?: number;
@@ -7224,6 +7260,15 @@ function scoreAgentSemanticSummary(agent: {
   if (table && typeof table.rowCount === "number") {
     required += 1;
     if (agent?.semanticTopTableRowCount === table.rowCount) matched += 1;
+  }
+  if (table) {
+    const columnCount = observedSemanticTableColumnCount(table);
+    if (typeof columnCount === "number") {
+      required += 1;
+      if (agent?.semanticTopTableColumnCount === columnCount) matched += 1;
+    } else if (typeof agent?.semanticTopTableColumnCount === "number") {
+      required += 1;
+    }
   }
   if (table && typeof table.cellCount === "number") {
     required += 1;

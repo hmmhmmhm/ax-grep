@@ -818,6 +818,7 @@ export type AgentSummary = {
   semanticTopTablePath?: string;
   semanticTopTableName?: string;
   semanticTopTableRowCount?: number;
+  semanticTopTableColumnCount?: number;
   semanticTopTableCellCount?: number;
   semanticTopTableDeclaredRowCount?: number;
   semanticTopTableDeclaredColumnCount?: number;
