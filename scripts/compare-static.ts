@@ -383,6 +383,12 @@ type CliAgentFormChoiceShape = {
   submitValue?: string;
   submitDisabled?: boolean;
   submitSelector?: string;
+  submitFormActionUrl?: string;
+  submitFormMethod?: string;
+  submitFormTarget?: string;
+  submitFormEncType?: string;
+  submitFormNoValidate?: boolean;
+  submitFormId?: string;
   queryField?: string;
   urlTemplate?: string;
   selector?: string;
@@ -1350,6 +1356,12 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topFormChoiceSubmitValue?: string;
       topFormChoiceSubmitDisabled?: boolean;
       topFormChoiceSubmitSelector?: string;
+      topFormChoiceSubmitFormActionUrl?: string;
+      topFormChoiceSubmitFormMethod?: string;
+      topFormChoiceSubmitFormTarget?: string;
+      topFormChoiceSubmitFormEncType?: string;
+      topFormChoiceSubmitFormNoValidate?: boolean;
+      topFormChoiceSubmitFormId?: string;
       topFormChoiceQueryField?: string;
       topFormChoiceUrlTemplate?: string;
       topFormChoiceFieldCount?: number;
@@ -4566,6 +4578,12 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   topFormChoiceSubmitValue?: string;
   topFormChoiceSubmitDisabled?: boolean;
   topFormChoiceSubmitSelector?: string;
+  topFormChoiceSubmitFormActionUrl?: string;
+  topFormChoiceSubmitFormMethod?: string;
+  topFormChoiceSubmitFormTarget?: string;
+  topFormChoiceSubmitFormEncType?: string;
+  topFormChoiceSubmitFormNoValidate?: boolean;
+  topFormChoiceSubmitFormId?: string;
   topFormChoiceQueryField?: string;
   topFormChoiceUrlTemplate?: string;
   topFormChoiceFieldCount?: number;
@@ -4611,7 +4629,7 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   let matched = 0;
   if (form) {
     if (agent?.topFormChoicePath === form.path) matched += 1;
-    required += 31;
+    required += 37;
     const firstField = Array.isArray(form.fields) ? form.fields[0] as { name?: unknown; type?: unknown; label?: unknown; placeholder?: unknown; value?: unknown; options?: unknown; autocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; required?: unknown; disabled?: unknown; readonly?: unknown; invalid?: unknown; selector?: unknown } | undefined : undefined;
     if (agent?.topFormChoiceMethod === form.method) matched += 1;
     if (agent?.topFormChoiceActionUrl === form.actionUrl) matched += 1;
@@ -4621,6 +4639,12 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     if (agent?.topFormChoiceSubmitValue === form.submitValue) matched += 1;
     if (agent?.topFormChoiceSubmitDisabled === form.submitDisabled) matched += 1;
     if (agent?.topFormChoiceSubmitSelector === form.submitSelector) matched += 1;
+    if (agent?.topFormChoiceSubmitFormActionUrl === form.submitFormActionUrl) matched += 1;
+    if (agent?.topFormChoiceSubmitFormMethod === form.submitFormMethod) matched += 1;
+    if (agent?.topFormChoiceSubmitFormTarget === form.submitFormTarget) matched += 1;
+    if (agent?.topFormChoiceSubmitFormEncType === form.submitFormEncType) matched += 1;
+    if (agent?.topFormChoiceSubmitFormNoValidate === form.submitFormNoValidate) matched += 1;
+    if (agent?.topFormChoiceSubmitFormId === form.submitFormId) matched += 1;
     if (agent?.topFormChoiceQueryField === form.queryField) matched += 1;
     if (agent?.topFormChoiceUrlTemplate === form.urlTemplate) matched += 1;
     if (agent?.topFormChoiceFieldCount === form.fieldCount) matched += 1;
@@ -4654,6 +4678,12 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     || agent?.topFormChoiceSubmitValue
     || typeof agent?.topFormChoiceSubmitDisabled === "boolean"
     || agent?.topFormChoiceSubmitSelector
+    || agent?.topFormChoiceSubmitFormActionUrl
+    || agent?.topFormChoiceSubmitFormMethod
+    || agent?.topFormChoiceSubmitFormTarget
+    || agent?.topFormChoiceSubmitFormEncType
+    || typeof agent?.topFormChoiceSubmitFormNoValidate === "boolean"
+    || agent?.topFormChoiceSubmitFormId
     || agent?.topFormChoiceQueryField
     || agent?.topFormChoiceUrlTemplate
     || typeof agent?.topFormChoiceFieldCount === "number"

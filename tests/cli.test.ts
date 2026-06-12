@@ -5678,6 +5678,63 @@ describe("cli", () => {
     });
   });
 
+  it("applies submit button form overrides to form handoff", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/search", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <form method="POST" action="/default">
+            <label for="q">Query</label>
+            <input id="q" name="q" type="search">
+            <button type="submit" formaction="/override" formmethod="GET" formtarget="_blank" formenctype="multipart/form-data" formnovalidate form="remote-form">Search archive</button>
+          </form>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.forms[0]).toMatchObject({
+      method: "get",
+      actionUrl: "https://example.test/override",
+      submitText: "Search archive",
+      submitType: "submit",
+      submitSelector: "button[type=\"submit\"]:nth-of-type(1)",
+      submitFormActionUrl: "https://example.test/override",
+      submitFormMethod: "get",
+      submitFormTarget: "_blank",
+      submitFormEncType: "multipart/form-data",
+      submitFormNoValidate: true,
+      submitFormId: "remote-form",
+      queryField: "q",
+      urlTemplate: "https://example.test/override?q=%7Bquery%7D",
+    });
+    expect(envelope.agent).toMatchObject({
+      topFormChoiceMethod: "get",
+      topFormChoiceActionUrl: "https://example.test/override",
+      topFormChoiceSubmitFormActionUrl: "https://example.test/override",
+      topFormChoiceSubmitFormMethod: "get",
+      topFormChoiceSubmitFormTarget: "_blank",
+      topFormChoiceSubmitFormEncType: "multipart/form-data",
+      topFormChoiceSubmitFormNoValidate: true,
+      topFormChoiceSubmitFormId: "remote-form",
+      topFormChoiceUrlTemplate: "https://example.test/override?q=%7Bquery%7D",
+    });
+    expect(envelope.agent.formChoices[0]).toMatchObject({
+      method: "get",
+      actionUrl: "https://example.test/override",
+      submitFormActionUrl: "https://example.test/override",
+      submitFormMethod: "get",
+      submitFormTarget: "_blank",
+      submitFormEncType: "multipart/form-data",
+      submitFormNoValidate: true,
+      submitFormId: "remote-form",
+      urlTemplate: "https://example.test/override?q=%7Bquery%7D",
+    });
+  });
+
   it("exposes checked semantic field shortcuts for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/consent", "--agent"], {

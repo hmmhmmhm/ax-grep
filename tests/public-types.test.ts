@@ -161,6 +161,12 @@ describe("public agent types", () => {
       submitValue: "go",
       submitDisabled: true,
       submitSelector: "button[name=\"submit-search\"]",
+      submitFormActionUrl: "https://example.test/find",
+      submitFormMethod: "get",
+      submitFormTarget: "_blank",
+      submitFormEncType: "multipart/form-data",
+      submitFormNoValidate: true,
+      submitFormId: "remote-form",
       queryField: "q",
       urlTemplate: "https://example.test/find?q={query}",
       selector: "form:nth-of-type(1)",
@@ -226,6 +232,12 @@ describe("public agent types", () => {
       | "topFormChoiceSubmitValue"
       | "topFormChoiceSubmitDisabled"
       | "topFormChoiceSubmitSelector"
+      | "topFormChoiceSubmitFormActionUrl"
+      | "topFormChoiceSubmitFormMethod"
+      | "topFormChoiceSubmitFormTarget"
+      | "topFormChoiceSubmitFormEncType"
+      | "topFormChoiceSubmitFormNoValidate"
+      | "topFormChoiceSubmitFormId"
       | "topFormChoiceQueryField"
       | "topFormChoiceUrlTemplate"
       | "topFormChoiceFieldCount"
@@ -1257,6 +1269,12 @@ describe("public agent types", () => {
       topFormChoiceSubmitValue: "go",
       topFormChoiceSubmitDisabled: true,
       topFormChoiceSubmitSelector: "button[name=\"submit-search\"]",
+      topFormChoiceSubmitFormActionUrl: "https://example.test/find",
+      topFormChoiceSubmitFormMethod: "get",
+      topFormChoiceSubmitFormTarget: "_blank",
+      topFormChoiceSubmitFormEncType: "multipart/form-data",
+      topFormChoiceSubmitFormNoValidate: true,
+      topFormChoiceSubmitFormId: "remote-form",
       topFormChoiceQueryField: "q",
       topFormChoiceUrlTemplate: "https://example.test/find?q={query}",
       topFormChoiceFieldCount: 1,

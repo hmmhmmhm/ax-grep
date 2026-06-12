@@ -422,6 +422,12 @@ type PageFormSummary = {
   submitValue?: string;
   submitDisabled?: boolean;
   submitSelector?: string;
+  submitFormActionUrl?: string;
+  submitFormMethod?: string;
+  submitFormTarget?: string;
+  submitFormEncType?: string;
+  submitFormNoValidate?: boolean;
+  submitFormId?: string;
   queryField?: string;
   urlTemplate?: string;
   selector?: string;
@@ -1439,6 +1445,12 @@ type AgentSummary = {
   topFormChoiceSubmitValue?: string;
   topFormChoiceSubmitDisabled?: boolean;
   topFormChoiceSubmitSelector?: string;
+  topFormChoiceSubmitFormActionUrl?: string;
+  topFormChoiceSubmitFormMethod?: string;
+  topFormChoiceSubmitFormTarget?: string;
+  topFormChoiceSubmitFormEncType?: string;
+  topFormChoiceSubmitFormNoValidate?: boolean;
+  topFormChoiceSubmitFormId?: string;
   topFormChoiceQueryField?: string;
   topFormChoiceUrlTemplate?: string;
   topFormChoiceFieldCount?: number;
@@ -3612,7 +3624,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topFormChoiceUrlTemplate ? [`  topFormChoiceUrlTemplate: ${agent.topFormChoiceUrlTemplate}`] : []),
     ...(agent.topFormChoiceQueryField ? [`  topFormChoiceQueryField: ${agent.topFormChoiceQueryField}`] : []),
     ...(agent.topFormChoiceSubmitText ? [`  topFormChoiceSubmitText: ${agent.topFormChoiceSubmitText}`] : []),
-    ...(agent.topFormChoiceSubmitType || agent.topFormChoiceSubmitSelector ? [`  topFormChoiceSubmit: ${agent.topFormChoiceSubmitText ?? ""}${agent.topFormChoiceSubmitType ? ` type=${agent.topFormChoiceSubmitType}` : ""}${agent.topFormChoiceSubmitName ? ` name=${agent.topFormChoiceSubmitName}` : ""}${agent.topFormChoiceSubmitValue ? ` value=${agent.topFormChoiceSubmitValue}` : ""}${typeof agent.topFormChoiceSubmitDisabled === "boolean" ? ` disabled=${agent.topFormChoiceSubmitDisabled}` : ""}${agent.topFormChoiceSubmitSelector ? ` selector=${agent.topFormChoiceSubmitSelector}` : ""}`] : []),
+    ...(agent.topFormChoiceSubmitType || agent.topFormChoiceSubmitSelector ? [`  topFormChoiceSubmit: ${agent.topFormChoiceSubmitText ?? ""}${agent.topFormChoiceSubmitType ? ` type=${agent.topFormChoiceSubmitType}` : ""}${agent.topFormChoiceSubmitName ? ` name=${agent.topFormChoiceSubmitName}` : ""}${agent.topFormChoiceSubmitValue ? ` value=${agent.topFormChoiceSubmitValue}` : ""}${typeof agent.topFormChoiceSubmitDisabled === "boolean" ? ` disabled=${agent.topFormChoiceSubmitDisabled}` : ""}${agent.topFormChoiceSubmitSelector ? ` selector=${agent.topFormChoiceSubmitSelector}` : ""}${agent.topFormChoiceSubmitFormActionUrl ? ` formaction=${agent.topFormChoiceSubmitFormActionUrl}` : ""}${agent.topFormChoiceSubmitFormMethod ? ` formmethod=${agent.topFormChoiceSubmitFormMethod}` : ""}${agent.topFormChoiceSubmitFormTarget ? ` formtarget=${agent.topFormChoiceSubmitFormTarget}` : ""}${agent.topFormChoiceSubmitFormEncType ? ` formenctype=${agent.topFormChoiceSubmitFormEncType}` : ""}${typeof agent.topFormChoiceSubmitFormNoValidate === "boolean" ? ` formnovalidate=${agent.topFormChoiceSubmitFormNoValidate}` : ""}${agent.topFormChoiceSubmitFormId ? ` form=${agent.topFormChoiceSubmitFormId}` : ""}`] : []),
     ...(agent.topFormChoiceFirstFieldName || agent.topFormChoiceFirstFieldType ? [`  topFormChoiceFirstField: ${agent.topFormChoiceFirstFieldName ?? ""}${agent.topFormChoiceFirstFieldType ? ` type=${agent.topFormChoiceFirstFieldType}` : ""}${agent.topFormChoiceFirstFieldLabel ? ` label=${agent.topFormChoiceFirstFieldLabel}` : ""}${agent.topFormChoiceFirstFieldPlaceholder ? ` placeholder=${agent.topFormChoiceFirstFieldPlaceholder}` : ""}${agent.topFormChoiceFirstFieldValue ? ` value=${agent.topFormChoiceFirstFieldValue}` : ""}${agent.topFormChoiceFirstFieldOptions?.length ? ` options=${agent.topFormChoiceFirstFieldOptions.join("|")}` : ""}${agent.topFormChoiceFirstFieldAutocomplete ? ` autocomplete=${agent.topFormChoiceFirstFieldAutocomplete}` : ""}${agent.topFormChoiceFirstFieldInputMode ? ` inputMode=${agent.topFormChoiceFirstFieldInputMode}` : ""}${agent.topFormChoiceFirstFieldPattern ? ` pattern=${agent.topFormChoiceFirstFieldPattern}` : ""}${agent.topFormChoiceFirstFieldMin ? ` min=${agent.topFormChoiceFirstFieldMin}` : ""}${agent.topFormChoiceFirstFieldMax ? ` max=${agent.topFormChoiceFirstFieldMax}` : ""}${agent.topFormChoiceFirstFieldStep ? ` step=${agent.topFormChoiceFirstFieldStep}` : ""}${typeof agent.topFormChoiceFirstFieldMinLength === "number" ? ` minLength=${agent.topFormChoiceFirstFieldMinLength}` : ""}${typeof agent.topFormChoiceFirstFieldMaxLength === "number" ? ` maxLength=${agent.topFormChoiceFirstFieldMaxLength}` : ""}${typeof agent.topFormChoiceFirstFieldRequired === "boolean" ? ` required=${agent.topFormChoiceFirstFieldRequired}` : ""}${typeof agent.topFormChoiceFirstFieldDisabled === "boolean" ? ` disabled=${agent.topFormChoiceFirstFieldDisabled}` : ""}${typeof agent.topFormChoiceFirstFieldReadonly === "boolean" ? ` readonly=${agent.topFormChoiceFirstFieldReadonly}` : ""}${typeof agent.topFormChoiceFirstFieldInvalid !== "undefined" ? ` invalid=${agent.topFormChoiceFirstFieldInvalid}` : ""}${agent.topFormChoiceFirstFieldSelector ? ` selector=${agent.topFormChoiceFirstFieldSelector}` : ""}`] : []),
     ...(agent.topActionTargetChoicePath ? [`  topActionTargetChoicePath: ${agent.topActionTargetChoicePath}`] : []),
     ...(agent.topActionTargetChoiceUrlTemplate ? [`  topActionTargetChoiceUrlTemplate: ${agent.topActionTargetChoiceUrlTemplate}`] : []),
@@ -6298,10 +6310,12 @@ function summarizeForms(html: string, baseUrl: string): PageFormSummary[] {
 function summarizeForm(form: Element, index: number, baseUrl: string, rootNodes: AnyNode[]): PageFormSummary | undefined {
   const fields = summarizeFormFields(form, rootNodes);
   if (fields.length === 0) return undefined;
-  const method = (attr(form, "method") || "get").toLowerCase();
+  const formMethod = (attr(form, "method") || "get").toLowerCase();
   const action = attr(form, "action") || baseUrl;
-  const actionUrl = normalizeHref(action, baseUrl) ?? action;
-  const submit = summarizeFormSubmit(form);
+  const formActionUrl = normalizeHref(action, baseUrl) ?? action;
+  const submit = summarizeFormSubmit(form, baseUrl);
+  const method = submit?.formMethod ?? formMethod;
+  const actionUrl = submit?.formActionUrl ?? formActionUrl;
   const submitText = submit?.text ?? "";
   const queryField = formQueryField(fields);
   const urlTemplate = method === "get" && queryField ? formUrlTemplate(actionUrl, queryField) : "";
@@ -6328,6 +6342,12 @@ function summarizeForm(form: Element, index: number, baseUrl: string, rootNodes:
   if (submit?.value) summary.submitValue = submit.value;
   if (typeof submit?.disabled === "boolean") summary.submitDisabled = submit.disabled;
   if (submit?.selector) summary.submitSelector = submit.selector;
+  if (submit?.formActionUrl) summary.submitFormActionUrl = submit.formActionUrl;
+  if (submit?.formMethod) summary.submitFormMethod = submit.formMethod;
+  if (submit?.formTarget) summary.submitFormTarget = submit.formTarget;
+  if (submit?.formEncType) summary.submitFormEncType = submit.formEncType;
+  if (typeof submit?.formNoValidate === "boolean") summary.submitFormNoValidate = submit.formNoValidate;
+  if (submit?.formId) summary.submitFormId = submit.formId;
   if (queryField) summary.queryField = queryField;
   if (urlTemplate) summary.urlTemplate = urlTemplate;
   return summary;
@@ -6424,7 +6444,20 @@ function nearestAncestorLabel(target: Element, nodes: AnyNode[]): Element | unde
   return visit(nodes, []);
 }
 
-function summarizeFormSubmit(form: Element): { text: string; type?: string; name?: string; value?: string; disabled?: boolean; selector?: string } | undefined {
+function summarizeFormSubmit(form: Element, baseUrl: string): {
+  text: string;
+  type?: string;
+  name?: string;
+  value?: string;
+  disabled?: boolean;
+  selector?: string;
+  formActionUrl?: string;
+  formMethod?: string;
+  formTarget?: string;
+  formEncType?: string;
+  formNoValidate?: boolean;
+  formId?: string;
+} | undefined {
   const submitCandidates = findElements(form.children, (item) => {
     if (item.name === "button") return !attr(item, "type") || attr(item, "type") === "submit";
     return item.name === "input" && (attr(item, "type") || "text").toLowerCase() === "submit";
@@ -6435,6 +6468,11 @@ function summarizeFormSubmit(form: Element): { text: string; type?: string; name
   const name = attr(submit, "name") || "";
   const value = attr(submit, "value") || "";
   const explicitType = attr(submit, "type");
+  const formAction = attr(submit, "formaction") || "";
+  const formMethod = attr(submit, "formmethod")?.toLowerCase() || "";
+  const formTarget = attr(submit, "formtarget") || "";
+  const formEncType = attr(submit, "formenctype") || "";
+  const formId = attr(submit, "form") || "";
   const sameTagIndex = findElements(form.children, (item) => item.name === submit.name).findIndex((item) => item === submit) + 1;
   const text = cleanLinkText(elementText(submit) || value || attr(submit, "aria-label") || "");
   return {
@@ -6444,6 +6482,12 @@ function summarizeFormSubmit(form: Element): { text: string; type?: string; name
     ...(value ? { value } : {}),
     ...(attr(submit, "disabled") !== undefined || attr(submit, "aria-disabled") === "true" ? { disabled: true } : {}),
     selector: formSubmitSelector(submit.name, name, explicitType, type, sameTagIndex),
+    ...(formAction ? { formActionUrl: normalizeHref(formAction, baseUrl) ?? formAction } : {}),
+    ...(formMethod ? { formMethod } : {}),
+    ...(formTarget ? { formTarget } : {}),
+    ...(formEncType ? { formEncType } : {}),
+    ...(attr(submit, "formnovalidate") !== undefined ? { formNoValidate: true } : {}),
+    ...(formId ? { formId } : {}),
   };
 }
 
@@ -11980,6 +12024,12 @@ function summarizeAgent(
     ...(topFormChoice?.submitValue ? { topFormChoiceSubmitValue: topFormChoice.submitValue } : {}),
     ...(typeof topFormChoice?.submitDisabled === "boolean" ? { topFormChoiceSubmitDisabled: topFormChoice.submitDisabled } : {}),
     ...(topFormChoice?.submitSelector ? { topFormChoiceSubmitSelector: topFormChoice.submitSelector } : {}),
+    ...(topFormChoice?.submitFormActionUrl ? { topFormChoiceSubmitFormActionUrl: topFormChoice.submitFormActionUrl } : {}),
+    ...(topFormChoice?.submitFormMethod ? { topFormChoiceSubmitFormMethod: topFormChoice.submitFormMethod } : {}),
+    ...(topFormChoice?.submitFormTarget ? { topFormChoiceSubmitFormTarget: topFormChoice.submitFormTarget } : {}),
+    ...(topFormChoice?.submitFormEncType ? { topFormChoiceSubmitFormEncType: topFormChoice.submitFormEncType } : {}),
+    ...(typeof topFormChoice?.submitFormNoValidate === "boolean" ? { topFormChoiceSubmitFormNoValidate: topFormChoice.submitFormNoValidate } : {}),
+    ...(topFormChoice?.submitFormId ? { topFormChoiceSubmitFormId: topFormChoice.submitFormId } : {}),
     ...(topFormChoice?.queryField ? { topFormChoiceQueryField: topFormChoice.queryField } : {}),
     ...(topFormChoice?.urlTemplate ? { topFormChoiceUrlTemplate: topFormChoice.urlTemplate } : {}),
     ...(typeof topFormChoice?.fieldCount === "number" ? { topFormChoiceFieldCount: topFormChoice.fieldCount } : {}),
@@ -14333,6 +14383,12 @@ function summarizeAgentFormChoices(forms: PageFormSummary[]): AgentFormChoice[] 
     ...(form.submitValue ? { submitValue: form.submitValue } : {}),
     ...(typeof form.submitDisabled === "boolean" ? { submitDisabled: form.submitDisabled } : {}),
     ...(form.submitSelector ? { submitSelector: form.submitSelector } : {}),
+    ...(form.submitFormActionUrl ? { submitFormActionUrl: form.submitFormActionUrl } : {}),
+    ...(form.submitFormMethod ? { submitFormMethod: form.submitFormMethod } : {}),
+    ...(form.submitFormTarget ? { submitFormTarget: form.submitFormTarget } : {}),
+    ...(form.submitFormEncType ? { submitFormEncType: form.submitFormEncType } : {}),
+    ...(typeof form.submitFormNoValidate === "boolean" ? { submitFormNoValidate: form.submitFormNoValidate } : {}),
+    ...(form.submitFormId ? { submitFormId: form.submitFormId } : {}),
     ...(form.queryField ? { queryField: form.queryField } : {}),
     ...(form.urlTemplate ? { urlTemplate: form.urlTemplate } : {}),
     ...(form.selector ? { selector: form.selector } : {}),
@@ -16661,6 +16717,12 @@ function compactAgentForms(items: PageFormSummary[], primaryAction?: SuggestedAc
     ...(item.submitValue ? { submitValue: item.submitValue } : {}),
     ...(typeof item.submitDisabled === "boolean" ? { submitDisabled: item.submitDisabled } : {}),
     ...(item.submitSelector ? { submitSelector: item.submitSelector } : {}),
+    ...(item.submitFormActionUrl ? { submitFormActionUrl: item.submitFormActionUrl } : {}),
+    ...(item.submitFormMethod ? { submitFormMethod: item.submitFormMethod } : {}),
+    ...(item.submitFormTarget ? { submitFormTarget: item.submitFormTarget } : {}),
+    ...(item.submitFormEncType ? { submitFormEncType: item.submitFormEncType } : {}),
+    ...(typeof item.submitFormNoValidate === "boolean" ? { submitFormNoValidate: item.submitFormNoValidate } : {}),
+    ...(item.submitFormId ? { submitFormId: item.submitFormId } : {}),
     ...(item.queryField ? { queryField: item.queryField } : {}),
     ...(item.urlTemplate ? { urlTemplate: item.urlTemplate } : {}),
   }));
@@ -17378,6 +17440,12 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topFormChoiceSubmitValue ? { topFormChoiceSubmitValue: agent.topFormChoiceSubmitValue } : {}),
     ...(typeof agent.topFormChoiceSubmitDisabled === "boolean" ? { topFormChoiceSubmitDisabled: agent.topFormChoiceSubmitDisabled } : {}),
     ...(agent.topFormChoiceSubmitSelector ? { topFormChoiceSubmitSelector: agent.topFormChoiceSubmitSelector } : {}),
+    ...(agent.topFormChoiceSubmitFormActionUrl ? { topFormChoiceSubmitFormActionUrl: agent.topFormChoiceSubmitFormActionUrl } : {}),
+    ...(agent.topFormChoiceSubmitFormMethod ? { topFormChoiceSubmitFormMethod: agent.topFormChoiceSubmitFormMethod } : {}),
+    ...(agent.topFormChoiceSubmitFormTarget ? { topFormChoiceSubmitFormTarget: agent.topFormChoiceSubmitFormTarget } : {}),
+    ...(agent.topFormChoiceSubmitFormEncType ? { topFormChoiceSubmitFormEncType: agent.topFormChoiceSubmitFormEncType } : {}),
+    ...(typeof agent.topFormChoiceSubmitFormNoValidate === "boolean" ? { topFormChoiceSubmitFormNoValidate: agent.topFormChoiceSubmitFormNoValidate } : {}),
+    ...(agent.topFormChoiceSubmitFormId ? { topFormChoiceSubmitFormId: agent.topFormChoiceSubmitFormId } : {}),
     ...(agent.topFormChoiceQueryField ? { topFormChoiceQueryField: agent.topFormChoiceQueryField } : {}),
     ...(agent.topFormChoiceUrlTemplate ? { topFormChoiceUrlTemplate: agent.topFormChoiceUrlTemplate } : {}),
     ...(typeof agent.topFormChoiceFieldCount === "number" ? { topFormChoiceFieldCount: agent.topFormChoiceFieldCount } : {}),
@@ -18438,6 +18506,12 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topFormChoiceSubmitValue ? { topFormChoiceSubmitValue: agent.topFormChoiceSubmitValue } : {}),
     ...(typeof agent.topFormChoiceSubmitDisabled === "boolean" ? { topFormChoiceSubmitDisabled: agent.topFormChoiceSubmitDisabled } : {}),
     ...(agent.topFormChoiceSubmitSelector ? { topFormChoiceSubmitSelector: agent.topFormChoiceSubmitSelector } : {}),
+    ...(agent.topFormChoiceSubmitFormActionUrl ? { topFormChoiceSubmitFormActionUrl: agent.topFormChoiceSubmitFormActionUrl } : {}),
+    ...(agent.topFormChoiceSubmitFormMethod ? { topFormChoiceSubmitFormMethod: agent.topFormChoiceSubmitFormMethod } : {}),
+    ...(agent.topFormChoiceSubmitFormTarget ? { topFormChoiceSubmitFormTarget: agent.topFormChoiceSubmitFormTarget } : {}),
+    ...(agent.topFormChoiceSubmitFormEncType ? { topFormChoiceSubmitFormEncType: agent.topFormChoiceSubmitFormEncType } : {}),
+    ...(typeof agent.topFormChoiceSubmitFormNoValidate === "boolean" ? { topFormChoiceSubmitFormNoValidate: agent.topFormChoiceSubmitFormNoValidate } : {}),
+    ...(agent.topFormChoiceSubmitFormId ? { topFormChoiceSubmitFormId: agent.topFormChoiceSubmitFormId } : {}),
     ...(agent.topFormChoiceQueryField ? { topFormChoiceQueryField: agent.topFormChoiceQueryField } : {}),
     ...(agent.topFormChoiceUrlTemplate ? { topFormChoiceUrlTemplate: agent.topFormChoiceUrlTemplate } : {}),
     ...(typeof agent.topFormChoiceFieldCount === "number" ? { topFormChoiceFieldCount: agent.topFormChoiceFieldCount } : {}),
@@ -19414,6 +19488,12 @@ function compactAgentFormExecutionRefs(forms: PageFormSummary[]): object[] {
     ...(form.submitValue ? { submitValue: form.submitValue } : {}),
     ...(typeof form.submitDisabled === "boolean" ? { submitDisabled: form.submitDisabled } : {}),
     ...(form.submitSelector ? { submitSelector: form.submitSelector } : {}),
+    ...(form.submitFormActionUrl ? { submitFormActionUrl: form.submitFormActionUrl } : {}),
+    ...(form.submitFormMethod ? { submitFormMethod: form.submitFormMethod } : {}),
+    ...(form.submitFormTarget ? { submitFormTarget: form.submitFormTarget } : {}),
+    ...(form.submitFormEncType ? { submitFormEncType: form.submitFormEncType } : {}),
+    ...(typeof form.submitFormNoValidate === "boolean" ? { submitFormNoValidate: form.submitFormNoValidate } : {}),
+    ...(form.submitFormId ? { submitFormId: form.submitFormId } : {}),
     ...(form.selector ? { selector: form.selector } : {}),
     fields: form.fields.map((field) => ({
       type: field.type,
