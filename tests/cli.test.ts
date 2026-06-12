@@ -4610,6 +4610,10 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(envelope.agent).toMatchObject({
       contract: { profile: "brief" },
+      semanticTopInteractiveName: "Skip to content",
+      semanticTopInteractiveSelector: "a",
+      semanticTopFocusableName: "Skip to content",
+      semanticTopFocusableSelector: "a",
       semanticTopLinkName: "Skip to content",
       semanticTopLinkSelector: "a",
       semanticTopInPageLinkName: "Skip to content",
