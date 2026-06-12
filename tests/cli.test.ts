@@ -5644,6 +5644,41 @@ describe("cli", () => {
     });
   });
 
+  it("keeps author and hidden read target reasons in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/app", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <title>App shell</title>
+            <link rel="author" href="/authors/jane" title="Jane Doe">
+            <script>
+              fetch("/api/search?q=agent", { method: "POST" });
+              fetch("/graphql", { method: "POST" });
+            </script>
+          </head>
+          <body><main><h1>App shell</h1></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      authorLinkCount: 1,
+      topAuthorLinkName: "Jane Doe",
+      topAuthorLinkUrl: "https://example.test/authors/jane",
+      topAuthorLinkSource: "link",
+      bestHiddenReadTarget: "pageCheck.apiEndpoints",
+      bestHiddenReadTargetCount: 2,
+      bestHiddenReadTargetPrimary: true,
+      bestHiddenReadTargetReason: "Inline script API, GraphQL, XHR, and event-stream endpoint hints extracted from page HTML.",
+    });
+  });
+
   it("checks requested text against API endpoint hints", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/app", "--agent", "--find", "/api/search"], {
