@@ -28,6 +28,7 @@ describe("public agent types", () => {
       path: "searchResults[0]",
       title: "Example result",
       url: "https://example.test/result",
+      host: "example.test",
       rank: 1,
       snippet: "Result summary",
       openResult: 1,
@@ -41,6 +42,7 @@ describe("public agent types", () => {
       path: "pageCheck.sourceLinks[0]",
       title: "Source",
       url: "https://source.example/report",
+      host: "source.example",
       selector: "a:nth-of-type(1)",
       kind: "external",
       sourceScore: 0.91,
@@ -136,6 +138,7 @@ describe("public agent types", () => {
       path: "searchResults[0]",
       title: "Example result",
       url: "https://example.test/result",
+      host: "example.test",
       rank: 1,
       openResult: 1,
       recommended: true,
@@ -183,6 +186,7 @@ describe("public agent types", () => {
       | "topResultChoicePath"
       | "topResultChoiceTitle"
       | "topResultChoiceUrl"
+      | "topResultChoiceHost"
       | "topResultChoiceCommandArgs"
       | "topResultChoiceRank"
       | "topResultChoiceOpenResult"
@@ -403,6 +407,7 @@ describe("public agent types", () => {
       | "topSourceChoicePath"
       | "topSourceChoiceTitle"
       | "topSourceChoiceUrl"
+      | "topSourceChoiceHost"
       | "topSourceChoiceCommandArgs"
       | "topSourceChoiceSourceType"
       | "topSourceChoiceSourceScore"
@@ -912,6 +917,7 @@ describe("public agent types", () => {
       topResultChoicePath: "searchResults[0]",
       topResultChoiceTitle: "Example result",
       topResultChoiceUrl: "https://example.test/result",
+      topResultChoiceHost: "example.test",
       topResultChoiceCommandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent-brief"],
       topResultChoiceRank: 1,
       topResultChoiceOpenResult: 1,
@@ -1132,6 +1138,7 @@ describe("public agent types", () => {
       topSourceChoicePath: "pageCheck.sourceLinks[0]",
       topSourceChoiceTitle: "Source",
       topSourceChoiceUrl: "https://source.example/report",
+      topSourceChoiceHost: "source.example",
       topSourceChoiceCommandArgs: ["ax-grep", "https://source.example/report", "--agent-brief"],
       topSourceChoiceSourceType: "report",
       topSourceChoiceSourceScore: 0.91,

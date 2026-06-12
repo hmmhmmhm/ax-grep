@@ -211,6 +211,7 @@ type ResultSummary = {
   path?: string;
   title: string;
   url: string;
+  host?: string;
   source: string;
   rank: number;
   text?: string;
@@ -1259,6 +1260,7 @@ type AgentSummary = {
   topResultChoicePath?: string;
   topResultChoiceTitle?: string;
   topResultChoiceUrl?: string;
+  topResultChoiceHost?: string;
   topResultChoiceCommandArgs?: string[];
   topResultChoiceRank?: number;
   topResultChoiceOpenResult?: AgentResultChoice["openResult"];
@@ -1480,6 +1482,7 @@ type AgentSummary = {
   topSourceChoicePath?: string;
   topSourceChoiceTitle?: string;
   topSourceChoiceUrl?: string;
+  topSourceChoiceHost?: string;
   topSourceChoiceCommandArgs?: string[];
   topSourceChoiceSourceType?: string;
   topSourceChoiceSourceScore?: number;
@@ -3211,6 +3214,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  resultChoiceCount: ${agent.resultChoiceCount}`,
     ...(agent.topResultChoicePath ? [`  topResultChoicePath: ${agent.topResultChoicePath}`] : []),
     ...(agent.topResultChoiceUrl ? [`  topResultChoiceUrl: ${agent.topResultChoiceUrl}`] : []),
+    ...(agent.topResultChoiceHost ? [`  topResultChoiceHost: ${agent.topResultChoiceHost}`] : []),
     ...(agent.topResultChoiceTitle ? [`  topResultChoiceTitle: ${agent.topResultChoiceTitle}`] : []),
     ...(agent.topResultChoiceCommandArgs ? [`  topResultChoiceCommandArgs: ${JSON.stringify(agent.topResultChoiceCommandArgs)}`] : []),
     ...(typeof agent.topResultChoiceRank === "number" ? [`  topResultChoiceRank: ${agent.topResultChoiceRank}`] : []),
@@ -3327,6 +3331,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  sourceChoiceCount: ${agent.sourceChoiceCount}`,
     ...(agent.topSourceChoicePath ? [`  topSourceChoicePath: ${agent.topSourceChoicePath}`] : []),
     ...(agent.topSourceChoiceUrl ? [`  topSourceChoiceUrl: ${agent.topSourceChoiceUrl}`] : []),
+    ...(agent.topSourceChoiceHost ? [`  topSourceChoiceHost: ${agent.topSourceChoiceHost}`] : []),
     ...(agent.topSourceChoiceTitle ? [`  topSourceChoiceTitle: ${agent.topSourceChoiceTitle}`] : []),
     ...(agent.topSourceChoiceCommandArgs ? [`  topSourceChoiceCommandArgs: ${JSON.stringify(agent.topSourceChoiceCommandArgs)}`] : []),
     ...(agent.topSourceChoiceSourceType ? [`  topSourceChoiceSourceType: ${agent.topSourceChoiceSourceType}`] : []),
@@ -11162,6 +11167,7 @@ function summarizeAgent(
     ...(resultChoices[0] ? { topResultChoicePath: resultChoices[0].path } : {}),
     ...(resultChoices[0]?.title ? { topResultChoiceTitle: resultChoices[0].title } : {}),
     ...(resultChoices[0]?.url ? { topResultChoiceUrl: resultChoices[0].url } : {}),
+    ...(resultChoices[0]?.host ? { topResultChoiceHost: resultChoices[0].host } : {}),
     ...(resultChoices[0]?.commandArgs ? { topResultChoiceCommandArgs: resultChoices[0].commandArgs } : {}),
     ...(typeof resultChoices[0]?.rank === "number" ? { topResultChoiceRank: resultChoices[0].rank } : {}),
     ...(resultChoices[0]?.openResult ? { topResultChoiceOpenResult: resultChoices[0].openResult } : {}),
@@ -11383,6 +11389,7 @@ function summarizeAgent(
     ...(sourceChoices[0] ? { topSourceChoicePath: sourceChoices[0].path } : {}),
     ...(sourceChoices[0]?.title ? { topSourceChoiceTitle: sourceChoices[0].title } : {}),
     ...(sourceChoices[0]?.url ? { topSourceChoiceUrl: sourceChoices[0].url } : {}),
+    ...(sourceChoices[0]?.host ? { topSourceChoiceHost: sourceChoices[0].host } : {}),
     ...(sourceChoices[0]?.commandArgs ? { topSourceChoiceCommandArgs: sourceChoices[0].commandArgs } : {}),
     ...(sourceChoices[0]?.sourceType ? { topSourceChoiceSourceType: sourceChoices[0].sourceType } : {}),
     ...(typeof sourceChoices[0]?.sourceScore === "number" ? { topSourceChoiceSourceScore: sourceChoices[0].sourceScore } : {}),
@@ -11720,6 +11727,7 @@ function summarizeAgentResultChoices(
   return selectCompactSearchResults(results, recommendedResult).map((result, index) => {
     const recommended = Boolean(recommendedResult && result.rank === recommendedResult.rank && result.url === recommendedResult.url);
     const primary = Boolean(primaryAction?.url === result.url || (typeof primaryAction?.rank === "number" && primaryAction.rank === result.rank));
+    const host = result.host ?? sourceFromUrl(result.url);
     const command = sourceSearch ? searchOpenCommandSpec(
       sourceSearch.query,
       sourceSearch.selectedEngine ?? sourceSearch.engine,
@@ -11736,6 +11744,7 @@ function summarizeAgentResultChoices(
       path: `searchResults[${index}]`,
       title: result.title,
       url: result.url,
+      ...(host ? { host } : {}),
       source: result.source,
       rank: result.rank,
       ...(result.snippet ? { snippet: result.snippet } : {}),
@@ -11772,11 +11781,13 @@ function summarizeAgentSourceChoices(
   return sourceLinks.slice(0, 4).map((link, index) => {
     const command = pageCommandSpec(link.url, agentMode, false, findQueries, timeoutMs, userAgent);
     const primary = Boolean(primaryAction?.url === link.url || (typeof primaryAction?.rank === "number" && primaryAction.rank === link.rank));
+    const host = link.host ?? sourceFromUrl(link.url);
     return {
       id: `s${index + 1}`,
       path: `pageCheck.sourceLinks[${index}]`,
       title: link.title,
       url: link.url,
+      ...(host ? { host } : {}),
       source: link.source,
       rank: link.rank,
       ...(link.text ? { text: link.text } : {}),
@@ -15927,6 +15938,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topResultChoicePath ? { topResultChoicePath: agent.topResultChoicePath } : {}),
     ...(agent.topResultChoiceTitle ? { topResultChoiceTitle: agent.topResultChoiceTitle } : {}),
     ...(agent.topResultChoiceUrl ? { topResultChoiceUrl: agent.topResultChoiceUrl } : {}),
+    ...(agent.topResultChoiceHost ? { topResultChoiceHost: agent.topResultChoiceHost } : {}),
     ...(agent.topResultChoiceCommandArgs ? { topResultChoiceCommandArgs: agent.topResultChoiceCommandArgs } : agent.resultChoices[0] ? { topResultChoiceCommandArgs: compactAgentResultChoice(agent.resultChoices[0], searchCommandContext, pageLinkContext).commandArgs } : {}),
     ...(typeof agent.topResultChoiceRank === "number" ? { topResultChoiceRank: agent.topResultChoiceRank } : {}),
     ...(agent.topResultChoiceOpenResult ? { topResultChoiceOpenResult: agent.topResultChoiceOpenResult } : agent.resultChoices[0] ? { topResultChoiceOpenResult: compactAgentResultChoice(agent.resultChoices[0], searchCommandContext, pageLinkContext).openResult } : {}),
@@ -16148,6 +16160,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topSourceChoicePath ? { topSourceChoicePath: agent.topSourceChoicePath } : {}),
     ...(agent.topSourceChoiceTitle ? { topSourceChoiceTitle: agent.topSourceChoiceTitle } : {}),
     ...(agent.topSourceChoiceUrl ? { topSourceChoiceUrl: agent.topSourceChoiceUrl } : {}),
+    ...(agent.topSourceChoiceHost ? { topSourceChoiceHost: agent.topSourceChoiceHost } : {}),
     ...(agent.topSourceChoiceCommandArgs ? { topSourceChoiceCommandArgs: agent.topSourceChoiceCommandArgs } : {}),
     ...(agent.topSourceChoiceSourceType ? { topSourceChoiceSourceType: agent.topSourceChoiceSourceType } : {}),
     ...(typeof agent.topSourceChoiceSourceScore === "number" ? { topSourceChoiceSourceScore: agent.topSourceChoiceSourceScore } : {}),
@@ -16659,6 +16672,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topResultChoicePath ? { topResultChoicePath: agent.topResultChoicePath } : {}),
     ...(agent.topResultChoiceTitle ? { topResultChoiceTitle: agent.topResultChoiceTitle } : {}),
     ...(agent.topResultChoiceUrl ? { topResultChoiceUrl: agent.topResultChoiceUrl } : {}),
+    ...(agent.topResultChoiceHost ? { topResultChoiceHost: agent.topResultChoiceHost } : {}),
     ...(agent.topResultChoiceCommandArgs ? { topResultChoiceCommandArgs: agent.topResultChoiceCommandArgs } : agent.resultChoices[0] ? { topResultChoiceCommandArgs: compactAgentResultChoice(agent.resultChoices[0], searchCommandContext, pageLinkContext).commandArgs } : {}),
     ...(typeof agent.topResultChoiceRank === "number" ? { topResultChoiceRank: agent.topResultChoiceRank } : {}),
     ...(agent.topResultChoiceOpenResult ? { topResultChoiceOpenResult: agent.topResultChoiceOpenResult } : agent.resultChoices[0] ? { topResultChoiceOpenResult: compactAgentResultChoice(agent.resultChoices[0], searchCommandContext, pageLinkContext).openResult } : {}),
@@ -16832,6 +16846,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topSourceChoicePath ? { topSourceChoicePath: agent.topSourceChoicePath } : {}),
     ...(agent.topSourceChoiceTitle ? { topSourceChoiceTitle: agent.topSourceChoiceTitle } : {}),
     ...(agent.topSourceChoiceUrl ? { topSourceChoiceUrl: agent.topSourceChoiceUrl } : {}),
+    ...(agent.topSourceChoiceHost ? { topSourceChoiceHost: agent.topSourceChoiceHost } : {}),
     ...(agent.topSourceChoiceCommandArgs ? { topSourceChoiceCommandArgs: agent.topSourceChoiceCommandArgs } : {}),
     ...(agent.topSourceChoiceSourceType ? { topSourceChoiceSourceType: agent.topSourceChoiceSourceType } : {}),
     ...(typeof agent.topSourceChoiceSourceScore === "number" ? { topSourceChoiceSourceScore: agent.topSourceChoiceSourceScore } : {}),
@@ -17262,6 +17277,7 @@ function compactAgentSourceChoiceRef(choice: AgentSourceChoice): object {
       id: choice.id,
       path: choice.path,
       url: choice.url,
+      ...(choice.host ? { host: choice.host } : {}),
       rank: choice.rank,
       ...(choice.text ? { text: choice.text } : {}),
       ...(choice.snippet ? { snippet: choice.snippet } : {}),
@@ -17275,6 +17291,7 @@ function compactAgentSourceChoiceRef(choice: AgentSourceChoice): object {
     path: choice.path,
     title: choice.title,
     url: choice.url,
+    ...(choice.host ? { host: choice.host } : {}),
     rank: choice.rank,
     ...(choice.text ? { text: choice.text } : {}),
     ...(choice.snippet ? { snippet: choice.snippet } : {}),
@@ -17685,10 +17702,12 @@ function compactAgentSearchResult(
     : fallbackCommandContext
       ? pageCommandSpec(result.url, fallbackCommandContext.agentMode, false, fallbackCommandContext.findQueries, fallbackCommandContext.timeoutMs, fallbackCommandContext.userAgent)
       : undefined;
+  const host = result.host ?? sourceFromUrl(result.url);
   const compact: ResultSummary = {
     ...(reference ? { id: reference.id, path: reference.path } : {}),
     title: result.title,
     url: result.url,
+    ...(host ? { host } : {}),
     source: result.source,
     rank: result.rank,
   };
@@ -17717,10 +17736,12 @@ function compactAgentPageLink(
   commandContext?: PageLinkCommandContext,
   reference?: { id: string; path: string },
 ): PageLinkSummary & Partial<Pick<SuggestedAction, "command" | "commandArgs">> {
+  const host = link.host ?? sourceFromUrl(link.url);
   const compact: PageLinkSummary = {
     ...(reference ? { id: reference.id, path: reference.path } : {}),
     title: link.title,
     url: link.url,
+    ...(host ? { host } : {}),
     source: link.source,
     rank: link.rank,
     ...(link.text ? { text: link.text } : {}),
@@ -17744,9 +17765,11 @@ function compactAgentPageLink(
 }
 
 function agentTargetFromResult(result: ResultSummary): AgentTarget {
+  const host = result.host ?? sourceFromUrl(result.url);
   return {
     title: result.title,
     url: result.url,
+    ...(host ? { host } : {}),
     ...(result.path ? { path: result.path } : {}),
     ...(result.text ? { text: result.text } : {}),
     source: result.source,
@@ -17796,6 +17819,7 @@ function compactAgentTarget(target: AgentTarget, action?: string): object {
   return {
     ...(target.title ? { title: target.title } : {}),
     url: target.url,
+    ...(target.host ? { host: target.host } : {}),
     ...(target.path ? { path: target.path } : {}),
     ...(target.text ? { text: target.text } : {}),
     ...(target.source ? { source: target.source } : {}),

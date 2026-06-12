@@ -16,7 +16,7 @@ percentage as a fixed contract.
 | --- | ---: | --- |
 | README/docs hygiene | 90% | Root README is short; detailed docs live under `docs/`. |
 | Process safety | 85% | `AGENTS.md`, `pnpm check:processes`, and non-browser gates are in place. |
-| Search result handoff | 81% | Result choices, source hints, verification, decision counts, and command args are exposed. |
+| Search result handoff | 82% | Result choices, host shortcuts, source hints, verification, decision counts, and command args are exposed. |
 | Page check handoff | 86% | Forms, action targets, table navigation shortcuts, hidden signal group counts/top shortcuts/selectors, static-readiness reasons, browser-capture reasons/codes/execution shortcuts, barriers, and read targets are exposed. |
 | Semantic accessibility signals | 78% | Landmarks, headings, links, buttons, fields, values, relations, choices, states, list item refs, and table header/cell navigation shortcuts are exposed. |
 | Browser-tree parity research | 60% | Static gates exist; browser-backed checks must stay sequential and limited. |
@@ -45,7 +45,7 @@ instead of hiding the new scope.
 | --- | ---: | --- | --- | --- |
 | Documentation control | 90% | Keep README short and move long operational detail into `docs/`. | Add only status, safety, and research notes that help future sessions resume quickly. | README length/mojibake tests pass after each docs change. |
 | Process containment | 85% | Keep validation sequential and check for leftover browser/test/comparison processes. | Add more explicit notes when a task would require browser-backed validation, including why it is necessary. | `pnpm check:processes` before and after risky work shows no leftovers. |
-| Search handoff | 81% | Expose enough ranked-result context for an agent to choose, open, or skip results. | Identify whether ranked result snippets need stronger dedupe, provenance, or failed-open reasons. | A static search fixture lets an agent choose a result without browser inspection first. |
+| Search handoff | 82% | Expose enough ranked-result context for an agent to choose, open, or skip results. | Identify whether ranked result snippets need stronger dedupe, provenance, or failed-open reasons. | A static search fixture lets an agent choose a result without browser inspection first. |
 | Page handoff | 86% | Surface barriers, read targets, action targets, table navigation shortcuts, hidden signal group shortcuts, static-readiness reasons, and browser-capture reason/execution shortcuts. | Tighten fallback decisions for client-rendered, blocked, and low-content pages. | Fixtures show clear `use static output` vs `need browser capture` reasons. |
 | Semantic accessibility | 78% | Continue adding high-value shortcuts from roles, states, relations, lists, tables, and controls. | Compare table/grid/list/control output against browser-tree expectations and add only useful static equivalents. | Each accepted signal has a public type, CLI output, compact output, and fixture/test coverage. |
 | Browser parity research | 60% | Compare static output against a small sequential fixture set and record gaps. | Expand the gap list as research finds new browser accessibility-tree signals; lower estimates if new important gaps appear. | Each gap is tagged `implement`, `browser-only`, or `defer` with priority and evidence. |
@@ -93,7 +93,7 @@ estimates stay honest.
 | --- | --- | --- | --- | --- |
 | Table/grid ownership and cell navigation context beyond first-row shortcuts. | Static/browser fixture comparison. | P1 | Added header refs with path, role, row/column index, sort state, and selector; keep investigating deeper ownership only if fixtures show it matters. | In progress. |
 | Browser-only fallback reasons for client-rendered or blocked pages. | Failed or low-content page checks. | P1 | Added `staticReadiness`, `staticReadinessReason`, and `staticReadinessReadFrom` so agents can distinguish usable content, structured data, hidden app data, thin output, and browser-required cases. | In progress. |
-| Search-result provenance and failed-open reasons. | Search handoff review. | P2 | Implement if agents cannot explain why a result was selected or skipped. | Candidate. |
+| Search-result provenance and failed-open reasons. | Search handoff review. | P2 | Added result/source choice host shortcuts so agents can compare provenance without parsing URLs; keep failed-open reason work as a candidate. | In progress. |
 | Additional browser accessibility-tree signals discovered during sequential comparison. | Future research. | P1/P2 after triage. | Add to this ledger, then classify as `implement`, `browser-only`, or `defer`. | Watch. |
 
 When research expands:
@@ -183,6 +183,8 @@ When research expands:
 - Added top-level search decision count shortcuts for relevance, official
   result, and find-match totals so agents can judge result quality without
   parsing the nested `searchDecision` object.
+- Added result/source choice host shortcuts so agents can compare domains and
+  provenance without parsing URLs before opening a result.
 
 ## In Progress
 

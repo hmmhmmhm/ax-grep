@@ -387,6 +387,7 @@ export type AgentAnswerPlan = {
 export type AgentTarget = {
   title?: string;
   url: string;
+  host?: string;
   path?: string;
   text?: string;
   source?: string;
@@ -895,6 +896,7 @@ export type AgentSummary = {
   topResultChoicePath?: string;
   topResultChoiceTitle?: string;
   topResultChoiceUrl?: string;
+  topResultChoiceHost?: string;
   topResultChoiceCommandArgs?: string[];
   topResultChoiceRank?: number;
   topResultChoiceOpenResult?: number | "best";
@@ -1116,6 +1118,7 @@ export type AgentSummary = {
   topSourceChoicePath?: string;
   topSourceChoiceTitle?: string;
   topSourceChoiceUrl?: string;
+  topSourceChoiceHost?: string;
   topSourceChoiceCommandArgs?: string[];
   topSourceChoiceSourceType?: string;
   topSourceChoiceSourceScore?: number;

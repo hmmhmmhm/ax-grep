@@ -231,6 +231,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
         requireFileIncludes(root, failures, "tests/cli.test.ts", [
           "resultChoices",
           "topResultChoicePath",
+          "topResultChoiceHost",
           "topResultChoiceCommandArgs",
           "topResultChoiceSourceType",
           "topResultChoiceSourceScore",
@@ -307,6 +308,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "sourceChoiceCount",
           "topSourceChoicePath",
           "topSourceChoiceUrl",
+          "topSourceChoiceHost",
           "topSourceChoiceCommandArgs",
           "topSourceChoiceSourceType",
           "topSourceChoiceSourceHints",
@@ -987,6 +989,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "sourceChoiceCount",
           "topSourceChoicePath",
           "topSourceChoiceUrl",
+          "topSourceChoiceHost",
           "topSourceChoiceCommandArgs",
           "topSourceChoiceSourceType",
           "topSourceChoiceSourceHints",

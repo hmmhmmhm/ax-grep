@@ -421,6 +421,7 @@ type CliAgentLoopShape = {
 type CliAgentTargetShape = {
   title?: string;
   url?: string;
+  host?: string;
   path?: string;
   text?: string;
   source?: string;
@@ -1278,6 +1279,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topResultChoicePath?: string;
       topResultChoiceTitle?: string;
       topResultChoiceUrl?: string;
+      topResultChoiceHost?: string;
       topResultChoiceCommandArgs?: unknown[];
       topResultChoiceRank?: number;
       topResultChoiceOpenResult?: number | "best";
@@ -1498,6 +1500,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topSourceChoicePath?: string;
       topSourceChoiceTitle?: string;
       topSourceChoiceUrl?: string;
+      topSourceChoiceHost?: string;
       topSourceChoiceCommandArgs?: string[];
       topSourceChoiceSourceType?: string;
       topSourceChoiceSourceScore?: number;
@@ -3670,6 +3673,7 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
   topResultChoicePath?: string;
   topResultChoiceTitle?: string;
   topResultChoiceUrl?: string;
+  topResultChoiceHost?: string;
   topResultChoiceCommandArgs?: unknown[];
   topResultChoiceRank?: number;
   topResultChoiceOpenResult?: number | "best";
@@ -3693,6 +3697,7 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
     return agent?.topResultChoicePath
       || agent?.topResultChoiceTitle
       || agent?.topResultChoiceUrl
+      || agent?.topResultChoiceHost
       || agent?.topResultChoiceCommandArgs
       || typeof agent?.topResultChoiceRank === "number"
       || agent?.topResultChoiceOpenResult
@@ -3716,6 +3721,12 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
   if (agent?.topResultChoicePath === top.path) matched += 1;
   if (agent?.topResultChoiceUrl === top.url) matched += 1;
   if (agent?.topResultChoiceRank === top.rank) matched += 1;
+  if (top.host) {
+    required += 1;
+    if (agent?.topResultChoiceHost === top.host) matched += 1;
+  } else if (agent?.topResultChoiceHost) {
+    required += 1;
+  }
   if (top.commandArgs) {
     required += 1;
     if (JSON.stringify(agent?.topResultChoiceCommandArgs) === JSON.stringify(top.commandArgs)) matched += 1;
@@ -4500,6 +4511,7 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
   topSourceChoicePath?: string;
   topSourceChoiceTitle?: string;
   topSourceChoiceUrl?: string;
+  topSourceChoiceHost?: string;
   topSourceChoiceCommandArgs?: string[];
   topSourceChoiceSourceType?: string;
   topSourceChoiceSourceScore?: number;
@@ -4512,6 +4524,7 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
     return agent?.topSourceChoicePath
       || agent?.topSourceChoiceTitle
       || agent?.topSourceChoiceUrl
+      || agent?.topSourceChoiceHost
       || agent?.topSourceChoiceCommandArgs
       || agent?.topSourceChoiceSourceType
       || typeof agent?.topSourceChoiceSourceScore === "number"
@@ -4524,6 +4537,12 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
   if (agent?.topSourceChoicePath === top.path) matched += 1;
   if (agent?.topSourceChoiceUrl === top.url) matched += 1;
   if (JSON.stringify(agent?.topSourceChoiceCommandArgs) === JSON.stringify(top.commandArgs)) matched += 1;
+  if (top.host) {
+    required += 1;
+    if (agent?.topSourceChoiceHost === top.host) matched += 1;
+  } else if (agent?.topSourceChoiceHost) {
+    required += 1;
+  }
   if (top.title) {
     required += 1;
     if (agent?.topSourceChoiceTitle === top.title) matched += 1;
