@@ -24,6 +24,17 @@ percentage as a fixed contract.
 Overall estimate: 85%. This is intentionally conservative because the final
 goal is comparative usefulness, not just passing the current tests.
 
+Forecast from the current evidence:
+
+- 85% means the tool is already useful for common static search/page handoff
+  loops.
+- 88-90% is expected after the current non-browser shortcut and fallback-policy
+  candidates are either implemented or explicitly deferred.
+- 90%+ requires a small, sequential browser accessibility-tree comparison set
+  with each observed gap classified as `implement`, `browser-only`, or `defer`.
+- The estimate may drop if comparison finds a high-value browser-tree signal
+  that static output does not yet expose.
+
 Reading guide:
 
 - 90% or higher means the area is useful in normal agent handoff flows and only
@@ -50,6 +61,22 @@ instead of hiding the new scope.
 | Semantic accessibility | 79% | Continue adding high-value shortcuts from roles, states, relations, lists, tables, ownership, and controls. | Compare table/grid/list/control output against browser-tree expectations and add only useful static equivalents. | Each accepted signal has a public type, CLI output, compact output, and fixture/test coverage. |
 | Browser parity research | 60% | Compare static output against a small sequential fixture set and record gaps. | Expand the gap list as research finds new browser accessibility-tree signals; lower estimates if new important gaps appear. | Each gap is tagged `implement`, `browser-only`, or `defer` with priority and evidence. |
 
+## Remaining Work Breakdown
+
+The percentages below are not time estimates. They are confidence estimates for
+how much of each work packet is already covered by code, tests, and documented
+evidence.
+
+| Packet | Current coverage | Remaining decision | Expected next result | Scope can expand when |
+| --- | ---: | --- | --- | --- |
+| P1: README/docs containment | 90% | Keep root README short while this progress file carries detailed state. | Stable README tests and a readable progress ledger. | A new workflow needs durable instructions. |
+| P2: Search result routing | 84% | Decide whether top-level snippet/provenance shortcuts reduce nested parsing enough to justify more public fields. | Either add a focused shortcut or mark snippet provenance as already covered by `resultChoices`/`sourceChoices`. | Search fixtures show agents still need to inspect nested choices before opening or recovering. |
+| P3: Failed source-search recovery | 88% | Watch for missing failure categories after selected-result HTTP/fetch failures. | Keep current shortcuts unless a new failure class appears. | A fixture shows an unclear `sourceSearchFailureCode`/reason. |
+| P4: Static readiness and browser fallback | 76% | Split client-rendered, low-content, and interaction-required cases only when fixtures show ambiguous guidance. | Clearer reason codes or an explicit `defer` row. | A page needs browser capture but current reason text does not explain why. |
+| P5: Semantic table/grid parity | 72% | Decide whether virtualized row counts or owned row/cell sampling are worth exposing beyond current header/ownership refs. | One new shortcut or a documented `defer` decision. | Browser-tree comparison exposes useful table structure not represented in static output. |
+| P6: General accessibility parity | 60% | Run only small sequential comparisons and record every new signal before implementation. | A gap row with priority, decision, validation command, and estimate impact. | Any browser accessibility-tree signal repeatedly helps agent routing. |
+| P7: Process safety | 85% | Keep every validation step single-process and record browser-backed exceptions before running them. | Clean process check before final handoff. | A new test path would spawn browsers, servers, or long-running comparison jobs. |
+
 ## Active Work Detail
 
 These are the items currently being worked or prepared. Use this table to
@@ -67,11 +94,11 @@ estimate whether the overall percentage should move.
 
 | Order | Work | Why it matters | Entry condition | Done when | Risk |
 | ---: | --- | --- | --- | --- | --- |
-| 1 | Validate and land citation shortcut work. | Agents can cite ready answers without parsing nested `answerPlan.useCitationIds`. | Current WIP compiles. | The focused tests and gates pass, then the change is committed and pushed. | Low; public type expansion only. |
-| 2 | Convert the generic research ledger into observed gap records. | Progress becomes auditable instead of a broad percentage. | One small sequential fixture comparison is selected. | At least one real fixture result is recorded as `implement`, `browser-only`, or `defer`. | Medium; browser-backed checks must remain limited. |
-| 3 | Re-check table/grid semantics against the observed gaps. | Tables are a major place where accessibility-tree context can beat plain HTML. | Gap record says current static output is insufficient. | New shortcut is added with public type/CLI/compact/test coverage, or the gap is documented as not worth implementing. | Medium; avoid adding noisy fields. |
-| 4 | Tighten fallback policy categories. | Agents need to know when static inspection is enough and when browser capture is justified. | A fixture or real page produces unclear fallback guidance. | Reason codes and docs explain the decision without reading nested plans. | Medium; fetch/browser behavior can vary. |
-| 5 | Keep README short while moving detail into docs. | Prevents another unreadable README buildup. | Any new long explanation is needed. | README tests pass and the detail lives under `docs/`. | Low. |
+| 1 | Keep README short while this file carries progress detail. | Prevents another unreadable README buildup. | Any new long explanation is needed. | README tests pass and the detail lives under `docs/`. | Low. |
+| 2 | Review top-level snippet/provenance shortcuts for search choices. | Agents may need the selected result's snippet before opening or recovering without parsing nested arrays. | Existing fixtures already expose snippets in nested choices. | Add focused shortcut coverage, or mark the gap as already covered. | Low; public type expansion only if justified. |
+| 3 | Tighten fallback policy categories. | Agents need to know when static inspection is enough and when browser capture is justified. | A fixture or real page produces unclear fallback guidance. | Reason codes and docs explain the decision without reading nested plans. | Medium; fetch/browser behavior can vary. |
+| 4 | Re-check table/grid semantics against observed gaps. | Tables are a major place where accessibility-tree context can beat plain HTML. | Gap record says current static output is insufficient. | New shortcut is added with public type/CLI/compact/test coverage, or the gap is documented as not worth implementing. | Medium; avoid adding noisy fields. |
+| 5 | Expand the browser parity gap ledger with only sequential evidence. | Progress becomes auditable instead of a broad percentage. | One small sequential fixture comparison is selected and process safety is clean. | At least one real fixture result is recorded as `implement`, `browser-only`, or `defer`. | Medium-high; browser-backed checks must remain limited. |
 
 ## Milestone Tracker
 
@@ -109,6 +136,19 @@ or deferred.
 | G4 | Blocked pages with challenge, login, or paywall diagnostics collapsed into generic `retry-action`/blocked fallback codes. Agents could not branch between simple rendered HTML capture and barrier-specific browser handling without reading diagnostics. | Challenge and login/paywall fixtures in `tests/cli.test.ts`. | P1 | Extend `browserHtmlReasonCode` with `challenge`, `login-required`, and `paywall` and prioritize diagnostics before generic retry codes. | Landed. | Typecheck, focused CLI/public type tests, readiness audit, static fixture gate, README test, diff check, and process check passed. | +1% page handoff. |
 | G5 | Failed opened search results required joining `error` with `sourceSearch.selectedResult` to know which selected result failed and why. This slowed recovery decisions and made failure provenance less direct. | `tests/cli.test.ts` selected-result HTTP error fixture. | P2 | Add `sourceSearchFailureCode`, `sourceSearchFailureStatus`, `sourceSearchFailureUrl`, and `sourceSearchFailureReason` shortcuts on source-search error payloads. | Landed. | Typecheck, focused CLI/public type tests, readiness audit, static fixture gate, README test, diff check, and process check passed. | +1% search handoff. |
 | G2 | Browser accessibility-tree comparison may reveal signals that static HTML cannot safely infer. | Future sequential fixture comparison only; no broad browser run allowed. | P1 after evidence | Track first, then classify as `implement`, `browser-only`, or `defer`. | Watch. | Add the smallest fixture command here before running any browser-backed check; run `pnpm check:processes` afterward. | Unknown until observed. |
+
+## Current Queue
+
+Use this queue when resuming the work. Do not start a browser-backed check while
+any earlier non-browser item can still reduce uncertainty.
+
+| Step | Status | What will change | Validation | Percent effect |
+| ---: | --- | --- | --- | ---: |
+| 1 | Doing | Keep progress tracking detailed enough to show current work, planned work, completion signals, and scope-expansion rules. | `pnpm exec vitest run tests/readme.test.ts`, `git diff --check`, `pnpm check:processes`. | Keeps docs hygiene at 90%. |
+| 2 | Next | Inspect whether top result/source snippets need top-level shortcuts or whether nested `resultChoices`/`sourceChoices` are sufficient. | Focused CLI/public type tests if code changes; otherwise record a `defer` decision. | 0-1% search handoff. |
+| 3 | Next | Add or defer clearer low-content/client-rendered fallback categories. | Focused CLI fixtures, readiness audit, static fixture gate. | 1-2% page handoff. |
+| 4 | Later | Compare one semantic table/list/control fixture against browser-tree output, sequentially only. | Pre/post `pnpm check:processes`; smallest comparison command recorded before use. | 1-3% semantic/browser parity. |
+| 5 | Later | Recalculate the overall estimate after each landed shortcut or documented defer/browser-only decision. | Update this file in the same commit as the evidence. | Can raise or lower estimate. |
 
 When research expands:
 
