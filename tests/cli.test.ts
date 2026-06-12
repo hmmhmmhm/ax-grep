@@ -1312,6 +1312,18 @@ describe("cli", () => {
       if (envelope.agent.answerPlan?.nextAction) expect(envelope.agent.answerPlanNextAction).toBe(envelope.agent.answerPlan.nextAction);
       expect(envelope.agent.answerGapCount).toEqual(expect.any(Number));
       expect(envelope.agent.alternativeActionCount).toEqual(expect.any(Number));
+      const topAction = envelope.agent.actions?.[0];
+      if (topAction?.target?.url) expect(envelope.agent.topActionTargetUrl).toBe(topAction.target.url);
+      if (topAction?.target?.path) expect(envelope.agent.topActionTargetPath).toBe(topAction.target.path);
+      if (topAction?.target?.title) expect(envelope.agent.topActionTargetTitle).toBe(topAction.target.title);
+      if (topAction?.target?.host) expect(envelope.agent.topActionTargetHost).toBe(topAction.target.host);
+      if (topAction?.target?.source) expect(envelope.agent.topActionTargetSource).toBe(topAction.target.source);
+      if (typeof topAction?.target?.rank === "number") expect(envelope.agent.topActionTargetRank).toBe(topAction.target.rank);
+      if (typeof topAction?.target?.sourceScore === "number") expect(envelope.agent.topActionTargetSourceScore).toBe(topAction.target.sourceScore);
+      if (topAction?.target?.relevance) expect(envelope.agent.topActionTargetRelevance).toBe(topAction.target.relevance);
+      if (typeof topAction?.target?.isLikelyOfficial === "boolean") expect(envelope.agent.topActionTargetLikelyOfficial).toBe(topAction.target.isLikelyOfficial);
+      if (topAction?.target?.selector) expect(envelope.agent.topActionTargetSelector).toBe(topAction.target.selector);
+      if (topAction?.target?.text) expect(envelope.agent.topActionTargetText).toBe(topAction.target.text);
       expect(envelope.agent.diagnosticInfoCount).toEqual(expect.any(Number));
       if (envelope.agent.diagnosticCodes?.length) expect(envelope.agent.diagnosticCodes[0]).toEqual(expect.any(String));
       const topAnswerEvidence = envelope.agent.answerEvidence?.[0] ?? handoff.answerEvidence?.[0];

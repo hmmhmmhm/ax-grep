@@ -1673,6 +1673,17 @@ type AgentSummary = {
   topActionCommandArgs?: string[];
   topActionUrl?: string;
   topActionSourceLinkRef?: string;
+  topActionTargetUrl?: string;
+  topActionTargetPath?: string;
+  topActionTargetTitle?: string;
+  topActionTargetHost?: string;
+  topActionTargetSource?: string;
+  topActionTargetRank?: number;
+  topActionTargetSourceScore?: number;
+  topActionTargetRelevance?: AgentTarget["relevance"];
+  topActionTargetLikelyOfficial?: boolean;
+  topActionTargetSelector?: string;
+  topActionTargetText?: string;
   topActionRequiresBrowserInteraction?: boolean;
   bestReadTarget?: string;
   bestReadTargetCount?: number;
@@ -3570,6 +3581,17 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topActionCommandArgs ? [`  topActionCommandArgs: ${JSON.stringify(agent.topActionCommandArgs)}`] : []),
     ...(agent.topActionUrl ? [`  topActionUrl: ${agent.topActionUrl}`] : []),
     ...(agent.topActionSourceLinkRef ? [`  topActionSourceLinkRef: ${agent.topActionSourceLinkRef}`] : []),
+    ...(agent.topActionTargetUrl ? [`  topActionTargetUrl: ${agent.topActionTargetUrl}`] : []),
+    ...(agent.topActionTargetPath ? [`  topActionTargetPath: ${agent.topActionTargetPath}`] : []),
+    ...(agent.topActionTargetTitle ? [`  topActionTargetTitle: ${agent.topActionTargetTitle}`] : []),
+    ...(agent.topActionTargetHost ? [`  topActionTargetHost: ${agent.topActionTargetHost}`] : []),
+    ...(agent.topActionTargetSource ? [`  topActionTargetSource: ${agent.topActionTargetSource}`] : []),
+    ...(typeof agent.topActionTargetRank === "number" ? [`  topActionTargetRank: ${agent.topActionTargetRank}`] : []),
+    ...(typeof agent.topActionTargetSourceScore === "number" ? [`  topActionTargetSourceScore: ${agent.topActionTargetSourceScore}`] : []),
+    ...(agent.topActionTargetRelevance ? [`  topActionTargetRelevance: ${agent.topActionTargetRelevance}`] : []),
+    ...(typeof agent.topActionTargetLikelyOfficial === "boolean" ? [`  topActionTargetLikelyOfficial: ${agent.topActionTargetLikelyOfficial}`] : []),
+    ...(agent.topActionTargetSelector ? [`  topActionTargetSelector: ${agent.topActionTargetSelector}`] : []),
+    ...(agent.topActionTargetText ? [`  topActionTargetText: ${agent.topActionTargetText}`] : []),
     ...(agent.topActionRequiresBrowserInteraction ? ["  topActionRequiresBrowserInteraction: true"] : []),
     `  verification: ${agent.verificationFoundCount}/${agent.verificationRequestedCount} found, ${agent.verificationMissingCount} missing`,
     ...(agent.verificationFoundQueries.length > 0 ? [`  verificationFoundQueries: ${agent.verificationFoundQueries.join("; ")}`] : []),
@@ -11809,6 +11831,17 @@ function summarizeAgent(
     ...(actions[0]?.commandArgs ? { topActionCommandArgs: actions[0].commandArgs } : {}),
     ...(actions[0]?.url ? { topActionUrl: actions[0].url } : {}),
     ...(actions[0]?.sourceLinkRef ? { topActionSourceLinkRef: actions[0].sourceLinkRef } : {}),
+    ...(actions[0]?.target?.url ? { topActionTargetUrl: actions[0].target.url } : {}),
+    ...(actions[0]?.target?.path ? { topActionTargetPath: actions[0].target.path } : {}),
+    ...(actions[0]?.target?.title ? { topActionTargetTitle: actions[0].target.title } : {}),
+    ...(actions[0]?.target?.host ? { topActionTargetHost: actions[0].target.host } : {}),
+    ...(actions[0]?.target?.source ? { topActionTargetSource: actions[0].target.source } : {}),
+    ...(typeof actions[0]?.target?.rank === "number" ? { topActionTargetRank: actions[0].target.rank } : {}),
+    ...(typeof actions[0]?.target?.sourceScore === "number" ? { topActionTargetSourceScore: actions[0].target.sourceScore } : {}),
+    ...(actions[0]?.target?.relevance ? { topActionTargetRelevance: actions[0].target.relevance } : {}),
+    ...(typeof actions[0]?.target?.isLikelyOfficial === "boolean" ? { topActionTargetLikelyOfficial: actions[0].target.isLikelyOfficial } : {}),
+    ...(actions[0]?.target?.selector ? { topActionTargetSelector: actions[0].target.selector } : {}),
+    ...(actions[0]?.target?.text ? { topActionTargetText: actions[0].target.text } : {}),
     ...(actions[0]?.requiresBrowserInteraction ? { topActionRequiresBrowserInteraction: true } : {}),
     ...(alternativeAction?.action ? { alternativeActionName: alternativeAction.action } : {}),
     ...(alternativeAction?.source ? { alternativeActionSource: alternativeAction.source } : {}),
@@ -14739,6 +14772,17 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(primaryAction?.commandArgs ? { topActionCommandArgs: primaryAction.commandArgs } : {}),
     ...(primaryAction?.url ? { topActionUrl: primaryAction.url } : {}),
     ...(primaryAction?.sourceLinkRef ? { topActionSourceLinkRef: primaryAction.sourceLinkRef } : {}),
+    ...(primaryAction?.target?.url ? { topActionTargetUrl: primaryAction.target.url } : {}),
+    ...(primaryAction?.target?.path ? { topActionTargetPath: primaryAction.target.path } : {}),
+    ...(primaryAction?.target?.title ? { topActionTargetTitle: primaryAction.target.title } : {}),
+    ...(primaryAction?.target?.host ? { topActionTargetHost: primaryAction.target.host } : {}),
+    ...(primaryAction?.target?.source ? { topActionTargetSource: primaryAction.target.source } : {}),
+    ...(typeof primaryAction?.target?.rank === "number" ? { topActionTargetRank: primaryAction.target.rank } : {}),
+    ...(typeof primaryAction?.target?.sourceScore === "number" ? { topActionTargetSourceScore: primaryAction.target.sourceScore } : {}),
+    ...(primaryAction?.target?.relevance ? { topActionTargetRelevance: primaryAction.target.relevance } : {}),
+    ...(typeof primaryAction?.target?.isLikelyOfficial === "boolean" ? { topActionTargetLikelyOfficial: primaryAction.target.isLikelyOfficial } : {}),
+    ...(primaryAction?.target?.selector ? { topActionTargetSelector: primaryAction.target.selector } : {}),
+    ...(primaryAction?.target?.text ? { topActionTargetText: primaryAction.target.text } : {}),
     ...(primaryAction?.requiresBrowserInteraction ? { topActionRequiresBrowserInteraction: true } : {}),
     ...(bestReadTarget ? { bestReadTarget: bestReadTarget.path } : {}),
     ...(typeof bestReadTarget?.count === "number" ? { bestReadTargetCount: bestReadTarget.count } : {}),
@@ -16824,6 +16868,17 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topActionCommandArgs ? { topActionCommandArgs: agent.topActionCommandArgs } : {}),
     ...(agent.topActionUrl ? { topActionUrl: agent.topActionUrl } : {}),
     ...(agent.topActionSourceLinkRef ? { topActionSourceLinkRef: agent.topActionSourceLinkRef } : {}),
+    ...(agent.topActionTargetUrl ? { topActionTargetUrl: agent.topActionTargetUrl } : {}),
+    ...(agent.topActionTargetPath ? { topActionTargetPath: agent.topActionTargetPath } : {}),
+    ...(agent.topActionTargetTitle ? { topActionTargetTitle: agent.topActionTargetTitle } : {}),
+    ...(agent.topActionTargetHost ? { topActionTargetHost: agent.topActionTargetHost } : {}),
+    ...(agent.topActionTargetSource ? { topActionTargetSource: agent.topActionTargetSource } : {}),
+    ...(typeof agent.topActionTargetRank === "number" ? { topActionTargetRank: agent.topActionTargetRank } : {}),
+    ...(typeof agent.topActionTargetSourceScore === "number" ? { topActionTargetSourceScore: agent.topActionTargetSourceScore } : {}),
+    ...(agent.topActionTargetRelevance ? { topActionTargetRelevance: agent.topActionTargetRelevance } : {}),
+    ...(typeof agent.topActionTargetLikelyOfficial === "boolean" ? { topActionTargetLikelyOfficial: agent.topActionTargetLikelyOfficial } : {}),
+    ...(agent.topActionTargetSelector ? { topActionTargetSelector: agent.topActionTargetSelector } : {}),
+    ...(agent.topActionTargetText ? { topActionTargetText: agent.topActionTargetText } : {}),
     ...(agent.topActionRequiresBrowserInteraction ? { topActionRequiresBrowserInteraction: true } : {}),
     ...(agent.alternativeActionName ? { alternativeActionName: agent.alternativeActionName } : {}),
     ...(agent.alternativeActionSource ? { alternativeActionSource: agent.alternativeActionSource } : {}),
@@ -17724,6 +17779,17 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topActionCommandArgs ? { topActionCommandArgs: agent.topActionCommandArgs } : {}),
     ...(agent.topActionUrl ? { topActionUrl: agent.topActionUrl } : {}),
     ...(agent.topActionSourceLinkRef ? { topActionSourceLinkRef: agent.topActionSourceLinkRef } : {}),
+    ...(agent.topActionTargetUrl ? { topActionTargetUrl: agent.topActionTargetUrl } : {}),
+    ...(agent.topActionTargetPath ? { topActionTargetPath: agent.topActionTargetPath } : {}),
+    ...(agent.topActionTargetTitle ? { topActionTargetTitle: agent.topActionTargetTitle } : {}),
+    ...(agent.topActionTargetHost ? { topActionTargetHost: agent.topActionTargetHost } : {}),
+    ...(agent.topActionTargetSource ? { topActionTargetSource: agent.topActionTargetSource } : {}),
+    ...(typeof agent.topActionTargetRank === "number" ? { topActionTargetRank: agent.topActionTargetRank } : {}),
+    ...(typeof agent.topActionTargetSourceScore === "number" ? { topActionTargetSourceScore: agent.topActionTargetSourceScore } : {}),
+    ...(agent.topActionTargetRelevance ? { topActionTargetRelevance: agent.topActionTargetRelevance } : {}),
+    ...(typeof agent.topActionTargetLikelyOfficial === "boolean" ? { topActionTargetLikelyOfficial: agent.topActionTargetLikelyOfficial } : {}),
+    ...(agent.topActionTargetSelector ? { topActionTargetSelector: agent.topActionTargetSelector } : {}),
+    ...(agent.topActionTargetText ? { topActionTargetText: agent.topActionTargetText } : {}),
     ...(agent.topActionRequiresBrowserInteraction ? { topActionRequiresBrowserInteraction: true } : {}),
     ...(agent.alternativeActionName ? { alternativeActionName: agent.alternativeActionName } : {}),
     ...(agent.alternativeActionSource ? { alternativeActionSource: agent.alternativeActionSource } : {}),

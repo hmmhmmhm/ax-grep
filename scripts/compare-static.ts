@@ -1667,6 +1667,17 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topActionCommandArgs?: string[];
       topActionUrl?: string;
       topActionSourceLinkRef?: string;
+      topActionTargetUrl?: string;
+      topActionTargetPath?: string;
+      topActionTargetTitle?: string;
+      topActionTargetHost?: string;
+      topActionTargetSource?: string;
+      topActionTargetRank?: number;
+      topActionTargetSourceScore?: number;
+      topActionTargetRelevance?: CliAgentTargetShape["relevance"];
+      topActionTargetLikelyOfficial?: boolean;
+      topActionTargetSelector?: string;
+      topActionTargetText?: string;
       topActionRequiresBrowserInteraction?: boolean;
       primaryExecution?: ActionExecution;
       primaryReadFrom?: string;
@@ -4886,6 +4897,17 @@ function scoreAgentTopActionShortcuts(agent: {
   topActionCommandArgs?: string[];
   topActionUrl?: string;
   topActionSourceLinkRef?: string;
+  topActionTargetUrl?: string;
+  topActionTargetPath?: string;
+  topActionTargetTitle?: string;
+  topActionTargetHost?: string;
+  topActionTargetSource?: string;
+  topActionTargetRank?: number;
+  topActionTargetSourceScore?: number;
+  topActionTargetRelevance?: CliAgentTargetShape["relevance"];
+  topActionTargetLikelyOfficial?: boolean;
+  topActionTargetSelector?: string;
+  topActionTargetText?: string;
   topActionRequiresBrowserInteraction?: boolean;
 } | undefined): number {
   const top = agent?.actions?.[0];
@@ -4899,6 +4921,17 @@ function scoreAgentTopActionShortcuts(agent: {
       || agent?.topActionCommandArgs
       || agent?.topActionUrl
       || agent?.topActionSourceLinkRef
+      || agent?.topActionTargetUrl
+      || agent?.topActionTargetPath
+      || agent?.topActionTargetTitle
+      || agent?.topActionTargetHost
+      || agent?.topActionTargetSource
+      || typeof agent?.topActionTargetRank === "number"
+      || typeof agent?.topActionTargetSourceScore === "number"
+      || agent?.topActionTargetRelevance
+      || typeof agent?.topActionTargetLikelyOfficial === "boolean"
+      || agent?.topActionTargetSelector
+      || agent?.topActionTargetText
       || agent?.topActionRequiresBrowserInteraction ? 0 : 1;
   }
   let required = 5;
@@ -4930,6 +4963,72 @@ function scoreAgentTopActionShortcuts(agent: {
     required += 1;
     if (agent?.topActionSourceLinkRef === top.sourceLinkRef) matched += 1;
   } else if (agent?.topActionSourceLinkRef) {
+    required += 1;
+  }
+  if (top.target?.url) {
+    required += 1;
+    if (agent?.topActionTargetUrl === top.target.url) matched += 1;
+  } else if (agent?.topActionTargetUrl) {
+    required += 1;
+  }
+  if (top.target?.path) {
+    required += 1;
+    if (agent?.topActionTargetPath === top.target.path) matched += 1;
+  } else if (agent?.topActionTargetPath) {
+    required += 1;
+  }
+  if (top.target?.title) {
+    required += 1;
+    if (agent?.topActionTargetTitle === top.target.title) matched += 1;
+  } else if (agent?.topActionTargetTitle) {
+    required += 1;
+  }
+  if (top.target?.host) {
+    required += 1;
+    if (agent?.topActionTargetHost === top.target.host) matched += 1;
+  } else if (agent?.topActionTargetHost) {
+    required += 1;
+  }
+  if (top.target?.source) {
+    required += 1;
+    if (agent?.topActionTargetSource === top.target.source) matched += 1;
+  } else if (agent?.topActionTargetSource) {
+    required += 1;
+  }
+  if (typeof top.target?.rank === "number") {
+    required += 1;
+    if (agent?.topActionTargetRank === top.target.rank) matched += 1;
+  } else if (typeof agent?.topActionTargetRank === "number") {
+    required += 1;
+  }
+  if (typeof top.target?.sourceScore === "number") {
+    required += 1;
+    if (agent?.topActionTargetSourceScore === top.target.sourceScore) matched += 1;
+  } else if (typeof agent?.topActionTargetSourceScore === "number") {
+    required += 1;
+  }
+  if (top.target?.relevance) {
+    required += 1;
+    if (agent?.topActionTargetRelevance === top.target.relevance) matched += 1;
+  } else if (agent?.topActionTargetRelevance) {
+    required += 1;
+  }
+  if (typeof top.target?.isLikelyOfficial === "boolean") {
+    required += 1;
+    if (agent?.topActionTargetLikelyOfficial === top.target.isLikelyOfficial) matched += 1;
+  } else if (typeof agent?.topActionTargetLikelyOfficial === "boolean") {
+    required += 1;
+  }
+  if (top.target?.selector) {
+    required += 1;
+    if (agent?.topActionTargetSelector === top.target.selector) matched += 1;
+  } else if (agent?.topActionTargetSelector) {
+    required += 1;
+  }
+  if (top.target?.text) {
+    required += 1;
+    if (agent?.topActionTargetText === top.target.text) matched += 1;
+  } else if (agent?.topActionTargetText) {
     required += 1;
   }
   if (top.requiresBrowserInteraction) {

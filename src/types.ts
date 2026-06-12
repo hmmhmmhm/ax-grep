@@ -1324,6 +1324,17 @@ export type AgentSummary = {
   topActionCommandArgs?: string[];
   topActionUrl?: string;
   topActionSourceLinkRef?: string;
+  topActionTargetUrl?: string;
+  topActionTargetPath?: string;
+  topActionTargetTitle?: string;
+  topActionTargetHost?: string;
+  topActionTargetSource?: string;
+  topActionTargetRank?: number;
+  topActionTargetSourceScore?: number;
+  topActionTargetRelevance?: AgentTarget["relevance"];
+  topActionTargetLikelyOfficial?: boolean;
+  topActionTargetSelector?: string;
+  topActionTargetText?: string;
   topActionRequiresBrowserInteraction?: boolean;
   bestReadTarget?: string;
   bestReadTargetCount?: number;

@@ -899,6 +899,17 @@ describe("public agent types", () => {
       | "topActionCommandArgs"
       | "topActionUrl"
       | "topActionSourceLinkRef"
+      | "topActionTargetUrl"
+      | "topActionTargetPath"
+      | "topActionTargetTitle"
+      | "topActionTargetHost"
+      | "topActionTargetSource"
+      | "topActionTargetRank"
+      | "topActionTargetSourceScore"
+      | "topActionTargetRelevance"
+      | "topActionTargetLikelyOfficial"
+      | "topActionTargetSelector"
+      | "topActionTargetText"
       | "topActionRequiresBrowserInteraction"
       | "bestReadTarget"
       | "bestReadTargetCount"
@@ -1755,6 +1766,17 @@ describe("public agent types", () => {
       topActionCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       topActionUrl: "https://example.test",
       topActionSourceLinkRef: "pageCheck.sourceLinks[0]",
+      topActionTargetUrl: "https://example.test",
+      topActionTargetPath: "pageCheck.links[0]",
+      topActionTargetTitle: "Example target",
+      topActionTargetHost: "example.test",
+      topActionTargetSource: "source-link",
+      topActionTargetRank: 1,
+      topActionTargetSourceScore: 0.92,
+      topActionTargetRelevance: "high",
+      topActionTargetLikelyOfficial: true,
+      topActionTargetSelector: "a.primary",
+      topActionTargetText: "Read more",
       topActionRequiresBrowserInteraction: false,
       bestReadTarget: "pageCheck.contentEvidence",
       bestReadTargetCount: 1,
@@ -1935,6 +1957,9 @@ describe("public agent types", () => {
     expect(summary.sourceSearchAlternatePath).toBe("sourceSearch.alternateResults[0]");
     expect(summary.sourceSearchAlternateChoices?.[0]?.path).toBe("sourceSearch.alternateResults[0]");
     expect(summary.topActionName).toBe("read-content");
+    expect(summary.topActionTargetTitle).toBe("Example target");
+    expect(summary.topActionTargetSourceScore).toBe(0.92);
+    expect(summary.topActionTargetLikelyOfficial).toBe(true);
     expect(summary.pagePublishedTime).toBe("2026-02-03T04:05:06Z");
     expect(summary.verificationMissingQueries).toEqual(["missing"]);
     expect(summary.topVerificationMissingQuery).toBe("missing");
