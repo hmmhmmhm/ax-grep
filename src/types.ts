@@ -1392,6 +1392,7 @@ export type AgentSummary = {
   topActionTargetText?: string;
   topActionRequiresBrowserInteraction?: boolean;
   bestReadTarget?: string;
+  bestReadTargetKind?: AgentReadTarget["kind"];
   bestReadTargetCount?: number;
   bestReadTargetScore?: number;
   bestReadTargetPrimary?: boolean;

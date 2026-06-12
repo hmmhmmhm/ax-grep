@@ -1740,6 +1740,7 @@ type AgentSummary = {
   topActionTargetText?: string;
   topActionRequiresBrowserInteraction?: boolean;
   bestReadTarget?: string;
+  bestReadTargetKind?: AgentReadTarget["kind"];
   bestReadTargetCount?: number;
   bestReadTargetScore?: number;
   bestReadTargetPrimary?: boolean;
@@ -3894,6 +3895,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   for (const gate of agent.qualityGates) lines.push(formatAgentQualityGateText(gate));
   for (const citation of agent.citations) lines.push(formatAgentCitationText(citation));
   if (agent.bestReadTarget) lines.push(`  bestReadTarget: ${agent.bestReadTarget}`);
+  if (agent.bestReadTargetKind) lines.push(`  bestReadTargetKind: ${agent.bestReadTargetKind}`);
   if (typeof agent.bestReadTargetCount === "number") lines.push(`  bestReadTargetCount: ${agent.bestReadTargetCount}`);
   if (typeof agent.bestReadTargetScore === "number") lines.push(`  bestReadTargetScore: ${agent.bestReadTargetScore}`);
   if (typeof agent.bestReadTargetPrimary === "boolean") lines.push(`  bestReadTargetPrimary: ${agent.bestReadTargetPrimary}`);
@@ -12095,6 +12097,7 @@ function summarizeAgent(
   };
   if (bestReadTarget) {
     agent.bestReadTarget = bestReadTarget.path;
+    if (bestReadTarget.kind) agent.bestReadTargetKind = bestReadTarget.kind;
     if (typeof bestReadTarget.count === "number") agent.bestReadTargetCount = bestReadTarget.count;
     if (typeof bestReadTarget.score === "number") agent.bestReadTargetScore = bestReadTarget.score;
     if (typeof bestReadTarget.primary === "boolean") agent.bestReadTargetPrimary = bestReadTarget.primary;
@@ -15046,6 +15049,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(primaryAction?.target?.text ? { topActionTargetText: primaryAction.target.text } : {}),
     ...(primaryAction?.requiresBrowserInteraction ? { topActionRequiresBrowserInteraction: true } : {}),
     ...(bestReadTarget ? { bestReadTarget: bestReadTarget.path } : {}),
+    ...(bestReadTarget?.kind ? { bestReadTargetKind: bestReadTarget.kind } : {}),
     ...(typeof bestReadTarget?.count === "number" ? { bestReadTargetCount: bestReadTarget.count } : {}),
     ...(typeof bestReadTarget?.score === "number" ? { bestReadTargetScore: bestReadTarget.score } : {}),
     ...(typeof bestReadTarget?.primary === "boolean" ? { bestReadTargetPrimary: bestReadTarget.primary } : {}),
@@ -17242,6 +17246,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.alternativeActionTargetText ? { alternativeActionTargetText: agent.alternativeActionTargetText } : {}),
     ...(agent.alternativeActionRequiresBrowserInteraction ? { alternativeActionRequiresBrowserInteraction: true } : {}),
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
+    ...(agent.bestReadTargetKind ? { bestReadTargetKind: agent.bestReadTargetKind } : {}),
     ...(typeof agent.bestReadTargetCount === "number" ? { bestReadTargetCount: agent.bestReadTargetCount } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
     ...(typeof agent.bestReadTargetPrimary === "boolean" ? { bestReadTargetPrimary: agent.bestReadTargetPrimary } : {}),
@@ -18205,6 +18210,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.alternativeActionTargetText ? { alternativeActionTargetText: agent.alternativeActionTargetText } : {}),
     ...(agent.alternativeActionRequiresBrowserInteraction ? { alternativeActionRequiresBrowserInteraction: true } : {}),
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
+    ...(agent.bestReadTargetKind ? { bestReadTargetKind: agent.bestReadTargetKind } : {}),
     ...(typeof agent.bestReadTargetCount === "number" ? { bestReadTargetCount: agent.bestReadTargetCount } : {}),
     ...(typeof agent.bestReadTargetScore === "number" ? { bestReadTargetScore: agent.bestReadTargetScore } : {}),
     ...(typeof agent.bestReadTargetPrimary === "boolean" ? { bestReadTargetPrimary: agent.bestReadTargetPrimary } : {}),

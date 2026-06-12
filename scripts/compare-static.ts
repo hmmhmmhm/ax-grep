@@ -1260,6 +1260,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceQualityScore?: number;
       alternativeActionCount?: number;
       bestReadTarget?: string;
+      bestReadTargetKind?: string;
       bestReadTargetCount?: number;
       bestReadTargetScore?: number;
       bestReadTargetPrimary?: boolean;
@@ -3540,6 +3541,7 @@ function hiddenSignalReasonNeedle(path: string): string {
 function scoreAgentBestReadTarget(agent: {
   readTargets?: CliReadTargetShape[];
   bestReadTarget?: string;
+  bestReadTargetKind?: string;
   bestReadTargetCount?: number;
   bestReadTargetScore?: number;
   bestReadTargetPrimary?: boolean;
@@ -3554,6 +3556,12 @@ function scoreAgentBestReadTarget(agent: {
   if (!best) return typeof agent?.bestReadTarget === "undefined" ? 1 : 0;
   let required = 1;
   let matched = agent?.bestReadTarget === best.path ? 1 : 0;
+  if (best.kind) {
+    required += 1;
+    if (agent?.bestReadTargetKind === best.kind) matched += 1;
+  } else if (agent?.bestReadTargetKind) {
+    required += 1;
+  }
   if (typeof best.count === "number") {
     required += 1;
     if (agent?.bestReadTargetCount === best.count) matched += 1;

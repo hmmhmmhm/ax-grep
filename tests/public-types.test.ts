@@ -964,6 +964,7 @@ describe("public agent types", () => {
       | "topActionTargetText"
       | "topActionRequiresBrowserInteraction"
       | "bestReadTarget"
+      | "bestReadTargetKind"
       | "bestReadTargetCount"
       | "bestReadTargetScore"
       | "bestReadTargetPrimary"
@@ -1900,6 +1901,7 @@ describe("public agent types", () => {
       topActionTargetText: "Read more",
       topActionRequiresBrowserInteraction: false,
       bestReadTarget: "pageCheck.contentEvidence",
+      bestReadTargetKind: "evidence",
       bestReadTargetCount: 1,
       bestReadTargetScore: 0.9,
       bestReadTargetPrimary: true,
@@ -2148,6 +2150,7 @@ describe("public agent types", () => {
     expect(summary.topReadTarget).toBe("pageCheck.contentEvidence");
     expect(summary.topReadTargetKind).toBe("evidence");
     expect(summary.bestReadTargetCount).toBe(1);
+    expect(summary.bestReadTargetKind).toBe("evidence");
     expect(summary.bestReadTargetPrimary).toBe(true);
     expect(summary.qualityGateFailCount).toBe(1);
     expect(summary.topSignalKind).toBe("content");
