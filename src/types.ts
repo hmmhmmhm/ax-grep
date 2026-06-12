@@ -1234,6 +1234,9 @@ export type AgentSummary = {
   topChoiceCommand?: string;
   topChoiceCommandArgs?: string[];
   topChoiceRank?: number;
+  topChoiceOpenResult?: number | "best";
+  topChoiceRecommended?: boolean;
+  topChoicePrimary?: boolean;
   topChoiceSource?: string;
   topChoiceSourceType?: string;
   topChoiceSourceScore?: number;

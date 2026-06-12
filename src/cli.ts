@@ -1583,6 +1583,9 @@ type AgentSummary = {
   topChoiceCommand?: string;
   topChoiceCommandArgs?: string[];
   topChoiceRank?: number;
+  topChoiceOpenResult?: AgentResultChoice["openResult"];
+  topChoiceRecommended?: boolean;
+  topChoicePrimary?: boolean;
   topChoiceSource?: string;
   topChoiceSourceType?: string;
   topChoiceSourceScore?: number;
@@ -3542,7 +3545,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topSourceChoiceLikelyOfficial === "boolean" ? [`  topSourceChoiceLikelyOfficial: ${agent.topSourceChoiceLikelyOfficial}`] : []),
     ...(typeof agent.topSourceChoicePrimary === "boolean" ? [`  topSourceChoicePrimary: ${agent.topSourceChoicePrimary}`] : []),
     ...(agent.topSourceChoiceReason ? [`  topSourceChoiceReason: ${agent.topSourceChoiceReason}`] : []),
-    ...(agent.topChoiceKind ? [`  topChoice: ${agent.topChoiceKind} ${agent.topChoicePath}${typeof agent.topChoiceRank === "number" ? ` rank=${agent.topChoiceRank}` : ""}${agent.topChoiceHost ? ` host=${agent.topChoiceHost}` : ""}${agent.topChoiceSource ? ` source=${agent.topChoiceSource}` : ""}${agent.topChoiceSourceType ? ` sourceType=${agent.topChoiceSourceType}` : ""}${typeof agent.topChoiceSourceScore === "number" ? ` score=${agent.topChoiceSourceScore}` : ""}${agent.topChoiceRelevance ? ` relevance=${agent.topChoiceRelevance}` : ""}${typeof agent.topChoiceLikelyOfficial === "boolean" ? ` official=${agent.topChoiceLikelyOfficial}` : ""}${agent.topChoiceMethod ? ` method=${agent.topChoiceMethod}` : ""}${agent.topChoiceSelector ? ` selector=${agent.topChoiceSelector}` : ""}${agent.topChoiceUrl ? ` <${agent.topChoiceUrl}>` : ""}${agent.topChoiceCommand ? ` command=${agent.topChoiceCommand}` : ""}${agent.topChoiceReason ? ` reason=${agent.topChoiceReason}` : ""}${agent.topChoiceSnippet ? ` snippet=${agent.topChoiceSnippet}` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
+    ...(agent.topChoiceKind ? [`  topChoice: ${agent.topChoiceKind} ${agent.topChoicePath}${typeof agent.topChoiceRank === "number" ? ` rank=${agent.topChoiceRank}` : ""}${agent.topChoiceOpenResult ? ` openResult=${agent.topChoiceOpenResult}` : ""}${typeof agent.topChoiceRecommended === "boolean" ? ` recommended=${agent.topChoiceRecommended}` : ""}${typeof agent.topChoicePrimary === "boolean" ? ` primary=${agent.topChoicePrimary}` : ""}${agent.topChoiceHost ? ` host=${agent.topChoiceHost}` : ""}${agent.topChoiceSource ? ` source=${agent.topChoiceSource}` : ""}${agent.topChoiceSourceType ? ` sourceType=${agent.topChoiceSourceType}` : ""}${typeof agent.topChoiceSourceScore === "number" ? ` score=${agent.topChoiceSourceScore}` : ""}${agent.topChoiceRelevance ? ` relevance=${agent.topChoiceRelevance}` : ""}${typeof agent.topChoiceLikelyOfficial === "boolean" ? ` official=${agent.topChoiceLikelyOfficial}` : ""}${agent.topChoiceMethod ? ` method=${agent.topChoiceMethod}` : ""}${agent.topChoiceSelector ? ` selector=${agent.topChoiceSelector}` : ""}${agent.topChoiceUrl ? ` <${agent.topChoiceUrl}>` : ""}${agent.topChoiceCommand ? ` command=${agent.topChoiceCommand}` : ""}${agent.topChoiceReason ? ` reason=${agent.topChoiceReason}` : ""}${agent.topChoiceSnippet ? ` snippet=${agent.topChoiceSnippet}` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
     ...(agent.sourceSearchQuery ? [`  sourceSearchQuery: ${agent.sourceSearchQuery}`] : []),
     ...(agent.sourceSearchEngine ? [`  sourceSearchEngine: ${agent.sourceSearchEngine}`] : []),
     ...(agent.sourceSearchSelectedEngine ? [`  sourceSearchSelectedEngine: ${agent.sourceSearchSelectedEngine}`] : []),
@@ -11815,6 +11818,9 @@ function summarizeAgent(
     ...(topChoice?.command ? { topChoiceCommand: topChoice.command } : {}),
     ...(topChoice?.commandArgs ? { topChoiceCommandArgs: topChoice.commandArgs } : {}),
     ...(typeof topChoice?.rank === "number" ? { topChoiceRank: topChoice.rank } : {}),
+    ...(topChoice?.openResult ? { topChoiceOpenResult: topChoice.openResult } : {}),
+    ...(typeof topChoice?.recommended === "boolean" ? { topChoiceRecommended: topChoice.recommended } : {}),
+    ...(typeof topChoice?.primary === "boolean" ? { topChoicePrimary: topChoice.primary } : {}),
     ...(topChoice?.source ? { topChoiceSource: topChoice.source } : {}),
     ...(topChoice?.sourceType ? { topChoiceSourceType: topChoice.sourceType } : {}),
     ...(typeof topChoice?.sourceScore === "number" ? { topChoiceSourceScore: topChoice.sourceScore } : {}),
@@ -13907,6 +13913,9 @@ function summarizeAgentTopChoice(
   command?: string;
   commandArgs?: string[];
   rank?: number;
+  openResult?: AgentResultChoice["openResult"];
+  recommended?: boolean;
+  primary?: boolean;
   source?: string;
   sourceType?: string;
   sourceScore?: number;
@@ -13928,6 +13937,9 @@ function summarizeAgentTopChoice(
       ...(result.command ? { command: result.command } : {}),
       ...(result.commandArgs ? { commandArgs: result.commandArgs } : {}),
       ...(typeof result.rank === "number" ? { rank: result.rank } : {}),
+      ...(result.openResult ? { openResult: result.openResult } : {}),
+      ...(typeof result.recommended === "boolean" ? { recommended: result.recommended } : {}),
+      ...(typeof result.primary === "boolean" ? { primary: result.primary } : {}),
       ...(result.source ? { source: result.source } : {}),
       ...(result.sourceType ? { sourceType: result.sourceType } : {}),
       ...(typeof result.sourceScore === "number" ? { sourceScore: result.sourceScore } : {}),
@@ -13948,6 +13960,7 @@ function summarizeAgentTopChoice(
       ...(source.command ? { command: source.command } : {}),
       ...(source.commandArgs ? { commandArgs: source.commandArgs } : {}),
       ...(typeof source.rank === "number" ? { rank: source.rank } : {}),
+      ...(typeof source.primary === "boolean" ? { primary: source.primary } : {}),
       ...(source.source ? { source: source.source } : {}),
       ...(source.sourceType ? { sourceType: source.sourceType } : {}),
       ...(typeof source.sourceScore === "number" ? { sourceScore: source.sourceScore } : {}),
@@ -16180,14 +16193,25 @@ function compactAgentTopChoice(agent: AgentSummary, searchCommandContext?: Searc
   if (!agent.topChoiceKind || !agent.topChoicePath) return {};
   let command = agent.topChoiceCommand;
   let commandArgs = agent.topChoiceCommandArgs;
-  if (!commandArgs && agent.topChoiceKind === "result" && agent.resultChoices[0]) {
+  let openResult = agent.topChoiceOpenResult;
+  let recommended = agent.topChoiceRecommended;
+  let primary = agent.topChoicePrimary;
+  if (agent.topChoiceKind === "result" && agent.resultChoices[0]) {
     const compactChoice = compactAgentResultChoice(agent.resultChoices[0], searchCommandContext, pageLinkContext);
-    command = command ?? compactChoice.command;
-    commandArgs = compactChoice.commandArgs;
+    if (!commandArgs) {
+      command = command ?? compactChoice.command;
+      commandArgs = compactChoice.commandArgs;
+    }
+    openResult = openResult ?? compactChoice.openResult;
+    recommended = recommended ?? compactChoice.recommended;
+    primary = primary ?? compactChoice.primary;
   }
-  if (!commandArgs && agent.topChoiceKind === "source" && agent.sourceChoices[0]) {
-    command = command ?? agent.sourceChoices[0].command;
-    commandArgs = agent.sourceChoices[0].commandArgs;
+  if (agent.topChoiceKind === "source" && agent.sourceChoices[0]) {
+    if (!commandArgs) {
+      command = command ?? agent.sourceChoices[0].command;
+      commandArgs = agent.sourceChoices[0].commandArgs;
+    }
+    primary = primary ?? agent.sourceChoices[0].primary;
   }
   return {
     topChoiceKind: agent.topChoiceKind,
@@ -16199,6 +16223,9 @@ function compactAgentTopChoice(agent: AgentSummary, searchCommandContext?: Searc
     ...(command ? { topChoiceCommand: command } : {}),
     ...(commandArgs ? { topChoiceCommandArgs: commandArgs } : {}),
     ...(typeof agent.topChoiceRank === "number" ? { topChoiceRank: agent.topChoiceRank } : {}),
+    ...(openResult ? { topChoiceOpenResult: openResult } : {}),
+    ...(typeof recommended === "boolean" ? { topChoiceRecommended: recommended } : {}),
+    ...(typeof primary === "boolean" ? { topChoicePrimary: primary } : {}),
     ...(agent.topChoiceSource ? { topChoiceSource: agent.topChoiceSource } : {}),
     ...(agent.topChoiceSourceType ? { topChoiceSourceType: agent.topChoiceSourceType } : {}),
     ...(typeof agent.topChoiceSourceScore === "number" ? { topChoiceSourceScore: agent.topChoiceSourceScore } : {}),

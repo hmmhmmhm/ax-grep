@@ -429,6 +429,9 @@ describe("public agent types", () => {
       | "topChoiceCommand"
       | "topChoiceCommandArgs"
       | "topChoiceRank"
+      | "topChoiceOpenResult"
+      | "topChoiceRecommended"
+      | "topChoicePrimary"
       | "topChoiceSource"
       | "topChoiceSourceType"
       | "topChoiceSourceScore"
@@ -1335,6 +1338,7 @@ describe("public agent types", () => {
       topChoiceCommand: "ax-grep https://source.example/report --agent",
       topChoiceCommandArgs: ["ax-grep", "https://source.example/report", "--agent"],
       topChoiceRank: 1,
+      topChoicePrimary: true,
       topChoiceSource: "source.example",
       topChoiceSourceType: "report",
       topChoiceSourceScore: 0.91,
@@ -2024,6 +2028,7 @@ describe("public agent types", () => {
     expect(summary.topChoiceSelector).toBe("a:nth-of-type(1)");
     expect(summary.topChoiceReason).toBe("High-quality source link.");
     expect(summary.topChoiceCommand).toContain("source.example/report");
+    expect(summary.topChoicePrimary).toBe(true);
     expect(summary.topChoiceSourceScore).toBe(0.91);
     expect(summary.topChoiceRelevance).toBe("high");
     expect(summary.topChoiceLikelyOfficial).toBe(true);

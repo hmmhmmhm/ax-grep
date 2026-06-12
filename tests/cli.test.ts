@@ -1388,6 +1388,9 @@ describe("cli", () => {
         if (topResultChoice.command) expect(envelope.agent.topChoiceCommand).toBe(topResultChoice.command);
         expect(envelope.agent.topChoiceCommandArgs).toEqual(topResultChoice.commandArgs);
         if (typeof topResultChoice.rank === "number") expect(envelope.agent.topChoiceRank).toBe(topResultChoice.rank);
+        if (topResultChoice.openResult) expect(envelope.agent.topChoiceOpenResult).toBe(topResultChoice.openResult);
+        if (typeof topResultChoice.recommended === "boolean") expect(envelope.agent.topChoiceRecommended).toBe(topResultChoice.recommended);
+        if (typeof topResultChoice.primary === "boolean") expect(envelope.agent.topChoicePrimary).toBe(topResultChoice.primary);
         if (topResultChoice.host) expect(envelope.agent.topChoiceHost).toBe(topResultChoice.host);
         if (topResultChoice.snippet) expect(envelope.agent.topChoiceSnippet).toBe(topResultChoice.snippet);
         if (topResultChoice.source) expect(envelope.agent.topChoiceSource).toBe(topResultChoice.source);
@@ -1413,6 +1416,7 @@ describe("cli", () => {
         expect(envelope.agent.topChoiceCommandArgs).toEqual(topSourceChoice.commandArgs);
         if (topSourceChoice.command) expect(envelope.agent.topSourceChoiceCommand).toBe(topSourceChoice.command);
         if (typeof topSourceChoice.rank === "number") expect(envelope.agent.topChoiceRank).toBe(topSourceChoice.rank);
+        if (typeof topSourceChoice.primary === "boolean") expect(envelope.agent.topChoicePrimary).toBe(topSourceChoice.primary);
         if (topSourceChoice.host) expect(envelope.agent.topChoiceHost).toBe(topSourceChoice.host);
         if (topSourceChoice.snippet) expect(envelope.agent.topChoiceSnippet).toBe(topSourceChoice.snippet);
         if (topSourceChoice.source) expect(envelope.agent.topChoiceSource).toBe(topSourceChoice.source);
