@@ -210,6 +210,22 @@ const fixtures: Fixture[] = [
   </body>
 </html>`,
   },
+  {
+    id: "busy-status-state",
+    url: "https://fixture.local/browser-parity/busy-status-state",
+    checks: buildBusyStatusStateChecks,
+    html: `<!doctype html>
+<html lang="en">
+  <head>
+    <title>Busy status state fixture</title>
+  </head>
+  <body>
+    <main>
+      <div role="status" aria-label="Indexing status" aria-live="polite" aria-busy="true">Indexing complete</div>
+    </main>
+  </body>
+</html>`,
+  },
 ];
 
 const browser = await puppeteer.launch({ headless: true });
@@ -313,6 +329,7 @@ function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
     semanticTopStateHaspopup: agent.semanticTopStateHaspopup,
     semanticTopStateControls: agent.semanticTopStateControls,
     semanticTopStateCurrent: agent.semanticTopStateCurrent,
+    semanticTopStateBusy: agent.semanticTopStateBusy,
     semanticTopStateLive: agent.semanticTopStateLive,
     semanticTopStateModal: agent.semanticTopStateModal,
     semanticTopStateOrientation: agent.semanticTopStateOrientation,
@@ -715,6 +732,44 @@ function buildRangeValueStateChecks(namedRoles: string[], nodes: SemanticNode[],
         && agent.semanticTopStateValueNow === 40
         && agent.semanticTopStateValueText === "40 percent"
         && typeof agent.semanticTopStateSelector === "string",
+    },
+  ];
+}
+
+function buildBusyStatusStateChecks(namedRoles: string[], nodes: SemanticNode[], agent: AgentSummary): Check[] {
+  const status = nodes.find((node) => node.role === "status" && node.name === "Indexing status");
+  return [
+    {
+      id: "busy-status-state-parity",
+      browserEvidence: JSON.stringify({
+        namedRoles: evidence(namedRoles, ["status:Indexing status"]),
+        busy: status?.state?.busy,
+        live: status?.state?.live,
+      }),
+      agentEvidence: JSON.stringify({
+        stateRole: agent.semanticTopStateRole,
+        stateName: agent.semanticTopStateName,
+        stateBusy: agent.semanticTopStateBusy,
+        stateLive: agent.semanticTopStateLive,
+        stateSelector: agent.semanticTopStateSelector,
+        liveRole: agent.semanticTopLiveStateRole,
+        liveName: agent.semanticTopLiveStateName,
+        liveValue: agent.semanticTopLiveStateLive,
+        liveSelector: agent.semanticTopLiveStateSelector,
+      }),
+      decision: "covered",
+      pass: includesAll(namedRoles, ["status:Indexing status"])
+        && status?.state?.busy === true
+        && status?.state?.live === "polite"
+        && agent.semanticTopStateRole === "status"
+        && agent.semanticTopStateName === "Indexing status"
+        && agent.semanticTopStateBusy === true
+        && agent.semanticTopStateLive === "polite"
+        && typeof agent.semanticTopStateSelector === "string"
+        && agent.semanticTopLiveStateRole === "status"
+        && agent.semanticTopLiveStateName === "Indexing status"
+        && agent.semanticTopLiveStateLive === "polite"
+        && typeof agent.semanticTopLiveStateSelector === "string",
     },
   ];
 }
