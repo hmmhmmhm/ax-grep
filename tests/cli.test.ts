@@ -1295,11 +1295,13 @@ describe("cli", () => {
         expect(envelope.agent.topResultChoiceUrl).toBe(topResultChoice.url);
         expect(envelope.agent.topResultChoiceCommandArgs).toEqual(topResultChoice.commandArgs);
         if (topResultChoice.title) expect(envelope.agent.topResultChoiceTitle).toBe(topResultChoice.title);
+        if (topResultChoice.snippet) expect(envelope.agent.topResultChoiceSnippet).toBe(topResultChoice.snippet);
         if (typeof topResultChoice.rank === "number") expect(envelope.agent.topResultChoiceRank).toBe(topResultChoice.rank);
       } else if (topSourceChoice) {
         expect(envelope.agent.topChoiceKind).toBe("source");
         expect(envelope.agent.topChoicePath).toBe(topSourceChoice.path);
         expect(envelope.agent.topChoiceCommandArgs).toEqual(topSourceChoice.commandArgs);
+        if (topSourceChoice.snippet) expect(envelope.agent.topSourceChoiceSnippet).toBe(topSourceChoice.snippet);
       } else if (topFormChoice) {
         expect(envelope.agent.topChoiceKind).toBe("form");
         expect(envelope.agent.topChoicePath).toBe(topFormChoice.path);
@@ -1610,6 +1612,7 @@ describe("cli", () => {
       topResultChoiceTitle: "Agent browser result",
       topResultChoiceUrl: "https://result.example/",
       topResultChoiceHost: "result.example",
+      topResultChoiceSnippet: "agent browser comparison details",
       topResultChoiceCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent"],
       topResultChoiceRank: 1,
       topResultChoiceOpenResult: 1,
@@ -1687,6 +1690,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  handoffCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  handoffResultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult");
     expect(stdout.output).toContain("    snippet: agent browser comparison details");
+    expect(stdout.output).toContain("  topResultChoiceSnippet: agent browser comparison details");
     expect(stdout.output).toContain("  resultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult");
     expect(stdout.output).toContain("source=result.example <https://result.example/> - Ranked result 1 from result.example. Agent browser result");
   });

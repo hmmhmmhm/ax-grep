@@ -43,6 +43,7 @@ describe("public agent types", () => {
       title: "Source",
       url: "https://source.example/report",
       host: "source.example",
+      snippet: "Source summary",
       selector: "a:nth-of-type(1)",
       kind: "external",
       sourceScore: 0.91,
@@ -187,6 +188,7 @@ describe("public agent types", () => {
       | "topResultChoiceTitle"
       | "topResultChoiceUrl"
       | "topResultChoiceHost"
+      | "topResultChoiceSnippet"
       | "topResultChoiceCommandArgs"
       | "topResultChoiceRank"
       | "topResultChoiceOpenResult"
@@ -408,6 +410,7 @@ describe("public agent types", () => {
       | "topSourceChoiceTitle"
       | "topSourceChoiceUrl"
       | "topSourceChoiceHost"
+      | "topSourceChoiceSnippet"
       | "topSourceChoiceCommandArgs"
       | "topSourceChoiceSourceType"
       | "topSourceChoiceSourceScore"
@@ -930,6 +933,7 @@ describe("public agent types", () => {
       topResultChoiceTitle: "Example result",
       topResultChoiceUrl: "https://example.test/result",
       topResultChoiceHost: "example.test",
+      topResultChoiceSnippet: "Result summary",
       topResultChoiceCommandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent-brief"],
       topResultChoiceRank: 1,
       topResultChoiceOpenResult: 1,
@@ -1151,6 +1155,7 @@ describe("public agent types", () => {
       topSourceChoiceTitle: "Source",
       topSourceChoiceUrl: "https://source.example/report",
       topSourceChoiceHost: "source.example",
+      topSourceChoiceSnippet: "Source summary",
       topSourceChoiceCommandArgs: ["ax-grep", "https://source.example/report", "--agent-brief"],
       topSourceChoiceSourceType: "report",
       topSourceChoiceSourceScore: 0.91,
@@ -1689,8 +1694,10 @@ describe("public agent types", () => {
     expect(summary.topActionTargetChoiceUrlTemplate).toBe("https://example.test/search?q={query}");
     expect(summary.topChoiceKind).toBe("source");
     expect(summary.topResultChoicePath).toBe("searchResults[0]");
+    expect(summary.topResultChoiceSnippet).toBe("Result summary");
     expect(summary.topResultChoiceCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.topSourceChoicePath).toBe("pageCheck.sourceLinks[0]");
+    expect(summary.topSourceChoiceSnippet).toBe("Source summary");
     expect(summary.topSourceChoiceCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.sourceSearchQuery).toBe("ax-grep docs");
     expect(summary.sourceSearchTopFindQuery).toBe("install");
