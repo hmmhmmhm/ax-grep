@@ -259,7 +259,7 @@ describe("cli", () => {
               <img src="/hero.png" srcset="/hero.png 1x, /hero@2x.png 2x" sizes="(min-width: 800px) 720px, 100vw" width="720" height="360" loading="lazy" decoding="async" alt="Hero chart">
               <p class="byline">By <a href="/authors/reporter">Reporter Profile</a></p>
               <p>Example content for agent routing.</p>
-              <table aria-label="Metrics" aria-rowcount="100" aria-colcount="4">
+              <table aria-label="Metrics" aria-rowcount="100" aria-colcount="4" aria-owns="owned-rows">
                 <thead>
                   <tr aria-rowindex="1"><th id="metric-header" aria-colindex="1" aria-sort="ascending">Metric</th><th id="value-header" aria-colindex="2">Value</th></tr>
                 </thead>
@@ -267,6 +267,7 @@ describe("cli", () => {
                   <tr aria-rowindex="2"><td aria-colindex="1" rowspan="2" colspan="2" headers="metric-header">Latency</td><td aria-colindex="3" headers="metric-header value-header">120 ms</td></tr>
                 </tbody>
               </table>
+              <div id="owned-rows" role="rowgroup" aria-label="Virtual rows"></div>
               <ul aria-label="Highlights">
                 <li>Fast setup</li>
                 <li>Clear output</li>
@@ -321,7 +322,7 @@ describe("cli", () => {
           listCount: 1,
           descriptionCount: 1,
           valueCount: 1,
-          relationCount: 1,
+          relationCount: 2,
           topRoles: expect.arrayContaining([
             expect.objectContaining({ role: "p", count: 3 }),
             expect.objectContaining({ role: "link", count: 3 }),
@@ -457,6 +458,9 @@ describe("cli", () => {
                 { path: "agent.semanticSummary.tableItems[0].headerRefs[0]", text: "Metric", role: "columnheader", rowIndex: 1, columnIndex: 1, sort: "ascending", selector: "#metric-header" },
                 { path: "agent.semanticSummary.tableItems[0].headerRefs[1]", text: "Value", role: "columnheader", rowIndex: 1, columnIndex: 2, selector: "#value-header" },
               ],
+              ownedRefs: [
+                { target: "owned-rows", role: "rowgroup", name: "Virtual rows", selector: "#owned-rows" },
+              ],
               sampleCells: ["Latency", "120 ms"],
               sampleCellRefs: [
                 { path: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]", text: "Latency", rowIndex: 2, columnIndex: 1, rowSpan: 2, columnSpan: 2, headers: ["Metric"], columnHeaders: ["Metric"], selector: "td" },
@@ -505,6 +509,17 @@ describe("cli", () => {
               targetSelector: "#details-panel",
               selector: "button",
             }),
+            expect.objectContaining({
+              path: "agent.semanticSummary.relationItems[1]",
+              role: "table",
+              name: "Metrics",
+              relation: "owns",
+              target: "owned-rows",
+              targetRole: "rowgroup",
+              targetName: "Virtual rows",
+              targetSelector: "#owned-rows",
+              selector: "table",
+            }),
           ],
           buttons: [
             expect.objectContaining({
@@ -541,7 +556,7 @@ describe("cli", () => {
         semanticListCount: 1,
         semanticDescriptionCount: 1,
         semanticValueCount: 1,
-        semanticRelationCount: 1,
+        semanticRelationCount: 2,
         semanticTopRole: "link",
         semanticTopRoleCount: 3,
         semanticOutlineCount: 3,
@@ -634,6 +649,10 @@ describe("cli", () => {
           { path: "agent.semanticSummary.tableItems[0].headerRefs[0]", text: "Metric", role: "columnheader", rowIndex: 1, columnIndex: 1, sort: "ascending", selector: "#metric-header" },
           { path: "agent.semanticSummary.tableItems[0].headerRefs[1]", text: "Value", role: "columnheader", rowIndex: 1, columnIndex: 2, selector: "#value-header" },
         ],
+        semanticTopTableOwnedCount: 1,
+        semanticTopTableOwnedRefs: [
+          { target: "owned-rows", role: "rowgroup", name: "Virtual rows", selector: "#owned-rows" },
+        ],
         semanticTopTableSampleCells: ["Latency", "120 ms"],
         semanticTopTableSampleCellRefs: [
           { path: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]", text: "Latency", rowIndex: 2, columnIndex: 1, rowSpan: 2, columnSpan: 2, headers: ["Metric"], columnHeaders: ["Metric"], selector: "td" },
@@ -646,6 +665,10 @@ describe("cli", () => {
         semanticTopTableFirstHeaderColumnIndex: 1,
         semanticTopTableFirstHeaderSort: "ascending",
         semanticTopTableFirstHeaderSelector: "#metric-header",
+        semanticTopTableFirstOwnedTarget: "owned-rows",
+        semanticTopTableFirstOwnedRole: "rowgroup",
+        semanticTopTableFirstOwnedName: "Virtual rows",
+        semanticTopTableFirstOwnedSelector: "#owned-rows",
         semanticTopTableFirstSampleCellPath: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]",
         semanticTopTableFirstSampleCellText: "Latency",
         semanticTopTableFirstSampleCellRowIndex: 2,

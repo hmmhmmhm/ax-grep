@@ -607,6 +607,8 @@ describe("public agent types", () => {
       | "semanticTopTableDeclaredColumnCount"
       | "semanticTopTableHeaders"
       | "semanticTopTableHeaderRefs"
+      | "semanticTopTableOwnedCount"
+      | "semanticTopTableOwnedRefs"
       | "semanticTopTableSampleCells"
       | "semanticTopTableSampleCellRefs"
       | "semanticTopTableFirstHeader"
@@ -616,6 +618,10 @@ describe("public agent types", () => {
       | "semanticTopTableFirstHeaderColumnIndex"
       | "semanticTopTableFirstHeaderSort"
       | "semanticTopTableFirstHeaderSelector"
+      | "semanticTopTableFirstOwnedTarget"
+      | "semanticTopTableFirstOwnedRole"
+      | "semanticTopTableFirstOwnedName"
+      | "semanticTopTableFirstOwnedSelector"
       | "semanticTopTableFirstSampleCellPath"
       | "semanticTopTableFirstSampleCellText"
       | "semanticTopTableFirstSampleCellRowIndex"
@@ -1339,6 +1345,8 @@ describe("public agent types", () => {
       semanticTopTableDeclaredColumnCount: 4,
       semanticTopTableHeaders: ["Plan", "Price"],
       semanticTopTableHeaderRefs: [{ path: "agent.semanticSummary.tableItems[0].headerRefs[0]", text: "Plan", role: "columnheader", rowIndex: 1, columnIndex: 1, sort: "ascending", selector: "th:nth-of-type(1)" }],
+      semanticTopTableOwnedCount: 1,
+      semanticTopTableOwnedRefs: [{ target: "virtual-rows", role: "rowgroup", name: "Virtual rows", selector: "#virtual-rows" }],
       semanticTopTableSampleCells: ["Pro", "$20"],
       semanticTopTableSampleCellRefs: [{ path: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]", text: "Pro", rowIndex: 2, columnIndex: 1, rowSpan: 2, columnSpan: 3, headers: ["Plan", "Price"], rowHeaders: ["Plan"], columnHeaders: ["Price"], selector: "td:nth-of-type(1)" }],
       semanticTopTableFirstHeader: "Plan",
@@ -1348,6 +1356,10 @@ describe("public agent types", () => {
       semanticTopTableFirstHeaderColumnIndex: 1,
       semanticTopTableFirstHeaderSort: "ascending",
       semanticTopTableFirstHeaderSelector: "th:nth-of-type(1)",
+      semanticTopTableFirstOwnedTarget: "virtual-rows",
+      semanticTopTableFirstOwnedRole: "rowgroup",
+      semanticTopTableFirstOwnedName: "Virtual rows",
+      semanticTopTableFirstOwnedSelector: "#virtual-rows",
       semanticTopTableFirstSampleCellPath: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]",
       semanticTopTableFirstSampleCellText: "Pro",
       semanticTopTableFirstSampleCellRowIndex: 2,
