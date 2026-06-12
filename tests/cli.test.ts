@@ -1306,11 +1306,15 @@ describe("cli", () => {
         if (topResultChoice.title) expect(envelope.agent.topResultChoiceTitle).toBe(topResultChoice.title);
         if (topResultChoice.snippet) expect(envelope.agent.topResultChoiceSnippet).toBe(topResultChoice.snippet);
         if (typeof topResultChoice.rank === "number") expect(envelope.agent.topResultChoiceRank).toBe(topResultChoice.rank);
+        if (topResultChoice.sourceHints?.length) expect(envelope.agent.topResultChoiceSourceHints).toEqual(topResultChoice.sourceHints);
+        if (topResultChoice.sitelinks?.[0]?.title) expect(envelope.agent.topResultChoiceFirstSitelinkTitle).toBe(topResultChoice.sitelinks[0].title);
+        if (topResultChoice.sitelinks?.[0]?.url) expect(envelope.agent.topResultChoiceFirstSitelinkUrl).toBe(topResultChoice.sitelinks[0].url);
       } else if (topSourceChoice) {
         expect(envelope.agent.topChoiceKind).toBe("source");
         expect(envelope.agent.topChoicePath).toBe(topSourceChoice.path);
         expect(envelope.agent.topChoiceCommandArgs).toEqual(topSourceChoice.commandArgs);
         if (topSourceChoice.snippet) expect(envelope.agent.topSourceChoiceSnippet).toBe(topSourceChoice.snippet);
+        if (topSourceChoice.selectionReason) expect(envelope.agent.topSourceChoiceReason).toBe(topSourceChoice.selectionReason);
       } else if (topFormChoice) {
         expect(envelope.agent.topChoiceKind).toBe("form");
         expect(envelope.agent.topChoicePath).toBe(topFormChoice.path);
