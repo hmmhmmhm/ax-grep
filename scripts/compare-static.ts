@@ -1567,6 +1567,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       answerPlanStatus?: CliAgentAnswerPlanShape["status"];
       answerPlanConfidence?: CliAgentAnswerPlanShape["confidence"];
       answerGapCount?: number;
+      answerUseCitationCount?: number;
+      topAnswerUseCitationId?: string;
       answerUseCitationIds?: string[];
       answerPlanReadFrom?: string;
       answerPlanCommandArgs?: string[];
@@ -7395,6 +7397,8 @@ function scoreAgentAnswerShortcuts(agent: {
   answerPlanReason?: string;
   answerPlanNextAction?: string;
   answerGapCount?: number;
+  answerUseCitationCount?: number;
+  topAnswerUseCitationId?: string;
   answerUseCitationIds?: string[];
   answerPlanReadFrom?: string;
   answerPlanCommandArgs?: string[];
@@ -7418,10 +7422,15 @@ function scoreAgentAnswerShortcuts(agent: {
     required += 1;
   }
   if (plan.useCitationIds && plan.useCitationIds.length > 0) {
-    required += 1;
+    required += 3;
+    if (agent.answerUseCitationCount === plan.useCitationIds.length) matched += 1;
+    if (agent.topAnswerUseCitationId === plan.useCitationIds[0]) matched += 1;
     if (JSON.stringify(agent.answerUseCitationIds) === JSON.stringify(plan.useCitationIds)) matched += 1;
   } else if (agent.answerUseCitationIds) {
     required += 1;
+  } else {
+    required += 1;
+    if (agent.answerUseCitationCount === 0) matched += 1;
   }
   if (plan.readFrom) {
     required += 1;

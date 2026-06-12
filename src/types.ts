@@ -1175,6 +1175,8 @@ export type AgentSummary = {
   answerPlanReason?: string;
   answerPlanNextAction?: string;
   answerGapCount?: number;
+  answerUseCitationCount?: number;
+  topAnswerUseCitationId?: string;
   answerUseCitationIds?: string[];
   answerPlanReadFrom?: string;
   answerPlanCommandArgs?: string[];

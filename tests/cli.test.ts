@@ -6114,6 +6114,11 @@ describe("cli", () => {
       readFrom: "pageCheck.config",
       useCitationIds: expect.arrayContaining(["pc1"]),
     });
+    expect(envelope.agent).toMatchObject({
+      answerUseCitationCount: 2,
+      topAnswerUseCitationId: "e1",
+      answerUseCitationIds: expect.arrayContaining(["pc1"]),
+    });
     expect(envelope.agent.answerEvidence).toContainEqual(expect.objectContaining({
       id: "pc1",
       kind: "page-check",

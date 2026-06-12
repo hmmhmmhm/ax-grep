@@ -767,6 +767,8 @@ describe("public agent types", () => {
       | "answerPlanReason"
       | "answerPlanNextAction"
       | "answerGapCount"
+      | "answerUseCitationCount"
+      | "topAnswerUseCitationId"
       | "answerUseCitationIds"
       | "answerPlanReadFrom"
       | "answerPlanCommandArgs"
@@ -1483,6 +1485,8 @@ describe("public agent types", () => {
       answerPlanReason: "Ready to answer.",
       answerPlanNextAction: "read-content",
       answerGapCount: 0,
+      answerUseCitationCount: 1,
+      topAnswerUseCitationId: "e1",
       answerUseCitationIds: ["e1"],
       answerPlanReadFrom: "pageCheck.contentEvidence",
       answerPlanCommandArgs: ["ax-grep", "https://example.test", "--agent"],

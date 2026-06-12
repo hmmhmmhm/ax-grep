@@ -3,6 +3,8 @@
 Status: about 85% fit for the goal of making `ax-grep --agent` a useful
 first-pass page/search checker before `agent-browser`.
 
+Last updated: 2026-06-12.
+
 This is a research track, so the target can expand when comparison work finds a
 new class of browser accessibility-tree signal that static HTML can expose
 safely. When that happens, add it to this file instead of treating the earlier
@@ -22,6 +24,16 @@ percentage as a fixed contract.
 Overall estimate: 85%. This is intentionally conservative because the final
 goal is comparative usefulness, not just passing the current tests.
 
+Reading guide:
+
+- 90% or higher means the area is useful in normal agent handoff flows and only
+  needs maintenance unless new research expands the target.
+- 75-89% means the area works for known fixtures but still has known comparison
+  or fallback gaps.
+- 60-74% means the area has infrastructure and early evidence, but the research
+  set is still too small to call stable.
+- Below 60% means the area should not be used as a completion signal.
+
 The estimate can move down as well as up. If research finds a browser
 accessibility-tree signal that is important for agents and not yet represented
 by static output, record it here, add a candidate task, and adjust the estimate
@@ -37,6 +49,29 @@ instead of hiding the new scope.
 | Page handoff | 85% | Surface barriers, read targets, action targets, table navigation shortcuts, hidden signal group shortcuts, and browser-capture reason/execution shortcuts. | Tighten fallback decisions for client-rendered, blocked, and low-content pages. | Fixtures show clear `use static output` vs `need browser capture` reasons. |
 | Semantic accessibility | 77% | Continue adding high-value shortcuts from roles, states, relations, lists, tables, and controls. | Compare table/grid/list/control output against browser-tree expectations and add only useful static equivalents. | Each accepted signal has a public type, CLI output, compact output, and fixture/test coverage. |
 | Browser parity research | 60% | Compare static output against a small sequential fixture set and record gaps. | Expand the gap list as research finds new browser accessibility-tree signals; lower estimates if new important gaps appear. | Each gap is tagged `implement`, `browser-only`, or `defer` with priority and evidence. |
+
+## Active Work Detail
+
+These are the items currently being worked or prepared. Use this table to
+estimate whether the overall percentage should move.
+
+| ID | Item | Progress | Current output | Still needed | Completion signal | Estimate impact |
+| --- | --- | ---: | --- | --- | --- | ---: |
+| A1 | Answer/evidence citation shortcuts | 80% | Top-level citation count and first citation id are implemented in CLI/type/test changes. | Finish validation and confirm compact/brief output stays stable. | Typecheck, focused CLI tests, static comparison gate, readiness audit, and process check pass. | +1% if green. |
+| A2 | Static-vs-browser gap ledger | 45% | Research scope ledger exists and requires every new signal to be tracked. | Add observed gap rows from the next sequential fixture comparison instead of generic placeholders. | Each new gap has source, priority, decision, status, and next command. | +3-5% to browser parity research. |
+| A3 | Table/grid ownership research | 55% | Header refs, row/column header shortcuts, sample-cell paths, and data-table shortcuts exist. | Decide whether browser-tree ownership signals add value beyond current row/column/header refs. | Either implement missing static shortcuts or mark as `browser-only`/`defer` with evidence. | +2-4% to semantic accessibility. |
+| A4 | Browser fallback policy | 60% | Browser HTML reason/code/action/operation/args/capture shortcuts exist. | Add more observed low-content, blocked, client-rendered, and interaction-required categories. | Fixtures show clear `use static` or `need browser capture` reasons without manual interpretation. | +2-4% to page handoff. |
+| A5 | Process-safety guardrails | 85% | `AGENTS.md`, progress rules, and `pnpm check:processes` are in place. | Keep every validation run sequential and document any browser-backed exception before running it. | No leftover browser/test/comparison processes before final handoff. | Prevents regression rather than raising feature %. |
+
+## Planned Work Detail
+
+| Order | Work | Why it matters | Entry condition | Done when | Risk |
+| ---: | --- | --- | --- | --- | --- |
+| 1 | Validate and land citation shortcut work. | Agents can cite ready answers without parsing nested `answerPlan.useCitationIds`. | Current WIP compiles. | The focused tests and gates pass, then the change is committed and pushed. | Low; public type expansion only. |
+| 2 | Convert the generic research ledger into observed gap records. | Progress becomes auditable instead of a broad percentage. | One small sequential fixture comparison is selected. | At least one real fixture result is recorded as `implement`, `browser-only`, or `defer`. | Medium; browser-backed checks must remain limited. |
+| 3 | Re-check table/grid semantics against the observed gaps. | Tables are a major place where accessibility-tree context can beat plain HTML. | Gap record says current static output is insufficient. | New shortcut is added with public type/CLI/compact/test coverage, or the gap is documented as not worth implementing. | Medium; avoid adding noisy fields. |
+| 4 | Tighten fallback policy categories. | Agents need to know when static inspection is enough and when browser capture is justified. | A fixture or real page produces unclear fallback guidance. | Reason codes and docs explain the decision without reading nested plans. | Medium; fetch/browser behavior can vary. |
+| 5 | Keep README short while moving detail into docs. | Prevents another unreadable README buildup. | Any new long explanation is needed. | README tests pass and the detail lives under `docs/`. | Low. |
 
 ## Milestone Tracker
 
@@ -61,6 +96,14 @@ estimates stay honest.
 | Search-result provenance and failed-open reasons. | Search handoff review. | P2 | Implement if agents cannot explain why a result was selected or skipped. | Candidate. |
 | Additional browser accessibility-tree signals discovered during sequential comparison. | Future research. | P1/P2 after triage. | Add to this ledger, then classify as `implement`, `browser-only`, or `defer`. | Watch. |
 
+When research expands:
+
+1. Add the new signal or gap to the ledger before implementation.
+2. Lower or hold the relevant percentage until the gap is classified.
+3. Record the smallest validation command that proves the decision.
+4. Keep browser-backed validation sequential and run `pnpm check:processes`
+   afterward.
+
 ## Current Focus
 
 1. Browser parity research: compare static semantic output with browser
@@ -71,15 +114,6 @@ estimates stay honest.
    routing work or reduce unnecessary browser handoff.
 4. Safety verification: keep process cleanup checks visible in the workflow so
    the previous server freeze does not repeat.
-
-## Planned Work
-
-| Priority | Candidate | Expected value | Scope status |
-| --- | --- | --- | --- |
-| P0 | Keep process checks around all validation work. | Prevent leaked browser/test/comparison processes from blocking the server again. | Ongoing guardrail. |
-| P1 | Improve deeper table/grid ownership and navigation context beyond first-row shortcuts. | Closes remaining gaps versus accessibility-tree table navigation. | Candidate after fixtures identify exact missing fields. |
-| P2 | Refine browser-only fallback policy with more observed categories. | Makes handoff decisions more predictable and easier to audit. | Candidate; depends on observed failures. |
-| P2 | Expand docs for comparison methodology without lengthening README. | Makes long-running research easier to inspect between sessions. | Use `docs/`, not root README. |
 
 ## Research Rules
 
@@ -135,6 +169,8 @@ estimates stay honest.
 - Kept semantic unavailable target role/name/selector shortcuts in brief output
   so agents can identify browser-inaccessible static targets without expanding
   the full semantic summary.
+- Added top-level answer citation count and first citation id shortcuts so
+  agents can cite ready answers without parsing `answerPlan.useCitationIds`.
 - Added non-browser fixture gates and readiness audits for repeatable checks.
 - Added process-safety guidance: run tests and browser-backed checks
   sequentially, and verify process cleanup.
