@@ -1173,6 +1173,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       searchDecisionConfidence?: CliAgentSearchDecisionShape["confidence"];
       searchDecisionReason?: string;
       searchDecisionResultCount?: number;
+      searchDecisionHighRelevanceCount?: number;
+      searchDecisionMediumRelevanceCount?: number;
+      searchDecisionLowRelevanceCount?: number;
+      searchDecisionOfficialCount?: number;
+      searchDecisionFindMatchCount?: number;
       searchDecisionRecommendedRank?: number;
       searchDecisionRecommendedUrl?: string;
       searchDecisionCommandArgs?: string[];
@@ -4841,6 +4846,11 @@ function scoreAgentSearchDecision(
     searchDecisionConfidence?: CliAgentSearchDecisionShape["confidence"];
     searchDecisionReason?: string;
     searchDecisionResultCount?: number;
+    searchDecisionHighRelevanceCount?: number;
+    searchDecisionMediumRelevanceCount?: number;
+    searchDecisionLowRelevanceCount?: number;
+    searchDecisionOfficialCount?: number;
+    searchDecisionFindMatchCount?: number;
     searchDecisionRecommendedRank?: number;
     searchDecisionRecommendedUrl?: string;
     searchDecisionCommandArgs?: string[];
@@ -4879,11 +4889,16 @@ function scoreAgentSearchDecision(
   } else if (typeof decision.commandArgs !== "undefined") {
     required += 1;
   }
-  required += 4;
+  required += 9;
   if (agent?.searchDecisionName === decision.decision) matched += 1;
   if (agent?.searchDecisionConfidence === decision.confidence) matched += 1;
   if (agent?.searchDecisionReason === decision.reason) matched += 1;
   if (agent?.searchDecisionResultCount === decision.resultCount) matched += 1;
+  if (agent?.searchDecisionHighRelevanceCount === decision.highRelevanceCount) matched += 1;
+  if (agent?.searchDecisionMediumRelevanceCount === decision.mediumRelevanceCount) matched += 1;
+  if (agent?.searchDecisionLowRelevanceCount === decision.lowRelevanceCount) matched += 1;
+  if (agent?.searchDecisionOfficialCount === decision.officialCount) matched += 1;
+  if (agent?.searchDecisionFindMatchCount === decision.findMatchCount) matched += 1;
   if (typeof decision.recommendedRank === "number") {
     required += 1;
     if (agent?.searchDecisionRecommendedRank === decision.recommendedRank) matched += 1;

@@ -464,6 +464,11 @@ describe("public agent types", () => {
       | "searchDecisionConfidence"
       | "searchDecisionReason"
       | "searchDecisionResultCount"
+      | "searchDecisionHighRelevanceCount"
+      | "searchDecisionMediumRelevanceCount"
+      | "searchDecisionLowRelevanceCount"
+      | "searchDecisionOfficialCount"
+      | "searchDecisionFindMatchCount"
       | "searchDecisionRecommendedRank"
       | "searchDecisionRecommendedUrl"
       | "searchDecisionCommandArgs"
@@ -1167,6 +1172,11 @@ describe("public agent types", () => {
       searchDecisionConfidence: "high",
       searchDecisionReason: "Use the best result.",
       searchDecisionResultCount: 2,
+      searchDecisionHighRelevanceCount: 1,
+      searchDecisionMediumRelevanceCount: 1,
+      searchDecisionLowRelevanceCount: 0,
+      searchDecisionOfficialCount: 1,
+      searchDecisionFindMatchCount: 1,
       searchDecisionRecommendedRank: 1,
       searchDecisionRecommendedUrl: "https://example.test",
       searchDecisionCommandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent"],

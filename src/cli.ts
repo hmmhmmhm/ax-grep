@@ -925,6 +925,11 @@ type AgentSummary = {
   searchDecisionConfidence?: AgentSearchDecision["confidence"];
   searchDecisionReason?: string;
   searchDecisionResultCount?: number;
+  searchDecisionHighRelevanceCount?: number;
+  searchDecisionMediumRelevanceCount?: number;
+  searchDecisionLowRelevanceCount?: number;
+  searchDecisionOfficialCount?: number;
+  searchDecisionFindMatchCount?: number;
   searchDecisionRecommendedRank?: number;
   searchDecisionRecommendedUrl?: string;
   searchDecisionCommandArgs?: string[];
@@ -3136,6 +3141,11 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.searchDecisionConfidence ? [`  searchDecisionConfidence: ${agent.searchDecisionConfidence}`] : []),
     ...(agent.searchDecisionReason ? [`  searchDecisionReason: ${agent.searchDecisionReason}`] : []),
     ...(typeof agent.searchDecisionResultCount === "number" ? [`  searchDecisionResultCount: ${agent.searchDecisionResultCount}`] : []),
+    ...(typeof agent.searchDecisionHighRelevanceCount === "number" ? [`  searchDecisionHighRelevanceCount: ${agent.searchDecisionHighRelevanceCount}`] : []),
+    ...(typeof agent.searchDecisionMediumRelevanceCount === "number" ? [`  searchDecisionMediumRelevanceCount: ${agent.searchDecisionMediumRelevanceCount}`] : []),
+    ...(typeof agent.searchDecisionLowRelevanceCount === "number" ? [`  searchDecisionLowRelevanceCount: ${agent.searchDecisionLowRelevanceCount}`] : []),
+    ...(typeof agent.searchDecisionOfficialCount === "number" ? [`  searchDecisionOfficialCount: ${agent.searchDecisionOfficialCount}`] : []),
+    ...(typeof agent.searchDecisionFindMatchCount === "number" ? [`  searchDecisionFindMatchCount: ${agent.searchDecisionFindMatchCount}`] : []),
     ...(typeof agent.searchDecisionRecommendedRank === "number" ? [`  searchDecisionRecommendedRank: ${agent.searchDecisionRecommendedRank}`] : []),
     ...(agent.searchDecisionRecommendedUrl ? [`  searchDecisionRecommendedUrl: ${agent.searchDecisionRecommendedUrl}`] : []),
     ...(agent.pageDecision ? [`  pageDecision: ${agent.pageDecision.decision}/${agent.pageDecision.confidence} - ${agent.pageDecision.reason}`] : []),
@@ -10747,6 +10757,11 @@ function summarizeAgent(
     ...(searchDecision ? { searchDecisionConfidence: searchDecision.confidence } : {}),
     ...(searchDecision ? { searchDecisionReason: searchDecision.reason } : {}),
     ...(searchDecision ? { searchDecisionResultCount: searchDecision.resultCount } : {}),
+    ...(searchDecision ? { searchDecisionHighRelevanceCount: searchDecision.highRelevanceCount } : {}),
+    ...(searchDecision ? { searchDecisionMediumRelevanceCount: searchDecision.mediumRelevanceCount } : {}),
+    ...(searchDecision ? { searchDecisionLowRelevanceCount: searchDecision.lowRelevanceCount } : {}),
+    ...(searchDecision ? { searchDecisionOfficialCount: searchDecision.officialCount } : {}),
+    ...(searchDecision ? { searchDecisionFindMatchCount: searchDecision.findMatchCount } : {}),
     ...(typeof searchDecision?.recommendedRank === "number" ? { searchDecisionRecommendedRank: searchDecision.recommendedRank } : {}),
     ...(searchDecision?.recommendedUrl ? { searchDecisionRecommendedUrl: searchDecision.recommendedUrl } : {}),
     ...(searchDecision?.commandArgs ? { searchDecisionCommandArgs: searchDecision.commandArgs } : {}),
@@ -15406,6 +15421,11 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.searchDecisionConfidence ? { searchDecisionConfidence: agent.searchDecisionConfidence } : {}),
     ...(agent.searchDecisionReason ? { searchDecisionReason: agent.searchDecisionReason } : {}),
     ...(typeof agent.searchDecisionResultCount === "number" ? { searchDecisionResultCount: agent.searchDecisionResultCount } : {}),
+    ...(typeof agent.searchDecisionHighRelevanceCount === "number" ? { searchDecisionHighRelevanceCount: agent.searchDecisionHighRelevanceCount } : {}),
+    ...(typeof agent.searchDecisionMediumRelevanceCount === "number" ? { searchDecisionMediumRelevanceCount: agent.searchDecisionMediumRelevanceCount } : {}),
+    ...(typeof agent.searchDecisionLowRelevanceCount === "number" ? { searchDecisionLowRelevanceCount: agent.searchDecisionLowRelevanceCount } : {}),
+    ...(typeof agent.searchDecisionOfficialCount === "number" ? { searchDecisionOfficialCount: agent.searchDecisionOfficialCount } : {}),
+    ...(typeof agent.searchDecisionFindMatchCount === "number" ? { searchDecisionFindMatchCount: agent.searchDecisionFindMatchCount } : {}),
     ...(typeof agent.searchDecisionRecommendedRank === "number" ? { searchDecisionRecommendedRank: agent.searchDecisionRecommendedRank } : {}),
     ...(agent.searchDecisionRecommendedUrl ? { searchDecisionRecommendedUrl: agent.searchDecisionRecommendedUrl } : {}),
     ...(agent.searchDecisionCommandArgs ? { searchDecisionCommandArgs: agent.searchDecisionCommandArgs } : {}),
@@ -16157,6 +16177,11 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.searchDecisionName ? { searchDecisionName: agent.searchDecisionName } : {}),
     ...(agent.searchDecisionConfidence ? { searchDecisionConfidence: agent.searchDecisionConfidence } : {}),
     ...(typeof agent.searchDecisionResultCount === "number" ? { searchDecisionResultCount: agent.searchDecisionResultCount } : {}),
+    ...(typeof agent.searchDecisionHighRelevanceCount === "number" ? { searchDecisionHighRelevanceCount: agent.searchDecisionHighRelevanceCount } : {}),
+    ...(typeof agent.searchDecisionMediumRelevanceCount === "number" ? { searchDecisionMediumRelevanceCount: agent.searchDecisionMediumRelevanceCount } : {}),
+    ...(typeof agent.searchDecisionLowRelevanceCount === "number" ? { searchDecisionLowRelevanceCount: agent.searchDecisionLowRelevanceCount } : {}),
+    ...(typeof agent.searchDecisionOfficialCount === "number" ? { searchDecisionOfficialCount: agent.searchDecisionOfficialCount } : {}),
+    ...(typeof agent.searchDecisionFindMatchCount === "number" ? { searchDecisionFindMatchCount: agent.searchDecisionFindMatchCount } : {}),
     ...(typeof agent.searchDecisionRecommendedRank === "number" ? { searchDecisionRecommendedRank: agent.searchDecisionRecommendedRank } : {}),
     ...(agent.searchDecisionRecommendedUrl ? { searchDecisionRecommendedUrl: agent.searchDecisionRecommendedUrl } : {}),
     ...(agent.searchDecisionCommandArgs ? { searchDecisionCommandArgs: agent.searchDecisionCommandArgs } : {}),

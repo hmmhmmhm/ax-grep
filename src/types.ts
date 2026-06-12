@@ -561,6 +561,11 @@ export type AgentSummary = {
   searchDecisionConfidence?: "low" | "medium" | "high";
   searchDecisionReason?: string;
   searchDecisionResultCount?: number;
+  searchDecisionHighRelevanceCount?: number;
+  searchDecisionMediumRelevanceCount?: number;
+  searchDecisionLowRelevanceCount?: number;
+  searchDecisionOfficialCount?: number;
+  searchDecisionFindMatchCount?: number;
   searchDecisionRecommendedRank?: number;
   searchDecisionRecommendedUrl?: string;
   searchDecisionCommandArgs?: string[];

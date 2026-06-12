@@ -1558,6 +1558,11 @@ describe("cli", () => {
       searchDecisionName: "open-result",
       searchDecisionConfidence: "high",
       searchDecisionResultCount: 1,
+      searchDecisionHighRelevanceCount: 1,
+      searchDecisionMediumRelevanceCount: 0,
+      searchDecisionLowRelevanceCount: 0,
+      searchDecisionOfficialCount: 0,
+      searchDecisionFindMatchCount: 0,
       searchDecisionRecommendedRank: 1,
       searchDecisionRecommendedUrl: "https://result.example/",
       searchDecisionCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "best", "--agent"],
@@ -1632,6 +1637,9 @@ describe("cli", () => {
     expect(stdout.output).toContain("  searchDecision: open-result/low - Ranked result 1 from result.example.");
     expect(stdout.output).toContain("  searchDecisionName: open-result");
     expect(stdout.output).toContain("  searchDecisionResultCount: 1");
+    expect(stdout.output).toContain("  searchDecisionHighRelevanceCount: 0");
+    expect(stdout.output).toContain("  searchDecisionMediumRelevanceCount: 0");
+    expect(stdout.output).toContain("  searchDecisionLowRelevanceCount: 0");
     expect(stdout.output).toContain("  executor: execute/execute-command/medium action=open-result status=needs-more - Run ax-grep 'https://result.example/' --json --summary and continue with its output.");
     expect(stdout.output).toContain("  executorCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  handoffCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
@@ -2435,6 +2443,11 @@ describe("cli", () => {
       searchDecisionName: "refine-search",
       searchDecisionConfidence: "low",
       searchDecisionResultCount: 1,
+      searchDecisionHighRelevanceCount: 0,
+      searchDecisionMediumRelevanceCount: 0,
+      searchDecisionLowRelevanceCount: 1,
+      searchDecisionOfficialCount: 0,
+      searchDecisionFindMatchCount: 0,
       searchDecisionCommandArgs: ["ax-grep", "--search", "\"ax-grep\"", "--engine", "duckduckgo", "--agent"],
     });
   });
