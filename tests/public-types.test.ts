@@ -1370,9 +1370,14 @@ describe("public agent types", () => {
         title: "ax-grep mirror",
         url: "https://mirror.example/result",
         host: "mirror.example",
+        source: "mirror.example",
         rank: 3,
         openResult: 3,
+        command: "ax-grep --search 'ax-grep docs' --open-result 3 --agent",
         commandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "3", "--agent"],
+        sourceScore: 0.64,
+        relevance: "medium",
+        isLikelyOfficial: false,
       }],
       verificationFoundQueries: ["present"],
       verificationMissingQueries: ["missing"],
@@ -2020,6 +2025,10 @@ describe("public agent types", () => {
     expect(summary.sourceSearchAlternateRelevance).toBe("medium");
     expect(summary.sourceSearchAlternateLikelyOfficial).toBe(false);
     expect(summary.sourceSearchAlternateChoices?.[0]?.path).toBe("sourceSearch.alternateResults[0]");
+    expect(summary.sourceSearchAlternateChoices?.[0]?.command).toContain("--open-result 3");
+    expect(summary.sourceSearchAlternateChoices?.[0]?.sourceScore).toBe(0.64);
+    expect(summary.sourceSearchAlternateChoices?.[0]?.relevance).toBe("medium");
+    expect(summary.sourceSearchAlternateChoices?.[0]?.isLikelyOfficial).toBe(false);
     expect(summary.topActionName).toBe("read-content");
     expect(summary.topActionPriorityReason).toBe("Readable content is available.");
     expect(summary.topActionCommand).toBe("ax-grep https://example.test --agent");
