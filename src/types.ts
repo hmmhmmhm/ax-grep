@@ -151,6 +151,8 @@ export type AgentAction = {
   readFrom?: string;
   sourceLinkRef?: string;
   requiresBrowserInteraction?: boolean;
+  expectedOutcome?: AgentExpectedOutcome["kind"];
+  expectedOutcomeMessage?: string;
   target?: AgentTarget;
   source?: string;
   primary?: boolean;
@@ -1324,6 +1326,8 @@ export type AgentSummary = {
   topActionCommandArgs?: string[];
   topActionUrl?: string;
   topActionSourceLinkRef?: string;
+  topActionExpectedOutcome?: AgentExpectedOutcome["kind"];
+  topActionExpectedOutcomeMessage?: string;
   topActionTargetUrl?: string;
   topActionTargetPath?: string;
   topActionTargetTitle?: string;
@@ -1395,6 +1399,8 @@ export type AgentSummary = {
   primaryPriority?: "low" | "medium" | "high";
   primaryPriorityReason?: string;
   primaryExecution?: AgentExecutionMode;
+  primaryExpectedOutcome?: AgentExpectedOutcome["kind"];
+  primaryExpectedOutcomeMessage?: string;
   primaryReadFrom?: string;
   primaryCommand?: string;
   primaryCommandArgs?: string[];
@@ -1420,6 +1426,8 @@ export type AgentSummary = {
   alternativeActionName?: string;
   alternativeActionSource?: string;
   alternativeActionExecution?: AgentExecutionMode;
+  alternativeActionExpectedOutcome?: AgentExpectedOutcome["kind"];
+  alternativeActionExpectedOutcomeMessage?: string;
   alternativeActionPriority?: "low" | "medium" | "high";
   alternativeActionReason?: string;
   alternativeActionReadFrom?: string;

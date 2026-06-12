@@ -899,6 +899,8 @@ describe("public agent types", () => {
       | "topActionCommandArgs"
       | "topActionUrl"
       | "topActionSourceLinkRef"
+      | "topActionExpectedOutcome"
+      | "topActionExpectedOutcomeMessage"
       | "topActionTargetUrl"
       | "topActionTargetPath"
       | "topActionTargetTitle"
@@ -1009,6 +1011,8 @@ describe("public agent types", () => {
       | "primaryReason"
       | "primaryPriority"
       | "primaryPriorityReason"
+      | "primaryExpectedOutcome"
+      | "primaryExpectedOutcomeMessage"
       | "primarySourceLinkRef"
       | "primaryTargetUrl"
       | "primaryTargetPath"
@@ -1024,6 +1028,8 @@ describe("public agent types", () => {
       | "alternativeActionName"
       | "alternativeActionSource"
       | "alternativeActionExecution"
+      | "alternativeActionExpectedOutcome"
+      | "alternativeActionExpectedOutcomeMessage"
       | "alternativeActionPriority"
       | "alternativeActionReason"
       | "alternativeActionReadFrom"
@@ -1766,6 +1772,8 @@ describe("public agent types", () => {
       topActionCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       topActionUrl: "https://example.test",
       topActionSourceLinkRef: "pageCheck.sourceLinks[0]",
+      topActionExpectedOutcome: "read-evidence",
+      topActionExpectedOutcomeMessage: "Read pageCheck.contentEvidence from the current payload and treat it as the next evidence source.",
       topActionTargetUrl: "https://example.test",
       topActionTargetPath: "pageCheck.links[0]",
       topActionTargetTitle: "Example target",
@@ -1876,6 +1884,8 @@ describe("public agent types", () => {
       primaryReason: "Read current evidence.",
       primaryPriority: "high",
       primaryPriorityReason: "Readable content is available.",
+      primaryExpectedOutcome: "read-evidence",
+      primaryExpectedOutcomeMessage: "Read pageCheck.contentEvidence from the current payload and treat it as the next evidence source.",
       primarySourceLinkRef: "pageCheck.sourceLinks[0]",
       primaryTargetUrl: "https://example.test",
       primaryTargetPath: "pageCheck.links[0]",
@@ -1891,6 +1901,8 @@ describe("public agent types", () => {
       alternativeActionName: "open-source-link",
       alternativeActionSource: "pageCheck.nextSteps",
       alternativeActionExecution: "run-command",
+      alternativeActionExpectedOutcome: "open-result",
+      alternativeActionExpectedOutcomeMessage: "Open the target URL with the provided command and expect the resulting page check or verification payload.",
       alternativeActionPriority: "medium",
       alternativeActionReason: "Open the cited source.",
       alternativeActionReadFrom: "pageCheck.sourceLinks",
@@ -1957,6 +1969,7 @@ describe("public agent types", () => {
     expect(summary.sourceSearchAlternatePath).toBe("sourceSearch.alternateResults[0]");
     expect(summary.sourceSearchAlternateChoices?.[0]?.path).toBe("sourceSearch.alternateResults[0]");
     expect(summary.topActionName).toBe("read-content");
+    expect(summary.topActionExpectedOutcome).toBe("read-evidence");
     expect(summary.topActionTargetTitle).toBe("Example target");
     expect(summary.topActionTargetSourceScore).toBe(0.92);
     expect(summary.topActionTargetLikelyOfficial).toBe(true);
@@ -2003,11 +2016,13 @@ describe("public agent types", () => {
     expect(summary.handoffTargetTitle).toBe("Example target");
     expect(summary.handoffTargetRelevance).toBe("high");
     expect(summary.primaryActionName).toBe("read-content");
+    expect(summary.primaryExpectedOutcome).toBe("read-evidence");
     expect(summary.primarySourceLinkRef).toBe("pageCheck.sourceLinks[0]");
     expect(summary.primaryTargetTitle).toBe("Example target");
     expect(summary.primaryTargetSourceScore).toBe(0.92);
     expect(summary.primaryTargetLikelyOfficial).toBe(true);
     expect(summary.alternativeActionName).toBe("open-source-link");
+    expect(summary.alternativeActionExpectedOutcome).toBe("open-result");
     expect(summary.alternativeActionCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.alternativeActionTargetTitle).toBe("Source report");
     expect(summary.alternativeActionTargetSourceScore).toBe(0.84);

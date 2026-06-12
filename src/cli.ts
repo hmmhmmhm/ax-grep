@@ -305,6 +305,8 @@ type AgentActionSummary = SuggestedAction & {
   source: AgentActionSource;
   primary?: boolean;
   index?: number;
+  expectedOutcome?: AgentExpectedOutcome["kind"];
+  expectedOutcomeMessage?: string;
 };
 
 type CommandSpec = {
@@ -1673,6 +1675,8 @@ type AgentSummary = {
   topActionCommandArgs?: string[];
   topActionUrl?: string;
   topActionSourceLinkRef?: string;
+  topActionExpectedOutcome?: AgentExpectedOutcome["kind"];
+  topActionExpectedOutcomeMessage?: string;
   topActionTargetUrl?: string;
   topActionTargetPath?: string;
   topActionTargetTitle?: string;
@@ -1744,6 +1748,8 @@ type AgentSummary = {
   primaryPriority?: NonNullable<SuggestedAction["priority"]>;
   primaryPriorityReason?: string;
   primaryExecution?: NonNullable<SuggestedAction["execution"]>;
+  primaryExpectedOutcome?: AgentExpectedOutcome["kind"];
+  primaryExpectedOutcomeMessage?: string;
   primaryReadFrom?: string;
   primaryCommand?: string;
   primaryCommandArgs?: string[];
@@ -1765,10 +1771,15 @@ type AgentSummary = {
   primaryTargetSelector?: string;
   primaryTargetText?: string;
   requiresBrowserInteraction?: boolean;
-  primaryAction?: SuggestedAction;
+  primaryAction?: SuggestedAction & {
+    expectedOutcome?: AgentExpectedOutcome["kind"];
+    expectedOutcomeMessage?: string;
+  };
   alternativeActionName?: string;
   alternativeActionSource?: string;
   alternativeActionExecution?: NonNullable<SuggestedAction["execution"]>;
+  alternativeActionExpectedOutcome?: AgentExpectedOutcome["kind"];
+  alternativeActionExpectedOutcomeMessage?: string;
   alternativeActionPriority?: NonNullable<SuggestedAction["priority"]>;
   alternativeActionReason?: string;
   alternativeActionReadFrom?: string;
@@ -3539,6 +3550,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.alternativeActionCommandArgs ? [`  alternativeActionCommandArgs: ${JSON.stringify(agent.alternativeActionCommandArgs)}`] : []),
     ...(agent.alternativeActionUrl ? [`  alternativeActionUrl: ${agent.alternativeActionUrl}`] : []),
     ...(agent.alternativeActionSourceLinkRef ? [`  alternativeActionSourceLinkRef: ${agent.alternativeActionSourceLinkRef}`] : []),
+    ...(agent.alternativeActionExpectedOutcome ? [`  alternativeActionExpectedOutcome: ${agent.alternativeActionExpectedOutcome}`] : []),
+    ...(agent.alternativeActionExpectedOutcomeMessage ? [`  alternativeActionExpectedOutcomeMessage: ${agent.alternativeActionExpectedOutcomeMessage}`] : []),
     ...(agent.alternativeActionTargetUrl ? [`  alternativeActionTargetUrl: ${agent.alternativeActionTargetUrl}`] : []),
     ...(agent.alternativeActionTargetPath ? [`  alternativeActionTargetPath: ${agent.alternativeActionTargetPath}`] : []),
     ...(agent.alternativeActionTargetTitle ? [`  alternativeActionTargetTitle: ${agent.alternativeActionTargetTitle}`] : []),
@@ -3581,6 +3594,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topActionCommandArgs ? [`  topActionCommandArgs: ${JSON.stringify(agent.topActionCommandArgs)}`] : []),
     ...(agent.topActionUrl ? [`  topActionUrl: ${agent.topActionUrl}`] : []),
     ...(agent.topActionSourceLinkRef ? [`  topActionSourceLinkRef: ${agent.topActionSourceLinkRef}`] : []),
+    ...(agent.topActionExpectedOutcome ? [`  topActionExpectedOutcome: ${agent.topActionExpectedOutcome}`] : []),
+    ...(agent.topActionExpectedOutcomeMessage ? [`  topActionExpectedOutcomeMessage: ${agent.topActionExpectedOutcomeMessage}`] : []),
     ...(agent.topActionTargetUrl ? [`  topActionTargetUrl: ${agent.topActionTargetUrl}`] : []),
     ...(agent.topActionTargetPath ? [`  topActionTargetPath: ${agent.topActionTargetPath}`] : []),
     ...(agent.topActionTargetTitle ? [`  topActionTargetTitle: ${agent.topActionTargetTitle}`] : []),
@@ -3785,6 +3800,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.primaryReason) lines.push(`  primaryReason: ${agent.primaryReason}`);
   if (agent.primaryPriority) lines.push(`  primaryPriority: ${agent.primaryPriority}`);
   if (agent.primaryPriorityReason) lines.push(`  primaryPriorityReason: ${agent.primaryPriorityReason}`);
+  if (agent.primaryExpectedOutcome) lines.push(`  primaryExpectedOutcome: ${agent.primaryExpectedOutcome}`);
+  if (agent.primaryExpectedOutcomeMessage) lines.push(`  primaryExpectedOutcomeMessage: ${agent.primaryExpectedOutcomeMessage}`);
   if (agent.primarySourceLinkRef) lines.push(`  primarySourceLinkRef: ${agent.primarySourceLinkRef}`);
   if (agent.primaryTargetUrl) lines.push(`  primaryTargetUrl: ${agent.primaryTargetUrl}`);
   if (agent.primaryTargetPath) lines.push(`  primaryTargetPath: ${agent.primaryTargetPath}`);
@@ -11831,6 +11848,8 @@ function summarizeAgent(
     ...(actions[0]?.commandArgs ? { topActionCommandArgs: actions[0].commandArgs } : {}),
     ...(actions[0]?.url ? { topActionUrl: actions[0].url } : {}),
     ...(actions[0]?.sourceLinkRef ? { topActionSourceLinkRef: actions[0].sourceLinkRef } : {}),
+    ...(actions[0]?.expectedOutcome ? { topActionExpectedOutcome: actions[0].expectedOutcome } : {}),
+    ...(actions[0]?.expectedOutcomeMessage ? { topActionExpectedOutcomeMessage: actions[0].expectedOutcomeMessage } : {}),
     ...(actions[0]?.target?.url ? { topActionTargetUrl: actions[0].target.url } : {}),
     ...(actions[0]?.target?.path ? { topActionTargetPath: actions[0].target.path } : {}),
     ...(actions[0]?.target?.title ? { topActionTargetTitle: actions[0].target.title } : {}),
@@ -11852,6 +11871,8 @@ function summarizeAgent(
     ...(alternativeAction?.commandArgs ? { alternativeActionCommandArgs: alternativeAction.commandArgs } : {}),
     ...(alternativeAction?.url ? { alternativeActionUrl: alternativeAction.url } : {}),
     ...(alternativeAction?.sourceLinkRef ? { alternativeActionSourceLinkRef: alternativeAction.sourceLinkRef } : {}),
+    ...(alternativeAction?.expectedOutcome ? { alternativeActionExpectedOutcome: alternativeAction.expectedOutcome } : {}),
+    ...(alternativeAction?.expectedOutcomeMessage ? { alternativeActionExpectedOutcomeMessage: alternativeAction.expectedOutcomeMessage } : {}),
     ...(alternativeAction?.target?.url ? { alternativeActionTargetUrl: alternativeAction.target.url } : {}),
     ...(alternativeAction?.target?.path ? { alternativeActionTargetPath: alternativeAction.target.path } : {}),
     ...(alternativeAction?.target?.title ? { alternativeActionTargetTitle: alternativeAction.target.title } : {}),
@@ -11927,6 +11948,8 @@ function summarizeAgent(
     agent.primaryPriority = primaryAction.priority ?? actionPriority(primaryAction);
     agent.primaryPriorityReason = primaryAction.priorityReason ?? actionPriorityReason(primaryAction);
     agent.primaryExecution = actionExecution(primaryAction);
+    agent.primaryExpectedOutcome = expectedOutcome.kind;
+    agent.primaryExpectedOutcomeMessage = expectedOutcome.message;
     if (primaryAction.readFrom) agent.primaryReadFrom = primaryAction.readFrom;
     if (primaryAction.command) agent.primaryCommand = primaryAction.command;
     if (primaryAction.commandArgs) agent.primaryCommandArgs = primaryAction.commandArgs;
@@ -11948,7 +11971,7 @@ function summarizeAgent(
     if (primaryAction.target?.selector) agent.primaryTargetSelector = primaryAction.target.selector;
     if (primaryAction.target?.text) agent.primaryTargetText = primaryAction.target.text;
     if (primaryAction.requiresBrowserInteraction) agent.requiresBrowserInteraction = true;
-    agent.primaryAction = primaryAction;
+    agent.primaryAction = withActionExecution(primaryAction);
   }
   if (recommendedResult) {
     agent.recommendedUrl = recommendedResult.url;
@@ -13711,6 +13734,7 @@ function summarizeAgentActions(
     if (!primary && sameSuggestedAction(action, primaryAction)) return;
     if (!primary && (primaryAction?.action === "use-evidence" || primaryAction?.action === "read-content") && action.action === "read-content") return;
     if (actions.some((item) => sameSuggestedAction(item, action))) return;
+    const expectedOutcome = summarizeAgentExpectedOutcome(action);
     actions.push({
       ...action,
       source,
@@ -13719,6 +13743,8 @@ function summarizeAgentActions(
       execution: actionExecution(action),
       priority: action.priority ?? actionPriority(action),
       priorityReason: action.priorityReason ?? actionPriorityReason(action),
+      expectedOutcome: expectedOutcome.kind,
+      expectedOutcomeMessage: expectedOutcome.message,
     });
   };
   add(primaryAction, "agent.primaryAction", true);
@@ -14772,6 +14798,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(primaryAction?.commandArgs ? { topActionCommandArgs: primaryAction.commandArgs } : {}),
     ...(primaryAction?.url ? { topActionUrl: primaryAction.url } : {}),
     ...(primaryAction?.sourceLinkRef ? { topActionSourceLinkRef: primaryAction.sourceLinkRef } : {}),
+    ...(primaryAction ? { topActionExpectedOutcome: expectedOutcome.kind } : {}),
+    ...(primaryAction ? { topActionExpectedOutcomeMessage: expectedOutcome.message } : {}),
     ...(primaryAction?.target?.url ? { topActionTargetUrl: primaryAction.target.url } : {}),
     ...(primaryAction?.target?.path ? { topActionTargetPath: primaryAction.target.path } : {}),
     ...(primaryAction?.target?.title ? { topActionTargetTitle: primaryAction.target.title } : {}),
@@ -14833,6 +14861,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(primaryAction ? { primaryPriority: primaryAction.priority ?? actionPriority(primaryAction) } : {}),
     ...(primaryAction ? { primaryPriorityReason: primaryAction.priorityReason ?? actionPriorityReason(primaryAction) } : {}),
     ...(primaryAction ? { primaryExecution: actionExecution(primaryAction) } : {}),
+    ...(primaryAction ? { primaryExpectedOutcome: expectedOutcome.kind } : {}),
+    ...(primaryAction ? { primaryExpectedOutcomeMessage: expectedOutcome.message } : {}),
     ...(primaryAction?.readFrom ? { primaryReadFrom: primaryAction.readFrom } : {}),
     ...(primaryAction?.command ? { primaryCommand: primaryAction.command } : {}),
     ...(primaryAction?.commandArgs ? { primaryCommandArgs: primaryAction.commandArgs } : {}),
@@ -14853,7 +14883,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(primaryAction?.target?.selector ? { primaryTargetSelector: primaryAction.target.selector } : {}),
     ...(primaryAction?.target?.text ? { primaryTargetText: primaryAction.target.text } : {}),
     ...(primaryAction?.requiresBrowserInteraction ? { requiresBrowserInteraction: true } : {}),
-    ...(primaryAction ? { primaryAction } : {}),
+    ...(primaryAction ? { primaryAction: withActionExecution(primaryAction) } : {}),
   };
 }
 
@@ -16868,6 +16898,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topActionCommandArgs ? { topActionCommandArgs: agent.topActionCommandArgs } : {}),
     ...(agent.topActionUrl ? { topActionUrl: agent.topActionUrl } : {}),
     ...(agent.topActionSourceLinkRef ? { topActionSourceLinkRef: agent.topActionSourceLinkRef } : {}),
+    ...(agent.topActionExpectedOutcome ? { topActionExpectedOutcome: agent.topActionExpectedOutcome } : {}),
+    ...(agent.topActionExpectedOutcomeMessage ? { topActionExpectedOutcomeMessage: agent.topActionExpectedOutcomeMessage } : {}),
     ...(agent.topActionTargetUrl ? { topActionTargetUrl: agent.topActionTargetUrl } : {}),
     ...(agent.topActionTargetPath ? { topActionTargetPath: agent.topActionTargetPath } : {}),
     ...(agent.topActionTargetTitle ? { topActionTargetTitle: agent.topActionTargetTitle } : {}),
@@ -16889,6 +16921,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.alternativeActionCommandArgs ? { alternativeActionCommandArgs: agent.alternativeActionCommandArgs } : {}),
     ...(agent.alternativeActionUrl ? { alternativeActionUrl: agent.alternativeActionUrl } : {}),
     ...(agent.alternativeActionSourceLinkRef ? { alternativeActionSourceLinkRef: agent.alternativeActionSourceLinkRef } : {}),
+    ...(agent.alternativeActionExpectedOutcome ? { alternativeActionExpectedOutcome: agent.alternativeActionExpectedOutcome } : {}),
+    ...(agent.alternativeActionExpectedOutcomeMessage ? { alternativeActionExpectedOutcomeMessage: agent.alternativeActionExpectedOutcomeMessage } : {}),
     ...(agent.alternativeActionTargetUrl ? { alternativeActionTargetUrl: agent.alternativeActionTargetUrl } : {}),
     ...(agent.alternativeActionTargetPath ? { alternativeActionTargetPath: agent.alternativeActionTargetPath } : {}),
     ...(agent.alternativeActionTargetTitle ? { alternativeActionTargetTitle: agent.alternativeActionTargetTitle } : {}),
@@ -16960,6 +16994,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.primaryPriority ? { primaryPriority: agent.primaryPriority } : {}),
     ...(agent.primaryPriorityReason ? { primaryPriorityReason: agent.primaryPriorityReason } : {}),
     ...(agent.primaryExecution ? { primaryExecution: agent.primaryExecution } : {}),
+    ...(agent.primaryExpectedOutcome ? { primaryExpectedOutcome: agent.primaryExpectedOutcome } : {}),
+    ...(agent.primaryExpectedOutcomeMessage ? { primaryExpectedOutcomeMessage: agent.primaryExpectedOutcomeMessage } : {}),
     ...(agent.primaryReadFrom ? { primaryReadFrom: agent.primaryReadFrom } : {}),
     ...(agent.primaryCommand ? { primaryCommand: agent.primaryCommand } : {}),
     ...(agent.primaryCommandArgs ? { primaryCommandArgs: agent.primaryCommandArgs } : {}),
@@ -17779,6 +17815,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topActionCommandArgs ? { topActionCommandArgs: agent.topActionCommandArgs } : {}),
     ...(agent.topActionUrl ? { topActionUrl: agent.topActionUrl } : {}),
     ...(agent.topActionSourceLinkRef ? { topActionSourceLinkRef: agent.topActionSourceLinkRef } : {}),
+    ...(agent.topActionExpectedOutcome ? { topActionExpectedOutcome: agent.topActionExpectedOutcome } : {}),
+    ...(agent.topActionExpectedOutcomeMessage ? { topActionExpectedOutcomeMessage: agent.topActionExpectedOutcomeMessage } : {}),
     ...(agent.topActionTargetUrl ? { topActionTargetUrl: agent.topActionTargetUrl } : {}),
     ...(agent.topActionTargetPath ? { topActionTargetPath: agent.topActionTargetPath } : {}),
     ...(agent.topActionTargetTitle ? { topActionTargetTitle: agent.topActionTargetTitle } : {}),
@@ -17800,6 +17838,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.alternativeActionCommandArgs ? { alternativeActionCommandArgs: agent.alternativeActionCommandArgs } : {}),
     ...(agent.alternativeActionUrl ? { alternativeActionUrl: agent.alternativeActionUrl } : {}),
     ...(agent.alternativeActionSourceLinkRef ? { alternativeActionSourceLinkRef: agent.alternativeActionSourceLinkRef } : {}),
+    ...(agent.alternativeActionExpectedOutcome ? { alternativeActionExpectedOutcome: agent.alternativeActionExpectedOutcome } : {}),
+    ...(agent.alternativeActionExpectedOutcomeMessage ? { alternativeActionExpectedOutcomeMessage: agent.alternativeActionExpectedOutcomeMessage } : {}),
     ...(agent.alternativeActionTargetUrl ? { alternativeActionTargetUrl: agent.alternativeActionTargetUrl } : {}),
     ...(agent.alternativeActionTargetPath ? { alternativeActionTargetPath: agent.alternativeActionTargetPath } : {}),
     ...(agent.alternativeActionTargetTitle ? { alternativeActionTargetTitle: agent.alternativeActionTargetTitle } : {}),
@@ -17871,6 +17911,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.primaryPriority ? { primaryPriority: agent.primaryPriority } : {}),
     ...(agent.primaryPriorityReason ? { primaryPriorityReason: agent.primaryPriorityReason } : {}),
     ...(agent.primaryExecution ? { primaryExecution: agent.primaryExecution } : {}),
+    ...(agent.primaryExpectedOutcome ? { primaryExpectedOutcome: agent.primaryExpectedOutcome } : {}),
+    ...(agent.primaryExpectedOutcomeMessage ? { primaryExpectedOutcomeMessage: agent.primaryExpectedOutcomeMessage } : {}),
     ...(agent.primaryReadFrom ? { primaryReadFrom: agent.primaryReadFrom } : {}),
     ...(agent.primaryCommand ? { primaryCommand: agent.primaryCommand } : {}),
     ...(agent.primaryCommandArgs ? { primaryCommandArgs: agent.primaryCommandArgs } : {}),
@@ -18690,12 +18732,17 @@ function agentTargetFromResult(result: ResultSummary): AgentTarget {
   };
 }
 
-function compactAgentAction(action: SuggestedAction, options: { omitOpenSourceTarget?: boolean; omitReason?: boolean; primaryUrl?: string } = {}): object {
+function compactAgentAction(action: SuggestedAction & {
+  expectedOutcome?: AgentExpectedOutcome["kind"];
+  expectedOutcomeMessage?: string;
+}, options: { omitOpenSourceTarget?: boolean; omitReason?: boolean; primaryUrl?: string } = {}): object {
   return compactAgentUrlRefs({
     action: action.action,
     execution: actionExecution(action),
     priority: action.priority ?? actionPriority(action),
     priorityReason: action.priorityReason ?? actionPriorityReason(action),
+    ...(action.expectedOutcome ? { expectedOutcome: action.expectedOutcome } : {}),
+    ...(action.expectedOutcomeMessage ? { expectedOutcomeMessage: action.expectedOutcomeMessage } : {}),
     ...(!options.omitReason ? { reason: action.reason } : {}),
     ...(action.url ? { url: action.url } : {}),
     ...(action.rank ? { rank: action.rank } : {}),
@@ -18781,12 +18828,18 @@ function actionPriorityReason(action: SuggestedAction): string {
   return "Inspect current output before choosing another action.";
 }
 
-function withActionExecution(action: SuggestedAction): SuggestedAction {
+function withActionExecution(action: SuggestedAction): SuggestedAction & {
+  expectedOutcome: AgentExpectedOutcome["kind"];
+  expectedOutcomeMessage: string;
+} {
+  const expectedOutcome = summarizeAgentExpectedOutcome(action);
   return {
     ...action,
     execution: actionExecution(action),
     priority: action.priority ?? actionPriority(action),
     priorityReason: action.priorityReason ?? actionPriorityReason(action),
+    expectedOutcome: expectedOutcome.kind,
+    expectedOutcomeMessage: expectedOutcome.message,
   };
 }
 

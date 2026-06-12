@@ -206,6 +206,8 @@ type CliActionShape = {
   readFrom?: string;
   sourceLinkRef?: string;
   requiresBrowserInteraction?: boolean;
+  expectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
+  expectedOutcomeMessage?: string;
   terminal?: boolean;
   source?: string;
   primary?: boolean;
@@ -1667,6 +1669,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topActionCommandArgs?: string[];
       topActionUrl?: string;
       topActionSourceLinkRef?: string;
+      topActionExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
+      topActionExpectedOutcomeMessage?: string;
       topActionTargetUrl?: string;
       topActionTargetPath?: string;
       topActionTargetTitle?: string;
@@ -1680,6 +1684,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topActionTargetText?: string;
       topActionRequiresBrowserInteraction?: boolean;
       primaryExecution?: ActionExecution;
+      primaryExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
+      primaryExpectedOutcomeMessage?: string;
       primaryReadFrom?: string;
       primaryCommand?: string;
       primaryCommandArgs?: string[];
@@ -1705,6 +1711,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       alternativeActionName?: string;
       alternativeActionSource?: string;
       alternativeActionExecution?: ActionExecution;
+      alternativeActionExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
+      alternativeActionExpectedOutcomeMessage?: string;
       alternativeActionPriority?: "low" | "medium" | "high";
       alternativeActionReason?: string;
       alternativeActionReadFrom?: string;
@@ -4883,6 +4891,8 @@ function scoreAgentActionList(actions: CliActionShape[] | undefined, primaryActi
   }
   required += 1;
   if (actions.every((action) => scoreActionSchema([action]) === 1 && typeof action.source === "string" && action.source.length > 0)) matched += 1;
+  required += 1;
+  if (actions.every((action) => action.expectedOutcome === expectedAgentOutcomeKind(action) && typeof action.expectedOutcomeMessage === "string" && action.expectedOutcomeMessage.length > 0)) matched += 1;
   return roundScore(matched / required);
 }
 
@@ -4897,6 +4907,8 @@ function scoreAgentTopActionShortcuts(agent: {
   topActionCommandArgs?: string[];
   topActionUrl?: string;
   topActionSourceLinkRef?: string;
+  topActionExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
+  topActionExpectedOutcomeMessage?: string;
   topActionTargetUrl?: string;
   topActionTargetPath?: string;
   topActionTargetTitle?: string;
@@ -4921,6 +4933,8 @@ function scoreAgentTopActionShortcuts(agent: {
       || agent?.topActionCommandArgs
       || agent?.topActionUrl
       || agent?.topActionSourceLinkRef
+      || agent?.topActionExpectedOutcome
+      || agent?.topActionExpectedOutcomeMessage
       || agent?.topActionTargetUrl
       || agent?.topActionTargetPath
       || agent?.topActionTargetTitle
@@ -4965,6 +4979,9 @@ function scoreAgentTopActionShortcuts(agent: {
   } else if (agent?.topActionSourceLinkRef) {
     required += 1;
   }
+  required += 2;
+  if (agent?.topActionExpectedOutcome === expectedAgentOutcomeKind(top)) matched += 1;
+  if (agent?.topActionExpectedOutcomeMessage === top.expectedOutcomeMessage && typeof top.expectedOutcomeMessage === "string" && top.expectedOutcomeMessage.length > 0) matched += 1;
   if (top.target?.url) {
     required += 1;
     if (agent?.topActionTargetUrl === top.target.url) matched += 1;
@@ -7366,6 +7383,8 @@ function scoreAgentPrimaryShortcuts(agent: {
   primaryReason?: string;
   primaryPriority?: "low" | "medium" | "high";
   primaryPriorityReason?: string;
+  primaryExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
+  primaryExpectedOutcomeMessage?: string;
   primaryReadFrom?: string;
   primaryCommand?: string;
   primaryCommandArgs?: string[];
@@ -7396,6 +7415,8 @@ function scoreAgentPrimaryShortcuts(agent: {
       || agent?.primaryReason
       || agent?.primaryPriority
       || agent?.primaryPriorityReason
+      || agent?.primaryExpectedOutcome
+      || agent?.primaryExpectedOutcomeMessage
       || agent?.primaryCommand
       || agent?.primaryCommandArgs
       || agent?.primaryAfterInteractionCommand
@@ -7424,6 +7445,9 @@ function scoreAgentPrimaryShortcuts(agent: {
   if (agent?.primaryReason === action.reason) matched += 1;
   if (agent?.primaryPriority === action.priority) matched += 1;
   if (agent?.primaryPriorityReason === action.priorityReason) matched += 1;
+  required += 2;
+  if (agent?.primaryExpectedOutcome === expectedAgentOutcomeKind(action)) matched += 1;
+  if (agent?.primaryExpectedOutcomeMessage === action.expectedOutcomeMessage && typeof action.expectedOutcomeMessage === "string" && action.expectedOutcomeMessage.length > 0) matched += 1;
   if (action.readFrom) {
     required += 1;
     if (agent?.primaryReadFrom === action.readFrom) matched += 1;
@@ -7558,6 +7582,8 @@ function scoreAgentAlternativeActionShortcuts(agent: {
   alternativeActionName?: string;
   alternativeActionSource?: string;
   alternativeActionExecution?: ActionExecution;
+  alternativeActionExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
+  alternativeActionExpectedOutcomeMessage?: string;
   alternativeActionPriority?: "low" | "medium" | "high";
   alternativeActionReason?: string;
   alternativeActionReadFrom?: string;
@@ -7582,6 +7608,8 @@ function scoreAgentAlternativeActionShortcuts(agent: {
     return agent?.alternativeActionName
       || agent?.alternativeActionSource
       || agent?.alternativeActionExecution
+      || agent?.alternativeActionExpectedOutcome
+      || agent?.alternativeActionExpectedOutcomeMessage
       || agent?.alternativeActionPriority
       || agent?.alternativeActionReason
       || agent?.alternativeActionReadFrom
@@ -7608,6 +7636,9 @@ function scoreAgentAlternativeActionShortcuts(agent: {
   if (agent?.alternativeActionExecution === normalizedActionExecution(action)) matched += 1;
   if (agent?.alternativeActionPriority === action.priority) matched += 1;
   if (agent?.alternativeActionReason === action.reason) matched += 1;
+  required += 2;
+  if (agent?.alternativeActionExpectedOutcome === expectedAgentOutcomeKind(action)) matched += 1;
+  if (agent?.alternativeActionExpectedOutcomeMessage === action.expectedOutcomeMessage && typeof action.expectedOutcomeMessage === "string" && action.expectedOutcomeMessage.length > 0) matched += 1;
   if (action.readFrom) {
     required += 1;
     if (agent?.alternativeActionReadFrom === action.readFrom) matched += 1;
