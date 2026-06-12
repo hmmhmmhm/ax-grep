@@ -1332,6 +1332,18 @@ describe("cli", () => {
         expect(envelope.agent.alternativeActionSource).toEqual(expect.any(String));
         expect(envelope.agent.alternativeActionExecution).toEqual(expect.stringMatching(/^(run-command|read-current|interact-browser|inspect-output)$/));
         expect(envelope.agent.alternativeActionPriority).toEqual(expect.stringMatching(/^(low|medium|high)$/));
+        const alternativeAction = envelope.agent.actions?.find((action: { primary?: boolean }) => action.primary !== true);
+        if (alternativeAction?.target?.url) expect(envelope.agent.alternativeActionTargetUrl).toBe(alternativeAction.target.url);
+        if (alternativeAction?.target?.path) expect(envelope.agent.alternativeActionTargetPath).toBe(alternativeAction.target.path);
+        if (alternativeAction?.target?.title) expect(envelope.agent.alternativeActionTargetTitle).toBe(alternativeAction.target.title);
+        if (alternativeAction?.target?.host) expect(envelope.agent.alternativeActionTargetHost).toBe(alternativeAction.target.host);
+        if (alternativeAction?.target?.source) expect(envelope.agent.alternativeActionTargetSource).toBe(alternativeAction.target.source);
+        if (typeof alternativeAction?.target?.rank === "number") expect(envelope.agent.alternativeActionTargetRank).toBe(alternativeAction.target.rank);
+        if (typeof alternativeAction?.target?.sourceScore === "number") expect(envelope.agent.alternativeActionTargetSourceScore).toBe(alternativeAction.target.sourceScore);
+        if (alternativeAction?.target?.relevance) expect(envelope.agent.alternativeActionTargetRelevance).toBe(alternativeAction.target.relevance);
+        if (typeof alternativeAction?.target?.isLikelyOfficial === "boolean") expect(envelope.agent.alternativeActionTargetLikelyOfficial).toBe(alternativeAction.target.isLikelyOfficial);
+        if (alternativeAction?.target?.selector) expect(envelope.agent.alternativeActionTargetSelector).toBe(alternativeAction.target.selector);
+        if (alternativeAction?.target?.text) expect(envelope.agent.alternativeActionTargetText).toBe(alternativeAction.target.text);
       }
       const topResultChoice = envelope.agent.resultChoices?.[0] ?? handoff.resultChoices?.[0];
       const topSourceChoice = envelope.agent.sourceChoices?.[0] ?? handoff.sourceChoices?.[0];

@@ -1415,6 +1415,17 @@ export type AgentSummary = {
   alternativeActionCommandArgs?: string[];
   alternativeActionUrl?: string;
   alternativeActionSourceLinkRef?: string;
+  alternativeActionTargetUrl?: string;
+  alternativeActionTargetPath?: string;
+  alternativeActionTargetTitle?: string;
+  alternativeActionTargetHost?: string;
+  alternativeActionTargetSource?: string;
+  alternativeActionTargetRank?: number;
+  alternativeActionTargetSourceScore?: number;
+  alternativeActionTargetRelevance?: AgentTarget["relevance"];
+  alternativeActionTargetLikelyOfficial?: boolean;
+  alternativeActionTargetSelector?: string;
+  alternativeActionTargetText?: string;
   alternativeActionRequiresBrowserInteraction?: boolean;
   recommendedUrl?: string;
   recommendedPath?: string;

@@ -1764,6 +1764,17 @@ type AgentSummary = {
   alternativeActionCommandArgs?: string[];
   alternativeActionUrl?: string;
   alternativeActionSourceLinkRef?: string;
+  alternativeActionTargetUrl?: string;
+  alternativeActionTargetPath?: string;
+  alternativeActionTargetTitle?: string;
+  alternativeActionTargetHost?: string;
+  alternativeActionTargetSource?: string;
+  alternativeActionTargetRank?: number;
+  alternativeActionTargetSourceScore?: number;
+  alternativeActionTargetRelevance?: AgentTarget["relevance"];
+  alternativeActionTargetLikelyOfficial?: boolean;
+  alternativeActionTargetSelector?: string;
+  alternativeActionTargetText?: string;
   alternativeActionRequiresBrowserInteraction?: boolean;
   recommendedUrl?: string;
   recommendedPath?: string;
@@ -3517,6 +3528,17 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.alternativeActionCommandArgs ? [`  alternativeActionCommandArgs: ${JSON.stringify(agent.alternativeActionCommandArgs)}`] : []),
     ...(agent.alternativeActionUrl ? [`  alternativeActionUrl: ${agent.alternativeActionUrl}`] : []),
     ...(agent.alternativeActionSourceLinkRef ? [`  alternativeActionSourceLinkRef: ${agent.alternativeActionSourceLinkRef}`] : []),
+    ...(agent.alternativeActionTargetUrl ? [`  alternativeActionTargetUrl: ${agent.alternativeActionTargetUrl}`] : []),
+    ...(agent.alternativeActionTargetPath ? [`  alternativeActionTargetPath: ${agent.alternativeActionTargetPath}`] : []),
+    ...(agent.alternativeActionTargetTitle ? [`  alternativeActionTargetTitle: ${agent.alternativeActionTargetTitle}`] : []),
+    ...(agent.alternativeActionTargetHost ? [`  alternativeActionTargetHost: ${agent.alternativeActionTargetHost}`] : []),
+    ...(agent.alternativeActionTargetSource ? [`  alternativeActionTargetSource: ${agent.alternativeActionTargetSource}`] : []),
+    ...(typeof agent.alternativeActionTargetRank === "number" ? [`  alternativeActionTargetRank: ${agent.alternativeActionTargetRank}`] : []),
+    ...(typeof agent.alternativeActionTargetSourceScore === "number" ? [`  alternativeActionTargetSourceScore: ${agent.alternativeActionTargetSourceScore}`] : []),
+    ...(agent.alternativeActionTargetRelevance ? [`  alternativeActionTargetRelevance: ${agent.alternativeActionTargetRelevance}`] : []),
+    ...(typeof agent.alternativeActionTargetLikelyOfficial === "boolean" ? [`  alternativeActionTargetLikelyOfficial: ${agent.alternativeActionTargetLikelyOfficial}`] : []),
+    ...(agent.alternativeActionTargetSelector ? [`  alternativeActionTargetSelector: ${agent.alternativeActionTargetSelector}`] : []),
+    ...(agent.alternativeActionTargetText ? [`  alternativeActionTargetText: ${agent.alternativeActionTargetText}`] : []),
     ...(agent.alternativeActionRequiresBrowserInteraction ? ["  alternativeActionRequiresBrowserInteraction: true"] : []),
     `  usabilityScore: ${agent.usabilityScore}`,
     `  evidenceQualityScore: ${agent.evidenceQualityScore}`,
@@ -11797,6 +11819,17 @@ function summarizeAgent(
     ...(alternativeAction?.commandArgs ? { alternativeActionCommandArgs: alternativeAction.commandArgs } : {}),
     ...(alternativeAction?.url ? { alternativeActionUrl: alternativeAction.url } : {}),
     ...(alternativeAction?.sourceLinkRef ? { alternativeActionSourceLinkRef: alternativeAction.sourceLinkRef } : {}),
+    ...(alternativeAction?.target?.url ? { alternativeActionTargetUrl: alternativeAction.target.url } : {}),
+    ...(alternativeAction?.target?.path ? { alternativeActionTargetPath: alternativeAction.target.path } : {}),
+    ...(alternativeAction?.target?.title ? { alternativeActionTargetTitle: alternativeAction.target.title } : {}),
+    ...(alternativeAction?.target?.host ? { alternativeActionTargetHost: alternativeAction.target.host } : {}),
+    ...(alternativeAction?.target?.source ? { alternativeActionTargetSource: alternativeAction.target.source } : {}),
+    ...(typeof alternativeAction?.target?.rank === "number" ? { alternativeActionTargetRank: alternativeAction.target.rank } : {}),
+    ...(typeof alternativeAction?.target?.sourceScore === "number" ? { alternativeActionTargetSourceScore: alternativeAction.target.sourceScore } : {}),
+    ...(alternativeAction?.target?.relevance ? { alternativeActionTargetRelevance: alternativeAction.target.relevance } : {}),
+    ...(typeof alternativeAction?.target?.isLikelyOfficial === "boolean" ? { alternativeActionTargetLikelyOfficial: alternativeAction.target.isLikelyOfficial } : {}),
+    ...(alternativeAction?.target?.selector ? { alternativeActionTargetSelector: alternativeAction.target.selector } : {}),
+    ...(alternativeAction?.target?.text ? { alternativeActionTargetText: alternativeAction.target.text } : {}),
     ...(alternativeAction?.requiresBrowserInteraction ? { alternativeActionRequiresBrowserInteraction: true } : {}),
     executorDecision: executor.decision,
     executorMode: executor.mode,
@@ -16801,6 +16834,17 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.alternativeActionCommandArgs ? { alternativeActionCommandArgs: agent.alternativeActionCommandArgs } : {}),
     ...(agent.alternativeActionUrl ? { alternativeActionUrl: agent.alternativeActionUrl } : {}),
     ...(agent.alternativeActionSourceLinkRef ? { alternativeActionSourceLinkRef: agent.alternativeActionSourceLinkRef } : {}),
+    ...(agent.alternativeActionTargetUrl ? { alternativeActionTargetUrl: agent.alternativeActionTargetUrl } : {}),
+    ...(agent.alternativeActionTargetPath ? { alternativeActionTargetPath: agent.alternativeActionTargetPath } : {}),
+    ...(agent.alternativeActionTargetTitle ? { alternativeActionTargetTitle: agent.alternativeActionTargetTitle } : {}),
+    ...(agent.alternativeActionTargetHost ? { alternativeActionTargetHost: agent.alternativeActionTargetHost } : {}),
+    ...(agent.alternativeActionTargetSource ? { alternativeActionTargetSource: agent.alternativeActionTargetSource } : {}),
+    ...(typeof agent.alternativeActionTargetRank === "number" ? { alternativeActionTargetRank: agent.alternativeActionTargetRank } : {}),
+    ...(typeof agent.alternativeActionTargetSourceScore === "number" ? { alternativeActionTargetSourceScore: agent.alternativeActionTargetSourceScore } : {}),
+    ...(agent.alternativeActionTargetRelevance ? { alternativeActionTargetRelevance: agent.alternativeActionTargetRelevance } : {}),
+    ...(typeof agent.alternativeActionTargetLikelyOfficial === "boolean" ? { alternativeActionTargetLikelyOfficial: agent.alternativeActionTargetLikelyOfficial } : {}),
+    ...(agent.alternativeActionTargetSelector ? { alternativeActionTargetSelector: agent.alternativeActionTargetSelector } : {}),
+    ...(agent.alternativeActionTargetText ? { alternativeActionTargetText: agent.alternativeActionTargetText } : {}),
     ...(agent.alternativeActionRequiresBrowserInteraction ? { alternativeActionRequiresBrowserInteraction: true } : {}),
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetCount === "number" ? { bestReadTargetCount: agent.bestReadTargetCount } : {}),
@@ -17690,6 +17734,17 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.alternativeActionCommandArgs ? { alternativeActionCommandArgs: agent.alternativeActionCommandArgs } : {}),
     ...(agent.alternativeActionUrl ? { alternativeActionUrl: agent.alternativeActionUrl } : {}),
     ...(agent.alternativeActionSourceLinkRef ? { alternativeActionSourceLinkRef: agent.alternativeActionSourceLinkRef } : {}),
+    ...(agent.alternativeActionTargetUrl ? { alternativeActionTargetUrl: agent.alternativeActionTargetUrl } : {}),
+    ...(agent.alternativeActionTargetPath ? { alternativeActionTargetPath: agent.alternativeActionTargetPath } : {}),
+    ...(agent.alternativeActionTargetTitle ? { alternativeActionTargetTitle: agent.alternativeActionTargetTitle } : {}),
+    ...(agent.alternativeActionTargetHost ? { alternativeActionTargetHost: agent.alternativeActionTargetHost } : {}),
+    ...(agent.alternativeActionTargetSource ? { alternativeActionTargetSource: agent.alternativeActionTargetSource } : {}),
+    ...(typeof agent.alternativeActionTargetRank === "number" ? { alternativeActionTargetRank: agent.alternativeActionTargetRank } : {}),
+    ...(typeof agent.alternativeActionTargetSourceScore === "number" ? { alternativeActionTargetSourceScore: agent.alternativeActionTargetSourceScore } : {}),
+    ...(agent.alternativeActionTargetRelevance ? { alternativeActionTargetRelevance: agent.alternativeActionTargetRelevance } : {}),
+    ...(typeof agent.alternativeActionTargetLikelyOfficial === "boolean" ? { alternativeActionTargetLikelyOfficial: agent.alternativeActionTargetLikelyOfficial } : {}),
+    ...(agent.alternativeActionTargetSelector ? { alternativeActionTargetSelector: agent.alternativeActionTargetSelector } : {}),
+    ...(agent.alternativeActionTargetText ? { alternativeActionTargetText: agent.alternativeActionTargetText } : {}),
     ...(agent.alternativeActionRequiresBrowserInteraction ? { alternativeActionRequiresBrowserInteraction: true } : {}),
     ...(agent.bestReadTarget ? { bestReadTarget: agent.bestReadTarget } : {}),
     ...(typeof agent.bestReadTargetCount === "number" ? { bestReadTargetCount: agent.bestReadTargetCount } : {}),

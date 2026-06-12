@@ -1700,6 +1700,17 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       alternativeActionCommandArgs?: string[];
       alternativeActionUrl?: string;
       alternativeActionSourceLinkRef?: string;
+      alternativeActionTargetUrl?: string;
+      alternativeActionTargetPath?: string;
+      alternativeActionTargetTitle?: string;
+      alternativeActionTargetHost?: string;
+      alternativeActionTargetSource?: string;
+      alternativeActionTargetRank?: number;
+      alternativeActionTargetSourceScore?: number;
+      alternativeActionTargetRelevance?: CliAgentTargetShape["relevance"];
+      alternativeActionTargetLikelyOfficial?: boolean;
+      alternativeActionTargetSelector?: string;
+      alternativeActionTargetText?: string;
       alternativeActionRequiresBrowserInteraction?: boolean;
       actions?: CliActionShape[];
       citations?: CliAgentCitationShape[];
@@ -7454,6 +7465,17 @@ function scoreAgentAlternativeActionShortcuts(agent: {
   alternativeActionCommandArgs?: string[];
   alternativeActionUrl?: string;
   alternativeActionSourceLinkRef?: string;
+  alternativeActionTargetUrl?: string;
+  alternativeActionTargetPath?: string;
+  alternativeActionTargetTitle?: string;
+  alternativeActionTargetHost?: string;
+  alternativeActionTargetSource?: string;
+  alternativeActionTargetRank?: number;
+  alternativeActionTargetSourceScore?: number;
+  alternativeActionTargetRelevance?: CliAgentTargetShape["relevance"];
+  alternativeActionTargetLikelyOfficial?: boolean;
+  alternativeActionTargetSelector?: string;
+  alternativeActionTargetText?: string;
   alternativeActionRequiresBrowserInteraction?: boolean;
 } | undefined): number {
   const action = agent?.actions?.find((item) => item.primary !== true);
@@ -7467,6 +7489,17 @@ function scoreAgentAlternativeActionShortcuts(agent: {
       || agent?.alternativeActionCommandArgs
       || agent?.alternativeActionUrl
       || agent?.alternativeActionSourceLinkRef
+      || agent?.alternativeActionTargetUrl
+      || agent?.alternativeActionTargetPath
+      || agent?.alternativeActionTargetTitle
+      || agent?.alternativeActionTargetHost
+      || agent?.alternativeActionTargetSource
+      || typeof agent?.alternativeActionTargetRank === "number"
+      || typeof agent?.alternativeActionTargetSourceScore === "number"
+      || agent?.alternativeActionTargetRelevance
+      || typeof agent?.alternativeActionTargetLikelyOfficial === "boolean"
+      || agent?.alternativeActionTargetSelector
+      || agent?.alternativeActionTargetText
       || agent?.alternativeActionRequiresBrowserInteraction ? 0 : 1;
   }
   let required = 5;
@@ -7498,6 +7531,72 @@ function scoreAgentAlternativeActionShortcuts(agent: {
     required += 1;
     if (agent?.alternativeActionSourceLinkRef === action.sourceLinkRef) matched += 1;
   } else if (agent?.alternativeActionSourceLinkRef) {
+    required += 1;
+  }
+  if (action.target?.url) {
+    required += 1;
+    if (agent?.alternativeActionTargetUrl === action.target.url) matched += 1;
+  } else if (agent?.alternativeActionTargetUrl) {
+    required += 1;
+  }
+  if (action.target?.path) {
+    required += 1;
+    if (agent?.alternativeActionTargetPath === action.target.path) matched += 1;
+  } else if (agent?.alternativeActionTargetPath) {
+    required += 1;
+  }
+  if (action.target?.title) {
+    required += 1;
+    if (agent?.alternativeActionTargetTitle === action.target.title) matched += 1;
+  } else if (agent?.alternativeActionTargetTitle) {
+    required += 1;
+  }
+  if (action.target?.host) {
+    required += 1;
+    if (agent?.alternativeActionTargetHost === action.target.host) matched += 1;
+  } else if (agent?.alternativeActionTargetHost) {
+    required += 1;
+  }
+  if (action.target?.source) {
+    required += 1;
+    if (agent?.alternativeActionTargetSource === action.target.source) matched += 1;
+  } else if (agent?.alternativeActionTargetSource) {
+    required += 1;
+  }
+  if (typeof action.target?.rank === "number") {
+    required += 1;
+    if (agent?.alternativeActionTargetRank === action.target.rank) matched += 1;
+  } else if (typeof agent?.alternativeActionTargetRank === "number") {
+    required += 1;
+  }
+  if (typeof action.target?.sourceScore === "number") {
+    required += 1;
+    if (agent?.alternativeActionTargetSourceScore === action.target.sourceScore) matched += 1;
+  } else if (typeof agent?.alternativeActionTargetSourceScore === "number") {
+    required += 1;
+  }
+  if (action.target?.relevance) {
+    required += 1;
+    if (agent?.alternativeActionTargetRelevance === action.target.relevance) matched += 1;
+  } else if (agent?.alternativeActionTargetRelevance) {
+    required += 1;
+  }
+  if (typeof action.target?.isLikelyOfficial === "boolean") {
+    required += 1;
+    if (agent?.alternativeActionTargetLikelyOfficial === action.target.isLikelyOfficial) matched += 1;
+  } else if (typeof agent?.alternativeActionTargetLikelyOfficial === "boolean") {
+    required += 1;
+  }
+  if (action.target?.selector) {
+    required += 1;
+    if (agent?.alternativeActionTargetSelector === action.target.selector) matched += 1;
+  } else if (agent?.alternativeActionTargetSelector) {
+    required += 1;
+  }
+  if (action.target?.text) {
+    required += 1;
+    if (agent?.alternativeActionTargetText === action.target.text) matched += 1;
+  } else if (agent?.alternativeActionTargetText) {
     required += 1;
   }
   if (action.requiresBrowserInteraction) {

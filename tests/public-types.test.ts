@@ -1019,6 +1019,17 @@ describe("public agent types", () => {
       | "alternativeActionCommandArgs"
       | "alternativeActionUrl"
       | "alternativeActionSourceLinkRef"
+      | "alternativeActionTargetUrl"
+      | "alternativeActionTargetPath"
+      | "alternativeActionTargetTitle"
+      | "alternativeActionTargetHost"
+      | "alternativeActionTargetSource"
+      | "alternativeActionTargetRank"
+      | "alternativeActionTargetSourceScore"
+      | "alternativeActionTargetRelevance"
+      | "alternativeActionTargetLikelyOfficial"
+      | "alternativeActionTargetSelector"
+      | "alternativeActionTargetText"
       | "alternativeActionRequiresBrowserInteraction"
       | "recommendedUrl"
       | "recommendedPath"
@@ -1864,6 +1875,17 @@ describe("public agent types", () => {
       alternativeActionCommandArgs: ["ax-grep", "https://source.example/report", "--agent"],
       alternativeActionUrl: "https://source.example/report",
       alternativeActionSourceLinkRef: "pageCheck.sourceLinks[0]",
+      alternativeActionTargetUrl: "https://source.example/report",
+      alternativeActionTargetPath: "pageCheck.sourceLinks[0]",
+      alternativeActionTargetTitle: "Source report",
+      alternativeActionTargetHost: "source.example",
+      alternativeActionTargetSource: "source-link",
+      alternativeActionTargetRank: 1,
+      alternativeActionTargetSourceScore: 0.84,
+      alternativeActionTargetRelevance: "medium",
+      alternativeActionTargetLikelyOfficial: false,
+      alternativeActionTargetSelector: "a.source",
+      alternativeActionTargetText: "Source report",
       alternativeActionRequiresBrowserInteraction: false,
       recommendedUrl: "https://example.test",
       recommendedPath: "recommendedResult",
@@ -1962,6 +1984,9 @@ describe("public agent types", () => {
     expect(summary.primaryTargetLikelyOfficial).toBe(true);
     expect(summary.alternativeActionName).toBe("open-source-link");
     expect(summary.alternativeActionCommandArgs?.[0]).toBe("ax-grep");
+    expect(summary.alternativeActionTargetTitle).toBe("Source report");
+    expect(summary.alternativeActionTargetSourceScore).toBe(0.84);
+    expect(summary.alternativeActionTargetLikelyOfficial).toBe(false);
     expect(summary.recommendedPath).toBe("recommendedResult");
     expect(summary.recommendedSourceScore).toBe(0.92);
     expect(summary.searchDecisionRecommendedPath).toBe("recommendedResult");
