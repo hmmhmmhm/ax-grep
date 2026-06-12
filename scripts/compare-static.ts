@@ -1577,6 +1577,13 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchSelectedHost?: string;
       sourceSearchSelectedSource?: string;
       sourceSearchSelectedPath?: string;
+      sourceSearchSelectedSnippet?: string;
+      sourceSearchSelectedDateText?: string;
+      sourceSearchSelectedMatchedTerm?: string;
+      sourceSearchSelectedFindMatch?: string;
+      sourceSearchSelectedSitelinkCount?: number;
+      sourceSearchSelectedFirstSitelinkTitle?: string;
+      sourceSearchSelectedFirstSitelinkUrl?: string;
       sourceSearchSelectedOpenResult?: number | "best";
       sourceSearchSelectedCommand?: string;
       sourceSearchSelectedCommandArgs?: unknown[];
@@ -1595,6 +1602,13 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchAlternateHost?: string;
       sourceSearchAlternateSource?: string;
       sourceSearchAlternateRank?: number;
+      sourceSearchAlternateSnippet?: string;
+      sourceSearchAlternateDateText?: string;
+      sourceSearchAlternateMatchedTerm?: string;
+      sourceSearchAlternateFindMatch?: string;
+      sourceSearchAlternateSitelinkCount?: number;
+      sourceSearchAlternateFirstSitelinkTitle?: string;
+      sourceSearchAlternateFirstSitelinkUrl?: string;
       sourceSearchAlternateOpenResult?: number | "best";
       sourceSearchAlternateCommand?: string;
       sourceSearchAlternateCommandArgs?: unknown[];
@@ -4883,6 +4897,13 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchSelectedHost?: string;
   sourceSearchSelectedSource?: string;
   sourceSearchSelectedPath?: string;
+  sourceSearchSelectedSnippet?: string;
+  sourceSearchSelectedDateText?: string;
+  sourceSearchSelectedMatchedTerm?: string;
+  sourceSearchSelectedFindMatch?: string;
+  sourceSearchSelectedSitelinkCount?: number;
+  sourceSearchSelectedFirstSitelinkTitle?: string;
+  sourceSearchSelectedFirstSitelinkUrl?: string;
   sourceSearchSelectedOpenResult?: number | "best";
   sourceSearchSelectedCommand?: string;
   sourceSearchSelectedCommandArgs?: unknown[];
@@ -4901,6 +4922,13 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchAlternateHost?: string;
   sourceSearchAlternateSource?: string;
   sourceSearchAlternateRank?: number;
+  sourceSearchAlternateSnippet?: string;
+  sourceSearchAlternateDateText?: string;
+  sourceSearchAlternateMatchedTerm?: string;
+  sourceSearchAlternateFindMatch?: string;
+  sourceSearchAlternateSitelinkCount?: number;
+  sourceSearchAlternateFirstSitelinkTitle?: string;
+  sourceSearchAlternateFirstSitelinkUrl?: string;
   sourceSearchAlternateOpenResult?: number | "best";
   sourceSearchAlternateCommand?: string;
   sourceSearchAlternateCommandArgs?: unknown[];
@@ -4938,6 +4966,13 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchSelectedHost === "undefined"
       && typeof agent?.sourceSearchSelectedSource === "undefined"
       && typeof agent?.sourceSearchSelectedPath === "undefined"
+      && typeof agent?.sourceSearchSelectedSnippet === "undefined"
+      && typeof agent?.sourceSearchSelectedDateText === "undefined"
+      && typeof agent?.sourceSearchSelectedMatchedTerm === "undefined"
+      && typeof agent?.sourceSearchSelectedFindMatch === "undefined"
+      && typeof agent?.sourceSearchSelectedSitelinkCount === "undefined"
+      && typeof agent?.sourceSearchSelectedFirstSitelinkTitle === "undefined"
+      && typeof agent?.sourceSearchSelectedFirstSitelinkUrl === "undefined"
       && typeof agent?.sourceSearchSelectedOpenResult === "undefined"
       && typeof agent?.sourceSearchSelectedCommand === "undefined"
       && typeof agent?.sourceSearchSelectedCommandArgs === "undefined"
@@ -4955,6 +4990,13 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchAlternateHost === "undefined"
       && typeof agent?.sourceSearchAlternateSource === "undefined"
       && typeof agent?.sourceSearchAlternateRank === "undefined"
+      && typeof agent?.sourceSearchAlternateSnippet === "undefined"
+      && typeof agent?.sourceSearchAlternateDateText === "undefined"
+      && typeof agent?.sourceSearchAlternateMatchedTerm === "undefined"
+      && typeof agent?.sourceSearchAlternateFindMatch === "undefined"
+      && typeof agent?.sourceSearchAlternateSitelinkCount === "undefined"
+      && typeof agent?.sourceSearchAlternateFirstSitelinkTitle === "undefined"
+      && typeof agent?.sourceSearchAlternateFirstSitelinkUrl === "undefined"
       && typeof agent?.sourceSearchAlternateOpenResult === "undefined"
       && typeof agent?.sourceSearchAlternateCommand === "undefined"
       && typeof agent?.sourceSearchAlternateCommandArgs === "undefined"
@@ -5018,10 +5060,49 @@ function scoreAgentSourceSearchShortcuts(agent: {
     if (agent?.sourceSearchSelectedRelevance === selected.relevance) matched += 1;
     if (agent?.sourceSearchSelectedLikelyOfficial === selected.isLikelyOfficial) matched += 1;
     if (agent?.sourceSearchSelectedReason === selected.selectionReason) matched += 1;
+    if (selected.snippet) {
+      required += 1;
+      if (agent?.sourceSearchSelectedSnippet === selected.snippet) matched += 1;
+    } else if (agent?.sourceSearchSelectedSnippet) {
+      required += 1;
+    }
+    if (selected.dateText) {
+      required += 1;
+      if (agent?.sourceSearchSelectedDateText === selected.dateText) matched += 1;
+    } else if (agent?.sourceSearchSelectedDateText) {
+      required += 1;
+    }
+    if (selected.matchedTerms?.[0]) {
+      required += 1;
+      if (agent?.sourceSearchSelectedMatchedTerm === selected.matchedTerms[0]) matched += 1;
+    } else if (agent?.sourceSearchSelectedMatchedTerm) {
+      required += 1;
+    }
+    if (selected.findMatches?.[0]) {
+      required += 1;
+      if (agent?.sourceSearchSelectedFindMatch === selected.findMatches[0]) matched += 1;
+    } else if (agent?.sourceSearchSelectedFindMatch) {
+      required += 1;
+    }
+    if (selected.sitelinks?.length) {
+      required += 3;
+      if (agent?.sourceSearchSelectedSitelinkCount === selected.sitelinks.length) matched += 1;
+      if (agent?.sourceSearchSelectedFirstSitelinkTitle === selected.sitelinks[0]?.title) matched += 1;
+      if (agent?.sourceSearchSelectedFirstSitelinkUrl === selected.sitelinks[0]?.url) matched += 1;
+    } else if (typeof agent?.sourceSearchSelectedSitelinkCount === "number" || agent?.sourceSearchSelectedFirstSitelinkTitle || agent?.sourceSearchSelectedFirstSitelinkUrl) {
+      required += 1;
+    }
   } else if (
     agent?.sourceSearchSelectedPath
     || agent?.sourceSearchSelectedHost
     || agent?.sourceSearchSelectedSource
+    || agent?.sourceSearchSelectedSnippet
+    || agent?.sourceSearchSelectedDateText
+    || agent?.sourceSearchSelectedMatchedTerm
+    || agent?.sourceSearchSelectedFindMatch
+    || typeof agent?.sourceSearchSelectedSitelinkCount === "number"
+    || agent?.sourceSearchSelectedFirstSitelinkTitle
+    || agent?.sourceSearchSelectedFirstSitelinkUrl
     || agent?.sourceSearchSelectedCommand
     || agent?.sourceSearchSelectedCommandArgs
     || agent?.sourceSearchSelectedOpenResult
@@ -5047,6 +5128,38 @@ function scoreAgentSourceSearchShortcuts(agent: {
     if (agent?.sourceSearchAlternateRelevance === alternate.relevance) matched += 1;
     if (agent?.sourceSearchAlternateLikelyOfficial === alternate.isLikelyOfficial) matched += 1;
     if (agent?.sourceSearchAlternateReason === alternate.selectionReason) matched += 1;
+    if (alternate.snippet) {
+      required += 1;
+      if (agent?.sourceSearchAlternateSnippet === alternate.snippet) matched += 1;
+    } else if (agent?.sourceSearchAlternateSnippet) {
+      required += 1;
+    }
+    if (alternate.dateText) {
+      required += 1;
+      if (agent?.sourceSearchAlternateDateText === alternate.dateText) matched += 1;
+    } else if (agent?.sourceSearchAlternateDateText) {
+      required += 1;
+    }
+    if (alternate.matchedTerms?.[0]) {
+      required += 1;
+      if (agent?.sourceSearchAlternateMatchedTerm === alternate.matchedTerms[0]) matched += 1;
+    } else if (agent?.sourceSearchAlternateMatchedTerm) {
+      required += 1;
+    }
+    if (alternate.findMatches?.[0]) {
+      required += 1;
+      if (agent?.sourceSearchAlternateFindMatch === alternate.findMatches[0]) matched += 1;
+    } else if (agent?.sourceSearchAlternateFindMatch) {
+      required += 1;
+    }
+    if (alternate.sitelinks?.length) {
+      required += 3;
+      if (agent?.sourceSearchAlternateSitelinkCount === alternate.sitelinks.length) matched += 1;
+      if (agent?.sourceSearchAlternateFirstSitelinkTitle === alternate.sitelinks[0]?.title) matched += 1;
+      if (agent?.sourceSearchAlternateFirstSitelinkUrl === alternate.sitelinks[0]?.url) matched += 1;
+    } else if (typeof agent?.sourceSearchAlternateSitelinkCount === "number" || agent?.sourceSearchAlternateFirstSitelinkTitle || agent?.sourceSearchAlternateFirstSitelinkUrl) {
+      required += 1;
+    }
   } else if (
     agent?.sourceSearchAlternatePath
     || agent?.sourceSearchAlternateTitle
@@ -5054,6 +5167,13 @@ function scoreAgentSourceSearchShortcuts(agent: {
     || agent?.sourceSearchAlternateHost
     || agent?.sourceSearchAlternateSource
     || typeof agent?.sourceSearchAlternateRank === "number"
+    || agent?.sourceSearchAlternateSnippet
+    || agent?.sourceSearchAlternateDateText
+    || agent?.sourceSearchAlternateMatchedTerm
+    || agent?.sourceSearchAlternateFindMatch
+    || typeof agent?.sourceSearchAlternateSitelinkCount === "number"
+    || agent?.sourceSearchAlternateFirstSitelinkTitle
+    || agent?.sourceSearchAlternateFirstSitelinkUrl
     || agent?.sourceSearchAlternateOpenResult
     || agent?.sourceSearchAlternateCommand
     || agent?.sourceSearchAlternateCommandArgs
@@ -5081,6 +5201,30 @@ function scoreAgentSourceSearchShortcuts(agent: {
       if (JSON.stringify(agentChoice?.commandArgs) === JSON.stringify(choice.commandArgs)) matched += 1;
       if (agentChoice?.relevance === choice.relevance) matched += 1;
       if (agentChoice?.isLikelyOfficial === choice.isLikelyOfficial) matched += 1;
+      if (choice.snippet) {
+        required += 1;
+        if (agentChoice?.snippet === choice.snippet) matched += 1;
+      } else if (agentChoice?.snippet) {
+        required += 1;
+      }
+      if (choice.dateText) {
+        required += 1;
+        if (agentChoice?.dateText === choice.dateText) matched += 1;
+      } else if (agentChoice?.dateText) {
+        required += 1;
+      }
+      if (choice.matchedTerms?.[0]) {
+        required += 1;
+        if (agentChoice?.matchedTerms?.[0] === choice.matchedTerms[0]) matched += 1;
+      } else if (agentChoice?.matchedTerms?.length) {
+        required += 1;
+      }
+      if (choice.findMatches?.[0]) {
+        required += 1;
+        if (agentChoice?.findMatches?.[0] === choice.findMatches[0]) matched += 1;
+      } else if (agentChoice?.findMatches?.length) {
+        required += 1;
+      }
       if (typeof choice.sourceScore === "number") {
         required += 1;
         if (agentChoice?.sourceScore === choice.sourceScore) matched += 1;

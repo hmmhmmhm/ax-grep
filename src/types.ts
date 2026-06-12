@@ -1266,6 +1266,13 @@ export type AgentSummary = {
   sourceSearchSelectedHost?: string;
   sourceSearchSelectedSource?: string;
   sourceSearchSelectedPath?: string;
+  sourceSearchSelectedSnippet?: string;
+  sourceSearchSelectedDateText?: string;
+  sourceSearchSelectedMatchedTerm?: string;
+  sourceSearchSelectedFindMatch?: string;
+  sourceSearchSelectedSitelinkCount?: number;
+  sourceSearchSelectedFirstSitelinkTitle?: string;
+  sourceSearchSelectedFirstSitelinkUrl?: string;
   sourceSearchSelectedOpenResult?: number | "best";
   sourceSearchSelectedCommand?: string;
   sourceSearchSelectedCommandArgs?: string[];
@@ -1284,6 +1291,13 @@ export type AgentSummary = {
   sourceSearchAlternateHost?: string;
   sourceSearchAlternateSource?: string;
   sourceSearchAlternateRank?: number;
+  sourceSearchAlternateSnippet?: string;
+  sourceSearchAlternateDateText?: string;
+  sourceSearchAlternateMatchedTerm?: string;
+  sourceSearchAlternateFindMatch?: string;
+  sourceSearchAlternateSitelinkCount?: number;
+  sourceSearchAlternateFirstSitelinkTitle?: string;
+  sourceSearchAlternateFirstSitelinkUrl?: string;
   sourceSearchAlternateOpenResult?: number | "best";
   sourceSearchAlternateCommand?: string;
   sourceSearchAlternateCommandArgs?: string[];

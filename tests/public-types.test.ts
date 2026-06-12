@@ -461,6 +461,13 @@ describe("public agent types", () => {
       | "sourceSearchSelectedHost"
       | "sourceSearchSelectedSource"
       | "sourceSearchSelectedPath"
+      | "sourceSearchSelectedSnippet"
+      | "sourceSearchSelectedDateText"
+      | "sourceSearchSelectedMatchedTerm"
+      | "sourceSearchSelectedFindMatch"
+      | "sourceSearchSelectedSitelinkCount"
+      | "sourceSearchSelectedFirstSitelinkTitle"
+      | "sourceSearchSelectedFirstSitelinkUrl"
       | "sourceSearchSelectedOpenResult"
       | "sourceSearchSelectedCommand"
       | "sourceSearchSelectedCommandArgs"
@@ -479,6 +486,13 @@ describe("public agent types", () => {
       | "sourceSearchAlternateHost"
       | "sourceSearchAlternateSource"
       | "sourceSearchAlternateRank"
+      | "sourceSearchAlternateSnippet"
+      | "sourceSearchAlternateDateText"
+      | "sourceSearchAlternateMatchedTerm"
+      | "sourceSearchAlternateFindMatch"
+      | "sourceSearchAlternateSitelinkCount"
+      | "sourceSearchAlternateFirstSitelinkTitle"
+      | "sourceSearchAlternateFirstSitelinkUrl"
       | "sourceSearchAlternateOpenResult"
       | "sourceSearchAlternateCommand"
       | "sourceSearchAlternateCommandArgs"
@@ -1375,6 +1389,13 @@ describe("public agent types", () => {
       sourceSearchSelectedHost: "source.example",
       sourceSearchSelectedSource: "source.example",
       sourceSearchSelectedPath: "sourceSearch.selectedResult",
+      sourceSearchSelectedSnippet: "Selected source summary",
+      sourceSearchSelectedDateText: "2026-05-31",
+      sourceSearchSelectedMatchedTerm: "ax-grep",
+      sourceSearchSelectedFindMatch: "install",
+      sourceSearchSelectedSitelinkCount: 1,
+      sourceSearchSelectedFirstSitelinkTitle: "Install",
+      sourceSearchSelectedFirstSitelinkUrl: "https://source.example/result#install",
       sourceSearchSelectedOpenResult: 2,
       sourceSearchSelectedCommand: "ax-grep --search 'ax-grep docs' --open-result 2 --agent",
       sourceSearchSelectedCommandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "2", "--agent"],
@@ -1393,6 +1414,13 @@ describe("public agent types", () => {
       sourceSearchAlternateHost: "mirror.example",
       sourceSearchAlternateSource: "mirror.example",
       sourceSearchAlternateRank: 3,
+      sourceSearchAlternateSnippet: "Alternate source summary",
+      sourceSearchAlternateDateText: "2026-05-30",
+      sourceSearchAlternateMatchedTerm: "docs",
+      sourceSearchAlternateFindMatch: "mirror",
+      sourceSearchAlternateSitelinkCount: 1,
+      sourceSearchAlternateFirstSitelinkTitle: "Mirror",
+      sourceSearchAlternateFirstSitelinkUrl: "https://mirror.example/result#mirror",
       sourceSearchAlternateOpenResult: 3,
       sourceSearchAlternateCommand: "ax-grep --search 'ax-grep docs' --open-result 3 --agent",
       sourceSearchAlternateCommandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "3", "--agent"],
@@ -1408,6 +1436,10 @@ describe("public agent types", () => {
         host: "mirror.example",
         source: "mirror.example",
         rank: 3,
+        snippet: "Alternate source summary",
+        dateText: "2026-05-30",
+        matchedTerms: ["docs"],
+        findMatches: ["mirror"],
         openResult: 3,
         command: "ax-grep --search 'ax-grep docs' --open-result 3 --agent",
         commandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "3", "--agent"],
@@ -2064,6 +2096,10 @@ describe("public agent types", () => {
     expect(summary.sourceSearchQuery).toBe("ax-grep docs");
     expect(summary.sourceSearchTopFindQuery).toBe("install");
     expect(summary.sourceSearchSelectedTitle).toBe("ax-grep documentation");
+    expect(summary.sourceSearchSelectedSnippet).toBe("Selected source summary");
+    expect(summary.sourceSearchSelectedMatchedTerm).toBe("ax-grep");
+    expect(summary.sourceSearchSelectedFindMatch).toBe("install");
+    expect(summary.sourceSearchSelectedFirstSitelinkTitle).toBe("Install");
     expect(summary.sourceSearchSelectedCommand).toContain("--open-result 2");
     expect(summary.sourceSearchSelectedSourceScore).toBe(0.91);
     expect(summary.sourceSearchSelectedRelevance).toBe("high");
@@ -2071,6 +2107,10 @@ describe("public agent types", () => {
     expect(summary.sourceSearchSelectedCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.sourceSearchAlternateCount).toBe(1);
     expect(summary.sourceSearchAlternatePath).toBe("sourceSearch.alternateResults[0]");
+    expect(summary.sourceSearchAlternateSnippet).toBe("Alternate source summary");
+    expect(summary.sourceSearchAlternateMatchedTerm).toBe("docs");
+    expect(summary.sourceSearchAlternateFindMatch).toBe("mirror");
+    expect(summary.sourceSearchAlternateFirstSitelinkTitle).toBe("Mirror");
     expect(summary.sourceSearchAlternateCommand).toContain("--open-result 3");
     expect(summary.sourceSearchAlternateSourceScore).toBe(0.64);
     expect(summary.sourceSearchAlternateRelevance).toBe("medium");
@@ -2078,6 +2118,8 @@ describe("public agent types", () => {
     expect(summary.sourceSearchAlternateChoices?.[0]?.path).toBe("sourceSearch.alternateResults[0]");
     expect(summary.sourceSearchAlternateChoices?.[0]?.command).toContain("--open-result 3");
     expect(summary.sourceSearchAlternateChoices?.[0]?.sourceScore).toBe(0.64);
+    expect(summary.sourceSearchAlternateChoices?.[0]?.snippet).toBe("Alternate source summary");
+    expect(summary.sourceSearchAlternateChoices?.[0]?.matchedTerms?.[0]).toBe("docs");
     expect(summary.sourceSearchAlternateChoices?.[0]?.relevance).toBe("medium");
     expect(summary.sourceSearchAlternateChoices?.[0]?.isLikelyOfficial).toBe(false);
     expect(summary.topActionName).toBe("read-content");
