@@ -5372,6 +5372,7 @@ describe("cli", () => {
       canUseFetchedHtml: true,
       needsBrowserHtml: false,
       staticReadiness: "usable-hidden-data",
+      staticReadinessReasonCode: "hidden-data",
       staticReadinessReadFrom: "pageCheck.hydration",
       staticReadinessReason: expect.stringContaining("hidden app data"),
     });
@@ -8979,6 +8980,11 @@ npx ax-grep https://example.test --agent</code></pre>
         url: "https://forum.example/thin",
       }),
     ]);
+    expect(envelope.agent).toMatchObject({
+      staticReadiness: "usable-structured-data",
+      staticReadinessReasonCode: "source-link",
+      staticReadinessReadFrom: "pageCheck.sourceLinks[0]",
+    });
   });
 
   it("prints the source link reference for a primary source-link action", async () => {
@@ -9520,6 +9526,7 @@ npx ax-grep https://example.test --agent</code></pre>
       ]),
       canUseFetchedHtml: false,
       needsBrowserHtml: true,
+      staticReadinessReasonCode: "browser-required",
       browserHtmlReason: "Browser-captured HTML or browser inspection is needed.",
       browserHtmlReasonCode: "no-inspectable-content",
       browserHtmlActionName: "retry-with-browser-html",
@@ -9612,6 +9619,7 @@ npx ax-grep https://example.test --agent</code></pre>
     });
     expect(envelope.agent).toMatchObject({
       needsBrowserHtml: true,
+      staticReadinessReasonCode: "browser-required",
       browserHtmlReasonCode: "challenge",
       browserHtmlActionName: "retry-with-browser-html",
     });
@@ -9649,6 +9657,7 @@ npx ax-grep https://example.test --agent</code></pre>
       topBarrierText: "Login: The page appears to require login or account access.",
       topBarrierDiagnosticCode: "LOGIN_REQUIRED",
       needsBrowserHtml: true,
+      staticReadinessReasonCode: "browser-required",
       browserHtmlReasonCode: "login-required",
       browserHtmlActionName: "retry-with-browser-html",
     });
@@ -9857,6 +9866,7 @@ npx ax-grep https://example.test --agent</code></pre>
       status: "error",
       canContinue: true,
       needsBrowserHtml: true,
+      staticReadinessReasonCode: "browser-required",
       browserHtmlReason: "Browser-captured HTML is needed.",
       browserHtmlReasonCode: "http-error",
       primaryAction: {

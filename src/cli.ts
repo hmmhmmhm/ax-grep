@@ -34,6 +34,7 @@ import type {
   AgentSourceSearch,
   AgentSourceSearchResult,
   AgentStaticReadiness,
+  AgentStaticReadinessReasonCode,
   AgentStatus,
   AgentTarget,
   SemanticNode,
@@ -1230,6 +1231,7 @@ type AgentSummary = {
   canUseFetchedHtml: boolean;
   needsBrowserHtml: boolean;
   staticReadiness?: AgentStaticReadiness;
+  staticReadinessReasonCode?: AgentStaticReadinessReasonCode;
   staticReadinessReason?: string;
   staticReadinessReadFrom?: string;
   browserHtmlReason?: string;
@@ -3207,6 +3209,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  canUseFetchedHtml: ${agent.canUseFetchedHtml}`,
     `  needsBrowserHtml: ${agent.needsBrowserHtml}`,
     ...(agent.staticReadiness ? [`  staticReadiness: ${agent.staticReadiness}`] : []),
+    ...(agent.staticReadinessReasonCode ? [`  staticReadinessReasonCode: ${agent.staticReadinessReasonCode}`] : []),
     ...(agent.staticReadinessReason ? [`  staticReadinessReason: ${agent.staticReadinessReason}`] : []),
     ...(agent.staticReadinessReadFrom ? [`  staticReadinessReadFrom: ${agent.staticReadinessReadFrom}`] : []),
     ...(agent.browserHtmlReason ? [`  browserHtmlReason: ${agent.browserHtmlReason}`] : []),
@@ -11177,6 +11180,7 @@ function summarizeAgent(
     canUseFetchedHtml,
     needsBrowserHtml,
     staticReadiness: staticReadiness.status,
+    staticReadinessReasonCode: staticReadiness.reasonCode,
     staticReadinessReason: staticReadiness.reason,
     ...(staticReadiness.readFrom ? { staticReadinessReadFrom: staticReadiness.readFrom } : {}),
     ...(browserHtmlReason ? { browserHtmlReason } : {}),
@@ -12420,10 +12424,11 @@ function summarizeStaticReadiness(
   pageCheck: PageCheckSummary,
   primaryAction?: SuggestedAction,
   error?: { code: CliErrorCode },
-): { status: AgentStaticReadiness; reason: string; readFrom?: string } {
+): { status: AgentStaticReadiness; reasonCode: AgentStaticReadinessReasonCode; reason: string; readFrom?: string } {
   if (needsBrowserHtml) {
     return {
       status: "needs-browser",
+      reasonCode: primaryAction?.requiresBrowserInteraction || (primaryAction && actionExecution(primaryAction) === "interact-browser") ? "interaction-required" : "browser-required",
       reason: "Static fetched HTML is not enough; browser-captured HTML or browser inspection is required.",
       ...(primaryAction?.readFrom ? { readFrom: primaryAction.readFrom } : {}),
     };
@@ -12431,14 +12436,16 @@ function summarizeStaticReadiness(
   if (error) {
     return {
       status: "error",
+      reasonCode: "extraction-error",
       reason: `Static readiness could not be established because extraction failed with ${error.code}.`,
       ...(primaryAction?.readFrom ? { readFrom: primaryAction.readFrom } : {}),
     };
   }
-  const readFrom = primaryAction?.readFrom;
+  const readFrom = primaryAction?.readFrom ?? staticReadinessReadFromForAction(primaryAction);
   if (readFrom && isHiddenStaticReadPath(readFrom)) {
     return {
       status: "usable-hidden-data",
+      reasonCode: "hidden-data",
       reason: "Fetched HTML is usable through hidden app data such as hydration, API, client-state, runtime, config, app, or mobile hints.",
       readFrom,
     };
@@ -12446,6 +12453,7 @@ function summarizeStaticReadiness(
   if (readFrom && readFrom !== "pageCheck.contentEvidence") {
     return {
       status: "usable-structured-data",
+      reasonCode: staticReadinessReasonCodeFromReadPath(readFrom),
       reason: "Fetched HTML is usable through structured page-check data rather than direct prose evidence.",
       readFrom,
     };
@@ -12453,6 +12461,7 @@ function summarizeStaticReadiness(
   if (canUseFetchedHtml && pageCheck.readability.level !== "low") {
     return {
       status: "usable-content",
+      reasonCode: "readable-content",
       reason: `Fetched HTML has ${pageCheck.readability.level} readability and can be used without browser capture.`,
       ...(readFrom ? { readFrom } : {}),
     };
@@ -12460,15 +12469,32 @@ function summarizeStaticReadiness(
   if (canUseFetchedHtml) {
     return {
       status: "usable-structured-data",
+      reasonCode: "limited-static-payload",
       reason: "Fetched HTML has limited prose, but an agent-readable static payload is available.",
       ...(readFrom ? { readFrom } : {}),
     };
   }
   return {
     status: "thin",
+    reasonCode: "thin-content",
     reason: "Fetched HTML is thin and no browser capture is currently scheduled; verify before relying on it.",
     ...(readFrom ? { readFrom } : {}),
   };
+}
+
+function staticReadinessReasonCodeFromReadPath(path: string): AgentStaticReadinessReasonCode {
+  if (path === "pageCheck.sourceLinks" || path.startsWith("pageCheck.sourceLinks[")) return "source-link";
+  if (path === "pageCheck.forms" || path.startsWith("pageCheck.forms[")) return "form";
+  if (path === "pageCheck.actionTargets" || path.startsWith("pageCheck.actionTargets[") || path === "pageCheck.actions" || path.startsWith("pageCheck.actions[")) return "action-target";
+  return "structured-data";
+}
+
+function staticReadinessReadFromForAction(action?: SuggestedAction): string | undefined {
+  if (!action) return undefined;
+  if (action.action === "open-source-link") return action.sourceLinkRef ?? "pageCheck.sourceLinks";
+  if (action.action === "submit-form") return "pageCheck.forms";
+  if (action.action === "inspect-actions") return "pageCheck.actionTargets";
+  return undefined;
 }
 
 function isHiddenStaticReadPath(path: string): boolean {
@@ -14213,6 +14239,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     canUseFetchedHtml: false,
     needsBrowserHtml,
     staticReadiness: staticReadiness.status,
+    staticReadinessReasonCode: staticReadiness.reasonCode,
     staticReadinessReason: staticReadiness.reason,
     ...(staticReadiness.readFrom ? { staticReadinessReadFrom: staticReadiness.readFrom } : {}),
     ...(browserHtmlReason ? { browserHtmlReason } : {}),
@@ -15972,6 +15999,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     canUseFetchedHtml: agent.canUseFetchedHtml,
     needsBrowserHtml: agent.needsBrowserHtml,
     ...(agent.staticReadiness ? { staticReadiness: agent.staticReadiness } : {}),
+    ...(agent.staticReadinessReasonCode ? { staticReadinessReasonCode: agent.staticReadinessReasonCode } : {}),
     ...(agent.staticReadinessReason ? { staticReadinessReason: agent.staticReadinessReason } : {}),
     ...(agent.staticReadinessReadFrom ? { staticReadinessReadFrom: agent.staticReadinessReadFrom } : {}),
     ...(agent.browserHtmlReason ? { browserHtmlReason: agent.browserHtmlReason } : {}),
@@ -16729,6 +16757,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     canContinue: agent.canContinue,
     needsBrowserHtml: agent.needsBrowserHtml,
     ...(agent.staticReadiness ? { staticReadiness: agent.staticReadiness } : {}),
+    ...(agent.staticReadinessReasonCode ? { staticReadinessReasonCode: agent.staticReadinessReasonCode } : {}),
     ...(agent.staticReadinessReason ? { staticReadinessReason: agent.staticReadinessReason } : {}),
     ...(agent.staticReadinessReadFrom ? { staticReadinessReadFrom: agent.staticReadinessReadFrom } : {}),
     ...(agent.browserHtmlReason ? { browserHtmlReason: agent.browserHtmlReason } : {}),

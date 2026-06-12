@@ -856,6 +856,7 @@ describe("public agent types", () => {
       | "failingQualityGatePath"
       | "failingQualityGateScore"
       | "staticReadiness"
+      | "staticReadinessReasonCode"
       | "staticReadinessReason"
       | "staticReadinessReadFrom"
       | "browserHtmlReason"
@@ -1600,6 +1601,7 @@ describe("public agent types", () => {
       failingQualityGatePath: "pageCheck.contentEvidence",
       failingQualityGateScore: 0.4,
       staticReadiness: "needs-browser",
+      staticReadinessReasonCode: "browser-required",
       staticReadinessReason: "Static fetched HTML is not enough; browser-captured HTML or browser inspection is required.",
       staticReadinessReadFrom: "pageCheck.contentEvidence",
       browserHtmlReason: "Browser-captured HTML or browser inspection is needed.",

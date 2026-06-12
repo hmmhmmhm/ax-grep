@@ -108,6 +108,18 @@ export type AgentBrowserHtmlReasonCode =
   | "browser-interaction"
   | "unknown";
 export type AgentStaticReadiness = "usable-content" | "usable-structured-data" | "usable-hidden-data" | "thin" | "needs-browser" | "error";
+export type AgentStaticReadinessReasonCode =
+  | "browser-required"
+  | "interaction-required"
+  | "extraction-error"
+  | "hidden-data"
+  | "source-link"
+  | "form"
+  | "action-target"
+  | "structured-data"
+  | "readable-content"
+  | "limited-static-payload"
+  | "thin-content";
 
 export type AgentRoutingIntent =
   | "read-current"
@@ -876,6 +888,7 @@ export type AgentSummary = {
   canUseFetchedHtml: boolean;
   needsBrowserHtml: boolean;
   staticReadiness?: AgentStaticReadiness;
+  staticReadinessReasonCode?: AgentStaticReadinessReasonCode;
   staticReadinessReason?: string;
   staticReadinessReadFrom?: string;
   browserHtmlReason?: string;

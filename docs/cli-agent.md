@@ -36,6 +36,8 @@ warning fields.
 Read these first:
 
 - `agent.status`: `ready`, `choose-result`, `verify`, `needs-browser`, or `error`.
+- `agent.staticReadiness*`: fetched-HTML usability status, machine-readable
+  reason code, prose reason, and the static path to read first.
 - `agent.executor`: one-field executor step with decision, command/read/browser fields.
 - `agent.executorActionName`, `agent.executorOperation`, and related `executor*`
   shortcuts: top-level mirror of the next executable step, loop decision, and
