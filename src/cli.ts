@@ -6414,7 +6414,7 @@ function summarizeFormField(control: Element, index: number, rootNodes: AnyNode[
   };
   const label = formFieldLabel(control, rootNodes);
   const placeholder = attr(control, "placeholder") || "";
-  const value = attr(control, "value") || "";
+  const value = control.name === "textarea" ? cleanContentText(elementText(control)) : attr(control, "value") || "";
   const autocomplete = attr(control, "autocomplete") || "";
   const inputMode = attr(control, "inputmode") || "";
   const pattern = attr(control, "pattern") || "";

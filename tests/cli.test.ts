@@ -5882,6 +5882,44 @@ describe("cli", () => {
     });
   });
 
+  it("preserves textarea default text for submission handoff", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/contact", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <form method="POST" action="/contact">
+            <label for="message">Message</label>
+            <textarea id="message" name="message">Existing draft</textarea>
+            <button>Send</button>
+          </form>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.forms[0].fields[0]).toMatchObject({
+      name: "message",
+      type: "textarea",
+      label: "Message",
+      value: "Existing draft",
+      selector: "textarea[name=\"message\"]",
+    });
+    expect(envelope.agent).toMatchObject({
+      topFormChoiceFirstFieldName: "message",
+      topFormChoiceFirstFieldType: "textarea",
+      topFormChoiceFirstFieldValue: "Existing draft",
+      topFormChoiceFirstFieldSelector: "textarea[name=\"message\"]",
+    });
+    expect(envelope.agent.formChoices[0].fields[0]).toMatchObject({
+      name: "message",
+      type: "textarea",
+      value: "Existing draft",
+    });
+  });
+
   it("keeps executable form details in brief read handoff", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/search", "--agent-brief"], {
