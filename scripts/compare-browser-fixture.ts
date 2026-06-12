@@ -335,6 +335,24 @@ const fixtures: Fixture[] = [
   </body>
 </html>`,
   },
+  {
+    id: "field-details-relation",
+    url: "https://fixture.local/browser-parity/field-details-relation",
+    checks: buildFieldDetailsRelationChecks,
+    html: `<!doctype html>
+<html lang="en">
+  <head>
+    <title>Field details relation fixture</title>
+  </head>
+  <body>
+    <main>
+      <label for="archive-filter">Archive filter</label>
+      <input id="archive-filter" type="search" aria-details="archive-filter-details">
+      <p id="archive-filter-details">Includes restricted and historical report records.</p>
+    </main>
+  </body>
+</html>`,
+  },
 ];
 
 const browser = await puppeteer.launch({ headless: true });
@@ -433,6 +451,8 @@ function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
     semanticTopFieldDisabled: agent.semanticTopFieldDisabled,
     semanticTopFieldReadonly: agent.semanticTopFieldReadonly,
     semanticTopFieldChecked: agent.semanticTopFieldChecked,
+    semanticTopFieldDetails: agent.semanticTopFieldDetails,
+    semanticTopFieldDetailsText: agent.semanticTopFieldDetailsText,
     semanticTopFieldInvalid: agent.semanticTopFieldInvalid,
     semanticTopFieldErrorMessageText: agent.semanticTopFieldErrorMessageText,
     semanticTopButtonName: agent.semanticTopButtonName,
@@ -476,6 +496,8 @@ function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
     semanticTopRelationTarget: agent.semanticTopRelationTarget,
     semanticTopRelationTargetRole: agent.semanticTopRelationTargetRole,
     semanticTopRelationTargetName: agent.semanticTopRelationTargetName,
+    semanticTopRelationTargetSelector: agent.semanticTopRelationTargetSelector,
+    semanticTopRelationSelector: agent.semanticTopRelationSelector,
     semanticTopValueRole: agent.semanticTopValueRole,
     semanticTopValueName: agent.semanticTopValueName,
     semanticTopValue: agent.semanticTopValue,
@@ -1119,6 +1141,53 @@ function buildMixedCheckboxStateChecks(namedRoles: string[], nodes: SemanticNode
         && agent.semanticTopStateName === "Include archived reports"
         && agent.semanticTopStateChecked === "mixed"
         && typeof agent.semanticTopStateSelector === "string",
+    },
+  ];
+}
+
+function buildFieldDetailsRelationChecks(namedRoles: string[], nodes: SemanticNode[], agent: AgentSummary): Check[] {
+  const field = nodes.find((node) => node.role === "searchbox" && node.name === "Archive filter");
+  const details = nodes.find((node) => node.attributes?.id === "archive-filter-details");
+  return [
+    {
+      id: "field-details-relation-parity",
+      browserEvidence: JSON.stringify({
+        namedRoles: evidence(namedRoles, ["searchbox:Archive filter"]),
+        detailsId: field?.attributes?.["aria-details"],
+        detailsText: details?.text,
+        fieldSelector: field?.selector,
+        detailsSelector: details?.selector,
+      }),
+      agentEvidence: JSON.stringify({
+        fieldRole: agent.semanticTopFieldRole,
+        fieldName: agent.semanticTopFieldName,
+        fieldDetails: agent.semanticTopFieldDetails,
+        fieldDetailsText: agent.semanticTopFieldDetailsText,
+        relationRole: agent.semanticTopRelationRole,
+        relationName: agent.semanticTopRelationName,
+        relation: agent.semanticTopRelation,
+        relationTarget: agent.semanticTopRelationTarget,
+        relationTargetRole: agent.semanticTopRelationTargetRole,
+        relationTargetSelector: agent.semanticTopRelationTargetSelector,
+        relationSelector: agent.semanticTopRelationSelector,
+      }),
+      decision: "covered",
+      pass: includesAll(namedRoles, ["searchbox:Archive filter"])
+        && field?.attributes?.["aria-details"] === "archive-filter-details"
+        && details?.text === "Includes restricted and historical report records."
+        && typeof field?.selector === "string"
+        && typeof details?.selector === "string"
+        && agent.semanticTopFieldRole === "searchbox"
+        && agent.semanticTopFieldName === "Archive filter"
+        && agent.semanticTopFieldDetails === "archive-filter-details"
+        && agent.semanticTopFieldDetailsText === "Includes restricted and historical report records."
+        && agent.semanticTopRelationRole === "searchbox"
+        && agent.semanticTopRelationName === "Archive filter"
+        && agent.semanticTopRelation === "details"
+        && agent.semanticTopRelationTarget === "archive-filter-details"
+        && agent.semanticTopRelationTargetRole === "p"
+        && agent.semanticTopRelationTargetSelector === "#archive-filter-details"
+        && agent.semanticTopRelationSelector === "#archive-filter",
     },
   ];
 }
