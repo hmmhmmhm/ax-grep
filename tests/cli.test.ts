@@ -4712,6 +4712,12 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(envelope.agent).toMatchObject({
       contract: { profile: "brief" },
+      semanticDescriptionCount: expect.any(Number),
+      semanticValueCount: expect.any(Number),
+      semanticRelationCount: expect.any(Number),
+      semanticChoiceCount: expect.any(Number),
+      semanticStateCount: expect.any(Number),
+      semanticTopOutlineSelector: "main",
       semanticTopFieldRole: "searchbox",
       semanticTopFieldSelector: "#q",
       semanticTopRelation: "controls",
