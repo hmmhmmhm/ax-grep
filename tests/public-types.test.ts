@@ -189,6 +189,7 @@ describe("public agent types", () => {
       | "topResultChoiceUrl"
       | "topResultChoiceHost"
       | "topResultChoiceSnippet"
+      | "topResultChoiceCommand"
       | "topResultChoiceCommandArgs"
       | "topResultChoiceRank"
       | "topResultChoiceOpenResult"
@@ -423,6 +424,7 @@ describe("public agent types", () => {
       | "topChoicePath"
       | "topChoiceLabel"
       | "topChoiceUrl"
+      | "topChoiceCommand"
       | "topChoiceCommandArgs"
       | "topChoiceRank"
       | "topChoiceSource"
@@ -1087,6 +1089,7 @@ describe("public agent types", () => {
       topResultChoiceUrl: "https://example.test/result",
       topResultChoiceHost: "example.test",
       topResultChoiceSnippet: "Result summary",
+      topResultChoiceCommand: "ax-grep --search example --open-result 1 --agent-brief",
       topResultChoiceCommandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent-brief"],
       topResultChoiceRank: 1,
       topResultChoiceOpenResult: 1,
@@ -1321,6 +1324,7 @@ describe("public agent types", () => {
       topChoicePath: "pageCheck.sourceLinks[0]",
       topChoiceLabel: "Source",
       topChoiceUrl: "https://source.example/report",
+      topChoiceCommand: "ax-grep https://source.example/report --agent",
       topChoiceCommandArgs: ["ax-grep", "https://source.example/report", "--agent"],
       topChoiceRank: 1,
       topChoiceSource: "source.example",
@@ -2005,8 +2009,10 @@ describe("public agent types", () => {
     expect(summary.topChoiceKind).toBe("source");
     expect(summary.topChoiceSelector).toBe("a:nth-of-type(1)");
     expect(summary.topChoiceReason).toBe("High-quality source link.");
+    expect(summary.topChoiceCommand).toContain("source.example/report");
     expect(summary.topResultChoicePath).toBe("searchResults[0]");
     expect(summary.topResultChoiceSnippet).toBe("Result summary");
+    expect(summary.topResultChoiceCommand).toContain("--open-result 1");
     expect(summary.topResultChoiceCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.topSourceChoicePath).toBe("pageCheck.sourceLinks[0]");
     expect(summary.topSourceChoiceSnippet).toBe("Source summary");

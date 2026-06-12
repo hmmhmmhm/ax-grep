@@ -993,6 +993,7 @@ export type AgentSummary = {
   topResultChoiceUrl?: string;
   topResultChoiceHost?: string;
   topResultChoiceSnippet?: string;
+  topResultChoiceCommand?: string;
   topResultChoiceCommandArgs?: string[];
   topResultChoiceRank?: number;
   topResultChoiceOpenResult?: number | "best";
@@ -1228,6 +1229,7 @@ export type AgentSummary = {
   topChoicePath?: string;
   topChoiceLabel?: string;
   topChoiceUrl?: string;
+  topChoiceCommand?: string;
   topChoiceCommandArgs?: string[];
   topChoiceRank?: number;
   topChoiceSource?: string;

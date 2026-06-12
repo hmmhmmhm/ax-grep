@@ -1310,6 +1310,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topResultChoiceTitle?: string;
       topResultChoiceUrl?: string;
       topResultChoiceHost?: string;
+      topResultChoiceCommand?: string;
       topResultChoiceCommandArgs?: unknown[];
       topResultChoiceRank?: number;
       topResultChoiceOpenResult?: number | "best";
@@ -1543,6 +1544,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topChoicePath?: string;
       topChoiceLabel?: string;
       topChoiceUrl?: string;
+      topChoiceCommand?: string;
       topChoiceCommandArgs?: string[];
       sourceSearchQuery?: string;
       sourceSearchEngine?: string;
@@ -3746,6 +3748,7 @@ function scoreAgentTopChoiceShortcuts(agent: {
   topChoicePath?: string;
   topChoiceLabel?: string;
   topChoiceUrl?: string;
+  topChoiceCommand?: string;
   topChoiceCommandArgs?: string[];
 } | undefined): number {
   if (!agent) return 0;
@@ -3754,16 +3757,16 @@ function scoreAgentTopChoiceShortcuts(agent: {
   const form = agent.formChoices?.[0];
   const actionTarget = agent.actionTargetChoices?.[0];
   const expected = result
-    ? { kind: "result" as const, path: result.path, label: result.title, url: result.url, commandArgs: result.commandArgs }
+    ? { kind: "result" as const, path: result.path, label: result.title, url: result.url, command: result.command, commandArgs: result.commandArgs }
     : source
-      ? { kind: "source" as const, path: source.path, label: source.title || source.text, url: source.url, commandArgs: source.commandArgs }
+      ? { kind: "source" as const, path: source.path, label: source.title || source.text, url: source.url, command: source.command, commandArgs: source.commandArgs }
       : form
         ? { kind: "form" as const, path: form.path, label: form.text, url: form.actionUrl ?? form.urlTemplate }
         : actionTarget
           ? { kind: "action-target" as const, path: actionTarget.path, label: actionTarget.name || actionTarget.text, url: actionTarget.targetUrl ?? actionTarget.urlTemplate }
           : undefined;
   if (!expected) {
-    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceCommandArgs ? 1 : 0;
+    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceCommand && !agent.topChoiceCommandArgs ? 1 : 0;
   }
   let required = 2;
   let matched = 0;
@@ -3783,8 +3786,10 @@ function scoreAgentTopChoiceShortcuts(agent: {
   }
   if (expected.commandArgs) {
     required += 1;
+    if (agent.topChoiceCommand === expected.command) matched += 1;
+    required += 1;
     if (JSON.stringify(agent.topChoiceCommandArgs) === JSON.stringify(expected.commandArgs)) matched += 1;
-  } else if (agent.topChoiceCommandArgs) {
+  } else if (agent.topChoiceCommand || agent.topChoiceCommandArgs) {
     required += 1;
   }
   return roundScore(matched / required);
@@ -3796,6 +3801,7 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
   topResultChoiceTitle?: string;
   topResultChoiceUrl?: string;
   topResultChoiceHost?: string;
+  topResultChoiceCommand?: string;
   topResultChoiceCommandArgs?: unknown[];
   topResultChoiceRank?: number;
   topResultChoiceOpenResult?: number | "best";
@@ -3820,6 +3826,7 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
       || agent?.topResultChoiceTitle
       || agent?.topResultChoiceUrl
       || agent?.topResultChoiceHost
+      || agent?.topResultChoiceCommand
       || agent?.topResultChoiceCommandArgs
       || typeof agent?.topResultChoiceRank === "number"
       || agent?.topResultChoiceOpenResult
@@ -3851,8 +3858,10 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
   }
   if (top.commandArgs) {
     required += 1;
+    if (agent?.topResultChoiceCommand === top.command) matched += 1;
+    required += 1;
     if (JSON.stringify(agent?.topResultChoiceCommandArgs) === JSON.stringify(top.commandArgs)) matched += 1;
-  } else if (agent?.topResultChoiceCommandArgs) {
+  } else if (agent?.topResultChoiceCommand || agent?.topResultChoiceCommandArgs) {
     required += 1;
   }
   if (top.title) {

@@ -1385,12 +1385,14 @@ describe("cli", () => {
       if (topResultChoice) {
         expect(envelope.agent.topChoiceKind).toBe("result");
         expect(envelope.agent.topChoicePath).toBe(topResultChoice.path);
+        if (topResultChoice.command) expect(envelope.agent.topChoiceCommand).toBe(topResultChoice.command);
         expect(envelope.agent.topChoiceCommandArgs).toEqual(topResultChoice.commandArgs);
         if (typeof topResultChoice.rank === "number") expect(envelope.agent.topChoiceRank).toBe(topResultChoice.rank);
         if (topResultChoice.source) expect(envelope.agent.topChoiceSource).toBe(topResultChoice.source);
         if (topResultChoice.selectionReason) expect(envelope.agent.topChoiceReason).toBe(topResultChoice.selectionReason);
         expect(envelope.agent.topResultChoicePath).toBe(topResultChoice.path);
         expect(envelope.agent.topResultChoiceUrl).toBe(topResultChoice.url);
+        if (topResultChoice.command) expect(envelope.agent.topResultChoiceCommand).toBe(topResultChoice.command);
         expect(envelope.agent.topResultChoiceCommandArgs).toEqual(topResultChoice.commandArgs);
         if (topResultChoice.title) expect(envelope.agent.topResultChoiceTitle).toBe(topResultChoice.title);
         if (topResultChoice.snippet) expect(envelope.agent.topResultChoiceSnippet).toBe(topResultChoice.snippet);
@@ -1401,6 +1403,7 @@ describe("cli", () => {
       } else if (topSourceChoice) {
         expect(envelope.agent.topChoiceKind).toBe("source");
         expect(envelope.agent.topChoicePath).toBe(topSourceChoice.path);
+        if (topSourceChoice.command) expect(envelope.agent.topChoiceCommand).toBe(topSourceChoice.command);
         expect(envelope.agent.topChoiceCommandArgs).toEqual(topSourceChoice.commandArgs);
         if (topSourceChoice.command) expect(envelope.agent.topSourceChoiceCommand).toBe(topSourceChoice.command);
         if (typeof topSourceChoice.rank === "number") expect(envelope.agent.topChoiceRank).toBe(topSourceChoice.rank);
