@@ -10783,7 +10783,7 @@ function summarizeAgent(
   semanticSummary?: AgentSemanticSummary,
 ): AgentSummary {
   const diagnosticCodes = analysis.diagnostics.map((diagnostic) => diagnostic.code);
-  const primaryAction = primaryAgentAction(analysis, pageCheck, verification);
+  const primaryAction = primaryAgentAction(analysis, pageCheck, verification, semanticSummary);
   const hasUsableSearchResults = analysis.kind === "search-results" && results.length > 0;
   const blockedOrEmpty = analysis.kind === "blocked-page" || analysis.kind === "empty";
   const primaryReadsCurrentPayload = primaryAction ? actionExecution(primaryAction) === "read-current" : false;
@@ -10791,7 +10791,7 @@ function summarizeAgent(
     || (!capturedHtml && blockedOrEmpty && !primaryReadsCurrentPayload)
     || primaryAction?.action === "retry-with-browser-html";
   const canUseFetchedHtml = !needsBrowserHtml && (!blockedOrEmpty || primaryReadsCurrentPayload) && (capturedHtml || hasUsableSearchResults || verification.status === "matched" || pageCheck.readability.level !== "low" || primaryReadsCurrentPayload);
-  const status = agentStatus(analysis, pageCheck, verification, needsBrowserHtml, error);
+  const status = agentStatus(analysis, pageCheck, verification, needsBrowserHtml, error, primaryAction);
   const summary = agentSummaryText(status, analysis, pageCheck, verification, recommendedResult);
   const diagnosticCounts = countDiagnosticsBySeverity(analysis.diagnostics);
   const readTargets = summarizeAgentReadTargets(primaryAction, analysis.kind, pageCheck, verification, results, sourceSearch, semanticSummary);
@@ -13689,11 +13689,35 @@ function primaryAgentAction(
   analysis: AnalysisSummary,
   pageCheck: PageCheckSummary,
   verification: VerificationSummary,
+  semanticSummary?: AgentSemanticSummary,
 ): SuggestedAction | undefined {
   const searchAction = analysis.suggestedActions.find((action) => action.action === "open-result" || action.action === "refine-search");
   if (searchAction) return searchAction;
   if (verification.recommendedAction) return verification.recommendedAction;
-  return pageCheck.nextSteps[0] ?? pageCheck.recommendedAction;
+  const pageAction = pageCheck.nextSteps[0] ?? pageCheck.recommendedAction;
+  const semanticAction = semanticSummaryReadAction(analysis, pageCheck, pageAction, semanticSummary);
+  return semanticAction ?? pageAction;
+}
+
+function semanticSummaryReadAction(
+  analysis: AnalysisSummary,
+  pageCheck: PageCheckSummary,
+  pageAction: SuggestedAction | undefined,
+  semanticSummary?: AgentSemanticSummary,
+): SuggestedAction | undefined {
+  if (!semanticSummary || analysis.kind === "search-results" || analysis.kind === "blocked-page" || analysis.kind === "empty") return undefined;
+  if (!pageAction || actionExecution(pageAction) !== "interact-browser") return undefined;
+  if (pageCheck.barriers.length > 0 || pageCheck.sourceLinks.length > 0) return undefined;
+  const table = semanticSummary.tableItems.find((item) =>
+    item.role === "grid" || item.role === "table" || item.headerRefs?.length || item.sampleCellRefs?.length
+  );
+  if (!table || (!table.headerRefs?.length && !table.sampleCellRefs?.length)) return undefined;
+  return {
+    action: "read-content",
+    reason: "The page has limited prose, but semantic table/grid evidence is available in the current payload.",
+    terminal: true,
+    readFrom: "agent.semanticSummary",
+  };
 }
 
 function agentStatus(
@@ -13702,12 +13726,14 @@ function agentStatus(
   verification: VerificationSummary,
   needsBrowserHtml: boolean,
   error?: { code: CliErrorCode; message: string; status?: number },
+  primaryAction?: SuggestedAction,
 ): AgentStatus {
   if (error && error.code !== "NO_INSPECTABLE_CONTENT") return "error";
   if (needsBrowserHtml) return "needs-browser";
   if (analysis.kind === "search-results") return "choose-result";
   if (verification.status === "partial" || verification.status === "missing") return "verify";
   if (verification.status === "matched") return "ready";
+  if (primaryAction && actionExecution(primaryAction) === "read-current") return "ready";
   if (pageCheck.readability.level === "low"
     && pageCheck.recommendedAction.action === "read-content"
     && actionExecution(pageCheck.recommendedAction) === "read-current") return "ready";

@@ -4616,7 +4616,6 @@ describe("cli", () => {
               <span role="gridcell" aria-colindex="3">Mina</span>
             </div>
           </div>
-          <p>Issue board data is available.</p>
         </main>
       `, { headers: { "content-type": "text/html" } }),
     });
@@ -4626,6 +4625,21 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(envelope.agent).toMatchObject({
       contract: { profile: "brief" },
+      status: "ready",
+      runbookDecision: "return",
+      canUseFetchedHtml: true,
+      needsBrowserHtml: false,
+      staticReadiness: "usable-structured-data",
+      staticReadinessReasonCode: "structured-data",
+      staticReadinessReadFrom: "agent.semanticSummary",
+      primaryExecution: "read-current",
+      primaryReadFrom: "agent.semanticSummary",
+      primaryAction: {
+        action: "read-content",
+        execution: "read-current",
+        terminal: true,
+        readFrom: "agent.semanticSummary",
+      },
       semanticTopTableRole: "grid",
       semanticTopTableName: "Issue board",
       semanticTopTableFirstSampleCellText: "Blocked",
