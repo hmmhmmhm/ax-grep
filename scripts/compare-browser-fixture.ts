@@ -319,6 +319,22 @@ const fixtures: Fixture[] = [
   </body>
 </html>`,
   },
+  {
+    id: "mixed-checkbox-state",
+    url: "https://fixture.local/browser-parity/mixed-checkbox-state",
+    checks: buildMixedCheckboxStateChecks,
+    html: `<!doctype html>
+<html lang="en">
+  <head>
+    <title>Mixed checkbox state fixture</title>
+  </head>
+  <body>
+    <main>
+      <div role="checkbox" aria-label="Include archived reports" aria-checked="mixed"></div>
+    </main>
+  </body>
+</html>`,
+  },
 ];
 
 const browser = await puppeteer.launch({ headless: true });
@@ -416,6 +432,7 @@ function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
     semanticTopFieldValueText: agent.semanticTopFieldValueText,
     semanticTopFieldDisabled: agent.semanticTopFieldDisabled,
     semanticTopFieldReadonly: agent.semanticTopFieldReadonly,
+    semanticTopFieldChecked: agent.semanticTopFieldChecked,
     semanticTopFieldInvalid: agent.semanticTopFieldInvalid,
     semanticTopFieldErrorMessageText: agent.semanticTopFieldErrorMessageText,
     semanticTopButtonName: agent.semanticTopButtonName,
@@ -429,6 +446,7 @@ function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
     semanticTopStateExpanded: agent.semanticTopStateExpanded,
     semanticTopStateDisabled: agent.semanticTopStateDisabled,
     semanticTopStateReadonly: agent.semanticTopStateReadonly,
+    semanticTopStateChecked: agent.semanticTopStateChecked,
     semanticTopStateHaspopup: agent.semanticTopStateHaspopup,
     semanticTopStateControls: agent.semanticTopStateControls,
     semanticTopStateCurrent: agent.semanticTopStateCurrent,
@@ -1068,6 +1086,38 @@ function buildDisabledReadonlyFieldStateChecks(namedRoles: string[], nodes: Sema
         && agent.semanticTopStateName === "Archive code"
         && agent.semanticTopStateDisabled === true
         && agent.semanticTopStateReadonly === true
+        && typeof agent.semanticTopStateSelector === "string",
+    },
+  ];
+}
+
+function buildMixedCheckboxStateChecks(namedRoles: string[], nodes: SemanticNode[], agent: AgentSummary): Check[] {
+  const checkbox = nodes.find((node) => node.role === "checkbox" && node.name === "Include archived reports");
+  return [
+    {
+      id: "mixed-checkbox-state-parity",
+      browserEvidence: JSON.stringify({
+        namedRoles: evidence(namedRoles, ["checkbox:Include archived reports"]),
+        checked: checkbox?.state?.checked,
+      }),
+      agentEvidence: JSON.stringify({
+        fieldRole: agent.semanticTopFieldRole,
+        fieldName: agent.semanticTopFieldName,
+        fieldChecked: agent.semanticTopFieldChecked,
+        stateRole: agent.semanticTopStateRole,
+        stateName: agent.semanticTopStateName,
+        stateChecked: agent.semanticTopStateChecked,
+        stateSelector: agent.semanticTopStateSelector,
+      }),
+      decision: "covered",
+      pass: includesAll(namedRoles, ["checkbox:Include archived reports"])
+        && checkbox?.state?.checked === "mixed"
+        && agent.semanticTopFieldRole === "checkbox"
+        && agent.semanticTopFieldName === "Include archived reports"
+        && agent.semanticTopFieldChecked === "mixed"
+        && agent.semanticTopStateRole === "checkbox"
+        && agent.semanticTopStateName === "Include archived reports"
+        && agent.semanticTopStateChecked === "mixed"
         && typeof agent.semanticTopStateSelector === "string",
     },
   ];
