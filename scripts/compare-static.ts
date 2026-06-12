@@ -1532,9 +1532,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topSourceChoiceUrl?: string;
       topSourceChoiceHost?: string;
       topSourceChoiceCommandArgs?: string[];
+      topSourceChoiceCommand?: string;
       topSourceChoiceSourceType?: string;
       topSourceChoiceSourceScore?: number;
       topSourceChoiceSourceHints?: string[];
+      topSourceChoiceLikelyOfficial?: boolean;
       topSourceChoicePrimary?: boolean;
       topSourceChoiceReason?: string;
       topChoiceKind?: "result" | "source" | "form" | "action-target";
@@ -4632,10 +4634,12 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
   topSourceChoiceTitle?: string;
   topSourceChoiceUrl?: string;
   topSourceChoiceHost?: string;
+  topSourceChoiceCommand?: string;
   topSourceChoiceCommandArgs?: string[];
   topSourceChoiceSourceType?: string;
   topSourceChoiceSourceScore?: number;
   topSourceChoiceSourceHints?: string[];
+  topSourceChoiceLikelyOfficial?: boolean;
   topSourceChoicePrimary?: boolean;
   topSourceChoiceReason?: string;
 } | undefined): number {
@@ -4645,17 +4649,20 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
       || agent?.topSourceChoiceTitle
       || agent?.topSourceChoiceUrl
       || agent?.topSourceChoiceHost
+      || agent?.topSourceChoiceCommand
       || agent?.topSourceChoiceCommandArgs
       || agent?.topSourceChoiceSourceType
       || typeof agent?.topSourceChoiceSourceScore === "number"
       || agent?.topSourceChoiceSourceHints
+      || typeof agent?.topSourceChoiceLikelyOfficial === "boolean"
       || typeof agent?.topSourceChoicePrimary === "boolean"
       || agent?.topSourceChoiceReason ? 0 : 1;
   }
-  let required = 3;
+  let required = 4;
   let matched = 0;
   if (agent?.topSourceChoicePath === top.path) matched += 1;
   if (agent?.topSourceChoiceUrl === top.url) matched += 1;
+  if (agent?.topSourceChoiceCommand === top.command) matched += 1;
   if (JSON.stringify(agent?.topSourceChoiceCommandArgs) === JSON.stringify(top.commandArgs)) matched += 1;
   if (top.host) {
     required += 1;
@@ -4685,6 +4692,12 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
     required += 1;
     if (JSON.stringify(agent?.topSourceChoiceSourceHints) === JSON.stringify(top.sourceHints)) matched += 1;
   } else if (agent?.topSourceChoiceSourceHints) {
+    required += 1;
+  }
+  if (typeof top.isLikelyOfficial === "boolean") {
+    required += 1;
+    if (agent?.topSourceChoiceLikelyOfficial === top.isLikelyOfficial) matched += 1;
+  } else if (typeof agent?.topSourceChoiceLikelyOfficial === "boolean") {
     required += 1;
   }
   if (typeof top.primary === "boolean") {

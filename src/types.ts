@@ -1216,6 +1216,7 @@ export type AgentSummary = {
   topSourceChoiceUrl?: string;
   topSourceChoiceHost?: string;
   topSourceChoiceSnippet?: string;
+  topSourceChoiceCommand?: string;
   topSourceChoiceCommandArgs?: string[];
   topSourceChoiceSourceType?: string;
   topSourceChoiceSourceScore?: number;

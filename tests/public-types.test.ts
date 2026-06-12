@@ -411,6 +411,7 @@ describe("public agent types", () => {
       | "topSourceChoiceUrl"
       | "topSourceChoiceHost"
       | "topSourceChoiceSnippet"
+      | "topSourceChoiceCommand"
       | "topSourceChoiceCommandArgs"
       | "topSourceChoiceSourceType"
       | "topSourceChoiceSourceScore"
@@ -1308,6 +1309,7 @@ describe("public agent types", () => {
       topSourceChoiceUrl: "https://source.example/report",
       topSourceChoiceHost: "source.example",
       topSourceChoiceSnippet: "Source summary",
+      topSourceChoiceCommand: "ax-grep https://source.example/report --agent-brief",
       topSourceChoiceCommandArgs: ["ax-grep", "https://source.example/report", "--agent-brief"],
       topSourceChoiceSourceType: "report",
       topSourceChoiceSourceScore: 0.91,
@@ -2009,6 +2011,7 @@ describe("public agent types", () => {
     expect(summary.topSourceChoicePath).toBe("pageCheck.sourceLinks[0]");
     expect(summary.topSourceChoiceSnippet).toBe("Source summary");
     expect(summary.topSourceChoiceLikelyOfficial).toBe(true);
+    expect(summary.topSourceChoiceCommand).toContain("source.example/report");
     expect(summary.topSourceChoiceCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.sourceSearchQuery).toBe("ax-grep docs");
     expect(summary.sourceSearchTopFindQuery).toBe("install");

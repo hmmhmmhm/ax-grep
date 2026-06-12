@@ -1402,6 +1402,7 @@ describe("cli", () => {
         expect(envelope.agent.topChoiceKind).toBe("source");
         expect(envelope.agent.topChoicePath).toBe(topSourceChoice.path);
         expect(envelope.agent.topChoiceCommandArgs).toEqual(topSourceChoice.commandArgs);
+        if (topSourceChoice.command) expect(envelope.agent.topSourceChoiceCommand).toBe(topSourceChoice.command);
         if (typeof topSourceChoice.rank === "number") expect(envelope.agent.topChoiceRank).toBe(topSourceChoice.rank);
         if (topSourceChoice.source) expect(envelope.agent.topChoiceSource).toBe(topSourceChoice.source);
         if (topSourceChoice.selector) expect(envelope.agent.topChoiceSelector).toBe(topSourceChoice.selector);
@@ -3729,9 +3730,9 @@ describe("cli", () => {
         openResult: 2,
         command: "ax-grep --search 'agent browser' --engine duckduckgo --open-result 2 --agent-brief",
         commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--open-result", "2", "--agent-brief"],
-        sourceScore: envelope.sourceSearch.alternateResults[0].sourceScore,
-        relevance: envelope.sourceSearch.alternateResults[0].relevance,
-        isLikelyOfficial: envelope.sourceSearch.alternateResults[0].isLikelyOfficial,
+        sourceScore: expect.any(Number),
+        relevance: expect.any(String),
+        isLikelyOfficial: false,
       }),
       expect.objectContaining({
         path: "sourceSearch.alternateResults[1]",
@@ -3742,9 +3743,9 @@ describe("cli", () => {
         openResult: 3,
         command: "ax-grep --search 'agent browser' --engine duckduckgo --open-result 3 --agent-brief",
         commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--open-result", "3", "--agent-brief"],
-        sourceScore: envelope.sourceSearch.alternateResults[1].sourceScore,
-        relevance: envelope.sourceSearch.alternateResults[1].relevance,
-        isLikelyOfficial: envelope.sourceSearch.alternateResults[1].isLikelyOfficial,
+        sourceScore: expect.any(Number),
+        relevance: expect.any(String),
+        isLikelyOfficial: false,
       }),
     ]);
   });
@@ -4205,6 +4206,7 @@ describe("cli", () => {
       semanticTopButtonName: "Reply",
       topSourceChoicePath: "pageCheck.sourceLinks[0]",
       topSourceChoiceUrl: "https://source.example/report",
+      topSourceChoiceCommand: "ax-grep https://source.example/report --agent-brief",
       topSourceChoiceSourceType: "unknown",
       topSourceChoiceSourceScore: 0.35,
       topSourceChoiceReason: "External link from source.example.",
@@ -4275,6 +4277,7 @@ describe("cli", () => {
     expect(envelope.agent).toMatchObject({
       topSourceChoicePath: "pageCheck.sourceLinks[0]",
       topSourceChoiceUrl: "https://openai.com/research",
+      topSourceChoiceCommand: "ax-grep 'https://openai.com/research' --agent-brief",
       topSourceChoiceSourceType: "official",
       topSourceChoiceLikelyOfficial: true,
     });
@@ -11548,6 +11551,7 @@ npx ax-grep https://example.test --agent</code></pre>
       sourceChoiceCount: 1,
       topSourceChoicePath: "pageCheck.sourceLinks[0]",
       topSourceChoiceUrl: "https://source.example/reference",
+      topSourceChoiceCommand: "ax-grep https://source.example/reference --agent",
       topSourceChoiceCommandArgs: ["ax-grep", "https://source.example/reference", "--agent"],
       topSourceChoiceReason: expect.any(String),
       readabilityScore: expect.any(Number),
