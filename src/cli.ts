@@ -193,7 +193,7 @@ type AgentSemanticSummary = {
   inPageLinks: Array<{ path: string; kind: "skip" | "anchor"; name: string; url: string; targetId?: string; selector?: string }>;
   buttons: Array<{ path: string; name: string; roleDescription?: string; description?: string; type?: string; state?: string; disabled?: boolean; pressed?: SemanticNodeState["pressed"]; expanded?: boolean; haspopup?: SemanticNodeState["haspopup"]; controls?: string; formAction?: string; formMethod?: string; formTarget?: string; formEncType?: string; formNoValidate?: boolean; formId?: string; selector?: string }>;
   imageItems: Array<{ path: string; name?: string; url?: string; width?: number; height?: number; loading?: string; decoding?: string; srcset?: string; sizes?: string; selector?: string }>;
-  tableItems: Array<{ path: string; role: string; name?: string; rowCount: number; cellCount: number; declaredRowCount?: number; declaredColumnCount?: number; headers?: string[]; headerRefs?: Array<{ path?: string; text: string; role?: string; rowIndex?: number; columnIndex?: number; sort?: string; selector?: string }>; ownedRefs?: Array<{ target: string; role?: string; name?: string; selector?: string }>; sampleCells?: string[]; sampleCellRefs?: Array<{ path?: string; text: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; rowHeaders?: string[]; columnHeaders?: string[]; selected?: boolean; current?: SemanticNodeState["current"]; selector?: string }>; selector?: string }>;
+  tableItems: Array<{ path: string; role: string; name?: string; rowCount: number; cellCount: number; declaredRowCount?: number; declaredColumnCount?: number; headers?: string[]; headerRefs?: Array<{ path?: string; text: string; role?: string; rowIndex?: number; columnIndex?: number; sort?: string; selector?: string }>; ownedRefs?: Array<{ target: string; role?: string; name?: string; selector?: string }>; sampleCells?: string[]; sampleCellRefs?: Array<{ path?: string; text: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; rowHeaders?: string[]; columnHeaders?: string[]; selected?: boolean; current?: SemanticNodeState["current"]; selector?: string; ownedTarget?: string }>; selector?: string }>;
   listItems: Array<{ path: string; role: string; name?: string; itemCount: number; sampleItems?: string[]; itemRefs?: Array<{ text: string; role?: string; level?: number; posInSet?: number; setSize?: number; selected?: boolean; current?: SemanticNodeState["current"]; expanded?: boolean; selector?: string }>; selector?: string }>;
   fieldItems: Array<{ path: string; role: string; name?: string; description?: string; value?: string; htmlName?: string; htmlType?: string; placeholder?: string; ariaPlaceholder?: string; autocomplete?: string; ariaAutocomplete?: string; inputMode?: string; pattern?: string; min?: string; max?: string; step?: string; minLength?: number; maxLength?: number; labelledBy?: string; labelledByText?: string; describedBy?: string; describedByText?: string; details?: string; detailsText?: string; errorMessage?: string; errorMessageText?: string; selector?: string; state?: SemanticNodeState }>;
   descriptionItems: Array<{ path: string; role: string; name?: string; description: string; selector?: string }>;
@@ -1128,7 +1128,7 @@ type AgentSummary = {
   semanticTopTableOwnedCount?: number;
   semanticTopTableOwnedRefs?: Array<{ target: string; role?: string; name?: string; selector?: string }>;
   semanticTopTableSampleCells?: string[];
-  semanticTopTableSampleCellRefs?: Array<{ path?: string; text: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; rowHeaders?: string[]; columnHeaders?: string[]; selected?: boolean; current?: SemanticNodeState["current"]; selector?: string }>;
+  semanticTopTableSampleCellRefs?: Array<{ path?: string; text: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; rowHeaders?: string[]; columnHeaders?: string[]; selected?: boolean; current?: SemanticNodeState["current"]; selector?: string; ownedTarget?: string }>;
   semanticTopTableFirstHeader?: string;
   semanticTopTableFirstHeaderPath?: string;
   semanticTopTableFirstHeaderRole?: string;
@@ -1152,6 +1152,20 @@ type AgentSummary = {
   semanticTopTableFirstSampleCellSelected?: boolean;
   semanticTopTableFirstSampleCellCurrent?: SemanticNodeState["current"];
   semanticTopTableFirstSampleCellSelector?: string;
+  semanticTopTableFirstSampleCellOwnedTarget?: string;
+  semanticTopTableFirstOwnedSampleCellPath?: string;
+  semanticTopTableFirstOwnedSampleCellText?: string;
+  semanticTopTableFirstOwnedSampleCellRowIndex?: number;
+  semanticTopTableFirstOwnedSampleCellColumnIndex?: number;
+  semanticTopTableFirstOwnedSampleCellRowSpan?: number;
+  semanticTopTableFirstOwnedSampleCellColumnSpan?: number;
+  semanticTopTableFirstOwnedSampleCellHeaders?: string[];
+  semanticTopTableFirstOwnedSampleCellRowHeaders?: string[];
+  semanticTopTableFirstOwnedSampleCellColumnHeaders?: string[];
+  semanticTopTableFirstOwnedSampleCellSelected?: boolean;
+  semanticTopTableFirstOwnedSampleCellCurrent?: SemanticNodeState["current"];
+  semanticTopTableFirstOwnedSampleCellSelector?: string;
+  semanticTopTableFirstOwnedSampleCellOwnedTarget?: string;
   semanticTopSelectedTableCellPath?: string;
   semanticTopSelectedTableCellText?: string;
   semanticTopSelectedTableCellRowIndex?: number;
@@ -11035,10 +11049,14 @@ function semanticOutlineParentForChildren(
 }
 
 function semanticOwnedNodes(node: SemanticNode, nodesByDomId: Map<string, SemanticNode> | undefined): SemanticNode[] {
+  return semanticOwnedNodeRefs(node, nodesByDomId).map((ref) => ref.node);
+}
+
+function semanticOwnedNodeRefs(node: SemanticNode, nodesByDomId: Map<string, SemanticNode> | undefined): Array<{ target: string; node: SemanticNode }> {
   if (!nodesByDomId) return [];
   return semanticRelationTargets(node.attributes?.["aria-owns"])
-    .map((target) => nodesByDomId.get(target))
-    .filter((targetNode): targetNode is SemanticNode => Boolean(targetNode));
+    .map((target) => ({ target, node: nodesByDomId.get(target) }))
+    .filter((ref): ref is { target: string; node: SemanticNode } => Boolean(ref.node));
 }
 
 function countSemanticDescendantsByRole(node: SemanticNode, roles: Set<string>, nodesByDomId?: Map<string, SemanticNode>): number {
@@ -11077,12 +11095,12 @@ function semanticDescendantTextsByRole(node: SemanticNode, roles: Set<string>, l
   return values;
 }
 
-function semanticDescendantCellRefs(node: SemanticNode, limit: number, nodesByDomId: Map<string, SemanticNode>): Array<{ text: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; rowHeaders?: string[]; columnHeaders?: string[]; selected?: boolean; current?: SemanticNodeState["current"]; selector?: string }> {
-  const values: Array<{ text: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; rowHeaders?: string[]; columnHeaders?: string[]; selected?: boolean; current?: SemanticNodeState["current"]; selector?: string }> = [];
+function semanticDescendantCellRefs(node: SemanticNode, limit: number, nodesByDomId: Map<string, SemanticNode>): Array<{ text: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; rowHeaders?: string[]; columnHeaders?: string[]; selected?: boolean; current?: SemanticNodeState["current"]; selector?: string; ownedTarget?: string }> {
+  const values: Array<{ text: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; rowHeaders?: string[]; columnHeaders?: string[]; selected?: boolean; current?: SemanticNodeState["current"]; selector?: string; ownedTarget?: string }> = [];
   const seen = new Set<string>();
   const seenNodes = new Set<SemanticNode>();
   const cellRoles = new Set(["cell", "gridcell"]);
-  function visit(current: SemanticNode, rowIndex?: number): void {
+  function visit(current: SemanticNode, rowIndex?: number, ownedTarget?: string): void {
     if (values.length >= limit) return;
     if (seenNodes.has(current)) return;
     seenNodes.add(current);
@@ -11111,13 +11129,14 @@ function semanticDescendantCellRefs(node: SemanticNode, limit: number, nodesByDo
           ...(typeof current.state?.selected === "boolean" ? { selected: current.state.selected } : {}),
           ...(typeof current.state?.current !== "undefined" ? { current: current.state.current } : {}),
           ...(current.selector ? { selector: current.selector } : {}),
+          ...(ownedTarget ? { ownedTarget } : {}),
         });
       }
     }
-    for (const child of current.children) visit(child, currentRowIndex);
+    for (const child of current.children) visit(child, currentRowIndex, ownedTarget);
   }
   visit(node);
-  for (const ownedNode of semanticOwnedNodes(node, nodesByDomId)) visit(ownedNode);
+  for (const ownedRef of semanticOwnedNodeRefs(node, nodesByDomId)) visit(ownedRef.node, undefined, ownedRef.target);
   return values;
 }
 
@@ -11287,6 +11306,7 @@ function summarizeAgent(
   const topSemanticTableFirstHeaderRef = topSemanticTable?.headerRefs?.[0];
   const topSemanticTableFirstOwnedRef = topSemanticTable?.ownedRefs?.[0];
   const topSemanticTableFirstSampleCellRef = topSemanticTable?.sampleCellRefs?.[0];
+  const topSemanticTableFirstOwnedSampleCellRef = topSemanticTable?.sampleCellRefs?.find((item) => typeof item.ownedTarget === "string" && item.ownedTarget.length > 0);
   const topSemanticSelectedTableCellRef = topSemanticTable?.sampleCellRefs?.find((item) => item.selected === true)
     ?? topSemanticTable?.sampleCellRefs?.find((item) => typeof item.current !== "undefined");
   const topSemanticList = semanticSummary?.listItems[0];
@@ -11604,6 +11624,20 @@ function summarizeAgent(
     ...(typeof topSemanticTableFirstSampleCellRef?.selected === "boolean" ? { semanticTopTableFirstSampleCellSelected: topSemanticTableFirstSampleCellRef.selected } : {}),
     ...(typeof topSemanticTableFirstSampleCellRef?.current !== "undefined" ? { semanticTopTableFirstSampleCellCurrent: topSemanticTableFirstSampleCellRef.current } : {}),
     ...(topSemanticTableFirstSampleCellRef?.selector ? { semanticTopTableFirstSampleCellSelector: topSemanticTableFirstSampleCellRef.selector } : {}),
+    ...(topSemanticTableFirstSampleCellRef?.ownedTarget ? { semanticTopTableFirstSampleCellOwnedTarget: topSemanticTableFirstSampleCellRef.ownedTarget } : {}),
+    ...(topSemanticTableFirstOwnedSampleCellRef?.path ? { semanticTopTableFirstOwnedSampleCellPath: topSemanticTableFirstOwnedSampleCellRef.path } : {}),
+    ...(topSemanticTableFirstOwnedSampleCellRef?.text ? { semanticTopTableFirstOwnedSampleCellText: topSemanticTableFirstOwnedSampleCellRef.text } : {}),
+    ...(typeof topSemanticTableFirstOwnedSampleCellRef?.rowIndex === "number" ? { semanticTopTableFirstOwnedSampleCellRowIndex: topSemanticTableFirstOwnedSampleCellRef.rowIndex } : {}),
+    ...(typeof topSemanticTableFirstOwnedSampleCellRef?.columnIndex === "number" ? { semanticTopTableFirstOwnedSampleCellColumnIndex: topSemanticTableFirstOwnedSampleCellRef.columnIndex } : {}),
+    ...(typeof topSemanticTableFirstOwnedSampleCellRef?.rowSpan === "number" ? { semanticTopTableFirstOwnedSampleCellRowSpan: topSemanticTableFirstOwnedSampleCellRef.rowSpan } : {}),
+    ...(typeof topSemanticTableFirstOwnedSampleCellRef?.columnSpan === "number" ? { semanticTopTableFirstOwnedSampleCellColumnSpan: topSemanticTableFirstOwnedSampleCellRef.columnSpan } : {}),
+    ...(topSemanticTableFirstOwnedSampleCellRef?.headers?.length ? { semanticTopTableFirstOwnedSampleCellHeaders: topSemanticTableFirstOwnedSampleCellRef.headers } : {}),
+    ...(topSemanticTableFirstOwnedSampleCellRef?.rowHeaders?.length ? { semanticTopTableFirstOwnedSampleCellRowHeaders: topSemanticTableFirstOwnedSampleCellRef.rowHeaders } : {}),
+    ...(topSemanticTableFirstOwnedSampleCellRef?.columnHeaders?.length ? { semanticTopTableFirstOwnedSampleCellColumnHeaders: topSemanticTableFirstOwnedSampleCellRef.columnHeaders } : {}),
+    ...(typeof topSemanticTableFirstOwnedSampleCellRef?.selected === "boolean" ? { semanticTopTableFirstOwnedSampleCellSelected: topSemanticTableFirstOwnedSampleCellRef.selected } : {}),
+    ...(typeof topSemanticTableFirstOwnedSampleCellRef?.current !== "undefined" ? { semanticTopTableFirstOwnedSampleCellCurrent: topSemanticTableFirstOwnedSampleCellRef.current } : {}),
+    ...(topSemanticTableFirstOwnedSampleCellRef?.selector ? { semanticTopTableFirstOwnedSampleCellSelector: topSemanticTableFirstOwnedSampleCellRef.selector } : {}),
+    ...(topSemanticTableFirstOwnedSampleCellRef?.ownedTarget ? { semanticTopTableFirstOwnedSampleCellOwnedTarget: topSemanticTableFirstOwnedSampleCellRef.ownedTarget } : {}),
     ...(topSemanticSelectedTableCellRef?.path ? { semanticTopSelectedTableCellPath: topSemanticSelectedTableCellRef.path } : {}),
     ...(topSemanticSelectedTableCellRef?.text ? { semanticTopSelectedTableCellText: topSemanticSelectedTableCellRef.text } : {}),
     ...(typeof topSemanticSelectedTableCellRef?.rowIndex === "number" ? { semanticTopSelectedTableCellRowIndex: topSemanticSelectedTableCellRef.rowIndex } : {}),
@@ -16937,6 +16971,20 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.semanticTopTableFirstSampleCellSelected === "boolean" ? { semanticTopTableFirstSampleCellSelected: agent.semanticTopTableFirstSampleCellSelected } : {}),
     ...(typeof agent.semanticTopTableFirstSampleCellCurrent !== "undefined" ? { semanticTopTableFirstSampleCellCurrent: agent.semanticTopTableFirstSampleCellCurrent } : {}),
     ...(agent.semanticTopTableFirstSampleCellSelector ? { semanticTopTableFirstSampleCellSelector: agent.semanticTopTableFirstSampleCellSelector } : {}),
+    ...(agent.semanticTopTableFirstSampleCellOwnedTarget ? { semanticTopTableFirstSampleCellOwnedTarget: agent.semanticTopTableFirstSampleCellOwnedTarget } : {}),
+    ...(agent.semanticTopTableFirstOwnedSampleCellPath ? { semanticTopTableFirstOwnedSampleCellPath: agent.semanticTopTableFirstOwnedSampleCellPath } : {}),
+    ...(agent.semanticTopTableFirstOwnedSampleCellText ? { semanticTopTableFirstOwnedSampleCellText: agent.semanticTopTableFirstOwnedSampleCellText } : {}),
+    ...(typeof agent.semanticTopTableFirstOwnedSampleCellRowIndex === "number" ? { semanticTopTableFirstOwnedSampleCellRowIndex: agent.semanticTopTableFirstOwnedSampleCellRowIndex } : {}),
+    ...(typeof agent.semanticTopTableFirstOwnedSampleCellColumnIndex === "number" ? { semanticTopTableFirstOwnedSampleCellColumnIndex: agent.semanticTopTableFirstOwnedSampleCellColumnIndex } : {}),
+    ...(typeof agent.semanticTopTableFirstOwnedSampleCellRowSpan === "number" ? { semanticTopTableFirstOwnedSampleCellRowSpan: agent.semanticTopTableFirstOwnedSampleCellRowSpan } : {}),
+    ...(typeof agent.semanticTopTableFirstOwnedSampleCellColumnSpan === "number" ? { semanticTopTableFirstOwnedSampleCellColumnSpan: agent.semanticTopTableFirstOwnedSampleCellColumnSpan } : {}),
+    ...(agent.semanticTopTableFirstOwnedSampleCellHeaders?.length ? { semanticTopTableFirstOwnedSampleCellHeaders: agent.semanticTopTableFirstOwnedSampleCellHeaders } : {}),
+    ...(agent.semanticTopTableFirstOwnedSampleCellRowHeaders?.length ? { semanticTopTableFirstOwnedSampleCellRowHeaders: agent.semanticTopTableFirstOwnedSampleCellRowHeaders } : {}),
+    ...(agent.semanticTopTableFirstOwnedSampleCellColumnHeaders?.length ? { semanticTopTableFirstOwnedSampleCellColumnHeaders: agent.semanticTopTableFirstOwnedSampleCellColumnHeaders } : {}),
+    ...(typeof agent.semanticTopTableFirstOwnedSampleCellSelected === "boolean" ? { semanticTopTableFirstOwnedSampleCellSelected: agent.semanticTopTableFirstOwnedSampleCellSelected } : {}),
+    ...(typeof agent.semanticTopTableFirstOwnedSampleCellCurrent !== "undefined" ? { semanticTopTableFirstOwnedSampleCellCurrent: agent.semanticTopTableFirstOwnedSampleCellCurrent } : {}),
+    ...(agent.semanticTopTableFirstOwnedSampleCellSelector ? { semanticTopTableFirstOwnedSampleCellSelector: agent.semanticTopTableFirstOwnedSampleCellSelector } : {}),
+    ...(agent.semanticTopTableFirstOwnedSampleCellOwnedTarget ? { semanticTopTableFirstOwnedSampleCellOwnedTarget: agent.semanticTopTableFirstOwnedSampleCellOwnedTarget } : {}),
     ...(agent.semanticTopSelectedTableCellPath ? { semanticTopSelectedTableCellPath: agent.semanticTopSelectedTableCellPath } : {}),
     ...(agent.semanticTopSelectedTableCellText ? { semanticTopSelectedTableCellText: agent.semanticTopSelectedTableCellText } : {}),
     ...(typeof agent.semanticTopSelectedTableCellRowIndex === "number" ? { semanticTopSelectedTableCellRowIndex: agent.semanticTopSelectedTableCellRowIndex } : {}),
@@ -17966,6 +18014,20 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.semanticTopTableFirstSampleCellSelected === "boolean" ? { semanticTopTableFirstSampleCellSelected: agent.semanticTopTableFirstSampleCellSelected } : {}),
     ...(typeof agent.semanticTopTableFirstSampleCellCurrent !== "undefined" ? { semanticTopTableFirstSampleCellCurrent: agent.semanticTopTableFirstSampleCellCurrent } : {}),
     ...(agent.semanticTopTableFirstSampleCellSelector ? { semanticTopTableFirstSampleCellSelector: agent.semanticTopTableFirstSampleCellSelector } : {}),
+    ...(agent.semanticTopTableFirstSampleCellOwnedTarget ? { semanticTopTableFirstSampleCellOwnedTarget: agent.semanticTopTableFirstSampleCellOwnedTarget } : {}),
+    ...(agent.semanticTopTableFirstOwnedSampleCellPath ? { semanticTopTableFirstOwnedSampleCellPath: agent.semanticTopTableFirstOwnedSampleCellPath } : {}),
+    ...(agent.semanticTopTableFirstOwnedSampleCellText ? { semanticTopTableFirstOwnedSampleCellText: agent.semanticTopTableFirstOwnedSampleCellText } : {}),
+    ...(typeof agent.semanticTopTableFirstOwnedSampleCellRowIndex === "number" ? { semanticTopTableFirstOwnedSampleCellRowIndex: agent.semanticTopTableFirstOwnedSampleCellRowIndex } : {}),
+    ...(typeof agent.semanticTopTableFirstOwnedSampleCellColumnIndex === "number" ? { semanticTopTableFirstOwnedSampleCellColumnIndex: agent.semanticTopTableFirstOwnedSampleCellColumnIndex } : {}),
+    ...(typeof agent.semanticTopTableFirstOwnedSampleCellRowSpan === "number" ? { semanticTopTableFirstOwnedSampleCellRowSpan: agent.semanticTopTableFirstOwnedSampleCellRowSpan } : {}),
+    ...(typeof agent.semanticTopTableFirstOwnedSampleCellColumnSpan === "number" ? { semanticTopTableFirstOwnedSampleCellColumnSpan: agent.semanticTopTableFirstOwnedSampleCellColumnSpan } : {}),
+    ...(agent.semanticTopTableFirstOwnedSampleCellHeaders?.length ? { semanticTopTableFirstOwnedSampleCellHeaders: agent.semanticTopTableFirstOwnedSampleCellHeaders } : {}),
+    ...(agent.semanticTopTableFirstOwnedSampleCellRowHeaders?.length ? { semanticTopTableFirstOwnedSampleCellRowHeaders: agent.semanticTopTableFirstOwnedSampleCellRowHeaders } : {}),
+    ...(agent.semanticTopTableFirstOwnedSampleCellColumnHeaders?.length ? { semanticTopTableFirstOwnedSampleCellColumnHeaders: agent.semanticTopTableFirstOwnedSampleCellColumnHeaders } : {}),
+    ...(typeof agent.semanticTopTableFirstOwnedSampleCellSelected === "boolean" ? { semanticTopTableFirstOwnedSampleCellSelected: agent.semanticTopTableFirstOwnedSampleCellSelected } : {}),
+    ...(typeof agent.semanticTopTableFirstOwnedSampleCellCurrent !== "undefined" ? { semanticTopTableFirstOwnedSampleCellCurrent: agent.semanticTopTableFirstOwnedSampleCellCurrent } : {}),
+    ...(agent.semanticTopTableFirstOwnedSampleCellSelector ? { semanticTopTableFirstOwnedSampleCellSelector: agent.semanticTopTableFirstOwnedSampleCellSelector } : {}),
+    ...(agent.semanticTopTableFirstOwnedSampleCellOwnedTarget ? { semanticTopTableFirstOwnedSampleCellOwnedTarget: agent.semanticTopTableFirstOwnedSampleCellOwnedTarget } : {}),
     ...(agent.semanticTopSelectedTableCellPath ? { semanticTopSelectedTableCellPath: agent.semanticTopSelectedTableCellPath } : {}),
     ...(agent.semanticTopSelectedTableCellText ? { semanticTopSelectedTableCellText: agent.semanticTopSelectedTableCellText } : {}),
     ...(typeof agent.semanticTopSelectedTableCellRowIndex === "number" ? { semanticTopSelectedTableCellRowIndex: agent.semanticTopSelectedTableCellRowIndex } : {}),
