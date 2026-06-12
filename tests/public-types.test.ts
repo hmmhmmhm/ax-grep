@@ -428,6 +428,10 @@ describe("public agent types", () => {
       | "topChoiceCommandArgs"
       | "topChoiceRank"
       | "topChoiceSource"
+      | "topChoiceSourceType"
+      | "topChoiceSourceScore"
+      | "topChoiceRelevance"
+      | "topChoiceLikelyOfficial"
       | "topChoiceMethod"
       | "topChoiceSelector"
       | "topChoiceReason"
@@ -1328,6 +1332,10 @@ describe("public agent types", () => {
       topChoiceCommandArgs: ["ax-grep", "https://source.example/report", "--agent"],
       topChoiceRank: 1,
       topChoiceSource: "source.example",
+      topChoiceSourceType: "report",
+      topChoiceSourceScore: 0.91,
+      topChoiceRelevance: "high",
+      topChoiceLikelyOfficial: true,
       topChoiceMethod: "GET",
       topChoiceSelector: "a:nth-of-type(1)",
       topChoiceReason: "High-quality source link.",
@@ -2010,6 +2018,9 @@ describe("public agent types", () => {
     expect(summary.topChoiceSelector).toBe("a:nth-of-type(1)");
     expect(summary.topChoiceReason).toBe("High-quality source link.");
     expect(summary.topChoiceCommand).toContain("source.example/report");
+    expect(summary.topChoiceSourceScore).toBe(0.91);
+    expect(summary.topChoiceRelevance).toBe("high");
+    expect(summary.topChoiceLikelyOfficial).toBe(true);
     expect(summary.topResultChoicePath).toBe("searchResults[0]");
     expect(summary.topResultChoiceSnippet).toBe("Result summary");
     expect(summary.topResultChoiceCommand).toContain("--open-result 1");

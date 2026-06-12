@@ -1546,6 +1546,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topChoiceUrl?: string;
       topChoiceCommand?: string;
       topChoiceCommandArgs?: string[];
+      topChoiceSourceType?: string;
+      topChoiceSourceScore?: number;
+      topChoiceRelevance?: CliAgentTargetShape["relevance"];
+      topChoiceLikelyOfficial?: boolean;
       sourceSearchQuery?: string;
       sourceSearchEngine?: string;
       sourceSearchSelectedEngine?: string;
@@ -3750,6 +3754,10 @@ function scoreAgentTopChoiceShortcuts(agent: {
   topChoiceUrl?: string;
   topChoiceCommand?: string;
   topChoiceCommandArgs?: string[];
+  topChoiceSourceType?: string;
+  topChoiceSourceScore?: number;
+  topChoiceRelevance?: CliAgentTargetShape["relevance"];
+  topChoiceLikelyOfficial?: boolean;
 } | undefined): number {
   if (!agent) return 0;
   const result = agent.resultChoices?.[0];
@@ -3757,16 +3765,16 @@ function scoreAgentTopChoiceShortcuts(agent: {
   const form = agent.formChoices?.[0];
   const actionTarget = agent.actionTargetChoices?.[0];
   const expected = result
-    ? { kind: "result" as const, path: result.path, label: result.title, url: result.url, command: result.command, commandArgs: result.commandArgs }
+    ? { kind: "result" as const, path: result.path, label: result.title, url: result.url, command: result.command, commandArgs: result.commandArgs, sourceType: result.sourceType, sourceScore: result.sourceScore, relevance: result.relevance, isLikelyOfficial: result.isLikelyOfficial }
     : source
-      ? { kind: "source" as const, path: source.path, label: source.title || source.text, url: source.url, command: source.command, commandArgs: source.commandArgs }
+      ? { kind: "source" as const, path: source.path, label: source.title || source.text, url: source.url, command: source.command, commandArgs: source.commandArgs, sourceType: source.sourceType, sourceScore: source.sourceScore, relevance: source.relevance, isLikelyOfficial: source.isLikelyOfficial }
       : form
         ? { kind: "form" as const, path: form.path, label: form.text, url: form.actionUrl ?? form.urlTemplate }
         : actionTarget
           ? { kind: "action-target" as const, path: actionTarget.path, label: actionTarget.name || actionTarget.text, url: actionTarget.targetUrl ?? actionTarget.urlTemplate }
           : undefined;
   if (!expected) {
-    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceCommand && !agent.topChoiceCommandArgs ? 1 : 0;
+    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceCommand && !agent.topChoiceCommandArgs && !agent.topChoiceSourceType && typeof agent.topChoiceSourceScore !== "number" && !agent.topChoiceRelevance && typeof agent.topChoiceLikelyOfficial !== "boolean" ? 1 : 0;
   }
   let required = 2;
   let matched = 0;
@@ -3790,6 +3798,30 @@ function scoreAgentTopChoiceShortcuts(agent: {
     required += 1;
     if (JSON.stringify(agent.topChoiceCommandArgs) === JSON.stringify(expected.commandArgs)) matched += 1;
   } else if (agent.topChoiceCommand || agent.topChoiceCommandArgs) {
+    required += 1;
+  }
+  if (expected.sourceType) {
+    required += 1;
+    if (agent.topChoiceSourceType === expected.sourceType) matched += 1;
+  } else if (agent.topChoiceSourceType) {
+    required += 1;
+  }
+  if (typeof expected.sourceScore === "number") {
+    required += 1;
+    if (agent.topChoiceSourceScore === expected.sourceScore) matched += 1;
+  } else if (typeof agent.topChoiceSourceScore === "number") {
+    required += 1;
+  }
+  if (expected.relevance) {
+    required += 1;
+    if (agent.topChoiceRelevance === expected.relevance) matched += 1;
+  } else if (agent.topChoiceRelevance) {
+    required += 1;
+  }
+  if (typeof expected.isLikelyOfficial === "boolean") {
+    required += 1;
+    if (agent.topChoiceLikelyOfficial === expected.isLikelyOfficial) matched += 1;
+  } else if (typeof agent.topChoiceLikelyOfficial === "boolean") {
     required += 1;
   }
   return roundScore(matched / required);

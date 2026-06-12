@@ -1233,6 +1233,10 @@ export type AgentSummary = {
   topChoiceCommandArgs?: string[];
   topChoiceRank?: number;
   topChoiceSource?: string;
+  topChoiceSourceType?: string;
+  topChoiceSourceScore?: number;
+  topChoiceRelevance?: AgentTarget["relevance"];
+  topChoiceLikelyOfficial?: boolean;
   topChoiceMethod?: string;
   topChoiceSelector?: string;
   topChoiceReason?: string;

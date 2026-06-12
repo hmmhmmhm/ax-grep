@@ -1389,6 +1389,10 @@ describe("cli", () => {
         expect(envelope.agent.topChoiceCommandArgs).toEqual(topResultChoice.commandArgs);
         if (typeof topResultChoice.rank === "number") expect(envelope.agent.topChoiceRank).toBe(topResultChoice.rank);
         if (topResultChoice.source) expect(envelope.agent.topChoiceSource).toBe(topResultChoice.source);
+        if (topResultChoice.sourceType) expect(envelope.agent.topChoiceSourceType).toBe(topResultChoice.sourceType);
+        if (typeof topResultChoice.sourceScore === "number") expect(envelope.agent.topChoiceSourceScore).toBe(topResultChoice.sourceScore);
+        if (topResultChoice.relevance) expect(envelope.agent.topChoiceRelevance).toBe(topResultChoice.relevance);
+        if (typeof topResultChoice.isLikelyOfficial === "boolean") expect(envelope.agent.topChoiceLikelyOfficial).toBe(topResultChoice.isLikelyOfficial);
         if (topResultChoice.selectionReason) expect(envelope.agent.topChoiceReason).toBe(topResultChoice.selectionReason);
         expect(envelope.agent.topResultChoicePath).toBe(topResultChoice.path);
         expect(envelope.agent.topResultChoiceUrl).toBe(topResultChoice.url);
@@ -1408,6 +1412,10 @@ describe("cli", () => {
         if (topSourceChoice.command) expect(envelope.agent.topSourceChoiceCommand).toBe(topSourceChoice.command);
         if (typeof topSourceChoice.rank === "number") expect(envelope.agent.topChoiceRank).toBe(topSourceChoice.rank);
         if (topSourceChoice.source) expect(envelope.agent.topChoiceSource).toBe(topSourceChoice.source);
+        if (topSourceChoice.sourceType) expect(envelope.agent.topChoiceSourceType).toBe(topSourceChoice.sourceType);
+        if (typeof topSourceChoice.sourceScore === "number") expect(envelope.agent.topChoiceSourceScore).toBe(topSourceChoice.sourceScore);
+        if (topSourceChoice.relevance) expect(envelope.agent.topChoiceRelevance).toBe(topSourceChoice.relevance);
+        if (typeof topSourceChoice.isLikelyOfficial === "boolean") expect(envelope.agent.topChoiceLikelyOfficial).toBe(topSourceChoice.isLikelyOfficial);
         if (topSourceChoice.selector) expect(envelope.agent.topChoiceSelector).toBe(topSourceChoice.selector);
         if (topSourceChoice.selectionReason) expect(envelope.agent.topChoiceReason).toBe(topSourceChoice.selectionReason);
         if (topSourceChoice.snippet) expect(envelope.agent.topSourceChoiceSnippet).toBe(topSourceChoice.snippet);
