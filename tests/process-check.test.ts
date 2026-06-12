@@ -11,9 +11,11 @@ describe("project process checker", () => {
       " 104 1 vitest run tests/cli.test.ts",
       " 105 1 chrome-headless-shell --headless --remote-debugging-pipe",
       " 106 1 node unrelated.js",
+      " 107 1 tsx scripts/compare.ts https://example.com",
+      " 108 1 pnpm compare https://example.com",
     ], 100);
 
-    expect(matches.map((item) => item.pid)).toEqual([101, 102, 103, 104]);
+    expect(matches.map((item) => item.pid)).toEqual([101, 102, 103, 104, 107, 108]);
   });
 
   it("ignores the current checker process and unrelated commands", () => {

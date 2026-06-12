@@ -15,6 +15,7 @@ describe("agent readiness audit", () => {
       "resource-safety",
       "fixture-loop-coverage",
       "real-page-smoke",
+      "agent-browser-smoke",
       "per-target-gates",
       "weak-target-diagnostics",
       "executable-agent-continuations",

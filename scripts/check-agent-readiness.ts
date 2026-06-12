@@ -31,6 +31,7 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
   requireScript(failures, scripts, "check:processes", "scripts/check-project-processes.ts");
   requireScript(failures, scripts, "readiness:audit", "scripts/check-agent-readiness.ts");
   requireScript(failures, scripts, "readiness:real-page-smoke", "scripts/check-real-page-smoke.ts");
+  requireScript(failures, scripts, "readiness:agent-browser-smoke", "scripts/check-agent-browser-smoke.ts");
 
   requireFileIncludes(root, failures, "vitest.config.ts", [
     "fileParallelism: false",
@@ -164,6 +165,28 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "needsBrowserHtml",
           "canUseFetchedHtml",
           "semanticNamedRoleCount",
+        ]);
+      },
+    ),
+    evidenceCheck(
+      root,
+      "agent-browser-smoke",
+      "At least one bounded `agent-browser` comparison must prove static named-role parity before the goal can move beyond local and fetched-page smoke evidence.",
+      "readiness:agent-browser-smoke runs pnpm compare on https://example.com and requires an agent-browser snapshot, perfect overlap, and perfect agent readiness.",
+      (failures) => {
+        const packageJson = readJson<PackageJson>(root, "package.json", failures);
+        requireScript(failures, packageJson?.scripts ?? {}, "readiness:agent-browser-smoke", "scripts/check-agent-browser-smoke.ts");
+        requireFileIncludes(root, failures, "scripts/check-agent-browser-smoke.ts", [
+          "https://example.com",
+          "pnpm",
+          "compare",
+          "agentBrowser",
+          "overlap",
+          "agentReadiness",
+        ]);
+        requireFileIncludes(root, failures, "scripts/check-project-processes.ts", [
+          "scripts\\/compare\\.ts",
+          "pnpm\\s+compare",
         ]);
       },
     ),

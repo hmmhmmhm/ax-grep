@@ -9,6 +9,8 @@ export type ProcessInfo = {
 
 const processPatterns = [
   /\bagent-browser\b/,
+  /\btsx\s+scripts\/compare\.ts\b/,
+  /\bpnpm\s+compare(?:\s|$)/,
   /\btsx\s+scripts\/compare-static\.ts\b/,
   /\bpnpm\s+compare:static\b/,
   /\bpnpm\s+test\b/,

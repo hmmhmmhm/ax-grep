@@ -1,6 +1,6 @@
 # Current Progress
 
-Status: about 97% fit for the goal of making `ax-grep --agent` a useful
+Status: about 98% fit for the goal of making `ax-grep --agent` a useful
 first-pass page/search checker before `agent-browser`.
 
 Last updated: 2026-06-12.
@@ -15,15 +15,15 @@ percentage as a fixed contract.
 | Area | Current estimate | Evidence |
 | --- | ---: | --- |
 | README/docs hygiene | 90% | Root README is short; detailed docs live under `docs/`. |
-| Process safety | 86% | `AGENTS.md`, `pnpm check:processes`, non-browser gates, and the single-target real-page smoke gate are in place. |
+| Process safety | 87% | `AGENTS.md`, `pnpm check:processes`, non-browser gates, the single-target real-page smoke gate, and single-target `agent-browser` smoke gate are in place. |
 | Search result handoff | 88% | Result choices, top choice snippet/host/provenance/official-source shortcuts, brief-mode search provenance, source-search selected/alternate/failure shortcuts, source hints, verification, decision counts/reasons, and command args are exposed. |
 | Page check handoff | 96% | Forms, action targets, FAQ answers, code block text, resource titles, media/section text, and structured metadata labels/selectors in brief mode, table navigation shortcuts, brief-mode table path/selector targeting, semantic table/grid read-current fallback, hidden signal group counts/top shortcuts/selectors, author/source metadata, static-readiness reason codes/reasons, fetched-HTML usability in brief mode, control-plane shortcuts, barrier-specific browser-capture reason codes, primary execution shortcuts, barriers, and read targets are exposed in full and brief modes. |
 | Semantic accessibility signals | 94% | Landmarks, headings, links, interactive/focusable controls, keyboard shortcut selectors in brief mode, buttons, fields, values, relations, choices, selected-choice shortcuts with controlled targets, states, modal/live state shortcuts, list item refs, first list item shortcuts, list samples from compacted link items, interactive/focusable/actionable selectors in brief mode, table/list names and container selectors in brief mode, table header/cell navigation shortcuts, selected table/grid cell shortcuts, sample cell spans, table ownership refs, semantic counts, outline selectors, and brief-mode semantic selectors/states are exposed. |
-| Browser-tree parity research | 99% | Fourteen local browser fixtures now compare browser-side semantic output with `--agent-brief`, and `readiness:real-page-smoke` proves one real fetched page can use static agent handoff without browser capture; broader real-page and `agent-browser` comparison remains. |
+| Browser-tree parity research | 99% | Fourteen local browser fixtures compare browser-side semantic output with `--agent-brief`; `readiness:real-page-smoke` proves one fetched page can use static handoff; `readiness:agent-browser-smoke` proves one `agent-browser` comparison has exact named-role overlap. Broader real-page and `agent-browser` comparison remains. |
 
-Overall estimate: 97%. This is still conservative because the final goal is
-comparative usefulness across real pages and `agent-browser`, not just passing
-the current tests.
+Overall estimate: 98%. This is still conservative because the final goal is
+comparative usefulness across diverse real pages and `agent-browser`, not just
+passing the current smoke tests.
 
 Forecast from the current evidence:
 
@@ -32,8 +32,9 @@ Forecast from the current evidence:
 - 88-96% reflects landed non-browser shortcuts, fallback-policy work, and the
   current fourteen-fixture browser parity evidence; the local browser parity
   subtrack is higher, but broader real-page comparison still gates completion.
-- 97%+ still requires a small, sequential `agent-browser` comparison slice with
-  each observed gap classified as `implement`, `browser-only`, or `defer`.
+- 98%+ still requires a broader but still sequential `agent-browser` comparison
+  slice with each observed gap classified as `implement`, `browser-only`, or
+  `defer`.
 - The estimate may drop if comparison finds a high-value browser-tree signal
   that static output does not yet expose.
 
@@ -44,7 +45,7 @@ Current forecast board:
 | F1: Non-browser brief parity cleanup | Complete for current scalar shortcuts | Whether `--agent-brief` still drops high-value shortcuts already present in full compact output. | Compact-vs-brief scalar losses are closed; the remaining 13 differences are intentionally large nested payloads (`actions`, `signals`, `semanticSummary`, and similar). | Stop adding fields unless a fixture shows that brief output forces unnecessary full output or browser capture. |
 | F2: Browser fallback clarity | In progress | Whether static output explains `use fetched HTML`, `capture browser HTML`, or `interact in browser` without prose parsing. | Page handoff moved to 95% after semantic table/grid payloads started returning current evidence instead of unnecessary browser handoff. | Any page whose current reason code does not explain why browser capture is needed expands this packet. |
 | F3: Semantic table/list/control comparison | Started | Whether static table, list, and control shortcuts cover the browser accessibility-tree signals agents actually use. | Semantic accessibility moved to 93% after the fifth local browser fixture proved selected gridcell handoff without parsing sample-cell arrays. | Browser-tree comparison may reveal a new P1 signal, which can hold or lower the estimate until tracked. |
-| F4: Browser parity evidence set | Started, gated | A small sequential fixture set plus a single real-page smoke gate comparing static handoff against browser-capture need. | Browser parity research remains 99%, and overall moved to 97% after `https://example.com` proved `--agent-brief` can use fetched HTML without browser capture; broader `agent-browser` comparison still remains. | Do not run broad browser checks; each run needs pre/post `pnpm check:processes`. |
+| F4: Browser parity evidence set | Started, gated | A small sequential fixture set plus single-target real-page and `agent-browser` smoke gates. | Browser parity research remains 99%, and overall moved to 98% after `https://example.com` proved exact named-role overlap against `agent-browser`; broader `agent-browser` comparison still remains. | Do not run broad browser checks; each run needs pre/post `pnpm check:processes`. |
 | F5: Re-estimation and closure | Planned | Whether all P1 gaps have either landed code, a browser-only note, or a defer reason. | Overall can rise, hold, or fall based on evidence. | Research goals can expand when a useful accessibility-tree signal appears mid-work. |
 
 Near-term queue with prediction:
@@ -77,11 +78,11 @@ instead of hiding the new scope.
 | Track | Progress | Current work | Remaining work | Next checkpoint |
 | --- | ---: | --- | --- | --- |
 | Documentation control | 90% | Keep README short and move long operational detail into `docs/`. | Add only status, safety, and research notes that help future sessions resume quickly. | README length/mojibake tests pass after each docs change. |
-| Process containment | 86% | Keep validation sequential and check for leftover browser/test/comparison processes; `readiness:real-page-smoke` adds a no-browser remote-page gate. | Add more explicit notes when a task would require browser-backed validation, including why it is necessary. | `pnpm check:processes` before and after risky work shows no leftovers. |
+| Process containment | 87% | Keep validation sequential and check for leftover browser/test/comparison processes; `readiness:real-page-smoke` adds a no-browser remote-page gate and `readiness:agent-browser-smoke` adds a one-target browser-backed gate. | Add more explicit notes when a task would require browser-backed validation, including why it is necessary. | `pnpm check:processes` before and after risky work shows no leftovers. |
 | Search handoff | 88% | Expose enough ranked-result/source context for an agent to choose, open, skip, or recover from failed opened results in full and brief modes. | Identify whether deeper snippet dedupe, provenance, official-source ambiguity, or failed-open categories remain beyond top choice shortcuts. | A static search/source fixture lets an agent choose or recover from a result without browser inspection first. |
 | Page handoff | 96% | Surface barriers, read targets, FAQ answers, code block text, resource titles, media/section text, structured metadata labels/selectors, action targets, author/source metadata, table navigation shortcuts, semantic table/grid read-current fallback, hidden signal group shortcuts, static-readiness reason codes/reasons, fetched-HTML usability, primary execution shortcuts, and barrier-specific browser-capture reason/execution shortcuts in full and brief modes. | Tighten remaining client-rendered and interaction-required categories when fixture evidence shows ambiguity. | Fixtures show clear `use static output` vs `need browser capture` reasons. |
 | Semantic accessibility | 94% | Continue adding high-value shortcuts from roles, states, relations, choices, selected choices and their controlled targets, selected table/grid cells, lists, tables, ownership, controls, semantic counts, outline selectors, and brief-mode handoff output. | Compare more table/grid/list/control output against browser-tree expectations and add only useful static equivalents. | Each accepted signal has a public type, CLI output, compact/brief output, and fixture/test coverage. |
-| Browser parity research | 99% | Fourteen local browser fixture cases are in place and passed; one real-page static handoff smoke is wired. | Expand the gap list as research finds new browser accessibility-tree signals; lower estimates if new important gaps appear. | Each gap is tagged `implement`, `browser-only`, or `defer` with priority and evidence. |
+| Browser parity research | 99% | Fourteen local browser fixture cases are in place and passed; one real-page static handoff smoke and one single-target `agent-browser` smoke are wired. | Expand the gap list as research finds new browser accessibility-tree signals; lower estimates if new important gaps appear. | Each gap is tagged `implement`, `browser-only`, or `defer` with priority and evidence. |
 
 ## Remaining Work Breakdown
 
@@ -156,6 +157,7 @@ estimate whether the overall percentage should move.
 | A48 | Mixed checkbox state browser parity fixture | 100% | Added a thirteenth local browser fixture covering `role=checkbox`, `aria-checked=mixed`, checkbox name, field checked shortcut, state checked shortcut, and state selector against `--agent-brief`. | Superseded by the fourteenth fixture; add more only after the current fourteen-fixture gate remains stable and process checks stay clean. | Typecheck passes; `pnpm compare:browser:fixture` passes with thirteen local fixtures; pre/post process checks are clean. | Browser parity research 97% -> 98%; overall remains 96%. |
 | A49 | Field details relation browser parity fixture | 100% | Added a fourteenth local browser fixture covering `aria-details`, resolved details text, relation target selector, field selector, and shallow field/relation shortcuts against `--agent-brief`. | Add another fixture only after the current fourteen-fixture gate remains stable and process checks stay clean. | Typecheck passes; `pnpm compare:browser:fixture` passes with fourteen local fixtures; pre/post process checks are clean. | Browser parity research 98% -> 99%; overall remains 96%. |
 | A50 | Real-page static handoff smoke gate | 100% | Added `pnpm readiness:real-page-smoke`, which checks `https://example.com` with `--agent-brief`, `canUseFetchedHtml=true`, `needsBrowserHtml=false`, named semantic roles, and no browser continuation request. | Use this as the first real-page guard before any broader or `agent-browser` comparison slice. | Typecheck, real-page smoke, readiness audit, README test, diff check, and process checks pass. | Overall 96% -> 97%; broader `agent-browser` comparison remains. |
+| A51 | Single-target `agent-browser` smoke gate | 100% | Added `pnpm readiness:agent-browser-smoke`, which runs `pnpm compare https://example.com` and requires an `agent-browser` snapshot, exact named-role overlap, and agent-readiness score `1.0`. | Use this as the first browser-backed guard before any broader comparison slice. | Typecheck, process checker test, agent-browser smoke with pre/post process checks, readiness audit, README test, diff check, and process checks pass. | Overall 97% -> 98%; broader `agent-browser` comparison remains. |
 
 ## Planned Work Detail
 
@@ -272,6 +274,7 @@ or deferred.
 | G45 | Mixed checkbox state tells agents that a filter or setting is partially selected, which is materially different from checked or unchecked. The fixture needed to prove browser-side `aria-checked=mixed` matches shallow field/state checked shortcuts. | Thirteenth local browser fixture `mixed-checkbox-state` showed `checkbox:Include archived reports` and `checked=mixed`; shallow `semanticTopFieldChecked` and `semanticTopStateChecked` matched. | P2 | Mark mixed checkbox state as covered evidence; no new implementation needed because existing checked shortcuts already matched the browser tree. | Landed. | Typecheck and `pnpm compare:browser:fixture` pass; pre/post process checks clean. | Browser parity research 97% -> 98%; overall remains 96%. |
 | G46 | `aria-details` can point from a field to explanatory content that agents need before deciding how to fill or interpret the field. The fixture needed to prove browser-side field attributes and detail text match shallow field details and relation target shortcuts. | Fourteenth local browser fixture `field-details-relation` showed `searchbox:Archive filter`, `aria-details=archive-filter-details`, resolved details text, field selector, and target selector; shallow field details and relation fields matched. | P2 | Mark field details relation text as covered evidence; no new implementation needed because existing details shortcuts already matched the browser-side semantic output. | Landed. | Typecheck and `pnpm compare:browser:fixture` pass; pre/post process checks clean. | Browser parity research 98% -> 99%; overall remains 96%. |
 | G47 | Local fixtures alone do not prove real fetched pages can avoid browser capture, so a tiny real-page gate is needed before broader `agent-browser` comparison. | `readiness:real-page-smoke` checks `https://example.com` with `--agent-brief`; the run passed with static handoff usable, browser HTML not needed, named semantic roles present, and no browser continuation mode. | P1 | Keep the smoke gate as the smallest real-page guard; move next to one carefully bounded `agent-browser` comparison slice. | Landed. | Typecheck, `pnpm readiness:real-page-smoke`, readiness audit, README test, diff check, and process checks pass. | Overall 96% -> 97%; broader `agent-browser` comparison remains. |
+| G48 | A real `agent-browser` comparison is needed to prove the local/static evidence aligns with the actual reference tool at least on one live page. | `readiness:agent-browser-smoke` runs `pnpm compare https://example.com`; the run passed with an `agent-browser` snapshot, `heading:Example Domain`, `link:Learn more`, overlap `1.0`, and readiness score `1.0`, with clean pre/post process checks. | P1 | Keep this as the smallest browser-backed guard; next broaden only one documented target at a time. | Landed. | Typecheck, process checker test, `pnpm readiness:agent-browser-smoke`, readiness audit, README test, diff check, and process checks pass. | Overall 97% -> 98%; broader `agent-browser` comparison remains. |
 | G2 | Browser accessibility-tree comparison may reveal signals that static HTML cannot safely infer. | Future sequential fixture comparison only; no broad browser run allowed. | P1 after evidence | Track first, then classify as `implement`, `browser-only`, or `defer`. | Watch. | Add the smallest fixture command here before running any browser-backed check; run `pnpm check:processes` afterward. | Unknown until observed. |
 
 ## Current Queue
@@ -326,7 +329,8 @@ any earlier non-browser item can still reduce uncertainty.
 | 43 | Done | Add the thirteenth local browser fixture for mixed checkbox state after the twelve-fixture gate stayed clean. | Pre/post `pnpm check:processes`; `pnpm compare:browser:fixture`; one browser-backed command per run. | Browser parity research 97% -> 98%; overall remains 96%. |
 | 44 | Done | Add the fourteenth local browser fixture for field details relation text after the thirteen-fixture gate stayed clean. | Pre/post `pnpm check:processes`; `pnpm compare:browser:fixture`; one browser-backed command per run. | Browser parity research 98% -> 99%; overall remains 96%. |
 | 45 | Done | Add the smallest real-page static handoff smoke gate before any broader `agent-browser` comparison slice. | `pnpm readiness:real-page-smoke`; pre/post `pnpm check:processes`. | Overall 96% -> 97%; `agent-browser` comparison still remains. |
-| 46 | Later | Add one carefully bounded `agent-browser` comparison slice only after process state is clean and the target is documented. | Pre/post `pnpm check:processes`; one browser-backed command only. | Can raise, hold, or lower the overall estimate. |
+| 46 | Done | Add one carefully bounded `agent-browser` comparison slice on `https://example.com` after process state is clean. | Pre/post `pnpm check:processes`; `pnpm readiness:agent-browser-smoke`. | Overall 97% -> 98%; broader comparison still remains. |
+| 47 | Later | Broaden `agent-browser` comparison one documented target at a time, only after process state is clean. | Pre/post `pnpm check:processes`; one browser-backed command only. | Can raise, hold, or lower the overall estimate. |
 
 When research expands:
 
