@@ -1003,6 +1003,10 @@ type AgentSummary = {
   semanticTopInteractiveValue?: string;
   semanticTopInteractiveState?: string;
   semanticTopInteractiveDisabled?: boolean;
+  semanticTopInteractivePressed?: SemanticNodeState["pressed"];
+  semanticTopInteractiveExpanded?: boolean;
+  semanticTopInteractiveHaspopup?: SemanticNodeState["haspopup"];
+  semanticTopInteractiveControls?: string;
   semanticTopInteractiveSelector?: string;
   semanticTopFocusableRole?: string;
   semanticTopFocusablePath?: string;
@@ -3575,7 +3579,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.semanticTopHeading) lines.push(`  semanticTopHeading: ${agent.semanticTopHeadingPath ?? ""} ${agent.semanticTopHeading}${typeof agent.semanticTopHeadingLevel === "number" ? ` level=${agent.semanticTopHeadingLevel}` : ""}`);
   if (agent.semanticTopLandmark) lines.push(`  semanticTopLandmark: ${agent.semanticTopLandmarkPath ?? ""} ${agent.semanticTopLandmark}`);
   if (agent.semanticTopNamedRole) lines.push(`  semanticTopNamedRole: ${agent.semanticTopNamedRolePath ?? ""} ${agent.semanticTopNamedRole}${agent.semanticTopNamedRoleDescription ? ` roleDescription=${agent.semanticTopNamedRoleDescription}` : ""}`);
-  if (agent.semanticTopInteractiveRole) lines.push(`  semanticTopInteractive: ${agent.semanticTopInteractivePath ?? ""} ${agent.semanticTopInteractiveRole}:${agent.semanticTopInteractiveName ?? ""}${agent.semanticTopInteractiveRoleDescription ? ` roleDescription=${agent.semanticTopInteractiveRoleDescription}` : ""}${agent.semanticTopInteractiveDescription ? ` description=${agent.semanticTopInteractiveDescription}` : ""}${agent.semanticTopInteractiveValue ? ` value=${agent.semanticTopInteractiveValue}` : ""}${agent.semanticTopInteractiveState ? ` state=${agent.semanticTopInteractiveState}` : ""}${agent.semanticTopInteractiveSelector ? ` selector=${agent.semanticTopInteractiveSelector}` : ""}`);
+  if (agent.semanticTopInteractiveRole) lines.push(`  semanticTopInteractive: ${agent.semanticTopInteractivePath ?? ""} ${agent.semanticTopInteractiveRole}:${agent.semanticTopInteractiveName ?? ""}${agent.semanticTopInteractiveRoleDescription ? ` roleDescription=${agent.semanticTopInteractiveRoleDescription}` : ""}${agent.semanticTopInteractiveDescription ? ` description=${agent.semanticTopInteractiveDescription}` : ""}${agent.semanticTopInteractiveValue ? ` value=${agent.semanticTopInteractiveValue}` : ""}${agent.semanticTopInteractiveState ? ` state=${agent.semanticTopInteractiveState}` : ""}${typeof agent.semanticTopInteractivePressed !== "undefined" ? ` pressed=${agent.semanticTopInteractivePressed}` : ""}${typeof agent.semanticTopInteractiveExpanded === "boolean" ? ` expanded=${agent.semanticTopInteractiveExpanded}` : ""}${agent.semanticTopInteractiveHaspopup ? ` haspopup=${agent.semanticTopInteractiveHaspopup}` : ""}${agent.semanticTopInteractiveControls ? ` controls=${agent.semanticTopInteractiveControls}` : ""}${agent.semanticTopInteractiveSelector ? ` selector=${agent.semanticTopInteractiveSelector}` : ""}`);
   if (agent.semanticTopFocusableRole) lines.push(`  semanticTopFocusable: ${agent.semanticTopFocusablePath ?? ""} ${agent.semanticTopFocusableRole}${agent.semanticTopFocusableName ? `:${agent.semanticTopFocusableName}` : ""}${agent.semanticTopFocusableRoleDescription ? ` roleDescription=${agent.semanticTopFocusableRoleDescription}` : ""}${agent.semanticTopFocusableState ? ` state=${agent.semanticTopFocusableState}` : ""}${agent.semanticTopFocusableSelector ? ` selector=${agent.semanticTopFocusableSelector}` : ""}`);
   if (agent.semanticTopLinkName) lines.push(`  semanticTopLink: ${agent.semanticTopLinkPath ?? ""} ${agent.semanticTopLinkName}${agent.semanticTopLinkUrl ? ` <${agent.semanticTopLinkUrl}>` : ""}${agent.semanticTopLinkTarget ? ` target=${agent.semanticTopLinkTarget}` : ""}${agent.semanticTopLinkRel?.length ? ` rel=${agent.semanticTopLinkRel.join(",")}` : ""}${agent.semanticTopLinkType ? ` type=${agent.semanticTopLinkType}` : ""}${agent.semanticTopLinkHreflang ? ` hreflang=${agent.semanticTopLinkHreflang}` : ""}${agent.semanticTopLinkState ? ` state=${agent.semanticTopLinkState}` : ""}${typeof agent.semanticTopLinkCurrent !== "undefined" ? ` current=${agent.semanticTopLinkCurrent}` : ""}${agent.semanticTopLinkDownload ? ` download=${agent.semanticTopLinkDownload === true ? "true" : agent.semanticTopLinkDownload}` : ""}${agent.semanticTopLinkSelector ? ` selector=${agent.semanticTopLinkSelector}` : ""}`);
   if (agent.semanticTopInPageLinkName) lines.push(`  semanticTopInPageLink: ${agent.semanticTopInPageLinkPath ?? ""} ${agent.semanticTopInPageLinkKind ?? "anchor"}:${agent.semanticTopInPageLinkName}${agent.semanticTopInPageLinkTargetId ? ` target=${agent.semanticTopInPageLinkTargetId}` : ""}${agent.semanticTopInPageLinkUrl ? ` <${agent.semanticTopInPageLinkUrl}>` : ""}${agent.semanticTopInPageLinkSelector ? ` selector=${agent.semanticTopInPageLinkSelector}` : ""}`);
@@ -10952,6 +10956,10 @@ function summarizeAgent(
     ...(topSemanticInteractive?.value ? { semanticTopInteractiveValue: topSemanticInteractive.value } : {}),
     ...(topSemanticInteractiveState ? { semanticTopInteractiveState: topSemanticInteractiveState } : {}),
     ...(typeof topSemanticInteractive?.state?.disabled === "boolean" ? { semanticTopInteractiveDisabled: topSemanticInteractive.state.disabled } : {}),
+    ...(typeof topSemanticInteractive?.state?.pressed !== "undefined" ? { semanticTopInteractivePressed: topSemanticInteractive.state.pressed } : {}),
+    ...(typeof topSemanticInteractive?.state?.expanded === "boolean" ? { semanticTopInteractiveExpanded: topSemanticInteractive.state.expanded } : {}),
+    ...(typeof topSemanticInteractive?.state?.haspopup !== "undefined" ? { semanticTopInteractiveHaspopup: topSemanticInteractive.state.haspopup } : {}),
+    ...(topSemanticInteractive?.state?.controls ? { semanticTopInteractiveControls: topSemanticInteractive.state.controls } : {}),
     ...(topSemanticInteractive?.selector ? { semanticTopInteractiveSelector: topSemanticInteractive.selector } : {}),
     ...(topSemanticFocusable ? { semanticTopFocusableRole: topSemanticFocusable.role } : {}),
     ...(topSemanticFocusable ? { semanticTopFocusablePath: topSemanticFocusable.path } : {}),
@@ -15771,6 +15779,10 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.semanticTopInteractiveValue ? { semanticTopInteractiveValue: agent.semanticTopInteractiveValue } : {}),
     ...(agent.semanticTopInteractiveState ? { semanticTopInteractiveState: agent.semanticTopInteractiveState } : {}),
     ...(typeof agent.semanticTopInteractiveDisabled === "boolean" ? { semanticTopInteractiveDisabled: agent.semanticTopInteractiveDisabled } : {}),
+    ...(typeof agent.semanticTopInteractivePressed !== "undefined" ? { semanticTopInteractivePressed: agent.semanticTopInteractivePressed } : {}),
+    ...(typeof agent.semanticTopInteractiveExpanded === "boolean" ? { semanticTopInteractiveExpanded: agent.semanticTopInteractiveExpanded } : {}),
+    ...(typeof agent.semanticTopInteractiveHaspopup !== "undefined" ? { semanticTopInteractiveHaspopup: agent.semanticTopInteractiveHaspopup } : {}),
+    ...(agent.semanticTopInteractiveControls ? { semanticTopInteractiveControls: agent.semanticTopInteractiveControls } : {}),
     ...(agent.semanticTopInteractiveSelector ? { semanticTopInteractiveSelector: agent.semanticTopInteractiveSelector } : {}),
     ...(agent.semanticTopFocusableRole ? { semanticTopFocusableRole: agent.semanticTopFocusableRole } : {}),
     ...(agent.semanticTopFocusablePath ? { semanticTopFocusablePath: agent.semanticTopFocusablePath } : {}),
@@ -16555,6 +16567,10 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.semanticTopInteractiveValue ? { semanticTopInteractiveValue: agent.semanticTopInteractiveValue } : {}),
     ...(agent.semanticTopInteractiveState ? { semanticTopInteractiveState: agent.semanticTopInteractiveState } : {}),
     ...(typeof agent.semanticTopInteractiveDisabled === "boolean" ? { semanticTopInteractiveDisabled: agent.semanticTopInteractiveDisabled } : {}),
+    ...(typeof agent.semanticTopInteractivePressed !== "undefined" ? { semanticTopInteractivePressed: agent.semanticTopInteractivePressed } : {}),
+    ...(typeof agent.semanticTopInteractiveExpanded === "boolean" ? { semanticTopInteractiveExpanded: agent.semanticTopInteractiveExpanded } : {}),
+    ...(typeof agent.semanticTopInteractiveHaspopup !== "undefined" ? { semanticTopInteractiveHaspopup: agent.semanticTopInteractiveHaspopup } : {}),
+    ...(agent.semanticTopInteractiveControls ? { semanticTopInteractiveControls: agent.semanticTopInteractiveControls } : {}),
     ...(agent.semanticTopFocusableRole ? { semanticTopFocusableRole: agent.semanticTopFocusableRole } : {}),
     ...(agent.semanticTopFocusablePath ? { semanticTopFocusablePath: agent.semanticTopFocusablePath } : {}),
     ...(agent.semanticTopFocusableName ? { semanticTopFocusableName: agent.semanticTopFocusableName } : {}),

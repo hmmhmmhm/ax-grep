@@ -660,6 +660,10 @@ export type AgentSummary = {
   semanticTopInteractiveValue?: string;
   semanticTopInteractiveState?: string;
   semanticTopInteractiveDisabled?: boolean;
+  semanticTopInteractivePressed?: SemanticNodeState["pressed"];
+  semanticTopInteractiveExpanded?: boolean;
+  semanticTopInteractiveHaspopup?: SemanticNodeState["haspopup"];
+  semanticTopInteractiveControls?: string;
   semanticTopInteractiveSelector?: string;
   semanticTopFocusableRole?: string;
   semanticTopFocusablePath?: string;

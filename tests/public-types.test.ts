@@ -552,6 +552,10 @@ describe("public agent types", () => {
       | "semanticTopInteractiveValue"
       | "semanticTopInteractiveState"
       | "semanticTopInteractiveDisabled"
+      | "semanticTopInteractivePressed"
+      | "semanticTopInteractiveExpanded"
+      | "semanticTopInteractiveHaspopup"
+      | "semanticTopInteractiveControls"
       | "semanticTopInteractiveSelector"
       | "semanticTopFocusableRole"
       | "semanticTopFocusablePath"
@@ -1297,6 +1301,7 @@ describe("public agent types", () => {
       semanticTopInteractiveValue: "article",
       semanticTopInteractiveState: "expanded=false",
       semanticTopInteractiveDisabled: false,
+      semanticTopInteractiveExpanded: false,
       semanticTopInteractiveSelector: "main a:nth-of-type(1)",
       semanticTopFocusableRole: "link",
       semanticTopFocusablePath: "agent.semanticSummary.focusableItems[0]",
