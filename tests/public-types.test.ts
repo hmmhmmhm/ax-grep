@@ -595,6 +595,10 @@ describe("public agent types", () => {
       | "semanticTopFieldLabelledByText"
       | "semanticTopFieldDescribedBy"
       | "semanticTopFieldDescribedByText"
+      | "semanticTopFieldDetails"
+      | "semanticTopFieldDetailsText"
+      | "semanticTopFieldErrorMessage"
+      | "semanticTopFieldErrorMessageText"
       | "semanticTopFieldState"
       | "semanticTopFieldDisabled"
       | "semanticTopFieldRequired"
@@ -1249,6 +1253,10 @@ describe("public agent types", () => {
       semanticTopFieldLabelledByText: "Email",
       semanticTopFieldDescribedBy: "email-help",
       semanticTopFieldDescribedByText: "Used for updates",
+      semanticTopFieldDetails: "email-details",
+      semanticTopFieldDetailsText: "Used for account notifications",
+      semanticTopFieldErrorMessage: "email-error",
+      semanticTopFieldErrorMessageText: "Enter a valid email",
       semanticTopFieldState: "disabled=true required=true readonly=true checked=true expanded=true invalid=spelling haspopup=listbox controls=email-suggestions",
       semanticTopFieldDisabled: true,
       semanticTopFieldRequired: true,

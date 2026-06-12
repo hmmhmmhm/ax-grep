@@ -722,6 +722,10 @@ export type AgentSummary = {
   semanticTopFieldLabelledByText?: string;
   semanticTopFieldDescribedBy?: string;
   semanticTopFieldDescribedByText?: string;
+  semanticTopFieldDetails?: string;
+  semanticTopFieldDetailsText?: string;
+  semanticTopFieldErrorMessage?: string;
+  semanticTopFieldErrorMessageText?: string;
   semanticTopFieldState?: string;
   semanticTopFieldDisabled?: boolean;
   semanticTopFieldRequired?: boolean;

@@ -1743,6 +1743,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopFieldLabelledByText?: string;
       semanticTopFieldDescribedBy?: string;
       semanticTopFieldDescribedByText?: string;
+      semanticTopFieldDetails?: string;
+      semanticTopFieldDetailsText?: string;
+      semanticTopFieldErrorMessage?: string;
+      semanticTopFieldErrorMessageText?: string;
       semanticTopFieldState?: string;
       semanticTopFieldDisabled?: boolean;
       semanticTopFieldRequired?: boolean;
@@ -4981,6 +4985,10 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopFieldLabelledByText?: string;
   semanticTopFieldDescribedBy?: string;
   semanticTopFieldDescribedByText?: string;
+  semanticTopFieldDetails?: string;
+  semanticTopFieldDetailsText?: string;
+  semanticTopFieldErrorMessage?: string;
+  semanticTopFieldErrorMessageText?: string;
   semanticTopFieldState?: string;
   semanticTopFieldDisabled?: boolean;
   semanticTopFieldRequired?: boolean;
@@ -5707,7 +5715,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopListSelector === list.selector) matched += 1;
   }
-  const field = Array.isArray(item.fieldItems) ? item.fieldItems[0] as { path?: unknown; role?: unknown; name?: unknown; description?: unknown; value?: unknown; htmlName?: unknown; htmlType?: unknown; placeholder?: unknown; ariaPlaceholder?: unknown; autocomplete?: unknown; ariaAutocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; labelledBy?: unknown; labelledByText?: unknown; describedBy?: unknown; describedByText?: unknown; state?: unknown; selector?: unknown } | undefined : undefined;
+  const field = Array.isArray(item.fieldItems) ? item.fieldItems[0] as { path?: unknown; role?: unknown; name?: unknown; description?: unknown; value?: unknown; htmlName?: unknown; htmlType?: unknown; placeholder?: unknown; ariaPlaceholder?: unknown; autocomplete?: unknown; ariaAutocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; labelledBy?: unknown; labelledByText?: unknown; describedBy?: unknown; describedByText?: unknown; details?: unknown; detailsText?: unknown; errorMessage?: unknown; errorMessageText?: unknown; state?: unknown; selector?: unknown } | undefined : undefined;
   if (field && typeof field.role === "string") {
     required += 1;
     if (agent?.semanticTopFieldRole === field.role) matched += 1;
@@ -5795,6 +5803,22 @@ function scoreAgentSemanticSummary(agent: {
   if (field && typeof field.describedByText === "string") {
     required += 1;
     if (agent?.semanticTopFieldDescribedByText === field.describedByText) matched += 1;
+  }
+  if (field && typeof field.details === "string") {
+    required += 1;
+    if (agent?.semanticTopFieldDetails === field.details) matched += 1;
+  }
+  if (field && typeof field.detailsText === "string") {
+    required += 1;
+    if (agent?.semanticTopFieldDetailsText === field.detailsText) matched += 1;
+  }
+  if (field && typeof field.errorMessage === "string") {
+    required += 1;
+    if (agent?.semanticTopFieldErrorMessage === field.errorMessage) matched += 1;
+  }
+  if (field && typeof field.errorMessageText === "string") {
+    required += 1;
+    if (agent?.semanticTopFieldErrorMessageText === field.errorMessageText) matched += 1;
   }
   if (field?.state && typeof field.state === "object") {
     const state = Object.entries(field.state as Record<string, unknown>)

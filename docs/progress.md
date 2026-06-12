@@ -1,29 +1,53 @@
 # Current Progress
 
-Status: about 75% fit for the goal of making `ax-grep --agent` useful as a
-lightweight first pass before `agent-browser`.
+Status: about 76% fit for the goal of making `ax-grep --agent` a useful
+first-pass page/search checker before `agent-browser`.
+
+This is a research track, so the target can expand when comparison work finds a
+new class of browser accessibility-tree signal that static HTML can expose
+safely. When that happens, add it to this file instead of treating the earlier
+percentage as a fixed contract.
+
+## Progress Model
+
+| Area | Current estimate | Evidence |
+| --- | ---: | --- |
+| README/docs hygiene | 90% | Root README is short; detailed docs live under `docs/`. |
+| Process safety | 85% | `AGENTS.md`, `pnpm check:processes`, and non-browser gates are in place. |
+| Search result handoff | 80% | Result choices, source hints, verification, and command args are exposed. |
+| Page check handoff | 78% | Forms, action targets, hidden signals, barriers, and read targets are exposed. |
+| Semantic accessibility signals | 72% | Landmarks, headings, links, buttons, fields, values, relations, choices, and state shortcuts are exposed. |
+| Browser-tree parity research | 60% | Static gates exist; browser-backed checks must stay sequential and limited. |
+
+Overall estimate: 76%. This is intentionally conservative because the final
+goal is comparative usefulness, not just passing the current tests.
 
 ## Done
 
 - Kept the root README short and moved detailed docs under `docs/`.
-- Added agent handoff fields for results, forms, sources, barriers, hidden
-  signals, semantic links, buttons, fields, choices, and state.
+- Added agent handoff fields for search results, forms, source links, barriers,
+  hidden signals, semantic links, buttons, fields, choices, and state.
+- Added action target state: disabled, pressed, expanded, popup, and controls.
 - Added non-browser fixture gates and readiness audits for repeatable checks.
 - Added process-safety guidance: run tests and browser-backed checks
   sequentially, and verify process cleanup.
 
 ## In Progress
 
-- Improve `pageCheck.actionTargets` and agent handoff choices so action targets
-  expose execution state such as disabled, pressed, expanded, popup, and
-  controls.
+- Add field-level relation shortcuts for `aria-details` and
+  `aria-errormessage`, including resolved text, so agents can identify form
+  help and error messages without opening a browser tree.
 
-## Next
+## Next Candidates
 
-- Continue closing gaps between static semantic output and browser accessibility
-  tree output.
-- Keep adding narrow tests and readiness evidence for each handoff signal.
-- Run browser-backed comparisons only when needed, one command at a time.
+- Compare static semantic output against browser accessibility output for a
+  small, sequential fixture set.
+- Add missing top-level shortcuts only when they improve agent routing or
+  reduce the need for browser handoff.
+- Improve table/list/grid summaries where browser trees expose useful row,
+  column, and ownership context.
+- Track cases where static HTML should stop and recommend browser capture
+  instead of guessing.
 
 ## Safety Rule
 

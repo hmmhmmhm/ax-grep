@@ -4333,6 +4333,18 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(envelope.agent.semanticSummary.relationCount).toBe(3);
+    expect(envelope.agent.semanticSummary.fieldItems).toEqual([
+      expect.objectContaining({
+        path: "agent.semanticSummary.fieldItems[0]",
+        role: "searchbox",
+        name: "Archive search",
+        details: "q-details",
+        detailsText: "Search across public and private archive records.",
+        errorMessage: "q-error",
+        errorMessageText: "Use at least two letters.",
+        selector: "#q",
+      }),
+    ]);
     expect(envelope.agent.semanticSummary.relationItems).toEqual([
       expect.objectContaining({
         path: "agent.semanticSummary.relationItems[0]",
@@ -4379,7 +4391,15 @@ describe("cli", () => {
       }),
     ]);
     expect(envelope.agent).toMatchObject({
+      semanticFieldCount: 1,
       semanticRelationCount: 3,
+      semanticTopFieldRole: "searchbox",
+      semanticTopFieldPath: "agent.semanticSummary.fieldItems[0]",
+      semanticTopFieldName: "Archive search",
+      semanticTopFieldDetails: "q-details",
+      semanticTopFieldDetailsText: "Search across public and private archive records.",
+      semanticTopFieldErrorMessage: "q-error",
+      semanticTopFieldErrorMessageText: "Use at least two letters.",
       semanticTopChoiceRole: "option",
       semanticTopChoicePath: "agent.semanticSummary.choiceItems[0]",
       semanticTopChoiceName: "Quarterly reports",
