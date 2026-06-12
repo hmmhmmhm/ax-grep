@@ -1532,13 +1532,21 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topSourceChoiceTitle?: string;
       topSourceChoiceUrl?: string;
       topSourceChoiceHost?: string;
+      topSourceChoiceKind?: "internal" | "external";
+      topSourceChoiceRank?: number;
+      topSourceChoiceText?: string;
+      topSourceChoiceSnippet?: string;
       topSourceChoiceCommandArgs?: string[];
       topSourceChoiceCommand?: string;
       topSourceChoiceSourceType?: string;
       topSourceChoiceSourceScore?: number;
       topSourceChoiceSourceHints?: string[];
+      topSourceChoiceRelevance?: CliAgentTargetShape["relevance"];
+      topSourceChoiceMatchedTerm?: string;
+      topSourceChoiceFindMatch?: string;
       topSourceChoiceLikelyOfficial?: boolean;
       topSourceChoicePrimary?: boolean;
+      topSourceChoiceSelector?: string;
       topSourceChoiceReason?: string;
       topChoiceKind?: "result" | "source" | "form" | "action-target";
       topChoicePath?: string;
@@ -4715,13 +4723,21 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
   topSourceChoiceTitle?: string;
   topSourceChoiceUrl?: string;
   topSourceChoiceHost?: string;
+  topSourceChoiceKind?: "internal" | "external";
+  topSourceChoiceRank?: number;
+  topSourceChoiceText?: string;
+  topSourceChoiceSnippet?: string;
   topSourceChoiceCommand?: string;
   topSourceChoiceCommandArgs?: string[];
   topSourceChoiceSourceType?: string;
   topSourceChoiceSourceScore?: number;
   topSourceChoiceSourceHints?: string[];
+  topSourceChoiceRelevance?: CliAgentTargetShape["relevance"];
+  topSourceChoiceMatchedTerm?: string;
+  topSourceChoiceFindMatch?: string;
   topSourceChoiceLikelyOfficial?: boolean;
   topSourceChoicePrimary?: boolean;
+  topSourceChoiceSelector?: string;
   topSourceChoiceReason?: string;
 } | undefined): number {
   const top = agent?.sourceChoices?.[0];
@@ -4730,13 +4746,21 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
       || agent?.topSourceChoiceTitle
       || agent?.topSourceChoiceUrl
       || agent?.topSourceChoiceHost
+      || agent?.topSourceChoiceKind
+      || typeof agent?.topSourceChoiceRank === "number"
+      || agent?.topSourceChoiceText
+      || agent?.topSourceChoiceSnippet
       || agent?.topSourceChoiceCommand
       || agent?.topSourceChoiceCommandArgs
       || agent?.topSourceChoiceSourceType
       || typeof agent?.topSourceChoiceSourceScore === "number"
       || agent?.topSourceChoiceSourceHints
+      || agent?.topSourceChoiceRelevance
+      || agent?.topSourceChoiceMatchedTerm
+      || agent?.topSourceChoiceFindMatch
       || typeof agent?.topSourceChoiceLikelyOfficial === "boolean"
       || typeof agent?.topSourceChoicePrimary === "boolean"
+      || agent?.topSourceChoiceSelector
       || agent?.topSourceChoiceReason ? 0 : 1;
   }
   let required = 4;
@@ -4751,10 +4775,34 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
   } else if (agent?.topSourceChoiceHost) {
     required += 1;
   }
+  if (top.kind) {
+    required += 1;
+    if (agent?.topSourceChoiceKind === top.kind) matched += 1;
+  } else if (agent?.topSourceChoiceKind) {
+    required += 1;
+  }
+  if (typeof top.rank === "number") {
+    required += 1;
+    if (agent?.topSourceChoiceRank === top.rank) matched += 1;
+  } else if (typeof agent?.topSourceChoiceRank === "number") {
+    required += 1;
+  }
   if (top.title) {
     required += 1;
     if (agent?.topSourceChoiceTitle === top.title) matched += 1;
   } else if (agent?.topSourceChoiceTitle) {
+    required += 1;
+  }
+  if (top.text) {
+    required += 1;
+    if (agent?.topSourceChoiceText === top.text) matched += 1;
+  } else if (agent?.topSourceChoiceText) {
+    required += 1;
+  }
+  if (top.snippet) {
+    required += 1;
+    if (agent?.topSourceChoiceSnippet === top.snippet) matched += 1;
+  } else if (agent?.topSourceChoiceSnippet) {
     required += 1;
   }
   if (top.sourceType) {
@@ -4775,6 +4823,24 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
   } else if (agent?.topSourceChoiceSourceHints) {
     required += 1;
   }
+  if (top.relevance) {
+    required += 1;
+    if (agent?.topSourceChoiceRelevance === top.relevance) matched += 1;
+  } else if (agent?.topSourceChoiceRelevance) {
+    required += 1;
+  }
+  if (top.matchedTerms?.[0]) {
+    required += 1;
+    if (agent?.topSourceChoiceMatchedTerm === top.matchedTerms[0]) matched += 1;
+  } else if (agent?.topSourceChoiceMatchedTerm) {
+    required += 1;
+  }
+  if (top.findMatches?.[0]) {
+    required += 1;
+    if (agent?.topSourceChoiceFindMatch === top.findMatches[0]) matched += 1;
+  } else if (agent?.topSourceChoiceFindMatch) {
+    required += 1;
+  }
   if (typeof top.isLikelyOfficial === "boolean") {
     required += 1;
     if (agent?.topSourceChoiceLikelyOfficial === top.isLikelyOfficial) matched += 1;
@@ -4785,6 +4851,12 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
     required += 1;
     if (agent?.topSourceChoicePrimary === top.primary) matched += 1;
   } else if (typeof agent?.topSourceChoicePrimary === "boolean") {
+    required += 1;
+  }
+  if (top.selector) {
+    required += 1;
+    if (agent?.topSourceChoiceSelector === top.selector) matched += 1;
+  } else if (agent?.topSourceChoiceSelector) {
     required += 1;
   }
   if (top.selectionReason) {

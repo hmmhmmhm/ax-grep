@@ -411,14 +411,21 @@ describe("public agent types", () => {
       | "topSourceChoiceTitle"
       | "topSourceChoiceUrl"
       | "topSourceChoiceHost"
+      | "topSourceChoiceKind"
+      | "topSourceChoiceRank"
+      | "topSourceChoiceText"
       | "topSourceChoiceSnippet"
       | "topSourceChoiceCommand"
       | "topSourceChoiceCommandArgs"
       | "topSourceChoiceSourceType"
       | "topSourceChoiceSourceScore"
       | "topSourceChoiceSourceHints"
+      | "topSourceChoiceRelevance"
+      | "topSourceChoiceMatchedTerm"
+      | "topSourceChoiceFindMatch"
       | "topSourceChoiceLikelyOfficial"
       | "topSourceChoicePrimary"
+      | "topSourceChoiceSelector"
       | "topSourceChoiceReason"
       | "topChoiceKind"
       | "topChoicePath"
@@ -1320,14 +1327,21 @@ describe("public agent types", () => {
       topSourceChoiceTitle: "Source",
       topSourceChoiceUrl: "https://source.example/report",
       topSourceChoiceHost: "source.example",
+      topSourceChoiceKind: "external",
+      topSourceChoiceRank: 1,
+      topSourceChoiceText: "Source",
       topSourceChoiceSnippet: "Source summary",
       topSourceChoiceCommand: "ax-grep https://source.example/report --agent-brief",
       topSourceChoiceCommandArgs: ["ax-grep", "https://source.example/report", "--agent-brief"],
       topSourceChoiceSourceType: "report",
       topSourceChoiceSourceScore: 0.91,
       topSourceChoiceSourceHints: ["report", "external"],
+      topSourceChoiceRelevance: "high",
+      topSourceChoiceMatchedTerm: "source",
+      topSourceChoiceFindMatch: "Source",
       topSourceChoiceLikelyOfficial: true,
       topSourceChoicePrimary: true,
+      topSourceChoiceSelector: "a:nth-of-type(1)",
       topSourceChoiceReason: "High-quality source link.",
       topChoiceKind: "source",
       topChoicePath: "pageCheck.sourceLinks[0]",
@@ -2038,6 +2052,12 @@ describe("public agent types", () => {
     expect(summary.topResultChoiceCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.topSourceChoicePath).toBe("pageCheck.sourceLinks[0]");
     expect(summary.topSourceChoiceSnippet).toBe("Source summary");
+    expect(summary.topSourceChoiceRank).toBe(1);
+    expect(summary.topSourceChoiceText).toBe("Source");
+    expect(summary.topSourceChoiceSelector).toBe("a:nth-of-type(1)");
+    expect(summary.topSourceChoiceRelevance).toBe("high");
+    expect(summary.topSourceChoiceMatchedTerm).toBe("source");
+    expect(summary.topSourceChoiceFindMatch).toBe("Source");
     expect(summary.topSourceChoiceLikelyOfficial).toBe(true);
     expect(summary.topSourceChoiceCommand).toContain("source.example/report");
     expect(summary.topSourceChoiceCommandArgs?.[0]).toBe("ax-grep");
