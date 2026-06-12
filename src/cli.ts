@@ -1549,6 +1549,7 @@ type AgentSummary = {
   topSourceChoiceSourceType?: string;
   topSourceChoiceSourceScore?: number;
   topSourceChoiceSourceHints?: string[];
+  topSourceChoiceLikelyOfficial?: boolean;
   topSourceChoicePrimary?: boolean;
   topSourceChoiceReason?: string;
   topChoiceKind?: "result" | "source" | "form" | "action-target";
@@ -3408,6 +3409,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topSourceChoiceSourceType ? [`  topSourceChoiceSourceType: ${agent.topSourceChoiceSourceType}`] : []),
     ...(typeof agent.topSourceChoiceSourceScore === "number" ? [`  topSourceChoiceSourceScore: ${agent.topSourceChoiceSourceScore}`] : []),
     ...(agent.topSourceChoiceSourceHints?.length ? [`  topSourceChoiceSourceHints: ${agent.topSourceChoiceSourceHints.join(",")}`] : []),
+    ...(typeof agent.topSourceChoiceLikelyOfficial === "boolean" ? [`  topSourceChoiceLikelyOfficial: ${agent.topSourceChoiceLikelyOfficial}`] : []),
     ...(typeof agent.topSourceChoicePrimary === "boolean" ? [`  topSourceChoicePrimary: ${agent.topSourceChoicePrimary}`] : []),
     ...(agent.topSourceChoiceReason ? [`  topSourceChoiceReason: ${agent.topSourceChoiceReason}`] : []),
     ...(agent.topChoiceKind ? [`  topChoice: ${agent.topChoiceKind} ${agent.topChoicePath}${agent.topChoiceUrl ? ` <${agent.topChoiceUrl}>` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
@@ -11575,6 +11577,7 @@ function summarizeAgent(
     ...(sourceChoices[0]?.sourceType ? { topSourceChoiceSourceType: sourceChoices[0].sourceType } : {}),
     ...(typeof sourceChoices[0]?.sourceScore === "number" ? { topSourceChoiceSourceScore: sourceChoices[0].sourceScore } : {}),
     ...(sourceChoices[0]?.sourceHints?.length ? { topSourceChoiceSourceHints: sourceChoices[0].sourceHints } : {}),
+    ...(typeof sourceChoices[0]?.isLikelyOfficial === "boolean" ? { topSourceChoiceLikelyOfficial: sourceChoices[0].isLikelyOfficial } : {}),
     ...(typeof sourceChoices[0]?.primary === "boolean" ? { topSourceChoicePrimary: sourceChoices[0].primary } : {}),
     ...(sourceChoices[0]?.selectionReason ? { topSourceChoiceReason: sourceChoices[0].selectionReason } : {}),
     ...(topChoice ? { topChoiceKind: topChoice.kind } : {}),
@@ -14194,6 +14197,7 @@ function summarizePrimaryPageLinks(links: LinkSummary[], baseUrl: string): PageL
         sourceType: sourceProfile.type,
         sourceScore: sourceProfile.score,
         sourceHints: sourceProfile.hints,
+        ...(sourceProfile.type === "official" ? { isLikelyOfficial: true } : {}),
         selectionReason: sourceLinkSelectionReason({
           source: sourceFromUrl(link.url),
           kind: samePageOrSameHost(link.url, baseUrl) ? "internal" : "external",
@@ -16472,6 +16476,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topSourceChoiceSourceType ? { topSourceChoiceSourceType: agent.topSourceChoiceSourceType } : {}),
     ...(typeof agent.topSourceChoiceSourceScore === "number" ? { topSourceChoiceSourceScore: agent.topSourceChoiceSourceScore } : {}),
     ...(agent.topSourceChoiceSourceHints?.length ? { topSourceChoiceSourceHints: agent.topSourceChoiceSourceHints } : {}),
+    ...(typeof agent.topSourceChoiceLikelyOfficial === "boolean" ? { topSourceChoiceLikelyOfficial: agent.topSourceChoiceLikelyOfficial } : {}),
     ...(typeof agent.topSourceChoicePrimary === "boolean" ? { topSourceChoicePrimary: agent.topSourceChoicePrimary } : {}),
     ...(agent.topSourceChoiceReason ? { topSourceChoiceReason: agent.topSourceChoiceReason } : {}),
     ...compactAgentTopChoice(agent, searchCommandContext, pageLinkContext),
@@ -17296,6 +17301,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topSourceChoiceSourceType ? { topSourceChoiceSourceType: agent.topSourceChoiceSourceType } : {}),
     ...(typeof agent.topSourceChoiceSourceScore === "number" ? { topSourceChoiceSourceScore: agent.topSourceChoiceSourceScore } : {}),
     ...(agent.topSourceChoiceSourceHints?.length ? { topSourceChoiceSourceHints: agent.topSourceChoiceSourceHints } : {}),
+    ...(typeof agent.topSourceChoiceLikelyOfficial === "boolean" ? { topSourceChoiceLikelyOfficial: agent.topSourceChoiceLikelyOfficial } : {}),
     ...(typeof agent.topSourceChoicePrimary === "boolean" ? { topSourceChoicePrimary: agent.topSourceChoicePrimary } : {}),
     ...(agent.topSourceChoiceReason ? { topSourceChoiceReason: agent.topSourceChoiceReason } : {}),
     ...compactAgentTopChoice(agent, searchCommandContext, pageLinkContext),

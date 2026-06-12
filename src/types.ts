@@ -1206,6 +1206,7 @@ export type AgentSummary = {
   topSourceChoiceSourceType?: string;
   topSourceChoiceSourceScore?: number;
   topSourceChoiceSourceHints?: string[];
+  topSourceChoiceLikelyOfficial?: boolean;
   topSourceChoicePrimary?: boolean;
   topSourceChoiceReason?: string;
   topChoiceKind?: "result" | "source" | "form" | "action-target";

@@ -3971,6 +3971,40 @@ describe("cli", () => {
     ]);
   });
 
+  it("exposes likely official source choice hints without requiring nested source choices", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/article", "--stdin", "--agent-brief"], {
+      stdout,
+      stdin: Readable.from([`
+        <main>
+          <article>
+            <h1>Research note</h1>
+            <p>This note has enough readable context for an agent to decide whether it should open an official source.</p>
+            <p>The official source link below gives the agent a direct follow-up target without using a browser.</p>
+            <a href="https://openai.com/research">OpenAI research source</a>
+          </article>
+        </main>
+      `]) as NodeJS.ReadStream,
+      fetch: async () => {
+        throw new Error("fetch should not run for --stdin");
+      },
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      topSourceChoicePath: "pageCheck.sourceLinks[0]",
+      topSourceChoiceUrl: "https://openai.com/research",
+      topSourceChoiceSourceType: "official",
+      topSourceChoiceLikelyOfficial: true,
+    });
+    expect(envelope.pageCheck.sourceLinks[0]).toMatchObject({
+      url: "https://openai.com/research",
+      isLikelyOfficial: true,
+    });
+  });
+
   it("summarizes data tables as pageCheck read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/pricing", "--agent"], {

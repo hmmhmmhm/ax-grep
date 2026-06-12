@@ -415,6 +415,7 @@ describe("public agent types", () => {
       | "topSourceChoiceSourceType"
       | "topSourceChoiceSourceScore"
       | "topSourceChoiceSourceHints"
+      | "topSourceChoiceLikelyOfficial"
       | "topSourceChoicePrimary"
       | "topSourceChoiceReason"
       | "topChoiceKind"
@@ -1213,6 +1214,7 @@ describe("public agent types", () => {
       topSourceChoiceSourceType: "report",
       topSourceChoiceSourceScore: 0.91,
       topSourceChoiceSourceHints: ["report", "external"],
+      topSourceChoiceLikelyOfficial: true,
       topSourceChoicePrimary: true,
       topSourceChoiceReason: "High-quality source link.",
       topChoiceKind: "source",
@@ -1794,6 +1796,7 @@ describe("public agent types", () => {
     expect(summary.topResultChoiceCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.topSourceChoicePath).toBe("pageCheck.sourceLinks[0]");
     expect(summary.topSourceChoiceSnippet).toBe("Source summary");
+    expect(summary.topSourceChoiceLikelyOfficial).toBe(true);
     expect(summary.topSourceChoiceCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.sourceSearchQuery).toBe("ax-grep docs");
     expect(summary.sourceSearchTopFindQuery).toBe("install");
