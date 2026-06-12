@@ -4672,6 +4672,13 @@ describe("cli", () => {
       semanticTopKeyboardShortcutAccessKey: "r",
       semanticTopKeyboardShortcutFocusable: true,
       semanticTopKeyboardShortcutSelector: "a",
+      semanticTopAriaKeyShortcutPath: "agent.semanticSummary.keyboardItems[1]",
+      semanticTopAriaKeyShortcutRole: "button",
+      semanticTopAriaKeyShortcutName: "Filters",
+      semanticTopAriaKeyShortcutKeys: ["Alt+F"],
+      semanticTopAriaKeyShortcutTabIndex: 0,
+      semanticTopAriaKeyShortcutFocusable: true,
+      semanticTopAriaKeyShortcutSelector: "button",
     });
   });
 

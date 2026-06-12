@@ -1023,6 +1023,13 @@ type AgentSummary = {
   semanticTopKeyboardShortcutTabIndex?: number;
   semanticTopKeyboardShortcutFocusable?: boolean;
   semanticTopKeyboardShortcutSelector?: string;
+  semanticTopAriaKeyShortcutPath?: string;
+  semanticTopAriaKeyShortcutRole?: string;
+  semanticTopAriaKeyShortcutName?: string;
+  semanticTopAriaKeyShortcutKeys?: string[];
+  semanticTopAriaKeyShortcutTabIndex?: number;
+  semanticTopAriaKeyShortcutFocusable?: boolean;
+  semanticTopAriaKeyShortcutSelector?: string;
   semanticTopHeading?: string;
   semanticTopHeadingPath?: string;
   semanticTopHeadingLevel?: number;
@@ -3952,6 +3959,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     if (agent.semanticSummary.topRoles.length > 0) lines.push(`  semanticTopRoles: ${agent.semanticSummary.topRoles.map((item) => `${item.role}=${item.count}`).join(", ")}`);
     for (const item of agent.semanticSummary.semanticOutline.slice(0, 4)) lines.push(`  semanticOutline: ${item.path} ${item.kind}:${item.text} role=${item.role}${typeof item.level === "number" ? ` level=${item.level}` : ""} depth=${item.depth}${item.parentPath ? ` parent=${item.parentPath}` : ""}${item.parentRole ? ` parentRole=${item.parentRole}` : ""}${item.selector ? ` selector=${item.selector}` : ""}`);
     for (const item of agent.semanticSummary.keyboardItems.slice(0, 3)) lines.push(`  semanticKeyboard: ${item.path} ${item.role}${item.name ? `:${item.name}` : ""}${item.shortcuts?.length ? ` shortcuts=${item.shortcuts.join(",")}` : ""}${item.accessKey ? ` accessKey=${item.accessKey}` : ""}${typeof item.tabIndex === "number" ? ` tabIndex=${item.tabIndex}` : ""} focusable=${item.focusable}${item.selector ? ` selector=${item.selector}` : ""}`);
+    if (agent.semanticTopAriaKeyShortcutPath) lines.push(`  semanticTopAriaKeyShortcut: ${agent.semanticTopAriaKeyShortcutPath} ${agent.semanticTopAriaKeyShortcutRole ?? ""}${agent.semanticTopAriaKeyShortcutName ? `:${agent.semanticTopAriaKeyShortcutName}` : ""}${agent.semanticTopAriaKeyShortcutKeys?.length ? ` keys=${agent.semanticTopAriaKeyShortcutKeys.join(",")}` : ""}${typeof agent.semanticTopAriaKeyShortcutTabIndex === "number" ? ` tabIndex=${agent.semanticTopAriaKeyShortcutTabIndex}` : ""}${typeof agent.semanticTopAriaKeyShortcutFocusable === "boolean" ? ` focusable=${agent.semanticTopAriaKeyShortcutFocusable}` : ""}${agent.semanticTopAriaKeyShortcutSelector ? ` selector=${agent.semanticTopAriaKeyShortcutSelector}` : ""}`);
     for (const heading of agent.semanticSummary.headingItems.slice(0, 3)) lines.push(`  semanticHeading: ${heading.path} ${heading.text}${typeof heading.level === "number" ? ` level=${heading.level}` : ""}${heading.selector ? ` selector=${heading.selector}` : ""}`);
     for (const landmark of agent.semanticSummary.landmarkItems.slice(0, 3)) lines.push(`  semanticLandmark: ${landmark.path} ${landmark.role}${landmark.name ? `:${landmark.name}` : ""}${landmark.selector ? ` selector=${landmark.selector}` : ""}`);
     for (const interactive of agent.semanticSummary.interactiveRoles.slice(0, 3)) lines.push(`  semanticInteractive: ${interactive.path} ${interactive.role}:${interactive.name}${interactive.roleDescription ? ` roleDescription=${interactive.roleDescription}` : ""}${interactive.description ? ` description=${interactive.description}` : ""}${interactive.value ? ` value=${interactive.value}` : ""}${interactive.state ? ` state=${formatSemanticState(interactive.state) ?? ""}` : ""}${interactive.selector ? ` selector=${interactive.selector}` : ""}`);
@@ -11228,6 +11236,7 @@ function summarizeAgent(
   const topSemanticLandmark = semanticSummary?.landmarkItems[0];
   const topSemanticOutline = semanticSummary?.semanticOutline[0];
   const topSemanticKeyboardShortcut = semanticSummary?.keyboardItems[0];
+  const topSemanticAriaKeyShortcut = semanticSummary?.keyboardItems.find((item) => item.shortcuts && item.shortcuts.length > 0);
   const topSemanticNamedRole = semanticSummary?.namedRoleItems[0];
   const topSemanticInteractive = semanticSummary?.interactiveRoles[0];
   const topSemanticInteractiveState = formatSemanticState(topSemanticInteractive?.state);
@@ -11431,6 +11440,13 @@ function summarizeAgent(
     ...(typeof topSemanticKeyboardShortcut?.tabIndex === "number" ? { semanticTopKeyboardShortcutTabIndex: topSemanticKeyboardShortcut.tabIndex } : {}),
     ...(typeof topSemanticKeyboardShortcut?.focusable === "boolean" ? { semanticTopKeyboardShortcutFocusable: topSemanticKeyboardShortcut.focusable } : {}),
     ...(topSemanticKeyboardShortcut?.selector ? { semanticTopKeyboardShortcutSelector: topSemanticKeyboardShortcut.selector } : {}),
+    ...(topSemanticAriaKeyShortcut ? { semanticTopAriaKeyShortcutPath: topSemanticAriaKeyShortcut.path } : {}),
+    ...(topSemanticAriaKeyShortcut ? { semanticTopAriaKeyShortcutRole: topSemanticAriaKeyShortcut.role } : {}),
+    ...(topSemanticAriaKeyShortcut?.name ? { semanticTopAriaKeyShortcutName: topSemanticAriaKeyShortcut.name } : {}),
+    ...(topSemanticAriaKeyShortcut?.shortcuts?.length ? { semanticTopAriaKeyShortcutKeys: topSemanticAriaKeyShortcut.shortcuts } : {}),
+    ...(typeof topSemanticAriaKeyShortcut?.tabIndex === "number" ? { semanticTopAriaKeyShortcutTabIndex: topSemanticAriaKeyShortcut.tabIndex } : {}),
+    ...(typeof topSemanticAriaKeyShortcut?.focusable === "boolean" ? { semanticTopAriaKeyShortcutFocusable: topSemanticAriaKeyShortcut.focusable } : {}),
+    ...(topSemanticAriaKeyShortcut?.selector ? { semanticTopAriaKeyShortcutSelector: topSemanticAriaKeyShortcut.selector } : {}),
     ...(semanticSummary?.headings[0] ? { semanticTopHeading: semanticSummary.headings[0] } : {}),
     ...(topSemanticHeading ? { semanticTopHeadingPath: topSemanticHeading.path } : {}),
     ...(typeof topSemanticHeading?.level === "number" ? { semanticTopHeadingLevel: topSemanticHeading.level } : {}),
@@ -16702,6 +16718,13 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.semanticTopKeyboardShortcutTabIndex === "number" ? { semanticTopKeyboardShortcutTabIndex: agent.semanticTopKeyboardShortcutTabIndex } : {}),
     ...(typeof agent.semanticTopKeyboardShortcutFocusable === "boolean" ? { semanticTopKeyboardShortcutFocusable: agent.semanticTopKeyboardShortcutFocusable } : {}),
     ...(agent.semanticTopKeyboardShortcutSelector ? { semanticTopKeyboardShortcutSelector: agent.semanticTopKeyboardShortcutSelector } : {}),
+    ...(agent.semanticTopAriaKeyShortcutPath ? { semanticTopAriaKeyShortcutPath: agent.semanticTopAriaKeyShortcutPath } : {}),
+    ...(agent.semanticTopAriaKeyShortcutRole ? { semanticTopAriaKeyShortcutRole: agent.semanticTopAriaKeyShortcutRole } : {}),
+    ...(agent.semanticTopAriaKeyShortcutName ? { semanticTopAriaKeyShortcutName: agent.semanticTopAriaKeyShortcutName } : {}),
+    ...(agent.semanticTopAriaKeyShortcutKeys?.length ? { semanticTopAriaKeyShortcutKeys: agent.semanticTopAriaKeyShortcutKeys } : {}),
+    ...(typeof agent.semanticTopAriaKeyShortcutTabIndex === "number" ? { semanticTopAriaKeyShortcutTabIndex: agent.semanticTopAriaKeyShortcutTabIndex } : {}),
+    ...(typeof agent.semanticTopAriaKeyShortcutFocusable === "boolean" ? { semanticTopAriaKeyShortcutFocusable: agent.semanticTopAriaKeyShortcutFocusable } : {}),
+    ...(agent.semanticTopAriaKeyShortcutSelector ? { semanticTopAriaKeyShortcutSelector: agent.semanticTopAriaKeyShortcutSelector } : {}),
     ...(agent.semanticTopHeading ? { semanticTopHeading: agent.semanticTopHeading } : {}),
     ...(agent.semanticTopHeadingPath ? { semanticTopHeadingPath: agent.semanticTopHeadingPath } : {}),
     ...(typeof agent.semanticTopHeadingLevel === "number" ? { semanticTopHeadingLevel: agent.semanticTopHeadingLevel } : {}),
@@ -17721,6 +17744,13 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.semanticTopKeyboardShortcutTabIndex === "number" ? { semanticTopKeyboardShortcutTabIndex: agent.semanticTopKeyboardShortcutTabIndex } : {}),
     ...(typeof agent.semanticTopKeyboardShortcutFocusable === "boolean" ? { semanticTopKeyboardShortcutFocusable: agent.semanticTopKeyboardShortcutFocusable } : {}),
     ...(agent.semanticTopKeyboardShortcutSelector ? { semanticTopKeyboardShortcutSelector: agent.semanticTopKeyboardShortcutSelector } : {}),
+    ...(agent.semanticTopAriaKeyShortcutPath ? { semanticTopAriaKeyShortcutPath: agent.semanticTopAriaKeyShortcutPath } : {}),
+    ...(agent.semanticTopAriaKeyShortcutRole ? { semanticTopAriaKeyShortcutRole: agent.semanticTopAriaKeyShortcutRole } : {}),
+    ...(agent.semanticTopAriaKeyShortcutName ? { semanticTopAriaKeyShortcutName: agent.semanticTopAriaKeyShortcutName } : {}),
+    ...(agent.semanticTopAriaKeyShortcutKeys?.length ? { semanticTopAriaKeyShortcutKeys: agent.semanticTopAriaKeyShortcutKeys } : {}),
+    ...(typeof agent.semanticTopAriaKeyShortcutTabIndex === "number" ? { semanticTopAriaKeyShortcutTabIndex: agent.semanticTopAriaKeyShortcutTabIndex } : {}),
+    ...(typeof agent.semanticTopAriaKeyShortcutFocusable === "boolean" ? { semanticTopAriaKeyShortcutFocusable: agent.semanticTopAriaKeyShortcutFocusable } : {}),
+    ...(agent.semanticTopAriaKeyShortcutSelector ? { semanticTopAriaKeyShortcutSelector: agent.semanticTopAriaKeyShortcutSelector } : {}),
     ...(agent.semanticTopHeading ? { semanticTopHeading: agent.semanticTopHeading } : {}),
     ...(agent.semanticTopHeadingPath ? { semanticTopHeadingPath: agent.semanticTopHeadingPath } : {}),
     ...(typeof agent.semanticTopHeadingLevel === "number" ? { semanticTopHeadingLevel: agent.semanticTopHeadingLevel } : {}),

@@ -1852,6 +1852,13 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopKeyboardShortcutTabIndex?: number;
       semanticTopKeyboardShortcutFocusable?: boolean;
       semanticTopKeyboardShortcutSelector?: string;
+      semanticTopAriaKeyShortcutPath?: string;
+      semanticTopAriaKeyShortcutRole?: string;
+      semanticTopAriaKeyShortcutName?: string;
+      semanticTopAriaKeyShortcutKeys?: string[];
+      semanticTopAriaKeyShortcutTabIndex?: number;
+      semanticTopAriaKeyShortcutFocusable?: boolean;
+      semanticTopAriaKeyShortcutSelector?: string;
       semanticTopHeading?: string;
       semanticTopHeadingPath?: string;
       semanticTopHeadingLevel?: number;
@@ -5987,6 +5994,66 @@ function expectedPageDecision(primaryAction: CliActionShape | undefined): NonNul
   return "none";
 }
 
+type SemanticAriaKeyShortcutAgentShape = {
+  semanticTopAriaKeyShortcutPath?: string;
+  semanticTopAriaKeyShortcutRole?: string;
+  semanticTopAriaKeyShortcutName?: string;
+  semanticTopAriaKeyShortcutKeys?: string[];
+  semanticTopAriaKeyShortcutTabIndex?: number;
+  semanticTopAriaKeyShortcutFocusable?: boolean;
+  semanticTopAriaKeyShortcutSelector?: string;
+};
+
+function scoreSemanticTopAriaKeyShortcut(agent: SemanticAriaKeyShortcutAgentShape | undefined, keyboardItems: unknown): { required: number; matched: number } {
+  const ariaKeyItem = Array.isArray(keyboardItems)
+    ? keyboardItems.find((entry) => {
+      const value = entry as { shortcuts?: unknown };
+      return Array.isArray(value.shortcuts) && value.shortcuts.length > 0;
+    }) as { path?: unknown; role?: unknown; name?: unknown; shortcuts?: unknown; tabIndex?: unknown; focusable?: unknown; selector?: unknown } | undefined
+    : undefined;
+  if (!ariaKeyItem) {
+    const hasShortcut = agent?.semanticTopAriaKeyShortcutPath
+      || agent?.semanticTopAriaKeyShortcutRole
+      || agent?.semanticTopAriaKeyShortcutName
+      || agent?.semanticTopAriaKeyShortcutKeys
+      || typeof agent?.semanticTopAriaKeyShortcutTabIndex === "number"
+      || typeof agent?.semanticTopAriaKeyShortcutFocusable === "boolean"
+      || agent?.semanticTopAriaKeyShortcutSelector;
+    return { required: hasShortcut ? 1 : 0, matched: 0 };
+  }
+  let required = 0;
+  let matched = 0;
+  if (typeof ariaKeyItem.path === "string") {
+    required += 1;
+    if (agent?.semanticTopAriaKeyShortcutPath === ariaKeyItem.path) matched += 1;
+  }
+  if (typeof ariaKeyItem.role === "string") {
+    required += 1;
+    if (agent?.semanticTopAriaKeyShortcutRole === ariaKeyItem.role) matched += 1;
+  }
+  if (typeof ariaKeyItem.name === "string") {
+    required += 1;
+    if (agent?.semanticTopAriaKeyShortcutName === ariaKeyItem.name) matched += 1;
+  }
+  if (Array.isArray(ariaKeyItem.shortcuts)) {
+    required += 1;
+    if (JSON.stringify(agent?.semanticTopAriaKeyShortcutKeys) === JSON.stringify(ariaKeyItem.shortcuts)) matched += 1;
+  }
+  if (typeof ariaKeyItem.tabIndex === "number") {
+    required += 1;
+    if (agent?.semanticTopAriaKeyShortcutTabIndex === ariaKeyItem.tabIndex) matched += 1;
+  }
+  if (typeof ariaKeyItem.focusable === "boolean") {
+    required += 1;
+    if (agent?.semanticTopAriaKeyShortcutFocusable === ariaKeyItem.focusable) matched += 1;
+  }
+  if (typeof ariaKeyItem.selector === "string") {
+    required += 1;
+    if (agent?.semanticTopAriaKeyShortcutSelector === ariaKeyItem.selector) matched += 1;
+  }
+  return { required, matched };
+}
+
 function scoreAgentSemanticSummary(agent: {
   semanticSummary?: unknown;
   semanticNodeCount?: number;
@@ -6029,6 +6096,13 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopKeyboardShortcutTabIndex?: number;
   semanticTopKeyboardShortcutFocusable?: boolean;
   semanticTopKeyboardShortcutSelector?: string;
+  semanticTopAriaKeyShortcutPath?: string;
+  semanticTopAriaKeyShortcutRole?: string;
+  semanticTopAriaKeyShortcutName?: string;
+  semanticTopAriaKeyShortcutKeys?: string[];
+  semanticTopAriaKeyShortcutTabIndex?: number;
+  semanticTopAriaKeyShortcutFocusable?: boolean;
+  semanticTopAriaKeyShortcutSelector?: string;
   semanticTopHeading?: string;
   semanticTopHeadingPath?: string;
   semanticTopHeadingLevel?: number;
@@ -6509,6 +6583,9 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopKeyboardShortcutSelector === keyboardItem.selector) matched += 1;
   }
+  const ariaKeyScore = scoreSemanticTopAriaKeyShortcut(agent, item.keyboardItems);
+  required += ariaKeyScore.required;
+  matched += ariaKeyScore.matched;
   const heading = Array.isArray(item.headings) ? item.headings[0] : undefined;
   if (typeof heading === "string") {
     required += 1;

@@ -675,6 +675,13 @@ export type AgentSummary = {
   semanticTopKeyboardShortcutTabIndex?: number;
   semanticTopKeyboardShortcutFocusable?: boolean;
   semanticTopKeyboardShortcutSelector?: string;
+  semanticTopAriaKeyShortcutPath?: string;
+  semanticTopAriaKeyShortcutRole?: string;
+  semanticTopAriaKeyShortcutName?: string;
+  semanticTopAriaKeyShortcutKeys?: string[];
+  semanticTopAriaKeyShortcutTabIndex?: number;
+  semanticTopAriaKeyShortcutFocusable?: boolean;
+  semanticTopAriaKeyShortcutSelector?: string;
   semanticTopHeading?: string;
   semanticTopHeadingPath?: string;
   semanticTopHeadingLevel?: number;
