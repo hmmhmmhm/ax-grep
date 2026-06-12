@@ -881,6 +881,10 @@ describe("public agent types", () => {
       | "runbookExpectedOutcome"
       | "runbookReadFrom"
       | "runbookReadTargetKind"
+      | "runbookReadTargetCount"
+      | "runbookReadTargetScore"
+      | "runbookReadTargetPrimary"
+      | "runbookReadTargetReason"
       | "runbookCommandArgs"
       | "runbookUrl"
       | "nextActionName"
@@ -891,6 +895,10 @@ describe("public agent types", () => {
       | "nextAfterInteractionCommandArgs"
       | "nextReadFrom"
       | "nextReadTargetKind"
+      | "nextReadTargetCount"
+      | "nextReadTargetScore"
+      | "nextReadTargetPrimary"
+      | "nextReadTargetReason"
       | "nextUrl"
       | "expectedOutcomeKind"
       | "expectedOutcomeMessage"
@@ -1022,6 +1030,10 @@ describe("public agent types", () => {
       | "executorCommandArgs"
       | "executorReadFrom"
       | "executorReadTargetKind"
+      | "executorReadTargetCount"
+      | "executorReadTargetScore"
+      | "executorReadTargetPrimary"
+      | "executorReadTargetReason"
       | "executorUrl"
       | "executorTargetUrl"
       | "executorTargetPath"
@@ -1049,6 +1061,10 @@ describe("public agent types", () => {
       | "handoffCommandArgs"
       | "handoffReadFrom"
       | "handoffReadTargetKind"
+      | "handoffReadTargetCount"
+      | "handoffReadTargetScore"
+      | "handoffReadTargetPrimary"
+      | "handoffReadTargetReason"
       | "handoffUrl"
       | "handoffTargetUrl"
       | "handoffTargetPath"
@@ -1822,6 +1838,10 @@ describe("public agent types", () => {
       runbookExpectedOutcome: "read-evidence",
       runbookReadFrom: "pageCheck.contentEvidence",
       runbookReadTargetKind: "evidence",
+      runbookReadTargetCount: 1,
+      runbookReadTargetScore: 0.9,
+      runbookReadTargetPrimary: true,
+      runbookReadTargetReason: "Top evidence.",
       runbookCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       runbookUrl: "https://example.test",
       nextActionName: "read-content",
@@ -1832,6 +1852,10 @@ describe("public agent types", () => {
       nextAfterInteractionCommandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--agent"],
       nextReadFrom: "pageCheck.contentEvidence",
       nextReadTargetKind: "evidence",
+      nextReadTargetCount: 1,
+      nextReadTargetScore: 0.9,
+      nextReadTargetPrimary: true,
+      nextReadTargetReason: "Top evidence.",
       nextUrl: "https://example.test",
       expectedOutcomeKind: "read-evidence",
       expectedOutcomeMessage: "Read the current payload evidence.",
@@ -1963,6 +1987,10 @@ describe("public agent types", () => {
       executorCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       executorReadFrom: "pageCheck.contentEvidence",
       executorReadTargetKind: "evidence",
+      executorReadTargetCount: 1,
+      executorReadTargetScore: 0.9,
+      executorReadTargetPrimary: true,
+      executorReadTargetReason: "Top evidence.",
       executorUrl: "https://example.test",
       executorTargetUrl: "https://example.test",
       executorTargetPath: "pageCheck.links[0]",
@@ -1990,6 +2018,10 @@ describe("public agent types", () => {
       handoffCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       handoffReadFrom: "pageCheck.contentEvidence",
       handoffReadTargetKind: "evidence",
+      handoffReadTargetCount: 1,
+      handoffReadTargetScore: 0.9,
+      handoffReadTargetPrimary: true,
+      handoffReadTargetReason: "Top evidence.",
       handoffUrl: "https://example.test",
       handoffTargetUrl: "https://example.test",
       handoffTargetPath: "pageCheck.links[0]",
@@ -2175,18 +2207,24 @@ describe("public agent types", () => {
     expect(summary.answerPlanStatus).toBe("ready");
     expect(summary.answerPlanNextAction).toBe("read-content");
     expect(summary.runbookReadTargetKind).toBe("evidence");
+    expect(summary.runbookReadTargetScore).toBe(0.9);
+    expect(summary.runbookReadTargetReason).toBe("Top evidence.");
     expect(summary.nextActionName).toBe("read-content");
     expect(summary.nextReadFrom).toBe("pageCheck.contentEvidence");
     expect(summary.nextReadTargetKind).toBe("evidence");
+    expect(summary.nextReadTargetPrimary).toBe(true);
     expect(summary.executorOperation).toBe("return");
     expect(summary.executorTerminal).toBe(true);
     expect(summary.executorReadTargetKind).toBe("evidence");
+    expect(summary.executorReadTargetCount).toBe(1);
+    expect(summary.executorReadTargetReason).toBe("Top evidence.");
     expect(summary.executorTargetSelector).toBe("a.primary");
     expect(summary.executorTargetSourceScore).toBe(0.92);
     expect(summary.executorTargetLikelyOfficial).toBe(true);
     expect(summary.handoffAnswerStatus).toBe("ready");
     expect(summary.handoffShouldContinue).toBe(false);
     expect(summary.handoffReadTargetKind).toBe("evidence");
+    expect(summary.handoffReadTargetScore).toBe(0.9);
     expect(summary.handoffTargetPath).toBe("pageCheck.links[0]");
     expect(summary.handoffTargetTitle).toBe("Example target");
     expect(summary.handoffTargetRelevance).toBe("high");

@@ -554,6 +554,10 @@ export type AgentSummary = {
   runbookExpectedOutcome?: AgentRunbook["expectedOutcome"];
   runbookReadFrom?: string;
   runbookReadTargetKind?: AgentReadTarget["kind"];
+  runbookReadTargetCount?: number;
+  runbookReadTargetScore?: number;
+  runbookReadTargetPrimary?: boolean;
+  runbookReadTargetReason?: string;
   runbookCommandArgs?: string[];
   runbookUrl?: string;
   nextActionName?: string;
@@ -564,6 +568,10 @@ export type AgentSummary = {
   nextAfterInteractionCommandArgs?: string[];
   nextReadFrom?: string;
   nextReadTargetKind?: AgentReadTarget["kind"];
+  nextReadTargetCount?: number;
+  nextReadTargetScore?: number;
+  nextReadTargetPrimary?: boolean;
+  nextReadTargetReason?: string;
   nextUrl?: string;
   executor: AgentExecutorStep;
   handoff?: AgentHandoff;
@@ -1410,6 +1418,10 @@ export type AgentSummary = {
   executorCommandArgs?: string[];
   executorReadFrom?: string;
   executorReadTargetKind?: AgentReadTarget["kind"];
+  executorReadTargetCount?: number;
+  executorReadTargetScore?: number;
+  executorReadTargetPrimary?: boolean;
+  executorReadTargetReason?: string;
   executorUrl?: string;
   executorTargetUrl?: string;
   executorTargetPath?: string;
@@ -1437,6 +1449,10 @@ export type AgentSummary = {
   handoffCommandArgs?: string[];
   handoffReadFrom?: string;
   handoffReadTargetKind?: AgentReadTarget["kind"];
+  handoffReadTargetCount?: number;
+  handoffReadTargetScore?: number;
+  handoffReadTargetPrimary?: boolean;
+  handoffReadTargetReason?: string;
   handoffUrl?: string;
   handoffTargetUrl?: string;
   handoffTargetPath?: string;

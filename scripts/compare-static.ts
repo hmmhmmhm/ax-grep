@@ -2766,6 +2766,10 @@ function scoreAgentNextShortcuts(agent: {
   nextAfterInteractionCommandArgs?: string[];
   nextReadFrom?: string;
   nextReadTargetKind?: string;
+  nextReadTargetCount?: number;
+  nextReadTargetScore?: number;
+  nextReadTargetPrimary?: boolean;
+  nextReadTargetReason?: string;
   nextUrl?: string;
 } | undefined): number {
   const next = agent?.next;
@@ -2817,6 +2821,32 @@ function scoreAgentNextShortcuts(agent: {
     if (agent.nextReadTargetKind === next.readTarget.kind) matched += 1;
   } else if (agent.nextReadTargetKind) {
     required += 1;
+  }
+  if (next.readTarget) {
+    if (typeof next.readTarget.count === "number") {
+      required += 1;
+      if (agent.nextReadTargetCount === next.readTarget.count) matched += 1;
+    } else if (typeof agent.nextReadTargetCount === "number") {
+      required += 1;
+    }
+    if (typeof next.readTarget.score === "number") {
+      required += 1;
+      if (agent.nextReadTargetScore === next.readTarget.score) matched += 1;
+    } else if (typeof agent.nextReadTargetScore === "number") {
+      required += 1;
+    }
+    if (typeof next.readTarget.primary === "boolean") {
+      required += 1;
+      if (agent.nextReadTargetPrimary === next.readTarget.primary) matched += 1;
+    } else if (typeof agent.nextReadTargetPrimary === "boolean") {
+      required += 1;
+    }
+    if (next.readTarget.reason) {
+      required += 1;
+      if (agent.nextReadTargetReason === next.readTarget.reason) matched += 1;
+    } else if (agent.nextReadTargetReason) {
+      required += 1;
+    }
   }
   if (next.url || next.urlRef) {
     required += 1;
@@ -2912,6 +2942,10 @@ function scoreAgentRunbookShortcuts(agent: {
   runbookExpectedOutcome?: CliAgentRunbookShape["expectedOutcome"];
   runbookReadFrom?: string;
   runbookReadTargetKind?: string;
+  runbookReadTargetCount?: number;
+  runbookReadTargetScore?: number;
+  runbookReadTargetPrimary?: boolean;
+  runbookReadTargetReason?: string;
   runbookCommandArgs?: string[];
   runbookUrl?: string;
 } | undefined): number {
@@ -2948,6 +2982,33 @@ function scoreAgentRunbookShortcuts(agent: {
     if (agent.runbookReadTargetKind === readTargetKind) matched += 1;
   } else if (agent.runbookReadTargetKind) {
     required += 1;
+  }
+  if (runbook.readFrom) {
+    const readTarget = agent.readTargets?.find((target) => target.path === runbook.readFrom);
+    if (typeof readTarget?.count === "number") {
+      required += 1;
+      if (agent.runbookReadTargetCount === readTarget.count) matched += 1;
+    } else if (typeof agent.runbookReadTargetCount === "number") {
+      required += 1;
+    }
+    if (typeof readTarget?.score === "number") {
+      required += 1;
+      if (agent.runbookReadTargetScore === readTarget.score) matched += 1;
+    } else if (typeof agent.runbookReadTargetScore === "number") {
+      required += 1;
+    }
+    if (typeof readTarget?.primary === "boolean") {
+      required += 1;
+      if (agent.runbookReadTargetPrimary === readTarget.primary) matched += 1;
+    } else if (typeof agent.runbookReadTargetPrimary === "boolean") {
+      required += 1;
+    }
+    if (readTarget?.reason) {
+      required += 1;
+      if (agent.runbookReadTargetReason === readTarget.reason) matched += 1;
+    } else if (agent.runbookReadTargetReason) {
+      required += 1;
+    }
   }
   if (runbook.commandArgs) {
     required += 1;
@@ -8290,6 +8351,10 @@ function scoreAgentExecutorShortcuts(agent: {
   executorCommandArgs?: string[];
   executorReadFrom?: string;
   executorReadTargetKind?: string;
+  executorReadTargetCount?: number;
+  executorReadTargetScore?: number;
+  executorReadTargetPrimary?: boolean;
+  executorReadTargetReason?: string;
   executorUrl?: string;
   executorTargetUrl?: string;
   executorTargetPath?: string;
@@ -8334,6 +8399,32 @@ function scoreAgentExecutorShortcuts(agent: {
     if (agent.executorReadTargetKind === executor.readTarget.kind) matched += 1;
   } else if (agent.executorReadTargetKind) {
     required += 1;
+  }
+  if (executor.readTarget) {
+    if (typeof executor.readTarget.count === "number") {
+      required += 1;
+      if (agent.executorReadTargetCount === executor.readTarget.count) matched += 1;
+    } else if (typeof agent.executorReadTargetCount === "number") {
+      required += 1;
+    }
+    if (typeof executor.readTarget.score === "number") {
+      required += 1;
+      if (agent.executorReadTargetScore === executor.readTarget.score) matched += 1;
+    } else if (typeof agent.executorReadTargetScore === "number") {
+      required += 1;
+    }
+    if (typeof executor.readTarget.primary === "boolean") {
+      required += 1;
+      if (agent.executorReadTargetPrimary === executor.readTarget.primary) matched += 1;
+    } else if (typeof agent.executorReadTargetPrimary === "boolean") {
+      required += 1;
+    }
+    if (executor.readTarget.reason) {
+      required += 1;
+      if (agent.executorReadTargetReason === executor.readTarget.reason) matched += 1;
+    } else if (agent.executorReadTargetReason) {
+      required += 1;
+    }
   }
   if (executor.url) {
     required += 1;
@@ -8426,6 +8517,10 @@ function scoreAgentHandoffShortcuts(agent: {
   handoffCommandArgs?: string[];
   handoffReadFrom?: string;
   handoffReadTargetKind?: string;
+  handoffReadTargetCount?: number;
+  handoffReadTargetScore?: number;
+  handoffReadTargetPrimary?: boolean;
+  handoffReadTargetReason?: string;
   handoffUrl?: string;
   handoffTargetUrl?: string;
   handoffTargetPath?: string;
@@ -8483,6 +8578,32 @@ function scoreAgentHandoffShortcuts(agent: {
     if (agent.handoffReadTargetKind === handoff.readTarget.kind) matched += 1;
   } else if (agent.handoffReadTargetKind) {
     required += 1;
+  }
+  if (handoff.readTarget) {
+    if (typeof handoff.readTarget.count === "number") {
+      required += 1;
+      if (agent.handoffReadTargetCount === handoff.readTarget.count) matched += 1;
+    } else if (typeof agent.handoffReadTargetCount === "number") {
+      required += 1;
+    }
+    if (typeof handoff.readTarget.score === "number") {
+      required += 1;
+      if (agent.handoffReadTargetScore === handoff.readTarget.score) matched += 1;
+    } else if (typeof agent.handoffReadTargetScore === "number") {
+      required += 1;
+    }
+    if (typeof handoff.readTarget.primary === "boolean") {
+      required += 1;
+      if (agent.handoffReadTargetPrimary === handoff.readTarget.primary) matched += 1;
+    } else if (typeof agent.handoffReadTargetPrimary === "boolean") {
+      required += 1;
+    }
+    if (handoff.readTarget.reason) {
+      required += 1;
+      if (agent.handoffReadTargetReason === handoff.readTarget.reason) matched += 1;
+    } else if (agent.handoffReadTargetReason) {
+      required += 1;
+    }
   }
   if (handoff.url) {
     required += 1;

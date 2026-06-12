@@ -1233,6 +1233,10 @@ describe("cli", () => {
       if (executor.commandArgs) expect(envelope.agent.runbookCommandArgs).toEqual(executor.commandArgs);
       if (executor.readFrom) expect(envelope.agent.runbookReadFrom).toBe(executor.readFrom);
       if (executor.readTarget?.kind) expect(envelope.agent.runbookReadTargetKind).toBe(executor.readTarget.kind);
+      if (typeof executor.readTarget?.count === "number") expect(envelope.agent.runbookReadTargetCount).toBe(executor.readTarget.count);
+      if (typeof executor.readTarget?.score === "number") expect(envelope.agent.runbookReadTargetScore).toBe(executor.readTarget.score);
+      if (typeof executor.readTarget?.primary === "boolean") expect(envelope.agent.runbookReadTargetPrimary).toBe(executor.readTarget.primary);
+      if (executor.readTarget?.reason) expect(envelope.agent.runbookReadTargetReason).toBe(executor.readTarget.reason);
       if (executor.url) expect(envelope.agent.runbookUrl).toBe(executor.url);
       expect(envelope.agent.executorDecision).toBe(executor.decision);
       expect(envelope.agent.executorMode).toBe(executor.mode);
@@ -1258,6 +1262,10 @@ describe("cli", () => {
       if (executor.commandArgs) expect(envelope.agent.executorCommandArgs).toEqual(executor.commandArgs);
       if (executor.readFrom) expect(envelope.agent.executorReadFrom).toBe(executor.readFrom);
       if (executor.readTarget?.kind) expect(envelope.agent.executorReadTargetKind).toBe(executor.readTarget.kind);
+      if (typeof executor.readTarget?.count === "number") expect(envelope.agent.executorReadTargetCount).toBe(executor.readTarget.count);
+      if (typeof executor.readTarget?.score === "number") expect(envelope.agent.executorReadTargetScore).toBe(executor.readTarget.score);
+      if (typeof executor.readTarget?.primary === "boolean") expect(envelope.agent.executorReadTargetPrimary).toBe(executor.readTarget.primary);
+      if (executor.readTarget?.reason) expect(envelope.agent.executorReadTargetReason).toBe(executor.readTarget.reason);
       if (executor.url) expect(envelope.agent.executorUrl).toBe(executor.url);
       if (item.args[0] === "--search") expect(envelope.agent.searchDecisionReason).toEqual(expect.any(String));
       if (envelope.agent.primaryAction?.target?.url) expect(envelope.agent.primaryTargetUrl).toBe(envelope.agent.primaryAction.target.url);
@@ -1297,6 +1305,10 @@ describe("cli", () => {
       if (handoff.commandArgs) expect(envelope.agent.handoffCommandArgs).toEqual(handoff.commandArgs);
       if (handoff.readFrom) expect(envelope.agent.handoffReadFrom).toBe(handoff.readFrom);
       if (handoff.readTarget?.kind) expect(envelope.agent.handoffReadTargetKind).toBe(handoff.readTarget.kind);
+      if (typeof handoff.readTarget?.count === "number") expect(envelope.agent.handoffReadTargetCount).toBe(handoff.readTarget.count);
+      if (typeof handoff.readTarget?.score === "number") expect(envelope.agent.handoffReadTargetScore).toBe(handoff.readTarget.score);
+      if (typeof handoff.readTarget?.primary === "boolean") expect(envelope.agent.handoffReadTargetPrimary).toBe(handoff.readTarget.primary);
+      if (handoff.readTarget?.reason) expect(envelope.agent.handoffReadTargetReason).toBe(handoff.readTarget.reason);
       if (handoff.url) expect(envelope.agent.handoffUrl).toBe(handoff.url);
       if (handoff.target?.url) expect(envelope.agent.handoffTargetUrl).toBe(handoff.target.url);
       if (handoff.target?.path) expect(envelope.agent.handoffTargetPath).toBe(handoff.target.path);
@@ -10198,6 +10210,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  executor: return/return/medium action=read-content status=ready - Answer now from pageCheck.contentEvidence using citations e1.");
     expect(stdout.output).toContain("  executorReadFrom: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  executorReadTargetKind: evidence");
+    expect(stdout.output).toContain("  executorReadTargetCount: 1");
+    expect(stdout.output).toContain("  executorReadTargetReason: Content evidence is ready.");
     expect(stdout.output).toContain("  executorReadValue: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  executorReadTarget: pageCheck.contentEvidence kind=evidence count=1");
     expect(stdout.output).toContain("  loopDecision: return");
@@ -10211,6 +10225,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  handoff: return/return/medium action=read-content priority=high - Answer now from pageCheck.contentEvidence using citations e1.");
     expect(stdout.output).toContain("  handoffReadFrom: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  handoffReadTargetKind: evidence");
+    expect(stdout.output).toContain("  handoffReadTargetCount: 1");
+    expect(stdout.output).toContain("  handoffReadTargetReason: Content evidence is ready.");
     expect(stdout.output).toContain("  handoffReadValue: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  handoffReadValueType: array count=1");
     expect(stdout.output).toContain("  handoffReadValueItem: pageCheck.contentEvidence[0] e1 rank=1 role=p score=");
