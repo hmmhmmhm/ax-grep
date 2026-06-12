@@ -4709,7 +4709,8 @@ describe("cli", () => {
           <h1>Quarterly report</h1>
           <table aria-label="Revenue by quarter">
             <tr><th>Quarter</th><th>Revenue</th></tr>
-            <tr><td>Q1</td><td>$10</td></tr>
+            <tr><td rowspan="2" colspan="2">Q1 combined</td></tr>
+            <tr></tr>
           </table>
           <ul aria-label="Highlights">
             <li aria-posinset="1" aria-setsize="2" aria-current="page">North region grew</li>
@@ -4726,9 +4727,14 @@ describe("cli", () => {
       contract: { profile: "brief" },
       semanticTopTableRole: "table",
       semanticTopTablePath: "agent.semanticSummary.tableItems[0]",
+      semanticTopTableName: "Revenue by quarter",
+      semanticTopTableFirstSampleCellText: "Q1 combined",
+      semanticTopTableFirstSampleCellRowSpan: 2,
+      semanticTopTableFirstSampleCellColumnSpan: 2,
       semanticTopTableSelector: "table",
       semanticTopListRole: "list",
       semanticTopListPath: "agent.semanticSummary.listItems[0]",
+      semanticTopListName: "Highlights",
       semanticTopListFirstItemSelector: "li",
       semanticTopListSelector: "ul",
     });
