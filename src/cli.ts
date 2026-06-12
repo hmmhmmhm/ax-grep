@@ -10604,10 +10604,10 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
     if (node.role && tableRoles.has(node.role)) {
       tableCount += 1;
       if (tableItems.length < 8) {
-        const headers = semanticDescendantTextsByRole(node, new Set(["columnheader", "rowheader"]), 8);
-        const sampleCells = semanticDescendantTextsByRole(node, new Set(["cell", "gridcell"]), 8);
+        const headers = semanticDescendantTextsByRole(node, new Set(["columnheader", "rowheader"]), 8, nodesByDomId);
+        const sampleCells = semanticDescendantTextsByRole(node, new Set(["cell", "gridcell"]), 8, nodesByDomId);
         const tablePath = `agent.semanticSummary.tableItems[${tableItems.length}]`;
-        const headerRefs = semanticDescendantHeaderRefs(node, 8)
+        const headerRefs = semanticDescendantHeaderRefs(node, 8, nodesByDomId)
           .map((header, index) => ({ path: `${tablePath}.headerRefs[${index}]`, ...header }));
         const ownedRefs = semanticOwnedRefs(node, nodesByDomId, 8);
         const sampleCellRefs = semanticDescendantCellRefs(node, 8, nodesByDomId)
@@ -10618,8 +10618,8 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
           path: tablePath,
           role: node.role,
           ...(node.name ? { name: node.name } : {}),
-          rowCount: countSemanticDescendantsByRole(node, new Set(["row"])),
-          cellCount: countSemanticDescendantsByRole(node, new Set(["cell", "columnheader", "gridcell", "rowheader"])),
+          rowCount: countSemanticDescendantsByRole(node, new Set(["row"]), nodesByDomId),
+          cellCount: countSemanticDescendantsByRole(node, new Set(["cell", "columnheader", "gridcell", "rowheader"]), nodesByDomId),
           ...(typeof declaredRowCount === "number" ? { declaredRowCount } : {}),
           ...(typeof declaredColumnCount === "number" ? { declaredColumnCount } : {}),
           ...(headers.length > 0 ? { headers } : {}),
@@ -11023,21 +11023,35 @@ function semanticOutlineParentForChildren(
   return current;
 }
 
-function countSemanticDescendantsByRole(node: SemanticNode, roles: Set<string>): number {
+function semanticOwnedNodes(node: SemanticNode, nodesByDomId: Map<string, SemanticNode> | undefined): SemanticNode[] {
+  if (!nodesByDomId) return [];
+  return semanticRelationTargets(node.attributes?.["aria-owns"])
+    .map((target) => nodesByDomId.get(target))
+    .filter((targetNode): targetNode is SemanticNode => Boolean(targetNode));
+}
+
+function countSemanticDescendantsByRole(node: SemanticNode, roles: Set<string>, nodesByDomId?: Map<string, SemanticNode>): number {
   let count = 0;
+  const seen = new Set<SemanticNode>();
   function visit(current: SemanticNode): void {
+    if (seen.has(current)) return;
+    seen.add(current);
     if (current !== node && current.role && roles.has(current.role)) count += 1;
     for (const child of current.children) visit(child);
   }
   visit(node);
+  for (const ownedNode of semanticOwnedNodes(node, nodesByDomId)) visit(ownedNode);
   return count;
 }
 
-function semanticDescendantTextsByRole(node: SemanticNode, roles: Set<string>, limit: number): string[] {
+function semanticDescendantTextsByRole(node: SemanticNode, roles: Set<string>, limit: number, nodesByDomId?: Map<string, SemanticNode>): string[] {
   const values: string[] = [];
   const seen = new Set<string>();
+  const seenNodes = new Set<SemanticNode>();
   function visit(current: SemanticNode): void {
     if (values.length >= limit) return;
+    if (seenNodes.has(current)) return;
+    seenNodes.add(current);
     if (current !== node && current.role && roles.has(current.role)) {
       const value = cleanContentText(current.name || current.text || "").slice(0, 160);
       if (value && !seen.has(value)) {
@@ -11048,15 +11062,19 @@ function semanticDescendantTextsByRole(node: SemanticNode, roles: Set<string>, l
     for (const child of current.children) visit(child);
   }
   visit(node);
+  for (const ownedNode of semanticOwnedNodes(node, nodesByDomId)) visit(ownedNode);
   return values;
 }
 
 function semanticDescendantCellRefs(node: SemanticNode, limit: number, nodesByDomId: Map<string, SemanticNode>): Array<{ text: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; rowHeaders?: string[]; columnHeaders?: string[]; selected?: boolean; current?: SemanticNodeState["current"]; selector?: string }> {
   const values: Array<{ text: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; rowHeaders?: string[]; columnHeaders?: string[]; selected?: boolean; current?: SemanticNodeState["current"]; selector?: string }> = [];
   const seen = new Set<string>();
+  const seenNodes = new Set<SemanticNode>();
   const cellRoles = new Set(["cell", "gridcell"]);
   function visit(current: SemanticNode, rowIndex?: number): void {
     if (values.length >= limit) return;
+    if (seenNodes.has(current)) return;
+    seenNodes.add(current);
     const currentRowIndex = semanticPositiveInteger(current.attributes?.["aria-rowindex"]) ?? rowIndex;
     if (current !== node && current.role && cellRoles.has(current.role)) {
       const text = cleanContentText(current.name || current.text || "").slice(0, 160);
@@ -11088,15 +11106,19 @@ function semanticDescendantCellRefs(node: SemanticNode, limit: number, nodesByDo
     for (const child of current.children) visit(child, currentRowIndex);
   }
   visit(node);
+  for (const ownedNode of semanticOwnedNodes(node, nodesByDomId)) visit(ownedNode);
   return values;
 }
 
-function semanticDescendantHeaderRefs(node: SemanticNode, limit: number): Array<{ text: string; role?: string; rowIndex?: number; columnIndex?: number; sort?: string; selector?: string }> {
+function semanticDescendantHeaderRefs(node: SemanticNode, limit: number, nodesByDomId?: Map<string, SemanticNode>): Array<{ text: string; role?: string; rowIndex?: number; columnIndex?: number; sort?: string; selector?: string }> {
   const values: Array<{ text: string; role?: string; rowIndex?: number; columnIndex?: number; sort?: string; selector?: string }> = [];
   const seen = new Set<string>();
+  const seenNodes = new Set<SemanticNode>();
   const headerRoles = new Set(["columnheader", "rowheader"]);
   function visit(current: SemanticNode, rowIndex?: number): void {
     if (values.length >= limit) return;
+    if (seenNodes.has(current)) return;
+    seenNodes.add(current);
     const currentRowIndex = semanticPositiveInteger(current.attributes?.["aria-rowindex"]) ?? rowIndex;
     if (current !== node && current.role && headerRoles.has(current.role)) {
       const text = cleanContentText(current.name || current.text || "").slice(0, 160);
@@ -11118,6 +11140,7 @@ function semanticDescendantHeaderRefs(node: SemanticNode, limit: number): Array<
     for (const child of current.children) visit(child, currentRowIndex);
   }
   visit(node);
+  for (const ownedNode of semanticOwnedNodes(node, nodesByDomId)) visit(ownedNode);
   return values;
 }
 
