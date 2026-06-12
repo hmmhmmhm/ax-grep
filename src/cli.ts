@@ -33,6 +33,7 @@ import type {
   AgentSourceChoice,
   AgentSourceSearch,
   AgentSourceSearchResult,
+  AgentStaticReadiness,
   AgentStatus,
   AgentTarget,
   SemanticNode,
@@ -1221,6 +1222,9 @@ type AgentSummary = {
   canContinue: boolean;
   canUseFetchedHtml: boolean;
   needsBrowserHtml: boolean;
+  staticReadiness?: AgentStaticReadiness;
+  staticReadinessReason?: string;
+  staticReadinessReadFrom?: string;
   browserHtmlReason?: string;
   browserHtmlReasonCode?: AgentBrowserHtmlReasonCode;
   browserHtmlActionName?: SuggestedAction["action"];
@@ -3185,6 +3189,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  canContinue: ${agent.canContinue}`,
     `  canUseFetchedHtml: ${agent.canUseFetchedHtml}`,
     `  needsBrowserHtml: ${agent.needsBrowserHtml}`,
+    ...(agent.staticReadiness ? [`  staticReadiness: ${agent.staticReadiness}`] : []),
+    ...(agent.staticReadinessReason ? [`  staticReadinessReason: ${agent.staticReadinessReason}`] : []),
+    ...(agent.staticReadinessReadFrom ? [`  staticReadinessReadFrom: ${agent.staticReadinessReadFrom}`] : []),
     ...(agent.browserHtmlReason ? [`  browserHtmlReason: ${agent.browserHtmlReason}`] : []),
     ...(agent.browserHtmlReasonCode ? [`  browserHtmlReasonCode: ${agent.browserHtmlReasonCode}`] : []),
     ...(agent.browserHtmlActionName ? [`  browserHtmlActionName: ${agent.browserHtmlActionName}`] : []),
@@ -10710,6 +10717,7 @@ function summarizeAgent(
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
   const answerPlan = summarizeAgentAnswerPlan(status, primaryAction, pageCheck, verification, citations, needsBrowserHtml, error);
   const browserHtmlReason = summarizeBrowserHtmlReason(needsBrowserHtml, answerPlan, primaryAction);
+  const staticReadiness = summarizeStaticReadiness(canUseFetchedHtml, needsBrowserHtml, pageCheck, primaryAction, error);
   const answerEvidence = summarizeAgentAnswerEvidence(citations, answerPlan);
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, canUseFetchedHtml, needsBrowserHtml);
   const runbook = summarizeAgentRunbook(next, executionPlan, answerPlan);
@@ -11117,6 +11125,9 @@ function summarizeAgent(
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml,
     needsBrowserHtml,
+    staticReadiness: staticReadiness.status,
+    staticReadinessReason: staticReadiness.reason,
+    ...(staticReadiness.readFrom ? { staticReadinessReadFrom: staticReadiness.readFrom } : {}),
     ...(browserHtmlReason ? { browserHtmlReason } : {}),
     ...(browserHtmlReasonCode ? { browserHtmlReasonCode } : {}),
     ...(next.browserHtml ? { browserHtmlActionName: next.action } : {}),
@@ -12337,6 +12348,73 @@ function summarizeBrowserHtmlReasonCode(
   if (primaryAction?.action === "retry-with-browser-html") return "retry-action";
   if (analysis.kind === "blocked-page" || analysis.kind === "empty") return "blocked-or-empty";
   return "unknown";
+}
+
+function summarizeStaticReadiness(
+  canUseFetchedHtml: boolean,
+  needsBrowserHtml: boolean,
+  pageCheck: PageCheckSummary,
+  primaryAction?: SuggestedAction,
+  error?: { code: CliErrorCode },
+): { status: AgentStaticReadiness; reason: string; readFrom?: string } {
+  if (needsBrowserHtml) {
+    return {
+      status: "needs-browser",
+      reason: "Static fetched HTML is not enough; browser-captured HTML or browser inspection is required.",
+      ...(primaryAction?.readFrom ? { readFrom: primaryAction.readFrom } : {}),
+    };
+  }
+  if (error) {
+    return {
+      status: "error",
+      reason: `Static readiness could not be established because extraction failed with ${error.code}.`,
+      ...(primaryAction?.readFrom ? { readFrom: primaryAction.readFrom } : {}),
+    };
+  }
+  const readFrom = primaryAction?.readFrom;
+  if (readFrom && isHiddenStaticReadPath(readFrom)) {
+    return {
+      status: "usable-hidden-data",
+      reason: "Fetched HTML is usable through hidden app data such as hydration, API, client-state, runtime, config, app, or mobile hints.",
+      readFrom,
+    };
+  }
+  if (readFrom && readFrom !== "pageCheck.contentEvidence") {
+    return {
+      status: "usable-structured-data",
+      reason: "Fetched HTML is usable through structured page-check data rather than direct prose evidence.",
+      readFrom,
+    };
+  }
+  if (canUseFetchedHtml && pageCheck.readability.level !== "low") {
+    return {
+      status: "usable-content",
+      reason: `Fetched HTML has ${pageCheck.readability.level} readability and can be used without browser capture.`,
+      ...(readFrom ? { readFrom } : {}),
+    };
+  }
+  if (canUseFetchedHtml) {
+    return {
+      status: "usable-structured-data",
+      reason: "Fetched HTML has limited prose, but an agent-readable static payload is available.",
+      ...(readFrom ? { readFrom } : {}),
+    };
+  }
+  return {
+    status: "thin",
+    reason: "Fetched HTML is thin and no browser capture is currently scheduled; verify before relying on it.",
+    ...(readFrom ? { readFrom } : {}),
+  };
+}
+
+function isHiddenStaticReadPath(path: string): boolean {
+  return path === "pageCheck.hydration"
+    || path === "pageCheck.apiEndpoints"
+    || path === "pageCheck.clientState"
+    || path === "pageCheck.runtime"
+    || path === "pageCheck.config"
+    || path === "pageCheck.appHints"
+    || path === "pageCheck.mobileHints";
 }
 
 function answerPlanReadGaps(pageCheck: PageCheckSummary, citationIds: string[]): string[] {
@@ -13989,6 +14067,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const answerPlan = summarizeErrorAgentAnswerPlan(error, primaryAction, needsBrowserHtml);
   const browserHtmlReason = summarizeBrowserHtmlReason(needsBrowserHtml, answerPlan, primaryAction);
   const browserHtmlReasonCode = summarizeBrowserHtmlReasonCode(needsBrowserHtml, { kind: "empty", diagnostics: [], suggestedActions: [] }, primaryAction, error);
+  const staticReadiness = summarizeStaticReadiness(false, needsBrowserHtml, emptyPageCheck(), primaryAction, error);
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, false, needsBrowserHtml);
   const runbook = summarizeAgentRunbook(next, executionPlan, answerPlan);
   const signals = summarizeErrorAgentSignals(error, primaryAction, summary);
@@ -14069,6 +14148,9 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     canContinue: agentCanContinue(primaryAction),
     canUseFetchedHtml: false,
     needsBrowserHtml,
+    staticReadiness: staticReadiness.status,
+    staticReadinessReason: staticReadiness.reason,
+    ...(staticReadiness.readFrom ? { staticReadinessReadFrom: staticReadiness.readFrom } : {}),
     ...(browserHtmlReason ? { browserHtmlReason } : {}),
     ...(browserHtmlReasonCode ? { browserHtmlReasonCode } : {}),
     ...(next.browserHtml ? { browserHtmlActionName: next.action } : {}),
@@ -15808,6 +15890,9 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     canContinue: agent.canContinue,
     canUseFetchedHtml: agent.canUseFetchedHtml,
     needsBrowserHtml: agent.needsBrowserHtml,
+    ...(agent.staticReadiness ? { staticReadiness: agent.staticReadiness } : {}),
+    ...(agent.staticReadinessReason ? { staticReadinessReason: agent.staticReadinessReason } : {}),
+    ...(agent.staticReadinessReadFrom ? { staticReadinessReadFrom: agent.staticReadinessReadFrom } : {}),
     ...(agent.browserHtmlReason ? { browserHtmlReason: agent.browserHtmlReason } : {}),
     ...(agent.browserHtmlReasonCode ? { browserHtmlReasonCode: agent.browserHtmlReasonCode } : {}),
     ...(agent.browserHtmlActionName ? { browserHtmlActionName: agent.browserHtmlActionName } : {}),
@@ -16546,6 +16631,9 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.failingQualityGateScore === "number" ? { failingQualityGateScore: agent.failingQualityGateScore } : {}),
     canContinue: agent.canContinue,
     needsBrowserHtml: agent.needsBrowserHtml,
+    ...(agent.staticReadiness ? { staticReadiness: agent.staticReadiness } : {}),
+    ...(agent.staticReadinessReason ? { staticReadinessReason: agent.staticReadinessReason } : {}),
+    ...(agent.staticReadinessReadFrom ? { staticReadinessReadFrom: agent.staticReadinessReadFrom } : {}),
     ...(agent.browserHtmlReason ? { browserHtmlReason: agent.browserHtmlReason } : {}),
     ...(agent.browserHtmlReasonCode ? { browserHtmlReasonCode: agent.browserHtmlReasonCode } : {}),
     ...(agent.browserHtmlActionName ? { browserHtmlActionName: agent.browserHtmlActionName } : {}),

@@ -1250,6 +1250,9 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       canContinue?: boolean;
       canUseFetchedHtml?: boolean;
       needsBrowserHtml?: boolean;
+      staticReadiness?: string;
+      staticReadinessReason?: string;
+      staticReadinessReadFrom?: string;
       browserHtmlReason?: string;
       browserHtmlReasonCode?: string;
       browserHtmlActionName?: string;
@@ -2034,7 +2037,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentSourceChoiceScore: scoreAgentSourceChoices(item.kind ?? "unknown", item.agent?.sourceChoices ?? [], item.pageCheck?.sourceLinks ?? [], item.agent?.primaryAction),
     agentTopSourceChoiceShortcutScore: scoreAgentTopSourceChoiceShortcuts(item.agent),
     agentSourceSearchShortcutScore: scoreAgentSourceSearchShortcuts(item.agent, item.sourceSearch),
-    agentBrowserNeedScore: scoreAgentBrowserNeed(item.agent?.needsBrowserHtml, item.agent?.browserHtmlReason, item.agent?.browserHtmlReasonCode, item.agent?.status, item.agent?.primaryAction),
+    agentBrowserNeedScore: scoreAgentBrowserNeed(item.agent?.needsBrowserHtml, item.agent?.browserHtmlReason, item.agent?.browserHtmlReasonCode, item.agent?.staticReadiness, item.agent?.staticReadinessReason, item.agent?.status, item.agent?.primaryAction),
     agentBrowserHtmlScore: scoreAgentBrowserHtml(item.agent, item.agent?.next, item.agent?.executionPlan, item.agent?.primaryAction),
     agentReadabilityReasonScore: scoreReadabilityReasons(item.agent?.readabilityReasons),
     agentSourceSearchProvenanceScore: scoreAgentSourceSearchProvenance(item.sourceSearch, item.agent?.readTargets ?? []),
@@ -6968,25 +6971,30 @@ function scoreAgentBrowserNeed(
   needsBrowserHtml: boolean | undefined,
   browserHtmlReason: string | undefined,
   browserHtmlReasonCode: string | undefined,
+  staticReadiness: string | undefined,
+  staticReadinessReason: string | undefined,
   status: CliAgentSummary["agentStatus"] | undefined,
   primaryAction: CliActionShape | undefined,
 ): number {
   if (typeof needsBrowserHtml !== "boolean") return 0;
   const validReasonCodes = new Set(["no-inspectable-content", "http-error", "fetch-error", "blocked-or-empty", "retry-action", "browser-interaction", "unknown"]);
+  const validStaticReadiness = new Set(["usable-content", "usable-structured-data", "usable-hidden-data", "thin", "needs-browser", "error"]);
   const reasonScore = needsBrowserHtml
     ? typeof browserHtmlReason === "string" && /browser/i.test(browserHtmlReason) ? 0.15 : 0
     : typeof browserHtmlReason === "undefined" ? 0.15 : 0;
   const reasonCodeScore = needsBrowserHtml
     ? typeof browserHtmlReasonCode === "string" && validReasonCodes.has(browserHtmlReasonCode) ? 0.1 : 0
     : typeof browserHtmlReasonCode === "undefined" ? 0.1 : 0;
-  const metadataScore = reasonScore + reasonCodeScore;
-  if (primaryAction?.action === "retry-with-browser-html") return (needsBrowserHtml ? 0.75 : 0) + metadataScore;
-  if (status === "needs-browser") return (needsBrowserHtml ? 0.75 : 0) + metadataScore;
+  const staticReadinessScore = typeof staticReadiness === "string" && validStaticReadiness.has(staticReadiness) ? 0.07 : 0;
+  const staticReasonScore = typeof staticReadinessReason === "string" && staticReadinessReason.length > 12 ? 0.03 : 0;
+  const metadataScore = reasonScore + reasonCodeScore + staticReadinessScore + staticReasonScore;
+  if (primaryAction?.action === "retry-with-browser-html") return (needsBrowserHtml ? 0.65 : 0) + metadataScore;
+  if (status === "needs-browser") return (needsBrowserHtml ? 0.65 : 0) + metadataScore;
   if (primaryAction?.action && ["check-url-or-search", "retry-later", "open-alternate-result"].includes(primaryAction.action)) {
-    return (needsBrowserHtml ? 0 : 0.75) + metadataScore;
+    return (needsBrowserHtml ? 0 : 0.65) + metadataScore;
   }
-  if (primaryAction?.execution === "read-current" || primaryAction?.execution === "interact-browser") return (needsBrowserHtml ? 0 : 0.75) + metadataScore;
-  return (needsBrowserHtml ? 0.5 : 0.75) + metadataScore;
+  if (primaryAction?.execution === "read-current" || primaryAction?.execution === "interact-browser") return (needsBrowserHtml ? 0 : 0.65) + metadataScore;
+  return (needsBrowserHtml ? 0.4 : 0.65) + metadataScore;
 }
 
 function scoreAgentBrowserHtml(

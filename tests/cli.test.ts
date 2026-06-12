@@ -5324,6 +5324,13 @@ describe("cli", () => {
       execution: "read-current",
       readFrom: "pageCheck.hydration",
     });
+    expect(envelope.agent).toMatchObject({
+      canUseFetchedHtml: true,
+      needsBrowserHtml: false,
+      staticReadiness: "usable-hidden-data",
+      staticReadinessReadFrom: "pageCheck.hydration",
+      staticReadinessReason: expect.stringContaining("hidden app data"),
+    });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.hydration",
       count: 3,
