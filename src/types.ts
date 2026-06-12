@@ -587,6 +587,11 @@ export type AgentSummary = {
   executionPlanTerminal?: boolean;
   executionPlanExpectedOutcome?: AgentExpectedOutcome["kind"];
   executionPlanReadFrom?: string;
+  executionPlanReadTargetKind?: AgentReadTarget["kind"];
+  executionPlanReadTargetCount?: number;
+  executionPlanReadTargetScore?: number;
+  executionPlanReadTargetPrimary?: boolean;
+  executionPlanReadTargetReason?: string;
   executionPlanCommandArgs?: string[];
   executionPlanAfterInteractionCommand?: string;
   executionPlanAfterInteractionCommandArgs?: string[];
@@ -1358,6 +1363,11 @@ export type AgentSummary = {
   topAnswerUseCitationId?: string;
   answerUseCitationIds?: string[];
   answerPlanReadFrom?: string;
+  answerPlanReadTargetKind?: AgentReadTarget["kind"];
+  answerPlanReadTargetCount?: number;
+  answerPlanReadTargetScore?: number;
+  answerPlanReadTargetPrimary?: boolean;
+  answerPlanReadTargetReason?: string;
   answerPlanCommandArgs?: string[];
   answerPlanAfterInteractionCommand?: string;
   answerPlanAfterInteractionCommandArgs?: string[];

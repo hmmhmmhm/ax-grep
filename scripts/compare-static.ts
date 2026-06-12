@@ -8683,6 +8683,7 @@ function scoreAgentHandoffShortcuts(agent: {
 function scoreAgentAnswerShortcuts(agent: {
   answerPlan?: CliAgentAnswerPlanShape;
   answerEvidence?: CliAgentCitationShape[];
+  readTargets?: CliReadTargetShape[];
   topAnswerEvidenceId?: string;
   topAnswerEvidencePath?: string;
   topAnswerEvidenceKind?: CliAgentCitationShape["kind"];
@@ -8701,6 +8702,11 @@ function scoreAgentAnswerShortcuts(agent: {
   topAnswerUseCitationId?: string;
   answerUseCitationIds?: string[];
   answerPlanReadFrom?: string;
+  answerPlanReadTargetKind?: string;
+  answerPlanReadTargetCount?: number;
+  answerPlanReadTargetScore?: number;
+  answerPlanReadTargetPrimary?: boolean;
+  answerPlanReadTargetReason?: string;
   answerPlanCommandArgs?: string[];
   answerPlanAfterInteractionCommand?: string;
   answerPlanAfterInteractionCommandArgs?: string[];
@@ -8737,6 +8743,39 @@ function scoreAgentAnswerShortcuts(agent: {
     if (agent.answerPlanReadFrom === plan.readFrom) matched += 1;
   } else if (agent.answerPlanReadFrom) {
     required += 1;
+  }
+  if (plan.readFrom) {
+    const readTarget = agent.readTargets?.find((target) => target.path === plan.readFrom);
+    if (readTarget?.kind) {
+      required += 1;
+      if (agent.answerPlanReadTargetKind === readTarget.kind) matched += 1;
+    } else if (agent.answerPlanReadTargetKind) {
+      required += 1;
+    }
+    if (typeof readTarget?.count === "number") {
+      required += 1;
+      if (agent.answerPlanReadTargetCount === readTarget.count) matched += 1;
+    } else if (typeof agent.answerPlanReadTargetCount === "number") {
+      required += 1;
+    }
+    if (typeof readTarget?.score === "number") {
+      required += 1;
+      if (agent.answerPlanReadTargetScore === readTarget.score) matched += 1;
+    } else if (typeof agent.answerPlanReadTargetScore === "number") {
+      required += 1;
+    }
+    if (typeof readTarget?.primary === "boolean") {
+      required += 1;
+      if (agent.answerPlanReadTargetPrimary === readTarget.primary) matched += 1;
+    } else if (typeof agent.answerPlanReadTargetPrimary === "boolean") {
+      required += 1;
+    }
+    if (readTarget?.reason) {
+      required += 1;
+      if (agent.answerPlanReadTargetReason === readTarget.reason) matched += 1;
+    } else if (agent.answerPlanReadTargetReason) {
+      required += 1;
+    }
   }
   if (plan.commandArgs) {
     required += 1;
@@ -8881,6 +8920,7 @@ function scoreAgentTopCitationShortcuts(agent: {
 function scoreAgentPlanShortcuts(agent: {
   expectedOutcome?: CliAgentExpectedOutcomeShape;
   executionPlan?: CliAgentExecutionPlanShape;
+  readTargets?: CliReadTargetShape[];
   expectedOutcomeKind?: CliAgentExpectedOutcomeShape["kind"];
   expectedOutcomeMessage?: string;
   executionPlanOperation?: CliAgentExecutionPlanShape["operation"];
@@ -8891,6 +8931,11 @@ function scoreAgentPlanShortcuts(agent: {
   executionPlanTerminal?: boolean;
   executionPlanExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
   executionPlanReadFrom?: string;
+  executionPlanReadTargetKind?: string;
+  executionPlanReadTargetCount?: number;
+  executionPlanReadTargetScore?: number;
+  executionPlanReadTargetPrimary?: boolean;
+  executionPlanReadTargetReason?: string;
   executionPlanCommandArgs?: string[];
   executionPlanAfterInteractionCommand?: string;
   executionPlanAfterInteractionCommandArgs?: string[];
@@ -8915,6 +8960,39 @@ function scoreAgentPlanShortcuts(agent: {
     if (agent.executionPlanReadFrom === plan.readFrom) matched += 1;
   } else if (agent.executionPlanReadFrom) {
     required += 1;
+  }
+  if (plan.readFrom) {
+    const readTarget = agent.readTargets?.find((target) => target.path === plan.readFrom);
+    if (readTarget?.kind) {
+      required += 1;
+      if (agent.executionPlanReadTargetKind === readTarget.kind) matched += 1;
+    } else if (agent.executionPlanReadTargetKind) {
+      required += 1;
+    }
+    if (typeof readTarget?.count === "number") {
+      required += 1;
+      if (agent.executionPlanReadTargetCount === readTarget.count) matched += 1;
+    } else if (typeof agent.executionPlanReadTargetCount === "number") {
+      required += 1;
+    }
+    if (typeof readTarget?.score === "number") {
+      required += 1;
+      if (agent.executionPlanReadTargetScore === readTarget.score) matched += 1;
+    } else if (typeof agent.executionPlanReadTargetScore === "number") {
+      required += 1;
+    }
+    if (typeof readTarget?.primary === "boolean") {
+      required += 1;
+      if (agent.executionPlanReadTargetPrimary === readTarget.primary) matched += 1;
+    } else if (typeof agent.executionPlanReadTargetPrimary === "boolean") {
+      required += 1;
+    }
+    if (readTarget?.reason) {
+      required += 1;
+      if (agent.executionPlanReadTargetReason === readTarget.reason) matched += 1;
+    } else if (agent.executionPlanReadTargetReason) {
+      required += 1;
+    }
   }
   if (plan.commandArgs) {
     required += 1;

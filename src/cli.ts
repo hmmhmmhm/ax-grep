@@ -935,6 +935,11 @@ type AgentSummary = {
   executionPlanTerminal?: boolean;
   executionPlanExpectedOutcome?: AgentExpectedOutcome["kind"];
   executionPlanReadFrom?: string;
+  executionPlanReadTargetKind?: AgentReadTarget["kind"];
+  executionPlanReadTargetCount?: number;
+  executionPlanReadTargetScore?: number;
+  executionPlanReadTargetPrimary?: boolean;
+  executionPlanReadTargetReason?: string;
   executionPlanCommandArgs?: string[];
   executionPlanAfterInteractionCommand?: string;
   executionPlanAfterInteractionCommandArgs?: string[];
@@ -1706,6 +1711,11 @@ type AgentSummary = {
   topAnswerUseCitationId?: string;
   answerUseCitationIds?: string[];
   answerPlanReadFrom?: string;
+  answerPlanReadTargetKind?: AgentReadTarget["kind"];
+  answerPlanReadTargetCount?: number;
+  answerPlanReadTargetScore?: number;
+  answerPlanReadTargetPrimary?: boolean;
+  answerPlanReadTargetReason?: string;
   answerPlanCommandArgs?: string[];
   answerPlanAfterInteractionCommand?: string;
   answerPlanAfterInteractionCommandArgs?: string[];
@@ -3375,6 +3385,11 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  executionPlanTerminal: ${agent.executionPlan.terminal}`,
     `  executionPlanExpectedOutcome: ${agent.executionPlan.expectedOutcome}`,
     ...(agent.executionPlan.readFrom ? [`  executionPlanReadFrom: ${agent.executionPlan.readFrom}`] : []),
+    ...(agent.executionPlanReadTargetKind ? [`  executionPlanReadTargetKind: ${agent.executionPlanReadTargetKind}`] : []),
+    ...(typeof agent.executionPlanReadTargetCount === "number" ? [`  executionPlanReadTargetCount: ${agent.executionPlanReadTargetCount}`] : []),
+    ...(typeof agent.executionPlanReadTargetScore === "number" ? [`  executionPlanReadTargetScore: ${agent.executionPlanReadTargetScore}`] : []),
+    ...(typeof agent.executionPlanReadTargetPrimary === "boolean" ? [`  executionPlanReadTargetPrimary: ${agent.executionPlanReadTargetPrimary}`] : []),
+    ...(agent.executionPlanReadTargetReason ? [`  executionPlanReadTargetReason: ${agent.executionPlanReadTargetReason}`] : []),
     ...(agent.executionPlan.commandArgs ? [`  executionPlanCommandArgs: ${JSON.stringify(agent.executionPlan.commandArgs)}`] : []),
     ...(agent.executionPlan.afterInteractionCommand ? [`  executionPlanAfterInteractionCommand: ${agent.executionPlan.afterInteractionCommand}`] : []),
     ...(agent.executionPlan.afterInteractionCommandArgs ? [`  executionPlanAfterInteractionCommandArgs: ${JSON.stringify(agent.executionPlan.afterInteractionCommandArgs)}`] : []),
@@ -3807,6 +3822,12 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (typeof agent.answerUseCitationCount === "number") lines.push(`  answerUseCitationCount: ${agent.answerUseCitationCount}`);
   if (agent.topAnswerUseCitationId) lines.push(`  topAnswerUseCitationId: ${agent.topAnswerUseCitationId}`);
   if (agent.answerUseCitationIds?.length) lines.push(`  answerUseCitationIds: ${agent.answerUseCitationIds.join(", ")}`);
+  if (agent.answerPlanReadFrom) lines.push(`  answerPlanReadFrom: ${agent.answerPlanReadFrom}`);
+  if (agent.answerPlanReadTargetKind) lines.push(`  answerPlanReadTargetKind: ${agent.answerPlanReadTargetKind}`);
+  if (typeof agent.answerPlanReadTargetCount === "number") lines.push(`  answerPlanReadTargetCount: ${agent.answerPlanReadTargetCount}`);
+  if (typeof agent.answerPlanReadTargetScore === "number") lines.push(`  answerPlanReadTargetScore: ${agent.answerPlanReadTargetScore}`);
+  if (typeof agent.answerPlanReadTargetPrimary === "boolean") lines.push(`  answerPlanReadTargetPrimary: ${agent.answerPlanReadTargetPrimary}`);
+  if (agent.answerPlanReadTargetReason) lines.push(`  answerPlanReadTargetReason: ${agent.answerPlanReadTargetReason}`);
   if (agent.answerPlanAfterInteractionCommand) lines.push(`  answerPlanAfterInteractionCommand: ${agent.answerPlanAfterInteractionCommand}`);
   if (agent.answerPlanAfterInteractionCommandArgs?.length) lines.push(`  answerPlanAfterInteractionCommandArgs: ${JSON.stringify(agent.answerPlanAfterInteractionCommandArgs)}`);
   if (agent.executor.readFrom) lines.push(`  executorReadFrom: ${agent.executor.readFrom}`);
@@ -11197,6 +11218,8 @@ function summarizeAgent(
     path ? readTargets.find((target) => target.path === path) : undefined;
   const runbookReadTarget = readTargetFor(runbook.readFrom);
   const nextReadTarget = next.readTarget ?? readTargetFor(next.readFrom);
+  const executionPlanReadTarget = readTargetFor(executionPlan.readFrom);
+  const answerPlanReadTarget = readTargetFor(answerPlan.readFrom);
   const executorReadTarget = executor.readTarget ?? readTargetFor(executor.readFrom);
   const handoffReadTarget = handoff.readTarget ?? readTargetFor(handoff.readFrom);
   const agent: AgentSummary = {
@@ -11264,6 +11287,11 @@ function summarizeAgent(
     executionPlanTerminal: executionPlan.terminal,
     executionPlanExpectedOutcome: executionPlan.expectedOutcome,
     ...(executionPlan.readFrom ? { executionPlanReadFrom: executionPlan.readFrom } : {}),
+    ...(executionPlanReadTarget?.kind ? { executionPlanReadTargetKind: executionPlanReadTarget.kind } : {}),
+    ...(typeof executionPlanReadTarget?.count === "number" ? { executionPlanReadTargetCount: executionPlanReadTarget.count } : {}),
+    ...(typeof executionPlanReadTarget?.score === "number" ? { executionPlanReadTargetScore: executionPlanReadTarget.score } : {}),
+    ...(typeof executionPlanReadTarget?.primary === "boolean" ? { executionPlanReadTargetPrimary: executionPlanReadTarget.primary } : {}),
+    ...(executionPlanReadTarget?.reason ? { executionPlanReadTargetReason: executionPlanReadTarget.reason } : {}),
     ...(executionPlan.commandArgs ? { executionPlanCommandArgs: executionPlan.commandArgs } : {}),
     ...(executionPlan.afterInteractionCommand ? { executionPlanAfterInteractionCommand: executionPlan.afterInteractionCommand } : {}),
     ...(executionPlan.afterInteractionCommandArgs ? { executionPlanAfterInteractionCommandArgs: executionPlan.afterInteractionCommandArgs } : {}),
@@ -12031,6 +12059,11 @@ function summarizeAgent(
     ...(answerPlan.useCitationIds[0] ? { topAnswerUseCitationId: answerPlan.useCitationIds[0] } : {}),
     ...(answerPlan.useCitationIds.length > 0 ? { answerUseCitationIds: answerPlan.useCitationIds } : {}),
     ...(answerPlan.readFrom ? { answerPlanReadFrom: answerPlan.readFrom } : {}),
+    ...(answerPlanReadTarget?.kind ? { answerPlanReadTargetKind: answerPlanReadTarget.kind } : {}),
+    ...(typeof answerPlanReadTarget?.count === "number" ? { answerPlanReadTargetCount: answerPlanReadTarget.count } : {}),
+    ...(typeof answerPlanReadTarget?.score === "number" ? { answerPlanReadTargetScore: answerPlanReadTarget.score } : {}),
+    ...(typeof answerPlanReadTarget?.primary === "boolean" ? { answerPlanReadTargetPrimary: answerPlanReadTarget.primary } : {}),
+    ...(answerPlanReadTarget?.reason ? { answerPlanReadTargetReason: answerPlanReadTarget.reason } : {}),
     ...(answerPlan.commandArgs ? { answerPlanCommandArgs: answerPlan.commandArgs } : {}),
     ...(answerPlan.afterInteractionCommand ? { answerPlanAfterInteractionCommand: answerPlan.afterInteractionCommand } : {}),
     ...(answerPlan.afterInteractionCommandArgs ? { answerPlanAfterInteractionCommandArgs: answerPlan.afterInteractionCommandArgs } : {}),
@@ -16500,6 +16533,11 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.executionPlanTerminal === "boolean" ? { executionPlanTerminal: agent.executionPlanTerminal } : {}),
     ...(agent.executionPlanExpectedOutcome ? { executionPlanExpectedOutcome: agent.executionPlanExpectedOutcome } : {}),
     ...(agent.executionPlanReadFrom ? { executionPlanReadFrom: agent.executionPlanReadFrom } : {}),
+    ...(agent.executionPlanReadTargetKind ? { executionPlanReadTargetKind: agent.executionPlanReadTargetKind } : {}),
+    ...(typeof agent.executionPlanReadTargetCount === "number" ? { executionPlanReadTargetCount: agent.executionPlanReadTargetCount } : {}),
+    ...(typeof agent.executionPlanReadTargetScore === "number" ? { executionPlanReadTargetScore: agent.executionPlanReadTargetScore } : {}),
+    ...(typeof agent.executionPlanReadTargetPrimary === "boolean" ? { executionPlanReadTargetPrimary: agent.executionPlanReadTargetPrimary } : {}),
+    ...(agent.executionPlanReadTargetReason ? { executionPlanReadTargetReason: agent.executionPlanReadTargetReason } : {}),
     ...(agent.executionPlanCommandArgs ? { executionPlanCommandArgs: agent.executionPlanCommandArgs } : {}),
     ...(agent.executionPlanAfterInteractionCommand ? { executionPlanAfterInteractionCommand: agent.executionPlanAfterInteractionCommand } : {}),
     ...(agent.executionPlanAfterInteractionCommandArgs ? { executionPlanAfterInteractionCommandArgs: agent.executionPlanAfterInteractionCommandArgs } : {}),
@@ -17252,6 +17290,11 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topAnswerUseCitationId ? { topAnswerUseCitationId: agent.topAnswerUseCitationId } : {}),
     ...(agent.answerUseCitationIds && agent.answerUseCitationIds.length > 0 ? { answerUseCitationIds: agent.answerUseCitationIds } : {}),
     ...(agent.answerPlanReadFrom ? { answerPlanReadFrom: agent.answerPlanReadFrom } : {}),
+    ...(agent.answerPlanReadTargetKind ? { answerPlanReadTargetKind: agent.answerPlanReadTargetKind } : {}),
+    ...(typeof agent.answerPlanReadTargetCount === "number" ? { answerPlanReadTargetCount: agent.answerPlanReadTargetCount } : {}),
+    ...(typeof agent.answerPlanReadTargetScore === "number" ? { answerPlanReadTargetScore: agent.answerPlanReadTargetScore } : {}),
+    ...(typeof agent.answerPlanReadTargetPrimary === "boolean" ? { answerPlanReadTargetPrimary: agent.answerPlanReadTargetPrimary } : {}),
+    ...(agent.answerPlanReadTargetReason ? { answerPlanReadTargetReason: agent.answerPlanReadTargetReason } : {}),
     ...(agent.answerPlanCommandArgs ? { answerPlanCommandArgs: agent.answerPlanCommandArgs } : {}),
     ...(agent.answerPlanAfterInteractionCommand ? { answerPlanAfterInteractionCommand: agent.answerPlanAfterInteractionCommand } : {}),
     ...(agent.answerPlanAfterInteractionCommandArgs ? { answerPlanAfterInteractionCommandArgs: agent.answerPlanAfterInteractionCommandArgs } : {}),
@@ -17489,6 +17532,11 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.executionPlanTerminal === "boolean" ? { executionPlanTerminal: agent.executionPlanTerminal } : {}),
     ...(agent.executionPlanExpectedOutcome ? { executionPlanExpectedOutcome: agent.executionPlanExpectedOutcome } : {}),
     ...(agent.executionPlanReadFrom ? { executionPlanReadFrom: agent.executionPlanReadFrom } : {}),
+    ...(agent.executionPlanReadTargetKind ? { executionPlanReadTargetKind: agent.executionPlanReadTargetKind } : {}),
+    ...(typeof agent.executionPlanReadTargetCount === "number" ? { executionPlanReadTargetCount: agent.executionPlanReadTargetCount } : {}),
+    ...(typeof agent.executionPlanReadTargetScore === "number" ? { executionPlanReadTargetScore: agent.executionPlanReadTargetScore } : {}),
+    ...(typeof agent.executionPlanReadTargetPrimary === "boolean" ? { executionPlanReadTargetPrimary: agent.executionPlanReadTargetPrimary } : {}),
+    ...(agent.executionPlanReadTargetReason ? { executionPlanReadTargetReason: agent.executionPlanReadTargetReason } : {}),
     ...(agent.executionPlanCommandArgs ? { executionPlanCommandArgs: agent.executionPlanCommandArgs } : {}),
     ...(agent.executionPlanAfterInteractionCommand ? { executionPlanAfterInteractionCommand: agent.executionPlanAfterInteractionCommand } : {}),
     ...(agent.executionPlanAfterInteractionCommandArgs ? { executionPlanAfterInteractionCommandArgs: agent.executionPlanAfterInteractionCommandArgs } : {}),
@@ -18235,6 +18283,11 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topAnswerUseCitationId ? { topAnswerUseCitationId: agent.topAnswerUseCitationId } : {}),
     ...(agent.answerUseCitationIds && agent.answerUseCitationIds.length > 0 ? { answerUseCitationIds: agent.answerUseCitationIds } : {}),
     ...(agent.answerPlanReadFrom ? { answerPlanReadFrom: agent.answerPlanReadFrom } : {}),
+    ...(agent.answerPlanReadTargetKind ? { answerPlanReadTargetKind: agent.answerPlanReadTargetKind } : {}),
+    ...(typeof agent.answerPlanReadTargetCount === "number" ? { answerPlanReadTargetCount: agent.answerPlanReadTargetCount } : {}),
+    ...(typeof agent.answerPlanReadTargetScore === "number" ? { answerPlanReadTargetScore: agent.answerPlanReadTargetScore } : {}),
+    ...(typeof agent.answerPlanReadTargetPrimary === "boolean" ? { answerPlanReadTargetPrimary: agent.answerPlanReadTargetPrimary } : {}),
+    ...(agent.answerPlanReadTargetReason ? { answerPlanReadTargetReason: agent.answerPlanReadTargetReason } : {}),
     ...(agent.answerPlanCommandArgs ? { answerPlanCommandArgs: agent.answerPlanCommandArgs } : {}),
     ...(agent.answerPlanAfterInteractionCommand ? { answerPlanAfterInteractionCommand: agent.answerPlanAfterInteractionCommand } : {}),
     ...(agent.answerPlanAfterInteractionCommandArgs ? { answerPlanAfterInteractionCommandArgs: agent.answerPlanAfterInteractionCommandArgs } : {}),

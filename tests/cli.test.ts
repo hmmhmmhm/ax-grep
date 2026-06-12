@@ -1258,6 +1258,11 @@ describe("cli", () => {
       expect(envelope.agent.executionPlanExpectedOutcome).toBe(executor.expectedOutcome);
       if (executor.commandArgs) expect(envelope.agent.executionPlanCommandArgs).toEqual(executor.commandArgs);
       if (executor.readFrom) expect(envelope.agent.executionPlanReadFrom).toBe(executor.readFrom);
+      if (executor.readTarget?.kind) expect(envelope.agent.executionPlanReadTargetKind).toBe(executor.readTarget.kind);
+      if (typeof executor.readTarget?.count === "number") expect(envelope.agent.executionPlanReadTargetCount).toBe(executor.readTarget.count);
+      if (typeof executor.readTarget?.score === "number") expect(envelope.agent.executionPlanReadTargetScore).toBe(executor.readTarget.score);
+      if (typeof executor.readTarget?.primary === "boolean") expect(envelope.agent.executionPlanReadTargetPrimary).toBe(executor.readTarget.primary);
+      if (executor.readTarget?.reason) expect(envelope.agent.executionPlanReadTargetReason).toBe(executor.readTarget.reason);
       if (executor.url) expect(envelope.agent.executionPlanUrl).toBe(executor.url);
       if (executor.commandArgs) expect(envelope.agent.executorCommandArgs).toEqual(executor.commandArgs);
       if (executor.readFrom) expect(envelope.agent.executorReadFrom).toBe(executor.readFrom);
@@ -1373,6 +1378,11 @@ describe("cli", () => {
       }
       if (handoff.useCitationIds?.length) expect(envelope.agent.answerUseCitationIds).toEqual(handoff.useCitationIds);
       if (handoff.readFrom) expect(envelope.agent.answerPlanReadFrom).toBe(handoff.readFrom);
+      if (handoff.readTarget?.kind) expect(envelope.agent.answerPlanReadTargetKind).toBe(handoff.readTarget.kind);
+      if (typeof handoff.readTarget?.count === "number") expect(envelope.agent.answerPlanReadTargetCount).toBe(handoff.readTarget.count);
+      if (typeof handoff.readTarget?.score === "number") expect(envelope.agent.answerPlanReadTargetScore).toBe(handoff.readTarget.score);
+      if (typeof handoff.readTarget?.primary === "boolean") expect(envelope.agent.answerPlanReadTargetPrimary).toBe(handoff.readTarget.primary);
+      if (handoff.readTarget?.reason) expect(envelope.agent.answerPlanReadTargetReason).toBe(handoff.readTarget.reason);
       if (handoff.commandArgs) expect(envelope.agent.answerPlanCommandArgs).toEqual(handoff.commandArgs);
       if (handoff.url) expect(envelope.agent.answerPlanUrl).toBe(handoff.url);
       if (envelope.agent.alternativeActionCount > 0) {
@@ -10222,11 +10232,15 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  runbookDecision: return");
     expect(stdout.output).toContain("  runbookOperation: return");
     expect(stdout.output).toContain("  runbookExpectedOutcome: read-evidence");
+    expect(stdout.output).toContain("  executionPlanReadTargetKind: evidence");
+    expect(stdout.output).toContain("  executionPlanReadTargetReason: Content evidence is ready.");
     expect(stdout.output).toContain("  handoff: return/return/medium action=read-content priority=high - Answer now from pageCheck.contentEvidence using citations e1.");
     expect(stdout.output).toContain("  handoffReadFrom: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  handoffReadTargetKind: evidence");
     expect(stdout.output).toContain("  handoffReadTargetCount: 1");
     expect(stdout.output).toContain("  handoffReadTargetReason: Content evidence is ready.");
+    expect(stdout.output).toContain("  answerPlanReadTargetKind: evidence");
+    expect(stdout.output).toContain("  answerPlanReadTargetReason: Content evidence is ready.");
     expect(stdout.output).toContain("  handoffReadValue: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  handoffReadValueType: array count=1");
     expect(stdout.output).toContain("  handoffReadValueItem: pageCheck.contentEvidence[0] e1 rank=1 role=p score=");
