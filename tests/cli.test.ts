@@ -10723,6 +10723,41 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  step: 1. retry-with-browser-html <https://example.test> - The page is not reliably readable from fetched HTML.");
   });
 
+  it("classifies JavaScript app shells as client-rendered browser handoff", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/app", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head><title>Client App</title></head>
+          <body>
+            <div id="root"></div>
+            <script src="/assets/app.js"></script>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(20);
+    expect(envelope.agent.diagnosticCodes).toEqual(expect.arrayContaining(["CLIENT_RENDERED"]));
+    expect(envelope.agent.topDiagnosticCode).toBe("CLIENT_RENDERED");
+    expect(envelope.agent.topDiagnosticSeverity).toBe("warning");
+    expect(envelope.agent).toMatchObject({
+      status: "needs-browser",
+      needsBrowserHtml: true,
+      staticReadiness: "needs-browser",
+      staticReadinessReasonCode: "client-rendered",
+      browserHtmlReasonCode: "client-rendered",
+      browserHtmlActionName: "retry-with-browser-html",
+      browserHtmlOperation: "capture-browser-html",
+      primaryAction: {
+        action: "retry-with-browser-html",
+      },
+    });
+  });
+
   it("detects challenged pages and suggests browser-captured HTML", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://challenge.example", "--json"], {

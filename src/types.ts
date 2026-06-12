@@ -98,6 +98,7 @@ export type ObserverScriptOptions = SemanticTreeObserverOptions & {
 export type AgentStatus = "ready" | "choose-result" | "verify" | "needs-browser" | "error";
 export type AgentBrowserHtmlReasonCode =
   | "no-inspectable-content"
+  | "client-rendered"
   | "http-error"
   | "fetch-error"
   | "challenge"
@@ -110,6 +111,7 @@ export type AgentBrowserHtmlReasonCode =
 export type AgentStaticReadiness = "usable-content" | "usable-structured-data" | "usable-hidden-data" | "thin" | "needs-browser" | "error";
 export type AgentStaticReadinessReasonCode =
   | "browser-required"
+  | "client-rendered"
   | "interaction-required"
   | "extraction-error"
   | "hidden-data"

@@ -11209,11 +11209,11 @@ function summarizeAgent(
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
   const answerPlan = summarizeAgentAnswerPlan(status, primaryAction, pageCheck, verification, citations, needsBrowserHtml, error);
   const browserHtmlReason = summarizeBrowserHtmlReason(needsBrowserHtml, answerPlan, primaryAction);
-  const staticReadiness = summarizeStaticReadiness(canUseFetchedHtml, needsBrowserHtml, pageCheck, primaryAction, error);
   const answerEvidence = summarizeAgentAnswerEvidence(citations, answerPlan);
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, canUseFetchedHtml, needsBrowserHtml);
   const runbook = summarizeAgentRunbook(next, executionPlan, answerPlan);
   const browserHtmlReasonCode = summarizeBrowserHtmlReasonCode(needsBrowserHtml, analysis, primaryAction, error);
+  const staticReadiness = summarizeStaticReadiness(canUseFetchedHtml, needsBrowserHtml, pageCheck, primaryAction, error, browserHtmlReasonCode);
   const actions = summarizeAgentActions(analysis, pageCheck, verification, primaryAction);
   const alternativeAction = actions.find((action) => !action.primary);
   const evidenceQualityScore = averageEvidenceScore(pageCheck.contentEvidence);
@@ -13133,6 +13133,7 @@ function summarizeBrowserHtmlReasonCode(
   error?: { code: CliErrorCode },
 ): AgentBrowserHtmlReasonCode | undefined {
   if (!needsBrowserHtml) return undefined;
+  if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "CLIENT_RENDERED")) return "client-rendered";
   if (error?.code === "NO_INSPECTABLE_CONTENT") return "no-inspectable-content";
   if (error?.code === "HTTP_ERROR") return "http-error";
   if (error?.code === "FETCH_FAILED" || error?.code === "TIMEOUT") return "fetch-error";
@@ -13152,8 +13153,17 @@ function summarizeStaticReadiness(
   pageCheck: PageCheckSummary,
   primaryAction?: SuggestedAction,
   error?: { code: CliErrorCode },
+  browserHtmlReasonCode?: AgentBrowserHtmlReasonCode,
 ): { status: AgentStaticReadiness; reasonCode: AgentStaticReadinessReasonCode; reason: string; readFrom?: string } {
   if (needsBrowserHtml) {
+    if (browserHtmlReasonCode === "client-rendered") {
+      return {
+        status: "needs-browser",
+        reasonCode: "client-rendered",
+        reason: "Static fetched HTML appears to be a JavaScript-rendered app shell; browser-captured HTML is required.",
+        ...(primaryAction?.readFrom ? { readFrom: primaryAction.readFrom } : {}),
+      };
+    }
     return {
       status: "needs-browser",
       reasonCode: primaryAction?.requiresBrowserInteraction || (primaryAction && actionExecution(primaryAction) === "interact-browser") ? "interaction-required" : "browser-required",
@@ -15657,6 +15667,14 @@ function detectBarrierDiagnostics(fetched: FetchResult, tree: SemanticNode, cont
   ].filter(Boolean).join(" ").toLowerCase();
   const diagnostics: DiagnosticSummary[] = [];
 
+  if (looksLikeClientRenderedShell(fetched.html, haystack)) {
+    diagnostics.push({
+      severity: "warning",
+      code: "CLIENT_RENDERED",
+      message: "The page appears to be a JavaScript-rendered app shell with little static content.",
+    });
+  }
+
   if (/(captcha|verify you are human|unusual traffic|checking your browser|just a moment|cf-browser-verification|cloudflare|access denied|request blocked|please wait for verification|please wait|enable javascript|enable java script|자바스크립트|봇이 아닙니다|자동입력|보안문자)/i.test(haystack)) {
     diagnostics.push({
       severity: "warning",
@@ -15680,6 +15698,17 @@ function detectBarrierDiagnostics(fetched: FetchResult, tree: SemanticNode, cont
   }
 
   return dedupeDiagnostics(diagnostics);
+}
+
+function looksLikeClientRenderedShell(html: string, haystack: string): boolean {
+  if (/(enable javascript|enable java script|requires javascript|자바스크립트를 활성화|자바스크립트가 필요)/i.test(haystack)) return true;
+  if (!/<script\b/i.test(html)) return false;
+  if (!/(id|class)=["'][^"']*(root|app|__next|nuxt|svelte|gatsby|react|vue)[^"']*["']/i.test(html)) return false;
+  const visibleText = cleanContentText(html
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " "));
+  return visibleText.length < 180;
 }
 
 function dedupeDiagnostics(diagnostics: DiagnosticSummary[]): DiagnosticSummary[] {
