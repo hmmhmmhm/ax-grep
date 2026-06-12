@@ -261,7 +261,7 @@ describe("cli", () => {
               <p>Example content for agent routing.</p>
               <table aria-label="Metrics" aria-rowcount="100" aria-colcount="4">
                 <thead>
-                  <tr><th id="metric-header">Metric</th><th id="value-header">Value</th></tr>
+                  <tr aria-rowindex="1"><th id="metric-header" aria-colindex="1" aria-sort="ascending">Metric</th><th id="value-header" aria-colindex="2">Value</th></tr>
                 </thead>
                 <tbody>
                   <tr aria-rowindex="2"><td aria-colindex="1" rowspan="2" colspan="2" headers="metric-header">Latency</td><td aria-colindex="3" headers="metric-header value-header">120 ms</td></tr>
@@ -453,6 +453,10 @@ describe("cli", () => {
               declaredRowCount: 100,
               declaredColumnCount: 4,
               headers: ["Metric", "Value"],
+              headerRefs: [
+                { path: "agent.semanticSummary.tableItems[0].headerRefs[0]", text: "Metric", role: "columnheader", rowIndex: 1, columnIndex: 1, sort: "ascending", selector: "#metric-header" },
+                { path: "agent.semanticSummary.tableItems[0].headerRefs[1]", text: "Value", role: "columnheader", rowIndex: 1, columnIndex: 2, selector: "#value-header" },
+              ],
               sampleCells: ["Latency", "120 ms"],
               sampleCellRefs: [
                 { path: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]", text: "Latency", rowIndex: 2, columnIndex: 1, rowSpan: 2, columnSpan: 2, headers: ["Metric"], columnHeaders: ["Metric"], selector: "td" },
@@ -626,12 +630,22 @@ describe("cli", () => {
         semanticTopTableDeclaredRowCount: 100,
         semanticTopTableDeclaredColumnCount: 4,
         semanticTopTableHeaders: ["Metric", "Value"],
+        semanticTopTableHeaderRefs: [
+          { path: "agent.semanticSummary.tableItems[0].headerRefs[0]", text: "Metric", role: "columnheader", rowIndex: 1, columnIndex: 1, sort: "ascending", selector: "#metric-header" },
+          { path: "agent.semanticSummary.tableItems[0].headerRefs[1]", text: "Value", role: "columnheader", rowIndex: 1, columnIndex: 2, selector: "#value-header" },
+        ],
         semanticTopTableSampleCells: ["Latency", "120 ms"],
         semanticTopTableSampleCellRefs: [
           { path: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]", text: "Latency", rowIndex: 2, columnIndex: 1, rowSpan: 2, columnSpan: 2, headers: ["Metric"], columnHeaders: ["Metric"], selector: "td" },
           { path: "agent.semanticSummary.tableItems[0].sampleCellRefs[1]", text: "120 ms", rowIndex: 2, columnIndex: 3, headers: ["Metric", "Value"], columnHeaders: ["Metric", "Value"], selector: "td:nth-of-type(2)" },
         ],
         semanticTopTableFirstHeader: "Metric",
+        semanticTopTableFirstHeaderPath: "agent.semanticSummary.tableItems[0].headerRefs[0]",
+        semanticTopTableFirstHeaderRole: "columnheader",
+        semanticTopTableFirstHeaderRowIndex: 1,
+        semanticTopTableFirstHeaderColumnIndex: 1,
+        semanticTopTableFirstHeaderSort: "ascending",
+        semanticTopTableFirstHeaderSelector: "#metric-header",
         semanticTopTableFirstSampleCellPath: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]",
         semanticTopTableFirstSampleCellText: "Latency",
         semanticTopTableFirstSampleCellRowIndex: 2,

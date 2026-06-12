@@ -599,9 +599,16 @@ describe("public agent types", () => {
       | "semanticTopTableDeclaredRowCount"
       | "semanticTopTableDeclaredColumnCount"
       | "semanticTopTableHeaders"
+      | "semanticTopTableHeaderRefs"
       | "semanticTopTableSampleCells"
       | "semanticTopTableSampleCellRefs"
       | "semanticTopTableFirstHeader"
+      | "semanticTopTableFirstHeaderPath"
+      | "semanticTopTableFirstHeaderRole"
+      | "semanticTopTableFirstHeaderRowIndex"
+      | "semanticTopTableFirstHeaderColumnIndex"
+      | "semanticTopTableFirstHeaderSort"
+      | "semanticTopTableFirstHeaderSelector"
       | "semanticTopTableFirstSampleCellPath"
       | "semanticTopTableFirstSampleCellText"
       | "semanticTopTableFirstSampleCellRowIndex"
@@ -1317,9 +1324,16 @@ describe("public agent types", () => {
       semanticTopTableDeclaredRowCount: 100,
       semanticTopTableDeclaredColumnCount: 4,
       semanticTopTableHeaders: ["Plan", "Price"],
+      semanticTopTableHeaderRefs: [{ path: "agent.semanticSummary.tableItems[0].headerRefs[0]", text: "Plan", role: "columnheader", rowIndex: 1, columnIndex: 1, sort: "ascending", selector: "th:nth-of-type(1)" }],
       semanticTopTableSampleCells: ["Pro", "$20"],
       semanticTopTableSampleCellRefs: [{ path: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]", text: "Pro", rowIndex: 2, columnIndex: 1, rowSpan: 2, columnSpan: 3, headers: ["Plan", "Price"], rowHeaders: ["Plan"], columnHeaders: ["Price"], selector: "td:nth-of-type(1)" }],
       semanticTopTableFirstHeader: "Plan",
+      semanticTopTableFirstHeaderPath: "agent.semanticSummary.tableItems[0].headerRefs[0]",
+      semanticTopTableFirstHeaderRole: "columnheader",
+      semanticTopTableFirstHeaderRowIndex: 1,
+      semanticTopTableFirstHeaderColumnIndex: 1,
+      semanticTopTableFirstHeaderSort: "ascending",
+      semanticTopTableFirstHeaderSelector: "th:nth-of-type(1)",
       semanticTopTableFirstSampleCellPath: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]",
       semanticTopTableFirstSampleCellText: "Pro",
       semanticTopTableFirstSampleCellRowIndex: 2,

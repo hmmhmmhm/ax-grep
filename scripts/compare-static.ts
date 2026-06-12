@@ -1760,9 +1760,16 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopTableDeclaredRowCount?: number;
       semanticTopTableDeclaredColumnCount?: number;
       semanticTopTableHeaders?: string[];
+      semanticTopTableHeaderRefs?: Array<{ path?: string; text?: string; role?: string; rowIndex?: number; columnIndex?: number; sort?: string; selector?: string }>;
       semanticTopTableSampleCells?: string[];
       semanticTopTableSampleCellRefs?: Array<{ path?: string; text?: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; rowHeaders?: string[]; columnHeaders?: string[]; selector?: string }>;
       semanticTopTableFirstHeader?: string;
+      semanticTopTableFirstHeaderPath?: string;
+      semanticTopTableFirstHeaderRole?: string;
+      semanticTopTableFirstHeaderRowIndex?: number;
+      semanticTopTableFirstHeaderColumnIndex?: number;
+      semanticTopTableFirstHeaderSort?: string;
+      semanticTopTableFirstHeaderSelector?: string;
       semanticTopTableFirstSampleCellPath?: string;
       semanticTopTableFirstSampleCellText?: string;
       semanticTopTableFirstSampleCellRowIndex?: number;
@@ -5137,9 +5144,16 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopTableDeclaredRowCount?: number;
   semanticTopTableDeclaredColumnCount?: number;
   semanticTopTableHeaders?: string[];
+  semanticTopTableHeaderRefs?: Array<{ path?: string; text?: string; role?: string; rowIndex?: number; columnIndex?: number; sort?: string; selector?: string }>;
   semanticTopTableSampleCells?: string[];
   semanticTopTableSampleCellRefs?: Array<{ path?: string; text?: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; rowHeaders?: string[]; columnHeaders?: string[]; selector?: string }>;
   semanticTopTableFirstHeader?: string;
+  semanticTopTableFirstHeaderPath?: string;
+  semanticTopTableFirstHeaderRole?: string;
+  semanticTopTableFirstHeaderRowIndex?: number;
+  semanticTopTableFirstHeaderColumnIndex?: number;
+  semanticTopTableFirstHeaderSort?: string;
+  semanticTopTableFirstHeaderSelector?: string;
   semanticTopTableFirstSampleCellPath?: string;
   semanticTopTableFirstSampleCellText?: string;
   semanticTopTableFirstSampleCellRowIndex?: number;
@@ -5840,7 +5854,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopImageSelector === image.selector) matched += 1;
   }
-  const table = Array.isArray(item.tableItems) ? item.tableItems[0] as { path?: unknown; role?: unknown; name?: unknown; rowCount?: unknown; cellCount?: unknown; declaredRowCount?: unknown; declaredColumnCount?: unknown; headers?: unknown; sampleCells?: unknown; sampleCellRefs?: unknown; selector?: unknown } | undefined : undefined;
+  const table = Array.isArray(item.tableItems) ? item.tableItems[0] as { path?: unknown; role?: unknown; name?: unknown; rowCount?: unknown; cellCount?: unknown; declaredRowCount?: unknown; declaredColumnCount?: unknown; headers?: unknown; headerRefs?: unknown; sampleCells?: unknown; sampleCellRefs?: unknown; selector?: unknown } | undefined : undefined;
   if (table && typeof table.role === "string") {
     required += 1;
     if (agent?.semanticTopTableRole === table.role) matched += 1;
@@ -5873,6 +5887,10 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (JSON.stringify(agent?.semanticTopTableHeaders) === JSON.stringify(table.headers)) matched += 1;
   }
+  if (table && Array.isArray(table.headerRefs)) {
+    required += 1;
+    if (JSON.stringify(agent?.semanticTopTableHeaderRefs) === JSON.stringify(table.headerRefs)) matched += 1;
+  }
   if (table && Array.isArray(table.sampleCells)) {
     required += 1;
     if (JSON.stringify(agent?.semanticTopTableSampleCells) === JSON.stringify(table.sampleCells)) matched += 1;
@@ -5884,6 +5902,17 @@ function scoreAgentSemanticSummary(agent: {
   if (table && Array.isArray(table.headers) && typeof table.headers[0] === "string") {
     required += 1;
     if (agent?.semanticTopTableFirstHeader === table.headers[0]) matched += 1;
+  }
+  const firstHeaderRef = Array.isArray(table?.headerRefs) ? table.headerRefs[0] as { path?: unknown; text?: unknown; role?: unknown; rowIndex?: unknown; columnIndex?: unknown; sort?: unknown; selector?: unknown } | undefined : undefined;
+  if (firstHeaderRef) {
+    required += 7;
+    if (agent?.semanticTopTableFirstHeaderPath === firstHeaderRef.path) matched += 1;
+    if (agent?.semanticTopTableFirstHeader === firstHeaderRef.text) matched += 1;
+    if (agent?.semanticTopTableFirstHeaderRole === firstHeaderRef.role) matched += 1;
+    if (agent?.semanticTopTableFirstHeaderRowIndex === firstHeaderRef.rowIndex) matched += 1;
+    if (agent?.semanticTopTableFirstHeaderColumnIndex === firstHeaderRef.columnIndex) matched += 1;
+    if (agent?.semanticTopTableFirstHeaderSort === firstHeaderRef.sort) matched += 1;
+    if (agent?.semanticTopTableFirstHeaderSelector === firstHeaderRef.selector) matched += 1;
   }
   const firstSampleCellRef = Array.isArray(table?.sampleCellRefs) ? table.sampleCellRefs[0] as { path?: unknown; text?: unknown; rowIndex?: unknown; columnIndex?: unknown; rowSpan?: unknown; columnSpan?: unknown; headers?: unknown; rowHeaders?: unknown; columnHeaders?: unknown; selector?: unknown } | undefined : undefined;
   if (firstSampleCellRef) {
