@@ -6521,7 +6521,9 @@ function summarizeFormSubmit(form: Element, baseUrl: string): {
 } | undefined {
   const submitCandidates = findElements(form.children, (item) => {
     if (item.name === "button") return !attr(item, "type") || attr(item, "type") === "submit";
-    return item.name === "input" && (attr(item, "type") || "text").toLowerCase() === "submit";
+    if (item.name !== "input") return false;
+    const inputType = (attr(item, "type") || "text").toLowerCase();
+    return inputType === "submit" || inputType === "image";
   });
   const submit = submitCandidates[0];
   if (!submit) return undefined;
@@ -6535,7 +6537,9 @@ function summarizeFormSubmit(form: Element, baseUrl: string): {
   const formEncType = attr(submit, "formenctype") || "";
   const formId = attr(submit, "form") || "";
   const sameTagIndex = findElements(form.children, (item) => item.name === submit.name).findIndex((item) => item === submit) + 1;
-  const text = cleanLinkText(elementText(submit) || value || attr(submit, "aria-label") || "");
+  const text = cleanLinkText(type === "image"
+    ? attr(submit, "aria-label") || attr(submit, "alt") || value || attr(submit, "src") || ""
+    : elementText(submit) || value || attr(submit, "aria-label") || "");
   return {
     text,
     type,

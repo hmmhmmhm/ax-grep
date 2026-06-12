@@ -5920,6 +5920,47 @@ describe("cli", () => {
     });
   });
 
+  it("preserves image submit controls for submission handoff", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/image-search", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <form method="GET" action="/image-search">
+            <label for="q">Query</label>
+            <input id="q" name="q" type="search">
+            <input type="image" name="go" value="1" alt="Search with image button" src="/search.png">
+          </form>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.forms[0]).toMatchObject({
+      submitText: "Search with image button",
+      submitType: "image",
+      submitName: "go",
+      submitValue: "1",
+      submitSelector: "input[name=\"go\"]",
+    });
+    expect(envelope.agent).toMatchObject({
+      topFormChoiceSubmitText: "Search with image button",
+      topFormChoiceSubmitType: "image",
+      topFormChoiceSubmitName: "go",
+      topFormChoiceSubmitValue: "1",
+      topFormChoiceSubmitSelector: "input[name=\"go\"]",
+    });
+    expect(envelope.agent.formChoices[0]).toMatchObject({
+      submitText: "Search with image button",
+      submitType: "image",
+      submitName: "go",
+      submitValue: "1",
+      submitSelector: "input[name=\"go\"]",
+    });
+  });
+
   it("keeps executable form details in brief read handoff", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/search", "--agent-brief"], {
