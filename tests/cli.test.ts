@@ -8549,6 +8549,29 @@ npx ax-grep https://example.test --agent</code></pre>
     });
   });
 
+  it("keeps unavailable semantic target details in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/dashboard", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <iframe title="Interactive revenue dashboard" src="/embed/dashboard"></iframe>
+          <p>Readable dashboard summary.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      semanticUnavailableCount: 1,
+      semanticTopUnavailablePath: "agent.semanticSummary.unavailableItems[0]",
+      semanticTopUnavailableTag: "iframe",
+      semanticTopUnavailableReason: "iframe content unavailable in static HTML",
+    });
+  });
+
   it("checks requested text against embedded content summaries", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/dashboard", "--agent", "--find", "allow-same-origin"], {

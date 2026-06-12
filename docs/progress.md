@@ -132,6 +132,9 @@ estimates stay honest.
 - Added top-level browser HTML capture shortcuts for action, operation, command
   args, capture file, and capture script so agents can execute fallback without
   parsing nested runbook/execution-plan objects.
+- Kept semantic unavailable target role/name/selector shortcuts in brief output
+  so agents can identify browser-inaccessible static targets without expanding
+  the full semantic summary.
 - Added non-browser fixture gates and readiness audits for repeatable checks.
 - Added process-safety guidance: run tests and browser-backed checks
   sequentially, and verify process cleanup.
