@@ -17,6 +17,10 @@ Resource safety:
   `https://books.toscrape.com/`, `https://news.ycombinator.com`, and
   `https://www.gov.uk/foreign-travel-advice`; run `pnpm check:processes`
   before and after it.
+- Use `pnpm readiness:agent-browser-text-heavy-smoke` only when checking the
+  text-heavy document policy. It checks Korean Wikipedia separately from the
+  main smoke because strict StaticText overlap is tracked apart from structural
+  content readiness.
 - Use `pnpm check:processes` before and after browser-backed comparison runs.
 - If several target sets are needed, run them sequentially and save each output
   separately.
@@ -28,6 +32,7 @@ pnpm compare:static:fixtures:gate
 pnpm readiness:audit
 pnpm readiness:real-page-smoke
 pnpm readiness:agent-browser-smoke
+pnpm readiness:agent-browser-text-heavy-smoke
 pnpm check:processes
 pnpm compare:static https://example.com https://news.ycombinator.com
 pnpm compare:tokens https://example.com https://news.ycombinator.com
@@ -67,6 +72,11 @@ It runs `pnpm compare` for `https://example.com` and
 snapshots, and enforces per-target overlap/readiness floors. Treat it like
 other browser-backed work: one command at a time, with process checks before
 and after.
+
+`readiness:agent-browser-text-heavy-smoke` is a separate browser-backed
+comparison for text-heavy document pages. It requires Korean Wikipedia to keep
+usable action/navigation/structural-content recall while still reporting strict
+text recall separately.
 
 `compare:gate` checks saved JSON output from `compare:static*` and
 `compare:tokens*`. Static gates require executor, handoff, browser-advantage,

@@ -196,6 +196,25 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
     ),
     evidenceCheck(
       root,
+      "agent-browser-text-heavy-smoke",
+      "Text-heavy document pages must not be judged only by raw StaticText volume when action, navigation, and structural content parity are usable.",
+      "readiness:agent-browser-text-heavy-smoke runs pnpm compare on Korean Wikipedia and enforces structuralContentRecall and textRecall reporting separately.",
+      (failures) => {
+        const packageJson = readJson<PackageJson>(root, "package.json", failures);
+        requireScript(failures, packageJson?.scripts ?? {}, "readiness:agent-browser-text-heavy-smoke", "scripts/check-agent-browser-text-heavy-smoke.ts");
+        requireFileIncludes(root, failures, "scripts/check-agent-browser-text-heavy-smoke.ts", [
+          "https://ko.wikipedia.org/wiki/%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD",
+          "pnpm",
+          "compare",
+          "structuralContentRecall",
+          "textRecall",
+          "agentReadiness",
+          "agentBrowser",
+        ]);
+      },
+    ),
+    evidenceCheck(
+      root,
       "per-target-gates",
       "No included target may hide behind good averages when agent output is too weak.",
       "Static comparison gates enforce per-target CLI and executor floors in addition to average scores.",

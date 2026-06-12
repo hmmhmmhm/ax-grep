@@ -42,6 +42,7 @@
     "readiness:audit": "tsx scripts/check-agent-readiness.ts",
     "readiness:real-page-smoke": "tsx scripts/check-real-page-smoke.ts",
     "readiness:agent-browser-smoke": "tsx scripts/check-agent-browser-smoke.ts",
+    "readiness:agent-browser-text-heavy-smoke": "tsx scripts/check-agent-browser-text-heavy-smoke.ts",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
