@@ -1582,6 +1582,13 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       executorUrl?: string;
       executorTargetUrl?: string;
       executorTargetPath?: string;
+      executorTargetTitle?: string;
+      executorTargetHost?: string;
+      executorTargetSource?: string;
+      executorTargetRank?: number;
+      executorTargetSourceScore?: number;
+      executorTargetRelevance?: CliAgentTargetShape["relevance"];
+      executorTargetLikelyOfficial?: boolean;
       executorTargetSelector?: string;
       executorTargetText?: string;
       executorExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
@@ -1601,6 +1608,13 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       handoffUrl?: string;
       handoffTargetUrl?: string;
       handoffTargetPath?: string;
+      handoffTargetTitle?: string;
+      handoffTargetHost?: string;
+      handoffTargetSource?: string;
+      handoffTargetRank?: number;
+      handoffTargetSourceScore?: number;
+      handoffTargetRelevance?: CliAgentTargetShape["relevance"];
+      handoffTargetLikelyOfficial?: boolean;
       handoffTargetSelector?: string;
       handoffTargetText?: string;
       handoffExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
@@ -7410,6 +7424,13 @@ function scoreAgentExecutorShortcuts(agent: {
   executorUrl?: string;
   executorTargetUrl?: string;
   executorTargetPath?: string;
+  executorTargetTitle?: string;
+  executorTargetHost?: string;
+  executorTargetSource?: string;
+  executorTargetRank?: number;
+  executorTargetSourceScore?: number;
+  executorTargetRelevance?: CliAgentTargetShape["relevance"];
+  executorTargetLikelyOfficial?: boolean;
   executorTargetSelector?: string;
   executorTargetText?: string;
   executorExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
@@ -7457,6 +7478,48 @@ function scoreAgentExecutorShortcuts(agent: {
   } else if (agent.executorTargetPath) {
     required += 1;
   }
+  if (executor.target?.title) {
+    required += 1;
+    if (agent.executorTargetTitle === executor.target.title) matched += 1;
+  } else if (agent.executorTargetTitle) {
+    required += 1;
+  }
+  if (executor.target?.host) {
+    required += 1;
+    if (agent.executorTargetHost === executor.target.host) matched += 1;
+  } else if (agent.executorTargetHost) {
+    required += 1;
+  }
+  if (executor.target?.source) {
+    required += 1;
+    if (agent.executorTargetSource === executor.target.source) matched += 1;
+  } else if (agent.executorTargetSource) {
+    required += 1;
+  }
+  if (typeof executor.target?.rank === "number") {
+    required += 1;
+    if (agent.executorTargetRank === executor.target.rank) matched += 1;
+  } else if (typeof agent.executorTargetRank === "number") {
+    required += 1;
+  }
+  if (typeof executor.target?.sourceScore === "number") {
+    required += 1;
+    if (agent.executorTargetSourceScore === executor.target.sourceScore) matched += 1;
+  } else if (typeof agent.executorTargetSourceScore === "number") {
+    required += 1;
+  }
+  if (executor.target?.relevance) {
+    required += 1;
+    if (agent.executorTargetRelevance === executor.target.relevance) matched += 1;
+  } else if (agent.executorTargetRelevance) {
+    required += 1;
+  }
+  if (typeof executor.target?.isLikelyOfficial === "boolean") {
+    required += 1;
+    if (agent.executorTargetLikelyOfficial === executor.target.isLikelyOfficial) matched += 1;
+  } else if (typeof agent.executorTargetLikelyOfficial === "boolean") {
+    required += 1;
+  }
   if (executor.target?.selector) {
     required += 1;
     if (agent.executorTargetSelector === executor.target.selector) matched += 1;
@@ -7490,6 +7553,13 @@ function scoreAgentHandoffShortcuts(agent: {
   handoffUrl?: string;
   handoffTargetUrl?: string;
   handoffTargetPath?: string;
+  handoffTargetTitle?: string;
+  handoffTargetHost?: string;
+  handoffTargetSource?: string;
+  handoffTargetRank?: number;
+  handoffTargetSourceScore?: number;
+  handoffTargetRelevance?: CliAgentTargetShape["relevance"];
+  handoffTargetLikelyOfficial?: boolean;
   handoffTargetSelector?: string;
   handoffTargetText?: string;
   handoffExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
@@ -7548,6 +7618,48 @@ function scoreAgentHandoffShortcuts(agent: {
     required += 1;
     if (agent.handoffTargetPath === handoff.target.path) matched += 1;
   } else if (agent.handoffTargetPath) {
+    required += 1;
+  }
+  if (handoff.target?.title) {
+    required += 1;
+    if (agent.handoffTargetTitle === handoff.target.title) matched += 1;
+  } else if (agent.handoffTargetTitle) {
+    required += 1;
+  }
+  if (handoff.target?.host) {
+    required += 1;
+    if (agent.handoffTargetHost === handoff.target.host) matched += 1;
+  } else if (agent.handoffTargetHost) {
+    required += 1;
+  }
+  if (handoff.target?.source) {
+    required += 1;
+    if (agent.handoffTargetSource === handoff.target.source) matched += 1;
+  } else if (agent.handoffTargetSource) {
+    required += 1;
+  }
+  if (typeof handoff.target?.rank === "number") {
+    required += 1;
+    if (agent.handoffTargetRank === handoff.target.rank) matched += 1;
+  } else if (typeof agent.handoffTargetRank === "number") {
+    required += 1;
+  }
+  if (typeof handoff.target?.sourceScore === "number") {
+    required += 1;
+    if (agent.handoffTargetSourceScore === handoff.target.sourceScore) matched += 1;
+  } else if (typeof agent.handoffTargetSourceScore === "number") {
+    required += 1;
+  }
+  if (handoff.target?.relevance) {
+    required += 1;
+    if (agent.handoffTargetRelevance === handoff.target.relevance) matched += 1;
+  } else if (agent.handoffTargetRelevance) {
+    required += 1;
+  }
+  if (typeof handoff.target?.isLikelyOfficial === "boolean") {
+    required += 1;
+    if (agent.handoffTargetLikelyOfficial === handoff.target.isLikelyOfficial) matched += 1;
+  } else if (typeof agent.handoffTargetLikelyOfficial === "boolean") {
     required += 1;
   }
   if (handoff.target?.selector) {

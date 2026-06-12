@@ -958,6 +958,13 @@ describe("public agent types", () => {
       | "executorUrl"
       | "executorTargetUrl"
       | "executorTargetPath"
+      | "executorTargetTitle"
+      | "executorTargetHost"
+      | "executorTargetSource"
+      | "executorTargetRank"
+      | "executorTargetSourceScore"
+      | "executorTargetRelevance"
+      | "executorTargetLikelyOfficial"
       | "executorTargetSelector"
       | "executorTargetText"
       | "executorExpectedOutcome"
@@ -977,6 +984,13 @@ describe("public agent types", () => {
       | "handoffUrl"
       | "handoffTargetUrl"
       | "handoffTargetPath"
+      | "handoffTargetTitle"
+      | "handoffTargetHost"
+      | "handoffTargetSource"
+      | "handoffTargetRank"
+      | "handoffTargetSourceScore"
+      | "handoffTargetRelevance"
+      | "handoffTargetLikelyOfficial"
       | "handoffTargetSelector"
       | "handoffTargetText"
       | "handoffExpectedOutcome"
@@ -1778,6 +1792,13 @@ describe("public agent types", () => {
       executorUrl: "https://example.test",
       executorTargetUrl: "https://example.test",
       executorTargetPath: "pageCheck.links[0]",
+      executorTargetTitle: "Example target",
+      executorTargetHost: "example.test",
+      executorTargetSource: "source-link",
+      executorTargetRank: 1,
+      executorTargetSourceScore: 0.92,
+      executorTargetRelevance: "high",
+      executorTargetLikelyOfficial: true,
       executorTargetSelector: "a.primary",
       executorTargetText: "Read more",
       executorExpectedOutcome: "read-evidence",
@@ -1797,6 +1818,13 @@ describe("public agent types", () => {
       handoffUrl: "https://example.test",
       handoffTargetUrl: "https://example.test",
       handoffTargetPath: "pageCheck.links[0]",
+      handoffTargetTitle: "Example target",
+      handoffTargetHost: "example.test",
+      handoffTargetSource: "source-link",
+      handoffTargetRank: 1,
+      handoffTargetSourceScore: 0.92,
+      handoffTargetRelevance: "high",
+      handoffTargetLikelyOfficial: true,
       handoffTargetSelector: "a.primary",
       handoffTargetText: "Read more",
       handoffExpectedOutcome: "read-evidence",
@@ -1898,9 +1926,13 @@ describe("public agent types", () => {
     expect(summary.executorOperation).toBe("return");
     expect(summary.executorTerminal).toBe(true);
     expect(summary.executorTargetSelector).toBe("a.primary");
+    expect(summary.executorTargetSourceScore).toBe(0.92);
+    expect(summary.executorTargetLikelyOfficial).toBe(true);
     expect(summary.handoffAnswerStatus).toBe("ready");
     expect(summary.handoffShouldContinue).toBe(false);
     expect(summary.handoffTargetPath).toBe("pageCheck.links[0]");
+    expect(summary.handoffTargetTitle).toBe("Example target");
+    expect(summary.handoffTargetRelevance).toBe("high");
     expect(summary.primaryActionName).toBe("read-content");
     expect(summary.primarySourceLinkRef).toBe("pageCheck.sourceLinks[0]");
     expect(summary.alternativeActionName).toBe("open-source-link");

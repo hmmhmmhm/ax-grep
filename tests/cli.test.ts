@@ -1260,6 +1260,13 @@ describe("cli", () => {
       if (item.args[0] === "--search") expect(envelope.agent.searchDecisionReason).toEqual(expect.any(String));
       if (executor.target?.url) expect(envelope.agent.executorTargetUrl).toBe(executor.target.url);
       if (executor.target?.path) expect(envelope.agent.executorTargetPath).toBe(executor.target.path);
+      if (executor.target?.title) expect(envelope.agent.executorTargetTitle).toBe(executor.target.title);
+      if (executor.target?.host) expect(envelope.agent.executorTargetHost).toBe(executor.target.host);
+      if (executor.target?.source) expect(envelope.agent.executorTargetSource).toBe(executor.target.source);
+      if (typeof executor.target?.rank === "number") expect(envelope.agent.executorTargetRank).toBe(executor.target.rank);
+      if (typeof executor.target?.sourceScore === "number") expect(envelope.agent.executorTargetSourceScore).toBe(executor.target.sourceScore);
+      if (executor.target?.relevance) expect(envelope.agent.executorTargetRelevance).toBe(executor.target.relevance);
+      if (typeof executor.target?.isLikelyOfficial === "boolean") expect(envelope.agent.executorTargetLikelyOfficial).toBe(executor.target.isLikelyOfficial);
       if (executor.target?.selector) expect(envelope.agent.executorTargetSelector).toBe(executor.target.selector);
       if (executor.target?.text) expect(envelope.agent.executorTargetText).toBe(executor.target.text);
       expect(envelope.agent.handoffDecision).toBe(handoff.decision);
@@ -1279,6 +1286,13 @@ describe("cli", () => {
       if (handoff.url) expect(envelope.agent.handoffUrl).toBe(handoff.url);
       if (handoff.target?.url) expect(envelope.agent.handoffTargetUrl).toBe(handoff.target.url);
       if (handoff.target?.path) expect(envelope.agent.handoffTargetPath).toBe(handoff.target.path);
+      if (handoff.target?.title) expect(envelope.agent.handoffTargetTitle).toBe(handoff.target.title);
+      if (handoff.target?.host) expect(envelope.agent.handoffTargetHost).toBe(handoff.target.host);
+      if (handoff.target?.source) expect(envelope.agent.handoffTargetSource).toBe(handoff.target.source);
+      if (typeof handoff.target?.rank === "number") expect(envelope.agent.handoffTargetRank).toBe(handoff.target.rank);
+      if (typeof handoff.target?.sourceScore === "number") expect(envelope.agent.handoffTargetSourceScore).toBe(handoff.target.sourceScore);
+      if (handoff.target?.relevance) expect(envelope.agent.handoffTargetRelevance).toBe(handoff.target.relevance);
+      if (typeof handoff.target?.isLikelyOfficial === "boolean") expect(envelope.agent.handoffTargetLikelyOfficial).toBe(handoff.target.isLikelyOfficial);
       if (handoff.target?.selector) expect(envelope.agent.handoffTargetSelector).toBe(handoff.target.selector);
       if (handoff.target?.text) expect(envelope.agent.handoffTargetText).toBe(handoff.target.text);
       expect(envelope.agent.answerPlanStatus).toBe(handoff.answerStatus);

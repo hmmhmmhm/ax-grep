@@ -1343,6 +1343,13 @@ export type AgentSummary = {
   executorUrl?: string;
   executorTargetUrl?: string;
   executorTargetPath?: string;
+  executorTargetTitle?: string;
+  executorTargetHost?: string;
+  executorTargetSource?: string;
+  executorTargetRank?: number;
+  executorTargetSourceScore?: number;
+  executorTargetRelevance?: AgentTarget["relevance"];
+  executorTargetLikelyOfficial?: boolean;
   executorTargetSelector?: string;
   executorTargetText?: string;
   executorExpectedOutcome?: AgentExpectedOutcome["kind"];
@@ -1362,6 +1369,13 @@ export type AgentSummary = {
   handoffUrl?: string;
   handoffTargetUrl?: string;
   handoffTargetPath?: string;
+  handoffTargetTitle?: string;
+  handoffTargetHost?: string;
+  handoffTargetSource?: string;
+  handoffTargetRank?: number;
+  handoffTargetSourceScore?: number;
+  handoffTargetRelevance?: AgentTarget["relevance"];
+  handoffTargetLikelyOfficial?: boolean;
   handoffTargetSelector?: string;
   handoffTargetText?: string;
   handoffExpectedOutcome?: AgentExpectedOutcome["kind"];

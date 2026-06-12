@@ -1692,6 +1692,13 @@ type AgentSummary = {
   executorUrl?: string;
   executorTargetUrl?: string;
   executorTargetPath?: string;
+  executorTargetTitle?: string;
+  executorTargetHost?: string;
+  executorTargetSource?: string;
+  executorTargetRank?: number;
+  executorTargetSourceScore?: number;
+  executorTargetRelevance?: AgentTarget["relevance"];
+  executorTargetLikelyOfficial?: boolean;
   executorTargetSelector?: string;
   executorTargetText?: string;
   executorExpectedOutcome?: AgentExpectedOutcome["kind"];
@@ -1711,6 +1718,13 @@ type AgentSummary = {
   handoffUrl?: string;
   handoffTargetUrl?: string;
   handoffTargetPath?: string;
+  handoffTargetTitle?: string;
+  handoffTargetHost?: string;
+  handoffTargetSource?: string;
+  handoffTargetRank?: number;
+  handoffTargetSourceScore?: number;
+  handoffTargetRelevance?: AgentTarget["relevance"];
+  handoffTargetLikelyOfficial?: boolean;
   handoffTargetSelector?: string;
   handoffTargetText?: string;
   handoffExpectedOutcome?: AgentExpectedOutcome["kind"];
@@ -3550,6 +3564,13 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.executorExpectedOutcome) lines.push(`  executorExpectedOutcome: ${agent.executorExpectedOutcome}`);
   if (agent.executorTargetUrl) lines.push(`  executorTargetUrl: ${agent.executorTargetUrl}`);
   if (agent.executorTargetPath) lines.push(`  executorTargetPath: ${agent.executorTargetPath}`);
+  if (agent.executorTargetTitle) lines.push(`  executorTargetTitle: ${agent.executorTargetTitle}`);
+  if (agent.executorTargetHost) lines.push(`  executorTargetHost: ${agent.executorTargetHost}`);
+  if (agent.executorTargetSource) lines.push(`  executorTargetSource: ${agent.executorTargetSource}`);
+  if (typeof agent.executorTargetRank === "number") lines.push(`  executorTargetRank: ${agent.executorTargetRank}`);
+  if (typeof agent.executorTargetSourceScore === "number") lines.push(`  executorTargetSourceScore: ${agent.executorTargetSourceScore}`);
+  if (agent.executorTargetRelevance) lines.push(`  executorTargetRelevance: ${agent.executorTargetRelevance}`);
+  if (typeof agent.executorTargetLikelyOfficial === "boolean") lines.push(`  executorTargetLikelyOfficial: ${agent.executorTargetLikelyOfficial}`);
   if (agent.executorTargetSelector) lines.push(`  executorTargetSelector: ${agent.executorTargetSelector}`);
   if (agent.executorTargetText) lines.push(`  executorTargetText: ${agent.executorTargetText}`);
   if (agent.handoffDecision) lines.push(`  handoffDecision: ${agent.handoffDecision}`);
@@ -3566,6 +3587,13 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.handoffExpectedOutcome) lines.push(`  handoffExpectedOutcome: ${agent.handoffExpectedOutcome}`);
   if (agent.handoffTargetUrl) lines.push(`  handoffTargetUrl: ${agent.handoffTargetUrl}`);
   if (agent.handoffTargetPath) lines.push(`  handoffTargetPath: ${agent.handoffTargetPath}`);
+  if (agent.handoffTargetTitle) lines.push(`  handoffTargetTitle: ${agent.handoffTargetTitle}`);
+  if (agent.handoffTargetHost) lines.push(`  handoffTargetHost: ${agent.handoffTargetHost}`);
+  if (agent.handoffTargetSource) lines.push(`  handoffTargetSource: ${agent.handoffTargetSource}`);
+  if (typeof agent.handoffTargetRank === "number") lines.push(`  handoffTargetRank: ${agent.handoffTargetRank}`);
+  if (typeof agent.handoffTargetSourceScore === "number") lines.push(`  handoffTargetSourceScore: ${agent.handoffTargetSourceScore}`);
+  if (agent.handoffTargetRelevance) lines.push(`  handoffTargetRelevance: ${agent.handoffTargetRelevance}`);
+  if (typeof agent.handoffTargetLikelyOfficial === "boolean") lines.push(`  handoffTargetLikelyOfficial: ${agent.handoffTargetLikelyOfficial}`);
   if (agent.handoffTargetSelector) lines.push(`  handoffTargetSelector: ${agent.handoffTargetSelector}`);
   if (agent.handoffTargetText) lines.push(`  handoffTargetText: ${agent.handoffTargetText}`);
   if (agent.answerPlanStatus) lines.push(`  answerPlanStatus: ${agent.answerPlanStatus}`);
@@ -11761,6 +11789,13 @@ function summarizeAgent(
     ...(executor.url ? { executorUrl: executor.url } : {}),
     ...(executor.target?.url ? { executorTargetUrl: executor.target.url } : {}),
     ...(executor.target?.path ? { executorTargetPath: executor.target.path } : {}),
+    ...(executor.target?.title ? { executorTargetTitle: executor.target.title } : {}),
+    ...(executor.target?.host ? { executorTargetHost: executor.target.host } : {}),
+    ...(executor.target?.source ? { executorTargetSource: executor.target.source } : {}),
+    ...(typeof executor.target?.rank === "number" ? { executorTargetRank: executor.target.rank } : {}),
+    ...(typeof executor.target?.sourceScore === "number" ? { executorTargetSourceScore: executor.target.sourceScore } : {}),
+    ...(executor.target?.relevance ? { executorTargetRelevance: executor.target.relevance } : {}),
+    ...(typeof executor.target?.isLikelyOfficial === "boolean" ? { executorTargetLikelyOfficial: executor.target.isLikelyOfficial } : {}),
     ...(executor.target?.selector ? { executorTargetSelector: executor.target.selector } : {}),
     ...(executor.target?.text ? { executorTargetText: executor.target.text } : {}),
     executorExpectedOutcome: executor.expectedOutcome,
@@ -11780,6 +11815,13 @@ function summarizeAgent(
     ...(handoff.url ? { handoffUrl: handoff.url } : {}),
     ...(handoff.target?.url ? { handoffTargetUrl: handoff.target.url } : {}),
     ...(handoff.target?.path ? { handoffTargetPath: handoff.target.path } : {}),
+    ...(handoff.target?.title ? { handoffTargetTitle: handoff.target.title } : {}),
+    ...(handoff.target?.host ? { handoffTargetHost: handoff.target.host } : {}),
+    ...(handoff.target?.source ? { handoffTargetSource: handoff.target.source } : {}),
+    ...(typeof handoff.target?.rank === "number" ? { handoffTargetRank: handoff.target.rank } : {}),
+    ...(typeof handoff.target?.sourceScore === "number" ? { handoffTargetSourceScore: handoff.target.sourceScore } : {}),
+    ...(handoff.target?.relevance ? { handoffTargetRelevance: handoff.target.relevance } : {}),
+    ...(typeof handoff.target?.isLikelyOfficial === "boolean" ? { handoffTargetLikelyOfficial: handoff.target.isLikelyOfficial } : {}),
     ...(handoff.target?.selector ? { handoffTargetSelector: handoff.target.selector } : {}),
     ...(handoff.target?.text ? { handoffTargetText: handoff.target.text } : {}),
     handoffExpectedOutcome: handoff.expectedOutcome,
@@ -14647,6 +14689,13 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     executorExpectedOutcome: executor.expectedOutcome,
     ...(executor.target?.url ? { executorTargetUrl: executor.target.url } : {}),
     ...(executor.target?.path ? { executorTargetPath: executor.target.path } : {}),
+    ...(executor.target?.title ? { executorTargetTitle: executor.target.title } : {}),
+    ...(executor.target?.host ? { executorTargetHost: executor.target.host } : {}),
+    ...(executor.target?.source ? { executorTargetSource: executor.target.source } : {}),
+    ...(typeof executor.target?.rank === "number" ? { executorTargetRank: executor.target.rank } : {}),
+    ...(typeof executor.target?.sourceScore === "number" ? { executorTargetSourceScore: executor.target.sourceScore } : {}),
+    ...(executor.target?.relevance ? { executorTargetRelevance: executor.target.relevance } : {}),
+    ...(typeof executor.target?.isLikelyOfficial === "boolean" ? { executorTargetLikelyOfficial: executor.target.isLikelyOfficial } : {}),
     ...(executor.target?.selector ? { executorTargetSelector: executor.target.selector } : {}),
     ...(executor.target?.text ? { executorTargetText: executor.target.text } : {}),
     handoffDecision: handoff.decision,
@@ -14660,6 +14709,13 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     handoffExpectedOutcome: handoff.expectedOutcome,
     ...(handoff.target?.url ? { handoffTargetUrl: handoff.target.url } : {}),
     ...(handoff.target?.path ? { handoffTargetPath: handoff.target.path } : {}),
+    ...(handoff.target?.title ? { handoffTargetTitle: handoff.target.title } : {}),
+    ...(handoff.target?.host ? { handoffTargetHost: handoff.target.host } : {}),
+    ...(handoff.target?.source ? { handoffTargetSource: handoff.target.source } : {}),
+    ...(typeof handoff.target?.rank === "number" ? { handoffTargetRank: handoff.target.rank } : {}),
+    ...(typeof handoff.target?.sourceScore === "number" ? { handoffTargetSourceScore: handoff.target.sourceScore } : {}),
+    ...(handoff.target?.relevance ? { handoffTargetRelevance: handoff.target.relevance } : {}),
+    ...(typeof handoff.target?.isLikelyOfficial === "boolean" ? { handoffTargetLikelyOfficial: handoff.target.isLikelyOfficial } : {}),
     ...(handoff.target?.selector ? { handoffTargetSelector: handoff.target.selector } : {}),
     ...(handoff.target?.text ? { handoffTargetText: handoff.target.text } : {}),
     ...(primaryAction ? { primaryActionName: primaryAction.action } : {}),
@@ -16720,6 +16776,13 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.executorUrl ? { executorUrl: agent.executorUrl } : {}),
     ...(agent.executorTargetUrl ? { executorTargetUrl: agent.executorTargetUrl } : {}),
     ...(agent.executorTargetPath ? { executorTargetPath: agent.executorTargetPath } : {}),
+    ...(agent.executorTargetTitle ? { executorTargetTitle: agent.executorTargetTitle } : {}),
+    ...(agent.executorTargetHost ? { executorTargetHost: agent.executorTargetHost } : {}),
+    ...(agent.executorTargetSource ? { executorTargetSource: agent.executorTargetSource } : {}),
+    ...(typeof agent.executorTargetRank === "number" ? { executorTargetRank: agent.executorTargetRank } : {}),
+    ...(typeof agent.executorTargetSourceScore === "number" ? { executorTargetSourceScore: agent.executorTargetSourceScore } : {}),
+    ...(agent.executorTargetRelevance ? { executorTargetRelevance: agent.executorTargetRelevance } : {}),
+    ...(typeof agent.executorTargetLikelyOfficial === "boolean" ? { executorTargetLikelyOfficial: agent.executorTargetLikelyOfficial } : {}),
     ...(agent.executorTargetSelector ? { executorTargetSelector: agent.executorTargetSelector } : {}),
     ...(agent.executorTargetText ? { executorTargetText: agent.executorTargetText } : {}),
     ...(agent.executorExpectedOutcome ? { executorExpectedOutcome: agent.executorExpectedOutcome } : {}),
@@ -16739,6 +16802,13 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.handoffUrl ? { handoffUrl: agent.handoffUrl } : {}),
     ...(agent.handoffTargetUrl ? { handoffTargetUrl: agent.handoffTargetUrl } : {}),
     ...(agent.handoffTargetPath ? { handoffTargetPath: agent.handoffTargetPath } : {}),
+    ...(agent.handoffTargetTitle ? { handoffTargetTitle: agent.handoffTargetTitle } : {}),
+    ...(agent.handoffTargetHost ? { handoffTargetHost: agent.handoffTargetHost } : {}),
+    ...(agent.handoffTargetSource ? { handoffTargetSource: agent.handoffTargetSource } : {}),
+    ...(typeof agent.handoffTargetRank === "number" ? { handoffTargetRank: agent.handoffTargetRank } : {}),
+    ...(typeof agent.handoffTargetSourceScore === "number" ? { handoffTargetSourceScore: agent.handoffTargetSourceScore } : {}),
+    ...(agent.handoffTargetRelevance ? { handoffTargetRelevance: agent.handoffTargetRelevance } : {}),
+    ...(typeof agent.handoffTargetLikelyOfficial === "boolean" ? { handoffTargetLikelyOfficial: agent.handoffTargetLikelyOfficial } : {}),
     ...(agent.handoffTargetSelector ? { handoffTargetSelector: agent.handoffTargetSelector } : {}),
     ...(agent.handoffTargetText ? { handoffTargetText: agent.handoffTargetText } : {}),
     ...(agent.handoffExpectedOutcome ? { handoffExpectedOutcome: agent.handoffExpectedOutcome } : {}),
@@ -17584,6 +17654,13 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.executorUrl ? { executorUrl: agent.executorUrl } : {}),
     ...(agent.executorTargetUrl ? { executorTargetUrl: agent.executorTargetUrl } : {}),
     ...(agent.executorTargetPath ? { executorTargetPath: agent.executorTargetPath } : {}),
+    ...(agent.executorTargetTitle ? { executorTargetTitle: agent.executorTargetTitle } : {}),
+    ...(agent.executorTargetHost ? { executorTargetHost: agent.executorTargetHost } : {}),
+    ...(agent.executorTargetSource ? { executorTargetSource: agent.executorTargetSource } : {}),
+    ...(typeof agent.executorTargetRank === "number" ? { executorTargetRank: agent.executorTargetRank } : {}),
+    ...(typeof agent.executorTargetSourceScore === "number" ? { executorTargetSourceScore: agent.executorTargetSourceScore } : {}),
+    ...(agent.executorTargetRelevance ? { executorTargetRelevance: agent.executorTargetRelevance } : {}),
+    ...(typeof agent.executorTargetLikelyOfficial === "boolean" ? { executorTargetLikelyOfficial: agent.executorTargetLikelyOfficial } : {}),
     ...(agent.executorTargetSelector ? { executorTargetSelector: agent.executorTargetSelector } : {}),
     ...(agent.executorTargetText ? { executorTargetText: agent.executorTargetText } : {}),
     ...(agent.executorExpectedOutcome ? { executorExpectedOutcome: agent.executorExpectedOutcome } : {}),
@@ -17603,6 +17680,13 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.handoffUrl ? { handoffUrl: agent.handoffUrl } : {}),
     ...(agent.handoffTargetUrl ? { handoffTargetUrl: agent.handoffTargetUrl } : {}),
     ...(agent.handoffTargetPath ? { handoffTargetPath: agent.handoffTargetPath } : {}),
+    ...(agent.handoffTargetTitle ? { handoffTargetTitle: agent.handoffTargetTitle } : {}),
+    ...(agent.handoffTargetHost ? { handoffTargetHost: agent.handoffTargetHost } : {}),
+    ...(agent.handoffTargetSource ? { handoffTargetSource: agent.handoffTargetSource } : {}),
+    ...(typeof agent.handoffTargetRank === "number" ? { handoffTargetRank: agent.handoffTargetRank } : {}),
+    ...(typeof agent.handoffTargetSourceScore === "number" ? { handoffTargetSourceScore: agent.handoffTargetSourceScore } : {}),
+    ...(agent.handoffTargetRelevance ? { handoffTargetRelevance: agent.handoffTargetRelevance } : {}),
+    ...(typeof agent.handoffTargetLikelyOfficial === "boolean" ? { handoffTargetLikelyOfficial: agent.handoffTargetLikelyOfficial } : {}),
     ...(agent.handoffTargetSelector ? { handoffTargetSelector: agent.handoffTargetSelector } : {}),
     ...(agent.handoffTargetText ? { handoffTargetText: agent.handoffTargetText } : {}),
     ...(agent.handoffExpectedOutcome ? { handoffExpectedOutcome: agent.handoffExpectedOutcome } : {}),
