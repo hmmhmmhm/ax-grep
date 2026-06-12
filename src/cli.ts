@@ -1398,6 +1398,26 @@ type AgentSummary = {
   hiddenApiEndpointCount: number;
   hiddenClientStateCount: number;
   hiddenAppHintCount: number;
+  topHydrationPath?: string;
+  topHydrationKind?: string;
+  topHydrationLabel?: string;
+  topHydrationUrl?: string;
+  topHydrationSelector?: string;
+  topApiEndpointPath?: string;
+  topApiEndpointKind?: string;
+  topApiEndpointMethod?: string;
+  topApiEndpointUrl?: string;
+  topApiEndpointSelector?: string;
+  topClientStatePath?: string;
+  topClientStateKind?: string;
+  topClientStateOperation?: string;
+  topClientStateKey?: string;
+  topClientStateSelector?: string;
+  topAppHintPath?: string;
+  topAppHintKind?: string;
+  topAppHintLabel?: string;
+  topAppHintUrl?: string;
+  topAppHintSelector?: string;
   topHiddenSignalGroup?: string;
   topHiddenSignalPath?: string;
   topHiddenSignalKind?: string;
@@ -3214,6 +3234,14 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  hiddenApiEndpointCount: ${agent.hiddenApiEndpointCount}`,
     `  hiddenClientStateCount: ${agent.hiddenClientStateCount}`,
     `  hiddenAppHintCount: ${agent.hiddenAppHintCount}`,
+    ...(agent.topHydrationPath ? [`  topHydration: ${agent.topHydrationPath} ${agent.topHydrationKind ?? ""}${agent.topHydrationUrl ? ` <${agent.topHydrationUrl}>` : ""}`] : []),
+    ...(agent.topHydrationSelector ? [`  topHydrationSelector: ${agent.topHydrationSelector}`] : []),
+    ...(agent.topApiEndpointPath ? [`  topApiEndpoint: ${agent.topApiEndpointPath} ${agent.topApiEndpointKind ?? ""}${agent.topApiEndpointMethod ? ` ${agent.topApiEndpointMethod}` : ""}${agent.topApiEndpointUrl ? ` <${agent.topApiEndpointUrl}>` : ""}`] : []),
+    ...(agent.topApiEndpointSelector ? [`  topApiEndpointSelector: ${agent.topApiEndpointSelector}`] : []),
+    ...(agent.topClientStatePath ? [`  topClientState: ${agent.topClientStatePath} ${agent.topClientStateKind ?? ""}${agent.topClientStateOperation ? ` ${agent.topClientStateOperation}` : ""}${agent.topClientStateKey ? ` ${agent.topClientStateKey}` : ""}`] : []),
+    ...(agent.topClientStateSelector ? [`  topClientStateSelector: ${agent.topClientStateSelector}`] : []),
+    ...(agent.topAppHintPath ? [`  topAppHint: ${agent.topAppHintPath} ${agent.topAppHintKind ?? ""}${agent.topAppHintUrl ? ` <${agent.topAppHintUrl}>` : ""}`] : []),
+    ...(agent.topAppHintSelector ? [`  topAppHintSelector: ${agent.topAppHintSelector}`] : []),
     ...(agent.topHiddenSignalGroup ? [`  topHiddenSignalGroup: ${agent.topHiddenSignalGroup}`] : []),
     ...(agent.topHiddenSignalPath ? [`  topHiddenSignalPath: ${agent.topHiddenSignalPath}`] : []),
     ...(agent.topHiddenSignalKind ? [`  topHiddenSignalKind: ${agent.topHiddenSignalKind}`] : []),
@@ -10539,6 +10567,10 @@ function summarizeAgent(
   const hiddenApiEndpointCount = pageCheck.apiEndpoints.length;
   const hiddenClientStateCount = pageCheck.clientState.length;
   const hiddenAppHintCount = pageCheck.appHints.length;
+  const topHydration = pageCheck.hydration[0];
+  const topApiEndpoint = pageCheck.apiEndpoints[0];
+  const topClientState = pageCheck.clientState[0];
+  const topAppHint = pageCheck.appHints[0];
   const topHiddenSignal = selectTopHiddenAgentPageCheckSignal(pageCheck);
   const structuredReadTargetCount = countStructuredAgentReadTargets(readTargets);
   const hiddenReadTargetCount = countHiddenAgentReadTargets(readTargets);
@@ -11139,6 +11171,26 @@ function summarizeAgent(
     hiddenApiEndpointCount,
     hiddenClientStateCount,
     hiddenAppHintCount,
+    ...(topHydration ? { topHydrationPath: topHydration.path } : {}),
+    ...(topHydration ? { topHydrationKind: topHydration.kind } : {}),
+    ...(topHydration?.label ? { topHydrationLabel: topHydration.label } : {}),
+    ...(topHydration?.url ? { topHydrationUrl: topHydration.url } : {}),
+    ...(topHydration?.selector ? { topHydrationSelector: topHydration.selector } : {}),
+    ...(topApiEndpoint ? { topApiEndpointPath: topApiEndpoint.path } : {}),
+    ...(topApiEndpoint ? { topApiEndpointKind: topApiEndpoint.kind } : {}),
+    ...(topApiEndpoint?.method ? { topApiEndpointMethod: topApiEndpoint.method } : {}),
+    ...(topApiEndpoint?.url ? { topApiEndpointUrl: topApiEndpoint.url } : {}),
+    ...(topApiEndpoint?.selector ? { topApiEndpointSelector: topApiEndpoint.selector } : {}),
+    ...(topClientState ? { topClientStatePath: topClientState.path } : {}),
+    ...(topClientState ? { topClientStateKind: topClientState.kind } : {}),
+    ...(topClientState ? { topClientStateOperation: topClientState.operation } : {}),
+    ...(topClientState?.key ? { topClientStateKey: topClientState.key } : {}),
+    ...(topClientState?.selector ? { topClientStateSelector: topClientState.selector } : {}),
+    ...(topAppHint ? { topAppHintPath: topAppHint.path } : {}),
+    ...(topAppHint ? { topAppHintKind: topAppHint.kind } : {}),
+    ...(topAppHint?.label ? { topAppHintLabel: topAppHint.label } : {}),
+    ...(topAppHint?.url ? { topAppHintUrl: topAppHint.url } : {}),
+    ...(topAppHint?.selector ? { topAppHintSelector: topAppHint.selector } : {}),
     ...(topHiddenSignal ? { topHiddenSignalGroup: topHiddenSignal.group } : {}),
     ...(topHiddenSignal ? { topHiddenSignalPath: topHiddenSignal.path } : {}),
     ...(topHiddenSignal?.kind ? { topHiddenSignalKind: topHiddenSignal.kind } : {}),
@@ -15742,6 +15794,26 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     hiddenApiEndpointCount: agent.hiddenApiEndpointCount,
     hiddenClientStateCount: agent.hiddenClientStateCount,
     hiddenAppHintCount: agent.hiddenAppHintCount,
+    ...(agent.topHydrationPath ? { topHydrationPath: agent.topHydrationPath } : {}),
+    ...(agent.topHydrationKind ? { topHydrationKind: agent.topHydrationKind } : {}),
+    ...(agent.topHydrationLabel ? { topHydrationLabel: agent.topHydrationLabel } : {}),
+    ...(agent.topHydrationUrl ? { topHydrationUrl: agent.topHydrationUrl } : {}),
+    ...(agent.topHydrationSelector ? { topHydrationSelector: agent.topHydrationSelector } : {}),
+    ...(agent.topApiEndpointPath ? { topApiEndpointPath: agent.topApiEndpointPath } : {}),
+    ...(agent.topApiEndpointKind ? { topApiEndpointKind: agent.topApiEndpointKind } : {}),
+    ...(agent.topApiEndpointMethod ? { topApiEndpointMethod: agent.topApiEndpointMethod } : {}),
+    ...(agent.topApiEndpointUrl ? { topApiEndpointUrl: agent.topApiEndpointUrl } : {}),
+    ...(agent.topApiEndpointSelector ? { topApiEndpointSelector: agent.topApiEndpointSelector } : {}),
+    ...(agent.topClientStatePath ? { topClientStatePath: agent.topClientStatePath } : {}),
+    ...(agent.topClientStateKind ? { topClientStateKind: agent.topClientStateKind } : {}),
+    ...(agent.topClientStateOperation ? { topClientStateOperation: agent.topClientStateOperation } : {}),
+    ...(agent.topClientStateKey ? { topClientStateKey: agent.topClientStateKey } : {}),
+    ...(agent.topClientStateSelector ? { topClientStateSelector: agent.topClientStateSelector } : {}),
+    ...(agent.topAppHintPath ? { topAppHintPath: agent.topAppHintPath } : {}),
+    ...(agent.topAppHintKind ? { topAppHintKind: agent.topAppHintKind } : {}),
+    ...(agent.topAppHintLabel ? { topAppHintLabel: agent.topAppHintLabel } : {}),
+    ...(agent.topAppHintUrl ? { topAppHintUrl: agent.topAppHintUrl } : {}),
+    ...(agent.topAppHintSelector ? { topAppHintSelector: agent.topAppHintSelector } : {}),
     ...(agent.topHiddenSignalGroup ? { topHiddenSignalGroup: agent.topHiddenSignalGroup } : {}),
     ...(agent.topHiddenSignalPath ? { topHiddenSignalPath: agent.topHiddenSignalPath } : {}),
     ...(agent.topHiddenSignalKind ? { topHiddenSignalKind: agent.topHiddenSignalKind } : {}),
@@ -16364,6 +16436,26 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     hiddenApiEndpointCount: agent.hiddenApiEndpointCount,
     hiddenClientStateCount: agent.hiddenClientStateCount,
     hiddenAppHintCount: agent.hiddenAppHintCount,
+    ...(agent.topHydrationPath ? { topHydrationPath: agent.topHydrationPath } : {}),
+    ...(agent.topHydrationKind ? { topHydrationKind: agent.topHydrationKind } : {}),
+    ...(agent.topHydrationLabel ? { topHydrationLabel: agent.topHydrationLabel } : {}),
+    ...(agent.topHydrationUrl ? { topHydrationUrl: agent.topHydrationUrl } : {}),
+    ...(agent.topHydrationSelector ? { topHydrationSelector: agent.topHydrationSelector } : {}),
+    ...(agent.topApiEndpointPath ? { topApiEndpointPath: agent.topApiEndpointPath } : {}),
+    ...(agent.topApiEndpointKind ? { topApiEndpointKind: agent.topApiEndpointKind } : {}),
+    ...(agent.topApiEndpointMethod ? { topApiEndpointMethod: agent.topApiEndpointMethod } : {}),
+    ...(agent.topApiEndpointUrl ? { topApiEndpointUrl: agent.topApiEndpointUrl } : {}),
+    ...(agent.topApiEndpointSelector ? { topApiEndpointSelector: agent.topApiEndpointSelector } : {}),
+    ...(agent.topClientStatePath ? { topClientStatePath: agent.topClientStatePath } : {}),
+    ...(agent.topClientStateKind ? { topClientStateKind: agent.topClientStateKind } : {}),
+    ...(agent.topClientStateOperation ? { topClientStateOperation: agent.topClientStateOperation } : {}),
+    ...(agent.topClientStateKey ? { topClientStateKey: agent.topClientStateKey } : {}),
+    ...(agent.topClientStateSelector ? { topClientStateSelector: agent.topClientStateSelector } : {}),
+    ...(agent.topAppHintPath ? { topAppHintPath: agent.topAppHintPath } : {}),
+    ...(agent.topAppHintKind ? { topAppHintKind: agent.topAppHintKind } : {}),
+    ...(agent.topAppHintLabel ? { topAppHintLabel: agent.topAppHintLabel } : {}),
+    ...(agent.topAppHintUrl ? { topAppHintUrl: agent.topAppHintUrl } : {}),
+    ...(agent.topAppHintSelector ? { topAppHintSelector: agent.topAppHintSelector } : {}),
     ...(agent.topHiddenSignalGroup ? { topHiddenSignalGroup: agent.topHiddenSignalGroup } : {}),
     ...(agent.topHiddenSignalPath ? { topHiddenSignalPath: agent.topHiddenSignalPath } : {}),
     ...(agent.topHiddenSignalKind ? { topHiddenSignalKind: agent.topHiddenSignalKind } : {}),

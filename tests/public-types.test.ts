@@ -360,6 +360,26 @@ describe("public agent types", () => {
       | "hiddenApiEndpointCount"
       | "hiddenClientStateCount"
       | "hiddenAppHintCount"
+      | "topHydrationPath"
+      | "topHydrationKind"
+      | "topHydrationLabel"
+      | "topHydrationUrl"
+      | "topHydrationSelector"
+      | "topApiEndpointPath"
+      | "topApiEndpointKind"
+      | "topApiEndpointMethod"
+      | "topApiEndpointUrl"
+      | "topApiEndpointSelector"
+      | "topClientStatePath"
+      | "topClientStateKind"
+      | "topClientStateOperation"
+      | "topClientStateKey"
+      | "topClientStateSelector"
+      | "topAppHintPath"
+      | "topAppHintKind"
+      | "topAppHintLabel"
+      | "topAppHintUrl"
+      | "topAppHintSelector"
       | "hiddenReadTargetCount"
       | "topHiddenSignalGroup"
       | "topHiddenSignalPath"
@@ -1026,6 +1046,26 @@ describe("public agent types", () => {
       hiddenApiEndpointCount: 2,
       hiddenClientStateCount: 1,
       hiddenAppHintCount: 0,
+      topHydrationPath: "pageCheck.hydration[0]",
+      topHydrationKind: "next-data",
+      topHydrationLabel: "Next.js data",
+      topHydrationUrl: "https://example.test/_next/data/build/index.json",
+      topHydrationSelector: "script#__NEXT_DATA__",
+      topApiEndpointPath: "pageCheck.apiEndpoints[0]",
+      topApiEndpointKind: "graphql",
+      topApiEndpointMethod: "POST",
+      topApiEndpointUrl: "https://example.test/graphql",
+      topApiEndpointSelector: "script:nth-of-type(1)",
+      topClientStatePath: "pageCheck.clientState[0]",
+      topClientStateKind: "local-storage",
+      topClientStateOperation: "read",
+      topClientStateKey: "session",
+      topClientStateSelector: "script:nth-of-type(2)",
+      topAppHintPath: "pageCheck.appHints[0]",
+      topAppHintKind: "manifest",
+      topAppHintLabel: "manifest",
+      topAppHintUrl: "https://example.test/manifest.json",
+      topAppHintSelector: "link[rel=\"manifest\"]",
       hiddenReadTargetCount: 2,
       topHiddenSignalGroup: "apiEndpoints",
       topHiddenSignalPath: "pageCheck.apiEndpoints[0]",
@@ -1511,6 +1551,8 @@ describe("public agent types", () => {
 
     expect(summary.hiddenSignalCount).toBe(4);
     expect(summary.hiddenApiEndpointCount).toBe(2);
+    expect(summary.topApiEndpointUrl).toBe("https://example.test/graphql");
+    expect(summary.topClientStateKey).toBe("session");
     expect(summary.topHiddenSignalPath).toBe("pageCheck.apiEndpoints[0]");
     expect(summary.bestHiddenReadTarget).toBe("pageCheck.apiEndpoints");
     expect(summary.actionTargetCount).toBe(2);

@@ -1436,6 +1436,26 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       hiddenApiEndpointCount?: number;
       hiddenClientStateCount?: number;
       hiddenAppHintCount?: number;
+      topHydrationPath?: string;
+      topHydrationKind?: string;
+      topHydrationLabel?: string;
+      topHydrationUrl?: string;
+      topHydrationSelector?: string;
+      topApiEndpointPath?: string;
+      topApiEndpointKind?: string;
+      topApiEndpointMethod?: string;
+      topApiEndpointUrl?: string;
+      topApiEndpointSelector?: string;
+      topClientStatePath?: string;
+      topClientStateKind?: string;
+      topClientStateOperation?: string;
+      topClientStateKey?: string;
+      topClientStateSelector?: string;
+      topAppHintPath?: string;
+      topAppHintKind?: string;
+      topAppHintLabel?: string;
+      topAppHintUrl?: string;
+      topAppHintSelector?: string;
       topHiddenSignalGroup?: string;
       topHiddenSignalPath?: string;
       topHiddenSignalKind?: string;
@@ -4227,6 +4247,26 @@ function scoreAgentHiddenSignalCounts(
 }
 
 function scoreAgentTopHiddenSignalShortcuts(agent: {
+  topHydrationPath?: string;
+  topHydrationKind?: string;
+  topHydrationLabel?: string;
+  topHydrationUrl?: string;
+  topHydrationSelector?: string;
+  topApiEndpointPath?: string;
+  topApiEndpointKind?: string;
+  topApiEndpointMethod?: string;
+  topApiEndpointUrl?: string;
+  topApiEndpointSelector?: string;
+  topClientStatePath?: string;
+  topClientStateKind?: string;
+  topClientStateOperation?: string;
+  topClientStateKey?: string;
+  topClientStateSelector?: string;
+  topAppHintPath?: string;
+  topAppHintKind?: string;
+  topAppHintLabel?: string;
+  topAppHintUrl?: string;
+  topAppHintSelector?: string;
   topHiddenSignalGroup?: string;
   topHiddenSignalPath?: string;
   topHiddenSignalKind?: string;
@@ -4279,7 +4319,70 @@ function scoreAgentTopHiddenSignalShortcuts(agent: {
   } else if (agent?.topHiddenSignalSelector) {
     required += 1;
   }
-  return roundScore(matched / required);
+  const topHiddenScore = matched / required;
+  const groupScores = [
+    scoreTopPageCheckGroupShortcut(pageCheck, "hydration", agent, {
+      path: "topHydrationPath",
+      kind: "topHydrationKind",
+      label: "topHydrationLabel",
+      url: "topHydrationUrl",
+      selector: "topHydrationSelector",
+    }),
+    scoreTopPageCheckGroupShortcut(pageCheck, "apiEndpoints", agent, {
+      path: "topApiEndpointPath",
+      kind: "topApiEndpointKind",
+      method: "topApiEndpointMethod",
+      url: "topApiEndpointUrl",
+      selector: "topApiEndpointSelector",
+    }),
+    scoreTopPageCheckGroupShortcut(pageCheck, "clientState", agent, {
+      path: "topClientStatePath",
+      kind: "topClientStateKind",
+      operation: "topClientStateOperation",
+      key: "topClientStateKey",
+      selector: "topClientStateSelector",
+    }),
+    scoreTopPageCheckGroupShortcut(pageCheck, "appHints", agent, {
+      path: "topAppHintPath",
+      kind: "topAppHintKind",
+      label: "topAppHintLabel",
+      url: "topAppHintUrl",
+      selector: "topAppHintSelector",
+    }),
+  ];
+  return roundScore(average([topHiddenScore, ...groupScores]));
+}
+
+function scoreTopPageCheckGroupShortcut(
+  pageCheck: unknown,
+  key: string,
+  agent: Record<string, unknown> | undefined,
+  fieldMap: Record<string, string>,
+): number {
+  const item = firstPageCheckArrayRecord(pageCheck, key);
+  const agentValues = Object.values(fieldMap).map((field) => agent?.[field]);
+  if (!item) return agentValues.some((value) => typeof value !== "undefined") ? 0 : 1;
+  let matched = 0;
+  let required = 0;
+  for (const [sourceField, agentField] of Object.entries(fieldMap)) {
+    const expected = item[sourceField];
+    const actual = agent?.[agentField];
+    if (typeof expected === "undefined" || expected === "") {
+      if (typeof actual !== "undefined") required += 1;
+      continue;
+    }
+    required += 1;
+    if (actual === expected) matched += 1;
+  }
+  return required === 0 ? 1 : roundScore(matched / required);
+}
+
+function firstPageCheckArrayRecord(pageCheck: unknown, key: string): Record<string, unknown> | undefined {
+  if (!pageCheck || typeof pageCheck !== "object") return undefined;
+  const value = (pageCheck as Record<string, unknown>)[key];
+  if (!Array.isArray(value) || value.length === 0) return undefined;
+  const item = value[0];
+  return item && typeof item === "object" ? item as Record<string, unknown> : undefined;
 }
 
 function firstHiddenPageCheckItem(pageCheck: unknown): { group: string; path: string; kind?: string; text?: string; url?: string; source?: string; selector?: string } | undefined {

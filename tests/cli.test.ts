@@ -5427,6 +5427,11 @@ describe("cli", () => {
       topHiddenSignalUrl: "https://example.test/api/search?q=agent",
       topHiddenSignalSource: "script",
       topHiddenSignalSelector: "script:nth-of-type(1)",
+      topApiEndpointPath: "pageCheck.apiEndpoints[0]",
+      topApiEndpointKind: "fetch",
+      topApiEndpointMethod: "POST",
+      topApiEndpointUrl: "https://example.test/api/search?q=agent",
+      topApiEndpointSelector: "script:nth-of-type(1)",
       bestHiddenReadTarget: "pageCheck.apiEndpoints",
       bestHiddenReadTargetCount: 5,
       bestHiddenReadTargetPrimary: true,
@@ -9049,6 +9054,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  hiddenApiEndpointCount:");
     expect(stdout.output).toContain("  hiddenClientStateCount:");
     expect(stdout.output).toContain("  hiddenAppHintCount:");
+    expect(stdout.output).not.toContain("  topApiEndpoint:");
     expect(stdout.output).toContain("  hiddenReadTargetCount: 2");
     expect(stdout.output).toContain("  bestHiddenReadTarget:");
     expect(stdout.output).toContain("  bestHiddenReadTargetCount:");
