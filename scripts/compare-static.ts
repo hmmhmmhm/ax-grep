@@ -5067,6 +5067,8 @@ function sourceSearchFailureInfo(error: unknown): SourceSearchFailureInfo | unde
 function sourceSearchFailureKind(error: SourceSearchFailureInfo): string {
   if (error.code === "HTTP_ERROR") {
     if (error.status === 404 || error.status === 410) return "not-found";
+    if (error.status === 408) return "timeout";
+    if (error.status === 429) return "rate-limited";
     if (typeof error.status === "number" && error.status >= 500) return "http-server-error";
     if (typeof error.status === "number" && error.status >= 400) return "http-client-error";
     return "http-error";
@@ -5080,7 +5082,7 @@ function sourceSearchFailureKind(error: SourceSearchFailureInfo): string {
 
 function sourceSearchFailureRetryable(error: SourceSearchFailureInfo): boolean {
   const kind = sourceSearchFailureKind(error);
-  return kind === "http-server-error" || kind === "fetch-error" || kind === "timeout";
+  return kind === "http-server-error" || kind === "fetch-error" || kind === "timeout" || kind === "rate-limited";
 }
 
 function scoreAgentSourceSearchShortcuts(agent: {

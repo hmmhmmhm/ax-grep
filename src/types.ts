@@ -130,6 +130,7 @@ export type AgentSourceSearchFailureKind =
   | "http-error"
   | "fetch-error"
   | "timeout"
+  | "rate-limited"
   | "no-inspectable-content"
   | "unknown";
 

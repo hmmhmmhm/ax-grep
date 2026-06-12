@@ -3613,6 +3613,37 @@ describe("cli", () => {
     });
   });
 
+  it("classifies rate limited opened search results as retryable", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["--search", "agent browser", "--engine", "duckduckgo", "--open-result", "1", "--agent-brief"], {
+      stdout,
+      fetch: async (input) => {
+        if (String(input).includes("duckduckgo.com")) {
+          return new Response(`
+            <main>
+              <ol>
+                <li><a href="https://target.example/rate-limited">Target Result</a><p>Target result snippet.</p></li>
+              </ol>
+            </main>
+          `, { headers: { "content-type": "text/html" } });
+        }
+        return new Response("rate limited", { status: 429, statusText: "Too Many Requests" });
+      },
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(12);
+    expect(envelope.agent).toMatchObject({
+      sourceSearchFailureCode: "HTTP_ERROR",
+      sourceSearchFailureStatus: 429,
+      sourceSearchFailureKind: "rate-limited",
+      sourceSearchFailureRetryable: true,
+      sourceSearchFailureUrl: "https://target.example/rate-limited",
+      sourceSearchFailureReason: "Selected sourceSearch result failed with HTTP_ERROR status 429.",
+    });
+  });
+
   it("routes missing opened search results to alternate SERP candidates", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["--search", "agent browser", "--engine", "duckduckgo", "--open-result", "1", "--agent"], {

@@ -15451,6 +15451,8 @@ function sourceSearchFailureReason(error: CliError): string {
 function sourceSearchFailureKind(error: CliError): AgentSourceSearchFailureKind {
   if (error.code === "HTTP_ERROR") {
     if (error.status === 404 || error.status === 410) return "not-found";
+    if (error.status === 408) return "timeout";
+    if (error.status === 429) return "rate-limited";
     if (typeof error.status === "number" && error.status >= 500) return "http-server-error";
     if (typeof error.status === "number" && error.status >= 400) return "http-client-error";
     return "http-error";
@@ -15464,7 +15466,7 @@ function sourceSearchFailureKind(error: CliError): AgentSourceSearchFailureKind 
 
 function sourceSearchFailureRetryable(error: CliError): boolean {
   const kind = sourceSearchFailureKind(error);
-  return kind === "http-server-error" || kind === "fetch-error" || kind === "timeout";
+  return kind === "http-server-error" || kind === "fetch-error" || kind === "timeout" || kind === "rate-limited";
 }
 
 function errorAction(error: CliError, url?: string, agentMode = false, findQueries: string[] = [], sourceSearch?: SourceSearchSummary, timeoutMs?: number, userAgent?: string): SuggestedAction | undefined {
