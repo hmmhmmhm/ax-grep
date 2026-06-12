@@ -5558,6 +5558,35 @@ describe("cli", () => {
     });
   });
 
+  it("keeps fetched-html usability in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/docs", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <script id="__NEXT_DATA__" type="application/json">
+              { "buildId": "build-123", "page": "/docs", "props": { "pageProps": { "title": "Docs" } } }
+            </script>
+          </head>
+          <body><main><h1>Docs shell</h1></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      canUseFetchedHtml: true,
+      needsBrowserHtml: false,
+      staticReadiness: "usable-hidden-data",
+      staticReadinessReasonCode: "hidden-data",
+      staticReadinessReadFrom: "pageCheck.hydration",
+    });
+  });
+
   it("checks requested text against hydration hints", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/docs", "--agent", "--find", "build-123"], {

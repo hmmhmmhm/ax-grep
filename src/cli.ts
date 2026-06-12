@@ -16852,6 +16852,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.failingQualityGatePath ? { failingQualityGatePath: agent.failingQualityGatePath } : {}),
     ...(typeof agent.failingQualityGateScore === "number" ? { failingQualityGateScore: agent.failingQualityGateScore } : {}),
     canContinue: agent.canContinue,
+    canUseFetchedHtml: agent.canUseFetchedHtml,
     needsBrowserHtml: agent.needsBrowserHtml,
     ...(agent.staticReadiness ? { staticReadiness: agent.staticReadiness } : {}),
     ...(agent.staticReadinessReasonCode ? { staticReadinessReasonCode: agent.staticReadinessReasonCode } : {}),
