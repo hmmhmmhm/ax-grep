@@ -35,6 +35,26 @@ Forecast from the current evidence:
 - The estimate may drop if comparison finds a high-value browser-tree signal
   that static output does not yet expose.
 
+Current forecast board:
+
+| Phase | Status | What is being measured | Expected estimate movement | Blocker or expansion trigger |
+| --- | --- | --- | --- | --- |
+| F1: Non-browser brief parity cleanup | Mostly complete | Whether `--agent-brief` still drops high-value shortcuts already present in full compact output. | Holds overall near 89%; can add 1-2 area points if another high-value loss is found and fixed. | Stop adding fields unless a fixture shows that brief output forces unnecessary full output or browser capture. |
+| F2: Browser fallback clarity | In progress | Whether static output explains `use fetched HTML`, `capture browser HTML`, or `interact in browser` without prose parsing. | Page handoff can move from 94% toward 95-96% after unclear fallback cases are closed or deferred. | Any page whose current reason code does not explain why browser capture is needed expands this packet. |
+| F3: Semantic table/list/control comparison | Next | Whether static table, list, and control shortcuts cover the browser accessibility-tree signals agents actually use. | Semantic accessibility can move from 88% toward 90-91% after one sequential comparison cycle with classified gaps. | Browser-tree comparison may reveal a new P1 signal, which can hold or lower the estimate until tracked. |
+| F4: Browser parity evidence set | Next, gated | A small sequential fixture set comparing static output against browser accessibility output. | Overall can move above 90% only after observed gaps are classified as `implement`, `browser-only`, or `defer`. | Do not run broad browser checks; each run needs pre/post `pnpm check:processes`. |
+| F5: Re-estimation and closure | Planned | Whether all P1 gaps have either landed code, a browser-only note, or a defer reason. | Overall can rise, hold, or fall based on evidence. | Research goals can expand when a useful accessibility-tree signal appears mid-work. |
+
+Near-term queue with prediction:
+
+| Order | Work item | Current coverage | Next concrete step | Done when | Predicted result |
+| ---: | --- | ---: | --- | --- | --- |
+| 1 | Keep progress auditable without bloating README. | 90% | Maintain this progress file as the detailed tracker and keep root README short. | README tests and diff checks pass after docs changes. | Documentation remains stable; no overall increase expected. |
+| 2 | Audit remaining full-vs-brief shortcut losses. | 90% | Inspect compact/brief fields and only fix losses that reduce agent routing work. | Each accepted field has CLI/type/test coverage; non-useful fields are deferred. | May add 0-1% to search/page/semantic areas. |
+| 3 | Pick the smallest browser parity fixture. | 60% | Record the exact one-command comparison plan before running anything browser-backed. | Pre/post process checks are clean and the fixture result is recorded in the gap ledger. | Enables, but does not guarantee, overall 90%+. |
+| 4 | Classify first browser-tree gaps. | 55% | Mark each observed gap as `implement`, `browser-only`, or `defer`. | Every gap has priority, evidence, decision, validation command, and estimate impact. | Can raise browser parity research by 2-4%, or lower estimates if important gaps appear. |
+| 5 | Recalculate the headline estimate. | 89% | Update this file in the same commit as the evidence. | The estimate explains why it moved, held, or dropped. | Overall moves only after evidence, not optimism. |
+
 Reading guide:
 
 - 90% or higher means the area is useful in normal agent handoff flows and only
