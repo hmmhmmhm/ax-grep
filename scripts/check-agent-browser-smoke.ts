@@ -67,6 +67,17 @@ const targets: SmokeTarget[] = [
     minNavigationRecall: 0.78,
     requireNoAgentBrowserWarning: true,
   },
+  {
+    url: "https://www.gov.uk/foreign-travel-advice",
+    minLineCount: 500,
+    requiredNamedRoles: ["heading:Foreign travel advice", "textbox:Search for a country or territory - you can sign up for email updates on its page", "link:Afghanistan", "link:USA", "button:Yes this page is useful"],
+    minOverlapRatio: 0.9,
+    minReadinessScore: 0.9,
+    minReferenceRecall: 0.9,
+    minActionableRecall: 0.95,
+    minNavigationRecall: 0.95,
+    requireNoAgentBrowserWarning: true,
+  },
 ];
 
 const result = spawnSync("pnpm", ["compare", ...targets.map((target) => target.url)], {
