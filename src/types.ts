@@ -517,6 +517,8 @@ export type AgentFormChoice = {
     invalid?: SemanticNodeState["invalid"];
     selector?: string;
     options?: string[];
+    selectedOption?: string;
+    selectedValue?: string;
   }>;
 };
 
@@ -1133,6 +1135,8 @@ export type AgentSummary = {
   topFormChoiceFirstFieldPlaceholder?: string;
   topFormChoiceFirstFieldValue?: string;
   topFormChoiceFirstFieldOptions?: string[];
+  topFormChoiceFirstFieldSelectedOption?: string;
+  topFormChoiceFirstFieldSelectedValue?: string;
   topFormChoiceFirstFieldAutocomplete?: string;
   topFormChoiceFirstFieldInputMode?: string;
   topFormChoiceFirstFieldPattern?: string;

@@ -406,6 +406,8 @@ type PageFormFieldSummary = {
   invalid?: SemanticNodeState["invalid"];
   selector?: string;
   options?: string[];
+  selectedOption?: string;
+  selectedValue?: string;
 };
 
 type PageFormHiddenFieldSummary = {
@@ -1474,6 +1476,8 @@ type AgentSummary = {
   topFormChoiceFirstFieldPlaceholder?: string;
   topFormChoiceFirstFieldValue?: string;
   topFormChoiceFirstFieldOptions?: string[];
+  topFormChoiceFirstFieldSelectedOption?: string;
+  topFormChoiceFirstFieldSelectedValue?: string;
   topFormChoiceFirstFieldAutocomplete?: string;
   topFormChoiceFirstFieldInputMode?: string;
   topFormChoiceFirstFieldPattern?: string;
@@ -3642,7 +3646,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topFormChoiceSubmitText ? [`  topFormChoiceSubmitText: ${agent.topFormChoiceSubmitText}`] : []),
     ...(agent.topFormChoiceSubmitType || agent.topFormChoiceSubmitSelector ? [`  topFormChoiceSubmit: ${agent.topFormChoiceSubmitText ?? ""}${agent.topFormChoiceSubmitType ? ` type=${agent.topFormChoiceSubmitType}` : ""}${agent.topFormChoiceSubmitName ? ` name=${agent.topFormChoiceSubmitName}` : ""}${agent.topFormChoiceSubmitValue ? ` value=${agent.topFormChoiceSubmitValue}` : ""}${typeof agent.topFormChoiceSubmitDisabled === "boolean" ? ` disabled=${agent.topFormChoiceSubmitDisabled}` : ""}${agent.topFormChoiceSubmitSelector ? ` selector=${agent.topFormChoiceSubmitSelector}` : ""}${agent.topFormChoiceSubmitFormActionUrl ? ` formaction=${agent.topFormChoiceSubmitFormActionUrl}` : ""}${agent.topFormChoiceSubmitFormMethod ? ` formmethod=${agent.topFormChoiceSubmitFormMethod}` : ""}${agent.topFormChoiceSubmitFormTarget ? ` formtarget=${agent.topFormChoiceSubmitFormTarget}` : ""}${agent.topFormChoiceSubmitFormEncType ? ` formenctype=${agent.topFormChoiceSubmitFormEncType}` : ""}${typeof agent.topFormChoiceSubmitFormNoValidate === "boolean" ? ` formnovalidate=${agent.topFormChoiceSubmitFormNoValidate}` : ""}${agent.topFormChoiceSubmitFormId ? ` form=${agent.topFormChoiceSubmitFormId}` : ""}`] : []),
     ...(agent.topFormChoiceHiddenFieldCount ? [`  topFormChoiceHiddenFields: ${agent.topFormChoiceHiddenFieldCount}${agent.topFormChoiceFirstHiddenFieldName ? ` first=${agent.topFormChoiceFirstHiddenFieldName}` : ""}${agent.topFormChoiceFirstHiddenFieldValue ? ` value=${agent.topFormChoiceFirstHiddenFieldValue}` : ""}${agent.topFormChoiceFirstHiddenFieldSelector ? ` selector=${agent.topFormChoiceFirstHiddenFieldSelector}` : ""}`] : []),
-    ...(agent.topFormChoiceFirstFieldName || agent.topFormChoiceFirstFieldType ? [`  topFormChoiceFirstField: ${agent.topFormChoiceFirstFieldName ?? ""}${agent.topFormChoiceFirstFieldType ? ` type=${agent.topFormChoiceFirstFieldType}` : ""}${agent.topFormChoiceFirstFieldLabel ? ` label=${agent.topFormChoiceFirstFieldLabel}` : ""}${agent.topFormChoiceFirstFieldPlaceholder ? ` placeholder=${agent.topFormChoiceFirstFieldPlaceholder}` : ""}${agent.topFormChoiceFirstFieldValue ? ` value=${agent.topFormChoiceFirstFieldValue}` : ""}${agent.topFormChoiceFirstFieldOptions?.length ? ` options=${agent.topFormChoiceFirstFieldOptions.join("|")}` : ""}${agent.topFormChoiceFirstFieldAutocomplete ? ` autocomplete=${agent.topFormChoiceFirstFieldAutocomplete}` : ""}${agent.topFormChoiceFirstFieldInputMode ? ` inputMode=${agent.topFormChoiceFirstFieldInputMode}` : ""}${agent.topFormChoiceFirstFieldPattern ? ` pattern=${agent.topFormChoiceFirstFieldPattern}` : ""}${agent.topFormChoiceFirstFieldMin ? ` min=${agent.topFormChoiceFirstFieldMin}` : ""}${agent.topFormChoiceFirstFieldMax ? ` max=${agent.topFormChoiceFirstFieldMax}` : ""}${agent.topFormChoiceFirstFieldStep ? ` step=${agent.topFormChoiceFirstFieldStep}` : ""}${typeof agent.topFormChoiceFirstFieldMinLength === "number" ? ` minLength=${agent.topFormChoiceFirstFieldMinLength}` : ""}${typeof agent.topFormChoiceFirstFieldMaxLength === "number" ? ` maxLength=${agent.topFormChoiceFirstFieldMaxLength}` : ""}${typeof agent.topFormChoiceFirstFieldRequired === "boolean" ? ` required=${agent.topFormChoiceFirstFieldRequired}` : ""}${typeof agent.topFormChoiceFirstFieldChecked === "boolean" ? ` checked=${agent.topFormChoiceFirstFieldChecked}` : ""}${typeof agent.topFormChoiceFirstFieldDisabled === "boolean" ? ` disabled=${agent.topFormChoiceFirstFieldDisabled}` : ""}${typeof agent.topFormChoiceFirstFieldReadonly === "boolean" ? ` readonly=${agent.topFormChoiceFirstFieldReadonly}` : ""}${typeof agent.topFormChoiceFirstFieldInvalid !== "undefined" ? ` invalid=${agent.topFormChoiceFirstFieldInvalid}` : ""}${agent.topFormChoiceFirstFieldSelector ? ` selector=${agent.topFormChoiceFirstFieldSelector}` : ""}`] : []),
+    ...(agent.topFormChoiceFirstFieldName || agent.topFormChoiceFirstFieldType ? [`  topFormChoiceFirstField: ${agent.topFormChoiceFirstFieldName ?? ""}${agent.topFormChoiceFirstFieldType ? ` type=${agent.topFormChoiceFirstFieldType}` : ""}${agent.topFormChoiceFirstFieldLabel ? ` label=${agent.topFormChoiceFirstFieldLabel}` : ""}${agent.topFormChoiceFirstFieldPlaceholder ? ` placeholder=${agent.topFormChoiceFirstFieldPlaceholder}` : ""}${agent.topFormChoiceFirstFieldValue ? ` value=${agent.topFormChoiceFirstFieldValue}` : ""}${agent.topFormChoiceFirstFieldOptions?.length ? ` options=${agent.topFormChoiceFirstFieldOptions.join("|")}` : ""}${agent.topFormChoiceFirstFieldSelectedOption ? ` selected=${agent.topFormChoiceFirstFieldSelectedOption}` : ""}${agent.topFormChoiceFirstFieldSelectedValue ? ` selectedValue=${agent.topFormChoiceFirstFieldSelectedValue}` : ""}${agent.topFormChoiceFirstFieldAutocomplete ? ` autocomplete=${agent.topFormChoiceFirstFieldAutocomplete}` : ""}${agent.topFormChoiceFirstFieldInputMode ? ` inputMode=${agent.topFormChoiceFirstFieldInputMode}` : ""}${agent.topFormChoiceFirstFieldPattern ? ` pattern=${agent.topFormChoiceFirstFieldPattern}` : ""}${agent.topFormChoiceFirstFieldMin ? ` min=${agent.topFormChoiceFirstFieldMin}` : ""}${agent.topFormChoiceFirstFieldMax ? ` max=${agent.topFormChoiceFirstFieldMax}` : ""}${agent.topFormChoiceFirstFieldStep ? ` step=${agent.topFormChoiceFirstFieldStep}` : ""}${typeof agent.topFormChoiceFirstFieldMinLength === "number" ? ` minLength=${agent.topFormChoiceFirstFieldMinLength}` : ""}${typeof agent.topFormChoiceFirstFieldMaxLength === "number" ? ` maxLength=${agent.topFormChoiceFirstFieldMaxLength}` : ""}${typeof agent.topFormChoiceFirstFieldRequired === "boolean" ? ` required=${agent.topFormChoiceFirstFieldRequired}` : ""}${typeof agent.topFormChoiceFirstFieldChecked === "boolean" ? ` checked=${agent.topFormChoiceFirstFieldChecked}` : ""}${typeof agent.topFormChoiceFirstFieldDisabled === "boolean" ? ` disabled=${agent.topFormChoiceFirstFieldDisabled}` : ""}${typeof agent.topFormChoiceFirstFieldReadonly === "boolean" ? ` readonly=${agent.topFormChoiceFirstFieldReadonly}` : ""}${typeof agent.topFormChoiceFirstFieldInvalid !== "undefined" ? ` invalid=${agent.topFormChoiceFirstFieldInvalid}` : ""}${agent.topFormChoiceFirstFieldSelector ? ` selector=${agent.topFormChoiceFirstFieldSelector}` : ""}`] : []),
     ...(agent.topActionTargetChoicePath ? [`  topActionTargetChoicePath: ${agent.topActionTargetChoicePath}`] : []),
     ...(agent.topActionTargetChoiceUrlTemplate ? [`  topActionTargetChoiceUrlTemplate: ${agent.topActionTargetChoiceUrlTemplate}`] : []),
     ...(agent.topActionTargetChoiceQueryInput ? [`  topActionTargetChoiceQueryInput: ${agent.topActionTargetChoiceQueryInput}`] : []),
@@ -6419,9 +6423,8 @@ function summarizeFormField(control: Element, index: number, rootNodes: AnyNode[
   const step = attr(control, "step") || "";
   const minLength = semanticNonNegativeInteger(attr(control, "minlength"));
   const maxLength = semanticNonNegativeInteger(attr(control, "maxlength"));
-  const options = control.name === "select"
-    ? findElements(control.children, (item) => item.name === "option").map((option) => cleanContentText(descendantText(option) || attr(option, "value") || "")).filter(Boolean).slice(0, 8)
-    : [];
+  const selectOptions = control.name === "select" ? summarizeSelectOptions(control) : undefined;
+  const options = selectOptions?.labels ?? [];
   if (name) field.name = name;
   if (label) field.label = label;
   if (placeholder) field.placeholder = placeholder;
@@ -6440,7 +6443,28 @@ function summarizeFormField(control: Element, index: number, rootNodes: AnyNode[
   if (attr(control, "readonly") !== undefined || attr(control, "aria-readonly") === "true") field.readonly = true;
   if (attr(control, "aria-invalid")) field.invalid = attr(control, "aria-invalid") === "true" ? true : attr(control, "aria-invalid");
   if (options.length > 0) field.options = options;
+  if (selectOptions?.selectedLabel) field.selectedOption = selectOptions.selectedLabel;
+  if (selectOptions?.selectedValue) field.selectedValue = selectOptions.selectedValue;
   return field;
+}
+
+function summarizeSelectOptions(select: Element): { labels: string[]; selectedLabel?: string; selectedValue?: string } {
+  const optionElements = findElements(select.children, (item) => item.name === "option");
+  const options = optionElements.map((option) => {
+    const label = cleanContentText(descendantText(option) || attr(option, "label") || attr(option, "value") || "");
+    const value = attr(option, "value") || label;
+    return {
+      label,
+      value,
+      selected: attr(option, "selected") !== undefined || attr(option, "aria-selected") === "true",
+    };
+  }).filter((option) => option.label || option.value);
+  const selected = options.find((option) => option.selected) ?? (attr(select, "multiple") === undefined ? options[0] : undefined);
+  return {
+    labels: options.map((option) => option.label || option.value).filter(Boolean).slice(0, 8),
+    ...(selected?.label ? { selectedLabel: selected.label } : {}),
+    ...(selected?.value ? { selectedValue: selected.value } : {}),
+  };
 }
 
 function cssAttributeValue(value: string): string {
@@ -6567,7 +6591,8 @@ function formatFormFieldSummary(field: PageFormFieldSummary): string {
   const label = field.label || field.placeholder || field.value || "";
   const required = field.required ? " required" : "";
   const options = field.options?.length ? ` options=${field.options.join("|")}` : "";
-  return `${name}${field.type}${required}${label ? ` ${label}` : ""}${options}`;
+  const selected = field.selectedOption ? ` selected=${field.selectedOption}` : "";
+  return `${name}${field.type}${required}${label ? ` ${label}` : ""}${options}${selected}`;
 }
 
 function summarizeActionTargets(html: string, baseUrl: string): PageActionTargetSummary[] {
@@ -12082,6 +12107,8 @@ function summarizeAgent(
     ...(topFormChoiceFirstField?.placeholder ? { topFormChoiceFirstFieldPlaceholder: topFormChoiceFirstField.placeholder } : {}),
     ...(topFormChoiceFirstField?.value ? { topFormChoiceFirstFieldValue: topFormChoiceFirstField.value } : {}),
     ...(topFormChoiceFirstField?.options?.length ? { topFormChoiceFirstFieldOptions: topFormChoiceFirstField.options } : {}),
+    ...(topFormChoiceFirstField?.selectedOption ? { topFormChoiceFirstFieldSelectedOption: topFormChoiceFirstField.selectedOption } : {}),
+    ...(topFormChoiceFirstField?.selectedValue ? { topFormChoiceFirstFieldSelectedValue: topFormChoiceFirstField.selectedValue } : {}),
     ...(topFormChoiceFirstField?.autocomplete ? { topFormChoiceFirstFieldAutocomplete: topFormChoiceFirstField.autocomplete } : {}),
     ...(topFormChoiceFirstField?.inputMode ? { topFormChoiceFirstFieldInputMode: topFormChoiceFirstField.inputMode } : {}),
     ...(topFormChoiceFirstField?.pattern ? { topFormChoiceFirstFieldPattern: topFormChoiceFirstField.pattern } : {}),
@@ -14462,6 +14489,8 @@ function summarizeAgentFormChoices(forms: PageFormSummary[]): AgentFormChoice[] 
       ...(typeof field.invalid !== "undefined" ? { invalid: field.invalid } : {}),
       ...(field.selector ? { selector: field.selector } : {}),
       ...(field.options?.length ? { options: field.options.slice() } : {}),
+      ...(field.selectedOption ? { selectedOption: field.selectedOption } : {}),
+      ...(field.selectedValue ? { selectedValue: field.selectedValue } : {}),
     })),
   }));
 }
@@ -16767,6 +16796,9 @@ function compactAgentForms(items: PageFormSummary[], primaryAction?: SuggestedAc
       ...(field.disabled ? { disabled: true } : {}),
       ...(field.readonly ? { readonly: true } : {}),
       ...(typeof field.invalid !== "undefined" ? { invalid: field.invalid } : {}),
+      ...(field.options?.length ? { options: field.options.slice(0, 6) } : {}),
+      ...(field.selectedOption ? { selectedOption: field.selectedOption } : {}),
+      ...(field.selectedValue ? { selectedValue: field.selectedValue } : {}),
     })),
     ...(item.actionUrl ? { actionUrl: item.actionUrl } : {}),
     ...(item.submitText ? { submitText: item.submitText } : {}),
@@ -17518,6 +17550,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topFormChoiceFirstFieldPlaceholder ? { topFormChoiceFirstFieldPlaceholder: agent.topFormChoiceFirstFieldPlaceholder } : {}),
     ...(agent.topFormChoiceFirstFieldValue ? { topFormChoiceFirstFieldValue: agent.topFormChoiceFirstFieldValue } : {}),
     ...(agent.topFormChoiceFirstFieldOptions?.length ? { topFormChoiceFirstFieldOptions: agent.topFormChoiceFirstFieldOptions } : {}),
+    ...(agent.topFormChoiceFirstFieldSelectedOption ? { topFormChoiceFirstFieldSelectedOption: agent.topFormChoiceFirstFieldSelectedOption } : {}),
+    ...(agent.topFormChoiceFirstFieldSelectedValue ? { topFormChoiceFirstFieldSelectedValue: agent.topFormChoiceFirstFieldSelectedValue } : {}),
     ...(agent.topFormChoiceFirstFieldAutocomplete ? { topFormChoiceFirstFieldAutocomplete: agent.topFormChoiceFirstFieldAutocomplete } : {}),
     ...(agent.topFormChoiceFirstFieldInputMode ? { topFormChoiceFirstFieldInputMode: agent.topFormChoiceFirstFieldInputMode } : {}),
     ...(agent.topFormChoiceFirstFieldPattern ? { topFormChoiceFirstFieldPattern: agent.topFormChoiceFirstFieldPattern } : {}),
@@ -18589,6 +18623,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topFormChoiceFirstFieldPlaceholder ? { topFormChoiceFirstFieldPlaceholder: agent.topFormChoiceFirstFieldPlaceholder } : {}),
     ...(agent.topFormChoiceFirstFieldValue ? { topFormChoiceFirstFieldValue: agent.topFormChoiceFirstFieldValue } : {}),
     ...(agent.topFormChoiceFirstFieldOptions?.length ? { topFormChoiceFirstFieldOptions: agent.topFormChoiceFirstFieldOptions } : {}),
+    ...(agent.topFormChoiceFirstFieldSelectedOption ? { topFormChoiceFirstFieldSelectedOption: agent.topFormChoiceFirstFieldSelectedOption } : {}),
+    ...(agent.topFormChoiceFirstFieldSelectedValue ? { topFormChoiceFirstFieldSelectedValue: agent.topFormChoiceFirstFieldSelectedValue } : {}),
     ...(agent.topFormChoiceFirstFieldAutocomplete ? { topFormChoiceFirstFieldAutocomplete: agent.topFormChoiceFirstFieldAutocomplete } : {}),
     ...(agent.topFormChoiceFirstFieldInputMode ? { topFormChoiceFirstFieldInputMode: agent.topFormChoiceFirstFieldInputMode } : {}),
     ...(agent.topFormChoiceFirstFieldPattern ? { topFormChoiceFirstFieldPattern: agent.topFormChoiceFirstFieldPattern } : {}),
@@ -19589,6 +19625,8 @@ function compactAgentFormExecutionRefs(forms: PageFormSummary[]): object[] {
       ...(field.readonly ? { readonly: true } : {}),
       ...(typeof field.invalid !== "undefined" ? { invalid: field.invalid } : {}),
       ...(field.options?.length ? { options: field.options.slice(0, 6) } : {}),
+      ...(field.selectedOption ? { selectedOption: field.selectedOption } : {}),
+      ...(field.selectedValue ? { selectedValue: field.selectedValue } : {}),
       ...(field.selector ? { selector: field.selector } : {}),
     })),
   }));

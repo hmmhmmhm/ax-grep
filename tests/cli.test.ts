@@ -5408,7 +5408,7 @@ describe("cli", () => {
         queryField: "query",
         urlTemplate: "https://example.test/find?query=%7Bquery%7D",
         selector: "form:nth-of-type(1)",
-        text: "GET https://example.test/find; query field: query; hidden fields: 1; submit: Search; query:search required Archive search; category:select options=All|Reports",
+        text: "GET https://example.test/find; query field: query; hidden fields: 1; submit: Search; query:search required Archive search; category:select options=All|Reports selected=All",
         hiddenFields: [
           {
             name: "csrf",
@@ -5441,6 +5441,8 @@ describe("cli", () => {
             type: "select",
             selector: "select[name=\"category\"]",
             options: ["All", "Reports"],
+            selectedOption: "All",
+            selectedValue: "All",
           },
         ],
       },
@@ -5830,6 +5832,53 @@ describe("cli", () => {
       type: "checkbox",
       value: "yes",
       checked: true,
+    });
+  });
+
+  it("preserves selected select option values for submission handoff", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/filter", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <form method="GET" action="/reports">
+            <label for="category">Category</label>
+            <select id="category" name="category">
+              <option value="all">All</option>
+              <option value="reports" selected>Reports</option>
+            </select>
+            <button>Apply</button>
+          </form>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.forms[0].fields[0]).toMatchObject({
+      name: "category",
+      type: "select",
+      label: "Category",
+      options: ["All", "Reports"],
+      selectedOption: "Reports",
+      selectedValue: "reports",
+      selector: "select[name=\"category\"]",
+    });
+    expect(envelope.agent).toMatchObject({
+      topFormChoiceFirstFieldName: "category",
+      topFormChoiceFirstFieldType: "select",
+      topFormChoiceFirstFieldOptions: ["All", "Reports"],
+      topFormChoiceFirstFieldSelectedOption: "Reports",
+      topFormChoiceFirstFieldSelectedValue: "reports",
+      topFormChoiceFirstFieldSelector: "select[name=\"category\"]",
+    });
+    expect(envelope.agent.formChoices[0].fields[0]).toMatchObject({
+      name: "category",
+      type: "select",
+      options: ["All", "Reports"],
+      selectedOption: "Reports",
+      selectedValue: "reports",
     });
   });
 

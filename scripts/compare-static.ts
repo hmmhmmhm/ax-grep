@@ -1378,6 +1378,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topFormChoiceFirstFieldPlaceholder?: string;
       topFormChoiceFirstFieldValue?: string;
       topFormChoiceFirstFieldOptions?: string[];
+      topFormChoiceFirstFieldSelectedOption?: string;
+      topFormChoiceFirstFieldSelectedValue?: string;
       topFormChoiceFirstFieldAutocomplete?: string;
       topFormChoiceFirstFieldInputMode?: string;
       topFormChoiceFirstFieldPattern?: string;
@@ -4605,6 +4607,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   topFormChoiceFirstFieldPlaceholder?: string;
   topFormChoiceFirstFieldValue?: string;
   topFormChoiceFirstFieldOptions?: string[];
+  topFormChoiceFirstFieldSelectedOption?: string;
+  topFormChoiceFirstFieldSelectedValue?: string;
   topFormChoiceFirstFieldAutocomplete?: string;
   topFormChoiceFirstFieldInputMode?: string;
   topFormChoiceFirstFieldPattern?: string;
@@ -4641,8 +4645,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   let matched = 0;
   if (form) {
     if (agent?.topFormChoicePath === form.path) matched += 1;
-    required += 42;
-    const firstField = Array.isArray(form.fields) ? form.fields[0] as { name?: unknown; type?: unknown; label?: unknown; placeholder?: unknown; value?: unknown; options?: unknown; autocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; required?: unknown; checked?: unknown; disabled?: unknown; readonly?: unknown; invalid?: unknown; selector?: unknown } | undefined : undefined;
+    required += 44;
+    const firstField = Array.isArray(form.fields) ? form.fields[0] as { name?: unknown; type?: unknown; label?: unknown; placeholder?: unknown; value?: unknown; options?: unknown; selectedOption?: unknown; selectedValue?: unknown; autocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; required?: unknown; checked?: unknown; disabled?: unknown; readonly?: unknown; invalid?: unknown; selector?: unknown } | undefined : undefined;
     const firstHiddenField = Array.isArray(form.hiddenFields) ? form.hiddenFields[0] as { name?: unknown; value?: unknown; selector?: unknown } | undefined : undefined;
     if (agent?.topFormChoiceMethod === form.method) matched += 1;
     if (agent?.topFormChoiceActionUrl === form.actionUrl) matched += 1;
@@ -4672,6 +4676,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     if (agent?.topFormChoiceFirstFieldPlaceholder === firstField?.placeholder) matched += 1;
     if (agent?.topFormChoiceFirstFieldValue === firstField?.value) matched += 1;
     if (JSON.stringify(agent?.topFormChoiceFirstFieldOptions) === JSON.stringify(firstField?.options)) matched += 1;
+    if (agent?.topFormChoiceFirstFieldSelectedOption === firstField?.selectedOption) matched += 1;
+    if (agent?.topFormChoiceFirstFieldSelectedValue === firstField?.selectedValue) matched += 1;
     if (agent?.topFormChoiceFirstFieldAutocomplete === firstField?.autocomplete) matched += 1;
     if (agent?.topFormChoiceFirstFieldInputMode === firstField?.inputMode) matched += 1;
     if (agent?.topFormChoiceFirstFieldPattern === firstField?.pattern) matched += 1;
@@ -4716,6 +4722,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     || agent?.topFormChoiceFirstFieldPlaceholder
     || agent?.topFormChoiceFirstFieldValue
     || agent?.topFormChoiceFirstFieldOptions?.length
+    || agent?.topFormChoiceFirstFieldSelectedOption
+    || agent?.topFormChoiceFirstFieldSelectedValue
     || agent?.topFormChoiceFirstFieldAutocomplete
     || agent?.topFormChoiceFirstFieldInputMode
     || agent?.topFormChoiceFirstFieldPattern

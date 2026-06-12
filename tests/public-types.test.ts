@@ -172,7 +172,7 @@ describe("public agent types", () => {
       urlTemplate: "https://example.test/find?q={query}",
       selector: "form:nth-of-type(1)",
       hiddenFields: [{ name: "csrf", value: "secret", selector: "input[name=\"csrf\"]" }],
-      fields: [{ name: "q", type: "search", label: "Search", placeholder: "Search docs", value: "initial", autocomplete: "off", inputMode: "search", pattern: "[A-Za-z ]+", min: "1", max: "99", step: "1", minLength: 2, maxLength: 80, required: true, checked: true, disabled: true, readonly: true, invalid: "spelling", selector: "input[name=\"q\"]", options: ["All", "Docs"] }],
+      fields: [{ name: "q", type: "search", label: "Search", placeholder: "Search docs", value: "initial", autocomplete: "off", inputMode: "search", pattern: "[A-Za-z ]+", min: "1", max: "99", step: "1", minLength: 2, maxLength: 80, required: true, checked: true, disabled: true, readonly: true, invalid: "spelling", selector: "input[name=\"q\"]", options: ["All", "Docs"], selectedOption: "Docs", selectedValue: "docs" }],
     };
     const actionTargetChoice: AgentActionTargetChoice = {
       id: "at1",
@@ -254,6 +254,8 @@ describe("public agent types", () => {
       | "topFormChoiceFirstFieldPlaceholder"
       | "topFormChoiceFirstFieldValue"
       | "topFormChoiceFirstFieldOptions"
+      | "topFormChoiceFirstFieldSelectedOption"
+      | "topFormChoiceFirstFieldSelectedValue"
       | "topFormChoiceFirstFieldAutocomplete"
       | "topFormChoiceFirstFieldInputMode"
       | "topFormChoiceFirstFieldPattern"
@@ -1296,6 +1298,8 @@ describe("public agent types", () => {
       topFormChoiceFirstFieldPlaceholder: "Search docs",
       topFormChoiceFirstFieldValue: "initial",
       topFormChoiceFirstFieldOptions: ["All", "Docs"],
+      topFormChoiceFirstFieldSelectedOption: "Docs",
+      topFormChoiceFirstFieldSelectedValue: "docs",
       topFormChoiceFirstFieldAutocomplete: "off",
       topFormChoiceFirstFieldInputMode: "search",
       topFormChoiceFirstFieldPattern: "[A-Za-z ]+",
