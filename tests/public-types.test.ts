@@ -424,6 +424,8 @@ describe("public agent types", () => {
       | "topChoicePath"
       | "topChoiceLabel"
       | "topChoiceUrl"
+      | "topChoiceHost"
+      | "topChoiceSnippet"
       | "topChoiceCommand"
       | "topChoiceCommandArgs"
       | "topChoiceRank"
@@ -1328,6 +1330,8 @@ describe("public agent types", () => {
       topChoicePath: "pageCheck.sourceLinks[0]",
       topChoiceLabel: "Source",
       topChoiceUrl: "https://source.example/report",
+      topChoiceHost: "source.example",
+      topChoiceSnippet: "Source summary",
       topChoiceCommand: "ax-grep https://source.example/report --agent",
       topChoiceCommandArgs: ["ax-grep", "https://source.example/report", "--agent"],
       topChoiceRank: 1,
@@ -2015,6 +2019,8 @@ describe("public agent types", () => {
     expect(summary.topFormChoiceUrlTemplate).toBe("https://example.test/find?q={query}");
     expect(summary.topActionTargetChoiceUrlTemplate).toBe("https://example.test/search?q={query}");
     expect(summary.topChoiceKind).toBe("source");
+    expect(summary.topChoiceHost).toBe("source.example");
+    expect(summary.topChoiceSnippet).toBe("Source summary");
     expect(summary.topChoiceSelector).toBe("a:nth-of-type(1)");
     expect(summary.topChoiceReason).toBe("High-quality source link.");
     expect(summary.topChoiceCommand).toContain("source.example/report");

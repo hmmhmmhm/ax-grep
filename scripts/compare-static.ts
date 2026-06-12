@@ -1544,6 +1544,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topChoicePath?: string;
       topChoiceLabel?: string;
       topChoiceUrl?: string;
+      topChoiceHost?: string;
+      topChoiceSnippet?: string;
       topChoiceCommand?: string;
       topChoiceCommandArgs?: string[];
       topChoiceSourceType?: string;
@@ -3752,6 +3754,8 @@ function scoreAgentTopChoiceShortcuts(agent: {
   topChoicePath?: string;
   topChoiceLabel?: string;
   topChoiceUrl?: string;
+  topChoiceHost?: string;
+  topChoiceSnippet?: string;
   topChoiceCommand?: string;
   topChoiceCommandArgs?: string[];
   topChoiceSourceType?: string;
@@ -3765,16 +3769,16 @@ function scoreAgentTopChoiceShortcuts(agent: {
   const form = agent.formChoices?.[0];
   const actionTarget = agent.actionTargetChoices?.[0];
   const expected = result
-    ? { kind: "result" as const, path: result.path, label: result.title, url: result.url, command: result.command, commandArgs: result.commandArgs, sourceType: result.sourceType, sourceScore: result.sourceScore, relevance: result.relevance, isLikelyOfficial: result.isLikelyOfficial }
+    ? { kind: "result" as const, path: result.path, label: result.title, url: result.url, host: result.host, snippet: result.snippet, command: result.command, commandArgs: result.commandArgs, sourceType: result.sourceType, sourceScore: result.sourceScore, relevance: result.relevance, isLikelyOfficial: result.isLikelyOfficial }
     : source
-      ? { kind: "source" as const, path: source.path, label: source.title || source.text, url: source.url, command: source.command, commandArgs: source.commandArgs, sourceType: source.sourceType, sourceScore: source.sourceScore, relevance: source.relevance, isLikelyOfficial: source.isLikelyOfficial }
+      ? { kind: "source" as const, path: source.path, label: source.title || source.text, url: source.url, host: source.host, snippet: source.snippet, command: source.command, commandArgs: source.commandArgs, sourceType: source.sourceType, sourceScore: source.sourceScore, relevance: source.relevance, isLikelyOfficial: source.isLikelyOfficial }
       : form
         ? { kind: "form" as const, path: form.path, label: form.text, url: form.actionUrl ?? form.urlTemplate }
         : actionTarget
           ? { kind: "action-target" as const, path: actionTarget.path, label: actionTarget.name || actionTarget.text, url: actionTarget.targetUrl ?? actionTarget.urlTemplate }
           : undefined;
   if (!expected) {
-    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceCommand && !agent.topChoiceCommandArgs && !agent.topChoiceSourceType && typeof agent.topChoiceSourceScore !== "number" && !agent.topChoiceRelevance && typeof agent.topChoiceLikelyOfficial !== "boolean" ? 1 : 0;
+    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceHost && !agent.topChoiceSnippet && !agent.topChoiceCommand && !agent.topChoiceCommandArgs && !agent.topChoiceSourceType && typeof agent.topChoiceSourceScore !== "number" && !agent.topChoiceRelevance && typeof agent.topChoiceLikelyOfficial !== "boolean" ? 1 : 0;
   }
   let required = 2;
   let matched = 0;
@@ -3790,6 +3794,18 @@ function scoreAgentTopChoiceShortcuts(agent: {
     required += 1;
     if (agent.topChoiceUrl === expected.url) matched += 1;
   } else if (agent.topChoiceUrl) {
+    required += 1;
+  }
+  if (expected.host) {
+    required += 1;
+    if (agent.topChoiceHost === expected.host) matched += 1;
+  } else if (agent.topChoiceHost) {
+    required += 1;
+  }
+  if (expected.snippet) {
+    required += 1;
+    if (agent.topChoiceSnippet === expected.snippet) matched += 1;
+  } else if (agent.topChoiceSnippet) {
     required += 1;
   }
   if (expected.commandArgs) {
