@@ -1030,6 +1030,10 @@ export type AgentSummary = {
   bestStructuredReadTargetPrimary?: boolean;
   bestStructuredReadTargetReason?: string;
   hiddenSignalCount?: number;
+  hiddenHydrationCount?: number;
+  hiddenApiEndpointCount?: number;
+  hiddenClientStateCount?: number;
+  hiddenAppHintCount?: number;
   topHiddenSignalGroup?: string;
   topHiddenSignalPath?: string;
   topHiddenSignalKind?: string;

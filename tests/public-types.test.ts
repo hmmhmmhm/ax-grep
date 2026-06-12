@@ -356,6 +356,10 @@ describe("public agent types", () => {
       | "bestStructuredReadTargetPrimary"
       | "bestStructuredReadTargetReason"
       | "hiddenSignalCount"
+      | "hiddenHydrationCount"
+      | "hiddenApiEndpointCount"
+      | "hiddenClientStateCount"
+      | "hiddenAppHintCount"
       | "hiddenReadTargetCount"
       | "topHiddenSignalGroup"
       | "topHiddenSignalPath"
@@ -1018,6 +1022,10 @@ describe("public agent types", () => {
       bestStructuredReadTargetPrimary: true,
       bestStructuredReadTargetReason: "Structured table captions, headers, and sample rows extracted from the page HTML.",
       hiddenSignalCount: 4,
+      hiddenHydrationCount: 1,
+      hiddenApiEndpointCount: 2,
+      hiddenClientStateCount: 1,
+      hiddenAppHintCount: 0,
       hiddenReadTargetCount: 2,
       topHiddenSignalGroup: "apiEndpoints",
       topHiddenSignalPath: "pageCheck.apiEndpoints[0]",
@@ -1502,6 +1510,7 @@ describe("public agent types", () => {
     };
 
     expect(summary.hiddenSignalCount).toBe(4);
+    expect(summary.hiddenApiEndpointCount).toBe(2);
     expect(summary.topHiddenSignalPath).toBe("pageCheck.apiEndpoints[0]");
     expect(summary.bestHiddenReadTarget).toBe("pageCheck.apiEndpoints");
     expect(summary.actionTargetCount).toBe(2);

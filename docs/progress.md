@@ -1,6 +1,6 @@
 # Current Progress
 
-Status: about 80% fit for the goal of making `ax-grep --agent` a useful
+Status: about 81% fit for the goal of making `ax-grep --agent` a useful
 first-pass page/search checker before `agent-browser`.
 
 This is a research track, so the target can expand when comparison work finds a
@@ -15,11 +15,11 @@ percentage as a fixed contract.
 | README/docs hygiene | 90% | Root README is short; detailed docs live under `docs/`. |
 | Process safety | 85% | `AGENTS.md`, `pnpm check:processes`, and non-browser gates are in place. |
 | Search result handoff | 80% | Result choices, source hints, verification, and command args are exposed. |
-| Page check handoff | 80% | Forms, action targets, hidden signals with selectors, browser-capture reasons, barriers, and read targets are exposed. |
+| Page check handoff | 81% | Forms, action targets, hidden signal group counts/selectors, browser-capture reasons, barriers, and read targets are exposed. |
 | Semantic accessibility signals | 75% | Landmarks, headings, links, buttons, fields, values, relations, choices, states, list item refs, and table cell header refs are exposed. |
 | Browser-tree parity research | 60% | Static gates exist; browser-backed checks must stay sequential and limited. |
 
-Overall estimate: 80%. This is intentionally conservative because the final
+Overall estimate: 81%. This is intentionally conservative because the final
 goal is comparative usefulness, not just passing the current tests.
 
 The estimate can move down as well as up. If research finds a browser
@@ -34,7 +34,7 @@ instead of hiding the new scope.
 | Documentation control | 90% | Keep README short and move long operational detail into `docs/`. | README stays under the enforced length limit and detailed notes are discoverable from docs links. |
 | Process containment | 85% | Keep validation sequential and check for leftover browser/test/comparison processes. | Every risky run starts and ends with `pnpm check:processes`, and no browser-backed parallel checks are introduced. |
 | Search handoff | 80% | Expose enough ranked-result context for an agent to choose, open, or skip results. | Agents can explain which result to open and why without relying on browser inspection first. |
-| Page handoff | 80% | Surface barriers, read targets, action targets, hidden signals, and browser-capture reasons. | Agents can decide whether static HTML is enough, which source to inspect next, or why browser capture is needed. |
+| Page handoff | 81% | Surface barriers, read targets, action targets, hidden signal groups, and browser-capture reasons. | Agents can decide whether static HTML is enough, which source to inspect next, or why browser capture is needed. |
 | Semantic accessibility | 75% | Continue adding high-value shortcuts from roles, states, relations, lists, tables, and controls. | Common browser accessibility-tree navigation questions have direct static equivalents or explicit fallback reasons. |
 | Browser parity research | 60% | Compare static output against a small sequential fixture set and record gaps. | Known useful browser-tree-only signals are either implemented, documented as impossible statically, or queued with priority. |
 
@@ -54,7 +54,7 @@ instead of hiding the new scope.
 | Priority | Candidate | Expected value | Scope status |
 | --- | --- | --- | --- |
 | P0 | Keep process checks around all validation work. | Prevent leaked browser/test/comparison processes from blocking the server again. | Ongoing guardrail. |
-| P1 | Add more specific hidden-signal summaries when the current top hidden signal is too coarse. | Helps agents distinguish hydration data, API endpoints, and client state without reading every nested item. | Candidate after current parity pass. |
+| P1 | Add top shortcuts for the highest-value item inside each hidden-signal group. | Helps agents jump directly to the best hydration/API/client-state/app hint when multiple groups exist. | Candidate after group counts. |
 | P1 | Improve table/grid summaries where row, column, and header refs do not explain navigation context well enough. | Closes a common gap versus accessibility-tree table navigation. | Candidate after fixtures identify exact missing fields. |
 | P2 | Add explicit browser-only fallback categories for cases static HTML should not guess. | Makes handoff decisions more predictable and easier to audit. | Candidate; depends on observed failures. |
 | P2 | Expand docs for comparison methodology without lengthening README. | Makes long-running research easier to inspect between sessions. | Use `docs/`, not root README. |
@@ -86,6 +86,9 @@ instead of hiding the new scope.
 - Added top hidden signal selectors so agents can jump from hydration/API/client
   hints back to the exact script or link source before deciding on browser
   capture.
+- Added hidden signal group counts for hydration, API endpoints, client state,
+  and app hints so agents can see which static data channels exist without
+  scanning nested arrays.
 - Added `browserHtmlReason` so agents can explain why browser capture is needed
   without digging through nested answer-plan gaps.
 - Added non-browser fixture gates and readiness audits for repeatable checks.

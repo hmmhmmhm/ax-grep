@@ -1432,6 +1432,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       bestStructuredReadTargetPrimary?: boolean;
       bestStructuredReadTargetReason?: string;
       hiddenSignalCount?: number;
+      hiddenHydrationCount?: number;
+      hiddenApiEndpointCount?: number;
+      hiddenClientStateCount?: number;
+      hiddenAppHintCount?: number;
       topHiddenSignalGroup?: string;
       topHiddenSignalPath?: string;
       topHiddenSignalKind?: string;
@@ -1965,7 +1969,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentFormActionCountScore: scoreAgentFormActionCounts(item.agent?.formCount, item.agent?.actionTargetCount, item.pageCheck?.forms ?? [], item.pageCheck?.actionTargets ?? []),
     agentFormActionChoiceScore: scoreAgentFormActionChoices(item.agent?.formChoices ?? [], item.agent?.actionTargetChoices ?? [], item.pageCheck?.forms ?? [], item.pageCheck?.actionTargets ?? []),
     agentTopFormActionChoiceShortcutScore: scoreAgentTopFormActionChoiceShortcuts(item.agent),
-    agentHiddenSignalCountScore: scoreAgentHiddenSignalCounts(item.agent, hiddenSignalCount),
+    agentHiddenSignalCountScore: scoreAgentHiddenSignalCounts(item.agent, hiddenSignalCount, item.pageCheck),
     agentTopHiddenSignalShortcutScore: scoreAgentTopHiddenSignalShortcuts(item.agent, item.pageCheck),
     agentSourceChoiceScore: scoreAgentSourceChoices(item.kind ?? "unknown", item.agent?.sourceChoices ?? [], item.pageCheck?.sourceLinks ?? [], item.agent?.primaryAction),
     agentTopSourceChoiceShortcutScore: scoreAgentTopSourceChoiceShortcuts(item.agent),
@@ -3261,6 +3265,12 @@ function countHiddenPageCheckSignals(pageCheck: unknown): number {
   }, 0);
 }
 
+function countPageCheckArray(pageCheck: unknown, key: string): number {
+  if (!pageCheck || typeof pageCheck !== "object") return 0;
+  const value = (pageCheck as Record<string, unknown>)[key];
+  return Array.isArray(value) ? value.length : 0;
+}
+
 function scoreAgentHiddenSignals(pageCheck: unknown, readTargets: CliReadTargetShape[], envelope: unknown): number {
   if (!pageCheck || typeof pageCheck !== "object") return 1;
   const record = pageCheck as Record<string, unknown>;
@@ -4158,17 +4168,26 @@ function scoreAgentHiddenSignalCounts(
     bestHiddenReadTargetScore?: number;
     bestHiddenReadTargetPrimary?: boolean;
     bestHiddenReadTargetReason?: string;
+    hiddenHydrationCount?: number;
+    hiddenApiEndpointCount?: number;
+    hiddenClientStateCount?: number;
+    hiddenAppHintCount?: number;
     readTargets?: CliReadTargetShape[];
   } | undefined,
   expectedHiddenSignalCount: number,
+  pageCheck: unknown,
 ): number {
   let matched = 0;
-  let required = 2;
+  let required = 6;
   const readTargets = agent?.readTargets ?? [];
   const expectedReadTargetCount = readTargets.filter((target) => {
     return typeof target.path === "string" && hiddenPageCheckPaths.some((path) => target.path === `pageCheck.${path}`);
   }).length;
   if (typeof agent?.hiddenSignalCount === "number" && agent.hiddenSignalCount === expectedHiddenSignalCount) matched += 1;
+  if (typeof agent?.hiddenHydrationCount === "number" && agent.hiddenHydrationCount === countPageCheckArray(pageCheck, "hydration")) matched += 1;
+  if (typeof agent?.hiddenApiEndpointCount === "number" && agent.hiddenApiEndpointCount === countPageCheckArray(pageCheck, "apiEndpoints")) matched += 1;
+  if (typeof agent?.hiddenClientStateCount === "number" && agent.hiddenClientStateCount === countPageCheckArray(pageCheck, "clientState")) matched += 1;
+  if (typeof agent?.hiddenAppHintCount === "number" && agent.hiddenAppHintCount === countPageCheckArray(pageCheck, "appHints")) matched += 1;
   if (typeof agent?.hiddenReadTargetCount === "number" && agent.hiddenReadTargetCount === expectedReadTargetCount) matched += 1;
   const best = [...readTargets.filter((target) => {
     return typeof target.path === "string" && hiddenPageCheckPaths.some((path) => target.path === `pageCheck.${path}`);

@@ -5414,6 +5414,10 @@ describe("cli", () => {
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("5 API endpoints");
     expect(envelope.agent.hiddenSignalCount).toBe(5);
+    expect(envelope.agent.hiddenHydrationCount).toBe(0);
+    expect(envelope.agent.hiddenApiEndpointCount).toBe(5);
+    expect(envelope.agent.hiddenClientStateCount).toBe(0);
+    expect(envelope.agent.hiddenAppHintCount).toBe(0);
     expect(envelope.agent.hiddenReadTargetCount).toBe(1);
     expect(envelope.agent).toMatchObject({
       topHiddenSignalGroup: "apiEndpoints",
@@ -9041,6 +9045,10 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  actionTargetCount: 0");
     expect(stdout.output).toContain("  actionTargetChoiceCount: 0");
     expect(stdout.output).toContain("  hiddenSignalCount: 4");
+    expect(stdout.output).toContain("  hiddenHydrationCount:");
+    expect(stdout.output).toContain("  hiddenApiEndpointCount:");
+    expect(stdout.output).toContain("  hiddenClientStateCount:");
+    expect(stdout.output).toContain("  hiddenAppHintCount:");
     expect(stdout.output).toContain("  hiddenReadTargetCount: 2");
     expect(stdout.output).toContain("  bestHiddenReadTarget:");
     expect(stdout.output).toContain("  bestHiddenReadTargetCount:");

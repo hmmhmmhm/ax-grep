@@ -1394,6 +1394,10 @@ type AgentSummary = {
   bestStructuredReadTargetPrimary?: boolean;
   bestStructuredReadTargetReason?: string;
   hiddenSignalCount: number;
+  hiddenHydrationCount: number;
+  hiddenApiEndpointCount: number;
+  hiddenClientStateCount: number;
+  hiddenAppHintCount: number;
   topHiddenSignalGroup?: string;
   topHiddenSignalPath?: string;
   topHiddenSignalKind?: string;
@@ -3206,6 +3210,10 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.bestStructuredReadTargetPrimary === "boolean" ? [`  bestStructuredReadTargetPrimary: ${agent.bestStructuredReadTargetPrimary}`] : []),
     ...(agent.bestStructuredReadTargetReason ? [`  bestStructuredReadTargetReason: ${agent.bestStructuredReadTargetReason}`] : []),
     `  hiddenSignalCount: ${agent.hiddenSignalCount}`,
+    `  hiddenHydrationCount: ${agent.hiddenHydrationCount}`,
+    `  hiddenApiEndpointCount: ${agent.hiddenApiEndpointCount}`,
+    `  hiddenClientStateCount: ${agent.hiddenClientStateCount}`,
+    `  hiddenAppHintCount: ${agent.hiddenAppHintCount}`,
     ...(agent.topHiddenSignalGroup ? [`  topHiddenSignalGroup: ${agent.topHiddenSignalGroup}`] : []),
     ...(agent.topHiddenSignalPath ? [`  topHiddenSignalPath: ${agent.topHiddenSignalPath}`] : []),
     ...(agent.topHiddenSignalKind ? [`  topHiddenSignalKind: ${agent.topHiddenSignalKind}`] : []),
@@ -10527,6 +10535,10 @@ function summarizeAgent(
   const bestStructuredReadTarget = selectBestStructuredReadTarget(readTargets);
   const bestHiddenReadTarget = selectBestHiddenReadTarget(readTargets);
   const hiddenSignalCount = countHiddenAgentPageCheckSignals(pageCheck);
+  const hiddenHydrationCount = pageCheck.hydration.length;
+  const hiddenApiEndpointCount = pageCheck.apiEndpoints.length;
+  const hiddenClientStateCount = pageCheck.clientState.length;
+  const hiddenAppHintCount = pageCheck.appHints.length;
   const topHiddenSignal = selectTopHiddenAgentPageCheckSignal(pageCheck);
   const structuredReadTargetCount = countStructuredAgentReadTargets(readTargets);
   const hiddenReadTargetCount = countHiddenAgentReadTargets(readTargets);
@@ -11123,6 +11135,10 @@ function summarizeAgent(
     ...(typeof bestStructuredReadTarget?.primary === "boolean" ? { bestStructuredReadTargetPrimary: bestStructuredReadTarget.primary } : {}),
     ...(bestStructuredReadTarget ? { bestStructuredReadTargetReason: bestStructuredReadTarget.reason } : {}),
     hiddenSignalCount,
+    hiddenHydrationCount,
+    hiddenApiEndpointCount,
+    hiddenClientStateCount,
+    hiddenAppHintCount,
     ...(topHiddenSignal ? { topHiddenSignalGroup: topHiddenSignal.group } : {}),
     ...(topHiddenSignal ? { topHiddenSignalPath: topHiddenSignal.path } : {}),
     ...(topHiddenSignal?.kind ? { topHiddenSignalKind: topHiddenSignal.kind } : {}),
@@ -13866,6 +13882,10 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     contactPointCount: 0,
     structuredReadTargetCount: 0,
     hiddenSignalCount: 0,
+    hiddenHydrationCount: 0,
+    hiddenApiEndpointCount: 0,
+    hiddenClientStateCount: 0,
+    hiddenAppHintCount: 0,
     hiddenReadTargetCount: 0,
     sourceLinkCount: 0,
     sourceChoiceCount: 0,
@@ -15718,6 +15738,10 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.bestStructuredReadTargetPrimary === "boolean" ? { bestStructuredReadTargetPrimary: agent.bestStructuredReadTargetPrimary } : {}),
     ...(agent.bestStructuredReadTargetReason ? { bestStructuredReadTargetReason: agent.bestStructuredReadTargetReason } : {}),
     hiddenSignalCount: agent.hiddenSignalCount,
+    hiddenHydrationCount: agent.hiddenHydrationCount,
+    hiddenApiEndpointCount: agent.hiddenApiEndpointCount,
+    hiddenClientStateCount: agent.hiddenClientStateCount,
+    hiddenAppHintCount: agent.hiddenAppHintCount,
     ...(agent.topHiddenSignalGroup ? { topHiddenSignalGroup: agent.topHiddenSignalGroup } : {}),
     ...(agent.topHiddenSignalPath ? { topHiddenSignalPath: agent.topHiddenSignalPath } : {}),
     ...(agent.topHiddenSignalKind ? { topHiddenSignalKind: agent.topHiddenSignalKind } : {}),
@@ -16336,6 +16360,10 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.bestStructuredReadTargetPrimary === "boolean" ? { bestStructuredReadTargetPrimary: agent.bestStructuredReadTargetPrimary } : {}),
     ...(agent.bestStructuredReadTargetReason ? { bestStructuredReadTargetReason: agent.bestStructuredReadTargetReason } : {}),
     hiddenSignalCount: agent.hiddenSignalCount,
+    hiddenHydrationCount: agent.hiddenHydrationCount,
+    hiddenApiEndpointCount: agent.hiddenApiEndpointCount,
+    hiddenClientStateCount: agent.hiddenClientStateCount,
+    hiddenAppHintCount: agent.hiddenAppHintCount,
     ...(agent.topHiddenSignalGroup ? { topHiddenSignalGroup: agent.topHiddenSignalGroup } : {}),
     ...(agent.topHiddenSignalPath ? { topHiddenSignalPath: agent.topHiddenSignalPath } : {}),
     ...(agent.topHiddenSignalKind ? { topHiddenSignalKind: agent.topHiddenSignalKind } : {}),
