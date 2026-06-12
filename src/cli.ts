@@ -16973,6 +16973,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topCodeBlockText ? { topCodeBlockText: agent.topCodeBlockText } : {}),
     ...(agent.topResourceKind ? { topResourceKind: agent.topResourceKind } : {}),
     ...(agent.topResourceUrl ? { topResourceUrl: agent.topResourceUrl } : {}),
+    ...(agent.topResourceTitle ? { topResourceTitle: agent.topResourceTitle } : {}),
     ...(agent.topMediaKind ? { topMediaKind: agent.topMediaKind } : {}),
     ...(agent.topMediaUrl ? { topMediaUrl: agent.topMediaUrl } : {}),
     ...(agent.topSectionPath ? { topSectionPath: agent.topSectionPath } : {}),

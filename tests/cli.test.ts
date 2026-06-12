@@ -8769,6 +8769,33 @@ npx ax-grep https://example.test --agent</code></pre>
     });
   });
 
+  it("keeps top resource titles in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/article", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <link rel="alternate" type="application/rss+xml" title="Example feed" href="/feed.xml">
+          </head>
+          <body><main><h1>Article</h1></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      resourceCount: 1,
+      topResourceKind: "feed",
+      topResourceUrl: "https://example.test/feed.xml",
+      topResourceTitle: "Example feed",
+      bestStructuredReadTarget: "pageCheck.resources",
+    });
+  });
+
   it("checks requested text against page resource summaries", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/article", "--agent", "--find", "application/pdf"], {
