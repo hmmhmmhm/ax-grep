@@ -8403,6 +8403,31 @@ npx ax-grep https://example.test --agent</code></pre>
     });
   });
 
+  it("keeps top code block text in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/docs/install", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <pre><code class="language-bash">pnpm add ax-grep
+npx ax-grep https://example.test --agent</code></pre>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      codeBlockCount: 1,
+      topCodeBlockLanguage: "bash",
+      topCodeBlockLineCount: 2,
+      topCodeBlockText: "pnpm add ax-grep\nnpx ax-grep https://example.test --agent",
+      bestStructuredReadTarget: "pageCheck.codeBlocks",
+    });
+  });
+
   it("checks requested text against code block summaries", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/docs/install", "--agent", "--find", "npx ax-grep https://example.test --agent"], {

@@ -16970,6 +16970,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topFaqAnswer ? { topFaqAnswer: agent.topFaqAnswer } : {}),
     ...(agent.topCodeBlockLanguage ? { topCodeBlockLanguage: agent.topCodeBlockLanguage } : {}),
     ...(typeof agent.topCodeBlockLineCount === "number" ? { topCodeBlockLineCount: agent.topCodeBlockLineCount } : {}),
+    ...(agent.topCodeBlockText ? { topCodeBlockText: agent.topCodeBlockText } : {}),
     ...(agent.topResourceKind ? { topResourceKind: agent.topResourceKind } : {}),
     ...(agent.topResourceUrl ? { topResourceUrl: agent.topResourceUrl } : {}),
     ...(agent.topMediaKind ? { topMediaKind: agent.topMediaKind } : {}),
