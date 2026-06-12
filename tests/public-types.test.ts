@@ -158,7 +158,7 @@ describe("public agent types", () => {
       queryField: "q",
       urlTemplate: "https://example.test/find?q={query}",
       selector: "form:nth-of-type(1)",
-      fields: [{ name: "q", type: "search", selector: "input[name=\"q\"]" }],
+      fields: [{ name: "q", type: "search", label: "Search", placeholder: "Search docs", value: "initial", required: true, selector: "input[name=\"q\"]", options: ["All", "Docs"] }],
     };
     const actionTargetChoice: AgentActionTargetChoice = {
       id: "at1",
@@ -222,6 +222,9 @@ describe("public agent types", () => {
       | "topFormChoiceFirstFieldName"
       | "topFormChoiceFirstFieldType"
       | "topFormChoiceFirstFieldLabel"
+      | "topFormChoiceFirstFieldPlaceholder"
+      | "topFormChoiceFirstFieldValue"
+      | "topFormChoiceFirstFieldOptions"
       | "topFormChoiceFirstFieldRequired"
       | "topFormChoiceFirstFieldSelector"
       | "actionTargetCount"
@@ -1234,6 +1237,9 @@ describe("public agent types", () => {
       topFormChoiceFirstFieldName: "q",
       topFormChoiceFirstFieldType: "search",
       topFormChoiceFirstFieldLabel: "Search",
+      topFormChoiceFirstFieldPlaceholder: "Search docs",
+      topFormChoiceFirstFieldValue: "initial",
+      topFormChoiceFirstFieldOptions: ["All", "Docs"],
       topFormChoiceFirstFieldRequired: true,
       topFormChoiceFirstFieldSelector: "input[name=\"q\"]",
       actionTargetCount: 2,

@@ -1425,6 +1425,9 @@ type AgentSummary = {
   topFormChoiceFirstFieldName?: string;
   topFormChoiceFirstFieldType?: string;
   topFormChoiceFirstFieldLabel?: string;
+  topFormChoiceFirstFieldPlaceholder?: string;
+  topFormChoiceFirstFieldValue?: string;
+  topFormChoiceFirstFieldOptions?: string[];
   topFormChoiceFirstFieldRequired?: boolean;
   topFormChoiceFirstFieldSelector?: string;
   actionTargetCount: number;
@@ -3577,7 +3580,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topFormChoiceUrlTemplate ? [`  topFormChoiceUrlTemplate: ${agent.topFormChoiceUrlTemplate}`] : []),
     ...(agent.topFormChoiceQueryField ? [`  topFormChoiceQueryField: ${agent.topFormChoiceQueryField}`] : []),
     ...(agent.topFormChoiceSubmitText ? [`  topFormChoiceSubmitText: ${agent.topFormChoiceSubmitText}`] : []),
-    ...(agent.topFormChoiceFirstFieldName || agent.topFormChoiceFirstFieldType ? [`  topFormChoiceFirstField: ${agent.topFormChoiceFirstFieldName ?? ""}${agent.topFormChoiceFirstFieldType ? ` type=${agent.topFormChoiceFirstFieldType}` : ""}${agent.topFormChoiceFirstFieldLabel ? ` label=${agent.topFormChoiceFirstFieldLabel}` : ""}${typeof agent.topFormChoiceFirstFieldRequired === "boolean" ? ` required=${agent.topFormChoiceFirstFieldRequired}` : ""}${agent.topFormChoiceFirstFieldSelector ? ` selector=${agent.topFormChoiceFirstFieldSelector}` : ""}`] : []),
+    ...(agent.topFormChoiceFirstFieldName || agent.topFormChoiceFirstFieldType ? [`  topFormChoiceFirstField: ${agent.topFormChoiceFirstFieldName ?? ""}${agent.topFormChoiceFirstFieldType ? ` type=${agent.topFormChoiceFirstFieldType}` : ""}${agent.topFormChoiceFirstFieldLabel ? ` label=${agent.topFormChoiceFirstFieldLabel}` : ""}${agent.topFormChoiceFirstFieldPlaceholder ? ` placeholder=${agent.topFormChoiceFirstFieldPlaceholder}` : ""}${agent.topFormChoiceFirstFieldValue ? ` value=${agent.topFormChoiceFirstFieldValue}` : ""}${agent.topFormChoiceFirstFieldOptions?.length ? ` options=${agent.topFormChoiceFirstFieldOptions.join("|")}` : ""}${typeof agent.topFormChoiceFirstFieldRequired === "boolean" ? ` required=${agent.topFormChoiceFirstFieldRequired}` : ""}${agent.topFormChoiceFirstFieldSelector ? ` selector=${agent.topFormChoiceFirstFieldSelector}` : ""}`] : []),
     ...(agent.topActionTargetChoicePath ? [`  topActionTargetChoicePath: ${agent.topActionTargetChoicePath}`] : []),
     ...(agent.topActionTargetChoiceUrlTemplate ? [`  topActionTargetChoiceUrlTemplate: ${agent.topActionTargetChoiceUrlTemplate}`] : []),
     ...(agent.topActionTargetChoiceQueryInput ? [`  topActionTargetChoiceQueryInput: ${agent.topActionTargetChoiceQueryInput}`] : []),
@@ -11900,6 +11903,9 @@ function summarizeAgent(
     ...(topFormChoiceFirstField?.name ? { topFormChoiceFirstFieldName: topFormChoiceFirstField.name } : {}),
     ...(topFormChoiceFirstField?.type ? { topFormChoiceFirstFieldType: topFormChoiceFirstField.type } : {}),
     ...(topFormChoiceFirstField?.label ? { topFormChoiceFirstFieldLabel: topFormChoiceFirstField.label } : {}),
+    ...(topFormChoiceFirstField?.placeholder ? { topFormChoiceFirstFieldPlaceholder: topFormChoiceFirstField.placeholder } : {}),
+    ...(topFormChoiceFirstField?.value ? { topFormChoiceFirstFieldValue: topFormChoiceFirstField.value } : {}),
+    ...(topFormChoiceFirstField?.options?.length ? { topFormChoiceFirstFieldOptions: topFormChoiceFirstField.options } : {}),
     ...(typeof topFormChoiceFirstField?.required === "boolean" ? { topFormChoiceFirstFieldRequired: topFormChoiceFirstField.required } : {}),
     ...(topFormChoiceFirstField?.selector ? { topFormChoiceFirstFieldSelector: topFormChoiceFirstField.selector } : {}),
     ...(actionTargetChoices[0] ? { topActionTargetChoicePath: actionTargetChoices[0].path } : {}),
@@ -17247,6 +17253,9 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topFormChoiceFirstFieldName ? { topFormChoiceFirstFieldName: agent.topFormChoiceFirstFieldName } : {}),
     ...(agent.topFormChoiceFirstFieldType ? { topFormChoiceFirstFieldType: agent.topFormChoiceFirstFieldType } : {}),
     ...(agent.topFormChoiceFirstFieldLabel ? { topFormChoiceFirstFieldLabel: agent.topFormChoiceFirstFieldLabel } : {}),
+    ...(agent.topFormChoiceFirstFieldPlaceholder ? { topFormChoiceFirstFieldPlaceholder: agent.topFormChoiceFirstFieldPlaceholder } : {}),
+    ...(agent.topFormChoiceFirstFieldValue ? { topFormChoiceFirstFieldValue: agent.topFormChoiceFirstFieldValue } : {}),
+    ...(agent.topFormChoiceFirstFieldOptions?.length ? { topFormChoiceFirstFieldOptions: agent.topFormChoiceFirstFieldOptions } : {}),
     ...(typeof agent.topFormChoiceFirstFieldRequired === "boolean" ? { topFormChoiceFirstFieldRequired: agent.topFormChoiceFirstFieldRequired } : {}),
     ...(agent.topFormChoiceFirstFieldSelector ? { topFormChoiceFirstFieldSelector: agent.topFormChoiceFirstFieldSelector } : {}),
     ...(agent.topActionTargetChoicePath ? { topActionTargetChoicePath: agent.topActionTargetChoicePath } : {}),
@@ -18288,6 +18297,9 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topFormChoiceFirstFieldName ? { topFormChoiceFirstFieldName: agent.topFormChoiceFirstFieldName } : {}),
     ...(agent.topFormChoiceFirstFieldType ? { topFormChoiceFirstFieldType: agent.topFormChoiceFirstFieldType } : {}),
     ...(agent.topFormChoiceFirstFieldLabel ? { topFormChoiceFirstFieldLabel: agent.topFormChoiceFirstFieldLabel } : {}),
+    ...(agent.topFormChoiceFirstFieldPlaceholder ? { topFormChoiceFirstFieldPlaceholder: agent.topFormChoiceFirstFieldPlaceholder } : {}),
+    ...(agent.topFormChoiceFirstFieldValue ? { topFormChoiceFirstFieldValue: agent.topFormChoiceFirstFieldValue } : {}),
+    ...(agent.topFormChoiceFirstFieldOptions?.length ? { topFormChoiceFirstFieldOptions: agent.topFormChoiceFirstFieldOptions } : {}),
     ...(typeof agent.topFormChoiceFirstFieldRequired === "boolean" ? { topFormChoiceFirstFieldRequired: agent.topFormChoiceFirstFieldRequired } : {}),
     ...(agent.topFormChoiceFirstFieldSelector ? { topFormChoiceFirstFieldSelector: agent.topFormChoiceFirstFieldSelector } : {}),
     ...(agent.topActionTargetChoicePath ? { topActionTargetChoicePath: agent.topActionTargetChoicePath } : {}),

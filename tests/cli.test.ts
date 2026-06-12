@@ -5551,6 +5551,7 @@ describe("cli", () => {
       topFormChoiceFirstFieldName: "query",
       topFormChoiceFirstFieldType: "search",
       topFormChoiceFirstFieldLabel: "Archive search",
+      topFormChoiceFirstFieldPlaceholder: "Search reports",
       topFormChoiceFirstFieldRequired: true,
       topFormChoiceFirstFieldSelector: "input[name=\"query\"]",
     });

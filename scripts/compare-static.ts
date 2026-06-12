@@ -1347,6 +1347,9 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topFormChoiceFirstFieldName?: string;
       topFormChoiceFirstFieldType?: string;
       topFormChoiceFirstFieldLabel?: string;
+      topFormChoiceFirstFieldPlaceholder?: string;
+      topFormChoiceFirstFieldValue?: string;
+      topFormChoiceFirstFieldOptions?: string[];
       topFormChoiceFirstFieldRequired?: boolean;
       topFormChoiceFirstFieldSelector?: string;
       topActionTargetChoicePath?: string;
@@ -4544,6 +4547,9 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   topFormChoiceFirstFieldName?: string;
   topFormChoiceFirstFieldType?: string;
   topFormChoiceFirstFieldLabel?: string;
+  topFormChoiceFirstFieldPlaceholder?: string;
+  topFormChoiceFirstFieldValue?: string;
+  topFormChoiceFirstFieldOptions?: string[];
   topFormChoiceFirstFieldRequired?: boolean;
   topFormChoiceFirstFieldSelector?: string;
   actionTargetChoices?: CliAgentActionTargetChoiceShape[];
@@ -4568,8 +4574,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   let matched = 0;
   if (form) {
     if (agent?.topFormChoicePath === form.path) matched += 1;
-    required += 12;
-    const firstField = Array.isArray(form.fields) ? form.fields[0] as { name?: unknown; type?: unknown; label?: unknown; required?: unknown; selector?: unknown } | undefined : undefined;
+    required += 15;
+    const firstField = Array.isArray(form.fields) ? form.fields[0] as { name?: unknown; type?: unknown; label?: unknown; placeholder?: unknown; value?: unknown; options?: unknown; required?: unknown; selector?: unknown } | undefined : undefined;
     if (agent?.topFormChoiceMethod === form.method) matched += 1;
     if (agent?.topFormChoiceActionUrl === form.actionUrl) matched += 1;
     if (agent?.topFormChoiceSubmitText === form.submitText) matched += 1;
@@ -4580,6 +4586,9 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     if (agent?.topFormChoiceFirstFieldName === firstField?.name) matched += 1;
     if (agent?.topFormChoiceFirstFieldType === firstField?.type) matched += 1;
     if (agent?.topFormChoiceFirstFieldLabel === firstField?.label) matched += 1;
+    if (agent?.topFormChoiceFirstFieldPlaceholder === firstField?.placeholder) matched += 1;
+    if (agent?.topFormChoiceFirstFieldValue === firstField?.value) matched += 1;
+    if (JSON.stringify(agent?.topFormChoiceFirstFieldOptions) === JSON.stringify(firstField?.options)) matched += 1;
     if (agent?.topFormChoiceFirstFieldRequired === firstField?.required) matched += 1;
     if (agent?.topFormChoiceFirstFieldSelector === firstField?.selector) matched += 1;
   } else if (
@@ -4594,6 +4603,9 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     || agent?.topFormChoiceFirstFieldName
     || agent?.topFormChoiceFirstFieldType
     || agent?.topFormChoiceFirstFieldLabel
+    || agent?.topFormChoiceFirstFieldPlaceholder
+    || agent?.topFormChoiceFirstFieldValue
+    || agent?.topFormChoiceFirstFieldOptions?.length
     || typeof agent?.topFormChoiceFirstFieldRequired === "boolean"
     || agent?.topFormChoiceFirstFieldSelector
   ) {
