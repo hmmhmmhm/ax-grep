@@ -1174,6 +1174,7 @@ export type AgentSummary = {
   topActionTargetChoiceUrlTemplate?: string;
   topActionTargetChoiceQueryInput?: string;
   topActionTargetChoiceMethod?: string;
+  topActionTargetChoiceEncodingType?: string;
   topActionTargetChoiceDisabled?: boolean;
   topActionTargetChoicePressed?: SemanticNodeState["pressed"];
   topActionTargetChoiceExpanded?: boolean;

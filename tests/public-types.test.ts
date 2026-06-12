@@ -192,6 +192,7 @@ describe("public agent types", () => {
       urlTemplate: "https://example.test/search?q={query}",
       queryInput: "required name=query",
       method: "GET",
+      encodingType: "application/x-www-form-urlencoded",
       disabled: true,
       pressed: false,
       expanded: true,
@@ -293,6 +294,7 @@ describe("public agent types", () => {
       | "topActionTargetChoiceUrlTemplate"
       | "topActionTargetChoiceQueryInput"
       | "topActionTargetChoiceMethod"
+      | "topActionTargetChoiceEncodingType"
       | "topActionTargetChoiceDisabled"
       | "topActionTargetChoicePressed"
       | "topActionTargetChoiceExpanded"
@@ -1343,6 +1345,7 @@ describe("public agent types", () => {
       topActionTargetChoiceUrlTemplate: "https://example.test/search?q={query}",
       topActionTargetChoiceQueryInput: "required name=query",
       topActionTargetChoiceMethod: "GET",
+      topActionTargetChoiceEncodingType: "application/x-www-form-urlencoded",
       topActionTargetChoiceDisabled: true,
       topActionTargetChoicePressed: false,
       topActionTargetChoiceExpanded: true,

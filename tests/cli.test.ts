@@ -6262,6 +6262,7 @@ describe("cli", () => {
       topActionTargetChoiceUrlTemplate: "https://example.test/search?q={search_term_string}",
       topActionTargetChoiceQueryInput: "required name=search_term_string",
       topActionTargetChoiceMethod: "GET",
+      topActionTargetChoiceEncodingType: "application/x-www-form-urlencoded",
       topActionTargetChoiceSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
     });
     expect(envelope.agent.actionTargetChoices).toEqual([

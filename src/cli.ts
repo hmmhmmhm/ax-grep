@@ -1515,6 +1515,7 @@ type AgentSummary = {
   topActionTargetChoiceUrlTemplate?: string;
   topActionTargetChoiceQueryInput?: string;
   topActionTargetChoiceMethod?: string;
+  topActionTargetChoiceEncodingType?: string;
   topActionTargetChoiceDisabled?: boolean;
   topActionTargetChoicePressed?: SemanticNodeState["pressed"];
   topActionTargetChoiceExpanded?: boolean;
@@ -3664,6 +3665,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topActionTargetChoicePath ? [`  topActionTargetChoicePath: ${agent.topActionTargetChoicePath}`] : []),
     ...(agent.topActionTargetChoiceUrlTemplate ? [`  topActionTargetChoiceUrlTemplate: ${agent.topActionTargetChoiceUrlTemplate}`] : []),
     ...(agent.topActionTargetChoiceQueryInput ? [`  topActionTargetChoiceQueryInput: ${agent.topActionTargetChoiceQueryInput}`] : []),
+    ...(agent.topActionTargetChoiceEncodingType ? [`  topActionTargetChoiceEncodingType: ${agent.topActionTargetChoiceEncodingType}`] : []),
     `  barrierCount: ${agent.barrierCount}`,
     ...(agent.topBarrierKind ? [`  topBarrier: ${agent.topBarrierSeverity}/${agent.topBarrierKind} ${agent.topBarrierPath} - ${agent.topBarrierText}`] : []),
     ...(agent.topBarrierSource ? [`  topBarrierSource: ${agent.topBarrierSource}`] : []),
@@ -12167,6 +12169,7 @@ function summarizeAgent(
     ...(actionTargetChoices[0]?.urlTemplate ? { topActionTargetChoiceUrlTemplate: actionTargetChoices[0].urlTemplate } : {}),
     ...(actionTargetChoices[0]?.queryInput ? { topActionTargetChoiceQueryInput: actionTargetChoices[0].queryInput } : {}),
     ...(actionTargetChoices[0]?.method ? { topActionTargetChoiceMethod: actionTargetChoices[0].method } : {}),
+    ...(actionTargetChoices[0]?.encodingType ? { topActionTargetChoiceEncodingType: actionTargetChoices[0].encodingType } : {}),
     ...(typeof actionTargetChoices[0]?.disabled === "boolean" ? { topActionTargetChoiceDisabled: actionTargetChoices[0].disabled } : {}),
     ...(typeof actionTargetChoices[0]?.pressed !== "undefined" ? { topActionTargetChoicePressed: actionTargetChoices[0].pressed } : {}),
     ...(typeof actionTargetChoices[0]?.expanded === "boolean" ? { topActionTargetChoiceExpanded: actionTargetChoices[0].expanded } : {}),
@@ -17628,6 +17631,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topActionTargetChoiceUrlTemplate ? { topActionTargetChoiceUrlTemplate: agent.topActionTargetChoiceUrlTemplate } : {}),
     ...(agent.topActionTargetChoiceQueryInput ? { topActionTargetChoiceQueryInput: agent.topActionTargetChoiceQueryInput } : {}),
     ...(agent.topActionTargetChoiceMethod ? { topActionTargetChoiceMethod: agent.topActionTargetChoiceMethod } : {}),
+    ...(agent.topActionTargetChoiceEncodingType ? { topActionTargetChoiceEncodingType: agent.topActionTargetChoiceEncodingType } : {}),
     ...(typeof agent.topActionTargetChoiceDisabled === "boolean" ? { topActionTargetChoiceDisabled: agent.topActionTargetChoiceDisabled } : {}),
     ...(typeof agent.topActionTargetChoicePressed !== "undefined" ? { topActionTargetChoicePressed: agent.topActionTargetChoicePressed } : {}),
     ...(typeof agent.topActionTargetChoiceExpanded === "boolean" ? { topActionTargetChoiceExpanded: agent.topActionTargetChoiceExpanded } : {}),
@@ -18707,6 +18711,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topActionTargetChoiceUrlTemplate ? { topActionTargetChoiceUrlTemplate: agent.topActionTargetChoiceUrlTemplate } : {}),
     ...(agent.topActionTargetChoiceQueryInput ? { topActionTargetChoiceQueryInput: agent.topActionTargetChoiceQueryInput } : {}),
     ...(agent.topActionTargetChoiceMethod ? { topActionTargetChoiceMethod: agent.topActionTargetChoiceMethod } : {}),
+    ...(agent.topActionTargetChoiceEncodingType ? { topActionTargetChoiceEncodingType: agent.topActionTargetChoiceEncodingType } : {}),
     ...(typeof agent.topActionTargetChoiceDisabled === "boolean" ? { topActionTargetChoiceDisabled: agent.topActionTargetChoiceDisabled } : {}),
     ...(typeof agent.topActionTargetChoicePressed !== "undefined" ? { topActionTargetChoicePressed: agent.topActionTargetChoicePressed } : {}),
     ...(typeof agent.topActionTargetChoiceExpanded === "boolean" ? { topActionTargetChoiceExpanded: agent.topActionTargetChoiceExpanded } : {}),
