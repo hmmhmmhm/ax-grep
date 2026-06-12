@@ -1197,6 +1197,8 @@ describe("cli", () => {
 
       expect(stdout.output).not.toContain("--agent-brief-brief");
       expect(envelope.agent.contract.profile).toBe("brief");
+      expect(envelope.agent.routingIntent).toEqual(expect.any(String));
+      expect(envelope.agent.continuationMode).toEqual(expect.any(String));
       expect(handoff).toMatchObject({
         decision: executor.decision,
         mode: executor.mode,
@@ -1214,6 +1216,7 @@ describe("cli", () => {
       expect(envelope.agent.runbookOperation).toBe(executor.operation);
       expect(envelope.agent.runbookActionName).toBe(executor.action);
       expect(envelope.agent.runbookConfidence).toBe(executor.confidence);
+      expect(envelope.agent.runbookReason).toEqual(expect.any(String));
       expect(envelope.agent.runbookAnswerStatus).toBe(executor.status);
       expect(envelope.agent.runbookAnswerReady).toBe(executor.answerReady);
       expect(envelope.agent.runbookShouldContinue).toBe(executor.shouldContinue);
@@ -1236,6 +1239,7 @@ describe("cli", () => {
       expect(envelope.agent.expectedOutcomeMessage).toEqual(expect.any(String));
       expect(envelope.agent.executionPlanOperation).toBe(executor.operation);
       expect(envelope.agent.executionPlanConfidence).toBe(executor.confidence);
+      expect(envelope.agent.executionPlanReason).toEqual(expect.any(String));
       expect(envelope.agent.executionPlanAnswerReady).toBe(executor.answerReady);
       expect(envelope.agent.executionPlanShouldContinue).toBe(executor.shouldContinue);
       expect(envelope.agent.executionPlanTerminal).toBe(executor.terminal);
@@ -1275,6 +1279,9 @@ describe("cli", () => {
       if (envelope.agent.answerPlan?.reason) expect(envelope.agent.answerPlanReason).toBe(envelope.agent.answerPlan.reason);
       if (envelope.agent.answerPlan?.nextAction) expect(envelope.agent.answerPlanNextAction).toBe(envelope.agent.answerPlan.nextAction);
       expect(envelope.agent.answerGapCount).toEqual(expect.any(Number));
+      expect(envelope.agent.alternativeActionCount).toEqual(expect.any(Number));
+      expect(envelope.agent.diagnosticInfoCount).toEqual(expect.any(Number));
+      if (envelope.agent.diagnosticCodes?.length) expect(envelope.agent.diagnosticCodes[0]).toEqual(expect.any(String));
       const topAnswerEvidence = envelope.agent.answerEvidence?.[0] ?? handoff.answerEvidence?.[0];
       if (topAnswerEvidence) {
         expect(envelope.agent.topAnswerEvidenceId).toBe(topAnswerEvidence.id);
