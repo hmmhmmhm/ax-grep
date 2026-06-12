@@ -27,8 +27,13 @@ same exact normalized `role:name` matches, but split by agent-facing use:
 - `navigationRecall`: exact recall for links, headings, landmarks, and search.
 - `contentRecall`: exact recall for headings, images, table/list structure, and
   static text.
+- `structuralContentRecall`: exact recall for headings, images, table/list
+  structure, and other non-StaticText content roles.
+- `textRecall`: exact recall for StaticText roles only.
 - `score`: weighted summary for agent parsing: actionable 40%, navigation 25%,
-  content 20%, precision 15%.
+  structural content 20%, precision 15%. Strict `contentRecall` and
+  `textRecall` remain visible because text-heavy pages can expose useful gaps,
+  but raw StaticText volume should not dominate the agent-usefulness score.
 
 The static harness also emits `cliAgentSummary`, which scores the actual
 agent-facing `--agent` compact JSON envelope rather than raw tree overlap. It uses

@@ -40,6 +40,8 @@ type AgentReadinessScores = {
   actionableRecall: number;
   navigationRecall: number;
   contentRecall: number;
+  structuralContentRecall: number;
+  textRecall: number;
   score: number;
 };
 
@@ -91,6 +93,8 @@ const contentRoles = new Set([
   "term",
   "text",
 ]);
+const structuralContentRoles = new Set([...contentRoles].filter((role) => role !== "text"));
+const textRoles = new Set(["text"]);
 
 const urls = process.argv.slice(2);
 const targets = urls.length > 0
@@ -283,6 +287,8 @@ function scoreAgentReadiness(candidate: NormalizedSummary, reference: Normalized
   const actionableRecall = categoryRecall(candidateSet, reference.namedRoles, actionableRoles);
   const navigationRecall = categoryRecall(candidateSet, reference.namedRoles, navigationRoles);
   const contentRecall = categoryRecall(candidateSet, reference.namedRoles, contentRoles);
+  const structuralContentRecall = categoryRecall(candidateSet, reference.namedRoles, structuralContentRoles);
+  const textRecall = categoryRecall(candidateSet, reference.namedRoles, textRoles);
 
   return {
     referenceRecall: roundScore(referenceRecall),
@@ -291,10 +297,12 @@ function scoreAgentReadiness(candidate: NormalizedSummary, reference: Normalized
     actionableRecall: roundScore(actionableRecall),
     navigationRecall: roundScore(navigationRecall),
     contentRecall: roundScore(contentRecall),
+    structuralContentRecall: roundScore(structuralContentRecall),
+    textRecall: roundScore(textRecall),
     score: roundScore(
       actionableRecall * 0.4
       + navigationRecall * 0.25
-      + contentRecall * 0.2
+      + structuralContentRecall * 0.2
       + candidatePrecision * 0.15
     ),
   };
