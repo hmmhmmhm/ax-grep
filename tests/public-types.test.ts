@@ -811,6 +811,7 @@ describe("public agent types", () => {
       | "failingQualityGatePath"
       | "failingQualityGateScore"
       | "browserHtmlReason"
+      | "browserHtmlReasonCode"
       | "topDiagnosticCode"
       | "topDiagnosticSeverity"
       | "topDiagnosticMessage"
@@ -1501,6 +1502,7 @@ describe("public agent types", () => {
       failingQualityGatePath: "pageCheck.contentEvidence",
       failingQualityGateScore: 0.4,
       browserHtmlReason: "Browser-captured HTML or browser inspection is needed.",
+      browserHtmlReasonCode: "blocked-or-empty",
       topDiagnosticCode: "NO_USEFUL_LINKS",
       topDiagnosticSeverity: "warning",
       topDiagnosticMessage: "No useful outbound links were found.",

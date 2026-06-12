@@ -9405,6 +9405,7 @@ npx ax-grep https://example.test --agent</code></pre>
       canUseFetchedHtml: false,
       needsBrowserHtml: true,
       browserHtmlReason: "Browser-captured HTML or browser inspection is needed.",
+      browserHtmlReasonCode: "no-inspectable-content",
       primaryAction: {
         action: "retry-with-browser-html",
       },
@@ -9430,6 +9431,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("agent\n  status: needs-browser");
     expect(stdout.output).toContain("  continuationMode: capture-html");
     expect(stdout.output).toContain("  browserHtmlReason: Browser-captured HTML or browser inspection is needed.");
+    expect(stdout.output).toContain("  browserHtmlReasonCode: no-inspectable-content");
     expect(stdout.output).toContain("  executor: browser/capture-browser-html/low action=retry-with-browser-html status=blocked - ");
     expect(stdout.output).toContain("  executorCommandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  executorBrowserHtml: captured.html capture=document.documentElement.outerHTML");
@@ -9719,6 +9721,7 @@ npx ax-grep https://example.test --agent</code></pre>
       canContinue: true,
       needsBrowserHtml: true,
       browserHtmlReason: "Browser-captured HTML is needed.",
+      browserHtmlReasonCode: "http-error",
       primaryAction: {
         action: "retry-with-browser-html",
         url: "https://example.test/package",

@@ -96,6 +96,7 @@ export type ObserverScriptOptions = SemanticTreeObserverOptions & {
 };
 
 export type AgentStatus = "ready" | "choose-result" | "verify" | "needs-browser" | "error";
+export type AgentBrowserHtmlReasonCode = "no-inspectable-content" | "http-error" | "fetch-error" | "blocked-or-empty" | "retry-action" | "browser-interaction" | "unknown";
 
 export type AgentRoutingIntent =
   | "read-current"
@@ -834,6 +835,7 @@ export type AgentSummary = {
   canUseFetchedHtml: boolean;
   needsBrowserHtml: boolean;
   browserHtmlReason?: string;
+  browserHtmlReasonCode?: AgentBrowserHtmlReasonCode;
   responseStatus?: number;
   responseOk?: boolean;
   responseContentType?: string;

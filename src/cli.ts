@@ -12,6 +12,7 @@ import type {
   AgentActionTargetChoice,
   AgentAnswerPlan,
   AgentBrowserHtmlCapture,
+  AgentBrowserHtmlReasonCode,
   AgentCitation,
   AgentContract,
   AgentContinuationMode,
@@ -1198,6 +1199,7 @@ type AgentSummary = {
   canUseFetchedHtml: boolean;
   needsBrowserHtml: boolean;
   browserHtmlReason?: string;
+  browserHtmlReasonCode?: AgentBrowserHtmlReasonCode;
   responseStatus: number;
   responseOk: boolean;
   responseContentType: string;
@@ -3145,6 +3147,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  canUseFetchedHtml: ${agent.canUseFetchedHtml}`,
     `  needsBrowserHtml: ${agent.needsBrowserHtml}`,
     ...(agent.browserHtmlReason ? [`  browserHtmlReason: ${agent.browserHtmlReason}`] : []),
+    ...(agent.browserHtmlReasonCode ? [`  browserHtmlReasonCode: ${agent.browserHtmlReasonCode}`] : []),
     `  responseStatus: ${agent.responseStatus}`,
     `  responseOk: ${agent.responseOk}`,
     `  responseContentType: ${agent.responseContentType || "unknown"}`,
@@ -10602,6 +10605,7 @@ function summarizeAgent(
   const answerEvidence = summarizeAgentAnswerEvidence(citations, answerPlan);
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, canUseFetchedHtml, needsBrowserHtml);
   const runbook = summarizeAgentRunbook(next, executionPlan, answerPlan);
+  const browserHtmlReasonCode = summarizeBrowserHtmlReasonCode(needsBrowserHtml, analysis, primaryAction, error);
   const actions = summarizeAgentActions(analysis, pageCheck, verification, primaryAction);
   const alternativeAction = actions.find((action) => !action.primary);
   const evidenceQualityScore = averageEvidenceScore(pageCheck.contentEvidence);
@@ -10981,6 +10985,7 @@ function summarizeAgent(
     canUseFetchedHtml,
     needsBrowserHtml,
     ...(browserHtmlReason ? { browserHtmlReason } : {}),
+    ...(browserHtmlReasonCode ? { browserHtmlReasonCode } : {}),
     responseStatus: fetched?.status ?? error?.status ?? 0,
     responseOk: fetched ? fetched.status >= 200 && fetched.status < 400 : false,
     responseContentType: fetched?.contentType ?? "",
@@ -12171,6 +12176,23 @@ function summarizeBrowserHtmlReason(needsBrowserHtml: boolean, answerPlan: Agent
     ?? primaryAction?.reason
     ?? answerPlan.reason
     ?? "Browser-captured HTML or browser inspection is needed.";
+}
+
+function summarizeBrowserHtmlReasonCode(
+  needsBrowserHtml: boolean,
+  analysis: AnalysisSummary,
+  primaryAction?: SuggestedAction,
+  error?: { code: CliErrorCode },
+): AgentBrowserHtmlReasonCode | undefined {
+  if (!needsBrowserHtml) return undefined;
+  if (error?.code === "NO_INSPECTABLE_CONTENT") return "no-inspectable-content";
+  if (error?.code === "HTTP_ERROR") return "http-error";
+  if (error?.code === "FETCH_FAILED" || error?.code === "TIMEOUT") return "fetch-error";
+  if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "NO_INSPECTABLE_CONTENT")) return "no-inspectable-content";
+  if (primaryAction?.requiresBrowserInteraction || (primaryAction && actionExecution(primaryAction) === "interact-browser")) return "browser-interaction";
+  if (primaryAction?.action === "retry-with-browser-html") return "retry-action";
+  if (analysis.kind === "blocked-page" || analysis.kind === "empty") return "blocked-or-empty";
+  return "unknown";
 }
 
 function answerPlanReadGaps(pageCheck: PageCheckSummary, citationIds: string[]): string[] {
@@ -13822,6 +13844,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const needsBrowserHtml = errorNeedsBrowserHtml(primaryAction);
   const answerPlan = summarizeErrorAgentAnswerPlan(error, primaryAction, needsBrowserHtml);
   const browserHtmlReason = summarizeBrowserHtmlReason(needsBrowserHtml, answerPlan, primaryAction);
+  const browserHtmlReasonCode = summarizeBrowserHtmlReasonCode(needsBrowserHtml, { kind: "empty", diagnostics: [], suggestedActions: [] }, primaryAction, error);
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, false, needsBrowserHtml);
   const runbook = summarizeAgentRunbook(next, executionPlan, answerPlan);
   const signals = summarizeErrorAgentSignals(error, primaryAction, summary);
@@ -13903,6 +13926,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     canUseFetchedHtml: false,
     needsBrowserHtml,
     ...(browserHtmlReason ? { browserHtmlReason } : {}),
+    ...(browserHtmlReasonCode ? { browserHtmlReasonCode } : {}),
     responseStatus: error.status ?? 0,
     responseOk: false,
     responseContentType: "",
@@ -15609,6 +15633,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     canUseFetchedHtml: agent.canUseFetchedHtml,
     needsBrowserHtml: agent.needsBrowserHtml,
     ...(agent.browserHtmlReason ? { browserHtmlReason: agent.browserHtmlReason } : {}),
+    ...(agent.browserHtmlReasonCode ? { browserHtmlReasonCode: agent.browserHtmlReasonCode } : {}),
     responseStatus: agent.responseStatus,
     responseOk: agent.responseOk,
     responseContentType: agent.responseContentType,
@@ -16310,6 +16335,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     canContinue: agent.canContinue,
     needsBrowserHtml: agent.needsBrowserHtml,
     ...(agent.browserHtmlReason ? { browserHtmlReason: agent.browserHtmlReason } : {}),
+    ...(agent.browserHtmlReasonCode ? { browserHtmlReasonCode: agent.browserHtmlReasonCode } : {}),
     confidence: agent.confidence,
     usabilityScore: agent.usabilityScore,
     readability: agent.readability,
