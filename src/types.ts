@@ -699,6 +699,7 @@ export type AgentSummary = {
   semanticTopListName?: string;
   semanticTopListItemCount?: number;
   semanticTopListItems?: string[];
+  semanticTopListItemRefs?: Array<{ text: string; role?: string; level?: number; posInSet?: number; setSize?: number; selected?: boolean; current?: SemanticNodeState["current"]; expanded?: boolean; selector?: string }>;
   semanticTopListSelector?: string;
   semanticTopFieldRole?: string;
   semanticTopFieldPath?: string;

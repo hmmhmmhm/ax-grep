@@ -572,6 +572,7 @@ describe("public agent types", () => {
       | "semanticTopListName"
       | "semanticTopListItemCount"
       | "semanticTopListItems"
+      | "semanticTopListItemRefs"
       | "semanticTopListSelector"
       | "semanticTopFieldRole"
       | "semanticTopFieldPath"
@@ -1230,6 +1231,7 @@ describe("public agent types", () => {
       semanticTopListName: "Highlights",
       semanticTopListItemCount: 2,
       semanticTopListItems: ["Fast setup", "Clear output"],
+      semanticTopListItemRefs: [{ text: "Fast setup", role: "listitem", posInSet: 1, setSize: 2, current: "page", selector: "li:nth-of-type(1)" }],
       semanticTopListSelector: "ul:nth-of-type(1)",
       semanticTopFieldRole: "textbox",
       semanticTopFieldPath: "agent.semanticSummary.fieldItems[0]",

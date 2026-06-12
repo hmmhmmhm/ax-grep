@@ -16,10 +16,10 @@ percentage as a fixed contract.
 | Process safety | 85% | `AGENTS.md`, `pnpm check:processes`, and non-browser gates are in place. |
 | Search result handoff | 80% | Result choices, source hints, verification, and command args are exposed. |
 | Page check handoff | 78% | Forms, action targets, hidden signals, barriers, and read targets are exposed. |
-| Semantic accessibility signals | 72% | Landmarks, headings, links, buttons, fields, values, relations, choices, and state shortcuts are exposed. |
+| Semantic accessibility signals | 74% | Landmarks, headings, links, buttons, fields, values, relations, choices, states, and list item refs are exposed. |
 | Browser-tree parity research | 60% | Static gates exist; browser-backed checks must stay sequential and limited. |
 
-Overall estimate: 76%. This is intentionally conservative because the final
+Overall estimate: 77%. This is intentionally conservative because the final
 goal is comparative usefulness, not just passing the current tests.
 
 ## Done
@@ -28,24 +28,25 @@ goal is comparative usefulness, not just passing the current tests.
 - Added agent handoff fields for search results, forms, source links, barriers,
   hidden signals, semantic links, buttons, fields, choices, and state.
 - Added action target state: disabled, pressed, expanded, popup, and controls.
+- Added field-level `aria-details` and `aria-errormessage` shortcuts with
+  resolved text.
+- Added list item refs with role, position, set size, current, selected, and
+  expanded state for list/tree/menu navigation.
 - Added non-browser fixture gates and readiness audits for repeatable checks.
 - Added process-safety guidance: run tests and browser-backed checks
   sequentially, and verify process cleanup.
 
 ## In Progress
 
-- Add field-level relation shortcuts for `aria-details` and
-  `aria-errormessage`, including resolved text, so agents can identify form
-  help and error messages without opening a browser tree.
+- Compare static semantic output against browser accessibility output for a
+  small, sequential fixture set and record any newly discovered signal gaps.
 
 ## Next Candidates
 
-- Compare static semantic output against browser accessibility output for a
-  small, sequential fixture set.
 - Add missing top-level shortcuts only when they improve agent routing or
   reduce the need for browser handoff.
-- Improve table/list/grid summaries where browser trees expose useful row,
-  column, and ownership context.
+- Improve table/grid summaries where browser trees expose useful ownership or
+  navigation context not already covered by row/column refs.
 - Track cases where static HTML should stop and recommend browser capture
   instead of guessing.
 

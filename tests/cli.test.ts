@@ -4433,8 +4433,8 @@ describe("cli", () => {
             <tr><td>Q2</td><td>$12</td></tr>
           </table>
           <ul aria-label="Highlights">
-            <li>North region grew</li>
-            <li>Renewals improved</li>
+            <li aria-posinset="1" aria-setsize="2" aria-current="page">North region grew</li>
+            <li aria-posinset="2" aria-setsize="2" aria-expanded="false">Renewals improved</li>
           </ul>
         </main>
       `, { headers: { "content-type": "text/html" } }),
@@ -4462,6 +4462,11 @@ describe("cli", () => {
           role: "list",
           name: "Highlights",
           itemCount: 2,
+          sampleItems: ["North region grew", "Renewals improved"],
+          itemRefs: [
+            { text: "North region grew", role: "listitem", posInSet: 1, setSize: 2, current: "page", selector: "li" },
+            { text: "Renewals improved", role: "listitem", posInSet: 2, setSize: 2, expanded: false, selector: "li:nth-of-type(2)" },
+          ],
           selector: "ul",
         }),
       ],
@@ -4479,6 +4484,11 @@ describe("cli", () => {
       semanticTopListPath: "agent.semanticSummary.listItems[0]",
       semanticTopListName: "Highlights",
       semanticTopListItemCount: 2,
+      semanticTopListItems: ["North region grew", "Renewals improved"],
+      semanticTopListItemRefs: [
+        { text: "North region grew", role: "listitem", posInSet: 1, setSize: 2, current: "page", selector: "li" },
+        { text: "Renewals improved", role: "listitem", posInSet: 2, setSize: 2, expanded: false, selector: "li:nth-of-type(2)" },
+      ],
       semanticTopListSelector: "ul",
     });
   });

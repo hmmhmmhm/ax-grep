@@ -1720,6 +1720,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopListName?: string;
       semanticTopListItemCount?: number;
       semanticTopListItems?: string[];
+      semanticTopListItemRefs?: Array<{ text?: string; role?: string; level?: number; posInSet?: number; setSize?: number; selected?: boolean; current?: boolean | string; expanded?: boolean; selector?: string }>;
       semanticTopListSelector?: string;
       semanticTopFieldRole?: string;
       semanticTopFieldPath?: string;
@@ -4962,6 +4963,7 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopListName?: string;
   semanticTopListItemCount?: number;
   semanticTopListItems?: string[];
+  semanticTopListItemRefs?: Array<{ text?: string; role?: string; level?: number; posInSet?: number; setSize?: number; selected?: boolean; current?: boolean | string; expanded?: boolean; selector?: string }>;
   semanticTopListSelector?: string;
   semanticTopFieldRole?: string;
   semanticTopFieldPath?: string;
@@ -5690,7 +5692,7 @@ function scoreAgentSemanticSummary(agent: {
     required += 1;
     if (agent?.semanticTopTableSelector === table.selector) matched += 1;
   }
-  const list = Array.isArray(item.listItems) ? item.listItems[0] as { path?: unknown; role?: unknown; name?: unknown; itemCount?: unknown; sampleItems?: unknown; selector?: unknown } | undefined : undefined;
+  const list = Array.isArray(item.listItems) ? item.listItems[0] as { path?: unknown; role?: unknown; name?: unknown; itemCount?: unknown; sampleItems?: unknown; itemRefs?: unknown; selector?: unknown } | undefined : undefined;
   if (list && typeof list.role === "string") {
     required += 1;
     if (agent?.semanticTopListRole === list.role) matched += 1;
@@ -5710,6 +5712,10 @@ function scoreAgentSemanticSummary(agent: {
   if (list && Array.isArray(list.sampleItems)) {
     required += 1;
     if (JSON.stringify(agent?.semanticTopListItems) === JSON.stringify(list.sampleItems)) matched += 1;
+  }
+  if (list && Array.isArray(list.itemRefs)) {
+    required += 1;
+    if (JSON.stringify(agent?.semanticTopListItemRefs) === JSON.stringify(list.itemRefs)) matched += 1;
   }
   if (list && typeof list.selector === "string") {
     required += 1;
