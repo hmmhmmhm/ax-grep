@@ -4515,6 +4515,46 @@ describe("cli", () => {
     });
   });
 
+  it("keeps semantic selectors and core states in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/relations", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <input id="q" type="search" aria-label="Archive search" aria-activedescendant="suggestion-1" aria-details="q-details" aria-errormessage="q-error" aria-required="true" aria-readonly="true" aria-haspopup="listbox" aria-controls="category">
+          <div id="category" role="listbox" aria-label="Categories"></div>
+          <p id="q-details">Search across public and private archive records.</p>
+          <p id="q-error">Use at least two letters.</p>
+          <div id="suggestion-1" role="option" aria-selected="true" aria-current="page" aria-level="2">Quarterly reports</div>
+          <p>Readable page content for relation routing.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      semanticTopFieldRole: "searchbox",
+      semanticTopFieldSelector: "#q",
+      semanticTopRelation: "controls",
+      semanticTopRelationTargetSelector: "#category",
+      semanticTopRelationSelector: "#q",
+      semanticTopChoiceRole: "option",
+      semanticTopChoiceSelected: true,
+      semanticTopChoiceCurrent: "page",
+      semanticTopChoiceLevel: 2,
+      semanticTopChoiceSelector: "#suggestion-1",
+      semanticTopStateRole: "searchbox",
+      semanticTopStateRequired: true,
+      semanticTopStateReadonly: true,
+      semanticTopStateHaspopup: "listbox",
+      semanticTopStateControls: "category",
+      semanticTopStateSelector: "#q",
+    });
+  });
+
   it("exposes semantic table and list shortcuts for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/report", "--agent"], {

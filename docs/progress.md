@@ -1,6 +1,6 @@
 # Current Progress
 
-Status: about 86% fit for the goal of making `ax-grep --agent` a useful
+Status: about 87% fit for the goal of making `ax-grep --agent` a useful
 first-pass page/search checker before `agent-browser`.
 
 Last updated: 2026-06-12.
@@ -18,10 +18,10 @@ percentage as a fixed contract.
 | Process safety | 85% | `AGENTS.md`, `pnpm check:processes`, and non-browser gates are in place. |
 | Search result handoff | 85% | Result choices, top choice snippet/host shortcuts, source-search selected/alternate/failure shortcuts, source hints, verification, decision counts, and command args are exposed. |
 | Page check handoff | 88% | Forms, action targets, table navigation shortcuts, hidden signal group counts/top shortcuts/selectors, static-readiness reason codes/reasons, barrier-specific browser-capture reason codes, execution shortcuts, barriers, and read targets are exposed. |
-| Semantic accessibility signals | 82% | Landmarks, headings, links, interactive/focusable controls, buttons, fields, values, relations, choices, states, list item refs, first list item shortcuts, table header/cell navigation shortcuts, and table ownership refs are exposed. |
+| Semantic accessibility signals | 83% | Landmarks, headings, links, interactive/focusable controls, buttons, fields, values, relations, choices, states, list item refs, first list item shortcuts, table header/cell navigation shortcuts, table ownership refs, and brief-mode semantic selectors/states are exposed. |
 | Browser-tree parity research | 60% | Static gates exist; browser-backed checks must stay sequential and limited. |
 
-Overall estimate: 86%. This is intentionally conservative because the final
+Overall estimate: 87%. This is intentionally conservative because the final
 goal is comparative usefulness, not just passing the current tests.
 
 Forecast from the current evidence:
@@ -58,7 +58,7 @@ instead of hiding the new scope.
 | Process containment | 85% | Keep validation sequential and check for leftover browser/test/comparison processes. | Add more explicit notes when a task would require browser-backed validation, including why it is necessary. | `pnpm check:processes` before and after risky work shows no leftovers. |
 | Search handoff | 85% | Expose enough ranked-result context for an agent to choose, open, skip, or recover from failed opened results. | Identify whether deeper snippet dedupe or provenance is needed beyond top choice shortcuts. | A static search fixture lets an agent choose or recover from a result without browser inspection first. |
 | Page handoff | 88% | Surface barriers, read targets, action targets, table navigation shortcuts, hidden signal group shortcuts, static-readiness reason codes/reasons, and barrier-specific browser-capture reason/execution shortcuts. | Tighten remaining client-rendered and interaction-required categories when fixture evidence shows ambiguity. | Fixtures show clear `use static output` vs `need browser capture` reasons. |
-| Semantic accessibility | 81% | Continue adding high-value shortcuts from roles, states, relations, lists, tables, ownership, and controls. | Compare table/grid/list/control output against browser-tree expectations and add only useful static equivalents. | Each accepted signal has a public type, CLI output, compact output, and fixture/test coverage. |
+| Semantic accessibility | 83% | Continue adding high-value shortcuts from roles, states, relations, lists, tables, ownership, controls, and brief-mode handoff output. | Compare table/grid/list/control output against browser-tree expectations and add only useful static equivalents. | Each accepted signal has a public type, CLI output, compact/brief output, and fixture/test coverage. |
 | Browser parity research | 60% | Compare static output against a small sequential fixture set and record gaps. | Expand the gap list as research finds new browser accessibility-tree signals; lower estimates if new important gaps appear. | Each gap is tagged `implement`, `browser-only`, or `defer` with priority and evidence. |
 
 ## Remaining Work Breakdown
@@ -93,6 +93,7 @@ estimate whether the overall percentage should move.
 | A7 | Top interactive control state shortcuts | 100% | Top-level interactive `pressed`, `expanded`, `haspopup`, and `controls` shortcuts were implemented so agents can branch on the first interactive target without parsing state strings. | Watch for additional control states only after fixture evidence. | Focused CLI/public type tests, static gates, README test, diff check, and process check pass. | +1% semantic accessibility. |
 | A8 | Top focusable control state shortcuts | 100% | Top-level focusable `disabled`, `pressed`, `expanded`, `haspopup`, and `controls` shortcuts were implemented so keyboard/accessibility navigation can branch without parsing state strings. | Watch for additional focusable states only after fixture evidence. | Focused CLI/public type tests, static gates, README test, diff check, and process check pass. | +1% semantic accessibility. |
 | A9 | Top list first-item shortcuts | 100% | Top-level first list-item text, role, position, set size, selected/current/expanded state, and selector shortcuts were implemented so agents can route through list/tree/menu evidence without parsing `semanticTopListItemRefs`. | Watch for nested list or tree-level shortcuts only after fixture evidence. | Focused CLI/public type tests, static gates, README test, diff check, and process check pass. | +1% semantic accessibility. |
+| A10 | Brief semantic selector/state preservation | 100% | `--agent-brief` now preserves top semantic field/description/value/relation/choice/state selectors and core state booleans that were already available in full compact output. | Watch for other full-vs-brief semantic losses only after fixture evidence. | Focused CLI test, typecheck, static gates, README test, diff check, and process check pass. | +1% semantic accessibility. |
 
 ## Planned Work Detail
 
@@ -126,6 +127,7 @@ estimates stay honest.
 | Browser-only fallback reasons for client-rendered or blocked pages. | Failed or low-content page checks. | P1 | Added `staticReadiness`, `staticReadinessReasonCode`, `staticReadinessReason`, `staticReadinessReadFrom`, and barrier-specific `browserHtmlReasonCode` values for challenge, login, and paywall cases. | In progress. |
 | Search-result provenance and failed-open reasons. | Search handoff review. | P2 | Added result/source choice host shortcuts and selected-result failure shortcuts so agents can compare provenance and understand failed opens without parsing URLs plus error payloads. | In progress. |
 | First list item accessibility state and selector without parsing arrays. | Semantic list/tree/menu handoff review. | P1 | Added first-item shortcuts for text, role, position, set size, selected/current/expanded state, and selector. Continue only if nested tree/list fixtures show agents need more. | Landed. |
+| Brief output parity for semantic selectors and state. | Agent brief handoff review. | P1 | Preserve existing top semantic selectors and core states in `--agent-brief` so executor loops can target elements without requesting the full payload. | Landed. |
 | Additional browser accessibility-tree signals discovered during sequential comparison. | Future research. | P1/P2 after triage. | Add to this ledger, then classify as `implement`, `browser-only`, or `defer`. | Watch. |
 
 ## Observed Gap Records
@@ -145,6 +147,7 @@ or deferred.
 | G8 | Top interactive controls exposed their parsed state only through `semanticTopInteractiveState`. Agents had to parse a state string to know whether the first interactive target was pressed, expanded, opened a popup, or controlled another element, while button-specific shortcuts already exposed those fields. | Existing semantic button/control fixtures and public `AgentSummary` shortcut review. | P1 | Add `semanticTopInteractivePressed`, `semanticTopInteractiveExpanded`, `semanticTopInteractiveHaspopup`, and `semanticTopInteractiveControls` with JSON, text, compact, public type, and focused test coverage. | Landed. | Typecheck, focused CLI/public type tests, readiness audit, static fixture gate, README test, diff check, and process check pass. | +1% semantic accessibility. |
 | G9 | Top focusable controls exposed parsed state only through `semanticTopFocusableState`. Agents navigating by keyboard/focus order had to parse a state string to know disabled, pressed, expanded, popup, or controlled-target state. | Existing semantic focusable/control fixtures and public `AgentSummary` shortcut review. | P1 | Add `semanticTopFocusableDisabled`, `semanticTopFocusablePressed`, `semanticTopFocusableExpanded`, `semanticTopFocusableHaspopup`, and `semanticTopFocusableControls` with JSON, text, compact, public type, and focused test coverage. | Landed. | Typecheck, focused CLI/public type tests, readiness audit, static fixture gate, README test, diff check, and process check pass. | +1% semantic accessibility. |
 | G10 | Top list item refs exposed useful role/position/current/expanded data, but the first list item still required parsing `semanticTopListItemRefs[0]`. Agents routing through menus, trees, and list evidence need the first target's selector and state at the shallow summary level. | Existing semantic list fixture and public `AgentSummary` shortcut review. | P1 | Add `semanticTopListFirstItemText`, role, level, position, set size, selected/current/expanded state, and selector with JSON, text, compact, public type, and focused test coverage. | Landed. | Typecheck, focused CLI/public type tests, readiness audit, static fixture gate, README test, diff check, and process check pass. | +1% semantic accessibility. |
+| G11 | `--agent-brief` preserved many semantic shortcuts but dropped several selectors and core state booleans that full compact output already exposed. Brief executor loops could know a relation or choice existed but lose the exact element selector/state needed for browser-free routing. | Brief semantic relation/choice/state fixture review. | P1 | Add field/description/value/relation/choice/state selectors and hidden/disabled/selected/focused/required/readonly state shortcuts to brief output. | Landed. | Typecheck, focused CLI tests, readiness audit, static fixture gate, README test, diff check, and process check pass. | +1% semantic accessibility. |
 | G2 | Browser accessibility-tree comparison may reveal signals that static HTML cannot safely infer. | Future sequential fixture comparison only; no broad browser run allowed. | P1 after evidence | Track first, then classify as `implement`, `browser-only`, or `defer`. | Watch. | Add the smallest fixture command here before running any browser-backed check; run `pnpm check:processes` afterward. | Unknown until observed. |
 
 ## Current Queue
@@ -158,8 +161,9 @@ any earlier non-browser item can still reduce uncertainty.
 | 2 | Done | Expose top result/source snippets as shallow shortcuts so agents can inspect the first choice without nested parsing. | Focused CLI/public type tests, typecheck, static gates, README test, diff check, process check. | +1% search handoff. |
 | 3 | Done | Add machine-readable static-readiness reason codes for hidden data, low-content source-link recovery, thin content, and browser-required fallback. | Focused CLI/public type tests, typecheck, static gates, README test, diff check, process check. | +1% page handoff. |
 | 4 | Done | Expose first list-item text, role, position, state, and selector as shallow shortcuts so agents do not parse `semanticTopListItemRefs[0]`. | Focused CLI/public type tests, typecheck, static gates, README test, diff check, process check. | +1% semantic accessibility. |
-| 5 | Later | Compare one semantic table/list/control fixture against browser-tree output, sequentially only. | Pre/post `pnpm check:processes`; smallest comparison command recorded before use. | 1-3% semantic/browser parity. |
-| 6 | Later | Recalculate the overall estimate after each landed shortcut or documented defer/browser-only decision. | Update this file in the same commit as the evidence. | Can raise or lower estimate. |
+| 5 | Done | Preserve top semantic selectors and core state booleans in `--agent-brief` so executor loops do not need the full payload for element targeting. | Focused CLI tests, typecheck, static gates, README test, diff check, process check. | +1% semantic accessibility. |
+| 6 | Later | Compare one semantic table/list/control fixture against browser-tree output, sequentially only. | Pre/post `pnpm check:processes`; smallest comparison command recorded before use. | 1-3% semantic/browser parity. |
+| 7 | Later | Recalculate the overall estimate after each landed shortcut or documented defer/browser-only decision. | Update this file in the same commit as the evidence. | Can raise or lower estimate. |
 
 When research expands:
 
@@ -204,6 +208,9 @@ When research expands:
   expanded state for list/tree/menu navigation.
 - Added top semantic list first-item shortcuts so agents can inspect the first
   item's text, role, position, state, and selector without parsing item refs.
+- Preserved top semantic selectors and core state booleans in `--agent-brief`
+  so brief executor loops can target fields, choices, relations, and stateful
+  nodes without requesting full compact output.
 - Added table cell header refs so sampled table/grid cells keep resolved
   `headers` context.
 - Added top semantic table first-header and first-sample-cell shortcuts so
