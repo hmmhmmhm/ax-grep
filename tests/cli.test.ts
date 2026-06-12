@@ -4105,6 +4105,38 @@ describe("cli", () => {
     ]));
   });
 
+  it("keeps data table path and selector in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/pricing", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h1>Pricing</h1>
+          <table>
+            <caption>Plan comparison</caption>
+            <tr><th>Plan</th><th>Monthly price</th></tr>
+            <tr><td>Team</td><td>$49.99</td></tr>
+          </table>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      dataTableCount: 1,
+      topDataTablePath: "pageCheck.dataTables[0]",
+      topDataTableCaption: "Plan comparison",
+      topDataTableFirstHeader: "Plan",
+      topDataTableFirstCell: "Team",
+      topDataTableSelector: "table:nth-of-type(1)",
+      bestStructuredReadTarget: "pageCheck.dataTables",
+      bestStructuredReadTargetReason: "Structured table captions, headers, and sample rows extracted from the page HTML.",
+    });
+  });
+
   it("exposes advanced aria state shortcuts for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/app", "--agent"], {
