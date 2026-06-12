@@ -4742,7 +4742,10 @@ function summarizePageCheck(
   const contentEvidence = focusedContent.length > 0
     ? summarizeContentEvidence(focusedContent)
     : summarizeFallbackEvidence(fallbackPreview);
-  const contentLength = contentPreview.reduce((total, text) => total + text.length, 0);
+  const contentLengthSource = focusedContent.length > 0
+    ? focusedContent.map((item) => item.text)
+    : contentPreview;
+  const contentLength = contentLengthSource.reduce((total, text) => total + text.length, 0);
   const dataTables = summarizeDataTables(fetched.html);
   const barriers = summarizeBarriers(analysis.diagnostics, content, actions);
   const forms = summarizeForms(fetched.html, fetched.finalUrl);

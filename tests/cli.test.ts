@@ -3979,6 +3979,41 @@ describe("cli", () => {
     ]);
   });
 
+  it("counts all focused content in pageCheck contentLength even when previews are capped", async () => {
+    const paragraphs = [
+      "The first research paragraph gives agents enough context to identify the subject and decide whether the fetched document is worth reading.",
+      "The second research paragraph adds claims, dates, and qualifiers so a direct page check can support a grounded answer without opening a browser.",
+      "The third research paragraph provides supporting details and a source-like explanation that should contribute to the total extracted text length.",
+      "The fourth research paragraph preserves the existing compact preview behavior because only the top evidence snippets should be inlined.",
+      "The fifth research paragraph must still count toward contentLength so text-heavy documents are not mistaken for thin fetched pages.",
+    ];
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://docs.example/research", "--json"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html lang="en">
+          <head><title>Research memo</title></head>
+          <body>
+            <main>
+              <article>
+                <h1>Research memo</h1>
+                ${paragraphs.map((paragraph) => `<p>${paragraph}</p>`).join("\n")}
+              </article>
+            </main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.contentPreview).toEqual(paragraphs.slice(0, 4));
+    expect(envelope.pageCheck.contentEvidence).toHaveLength(4);
+    expect(envelope.pageCheck.contentLength).toBe(paragraphs.reduce((total, paragraph) => total + paragraph.length, 0));
+    expect(envelope.pageCheck.readability.reasons).toContain("substantial extracted text");
+  });
+
   it("exposes likely official source choice hints without requiring nested source choices", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/article", "--stdin", "--agent-brief"], {
