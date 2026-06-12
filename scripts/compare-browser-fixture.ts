@@ -109,6 +109,35 @@ const fixtures: Fixture[] = [
   </body>
 </html>`,
   },
+  {
+    id: "combobox-active-descendant",
+    url: "https://fixture.local/browser-parity/combobox-active-descendant",
+    checks: buildComboboxActiveDescendantChecks,
+    html: `<!doctype html>
+<html lang="en">
+  <head>
+    <title>Combobox active descendant fixture</title>
+  </head>
+  <body>
+    <main>
+      <label for="report-search">Report search</label>
+      <input
+        id="report-search"
+        role="combobox"
+        aria-expanded="true"
+        aria-haspopup="listbox"
+        aria-activedescendant="report-option-2"
+        aria-describedby="report-help"
+      >
+      <p id="report-help">Choose a report destination.</p>
+      <div role="listbox" aria-label="Report destinations">
+        <div id="report-option-1" role="option" aria-posinset="1" aria-setsize="2">Archive</div>
+        <div id="report-option-2" role="option" aria-selected="true" aria-current="page" aria-posinset="2" aria-setsize="2">Quarterly reports</div>
+      </div>
+    </main>
+  </body>
+</html>`,
+  },
 ];
 
 const browser = await puppeteer.launch({ headless: true });
@@ -141,6 +170,7 @@ async function runFixture(activeBrowser: Awaited<ReturnType<typeof puppeteer.lau
       createExtractorScript({
         mode: "compact",
         includeBounds: false,
+        includeAttributes: true,
         includeTextNodes: false,
         includeSelectOptions: false,
         excludeLikelyAds: true,
@@ -215,6 +245,22 @@ function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
     semanticTopLiveState: agent.semanticTopLiveState,
     semanticTopLiveStateLive: agent.semanticTopLiveStateLive,
     semanticTopLiveStateSelector: agent.semanticTopLiveStateSelector,
+    semanticTopRelation: agent.semanticTopRelation,
+    semanticTopRelationTarget: agent.semanticTopRelationTarget,
+    semanticTopRelationTargetRole: agent.semanticTopRelationTargetRole,
+    semanticTopRelationTargetName: agent.semanticTopRelationTargetName,
+    semanticTopChoiceRole: agent.semanticTopChoiceRole,
+    semanticTopChoiceName: agent.semanticTopChoiceName,
+    semanticTopChoiceSelected: agent.semanticTopChoiceSelected,
+    semanticTopChoiceCurrent: agent.semanticTopChoiceCurrent,
+    semanticTopChoicePosInSet: agent.semanticTopChoicePosInSet,
+    semanticTopChoiceSetSize: agent.semanticTopChoiceSetSize,
+    semanticTopSelectedChoiceRole: agent.semanticTopSelectedChoiceRole,
+    semanticTopSelectedChoiceName: agent.semanticTopSelectedChoiceName,
+    semanticTopSelectedChoiceSelected: agent.semanticTopSelectedChoiceSelected,
+    semanticTopSelectedChoiceCurrent: agent.semanticTopSelectedChoiceCurrent,
+    semanticTopSelectedChoicePosInSet: agent.semanticTopSelectedChoicePosInSet,
+    semanticTopSelectedChoiceSetSize: agent.semanticTopSelectedChoiceSetSize,
     semanticTopKeyboardShortcutName: agent.semanticTopKeyboardShortcutName,
   };
 }
@@ -367,6 +413,77 @@ function buildStatefulOverlayChecks(namedRoles: string[], nodes: SemanticNode[],
         && agent.semanticTopModalStateName === "Settings panel"
         && agent.semanticTopModalState === "modal=true"
         && agent.semanticTopLiveStateLive === "polite",
+    },
+  ];
+}
+
+function buildComboboxActiveDescendantChecks(namedRoles: string[], nodes: SemanticNode[], agent: AgentSummary): Check[] {
+  const combobox = nodes.find((node) => node.role === "combobox" && node.name === "Report search");
+  const selectedOption = nodes.find((node) => node.role === "option" && node.name === "Quarterly reports");
+  return [
+    {
+      id: "combobox-state-relation-parity",
+      browserEvidence: JSON.stringify({
+        namedRoles: evidence(namedRoles, ["combobox:Report search", "listbox:Report destinations", "option:Quarterly reports"]),
+        expanded: combobox?.state?.expanded,
+        haspopup: combobox?.state?.haspopup,
+        activeDescendant: combobox?.attributes?.["aria-activedescendant"],
+      }),
+      agentEvidence: JSON.stringify({
+        field: agent.semanticTopFieldName,
+        expanded: agent.semanticTopFieldExpanded,
+        haspopup: agent.semanticTopFieldHaspopup,
+        relation: agent.semanticTopRelation,
+        target: agent.semanticTopRelationTarget,
+        targetRole: agent.semanticTopRelationTargetRole,
+        targetName: agent.semanticTopRelationTargetName,
+      }),
+      decision: "covered",
+      pass: includesAll(namedRoles, ["combobox:Report search", "listbox:Report destinations", "option:Quarterly reports"])
+        && combobox?.state?.expanded === true
+        && combobox?.state?.haspopup === "listbox"
+        && combobox?.attributes?.["aria-activedescendant"] === "report-option-2"
+        && agent.semanticTopFieldName === "Report search"
+        && agent.semanticTopFieldExpanded === true
+        && agent.semanticTopFieldHaspopup === "listbox"
+        && agent.semanticTopRelation === "activeDescendant"
+        && agent.semanticTopRelationTarget === "report-option-2"
+        && agent.semanticTopRelationTargetRole === "option"
+        && agent.semanticTopRelationTargetName === "Quarterly reports",
+    },
+    {
+      id: "selected-current-option-parity",
+      browserEvidence: JSON.stringify({
+        selected: selectedOption?.state?.selected,
+        current: selectedOption?.state?.current,
+        posInSet: selectedOption?.attributes?.["aria-posinset"],
+        setSize: selectedOption?.attributes?.["aria-setsize"],
+      }),
+      agentEvidence: JSON.stringify({
+        choiceRole: agent.semanticTopChoiceRole,
+        choiceName: agent.semanticTopChoiceName,
+        selected: agent.semanticTopChoiceSelected,
+        current: agent.semanticTopChoiceCurrent,
+        posInSet: agent.semanticTopChoicePosInSet,
+        setSize: agent.semanticTopChoiceSetSize,
+        selectedChoiceRole: agent.semanticTopSelectedChoiceRole,
+        selectedChoiceName: agent.semanticTopSelectedChoiceName,
+        selectedChoiceSelected: agent.semanticTopSelectedChoiceSelected,
+        selectedChoiceCurrent: agent.semanticTopSelectedChoiceCurrent,
+        selectedChoicePosInSet: agent.semanticTopSelectedChoicePosInSet,
+        selectedChoiceSetSize: agent.semanticTopSelectedChoiceSetSize,
+      }),
+      decision: "covered",
+      pass: selectedOption?.state?.selected === true
+        && selectedOption?.state?.current === "page"
+        && selectedOption?.attributes?.["aria-posinset"] === "2"
+        && selectedOption?.attributes?.["aria-setsize"] === "2"
+        && agent.semanticTopSelectedChoiceRole === "option"
+        && agent.semanticTopSelectedChoiceName === "Quarterly reports"
+        && agent.semanticTopSelectedChoiceSelected === true
+        && agent.semanticTopSelectedChoiceCurrent === "page"
+        && agent.semanticTopSelectedChoicePosInSet === 2
+        && agent.semanticTopSelectedChoiceSetSize === 2,
     },
   ];
 }

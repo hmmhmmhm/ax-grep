@@ -734,6 +734,16 @@ describe("public agent types", () => {
       | "semanticTopChoicePosInSet"
       | "semanticTopChoiceSetSize"
       | "semanticTopChoiceSelector"
+      | "semanticTopSelectedChoiceRole"
+      | "semanticTopSelectedChoicePath"
+      | "semanticTopSelectedChoiceName"
+      | "semanticTopSelectedChoiceState"
+      | "semanticTopSelectedChoiceSelected"
+      | "semanticTopSelectedChoiceCurrent"
+      | "semanticTopSelectedChoiceLevel"
+      | "semanticTopSelectedChoicePosInSet"
+      | "semanticTopSelectedChoiceSetSize"
+      | "semanticTopSelectedChoiceSelector"
       | "semanticTopStateRole"
       | "semanticTopStatePath"
       | "semanticTopStateName"
@@ -1498,6 +1508,16 @@ describe("public agent types", () => {
       semanticTopChoicePosInSet: 2,
       semanticTopChoiceSetSize: 5,
       semanticTopChoiceSelector: "option:nth-of-type(2)",
+      semanticTopSelectedChoiceRole: "option",
+      semanticTopSelectedChoicePath: "agent.semanticSummary.choiceItems[1]",
+      semanticTopSelectedChoiceName: "Reports",
+      semanticTopSelectedChoiceState: "selected=true current=page",
+      semanticTopSelectedChoiceSelected: true,
+      semanticTopSelectedChoiceCurrent: "page",
+      semanticTopSelectedChoiceLevel: 2,
+      semanticTopSelectedChoicePosInSet: 2,
+      semanticTopSelectedChoiceSetSize: 5,
+      semanticTopSelectedChoiceSelector: "option:nth-of-type(2)",
       semanticTopStateRole: "textbox",
       semanticTopStatePath: "agent.semanticSummary.stateItems[0]",
       semanticTopStateName: "Email",

@@ -842,6 +842,16 @@ export type AgentSummary = {
   semanticTopChoicePosInSet?: number;
   semanticTopChoiceSetSize?: number;
   semanticTopChoiceSelector?: string;
+  semanticTopSelectedChoiceRole?: string;
+  semanticTopSelectedChoicePath?: string;
+  semanticTopSelectedChoiceName?: string;
+  semanticTopSelectedChoiceState?: string;
+  semanticTopSelectedChoiceSelected?: boolean;
+  semanticTopSelectedChoiceCurrent?: SemanticNodeState["current"];
+  semanticTopSelectedChoiceLevel?: number;
+  semanticTopSelectedChoicePosInSet?: number;
+  semanticTopSelectedChoiceSetSize?: number;
+  semanticTopSelectedChoiceSelector?: string;
   semanticTopStateRole?: string;
   semanticTopStatePath?: string;
   semanticTopStateName?: string;
