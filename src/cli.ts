@@ -16967,6 +16967,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topDataTableFirstCell ? { topDataTableFirstCell: agent.topDataTableFirstCell } : {}),
     ...(agent.topDataTableSelector ? { topDataTableSelector: agent.topDataTableSelector } : {}),
     ...(agent.topFaqQuestion ? { topFaqQuestion: agent.topFaqQuestion } : {}),
+    ...(agent.topFaqAnswer ? { topFaqAnswer: agent.topFaqAnswer } : {}),
     ...(agent.topCodeBlockLanguage ? { topCodeBlockLanguage: agent.topCodeBlockLanguage } : {}),
     ...(typeof agent.topCodeBlockLineCount === "number" ? { topCodeBlockLineCount: agent.topCodeBlockLineCount } : {}),
     ...(agent.topResourceKind ? { topResourceKind: agent.topResourceKind } : {}),

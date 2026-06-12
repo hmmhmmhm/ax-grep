@@ -7924,6 +7924,32 @@ describe("cli", () => {
     });
   });
 
+  it("keeps top FAQ answers in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/help", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <details>
+            <summary>How do I install ax-grep?</summary>
+            <p>Run pnpm add ax-grep and then call the CLI with --agent.</p>
+          </details>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      faqCount: 1,
+      topFaqQuestion: "How do I install ax-grep?",
+      topFaqAnswer: "Run pnpm add ax-grep and then call the CLI with --agent.",
+      bestStructuredReadTarget: "pageCheck.faqs",
+    });
+  });
+
   it("checks requested text against visible FAQ summaries", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/help", "--agent", "--find", "Run pnpm add ax-grep"], {
