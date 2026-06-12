@@ -155,6 +155,12 @@ describe("public agent types", () => {
       fieldCount: 1,
       text: "GET https://example.test/find; query field: q",
       actionUrl: "https://example.test/find",
+      submitText: "Search",
+      submitType: "submit",
+      submitName: "submit-search",
+      submitValue: "go",
+      submitDisabled: true,
+      submitSelector: "button[name=\"submit-search\"]",
       queryField: "q",
       urlTemplate: "https://example.test/find?q={query}",
       selector: "form:nth-of-type(1)",
@@ -215,6 +221,11 @@ describe("public agent types", () => {
       | "topFormChoiceMethod"
       | "topFormChoiceActionUrl"
       | "topFormChoiceSubmitText"
+      | "topFormChoiceSubmitType"
+      | "topFormChoiceSubmitName"
+      | "topFormChoiceSubmitValue"
+      | "topFormChoiceSubmitDisabled"
+      | "topFormChoiceSubmitSelector"
       | "topFormChoiceQueryField"
       | "topFormChoiceUrlTemplate"
       | "topFormChoiceFieldCount"
@@ -1241,6 +1252,11 @@ describe("public agent types", () => {
       topFormChoiceMethod: "get",
       topFormChoiceActionUrl: "https://example.test/find",
       topFormChoiceSubmitText: "Search",
+      topFormChoiceSubmitType: "submit",
+      topFormChoiceSubmitName: "submit-search",
+      topFormChoiceSubmitValue: "go",
+      topFormChoiceSubmitDisabled: true,
+      topFormChoiceSubmitSelector: "button[name=\"submit-search\"]",
       topFormChoiceQueryField: "q",
       topFormChoiceUrlTemplate: "https://example.test/find?q={query}",
       topFormChoiceFieldCount: 1,

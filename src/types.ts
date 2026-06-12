@@ -476,6 +476,11 @@ export type AgentFormChoice = {
   text: string;
   actionUrl?: string;
   submitText?: string;
+  submitType?: string;
+  submitName?: string;
+  submitValue?: string;
+  submitDisabled?: boolean;
+  submitSelector?: string;
   queryField?: string;
   urlTemplate?: string;
   selector?: string;
@@ -1090,6 +1095,11 @@ export type AgentSummary = {
   topFormChoiceMethod?: string;
   topFormChoiceActionUrl?: string;
   topFormChoiceSubmitText?: string;
+  topFormChoiceSubmitType?: string;
+  topFormChoiceSubmitName?: string;
+  topFormChoiceSubmitValue?: string;
+  topFormChoiceSubmitDisabled?: boolean;
+  topFormChoiceSubmitSelector?: string;
   topFormChoiceQueryField?: string;
   topFormChoiceUrlTemplate?: string;
   topFormChoiceFieldCount?: number;

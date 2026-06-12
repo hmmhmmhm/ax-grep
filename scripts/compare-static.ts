@@ -378,6 +378,11 @@ type CliAgentFormChoiceShape = {
   text?: string;
   actionUrl?: string;
   submitText?: string;
+  submitType?: string;
+  submitName?: string;
+  submitValue?: string;
+  submitDisabled?: boolean;
+  submitSelector?: string;
   queryField?: string;
   urlTemplate?: string;
   selector?: string;
@@ -1340,6 +1345,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topFormChoiceMethod?: string;
       topFormChoiceActionUrl?: string;
       topFormChoiceSubmitText?: string;
+      topFormChoiceSubmitType?: string;
+      topFormChoiceSubmitName?: string;
+      topFormChoiceSubmitValue?: string;
+      topFormChoiceSubmitDisabled?: boolean;
+      topFormChoiceSubmitSelector?: string;
       topFormChoiceQueryField?: string;
       topFormChoiceUrlTemplate?: string;
       topFormChoiceFieldCount?: number;
@@ -4551,6 +4561,11 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   topFormChoiceMethod?: string;
   topFormChoiceActionUrl?: string;
   topFormChoiceSubmitText?: string;
+  topFormChoiceSubmitType?: string;
+  topFormChoiceSubmitName?: string;
+  topFormChoiceSubmitValue?: string;
+  topFormChoiceSubmitDisabled?: boolean;
+  topFormChoiceSubmitSelector?: string;
   topFormChoiceQueryField?: string;
   topFormChoiceUrlTemplate?: string;
   topFormChoiceFieldCount?: number;
@@ -4596,11 +4611,16 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   let matched = 0;
   if (form) {
     if (agent?.topFormChoicePath === form.path) matched += 1;
-    required += 26;
+    required += 31;
     const firstField = Array.isArray(form.fields) ? form.fields[0] as { name?: unknown; type?: unknown; label?: unknown; placeholder?: unknown; value?: unknown; options?: unknown; autocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; required?: unknown; disabled?: unknown; readonly?: unknown; invalid?: unknown; selector?: unknown } | undefined : undefined;
     if (agent?.topFormChoiceMethod === form.method) matched += 1;
     if (agent?.topFormChoiceActionUrl === form.actionUrl) matched += 1;
     if (agent?.topFormChoiceSubmitText === form.submitText) matched += 1;
+    if (agent?.topFormChoiceSubmitType === form.submitType) matched += 1;
+    if (agent?.topFormChoiceSubmitName === form.submitName) matched += 1;
+    if (agent?.topFormChoiceSubmitValue === form.submitValue) matched += 1;
+    if (agent?.topFormChoiceSubmitDisabled === form.submitDisabled) matched += 1;
+    if (agent?.topFormChoiceSubmitSelector === form.submitSelector) matched += 1;
     if (agent?.topFormChoiceQueryField === form.queryField) matched += 1;
     if (agent?.topFormChoiceUrlTemplate === form.urlTemplate) matched += 1;
     if (agent?.topFormChoiceFieldCount === form.fieldCount) matched += 1;
@@ -4629,6 +4649,11 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     || agent?.topFormChoiceMethod
     || agent?.topFormChoiceActionUrl
     || agent?.topFormChoiceSubmitText
+    || agent?.topFormChoiceSubmitType
+    || agent?.topFormChoiceSubmitName
+    || agent?.topFormChoiceSubmitValue
+    || typeof agent?.topFormChoiceSubmitDisabled === "boolean"
+    || agent?.topFormChoiceSubmitSelector
     || agent?.topFormChoiceQueryField
     || agent?.topFormChoiceUrlTemplate
     || typeof agent?.topFormChoiceFieldCount === "number"

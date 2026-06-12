@@ -5381,7 +5381,7 @@ describe("cli", () => {
             <input id="q" name="query" type="search" placeholder="Search reports" aria-placeholder="Report keyword" autocomplete="off" aria-autocomplete="list" inputmode="search" pattern="[A-Za-z0-9 ]+" min="1" max="99" step="1" minlength="2" maxlength="80" required readonly aria-disabled="true" aria-invalid="spelling" aria-expanded="true" aria-haspopup="listbox" aria-controls="category" aria-labelledby="q-label" aria-describedby="q-help">
             <select name="category"><option aria-posinset="1" aria-setsize="2">All</option><option>Reports</option></select>
             <input type="hidden" name="csrf" value="secret">
-            <button type="submit">Search</button>
+            <button type="submit" name="submit-search" value="go" disabled>Search</button>
           </form>
         </main>
       `, { headers: { "content-type": "text/html" } }),
@@ -5399,6 +5399,11 @@ describe("cli", () => {
         actionUrl: "https://example.test/find",
         fieldCount: 2,
         submitText: "Search",
+        submitType: "submit",
+        submitName: "submit-search",
+        submitValue: "go",
+        submitDisabled: true,
+        submitSelector: "button[name=\"submit-search\"]",
         queryField: "query",
         urlTemplate: "https://example.test/find?query=%7Bquery%7D",
         selector: "form:nth-of-type(1)",
@@ -5435,7 +5440,7 @@ describe("cli", () => {
     expect(envelope.pageCheck.readability.reasons).toContain("1 form");
     expect(envelope.agent.semanticSummary.fieldCount).toBe(2);
     expect(envelope.agent.semanticSummary.choiceCount).toBe(2);
-    expect(envelope.agent.semanticSummary.stateCount).toBe(1);
+    expect(envelope.agent.semanticSummary.stateCount).toBe(2);
     expect(envelope.agent.semanticSummary.fieldItems).toEqual([
       expect.objectContaining({
         path: "agent.semanticSummary.fieldItems[0]",
@@ -5494,11 +5499,19 @@ describe("cli", () => {
         stateRaw: { disabled: true, required: true, readonly: true, invalid: "spelling", expanded: true, haspopup: "listbox", controls: "category" },
         selector: "#q",
       }),
+      expect.objectContaining({
+        path: "agent.semanticSummary.stateItems[1]",
+        role: "button",
+        name: "Search",
+        state: "disabled=true",
+        stateRaw: { disabled: true },
+        selector: "button",
+      }),
     ]);
     expect(envelope.agent).toMatchObject({
       semanticFieldCount: 2,
       semanticChoiceCount: 2,
-      semanticStateCount: 1,
+      semanticStateCount: 2,
       semanticTopFieldRole: "searchbox",
       semanticTopFieldPath: "agent.semanticSummary.fieldItems[0]",
       semanticTopFieldName: "Archive search",
@@ -5555,6 +5568,11 @@ describe("cli", () => {
       topFormChoiceMethod: "get",
       topFormChoiceActionUrl: "https://example.test/find",
       topFormChoiceSubmitText: "Search",
+      topFormChoiceSubmitType: "submit",
+      topFormChoiceSubmitName: "submit-search",
+      topFormChoiceSubmitValue: "go",
+      topFormChoiceSubmitDisabled: true,
+      topFormChoiceSubmitSelector: "button[name=\"submit-search\"]",
       topFormChoiceQueryField: "query",
       topFormChoiceUrlTemplate: "https://example.test/find?query=%7Bquery%7D",
       topFormChoiceFieldCount: 2,
@@ -5583,6 +5601,11 @@ describe("cli", () => {
         path: "pageCheck.forms[0]",
         method: "get",
         actionUrl: "https://example.test/find",
+        submitType: "submit",
+        submitName: "submit-search",
+        submitValue: "go",
+        submitDisabled: true,
+        submitSelector: "button[name=\"submit-search\"]",
         urlTemplate: "https://example.test/find?query=%7Bquery%7D",
         queryField: "query",
         selector: "form:nth-of-type(1)",
