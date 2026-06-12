@@ -1,6 +1,6 @@
 # Current Progress
 
-Status: about 84% fit for the goal of making `ax-grep --agent` a useful
+Status: about 85% fit for the goal of making `ax-grep --agent` a useful
 first-pass page/search checker before `agent-browser`.
 
 This is a research track, so the target can expand when comparison work finds a
@@ -16,10 +16,10 @@ percentage as a fixed contract.
 | Process safety | 85% | `AGENTS.md`, `pnpm check:processes`, and non-browser gates are in place. |
 | Search result handoff | 80% | Result choices, source hints, verification, and command args are exposed. |
 | Page check handoff | 84% | Forms, action targets, table navigation shortcuts, hidden signal group counts/top shortcuts/selectors, browser-capture reasons/codes, barriers, and read targets are exposed. |
-| Semantic accessibility signals | 75% | Landmarks, headings, links, buttons, fields, values, relations, choices, states, list item refs, and table cell header refs are exposed. |
+| Semantic accessibility signals | 76% | Landmarks, headings, links, buttons, fields, values, relations, choices, states, list item refs, and table cell header shortcuts are exposed. |
 | Browser-tree parity research | 60% | Static gates exist; browser-backed checks must stay sequential and limited. |
 
-Overall estimate: 84%. This is intentionally conservative because the final
+Overall estimate: 85%. This is intentionally conservative because the final
 goal is comparative usefulness, not just passing the current tests.
 
 The estimate can move down as well as up. If research finds a browser
@@ -35,7 +35,7 @@ instead of hiding the new scope.
 | Process containment | 85% | Keep validation sequential and check for leftover browser/test/comparison processes. | Every risky run starts and ends with `pnpm check:processes`, and no browser-backed parallel checks are introduced. |
 | Search handoff | 80% | Expose enough ranked-result context for an agent to choose, open, or skip results. | Agents can explain which result to open and why without relying on browser inspection first. |
 | Page handoff | 84% | Surface barriers, read targets, action targets, table navigation shortcuts, hidden signal group shortcuts, and browser-capture reason codes. | Agents can decide whether static HTML is enough, which source to inspect next, or why browser capture is needed. |
-| Semantic accessibility | 75% | Continue adding high-value shortcuts from roles, states, relations, lists, tables, and controls. | Common browser accessibility-tree navigation questions have direct static equivalents or explicit fallback reasons. |
+| Semantic accessibility | 76% | Continue adding high-value shortcuts from roles, states, relations, lists, tables, and controls. | Common browser accessibility-tree navigation questions have direct static equivalents or explicit fallback reasons. |
 | Browser parity research | 60% | Compare static output against a small sequential fixture set and record gaps. | Known useful browser-tree-only signals are either implemented, documented as impossible statically, or queued with priority. |
 
 ## Current Focus
@@ -82,6 +82,9 @@ instead of hiding the new scope.
   expanded state for list/tree/menu navigation.
 - Added table cell header refs so sampled table/grid cells keep resolved
   `headers` context.
+- Added top semantic table first-header and first-sample-cell shortcuts so
+  agents can inspect row, column, span, header, and selector context without
+  parsing the full table refs array.
 - Added top data-table navigation shortcuts for header count, first header,
   first row, first cell, and selector so agents can inspect table shape without
   reading the full table payload.

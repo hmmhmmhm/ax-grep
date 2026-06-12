@@ -694,6 +694,14 @@ export type AgentSummary = {
   semanticTopTableHeaders?: string[];
   semanticTopTableSampleCells?: string[];
   semanticTopTableSampleCellRefs?: Array<{ text: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; selector?: string }>;
+  semanticTopTableFirstHeader?: string;
+  semanticTopTableFirstSampleCellText?: string;
+  semanticTopTableFirstSampleCellRowIndex?: number;
+  semanticTopTableFirstSampleCellColumnIndex?: number;
+  semanticTopTableFirstSampleCellRowSpan?: number;
+  semanticTopTableFirstSampleCellColumnSpan?: number;
+  semanticTopTableFirstSampleCellHeaders?: string[];
+  semanticTopTableFirstSampleCellSelector?: string;
   semanticTopTableSelector?: string;
   semanticTopListRole?: string;
   semanticTopListPath?: string;
