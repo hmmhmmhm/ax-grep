@@ -14,8 +14,8 @@ Resource safety:
   Puppeteer or `agent-browser`.
 - Use `pnpm readiness:agent-browser-smoke` for the smallest `agent-browser`
   comparison set. It checks `https://example.com` and
-  `https://books.toscrape.com/`; run `pnpm check:processes` before and after
-  it.
+  `https://books.toscrape.com/` and `https://news.ycombinator.com`; run
+  `pnpm check:processes` before and after it.
 - Use `pnpm check:processes` before and after browser-backed comparison runs.
 - If several target sets are needed, run them sequentially and save each output
   separately.
@@ -61,9 +61,10 @@ browser capture.
 
 `readiness:agent-browser-smoke` is the smallest browser-backed comparison gate.
 It runs `pnpm compare` for `https://example.com` and
-`https://books.toscrape.com/`, requires `agent-browser` snapshots, and enforces
-per-target overlap/readiness floors. Treat it like other browser-backed work:
-one command at a time, with process checks before and after.
+`https://books.toscrape.com/` and `https://news.ycombinator.com`, requires
+`agent-browser` snapshots, and enforces per-target overlap/readiness floors.
+Treat it like other browser-backed work: one command at a time, with process
+checks before and after.
 
 `compare:gate` checks saved JSON output from `compare:static*` and
 `compare:tokens*`. Static gates require executor, handoff, browser-advantage,

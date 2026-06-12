@@ -330,10 +330,17 @@ function normalizeRole(role: string): string {
 
 function normalizeName(name: string): string {
   const normalized = name
+    .replace(/[\uE000-\uF8FF]/g, " ")
     .replace(/\s+/g, " ")
     .replace(/\s+\(external\)$/i, "")
     .replace(/\s+([|),])/g, "$1")
     .replace(/([(])\s+/g, "$1")
+    .replace(/^[·•ㆍ]\s*/g, "")
+    .replace(/^\d+(?:\.\d+)*\s+(?=\p{L})/u, "")
+    .replace(/^20\d{2}年\d{1,2}月\d{1,2}日\s+\d{1,2}時\d{1,2}分\s+話題度:\d+\s*\d+レス\s+/, "")
+    .replace(/\s+thumbnail$/i, "")
+    .replace(/\s*[⌄▾▼]\s*$/g, "")
+    .replace(/(?<=\d)\s+(?=\p{L})/gu, "")
     .trim()
     .toLowerCase();
   return normalizeDigitSeparators(normalized);

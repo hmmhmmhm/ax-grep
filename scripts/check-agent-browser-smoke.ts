@@ -56,12 +56,23 @@ const targets: SmokeTarget[] = [
     minNavigationRecall: 0.9,
     requireNoAgentBrowserWarning: true,
   },
+  {
+    url: "https://news.ycombinator.com",
+    minLineCount: 500,
+    requiredNamedRoles: ["link:Hacker News", "link:new", "link:comments", "link:ask", "link:show", "link:jobs", "link:submit", "link:More"],
+    minOverlapRatio: 0.82,
+    minReadinessScore: 0.82,
+    minReferenceRecall: 0.82,
+    minActionableRecall: 0.78,
+    minNavigationRecall: 0.78,
+    requireNoAgentBrowserWarning: true,
+  },
 ];
 
 const result = spawnSync("pnpm", ["compare", ...targets.map((target) => target.url)], {
   cwd: process.cwd(),
   encoding: "utf8",
-  timeout: 240_000,
+  timeout: 360_000,
 });
 
 if (result.status !== 0) {

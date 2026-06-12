@@ -8283,6 +8283,7 @@ function normalizeName(name: string): string {
     .replace(/^20\d{2}年\d{1,2}月\d{1,2}日\s+\d{1,2}時\d{1,2}分\s+話題度:\d+\s*\d+レス\s+/, "")
     .replace(/\s+thumbnail$/i, "")
     .replace(/\s*[⌄▾▼]\s*$/g, "")
+    .replace(/(?<=\d)\s+(?=\p{L})/gu, "")
     .trim()
     .toLowerCase();
   return normalizeDigitSeparators(normalized);
