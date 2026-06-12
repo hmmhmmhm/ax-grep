@@ -1214,6 +1214,11 @@ export type AgentSummary = {
   topChoiceLabel?: string;
   topChoiceUrl?: string;
   topChoiceCommandArgs?: string[];
+  topChoiceRank?: number;
+  topChoiceSource?: string;
+  topChoiceMethod?: string;
+  topChoiceSelector?: string;
+  topChoiceReason?: string;
   sourceSearchQuery?: string;
   sourceSearchEngine?: string;
   sourceSearchSelectedEngine?: string;

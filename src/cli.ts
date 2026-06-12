@@ -1557,6 +1557,11 @@ type AgentSummary = {
   topChoiceLabel?: string;
   topChoiceUrl?: string;
   topChoiceCommandArgs?: string[];
+  topChoiceRank?: number;
+  topChoiceSource?: string;
+  topChoiceMethod?: string;
+  topChoiceSelector?: string;
+  topChoiceReason?: string;
   sourceSearchQuery?: string;
   sourceSearchEngine?: string;
   sourceSearchSelectedEngine?: string;
@@ -3413,7 +3418,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topSourceChoiceLikelyOfficial === "boolean" ? [`  topSourceChoiceLikelyOfficial: ${agent.topSourceChoiceLikelyOfficial}`] : []),
     ...(typeof agent.topSourceChoicePrimary === "boolean" ? [`  topSourceChoicePrimary: ${agent.topSourceChoicePrimary}`] : []),
     ...(agent.topSourceChoiceReason ? [`  topSourceChoiceReason: ${agent.topSourceChoiceReason}`] : []),
-    ...(agent.topChoiceKind ? [`  topChoice: ${agent.topChoiceKind} ${agent.topChoicePath}${agent.topChoiceUrl ? ` <${agent.topChoiceUrl}>` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
+    ...(agent.topChoiceKind ? [`  topChoice: ${agent.topChoiceKind} ${agent.topChoicePath}${typeof agent.topChoiceRank === "number" ? ` rank=${agent.topChoiceRank}` : ""}${agent.topChoiceSource ? ` source=${agent.topChoiceSource}` : ""}${agent.topChoiceMethod ? ` method=${agent.topChoiceMethod}` : ""}${agent.topChoiceSelector ? ` selector=${agent.topChoiceSelector}` : ""}${agent.topChoiceUrl ? ` <${agent.topChoiceUrl}>` : ""}${agent.topChoiceReason ? ` reason=${agent.topChoiceReason}` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
     ...(agent.sourceSearchQuery ? [`  sourceSearchQuery: ${agent.sourceSearchQuery}`] : []),
     ...(agent.sourceSearchEngine ? [`  sourceSearchEngine: ${agent.sourceSearchEngine}`] : []),
     ...(agent.sourceSearchSelectedEngine ? [`  sourceSearchSelectedEngine: ${agent.sourceSearchSelectedEngine}`] : []),
@@ -11591,6 +11596,11 @@ function summarizeAgent(
     ...(topChoice?.label ? { topChoiceLabel: topChoice.label } : {}),
     ...(topChoice?.url ? { topChoiceUrl: topChoice.url } : {}),
     ...(topChoice?.commandArgs ? { topChoiceCommandArgs: topChoice.commandArgs } : {}),
+    ...(typeof topChoice?.rank === "number" ? { topChoiceRank: topChoice.rank } : {}),
+    ...(topChoice?.source ? { topChoiceSource: topChoice.source } : {}),
+    ...(topChoice?.method ? { topChoiceMethod: topChoice.method } : {}),
+    ...(topChoice?.selector ? { topChoiceSelector: topChoice.selector } : {}),
+    ...(topChoice?.reason ? { topChoiceReason: topChoice.reason } : {}),
     ...(sourceSearch ? { sourceSearchQuery: sourceSearch.query } : {}),
     ...(sourceSearch ? { sourceSearchEngine: sourceSearch.engine } : {}),
     ...(sourceSearch?.selectedEngine ? { sourceSearchSelectedEngine: sourceSearch.selectedEngine } : {}),
@@ -13578,7 +13588,18 @@ function summarizeAgentTopChoice(
   sourceChoices: AgentSourceChoice[],
   formChoices: AgentFormChoice[],
   actionTargetChoices: AgentActionTargetChoice[],
-): { kind: "result" | "source" | "form" | "action-target"; path: string; label?: string; url?: string; commandArgs?: string[] } | undefined {
+): {
+  kind: "result" | "source" | "form" | "action-target";
+  path: string;
+  label?: string;
+  url?: string;
+  commandArgs?: string[];
+  rank?: number;
+  source?: string;
+  method?: string;
+  selector?: string;
+  reason?: string;
+} | undefined {
   const result = resultChoices[0];
   if (result) {
     return {
@@ -13587,6 +13608,9 @@ function summarizeAgentTopChoice(
       url: result.url,
       ...(result.title ? { label: result.title } : {}),
       ...(result.commandArgs ? { commandArgs: result.commandArgs } : {}),
+      ...(typeof result.rank === "number" ? { rank: result.rank } : {}),
+      ...(result.source ? { source: result.source } : {}),
+      ...(result.selectionReason ? { reason: result.selectionReason } : {}),
     };
   }
   const source = sourceChoices[0];
@@ -13597,6 +13621,10 @@ function summarizeAgentTopChoice(
       url: source.url,
       ...(source.title || source.text ? { label: source.title || source.text } : {}),
       ...(source.commandArgs ? { commandArgs: source.commandArgs } : {}),
+      ...(typeof source.rank === "number" ? { rank: source.rank } : {}),
+      ...(source.source ? { source: source.source } : {}),
+      ...(source.selector ? { selector: source.selector } : {}),
+      ...(source.selectionReason ? { reason: source.selectionReason } : {}),
     };
   }
   const form = formChoices[0];
@@ -13606,6 +13634,9 @@ function summarizeAgentTopChoice(
       path: form.path,
       label: form.text,
       ...(form.actionUrl || form.urlTemplate ? { url: form.actionUrl ?? form.urlTemplate } : {}),
+      rank: form.rank,
+      method: form.method,
+      ...(form.selector ? { selector: form.selector } : {}),
     };
   }
   const actionTarget = actionTargetChoices[0];
@@ -13615,6 +13646,10 @@ function summarizeAgentTopChoice(
       path: actionTarget.path,
       label: actionTarget.name || actionTarget.text,
       ...(actionTarget.targetUrl || actionTarget.urlTemplate ? { url: actionTarget.targetUrl ?? actionTarget.urlTemplate } : {}),
+      rank: actionTarget.rank,
+      source: actionTarget.source,
+      ...(actionTarget.method ? { method: actionTarget.method } : {}),
+      ...(actionTarget.selector ? { selector: actionTarget.selector } : {}),
     };
   }
   return undefined;
@@ -15770,6 +15805,11 @@ function compactAgentTopChoice(agent: AgentSummary, searchCommandContext?: Searc
     ...(agent.topChoiceLabel ? { topChoiceLabel: agent.topChoiceLabel } : {}),
     ...(agent.topChoiceUrl ? { topChoiceUrl: agent.topChoiceUrl } : {}),
     ...(commandArgs ? { topChoiceCommandArgs: commandArgs } : {}),
+    ...(typeof agent.topChoiceRank === "number" ? { topChoiceRank: agent.topChoiceRank } : {}),
+    ...(agent.topChoiceSource ? { topChoiceSource: agent.topChoiceSource } : {}),
+    ...(agent.topChoiceMethod ? { topChoiceMethod: agent.topChoiceMethod } : {}),
+    ...(agent.topChoiceSelector ? { topChoiceSelector: agent.topChoiceSelector } : {}),
+    ...(agent.topChoiceReason ? { topChoiceReason: agent.topChoiceReason } : {}),
   };
 }
 

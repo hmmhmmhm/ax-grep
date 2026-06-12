@@ -1308,6 +1308,9 @@ describe("cli", () => {
         expect(envelope.agent.topChoiceKind).toBe("result");
         expect(envelope.agent.topChoicePath).toBe(topResultChoice.path);
         expect(envelope.agent.topChoiceCommandArgs).toEqual(topResultChoice.commandArgs);
+        if (typeof topResultChoice.rank === "number") expect(envelope.agent.topChoiceRank).toBe(topResultChoice.rank);
+        if (topResultChoice.source) expect(envelope.agent.topChoiceSource).toBe(topResultChoice.source);
+        if (topResultChoice.selectionReason) expect(envelope.agent.topChoiceReason).toBe(topResultChoice.selectionReason);
         expect(envelope.agent.topResultChoicePath).toBe(topResultChoice.path);
         expect(envelope.agent.topResultChoiceUrl).toBe(topResultChoice.url);
         expect(envelope.agent.topResultChoiceCommandArgs).toEqual(topResultChoice.commandArgs);
@@ -1321,14 +1324,25 @@ describe("cli", () => {
         expect(envelope.agent.topChoiceKind).toBe("source");
         expect(envelope.agent.topChoicePath).toBe(topSourceChoice.path);
         expect(envelope.agent.topChoiceCommandArgs).toEqual(topSourceChoice.commandArgs);
+        if (typeof topSourceChoice.rank === "number") expect(envelope.agent.topChoiceRank).toBe(topSourceChoice.rank);
+        if (topSourceChoice.source) expect(envelope.agent.topChoiceSource).toBe(topSourceChoice.source);
+        if (topSourceChoice.selector) expect(envelope.agent.topChoiceSelector).toBe(topSourceChoice.selector);
+        if (topSourceChoice.selectionReason) expect(envelope.agent.topChoiceReason).toBe(topSourceChoice.selectionReason);
         if (topSourceChoice.snippet) expect(envelope.agent.topSourceChoiceSnippet).toBe(topSourceChoice.snippet);
         if (topSourceChoice.selectionReason) expect(envelope.agent.topSourceChoiceReason).toBe(topSourceChoice.selectionReason);
       } else if (topFormChoice) {
         expect(envelope.agent.topChoiceKind).toBe("form");
         expect(envelope.agent.topChoicePath).toBe(topFormChoice.path);
+        expect(envelope.agent.topChoiceRank).toBe(topFormChoice.rank);
+        expect(envelope.agent.topChoiceMethod).toBe(topFormChoice.method);
+        if (topFormChoice.selector) expect(envelope.agent.topChoiceSelector).toBe(topFormChoice.selector);
       } else if (topActionTargetChoice) {
         expect(envelope.agent.topChoiceKind).toBe("action-target");
         expect(envelope.agent.topChoicePath).toBe(topActionTargetChoice.path);
+        expect(envelope.agent.topChoiceRank).toBe(topActionTargetChoice.rank);
+        expect(envelope.agent.topChoiceSource).toBe(topActionTargetChoice.source);
+        if (topActionTargetChoice.method) expect(envelope.agent.topChoiceMethod).toBe(topActionTargetChoice.method);
+        if (topActionTargetChoice.selector) expect(envelope.agent.topChoiceSelector).toBe(topActionTargetChoice.selector);
       }
       if (executor.commandArgs) expect(handoff.commandArgs).toEqual(executor.commandArgs);
       if (executor.readFrom) expect(handoff.readFrom).toBe(executor.readFrom);
