@@ -1595,6 +1595,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchSelectedReason?: string;
       sourceSearchFailureCode?: string;
       sourceSearchFailureStatus?: number;
+      sourceSearchFailureKind?: string;
+      sourceSearchFailureRetryable?: boolean;
       sourceSearchFailureUrl?: string;
       sourceSearchFailureReason?: string;
       sourceSearchAlternateCount?: number;
@@ -2123,6 +2125,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     searchResults?: CliSearchResultShape[];
     recommendedResult?: CliSearchResultShape;
     suggestedActions?: CliActionShape[];
+    error?: unknown;
     verification?: {
       status?: "not-requested" | "matched" | "partial" | "missing";
       requestedCount?: number;
@@ -2219,7 +2222,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentTopHiddenSignalShortcutScore: scoreAgentTopHiddenSignalShortcuts(item.agent, item.pageCheck),
     agentSourceChoiceScore: scoreAgentSourceChoices(item.kind ?? "unknown", item.agent?.sourceChoices ?? [], item.pageCheck?.sourceLinks ?? [], item.agent?.primaryAction),
     agentTopSourceChoiceShortcutScore: scoreAgentTopSourceChoiceShortcuts(item.agent),
-    agentSourceSearchShortcutScore: scoreAgentSourceSearchShortcuts(item.agent, item.sourceSearch),
+    agentSourceSearchShortcutScore: scoreAgentSourceSearchShortcuts(item.agent, item.sourceSearch, item.error),
     agentBrowserNeedScore: scoreAgentBrowserNeed(item.agent?.needsBrowserHtml, item.agent?.browserHtmlReason, item.agent?.browserHtmlReasonCode, item.agent?.staticReadiness, item.agent?.staticReadinessReason, item.agent?.status, item.agent?.primaryAction),
     agentBrowserHtmlScore: scoreAgentBrowserHtml(item.agent, item.agent?.next, item.agent?.executionPlan, item.agent?.primaryAction),
     agentReadabilityReasonScore: scoreReadabilityReasons(item.agent?.readabilityReasons),
@@ -5041,6 +5044,36 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
   return roundScore(matched / required);
 }
 
+type SourceSearchFailureInfo = { code?: string; status?: number };
+
+function sourceSearchFailureInfo(error: unknown): SourceSearchFailureInfo | undefined {
+  if (!error || typeof error !== "object") return undefined;
+  const record = error as Record<string, unknown>;
+  const code = typeof record.code === "string" ? record.code : undefined;
+  const status = typeof record.status === "number" ? record.status : undefined;
+  if (!code) return undefined;
+  return typeof status === "number" ? { code, status } : { code };
+}
+
+function sourceSearchFailureKind(error: SourceSearchFailureInfo): string {
+  if (error.code === "HTTP_ERROR") {
+    if (error.status === 404 || error.status === 410) return "not-found";
+    if (typeof error.status === "number" && error.status >= 500) return "http-server-error";
+    if (typeof error.status === "number" && error.status >= 400) return "http-client-error";
+    return "http-error";
+  }
+  if (error.code === "FETCH_FAILED") return "fetch-error";
+  if (error.code === "TIMEOUT") return "timeout";
+  if (error.code === "NO_RESULT") return "not-found";
+  if (error.code === "NO_INSPECTABLE_CONTENT") return "no-inspectable-content";
+  return "unknown";
+}
+
+function sourceSearchFailureRetryable(error: SourceSearchFailureInfo): boolean {
+  const kind = sourceSearchFailureKind(error);
+  return kind === "http-server-error" || kind === "fetch-error" || kind === "timeout";
+}
+
 function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchQuery?: string;
   sourceSearchEngine?: string;
@@ -5072,6 +5105,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchSelectedReason?: string;
   sourceSearchFailureCode?: string;
   sourceSearchFailureStatus?: number;
+  sourceSearchFailureKind?: string;
+  sourceSearchFailureRetryable?: boolean;
   sourceSearchFailureUrl?: string;
   sourceSearchFailureReason?: string;
   sourceSearchAlternateCount?: number;
@@ -5109,7 +5144,7 @@ function scoreAgentSourceSearchShortcuts(agent: {
   selectedUrl?: string;
   selectedResult?: CliAgentSourceSearchResultShape;
   alternateResults?: CliAgentSourceSearchResultShape[];
-} | undefined): number {
+} | undefined, error?: unknown): number {
   if (!sourceSearch) {
     return typeof agent?.sourceSearchQuery === "undefined"
       && typeof agent?.sourceSearchEngine === "undefined"
@@ -5141,6 +5176,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchSelectedReason === "undefined"
       && typeof agent?.sourceSearchFailureCode === "undefined"
       && typeof agent?.sourceSearchFailureStatus === "undefined"
+      && typeof agent?.sourceSearchFailureKind === "undefined"
+      && typeof agent?.sourceSearchFailureRetryable === "undefined"
       && typeof agent?.sourceSearchFailureUrl === "undefined"
       && typeof agent?.sourceSearchFailureReason === "undefined"
       && typeof agent?.sourceSearchAlternatePath === "undefined"
@@ -5177,6 +5214,14 @@ function scoreAgentSourceSearchShortcuts(agent: {
   if (agent?.sourceSearchSelectedTitle === sourceSearch.selectedTitle) matched += 1;
   if (agent?.sourceSearchSelectedUrl === sourceSearch.selectedUrl) matched += 1;
   if (agent?.sourceSearchAlternateCount === (sourceSearch.alternateResults?.length ?? 0)) matched += 1;
+  const failure = sourceSearchFailureInfo(error);
+  if (failure) {
+    required += 2;
+    if (agent?.sourceSearchFailureKind === sourceSearchFailureKind(failure)) matched += 1;
+    if (agent?.sourceSearchFailureRetryable === sourceSearchFailureRetryable(failure)) matched += 1;
+  } else if (agent?.sourceSearchFailureKind || typeof agent?.sourceSearchFailureRetryable === "boolean") {
+    required += 1;
+  }
   if (sourceSearch.lang) {
     required += 1;
     if (agent?.sourceSearchLang === sourceSearch.lang) matched += 1;

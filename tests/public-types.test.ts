@@ -477,6 +477,8 @@ describe("public agent types", () => {
       | "sourceSearchSelectedReason"
       | "sourceSearchFailureCode"
       | "sourceSearchFailureStatus"
+      | "sourceSearchFailureKind"
+      | "sourceSearchFailureRetryable"
       | "sourceSearchFailureUrl"
       | "sourceSearchFailureReason"
       | "sourceSearchAlternateCount"
@@ -1470,6 +1472,8 @@ describe("public agent types", () => {
       sourceSearchSelectedReason: "Selected source result.",
       sourceSearchFailureCode: "HTTP_ERROR",
       sourceSearchFailureStatus: 403,
+      sourceSearchFailureKind: "http-client-error",
+      sourceSearchFailureRetryable: false,
       sourceSearchFailureUrl: "https://source.example/result",
       sourceSearchFailureReason: "Selected sourceSearch result failed with HTTP_ERROR status 403.",
       sourceSearchAlternateCount: 1,

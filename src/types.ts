@@ -122,6 +122,15 @@ export type AgentStaticReadinessReasonCode =
   | "readable-content"
   | "limited-static-payload"
   | "thin-content";
+export type AgentSourceSearchFailureKind =
+  | "not-found"
+  | "http-client-error"
+  | "http-server-error"
+  | "http-error"
+  | "fetch-error"
+  | "timeout"
+  | "no-inspectable-content"
+  | "unknown";
 
 export type AgentRoutingIntent =
   | "read-current"
@@ -1317,6 +1326,8 @@ export type AgentSummary = {
   sourceSearchSelectedReason?: string;
   sourceSearchFailureCode?: string;
   sourceSearchFailureStatus?: number;
+  sourceSearchFailureKind?: AgentSourceSearchFailureKind;
+  sourceSearchFailureRetryable?: boolean;
   sourceSearchFailureUrl?: string;
   sourceSearchFailureReason?: string;
   sourceSearchAlternateCount?: number;

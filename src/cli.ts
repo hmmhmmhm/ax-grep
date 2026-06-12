@@ -32,6 +32,7 @@ import type {
   AgentSignal,
   AgentSourceChoice,
   AgentSourceSearch,
+  AgentSourceSearchFailureKind,
   AgentSourceSearchResult,
   AgentStaticReadiness,
   AgentStaticReadinessReasonCode,
@@ -1663,6 +1664,8 @@ type AgentSummary = {
   sourceSearchSelectedReason?: string;
   sourceSearchFailureCode?: string;
   sourceSearchFailureStatus?: number;
+  sourceSearchFailureKind?: AgentSourceSearchFailureKind;
+  sourceSearchFailureRetryable?: boolean;
   sourceSearchFailureUrl?: string;
   sourceSearchFailureReason?: string;
   sourceSearchAlternateCount: number;
@@ -3688,6 +3691,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.sourceSearchSelectedReason ? [`  sourceSearchSelectedReason: ${agent.sourceSearchSelectedReason}`] : []),
     ...(agent.sourceSearchFailureCode ? [`  sourceSearchFailureCode: ${agent.sourceSearchFailureCode}`] : []),
     ...(typeof agent.sourceSearchFailureStatus === "number" ? [`  sourceSearchFailureStatus: ${agent.sourceSearchFailureStatus}`] : []),
+    ...(agent.sourceSearchFailureKind ? [`  sourceSearchFailureKind: ${agent.sourceSearchFailureKind}`] : []),
+    ...(typeof agent.sourceSearchFailureRetryable === "boolean" ? [`  sourceSearchFailureRetryable: ${agent.sourceSearchFailureRetryable}`] : []),
     ...(agent.sourceSearchFailureUrl ? [`  sourceSearchFailureUrl: ${agent.sourceSearchFailureUrl}`] : []),
     ...(agent.sourceSearchFailureReason ? [`  sourceSearchFailureReason: ${agent.sourceSearchFailureReason}`] : []),
     `  sourceSearchAlternateCount: ${agent.sourceSearchAlternateCount}`,
@@ -15176,6 +15181,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(sourceSearchSelectedResult?.selectionReason ? { sourceSearchSelectedReason: sourceSearchSelectedResult.selectionReason } : {}),
     ...(sourceSearch ? { sourceSearchFailureCode: error.code } : {}),
     ...(sourceSearch && typeof error.status === "number" ? { sourceSearchFailureStatus: error.status } : {}),
+    ...(sourceSearch ? { sourceSearchFailureKind: sourceSearchFailureKind(error) } : {}),
+    ...(sourceSearch ? { sourceSearchFailureRetryable: sourceSearchFailureRetryable(error) } : {}),
     ...(sourceSearch ? { sourceSearchFailureUrl: sourceSearch.selectedUrl } : {}),
     ...(sourceSearch ? { sourceSearchFailureReason: sourceSearchFailureReason(error) } : {}),
     ...(sourceSearchAlternateResult ? { sourceSearchAlternatePath: sourceSearchAlternateResult.path } : {}),
@@ -15414,6 +15421,25 @@ function errorAgentReadValue(primaryAction: SuggestedAction | undefined, sourceS
 function sourceSearchFailureReason(error: CliError): string {
   const status = typeof error.status === "number" ? ` status ${error.status}` : "";
   return `Selected sourceSearch result failed with ${error.code}${status}.`;
+}
+
+function sourceSearchFailureKind(error: CliError): AgentSourceSearchFailureKind {
+  if (error.code === "HTTP_ERROR") {
+    if (error.status === 404 || error.status === 410) return "not-found";
+    if (typeof error.status === "number" && error.status >= 500) return "http-server-error";
+    if (typeof error.status === "number" && error.status >= 400) return "http-client-error";
+    return "http-error";
+  }
+  if (error.code === "FETCH_FAILED") return "fetch-error";
+  if (error.code === "TIMEOUT") return "timeout";
+  if (error.code === "NO_RESULT") return "not-found";
+  if (error.code === "NO_INSPECTABLE_CONTENT") return "no-inspectable-content";
+  return "unknown";
+}
+
+function sourceSearchFailureRetryable(error: CliError): boolean {
+  const kind = sourceSearchFailureKind(error);
+  return kind === "http-server-error" || kind === "fetch-error" || kind === "timeout";
 }
 
 function errorAction(error: CliError, url?: string, agentMode = false, findQueries: string[] = [], sourceSearch?: SourceSearchSummary, timeoutMs?: number, userAgent?: string): SuggestedAction | undefined {
@@ -17368,6 +17394,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.sourceSearchSelectedReason ? { sourceSearchSelectedReason: agent.sourceSearchSelectedReason } : {}),
     ...(agent.sourceSearchFailureCode ? { sourceSearchFailureCode: agent.sourceSearchFailureCode } : {}),
     ...(typeof agent.sourceSearchFailureStatus === "number" ? { sourceSearchFailureStatus: agent.sourceSearchFailureStatus } : {}),
+    ...(agent.sourceSearchFailureKind ? { sourceSearchFailureKind: agent.sourceSearchFailureKind } : {}),
+    ...(typeof agent.sourceSearchFailureRetryable === "boolean" ? { sourceSearchFailureRetryable: agent.sourceSearchFailureRetryable } : {}),
     ...(agent.sourceSearchFailureUrl ? { sourceSearchFailureUrl: agent.sourceSearchFailureUrl } : {}),
     ...(agent.sourceSearchFailureReason ? { sourceSearchFailureReason: agent.sourceSearchFailureReason } : {}),
     sourceSearchAlternateCount: agent.sourceSearchAlternateCount,
@@ -18391,6 +18419,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.sourceSearchSelectedReason ? { sourceSearchSelectedReason: agent.sourceSearchSelectedReason } : {}),
     ...(agent.sourceSearchFailureCode ? { sourceSearchFailureCode: agent.sourceSearchFailureCode } : {}),
     ...(typeof agent.sourceSearchFailureStatus === "number" ? { sourceSearchFailureStatus: agent.sourceSearchFailureStatus } : {}),
+    ...(agent.sourceSearchFailureKind ? { sourceSearchFailureKind: agent.sourceSearchFailureKind } : {}),
+    ...(typeof agent.sourceSearchFailureRetryable === "boolean" ? { sourceSearchFailureRetryable: agent.sourceSearchFailureRetryable } : {}),
     ...(agent.sourceSearchFailureUrl ? { sourceSearchFailureUrl: agent.sourceSearchFailureUrl } : {}),
     ...(agent.sourceSearchFailureReason ? { sourceSearchFailureReason: agent.sourceSearchFailureReason } : {}),
     sourceSearchAlternateCount: agent.sourceSearchAlternateCount,
