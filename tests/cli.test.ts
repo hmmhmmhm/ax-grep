@@ -7166,6 +7166,32 @@ describe("cli", () => {
     });
   });
 
+  it("keeps top provenance labels and selectors in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/paper", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <meta name="citation_doi" content="10.5555/example.2026">
+        <main></main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      provenanceCount: 1,
+      topProvenancePath: "pageCheck.provenance[0]",
+      topProvenanceKind: "doi",
+      topProvenanceLabel: "DOI",
+      topProvenanceValue: "10.5555/example.2026",
+      topProvenanceUrl: "https://doi.org/10.5555/example.2026",
+      topProvenanceSource: "meta",
+      topProvenanceSelector: "meta:nth-of-type(1)",
+    });
+  });
+
   it("summarizes HTTP policy headers and meta directives as pageCheck read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/policy", "--agent"], {
@@ -7480,6 +7506,44 @@ describe("cli", () => {
     });
   });
 
+  it("keeps top offer labels and selectors in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/product", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <script type="application/ld+json">
+          {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": "Agent Browser Pro",
+            "offers": {
+              "@type": "Offer",
+              "price": "19.99",
+              "priceCurrency": "USD",
+              "availability": "https://schema.org/InStock",
+              "url": "/buy"
+            }
+          }
+        </script>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      offerCount: 1,
+      topOfferPath: "pageCheck.offers[0]",
+      topOfferName: "Agent Browser Pro",
+      topOfferPrice: "19.99",
+      topOfferCurrency: "USD",
+      topOfferAvailability: "InStock",
+      topOfferUrl: "https://example.test/buy",
+      topOfferSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+    });
+  });
+
   it("summarizes JSON-LD identities and sameAs links as pageCheck read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/about", "--agent", "--find", "github.com/example"], {
@@ -7586,6 +7650,41 @@ describe("cli", () => {
     });
   });
 
+  it("keeps top identity logo and source details in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/about", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <script type="application/ld+json">
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "Example Labs",
+            "url": "https://example.test",
+            "logo": "/logo.png",
+            "sameAs": "https://github.com/example"
+          }
+        </script>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      identityCount: 1,
+      topIdentityPath: "pageCheck.identities[0]",
+      topIdentityKind: "organization",
+      topIdentityName: "Example Labs",
+      topIdentityUrl: "https://example.test/",
+      topIdentityLogoUrl: "https://example.test/logo.png",
+      topIdentitySameAsUrl: "https://github.com/example",
+      topIdentitySource: "json-ld",
+      topIdentitySelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+    });
+  });
+
   it("summarizes dataset and data download provenance as pageCheck read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/data", "--agent", "--find", "creativecommons.org/licenses/by/4.0"], {
@@ -7688,6 +7787,47 @@ describe("cli", () => {
     });
   });
 
+  it("keeps top dataset distribution details in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/data", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <script type="application/ld+json">
+          {
+            "@context": "https://schema.org",
+            "@type": "Dataset",
+            "name": "Example emissions dataset",
+            "url": "/datasets/emissions",
+            "license": "https://creativecommons.org/licenses/by/4.0/",
+            "distribution": [
+              {
+                "@type": "DataDownload",
+                "contentUrl": "/downloads/emissions.csv",
+                "encodingFormat": "text/csv"
+              }
+            ]
+          }
+        </script>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      datasetCount: 1,
+      topDatasetPath: "pageCheck.datasets[0]",
+      topDatasetKind: "dataset",
+      topDatasetName: "Example emissions dataset",
+      topDatasetUrl: "https://example.test/datasets/emissions",
+      topDatasetDistributionUrl: "https://example.test/downloads/emissions.csv",
+      topDatasetLicenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+      topDatasetEncodingFormat: "text/csv",
+      topDatasetSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+    });
+  });
+
   it("summarizes publication and update dates as pageCheck timeline read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/release", "--agent", "--find", "source=time"], {
@@ -7775,6 +7915,32 @@ describe("cli", () => {
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "use-evidence",
       readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("keeps top timeline labels and selectors in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/release", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <time class="updated" datetime="2026-06-08">Updated June 8 2026</time>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      timelineCount: 1,
+      topTimelinePath: "pageCheck.timeline[0]",
+      topTimelineKind: "modified",
+      topTimelineLabel: "updated",
+      topTimelineValue: "2026-06-08",
+      topTimelineSource: "time",
+      topTimelineSelector: "time:nth-of-type(1)",
     });
   });
 
@@ -7887,6 +8053,33 @@ describe("cli", () => {
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "use-evidence",
       readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("keeps top contact labels and selectors in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/contact", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <a href="mailto:press@example.test">Press team</a>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      contactPointCount: 1,
+      topContactPointPath: "pageCheck.contactPoints[0]",
+      topContactPointKind: "email",
+      topContactPointLabel: "Press team",
+      topContactPointValue: "press@example.test",
+      topContactPointUrl: "mailto:press@example.test",
+      topContactPointSource: "link",
+      topContactPointSelector: "a:nth-of-type(1)",
     });
   });
 
@@ -8183,6 +8376,34 @@ describe("cli", () => {
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "use-evidence",
       readFrom: "verification.bestEvidence",
+    });
+  });
+
+  it("keeps top section text in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/docs/runtime", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <section>
+            <h2>Latency budgets</h2>
+            <p>Production agents should compare timeout ceilings before retrying a browser capture.</p>
+          </section>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      sectionCount: 1,
+      topSectionPath: "pageCheck.sections[0]",
+      topSectionHeading: "Latency budgets",
+      topSectionLevel: 2,
+      topSectionText: "Latency budgets; Production agents should compare timeout ceilings before retrying a browser capture.",
+      topSectionSelector: "h2:nth-of-type(1)",
     });
   });
 
@@ -8667,6 +8888,31 @@ npx ax-grep https://example.test --agent</code></pre>
           caption: "Revenue grew 42 percent in 2026.",
         }),
       ],
+    });
+  });
+
+  it("keeps top media text in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/gallery", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <head>
+          <meta property="og:image" content="/share.png">
+          <meta property="og:image:alt" content="Share preview chart">
+        </head>
+        <main></main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      mediaCount: 1,
+      topMediaKind: "open-graph",
+      topMediaUrl: "https://example.test/share.png",
+      topMediaText: "Share preview chart - https://example.test/share.png",
     });
   });
 
