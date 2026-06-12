@@ -563,6 +563,7 @@ describe("public agent types", () => {
       | "sourceSearchAlternateSourceScore"
       | "sourceSearchAlternateRelevance"
       | "sourceSearchAlternateLikelyOfficial"
+      | "sourceSearchAlternateDifferentHost"
       | "sourceSearchAlternateReason"
       | "sourceSearchAlternateChoices"
       | "verificationFoundQueries"
@@ -1613,6 +1614,7 @@ describe("public agent types", () => {
       sourceSearchAlternateSourceScore: 0.64,
       sourceSearchAlternateRelevance: "medium",
       sourceSearchAlternateLikelyOfficial: false,
+      sourceSearchAlternateDifferentHost: true,
       sourceSearchAlternateReason: "Alternate source result.",
       sourceSearchAlternateChoices: [{
         id: "a3",
@@ -2381,6 +2383,7 @@ describe("public agent types", () => {
     expect(summary.sourceSearchAlternateSourceScore).toBe(0.64);
     expect(summary.sourceSearchAlternateRelevance).toBe("medium");
     expect(summary.sourceSearchAlternateLikelyOfficial).toBe(false);
+    expect(summary.sourceSearchAlternateDifferentHost).toBe(true);
     expect(summary.sourceSearchAlternateChoices?.[0]?.path).toBe("sourceSearch.alternateResults[0]");
     expect(summary.sourceSearchAlternateChoices?.[0]?.command).toContain("--open-result 3");
     expect(summary.sourceSearchAlternateChoices?.[0]?.sourceScore).toBe(0.64);

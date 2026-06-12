@@ -3228,6 +3228,7 @@ describe("cli", () => {
       sourceSearchAlternateCommandArgs: ["ax-grep", "--search", "ax-grep npm", "--engine", "duckduckgo", "--open-result", "1", "--agent"],
       sourceSearchAlternateRelevance: "low",
       sourceSearchAlternateLikelyOfficial: false,
+      sourceSearchAlternateDifferentHost: true,
     });
     expect(envelope.agent.sourceSearchSelectedSourceScore).toBe(envelope.sourceSearch.selectedResult.sourceScore);
     expect(envelope.agent.sourceSearchAlternateSourceScore).toBe(envelope.sourceSearch.alternateResults[0].sourceScore);
@@ -3754,6 +3755,7 @@ describe("cli", () => {
       sourceSearchAlternateSourceScore: envelope.sourceSearch.alternateResults[0].sourceScore,
       sourceSearchAlternateRelevance: envelope.sourceSearch.alternateResults[0].relevance,
       sourceSearchAlternateLikelyOfficial: envelope.sourceSearch.alternateResults[0].isLikelyOfficial,
+      sourceSearchAlternateDifferentHost: true,
       sourceSearchAlternateChoices: [
         expect.objectContaining({
           path: "sourceSearch.alternateResults[0]",

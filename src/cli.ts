@@ -1785,6 +1785,7 @@ type AgentSummary = {
   sourceSearchAlternateSourceScore?: number;
   sourceSearchAlternateRelevance?: ResultSummary["relevance"];
   sourceSearchAlternateLikelyOfficial?: boolean;
+  sourceSearchAlternateDifferentHost?: boolean;
   sourceSearchAlternateReason?: string;
   sourceSearchAlternateChoices: AgentSourceSearchResult[];
   evidenceQualityScore: number;
@@ -3827,6 +3828,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.sourceSearchAlternateSourceScore === "number" ? [`  sourceSearchAlternateSourceScore: ${agent.sourceSearchAlternateSourceScore}`] : []),
     ...(agent.sourceSearchAlternateRelevance ? [`  sourceSearchAlternateRelevance: ${agent.sourceSearchAlternateRelevance}`] : []),
     ...(typeof agent.sourceSearchAlternateLikelyOfficial === "boolean" ? [`  sourceSearchAlternateLikelyOfficial: ${agent.sourceSearchAlternateLikelyOfficial}`] : []),
+    ...(typeof agent.sourceSearchAlternateDifferentHost === "boolean" ? [`  sourceSearchAlternateDifferentHost: ${agent.sourceSearchAlternateDifferentHost}`] : []),
     ...(agent.sourceSearchAlternateReason ? [`  sourceSearchAlternateReason: ${agent.sourceSearchAlternateReason}`] : []),
     ...agent.sourceSearchAlternateChoices.flatMap((choice) => formatAgentSourceSearchResultText(choice, "sourceSearchAlternateChoice")),
     `  alternativeActionCount: ${agent.alternativeActionCount}`,
@@ -11511,6 +11513,9 @@ function summarizeAgent(
   const sourceSearchSelectedResult = sourceSearchAgent?.selectedResult;
   const sourceSearchAlternateResult = sourceSearchAgent?.alternateResults?.[0];
   const sourceSearchAlternateChoices = sourceSearchAgent?.alternateResults ?? [];
+  const sourceSearchAlternateDifferentHost = sourceSearchSelectedResult?.host && sourceSearchAlternateResult?.host
+    ? sourceSearchAlternateResult.host !== sourceSearchSelectedResult.host
+    : undefined;
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, sourceSearchAgent, signals, qualityGates, verification.foundQueries, verification.missingQueries);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   const topSemanticHeading = semanticSummary?.headingItems[0];
@@ -12433,6 +12438,7 @@ function summarizeAgent(
     ...(typeof sourceSearchAlternateResult?.sourceScore === "number" ? { sourceSearchAlternateSourceScore: sourceSearchAlternateResult.sourceScore } : {}),
     ...(sourceSearchAlternateResult?.relevance ? { sourceSearchAlternateRelevance: sourceSearchAlternateResult.relevance } : {}),
     ...(typeof sourceSearchAlternateResult?.isLikelyOfficial === "boolean" ? { sourceSearchAlternateLikelyOfficial: sourceSearchAlternateResult.isLikelyOfficial } : {}),
+    ...(typeof sourceSearchAlternateDifferentHost === "boolean" ? { sourceSearchAlternateDifferentHost } : {}),
     ...(sourceSearchAlternateResult?.selectionReason ? { sourceSearchAlternateReason: sourceSearchAlternateResult.selectionReason } : {}),
     sourceSearchAlternateChoices,
     evidenceQualityScore,
@@ -15399,6 +15405,10 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const sourceSearchSelectedResult = sourceSearchAgent?.selectedResult;
   const sourceSearchAlternateResult = sourceSearchAgent?.alternateResults?.[0];
   const sourceSearchAlternateChoices = sourceSearchAgent?.alternateResults ?? [];
+  const sourceSearchFailureHost = sourceSearch ? sourceFromUrl(sourceSearch.selectedUrl) : "";
+  const sourceSearchAlternateDifferentHost = sourceSearchFailureHost && sourceSearchAlternateResult?.host
+    ? sourceSearchAlternateResult.host !== sourceSearchFailureHost
+    : undefined;
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, [], [], [], sourceSearchAgent, signals, qualityGates);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   return {
@@ -15554,7 +15564,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(sourceSearch ? { sourceSearchFailureRetryable: sourceSearchFailureRetryable(error) } : {}),
     ...(sourceSearch && error.metadata.retryAfter ? { sourceSearchFailureRetryAfter: error.metadata.retryAfter } : {}),
     ...(sourceSearch ? { sourceSearchFailureUrl: sourceSearch.selectedUrl } : {}),
-    ...(sourceSearch && sourceFromUrl(sourceSearch.selectedUrl) ? { sourceSearchFailureHost: sourceFromUrl(sourceSearch.selectedUrl) } : {}),
+    ...(sourceSearchFailureHost ? { sourceSearchFailureHost } : {}),
     ...(sourceSearch ? { sourceSearchFailureReason: sourceSearchFailureReason(error) } : {}),
     ...(sourceSearchAlternateResult ? { sourceSearchAlternatePath: sourceSearchAlternateResult.path } : {}),
     ...(sourceSearchAlternateResult?.title ? { sourceSearchAlternateTitle: sourceSearchAlternateResult.title } : {}),
@@ -15575,6 +15585,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(typeof sourceSearchAlternateResult?.sourceScore === "number" ? { sourceSearchAlternateSourceScore: sourceSearchAlternateResult.sourceScore } : {}),
     ...(sourceSearchAlternateResult?.relevance ? { sourceSearchAlternateRelevance: sourceSearchAlternateResult.relevance } : {}),
     ...(typeof sourceSearchAlternateResult?.isLikelyOfficial === "boolean" ? { sourceSearchAlternateLikelyOfficial: sourceSearchAlternateResult.isLikelyOfficial } : {}),
+    ...(typeof sourceSearchAlternateDifferentHost === "boolean" ? { sourceSearchAlternateDifferentHost } : {}),
     ...(sourceSearchAlternateResult?.selectionReason ? { sourceSearchAlternateReason: sourceSearchAlternateResult.selectionReason } : {}),
     sourceSearchAlternateChoices,
     evidenceQualityScore: 0,
@@ -17885,6 +17896,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.sourceSearchAlternateSourceScore === "number" ? { sourceSearchAlternateSourceScore: agent.sourceSearchAlternateSourceScore } : {}),
     ...(agent.sourceSearchAlternateRelevance ? { sourceSearchAlternateRelevance: agent.sourceSearchAlternateRelevance } : {}),
     ...(typeof agent.sourceSearchAlternateLikelyOfficial === "boolean" ? { sourceSearchAlternateLikelyOfficial: agent.sourceSearchAlternateLikelyOfficial } : {}),
+    ...(typeof agent.sourceSearchAlternateDifferentHost === "boolean" ? { sourceSearchAlternateDifferentHost: agent.sourceSearchAlternateDifferentHost } : {}),
     ...(agent.sourceSearchAlternateReason ? { sourceSearchAlternateReason: agent.sourceSearchAlternateReason } : {}),
     ...(agent.sourceSearchAlternateChoices.length > 0 ? { sourceSearchAlternateChoices: compactAgentSourceSearchResultList(agent.sourceSearchAlternateChoices) } : {}),
     alternativeActionCount: agent.alternativeActionCount,
@@ -18965,6 +18977,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.sourceSearchAlternateSourceScore === "number" ? { sourceSearchAlternateSourceScore: agent.sourceSearchAlternateSourceScore } : {}),
     ...(agent.sourceSearchAlternateRelevance ? { sourceSearchAlternateRelevance: agent.sourceSearchAlternateRelevance } : {}),
     ...(typeof agent.sourceSearchAlternateLikelyOfficial === "boolean" ? { sourceSearchAlternateLikelyOfficial: agent.sourceSearchAlternateLikelyOfficial } : {}),
+    ...(typeof agent.sourceSearchAlternateDifferentHost === "boolean" ? { sourceSearchAlternateDifferentHost: agent.sourceSearchAlternateDifferentHost } : {}),
     ...(agent.sourceSearchAlternateReason ? { sourceSearchAlternateReason: agent.sourceSearchAlternateReason } : {}),
     ...(agent.sourceSearchAlternateChoices.length > 0 ? { sourceSearchAlternateChoices: compactAgentSourceSearchResultList(agent.sourceSearchAlternateChoices, 900) } : {}),
     evidenceQualityScore: agent.evidenceQualityScore,

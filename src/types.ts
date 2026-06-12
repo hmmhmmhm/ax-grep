@@ -1444,6 +1444,7 @@ export type AgentSummary = {
   sourceSearchAlternateSourceScore?: number;
   sourceSearchAlternateRelevance?: AgentSourceSearchResult["relevance"];
   sourceSearchAlternateLikelyOfficial?: boolean;
+  sourceSearchAlternateDifferentHost?: boolean;
   sourceSearchAlternateReason?: string;
   sourceSearchAlternateChoices?: AgentSourceSearchResult[];
   evidenceQualityScore?: number;

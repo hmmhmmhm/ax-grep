@@ -1679,6 +1679,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchAlternateSourceScore?: number;
       sourceSearchAlternateRelevance?: CliSearchResultShape["relevance"];
       sourceSearchAlternateLikelyOfficial?: boolean;
+      sourceSearchAlternateDifferentHost?: boolean;
       sourceSearchAlternateReason?: string;
       sourceSearchAlternateChoices?: CliAgentSourceSearchResultShape[];
       executorDecision?: CliAgentLoopShape["decision"];
@@ -5342,6 +5343,7 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchAlternateSourceScore?: number;
   sourceSearchAlternateRelevance?: CliSearchResultShape["relevance"];
   sourceSearchAlternateLikelyOfficial?: boolean;
+  sourceSearchAlternateDifferentHost?: boolean;
   sourceSearchAlternateReason?: string;
   sourceSearchAlternateChoices?: CliAgentSourceSearchResultShape[];
 } | undefined, sourceSearch: {
@@ -5414,6 +5416,7 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchAlternateSourceScore === "undefined"
       && typeof agent?.sourceSearchAlternateRelevance === "undefined"
       && typeof agent?.sourceSearchAlternateLikelyOfficial === "undefined"
+      && typeof agent?.sourceSearchAlternateDifferentHost === "undefined"
       && typeof agent?.sourceSearchAlternateReason === "undefined"
       && typeof agent?.sourceSearchAlternateChoices === "undefined"
       && agent?.sourceSearchAlternateCount === 0 ? 1 : 0;
@@ -5553,6 +5556,13 @@ function scoreAgentSourceSearchShortcuts(agent: {
     if (agent?.sourceSearchAlternateRelevance === alternate.relevance) matched += 1;
     if (agent?.sourceSearchAlternateLikelyOfficial === alternate.isLikelyOfficial) matched += 1;
     if (agent?.sourceSearchAlternateReason === alternate.selectionReason) matched += 1;
+    const selectedHost = selected?.host ?? (sourceSearch.selectedUrl ? sourceFromUrl(sourceSearch.selectedUrl) : "");
+    if (selectedHost && alternate.host) {
+      required += 1;
+      if (agent?.sourceSearchAlternateDifferentHost === (alternate.host !== selectedHost)) matched += 1;
+    } else if (typeof agent?.sourceSearchAlternateDifferentHost === "boolean") {
+      required += 1;
+    }
     if (alternate.snippet) {
       required += 1;
       if (agent?.sourceSearchAlternateSnippet === alternate.snippet) matched += 1;
@@ -5605,6 +5615,7 @@ function scoreAgentSourceSearchShortcuts(agent: {
     || typeof agent?.sourceSearchAlternateSourceScore === "number"
     || agent?.sourceSearchAlternateRelevance
     || typeof agent?.sourceSearchAlternateLikelyOfficial === "boolean"
+    || typeof agent?.sourceSearchAlternateDifferentHost === "boolean"
     || agent?.sourceSearchAlternateReason
   ) {
     required += 1;
