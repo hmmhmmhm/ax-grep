@@ -1245,6 +1245,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       canContinue?: boolean;
       canUseFetchedHtml?: boolean;
       needsBrowserHtml?: boolean;
+      browserHtmlReason?: string;
       readabilityReasons?: unknown[];
       recommendedRank?: number;
       recommendedUrl?: string;
@@ -1969,7 +1970,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentSourceChoiceScore: scoreAgentSourceChoices(item.kind ?? "unknown", item.agent?.sourceChoices ?? [], item.pageCheck?.sourceLinks ?? [], item.agent?.primaryAction),
     agentTopSourceChoiceShortcutScore: scoreAgentTopSourceChoiceShortcuts(item.agent),
     agentSourceSearchShortcutScore: scoreAgentSourceSearchShortcuts(item.agent, item.sourceSearch),
-    agentBrowserNeedScore: scoreAgentBrowserNeed(item.agent?.needsBrowserHtml, item.agent?.status, item.agent?.primaryAction),
+    agentBrowserNeedScore: scoreAgentBrowserNeed(item.agent?.needsBrowserHtml, item.agent?.browserHtmlReason, item.agent?.status, item.agent?.primaryAction),
     agentBrowserHtmlScore: scoreAgentBrowserHtml(item.agent?.next, item.agent?.executionPlan, item.agent?.primaryAction),
     agentReadabilityReasonScore: scoreReadabilityReasons(item.agent?.readabilityReasons),
     agentSourceSearchProvenanceScore: scoreAgentSourceSearchProvenance(item.sourceSearch, item.agent?.readTargets ?? []),
@@ -6725,17 +6726,21 @@ function compactActionKey(action: CliActionShape, primaryAction?: CliActionShape
 
 function scoreAgentBrowserNeed(
   needsBrowserHtml: boolean | undefined,
+  browserHtmlReason: string | undefined,
   status: CliAgentSummary["agentStatus"] | undefined,
   primaryAction: CliActionShape | undefined,
 ): number {
   if (typeof needsBrowserHtml !== "boolean") return 0;
-  if (primaryAction?.action === "retry-with-browser-html") return needsBrowserHtml ? 1 : 0;
-  if (status === "needs-browser") return needsBrowserHtml ? 1 : 0;
+  const reasonScore = needsBrowserHtml
+    ? typeof browserHtmlReason === "string" && /browser/i.test(browserHtmlReason) ? 0.25 : 0
+    : typeof browserHtmlReason === "undefined" ? 0.25 : 0;
+  if (primaryAction?.action === "retry-with-browser-html") return (needsBrowserHtml ? 0.75 : 0) + reasonScore;
+  if (status === "needs-browser") return (needsBrowserHtml ? 0.75 : 0) + reasonScore;
   if (primaryAction?.action && ["check-url-or-search", "retry-later", "open-alternate-result"].includes(primaryAction.action)) {
-    return needsBrowserHtml ? 0 : 1;
+    return (needsBrowserHtml ? 0 : 0.75) + reasonScore;
   }
-  if (primaryAction?.execution === "read-current" || primaryAction?.execution === "interact-browser") return needsBrowserHtml ? 0 : 1;
-  return needsBrowserHtml ? 0.5 : 1;
+  if (primaryAction?.execution === "read-current" || primaryAction?.execution === "interact-browser") return (needsBrowserHtml ? 0 : 0.75) + reasonScore;
+  return (needsBrowserHtml ? 0.5 : 0.75) + reasonScore;
 }
 
 function scoreAgentBrowserHtml(

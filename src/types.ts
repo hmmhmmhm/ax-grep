@@ -833,6 +833,7 @@ export type AgentSummary = {
   canContinue: boolean;
   canUseFetchedHtml: boolean;
   needsBrowserHtml: boolean;
+  browserHtmlReason?: string;
   responseStatus?: number;
   responseOk?: boolean;
   responseContentType?: string;

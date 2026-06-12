@@ -781,6 +781,7 @@ describe("public agent types", () => {
       | "failingQualityGateMessage"
       | "failingQualityGatePath"
       | "failingQualityGateScore"
+      | "browserHtmlReason"
       | "topDiagnosticCode"
       | "topDiagnosticSeverity"
       | "topDiagnosticMessage"
@@ -1441,6 +1442,7 @@ describe("public agent types", () => {
       failingQualityGateMessage: "Content evidence is too thin.",
       failingQualityGatePath: "pageCheck.contentEvidence",
       failingQualityGateScore: 0.4,
+      browserHtmlReason: "Browser-captured HTML or browser inspection is needed.",
       topDiagnosticCode: "NO_USEFUL_LINKS",
       topDiagnosticSeverity: "warning",
       topDiagnosticMessage: "No useful outbound links were found.",
@@ -1547,6 +1549,7 @@ describe("public agent types", () => {
     expect(summary.failingQualityGateKind).toBe("content");
     expect(summary.failingQualityGateSeverity).toBe("warning");
     expect(summary.failingQualityGateScore).toBe(0.4);
+    expect(summary.browserHtmlReason).toContain("Browser-captured HTML");
     expect(summary.topDiagnosticCode).toBe("NO_USEFUL_LINKS");
     expect(summary.topCitationPath).toBe("pageCheck.contentEvidence[0]");
     expect(summary.topAnswerEvidencePath).toBe("pageCheck.contentEvidence[0]");
