@@ -4262,6 +4262,33 @@ describe("cli", () => {
     });
   });
 
+  it("keeps keyboard shortcut selectors in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/app", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <nav><a href="/reports" accesskey="r">Reports</a></nav>
+          <button aria-keyshortcuts="Alt+F" tabindex="0">Filters</button>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      semanticKeyboardShortcutCount: 2,
+      semanticTopKeyboardShortcutPath: "agent.semanticSummary.keyboardItems[0]",
+      semanticTopKeyboardShortcutRole: "link",
+      semanticTopKeyboardShortcutName: "Reports",
+      semanticTopKeyboardShortcutAccessKey: "r",
+      semanticTopKeyboardShortcutFocusable: true,
+      semanticTopKeyboardShortcutSelector: "a",
+    });
+  });
+
   it("exposes parsed live semantic top-state shortcuts for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/live", "--agent"], {

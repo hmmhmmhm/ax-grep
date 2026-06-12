@@ -16590,6 +16590,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.semanticTopKeyboardShortcutAccessKey ? { semanticTopKeyboardShortcutAccessKey: agent.semanticTopKeyboardShortcutAccessKey } : {}),
     ...(typeof agent.semanticTopKeyboardShortcutTabIndex === "number" ? { semanticTopKeyboardShortcutTabIndex: agent.semanticTopKeyboardShortcutTabIndex } : {}),
     ...(typeof agent.semanticTopKeyboardShortcutFocusable === "boolean" ? { semanticTopKeyboardShortcutFocusable: agent.semanticTopKeyboardShortcutFocusable } : {}),
+    ...(agent.semanticTopKeyboardShortcutSelector ? { semanticTopKeyboardShortcutSelector: agent.semanticTopKeyboardShortcutSelector } : {}),
     ...(agent.semanticTopHeading ? { semanticTopHeading: agent.semanticTopHeading } : {}),
     ...(agent.semanticTopHeadingPath ? { semanticTopHeadingPath: agent.semanticTopHeadingPath } : {}),
     ...(typeof agent.semanticTopHeadingLevel === "number" ? { semanticTopHeadingLevel: agent.semanticTopHeadingLevel } : {}),

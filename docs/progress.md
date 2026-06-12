@@ -18,7 +18,7 @@ percentage as a fixed contract.
 | Process safety | 85% | `AGENTS.md`, `pnpm check:processes`, and non-browser gates are in place. |
 | Search result handoff | 86% | Result choices, top choice snippet/host/provenance shortcuts, brief-mode search provenance, source-search selected/alternate/failure shortcuts, source hints, verification, decision counts, and command args are exposed. |
 | Page check handoff | 94% | Forms, action targets, FAQ answers, code block text, and resource titles in brief mode, table navigation shortcuts, brief-mode table path/selector targeting, hidden signal group counts/top shortcuts/selectors, author/source metadata, static-readiness reason codes/reasons, fetched-HTML usability in brief mode, barrier-specific browser-capture reason codes, execution shortcuts, barriers, and read targets are exposed in full and brief modes. |
-| Semantic accessibility signals | 87% | Landmarks, headings, links, interactive/focusable controls, buttons, fields, values, relations, choices, states, list item refs, first list item shortcuts, interactive/focusable/actionable selectors in brief mode, table/list names and container selectors in brief mode, table header/cell navigation shortcuts, sample cell spans, table ownership refs, and brief-mode semantic selectors/states are exposed. |
+| Semantic accessibility signals | 88% | Landmarks, headings, links, interactive/focusable controls, keyboard shortcut selectors in brief mode, buttons, fields, values, relations, choices, states, list item refs, first list item shortcuts, interactive/focusable/actionable selectors in brief mode, table/list names and container selectors in brief mode, table header/cell navigation shortcuts, sample cell spans, table ownership refs, and brief-mode semantic selectors/states are exposed. |
 | Browser-tree parity research | 60% | Static gates exist; browser-backed checks must stay sequential and limited. |
 
 Overall estimate: 89%. This is intentionally conservative because the final
@@ -58,7 +58,7 @@ instead of hiding the new scope.
 | Process containment | 85% | Keep validation sequential and check for leftover browser/test/comparison processes. | Add more explicit notes when a task would require browser-backed validation, including why it is necessary. | `pnpm check:processes` before and after risky work shows no leftovers. |
 | Search handoff | 86% | Expose enough ranked-result context for an agent to choose, open, skip, or recover from failed opened results in full and brief modes. | Identify whether deeper snippet dedupe or provenance is needed beyond top choice shortcuts. | A static search fixture lets an agent choose or recover from a result without browser inspection first. |
 | Page handoff | 94% | Surface barriers, read targets, FAQ answers, code block text, resource titles, action targets, author/source metadata, table navigation shortcuts, hidden signal group shortcuts, static-readiness reason codes/reasons, fetched-HTML usability, and barrier-specific browser-capture reason/execution shortcuts in full and brief modes. | Tighten remaining client-rendered and interaction-required categories when fixture evidence shows ambiguity. | Fixtures show clear `use static output` vs `need browser capture` reasons. |
-| Semantic accessibility | 87% | Continue adding high-value shortcuts from roles, states, relations, lists, tables, ownership, controls, and brief-mode handoff output. | Compare table/grid/list/control output against browser-tree expectations and add only useful static equivalents. | Each accepted signal has a public type, CLI output, compact/brief output, and fixture/test coverage. |
+| Semantic accessibility | 88% | Continue adding high-value shortcuts from roles, states, relations, lists, tables, ownership, controls, and brief-mode handoff output. | Compare table/grid/list/control output against browser-tree expectations and add only useful static equivalents. | Each accepted signal has a public type, CLI output, compact/brief output, and fixture/test coverage. |
 | Browser parity research | 60% | Compare static output against a small sequential fixture set and record gaps. | Expand the gap list as research finds new browser accessibility-tree signals; lower estimates if new important gaps appear. | Each gap is tagged `implement`, `browser-only`, or `defer` with priority and evidence. |
 
 ## Remaining Work Breakdown
@@ -105,6 +105,7 @@ estimate whether the overall percentage should move.
 | A19 | Brief FAQ answer preservation | 100% | `--agent-brief` now preserves the top FAQ answer with the top FAQ question so executor loops can answer from static FAQ evidence without requesting full output. | Watch for other full-vs-brief structured answer losses only after fixture evidence. | Focused CLI tests, typecheck, static gates, README test, diff check, and process check pass. | +1% page handoff. |
 | A20 | Brief code block text preservation | 100% | `--agent-brief` now preserves top code block text so executor loops can use command snippets and examples without requesting full output. | Watch for other full-vs-brief structured text losses only after fixture evidence. | Focused CLI tests, typecheck, static gates, README test, diff check, and process check pass. | +1% page handoff. |
 | A21 | Brief resource title preservation | 100% | `--agent-brief` now preserves the top resource title so executor loops can distinguish feeds, PDFs, and document resources without requesting full output. | Watch for other full-vs-brief resource metadata losses only after fixture evidence. | Focused CLI tests, typecheck, static gates, README test, diff check, and process check pass. | +1% page handoff. |
+| A22 | Brief keyboard shortcut selector preservation | 100% | `--agent-brief` now preserves the top keyboard shortcut selector so accesskey and aria-keyshortcuts targets can be reached without requesting full output. | Watch for other full-vs-brief keyboard accessibility losses only after fixture evidence. | Focused CLI tests, typecheck, static gates, README test, diff check, and process check pass. | +1% semantic accessibility. |
 
 ## Planned Work Detail
 
@@ -150,6 +151,7 @@ estimates stay honest.
 | Brief output parity for structured FAQ answers. | Agent brief page handoff review. | P1 | Preserve the top FAQ answer in `--agent-brief` so executor loops can use static question-answer evidence without requesting full output. | Landed. |
 | Brief output parity for code examples. | Agent brief page handoff review. | P1 | Preserve top code block text in `--agent-brief` so executor loops can use static command snippets and examples without requesting full output. | Landed. |
 | Brief output parity for resource metadata. | Agent brief page handoff review. | P1 | Preserve top resource titles in `--agent-brief` so executor loops can classify linked resources without requesting full output. | Landed. |
+| Brief output parity for keyboard accessibility targets. | Agent brief handoff review. | P1 | Preserve top keyboard shortcut selectors in `--agent-brief` so executor loops can target accesskey and aria-keyshortcuts elements without requesting full output. | Landed. |
 | Additional browser accessibility-tree signals discovered during sequential comparison. | Future research. | P1/P2 after triage. | Add to this ledger, then classify as `implement`, `browser-only`, or `defer`. | Watch. |
 
 ## Observed Gap Records
@@ -181,6 +183,7 @@ or deferred.
 | G20 | `--agent-brief` kept the top FAQ question but dropped the answer. Agents could identify that static FAQ evidence existed, but still needed full output before answering from the question-answer pair. | Brief FAQ handoff comparison against full compact shortcuts. | P1 | Preserve `topFaqAnswer` in brief output with focused FAQ fixture coverage. | Landed. | Typecheck, focused CLI tests, readiness audit, static fixture gate, README test, diff check, and process check pass. | +1% page handoff. |
 | G21 | `--agent-brief` kept top code block language and line count but dropped the code text. Agents could identify a command/example block existed, but still needed full output before using the static snippet. | Brief code-block handoff comparison against full compact shortcuts. | P1 | Preserve `topCodeBlockText` in brief output with focused code-block fixture coverage. | Landed. | Typecheck, focused CLI tests, readiness audit, static fixture gate, README test, diff check, and process check pass. | +1% page handoff. |
 | G22 | `--agent-brief` kept top resource kind and URL but dropped the title. Agents could see a linked resource existed, but had to request full output to distinguish a feed, report, or document by its label. | Brief resource handoff comparison against full compact shortcuts. | P1 | Preserve `topResourceTitle` in brief output with focused resource fixture coverage. | Landed. | Typecheck, focused CLI tests, readiness audit, static fixture gate, README test, diff check, and process check pass. | +1% page handoff. |
+| G23 | `--agent-brief` kept top keyboard shortcut metadata but dropped its selector. Agents could see an accesskey or aria-keyshortcuts target existed, but needed full output before jumping to the exact keyboard-accessible element. | Brief keyboard accessibility comparison against full compact shortcuts. | P1 | Preserve `semanticTopKeyboardShortcutSelector` in brief output with focused keyboard shortcut fixture coverage. | Landed. | Typecheck, focused CLI tests, readiness audit, static fixture gate, README test, diff check, and process check pass. | +1% semantic accessibility. |
 | G2 | Browser accessibility-tree comparison may reveal signals that static HTML cannot safely infer. | Future sequential fixture comparison only; no broad browser run allowed. | P1 after evidence | Track first, then classify as `implement`, `browser-only`, or `defer`. | Watch. | Add the smallest fixture command here before running any browser-backed check; run `pnpm check:processes` afterward. | Unknown until observed. |
 
 ## Current Queue
@@ -206,8 +209,9 @@ any earlier non-browser item can still reduce uncertainty.
 | 14 | Done | Preserve the top FAQ answer in `--agent-brief` so static FAQ evidence can answer without full output. | Focused CLI tests, typecheck, static gates, README test, diff check, process check. | +1% page handoff. |
 | 15 | Done | Preserve top code block text in `--agent-brief` so static command snippets can be used without full output. | Focused CLI tests, typecheck, static gates, README test, diff check, process check. | +1% page handoff. |
 | 16 | Done | Preserve top resource titles in `--agent-brief` so resource links can be classified without full output. | Focused CLI tests, typecheck, static gates, README test, diff check, process check. | +1% page handoff. |
-| 17 | Later | Compare one semantic table/list/control fixture against browser-tree output, sequentially only. | Pre/post `pnpm check:processes`; smallest comparison command recorded before use. | 1-3% semantic/browser parity. |
-| 18 | Later | Recalculate the overall estimate after each landed shortcut or documented defer/browser-only decision. | Update this file in the same commit as the evidence. | Can raise or lower estimate. |
+| 17 | Done | Preserve top keyboard shortcut selectors in `--agent-brief` so keyboard-accessible targets can be reached without full output. | Focused CLI tests, typecheck, static gates, README test, diff check, process check. | +1% semantic accessibility. |
+| 18 | Later | Compare one semantic table/list/control fixture against browser-tree output, sequentially only. | Pre/post `pnpm check:processes`; smallest comparison command recorded before use. | 1-3% semantic/browser parity. |
+| 19 | Later | Recalculate the overall estimate after each landed shortcut or documented defer/browser-only decision. | Update this file in the same commit as the evidence. | Can raise or lower estimate. |
 
 When research expands:
 
@@ -277,6 +281,8 @@ When research expands:
   use static command snippets and examples without full output.
 - Preserved top resource titles in `--agent-brief` so brief executor loops can
   classify linked resources without full output.
+- Preserved top keyboard shortcut selectors in `--agent-brief` so brief
+  executor loops can target accesskey and aria-keyshortcuts elements directly.
 - Added table cell header refs so sampled table/grid cells keep resolved
   `headers` context.
 - Added top semantic table first-header and first-sample-cell shortcuts so
