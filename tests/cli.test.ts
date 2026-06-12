@@ -895,11 +895,18 @@ describe("cli", () => {
           decision: "read-content",
           confidence: "high",
           readFrom: "pageCheck.contentEvidence",
+          readability: "high",
           evidenceCount: 1,
           sourceLinkCount: 1,
         },
         pageDecisionName: "read-content",
         pageDecisionConfidence: "high",
+        pageDecisionReadability: "high",
+        pageDecisionReadabilityScore: expect.any(Number),
+        pageDecisionEvidenceCount: 1,
+        pageDecisionEvidenceQualityScore: expect.any(Number),
+        pageDecisionSourceLinkCount: 1,
+        pageDecisionSourceQualityScore: expect.any(Number),
         pageDecisionReadFrom: "pageCheck.contentEvidence",
         signals: expect.arrayContaining([
           expect.objectContaining({ kind: "content", severity: "info" }),
@@ -11269,6 +11276,11 @@ npx ax-grep https://example.test --agent</code></pre>
       verificationFoundCount: 1,
       verificationMissingCount: 0,
       pageDecisionReason: expect.any(String),
+      pageDecisionReadability: expect.stringMatching(/^(low|medium|high)$/),
+      pageDecisionEvidenceCount: expect.any(Number),
+      pageDecisionEvidenceQualityScore: expect.any(Number),
+      pageDecisionSourceLinkCount: expect.any(Number),
+      pageDecisionSourceQualityScore: expect.any(Number),
     });
 
     const blocked = new MemoryWriter();

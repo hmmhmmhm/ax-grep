@@ -503,6 +503,12 @@ describe("public agent types", () => {
       | "pageDecisionName"
       | "pageDecisionConfidence"
       | "pageDecisionReason"
+      | "pageDecisionReadability"
+      | "pageDecisionReadabilityScore"
+      | "pageDecisionEvidenceCount"
+      | "pageDecisionEvidenceQualityScore"
+      | "pageDecisionSourceLinkCount"
+      | "pageDecisionSourceQualityScore"
       | "pageDecisionReadFrom"
       | "pageDecisionUrl"
       | "pageDecisionCommandArgs"
@@ -1328,6 +1334,12 @@ describe("public agent types", () => {
       pageDecisionName: "read-content",
       pageDecisionConfidence: "high",
       pageDecisionReason: "Readable content is available.",
+      pageDecisionReadability: "high",
+      pageDecisionReadabilityScore: 0.95,
+      pageDecisionEvidenceCount: 2,
+      pageDecisionEvidenceQualityScore: 0.9,
+      pageDecisionSourceLinkCount: 1,
+      pageDecisionSourceQualityScore: 0.92,
       pageDecisionReadFrom: "pageCheck.contentEvidence",
       pageDecisionUrl: "https://example.test",
       pageDecisionCommandArgs: ["ax-grep", "https://example.test", "--agent"],
@@ -1856,6 +1868,9 @@ describe("public agent types", () => {
     expect(summary.topVerificationMissingQuery).toBe("missing");
     expect(summary.searchDecisionName).toBe("open-result");
     expect(summary.pageDecisionReadFrom).toBe("pageCheck.contentEvidence");
+    expect(summary.pageDecisionReadability).toBe("high");
+    expect(summary.pageDecisionEvidenceQualityScore).toBe(0.9);
+    expect(summary.pageDecisionSourceQualityScore).toBe(0.92);
     expect(summary.semanticTopHeading).toBe("Example");
     expect(summary.semanticTopHeadingPath).toBe("agent.semanticSummary.headingItems[0]");
     expect(summary.semanticTopLandmarkRole).toBe("main");

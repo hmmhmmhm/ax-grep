@@ -602,6 +602,12 @@ export type AgentSummary = {
   pageDecisionName?: string;
   pageDecisionConfidence?: "low" | "medium" | "high";
   pageDecisionReason?: string;
+  pageDecisionReadability?: "low" | "medium" | "high";
+  pageDecisionReadabilityScore?: number;
+  pageDecisionEvidenceCount?: number;
+  pageDecisionEvidenceQualityScore?: number;
+  pageDecisionSourceLinkCount?: number;
+  pageDecisionSourceQualityScore?: number;
   pageDecisionReadFrom?: string;
   pageDecisionUrl?: string;
   pageDecisionCommandArgs?: string[];

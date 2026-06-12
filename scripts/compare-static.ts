@@ -1205,6 +1205,12 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       pageDecisionName?: CliAgentPageDecisionShape["decision"];
       pageDecisionConfidence?: CliAgentPageDecisionShape["confidence"];
       pageDecisionReason?: string;
+      pageDecisionReadability?: CliAgentPageDecisionShape["readability"];
+      pageDecisionReadabilityScore?: number;
+      pageDecisionEvidenceCount?: number;
+      pageDecisionEvidenceQualityScore?: number;
+      pageDecisionSourceLinkCount?: number;
+      pageDecisionSourceQualityScore?: number;
       pageDecisionReadFrom?: string;
       pageDecisionUrl?: string;
       pageDecisionCommandArgs?: string[];
@@ -5063,6 +5069,12 @@ function scoreAgentPageDecision(
     pageDecisionName?: CliAgentPageDecisionShape["decision"];
     pageDecisionConfidence?: CliAgentPageDecisionShape["confidence"];
     pageDecisionReason?: string;
+    pageDecisionReadability?: CliAgentPageDecisionShape["readability"];
+    pageDecisionReadabilityScore?: number;
+    pageDecisionEvidenceCount?: number;
+    pageDecisionEvidenceQualityScore?: number;
+    pageDecisionSourceLinkCount?: number;
+    pageDecisionSourceQualityScore?: number;
     pageDecisionReadFrom?: string;
     pageDecisionUrl?: string;
     pageDecisionCommandArgs?: string[];
@@ -5099,10 +5111,16 @@ function scoreAgentPageDecision(
   } else if (decision.url || decision.urlRef) {
     required += 1;
   }
-  required += 3;
+  required += 9;
   if (agent?.pageDecisionName === decision.decision) matched += 1;
   if (agent?.pageDecisionConfidence === decision.confidence) matched += 1;
   if (agent?.pageDecisionReason === decision.reason) matched += 1;
+  if (agent?.pageDecisionReadability === decision.readability) matched += 1;
+  if (agent?.pageDecisionReadabilityScore === decision.readabilityScore) matched += 1;
+  if (agent?.pageDecisionEvidenceCount === decision.evidenceCount) matched += 1;
+  if (agent?.pageDecisionEvidenceQualityScore === decision.evidenceQualityScore) matched += 1;
+  if (agent?.pageDecisionSourceLinkCount === decision.sourceLinkCount) matched += 1;
+  if (agent?.pageDecisionSourceQualityScore === decision.sourceQualityScore) matched += 1;
   if (decision.readFrom) {
     required += 1;
     if (agent?.pageDecisionReadFrom === decision.readFrom) matched += 1;

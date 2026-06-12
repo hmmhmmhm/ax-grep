@@ -951,6 +951,12 @@ type AgentSummary = {
   pageDecisionName?: AgentPageDecision["decision"];
   pageDecisionConfidence?: AgentPageDecision["confidence"];
   pageDecisionReason?: string;
+  pageDecisionReadability?: AgentPageDecision["readability"];
+  pageDecisionReadabilityScore?: number;
+  pageDecisionEvidenceCount?: number;
+  pageDecisionEvidenceQualityScore?: number;
+  pageDecisionSourceLinkCount?: number;
+  pageDecisionSourceQualityScore?: number;
   pageDecisionReadFrom?: string;
   pageDecisionUrl?: string;
   pageDecisionCommandArgs?: string[];
@@ -3273,6 +3279,12 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.pageDecisionName ? [`  pageDecisionName: ${agent.pageDecisionName}`] : []),
     ...(agent.pageDecisionConfidence ? [`  pageDecisionConfidence: ${agent.pageDecisionConfidence}`] : []),
     ...(agent.pageDecisionReason ? [`  pageDecisionReason: ${agent.pageDecisionReason}`] : []),
+    ...(agent.pageDecisionReadability ? [`  pageDecisionReadability: ${agent.pageDecisionReadability}`] : []),
+    ...(typeof agent.pageDecisionReadabilityScore === "number" ? [`  pageDecisionReadabilityScore: ${agent.pageDecisionReadabilityScore}`] : []),
+    ...(typeof agent.pageDecisionEvidenceCount === "number" ? [`  pageDecisionEvidenceCount: ${agent.pageDecisionEvidenceCount}`] : []),
+    ...(typeof agent.pageDecisionEvidenceQualityScore === "number" ? [`  pageDecisionEvidenceQualityScore: ${agent.pageDecisionEvidenceQualityScore}`] : []),
+    ...(typeof agent.pageDecisionSourceLinkCount === "number" ? [`  pageDecisionSourceLinkCount: ${agent.pageDecisionSourceLinkCount}`] : []),
+    ...(typeof agent.pageDecisionSourceQualityScore === "number" ? [`  pageDecisionSourceQualityScore: ${agent.pageDecisionSourceQualityScore}`] : []),
     ...(agent.pageDecisionReadFrom ? [`  pageDecisionReadFrom: ${agent.pageDecisionReadFrom}`] : []),
     ...(agent.pageDecisionUrl ? [`  pageDecisionUrl: ${agent.pageDecisionUrl}`] : []),
     `  summary: ${agent.summary}`,
@@ -11007,6 +11019,12 @@ function summarizeAgent(
     ...(pageDecision ? { pageDecisionName: pageDecision.decision } : {}),
     ...(pageDecision ? { pageDecisionConfidence: pageDecision.confidence } : {}),
     ...(pageDecision ? { pageDecisionReason: pageDecision.reason } : {}),
+    ...(pageDecision ? { pageDecisionReadability: pageDecision.readability } : {}),
+    ...(pageDecision ? { pageDecisionReadabilityScore: pageDecision.readabilityScore } : {}),
+    ...(pageDecision ? { pageDecisionEvidenceCount: pageDecision.evidenceCount } : {}),
+    ...(pageDecision ? { pageDecisionEvidenceQualityScore: pageDecision.evidenceQualityScore } : {}),
+    ...(pageDecision ? { pageDecisionSourceLinkCount: pageDecision.sourceLinkCount } : {}),
+    ...(pageDecision ? { pageDecisionSourceQualityScore: pageDecision.sourceQualityScore } : {}),
     ...(pageDecision?.readFrom ? { pageDecisionReadFrom: pageDecision.readFrom } : {}),
     ...(pageDecision?.url ? { pageDecisionUrl: pageDecision.url } : {}),
     ...(pageDecision?.commandArgs ? { pageDecisionCommandArgs: pageDecision.commandArgs } : {}),
@@ -15961,6 +15979,12 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.pageDecisionName ? { pageDecisionName: agent.pageDecisionName } : {}),
     ...(agent.pageDecisionConfidence ? { pageDecisionConfidence: agent.pageDecisionConfidence } : {}),
     ...(agent.pageDecisionReason ? { pageDecisionReason: agent.pageDecisionReason } : {}),
+    ...(agent.pageDecisionReadability ? { pageDecisionReadability: agent.pageDecisionReadability } : {}),
+    ...(typeof agent.pageDecisionReadabilityScore === "number" ? { pageDecisionReadabilityScore: agent.pageDecisionReadabilityScore } : {}),
+    ...(typeof agent.pageDecisionEvidenceCount === "number" ? { pageDecisionEvidenceCount: agent.pageDecisionEvidenceCount } : {}),
+    ...(typeof agent.pageDecisionEvidenceQualityScore === "number" ? { pageDecisionEvidenceQualityScore: agent.pageDecisionEvidenceQualityScore } : {}),
+    ...(typeof agent.pageDecisionSourceLinkCount === "number" ? { pageDecisionSourceLinkCount: agent.pageDecisionSourceLinkCount } : {}),
+    ...(typeof agent.pageDecisionSourceQualityScore === "number" ? { pageDecisionSourceQualityScore: agent.pageDecisionSourceQualityScore } : {}),
     ...(agent.pageDecisionReadFrom ? { pageDecisionReadFrom: agent.pageDecisionReadFrom } : {}),
     ...(agent.pageDecisionUrl ? { pageDecisionUrl: agent.pageDecisionUrl } : {}),
     ...(agent.pageDecisionCommandArgs ? { pageDecisionCommandArgs: agent.pageDecisionCommandArgs } : {}),
@@ -16821,6 +16845,12 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.pageDecisionName ? { pageDecisionName: agent.pageDecisionName } : {}),
     ...(agent.pageDecisionConfidence ? { pageDecisionConfidence: agent.pageDecisionConfidence } : {}),
     ...(agent.pageDecisionReason ? { pageDecisionReason: agent.pageDecisionReason } : {}),
+    ...(agent.pageDecisionReadability ? { pageDecisionReadability: agent.pageDecisionReadability } : {}),
+    ...(typeof agent.pageDecisionReadabilityScore === "number" ? { pageDecisionReadabilityScore: agent.pageDecisionReadabilityScore } : {}),
+    ...(typeof agent.pageDecisionEvidenceCount === "number" ? { pageDecisionEvidenceCount: agent.pageDecisionEvidenceCount } : {}),
+    ...(typeof agent.pageDecisionEvidenceQualityScore === "number" ? { pageDecisionEvidenceQualityScore: agent.pageDecisionEvidenceQualityScore } : {}),
+    ...(typeof agent.pageDecisionSourceLinkCount === "number" ? { pageDecisionSourceLinkCount: agent.pageDecisionSourceLinkCount } : {}),
+    ...(typeof agent.pageDecisionSourceQualityScore === "number" ? { pageDecisionSourceQualityScore: agent.pageDecisionSourceQualityScore } : {}),
     ...(agent.pageDecisionReadFrom ? { pageDecisionReadFrom: agent.pageDecisionReadFrom } : {}),
     ...(agent.pageDecisionUrl ? { pageDecisionUrl: agent.pageDecisionUrl } : {}),
     ...(agent.pageDecisionCommandArgs ? { pageDecisionCommandArgs: agent.pageDecisionCommandArgs } : {}),
