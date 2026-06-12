@@ -5643,6 +5643,41 @@ describe("cli", () => {
     });
   });
 
+  it("uses a matching selector for implicit submit buttons", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/search", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <form method="GET" action="/find">
+            <label for="q">Query</label>
+            <input id="q" name="q" type="search">
+            <button>Search</button>
+          </form>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.forms[0]).toMatchObject({
+      submitText: "Search",
+      submitType: "submit",
+      submitSelector: "button:nth-of-type(1)",
+    });
+    expect(envelope.agent).toMatchObject({
+      topFormChoiceSubmitText: "Search",
+      topFormChoiceSubmitType: "submit",
+      topFormChoiceSubmitSelector: "button:nth-of-type(1)",
+    });
+    expect(envelope.agent.formChoices[0]).toMatchObject({
+      submitText: "Search",
+      submitType: "submit",
+      submitSelector: "button:nth-of-type(1)",
+    });
+  });
+
   it("exposes checked semantic field shortcuts for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/consent", "--agent"], {

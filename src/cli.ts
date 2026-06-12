@@ -6425,14 +6425,17 @@ function nearestAncestorLabel(target: Element, nodes: AnyNode[]): Element | unde
 }
 
 function summarizeFormSubmit(form: Element): { text: string; type?: string; name?: string; value?: string; disabled?: boolean; selector?: string } | undefined {
-  const submit = findElement(form.children, (item) => {
+  const submitCandidates = findElements(form.children, (item) => {
     if (item.name === "button") return !attr(item, "type") || attr(item, "type") === "submit";
     return item.name === "input" && (attr(item, "type") || "text").toLowerCase() === "submit";
   });
+  const submit = submitCandidates[0];
   if (!submit) return undefined;
   const type = submit.name === "button" ? (attr(submit, "type") || "submit").toLowerCase() : (attr(submit, "type") || "submit").toLowerCase();
   const name = attr(submit, "name") || "";
   const value = attr(submit, "value") || "";
+  const explicitType = attr(submit, "type");
+  const sameTagIndex = findElements(form.children, (item) => item.name === submit.name).findIndex((item) => item === submit) + 1;
   const text = cleanLinkText(elementText(submit) || value || attr(submit, "aria-label") || "");
   return {
     text,
@@ -6440,8 +6443,15 @@ function summarizeFormSubmit(form: Element): { text: string; type?: string; name
     ...(name ? { name } : {}),
     ...(value ? { value } : {}),
     ...(attr(submit, "disabled") !== undefined || attr(submit, "aria-disabled") === "true" ? { disabled: true } : {}),
-    selector: name ? `${submit.name}[name="${cssAttributeValue(name)}"]` : `${submit.name}[type="${cssAttributeValue(type)}"]`,
+    selector: formSubmitSelector(submit.name, name, explicitType, type, sameTagIndex),
   };
+}
+
+function formSubmitSelector(tagName: string, name: string, explicitType: string | undefined, type: string, sameTagIndex: number): string {
+  if (name) return `${tagName}[name="${cssAttributeValue(name)}"]`;
+  const nth = sameTagIndex > 0 ? `:nth-of-type(${sameTagIndex})` : "";
+  if (explicitType) return `${tagName}[type="${cssAttributeValue(type)}"]${nth}`;
+  return `${tagName}${nth}`;
 }
 
 function elementText(element: Element): string {
