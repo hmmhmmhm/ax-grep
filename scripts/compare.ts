@@ -239,9 +239,10 @@ function parseAgentBrowserSnapshot(output: string): NonNullable<Comparison["agen
 }
 
 function normalizeNamedRoles(namedRoles: string[]): NormalizedSummary {
-  const normalizedRoles = namedRoles.map((item) => {
+  const normalizedRoles = namedRoles.flatMap((item) => {
     const [role = "unknown", ...nameParts] = item.split(":");
-    return `${normalizeRole(role)}:${normalizeName(nameParts.join(":"))}`;
+    const normalized = `${normalizeRole(role)}:${normalizeName(nameParts.join(":"))}`;
+    return isComparableNamedRole(normalized) ? [normalized] : [];
   });
   const roleCounts: Record<string, number> = {};
   for (const item of normalizedRoles) {
@@ -252,6 +253,15 @@ function normalizeNamedRoles(namedRoles: string[]): NormalizedSummary {
     roleCounts,
     namedRoles: Array.from(new Set(normalizedRoles)),
   };
+}
+
+function isComparableNamedRole(item: string): boolean {
+  const [role = "unknown", ...nameParts] = item.split(":");
+  const name = nameParts.join(":");
+  if (!name) return false;
+  if (role !== "text") return true;
+  return !/^(?:\\[nrt]\s*)+$/.test(name)
+    && !/^[|/\\\-–—·•,.;:()[\]{}]+$/.test(name);
 }
 
 function emptyNormalizedSummary(): NormalizedSummary {
