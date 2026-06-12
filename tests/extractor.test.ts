@@ -57,6 +57,23 @@ describe("extractSemanticTree", () => {
     expect(flat.find((node) => node.role === "button")?.state?.pressed).toBe(true);
   });
 
+  it("extracts ARIA state values that need option-aware normalization", async () => {
+    await page.setContent(`
+      <main>
+        <button aria-controls="results" aria-live="polite" aria-valuetext="Ready">Run report</button>
+      </main>
+    `);
+
+    const tree = await extract(page);
+    const button = flattenSemanticTree(tree).find((node) => node.role === "button");
+
+    expect(button?.state).toMatchObject({
+      controls: "results",
+      live: "polite",
+      valueText: "Ready",
+    });
+  });
+
   it("prunes hidden content and keeps aria-labelled controls", async () => {
     await page.setContent(`
       <section>

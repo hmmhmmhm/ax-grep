@@ -46,6 +46,7 @@
     "compare": "tsx scripts/compare.ts",
     "compare:static": "tsx scripts/compare-static.ts",
     "compare:tokens": "tsx scripts/compare-token-cost.ts",
+    "compare:browser:fixture": "tsx scripts/compare-browser-fixture.ts",
     "compare:gate": "tsx scripts/check-comparison-gates.ts",
     "compare:sample": "tsx scripts/compare.ts https://example.com https://www.wikipedia.org https://developer.mozilla.org/en-US/docs/Web/Accessibility https://news.ycombinator.com https://github.com/features https://libraries.io/npm/typescript https://www.npmjs.com/package/typescript",
     "compare:korea": "tsx scripts/compare.ts https://ko.wikipedia.org/wiki/%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD https://www.hani.co.kr/ https://www.korea.kr/ https://www.yonhapnewstv.co.kr/",

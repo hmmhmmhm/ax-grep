@@ -4771,6 +4771,31 @@ describe("cli", () => {
     });
   });
 
+  it("keeps list sample text when list items compact to links in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/releases", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <ul aria-label="Release actions">
+            <li><a href="/download">Download report</a></li>
+          </ul>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      semanticTopListRole: "list",
+      semanticTopListName: "Release actions",
+      semanticTopListItems: ["Download report"],
+      semanticTopListSelector: "ul",
+    });
+  });
+
   it("summarizes forms with action fields and query URL templates for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/search", "--agent"], {

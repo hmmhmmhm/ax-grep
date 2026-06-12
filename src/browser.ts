@@ -170,7 +170,7 @@ function walkElement(element: Element, context: WalkContext): SemanticNode | nul
   if (context.options.excludeLikelyAds && isLikelyAd(element)) return null;
 
   const role = getRole(element);
-  const state = getState(element);
+  const state = getState(element, context);
   const focusable = isFocusable(element);
   const interactive = isInteractive(element, role, focusable);
   const name = role ? computeName(element, role, context) : "";
@@ -367,7 +367,7 @@ function labelText(
   return "";
 }
 
-function getState(element: Element): SemanticNodeState {
+function getState(element: Element, context: WalkContext): SemanticNodeState {
   const state: SemanticNodeState = {};
   if (isHidden(element)) state.hidden = true;
   if (isDisabled(element)) state.disabled = true;
@@ -417,10 +417,10 @@ function getState(element: Element): SemanticNodeState {
   if (haspopup && haspopup !== "false") state.haspopup = haspopup === "true" ? true : haspopup;
 
   const controls = element.getAttribute("aria-controls");
-  if (controls) state.controls = normalizeText(controls, 120);
+  if (controls) state.controls = normalizeText(controls, context.options.maxTextLength);
 
   const live = element.getAttribute("aria-live");
-  if (live) state.live = normalizeText(live, 120);
+  if (live) state.live = normalizeText(live, context.options.maxTextLength);
 
   if (element.getAttribute("aria-modal") === "true") state.modal = true;
 
@@ -434,7 +434,7 @@ function getState(element: Element): SemanticNodeState {
   const valueNow = ariaNumber(element.getAttribute("aria-valuenow"));
   if (typeof valueNow === "number") state.valueNow = valueNow;
   const valueText = element.getAttribute("aria-valuetext");
-  if (valueText) state.valueText = normalizeText(valueText, 120);
+  if (valueText) state.valueText = normalizeText(valueText, context.options.maxTextLength);
 
   return state;
 }

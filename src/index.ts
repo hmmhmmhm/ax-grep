@@ -212,7 +212,7 @@ const __AX_LITE__ = (() => {
     if (!context.options.includeHidden && isHidden(element)) return null;
     if (context.options.excludeLikelyAds && isLikelyAd(element)) return null;
     const role = getRole(element);
-    const state = getState(element);
+    const state = getState(element, context);
     const focusable = isFocusable(element);
     const interactive = isInteractive(element, role, focusable);
     const name = role ? computeName(element, role, context) : "";
@@ -341,7 +341,7 @@ const __AX_LITE__ = (() => {
     if (element.labels && element.labels.length > 0) return normalizeText(Array.from(element.labels).map((label) => getVisibleText(label, context.options.maxTextLength)).join(" "), context.options.maxTextLength);
     return "";
   }
-  function getState(element) {
+  function getState(element, context) {
     const state = {};
     if (isHidden(element)) state.hidden = true;
     if (isDisabled(element)) state.disabled = true;

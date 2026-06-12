@@ -10208,13 +10208,16 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
       listCount += 1;
       if (listItems.length < 8) {
         const sampleItems = semanticDescendantTextsByRole(node, new Set(["listitem", "menuitem", "menuitemcheckbox", "menuitemradio", "option", "tab", "treeitem"]), 8);
+        const fallbackSampleItems = sampleItems.length > 0
+          ? sampleItems
+          : semanticDescendantTextsByRole(node, new Set(["link", "button", "checkbox", "radio", "switch"]), 8);
         const itemRefs = semanticDescendantListItemRefs(node, 8);
         listItems.push({
           path: `agent.semanticSummary.listItems[${listItems.length}]`,
           role: node.role,
           ...(node.name ? { name: node.name } : {}),
           itemCount: countSemanticDescendantsByRole(node, new Set(["listitem", "menuitem", "menuitemcheckbox", "menuitemradio", "option", "tab", "treeitem"])),
-          ...(sampleItems.length > 0 ? { sampleItems } : {}),
+          ...(fallbackSampleItems.length > 0 ? { sampleItems: fallbackSampleItems } : {}),
           ...(itemRefs.length > 0 ? { itemRefs } : {}),
           ...(node.selector ? { selector: node.selector } : {}),
         });
