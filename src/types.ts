@@ -511,6 +511,7 @@ export type AgentFormChoice = {
     minLength?: number;
     maxLength?: number;
     required?: boolean;
+    checked?: boolean;
     disabled?: boolean;
     readonly?: boolean;
     invalid?: SemanticNodeState["invalid"];
@@ -1141,6 +1142,7 @@ export type AgentSummary = {
   topFormChoiceFirstFieldMinLength?: number;
   topFormChoiceFirstFieldMaxLength?: number;
   topFormChoiceFirstFieldRequired?: boolean;
+  topFormChoiceFirstFieldChecked?: boolean;
   topFormChoiceFirstFieldDisabled?: boolean;
   topFormChoiceFirstFieldReadonly?: boolean;
   topFormChoiceFirstFieldInvalid?: SemanticNodeState["invalid"];

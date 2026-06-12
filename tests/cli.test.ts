@@ -5793,6 +5793,46 @@ describe("cli", () => {
     });
   });
 
+  it("preserves checked form fields for submission handoff", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/preferences", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <form method="POST" action="/prefs">
+            <label><input name="subscribe" type="checkbox" value="yes" checked> Email updates</label>
+            <button>Save</button>
+          </form>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.pageCheck.forms[0].fields[0]).toMatchObject({
+      name: "subscribe",
+      type: "checkbox",
+      label: "Email updates",
+      value: "yes",
+      checked: true,
+      selector: "input[name=\"subscribe\"]",
+    });
+    expect(envelope.agent).toMatchObject({
+      topFormChoiceFirstFieldName: "subscribe",
+      topFormChoiceFirstFieldType: "checkbox",
+      topFormChoiceFirstFieldValue: "yes",
+      topFormChoiceFirstFieldChecked: true,
+      topFormChoiceFirstFieldSelector: "input[name=\"subscribe\"]",
+    });
+    expect(envelope.agent.formChoices[0].fields[0]).toMatchObject({
+      name: "subscribe",
+      type: "checkbox",
+      value: "yes",
+      checked: true,
+    });
+  });
+
   it("keeps executable form details in brief read handoff", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/search", "--agent-brief"], {

@@ -172,7 +172,7 @@ describe("public agent types", () => {
       urlTemplate: "https://example.test/find?q={query}",
       selector: "form:nth-of-type(1)",
       hiddenFields: [{ name: "csrf", value: "secret", selector: "input[name=\"csrf\"]" }],
-      fields: [{ name: "q", type: "search", label: "Search", placeholder: "Search docs", value: "initial", autocomplete: "off", inputMode: "search", pattern: "[A-Za-z ]+", min: "1", max: "99", step: "1", minLength: 2, maxLength: 80, required: true, disabled: true, readonly: true, invalid: "spelling", selector: "input[name=\"q\"]", options: ["All", "Docs"] }],
+      fields: [{ name: "q", type: "search", label: "Search", placeholder: "Search docs", value: "initial", autocomplete: "off", inputMode: "search", pattern: "[A-Za-z ]+", min: "1", max: "99", step: "1", minLength: 2, maxLength: 80, required: true, checked: true, disabled: true, readonly: true, invalid: "spelling", selector: "input[name=\"q\"]", options: ["All", "Docs"] }],
     };
     const actionTargetChoice: AgentActionTargetChoice = {
       id: "at1",
@@ -263,6 +263,7 @@ describe("public agent types", () => {
       | "topFormChoiceFirstFieldMinLength"
       | "topFormChoiceFirstFieldMaxLength"
       | "topFormChoiceFirstFieldRequired"
+      | "topFormChoiceFirstFieldChecked"
       | "topFormChoiceFirstFieldDisabled"
       | "topFormChoiceFirstFieldReadonly"
       | "topFormChoiceFirstFieldInvalid"
@@ -1304,6 +1305,7 @@ describe("public agent types", () => {
       topFormChoiceFirstFieldMinLength: 2,
       topFormChoiceFirstFieldMaxLength: 80,
       topFormChoiceFirstFieldRequired: true,
+      topFormChoiceFirstFieldChecked: true,
       topFormChoiceFirstFieldDisabled: true,
       topFormChoiceFirstFieldReadonly: true,
       topFormChoiceFirstFieldInvalid: "spelling",
