@@ -226,6 +226,24 @@ const fixtures: Fixture[] = [
   </body>
 </html>`,
   },
+  {
+    id: "invalid-field-state",
+    url: "https://fixture.local/browser-parity/invalid-field-state",
+    checks: buildInvalidFieldStateChecks,
+    html: `<!doctype html>
+<html lang="en">
+  <head>
+    <title>Invalid field state fixture</title>
+  </head>
+  <body>
+    <main>
+      <label for="report-code">Report code</label>
+      <input id="report-code" name="code" aria-invalid="spelling" aria-errormessage="code-error">
+      <p id="code-error">Use the report code format.</p>
+    </main>
+  </body>
+</html>`,
+  },
 ];
 
 const browser = await puppeteer.launch({ headless: true });
@@ -317,6 +335,8 @@ function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
     semanticTopFieldValueMax: agent.semanticTopFieldValueMax,
     semanticTopFieldValueNow: agent.semanticTopFieldValueNow,
     semanticTopFieldValueText: agent.semanticTopFieldValueText,
+    semanticTopFieldInvalid: agent.semanticTopFieldInvalid,
+    semanticTopFieldErrorMessageText: agent.semanticTopFieldErrorMessageText,
     semanticTopButtonName: agent.semanticTopButtonName,
     semanticTopButtonExpanded: agent.semanticTopButtonExpanded,
     semanticTopButtonHaspopup: agent.semanticTopButtonHaspopup,
@@ -330,6 +350,7 @@ function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
     semanticTopStateControls: agent.semanticTopStateControls,
     semanticTopStateCurrent: agent.semanticTopStateCurrent,
     semanticTopStateBusy: agent.semanticTopStateBusy,
+    semanticTopStateInvalid: agent.semanticTopStateInvalid,
     semanticTopStateLive: agent.semanticTopStateLive,
     semanticTopStateModal: agent.semanticTopStateModal,
     semanticTopStateOrientation: agent.semanticTopStateOrientation,
@@ -770,6 +791,44 @@ function buildBusyStatusStateChecks(namedRoles: string[], nodes: SemanticNode[],
         && agent.semanticTopLiveStateName === "Indexing status"
         && agent.semanticTopLiveStateLive === "polite"
         && typeof agent.semanticTopLiveStateSelector === "string",
+    },
+  ];
+}
+
+function buildInvalidFieldStateChecks(namedRoles: string[], nodes: SemanticNode[], agent: AgentSummary): Check[] {
+  const textbox = nodes.find((node) => node.role === "textbox" && node.name === "Report code");
+  return [
+    {
+      id: "invalid-field-state-parity",
+      browserEvidence: JSON.stringify({
+        namedRoles: evidence(namedRoles, ["textbox:Report code"]),
+        invalid: textbox?.state?.invalid,
+        errorMessage: textbox?.attributes?.["aria-errormessage"],
+      }),
+      agentEvidence: JSON.stringify({
+        fieldRole: agent.semanticTopFieldRole,
+        fieldName: agent.semanticTopFieldName,
+        fieldInvalid: agent.semanticTopFieldInvalid,
+        fieldErrorMessage: agent.semanticTopFieldErrorMessage,
+        fieldErrorMessageText: agent.semanticTopFieldErrorMessageText,
+        stateRole: agent.semanticTopStateRole,
+        stateName: agent.semanticTopStateName,
+        stateInvalid: agent.semanticTopStateInvalid,
+        stateSelector: agent.semanticTopStateSelector,
+      }),
+      decision: "covered",
+      pass: includesAll(namedRoles, ["textbox:Report code"])
+        && textbox?.state?.invalid === "spelling"
+        && textbox?.attributes?.["aria-errormessage"] === "code-error"
+        && agent.semanticTopFieldRole === "textbox"
+        && agent.semanticTopFieldName === "Report code"
+        && agent.semanticTopFieldInvalid === "spelling"
+        && agent.semanticTopFieldErrorMessage === "code-error"
+        && agent.semanticTopFieldErrorMessageText === "Use the report code format."
+        && agent.semanticTopStateRole === "textbox"
+        && agent.semanticTopStateName === "Report code"
+        && agent.semanticTopStateInvalid === "spelling"
+        && typeof agent.semanticTopStateSelector === "string",
     },
   ];
 }
