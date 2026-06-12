@@ -363,6 +363,7 @@ describe("public agent types", () => {
       | "topHiddenSignalText"
       | "topHiddenSignalUrl"
       | "topHiddenSignalSource"
+      | "topHiddenSignalSelector"
       | "bestHiddenReadTarget"
       | "bestHiddenReadTargetCount"
       | "bestHiddenReadTargetScore"
@@ -1023,6 +1024,7 @@ describe("public agent types", () => {
       topHiddenSignalText: "graphql endpoint: https://example.test/graphql",
       topHiddenSignalUrl: "https://example.test/graphql",
       topHiddenSignalSource: "script",
+      topHiddenSignalSelector: "script:nth-of-type(1)",
       bestHiddenReadTarget: "pageCheck.apiEndpoints",
       bestHiddenReadTargetCount: 4,
       bestHiddenReadTargetScore: 0.74,

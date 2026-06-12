@@ -1,6 +1,6 @@
 # Current Progress
 
-Status: about 76% fit for the goal of making `ax-grep --agent` a useful
+Status: about 79% fit for the goal of making `ax-grep --agent` a useful
 first-pass page/search checker before `agent-browser`.
 
 This is a research track, so the target can expand when comparison work finds a
@@ -15,11 +15,11 @@ percentage as a fixed contract.
 | README/docs hygiene | 90% | Root README is short; detailed docs live under `docs/`. |
 | Process safety | 85% | `AGENTS.md`, `pnpm check:processes`, and non-browser gates are in place. |
 | Search result handoff | 80% | Result choices, source hints, verification, and command args are exposed. |
-| Page check handoff | 78% | Forms, action targets, hidden signals, barriers, and read targets are exposed. |
+| Page check handoff | 79% | Forms, action targets, hidden signals with selectors, barriers, and read targets are exposed. |
 | Semantic accessibility signals | 75% | Landmarks, headings, links, buttons, fields, values, relations, choices, states, list item refs, and table cell header refs are exposed. |
 | Browser-tree parity research | 60% | Static gates exist; browser-backed checks must stay sequential and limited. |
 
-Overall estimate: 78%. This is intentionally conservative because the final
+Overall estimate: 79%. This is intentionally conservative because the final
 goal is comparative usefulness, not just passing the current tests.
 
 ## Done
@@ -34,6 +34,9 @@ goal is comparative usefulness, not just passing the current tests.
   expanded state for list/tree/menu navigation.
 - Added table cell header refs so sampled table/grid cells keep resolved
   `headers` context.
+- Added top hidden signal selectors so agents can jump from hydration/API/client
+  hints back to the exact script or link source before deciding on browser
+  capture.
 - Added non-browser fixture gates and readiness audits for repeatable checks.
 - Added process-safety guidance: run tests and browser-backed checks
   sequentially, and verify process cleanup.

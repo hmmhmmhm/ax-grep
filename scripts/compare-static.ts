@@ -1437,6 +1437,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topHiddenSignalText?: string;
       topHiddenSignalUrl?: string;
       topHiddenSignalSource?: string;
+      topHiddenSignalSelector?: string;
       hiddenReadTargetCount?: number;
       bestHiddenReadTarget?: string;
       bestHiddenReadTargetCount?: number;
@@ -4212,6 +4213,7 @@ function scoreAgentTopHiddenSignalShortcuts(agent: {
   topHiddenSignalText?: string;
   topHiddenSignalUrl?: string;
   topHiddenSignalSource?: string;
+  topHiddenSignalSelector?: string;
 } | undefined, pageCheck: unknown): number {
   const top = firstHiddenPageCheckItem(pageCheck);
   if (!top) {
@@ -4220,7 +4222,8 @@ function scoreAgentTopHiddenSignalShortcuts(agent: {
       || agent?.topHiddenSignalKind
       || agent?.topHiddenSignalText
       || agent?.topHiddenSignalUrl
-      || agent?.topHiddenSignalSource ? 0 : 1;
+      || agent?.topHiddenSignalSource
+      || agent?.topHiddenSignalSelector ? 0 : 1;
   }
   let required = 2;
   let matched = 0;
@@ -4250,10 +4253,16 @@ function scoreAgentTopHiddenSignalShortcuts(agent: {
   } else if (agent?.topHiddenSignalSource) {
     required += 1;
   }
+  if (top.selector) {
+    required += 1;
+    if (agent?.topHiddenSignalSelector === top.selector) matched += 1;
+  } else if (agent?.topHiddenSignalSelector) {
+    required += 1;
+  }
   return roundScore(matched / required);
 }
 
-function firstHiddenPageCheckItem(pageCheck: unknown): { group: string; path: string; kind?: string; text?: string; url?: string; source?: string } | undefined {
+function firstHiddenPageCheckItem(pageCheck: unknown): { group: string; path: string; kind?: string; text?: string; url?: string; source?: string; selector?: string } | undefined {
   if (!pageCheck || typeof pageCheck !== "object") return undefined;
   const record = pageCheck as Record<string, unknown>;
   for (const group of hiddenPageCheckPaths) {
@@ -4269,6 +4278,7 @@ function firstHiddenPageCheckItem(pageCheck: unknown): { group: string; path: st
       ...(typeof itemRecord.text === "string" ? { text: itemRecord.text } : {}),
       ...(typeof itemRecord.url === "string" ? { url: itemRecord.url } : {}),
       ...(typeof itemRecord.source === "string" ? { source: itemRecord.source } : {}),
+      ...(typeof itemRecord.selector === "string" ? { selector: itemRecord.selector } : {}),
     };
   }
   return undefined;

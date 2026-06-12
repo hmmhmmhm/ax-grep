@@ -1035,6 +1035,7 @@ export type AgentSummary = {
   topHiddenSignalText?: string;
   topHiddenSignalUrl?: string;
   topHiddenSignalSource?: string;
+  topHiddenSignalSelector?: string;
   hiddenReadTargetCount?: number;
   bestHiddenReadTarget?: string;
   bestHiddenReadTargetCount?: number;

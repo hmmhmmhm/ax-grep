@@ -5416,6 +5416,13 @@ describe("cli", () => {
     expect(envelope.agent.hiddenSignalCount).toBe(5);
     expect(envelope.agent.hiddenReadTargetCount).toBe(1);
     expect(envelope.agent).toMatchObject({
+      topHiddenSignalGroup: "apiEndpoints",
+      topHiddenSignalPath: "pageCheck.apiEndpoints[0]",
+      topHiddenSignalKind: "fetch",
+      topHiddenSignalText: "fetch POST https://example.test/api/search?q=agent",
+      topHiddenSignalUrl: "https://example.test/api/search?q=agent",
+      topHiddenSignalSource: "script",
+      topHiddenSignalSelector: "script:nth-of-type(1)",
       bestHiddenReadTarget: "pageCheck.apiEndpoints",
       bestHiddenReadTargetCount: 5,
       bestHiddenReadTargetPrimary: true,
