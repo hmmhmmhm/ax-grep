@@ -172,17 +172,19 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
       root,
       "agent-browser-smoke",
       "At least one bounded `agent-browser` comparison must prove static named-role parity before the goal can move beyond local and fetched-page smoke evidence.",
-      "readiness:agent-browser-smoke runs pnpm compare on https://example.com and requires an agent-browser snapshot, perfect overlap, and perfect agent readiness.",
+      "readiness:agent-browser-smoke runs pnpm compare on https://example.com and https://books.toscrape.com/ with per-target floors.",
       (failures) => {
         const packageJson = readJson<PackageJson>(root, "package.json", failures);
         requireScript(failures, packageJson?.scripts ?? {}, "readiness:agent-browser-smoke", "scripts/check-agent-browser-smoke.ts");
         requireFileIncludes(root, failures, "scripts/check-agent-browser-smoke.ts", [
           "https://example.com",
+          "https://books.toscrape.com/",
           "pnpm",
           "compare",
           "agentBrowser",
           "overlap",
           "agentReadiness",
+          "minReadinessScore",
         ]);
         requireFileIncludes(root, failures, "scripts/check-project-processes.ts", [
           "scripts\\/compare\\.ts",

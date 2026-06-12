@@ -13,8 +13,9 @@ Resource safety:
   fetches `https://example.com` with `--agent-brief` and does not launch
   Puppeteer or `agent-browser`.
 - Use `pnpm readiness:agent-browser-smoke` for the smallest `agent-browser`
-  comparison. It checks only `https://example.com`; run `pnpm check:processes`
-  before and after it.
+  comparison set. It checks `https://example.com` and
+  `https://books.toscrape.com/`; run `pnpm check:processes` before and after
+  it.
 - Use `pnpm check:processes` before and after browser-backed comparison runs.
 - If several target sets are needed, run them sequentially and save each output
   separately.
@@ -59,8 +60,9 @@ HTML fixtures only, so it should not fetch remote pages or launch
 browser capture.
 
 `readiness:agent-browser-smoke` is the smallest browser-backed comparison gate.
-It runs `pnpm compare https://example.com` and requires an `agent-browser`
-snapshot with full named-role overlap. Treat it like other browser-backed work:
+It runs `pnpm compare` for `https://example.com` and
+`https://books.toscrape.com/`, requires `agent-browser` snapshots, and enforces
+per-target overlap/readiness floors. Treat it like other browser-backed work:
 one command at a time, with process checks before and after.
 
 `compare:gate` checks saved JSON output from `compare:static*` and

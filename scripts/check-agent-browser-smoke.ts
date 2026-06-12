@@ -21,12 +21,47 @@ type CompareReport = {
   }>;
 };
 
-const targetUrl = "https://example.com";
+type SmokeTarget = {
+  url: string;
+  minLineCount: number;
+  requiredNamedRoles: string[];
+  minOverlapRatio: number;
+  minReadinessScore: number;
+  minReferenceRecall: number;
+  minActionableRecall: number;
+  minNavigationRecall: number;
+  requireNoAgentBrowserWarning: boolean;
+};
 
-const result = spawnSync("pnpm", ["compare", targetUrl], {
+const targets: SmokeTarget[] = [
+  {
+    url: "https://example.com",
+    minLineCount: 2,
+    requiredNamedRoles: ["heading:Example Domain", "link:Learn more"],
+    minOverlapRatio: 1,
+    minReadinessScore: 1,
+    minReferenceRecall: 1,
+    minActionableRecall: 1,
+    minNavigationRecall: 1,
+    requireNoAgentBrowserWarning: true,
+  },
+  {
+    url: "https://books.toscrape.com/",
+    minLineCount: 500,
+    requiredNamedRoles: ["heading:All products", "link:Books to Scrape", "button:Add to basket", "link:next"],
+    minOverlapRatio: 0.8,
+    minReadinessScore: 0.85,
+    minReferenceRecall: 0.8,
+    minActionableRecall: 0.85,
+    minNavigationRecall: 0.9,
+    requireNoAgentBrowserWarning: true,
+  },
+];
+
+const result = spawnSync("pnpm", ["compare", ...targets.map((target) => target.url)], {
   cwd: process.cwd(),
   encoding: "utf8",
-  timeout: 120_000,
+  timeout: 240_000,
 });
 
 if (result.status !== 0) {
@@ -42,30 +77,51 @@ try {
   process.exit(1);
 }
 
-const comparison = report.comparisons?.[0];
 const failures: string[] = [];
 
-if (report.comparisons?.length !== 1) failures.push(`expected one comparison, got ${String(report.comparisons?.length)}`);
-if (comparison?.url !== targetUrl) failures.push(`expected url ${targetUrl}, got ${String(comparison?.url)}`);
-if (!comparison?.agentBrowser) failures.push("agentBrowser snapshot missing");
-if ((comparison?.agentBrowser?.lineCount ?? 0) < 2) failures.push(`agentBrowser lineCount too low: ${String(comparison?.agentBrowser?.lineCount)}`);
-if (!comparison?.agentBrowser?.namedRoles?.includes("heading:Example Domain")) failures.push("agentBrowser heading role missing");
-if (!comparison?.agentBrowser?.namedRoles?.includes("link:Learn more")) failures.push("agentBrowser link role missing");
-if ((comparison?.overlap?.ratio ?? 0) < 1) failures.push(`overlap ratio below 1: ${String(comparison?.overlap?.ratio)}`);
-if ((comparison?.agentReadiness?.score ?? 0) < 1) failures.push(`agent readiness score below 1: ${String(comparison?.agentReadiness?.score)}`);
-if ((comparison?.agentReadiness?.referenceRecall ?? 0) < 1) failures.push(`reference recall below 1: ${String(comparison?.agentReadiness?.referenceRecall)}`);
-if ((comparison?.agentReadiness?.actionableRecall ?? 0) < 1) failures.push(`actionable recall below 1: ${String(comparison?.agentReadiness?.actionableRecall)}`);
-if ((comparison?.agentReadiness?.navigationRecall ?? 0) < 1) failures.push(`navigation recall below 1: ${String(comparison?.agentReadiness?.navigationRecall)}`);
-if ((comparison?.warnings ?? []).some((warning) => warning.includes("agent-browser"))) {
-  failures.push(`agent-browser warning present: ${(comparison?.warnings ?? []).join("; ")}`);
+if (report.comparisons?.length !== targets.length) {
+  failures.push(`expected ${targets.length} comparisons, got ${String(report.comparisons?.length)}`);
+}
+
+for (const target of targets) {
+  const comparison = report.comparisons?.find((item) => item.url === target.url);
+  if (!comparison) {
+    failures.push(`${target.url}: comparison missing`);
+    continue;
+  }
+  if (!comparison.agentBrowser) failures.push(`${target.url}: agentBrowser snapshot missing`);
+  if ((comparison.agentBrowser?.lineCount ?? 0) < target.minLineCount) {
+    failures.push(`${target.url}: agentBrowser lineCount below ${target.minLineCount}: ${String(comparison.agentBrowser?.lineCount)}`);
+  }
+  for (const namedRole of target.requiredNamedRoles) {
+    if (!comparison.agentBrowser?.namedRoles?.includes(namedRole)) failures.push(`${target.url}: required named role missing: ${namedRole}`);
+  }
+  if ((comparison.overlap?.ratio ?? 0) < target.minOverlapRatio) {
+    failures.push(`${target.url}: overlap ratio below ${target.minOverlapRatio}: ${String(comparison.overlap?.ratio)}`);
+  }
+  if ((comparison.agentReadiness?.score ?? 0) < target.minReadinessScore) {
+    failures.push(`${target.url}: agent readiness score below ${target.minReadinessScore}: ${String(comparison.agentReadiness?.score)}`);
+  }
+  if ((comparison.agentReadiness?.referenceRecall ?? 0) < target.minReferenceRecall) {
+    failures.push(`${target.url}: reference recall below ${target.minReferenceRecall}: ${String(comparison.agentReadiness?.referenceRecall)}`);
+  }
+  if ((comparison.agentReadiness?.actionableRecall ?? 0) < target.minActionableRecall) {
+    failures.push(`${target.url}: actionable recall below ${target.minActionableRecall}: ${String(comparison.agentReadiness?.actionableRecall)}`);
+  }
+  if ((comparison.agentReadiness?.navigationRecall ?? 0) < target.minNavigationRecall) {
+    failures.push(`${target.url}: navigation recall below ${target.minNavigationRecall}: ${String(comparison.agentReadiness?.navigationRecall)}`);
+  }
+  if (target.requireNoAgentBrowserWarning && (comparison.warnings ?? []).some((warning) => warning.includes("agent-browser"))) {
+    failures.push(`${target.url}: agent-browser warning present: ${(comparison.warnings ?? []).join("; ")}`);
+  }
 }
 
 if (failures.length > 0) {
-  for (const failure of failures) console.error(`${targetUrl}: ${failure}`);
+  for (const failure of failures) console.error(failure);
   process.exit(1);
 }
 
-console.log("agent-browser smoke: ok (1 target)");
+console.log(`agent-browser smoke: ok (${targets.length} targets)`);
 
 function trim(value: string): string {
   return value.replace(/\s+/g, " ").trim().slice(0, 240);
