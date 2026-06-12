@@ -11037,6 +11037,85 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(JSON.stringify(envelope)).not.toContain("retry-with-browser-html");
   });
 
+  it("preserves brief primary command shortcuts for missing captured evidence", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://captured.example/page", "--stdin", "--agent-brief", "--find", "missing claim"], {
+      stdout,
+      stdin: Readable.from([`
+        <main>
+          <article>
+            <h1>Captured Page</h1>
+            <p>Browser captured content is readable but does not include the requested phrase.</p>
+          </article>
+        </main>
+      `]) as NodeJS.ReadStream,
+      fetch: async () => {
+        throw new Error("fetch should not run for --stdin");
+      },
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      status: "verify",
+      primaryExecution: "run-command",
+      primaryCommand: "ax-grep --search 'missing claim' --find 'missing claim' --agent",
+      primaryCommandArgs: ["ax-grep", "--search", "missing claim", "--find", "missing claim", "--agent-brief"],
+      nextCommandArgs: ["ax-grep", "--search", "missing claim", "--find", "missing claim", "--agent-brief"],
+    });
+  });
+
+  it("preserves brief read-target reasons and browser follow-up shortcuts", async () => {
+    const matched = new MemoryWriter();
+    const matchedStatus = await runCli(["https://captured.example/page", "--stdin", "--agent-brief", "--find", "needle"], {
+      stdout: matched,
+      stdin: Readable.from([`
+        <main>
+          <article>
+            <h1>Captured Page</h1>
+            <p>The static page contains a needle and enough readable context for direct evidence use.</p>
+          </article>
+        </main>
+      `]) as NodeJS.ReadStream,
+      fetch: async () => {
+        throw new Error("fetch should not run for --stdin");
+      },
+    });
+    const matchedEnvelope = JSON.parse(matched.output);
+
+    expect(matchedStatus).toBe(0);
+    expect(matchedEnvelope.agent).toMatchObject({
+      primaryExecution: "read-current",
+      primaryReadFrom: "verification.bestEvidence",
+      bestReadTargetReason: "Best matching evidence for the requested --find text.",
+      readabilityReasons: expect.arrayContaining(["1 content evidence item"]),
+    });
+
+    const blocked = new MemoryWriter();
+    const blockedStatus = await runCli(["https://captured.example/challenge", "--stdin", "--agent-brief"], {
+      stdout: blocked,
+      stdin: Readable.from([`
+        <html>
+          <head><title>Just a moment</title></head>
+          <body><main><h1>Verify you are human</h1><p>Please wait for verification.</p></main></body>
+        </html>
+      `]) as NodeJS.ReadStream,
+      fetch: async () => {
+        throw new Error("fetch should not run for --stdin");
+      },
+    });
+    const blockedEnvelope = JSON.parse(blocked.output);
+
+    expect(blockedStatus).toBe(0);
+    expect(blockedEnvelope.agent).toMatchObject({
+      primaryExecution: "interact-browser",
+      primaryAfterInteractionCommand: "ax-grep 'https://captured.example/challenge' --html-file captured.html --agent",
+      primaryAfterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent-brief"],
+      requiresBrowserInteraction: true,
+    });
+  });
+
   it("keeps blocker diagnostics for captured challenge HTML without asking for another capture", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://captured.example/challenge", "--stdin", "--agent"], {
