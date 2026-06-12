@@ -1516,6 +1516,10 @@ type AgentSummary = {
   sourceSearchSelectedOpenResult?: AgentSourceSearchResult["openResult"];
   sourceSearchSelectedCommandArgs?: string[];
   sourceSearchSelectedReason?: string;
+  sourceSearchFailureCode?: string;
+  sourceSearchFailureStatus?: number;
+  sourceSearchFailureUrl?: string;
+  sourceSearchFailureReason?: string;
   sourceSearchAlternateCount: number;
   sourceSearchAlternatePath?: string;
   sourceSearchAlternateTitle?: string;
@@ -3364,6 +3368,10 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.sourceSearchSelectedOpenResult ? [`  sourceSearchSelectedOpenResult: ${agent.sourceSearchSelectedOpenResult}`] : []),
     ...(agent.sourceSearchSelectedCommandArgs ? [`  sourceSearchSelectedCommandArgs: ${JSON.stringify(agent.sourceSearchSelectedCommandArgs)}`] : []),
     ...(agent.sourceSearchSelectedReason ? [`  sourceSearchSelectedReason: ${agent.sourceSearchSelectedReason}`] : []),
+    ...(agent.sourceSearchFailureCode ? [`  sourceSearchFailureCode: ${agent.sourceSearchFailureCode}`] : []),
+    ...(typeof agent.sourceSearchFailureStatus === "number" ? [`  sourceSearchFailureStatus: ${agent.sourceSearchFailureStatus}`] : []),
+    ...(agent.sourceSearchFailureUrl ? [`  sourceSearchFailureUrl: ${agent.sourceSearchFailureUrl}`] : []),
+    ...(agent.sourceSearchFailureReason ? [`  sourceSearchFailureReason: ${agent.sourceSearchFailureReason}`] : []),
     `  sourceSearchAlternateCount: ${agent.sourceSearchAlternateCount}`,
     ...(agent.sourceSearchAlternatePath ? [`  sourceSearchAlternatePath: ${agent.sourceSearchAlternatePath}`] : []),
     ...(agent.sourceSearchAlternateUrl ? [`  sourceSearchAlternateUrl: ${agent.sourceSearchAlternateUrl}`] : []),
@@ -14283,6 +14291,10 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(sourceSearchSelectedResult?.openResult ? { sourceSearchSelectedOpenResult: sourceSearchSelectedResult.openResult } : {}),
     ...(sourceSearchSelectedResult?.commandArgs ? { sourceSearchSelectedCommandArgs: sourceSearchSelectedResult.commandArgs } : {}),
     ...(sourceSearchSelectedResult?.selectionReason ? { sourceSearchSelectedReason: sourceSearchSelectedResult.selectionReason } : {}),
+    ...(sourceSearch ? { sourceSearchFailureCode: error.code } : {}),
+    ...(sourceSearch && typeof error.status === "number" ? { sourceSearchFailureStatus: error.status } : {}),
+    ...(sourceSearch ? { sourceSearchFailureUrl: sourceSearch.selectedUrl } : {}),
+    ...(sourceSearch ? { sourceSearchFailureReason: sourceSearchFailureReason(error) } : {}),
     ...(sourceSearchAlternateResult ? { sourceSearchAlternatePath: sourceSearchAlternateResult.path } : {}),
     ...(sourceSearchAlternateResult?.title ? { sourceSearchAlternateTitle: sourceSearchAlternateResult.title } : {}),
     ...(sourceSearchAlternateResult?.url ? { sourceSearchAlternateUrl: sourceSearchAlternateResult.url } : {}),
@@ -14451,6 +14463,11 @@ function errorAgentReadValue(primaryAction: SuggestedAction | undefined, sourceS
     return { path: primaryAction.readFrom, value: sourceSearch.alternateResults };
   }
   return undefined;
+}
+
+function sourceSearchFailureReason(error: CliError): string {
+  const status = typeof error.status === "number" ? ` status ${error.status}` : "";
+  return `Selected sourceSearch result failed with ${error.code}${status}.`;
 }
 
 function errorAction(error: CliError, url?: string, agentMode = false, findQueries: string[] = [], sourceSearch?: SourceSearchSummary, timeoutMs?: number, userAgent?: string): SuggestedAction | undefined {
@@ -16231,6 +16248,10 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.sourceSearchSelectedOpenResult ? { sourceSearchSelectedOpenResult: agent.sourceSearchSelectedOpenResult } : {}),
     ...(agent.sourceSearchSelectedCommandArgs ? { sourceSearchSelectedCommandArgs: agent.sourceSearchSelectedCommandArgs } : {}),
     ...(agent.sourceSearchSelectedReason ? { sourceSearchSelectedReason: agent.sourceSearchSelectedReason } : {}),
+    ...(agent.sourceSearchFailureCode ? { sourceSearchFailureCode: agent.sourceSearchFailureCode } : {}),
+    ...(typeof agent.sourceSearchFailureStatus === "number" ? { sourceSearchFailureStatus: agent.sourceSearchFailureStatus } : {}),
+    ...(agent.sourceSearchFailureUrl ? { sourceSearchFailureUrl: agent.sourceSearchFailureUrl } : {}),
+    ...(agent.sourceSearchFailureReason ? { sourceSearchFailureReason: agent.sourceSearchFailureReason } : {}),
     sourceSearchAlternateCount: agent.sourceSearchAlternateCount,
     ...(agent.sourceSearchAlternatePath ? { sourceSearchAlternatePath: agent.sourceSearchAlternatePath } : {}),
     ...(agent.sourceSearchAlternateTitle ? { sourceSearchAlternateTitle: agent.sourceSearchAlternateTitle } : {}),
@@ -16924,6 +16945,10 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.sourceSearchSelectedOpenResult ? { sourceSearchSelectedOpenResult: agent.sourceSearchSelectedOpenResult } : {}),
     ...(agent.sourceSearchSelectedCommandArgs ? { sourceSearchSelectedCommandArgs: agent.sourceSearchSelectedCommandArgs } : {}),
     ...(agent.sourceSearchSelectedReason ? { sourceSearchSelectedReason: agent.sourceSearchSelectedReason } : {}),
+    ...(agent.sourceSearchFailureCode ? { sourceSearchFailureCode: agent.sourceSearchFailureCode } : {}),
+    ...(typeof agent.sourceSearchFailureStatus === "number" ? { sourceSearchFailureStatus: agent.sourceSearchFailureStatus } : {}),
+    ...(agent.sourceSearchFailureUrl ? { sourceSearchFailureUrl: agent.sourceSearchFailureUrl } : {}),
+    ...(agent.sourceSearchFailureReason ? { sourceSearchFailureReason: agent.sourceSearchFailureReason } : {}),
     sourceSearchAlternateCount: agent.sourceSearchAlternateCount,
     ...(agent.sourceSearchAlternatePath ? { sourceSearchAlternatePath: agent.sourceSearchAlternatePath } : {}),
     ...(agent.sourceSearchAlternateTitle ? { sourceSearchAlternateTitle: agent.sourceSearchAlternateTitle } : {}),

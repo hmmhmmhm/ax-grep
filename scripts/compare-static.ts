@@ -1528,6 +1528,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchSelectedOpenResult?: number | "best";
       sourceSearchSelectedCommandArgs?: unknown[];
       sourceSearchSelectedReason?: string;
+      sourceSearchFailureCode?: string;
+      sourceSearchFailureStatus?: number;
+      sourceSearchFailureUrl?: string;
+      sourceSearchFailureReason?: string;
       sourceSearchAlternateCount?: number;
       sourceSearchAlternatePath?: string;
       sourceSearchAlternateTitle?: string;
@@ -4607,6 +4611,10 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchSelectedOpenResult?: number | "best";
   sourceSearchSelectedCommandArgs?: unknown[];
   sourceSearchSelectedReason?: string;
+  sourceSearchFailureCode?: string;
+  sourceSearchFailureStatus?: number;
+  sourceSearchFailureUrl?: string;
+  sourceSearchFailureReason?: string;
   sourceSearchAlternateCount?: number;
   sourceSearchAlternatePath?: string;
   sourceSearchAlternateTitle?: string;
@@ -4647,6 +4655,10 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchSelectedOpenResult === "undefined"
       && typeof agent?.sourceSearchSelectedCommandArgs === "undefined"
       && typeof agent?.sourceSearchSelectedReason === "undefined"
+      && typeof agent?.sourceSearchFailureCode === "undefined"
+      && typeof agent?.sourceSearchFailureStatus === "undefined"
+      && typeof agent?.sourceSearchFailureUrl === "undefined"
+      && typeof agent?.sourceSearchFailureReason === "undefined"
       && typeof agent?.sourceSearchAlternatePath === "undefined"
       && typeof agent?.sourceSearchAlternateTitle === "undefined"
       && typeof agent?.sourceSearchAlternateUrl === "undefined"

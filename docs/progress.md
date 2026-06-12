@@ -16,7 +16,7 @@ percentage as a fixed contract.
 | --- | ---: | --- |
 | README/docs hygiene | 90% | Root README is short; detailed docs live under `docs/`. |
 | Process safety | 85% | `AGENTS.md`, `pnpm check:processes`, and non-browser gates are in place. |
-| Search result handoff | 83% | Result choices, host shortcuts, source-search selected/alternate host shortcuts, source hints, verification, decision counts, and command args are exposed. |
+| Search result handoff | 84% | Result choices, host shortcuts, source-search selected/alternate/failure shortcuts, source hints, verification, decision counts, and command args are exposed. |
 | Page check handoff | 87% | Forms, action targets, table navigation shortcuts, hidden signal group counts/top shortcuts/selectors, static-readiness reasons, barrier-specific browser-capture reason codes, execution shortcuts, barriers, and read targets are exposed. |
 | Semantic accessibility signals | 79% | Landmarks, headings, links, buttons, fields, values, relations, choices, states, list item refs, table header/cell navigation shortcuts, and table ownership refs are exposed. |
 | Browser-tree parity research | 60% | Static gates exist; browser-backed checks must stay sequential and limited. |
@@ -45,7 +45,7 @@ instead of hiding the new scope.
 | --- | ---: | --- | --- | --- |
 | Documentation control | 90% | Keep README short and move long operational detail into `docs/`. | Add only status, safety, and research notes that help future sessions resume quickly. | README length/mojibake tests pass after each docs change. |
 | Process containment | 85% | Keep validation sequential and check for leftover browser/test/comparison processes. | Add more explicit notes when a task would require browser-backed validation, including why it is necessary. | `pnpm check:processes` before and after risky work shows no leftovers. |
-| Search handoff | 82% | Expose enough ranked-result context for an agent to choose, open, or skip results. | Identify whether ranked result snippets need stronger dedupe, provenance, or failed-open reasons. | A static search fixture lets an agent choose a result without browser inspection first. |
+| Search handoff | 84% | Expose enough ranked-result context for an agent to choose, open, skip, or recover from failed opened results. | Identify whether ranked result snippets need stronger dedupe or provenance. | A static search fixture lets an agent choose or recover from a result without browser inspection first. |
 | Page handoff | 87% | Surface barriers, read targets, action targets, table navigation shortcuts, hidden signal group shortcuts, static-readiness reasons, and barrier-specific browser-capture reason/execution shortcuts. | Tighten fallback decisions for client-rendered and low-content pages. | Fixtures show clear `use static output` vs `need browser capture` reasons. |
 | Semantic accessibility | 79% | Continue adding high-value shortcuts from roles, states, relations, lists, tables, ownership, and controls. | Compare table/grid/list/control output against browser-tree expectations and add only useful static equivalents. | Each accepted signal has a public type, CLI output, compact output, and fixture/test coverage. |
 | Browser parity research | 60% | Compare static output against a small sequential fixture set and record gaps. | Expand the gap list as research finds new browser accessibility-tree signals; lower estimates if new important gaps appear. | Each gap is tagged `implement`, `browser-only`, or `defer` with priority and evidence. |
@@ -93,7 +93,7 @@ estimates stay honest.
 | --- | --- | --- | --- | --- |
 | Table/grid ownership and cell navigation context beyond first-row shortcuts. | Static/browser fixture comparison. | P1 | Added header refs with path, role, row/column index, sort state, selector, and table/grid ownership refs for `aria-owns`; keep investigating virtualized row sampling only if fixtures show it matters. | In progress. |
 | Browser-only fallback reasons for client-rendered or blocked pages. | Failed or low-content page checks. | P1 | Added `staticReadiness`, `staticReadinessReason`, `staticReadinessReadFrom`, and barrier-specific `browserHtmlReasonCode` values for challenge, login, and paywall cases. | In progress. |
-| Search-result provenance and failed-open reasons. | Search handoff review. | P2 | Added result/source choice host shortcuts so agents can compare provenance without parsing URLs; keep failed-open reason work as a candidate. | In progress. |
+| Search-result provenance and failed-open reasons. | Search handoff review. | P2 | Added result/source choice host shortcuts and selected-result failure shortcuts so agents can compare provenance and understand failed opens without parsing URLs plus error payloads. | In progress. |
 | Additional browser accessibility-tree signals discovered during sequential comparison. | Future research. | P1/P2 after triage. | Add to this ledger, then classify as `implement`, `browser-only`, or `defer`. | Watch. |
 
 ## Observed Gap Records
@@ -107,6 +107,7 @@ or deferred.
 | G1 | `--open-result` failure recovery exposed selected/alternate result metadata, but not selected/alternate hosts as top-level shortcuts. Agents had to parse URLs or nested `sourceSearch` objects before choosing a replacement result. | `tests/cli.test.ts` missing-result fixture and source-search shortcut review. | P2 | Implement top-level `sourceSearchSelectedHost` and `sourceSearchAlternateHost`; keep failed-open reason categories as a later candidate. | Landed. | Typecheck, focused CLI/public type tests, readiness audit, static fixture gate, README test, diff check, and process check passed. | +1% search handoff. |
 | G3 | Table/grid `aria-owns` was visible only as a generic relation, not inside the table summary. Agents inspecting table/grid output had to parse relation items to detect browser-tree ownership or virtualized rowgroups. | Compact semantic fixture with `table[aria-owns]` and owned `rowgroup`. | P1 | Implement `ownedRefs`, `semanticTopTableOwnedCount`, `semanticTopTableOwnedRefs`, and first-owned shortcuts. | Landed. | Typecheck, focused CLI/public type tests, readiness audit, static fixture gate, README test, diff check, and process check passed. | +1% semantic accessibility. |
 | G4 | Blocked pages with challenge, login, or paywall diagnostics collapsed into generic `retry-action`/blocked fallback codes. Agents could not branch between simple rendered HTML capture and barrier-specific browser handling without reading diagnostics. | Challenge and login/paywall fixtures in `tests/cli.test.ts`. | P1 | Extend `browserHtmlReasonCode` with `challenge`, `login-required`, and `paywall` and prioritize diagnostics before generic retry codes. | Landed. | Typecheck, focused CLI/public type tests, readiness audit, static fixture gate, README test, diff check, and process check passed. | +1% page handoff. |
+| G5 | Failed opened search results required joining `error` with `sourceSearch.selectedResult` to know which selected result failed and why. This slowed recovery decisions and made failure provenance less direct. | `tests/cli.test.ts` selected-result HTTP error fixture. | P2 | Add `sourceSearchFailureCode`, `sourceSearchFailureStatus`, `sourceSearchFailureUrl`, and `sourceSearchFailureReason` shortcuts on source-search error payloads. | Landed. | Typecheck, focused CLI/public type tests, readiness audit, static fixture gate, README test, diff check, and process check passed. | +1% search handoff. |
 | G2 | Browser accessibility-tree comparison may reveal signals that static HTML cannot safely infer. | Future sequential fixture comparison only; no broad browser run allowed. | P1 after evidence | Track first, then classify as `implement`, `browser-only`, or `defer`. | Watch. | Add the smallest fixture command here before running any browser-backed check; run `pnpm check:processes` afterward. | Unknown until observed. |
 
 When research expands:
@@ -201,6 +202,9 @@ When research expands:
   parsing the nested `searchDecision` object.
 - Added result/source choice host shortcuts so agents can compare domains and
   provenance without parsing URLs before opening a result.
+- Added source-search failure shortcuts so agents can see the selected result's
+  failed URL, error code, status, and reason without joining separate error and
+  source-search objects.
 
 ## In Progress
 

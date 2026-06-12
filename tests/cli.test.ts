@@ -3376,6 +3376,12 @@ describe("cli", () => {
         selectedTitle: "Target Result",
         selectedUrl: "https://target.example/article",
       },
+      agent: {
+        sourceSearchFailureCode: "HTTP_ERROR",
+        sourceSearchFailureStatus: 403,
+        sourceSearchFailureUrl: "https://target.example/article",
+        sourceSearchFailureReason: "Selected sourceSearch result failed with HTTP_ERROR status 403.",
+      },
       error: {
         code: "HTTP_ERROR",
         status: 403,

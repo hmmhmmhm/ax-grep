@@ -1162,6 +1162,10 @@ export type AgentSummary = {
   sourceSearchSelectedOpenResult?: number | "best";
   sourceSearchSelectedCommandArgs?: string[];
   sourceSearchSelectedReason?: string;
+  sourceSearchFailureCode?: string;
+  sourceSearchFailureStatus?: number;
+  sourceSearchFailureUrl?: string;
+  sourceSearchFailureReason?: string;
   sourceSearchAlternateCount?: number;
   sourceSearchAlternatePath?: string;
   sourceSearchAlternateTitle?: string;

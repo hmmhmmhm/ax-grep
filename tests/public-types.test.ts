@@ -435,6 +435,10 @@ describe("public agent types", () => {
       | "sourceSearchSelectedOpenResult"
       | "sourceSearchSelectedCommandArgs"
       | "sourceSearchSelectedReason"
+      | "sourceSearchFailureCode"
+      | "sourceSearchFailureStatus"
+      | "sourceSearchFailureUrl"
+      | "sourceSearchFailureReason"
       | "sourceSearchAlternateCount"
       | "sourceSearchAlternatePath"
       | "sourceSearchAlternateTitle"
@@ -1174,6 +1178,10 @@ describe("public agent types", () => {
       sourceSearchSelectedOpenResult: 2,
       sourceSearchSelectedCommandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "2", "--agent"],
       sourceSearchSelectedReason: "Selected source result.",
+      sourceSearchFailureCode: "HTTP_ERROR",
+      sourceSearchFailureStatus: 403,
+      sourceSearchFailureUrl: "https://source.example/result",
+      sourceSearchFailureReason: "Selected sourceSearch result failed with HTTP_ERROR status 403.",
       sourceSearchAlternateCount: 1,
       sourceSearchAlternatePath: "sourceSearch.alternateResults[0]",
       sourceSearchAlternateTitle: "ax-grep mirror",
