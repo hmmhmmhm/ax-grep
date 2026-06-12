@@ -1246,6 +1246,7 @@ describe("cli", () => {
       if (executor.commandArgs) expect(envelope.agent.executorCommandArgs).toEqual(executor.commandArgs);
       if (executor.readFrom) expect(envelope.agent.executorReadFrom).toBe(executor.readFrom);
       if (executor.url) expect(envelope.agent.executorUrl).toBe(executor.url);
+      if (item.args[0] === "--search") expect(envelope.agent.searchDecisionReason).toEqual(expect.any(String));
       if (executor.target?.url) expect(envelope.agent.executorTargetUrl).toBe(executor.target.url);
       if (executor.target?.path) expect(envelope.agent.executorTargetPath).toBe(executor.target.path);
       if (executor.target?.selector) expect(envelope.agent.executorTargetSelector).toBe(executor.target.selector);
@@ -11063,6 +11064,13 @@ npx ax-grep https://example.test --agent</code></pre>
       primaryCommand: "ax-grep --search 'missing claim' --find 'missing claim' --agent",
       primaryCommandArgs: ["ax-grep", "--search", "missing claim", "--find", "missing claim", "--agent-brief"],
       nextCommandArgs: ["ax-grep", "--search", "missing claim", "--find", "missing claim", "--agent-brief"],
+      responseStatus: expect.any(Number),
+      responseOk: expect.any(Boolean),
+      responseContentType: expect.any(String),
+      finalUrlChanged: expect.any(Boolean),
+      verificationRequestedCount: 1,
+      verificationFoundCount: 0,
+      verificationMissingCount: 1,
     });
   });
 
@@ -11090,6 +11098,14 @@ npx ax-grep https://example.test --agent</code></pre>
       primaryReadFrom: "verification.bestEvidence",
       bestReadTargetReason: "Best matching evidence for the requested --find text.",
       readabilityReasons: expect.arrayContaining(["1 content evidence item"]),
+      responseStatus: expect.any(Number),
+      responseOk: expect.any(Boolean),
+      responseContentType: expect.any(String),
+      finalUrlChanged: expect.any(Boolean),
+      verificationRequestedCount: 1,
+      verificationFoundCount: 1,
+      verificationMissingCount: 0,
+      pageDecisionReason: expect.any(String),
     });
 
     const blocked = new MemoryWriter();
@@ -11113,6 +11129,12 @@ npx ax-grep https://example.test --agent</code></pre>
       primaryAfterInteractionCommand: "ax-grep 'https://captured.example/challenge' --html-file captured.html --agent",
       primaryAfterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent-brief"],
       requiresBrowserInteraction: true,
+      responseStatus: expect.any(Number),
+      responseOk: expect.any(Boolean),
+      responseContentType: expect.any(String),
+      finalUrlChanged: expect.any(Boolean),
+      topBarrierSource: "diagnostic",
+      topBarrierDiagnosticCode: "CHALLENGE_LIKELY",
     });
   });
 
