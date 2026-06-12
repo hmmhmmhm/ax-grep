@@ -3612,6 +3612,7 @@ describe("cli", () => {
         sourceSearchFailureKind: "http-client-error",
         sourceSearchFailureRetryable: false,
         sourceSearchFailureUrl: "https://target.example/article",
+        sourceSearchFailureHost: "target.example",
         sourceSearchFailureReason: "Selected sourceSearch result failed with HTTP_ERROR status 403.",
       },
       error: {
@@ -3649,6 +3650,7 @@ describe("cli", () => {
       sourceSearchFailureRetryable: true,
       sourceSearchFailureRetryAfter: "120",
       sourceSearchFailureUrl: "https://target.example/rate-limited",
+      sourceSearchFailureHost: "target.example",
       sourceSearchFailureReason: "Selected sourceSearch result failed with HTTP_ERROR status 429.",
     });
   });

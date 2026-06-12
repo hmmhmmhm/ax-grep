@@ -360,6 +360,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "sourceSearchSelectedRank",
           "sourceSearchSelectedTitle",
           "sourceSearchSelectedUrl",
+          "sourceSearchFailureHost",
           "sourceSearchAlternateCount",
           "hiddenSignalCount",
           "hiddenReadTargetCount",

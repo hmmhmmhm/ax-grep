@@ -1657,6 +1657,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchFailureRetryable?: boolean;
       sourceSearchFailureRetryAfter?: string;
       sourceSearchFailureUrl?: string;
+      sourceSearchFailureHost?: string;
       sourceSearchFailureReason?: string;
       sourceSearchAlternateCount?: number;
       sourceSearchAlternatePath?: string;
@@ -5246,6 +5247,14 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
 
 type SourceSearchFailureInfo = { code?: string; status?: number };
 
+function sourceFromUrl(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "";
+  }
+}
+
 function sourceSearchFailureInfo(error: unknown): SourceSearchFailureInfo | undefined {
   if (!error || typeof error !== "object") return undefined;
   const record = error as Record<string, unknown>;
@@ -5311,6 +5320,7 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchFailureRetryable?: boolean;
   sourceSearchFailureRetryAfter?: string;
   sourceSearchFailureUrl?: string;
+  sourceSearchFailureHost?: string;
   sourceSearchFailureReason?: string;
   sourceSearchAlternateCount?: number;
   sourceSearchAlternatePath?: string;
@@ -5383,6 +5393,7 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchFailureRetryable === "undefined"
       && typeof agent?.sourceSearchFailureRetryAfter === "undefined"
       && typeof agent?.sourceSearchFailureUrl === "undefined"
+      && typeof agent?.sourceSearchFailureHost === "undefined"
       && typeof agent?.sourceSearchFailureReason === "undefined"
       && typeof agent?.sourceSearchAlternatePath === "undefined"
       && typeof agent?.sourceSearchAlternateTitle === "undefined"
@@ -5423,7 +5434,13 @@ function scoreAgentSourceSearchShortcuts(agent: {
     required += 2;
     if (agent?.sourceSearchFailureKind === sourceSearchFailureKind(failure)) matched += 1;
     if (agent?.sourceSearchFailureRetryable === sourceSearchFailureRetryable(failure)) matched += 1;
-  } else if (agent?.sourceSearchFailureKind || typeof agent?.sourceSearchFailureRetryable === "boolean") {
+    if (sourceSearch.selectedUrl) {
+      required += 1;
+      if (agent?.sourceSearchFailureHost === sourceFromUrl(sourceSearch.selectedUrl)) matched += 1;
+    } else if (agent?.sourceSearchFailureHost) {
+      required += 1;
+    }
+  } else if (agent?.sourceSearchFailureKind || typeof agent?.sourceSearchFailureRetryable === "boolean" || agent?.sourceSearchFailureHost) {
     required += 1;
   }
   if (sourceSearch.lang) {
