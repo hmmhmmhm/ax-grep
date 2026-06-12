@@ -5418,6 +5418,9 @@ describe("cli", () => {
             minLength: 2,
             maxLength: 80,
             required: true,
+            disabled: true,
+            readonly: true,
+            invalid: "spelling",
             selector: "input[name=\"query\"]",
           },
           {
@@ -5569,6 +5572,9 @@ describe("cli", () => {
       topFormChoiceFirstFieldMinLength: 2,
       topFormChoiceFirstFieldMaxLength: 80,
       topFormChoiceFirstFieldRequired: true,
+      topFormChoiceFirstFieldDisabled: true,
+      topFormChoiceFirstFieldReadonly: true,
+      topFormChoiceFirstFieldInvalid: "spelling",
       topFormChoiceFirstFieldSelector: "input[name=\"query\"]",
     });
     expect(envelope.agent.formChoices).toEqual([

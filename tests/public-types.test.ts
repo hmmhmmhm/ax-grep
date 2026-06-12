@@ -158,7 +158,7 @@ describe("public agent types", () => {
       queryField: "q",
       urlTemplate: "https://example.test/find?q={query}",
       selector: "form:nth-of-type(1)",
-      fields: [{ name: "q", type: "search", label: "Search", placeholder: "Search docs", value: "initial", autocomplete: "off", inputMode: "search", pattern: "[A-Za-z ]+", min: "1", max: "99", step: "1", minLength: 2, maxLength: 80, required: true, selector: "input[name=\"q\"]", options: ["All", "Docs"] }],
+      fields: [{ name: "q", type: "search", label: "Search", placeholder: "Search docs", value: "initial", autocomplete: "off", inputMode: "search", pattern: "[A-Za-z ]+", min: "1", max: "99", step: "1", minLength: 2, maxLength: 80, required: true, disabled: true, readonly: true, invalid: "spelling", selector: "input[name=\"q\"]", options: ["All", "Docs"] }],
     };
     const actionTargetChoice: AgentActionTargetChoice = {
       id: "at1",
@@ -234,6 +234,9 @@ describe("public agent types", () => {
       | "topFormChoiceFirstFieldMinLength"
       | "topFormChoiceFirstFieldMaxLength"
       | "topFormChoiceFirstFieldRequired"
+      | "topFormChoiceFirstFieldDisabled"
+      | "topFormChoiceFirstFieldReadonly"
+      | "topFormChoiceFirstFieldInvalid"
       | "topFormChoiceFirstFieldSelector"
       | "actionTargetCount"
       | "actionTargetChoiceCount"
@@ -1257,6 +1260,9 @@ describe("public agent types", () => {
       topFormChoiceFirstFieldMinLength: 2,
       topFormChoiceFirstFieldMaxLength: 80,
       topFormChoiceFirstFieldRequired: true,
+      topFormChoiceFirstFieldDisabled: true,
+      topFormChoiceFirstFieldReadonly: true,
+      topFormChoiceFirstFieldInvalid: "spelling",
       topFormChoiceFirstFieldSelector: "input[name=\"q\"]",
       actionTargetCount: 2,
       actionTargetChoiceCount: 1,

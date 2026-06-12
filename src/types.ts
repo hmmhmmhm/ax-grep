@@ -494,6 +494,9 @@ export type AgentFormChoice = {
     minLength?: number;
     maxLength?: number;
     required?: boolean;
+    disabled?: boolean;
+    readonly?: boolean;
+    invalid?: SemanticNodeState["invalid"];
     selector?: string;
     options?: string[];
   }>;
@@ -1106,6 +1109,9 @@ export type AgentSummary = {
   topFormChoiceFirstFieldMinLength?: number;
   topFormChoiceFirstFieldMaxLength?: number;
   topFormChoiceFirstFieldRequired?: boolean;
+  topFormChoiceFirstFieldDisabled?: boolean;
+  topFormChoiceFirstFieldReadonly?: boolean;
+  topFormChoiceFirstFieldInvalid?: SemanticNodeState["invalid"];
   topFormChoiceFirstFieldSelector?: string;
   actionTargetCount?: number;
   actionTargetChoiceCount?: number;

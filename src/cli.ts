@@ -400,6 +400,9 @@ type PageFormFieldSummary = {
   minLength?: number;
   maxLength?: number;
   required?: boolean;
+  disabled?: boolean;
+  readonly?: boolean;
+  invalid?: SemanticNodeState["invalid"];
   selector?: string;
   options?: string[];
 };
@@ -1445,6 +1448,9 @@ type AgentSummary = {
   topFormChoiceFirstFieldMinLength?: number;
   topFormChoiceFirstFieldMaxLength?: number;
   topFormChoiceFirstFieldRequired?: boolean;
+  topFormChoiceFirstFieldDisabled?: boolean;
+  topFormChoiceFirstFieldReadonly?: boolean;
+  topFormChoiceFirstFieldInvalid?: SemanticNodeState["invalid"];
   topFormChoiceFirstFieldSelector?: string;
   actionTargetCount: number;
   actionTargetChoiceCount: number;
@@ -3596,7 +3602,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topFormChoiceUrlTemplate ? [`  topFormChoiceUrlTemplate: ${agent.topFormChoiceUrlTemplate}`] : []),
     ...(agent.topFormChoiceQueryField ? [`  topFormChoiceQueryField: ${agent.topFormChoiceQueryField}`] : []),
     ...(agent.topFormChoiceSubmitText ? [`  topFormChoiceSubmitText: ${agent.topFormChoiceSubmitText}`] : []),
-    ...(agent.topFormChoiceFirstFieldName || agent.topFormChoiceFirstFieldType ? [`  topFormChoiceFirstField: ${agent.topFormChoiceFirstFieldName ?? ""}${agent.topFormChoiceFirstFieldType ? ` type=${agent.topFormChoiceFirstFieldType}` : ""}${agent.topFormChoiceFirstFieldLabel ? ` label=${agent.topFormChoiceFirstFieldLabel}` : ""}${agent.topFormChoiceFirstFieldPlaceholder ? ` placeholder=${agent.topFormChoiceFirstFieldPlaceholder}` : ""}${agent.topFormChoiceFirstFieldValue ? ` value=${agent.topFormChoiceFirstFieldValue}` : ""}${agent.topFormChoiceFirstFieldOptions?.length ? ` options=${agent.topFormChoiceFirstFieldOptions.join("|")}` : ""}${agent.topFormChoiceFirstFieldAutocomplete ? ` autocomplete=${agent.topFormChoiceFirstFieldAutocomplete}` : ""}${agent.topFormChoiceFirstFieldInputMode ? ` inputMode=${agent.topFormChoiceFirstFieldInputMode}` : ""}${agent.topFormChoiceFirstFieldPattern ? ` pattern=${agent.topFormChoiceFirstFieldPattern}` : ""}${agent.topFormChoiceFirstFieldMin ? ` min=${agent.topFormChoiceFirstFieldMin}` : ""}${agent.topFormChoiceFirstFieldMax ? ` max=${agent.topFormChoiceFirstFieldMax}` : ""}${agent.topFormChoiceFirstFieldStep ? ` step=${agent.topFormChoiceFirstFieldStep}` : ""}${typeof agent.topFormChoiceFirstFieldMinLength === "number" ? ` minLength=${agent.topFormChoiceFirstFieldMinLength}` : ""}${typeof agent.topFormChoiceFirstFieldMaxLength === "number" ? ` maxLength=${agent.topFormChoiceFirstFieldMaxLength}` : ""}${typeof agent.topFormChoiceFirstFieldRequired === "boolean" ? ` required=${agent.topFormChoiceFirstFieldRequired}` : ""}${agent.topFormChoiceFirstFieldSelector ? ` selector=${agent.topFormChoiceFirstFieldSelector}` : ""}`] : []),
+    ...(agent.topFormChoiceFirstFieldName || agent.topFormChoiceFirstFieldType ? [`  topFormChoiceFirstField: ${agent.topFormChoiceFirstFieldName ?? ""}${agent.topFormChoiceFirstFieldType ? ` type=${agent.topFormChoiceFirstFieldType}` : ""}${agent.topFormChoiceFirstFieldLabel ? ` label=${agent.topFormChoiceFirstFieldLabel}` : ""}${agent.topFormChoiceFirstFieldPlaceholder ? ` placeholder=${agent.topFormChoiceFirstFieldPlaceholder}` : ""}${agent.topFormChoiceFirstFieldValue ? ` value=${agent.topFormChoiceFirstFieldValue}` : ""}${agent.topFormChoiceFirstFieldOptions?.length ? ` options=${agent.topFormChoiceFirstFieldOptions.join("|")}` : ""}${agent.topFormChoiceFirstFieldAutocomplete ? ` autocomplete=${agent.topFormChoiceFirstFieldAutocomplete}` : ""}${agent.topFormChoiceFirstFieldInputMode ? ` inputMode=${agent.topFormChoiceFirstFieldInputMode}` : ""}${agent.topFormChoiceFirstFieldPattern ? ` pattern=${agent.topFormChoiceFirstFieldPattern}` : ""}${agent.topFormChoiceFirstFieldMin ? ` min=${agent.topFormChoiceFirstFieldMin}` : ""}${agent.topFormChoiceFirstFieldMax ? ` max=${agent.topFormChoiceFirstFieldMax}` : ""}${agent.topFormChoiceFirstFieldStep ? ` step=${agent.topFormChoiceFirstFieldStep}` : ""}${typeof agent.topFormChoiceFirstFieldMinLength === "number" ? ` minLength=${agent.topFormChoiceFirstFieldMinLength}` : ""}${typeof agent.topFormChoiceFirstFieldMaxLength === "number" ? ` maxLength=${agent.topFormChoiceFirstFieldMaxLength}` : ""}${typeof agent.topFormChoiceFirstFieldRequired === "boolean" ? ` required=${agent.topFormChoiceFirstFieldRequired}` : ""}${typeof agent.topFormChoiceFirstFieldDisabled === "boolean" ? ` disabled=${agent.topFormChoiceFirstFieldDisabled}` : ""}${typeof agent.topFormChoiceFirstFieldReadonly === "boolean" ? ` readonly=${agent.topFormChoiceFirstFieldReadonly}` : ""}${typeof agent.topFormChoiceFirstFieldInvalid !== "undefined" ? ` invalid=${agent.topFormChoiceFirstFieldInvalid}` : ""}${agent.topFormChoiceFirstFieldSelector ? ` selector=${agent.topFormChoiceFirstFieldSelector}` : ""}`] : []),
     ...(agent.topActionTargetChoicePath ? [`  topActionTargetChoicePath: ${agent.topActionTargetChoicePath}`] : []),
     ...(agent.topActionTargetChoiceUrlTemplate ? [`  topActionTargetChoiceUrlTemplate: ${agent.topActionTargetChoiceUrlTemplate}`] : []),
     ...(agent.topActionTargetChoiceQueryInput ? [`  topActionTargetChoiceQueryInput: ${agent.topActionTargetChoiceQueryInput}`] : []),
@@ -6356,6 +6362,9 @@ function summarizeFormField(control: Element, index: number, rootNodes: AnyNode[
   if (typeof minLength === "number") field.minLength = minLength;
   if (typeof maxLength === "number") field.maxLength = maxLength;
   if (attr(control, "required") !== undefined || attr(control, "aria-required") === "true") field.required = true;
+  if (attr(control, "disabled") !== undefined || attr(control, "aria-disabled") === "true") field.disabled = true;
+  if (attr(control, "readonly") !== undefined || attr(control, "aria-readonly") === "true") field.readonly = true;
+  if (attr(control, "aria-invalid")) field.invalid = attr(control, "aria-invalid") === "true" ? true : attr(control, "aria-invalid");
   if (options.length > 0) field.options = options;
   return field;
 }
@@ -11947,6 +11956,9 @@ function summarizeAgent(
     ...(typeof topFormChoiceFirstField?.minLength === "number" ? { topFormChoiceFirstFieldMinLength: topFormChoiceFirstField.minLength } : {}),
     ...(typeof topFormChoiceFirstField?.maxLength === "number" ? { topFormChoiceFirstFieldMaxLength: topFormChoiceFirstField.maxLength } : {}),
     ...(typeof topFormChoiceFirstField?.required === "boolean" ? { topFormChoiceFirstFieldRequired: topFormChoiceFirstField.required } : {}),
+    ...(typeof topFormChoiceFirstField?.disabled === "boolean" ? { topFormChoiceFirstFieldDisabled: topFormChoiceFirstField.disabled } : {}),
+    ...(typeof topFormChoiceFirstField?.readonly === "boolean" ? { topFormChoiceFirstFieldReadonly: topFormChoiceFirstField.readonly } : {}),
+    ...(typeof topFormChoiceFirstField?.invalid !== "undefined" ? { topFormChoiceFirstFieldInvalid: topFormChoiceFirstField.invalid } : {}),
     ...(topFormChoiceFirstField?.selector ? { topFormChoiceFirstFieldSelector: topFormChoiceFirstField.selector } : {}),
     ...(actionTargetChoices[0] ? { topActionTargetChoicePath: actionTargetChoices[0].path } : {}),
     ...(actionTargetChoices[0]?.kind ? { topActionTargetChoiceKind: actionTargetChoices[0].kind } : {}),
@@ -14291,6 +14303,9 @@ function summarizeAgentFormChoices(forms: PageFormSummary[]): AgentFormChoice[] 
       ...(typeof field.minLength === "number" ? { minLength: field.minLength } : {}),
       ...(typeof field.maxLength === "number" ? { maxLength: field.maxLength } : {}),
       ...(field.required ? { required: true } : {}),
+      ...(field.disabled ? { disabled: true } : {}),
+      ...(field.readonly ? { readonly: true } : {}),
+      ...(typeof field.invalid !== "undefined" ? { invalid: field.invalid } : {}),
       ...(field.selector ? { selector: field.selector } : {}),
       ...(field.options?.length ? { options: field.options.slice() } : {}),
     })),
@@ -16587,6 +16602,9 @@ function compactAgentForms(items: PageFormSummary[], primaryAction?: SuggestedAc
       ...(typeof field.minLength === "number" ? { minLength: field.minLength } : {}),
       ...(typeof field.maxLength === "number" ? { maxLength: field.maxLength } : {}),
       ...(field.required ? { required: true } : {}),
+      ...(field.disabled ? { disabled: true } : {}),
+      ...(field.readonly ? { readonly: true } : {}),
+      ...(typeof field.invalid !== "undefined" ? { invalid: field.invalid } : {}),
     })),
     ...(item.actionUrl ? { actionUrl: item.actionUrl } : {}),
     ...(item.submitText ? { submitText: item.submitText } : {}),
@@ -17321,6 +17339,9 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.topFormChoiceFirstFieldMinLength === "number" ? { topFormChoiceFirstFieldMinLength: agent.topFormChoiceFirstFieldMinLength } : {}),
     ...(typeof agent.topFormChoiceFirstFieldMaxLength === "number" ? { topFormChoiceFirstFieldMaxLength: agent.topFormChoiceFirstFieldMaxLength } : {}),
     ...(typeof agent.topFormChoiceFirstFieldRequired === "boolean" ? { topFormChoiceFirstFieldRequired: agent.topFormChoiceFirstFieldRequired } : {}),
+    ...(typeof agent.topFormChoiceFirstFieldDisabled === "boolean" ? { topFormChoiceFirstFieldDisabled: agent.topFormChoiceFirstFieldDisabled } : {}),
+    ...(typeof agent.topFormChoiceFirstFieldReadonly === "boolean" ? { topFormChoiceFirstFieldReadonly: agent.topFormChoiceFirstFieldReadonly } : {}),
+    ...(typeof agent.topFormChoiceFirstFieldInvalid !== "undefined" ? { topFormChoiceFirstFieldInvalid: agent.topFormChoiceFirstFieldInvalid } : {}),
     ...(agent.topFormChoiceFirstFieldSelector ? { topFormChoiceFirstFieldSelector: agent.topFormChoiceFirstFieldSelector } : {}),
     ...(agent.topActionTargetChoicePath ? { topActionTargetChoicePath: agent.topActionTargetChoicePath } : {}),
     ...(agent.topActionTargetChoiceKind ? { topActionTargetChoiceKind: agent.topActionTargetChoiceKind } : {}),
@@ -18373,6 +18394,9 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.topFormChoiceFirstFieldMinLength === "number" ? { topFormChoiceFirstFieldMinLength: agent.topFormChoiceFirstFieldMinLength } : {}),
     ...(typeof agent.topFormChoiceFirstFieldMaxLength === "number" ? { topFormChoiceFirstFieldMaxLength: agent.topFormChoiceFirstFieldMaxLength } : {}),
     ...(typeof agent.topFormChoiceFirstFieldRequired === "boolean" ? { topFormChoiceFirstFieldRequired: agent.topFormChoiceFirstFieldRequired } : {}),
+    ...(typeof agent.topFormChoiceFirstFieldDisabled === "boolean" ? { topFormChoiceFirstFieldDisabled: agent.topFormChoiceFirstFieldDisabled } : {}),
+    ...(typeof agent.topFormChoiceFirstFieldReadonly === "boolean" ? { topFormChoiceFirstFieldReadonly: agent.topFormChoiceFirstFieldReadonly } : {}),
+    ...(typeof agent.topFormChoiceFirstFieldInvalid !== "undefined" ? { topFormChoiceFirstFieldInvalid: agent.topFormChoiceFirstFieldInvalid } : {}),
     ...(agent.topFormChoiceFirstFieldSelector ? { topFormChoiceFirstFieldSelector: agent.topFormChoiceFirstFieldSelector } : {}),
     ...(agent.topActionTargetChoicePath ? { topActionTargetChoicePath: agent.topActionTargetChoicePath } : {}),
     ...(agent.topActionTargetChoiceKind ? { topActionTargetChoiceKind: agent.topActionTargetChoiceKind } : {}),
@@ -19337,6 +19361,9 @@ function compactAgentFormExecutionRefs(forms: PageFormSummary[]): object[] {
       ...(typeof field.minLength === "number" ? { minLength: field.minLength } : {}),
       ...(typeof field.maxLength === "number" ? { maxLength: field.maxLength } : {}),
       ...(field.required ? { required: true } : {}),
+      ...(field.disabled ? { disabled: true } : {}),
+      ...(field.readonly ? { readonly: true } : {}),
+      ...(typeof field.invalid !== "undefined" ? { invalid: field.invalid } : {}),
       ...(field.options?.length ? { options: field.options.slice(0, 6) } : {}),
       ...(field.selector ? { selector: field.selector } : {}),
     })),

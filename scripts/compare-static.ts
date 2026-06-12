@@ -1359,6 +1359,9 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topFormChoiceFirstFieldMinLength?: number;
       topFormChoiceFirstFieldMaxLength?: number;
       topFormChoiceFirstFieldRequired?: boolean;
+      topFormChoiceFirstFieldDisabled?: boolean;
+      topFormChoiceFirstFieldReadonly?: boolean;
+      topFormChoiceFirstFieldInvalid?: boolean | string;
       topFormChoiceFirstFieldSelector?: string;
       topActionTargetChoicePath?: string;
       topActionTargetChoiceKind?: string;
@@ -4567,6 +4570,9 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   topFormChoiceFirstFieldMinLength?: number;
   topFormChoiceFirstFieldMaxLength?: number;
   topFormChoiceFirstFieldRequired?: boolean;
+  topFormChoiceFirstFieldDisabled?: boolean;
+  topFormChoiceFirstFieldReadonly?: boolean;
+  topFormChoiceFirstFieldInvalid?: boolean | string;
   topFormChoiceFirstFieldSelector?: string;
   actionTargetChoices?: CliAgentActionTargetChoiceShape[];
   topActionTargetChoicePath?: string;
@@ -4590,8 +4596,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   let matched = 0;
   if (form) {
     if (agent?.topFormChoicePath === form.path) matched += 1;
-    required += 23;
-    const firstField = Array.isArray(form.fields) ? form.fields[0] as { name?: unknown; type?: unknown; label?: unknown; placeholder?: unknown; value?: unknown; options?: unknown; autocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; required?: unknown; selector?: unknown } | undefined : undefined;
+    required += 26;
+    const firstField = Array.isArray(form.fields) ? form.fields[0] as { name?: unknown; type?: unknown; label?: unknown; placeholder?: unknown; value?: unknown; options?: unknown; autocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; required?: unknown; disabled?: unknown; readonly?: unknown; invalid?: unknown; selector?: unknown } | undefined : undefined;
     if (agent?.topFormChoiceMethod === form.method) matched += 1;
     if (agent?.topFormChoiceActionUrl === form.actionUrl) matched += 1;
     if (agent?.topFormChoiceSubmitText === form.submitText) matched += 1;
@@ -4614,6 +4620,9 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     if (agent?.topFormChoiceFirstFieldMinLength === firstField?.minLength) matched += 1;
     if (agent?.topFormChoiceFirstFieldMaxLength === firstField?.maxLength) matched += 1;
     if (agent?.topFormChoiceFirstFieldRequired === firstField?.required) matched += 1;
+    if (agent?.topFormChoiceFirstFieldDisabled === firstField?.disabled) matched += 1;
+    if (agent?.topFormChoiceFirstFieldReadonly === firstField?.readonly) matched += 1;
+    if (agent?.topFormChoiceFirstFieldInvalid === firstField?.invalid) matched += 1;
     if (agent?.topFormChoiceFirstFieldSelector === firstField?.selector) matched += 1;
   } else if (
     agent?.topFormChoicePath
@@ -4639,6 +4648,9 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     || typeof agent?.topFormChoiceFirstFieldMinLength === "number"
     || typeof agent?.topFormChoiceFirstFieldMaxLength === "number"
     || typeof agent?.topFormChoiceFirstFieldRequired === "boolean"
+    || typeof agent?.topFormChoiceFirstFieldDisabled === "boolean"
+    || typeof agent?.topFormChoiceFirstFieldReadonly === "boolean"
+    || typeof agent?.topFormChoiceFirstFieldInvalid !== "undefined"
     || agent?.topFormChoiceFirstFieldSelector
   ) {
     required += 1;
