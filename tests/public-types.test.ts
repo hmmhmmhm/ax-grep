@@ -492,7 +492,13 @@ describe("public agent types", () => {
       | "searchDecisionOfficialCount"
       | "searchDecisionFindMatchCount"
       | "searchDecisionRecommendedRank"
+      | "searchDecisionRecommendedPath"
+      | "searchDecisionRecommendedTitle"
       | "searchDecisionRecommendedUrl"
+      | "searchDecisionRecommendedSource"
+      | "searchDecisionRecommendedSourceScore"
+      | "searchDecisionRecommendedRelevance"
+      | "searchDecisionRecommendedLikelyOfficial"
       | "searchDecisionCommandArgs"
       | "pageDecisionName"
       | "pageDecisionConfidence"
@@ -1311,7 +1317,13 @@ describe("public agent types", () => {
       searchDecisionOfficialCount: 1,
       searchDecisionFindMatchCount: 1,
       searchDecisionRecommendedRank: 1,
+      searchDecisionRecommendedPath: "recommendedResult",
+      searchDecisionRecommendedTitle: "Example result",
       searchDecisionRecommendedUrl: "https://example.test",
+      searchDecisionRecommendedSource: "example.test",
+      searchDecisionRecommendedSourceScore: 0.92,
+      searchDecisionRecommendedRelevance: "high",
+      searchDecisionRecommendedLikelyOfficial: true,
       searchDecisionCommandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent"],
       pageDecisionName: "read-content",
       pageDecisionConfidence: "high",
@@ -1880,6 +1892,9 @@ describe("public agent types", () => {
     expect(summary.alternativeActionCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.recommendedPath).toBe("recommendedResult");
     expect(summary.recommendedSourceScore).toBe(0.92);
+    expect(summary.searchDecisionRecommendedPath).toBe("recommendedResult");
+    expect(summary.searchDecisionRecommendedSourceScore).toBe(0.92);
+    expect(summary.searchDecisionRecommendedLikelyOfficial).toBe(true);
     expect(summary.recommendedCommandArgs?.[0]).toBe("ax-grep");
   });
 });

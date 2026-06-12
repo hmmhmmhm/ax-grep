@@ -591,7 +591,13 @@ export type AgentSummary = {
   searchDecisionOfficialCount?: number;
   searchDecisionFindMatchCount?: number;
   searchDecisionRecommendedRank?: number;
+  searchDecisionRecommendedPath?: string;
+  searchDecisionRecommendedTitle?: string;
   searchDecisionRecommendedUrl?: string;
+  searchDecisionRecommendedSource?: string;
+  searchDecisionRecommendedSourceScore?: number;
+  searchDecisionRecommendedRelevance?: "low" | "medium" | "high";
+  searchDecisionRecommendedLikelyOfficial?: boolean;
   searchDecisionCommandArgs?: string[];
   pageDecisionName?: string;
   pageDecisionConfidence?: "low" | "medium" | "high";

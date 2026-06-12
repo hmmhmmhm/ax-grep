@@ -549,7 +549,13 @@ type CliAgentSearchDecisionShape = {
   officialCount?: number;
   findMatchCount?: number;
   recommendedRank?: number;
+  recommendedPath?: string;
+  recommendedTitle?: string;
   recommendedUrl?: string;
+  recommendedSource?: string;
+  recommendedSourceScore?: number;
+  recommendedRelevance?: CliSearchResultShape["relevance"];
+  recommendedLikelyOfficial?: boolean;
   command?: string;
   commandArgs?: unknown[];
 };
@@ -1188,7 +1194,13 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       searchDecisionOfficialCount?: number;
       searchDecisionFindMatchCount?: number;
       searchDecisionRecommendedRank?: number;
+      searchDecisionRecommendedPath?: string;
+      searchDecisionRecommendedTitle?: string;
       searchDecisionRecommendedUrl?: string;
+      searchDecisionRecommendedSource?: string;
+      searchDecisionRecommendedSourceScore?: number;
+      searchDecisionRecommendedRelevance?: CliSearchResultShape["relevance"];
+      searchDecisionRecommendedLikelyOfficial?: boolean;
       searchDecisionCommandArgs?: string[];
       pageDecisionName?: CliAgentPageDecisionShape["decision"];
       pageDecisionConfidence?: CliAgentPageDecisionShape["confidence"];
@@ -4929,7 +4941,13 @@ function scoreAgentSearchDecision(
     searchDecisionOfficialCount?: number;
     searchDecisionFindMatchCount?: number;
     searchDecisionRecommendedRank?: number;
+    searchDecisionRecommendedPath?: string;
+    searchDecisionRecommendedTitle?: string;
     searchDecisionRecommendedUrl?: string;
+    searchDecisionRecommendedSource?: string;
+    searchDecisionRecommendedSourceScore?: number;
+    searchDecisionRecommendedRelevance?: CliSearchResultShape["relevance"];
+    searchDecisionRecommendedLikelyOfficial?: boolean;
     searchDecisionCommandArgs?: string[];
   } | undefined,
   kind: string | undefined,
@@ -4982,10 +5000,46 @@ function scoreAgentSearchDecision(
   } else if (typeof agent?.searchDecisionRecommendedRank === "number") {
     required += 1;
   }
+  if (decision.recommendedPath) {
+    required += 1;
+    if (agent?.searchDecisionRecommendedPath === decision.recommendedPath) matched += 1;
+  } else if (agent?.searchDecisionRecommendedPath) {
+    required += 1;
+  }
+  if (decision.recommendedTitle) {
+    required += 1;
+    if (agent?.searchDecisionRecommendedTitle === decision.recommendedTitle) matched += 1;
+  } else if (agent?.searchDecisionRecommendedTitle) {
+    required += 1;
+  }
   if (decision.recommendedUrl) {
     required += 1;
     if (agent?.searchDecisionRecommendedUrl === decision.recommendedUrl) matched += 1;
   } else if (agent?.searchDecisionRecommendedUrl) {
+    required += 1;
+  }
+  if (decision.recommendedSource) {
+    required += 1;
+    if (agent?.searchDecisionRecommendedSource === decision.recommendedSource) matched += 1;
+  } else if (agent?.searchDecisionRecommendedSource) {
+    required += 1;
+  }
+  if (typeof decision.recommendedSourceScore === "number") {
+    required += 1;
+    if (agent?.searchDecisionRecommendedSourceScore === decision.recommendedSourceScore) matched += 1;
+  } else if (typeof agent?.searchDecisionRecommendedSourceScore === "number") {
+    required += 1;
+  }
+  if (decision.recommendedRelevance) {
+    required += 1;
+    if (agent?.searchDecisionRecommendedRelevance === decision.recommendedRelevance) matched += 1;
+  } else if (agent?.searchDecisionRecommendedRelevance) {
+    required += 1;
+  }
+  if (typeof decision.recommendedLikelyOfficial === "boolean") {
+    required += 1;
+    if (agent?.searchDecisionRecommendedLikelyOfficial === decision.recommendedLikelyOfficial) matched += 1;
+  } else if (typeof agent?.searchDecisionRecommendedLikelyOfficial === "boolean") {
     required += 1;
   }
   if (decision.commandArgs) {
