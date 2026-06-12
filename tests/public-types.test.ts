@@ -158,7 +158,7 @@ describe("public agent types", () => {
       queryField: "q",
       urlTemplate: "https://example.test/find?q={query}",
       selector: "form:nth-of-type(1)",
-      fields: [{ name: "q", type: "search", label: "Search", placeholder: "Search docs", value: "initial", required: true, selector: "input[name=\"q\"]", options: ["All", "Docs"] }],
+      fields: [{ name: "q", type: "search", label: "Search", placeholder: "Search docs", value: "initial", autocomplete: "off", inputMode: "search", pattern: "[A-Za-z ]+", min: "1", max: "99", step: "1", minLength: 2, maxLength: 80, required: true, selector: "input[name=\"q\"]", options: ["All", "Docs"] }],
     };
     const actionTargetChoice: AgentActionTargetChoice = {
       id: "at1",
@@ -225,6 +225,14 @@ describe("public agent types", () => {
       | "topFormChoiceFirstFieldPlaceholder"
       | "topFormChoiceFirstFieldValue"
       | "topFormChoiceFirstFieldOptions"
+      | "topFormChoiceFirstFieldAutocomplete"
+      | "topFormChoiceFirstFieldInputMode"
+      | "topFormChoiceFirstFieldPattern"
+      | "topFormChoiceFirstFieldMin"
+      | "topFormChoiceFirstFieldMax"
+      | "topFormChoiceFirstFieldStep"
+      | "topFormChoiceFirstFieldMinLength"
+      | "topFormChoiceFirstFieldMaxLength"
       | "topFormChoiceFirstFieldRequired"
       | "topFormChoiceFirstFieldSelector"
       | "actionTargetCount"
@@ -1240,6 +1248,14 @@ describe("public agent types", () => {
       topFormChoiceFirstFieldPlaceholder: "Search docs",
       topFormChoiceFirstFieldValue: "initial",
       topFormChoiceFirstFieldOptions: ["All", "Docs"],
+      topFormChoiceFirstFieldAutocomplete: "off",
+      topFormChoiceFirstFieldInputMode: "search",
+      topFormChoiceFirstFieldPattern: "[A-Za-z ]+",
+      topFormChoiceFirstFieldMin: "1",
+      topFormChoiceFirstFieldMax: "99",
+      topFormChoiceFirstFieldStep: "1",
+      topFormChoiceFirstFieldMinLength: 2,
+      topFormChoiceFirstFieldMaxLength: 80,
       topFormChoiceFirstFieldRequired: true,
       topFormChoiceFirstFieldSelector: "input[name=\"q\"]",
       actionTargetCount: 2,

@@ -391,6 +391,14 @@ type PageFormFieldSummary = {
   label?: string;
   placeholder?: string;
   value?: string;
+  autocomplete?: string;
+  inputMode?: string;
+  pattern?: string;
+  min?: string;
+  max?: string;
+  step?: string;
+  minLength?: number;
+  maxLength?: number;
   required?: boolean;
   selector?: string;
   options?: string[];
@@ -1428,6 +1436,14 @@ type AgentSummary = {
   topFormChoiceFirstFieldPlaceholder?: string;
   topFormChoiceFirstFieldValue?: string;
   topFormChoiceFirstFieldOptions?: string[];
+  topFormChoiceFirstFieldAutocomplete?: string;
+  topFormChoiceFirstFieldInputMode?: string;
+  topFormChoiceFirstFieldPattern?: string;
+  topFormChoiceFirstFieldMin?: string;
+  topFormChoiceFirstFieldMax?: string;
+  topFormChoiceFirstFieldStep?: string;
+  topFormChoiceFirstFieldMinLength?: number;
+  topFormChoiceFirstFieldMaxLength?: number;
   topFormChoiceFirstFieldRequired?: boolean;
   topFormChoiceFirstFieldSelector?: string;
   actionTargetCount: number;
@@ -3580,7 +3596,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topFormChoiceUrlTemplate ? [`  topFormChoiceUrlTemplate: ${agent.topFormChoiceUrlTemplate}`] : []),
     ...(agent.topFormChoiceQueryField ? [`  topFormChoiceQueryField: ${agent.topFormChoiceQueryField}`] : []),
     ...(agent.topFormChoiceSubmitText ? [`  topFormChoiceSubmitText: ${agent.topFormChoiceSubmitText}`] : []),
-    ...(agent.topFormChoiceFirstFieldName || agent.topFormChoiceFirstFieldType ? [`  topFormChoiceFirstField: ${agent.topFormChoiceFirstFieldName ?? ""}${agent.topFormChoiceFirstFieldType ? ` type=${agent.topFormChoiceFirstFieldType}` : ""}${agent.topFormChoiceFirstFieldLabel ? ` label=${agent.topFormChoiceFirstFieldLabel}` : ""}${agent.topFormChoiceFirstFieldPlaceholder ? ` placeholder=${agent.topFormChoiceFirstFieldPlaceholder}` : ""}${agent.topFormChoiceFirstFieldValue ? ` value=${agent.topFormChoiceFirstFieldValue}` : ""}${agent.topFormChoiceFirstFieldOptions?.length ? ` options=${agent.topFormChoiceFirstFieldOptions.join("|")}` : ""}${typeof agent.topFormChoiceFirstFieldRequired === "boolean" ? ` required=${agent.topFormChoiceFirstFieldRequired}` : ""}${agent.topFormChoiceFirstFieldSelector ? ` selector=${agent.topFormChoiceFirstFieldSelector}` : ""}`] : []),
+    ...(agent.topFormChoiceFirstFieldName || agent.topFormChoiceFirstFieldType ? [`  topFormChoiceFirstField: ${agent.topFormChoiceFirstFieldName ?? ""}${agent.topFormChoiceFirstFieldType ? ` type=${agent.topFormChoiceFirstFieldType}` : ""}${agent.topFormChoiceFirstFieldLabel ? ` label=${agent.topFormChoiceFirstFieldLabel}` : ""}${agent.topFormChoiceFirstFieldPlaceholder ? ` placeholder=${agent.topFormChoiceFirstFieldPlaceholder}` : ""}${agent.topFormChoiceFirstFieldValue ? ` value=${agent.topFormChoiceFirstFieldValue}` : ""}${agent.topFormChoiceFirstFieldOptions?.length ? ` options=${agent.topFormChoiceFirstFieldOptions.join("|")}` : ""}${agent.topFormChoiceFirstFieldAutocomplete ? ` autocomplete=${agent.topFormChoiceFirstFieldAutocomplete}` : ""}${agent.topFormChoiceFirstFieldInputMode ? ` inputMode=${agent.topFormChoiceFirstFieldInputMode}` : ""}${agent.topFormChoiceFirstFieldPattern ? ` pattern=${agent.topFormChoiceFirstFieldPattern}` : ""}${agent.topFormChoiceFirstFieldMin ? ` min=${agent.topFormChoiceFirstFieldMin}` : ""}${agent.topFormChoiceFirstFieldMax ? ` max=${agent.topFormChoiceFirstFieldMax}` : ""}${agent.topFormChoiceFirstFieldStep ? ` step=${agent.topFormChoiceFirstFieldStep}` : ""}${typeof agent.topFormChoiceFirstFieldMinLength === "number" ? ` minLength=${agent.topFormChoiceFirstFieldMinLength}` : ""}${typeof agent.topFormChoiceFirstFieldMaxLength === "number" ? ` maxLength=${agent.topFormChoiceFirstFieldMaxLength}` : ""}${typeof agent.topFormChoiceFirstFieldRequired === "boolean" ? ` required=${agent.topFormChoiceFirstFieldRequired}` : ""}${agent.topFormChoiceFirstFieldSelector ? ` selector=${agent.topFormChoiceFirstFieldSelector}` : ""}`] : []),
     ...(agent.topActionTargetChoicePath ? [`  topActionTargetChoicePath: ${agent.topActionTargetChoicePath}`] : []),
     ...(agent.topActionTargetChoiceUrlTemplate ? [`  topActionTargetChoiceUrlTemplate: ${agent.topActionTargetChoiceUrlTemplate}`] : []),
     ...(agent.topActionTargetChoiceQueryInput ? [`  topActionTargetChoiceQueryInput: ${agent.topActionTargetChoiceQueryInput}`] : []),
@@ -6316,6 +6332,14 @@ function summarizeFormField(control: Element, index: number, rootNodes: AnyNode[
   const label = formFieldLabel(control, rootNodes);
   const placeholder = attr(control, "placeholder") || "";
   const value = attr(control, "value") || "";
+  const autocomplete = attr(control, "autocomplete") || "";
+  const inputMode = attr(control, "inputmode") || "";
+  const pattern = attr(control, "pattern") || "";
+  const min = attr(control, "min") || "";
+  const max = attr(control, "max") || "";
+  const step = attr(control, "step") || "";
+  const minLength = semanticNonNegativeInteger(attr(control, "minlength"));
+  const maxLength = semanticNonNegativeInteger(attr(control, "maxlength"));
   const options = control.name === "select"
     ? findElements(control.children, (item) => item.name === "option").map((option) => cleanContentText(descendantText(option) || attr(option, "value") || "")).filter(Boolean).slice(0, 8)
     : [];
@@ -6323,6 +6347,14 @@ function summarizeFormField(control: Element, index: number, rootNodes: AnyNode[
   if (label) field.label = label;
   if (placeholder) field.placeholder = placeholder;
   if (value) field.value = value;
+  if (autocomplete) field.autocomplete = autocomplete;
+  if (inputMode) field.inputMode = inputMode;
+  if (pattern) field.pattern = pattern;
+  if (min) field.min = min;
+  if (max) field.max = max;
+  if (step) field.step = step;
+  if (typeof minLength === "number") field.minLength = minLength;
+  if (typeof maxLength === "number") field.maxLength = maxLength;
   if (attr(control, "required") !== undefined || attr(control, "aria-required") === "true") field.required = true;
   if (options.length > 0) field.options = options;
   return field;
@@ -11906,6 +11938,14 @@ function summarizeAgent(
     ...(topFormChoiceFirstField?.placeholder ? { topFormChoiceFirstFieldPlaceholder: topFormChoiceFirstField.placeholder } : {}),
     ...(topFormChoiceFirstField?.value ? { topFormChoiceFirstFieldValue: topFormChoiceFirstField.value } : {}),
     ...(topFormChoiceFirstField?.options?.length ? { topFormChoiceFirstFieldOptions: topFormChoiceFirstField.options } : {}),
+    ...(topFormChoiceFirstField?.autocomplete ? { topFormChoiceFirstFieldAutocomplete: topFormChoiceFirstField.autocomplete } : {}),
+    ...(topFormChoiceFirstField?.inputMode ? { topFormChoiceFirstFieldInputMode: topFormChoiceFirstField.inputMode } : {}),
+    ...(topFormChoiceFirstField?.pattern ? { topFormChoiceFirstFieldPattern: topFormChoiceFirstField.pattern } : {}),
+    ...(topFormChoiceFirstField?.min ? { topFormChoiceFirstFieldMin: topFormChoiceFirstField.min } : {}),
+    ...(topFormChoiceFirstField?.max ? { topFormChoiceFirstFieldMax: topFormChoiceFirstField.max } : {}),
+    ...(topFormChoiceFirstField?.step ? { topFormChoiceFirstFieldStep: topFormChoiceFirstField.step } : {}),
+    ...(typeof topFormChoiceFirstField?.minLength === "number" ? { topFormChoiceFirstFieldMinLength: topFormChoiceFirstField.minLength } : {}),
+    ...(typeof topFormChoiceFirstField?.maxLength === "number" ? { topFormChoiceFirstFieldMaxLength: topFormChoiceFirstField.maxLength } : {}),
     ...(typeof topFormChoiceFirstField?.required === "boolean" ? { topFormChoiceFirstFieldRequired: topFormChoiceFirstField.required } : {}),
     ...(topFormChoiceFirstField?.selector ? { topFormChoiceFirstFieldSelector: topFormChoiceFirstField.selector } : {}),
     ...(actionTargetChoices[0] ? { topActionTargetChoicePath: actionTargetChoices[0].path } : {}),
@@ -14242,6 +14282,14 @@ function summarizeAgentFormChoices(forms: PageFormSummary[]): AgentFormChoice[] 
       ...(field.label ? { label: field.label } : {}),
       ...(field.placeholder ? { placeholder: field.placeholder } : {}),
       ...(field.value ? { value: field.value } : {}),
+      ...(field.autocomplete ? { autocomplete: field.autocomplete } : {}),
+      ...(field.inputMode ? { inputMode: field.inputMode } : {}),
+      ...(field.pattern ? { pattern: field.pattern } : {}),
+      ...(field.min ? { min: field.min } : {}),
+      ...(field.max ? { max: field.max } : {}),
+      ...(field.step ? { step: field.step } : {}),
+      ...(typeof field.minLength === "number" ? { minLength: field.minLength } : {}),
+      ...(typeof field.maxLength === "number" ? { maxLength: field.maxLength } : {}),
       ...(field.required ? { required: true } : {}),
       ...(field.selector ? { selector: field.selector } : {}),
       ...(field.options?.length ? { options: field.options.slice() } : {}),
@@ -16530,6 +16578,14 @@ function compactAgentForms(items: PageFormSummary[], primaryAction?: SuggestedAc
       ...(field.name ? { name: field.name } : {}),
       ...(field.label ? { label: field.label } : {}),
       ...(field.placeholder && field.placeholder !== field.label ? { placeholder: field.placeholder } : {}),
+      ...(field.autocomplete ? { autocomplete: field.autocomplete } : {}),
+      ...(field.inputMode ? { inputMode: field.inputMode } : {}),
+      ...(field.pattern ? { pattern: field.pattern } : {}),
+      ...(field.min ? { min: field.min } : {}),
+      ...(field.max ? { max: field.max } : {}),
+      ...(field.step ? { step: field.step } : {}),
+      ...(typeof field.minLength === "number" ? { minLength: field.minLength } : {}),
+      ...(typeof field.maxLength === "number" ? { maxLength: field.maxLength } : {}),
       ...(field.required ? { required: true } : {}),
     })),
     ...(item.actionUrl ? { actionUrl: item.actionUrl } : {}),
@@ -17256,6 +17312,14 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topFormChoiceFirstFieldPlaceholder ? { topFormChoiceFirstFieldPlaceholder: agent.topFormChoiceFirstFieldPlaceholder } : {}),
     ...(agent.topFormChoiceFirstFieldValue ? { topFormChoiceFirstFieldValue: agent.topFormChoiceFirstFieldValue } : {}),
     ...(agent.topFormChoiceFirstFieldOptions?.length ? { topFormChoiceFirstFieldOptions: agent.topFormChoiceFirstFieldOptions } : {}),
+    ...(agent.topFormChoiceFirstFieldAutocomplete ? { topFormChoiceFirstFieldAutocomplete: agent.topFormChoiceFirstFieldAutocomplete } : {}),
+    ...(agent.topFormChoiceFirstFieldInputMode ? { topFormChoiceFirstFieldInputMode: agent.topFormChoiceFirstFieldInputMode } : {}),
+    ...(agent.topFormChoiceFirstFieldPattern ? { topFormChoiceFirstFieldPattern: agent.topFormChoiceFirstFieldPattern } : {}),
+    ...(agent.topFormChoiceFirstFieldMin ? { topFormChoiceFirstFieldMin: agent.topFormChoiceFirstFieldMin } : {}),
+    ...(agent.topFormChoiceFirstFieldMax ? { topFormChoiceFirstFieldMax: agent.topFormChoiceFirstFieldMax } : {}),
+    ...(agent.topFormChoiceFirstFieldStep ? { topFormChoiceFirstFieldStep: agent.topFormChoiceFirstFieldStep } : {}),
+    ...(typeof agent.topFormChoiceFirstFieldMinLength === "number" ? { topFormChoiceFirstFieldMinLength: agent.topFormChoiceFirstFieldMinLength } : {}),
+    ...(typeof agent.topFormChoiceFirstFieldMaxLength === "number" ? { topFormChoiceFirstFieldMaxLength: agent.topFormChoiceFirstFieldMaxLength } : {}),
     ...(typeof agent.topFormChoiceFirstFieldRequired === "boolean" ? { topFormChoiceFirstFieldRequired: agent.topFormChoiceFirstFieldRequired } : {}),
     ...(agent.topFormChoiceFirstFieldSelector ? { topFormChoiceFirstFieldSelector: agent.topFormChoiceFirstFieldSelector } : {}),
     ...(agent.topActionTargetChoicePath ? { topActionTargetChoicePath: agent.topActionTargetChoicePath } : {}),
@@ -18300,6 +18364,14 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topFormChoiceFirstFieldPlaceholder ? { topFormChoiceFirstFieldPlaceholder: agent.topFormChoiceFirstFieldPlaceholder } : {}),
     ...(agent.topFormChoiceFirstFieldValue ? { topFormChoiceFirstFieldValue: agent.topFormChoiceFirstFieldValue } : {}),
     ...(agent.topFormChoiceFirstFieldOptions?.length ? { topFormChoiceFirstFieldOptions: agent.topFormChoiceFirstFieldOptions } : {}),
+    ...(agent.topFormChoiceFirstFieldAutocomplete ? { topFormChoiceFirstFieldAutocomplete: agent.topFormChoiceFirstFieldAutocomplete } : {}),
+    ...(agent.topFormChoiceFirstFieldInputMode ? { topFormChoiceFirstFieldInputMode: agent.topFormChoiceFirstFieldInputMode } : {}),
+    ...(agent.topFormChoiceFirstFieldPattern ? { topFormChoiceFirstFieldPattern: agent.topFormChoiceFirstFieldPattern } : {}),
+    ...(agent.topFormChoiceFirstFieldMin ? { topFormChoiceFirstFieldMin: agent.topFormChoiceFirstFieldMin } : {}),
+    ...(agent.topFormChoiceFirstFieldMax ? { topFormChoiceFirstFieldMax: agent.topFormChoiceFirstFieldMax } : {}),
+    ...(agent.topFormChoiceFirstFieldStep ? { topFormChoiceFirstFieldStep: agent.topFormChoiceFirstFieldStep } : {}),
+    ...(typeof agent.topFormChoiceFirstFieldMinLength === "number" ? { topFormChoiceFirstFieldMinLength: agent.topFormChoiceFirstFieldMinLength } : {}),
+    ...(typeof agent.topFormChoiceFirstFieldMaxLength === "number" ? { topFormChoiceFirstFieldMaxLength: agent.topFormChoiceFirstFieldMaxLength } : {}),
     ...(typeof agent.topFormChoiceFirstFieldRequired === "boolean" ? { topFormChoiceFirstFieldRequired: agent.topFormChoiceFirstFieldRequired } : {}),
     ...(agent.topFormChoiceFirstFieldSelector ? { topFormChoiceFirstFieldSelector: agent.topFormChoiceFirstFieldSelector } : {}),
     ...(agent.topActionTargetChoicePath ? { topActionTargetChoicePath: agent.topActionTargetChoicePath } : {}),
@@ -19256,6 +19328,14 @@ function compactAgentFormExecutionRefs(forms: PageFormSummary[]): object[] {
       ...(field.name ? { name: field.name } : {}),
       ...(field.label ? { label: field.label } : {}),
       ...(field.placeholder && field.placeholder !== field.label ? { placeholder: field.placeholder } : {}),
+      ...(field.autocomplete ? { autocomplete: field.autocomplete } : {}),
+      ...(field.inputMode ? { inputMode: field.inputMode } : {}),
+      ...(field.pattern ? { pattern: field.pattern } : {}),
+      ...(field.min ? { min: field.min } : {}),
+      ...(field.max ? { max: field.max } : {}),
+      ...(field.step ? { step: field.step } : {}),
+      ...(typeof field.minLength === "number" ? { minLength: field.minLength } : {}),
+      ...(typeof field.maxLength === "number" ? { maxLength: field.maxLength } : {}),
       ...(field.required ? { required: true } : {}),
       ...(field.options?.length ? { options: field.options.slice(0, 6) } : {}),
       ...(field.selector ? { selector: field.selector } : {}),
