@@ -597,6 +597,7 @@ describe("public agent types", () => {
       | "semanticTopTableSampleCells"
       | "semanticTopTableSampleCellRefs"
       | "semanticTopTableFirstHeader"
+      | "semanticTopTableFirstSampleCellPath"
       | "semanticTopTableFirstSampleCellText"
       | "semanticTopTableFirstSampleCellRowIndex"
       | "semanticTopTableFirstSampleCellColumnIndex"
@@ -1294,8 +1295,9 @@ describe("public agent types", () => {
       semanticTopTableDeclaredColumnCount: 4,
       semanticTopTableHeaders: ["Plan", "Price"],
       semanticTopTableSampleCells: ["Pro", "$20"],
-      semanticTopTableSampleCellRefs: [{ text: "Pro", rowIndex: 2, columnIndex: 1, rowSpan: 2, columnSpan: 3, headers: ["Plan", "Price"], selector: "td:nth-of-type(1)" }],
+      semanticTopTableSampleCellRefs: [{ path: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]", text: "Pro", rowIndex: 2, columnIndex: 1, rowSpan: 2, columnSpan: 3, headers: ["Plan", "Price"], selector: "td:nth-of-type(1)" }],
       semanticTopTableFirstHeader: "Plan",
+      semanticTopTableFirstSampleCellPath: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]",
       semanticTopTableFirstSampleCellText: "Pro",
       semanticTopTableFirstSampleCellRowIndex: 2,
       semanticTopTableFirstSampleCellColumnIndex: 1,

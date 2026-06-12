@@ -29,14 +29,37 @@ instead of hiding the new scope.
 
 ## Active Work Tracker
 
-| Track | Progress | Current work | Done when |
+| Track | Progress | Current work | Remaining work | Next checkpoint |
+| --- | ---: | --- | --- | --- |
+| Documentation control | 90% | Keep README short and move long operational detail into `docs/`. | Add only status, safety, and research notes that help future sessions resume quickly. | README length/mojibake tests pass after each docs change. |
+| Process containment | 85% | Keep validation sequential and check for leftover browser/test/comparison processes. | Add more explicit notes when a task would require browser-backed validation, including why it is necessary. | `pnpm check:processes` before and after risky work shows no leftovers. |
+| Search handoff | 80% | Expose enough ranked-result context for an agent to choose, open, or skip results. | Identify whether ranked result snippets need stronger dedupe, provenance, or failed-open reasons. | A static search fixture lets an agent choose a result without browser inspection first. |
+| Page handoff | 84% | Surface barriers, read targets, action targets, table navigation shortcuts, hidden signal group shortcuts, and browser-capture reason codes. | Tighten fallback decisions for client-rendered, blocked, and low-content pages. | Fixtures show clear `use static output` vs `need browser capture` reasons. |
+| Semantic accessibility | 76% | Continue adding high-value shortcuts from roles, states, relations, lists, tables, and controls. | Compare table/grid/list/control output against browser-tree expectations and add only useful static equivalents. | Each accepted signal has a public type, CLI output, compact output, and fixture/test coverage. |
+| Browser parity research | 60% | Compare static output against a small sequential fixture set and record gaps. | Expand the gap list as research finds new browser accessibility-tree signals; lower estimates if new important gaps appear. | Each gap is tagged `implement`, `browser-only`, or `defer` with priority and evidence. |
+
+## Milestone Tracker
+
+| Milestone | Estimate impact | Status | Evidence needed |
 | --- | ---: | --- | --- |
-| Documentation control | 90% | Keep README short and move long operational detail into `docs/`. | README stays under the enforced length limit and detailed notes are discoverable from docs links. |
-| Process containment | 85% | Keep validation sequential and check for leftover browser/test/comparison processes. | Every risky run starts and ends with `pnpm check:processes`, and no browser-backed parallel checks are introduced. |
-| Search handoff | 80% | Expose enough ranked-result context for an agent to choose, open, or skip results. | Agents can explain which result to open and why without relying on browser inspection first. |
-| Page handoff | 84% | Surface barriers, read targets, action targets, table navigation shortcuts, hidden signal group shortcuts, and browser-capture reason codes. | Agents can decide whether static HTML is enough, which source to inspect next, or why browser capture is needed. |
-| Semantic accessibility | 76% | Continue adding high-value shortcuts from roles, states, relations, lists, tables, and controls. | Common browser accessibility-tree navigation questions have direct static equivalents or explicit fallback reasons. |
-| Browser parity research | 60% | Compare static output against a small sequential fixture set and record gaps. | Known useful browser-tree-only signals are either implemented, documented as impossible statically, or queued with priority. |
+| M1: README and docs stay controlled. | Keeps 90% docs hygiene stable. | In progress. | README tests pass and long operational detail remains under `docs/`. |
+| M2: No process leaks during validation. | Keeps 85% process containment stable. | In progress. | Sequential commands plus clean `pnpm check:processes` results before/after risky runs. |
+| M3: Static page output gives clear browser fallback reasons. | +2-4% page handoff. | In progress. | Reason codes cover observed no-content, fetch, retry, and browser-interaction cases. |
+| M4: Semantic tables/lists/controls have enough path shortcuts for agents to jump directly to evidence. | +3-6% semantic accessibility. | In progress. | Top shortcuts and nested refs include stable paths, selectors, and resolved context. |
+| M5: Browser parity gaps are tracked as research scope, not hidden churn. | +5-10% browser parity research. | Planned. | A maintained gap table records candidate signal, source, priority, decision, and validation result. |
+
+## Research Scope Ledger
+
+Research can grow while the work is underway. When a new useful
+accessibility-tree signal appears, add it here before implementing so progress
+estimates stay honest.
+
+| Signal or gap | Source | Priority | Decision | Status |
+| --- | --- | --- | --- | --- |
+| Table/grid ownership and cell navigation context beyond first-row shortcuts. | Static/browser fixture comparison. | P1 | Investigate and implement only if it improves agent routing. | Open. |
+| Browser-only fallback reasons for client-rendered or blocked pages. | Failed or low-content page checks. | P1 | Document as fallback policy when static HTML cannot represent the state. | Open. |
+| Search-result provenance and failed-open reasons. | Search handoff review. | P2 | Implement if agents cannot explain why a result was selected or skipped. | Candidate. |
+| Additional browser accessibility-tree signals discovered during sequential comparison. | Future research. | P1/P2 after triage. | Add to this ledger, then classify as `implement`, `browser-only`, or `defer`. | Watch. |
 
 ## Current Focus
 
@@ -85,6 +108,8 @@ instead of hiding the new scope.
 - Added top semantic table first-header and first-sample-cell shortcuts so
   agents can inspect row, column, span, header, and selector context without
   parsing the full table refs array.
+- Added semantic table sample-cell ref paths so agents can jump back to the
+  exact `agent.semanticSummary.tableItems[*].sampleCellRefs[*]` item.
 - Added top data-table navigation shortcuts for header count, first header,
   first row, first cell, and selector so agents can inspect table shape without
   reading the full table payload.
