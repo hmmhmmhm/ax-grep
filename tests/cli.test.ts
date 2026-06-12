@@ -4670,6 +4670,40 @@ describe("cli", () => {
     });
   });
 
+  it("keeps semantic table and list container selectors in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/report", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h1>Quarterly report</h1>
+          <table aria-label="Revenue by quarter">
+            <tr><th>Quarter</th><th>Revenue</th></tr>
+            <tr><td>Q1</td><td>$10</td></tr>
+          </table>
+          <ul aria-label="Highlights">
+            <li aria-posinset="1" aria-setsize="2" aria-current="page">North region grew</li>
+            <li aria-posinset="2" aria-setsize="2">Renewals improved</li>
+          </ul>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      semanticTopTableRole: "table",
+      semanticTopTablePath: "agent.semanticSummary.tableItems[0]",
+      semanticTopTableSelector: "table",
+      semanticTopListRole: "list",
+      semanticTopListPath: "agent.semanticSummary.listItems[0]",
+      semanticTopListFirstItemSelector: "li",
+      semanticTopListSelector: "ul",
+    });
+  });
+
   it("summarizes forms with action fields and query URL templates for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/search", "--agent"], {
