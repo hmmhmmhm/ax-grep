@@ -13124,7 +13124,8 @@ function answerPlanReadConfidence(pageCheck: PageCheckSummary): AgentAnswerPlan[
 }
 
 function summarizeBrowserHtmlReason(needsBrowserHtml: boolean, answerPlan: AgentAnswerPlan, primaryAction?: SuggestedAction): string | undefined {
-  if (!needsBrowserHtml) return undefined;
+  const needsBrowserInteraction = Boolean(primaryAction?.requiresBrowserInteraction || (primaryAction && actionExecution(primaryAction) === "interact-browser"));
+  if (!needsBrowserHtml && !needsBrowserInteraction) return undefined;
   return answerPlan.gaps.find((gap) => /browser/i.test(gap))
     ?? primaryAction?.reason
     ?? answerPlan.reason
@@ -13137,7 +13138,8 @@ function summarizeBrowserHtmlReasonCode(
   primaryAction?: SuggestedAction,
   error?: { code: CliErrorCode },
 ): AgentBrowserHtmlReasonCode | undefined {
-  if (!needsBrowserHtml) return undefined;
+  const needsBrowserInteraction = Boolean(primaryAction?.requiresBrowserInteraction || (primaryAction && actionExecution(primaryAction) === "interact-browser"));
+  if (!needsBrowserHtml && !needsBrowserInteraction) return undefined;
   if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "CLIENT_RENDERED")) return "client-rendered";
   if (error?.code === "NO_INSPECTABLE_CONTENT") return "no-inspectable-content";
   if (error?.code === "HTTP_ERROR") return "http-error";
@@ -13146,7 +13148,7 @@ function summarizeBrowserHtmlReasonCode(
   if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "CHALLENGE_LIKELY")) return "challenge";
   if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "LOGIN_REQUIRED")) return "login-required";
   if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "PAYWALL_LIKELY")) return "paywall";
-  if (primaryAction?.requiresBrowserInteraction || (primaryAction && actionExecution(primaryAction) === "interact-browser")) return "browser-interaction";
+  if (needsBrowserInteraction) return "interaction-required";
   if (primaryAction?.action === "retry-with-browser-html") return "retry-action";
   if (analysis.kind === "blocked-page" || analysis.kind === "empty") return "blocked-or-empty";
   return "unknown";

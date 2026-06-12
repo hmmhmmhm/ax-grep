@@ -106,6 +106,7 @@ export type AgentBrowserHtmlReasonCode =
   | "paywall"
   | "blocked-or-empty"
   | "retry-action"
+  | "interaction-required"
   | "browser-interaction"
   | "unknown";
 export type AgentStaticReadiness = "usable-content" | "usable-structured-data" | "usable-hidden-data" | "thin" | "needs-browser" | "error";

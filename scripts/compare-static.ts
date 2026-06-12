@@ -8106,12 +8106,14 @@ function scoreAgentBrowserNeed(
   primaryAction: CliActionShape | undefined,
 ): number {
   if (typeof needsBrowserHtml !== "boolean") return 0;
-  const validReasonCodes = new Set(["no-inspectable-content", "http-error", "fetch-error", "challenge", "login-required", "paywall", "blocked-or-empty", "retry-action", "browser-interaction", "unknown"]);
+  const needsBrowserInteraction = Boolean(primaryAction?.requiresBrowserInteraction || (primaryAction && normalizedActionExecution(primaryAction) === "interact-browser"));
+  const needsBrowserReason = needsBrowserHtml || needsBrowserInteraction;
+  const validReasonCodes = new Set(["no-inspectable-content", "client-rendered", "http-error", "fetch-error", "challenge", "login-required", "paywall", "blocked-or-empty", "retry-action", "interaction-required", "browser-interaction", "unknown"]);
   const validStaticReadiness = new Set(["usable-content", "usable-structured-data", "usable-hidden-data", "thin", "needs-browser", "error"]);
-  const reasonScore = needsBrowserHtml
+  const reasonScore = needsBrowserReason
     ? typeof browserHtmlReason === "string" && /browser/i.test(browserHtmlReason) ? 0.15 : 0
     : typeof browserHtmlReason === "undefined" ? 0.15 : 0;
-  const reasonCodeScore = needsBrowserHtml
+  const reasonCodeScore = needsBrowserReason
     ? typeof browserHtmlReasonCode === "string" && validReasonCodes.has(browserHtmlReasonCode) ? 0.1 : 0
     : typeof browserHtmlReasonCode === "undefined" ? 0.1 : 0;
   const staticReadinessScore = typeof staticReadiness === "string" && validStaticReadiness.has(staticReadiness) ? 0.07 : 0;
