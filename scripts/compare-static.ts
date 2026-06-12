@@ -1664,11 +1664,17 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topActionSource?: string;
       topActionExecution?: ActionExecution;
       topActionPriority?: "low" | "medium" | "high";
+      topActionPriorityReason?: string;
       topActionReason?: string;
       topActionReadFrom?: string;
+      topActionCommand?: string;
       topActionCommandArgs?: string[];
+      topActionAfterInteractionCommand?: string;
+      topActionAfterInteractionCommandArgs?: string[];
       topActionUrl?: string;
       topActionSourceLinkRef?: string;
+      topActionRank?: number;
+      topActionOpenResult?: number | "best";
       topActionExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
       topActionExpectedOutcomeMessage?: string;
       topActionTargetUrl?: string;
@@ -1714,11 +1720,17 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       alternativeActionExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
       alternativeActionExpectedOutcomeMessage?: string;
       alternativeActionPriority?: "low" | "medium" | "high";
+      alternativeActionPriorityReason?: string;
       alternativeActionReason?: string;
       alternativeActionReadFrom?: string;
+      alternativeActionCommand?: string;
       alternativeActionCommandArgs?: string[];
+      alternativeActionAfterInteractionCommand?: string;
+      alternativeActionAfterInteractionCommandArgs?: string[];
       alternativeActionUrl?: string;
       alternativeActionSourceLinkRef?: string;
+      alternativeActionRank?: number;
+      alternativeActionOpenResult?: number | "best";
       alternativeActionTargetUrl?: string;
       alternativeActionTargetPath?: string;
       alternativeActionTargetTitle?: string;
@@ -4902,11 +4914,17 @@ function scoreAgentTopActionShortcuts(agent: {
   topActionSource?: string;
   topActionExecution?: ActionExecution;
   topActionPriority?: "low" | "medium" | "high";
+  topActionPriorityReason?: string;
   topActionReason?: string;
   topActionReadFrom?: string;
+  topActionCommand?: string;
   topActionCommandArgs?: string[];
+  topActionAfterInteractionCommand?: string;
+  topActionAfterInteractionCommandArgs?: string[];
   topActionUrl?: string;
   topActionSourceLinkRef?: string;
+  topActionRank?: number;
+  topActionOpenResult?: number | "best";
   topActionExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
   topActionExpectedOutcomeMessage?: string;
   topActionTargetUrl?: string;
@@ -4928,11 +4946,17 @@ function scoreAgentTopActionShortcuts(agent: {
       || agent?.topActionSource
       || agent?.topActionExecution
       || agent?.topActionPriority
+      || agent?.topActionPriorityReason
       || agent?.topActionReason
       || agent?.topActionReadFrom
+      || agent?.topActionCommand
       || agent?.topActionCommandArgs
+      || agent?.topActionAfterInteractionCommand
+      || agent?.topActionAfterInteractionCommandArgs
       || agent?.topActionUrl
       || agent?.topActionSourceLinkRef
+      || typeof agent?.topActionRank === "number"
+      || agent?.topActionOpenResult
       || agent?.topActionExpectedOutcome
       || agent?.topActionExpectedOutcomeMessage
       || agent?.topActionTargetUrl
@@ -4955,16 +4979,36 @@ function scoreAgentTopActionShortcuts(agent: {
   if (agent?.topActionExecution === normalizedActionExecution(top)) matched += 1;
   if (agent?.topActionPriority === top.priority) matched += 1;
   if (agent?.topActionReason === top.reason) matched += 1;
+  if (top.priorityReason) {
+    required += 1;
+    if (agent?.topActionPriorityReason === top.priorityReason) matched += 1;
+  } else if (agent?.topActionPriorityReason) {
+    required += 1;
+  }
   if (top.readFrom) {
     required += 1;
     if (agent?.topActionReadFrom === top.readFrom) matched += 1;
   } else if (agent?.topActionReadFrom) {
     required += 1;
   }
+  if (top.command) {
+    required += 1;
+    if (agent?.topActionCommand === top.command) matched += 1;
+  }
   if (top.commandArgs) {
     required += 1;
     if (JSON.stringify(agent?.topActionCommandArgs) === JSON.stringify(top.commandArgs)) matched += 1;
   } else if (agent?.topActionCommandArgs) {
+    required += 1;
+  }
+  if (top.afterInteractionCommand) {
+    required += 1;
+    if (agent?.topActionAfterInteractionCommand === top.afterInteractionCommand) matched += 1;
+  }
+  if (top.afterInteractionCommandArgs) {
+    required += 1;
+    if (JSON.stringify(agent?.topActionAfterInteractionCommandArgs) === JSON.stringify(top.afterInteractionCommandArgs)) matched += 1;
+  } else if (agent?.topActionAfterInteractionCommandArgs) {
     required += 1;
   }
   if (top.url) {
@@ -4977,6 +5021,18 @@ function scoreAgentTopActionShortcuts(agent: {
     required += 1;
     if (agent?.topActionSourceLinkRef === top.sourceLinkRef) matched += 1;
   } else if (agent?.topActionSourceLinkRef) {
+    required += 1;
+  }
+  if (typeof top.rank === "number") {
+    required += 1;
+    if (agent?.topActionRank === top.rank) matched += 1;
+  } else if (typeof agent?.topActionRank === "number") {
+    required += 1;
+  }
+  if (top.openResult) {
+    required += 1;
+    if (agent?.topActionOpenResult === top.openResult) matched += 1;
+  } else if (agent?.topActionOpenResult) {
     required += 1;
   }
   required += 2;
@@ -7585,11 +7641,17 @@ function scoreAgentAlternativeActionShortcuts(agent: {
   alternativeActionExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
   alternativeActionExpectedOutcomeMessage?: string;
   alternativeActionPriority?: "low" | "medium" | "high";
+  alternativeActionPriorityReason?: string;
   alternativeActionReason?: string;
   alternativeActionReadFrom?: string;
+  alternativeActionCommand?: string;
   alternativeActionCommandArgs?: string[];
+  alternativeActionAfterInteractionCommand?: string;
+  alternativeActionAfterInteractionCommandArgs?: string[];
   alternativeActionUrl?: string;
   alternativeActionSourceLinkRef?: string;
+  alternativeActionRank?: number;
+  alternativeActionOpenResult?: number | "best";
   alternativeActionTargetUrl?: string;
   alternativeActionTargetPath?: string;
   alternativeActionTargetTitle?: string;
@@ -7611,11 +7673,17 @@ function scoreAgentAlternativeActionShortcuts(agent: {
       || agent?.alternativeActionExpectedOutcome
       || agent?.alternativeActionExpectedOutcomeMessage
       || agent?.alternativeActionPriority
+      || agent?.alternativeActionPriorityReason
       || agent?.alternativeActionReason
       || agent?.alternativeActionReadFrom
+      || agent?.alternativeActionCommand
       || agent?.alternativeActionCommandArgs
+      || agent?.alternativeActionAfterInteractionCommand
+      || agent?.alternativeActionAfterInteractionCommandArgs
       || agent?.alternativeActionUrl
       || agent?.alternativeActionSourceLinkRef
+      || typeof agent?.alternativeActionRank === "number"
+      || agent?.alternativeActionOpenResult
       || agent?.alternativeActionTargetUrl
       || agent?.alternativeActionTargetPath
       || agent?.alternativeActionTargetTitle
@@ -7636,6 +7704,12 @@ function scoreAgentAlternativeActionShortcuts(agent: {
   if (agent?.alternativeActionExecution === normalizedActionExecution(action)) matched += 1;
   if (agent?.alternativeActionPriority === action.priority) matched += 1;
   if (agent?.alternativeActionReason === action.reason) matched += 1;
+  if (action.priorityReason) {
+    required += 1;
+    if (agent?.alternativeActionPriorityReason === action.priorityReason) matched += 1;
+  } else if (agent?.alternativeActionPriorityReason) {
+    required += 1;
+  }
   required += 2;
   if (agent?.alternativeActionExpectedOutcome === expectedAgentOutcomeKind(action)) matched += 1;
   if (agent?.alternativeActionExpectedOutcomeMessage === action.expectedOutcomeMessage && typeof action.expectedOutcomeMessage === "string" && action.expectedOutcomeMessage.length > 0) matched += 1;
@@ -7645,10 +7719,24 @@ function scoreAgentAlternativeActionShortcuts(agent: {
   } else if (agent?.alternativeActionReadFrom) {
     required += 1;
   }
+  if (action.command) {
+    required += 1;
+    if (agent?.alternativeActionCommand === action.command) matched += 1;
+  }
   if (action.commandArgs) {
     required += 1;
     if (JSON.stringify(agent?.alternativeActionCommandArgs) === JSON.stringify(action.commandArgs)) matched += 1;
   } else if (agent?.alternativeActionCommandArgs) {
+    required += 1;
+  }
+  if (action.afterInteractionCommand) {
+    required += 1;
+    if (agent?.alternativeActionAfterInteractionCommand === action.afterInteractionCommand) matched += 1;
+  }
+  if (action.afterInteractionCommandArgs) {
+    required += 1;
+    if (JSON.stringify(agent?.alternativeActionAfterInteractionCommandArgs) === JSON.stringify(action.afterInteractionCommandArgs)) matched += 1;
+  } else if (agent?.alternativeActionAfterInteractionCommandArgs) {
     required += 1;
   }
   if (action.url) {
@@ -7661,6 +7749,18 @@ function scoreAgentAlternativeActionShortcuts(agent: {
     required += 1;
     if (agent?.alternativeActionSourceLinkRef === action.sourceLinkRef) matched += 1;
   } else if (agent?.alternativeActionSourceLinkRef) {
+    required += 1;
+  }
+  if (typeof action.rank === "number") {
+    required += 1;
+    if (agent?.alternativeActionRank === action.rank) matched += 1;
+  } else if (typeof agent?.alternativeActionRank === "number") {
+    required += 1;
+  }
+  if (action.openResult) {
+    required += 1;
+    if (agent?.alternativeActionOpenResult === action.openResult) matched += 1;
+  } else if (agent?.alternativeActionOpenResult) {
     required += 1;
   }
   if (action.target?.url) {

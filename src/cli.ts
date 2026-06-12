@@ -1670,11 +1670,17 @@ type AgentSummary = {
   topActionSource?: string;
   topActionExecution?: NonNullable<SuggestedAction["execution"]>;
   topActionPriority?: NonNullable<SuggestedAction["priority"]>;
+  topActionPriorityReason?: string;
   topActionReason?: string;
   topActionReadFrom?: string;
+  topActionCommand?: string;
   topActionCommandArgs?: string[];
+  topActionAfterInteractionCommand?: string;
+  topActionAfterInteractionCommandArgs?: string[];
   topActionUrl?: string;
   topActionSourceLinkRef?: string;
+  topActionRank?: number;
+  topActionOpenResult?: number | "best";
   topActionExpectedOutcome?: AgentExpectedOutcome["kind"];
   topActionExpectedOutcomeMessage?: string;
   topActionTargetUrl?: string;
@@ -1781,11 +1787,17 @@ type AgentSummary = {
   alternativeActionExpectedOutcome?: AgentExpectedOutcome["kind"];
   alternativeActionExpectedOutcomeMessage?: string;
   alternativeActionPriority?: NonNullable<SuggestedAction["priority"]>;
+  alternativeActionPriorityReason?: string;
   alternativeActionReason?: string;
   alternativeActionReadFrom?: string;
+  alternativeActionCommand?: string;
   alternativeActionCommandArgs?: string[];
+  alternativeActionAfterInteractionCommand?: string;
+  alternativeActionAfterInteractionCommandArgs?: string[];
   alternativeActionUrl?: string;
   alternativeActionSourceLinkRef?: string;
+  alternativeActionRank?: number;
+  alternativeActionOpenResult?: number | "best";
   alternativeActionTargetUrl?: string;
   alternativeActionTargetPath?: string;
   alternativeActionTargetTitle?: string;
@@ -3545,11 +3557,17 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.alternativeActionSource ? [`  alternativeActionSource: ${agent.alternativeActionSource}`] : []),
     ...(agent.alternativeActionExecution ? [`  alternativeActionExecution: ${agent.alternativeActionExecution}`] : []),
     ...(agent.alternativeActionPriority ? [`  alternativeActionPriority: ${agent.alternativeActionPriority}`] : []),
+    ...(agent.alternativeActionPriorityReason ? [`  alternativeActionPriorityReason: ${agent.alternativeActionPriorityReason}`] : []),
     ...(agent.alternativeActionReason ? [`  alternativeActionReason: ${agent.alternativeActionReason}`] : []),
     ...(agent.alternativeActionReadFrom ? [`  alternativeActionReadFrom: ${agent.alternativeActionReadFrom}`] : []),
+    ...(agent.alternativeActionCommand ? [`  alternativeActionCommand: ${agent.alternativeActionCommand}`] : []),
     ...(agent.alternativeActionCommandArgs ? [`  alternativeActionCommandArgs: ${JSON.stringify(agent.alternativeActionCommandArgs)}`] : []),
+    ...(agent.alternativeActionAfterInteractionCommand ? [`  alternativeActionAfterInteractionCommand: ${agent.alternativeActionAfterInteractionCommand}`] : []),
+    ...(agent.alternativeActionAfterInteractionCommandArgs ? [`  alternativeActionAfterInteractionCommandArgs: ${JSON.stringify(agent.alternativeActionAfterInteractionCommandArgs)}`] : []),
     ...(agent.alternativeActionUrl ? [`  alternativeActionUrl: ${agent.alternativeActionUrl}`] : []),
     ...(agent.alternativeActionSourceLinkRef ? [`  alternativeActionSourceLinkRef: ${agent.alternativeActionSourceLinkRef}`] : []),
+    ...(typeof agent.alternativeActionRank === "number" ? [`  alternativeActionRank: ${agent.alternativeActionRank}`] : []),
+    ...(agent.alternativeActionOpenResult ? [`  alternativeActionOpenResult: ${agent.alternativeActionOpenResult}`] : []),
     ...(agent.alternativeActionExpectedOutcome ? [`  alternativeActionExpectedOutcome: ${agent.alternativeActionExpectedOutcome}`] : []),
     ...(agent.alternativeActionExpectedOutcomeMessage ? [`  alternativeActionExpectedOutcomeMessage: ${agent.alternativeActionExpectedOutcomeMessage}`] : []),
     ...(agent.alternativeActionTargetUrl ? [`  alternativeActionTargetUrl: ${agent.alternativeActionTargetUrl}`] : []),
@@ -3589,11 +3607,17 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topActionSource ? [`  topActionSource: ${agent.topActionSource}`] : []),
     ...(agent.topActionExecution ? [`  topActionExecution: ${agent.topActionExecution}`] : []),
     ...(agent.topActionPriority ? [`  topActionPriority: ${agent.topActionPriority}`] : []),
+    ...(agent.topActionPriorityReason ? [`  topActionPriorityReason: ${agent.topActionPriorityReason}`] : []),
     ...(agent.topActionReason ? [`  topActionReason: ${agent.topActionReason}`] : []),
     ...(agent.topActionReadFrom ? [`  topActionReadFrom: ${agent.topActionReadFrom}`] : []),
+    ...(agent.topActionCommand ? [`  topActionCommand: ${agent.topActionCommand}`] : []),
     ...(agent.topActionCommandArgs ? [`  topActionCommandArgs: ${JSON.stringify(agent.topActionCommandArgs)}`] : []),
+    ...(agent.topActionAfterInteractionCommand ? [`  topActionAfterInteractionCommand: ${agent.topActionAfterInteractionCommand}`] : []),
+    ...(agent.topActionAfterInteractionCommandArgs ? [`  topActionAfterInteractionCommandArgs: ${JSON.stringify(agent.topActionAfterInteractionCommandArgs)}`] : []),
     ...(agent.topActionUrl ? [`  topActionUrl: ${agent.topActionUrl}`] : []),
     ...(agent.topActionSourceLinkRef ? [`  topActionSourceLinkRef: ${agent.topActionSourceLinkRef}`] : []),
+    ...(typeof agent.topActionRank === "number" ? [`  topActionRank: ${agent.topActionRank}`] : []),
+    ...(agent.topActionOpenResult ? [`  topActionOpenResult: ${agent.topActionOpenResult}`] : []),
     ...(agent.topActionExpectedOutcome ? [`  topActionExpectedOutcome: ${agent.topActionExpectedOutcome}`] : []),
     ...(agent.topActionExpectedOutcomeMessage ? [`  topActionExpectedOutcomeMessage: ${agent.topActionExpectedOutcomeMessage}`] : []),
     ...(agent.topActionTargetUrl ? [`  topActionTargetUrl: ${agent.topActionTargetUrl}`] : []),
@@ -11843,11 +11867,17 @@ function summarizeAgent(
     ...(actions[0]?.source ? { topActionSource: actions[0].source } : {}),
     ...(actions[0]?.execution ? { topActionExecution: actions[0].execution } : {}),
     ...(actions[0]?.priority ? { topActionPriority: actions[0].priority } : {}),
+    ...(actions[0]?.priorityReason ? { topActionPriorityReason: actions[0].priorityReason } : {}),
     ...(actions[0]?.reason ? { topActionReason: actions[0].reason } : {}),
     ...(actions[0]?.readFrom ? { topActionReadFrom: actions[0].readFrom } : {}),
+    ...(actions[0]?.command ? { topActionCommand: actions[0].command } : {}),
     ...(actions[0]?.commandArgs ? { topActionCommandArgs: actions[0].commandArgs } : {}),
+    ...(actions[0]?.afterInteractionCommand ? { topActionAfterInteractionCommand: actions[0].afterInteractionCommand } : {}),
+    ...(actions[0]?.afterInteractionCommandArgs ? { topActionAfterInteractionCommandArgs: actions[0].afterInteractionCommandArgs } : {}),
     ...(actions[0]?.url ? { topActionUrl: actions[0].url } : {}),
     ...(actions[0]?.sourceLinkRef ? { topActionSourceLinkRef: actions[0].sourceLinkRef } : {}),
+    ...(typeof actions[0]?.rank === "number" ? { topActionRank: actions[0].rank } : {}),
+    ...(actions[0]?.openResult ? { topActionOpenResult: actions[0].openResult } : {}),
     ...(actions[0]?.expectedOutcome ? { topActionExpectedOutcome: actions[0].expectedOutcome } : {}),
     ...(actions[0]?.expectedOutcomeMessage ? { topActionExpectedOutcomeMessage: actions[0].expectedOutcomeMessage } : {}),
     ...(actions[0]?.target?.url ? { topActionTargetUrl: actions[0].target.url } : {}),
@@ -11866,11 +11896,17 @@ function summarizeAgent(
     ...(alternativeAction?.source ? { alternativeActionSource: alternativeAction.source } : {}),
     ...(alternativeAction?.execution ? { alternativeActionExecution: alternativeAction.execution } : {}),
     ...(alternativeAction?.priority ? { alternativeActionPriority: alternativeAction.priority } : {}),
+    ...(alternativeAction?.priorityReason ? { alternativeActionPriorityReason: alternativeAction.priorityReason } : {}),
     ...(alternativeAction?.reason ? { alternativeActionReason: alternativeAction.reason } : {}),
     ...(alternativeAction?.readFrom ? { alternativeActionReadFrom: alternativeAction.readFrom } : {}),
+    ...(alternativeAction?.command ? { alternativeActionCommand: alternativeAction.command } : {}),
     ...(alternativeAction?.commandArgs ? { alternativeActionCommandArgs: alternativeAction.commandArgs } : {}),
+    ...(alternativeAction?.afterInteractionCommand ? { alternativeActionAfterInteractionCommand: alternativeAction.afterInteractionCommand } : {}),
+    ...(alternativeAction?.afterInteractionCommandArgs ? { alternativeActionAfterInteractionCommandArgs: alternativeAction.afterInteractionCommandArgs } : {}),
     ...(alternativeAction?.url ? { alternativeActionUrl: alternativeAction.url } : {}),
     ...(alternativeAction?.sourceLinkRef ? { alternativeActionSourceLinkRef: alternativeAction.sourceLinkRef } : {}),
+    ...(typeof alternativeAction?.rank === "number" ? { alternativeActionRank: alternativeAction.rank } : {}),
+    ...(alternativeAction?.openResult ? { alternativeActionOpenResult: alternativeAction.openResult } : {}),
     ...(alternativeAction?.expectedOutcome ? { alternativeActionExpectedOutcome: alternativeAction.expectedOutcome } : {}),
     ...(alternativeAction?.expectedOutcomeMessage ? { alternativeActionExpectedOutcomeMessage: alternativeAction.expectedOutcomeMessage } : {}),
     ...(alternativeAction?.target?.url ? { alternativeActionTargetUrl: alternativeAction.target.url } : {}),
@@ -14793,11 +14829,17 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(primaryAction ? { topActionSource: "agent.primaryAction" } : {}),
     ...(primaryAction ? { topActionExecution: actionExecution(primaryAction) } : {}),
     ...(primaryAction ? { topActionPriority: primaryAction.priority ?? actionPriority(primaryAction) } : {}),
+    ...(primaryAction ? { topActionPriorityReason: primaryAction.priorityReason ?? actionPriorityReason(primaryAction) } : {}),
     ...(primaryAction?.reason ? { topActionReason: primaryAction.reason } : {}),
     ...(primaryAction?.readFrom ? { topActionReadFrom: primaryAction.readFrom } : {}),
+    ...(primaryAction?.command ? { topActionCommand: primaryAction.command } : {}),
     ...(primaryAction?.commandArgs ? { topActionCommandArgs: primaryAction.commandArgs } : {}),
+    ...(primaryAction?.afterInteractionCommand ? { topActionAfterInteractionCommand: primaryAction.afterInteractionCommand } : {}),
+    ...(primaryAction?.afterInteractionCommandArgs ? { topActionAfterInteractionCommandArgs: primaryAction.afterInteractionCommandArgs } : {}),
     ...(primaryAction?.url ? { topActionUrl: primaryAction.url } : {}),
     ...(primaryAction?.sourceLinkRef ? { topActionSourceLinkRef: primaryAction.sourceLinkRef } : {}),
+    ...(typeof primaryAction?.rank === "number" ? { topActionRank: primaryAction.rank } : {}),
+    ...(primaryAction?.openResult ? { topActionOpenResult: primaryAction.openResult } : {}),
     ...(primaryAction ? { topActionExpectedOutcome: expectedOutcome.kind } : {}),
     ...(primaryAction ? { topActionExpectedOutcomeMessage: expectedOutcome.message } : {}),
     ...(primaryAction?.target?.url ? { topActionTargetUrl: primaryAction.target.url } : {}),
@@ -16893,11 +16935,17 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topActionSource ? { topActionSource: agent.topActionSource } : {}),
     ...(agent.topActionExecution ? { topActionExecution: agent.topActionExecution } : {}),
     ...(agent.topActionPriority ? { topActionPriority: agent.topActionPriority } : {}),
+    ...(agent.topActionPriorityReason ? { topActionPriorityReason: agent.topActionPriorityReason } : {}),
     ...(agent.topActionReason ? { topActionReason: agent.topActionReason } : {}),
     ...(agent.topActionReadFrom ? { topActionReadFrom: agent.topActionReadFrom } : {}),
+    ...(agent.topActionCommand ? { topActionCommand: agent.topActionCommand } : {}),
     ...(agent.topActionCommandArgs ? { topActionCommandArgs: agent.topActionCommandArgs } : {}),
+    ...(agent.topActionAfterInteractionCommand ? { topActionAfterInteractionCommand: agent.topActionAfterInteractionCommand } : {}),
+    ...(agent.topActionAfterInteractionCommandArgs ? { topActionAfterInteractionCommandArgs: agent.topActionAfterInteractionCommandArgs } : {}),
     ...(agent.topActionUrl ? { topActionUrl: agent.topActionUrl } : {}),
     ...(agent.topActionSourceLinkRef ? { topActionSourceLinkRef: agent.topActionSourceLinkRef } : {}),
+    ...(typeof agent.topActionRank === "number" ? { topActionRank: agent.topActionRank } : {}),
+    ...(agent.topActionOpenResult ? { topActionOpenResult: agent.topActionOpenResult } : {}),
     ...(agent.topActionExpectedOutcome ? { topActionExpectedOutcome: agent.topActionExpectedOutcome } : {}),
     ...(agent.topActionExpectedOutcomeMessage ? { topActionExpectedOutcomeMessage: agent.topActionExpectedOutcomeMessage } : {}),
     ...(agent.topActionTargetUrl ? { topActionTargetUrl: agent.topActionTargetUrl } : {}),
@@ -16916,11 +16964,17 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.alternativeActionSource ? { alternativeActionSource: agent.alternativeActionSource } : {}),
     ...(agent.alternativeActionExecution ? { alternativeActionExecution: agent.alternativeActionExecution } : {}),
     ...(agent.alternativeActionPriority ? { alternativeActionPriority: agent.alternativeActionPriority } : {}),
+    ...(agent.alternativeActionPriorityReason ? { alternativeActionPriorityReason: agent.alternativeActionPriorityReason } : {}),
     ...(agent.alternativeActionReason ? { alternativeActionReason: agent.alternativeActionReason } : {}),
     ...(agent.alternativeActionReadFrom ? { alternativeActionReadFrom: agent.alternativeActionReadFrom } : {}),
+    ...(agent.alternativeActionCommand ? { alternativeActionCommand: agent.alternativeActionCommand } : {}),
     ...(agent.alternativeActionCommandArgs ? { alternativeActionCommandArgs: agent.alternativeActionCommandArgs } : {}),
+    ...(agent.alternativeActionAfterInteractionCommand ? { alternativeActionAfterInteractionCommand: agent.alternativeActionAfterInteractionCommand } : {}),
+    ...(agent.alternativeActionAfterInteractionCommandArgs ? { alternativeActionAfterInteractionCommandArgs: agent.alternativeActionAfterInteractionCommandArgs } : {}),
     ...(agent.alternativeActionUrl ? { alternativeActionUrl: agent.alternativeActionUrl } : {}),
     ...(agent.alternativeActionSourceLinkRef ? { alternativeActionSourceLinkRef: agent.alternativeActionSourceLinkRef } : {}),
+    ...(typeof agent.alternativeActionRank === "number" ? { alternativeActionRank: agent.alternativeActionRank } : {}),
+    ...(agent.alternativeActionOpenResult ? { alternativeActionOpenResult: agent.alternativeActionOpenResult } : {}),
     ...(agent.alternativeActionExpectedOutcome ? { alternativeActionExpectedOutcome: agent.alternativeActionExpectedOutcome } : {}),
     ...(agent.alternativeActionExpectedOutcomeMessage ? { alternativeActionExpectedOutcomeMessage: agent.alternativeActionExpectedOutcomeMessage } : {}),
     ...(agent.alternativeActionTargetUrl ? { alternativeActionTargetUrl: agent.alternativeActionTargetUrl } : {}),
@@ -17810,11 +17864,17 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topActionSource ? { topActionSource: agent.topActionSource } : {}),
     ...(agent.topActionExecution ? { topActionExecution: agent.topActionExecution } : {}),
     ...(agent.topActionPriority ? { topActionPriority: agent.topActionPriority } : {}),
+    ...(agent.topActionPriorityReason ? { topActionPriorityReason: agent.topActionPriorityReason } : {}),
     ...(agent.topActionReason ? { topActionReason: agent.topActionReason } : {}),
     ...(agent.topActionReadFrom ? { topActionReadFrom: agent.topActionReadFrom } : {}),
+    ...(agent.topActionCommand ? { topActionCommand: agent.topActionCommand } : {}),
     ...(agent.topActionCommandArgs ? { topActionCommandArgs: agent.topActionCommandArgs } : {}),
+    ...(agent.topActionAfterInteractionCommand ? { topActionAfterInteractionCommand: agent.topActionAfterInteractionCommand } : {}),
+    ...(agent.topActionAfterInteractionCommandArgs ? { topActionAfterInteractionCommandArgs: agent.topActionAfterInteractionCommandArgs } : {}),
     ...(agent.topActionUrl ? { topActionUrl: agent.topActionUrl } : {}),
     ...(agent.topActionSourceLinkRef ? { topActionSourceLinkRef: agent.topActionSourceLinkRef } : {}),
+    ...(typeof agent.topActionRank === "number" ? { topActionRank: agent.topActionRank } : {}),
+    ...(agent.topActionOpenResult ? { topActionOpenResult: agent.topActionOpenResult } : {}),
     ...(agent.topActionExpectedOutcome ? { topActionExpectedOutcome: agent.topActionExpectedOutcome } : {}),
     ...(agent.topActionExpectedOutcomeMessage ? { topActionExpectedOutcomeMessage: agent.topActionExpectedOutcomeMessage } : {}),
     ...(agent.topActionTargetUrl ? { topActionTargetUrl: agent.topActionTargetUrl } : {}),
@@ -17833,11 +17893,17 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.alternativeActionSource ? { alternativeActionSource: agent.alternativeActionSource } : {}),
     ...(agent.alternativeActionExecution ? { alternativeActionExecution: agent.alternativeActionExecution } : {}),
     ...(agent.alternativeActionPriority ? { alternativeActionPriority: agent.alternativeActionPriority } : {}),
+    ...(agent.alternativeActionPriorityReason ? { alternativeActionPriorityReason: agent.alternativeActionPriorityReason } : {}),
     ...(agent.alternativeActionReason ? { alternativeActionReason: agent.alternativeActionReason } : {}),
     ...(agent.alternativeActionReadFrom ? { alternativeActionReadFrom: agent.alternativeActionReadFrom } : {}),
+    ...(agent.alternativeActionCommand ? { alternativeActionCommand: agent.alternativeActionCommand } : {}),
     ...(agent.alternativeActionCommandArgs ? { alternativeActionCommandArgs: agent.alternativeActionCommandArgs } : {}),
+    ...(agent.alternativeActionAfterInteractionCommand ? { alternativeActionAfterInteractionCommand: agent.alternativeActionAfterInteractionCommand } : {}),
+    ...(agent.alternativeActionAfterInteractionCommandArgs ? { alternativeActionAfterInteractionCommandArgs: agent.alternativeActionAfterInteractionCommandArgs } : {}),
     ...(agent.alternativeActionUrl ? { alternativeActionUrl: agent.alternativeActionUrl } : {}),
     ...(agent.alternativeActionSourceLinkRef ? { alternativeActionSourceLinkRef: agent.alternativeActionSourceLinkRef } : {}),
+    ...(typeof agent.alternativeActionRank === "number" ? { alternativeActionRank: agent.alternativeActionRank } : {}),
+    ...(agent.alternativeActionOpenResult ? { alternativeActionOpenResult: agent.alternativeActionOpenResult } : {}),
     ...(agent.alternativeActionExpectedOutcome ? { alternativeActionExpectedOutcome: agent.alternativeActionExpectedOutcome } : {}),
     ...(agent.alternativeActionExpectedOutcomeMessage ? { alternativeActionExpectedOutcomeMessage: agent.alternativeActionExpectedOutcomeMessage } : {}),
     ...(agent.alternativeActionTargetUrl ? { alternativeActionTargetUrl: agent.alternativeActionTargetUrl } : {}),
@@ -18330,7 +18396,7 @@ function preferBriefAgentCommands(value: unknown): unknown {
         : item;
       continue;
     }
-    if (key === "command" || key === "afterInteractionCommand" || key === "instruction") {
+    if (key === "command" || key === "afterInteractionCommand" || key.endsWith("Command") || key === "instruction") {
       result[key] = typeof item === "string" ? preferBriefAgentCommandString(item) : item;
       continue;
     }

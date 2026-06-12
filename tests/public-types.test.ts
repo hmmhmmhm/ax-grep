@@ -894,11 +894,17 @@ describe("public agent types", () => {
       | "topActionSource"
       | "topActionExecution"
       | "topActionPriority"
+      | "topActionPriorityReason"
       | "topActionReason"
       | "topActionReadFrom"
+      | "topActionCommand"
       | "topActionCommandArgs"
+      | "topActionAfterInteractionCommand"
+      | "topActionAfterInteractionCommandArgs"
       | "topActionUrl"
       | "topActionSourceLinkRef"
+      | "topActionRank"
+      | "topActionOpenResult"
       | "topActionExpectedOutcome"
       | "topActionExpectedOutcomeMessage"
       | "topActionTargetUrl"
@@ -1031,11 +1037,17 @@ describe("public agent types", () => {
       | "alternativeActionExpectedOutcome"
       | "alternativeActionExpectedOutcomeMessage"
       | "alternativeActionPriority"
+      | "alternativeActionPriorityReason"
       | "alternativeActionReason"
       | "alternativeActionReadFrom"
+      | "alternativeActionCommand"
       | "alternativeActionCommandArgs"
+      | "alternativeActionAfterInteractionCommand"
+      | "alternativeActionAfterInteractionCommandArgs"
       | "alternativeActionUrl"
       | "alternativeActionSourceLinkRef"
+      | "alternativeActionRank"
+      | "alternativeActionOpenResult"
       | "alternativeActionTargetUrl"
       | "alternativeActionTargetPath"
       | "alternativeActionTargetTitle"
@@ -1767,11 +1779,17 @@ describe("public agent types", () => {
       topActionSource: "agent.primaryAction",
       topActionExecution: "read-current",
       topActionPriority: "high",
+      topActionPriorityReason: "Readable content is available.",
       topActionReason: "Read current evidence.",
       topActionReadFrom: "pageCheck.contentEvidence",
+      topActionCommand: "ax-grep https://example.test --agent",
       topActionCommandArgs: ["ax-grep", "https://example.test", "--agent"],
+      topActionAfterInteractionCommand: "ax-grep https://example.test --agent",
+      topActionAfterInteractionCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       topActionUrl: "https://example.test",
       topActionSourceLinkRef: "pageCheck.sourceLinks[0]",
+      topActionRank: 1,
+      topActionOpenResult: 1,
       topActionExpectedOutcome: "read-evidence",
       topActionExpectedOutcomeMessage: "Read pageCheck.contentEvidence from the current payload and treat it as the next evidence source.",
       topActionTargetUrl: "https://example.test",
@@ -1904,11 +1922,17 @@ describe("public agent types", () => {
       alternativeActionExpectedOutcome: "open-result",
       alternativeActionExpectedOutcomeMessage: "Open the target URL with the provided command and expect the resulting page check or verification payload.",
       alternativeActionPriority: "medium",
+      alternativeActionPriorityReason: "External source-like link can improve verification.",
       alternativeActionReason: "Open the cited source.",
       alternativeActionReadFrom: "pageCheck.sourceLinks",
+      alternativeActionCommand: "ax-grep https://source.example/report --agent",
       alternativeActionCommandArgs: ["ax-grep", "https://source.example/report", "--agent"],
+      alternativeActionAfterInteractionCommand: "ax-grep https://source.example/report --agent",
+      alternativeActionAfterInteractionCommandArgs: ["ax-grep", "https://source.example/report", "--agent"],
       alternativeActionUrl: "https://source.example/report",
       alternativeActionSourceLinkRef: "pageCheck.sourceLinks[0]",
+      alternativeActionRank: 2,
+      alternativeActionOpenResult: "best",
       alternativeActionTargetUrl: "https://source.example/report",
       alternativeActionTargetPath: "pageCheck.sourceLinks[0]",
       alternativeActionTargetTitle: "Source report",
@@ -1969,6 +1993,9 @@ describe("public agent types", () => {
     expect(summary.sourceSearchAlternatePath).toBe("sourceSearch.alternateResults[0]");
     expect(summary.sourceSearchAlternateChoices?.[0]?.path).toBe("sourceSearch.alternateResults[0]");
     expect(summary.topActionName).toBe("read-content");
+    expect(summary.topActionPriorityReason).toBe("Readable content is available.");
+    expect(summary.topActionCommand).toBe("ax-grep https://example.test --agent");
+    expect(summary.topActionRank).toBe(1);
     expect(summary.topActionExpectedOutcome).toBe("read-evidence");
     expect(summary.topActionTargetTitle).toBe("Example target");
     expect(summary.topActionTargetSourceScore).toBe(0.92);
@@ -2022,6 +2049,9 @@ describe("public agent types", () => {
     expect(summary.primaryTargetSourceScore).toBe(0.92);
     expect(summary.primaryTargetLikelyOfficial).toBe(true);
     expect(summary.alternativeActionName).toBe("open-source-link");
+    expect(summary.alternativeActionPriorityReason).toBe("External source-like link can improve verification.");
+    expect(summary.alternativeActionCommand).toBe("ax-grep https://source.example/report --agent");
+    expect(summary.alternativeActionOpenResult).toBe("best");
     expect(summary.alternativeActionExpectedOutcome).toBe("open-result");
     expect(summary.alternativeActionCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.alternativeActionTargetTitle).toBe("Source report");

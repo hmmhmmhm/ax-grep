@@ -1313,6 +1313,13 @@ describe("cli", () => {
       expect(envelope.agent.answerGapCount).toEqual(expect.any(Number));
       expect(envelope.agent.alternativeActionCount).toEqual(expect.any(Number));
       const topAction = envelope.agent.actions?.[0];
+      if (topAction?.priorityReason) expect(envelope.agent.topActionPriorityReason).toBe(topAction.priorityReason);
+      if (topAction?.command) expect(envelope.agent.topActionCommand).toBe(topAction.command);
+      if (topAction?.commandArgs) expect(envelope.agent.topActionCommandArgs).toEqual(topAction.commandArgs);
+      if (topAction?.afterInteractionCommand) expect(envelope.agent.topActionAfterInteractionCommand).toBe(topAction.afterInteractionCommand);
+      if (topAction?.afterInteractionCommandArgs) expect(envelope.agent.topActionAfterInteractionCommandArgs).toEqual(topAction.afterInteractionCommandArgs);
+      if (typeof topAction?.rank === "number") expect(envelope.agent.topActionRank).toBe(topAction.rank);
+      if (topAction?.openResult) expect(envelope.agent.topActionOpenResult).toBe(topAction.openResult);
       if (topAction?.expectedOutcome) expect(envelope.agent.topActionExpectedOutcome).toBe(topAction.expectedOutcome);
       if (topAction?.expectedOutcomeMessage) expect(envelope.agent.topActionExpectedOutcomeMessage).toBe(topAction.expectedOutcomeMessage);
       if (topAction?.target?.url) expect(envelope.agent.topActionTargetUrl).toBe(topAction.target.url);
@@ -1329,6 +1336,13 @@ describe("cli", () => {
       if (envelope.agent.primaryAction?.expectedOutcome) expect(envelope.agent.primaryExpectedOutcome).toBe(envelope.agent.primaryAction.expectedOutcome);
       if (envelope.agent.primaryAction?.expectedOutcomeMessage) expect(envelope.agent.primaryExpectedOutcomeMessage).toBe(envelope.agent.primaryAction.expectedOutcomeMessage);
       const alternativeAction = envelope.agent.actions?.find((action: { primary?: boolean }) => action.primary !== true);
+      if (alternativeAction?.priorityReason) expect(envelope.agent.alternativeActionPriorityReason).toBe(alternativeAction.priorityReason);
+      if (alternativeAction?.command) expect(envelope.agent.alternativeActionCommand).toBe(alternativeAction.command);
+      if (alternativeAction?.commandArgs) expect(envelope.agent.alternativeActionCommandArgs).toEqual(alternativeAction.commandArgs);
+      if (alternativeAction?.afterInteractionCommand) expect(envelope.agent.alternativeActionAfterInteractionCommand).toBe(alternativeAction.afterInteractionCommand);
+      if (alternativeAction?.afterInteractionCommandArgs) expect(envelope.agent.alternativeActionAfterInteractionCommandArgs).toEqual(alternativeAction.afterInteractionCommandArgs);
+      if (typeof alternativeAction?.rank === "number") expect(envelope.agent.alternativeActionRank).toBe(alternativeAction.rank);
+      if (alternativeAction?.openResult) expect(envelope.agent.alternativeActionOpenResult).toBe(alternativeAction.openResult);
       if (alternativeAction?.expectedOutcome) expect(envelope.agent.alternativeActionExpectedOutcome).toBe(alternativeAction.expectedOutcome);
       if (alternativeAction?.expectedOutcomeMessage) expect(envelope.agent.alternativeActionExpectedOutcomeMessage).toBe(alternativeAction.expectedOutcomeMessage);
       expect(envelope.agent.diagnosticInfoCount).toEqual(expect.any(Number));
