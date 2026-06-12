@@ -852,6 +852,15 @@ export type AgentSummary = {
   needsBrowserHtml: boolean;
   browserHtmlReason?: string;
   browserHtmlReasonCode?: AgentBrowserHtmlReasonCode;
+  browserHtmlActionName?: string;
+  browserHtmlOperation?: AgentExecutionPlan["operation"];
+  browserHtmlUrl?: string;
+  browserHtmlFile?: AgentBrowserHtmlCapture["htmlFile"];
+  browserHtmlCaptureScript?: AgentBrowserHtmlCapture["captureScript"];
+  browserHtmlCommand?: string;
+  browserHtmlCommandArgs?: string[];
+  browserHtmlAfterInteractionCommand?: string;
+  browserHtmlAfterInteractionCommandArgs?: string[];
   responseStatus?: number;
   responseOk?: boolean;
   responseContentType?: string;

@@ -9429,6 +9429,13 @@ npx ax-grep https://example.test --agent</code></pre>
       needsBrowserHtml: true,
       browserHtmlReason: "Browser-captured HTML or browser inspection is needed.",
       browserHtmlReasonCode: "no-inspectable-content",
+      browserHtmlActionName: "retry-with-browser-html",
+      browserHtmlOperation: "capture-browser-html",
+      browserHtmlUrl: "https://example.test",
+      browserHtmlFile: "captured.html",
+      browserHtmlCaptureScript: "document.documentElement.outerHTML",
+      browserHtmlCommand: "ax-grep 'https://example.test' --html-file captured.html --json --summary",
+      browserHtmlCommandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--json", "--summary"],
       primaryAction: {
         action: "retry-with-browser-html",
       },
@@ -9455,6 +9462,12 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  continuationMode: capture-html");
     expect(stdout.output).toContain("  browserHtmlReason: Browser-captured HTML or browser inspection is needed.");
     expect(stdout.output).toContain("  browserHtmlReasonCode: no-inspectable-content");
+    expect(stdout.output).toContain("  browserHtmlActionName: retry-with-browser-html");
+    expect(stdout.output).toContain("  browserHtmlOperation: capture-browser-html");
+    expect(stdout.output).toContain("  browserHtmlUrl: https://example.test");
+    expect(stdout.output).toContain("  browserHtmlFile: captured.html");
+    expect(stdout.output).toContain("  browserHtmlCaptureScript: document.documentElement.outerHTML");
+    expect(stdout.output).toContain("  browserHtmlCommandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  executor: browser/capture-browser-html/low action=retry-with-browser-html status=blocked - ");
     expect(stdout.output).toContain("  executorCommandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  executorBrowserHtml: captured.html capture=document.documentElement.outerHTML");

@@ -1216,6 +1216,15 @@ type AgentSummary = {
   needsBrowserHtml: boolean;
   browserHtmlReason?: string;
   browserHtmlReasonCode?: AgentBrowserHtmlReasonCode;
+  browserHtmlActionName?: SuggestedAction["action"];
+  browserHtmlOperation?: AgentExecutionPlan["operation"];
+  browserHtmlUrl?: string;
+  browserHtmlFile?: string;
+  browserHtmlCaptureScript?: string;
+  browserHtmlCommand?: string;
+  browserHtmlCommandArgs?: string[];
+  browserHtmlAfterInteractionCommand?: string;
+  browserHtmlAfterInteractionCommandArgs?: string[];
   responseStatus: number;
   responseOk: boolean;
   responseContentType: string;
@@ -3169,6 +3178,15 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  needsBrowserHtml: ${agent.needsBrowserHtml}`,
     ...(agent.browserHtmlReason ? [`  browserHtmlReason: ${agent.browserHtmlReason}`] : []),
     ...(agent.browserHtmlReasonCode ? [`  browserHtmlReasonCode: ${agent.browserHtmlReasonCode}`] : []),
+    ...(agent.browserHtmlActionName ? [`  browserHtmlActionName: ${agent.browserHtmlActionName}`] : []),
+    ...(agent.browserHtmlOperation ? [`  browserHtmlOperation: ${agent.browserHtmlOperation}`] : []),
+    ...(agent.browserHtmlUrl ? [`  browserHtmlUrl: ${agent.browserHtmlUrl}`] : []),
+    ...(agent.browserHtmlFile ? [`  browserHtmlFile: ${agent.browserHtmlFile}`] : []),
+    ...(agent.browserHtmlCaptureScript ? [`  browserHtmlCaptureScript: ${agent.browserHtmlCaptureScript}`] : []),
+    ...(agent.browserHtmlCommand ? [`  browserHtmlCommand: ${agent.browserHtmlCommand}`] : []),
+    ...(agent.browserHtmlCommandArgs ? [`  browserHtmlCommandArgs: ${formatCommandArgsText(agent.browserHtmlCommandArgs)}`] : []),
+    ...(agent.browserHtmlAfterInteractionCommand ? [`  browserHtmlAfterInteractionCommand: ${agent.browserHtmlAfterInteractionCommand}`] : []),
+    ...(agent.browserHtmlAfterInteractionCommandArgs ? [`  browserHtmlAfterInteractionCommandArgs: ${formatCommandArgsText(agent.browserHtmlAfterInteractionCommandArgs)}`] : []),
     `  responseStatus: ${agent.responseStatus}`,
     `  responseOk: ${agent.responseOk}`,
     `  responseContentType: ${agent.responseContentType || "unknown"}`,
@@ -11048,6 +11066,15 @@ function summarizeAgent(
     needsBrowserHtml,
     ...(browserHtmlReason ? { browserHtmlReason } : {}),
     ...(browserHtmlReasonCode ? { browserHtmlReasonCode } : {}),
+    ...(next.browserHtml ? { browserHtmlActionName: next.action } : {}),
+    ...(next.browserHtml ? { browserHtmlOperation: executionPlan.operation } : {}),
+    ...(next.browserHtml?.url ? { browserHtmlUrl: next.browserHtml.url } : {}),
+    ...(next.browserHtml?.htmlFile ? { browserHtmlFile: next.browserHtml.htmlFile } : {}),
+    ...(next.browserHtml?.captureScript ? { browserHtmlCaptureScript: next.browserHtml.captureScript } : {}),
+    ...(next.browserHtml?.command ? { browserHtmlCommand: next.browserHtml.command } : {}),
+    ...(next.browserHtml?.commandArgs ? { browserHtmlCommandArgs: next.browserHtml.commandArgs } : {}),
+    ...(next.browserHtml?.afterInteractionCommand ? { browserHtmlAfterInteractionCommand: next.browserHtml.afterInteractionCommand } : {}),
+    ...(next.browserHtml?.afterInteractionCommandArgs ? { browserHtmlAfterInteractionCommandArgs: next.browserHtml.afterInteractionCommandArgs } : {}),
     responseStatus: fetched?.status ?? error?.status ?? 0,
     responseOk: fetched ? fetched.status >= 200 && fetched.status < 400 : false,
     responseContentType: fetched?.contentType ?? "",
@@ -13989,6 +14016,15 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     needsBrowserHtml,
     ...(browserHtmlReason ? { browserHtmlReason } : {}),
     ...(browserHtmlReasonCode ? { browserHtmlReasonCode } : {}),
+    ...(next.browserHtml ? { browserHtmlActionName: next.action } : {}),
+    ...(next.browserHtml ? { browserHtmlOperation: executionPlan.operation } : {}),
+    ...(next.browserHtml?.url ? { browserHtmlUrl: next.browserHtml.url } : {}),
+    ...(next.browserHtml?.htmlFile ? { browserHtmlFile: next.browserHtml.htmlFile } : {}),
+    ...(next.browserHtml?.captureScript ? { browserHtmlCaptureScript: next.browserHtml.captureScript } : {}),
+    ...(next.browserHtml?.command ? { browserHtmlCommand: next.browserHtml.command } : {}),
+    ...(next.browserHtml?.commandArgs ? { browserHtmlCommandArgs: next.browserHtml.commandArgs } : {}),
+    ...(next.browserHtml?.afterInteractionCommand ? { browserHtmlAfterInteractionCommand: next.browserHtml.afterInteractionCommand } : {}),
+    ...(next.browserHtml?.afterInteractionCommandArgs ? { browserHtmlAfterInteractionCommandArgs: next.browserHtml.afterInteractionCommandArgs } : {}),
     responseStatus: error.status ?? 0,
     responseOk: false,
     responseContentType: "",
@@ -15712,6 +15748,15 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     needsBrowserHtml: agent.needsBrowserHtml,
     ...(agent.browserHtmlReason ? { browserHtmlReason: agent.browserHtmlReason } : {}),
     ...(agent.browserHtmlReasonCode ? { browserHtmlReasonCode: agent.browserHtmlReasonCode } : {}),
+    ...(agent.browserHtmlActionName ? { browserHtmlActionName: agent.browserHtmlActionName } : {}),
+    ...(agent.browserHtmlOperation ? { browserHtmlOperation: agent.browserHtmlOperation } : {}),
+    ...(agent.browserHtmlUrl ? { browserHtmlUrl: agent.browserHtmlUrl } : {}),
+    ...(agent.browserHtmlFile ? { browserHtmlFile: agent.browserHtmlFile } : {}),
+    ...(agent.browserHtmlCaptureScript ? { browserHtmlCaptureScript: agent.browserHtmlCaptureScript } : {}),
+    ...(agent.browserHtmlCommand ? { browserHtmlCommand: agent.browserHtmlCommand } : {}),
+    ...(agent.browserHtmlCommandArgs ? { browserHtmlCommandArgs: agent.browserHtmlCommandArgs } : {}),
+    ...(agent.browserHtmlAfterInteractionCommand ? { browserHtmlAfterInteractionCommand: agent.browserHtmlAfterInteractionCommand } : {}),
+    ...(agent.browserHtmlAfterInteractionCommandArgs ? { browserHtmlAfterInteractionCommandArgs: agent.browserHtmlAfterInteractionCommandArgs } : {}),
     responseStatus: agent.responseStatus,
     responseOk: agent.responseOk,
     responseContentType: agent.responseContentType,
@@ -16428,6 +16473,15 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     needsBrowserHtml: agent.needsBrowserHtml,
     ...(agent.browserHtmlReason ? { browserHtmlReason: agent.browserHtmlReason } : {}),
     ...(agent.browserHtmlReasonCode ? { browserHtmlReasonCode: agent.browserHtmlReasonCode } : {}),
+    ...(agent.browserHtmlActionName ? { browserHtmlActionName: agent.browserHtmlActionName } : {}),
+    ...(agent.browserHtmlOperation ? { browserHtmlOperation: agent.browserHtmlOperation } : {}),
+    ...(agent.browserHtmlUrl ? { browserHtmlUrl: agent.browserHtmlUrl } : {}),
+    ...(agent.browserHtmlFile ? { browserHtmlFile: agent.browserHtmlFile } : {}),
+    ...(agent.browserHtmlCaptureScript ? { browserHtmlCaptureScript: agent.browserHtmlCaptureScript } : {}),
+    ...(agent.browserHtmlCommand ? { browserHtmlCommand: agent.browserHtmlCommand } : {}),
+    ...(agent.browserHtmlCommandArgs ? { browserHtmlCommandArgs: agent.browserHtmlCommandArgs } : {}),
+    ...(agent.browserHtmlAfterInteractionCommand ? { browserHtmlAfterInteractionCommand: agent.browserHtmlAfterInteractionCommand } : {}),
+    ...(agent.browserHtmlAfterInteractionCommandArgs ? { browserHtmlAfterInteractionCommandArgs: agent.browserHtmlAfterInteractionCommandArgs } : {}),
     confidence: agent.confidence,
     usabilityScore: agent.usabilityScore,
     readability: agent.readability,

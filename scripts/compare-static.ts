@@ -1252,6 +1252,15 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       needsBrowserHtml?: boolean;
       browserHtmlReason?: string;
       browserHtmlReasonCode?: string;
+      browserHtmlActionName?: string;
+      browserHtmlOperation?: string;
+      browserHtmlUrl?: string;
+      browserHtmlFile?: string;
+      browserHtmlCaptureScript?: string;
+      browserHtmlCommand?: string;
+      browserHtmlCommandArgs?: unknown[];
+      browserHtmlAfterInteractionCommand?: string;
+      browserHtmlAfterInteractionCommandArgs?: unknown[];
       readabilityReasons?: unknown[];
       recommendedRank?: number;
       recommendedUrl?: string;
@@ -2017,7 +2026,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentTopSourceChoiceShortcutScore: scoreAgentTopSourceChoiceShortcuts(item.agent),
     agentSourceSearchShortcutScore: scoreAgentSourceSearchShortcuts(item.agent, item.sourceSearch),
     agentBrowserNeedScore: scoreAgentBrowserNeed(item.agent?.needsBrowserHtml, item.agent?.browserHtmlReason, item.agent?.browserHtmlReasonCode, item.agent?.status, item.agent?.primaryAction),
-    agentBrowserHtmlScore: scoreAgentBrowserHtml(item.agent?.next, item.agent?.executionPlan, item.agent?.primaryAction),
+    agentBrowserHtmlScore: scoreAgentBrowserHtml(item.agent, item.agent?.next, item.agent?.executionPlan, item.agent?.primaryAction),
     agentReadabilityReasonScore: scoreReadabilityReasons(item.agent?.readabilityReasons),
     agentSourceSearchProvenanceScore: scoreAgentSourceSearchProvenance(item.sourceSearch, item.agent?.readTargets ?? []),
     agentRecommendedMetadataScore: scoreAgentRecommendedMetadata(item.agent, item.recommendedResult),
@@ -6950,32 +6959,63 @@ function scoreAgentBrowserNeed(
 }
 
 function scoreAgentBrowserHtml(
+  agent: {
+    browserHtmlActionName?: string;
+    browserHtmlOperation?: string;
+    browserHtmlUrl?: string;
+    browserHtmlFile?: string;
+    browserHtmlCaptureScript?: string;
+    browserHtmlCommand?: string;
+    browserHtmlCommandArgs?: unknown[];
+    browserHtmlAfterInteractionCommand?: string;
+    browserHtmlAfterInteractionCommandArgs?: unknown[];
+  } | undefined,
   next: CliAgentNextShape | undefined,
   plan: CliAgentExecutionPlanShape | undefined,
   primaryAction: CliActionShape | undefined,
 ): number {
   const requiresCapture = primaryAction?.action === "retry-with-browser-html" || Boolean(primaryAction?.afterInteractionCommandArgs);
-  if (!requiresCapture) return next?.browserHtml || plan?.browserHtml ? 0.5 : 1;
+  if (!requiresCapture) {
+    const hasShortcut = agent?.browserHtmlActionName
+      || agent?.browserHtmlOperation
+      || agent?.browserHtmlUrl
+      || agent?.browserHtmlFile
+      || agent?.browserHtmlCaptureScript
+      || agent?.browserHtmlCommand
+      || agent?.browserHtmlCommandArgs
+      || agent?.browserHtmlAfterInteractionCommand
+      || agent?.browserHtmlAfterInteractionCommandArgs;
+    return next?.browserHtml || plan?.browserHtml || hasShortcut ? 0.5 : 1;
+  }
   if (!next?.browserHtml || !plan?.browserHtml) return 0;
-  let required = 4;
+  let required = 10;
   let matched = 0;
   if (next.browserHtml.htmlFile === "captured.html") matched += 1;
   if (next.browserHtml.captureScript === "document.documentElement.outerHTML") matched += 1;
   if (plan.browserHtml.htmlFile === next.browserHtml.htmlFile) matched += 1;
   if (plan.browserHtml.captureScript === next.browserHtml.captureScript) matched += 1;
+  if (agent?.browserHtmlActionName === primaryAction?.action) matched += 1;
+  if (agent?.browserHtmlOperation === plan.operation) matched += 1;
+  if (agent?.browserHtmlFile === next.browserHtml.htmlFile) matched += 1;
+  if (agent?.browserHtmlCaptureScript === next.browserHtml.captureScript) matched += 1;
+  if (agent?.browserHtmlCommand === next.browserHtml.command) matched += 1;
+  if (JSON.stringify(agent?.browserHtmlCommandArgs) === JSON.stringify(next.browserHtml.commandArgs)) matched += 1;
   if (primaryAction?.commandArgs) {
     required += 2;
     if (JSON.stringify(next.browserHtml.commandArgs) === JSON.stringify(primaryAction.commandArgs)) matched += 1;
     if (JSON.stringify(plan.browserHtml.commandArgs) === JSON.stringify(primaryAction.commandArgs)) matched += 1;
   }
   if (primaryAction?.afterInteractionCommandArgs) {
-    required += 2;
+    required += 4;
     if (JSON.stringify(next.browserHtml.afterInteractionCommandArgs) === JSON.stringify(primaryAction.afterInteractionCommandArgs)) matched += 1;
     if (JSON.stringify(plan.browserHtml.afterInteractionCommandArgs) === JSON.stringify(primaryAction.afterInteractionCommandArgs)) matched += 1;
+    if (agent?.browserHtmlAfterInteractionCommand === next.browserHtml.afterInteractionCommand) matched += 1;
+    if (JSON.stringify(agent?.browserHtmlAfterInteractionCommandArgs) === JSON.stringify(next.browserHtml.afterInteractionCommandArgs)) matched += 1;
   }
   if (primaryAction?.url) {
-    required += 1;
+    required += 2;
     if (next.browserHtml.url === primaryAction.url) matched += 1;
+    if (agent?.browserHtmlUrl === primaryAction.url) matched += 1;
   }
   if (primaryAction?.action === "inspect-browser-state") {
     const target = primaryAction.target;

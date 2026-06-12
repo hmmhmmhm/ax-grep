@@ -828,6 +828,15 @@ describe("public agent types", () => {
       | "failingQualityGateScore"
       | "browserHtmlReason"
       | "browserHtmlReasonCode"
+      | "browserHtmlActionName"
+      | "browserHtmlOperation"
+      | "browserHtmlUrl"
+      | "browserHtmlFile"
+      | "browserHtmlCaptureScript"
+      | "browserHtmlCommand"
+      | "browserHtmlCommandArgs"
+      | "browserHtmlAfterInteractionCommand"
+      | "browserHtmlAfterInteractionCommandArgs"
       | "topDiagnosticCode"
       | "topDiagnosticSeverity"
       | "topDiagnosticMessage"
@@ -1535,6 +1544,15 @@ describe("public agent types", () => {
       failingQualityGateScore: 0.4,
       browserHtmlReason: "Browser-captured HTML or browser inspection is needed.",
       browserHtmlReasonCode: "blocked-or-empty",
+      browserHtmlActionName: "retry-with-browser-html",
+      browserHtmlOperation: "capture-browser-html",
+      browserHtmlUrl: "https://example.test",
+      browserHtmlFile: "captured.html",
+      browserHtmlCaptureScript: "document.documentElement.outerHTML",
+      browserHtmlCommand: "ax-grep 'https://example.test' --html-file captured.html --agent",
+      browserHtmlCommandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--agent"],
+      browserHtmlAfterInteractionCommand: "ax-grep 'https://example.test' --html-file captured.html --agent",
+      browserHtmlAfterInteractionCommandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--agent"],
       topDiagnosticCode: "NO_USEFUL_LINKS",
       topDiagnosticSeverity: "warning",
       topDiagnosticMessage: "No useful outbound links were found.",
