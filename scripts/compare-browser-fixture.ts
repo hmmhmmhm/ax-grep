@@ -244,6 +244,29 @@ const fixtures: Fixture[] = [
   </body>
 </html>`,
   },
+  {
+    id: "sorted-header-state",
+    url: "https://fixture.local/browser-parity/sorted-header-state",
+    checks: buildSortedHeaderStateChecks,
+    html: `<!doctype html>
+<html lang="en">
+  <head>
+    <title>Sorted header state fixture</title>
+  </head>
+  <body>
+    <main>
+      <table aria-label="Quarterly reports">
+        <thead>
+          <tr><th scope="col" aria-sort="descending">Quarter</th><th scope="col">Revenue</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Q2</td><td>42</td></tr>
+        </tbody>
+      </table>
+    </main>
+  </body>
+</html>`,
+  },
 ];
 
 const browser = await puppeteer.launch({ headless: true });
@@ -328,6 +351,10 @@ function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
     semanticNodeCount: agent.semanticNodeCount,
     semanticNamedRoleCount: agent.semanticNamedRoleCount,
     semanticTopTableName: agent.semanticTopTableName,
+    semanticTopTableFirstHeader: agent.semanticTopTableFirstHeader,
+    semanticTopTableFirstHeaderRole: agent.semanticTopTableFirstHeaderRole,
+    semanticTopTableFirstHeaderSort: agent.semanticTopTableFirstHeaderSort,
+    semanticTopTableFirstHeaderSelector: agent.semanticTopTableFirstHeaderSelector,
     semanticTopFieldRole: agent.semanticTopFieldRole,
     semanticTopFieldName: agent.semanticTopFieldName,
     semanticTopFieldValue: agent.semanticTopFieldValue,
@@ -351,6 +378,7 @@ function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
     semanticTopStateCurrent: agent.semanticTopStateCurrent,
     semanticTopStateBusy: agent.semanticTopStateBusy,
     semanticTopStateInvalid: agent.semanticTopStateInvalid,
+    semanticTopStateSort: agent.semanticTopStateSort,
     semanticTopStateLive: agent.semanticTopStateLive,
     semanticTopStateModal: agent.semanticTopStateModal,
     semanticTopStateOrientation: agent.semanticTopStateOrientation,
@@ -828,6 +856,42 @@ function buildInvalidFieldStateChecks(namedRoles: string[], nodes: SemanticNode[
         && agent.semanticTopStateRole === "textbox"
         && agent.semanticTopStateName === "Report code"
         && agent.semanticTopStateInvalid === "spelling"
+        && typeof agent.semanticTopStateSelector === "string",
+    },
+  ];
+}
+
+function buildSortedHeaderStateChecks(namedRoles: string[], nodes: SemanticNode[], agent: AgentSummary): Check[] {
+  const header = nodes.find((node) => node.role === "columnheader" && node.name === "Quarter");
+  return [
+    {
+      id: "sorted-header-state-parity",
+      browserEvidence: JSON.stringify({
+        namedRoles: evidence(namedRoles, ["table:Quarterly reports", "columnheader:Quarter"]),
+        sort: header?.state?.sort,
+      }),
+      agentEvidence: JSON.stringify({
+        table: agent.semanticTopTableName,
+        firstHeader: agent.semanticTopTableFirstHeader,
+        firstHeaderRole: agent.semanticTopTableFirstHeaderRole,
+        firstHeaderSort: agent.semanticTopTableFirstHeaderSort,
+        firstHeaderSelector: agent.semanticTopTableFirstHeaderSelector,
+        stateRole: agent.semanticTopStateRole,
+        stateName: agent.semanticTopStateName,
+        stateSort: agent.semanticTopStateSort,
+        stateSelector: agent.semanticTopStateSelector,
+      }),
+      decision: "covered",
+      pass: includesAll(namedRoles, ["table:Quarterly reports", "columnheader:Quarter"])
+        && header?.state?.sort === "descending"
+        && agent.semanticTopTableName === "Quarterly reports"
+        && agent.semanticTopTableFirstHeader === "Quarter"
+        && agent.semanticTopTableFirstHeaderRole === "columnheader"
+        && agent.semanticTopTableFirstHeaderSort === "descending"
+        && typeof agent.semanticTopTableFirstHeaderSelector === "string"
+        && agent.semanticTopStateRole === "columnheader"
+        && agent.semanticTopStateName === "Quarter"
+        && agent.semanticTopStateSort === "descending"
         && typeof agent.semanticTopStateSelector === "string",
     },
   ];
