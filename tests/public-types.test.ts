@@ -264,6 +264,11 @@ describe("public agent types", () => {
       | "topDataTableCaption"
       | "topDataTableRowCount"
       | "topDataTableColumnCount"
+      | "topDataTableHeaderCount"
+      | "topDataTableFirstHeader"
+      | "topDataTableFirstRow"
+      | "topDataTableFirstCell"
+      | "topDataTableSelector"
       | "topFaqQuestion"
       | "topFaqAnswer"
       | "topCodeBlockLanguage"
@@ -950,6 +955,11 @@ describe("public agent types", () => {
       topDataTableCaption: "Plan comparison",
       topDataTableRowCount: 2,
       topDataTableColumnCount: 3,
+      topDataTableHeaderCount: 3,
+      topDataTableFirstHeader: "Plan",
+      topDataTableFirstRow: ["Starter", "$19.99", "10 GB"],
+      topDataTableFirstCell: "Starter",
+      topDataTableSelector: "table:nth-of-type(1)",
       topFaqQuestion: "How do I install it?",
       topFaqAnswer: "Run pnpm install.",
       topCodeBlockLanguage: "bash",
@@ -1560,6 +1570,8 @@ describe("public agent types", () => {
     expect(summary.topBarrierKind).toBe("challenge");
     expect(summary.topBarrierPath).toBe("pageCheck.barriers[0]");
     expect(summary.dataTableCount).toBe(1);
+    expect(summary.topDataTableFirstCell).toBe("Starter");
+    expect(summary.topDataTableFirstRow?.[1]).toBe("$19.99");
     expect(summary.topFaqQuestion).toBe("How do I install it?");
     expect(summary.topResourceUrl).toBe("https://example.test/guide.pdf");
     expect(summary.bestStructuredReadTarget).toBe("pageCheck.dataTables");

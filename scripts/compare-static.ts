@@ -1340,6 +1340,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topDataTableCaption?: string;
       topDataTableRowCount?: number;
       topDataTableColumnCount?: number;
+      topDataTableHeaderCount?: number;
+      topDataTableFirstHeader?: string;
+      topDataTableFirstRow?: string[];
+      topDataTableFirstCell?: string;
+      topDataTableSelector?: string;
       topFaqQuestion?: string;
       topFaqAnswer?: string;
       topCodeBlockLanguage?: string;
@@ -4179,6 +4184,12 @@ function optionalFieldMatches(actual: unknown, expected: unknown): boolean {
   return typeof expected === "undefined" || actual === expected;
 }
 
+function arraysEqual(left: unknown, right: unknown): boolean {
+  if (!Array.isArray(left) || !Array.isArray(right)) return false;
+  if (left.length !== right.length) return false;
+  return left.every((item, index) => item === right[index]);
+}
+
 function scoreAgentHiddenSignalCounts(
   agent: {
     hiddenSignalCount?: number;
@@ -6319,6 +6330,11 @@ function scoreAgentStructuredShortcuts(agent: {
   topDataTableCaption?: string;
   topDataTableRowCount?: number;
   topDataTableColumnCount?: number;
+  topDataTableHeaderCount?: number;
+  topDataTableFirstHeader?: string;
+  topDataTableFirstRow?: string[];
+  topDataTableFirstCell?: string;
+  topDataTableSelector?: string;
   topFaqQuestion?: string;
   topFaqAnswer?: string;
   topCodeBlockLanguage?: string;
@@ -6412,7 +6428,7 @@ function scoreAgentStructuredShortcuts(agent: {
   bestStructuredReadTargetReason?: string;
   readTargets?: CliReadTargetShape[];
 } | undefined, pageCheck: {
-  dataTables?: Array<{ path?: string; caption?: string; rowCount?: number; columnCount?: number }>;
+  dataTables?: Array<{ path?: string; caption?: string; rowCount?: number; columnCount?: number; headers?: string[]; sampleRows?: string[][]; selector?: string }>;
   faqs?: Array<{ question?: string; answer?: string }>;
   codeBlocks?: Array<{ language?: string; lineCount?: number; text?: string }>;
   resources?: Array<{ kind?: string; url?: string; title?: string }>;
@@ -6474,12 +6490,17 @@ function scoreAgentStructuredShortcuts(agent: {
 
   const topDataTable = dataTables[0];
   if (topDataTable) {
-    required += 4;
+    required += 9;
     if (agent.topDataTablePath === topDataTable.path) matched += 1;
     if (agent.topDataTableCaption === topDataTable.caption) matched += 1;
     if (agent.topDataTableRowCount === topDataTable.rowCount) matched += 1;
     if (agent.topDataTableColumnCount === topDataTable.columnCount) matched += 1;
-  } else if (agent.topDataTablePath || agent.topDataTableCaption || typeof agent.topDataTableRowCount === "number" || typeof agent.topDataTableColumnCount === "number") {
+    if (agent.topDataTableHeaderCount === (topDataTable.headers?.length ?? 0)) matched += 1;
+    if (agent.topDataTableFirstHeader === topDataTable.headers?.[0]) matched += 1;
+    if (arraysEqual(agent.topDataTableFirstRow, topDataTable.sampleRows?.[0])) matched += 1;
+    if (agent.topDataTableFirstCell === topDataTable.sampleRows?.[0]?.[0]) matched += 1;
+    if (agent.topDataTableSelector === topDataTable.selector) matched += 1;
+  } else if (agent.topDataTablePath || agent.topDataTableCaption || typeof agent.topDataTableRowCount === "number" || typeof agent.topDataTableColumnCount === "number" || typeof agent.topDataTableHeaderCount === "number" || agent.topDataTableFirstHeader || agent.topDataTableFirstRow || agent.topDataTableFirstCell || agent.topDataTableSelector) {
     required += 1;
   }
 

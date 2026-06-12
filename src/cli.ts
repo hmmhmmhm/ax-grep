@@ -1302,6 +1302,11 @@ type AgentSummary = {
   topDataTableCaption?: string;
   topDataTableRowCount?: number;
   topDataTableColumnCount?: number;
+  topDataTableHeaderCount?: number;
+  topDataTableFirstHeader?: string;
+  topDataTableFirstRow?: string[];
+  topDataTableFirstCell?: string;
+  topDataTableSelector?: string;
   topFaqQuestion?: string;
   topFaqAnswer?: string;
   topCodeBlockLanguage?: string;
@@ -3185,6 +3190,11 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topBarrierSelector ? [`  topBarrierSelector: ${agent.topBarrierSelector}`] : []),
     ...(agent.topBarrierDiagnosticCode ? [`  topBarrierDiagnosticCode: ${agent.topBarrierDiagnosticCode}`] : []),
     `  dataTableCount: ${agent.dataTableCount}`,
+    ...(agent.topDataTablePath ? [`  topDataTable: ${agent.topDataTablePath}${agent.topDataTableCaption ? ` "${agent.topDataTableCaption}"` : ""} ${agent.topDataTableRowCount ?? 0}x${agent.topDataTableColumnCount ?? 0}`] : []),
+    ...(agent.topDataTableFirstHeader ? [`  topDataTableFirstHeader: ${agent.topDataTableFirstHeader}`] : []),
+    ...(agent.topDataTableFirstRow?.length ? [`  topDataTableFirstRow: ${agent.topDataTableFirstRow.join(" | ")}`] : []),
+    ...(agent.topDataTableFirstCell ? [`  topDataTableFirstCell: ${agent.topDataTableFirstCell}`] : []),
+    ...(agent.topDataTableSelector ? [`  topDataTableSelector: ${agent.topDataTableSelector}`] : []),
     `  faqCount: ${agent.faqCount}`,
     `  codeBlockCount: ${agent.codeBlockCount}`,
     `  resourceCount: ${agent.resourceCount}`,
@@ -11075,6 +11085,11 @@ function summarizeAgent(
     ...(pageCheck.dataTables[0]?.caption ? { topDataTableCaption: pageCheck.dataTables[0].caption } : {}),
     ...(pageCheck.dataTables[0] ? { topDataTableRowCount: pageCheck.dataTables[0].rowCount } : {}),
     ...(pageCheck.dataTables[0] ? { topDataTableColumnCount: pageCheck.dataTables[0].columnCount } : {}),
+    ...(pageCheck.dataTables[0] ? { topDataTableHeaderCount: pageCheck.dataTables[0].headers.length } : {}),
+    ...(pageCheck.dataTables[0]?.headers[0] ? { topDataTableFirstHeader: pageCheck.dataTables[0].headers[0] } : {}),
+    ...(pageCheck.dataTables[0]?.sampleRows[0] ? { topDataTableFirstRow: pageCheck.dataTables[0].sampleRows[0] } : {}),
+    ...(pageCheck.dataTables[0]?.sampleRows[0]?.[0] ? { topDataTableFirstCell: pageCheck.dataTables[0].sampleRows[0][0] } : {}),
+    ...(pageCheck.dataTables[0]?.selector ? { topDataTableSelector: pageCheck.dataTables[0].selector } : {}),
     ...(pageCheck.faqs[0]?.question ? { topFaqQuestion: pageCheck.faqs[0].question } : {}),
     ...(pageCheck.faqs[0]?.answer ? { topFaqAnswer: pageCheck.faqs[0].answer } : {}),
     ...(pageCheck.codeBlocks[0]?.language ? { topCodeBlockLanguage: pageCheck.codeBlocks[0].language } : {}),
@@ -15698,6 +15713,11 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topDataTableCaption ? { topDataTableCaption: agent.topDataTableCaption } : {}),
     ...(typeof agent.topDataTableRowCount === "number" ? { topDataTableRowCount: agent.topDataTableRowCount } : {}),
     ...(typeof agent.topDataTableColumnCount === "number" ? { topDataTableColumnCount: agent.topDataTableColumnCount } : {}),
+    ...(typeof agent.topDataTableHeaderCount === "number" ? { topDataTableHeaderCount: agent.topDataTableHeaderCount } : {}),
+    ...(agent.topDataTableFirstHeader ? { topDataTableFirstHeader: agent.topDataTableFirstHeader } : {}),
+    ...(agent.topDataTableFirstRow?.length ? { topDataTableFirstRow: agent.topDataTableFirstRow } : {}),
+    ...(agent.topDataTableFirstCell ? { topDataTableFirstCell: agent.topDataTableFirstCell } : {}),
+    ...(agent.topDataTableSelector ? { topDataTableSelector: agent.topDataTableSelector } : {}),
     ...(agent.topFaqQuestion ? { topFaqQuestion: agent.topFaqQuestion } : {}),
     ...(agent.topFaqAnswer ? { topFaqAnswer: agent.topFaqAnswer } : {}),
     ...(agent.topCodeBlockLanguage ? { topCodeBlockLanguage: agent.topCodeBlockLanguage } : {}),
@@ -16376,6 +16396,10 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topDataTableCaption ? { topDataTableCaption: agent.topDataTableCaption } : {}),
     ...(typeof agent.topDataTableRowCount === "number" ? { topDataTableRowCount: agent.topDataTableRowCount } : {}),
     ...(typeof agent.topDataTableColumnCount === "number" ? { topDataTableColumnCount: agent.topDataTableColumnCount } : {}),
+    ...(typeof agent.topDataTableHeaderCount === "number" ? { topDataTableHeaderCount: agent.topDataTableHeaderCount } : {}),
+    ...(agent.topDataTableFirstHeader ? { topDataTableFirstHeader: agent.topDataTableFirstHeader } : {}),
+    ...(agent.topDataTableFirstRow?.length ? { topDataTableFirstRow: agent.topDataTableFirstRow } : {}),
+    ...(agent.topDataTableFirstCell ? { topDataTableFirstCell: agent.topDataTableFirstCell } : {}),
     ...(agent.topFaqQuestion ? { topFaqQuestion: agent.topFaqQuestion } : {}),
     ...(agent.topCodeBlockLanguage ? { topCodeBlockLanguage: agent.topCodeBlockLanguage } : {}),
     ...(typeof agent.topCodeBlockLineCount === "number" ? { topCodeBlockLineCount: agent.topCodeBlockLineCount } : {}),

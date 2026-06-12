@@ -938,6 +938,11 @@ export type AgentSummary = {
   topDataTableCaption?: string;
   topDataTableRowCount?: number;
   topDataTableColumnCount?: number;
+  topDataTableHeaderCount?: number;
+  topDataTableFirstHeader?: string;
+  topDataTableFirstRow?: string[];
+  topDataTableFirstCell?: string;
+  topDataTableSelector?: string;
   topFaqQuestion?: string;
   topFaqAnswer?: string;
   topCodeBlockLanguage?: string;
