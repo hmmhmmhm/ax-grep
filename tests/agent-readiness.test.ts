@@ -14,6 +14,7 @@ describe("agent readiness audit", () => {
     expect(checks.map((check) => check.id)).toEqual([
       "resource-safety",
       "fixture-loop-coverage",
+      "real-page-smoke",
       "per-target-gates",
       "weak-target-diagnostics",
       "executable-agent-continuations",

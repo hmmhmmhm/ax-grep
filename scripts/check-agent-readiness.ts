@@ -30,6 +30,7 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
   requireScript(failures, scripts, "compare:static:fixtures:gate", "scripts/check-fixture-static-gate.ts");
   requireScript(failures, scripts, "check:processes", "scripts/check-project-processes.ts");
   requireScript(failures, scripts, "readiness:audit", "scripts/check-agent-readiness.ts");
+  requireScript(failures, scripts, "readiness:real-page-smoke", "scripts/check-real-page-smoke.ts");
 
   requireFileIncludes(root, failures, "vitest.config.ts", [
     "fileParallelism: false",
@@ -146,6 +147,23 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "open-site-search",
           "retry-with-browser-html",
           "!warning.includes(\"agent-browser\")",
+        ]);
+      },
+    ),
+    evidenceCheck(
+      root,
+      "real-page-smoke",
+      "At least one real page must prove static agent handoff without `agent-browser` before claiming browser parity progress.",
+      "readiness:real-page-smoke checks https://example.com with --agent-brief, no Puppeteer, and no agent-browser process.",
+      (failures) => {
+        const packageJson = readJson<PackageJson>(root, "package.json", failures);
+        requireScript(failures, packageJson?.scripts ?? {}, "readiness:real-page-smoke", "scripts/check-real-page-smoke.ts");
+        requireFileIncludes(root, failures, "scripts/check-real-page-smoke.ts", [
+          "https://example.com",
+          "--agent-brief",
+          "needsBrowserHtml",
+          "canUseFetchedHtml",
+          "semanticNamedRoleCount",
         ]);
       },
     ),

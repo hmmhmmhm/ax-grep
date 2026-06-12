@@ -9,6 +9,9 @@ Resource safety:
 - Use `pnpm readiness:audit` before claiming the agent-readiness objective is
   complete. It checks that the single-worker validation rules, fixture gate,
   comparison gate, process checker, and README/docs split are still wired in.
+- Use `pnpm readiness:real-page-smoke` for the smallest real-page check. It
+  fetches `https://example.com` with `--agent-brief` and does not launch
+  Puppeteer or `agent-browser`.
 - Use `pnpm check:processes` before and after browser-backed comparison runs.
 - If several target sets are needed, run them sequentially and save each output
   separately.
@@ -18,6 +21,7 @@ pnpm compare:sample
 pnpm compare:static:fixtures
 pnpm compare:static:fixtures:gate
 pnpm readiness:audit
+pnpm readiness:real-page-smoke
 pnpm check:processes
 pnpm compare:static https://example.com https://news.ycombinator.com
 pnpm compare:tokens https://example.com https://news.ycombinator.com
@@ -45,6 +49,10 @@ before treating an average as release-gating coverage.
 `compare:static:fixtures:gate` is the non-browser smoke gate: it uses synthetic
 HTML fixtures only, so it should not fetch remote pages or launch
 `agent-browser`. Use `compare:static:fixtures` when you need the JSON report.
+
+`readiness:real-page-smoke` is the smallest remote-page gate. It checks that
+`--agent-brief` can use fetched HTML on `https://example.com` without requesting
+browser capture.
 
 `compare:gate` checks saved JSON output from `compare:static*` and
 `compare:tokens*`. Static gates require executor, handoff, browser-advantage,

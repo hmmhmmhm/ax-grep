@@ -15,6 +15,7 @@ or blocked pages with less guesswork than an `agent-browser snapshot` alone.
 | Brief handoff remains executable for subagent loops. | `agent.executor`, `agent.handoff`, `commandArgs`, `readValue`, `resultChoices`, `sourceChoices`; covered by brief executor/handoff tests and gates. | Covered for common search, page, source, form, action-target, and diagnostic cases. |
 | Thin, blocked, or browser-needed pages expose why browser capture is needed. | `needsBrowserHtml`, `browserHtml`, `signals`, `qualityGates`, barriers, and browser retry actions; covered by browser-need, browser-html, signal, and quality-gate scores. | Covered by non-browser fixtures and comparison scoring. |
 | Hidden page signals that are absent from accessibility trees stay discoverable. | Hydration, API, config, policy, schema, resource, media, citation, code-block, and action-target summaries are scored through hidden-signal, response-metadata, count, consistency, and read-target gates. | Covered by static extraction tests; real browser parity still depends on comparison runs. |
+| A minimal real page can use static agent handoff without browser capture. | `pnpm readiness:real-page-smoke` checks `https://example.com` with `--agent-brief`, `canUseFetchedHtml=true`, `needsBrowserHtml=false`, and named semantic roles. | Covered as a smoke gate; broader real-page and `agent-browser` comparison remains. |
 | Operational safety prevents host overload during validation. | `AGENTS.md`, `vitest.config.ts`, `docs/benchmarks.md`, `docs/comparison-baseline.md`, and the `agent-browser` comparison lock. | Commands must still be run one at a time. |
 
 ## Completion Gate
@@ -24,6 +25,7 @@ must inspect:
 
 - `pnpm exec tsc --noEmit`
 - `pnpm readiness:audit`
+- `pnpm readiness:real-page-smoke`
 - focused non-browser Vitest coverage for changed contracts
 - `pnpm compare:gate <latest comparison report>` for saved comparison output
 - process cleanup before and after browser-backed comparison commands
