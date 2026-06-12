@@ -5398,6 +5398,7 @@ describe("cli", () => {
         method: "get",
         actionUrl: "https://example.test/find",
         fieldCount: 2,
+        hiddenFieldCount: 1,
         submitText: "Search",
         submitType: "submit",
         submitName: "submit-search",
@@ -5407,7 +5408,14 @@ describe("cli", () => {
         queryField: "query",
         urlTemplate: "https://example.test/find?query=%7Bquery%7D",
         selector: "form:nth-of-type(1)",
-        text: "GET https://example.test/find; query field: query; submit: Search; query:search required Archive search; category:select options=All|Reports",
+        text: "GET https://example.test/find; query field: query; hidden fields: 1; submit: Search; query:search required Archive search; category:select options=All|Reports",
+        hiddenFields: [
+          {
+            name: "csrf",
+            value: "secret",
+            selector: "input[name=\"csrf\"]",
+          },
+        ],
         fields: [
           {
             name: "query",
@@ -5576,7 +5584,11 @@ describe("cli", () => {
       topFormChoiceQueryField: "query",
       topFormChoiceUrlTemplate: "https://example.test/find?query=%7Bquery%7D",
       topFormChoiceFieldCount: 2,
+      topFormChoiceHiddenFieldCount: 1,
       topFormChoiceSelector: "form:nth-of-type(1)",
+      topFormChoiceFirstHiddenFieldName: "csrf",
+      topFormChoiceFirstHiddenFieldValue: "secret",
+      topFormChoiceFirstHiddenFieldSelector: "input[name=\"csrf\"]",
       topFormChoiceFirstFieldName: "query",
       topFormChoiceFirstFieldType: "search",
       topFormChoiceFirstFieldLabel: "Archive search",
@@ -5601,6 +5613,7 @@ describe("cli", () => {
         path: "pageCheck.forms[0]",
         method: "get",
         actionUrl: "https://example.test/find",
+        hiddenFieldCount: 1,
         submitType: "submit",
         submitName: "submit-search",
         submitValue: "go",
@@ -5609,6 +5622,13 @@ describe("cli", () => {
         urlTemplate: "https://example.test/find?query=%7Bquery%7D",
         queryField: "query",
         selector: "form:nth-of-type(1)",
+        hiddenFields: expect.arrayContaining([
+          expect.objectContaining({
+            name: "csrf",
+            value: "secret",
+            selector: "input[name=\"csrf\"]",
+          }),
+        ]),
         fields: expect.arrayContaining([
           expect.objectContaining({
             name: "query",

@@ -153,6 +153,7 @@ describe("public agent types", () => {
       rank: 1,
       method: "get",
       fieldCount: 1,
+      hiddenFieldCount: 1,
       text: "GET https://example.test/find; query field: q",
       actionUrl: "https://example.test/find",
       submitText: "Search",
@@ -170,6 +171,7 @@ describe("public agent types", () => {
       queryField: "q",
       urlTemplate: "https://example.test/find?q={query}",
       selector: "form:nth-of-type(1)",
+      hiddenFields: [{ name: "csrf", value: "secret", selector: "input[name=\"csrf\"]" }],
       fields: [{ name: "q", type: "search", label: "Search", placeholder: "Search docs", value: "initial", autocomplete: "off", inputMode: "search", pattern: "[A-Za-z ]+", min: "1", max: "99", step: "1", minLength: 2, maxLength: 80, required: true, disabled: true, readonly: true, invalid: "spelling", selector: "input[name=\"q\"]", options: ["All", "Docs"] }],
     };
     const actionTargetChoice: AgentActionTargetChoice = {
@@ -241,7 +243,11 @@ describe("public agent types", () => {
       | "topFormChoiceQueryField"
       | "topFormChoiceUrlTemplate"
       | "topFormChoiceFieldCount"
+      | "topFormChoiceHiddenFieldCount"
       | "topFormChoiceSelector"
+      | "topFormChoiceFirstHiddenFieldName"
+      | "topFormChoiceFirstHiddenFieldValue"
+      | "topFormChoiceFirstHiddenFieldSelector"
       | "topFormChoiceFirstFieldName"
       | "topFormChoiceFirstFieldType"
       | "topFormChoiceFirstFieldLabel"
@@ -1278,7 +1284,11 @@ describe("public agent types", () => {
       topFormChoiceQueryField: "q",
       topFormChoiceUrlTemplate: "https://example.test/find?q={query}",
       topFormChoiceFieldCount: 1,
+      topFormChoiceHiddenFieldCount: 1,
       topFormChoiceSelector: "form:nth-of-type(1)",
+      topFormChoiceFirstHiddenFieldName: "csrf",
+      topFormChoiceFirstHiddenFieldValue: "secret",
+      topFormChoiceFirstHiddenFieldSelector: "input[name=\"csrf\"]",
       topFormChoiceFirstFieldName: "q",
       topFormChoiceFirstFieldType: "search",
       topFormChoiceFirstFieldLabel: "Search",

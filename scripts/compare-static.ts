@@ -375,6 +375,7 @@ type CliAgentFormChoiceShape = {
   rank?: number;
   method?: string;
   fieldCount?: number;
+  hiddenFieldCount?: number;
   text?: string;
   actionUrl?: string;
   submitText?: string;
@@ -392,6 +393,7 @@ type CliAgentFormChoiceShape = {
   queryField?: string;
   urlTemplate?: string;
   selector?: string;
+  hiddenFields?: unknown[];
   fields?: unknown[];
 };
 
@@ -1365,7 +1367,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topFormChoiceQueryField?: string;
       topFormChoiceUrlTemplate?: string;
       topFormChoiceFieldCount?: number;
+      topFormChoiceHiddenFieldCount?: number;
       topFormChoiceSelector?: string;
+      topFormChoiceFirstHiddenFieldName?: string;
+      topFormChoiceFirstHiddenFieldValue?: string;
+      topFormChoiceFirstHiddenFieldSelector?: string;
       topFormChoiceFirstFieldName?: string;
       topFormChoiceFirstFieldType?: string;
       topFormChoiceFirstFieldLabel?: string;
@@ -4587,7 +4593,11 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   topFormChoiceQueryField?: string;
   topFormChoiceUrlTemplate?: string;
   topFormChoiceFieldCount?: number;
+  topFormChoiceHiddenFieldCount?: number;
   topFormChoiceSelector?: string;
+  topFormChoiceFirstHiddenFieldName?: string;
+  topFormChoiceFirstHiddenFieldValue?: string;
+  topFormChoiceFirstHiddenFieldSelector?: string;
   topFormChoiceFirstFieldName?: string;
   topFormChoiceFirstFieldType?: string;
   topFormChoiceFirstFieldLabel?: string;
@@ -4629,8 +4639,9 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   let matched = 0;
   if (form) {
     if (agent?.topFormChoicePath === form.path) matched += 1;
-    required += 37;
+    required += 41;
     const firstField = Array.isArray(form.fields) ? form.fields[0] as { name?: unknown; type?: unknown; label?: unknown; placeholder?: unknown; value?: unknown; options?: unknown; autocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; required?: unknown; disabled?: unknown; readonly?: unknown; invalid?: unknown; selector?: unknown } | undefined : undefined;
+    const firstHiddenField = Array.isArray(form.hiddenFields) ? form.hiddenFields[0] as { name?: unknown; value?: unknown; selector?: unknown } | undefined : undefined;
     if (agent?.topFormChoiceMethod === form.method) matched += 1;
     if (agent?.topFormChoiceActionUrl === form.actionUrl) matched += 1;
     if (agent?.topFormChoiceSubmitText === form.submitText) matched += 1;
@@ -4648,7 +4659,11 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     if (agent?.topFormChoiceQueryField === form.queryField) matched += 1;
     if (agent?.topFormChoiceUrlTemplate === form.urlTemplate) matched += 1;
     if (agent?.topFormChoiceFieldCount === form.fieldCount) matched += 1;
+    if (agent?.topFormChoiceHiddenFieldCount === form.hiddenFieldCount) matched += 1;
     if (agent?.topFormChoiceSelector === form.selector) matched += 1;
+    if (agent?.topFormChoiceFirstHiddenFieldName === firstHiddenField?.name) matched += 1;
+    if (agent?.topFormChoiceFirstHiddenFieldValue === firstHiddenField?.value) matched += 1;
+    if (agent?.topFormChoiceFirstHiddenFieldSelector === firstHiddenField?.selector) matched += 1;
     if (agent?.topFormChoiceFirstFieldName === firstField?.name) matched += 1;
     if (agent?.topFormChoiceFirstFieldType === firstField?.type) matched += 1;
     if (agent?.topFormChoiceFirstFieldLabel === firstField?.label) matched += 1;
@@ -4687,7 +4702,11 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     || agent?.topFormChoiceQueryField
     || agent?.topFormChoiceUrlTemplate
     || typeof agent?.topFormChoiceFieldCount === "number"
+    || typeof agent?.topFormChoiceHiddenFieldCount === "number"
     || agent?.topFormChoiceSelector
+    || agent?.topFormChoiceFirstHiddenFieldName
+    || agent?.topFormChoiceFirstHiddenFieldValue
+    || agent?.topFormChoiceFirstHiddenFieldSelector
     || agent?.topFormChoiceFirstFieldName
     || agent?.topFormChoiceFirstFieldType
     || agent?.topFormChoiceFirstFieldLabel

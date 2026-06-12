@@ -473,6 +473,7 @@ export type AgentFormChoice = {
   rank: number;
   method: string;
   fieldCount: number;
+  hiddenFieldCount: number;
   text: string;
   actionUrl?: string;
   submitText?: string;
@@ -490,6 +491,11 @@ export type AgentFormChoice = {
   queryField?: string;
   urlTemplate?: string;
   selector?: string;
+  hiddenFields: Array<{
+    name?: string;
+    value?: string;
+    selector?: string;
+  }>;
   fields: Array<{
     name?: string;
     type: string;
@@ -1115,7 +1121,11 @@ export type AgentSummary = {
   topFormChoiceQueryField?: string;
   topFormChoiceUrlTemplate?: string;
   topFormChoiceFieldCount?: number;
+  topFormChoiceHiddenFieldCount?: number;
   topFormChoiceSelector?: string;
+  topFormChoiceFirstHiddenFieldName?: string;
+  topFormChoiceFirstHiddenFieldValue?: string;
+  topFormChoiceFirstHiddenFieldSelector?: string;
   topFormChoiceFirstFieldName?: string;
   topFormChoiceFirstFieldType?: string;
   topFormChoiceFirstFieldLabel?: string;

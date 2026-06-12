@@ -407,13 +407,21 @@ type PageFormFieldSummary = {
   options?: string[];
 };
 
+type PageFormHiddenFieldSummary = {
+  name?: string;
+  value?: string;
+  selector?: string;
+};
+
 type PageFormSummary = {
   id: string;
   path: string;
   rank: number;
   method: string;
   fieldCount: number;
+  hiddenFieldCount: number;
   fields: PageFormFieldSummary[];
+  hiddenFields: PageFormHiddenFieldSummary[];
   text: string;
   actionUrl?: string;
   submitText?: string;
@@ -1454,7 +1462,11 @@ type AgentSummary = {
   topFormChoiceQueryField?: string;
   topFormChoiceUrlTemplate?: string;
   topFormChoiceFieldCount?: number;
+  topFormChoiceHiddenFieldCount?: number;
   topFormChoiceSelector?: string;
+  topFormChoiceFirstHiddenFieldName?: string;
+  topFormChoiceFirstHiddenFieldValue?: string;
+  topFormChoiceFirstHiddenFieldSelector?: string;
   topFormChoiceFirstFieldName?: string;
   topFormChoiceFirstFieldType?: string;
   topFormChoiceFirstFieldLabel?: string;
@@ -3403,7 +3415,9 @@ function formatAgentFormChoiceText(choice: AgentFormChoice, prefix = "formChoice
   const template = choice.urlTemplate ? ` template=${choice.urlTemplate}` : "";
   const selector = choice.selector ? ` selector=${choice.selector}` : "";
   const submit = choice.submitText ? ` submit=${choice.submitText}` : "";
-  return [`  ${prefix}: ${choice.id} ${choice.path} rank=${choice.rank} method=${choice.method} fields=${choice.fieldCount}${query}${template}${selector}${action}${submit} - ${choice.text}`];
+  const hidden = choice.hiddenFieldCount ? ` hidden=${choice.hiddenFieldCount}` : "";
+  const firstHidden = choice.hiddenFields?.[0]?.name ? ` firstHidden=${choice.hiddenFields[0].name}` : "";
+  return [`  ${prefix}: ${choice.id} ${choice.path} rank=${choice.rank} method=${choice.method} fields=${choice.fieldCount}${hidden}${firstHidden}${query}${template}${selector}${action}${submit} - ${choice.text}`];
 }
 
 function formatAgentActionTargetChoiceText(choice: AgentActionTargetChoice, prefix = "actionTargetChoice"): string[] {
@@ -3625,6 +3639,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topFormChoiceQueryField ? [`  topFormChoiceQueryField: ${agent.topFormChoiceQueryField}`] : []),
     ...(agent.topFormChoiceSubmitText ? [`  topFormChoiceSubmitText: ${agent.topFormChoiceSubmitText}`] : []),
     ...(agent.topFormChoiceSubmitType || agent.topFormChoiceSubmitSelector ? [`  topFormChoiceSubmit: ${agent.topFormChoiceSubmitText ?? ""}${agent.topFormChoiceSubmitType ? ` type=${agent.topFormChoiceSubmitType}` : ""}${agent.topFormChoiceSubmitName ? ` name=${agent.topFormChoiceSubmitName}` : ""}${agent.topFormChoiceSubmitValue ? ` value=${agent.topFormChoiceSubmitValue}` : ""}${typeof agent.topFormChoiceSubmitDisabled === "boolean" ? ` disabled=${agent.topFormChoiceSubmitDisabled}` : ""}${agent.topFormChoiceSubmitSelector ? ` selector=${agent.topFormChoiceSubmitSelector}` : ""}${agent.topFormChoiceSubmitFormActionUrl ? ` formaction=${agent.topFormChoiceSubmitFormActionUrl}` : ""}${agent.topFormChoiceSubmitFormMethod ? ` formmethod=${agent.topFormChoiceSubmitFormMethod}` : ""}${agent.topFormChoiceSubmitFormTarget ? ` formtarget=${agent.topFormChoiceSubmitFormTarget}` : ""}${agent.topFormChoiceSubmitFormEncType ? ` formenctype=${agent.topFormChoiceSubmitFormEncType}` : ""}${typeof agent.topFormChoiceSubmitFormNoValidate === "boolean" ? ` formnovalidate=${agent.topFormChoiceSubmitFormNoValidate}` : ""}${agent.topFormChoiceSubmitFormId ? ` form=${agent.topFormChoiceSubmitFormId}` : ""}`] : []),
+    ...(agent.topFormChoiceHiddenFieldCount ? [`  topFormChoiceHiddenFields: ${agent.topFormChoiceHiddenFieldCount}${agent.topFormChoiceFirstHiddenFieldName ? ` first=${agent.topFormChoiceFirstHiddenFieldName}` : ""}${agent.topFormChoiceFirstHiddenFieldValue ? ` value=${agent.topFormChoiceFirstHiddenFieldValue}` : ""}${agent.topFormChoiceFirstHiddenFieldSelector ? ` selector=${agent.topFormChoiceFirstHiddenFieldSelector}` : ""}`] : []),
     ...(agent.topFormChoiceFirstFieldName || agent.topFormChoiceFirstFieldType ? [`  topFormChoiceFirstField: ${agent.topFormChoiceFirstFieldName ?? ""}${agent.topFormChoiceFirstFieldType ? ` type=${agent.topFormChoiceFirstFieldType}` : ""}${agent.topFormChoiceFirstFieldLabel ? ` label=${agent.topFormChoiceFirstFieldLabel}` : ""}${agent.topFormChoiceFirstFieldPlaceholder ? ` placeholder=${agent.topFormChoiceFirstFieldPlaceholder}` : ""}${agent.topFormChoiceFirstFieldValue ? ` value=${agent.topFormChoiceFirstFieldValue}` : ""}${agent.topFormChoiceFirstFieldOptions?.length ? ` options=${agent.topFormChoiceFirstFieldOptions.join("|")}` : ""}${agent.topFormChoiceFirstFieldAutocomplete ? ` autocomplete=${agent.topFormChoiceFirstFieldAutocomplete}` : ""}${agent.topFormChoiceFirstFieldInputMode ? ` inputMode=${agent.topFormChoiceFirstFieldInputMode}` : ""}${agent.topFormChoiceFirstFieldPattern ? ` pattern=${agent.topFormChoiceFirstFieldPattern}` : ""}${agent.topFormChoiceFirstFieldMin ? ` min=${agent.topFormChoiceFirstFieldMin}` : ""}${agent.topFormChoiceFirstFieldMax ? ` max=${agent.topFormChoiceFirstFieldMax}` : ""}${agent.topFormChoiceFirstFieldStep ? ` step=${agent.topFormChoiceFirstFieldStep}` : ""}${typeof agent.topFormChoiceFirstFieldMinLength === "number" ? ` minLength=${agent.topFormChoiceFirstFieldMinLength}` : ""}${typeof agent.topFormChoiceFirstFieldMaxLength === "number" ? ` maxLength=${agent.topFormChoiceFirstFieldMaxLength}` : ""}${typeof agent.topFormChoiceFirstFieldRequired === "boolean" ? ` required=${agent.topFormChoiceFirstFieldRequired}` : ""}${typeof agent.topFormChoiceFirstFieldDisabled === "boolean" ? ` disabled=${agent.topFormChoiceFirstFieldDisabled}` : ""}${typeof agent.topFormChoiceFirstFieldReadonly === "boolean" ? ` readonly=${agent.topFormChoiceFirstFieldReadonly}` : ""}${typeof agent.topFormChoiceFirstFieldInvalid !== "undefined" ? ` invalid=${agent.topFormChoiceFirstFieldInvalid}` : ""}${agent.topFormChoiceFirstFieldSelector ? ` selector=${agent.topFormChoiceFirstFieldSelector}` : ""}`] : []),
     ...(agent.topActionTargetChoicePath ? [`  topActionTargetChoicePath: ${agent.topActionTargetChoicePath}`] : []),
     ...(agent.topActionTargetChoiceUrlTemplate ? [`  topActionTargetChoiceUrlTemplate: ${agent.topActionTargetChoiceUrlTemplate}`] : []),
@@ -6309,6 +6324,7 @@ function summarizeForms(html: string, baseUrl: string): PageFormSummary[] {
 
 function summarizeForm(form: Element, index: number, baseUrl: string, rootNodes: AnyNode[]): PageFormSummary | undefined {
   const fields = summarizeFormFields(form, rootNodes);
+  const hiddenFields = summarizeFormHiddenFields(form);
   if (fields.length === 0) return undefined;
   const formMethod = (attr(form, "method") || "get").toLowerCase();
   const action = attr(form, "action") || baseUrl;
@@ -6322,6 +6338,7 @@ function summarizeForm(form: Element, index: number, baseUrl: string, rootNodes:
   const textParts = [
     `${method.toUpperCase()} ${actionUrl}`,
     queryField ? `query field: ${queryField}` : "",
+    hiddenFields.length > 0 ? `hidden fields: ${hiddenFields.length}` : "",
     submitText ? `submit: ${submitText}` : "",
     ...fields.slice(0, 4).map(formatFormFieldSummary),
   ].filter(Boolean);
@@ -6332,7 +6349,9 @@ function summarizeForm(form: Element, index: number, baseUrl: string, rootNodes:
     method,
     actionUrl,
     fieldCount: fields.length,
+    hiddenFieldCount: hiddenFields.length,
     fields: fields.slice(0, 6),
+    hiddenFields: hiddenFields.slice(0, 6),
     text: cleanContentText(textParts.join(" ; ")),
     selector: `form:nth-of-type(${index + 1})`,
   };
@@ -6358,6 +6377,21 @@ function summarizeFormFields(form: Element, rootNodes: AnyNode[]): PageFormField
   return controls
     .map((control, index) => summarizeFormField(control, index, rootNodes))
     .filter((field): field is PageFormFieldSummary => Boolean(field));
+}
+
+function summarizeFormHiddenFields(form: Element): PageFormHiddenFieldSummary[] {
+  return findElements(form.children, (item) => item.name === "input" && (attr(item, "type") || "text").toLowerCase() === "hidden")
+    .map((control, index) => {
+      const name = attr(control, "name") || attr(control, "id") || "";
+      const value = attr(control, "value") || "";
+      return {
+        ...(name ? { name } : {}),
+        ...(value ? { value } : {}),
+        selector: name ? `input[name="${cssAttributeValue(name)}"]` : `input[type="hidden"]:nth-of-type(${index + 1})`,
+      };
+    })
+    .filter((field) => field.name || field.value || field.selector)
+    .slice(0, 12);
 }
 
 function summarizeFormField(control: Element, index: number, rootNodes: AnyNode[]): PageFormFieldSummary | undefined {
@@ -11386,6 +11420,7 @@ function summarizeAgent(
   const formChoices = summarizeAgentFormChoices(pageCheck.forms);
   const topFormChoice = formChoices[0];
   const topFormChoiceFirstField = topFormChoice?.fields[0];
+  const topFormChoiceFirstHiddenField = topFormChoice?.hiddenFields[0];
   const actionTargetChoices = summarizeAgentActionTargetChoices(pageCheck.actionTargets);
   const topChoice = summarizeAgentTopChoice(resultChoices, sourceChoices, formChoices, actionTargetChoices);
   const topBarrier = primaryBlockingBarrier(pageCheck.barriers) ?? pageCheck.barriers[0];
@@ -12033,7 +12068,11 @@ function summarizeAgent(
     ...(topFormChoice?.queryField ? { topFormChoiceQueryField: topFormChoice.queryField } : {}),
     ...(topFormChoice?.urlTemplate ? { topFormChoiceUrlTemplate: topFormChoice.urlTemplate } : {}),
     ...(typeof topFormChoice?.fieldCount === "number" ? { topFormChoiceFieldCount: topFormChoice.fieldCount } : {}),
+    ...(typeof topFormChoice?.hiddenFieldCount === "number" ? { topFormChoiceHiddenFieldCount: topFormChoice.hiddenFieldCount } : {}),
     ...(topFormChoice?.selector ? { topFormChoiceSelector: topFormChoice.selector } : {}),
+    ...(topFormChoiceFirstHiddenField?.name ? { topFormChoiceFirstHiddenFieldName: topFormChoiceFirstHiddenField.name } : {}),
+    ...(topFormChoiceFirstHiddenField?.value ? { topFormChoiceFirstHiddenFieldValue: topFormChoiceFirstHiddenField.value } : {}),
+    ...(topFormChoiceFirstHiddenField?.selector ? { topFormChoiceFirstHiddenFieldSelector: topFormChoiceFirstHiddenField.selector } : {}),
     ...(topFormChoiceFirstField?.name ? { topFormChoiceFirstFieldName: topFormChoiceFirstField.name } : {}),
     ...(topFormChoiceFirstField?.type ? { topFormChoiceFirstFieldType: topFormChoiceFirstField.type } : {}),
     ...(topFormChoiceFirstField?.label ? { topFormChoiceFirstFieldLabel: topFormChoiceFirstField.label } : {}),
@@ -14375,6 +14414,7 @@ function summarizeAgentFormChoices(forms: PageFormSummary[]): AgentFormChoice[] 
     rank: form.rank,
     method: form.method,
     fieldCount: form.fieldCount,
+    hiddenFieldCount: form.hiddenFieldCount,
     text: form.text,
     ...(form.actionUrl ? { actionUrl: form.actionUrl } : {}),
     ...(form.submitText ? { submitText: form.submitText } : {}),
@@ -14392,6 +14432,11 @@ function summarizeAgentFormChoices(forms: PageFormSummary[]): AgentFormChoice[] 
     ...(form.queryField ? { queryField: form.queryField } : {}),
     ...(form.urlTemplate ? { urlTemplate: form.urlTemplate } : {}),
     ...(form.selector ? { selector: form.selector } : {}),
+    hiddenFields: form.hiddenFields.map((field) => ({
+      ...(field.name ? { name: field.name } : {}),
+      ...(field.value ? { value: field.value } : {}),
+      ...(field.selector ? { selector: field.selector } : {}),
+    })),
     fields: form.fields.map((field) => ({
       type: field.type,
       ...(field.name ? { name: field.name } : {}),
@@ -16692,6 +16737,12 @@ function compactAgentForms(items: PageFormSummary[], primaryAction?: SuggestedAc
     rank: item.rank,
     method: item.method,
     fieldCount: item.fieldCount,
+    hiddenFieldCount: item.hiddenFieldCount,
+    ...(item.hiddenFields?.length ? { hiddenFields: item.hiddenFields.map((field) => ({
+      ...(field.name ? { name: field.name } : {}),
+      ...(field.value ? { value: field.value } : {}),
+      ...(field.selector ? { selector: field.selector } : {}),
+    })) } : {}),
     fields: item.fields.map((field) => ({
       type: field.type,
       ...(field.name ? { name: field.name } : {}),
@@ -17449,7 +17500,11 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topFormChoiceQueryField ? { topFormChoiceQueryField: agent.topFormChoiceQueryField } : {}),
     ...(agent.topFormChoiceUrlTemplate ? { topFormChoiceUrlTemplate: agent.topFormChoiceUrlTemplate } : {}),
     ...(typeof agent.topFormChoiceFieldCount === "number" ? { topFormChoiceFieldCount: agent.topFormChoiceFieldCount } : {}),
+    ...(typeof agent.topFormChoiceHiddenFieldCount === "number" ? { topFormChoiceHiddenFieldCount: agent.topFormChoiceHiddenFieldCount } : {}),
     ...(agent.topFormChoiceSelector ? { topFormChoiceSelector: agent.topFormChoiceSelector } : {}),
+    ...(agent.topFormChoiceFirstHiddenFieldName ? { topFormChoiceFirstHiddenFieldName: agent.topFormChoiceFirstHiddenFieldName } : {}),
+    ...(agent.topFormChoiceFirstHiddenFieldValue ? { topFormChoiceFirstHiddenFieldValue: agent.topFormChoiceFirstHiddenFieldValue } : {}),
+    ...(agent.topFormChoiceFirstHiddenFieldSelector ? { topFormChoiceFirstHiddenFieldSelector: agent.topFormChoiceFirstHiddenFieldSelector } : {}),
     ...(agent.topFormChoiceFirstFieldName ? { topFormChoiceFirstFieldName: agent.topFormChoiceFirstFieldName } : {}),
     ...(agent.topFormChoiceFirstFieldType ? { topFormChoiceFirstFieldType: agent.topFormChoiceFirstFieldType } : {}),
     ...(agent.topFormChoiceFirstFieldLabel ? { topFormChoiceFirstFieldLabel: agent.topFormChoiceFirstFieldLabel } : {}),
@@ -18515,7 +18570,11 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topFormChoiceQueryField ? { topFormChoiceQueryField: agent.topFormChoiceQueryField } : {}),
     ...(agent.topFormChoiceUrlTemplate ? { topFormChoiceUrlTemplate: agent.topFormChoiceUrlTemplate } : {}),
     ...(typeof agent.topFormChoiceFieldCount === "number" ? { topFormChoiceFieldCount: agent.topFormChoiceFieldCount } : {}),
+    ...(typeof agent.topFormChoiceHiddenFieldCount === "number" ? { topFormChoiceHiddenFieldCount: agent.topFormChoiceHiddenFieldCount } : {}),
     ...(agent.topFormChoiceSelector ? { topFormChoiceSelector: agent.topFormChoiceSelector } : {}),
+    ...(agent.topFormChoiceFirstHiddenFieldName ? { topFormChoiceFirstHiddenFieldName: agent.topFormChoiceFirstHiddenFieldName } : {}),
+    ...(agent.topFormChoiceFirstHiddenFieldValue ? { topFormChoiceFirstHiddenFieldValue: agent.topFormChoiceFirstHiddenFieldValue } : {}),
+    ...(agent.topFormChoiceFirstHiddenFieldSelector ? { topFormChoiceFirstHiddenFieldSelector: agent.topFormChoiceFirstHiddenFieldSelector } : {}),
     ...(agent.topFormChoiceFirstFieldName ? { topFormChoiceFirstFieldName: agent.topFormChoiceFirstFieldName } : {}),
     ...(agent.topFormChoiceFirstFieldType ? { topFormChoiceFirstFieldType: agent.topFormChoiceFirstFieldType } : {}),
     ...(agent.topFormChoiceFirstFieldLabel ? { topFormChoiceFirstFieldLabel: agent.topFormChoiceFirstFieldLabel } : {}),
@@ -19478,6 +19537,7 @@ function compactAgentFormExecutionRefs(forms: PageFormSummary[]): object[] {
     rank: form.rank,
     method: form.method,
     fieldCount: form.fieldCount,
+    hiddenFieldCount: form.hiddenFieldCount,
     text: form.text,
     ...(form.actionUrl ? { actionUrl: form.actionUrl } : {}),
     ...(form.urlTemplate ? { urlTemplate: form.urlTemplate } : {}),
@@ -19495,6 +19555,11 @@ function compactAgentFormExecutionRefs(forms: PageFormSummary[]): object[] {
     ...(typeof form.submitFormNoValidate === "boolean" ? { submitFormNoValidate: form.submitFormNoValidate } : {}),
     ...(form.submitFormId ? { submitFormId: form.submitFormId } : {}),
     ...(form.selector ? { selector: form.selector } : {}),
+    ...(form.hiddenFields.length ? { hiddenFields: form.hiddenFields.map((field) => ({
+      ...(field.name ? { name: field.name } : {}),
+      ...(field.value ? { value: field.value } : {}),
+      ...(field.selector ? { selector: field.selector } : {}),
+    })) } : {}),
     fields: form.fields.map((field) => ({
       type: field.type,
       ...(field.name ? { name: field.name } : {}),
