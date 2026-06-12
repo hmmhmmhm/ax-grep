@@ -4655,6 +4655,39 @@ describe("cli", () => {
     });
   });
 
+  it("keeps selected tab panel targets in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/tabs", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <div role="tablist" aria-label="Report sections">
+            <button id="tab-overview" role="tab" aria-selected="false" aria-controls="panel-overview">Overview</button>
+            <button id="tab-details" role="tab" aria-selected="true" aria-controls="panel-details">Details</button>
+          </div>
+          <section id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" hidden>Overview content</section>
+          <section id="panel-details" role="tabpanel" aria-labelledby="tab-details">Detailed report content</section>
+          <p>Readable report tab content.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      semanticTopSelectedChoiceRole: "tab",
+      semanticTopSelectedChoiceName: "Details",
+      semanticTopSelectedChoiceState: "selected=true controls=panel-details",
+      semanticTopSelectedChoiceSelected: true,
+      semanticTopSelectedChoiceControls: "panel-details",
+      semanticTopSelectedChoiceControlsTargetRole: "tabpanel",
+      semanticTopSelectedChoiceControlsTargetName: "Details",
+      semanticTopSelectedChoiceControlsTargetSelector: "#panel-details",
+    });
+  });
+
   it("keeps top actionable semantic selectors in agent brief output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/actions", "--agent-brief"], {

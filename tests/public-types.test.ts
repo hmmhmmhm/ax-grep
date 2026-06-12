@@ -743,6 +743,10 @@ describe("public agent types", () => {
       | "semanticTopSelectedChoiceLevel"
       | "semanticTopSelectedChoicePosInSet"
       | "semanticTopSelectedChoiceSetSize"
+      | "semanticTopSelectedChoiceControls"
+      | "semanticTopSelectedChoiceControlsTargetRole"
+      | "semanticTopSelectedChoiceControlsTargetName"
+      | "semanticTopSelectedChoiceControlsTargetSelector"
       | "semanticTopSelectedChoiceSelector"
       | "semanticTopStateRole"
       | "semanticTopStatePath"
@@ -1517,6 +1521,10 @@ describe("public agent types", () => {
       semanticTopSelectedChoiceLevel: 2,
       semanticTopSelectedChoicePosInSet: 2,
       semanticTopSelectedChoiceSetSize: 5,
+      semanticTopSelectedChoiceControls: "reports-panel",
+      semanticTopSelectedChoiceControlsTargetRole: "tabpanel",
+      semanticTopSelectedChoiceControlsTargetName: "Reports",
+      semanticTopSelectedChoiceControlsTargetSelector: "#reports-panel",
       semanticTopSelectedChoiceSelector: "option:nth-of-type(2)",
       semanticTopStateRole: "textbox",
       semanticTopStatePath: "agent.semanticSummary.stateItems[0]",

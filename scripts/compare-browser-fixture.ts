@@ -138,6 +138,27 @@ const fixtures: Fixture[] = [
   </body>
 </html>`,
   },
+  {
+    id: "tablist-selected-panel",
+    url: "https://fixture.local/browser-parity/tablist-selected-panel",
+    checks: buildTablistSelectedPanelChecks,
+    html: `<!doctype html>
+<html lang="en">
+  <head>
+    <title>Tablist selected panel fixture</title>
+  </head>
+  <body>
+    <main>
+      <div role="tablist" aria-label="Report sections">
+        <button id="tab-overview" role="tab" aria-selected="false" aria-controls="panel-overview">Overview</button>
+        <button id="tab-details" role="tab" aria-selected="true" aria-controls="panel-details">Details</button>
+      </div>
+      <section id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" hidden>Overview content</section>
+      <section id="panel-details" role="tabpanel" aria-labelledby="tab-details">Detailed report content</section>
+    </main>
+  </body>
+</html>`,
+  },
 ];
 
 const browser = await puppeteer.launch({ headless: true });
@@ -261,6 +282,10 @@ function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
     semanticTopSelectedChoiceCurrent: agent.semanticTopSelectedChoiceCurrent,
     semanticTopSelectedChoicePosInSet: agent.semanticTopSelectedChoicePosInSet,
     semanticTopSelectedChoiceSetSize: agent.semanticTopSelectedChoiceSetSize,
+    semanticTopSelectedChoiceControls: agent.semanticTopSelectedChoiceControls,
+    semanticTopSelectedChoiceControlsTargetRole: agent.semanticTopSelectedChoiceControlsTargetRole,
+    semanticTopSelectedChoiceControlsTargetName: agent.semanticTopSelectedChoiceControlsTargetName,
+    semanticTopSelectedChoiceControlsTargetSelector: agent.semanticTopSelectedChoiceControlsTargetSelector,
     semanticTopKeyboardShortcutName: agent.semanticTopKeyboardShortcutName,
   };
 }
@@ -484,6 +509,43 @@ function buildComboboxActiveDescendantChecks(namedRoles: string[], nodes: Semant
         && agent.semanticTopSelectedChoiceCurrent === "page"
         && agent.semanticTopSelectedChoicePosInSet === 2
         && agent.semanticTopSelectedChoiceSetSize === 2,
+    },
+  ];
+}
+
+function buildTablistSelectedPanelChecks(namedRoles: string[], nodes: SemanticNode[], agent: AgentSummary): Check[] {
+  const selectedTab = nodes.find((node) => node.role === "tab" && node.name === "Details");
+  const selectedPanel = nodes.find((node) => node.role === "tabpanel" && node.name === "Details");
+  return [
+    {
+      id: "selected-tab-panel-parity",
+      browserEvidence: JSON.stringify({
+        namedRoles: evidence(namedRoles, ["tablist:Report sections", "tab:Details", "tabpanel:Details"]),
+        selected: selectedTab?.state?.selected,
+        controls: selectedTab?.state?.controls,
+        panelName: selectedPanel?.name,
+      }),
+      agentEvidence: JSON.stringify({
+        selectedChoiceRole: agent.semanticTopSelectedChoiceRole,
+        selectedChoiceName: agent.semanticTopSelectedChoiceName,
+        selected: agent.semanticTopSelectedChoiceSelected,
+        controls: agent.semanticTopSelectedChoiceControls,
+        targetRole: agent.semanticTopSelectedChoiceControlsTargetRole,
+        targetName: agent.semanticTopSelectedChoiceControlsTargetName,
+        targetSelector: agent.semanticTopSelectedChoiceControlsTargetSelector,
+      }),
+      decision: "covered",
+      pass: includesAll(namedRoles, ["tablist:Report sections", "tab:Details", "tabpanel:Details"])
+        && selectedTab?.state?.selected === true
+        && selectedTab?.state?.controls === "panel-details"
+        && selectedPanel?.name === "Details"
+        && agent.semanticTopSelectedChoiceRole === "tab"
+        && agent.semanticTopSelectedChoiceName === "Details"
+        && agent.semanticTopSelectedChoiceSelected === true
+        && agent.semanticTopSelectedChoiceControls === "panel-details"
+        && agent.semanticTopSelectedChoiceControlsTargetRole === "tabpanel"
+        && agent.semanticTopSelectedChoiceControlsTargetName === "Details"
+        && agent.semanticTopSelectedChoiceControlsTargetSelector === "#panel-details",
     },
   ];
 }

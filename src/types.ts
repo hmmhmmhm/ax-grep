@@ -851,6 +851,10 @@ export type AgentSummary = {
   semanticTopSelectedChoiceLevel?: number;
   semanticTopSelectedChoicePosInSet?: number;
   semanticTopSelectedChoiceSetSize?: number;
+  semanticTopSelectedChoiceControls?: string;
+  semanticTopSelectedChoiceControlsTargetRole?: string;
+  semanticTopSelectedChoiceControlsTargetName?: string;
+  semanticTopSelectedChoiceControlsTargetSelector?: string;
   semanticTopSelectedChoiceSelector?: string;
   semanticTopStateRole?: string;
   semanticTopStatePath?: string;
