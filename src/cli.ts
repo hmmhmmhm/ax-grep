@@ -1586,6 +1586,7 @@ type AgentSummary = {
   sourceSearchAlternateOpenResult?: AgentSourceSearchResult["openResult"];
   sourceSearchAlternateCommandArgs?: string[];
   sourceSearchAlternateReason?: string;
+  sourceSearchAlternateChoices: AgentSourceSearchResult[];
   evidenceQualityScore: number;
   sourceQualityScore: number;
   alternativeActionCount: number;
@@ -3442,6 +3443,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.sourceSearchAlternateOpenResult ? [`  sourceSearchAlternateOpenResult: ${agent.sourceSearchAlternateOpenResult}`] : []),
     ...(agent.sourceSearchAlternateCommandArgs ? [`  sourceSearchAlternateCommandArgs: ${JSON.stringify(agent.sourceSearchAlternateCommandArgs)}`] : []),
     ...(agent.sourceSearchAlternateReason ? [`  sourceSearchAlternateReason: ${agent.sourceSearchAlternateReason}`] : []),
+    ...agent.sourceSearchAlternateChoices.flatMap((choice) => formatAgentSourceSearchResultText(choice, "sourceSearchAlternateChoice")),
     `  alternativeActionCount: ${agent.alternativeActionCount}`,
     ...(agent.alternativeActionName ? [`  alternativeActionName: ${agent.alternativeActionName}`] : []),
     ...(agent.alternativeActionSource ? [`  alternativeActionSource: ${agent.alternativeActionSource}`] : []),
@@ -10850,6 +10852,7 @@ function summarizeAgent(
   const sourceSearchAgent = compactAgentSourceSearch(sourceSearch);
   const sourceSearchSelectedResult = sourceSearchAgent?.selectedResult;
   const sourceSearchAlternateResult = sourceSearchAgent?.alternateResults?.[0];
+  const sourceSearchAlternateChoices = sourceSearchAgent?.alternateResults ?? [];
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, sourceSearchAgent, signals, qualityGates, verification.foundQueries, verification.missingQueries);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   const topSemanticHeading = semanticSummary?.headingItems[0];
@@ -11613,6 +11616,7 @@ function summarizeAgent(
     ...(sourceSearchAlternateResult?.openResult ? { sourceSearchAlternateOpenResult: sourceSearchAlternateResult.openResult } : {}),
     ...(sourceSearchAlternateResult?.commandArgs ? { sourceSearchAlternateCommandArgs: sourceSearchAlternateResult.commandArgs } : {}),
     ...(sourceSearchAlternateResult?.selectionReason ? { sourceSearchAlternateReason: sourceSearchAlternateResult.selectionReason } : {}),
+    sourceSearchAlternateChoices,
     evidenceQualityScore,
     sourceQualityScore,
     alternativeActionCount: actions.filter((action) => !action.primary).length,
@@ -14349,6 +14353,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const sourceSearchAgent = compactAgentSourceSearch(sourceSearch);
   const sourceSearchSelectedResult = sourceSearchAgent?.selectedResult;
   const sourceSearchAlternateResult = sourceSearchAgent?.alternateResults?.[0];
+  const sourceSearchAlternateChoices = sourceSearchAgent?.alternateResults ?? [];
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, [], [], [], sourceSearchAgent, signals, qualityGates);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   return {
@@ -14498,6 +14503,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(sourceSearchAlternateResult?.openResult ? { sourceSearchAlternateOpenResult: sourceSearchAlternateResult.openResult } : {}),
     ...(sourceSearchAlternateResult?.commandArgs ? { sourceSearchAlternateCommandArgs: sourceSearchAlternateResult.commandArgs } : {}),
     ...(sourceSearchAlternateResult?.selectionReason ? { sourceSearchAlternateReason: sourceSearchAlternateResult.selectionReason } : {}),
+    sourceSearchAlternateChoices,
     evidenceQualityScore: 0,
     sourceQualityScore: 0,
     alternativeActionCount: 0,
@@ -16512,6 +16518,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.sourceSearchAlternateOpenResult ? { sourceSearchAlternateOpenResult: agent.sourceSearchAlternateOpenResult } : {}),
     ...(agent.sourceSearchAlternateCommandArgs ? { sourceSearchAlternateCommandArgs: agent.sourceSearchAlternateCommandArgs } : {}),
     ...(agent.sourceSearchAlternateReason ? { sourceSearchAlternateReason: agent.sourceSearchAlternateReason } : {}),
+    ...(agent.sourceSearchAlternateChoices.length > 0 ? { sourceSearchAlternateChoices: compactAgentCommandList(agent.sourceSearchAlternateChoices) } : {}),
     alternativeActionCount: agent.alternativeActionCount,
     evidenceQualityScore: agent.evidenceQualityScore,
     sourceQualityScore: agent.sourceQualityScore,
@@ -17359,6 +17366,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.sourceSearchAlternateOpenResult ? { sourceSearchAlternateOpenResult: agent.sourceSearchAlternateOpenResult } : {}),
     ...(agent.sourceSearchAlternateCommandArgs ? { sourceSearchAlternateCommandArgs: agent.sourceSearchAlternateCommandArgs } : {}),
     ...(agent.sourceSearchAlternateReason ? { sourceSearchAlternateReason: agent.sourceSearchAlternateReason } : {}),
+    ...(agent.sourceSearchAlternateChoices.length > 0 ? { sourceSearchAlternateChoices: compactAgentCommandList(agent.sourceSearchAlternateChoices, 900) } : {}),
     evidenceQualityScore: agent.evidenceQualityScore,
     sourceQualityScore: agent.sourceQualityScore,
     ...(agent.diagnosticErrorCount || agent.diagnosticWarningCount ? {

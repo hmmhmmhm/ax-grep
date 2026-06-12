@@ -3425,6 +3425,7 @@ describe("cli", () => {
               <ol>
                 <li><a class="result__a" href="https://missing.example/article">Missing Result</a><p>Missing result snippet.</p></li>
                 <li><a class="result__a" href="https://alternate.example/article">Alternate Result</a><p>Alternate result snippet.</p></li>
+                <li><a class="result__a" href="https://backup.example/article">Backup Result</a><p>Backup result snippet.</p></li>
               </ol>
             </main>
           `, { headers: { "content-type": "text/html" } });
@@ -3472,6 +3473,13 @@ describe("cli", () => {
             rank: 2,
             commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--open-result", "2", "--agent"],
           }),
+          expect.objectContaining({
+            path: "sourceSearch.alternateResults[1]",
+            title: "Backup Result",
+            url: "https://backup.example/article",
+            rank: 3,
+            commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--open-result", "3", "--agent"],
+          }),
         ],
       },
     });
@@ -3486,7 +3494,7 @@ describe("cli", () => {
       sourceSearchSelectedPath: "sourceSearch.selectedResult",
       sourceSearchSelectedOpenResult: 1,
       sourceSearchSelectedCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--open-result", "1", "--agent"],
-      sourceSearchAlternateCount: 1,
+      sourceSearchAlternateCount: 2,
       sourceSearchAlternatePath: "sourceSearch.alternateResults[0]",
       sourceSearchAlternateTitle: "Alternate Result",
       sourceSearchAlternateUrl: "https://alternate.example/article",
@@ -3494,6 +3502,26 @@ describe("cli", () => {
       sourceSearchAlternateRank: 2,
       sourceSearchAlternateOpenResult: 2,
       sourceSearchAlternateCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--open-result", "2", "--agent"],
+      sourceSearchAlternateChoices: [
+        expect.objectContaining({
+          path: "sourceSearch.alternateResults[0]",
+          title: "Alternate Result",
+          url: "https://alternate.example/article",
+          host: "alternate.example",
+          rank: 2,
+          openResult: 2,
+          commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--open-result", "2", "--agent"],
+        }),
+        expect.objectContaining({
+          path: "sourceSearch.alternateResults[1]",
+          title: "Backup Result",
+          url: "https://backup.example/article",
+          host: "backup.example",
+          rank: 3,
+          openResult: 3,
+          commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--open-result", "3", "--agent"],
+        }),
+      ],
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "sourceSearch.selectedResult",
@@ -3501,7 +3529,7 @@ describe("cli", () => {
     }));
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "sourceSearch.alternateResults",
-      count: 1,
+      count: 2,
     }));
     expect(envelope.sourceSearch).toMatchObject({
       selectedRank: 1,
@@ -3513,8 +3541,58 @@ describe("cli", () => {
           rank: 2,
           command: "ax-grep --search 'agent browser' --engine duckduckgo --open-result 2 --agent",
         }),
+        expect.objectContaining({
+          title: "Backup Result",
+          url: "https://backup.example/article",
+          rank: 3,
+          command: "ax-grep --search 'agent browser' --engine duckduckgo --open-result 3 --agent",
+        }),
       ],
     });
+  });
+
+  it("keeps multiple alternate source-search choices in brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["--search", "agent browser", "--engine", "duckduckgo", "--open-result", "1", "--agent-brief"], {
+      stdout,
+      fetch: async (input) => {
+        if (String(input).includes("duckduckgo.com")) {
+          return new Response(`
+            <main>
+              <ol>
+                <li><a class="result__a" href="https://missing.example/article">Missing Result</a><p>Missing result snippet.</p></li>
+                <li><a class="result__a" href="https://alternate.example/article">Alternate Result</a><p>Alternate result snippet.</p></li>
+                <li><a class="result__a" href="https://backup.example/article">Backup Result</a><p>Backup result snippet.</p></li>
+              </ol>
+            </main>
+          `, { headers: { "content-type": "text/html" } });
+        }
+        return new Response("not found", { status: 404, statusText: "Not Found" });
+      },
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(12);
+    expect(envelope.agent.sourceSearchAlternateCount).toBe(2);
+    expect(envelope.agent.sourceSearchAlternateChoices).toEqual([
+      expect.objectContaining({
+        path: "sourceSearch.alternateResults[0]",
+        title: "Alternate Result",
+        url: "https://alternate.example/article",
+        host: "alternate.example",
+        openResult: 2,
+        commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--open-result", "2", "--agent-brief"],
+      }),
+      expect.objectContaining({
+        path: "sourceSearch.alternateResults[1]",
+        title: "Backup Result",
+        url: "https://backup.example/article",
+        host: "backup.example",
+        openResult: 3,
+        commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--open-result", "3", "--agent-brief"],
+      }),
+    ]);
   });
 
   it("routes missing opened search results to matching alternate candidates", async () => {

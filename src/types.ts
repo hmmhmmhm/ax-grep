@@ -1243,6 +1243,7 @@ export type AgentSummary = {
   sourceSearchAlternateOpenResult?: number | "best";
   sourceSearchAlternateCommandArgs?: string[];
   sourceSearchAlternateReason?: string;
+  sourceSearchAlternateChoices?: AgentSourceSearchResult[];
   evidenceQualityScore?: number;
   sourceQualityScore?: number;
   alternativeActionCount?: number;

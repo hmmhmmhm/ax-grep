@@ -452,6 +452,7 @@ describe("public agent types", () => {
       | "sourceSearchAlternateOpenResult"
       | "sourceSearchAlternateCommandArgs"
       | "sourceSearchAlternateReason"
+      | "sourceSearchAlternateChoices"
       | "verificationFoundQueries"
       | "verificationMissingQueries"
       | "topVerificationFoundQuery"
@@ -1251,6 +1252,16 @@ describe("public agent types", () => {
       sourceSearchAlternateOpenResult: 3,
       sourceSearchAlternateCommandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "3", "--agent"],
       sourceSearchAlternateReason: "Alternate source result.",
+      sourceSearchAlternateChoices: [{
+        id: "a3",
+        path: "sourceSearch.alternateResults[0]",
+        title: "ax-grep mirror",
+        url: "https://mirror.example/result",
+        host: "mirror.example",
+        rank: 3,
+        openResult: 3,
+        commandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "3", "--agent"],
+      }],
       verificationFoundQueries: ["present"],
       verificationMissingQueries: ["missing"],
       topVerificationFoundQuery: "present",
@@ -1804,6 +1815,7 @@ describe("public agent types", () => {
     expect(summary.sourceSearchSelectedCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.sourceSearchAlternateCount).toBe(1);
     expect(summary.sourceSearchAlternatePath).toBe("sourceSearch.alternateResults[0]");
+    expect(summary.sourceSearchAlternateChoices?.[0]?.path).toBe("sourceSearch.alternateResults[0]");
     expect(summary.topActionName).toBe("read-content");
     expect(summary.pagePublishedTime).toBe("2026-02-03T04:05:06Z");
     expect(summary.verificationMissingQueries).toEqual(["missing"]);
