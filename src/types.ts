@@ -476,6 +476,12 @@ export type AgentFormChoice = {
   hiddenFieldCount: number;
   text: string;
   actionUrl?: string;
+  formId?: string;
+  formName?: string;
+  formTarget?: string;
+  formEncType?: string;
+  formAcceptCharset?: string;
+  formNoValidate?: boolean;
   submitText?: string;
   submitType?: string;
   submitName?: string;
@@ -1109,6 +1115,12 @@ export type AgentSummary = {
   topFormChoicePath?: string;
   topFormChoiceMethod?: string;
   topFormChoiceActionUrl?: string;
+  topFormChoiceFormId?: string;
+  topFormChoiceFormName?: string;
+  topFormChoiceFormTarget?: string;
+  topFormChoiceFormEncType?: string;
+  topFormChoiceFormAcceptCharset?: string;
+  topFormChoiceFormNoValidate?: boolean;
   topFormChoiceSubmitText?: string;
   topFormChoiceSubmitType?: string;
   topFormChoiceSubmitName?: string;

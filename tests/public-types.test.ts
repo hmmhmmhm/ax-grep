@@ -156,6 +156,12 @@ describe("public agent types", () => {
       hiddenFieldCount: 1,
       text: "GET https://example.test/find; query field: q",
       actionUrl: "https://example.test/find",
+      formId: "archive-form",
+      formName: "archive",
+      formTarget: "_blank",
+      formEncType: "multipart/form-data",
+      formAcceptCharset: "UTF-8",
+      formNoValidate: true,
       submitText: "Search",
       submitType: "submit",
       submitName: "submit-search",
@@ -228,6 +234,12 @@ describe("public agent types", () => {
       | "topFormChoicePath"
       | "topFormChoiceMethod"
       | "topFormChoiceActionUrl"
+      | "topFormChoiceFormId"
+      | "topFormChoiceFormName"
+      | "topFormChoiceFormTarget"
+      | "topFormChoiceFormEncType"
+      | "topFormChoiceFormAcceptCharset"
+      | "topFormChoiceFormNoValidate"
       | "topFormChoiceSubmitText"
       | "topFormChoiceSubmitType"
       | "topFormChoiceSubmitName"
@@ -1272,6 +1284,12 @@ describe("public agent types", () => {
       topFormChoicePath: "pageCheck.forms[0]",
       topFormChoiceMethod: "get",
       topFormChoiceActionUrl: "https://example.test/find",
+      topFormChoiceFormId: "archive-form",
+      topFormChoiceFormName: "archive",
+      topFormChoiceFormTarget: "_blank",
+      topFormChoiceFormEncType: "multipart/form-data",
+      topFormChoiceFormAcceptCharset: "UTF-8",
+      topFormChoiceFormNoValidate: true,
       topFormChoiceSubmitText: "Search",
       topFormChoiceSubmitType: "submit",
       topFormChoiceSubmitName: "submit-search",

@@ -427,6 +427,12 @@ type PageFormSummary = {
   hiddenFields: PageFormHiddenFieldSummary[];
   text: string;
   actionUrl?: string;
+  formId?: string;
+  formName?: string;
+  formTarget?: string;
+  formEncType?: string;
+  formAcceptCharset?: string;
+  formNoValidate?: boolean;
   submitText?: string;
   submitType?: string;
   submitName?: string;
@@ -1450,6 +1456,12 @@ type AgentSummary = {
   topFormChoicePath?: string;
   topFormChoiceMethod?: string;
   topFormChoiceActionUrl?: string;
+  topFormChoiceFormId?: string;
+  topFormChoiceFormName?: string;
+  topFormChoiceFormTarget?: string;
+  topFormChoiceFormEncType?: string;
+  topFormChoiceFormAcceptCharset?: string;
+  topFormChoiceFormNoValidate?: boolean;
   topFormChoiceSubmitText?: string;
   topFormChoiceSubmitType?: string;
   topFormChoiceSubmitName?: string;
@@ -3423,7 +3435,9 @@ function formatAgentFormChoiceText(choice: AgentFormChoice, prefix = "formChoice
   const submit = choice.submitText ? ` submit=${choice.submitText}` : "";
   const hidden = choice.hiddenFieldCount ? ` hidden=${choice.hiddenFieldCount}` : "";
   const firstHidden = choice.hiddenFields?.[0]?.name ? ` firstHidden=${choice.hiddenFields[0].name}` : "";
-  return [`  ${prefix}: ${choice.id} ${choice.path} rank=${choice.rank} method=${choice.method} fields=${choice.fieldCount}${hidden}${firstHidden}${query}${template}${selector}${action}${submit} - ${choice.text}`];
+  const target = choice.formTarget ? ` target=${choice.formTarget}` : "";
+  const encType = choice.formEncType ? ` enctype=${choice.formEncType}` : "";
+  return [`  ${prefix}: ${choice.id} ${choice.path} rank=${choice.rank} method=${choice.method} fields=${choice.fieldCount}${hidden}${firstHidden}${query}${template}${target}${encType}${selector}${action}${submit} - ${choice.text}`];
 }
 
 function formatAgentActionTargetChoiceText(choice: AgentActionTargetChoice, prefix = "actionTargetChoice"): string[] {
@@ -6333,6 +6347,12 @@ function summarizeForm(form: Element, index: number, baseUrl: string, rootNodes:
   const hiddenFields = summarizeFormHiddenFields(form);
   if (fields.length === 0) return undefined;
   const formMethod = (attr(form, "method") || "get").toLowerCase();
+  const formId = attr(form, "id") || "";
+  const formName = attr(form, "name") || "";
+  const formTarget = attr(form, "target") || "";
+  const formEncType = attr(form, "enctype") || "";
+  const formAcceptCharset = attr(form, "accept-charset") || "";
+  const formNoValidate = attr(form, "novalidate") !== undefined;
   const action = attr(form, "action") || baseUrl;
   const formActionUrl = normalizeHref(action, baseUrl) ?? action;
   const submit = summarizeFormSubmit(form, baseUrl);
@@ -6361,6 +6381,12 @@ function summarizeForm(form: Element, index: number, baseUrl: string, rootNodes:
     text: cleanContentText(textParts.join(" ; ")),
     selector: `form:nth-of-type(${index + 1})`,
   };
+  if (formId) summary.formId = formId;
+  if (formName) summary.formName = formName;
+  if (formTarget) summary.formTarget = formTarget;
+  if (formEncType) summary.formEncType = formEncType;
+  if (formAcceptCharset) summary.formAcceptCharset = formAcceptCharset;
+  if (formNoValidate) summary.formNoValidate = true;
   if (submitText) summary.submitText = submitText;
   if (submit?.type) summary.submitType = submit.type;
   if (submit?.name) summary.submitName = submit.name;
@@ -12085,6 +12111,12 @@ function summarizeAgent(
     ...(topFormChoice ? { topFormChoicePath: topFormChoice.path } : {}),
     ...(topFormChoice?.method ? { topFormChoiceMethod: topFormChoice.method } : {}),
     ...(topFormChoice?.actionUrl ? { topFormChoiceActionUrl: topFormChoice.actionUrl } : {}),
+    ...(topFormChoice?.formId ? { topFormChoiceFormId: topFormChoice.formId } : {}),
+    ...(topFormChoice?.formName ? { topFormChoiceFormName: topFormChoice.formName } : {}),
+    ...(topFormChoice?.formTarget ? { topFormChoiceFormTarget: topFormChoice.formTarget } : {}),
+    ...(topFormChoice?.formEncType ? { topFormChoiceFormEncType: topFormChoice.formEncType } : {}),
+    ...(topFormChoice?.formAcceptCharset ? { topFormChoiceFormAcceptCharset: topFormChoice.formAcceptCharset } : {}),
+    ...(typeof topFormChoice?.formNoValidate === "boolean" ? { topFormChoiceFormNoValidate: topFormChoice.formNoValidate } : {}),
     ...(topFormChoice?.submitText ? { topFormChoiceSubmitText: topFormChoice.submitText } : {}),
     ...(topFormChoice?.submitType ? { topFormChoiceSubmitType: topFormChoice.submitType } : {}),
     ...(topFormChoice?.submitName ? { topFormChoiceSubmitName: topFormChoice.submitName } : {}),
@@ -14452,6 +14484,12 @@ function summarizeAgentFormChoices(forms: PageFormSummary[]): AgentFormChoice[] 
     hiddenFieldCount: form.hiddenFieldCount,
     text: form.text,
     ...(form.actionUrl ? { actionUrl: form.actionUrl } : {}),
+    ...(form.formId ? { formId: form.formId } : {}),
+    ...(form.formName ? { formName: form.formName } : {}),
+    ...(form.formTarget ? { formTarget: form.formTarget } : {}),
+    ...(form.formEncType ? { formEncType: form.formEncType } : {}),
+    ...(form.formAcceptCharset ? { formAcceptCharset: form.formAcceptCharset } : {}),
+    ...(typeof form.formNoValidate === "boolean" ? { formNoValidate: form.formNoValidate } : {}),
     ...(form.submitText ? { submitText: form.submitText } : {}),
     ...(form.submitType ? { submitType: form.submitType } : {}),
     ...(form.submitName ? { submitName: form.submitName } : {}),
@@ -16805,6 +16843,12 @@ function compactAgentForms(items: PageFormSummary[], primaryAction?: SuggestedAc
       ...(field.selectedValue ? { selectedValue: field.selectedValue } : {}),
     })),
     ...(item.actionUrl ? { actionUrl: item.actionUrl } : {}),
+    ...(item.formId ? { formId: item.formId } : {}),
+    ...(item.formName ? { formName: item.formName } : {}),
+    ...(item.formTarget ? { formTarget: item.formTarget } : {}),
+    ...(item.formEncType ? { formEncType: item.formEncType } : {}),
+    ...(item.formAcceptCharset ? { formAcceptCharset: item.formAcceptCharset } : {}),
+    ...(typeof item.formNoValidate === "boolean" ? { formNoValidate: item.formNoValidate } : {}),
     ...(item.submitText ? { submitText: item.submitText } : {}),
     ...(item.submitType ? { submitType: item.submitType } : {}),
     ...(item.submitName ? { submitName: item.submitName } : {}),
@@ -17528,6 +17572,12 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topFormChoicePath ? { topFormChoicePath: agent.topFormChoicePath } : {}),
     ...(agent.topFormChoiceMethod ? { topFormChoiceMethod: agent.topFormChoiceMethod } : {}),
     ...(agent.topFormChoiceActionUrl ? { topFormChoiceActionUrl: agent.topFormChoiceActionUrl } : {}),
+    ...(agent.topFormChoiceFormId ? { topFormChoiceFormId: agent.topFormChoiceFormId } : {}),
+    ...(agent.topFormChoiceFormName ? { topFormChoiceFormName: agent.topFormChoiceFormName } : {}),
+    ...(agent.topFormChoiceFormTarget ? { topFormChoiceFormTarget: agent.topFormChoiceFormTarget } : {}),
+    ...(agent.topFormChoiceFormEncType ? { topFormChoiceFormEncType: agent.topFormChoiceFormEncType } : {}),
+    ...(agent.topFormChoiceFormAcceptCharset ? { topFormChoiceFormAcceptCharset: agent.topFormChoiceFormAcceptCharset } : {}),
+    ...(typeof agent.topFormChoiceFormNoValidate === "boolean" ? { topFormChoiceFormNoValidate: agent.topFormChoiceFormNoValidate } : {}),
     ...(agent.topFormChoiceSubmitText ? { topFormChoiceSubmitText: agent.topFormChoiceSubmitText } : {}),
     ...(agent.topFormChoiceSubmitType ? { topFormChoiceSubmitType: agent.topFormChoiceSubmitType } : {}),
     ...(agent.topFormChoiceSubmitName ? { topFormChoiceSubmitName: agent.topFormChoiceSubmitName } : {}),
@@ -18601,6 +18651,12 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topFormChoicePath ? { topFormChoicePath: agent.topFormChoicePath } : {}),
     ...(agent.topFormChoiceMethod ? { topFormChoiceMethod: agent.topFormChoiceMethod } : {}),
     ...(agent.topFormChoiceActionUrl ? { topFormChoiceActionUrl: agent.topFormChoiceActionUrl } : {}),
+    ...(agent.topFormChoiceFormId ? { topFormChoiceFormId: agent.topFormChoiceFormId } : {}),
+    ...(agent.topFormChoiceFormName ? { topFormChoiceFormName: agent.topFormChoiceFormName } : {}),
+    ...(agent.topFormChoiceFormTarget ? { topFormChoiceFormTarget: agent.topFormChoiceFormTarget } : {}),
+    ...(agent.topFormChoiceFormEncType ? { topFormChoiceFormEncType: agent.topFormChoiceFormEncType } : {}),
+    ...(agent.topFormChoiceFormAcceptCharset ? { topFormChoiceFormAcceptCharset: agent.topFormChoiceFormAcceptCharset } : {}),
+    ...(typeof agent.topFormChoiceFormNoValidate === "boolean" ? { topFormChoiceFormNoValidate: agent.topFormChoiceFormNoValidate } : {}),
     ...(agent.topFormChoiceSubmitText ? { topFormChoiceSubmitText: agent.topFormChoiceSubmitText } : {}),
     ...(agent.topFormChoiceSubmitType ? { topFormChoiceSubmitType: agent.topFormChoiceSubmitType } : {}),
     ...(agent.topFormChoiceSubmitName ? { topFormChoiceSubmitName: agent.topFormChoiceSubmitName } : {}),
@@ -19589,6 +19645,12 @@ function compactAgentFormExecutionRefs(forms: PageFormSummary[]): object[] {
     hiddenFieldCount: form.hiddenFieldCount,
     text: form.text,
     ...(form.actionUrl ? { actionUrl: form.actionUrl } : {}),
+    ...(form.formId ? { formId: form.formId } : {}),
+    ...(form.formName ? { formName: form.formName } : {}),
+    ...(form.formTarget ? { formTarget: form.formTarget } : {}),
+    ...(form.formEncType ? { formEncType: form.formEncType } : {}),
+    ...(form.formAcceptCharset ? { formAcceptCharset: form.formAcceptCharset } : {}),
+    ...(typeof form.formNoValidate === "boolean" ? { formNoValidate: form.formNoValidate } : {}),
     ...(form.urlTemplate ? { urlTemplate: form.urlTemplate } : {}),
     ...(form.queryField ? { queryField: form.queryField } : {}),
     ...(form.submitText ? { submitText: form.submitText } : {}),

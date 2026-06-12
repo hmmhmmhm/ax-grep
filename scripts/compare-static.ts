@@ -378,6 +378,12 @@ type CliAgentFormChoiceShape = {
   hiddenFieldCount?: number;
   text?: string;
   actionUrl?: string;
+  formId?: string;
+  formName?: string;
+  formTarget?: string;
+  formEncType?: string;
+  formAcceptCharset?: string;
+  formNoValidate?: boolean;
   submitText?: string;
   submitType?: string;
   submitName?: string;
@@ -1352,6 +1358,12 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topFormChoicePath?: string;
       topFormChoiceMethod?: string;
       topFormChoiceActionUrl?: string;
+      topFormChoiceFormId?: string;
+      topFormChoiceFormName?: string;
+      topFormChoiceFormTarget?: string;
+      topFormChoiceFormEncType?: string;
+      topFormChoiceFormAcceptCharset?: string;
+      topFormChoiceFormNoValidate?: boolean;
       topFormChoiceSubmitText?: string;
       topFormChoiceSubmitType?: string;
       topFormChoiceSubmitName?: string;
@@ -4581,6 +4593,12 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   topFormChoicePath?: string;
   topFormChoiceMethod?: string;
   topFormChoiceActionUrl?: string;
+  topFormChoiceFormId?: string;
+  topFormChoiceFormName?: string;
+  topFormChoiceFormTarget?: string;
+  topFormChoiceFormEncType?: string;
+  topFormChoiceFormAcceptCharset?: string;
+  topFormChoiceFormNoValidate?: boolean;
   topFormChoiceSubmitText?: string;
   topFormChoiceSubmitType?: string;
   topFormChoiceSubmitName?: string;
@@ -4645,11 +4663,17 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   let matched = 0;
   if (form) {
     if (agent?.topFormChoicePath === form.path) matched += 1;
-    required += 44;
+    required += 50;
     const firstField = Array.isArray(form.fields) ? form.fields[0] as { name?: unknown; type?: unknown; label?: unknown; placeholder?: unknown; value?: unknown; options?: unknown; selectedOption?: unknown; selectedValue?: unknown; autocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; required?: unknown; checked?: unknown; disabled?: unknown; readonly?: unknown; invalid?: unknown; selector?: unknown } | undefined : undefined;
     const firstHiddenField = Array.isArray(form.hiddenFields) ? form.hiddenFields[0] as { name?: unknown; value?: unknown; selector?: unknown } | undefined : undefined;
     if (agent?.topFormChoiceMethod === form.method) matched += 1;
     if (agent?.topFormChoiceActionUrl === form.actionUrl) matched += 1;
+    if (agent?.topFormChoiceFormId === form.formId) matched += 1;
+    if (agent?.topFormChoiceFormName === form.formName) matched += 1;
+    if (agent?.topFormChoiceFormTarget === form.formTarget) matched += 1;
+    if (agent?.topFormChoiceFormEncType === form.formEncType) matched += 1;
+    if (agent?.topFormChoiceFormAcceptCharset === form.formAcceptCharset) matched += 1;
+    if (agent?.topFormChoiceFormNoValidate === form.formNoValidate) matched += 1;
     if (agent?.topFormChoiceSubmitText === form.submitText) matched += 1;
     if (agent?.topFormChoiceSubmitType === form.submitType) matched += 1;
     if (agent?.topFormChoiceSubmitName === form.submitName) matched += 1;
@@ -4696,6 +4720,12 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     agent?.topFormChoicePath
     || agent?.topFormChoiceMethod
     || agent?.topFormChoiceActionUrl
+    || agent?.topFormChoiceFormId
+    || agent?.topFormChoiceFormName
+    || agent?.topFormChoiceFormTarget
+    || agent?.topFormChoiceFormEncType
+    || agent?.topFormChoiceFormAcceptCharset
+    || typeof agent?.topFormChoiceFormNoValidate === "boolean"
     || agent?.topFormChoiceSubmitText
     || agent?.topFormChoiceSubmitType
     || agent?.topFormChoiceSubmitName

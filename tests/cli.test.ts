@@ -5375,7 +5375,7 @@ describe("cli", () => {
       fetch: async () => new Response(`
         <main>
           <h1>Search archive</h1>
-          <form method="GET" action="/find">
+          <form id="archive-form" name="archive" method="GET" action="/find" target="_blank" enctype="multipart/form-data" accept-charset="UTF-8" novalidate>
             <label id="q-label" for="q">Archive search</label>
             <p id="q-help">Use product or report keywords.</p>
             <input id="q" name="query" type="search" placeholder="Search reports" aria-placeholder="Report keyword" autocomplete="off" aria-autocomplete="list" inputmode="search" pattern="[A-Za-z0-9 ]+" min="1" max="99" step="1" minlength="2" maxlength="80" required readonly aria-disabled="true" aria-invalid="spelling" aria-expanded="true" aria-haspopup="listbox" aria-controls="category" aria-labelledby="q-label" aria-describedby="q-help">
@@ -5397,6 +5397,12 @@ describe("cli", () => {
         rank: 1,
         method: "get",
         actionUrl: "https://example.test/find",
+        formId: "archive-form",
+        formName: "archive",
+        formTarget: "_blank",
+        formEncType: "multipart/form-data",
+        formAcceptCharset: "UTF-8",
+        formNoValidate: true,
         fieldCount: 2,
         hiddenFieldCount: 1,
         submitText: "Search",
@@ -5577,6 +5583,12 @@ describe("cli", () => {
       topFormChoicePath: "pageCheck.forms[0]",
       topFormChoiceMethod: "get",
       topFormChoiceActionUrl: "https://example.test/find",
+      topFormChoiceFormId: "archive-form",
+      topFormChoiceFormName: "archive",
+      topFormChoiceFormTarget: "_blank",
+      topFormChoiceFormEncType: "multipart/form-data",
+      topFormChoiceFormAcceptCharset: "UTF-8",
+      topFormChoiceFormNoValidate: true,
       topFormChoiceSubmitText: "Search",
       topFormChoiceSubmitType: "submit",
       topFormChoiceSubmitName: "submit-search",
@@ -5615,6 +5627,12 @@ describe("cli", () => {
         path: "pageCheck.forms[0]",
         method: "get",
         actionUrl: "https://example.test/find",
+        formId: "archive-form",
+        formName: "archive",
+        formTarget: "_blank",
+        formEncType: "multipart/form-data",
+        formAcceptCharset: "UTF-8",
+        formNoValidate: true,
         hiddenFieldCount: 1,
         submitType: "submit",
         submitName: "submit-search",
