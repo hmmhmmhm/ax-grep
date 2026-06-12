@@ -16,7 +16,7 @@ percentage as a fixed contract.
 | Process safety | 85% | `AGENTS.md`, `pnpm check:processes`, and non-browser gates are in place. |
 | Search result handoff | 80% | Result choices, source hints, verification, and command args are exposed. |
 | Page check handoff | 84% | Forms, action targets, table navigation shortcuts, hidden signal group counts/top shortcuts/selectors, browser-capture reasons/codes, barriers, and read targets are exposed. |
-| Semantic accessibility signals | 76% | Landmarks, headings, links, buttons, fields, values, relations, choices, states, list item refs, and table cell header shortcuts are exposed. |
+| Semantic accessibility signals | 77% | Landmarks, headings, links, buttons, fields, values, relations, choices, states, list item refs, and table cell row/column header shortcuts are exposed. |
 | Browser-tree parity research | 60% | Static gates exist; browser-backed checks must stay sequential and limited. |
 
 Overall estimate: 85%. This is intentionally conservative because the final
@@ -35,7 +35,7 @@ instead of hiding the new scope.
 | Process containment | 85% | Keep validation sequential and check for leftover browser/test/comparison processes. | Add more explicit notes when a task would require browser-backed validation, including why it is necessary. | `pnpm check:processes` before and after risky work shows no leftovers. |
 | Search handoff | 80% | Expose enough ranked-result context for an agent to choose, open, or skip results. | Identify whether ranked result snippets need stronger dedupe, provenance, or failed-open reasons. | A static search fixture lets an agent choose a result without browser inspection first. |
 | Page handoff | 84% | Surface barriers, read targets, action targets, table navigation shortcuts, hidden signal group shortcuts, and browser-capture reason codes. | Tighten fallback decisions for client-rendered, blocked, and low-content pages. | Fixtures show clear `use static output` vs `need browser capture` reasons. |
-| Semantic accessibility | 76% | Continue adding high-value shortcuts from roles, states, relations, lists, tables, and controls. | Compare table/grid/list/control output against browser-tree expectations and add only useful static equivalents. | Each accepted signal has a public type, CLI output, compact output, and fixture/test coverage. |
+| Semantic accessibility | 77% | Continue adding high-value shortcuts from roles, states, relations, lists, tables, and controls. | Compare table/grid/list/control output against browser-tree expectations and add only useful static equivalents. | Each accepted signal has a public type, CLI output, compact output, and fixture/test coverage. |
 | Browser parity research | 60% | Compare static output against a small sequential fixture set and record gaps. | Expand the gap list as research finds new browser accessibility-tree signals; lower estimates if new important gaps appear. | Each gap is tagged `implement`, `browser-only`, or `defer` with priority and evidence. |
 
 ## Milestone Tracker
@@ -110,6 +110,8 @@ estimates stay honest.
   parsing the full table refs array.
 - Added semantic table sample-cell ref paths so agents can jump back to the
   exact `agent.semanticSummary.tableItems[*].sampleCellRefs[*]` item.
+- Added semantic table sample-cell row/column header shortcuts so agents can
+  distinguish browser-tree table context by header role, not only header text.
 - Added top data-table navigation shortcuts for header count, first header,
   first row, first cell, and selector so agents can inspect table shape without
   reading the full table payload.

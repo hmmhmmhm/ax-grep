@@ -693,7 +693,7 @@ export type AgentSummary = {
   semanticTopTableDeclaredColumnCount?: number;
   semanticTopTableHeaders?: string[];
   semanticTopTableSampleCells?: string[];
-  semanticTopTableSampleCellRefs?: Array<{ path?: string; text: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; selector?: string }>;
+  semanticTopTableSampleCellRefs?: Array<{ path?: string; text: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; rowHeaders?: string[]; columnHeaders?: string[]; selector?: string }>;
   semanticTopTableFirstHeader?: string;
   semanticTopTableFirstSampleCellPath?: string;
   semanticTopTableFirstSampleCellText?: string;
@@ -702,6 +702,8 @@ export type AgentSummary = {
   semanticTopTableFirstSampleCellRowSpan?: number;
   semanticTopTableFirstSampleCellColumnSpan?: number;
   semanticTopTableFirstSampleCellHeaders?: string[];
+  semanticTopTableFirstSampleCellRowHeaders?: string[];
+  semanticTopTableFirstSampleCellColumnHeaders?: string[];
   semanticTopTableFirstSampleCellSelector?: string;
   semanticTopTableSelector?: string;
   semanticTopListRole?: string;
