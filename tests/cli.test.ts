@@ -3627,7 +3627,7 @@ describe("cli", () => {
             </main>
           `, { headers: { "content-type": "text/html" } });
         }
-        return new Response("rate limited", { status: 429, statusText: "Too Many Requests" });
+        return new Response("rate limited", { status: 429, statusText: "Too Many Requests", headers: { "retry-after": "120" } });
       },
     });
 
@@ -3639,6 +3639,7 @@ describe("cli", () => {
       sourceSearchFailureStatus: 429,
       sourceSearchFailureKind: "rate-limited",
       sourceSearchFailureRetryable: true,
+      sourceSearchFailureRetryAfter: "120",
       sourceSearchFailureUrl: "https://target.example/rate-limited",
       sourceSearchFailureReason: "Selected sourceSearch result failed with HTTP_ERROR status 429.",
     });

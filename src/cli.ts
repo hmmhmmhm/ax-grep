@@ -205,6 +205,9 @@ type AgentSemanticSummary = {
 };
 
 type CliErrorCode = "FETCH_FAILED" | "HTTP_ERROR" | "NO_INSPECTABLE_CONTENT" | "NO_RESULT" | "TIMEOUT" | "USAGE";
+type CliErrorMetadata = Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "selectedSearchEngine" | "searchAttempts" | "searchLang" | "searchRegion" | "sourceSearch" | "findQueries" | "timeoutMs" | "userAgent">> & {
+  retryAfter?: string;
+};
 
 type LinkSummary = {
   text: string;
@@ -1666,6 +1669,7 @@ type AgentSummary = {
   sourceSearchFailureStatus?: number;
   sourceSearchFailureKind?: AgentSourceSearchFailureKind;
   sourceSearchFailureRetryable?: boolean;
+  sourceSearchFailureRetryAfter?: string;
   sourceSearchFailureUrl?: string;
   sourceSearchFailureReason?: string;
   sourceSearchAlternateCount: number;
@@ -2822,7 +2826,10 @@ async function openSearchResult(
     openedFetched = await fetchHtml(openedOptions, fetchImpl);
   } catch (error) {
     const cliError = toCliError(error);
-    throw new CliError(cliError.code, cliError.message, cliError.exitCode, cliError.status, errorMetadataFromOptions(openedOptions));
+    throw new CliError(cliError.code, cliError.message, cliError.exitCode, cliError.status, {
+      ...errorMetadataFromOptions(openedOptions),
+      ...(cliError.metadata.retryAfter ? { retryAfter: cliError.metadata.retryAfter } : {}),
+    });
   }
   return { options: openedOptions, fetched: openedFetched };
 }
@@ -2831,8 +2838,8 @@ function withResultReference(result: ResultSummary, id: string, path: string): R
   return { ...result, id, path };
 }
 
-function errorMetadataFromOptions(options: CliOptions): Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "selectedSearchEngine" | "searchAttempts" | "searchLang" | "searchRegion" | "sourceSearch" | "findQueries" | "timeoutMs" | "userAgent">> {
-  const metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "selectedSearchEngine" | "searchAttempts" | "searchLang" | "searchRegion" | "sourceSearch" | "findQueries" | "timeoutMs" | "userAgent">> = {
+function errorMetadataFromOptions(options: CliOptions): CliErrorMetadata {
+  const metadata: CliErrorMetadata = {
     extractOptions: options.extractOptions,
   };
   if (options.url) metadata.url = options.url;
@@ -2890,7 +2897,10 @@ async function fetchHtml(options: CliOptions, fetchImpl: typeof fetch): Promise<
       signal: controller.signal,
     });
     if (!response.ok) {
-      throw new CliError("HTTP_ERROR", `fetch failed with HTTP ${response.status} ${response.statusText}`.trim(), 12, response.status);
+      const retryAfter = cleanLinkText(response.headers.get("retry-after") ?? "").slice(0, 80);
+      throw new CliError("HTTP_ERROR", `fetch failed with HTTP ${response.status} ${response.statusText}`.trim(), 12, response.status, {
+        ...(retryAfter ? { retryAfter } : {}),
+      });
     }
     const html = await response.text();
     const finalUrl = response.url || options.url;
@@ -3080,7 +3090,7 @@ class CliError extends Error {
     message: string,
     readonly exitCode: number,
     readonly status?: number,
-    readonly metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "selectedSearchEngine" | "searchAttempts" | "searchLang" | "searchRegion" | "sourceSearch" | "findQueries" | "timeoutMs" | "userAgent">> = {},
+    readonly metadata: CliErrorMetadata = {},
   ) {
     super(message);
   }
@@ -3693,6 +3703,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.sourceSearchFailureStatus === "number" ? [`  sourceSearchFailureStatus: ${agent.sourceSearchFailureStatus}`] : []),
     ...(agent.sourceSearchFailureKind ? [`  sourceSearchFailureKind: ${agent.sourceSearchFailureKind}`] : []),
     ...(typeof agent.sourceSearchFailureRetryable === "boolean" ? [`  sourceSearchFailureRetryable: ${agent.sourceSearchFailureRetryable}`] : []),
+    ...(agent.sourceSearchFailureRetryAfter ? [`  sourceSearchFailureRetryAfter: ${agent.sourceSearchFailureRetryAfter}`] : []),
     ...(agent.sourceSearchFailureUrl ? [`  sourceSearchFailureUrl: ${agent.sourceSearchFailureUrl}`] : []),
     ...(agent.sourceSearchFailureReason ? [`  sourceSearchFailureReason: ${agent.sourceSearchFailureReason}`] : []),
     `  sourceSearchAlternateCount: ${agent.sourceSearchAlternateCount}`,
@@ -15208,6 +15219,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(sourceSearch && typeof error.status === "number" ? { sourceSearchFailureStatus: error.status } : {}),
     ...(sourceSearch ? { sourceSearchFailureKind: sourceSearchFailureKind(error) } : {}),
     ...(sourceSearch ? { sourceSearchFailureRetryable: sourceSearchFailureRetryable(error) } : {}),
+    ...(sourceSearch && error.metadata.retryAfter ? { sourceSearchFailureRetryAfter: error.metadata.retryAfter } : {}),
     ...(sourceSearch ? { sourceSearchFailureUrl: sourceSearch.selectedUrl } : {}),
     ...(sourceSearch ? { sourceSearchFailureReason: sourceSearchFailureReason(error) } : {}),
     ...(sourceSearchAlternateResult ? { sourceSearchAlternatePath: sourceSearchAlternateResult.path } : {}),
@@ -17423,6 +17435,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.sourceSearchFailureStatus === "number" ? { sourceSearchFailureStatus: agent.sourceSearchFailureStatus } : {}),
     ...(agent.sourceSearchFailureKind ? { sourceSearchFailureKind: agent.sourceSearchFailureKind } : {}),
     ...(typeof agent.sourceSearchFailureRetryable === "boolean" ? { sourceSearchFailureRetryable: agent.sourceSearchFailureRetryable } : {}),
+    ...(agent.sourceSearchFailureRetryAfter ? { sourceSearchFailureRetryAfter: agent.sourceSearchFailureRetryAfter } : {}),
     ...(agent.sourceSearchFailureUrl ? { sourceSearchFailureUrl: agent.sourceSearchFailureUrl } : {}),
     ...(agent.sourceSearchFailureReason ? { sourceSearchFailureReason: agent.sourceSearchFailureReason } : {}),
     sourceSearchAlternateCount: agent.sourceSearchAlternateCount,
@@ -18448,6 +18461,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.sourceSearchFailureStatus === "number" ? { sourceSearchFailureStatus: agent.sourceSearchFailureStatus } : {}),
     ...(agent.sourceSearchFailureKind ? { sourceSearchFailureKind: agent.sourceSearchFailureKind } : {}),
     ...(typeof agent.sourceSearchFailureRetryable === "boolean" ? { sourceSearchFailureRetryable: agent.sourceSearchFailureRetryable } : {}),
+    ...(agent.sourceSearchFailureRetryAfter ? { sourceSearchFailureRetryAfter: agent.sourceSearchFailureRetryAfter } : {}),
     ...(agent.sourceSearchFailureUrl ? { sourceSearchFailureUrl: agent.sourceSearchFailureUrl } : {}),
     ...(agent.sourceSearchFailureReason ? { sourceSearchFailureReason: agent.sourceSearchFailureReason } : {}),
     sourceSearchAlternateCount: agent.sourceSearchAlternateCount,
