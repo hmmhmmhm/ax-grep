@@ -1716,6 +1716,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topActionPriorityReason?: string;
       topActionReason?: string;
       topActionReadFrom?: string;
+      topActionReadTargetKind?: string;
+      topActionReadTargetCount?: number;
+      topActionReadTargetScore?: number;
+      topActionReadTargetPrimary?: boolean;
+      topActionReadTargetReason?: string;
       topActionCommand?: string;
       topActionCommandArgs?: string[];
       topActionAfterInteractionCommand?: string;
@@ -1742,6 +1747,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       primaryExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
       primaryExpectedOutcomeMessage?: string;
       primaryReadFrom?: string;
+      primaryReadTargetKind?: string;
+      primaryReadTargetCount?: number;
+      primaryReadTargetScore?: number;
+      primaryReadTargetPrimary?: boolean;
+      primaryReadTargetReason?: string;
       primaryCommand?: string;
       primaryCommandArgs?: string[];
       primaryAfterInteractionCommand?: string;
@@ -1772,6 +1782,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       alternativeActionPriorityReason?: string;
       alternativeActionReason?: string;
       alternativeActionReadFrom?: string;
+      alternativeActionReadTargetKind?: string;
+      alternativeActionReadTargetCount?: number;
+      alternativeActionReadTargetScore?: number;
+      alternativeActionReadTargetPrimary?: boolean;
+      alternativeActionReadTargetReason?: string;
       alternativeActionCommand?: string;
       alternativeActionCommandArgs?: string[];
       alternativeActionAfterInteractionCommand?: string;
@@ -3717,6 +3732,48 @@ function scoreAgentTopReadTargetShortcuts(agent: {
   return roundScore(matched / required);
 }
 
+function scoreReadTargetMetadataShortcut(readTarget: CliReadTargetShape | undefined, shortcut: {
+  kind?: string | undefined;
+  count?: number | undefined;
+  score?: number | undefined;
+  primary?: boolean | undefined;
+  reason?: string | undefined;
+}): { required: number; matched: number } {
+  let required = 0;
+  let matched = 0;
+  if (readTarget?.kind) {
+    required += 1;
+    if (shortcut.kind === readTarget.kind) matched += 1;
+  } else if (shortcut.kind) {
+    required += 1;
+  }
+  if (typeof readTarget?.count === "number") {
+    required += 1;
+    if (shortcut.count === readTarget.count) matched += 1;
+  } else if (typeof shortcut.count === "number") {
+    required += 1;
+  }
+  if (typeof readTarget?.score === "number") {
+    required += 1;
+    if (shortcut.score === readTarget.score) matched += 1;
+  } else if (typeof shortcut.score === "number") {
+    required += 1;
+  }
+  if (typeof readTarget?.primary === "boolean") {
+    required += 1;
+    if (shortcut.primary === readTarget.primary) matched += 1;
+  } else if (typeof shortcut.primary === "boolean") {
+    required += 1;
+  }
+  if (readTarget?.reason) {
+    required += 1;
+    if (shortcut.reason === readTarget.reason) matched += 1;
+  } else if (shortcut.reason) {
+    required += 1;
+  }
+  return { required, matched };
+}
+
 function scoreAgentDiagnosticCounts(agent: {
   diagnosticCodes?: unknown[];
   diagnosticErrorCount?: number;
@@ -5410,6 +5467,7 @@ function scoreAgentActionList(actions: CliActionShape[] | undefined, primaryActi
 
 function scoreAgentTopActionShortcuts(agent: {
   actions?: CliActionShape[];
+  readTargets?: CliReadTargetShape[];
   topActionName?: string;
   topActionSource?: string;
   topActionExecution?: ActionExecution;
@@ -5417,6 +5475,11 @@ function scoreAgentTopActionShortcuts(agent: {
   topActionPriorityReason?: string;
   topActionReason?: string;
   topActionReadFrom?: string;
+  topActionReadTargetKind?: string;
+  topActionReadTargetCount?: number;
+  topActionReadTargetScore?: number;
+  topActionReadTargetPrimary?: boolean;
+  topActionReadTargetReason?: string;
   topActionCommand?: string;
   topActionCommandArgs?: string[];
   topActionAfterInteractionCommand?: string;
@@ -5449,6 +5512,11 @@ function scoreAgentTopActionShortcuts(agent: {
       || agent?.topActionPriorityReason
       || agent?.topActionReason
       || agent?.topActionReadFrom
+      || agent?.topActionReadTargetKind
+      || typeof agent?.topActionReadTargetCount === "number"
+      || typeof agent?.topActionReadTargetScore === "number"
+      || typeof agent?.topActionReadTargetPrimary === "boolean"
+      || agent?.topActionReadTargetReason
       || agent?.topActionCommand
       || agent?.topActionCommandArgs
       || agent?.topActionAfterInteractionCommand
@@ -5488,8 +5556,27 @@ function scoreAgentTopActionShortcuts(agent: {
   if (top.readFrom) {
     required += 1;
     if (agent?.topActionReadFrom === top.readFrom) matched += 1;
+    const readTarget = agent?.readTargets?.find((target) => target.path === top.readFrom);
+    const readTargetScore = scoreReadTargetMetadataShortcut(readTarget, {
+      kind: agent?.topActionReadTargetKind,
+      count: agent?.topActionReadTargetCount,
+      score: agent?.topActionReadTargetScore,
+      primary: agent?.topActionReadTargetPrimary,
+      reason: agent?.topActionReadTargetReason,
+    });
+    required += readTargetScore.required;
+    matched += readTargetScore.matched;
   } else if (agent?.topActionReadFrom) {
     required += 1;
+  } else {
+    const readTargetScore = scoreReadTargetMetadataShortcut(undefined, {
+      kind: agent?.topActionReadTargetKind,
+      count: agent?.topActionReadTargetCount,
+      score: agent?.topActionReadTargetScore,
+      primary: agent?.topActionReadTargetPrimary,
+      reason: agent?.topActionReadTargetReason,
+    });
+    required += readTargetScore.required;
   }
   if (top.command) {
     required += 1;
@@ -7974,6 +8061,7 @@ function scoreAgentPrimaryExecution(primaryExecution: ActionExecution | undefine
 }
 
 function scoreAgentPrimaryShortcuts(agent: {
+  readTargets?: CliReadTargetShape[];
   primaryActionName?: string;
   primaryReason?: string;
   primaryPriority?: "low" | "medium" | "high";
@@ -7981,6 +8069,11 @@ function scoreAgentPrimaryShortcuts(agent: {
   primaryExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
   primaryExpectedOutcomeMessage?: string;
   primaryReadFrom?: string;
+  primaryReadTargetKind?: string;
+  primaryReadTargetCount?: number;
+  primaryReadTargetScore?: number;
+  primaryReadTargetPrimary?: boolean;
+  primaryReadTargetReason?: string;
   primaryCommand?: string;
   primaryCommandArgs?: string[];
   primaryAfterInteractionCommand?: string;
@@ -8006,6 +8099,11 @@ function scoreAgentPrimaryShortcuts(agent: {
   const action = agent?.primaryAction;
   if (!action) {
     return agent?.primaryReadFrom
+      || agent?.primaryReadTargetKind
+      || typeof agent?.primaryReadTargetCount === "number"
+      || typeof agent?.primaryReadTargetScore === "number"
+      || typeof agent?.primaryReadTargetPrimary === "boolean"
+      || agent?.primaryReadTargetReason
       || agent?.primaryActionName
       || agent?.primaryReason
       || agent?.primaryPriority
@@ -8046,8 +8144,27 @@ function scoreAgentPrimaryShortcuts(agent: {
   if (action.readFrom) {
     required += 1;
     if (agent?.primaryReadFrom === action.readFrom) matched += 1;
+    const readTarget = agent?.readTargets?.find((target) => target.path === action.readFrom);
+    const readTargetScore = scoreReadTargetMetadataShortcut(readTarget, {
+      kind: agent?.primaryReadTargetKind,
+      count: agent?.primaryReadTargetCount,
+      score: agent?.primaryReadTargetScore,
+      primary: agent?.primaryReadTargetPrimary,
+      reason: agent?.primaryReadTargetReason,
+    });
+    required += readTargetScore.required;
+    matched += readTargetScore.matched;
   } else if (agent?.primaryReadFrom) {
     required += 1;
+  } else {
+    const readTargetScore = scoreReadTargetMetadataShortcut(undefined, {
+      kind: agent?.primaryReadTargetKind,
+      count: agent?.primaryReadTargetCount,
+      score: agent?.primaryReadTargetScore,
+      primary: agent?.primaryReadTargetPrimary,
+      reason: agent?.primaryReadTargetReason,
+    });
+    required += readTargetScore.required;
   }
   if (action.command) {
     required += 1;
@@ -8174,6 +8291,7 @@ function scoreAgentPrimaryShortcuts(agent: {
 
 function scoreAgentAlternativeActionShortcuts(agent: {
   actions?: CliActionShape[];
+  readTargets?: CliReadTargetShape[];
   alternativeActionName?: string;
   alternativeActionSource?: string;
   alternativeActionExecution?: ActionExecution;
@@ -8183,6 +8301,11 @@ function scoreAgentAlternativeActionShortcuts(agent: {
   alternativeActionPriorityReason?: string;
   alternativeActionReason?: string;
   alternativeActionReadFrom?: string;
+  alternativeActionReadTargetKind?: string;
+  alternativeActionReadTargetCount?: number;
+  alternativeActionReadTargetScore?: number;
+  alternativeActionReadTargetPrimary?: boolean;
+  alternativeActionReadTargetReason?: string;
   alternativeActionCommand?: string;
   alternativeActionCommandArgs?: string[];
   alternativeActionAfterInteractionCommand?: string;
@@ -8215,6 +8338,11 @@ function scoreAgentAlternativeActionShortcuts(agent: {
       || agent?.alternativeActionPriorityReason
       || agent?.alternativeActionReason
       || agent?.alternativeActionReadFrom
+      || agent?.alternativeActionReadTargetKind
+      || typeof agent?.alternativeActionReadTargetCount === "number"
+      || typeof agent?.alternativeActionReadTargetScore === "number"
+      || typeof agent?.alternativeActionReadTargetPrimary === "boolean"
+      || agent?.alternativeActionReadTargetReason
       || agent?.alternativeActionCommand
       || agent?.alternativeActionCommandArgs
       || agent?.alternativeActionAfterInteractionCommand
@@ -8255,8 +8383,27 @@ function scoreAgentAlternativeActionShortcuts(agent: {
   if (action.readFrom) {
     required += 1;
     if (agent?.alternativeActionReadFrom === action.readFrom) matched += 1;
+    const readTarget = agent?.readTargets?.find((target) => target.path === action.readFrom);
+    const readTargetScore = scoreReadTargetMetadataShortcut(readTarget, {
+      kind: agent?.alternativeActionReadTargetKind,
+      count: agent?.alternativeActionReadTargetCount,
+      score: agent?.alternativeActionReadTargetScore,
+      primary: agent?.alternativeActionReadTargetPrimary,
+      reason: agent?.alternativeActionReadTargetReason,
+    });
+    required += readTargetScore.required;
+    matched += readTargetScore.matched;
   } else if (agent?.alternativeActionReadFrom) {
     required += 1;
+  } else {
+    const readTargetScore = scoreReadTargetMetadataShortcut(undefined, {
+      kind: agent?.alternativeActionReadTargetKind,
+      count: agent?.alternativeActionReadTargetCount,
+      score: agent?.alternativeActionReadTargetScore,
+      primary: agent?.alternativeActionReadTargetPrimary,
+      reason: agent?.alternativeActionReadTargetReason,
+    });
+    required += readTargetScore.required;
   }
   if (action.command) {
     required += 1;

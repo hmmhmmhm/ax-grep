@@ -966,6 +966,11 @@ describe("public agent types", () => {
       | "topActionPriorityReason"
       | "topActionReason"
       | "topActionReadFrom"
+      | "topActionReadTargetKind"
+      | "topActionReadTargetCount"
+      | "topActionReadTargetScore"
+      | "topActionReadTargetPrimary"
+      | "topActionReadTargetReason"
       | "topActionCommand"
       | "topActionCommandArgs"
       | "topActionAfterInteractionCommand"
@@ -1104,6 +1109,12 @@ describe("public agent types", () => {
       | "primaryPriorityReason"
       | "primaryExpectedOutcome"
       | "primaryExpectedOutcomeMessage"
+      | "primaryReadFrom"
+      | "primaryReadTargetKind"
+      | "primaryReadTargetCount"
+      | "primaryReadTargetScore"
+      | "primaryReadTargetPrimary"
+      | "primaryReadTargetReason"
       | "primarySourceLinkRef"
       | "primaryTargetUrl"
       | "primaryTargetPath"
@@ -1125,6 +1136,11 @@ describe("public agent types", () => {
       | "alternativeActionPriorityReason"
       | "alternativeActionReason"
       | "alternativeActionReadFrom"
+      | "alternativeActionReadTargetKind"
+      | "alternativeActionReadTargetCount"
+      | "alternativeActionReadTargetScore"
+      | "alternativeActionReadTargetPrimary"
+      | "alternativeActionReadTargetReason"
       | "alternativeActionCommand"
       | "alternativeActionCommandArgs"
       | "alternativeActionAfterInteractionCommand"
@@ -1943,6 +1959,11 @@ describe("public agent types", () => {
       topActionPriorityReason: "Readable content is available.",
       topActionReason: "Read current evidence.",
       topActionReadFrom: "pageCheck.contentEvidence",
+      topActionReadTargetKind: "evidence",
+      topActionReadTargetCount: 1,
+      topActionReadTargetScore: 0.9,
+      topActionReadTargetPrimary: true,
+      topActionReadTargetReason: "Top evidence.",
       topActionCommand: "ax-grep https://example.test --agent",
       topActionCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       topActionAfterInteractionCommand: "ax-grep https://example.test --agent",
@@ -2081,6 +2102,12 @@ describe("public agent types", () => {
       primaryPriorityReason: "Readable content is available.",
       primaryExpectedOutcome: "read-evidence",
       primaryExpectedOutcomeMessage: "Read pageCheck.contentEvidence from the current payload and treat it as the next evidence source.",
+      primaryReadFrom: "pageCheck.contentEvidence",
+      primaryReadTargetKind: "evidence",
+      primaryReadTargetCount: 1,
+      primaryReadTargetScore: 0.9,
+      primaryReadTargetPrimary: true,
+      primaryReadTargetReason: "Top evidence.",
       primarySourceLinkRef: "pageCheck.sourceLinks[0]",
       primaryTargetUrl: "https://example.test",
       primaryTargetPath: "pageCheck.links[0]",
@@ -2102,6 +2129,11 @@ describe("public agent types", () => {
       alternativeActionPriorityReason: "External source-like link can improve verification.",
       alternativeActionReason: "Open the cited source.",
       alternativeActionReadFrom: "pageCheck.sourceLinks",
+      alternativeActionReadTargetKind: "resource",
+      alternativeActionReadTargetCount: 1,
+      alternativeActionReadTargetScore: 0.72,
+      alternativeActionReadTargetPrimary: false,
+      alternativeActionReadTargetReason: "Openable source links.",
       alternativeActionCommand: "ax-grep https://source.example/report --agent",
       alternativeActionCommandArgs: ["ax-grep", "https://source.example/report", "--agent"],
       alternativeActionAfterInteractionCommand: "ax-grep https://source.example/report --agent",

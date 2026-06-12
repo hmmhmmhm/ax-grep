@@ -491,6 +491,9 @@ When research expands:
   page-check loops can judge static-read confidence without nested parsing.
 - Added executor/handoff target metadata shortcuts so brief execution loops can
   judge target quality without nested parsing.
+- Added top/primary/alternative action read-target metadata shortcuts so
+  action-only loops can see read target kind, count, score, primary state, and
+  reason without joining the full `readTargets` array.
 - Added primary action target metadata shortcuts so primary-only loops can judge
   target quality without nested parsing.
 - Added alternative action target metadata shortcuts so fallback loops can judge
@@ -597,6 +600,8 @@ When research expands:
 
 - Add missing top-level shortcuts only when they improve agent routing or
   reduce the need for browser handoff.
+- Continue checking whether action shortcuts need any remaining evidence,
+  citation, or source quality fields before declaring the handoff surface done.
 - Improve table/grid summaries where browser trees expose useful ownership or
   navigation context not already covered by row/column/header refs.
 - Track cases where static HTML should stop and recommend browser capture

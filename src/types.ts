@@ -1399,6 +1399,11 @@ export type AgentSummary = {
   topActionPriorityReason?: string;
   topActionReason?: string;
   topActionReadFrom?: string;
+  topActionReadTargetKind?: AgentReadTarget["kind"];
+  topActionReadTargetCount?: number;
+  topActionReadTargetScore?: number;
+  topActionReadTargetPrimary?: boolean;
+  topActionReadTargetReason?: string;
   topActionCommand?: string;
   topActionCommandArgs?: string[];
   topActionAfterInteractionCommand?: string;
@@ -1494,6 +1499,11 @@ export type AgentSummary = {
   primaryExpectedOutcome?: AgentExpectedOutcome["kind"];
   primaryExpectedOutcomeMessage?: string;
   primaryReadFrom?: string;
+  primaryReadTargetKind?: AgentReadTarget["kind"];
+  primaryReadTargetCount?: number;
+  primaryReadTargetScore?: number;
+  primaryReadTargetPrimary?: boolean;
+  primaryReadTargetReason?: string;
   primaryCommand?: string;
   primaryCommandArgs?: string[];
   primaryAfterInteractionCommand?: string;
@@ -1524,6 +1534,11 @@ export type AgentSummary = {
   alternativeActionPriorityReason?: string;
   alternativeActionReason?: string;
   alternativeActionReadFrom?: string;
+  alternativeActionReadTargetKind?: AgentReadTarget["kind"];
+  alternativeActionReadTargetCount?: number;
+  alternativeActionReadTargetScore?: number;
+  alternativeActionReadTargetPrimary?: boolean;
+  alternativeActionReadTargetReason?: string;
   alternativeActionCommand?: string;
   alternativeActionCommandArgs?: string[];
   alternativeActionAfterInteractionCommand?: string;
