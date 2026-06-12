@@ -2765,6 +2765,7 @@ function scoreAgentNextShortcuts(agent: {
   nextAfterInteractionCommand?: string;
   nextAfterInteractionCommandArgs?: string[];
   nextReadFrom?: string;
+  nextReadTargetKind?: string;
   nextUrl?: string;
 } | undefined): number {
   const next = agent?.next;
@@ -2809,6 +2810,12 @@ function scoreAgentNextShortcuts(agent: {
     required += 1;
     if (agent.nextReadFrom === next.readFrom) matched += 1;
   } else if (agent.nextReadFrom) {
+    required += 1;
+  }
+  if (next.readTarget?.kind) {
+    required += 1;
+    if (agent.nextReadTargetKind === next.readTarget.kind) matched += 1;
+  } else if (agent.nextReadTargetKind) {
     required += 1;
   }
   if (next.url || next.urlRef) {
@@ -2890,6 +2897,7 @@ function scoreAgentRunbook(
 
 function scoreAgentRunbookShortcuts(agent: {
   runbook?: CliAgentRunbookShape;
+  readTargets?: CliReadTargetShape[];
   runbookDecision?: CliAgentRunbookShape["decision"];
   runbookMode?: CliAgentRunbookShape["mode"];
   runbookOperation?: CliAgentRunbookShape["operation"];
@@ -2903,6 +2911,7 @@ function scoreAgentRunbookShortcuts(agent: {
   runbookMaxSuggestedIterations?: number;
   runbookExpectedOutcome?: CliAgentRunbookShape["expectedOutcome"];
   runbookReadFrom?: string;
+  runbookReadTargetKind?: string;
   runbookCommandArgs?: string[];
   runbookUrl?: string;
 } | undefined): number {
@@ -2931,6 +2940,13 @@ function scoreAgentRunbookShortcuts(agent: {
     required += 1;
     if (agent.runbookReadFrom === runbook.readFrom) matched += 1;
   } else if (agent.runbookReadFrom) {
+    required += 1;
+  }
+  if (runbook.readFrom) {
+    required += 1;
+    const readTargetKind = agent.readTargets?.find((target) => target.path === runbook.readFrom)?.kind;
+    if (agent.runbookReadTargetKind === readTargetKind) matched += 1;
+  } else if (agent.runbookReadTargetKind) {
     required += 1;
   }
   if (runbook.commandArgs) {
@@ -8273,6 +8289,7 @@ function scoreAgentExecutorShortcuts(agent: {
   executorTerminal?: boolean;
   executorCommandArgs?: string[];
   executorReadFrom?: string;
+  executorReadTargetKind?: string;
   executorUrl?: string;
   executorTargetUrl?: string;
   executorTargetPath?: string;
@@ -8310,6 +8327,12 @@ function scoreAgentExecutorShortcuts(agent: {
     required += 1;
     if (agent.executorReadFrom === executor.readFrom) matched += 1;
   } else if (agent.executorReadFrom) {
+    required += 1;
+  }
+  if (executor.readTarget?.kind) {
+    required += 1;
+    if (agent.executorReadTargetKind === executor.readTarget.kind) matched += 1;
+  } else if (agent.executorReadTargetKind) {
     required += 1;
   }
   if (executor.url) {
@@ -8402,6 +8425,7 @@ function scoreAgentHandoffShortcuts(agent: {
   handoffPriorityReason?: string;
   handoffCommandArgs?: string[];
   handoffReadFrom?: string;
+  handoffReadTargetKind?: string;
   handoffUrl?: string;
   handoffTargetUrl?: string;
   handoffTargetPath?: string;
@@ -8452,6 +8476,12 @@ function scoreAgentHandoffShortcuts(agent: {
     required += 1;
     if (agent.handoffReadFrom === handoff.readFrom) matched += 1;
   } else if (agent.handoffReadFrom) {
+    required += 1;
+  }
+  if (handoff.readTarget?.kind) {
+    required += 1;
+    if (agent.handoffReadTargetKind === handoff.readTarget.kind) matched += 1;
+  } else if (agent.handoffReadTargetKind) {
     required += 1;
   }
   if (handoff.url) {

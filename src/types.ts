@@ -553,6 +553,7 @@ export type AgentSummary = {
   runbookMaxSuggestedIterations?: number;
   runbookExpectedOutcome?: AgentRunbook["expectedOutcome"];
   runbookReadFrom?: string;
+  runbookReadTargetKind?: AgentReadTarget["kind"];
   runbookCommandArgs?: string[];
   runbookUrl?: string;
   nextActionName?: string;
@@ -562,6 +563,7 @@ export type AgentSummary = {
   nextAfterInteractionCommand?: string;
   nextAfterInteractionCommandArgs?: string[];
   nextReadFrom?: string;
+  nextReadTargetKind?: AgentReadTarget["kind"];
   nextUrl?: string;
   executor: AgentExecutorStep;
   handoff?: AgentHandoff;
@@ -1407,6 +1409,7 @@ export type AgentSummary = {
   executorTerminal?: boolean;
   executorCommandArgs?: string[];
   executorReadFrom?: string;
+  executorReadTargetKind?: AgentReadTarget["kind"];
   executorUrl?: string;
   executorTargetUrl?: string;
   executorTargetPath?: string;
@@ -1433,6 +1436,7 @@ export type AgentSummary = {
   handoffPriorityReason?: string;
   handoffCommandArgs?: string[];
   handoffReadFrom?: string;
+  handoffReadTargetKind?: AgentReadTarget["kind"];
   handoffUrl?: string;
   handoffTargetUrl?: string;
   handoffTargetPath?: string;

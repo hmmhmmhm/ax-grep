@@ -1232,6 +1232,7 @@ describe("cli", () => {
       expect(envelope.agent.runbookExpectedOutcome).toBe(executor.expectedOutcome);
       if (executor.commandArgs) expect(envelope.agent.runbookCommandArgs).toEqual(executor.commandArgs);
       if (executor.readFrom) expect(envelope.agent.runbookReadFrom).toBe(executor.readFrom);
+      if (executor.readTarget?.kind) expect(envelope.agent.runbookReadTargetKind).toBe(executor.readTarget.kind);
       if (executor.url) expect(envelope.agent.runbookUrl).toBe(executor.url);
       expect(envelope.agent.executorDecision).toBe(executor.decision);
       expect(envelope.agent.executorMode).toBe(executor.mode);
@@ -1256,6 +1257,7 @@ describe("cli", () => {
       if (executor.url) expect(envelope.agent.executionPlanUrl).toBe(executor.url);
       if (executor.commandArgs) expect(envelope.agent.executorCommandArgs).toEqual(executor.commandArgs);
       if (executor.readFrom) expect(envelope.agent.executorReadFrom).toBe(executor.readFrom);
+      if (executor.readTarget?.kind) expect(envelope.agent.executorReadTargetKind).toBe(executor.readTarget.kind);
       if (executor.url) expect(envelope.agent.executorUrl).toBe(executor.url);
       if (item.args[0] === "--search") expect(envelope.agent.searchDecisionReason).toEqual(expect.any(String));
       if (envelope.agent.primaryAction?.target?.url) expect(envelope.agent.primaryTargetUrl).toBe(envelope.agent.primaryAction.target.url);
@@ -1294,6 +1296,7 @@ describe("cli", () => {
       if (handoff.priorityReason) expect(envelope.agent.handoffPriorityReason).toBe(handoff.priorityReason);
       if (handoff.commandArgs) expect(envelope.agent.handoffCommandArgs).toEqual(handoff.commandArgs);
       if (handoff.readFrom) expect(envelope.agent.handoffReadFrom).toBe(handoff.readFrom);
+      if (handoff.readTarget?.kind) expect(envelope.agent.handoffReadTargetKind).toBe(handoff.readTarget.kind);
       if (handoff.url) expect(envelope.agent.handoffUrl).toBe(handoff.url);
       if (handoff.target?.url) expect(envelope.agent.handoffTargetUrl).toBe(handoff.target.url);
       if (handoff.target?.path) expect(envelope.agent.handoffTargetPath).toBe(handoff.target.path);
@@ -10194,8 +10197,9 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  nextMode: read");
     expect(stdout.output).toContain("  executor: return/return/medium action=read-content status=ready - Answer now from pageCheck.contentEvidence using citations e1.");
     expect(stdout.output).toContain("  executorReadFrom: pageCheck.contentEvidence");
+    expect(stdout.output).toContain("  executorReadTargetKind: evidence");
     expect(stdout.output).toContain("  executorReadValue: pageCheck.contentEvidence");
-    expect(stdout.output).toContain("  executorReadTarget: pageCheck.contentEvidence count=1");
+    expect(stdout.output).toContain("  executorReadTarget: pageCheck.contentEvidence kind=evidence count=1");
     expect(stdout.output).toContain("  loopDecision: return");
     expect(stdout.output).toContain("  loopContinue: false");
     expect(stdout.output).toContain("  loopTerminal: true");
@@ -10206,11 +10210,12 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  runbookExpectedOutcome: read-evidence");
     expect(stdout.output).toContain("  handoff: return/return/medium action=read-content priority=high - Answer now from pageCheck.contentEvidence using citations e1.");
     expect(stdout.output).toContain("  handoffReadFrom: pageCheck.contentEvidence");
+    expect(stdout.output).toContain("  handoffReadTargetKind: evidence");
     expect(stdout.output).toContain("  handoffReadValue: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  handoffReadValueType: array count=1");
     expect(stdout.output).toContain("  handoffReadValueItem: pageCheck.contentEvidence[0] e1 rank=1 role=p score=");
     expect(stdout.output).toContain(" - This article paragraph is long enough to appear in the page checking summary for agents.");
-    expect(stdout.output).toContain("  handoffReadTarget: pageCheck.contentEvidence count=1");
+    expect(stdout.output).toContain("  handoffReadTarget: pageCheck.contentEvidence kind=evidence count=1");
     expect(stdout.output).toContain("  handoffEvidence: e1 pageCheck.contentEvidence[0] content high score=");
     expect(stdout.output).toContain("  handoffSourceChoice: s1 pageCheck.sourceLinks[0] rank=1");
     const sourceChoiceCommandArgs =

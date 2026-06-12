@@ -901,6 +901,7 @@ type AgentSummary = {
   runbookMaxSuggestedIterations?: number;
   runbookExpectedOutcome?: AgentRunbook["expectedOutcome"];
   runbookReadFrom?: string;
+  runbookReadTargetKind?: AgentReadTarget["kind"];
   runbookCommandArgs?: string[];
   runbookUrl?: string;
   nextActionName?: string;
@@ -910,6 +911,7 @@ type AgentSummary = {
   nextAfterInteractionCommand?: string;
   nextAfterInteractionCommandArgs?: string[];
   nextReadFrom?: string;
+  nextReadTargetKind?: AgentReadTarget["kind"];
   nextUrl?: string;
   executor: AgentExecutorStep;
   handoff: AgentHandoff;
@@ -1755,6 +1757,7 @@ type AgentSummary = {
   executorTerminal?: boolean;
   executorCommandArgs?: string[];
   executorReadFrom?: string;
+  executorReadTargetKind?: AgentReadTarget["kind"];
   executorUrl?: string;
   executorTargetUrl?: string;
   executorTargetPath?: string;
@@ -1781,6 +1784,7 @@ type AgentSummary = {
   handoffPriorityReason?: string;
   handoffCommandArgs?: string[];
   handoffReadFrom?: string;
+  handoffReadTargetKind?: AgentReadTarget["kind"];
   handoffUrl?: string;
   handoffTargetUrl?: string;
   handoffTargetPath?: string;
@@ -3337,6 +3341,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  runbookMaxSuggestedIterations: ${agent.runbook.maxSuggestedIterations}`,
     `  runbookExpectedOutcome: ${agent.runbook.expectedOutcome}`,
     ...(agent.runbook.readFrom ? [`  runbookReadFrom: ${agent.runbook.readFrom}`] : []),
+    ...(agent.runbookReadTargetKind ? [`  runbookReadTargetKind: ${agent.runbookReadTargetKind}`] : []),
     ...(agent.runbook.commandArgs ? [`  runbookCommandArgs: ${JSON.stringify(agent.runbook.commandArgs)}`] : []),
     ...(agent.runbook.url ? [`  runbookUrl: ${agent.runbook.url}`] : []),
     `  executor: ${agent.executor.decision}/${agent.executor.operation}/${agent.executor.confidence}${agent.executor.action ? ` action=${agent.executor.action}` : ""} status=${agent.executor.status} - ${agent.executor.instruction}`,
@@ -3721,6 +3726,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.nextActionName) lines.push(`  nextActionName: ${agent.nextActionName}`);
   if (agent.nextExecution) lines.push(`  nextExecution: ${agent.nextExecution}`);
   if (agent.nextReadFrom) lines.push(`  nextReadFrom: ${agent.nextReadFrom}`);
+  if (agent.nextReadTargetKind) lines.push(`  nextReadTargetKind: ${agent.nextReadTargetKind}`);
   if (agent.nextCommand) lines.push(`  nextCommand: ${agent.nextCommand}`);
   if (agent.nextCommandArgs) lines.push(`  nextCommandArgs: ${formatCommandArgsText(agent.nextCommandArgs)}`);
   if (agent.nextAfterInteractionCommand) lines.push(`  nextAfterInteractionCommand: ${agent.nextAfterInteractionCommand}`);
@@ -3780,6 +3786,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.answerPlanAfterInteractionCommand) lines.push(`  answerPlanAfterInteractionCommand: ${agent.answerPlanAfterInteractionCommand}`);
   if (agent.answerPlanAfterInteractionCommandArgs?.length) lines.push(`  answerPlanAfterInteractionCommandArgs: ${JSON.stringify(agent.answerPlanAfterInteractionCommandArgs)}`);
   if (agent.executor.readFrom) lines.push(`  executorReadFrom: ${agent.executor.readFrom}`);
+  if (agent.executorReadTargetKind) lines.push(`  executorReadTargetKind: ${agent.executorReadTargetKind}`);
   if (agent.executor.readValue) lines.push(...formatAgentReadValueText(agent.executor.readValue, "executorReadValue"));
   if (agent.executor.commandArgs) lines.push(`  executorCommandArgs: ${formatCommandArgsText(agent.executor.commandArgs)}`);
   if (agent.executor.afterInteractionCommandArgs) lines.push(`  executorAfterInteractionCommandArgs: ${formatCommandArgsText(agent.executor.afterInteractionCommandArgs)}`);
@@ -3788,7 +3795,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     const count = typeof agent.executor.readTarget.count === "number" ? ` count=${agent.executor.readTarget.count}` : "";
     const score = typeof agent.executor.readTarget.score === "number" ? ` score=${agent.executor.readTarget.score}` : "";
     const primary = agent.executor.readTarget.primary ? " primary" : "";
-    lines.push(`  executorReadTarget: ${agent.executor.readTarget.path}${count}${score}${primary} - ${agent.executor.readTarget.reason}`);
+    const kind = agent.executor.readTarget.kind ? ` kind=${agent.executor.readTarget.kind}` : "";
+    lines.push(`  executorReadTarget: ${agent.executor.readTarget.path}${kind}${count}${score}${primary} - ${agent.executor.readTarget.reason}`);
   }
   if (agent.executor.browserHtml) {
     lines.push(`  executorBrowserHtml: ${agent.executor.browserHtml.htmlFile} capture=${agent.executor.browserHtml.captureScript}`);
@@ -3796,6 +3804,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     if (agent.executor.browserHtml.commandArgs) lines.push(`  executorBrowserHtmlCommandArgs: ${formatCommandArgsText(agent.executor.browserHtml.commandArgs)}`);
   }
   if (agent.handoff.readFrom) lines.push(`  handoffReadFrom: ${agent.handoff.readFrom}`);
+  if (agent.handoffReadTargetKind) lines.push(`  handoffReadTargetKind: ${agent.handoffReadTargetKind}`);
   if (agent.handoff.readValue) lines.push(...formatAgentReadValueText(agent.handoff.readValue));
   if (agent.handoff.command) lines.push(`  handoffCommand: ${agent.handoff.command}`);
   if (agent.handoff.commandArgs) lines.push(`  handoffCommandArgs: ${formatCommandArgsText(agent.handoff.commandArgs)}`);
@@ -3806,7 +3815,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     const count = typeof agent.handoff.readTarget.count === "number" ? ` count=${agent.handoff.readTarget.count}` : "";
     const score = typeof agent.handoff.readTarget.score === "number" ? ` score=${agent.handoff.readTarget.score}` : "";
     const primary = agent.handoff.readTarget.primary ? " primary" : "";
-    lines.push(`  handoffReadTarget: ${agent.handoff.readTarget.path}${count}${score}${primary} - ${agent.handoff.readTarget.reason}`);
+    const kind = agent.handoff.readTarget.kind ? ` kind=${agent.handoff.readTarget.kind}` : "";
+    lines.push(`  handoffReadTarget: ${agent.handoff.readTarget.path}${kind}${count}${score}${primary} - ${agent.handoff.readTarget.reason}`);
   }
   if (agent.handoff.browserHtml) {
     lines.push(`  handoffBrowserHtml: ${agent.handoff.browserHtml.htmlFile} capture=${agent.handoff.browserHtml.captureScript}`);
@@ -11151,6 +11161,12 @@ function summarizeAgent(
   const topSemanticModalState = semanticSummary?.stateItems.find((item) => item.stateRaw?.modal === true);
   const topSemanticLiveState = semanticSummary?.stateItems.find((item) => item.stateRaw?.live);
   const topSemanticUnavailable = semanticSummary?.unavailableItems[0];
+  const readTargetKindFor = (path?: string): AgentReadTarget["kind"] | undefined =>
+    path ? readTargets.find((target) => target.path === path)?.kind : undefined;
+  const runbookReadTargetKind = readTargetKindFor(runbook.readFrom);
+  const nextReadTargetKind = next.readTarget?.kind ?? readTargetKindFor(next.readFrom);
+  const executorReadTargetKind = executor.readTarget?.kind ?? readTargetKindFor(executor.readFrom);
+  const handoffReadTargetKind = handoff.readTarget?.kind ?? readTargetKindFor(handoff.readFrom);
   const agent: AgentSummary = {
     contract: agentContract,
     status,
@@ -11182,6 +11198,7 @@ function summarizeAgent(
     runbookMaxSuggestedIterations: runbook.maxSuggestedIterations,
     runbookExpectedOutcome: runbook.expectedOutcome,
     ...(runbook.readFrom ? { runbookReadFrom: runbook.readFrom } : {}),
+    ...(runbookReadTargetKind ? { runbookReadTargetKind } : {}),
     ...(runbook.commandArgs ? { runbookCommandArgs: runbook.commandArgs } : {}),
     ...(runbook.url ? { runbookUrl: runbook.url } : {}),
     ...(next.action ? { nextActionName: next.action } : {}),
@@ -11191,6 +11208,7 @@ function summarizeAgent(
     ...(next.afterInteractionCommand ? { nextAfterInteractionCommand: next.afterInteractionCommand } : {}),
     ...(next.afterInteractionCommandArgs ? { nextAfterInteractionCommandArgs: next.afterInteractionCommandArgs } : {}),
     ...(next.readFrom ? { nextReadFrom: next.readFrom } : {}),
+    ...(nextReadTargetKind ? { nextReadTargetKind } : {}),
     ...(next.url ? { nextUrl: next.url } : {}),
     executor,
     handoff,
@@ -12055,6 +12073,7 @@ function summarizeAgent(
     executorTerminal: executor.terminal,
     ...(executor.commandArgs ? { executorCommandArgs: executor.commandArgs } : {}),
     ...(executor.readFrom ? { executorReadFrom: executor.readFrom } : {}),
+    ...(executorReadTargetKind ? { executorReadTargetKind } : {}),
     ...(executor.url ? { executorUrl: executor.url } : {}),
     ...(executor.target?.url ? { executorTargetUrl: executor.target.url } : {}),
     ...(executor.target?.path ? { executorTargetPath: executor.target.path } : {}),
@@ -12081,6 +12100,7 @@ function summarizeAgent(
     ...(handoff.priorityReason ? { handoffPriorityReason: handoff.priorityReason } : {}),
     ...(handoff.commandArgs ? { handoffCommandArgs: handoff.commandArgs } : {}),
     ...(handoff.readFrom ? { handoffReadFrom: handoff.readFrom } : {}),
+    ...(handoffReadTargetKind ? { handoffReadTargetKind } : {}),
     ...(handoff.url ? { handoffUrl: handoff.url } : {}),
     ...(handoff.target?.url ? { handoffTargetUrl: handoff.target.url } : {}),
     ...(handoff.target?.path ? { handoffTargetPath: handoff.target.path } : {}),
@@ -16398,6 +16418,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.runbookMaxSuggestedIterations === "number" ? { runbookMaxSuggestedIterations: agent.runbookMaxSuggestedIterations } : {}),
     ...(agent.runbookExpectedOutcome ? { runbookExpectedOutcome: agent.runbookExpectedOutcome } : {}),
     ...(agent.runbookReadFrom ? { runbookReadFrom: agent.runbookReadFrom } : {}),
+    ...(agent.runbookReadTargetKind ? { runbookReadTargetKind: agent.runbookReadTargetKind } : {}),
     ...(agent.runbookCommandArgs ? { runbookCommandArgs: agent.runbookCommandArgs } : {}),
     ...(agent.runbookUrl ? { runbookUrl: agent.runbookUrl } : {}),
     ...(agent.nextActionName ? { nextActionName: agent.nextActionName } : {}),
@@ -16407,6 +16428,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.nextAfterInteractionCommand ? { nextAfterInteractionCommand: agent.nextAfterInteractionCommand } : {}),
     ...(agent.nextAfterInteractionCommandArgs ? { nextAfterInteractionCommandArgs: agent.nextAfterInteractionCommandArgs } : {}),
     ...(agent.nextReadFrom ? { nextReadFrom: agent.nextReadFrom } : {}),
+    ...(agent.nextReadTargetKind ? { nextReadTargetKind: agent.nextReadTargetKind } : {}),
     ...(agent.nextUrl ? { nextUrl: agent.nextUrl } : {}),
     executor: compactAgentExecutor(agent.executor, agent.primaryUrl),
     handoff: compactAgentHandoff(agent.handoff, agent.primaryUrl, searchCommandContext, pageLinkContext),
@@ -17261,6 +17283,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.executorTerminal === "boolean" ? { executorTerminal: agent.executorTerminal } : {}),
     ...(agent.executorCommandArgs ? { executorCommandArgs: agent.executorCommandArgs } : {}),
     ...(agent.executorReadFrom ? { executorReadFrom: agent.executorReadFrom } : {}),
+    ...(agent.executorReadTargetKind ? { executorReadTargetKind: agent.executorReadTargetKind } : {}),
     ...(agent.executorUrl ? { executorUrl: agent.executorUrl } : {}),
     ...(agent.executorTargetUrl ? { executorTargetUrl: agent.executorTargetUrl } : {}),
     ...(agent.executorTargetPath ? { executorTargetPath: agent.executorTargetPath } : {}),
@@ -17287,6 +17310,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.handoffPriorityReason ? { handoffPriorityReason: agent.handoffPriorityReason } : {}),
     ...(agent.handoffCommandArgs ? { handoffCommandArgs: agent.handoffCommandArgs } : {}),
     ...(agent.handoffReadFrom ? { handoffReadFrom: agent.handoffReadFrom } : {}),
+    ...(agent.handoffReadTargetKind ? { handoffReadTargetKind: agent.handoffReadTargetKind } : {}),
     ...(agent.handoffUrl ? { handoffUrl: agent.handoffUrl } : {}),
     ...(agent.handoffTargetUrl ? { handoffTargetUrl: agent.handoffTargetUrl } : {}),
     ...(agent.handoffTargetPath ? { handoffTargetPath: agent.handoffTargetPath } : {}),
@@ -17369,6 +17393,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.runbookMaxSuggestedIterations === "number" ? { runbookMaxSuggestedIterations: agent.runbookMaxSuggestedIterations } : {}),
     ...(agent.runbookExpectedOutcome ? { runbookExpectedOutcome: agent.runbookExpectedOutcome } : {}),
     ...(agent.runbookReadFrom ? { runbookReadFrom: agent.runbookReadFrom } : {}),
+    ...(agent.runbookReadTargetKind ? { runbookReadTargetKind: agent.runbookReadTargetKind } : {}),
     ...(agent.runbookCommandArgs ? { runbookCommandArgs: agent.runbookCommandArgs } : {}),
     ...(agent.runbookUrl ? { runbookUrl: agent.runbookUrl } : {}),
     ...(agent.nextActionName ? { nextActionName: agent.nextActionName } : {}),
@@ -17378,6 +17403,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.nextAfterInteractionCommand ? { nextAfterInteractionCommand: agent.nextAfterInteractionCommand } : {}),
     ...(agent.nextAfterInteractionCommandArgs ? { nextAfterInteractionCommandArgs: agent.nextAfterInteractionCommandArgs } : {}),
     ...(agent.nextReadFrom ? { nextReadFrom: agent.nextReadFrom } : {}),
+    ...(agent.nextReadTargetKind ? { nextReadTargetKind: agent.nextReadTargetKind } : {}),
     ...(agent.nextUrl ? { nextUrl: agent.nextUrl } : {}),
     executor: compactAgentExecutor(agent.executor, agent.primaryUrl),
     handoff: compactAgentBriefHandoff(agent.handoff, agent.primaryUrl, searchCommandContext, pageLinkContext),
@@ -18225,6 +18251,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.executorTerminal === "boolean" ? { executorTerminal: agent.executorTerminal } : {}),
     ...(agent.executorCommandArgs ? { executorCommandArgs: agent.executorCommandArgs } : {}),
     ...(agent.executorReadFrom ? { executorReadFrom: agent.executorReadFrom } : {}),
+    ...(agent.executorReadTargetKind ? { executorReadTargetKind: agent.executorReadTargetKind } : {}),
     ...(agent.executorUrl ? { executorUrl: agent.executorUrl } : {}),
     ...(agent.executorTargetUrl ? { executorTargetUrl: agent.executorTargetUrl } : {}),
     ...(agent.executorTargetPath ? { executorTargetPath: agent.executorTargetPath } : {}),
@@ -18251,6 +18278,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.handoffPriorityReason ? { handoffPriorityReason: agent.handoffPriorityReason } : {}),
     ...(agent.handoffCommandArgs ? { handoffCommandArgs: agent.handoffCommandArgs } : {}),
     ...(agent.handoffReadFrom ? { handoffReadFrom: agent.handoffReadFrom } : {}),
+    ...(agent.handoffReadTargetKind ? { handoffReadTargetKind: agent.handoffReadTargetKind } : {}),
     ...(agent.handoffUrl ? { handoffUrl: agent.handoffUrl } : {}),
     ...(agent.handoffTargetUrl ? { handoffTargetUrl: agent.handoffTargetUrl } : {}),
     ...(agent.handoffTargetPath ? { handoffTargetPath: agent.handoffTargetPath } : {}),

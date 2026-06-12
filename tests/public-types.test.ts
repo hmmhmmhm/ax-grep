@@ -880,6 +880,7 @@ describe("public agent types", () => {
       | "runbookMaxSuggestedIterations"
       | "runbookExpectedOutcome"
       | "runbookReadFrom"
+      | "runbookReadTargetKind"
       | "runbookCommandArgs"
       | "runbookUrl"
       | "nextActionName"
@@ -889,6 +890,7 @@ describe("public agent types", () => {
       | "nextAfterInteractionCommand"
       | "nextAfterInteractionCommandArgs"
       | "nextReadFrom"
+      | "nextReadTargetKind"
       | "nextUrl"
       | "expectedOutcomeKind"
       | "expectedOutcomeMessage"
@@ -1019,6 +1021,7 @@ describe("public agent types", () => {
       | "executorTerminal"
       | "executorCommandArgs"
       | "executorReadFrom"
+      | "executorReadTargetKind"
       | "executorUrl"
       | "executorTargetUrl"
       | "executorTargetPath"
@@ -1045,6 +1048,7 @@ describe("public agent types", () => {
       | "handoffPriorityReason"
       | "handoffCommandArgs"
       | "handoffReadFrom"
+      | "handoffReadTargetKind"
       | "handoffUrl"
       | "handoffTargetUrl"
       | "handoffTargetPath"
@@ -1817,6 +1821,7 @@ describe("public agent types", () => {
       runbookMaxSuggestedIterations: 0,
       runbookExpectedOutcome: "read-evidence",
       runbookReadFrom: "pageCheck.contentEvidence",
+      runbookReadTargetKind: "evidence",
       runbookCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       runbookUrl: "https://example.test",
       nextActionName: "read-content",
@@ -1826,6 +1831,7 @@ describe("public agent types", () => {
       nextAfterInteractionCommand: "ax-grep https://example.test --html-file captured.html --agent",
       nextAfterInteractionCommandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--agent"],
       nextReadFrom: "pageCheck.contentEvidence",
+      nextReadTargetKind: "evidence",
       nextUrl: "https://example.test",
       expectedOutcomeKind: "read-evidence",
       expectedOutcomeMessage: "Read the current payload evidence.",
@@ -1956,6 +1962,7 @@ describe("public agent types", () => {
       executorTerminal: true,
       executorCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       executorReadFrom: "pageCheck.contentEvidence",
+      executorReadTargetKind: "evidence",
       executorUrl: "https://example.test",
       executorTargetUrl: "https://example.test",
       executorTargetPath: "pageCheck.links[0]",
@@ -1982,6 +1989,7 @@ describe("public agent types", () => {
       handoffPriorityReason: "Readable content is available.",
       handoffCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       handoffReadFrom: "pageCheck.contentEvidence",
+      handoffReadTargetKind: "evidence",
       handoffUrl: "https://example.test",
       handoffTargetUrl: "https://example.test",
       handoffTargetPath: "pageCheck.links[0]",
@@ -2166,15 +2174,19 @@ describe("public agent types", () => {
     expect(summary.topAnswerEvidenceScore).toBe(0.9);
     expect(summary.answerPlanStatus).toBe("ready");
     expect(summary.answerPlanNextAction).toBe("read-content");
+    expect(summary.runbookReadTargetKind).toBe("evidence");
     expect(summary.nextActionName).toBe("read-content");
     expect(summary.nextReadFrom).toBe("pageCheck.contentEvidence");
+    expect(summary.nextReadTargetKind).toBe("evidence");
     expect(summary.executorOperation).toBe("return");
     expect(summary.executorTerminal).toBe(true);
+    expect(summary.executorReadTargetKind).toBe("evidence");
     expect(summary.executorTargetSelector).toBe("a.primary");
     expect(summary.executorTargetSourceScore).toBe(0.92);
     expect(summary.executorTargetLikelyOfficial).toBe(true);
     expect(summary.handoffAnswerStatus).toBe("ready");
     expect(summary.handoffShouldContinue).toBe(false);
+    expect(summary.handoffReadTargetKind).toBe("evidence");
     expect(summary.handoffTargetPath).toBe("pageCheck.links[0]");
     expect(summary.handoffTargetTitle).toBe("Example target");
     expect(summary.handoffTargetRelevance).toBe("high");
