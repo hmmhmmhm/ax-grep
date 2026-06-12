@@ -9600,6 +9600,11 @@ npx ax-grep https://example.test --agent</code></pre>
       url: "https://challenge.example",
       command: "ax-grep 'https://challenge.example' --html-file captured.html --json --summary",
     });
+    expect(envelope.agent).toMatchObject({
+      needsBrowserHtml: true,
+      browserHtmlReasonCode: "challenge",
+      browserHtmlActionName: "retry-with-browser-html",
+    });
   });
 
   it("detects login and paywall barriers", async () => {
@@ -9633,6 +9638,9 @@ npx ax-grep https://example.test --agent</code></pre>
       topBarrierPath: "pageCheck.barriers[0]",
       topBarrierText: "Login: The page appears to require login or account access.",
       topBarrierDiagnosticCode: "LOGIN_REQUIRED",
+      needsBrowserHtml: true,
+      browserHtmlReasonCode: "login-required",
+      browserHtmlActionName: "retry-with-browser-html",
     });
     expect(envelope.pageCheck.barriers).toEqual(expect.arrayContaining([
       expect.objectContaining({

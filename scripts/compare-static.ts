@@ -7029,7 +7029,7 @@ function scoreAgentBrowserNeed(
   primaryAction: CliActionShape | undefined,
 ): number {
   if (typeof needsBrowserHtml !== "boolean") return 0;
-  const validReasonCodes = new Set(["no-inspectable-content", "http-error", "fetch-error", "blocked-or-empty", "retry-action", "browser-interaction", "unknown"]);
+  const validReasonCodes = new Set(["no-inspectable-content", "http-error", "fetch-error", "challenge", "login-required", "paywall", "blocked-or-empty", "retry-action", "browser-interaction", "unknown"]);
   const validStaticReadiness = new Set(["usable-content", "usable-structured-data", "usable-hidden-data", "thin", "needs-browser", "error"]);
   const reasonScore = needsBrowserHtml
     ? typeof browserHtmlReason === "string" && /browser/i.test(browserHtmlReason) ? 0.15 : 0

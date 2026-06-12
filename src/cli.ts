@@ -12391,6 +12391,9 @@ function summarizeBrowserHtmlReasonCode(
   if (error?.code === "HTTP_ERROR") return "http-error";
   if (error?.code === "FETCH_FAILED" || error?.code === "TIMEOUT") return "fetch-error";
   if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "NO_INSPECTABLE_CONTENT")) return "no-inspectable-content";
+  if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "CHALLENGE_LIKELY")) return "challenge";
+  if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "LOGIN_REQUIRED")) return "login-required";
+  if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "PAYWALL_LIKELY")) return "paywall";
   if (primaryAction?.requiresBrowserInteraction || (primaryAction && actionExecution(primaryAction) === "interact-browser")) return "browser-interaction";
   if (primaryAction?.action === "retry-with-browser-html") return "retry-action";
   if (analysis.kind === "blocked-page" || analysis.kind === "empty") return "blocked-or-empty";

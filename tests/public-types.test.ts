@@ -1590,7 +1590,7 @@ describe("public agent types", () => {
       staticReadinessReason: "Static fetched HTML is not enough; browser-captured HTML or browser inspection is required.",
       staticReadinessReadFrom: "pageCheck.contentEvidence",
       browserHtmlReason: "Browser-captured HTML or browser inspection is needed.",
-      browserHtmlReasonCode: "blocked-or-empty",
+      browserHtmlReasonCode: "challenge",
       browserHtmlActionName: "retry-with-browser-html",
       browserHtmlOperation: "capture-browser-html",
       browserHtmlUrl: "https://example.test",

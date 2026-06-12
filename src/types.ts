@@ -96,7 +96,17 @@ export type ObserverScriptOptions = SemanticTreeObserverOptions & {
 };
 
 export type AgentStatus = "ready" | "choose-result" | "verify" | "needs-browser" | "error";
-export type AgentBrowserHtmlReasonCode = "no-inspectable-content" | "http-error" | "fetch-error" | "blocked-or-empty" | "retry-action" | "browser-interaction" | "unknown";
+export type AgentBrowserHtmlReasonCode =
+  | "no-inspectable-content"
+  | "http-error"
+  | "fetch-error"
+  | "challenge"
+  | "login-required"
+  | "paywall"
+  | "blocked-or-empty"
+  | "retry-action"
+  | "browser-interaction"
+  | "unknown";
 export type AgentStaticReadiness = "usable-content" | "usable-structured-data" | "usable-hidden-data" | "thin" | "needs-browser" | "error";
 
 export type AgentRoutingIntent =
