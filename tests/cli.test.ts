@@ -690,6 +690,9 @@ describe("cli", () => {
         semanticTopListName: "Highlights",
         semanticTopListItemCount: 2,
         semanticTopListItems: ["Fast setup", "Clear output"],
+        semanticTopListFirstItemText: "Fast setup",
+        semanticTopListFirstItemRole: "listitem",
+        semanticTopListFirstItemSelector: "li",
         semanticTopListSelector: "ul",
         semanticTopDescriptionRole: "button",
         semanticTopDescriptionPath: "agent.semanticSummary.descriptionItems[0]",
@@ -4581,6 +4584,12 @@ describe("cli", () => {
         { text: "North region grew", role: "listitem", posInSet: 1, setSize: 2, current: "page", selector: "li" },
         { text: "Renewals improved", role: "listitem", posInSet: 2, setSize: 2, expanded: false, selector: "li:nth-of-type(2)" },
       ],
+      semanticTopListFirstItemText: "North region grew",
+      semanticTopListFirstItemRole: "listitem",
+      semanticTopListFirstItemPosInSet: 1,
+      semanticTopListFirstItemSetSize: 2,
+      semanticTopListFirstItemCurrent: "page",
+      semanticTopListFirstItemSelector: "li",
       semanticTopListSelector: "ul",
     });
   });
