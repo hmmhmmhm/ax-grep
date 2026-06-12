@@ -3127,19 +3127,29 @@ describe("cli", () => {
       sourceSearchSelectedTitle: "ax-grep - npm",
       sourceSearchSelectedUrl: "https://www.npmjs.com/package/ax-grep",
       sourceSearchSelectedHost: "npmjs.com",
+      sourceSearchSelectedSource: "npmjs.com",
       sourceSearchSelectedPath: "sourceSearch.selectedResult",
       sourceSearchSelectedOpenResult: 2,
+      sourceSearchSelectedCommand: "ax-grep --search 'ax-grep npm' --engine duckduckgo --open-result 2 --agent",
       sourceSearchSelectedCommandArgs: ["ax-grep", "--search", "ax-grep npm", "--engine", "duckduckgo", "--open-result", "2", "--agent"],
+      sourceSearchSelectedRelevance: "high",
+      sourceSearchSelectedLikelyOfficial: true,
       sourceSearchSelectedReason: "Likely official source for the query.",
       sourceSearchAlternateCount: 1,
       sourceSearchAlternatePath: "sourceSearch.alternateResults[0]",
       sourceSearchAlternateTitle: "Enterprise AI transformation",
       sourceSearchAlternateUrl: "https://unrelated.example/",
       sourceSearchAlternateHost: "unrelated.example",
+      sourceSearchAlternateSource: "unrelated.example",
       sourceSearchAlternateRank: 1,
       sourceSearchAlternateOpenResult: 1,
+      sourceSearchAlternateCommand: "ax-grep --search 'ax-grep npm' --engine duckduckgo --open-result 1 --agent",
       sourceSearchAlternateCommandArgs: ["ax-grep", "--search", "ax-grep npm", "--engine", "duckduckgo", "--open-result", "1", "--agent"],
+      sourceSearchAlternateRelevance: "low",
+      sourceSearchAlternateLikelyOfficial: false,
     });
+    expect(envelope.agent.sourceSearchSelectedSourceScore).toBe(envelope.sourceSearch.selectedResult.sourceScore);
+    expect(envelope.agent.sourceSearchAlternateSourceScore).toBe(envelope.sourceSearch.alternateResults[0].sourceScore);
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "sourceSearch.selectedResult",
       count: 1,
@@ -3605,17 +3615,27 @@ describe("cli", () => {
       sourceSearchSelectedTitle: "Missing Result",
       sourceSearchSelectedUrl: "https://missing.example/article",
       sourceSearchSelectedHost: "missing.example",
+      sourceSearchSelectedSource: envelope.sourceSearch.selectedResult.source,
       sourceSearchSelectedPath: "sourceSearch.selectedResult",
       sourceSearchSelectedOpenResult: 1,
+      sourceSearchSelectedCommand: envelope.sourceSearch.selectedResult.command,
       sourceSearchSelectedCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--open-result", "1", "--agent"],
+      sourceSearchSelectedSourceScore: envelope.sourceSearch.selectedResult.sourceScore,
+      sourceSearchSelectedRelevance: envelope.sourceSearch.selectedResult.relevance,
+      sourceSearchSelectedLikelyOfficial: envelope.sourceSearch.selectedResult.isLikelyOfficial,
       sourceSearchAlternateCount: 2,
       sourceSearchAlternatePath: "sourceSearch.alternateResults[0]",
       sourceSearchAlternateTitle: "Alternate Result",
       sourceSearchAlternateUrl: "https://alternate.example/article",
       sourceSearchAlternateHost: "alternate.example",
+      sourceSearchAlternateSource: envelope.sourceSearch.alternateResults[0].source,
       sourceSearchAlternateRank: 2,
       sourceSearchAlternateOpenResult: 2,
+      sourceSearchAlternateCommand: envelope.sourceSearch.alternateResults[0].command,
       sourceSearchAlternateCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--open-result", "2", "--agent"],
+      sourceSearchAlternateSourceScore: envelope.sourceSearch.alternateResults[0].sourceScore,
+      sourceSearchAlternateRelevance: envelope.sourceSearch.alternateResults[0].relevance,
+      sourceSearchAlternateLikelyOfficial: envelope.sourceSearch.alternateResults[0].isLikelyOfficial,
       sourceSearchAlternateChoices: [
         expect.objectContaining({
           path: "sourceSearch.alternateResults[0]",
@@ -3904,11 +3924,15 @@ describe("cli", () => {
     expect(stdout.output).toContain("  sourceSearchSelectedRank: 1");
     expect(stdout.output).toContain("  sourceSearchSelectedTitle: Agent browser overview");
     expect(stdout.output).toContain("  sourceSearchSelectedHost: first.example");
+    expect(stdout.output).toContain("  sourceSearchSelectedSource: first.example");
     expect(stdout.output).toContain("  sourceSearchSelectedPath: sourceSearch.selectedResult");
+    expect(stdout.output).toContain("  sourceSearchSelectedCommand: ax-grep --search 'agent browser' --engine duckduckgo --find 'target claim' --open-result 1 --agent");
     expect(stdout.output).toContain("  sourceSearchSelectedCommandArgs: [\"ax-grep\",\"--search\",\"agent browser\",\"--engine\",\"duckduckgo\",\"--find\",\"target claim\",\"--open-result\",\"1\",\"--agent\"]");
     expect(stdout.output).toContain("  sourceSearchAlternateCount: 1");
     expect(stdout.output).toContain("  sourceSearchAlternatePath: sourceSearch.alternateResults[0]");
     expect(stdout.output).toContain("  sourceSearchAlternateHost: alternate.example");
+    expect(stdout.output).toContain("  sourceSearchAlternateSource: alternate.example");
+    expect(stdout.output).toContain("  sourceSearchAlternateCommand: ax-grep --search 'agent browser' --engine duckduckgo --find 'target claim' --open-result 2 --agent");
     expect(stdout.output).toContain("  sourceSearchAlternateCommandArgs: [\"ax-grep\",\"--search\",\"agent browser\",\"--engine\",\"duckduckgo\",\"--find\",\"target claim\",\"--open-result\",\"2\",\"--agent\"]");
     expect(stdout.output).toContain("  handoff: execute/execute-command/low action=open-alternate-result");
     expect(stdout.output).toContain("  handoffSourceSearch: agent browser engine=duckduckgo selected=1 alternates=1 <https://first.example/article>");

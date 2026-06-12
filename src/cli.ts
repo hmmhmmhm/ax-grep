@@ -1594,9 +1594,14 @@ type AgentSummary = {
   sourceSearchSelectedTitle?: string;
   sourceSearchSelectedUrl?: string;
   sourceSearchSelectedHost?: string;
+  sourceSearchSelectedSource?: string;
   sourceSearchSelectedPath?: string;
   sourceSearchSelectedOpenResult?: AgentSourceSearchResult["openResult"];
+  sourceSearchSelectedCommand?: string;
   sourceSearchSelectedCommandArgs?: string[];
+  sourceSearchSelectedSourceScore?: number;
+  sourceSearchSelectedRelevance?: ResultSummary["relevance"];
+  sourceSearchSelectedLikelyOfficial?: boolean;
   sourceSearchSelectedReason?: string;
   sourceSearchFailureCode?: string;
   sourceSearchFailureStatus?: number;
@@ -1607,9 +1612,14 @@ type AgentSummary = {
   sourceSearchAlternateTitle?: string;
   sourceSearchAlternateUrl?: string;
   sourceSearchAlternateHost?: string;
+  sourceSearchAlternateSource?: string;
   sourceSearchAlternateRank?: number;
   sourceSearchAlternateOpenResult?: AgentSourceSearchResult["openResult"];
+  sourceSearchAlternateCommand?: string;
   sourceSearchAlternateCommandArgs?: string[];
+  sourceSearchAlternateSourceScore?: number;
+  sourceSearchAlternateRelevance?: ResultSummary["relevance"];
+  sourceSearchAlternateLikelyOfficial?: boolean;
   sourceSearchAlternateReason?: string;
   sourceSearchAlternateChoices: AgentSourceSearchResult[];
   evidenceQualityScore: number;
@@ -3534,9 +3544,14 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.sourceSearchSelectedTitle ? [`  sourceSearchSelectedTitle: ${agent.sourceSearchSelectedTitle}`] : []),
     ...(agent.sourceSearchSelectedUrl ? [`  sourceSearchSelectedUrl: ${agent.sourceSearchSelectedUrl}`] : []),
     ...(agent.sourceSearchSelectedHost ? [`  sourceSearchSelectedHost: ${agent.sourceSearchSelectedHost}`] : []),
+    ...(agent.sourceSearchSelectedSource ? [`  sourceSearchSelectedSource: ${agent.sourceSearchSelectedSource}`] : []),
     ...(agent.sourceSearchSelectedPath ? [`  sourceSearchSelectedPath: ${agent.sourceSearchSelectedPath}`] : []),
     ...(agent.sourceSearchSelectedOpenResult ? [`  sourceSearchSelectedOpenResult: ${agent.sourceSearchSelectedOpenResult}`] : []),
+    ...(agent.sourceSearchSelectedCommand ? [`  sourceSearchSelectedCommand: ${agent.sourceSearchSelectedCommand}`] : []),
     ...(agent.sourceSearchSelectedCommandArgs ? [`  sourceSearchSelectedCommandArgs: ${JSON.stringify(agent.sourceSearchSelectedCommandArgs)}`] : []),
+    ...(typeof agent.sourceSearchSelectedSourceScore === "number" ? [`  sourceSearchSelectedSourceScore: ${agent.sourceSearchSelectedSourceScore}`] : []),
+    ...(agent.sourceSearchSelectedRelevance ? [`  sourceSearchSelectedRelevance: ${agent.sourceSearchSelectedRelevance}`] : []),
+    ...(typeof agent.sourceSearchSelectedLikelyOfficial === "boolean" ? [`  sourceSearchSelectedLikelyOfficial: ${agent.sourceSearchSelectedLikelyOfficial}`] : []),
     ...(agent.sourceSearchSelectedReason ? [`  sourceSearchSelectedReason: ${agent.sourceSearchSelectedReason}`] : []),
     ...(agent.sourceSearchFailureCode ? [`  sourceSearchFailureCode: ${agent.sourceSearchFailureCode}`] : []),
     ...(typeof agent.sourceSearchFailureStatus === "number" ? [`  sourceSearchFailureStatus: ${agent.sourceSearchFailureStatus}`] : []),
@@ -3549,7 +3564,12 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.sourceSearchAlternateTitle ? [`  sourceSearchAlternateTitle: ${agent.sourceSearchAlternateTitle}`] : []),
     ...(typeof agent.sourceSearchAlternateRank === "number" ? [`  sourceSearchAlternateRank: ${agent.sourceSearchAlternateRank}`] : []),
     ...(agent.sourceSearchAlternateOpenResult ? [`  sourceSearchAlternateOpenResult: ${agent.sourceSearchAlternateOpenResult}`] : []),
+    ...(agent.sourceSearchAlternateSource ? [`  sourceSearchAlternateSource: ${agent.sourceSearchAlternateSource}`] : []),
+    ...(agent.sourceSearchAlternateCommand ? [`  sourceSearchAlternateCommand: ${agent.sourceSearchAlternateCommand}`] : []),
     ...(agent.sourceSearchAlternateCommandArgs ? [`  sourceSearchAlternateCommandArgs: ${JSON.stringify(agent.sourceSearchAlternateCommandArgs)}`] : []),
+    ...(typeof agent.sourceSearchAlternateSourceScore === "number" ? [`  sourceSearchAlternateSourceScore: ${agent.sourceSearchAlternateSourceScore}`] : []),
+    ...(agent.sourceSearchAlternateRelevance ? [`  sourceSearchAlternateRelevance: ${agent.sourceSearchAlternateRelevance}`] : []),
+    ...(typeof agent.sourceSearchAlternateLikelyOfficial === "boolean" ? [`  sourceSearchAlternateLikelyOfficial: ${agent.sourceSearchAlternateLikelyOfficial}`] : []),
     ...(agent.sourceSearchAlternateReason ? [`  sourceSearchAlternateReason: ${agent.sourceSearchAlternateReason}`] : []),
     ...agent.sourceSearchAlternateChoices.flatMap((choice) => formatAgentSourceSearchResultText(choice, "sourceSearchAlternateChoice")),
     `  alternativeActionCount: ${agent.alternativeActionCount}`,
@@ -11795,18 +11815,28 @@ function summarizeAgent(
     ...(sourceSearch ? { sourceSearchSelectedTitle: sourceSearch.selectedTitle } : {}),
     ...(sourceSearch ? { sourceSearchSelectedUrl: sourceSearch.selectedUrl } : {}),
     ...(sourceSearchSelectedResult?.host ? { sourceSearchSelectedHost: sourceSearchSelectedResult.host } : {}),
+    ...(sourceSearchSelectedResult?.source ? { sourceSearchSelectedSource: sourceSearchSelectedResult.source } : {}),
     ...(sourceSearchSelectedResult ? { sourceSearchSelectedPath: sourceSearchSelectedResult.path } : {}),
     ...(sourceSearchSelectedResult?.openResult ? { sourceSearchSelectedOpenResult: sourceSearchSelectedResult.openResult } : {}),
+    ...(sourceSearchSelectedResult?.command ? { sourceSearchSelectedCommand: sourceSearchSelectedResult.command } : {}),
     ...(sourceSearchSelectedResult?.commandArgs ? { sourceSearchSelectedCommandArgs: sourceSearchSelectedResult.commandArgs } : {}),
+    ...(typeof sourceSearchSelectedResult?.sourceScore === "number" ? { sourceSearchSelectedSourceScore: sourceSearchSelectedResult.sourceScore } : {}),
+    ...(sourceSearchSelectedResult?.relevance ? { sourceSearchSelectedRelevance: sourceSearchSelectedResult.relevance } : {}),
+    ...(typeof sourceSearchSelectedResult?.isLikelyOfficial === "boolean" ? { sourceSearchSelectedLikelyOfficial: sourceSearchSelectedResult.isLikelyOfficial } : {}),
     ...(sourceSearchSelectedResult?.selectionReason ? { sourceSearchSelectedReason: sourceSearchSelectedResult.selectionReason } : {}),
     sourceSearchAlternateCount: sourceSearch?.alternateResults?.length ?? 0,
     ...(sourceSearchAlternateResult ? { sourceSearchAlternatePath: sourceSearchAlternateResult.path } : {}),
     ...(sourceSearchAlternateResult?.title ? { sourceSearchAlternateTitle: sourceSearchAlternateResult.title } : {}),
     ...(sourceSearchAlternateResult?.url ? { sourceSearchAlternateUrl: sourceSearchAlternateResult.url } : {}),
     ...(sourceSearchAlternateResult?.host ? { sourceSearchAlternateHost: sourceSearchAlternateResult.host } : {}),
+    ...(sourceSearchAlternateResult?.source ? { sourceSearchAlternateSource: sourceSearchAlternateResult.source } : {}),
     ...(typeof sourceSearchAlternateResult?.rank === "number" ? { sourceSearchAlternateRank: sourceSearchAlternateResult.rank } : {}),
     ...(sourceSearchAlternateResult?.openResult ? { sourceSearchAlternateOpenResult: sourceSearchAlternateResult.openResult } : {}),
+    ...(sourceSearchAlternateResult?.command ? { sourceSearchAlternateCommand: sourceSearchAlternateResult.command } : {}),
     ...(sourceSearchAlternateResult?.commandArgs ? { sourceSearchAlternateCommandArgs: sourceSearchAlternateResult.commandArgs } : {}),
+    ...(typeof sourceSearchAlternateResult?.sourceScore === "number" ? { sourceSearchAlternateSourceScore: sourceSearchAlternateResult.sourceScore } : {}),
+    ...(sourceSearchAlternateResult?.relevance ? { sourceSearchAlternateRelevance: sourceSearchAlternateResult.relevance } : {}),
+    ...(typeof sourceSearchAlternateResult?.isLikelyOfficial === "boolean" ? { sourceSearchAlternateLikelyOfficial: sourceSearchAlternateResult.isLikelyOfficial } : {}),
     ...(sourceSearchAlternateResult?.selectionReason ? { sourceSearchAlternateReason: sourceSearchAlternateResult.selectionReason } : {}),
     sourceSearchAlternateChoices,
     evidenceQualityScore,
@@ -14781,9 +14811,14 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(sourceSearch ? { sourceSearchSelectedTitle: sourceSearch.selectedTitle } : {}),
     ...(sourceSearch ? { sourceSearchSelectedUrl: sourceSearch.selectedUrl } : {}),
     ...(sourceSearchSelectedResult?.host ? { sourceSearchSelectedHost: sourceSearchSelectedResult.host } : {}),
+    ...(sourceSearchSelectedResult?.source ? { sourceSearchSelectedSource: sourceSearchSelectedResult.source } : {}),
     ...(sourceSearchSelectedResult ? { sourceSearchSelectedPath: sourceSearchSelectedResult.path } : {}),
     ...(sourceSearchSelectedResult?.openResult ? { sourceSearchSelectedOpenResult: sourceSearchSelectedResult.openResult } : {}),
+    ...(sourceSearchSelectedResult?.command ? { sourceSearchSelectedCommand: sourceSearchSelectedResult.command } : {}),
     ...(sourceSearchSelectedResult?.commandArgs ? { sourceSearchSelectedCommandArgs: sourceSearchSelectedResult.commandArgs } : {}),
+    ...(typeof sourceSearchSelectedResult?.sourceScore === "number" ? { sourceSearchSelectedSourceScore: sourceSearchSelectedResult.sourceScore } : {}),
+    ...(sourceSearchSelectedResult?.relevance ? { sourceSearchSelectedRelevance: sourceSearchSelectedResult.relevance } : {}),
+    ...(typeof sourceSearchSelectedResult?.isLikelyOfficial === "boolean" ? { sourceSearchSelectedLikelyOfficial: sourceSearchSelectedResult.isLikelyOfficial } : {}),
     ...(sourceSearchSelectedResult?.selectionReason ? { sourceSearchSelectedReason: sourceSearchSelectedResult.selectionReason } : {}),
     ...(sourceSearch ? { sourceSearchFailureCode: error.code } : {}),
     ...(sourceSearch && typeof error.status === "number" ? { sourceSearchFailureStatus: error.status } : {}),
@@ -14793,9 +14828,14 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(sourceSearchAlternateResult?.title ? { sourceSearchAlternateTitle: sourceSearchAlternateResult.title } : {}),
     ...(sourceSearchAlternateResult?.url ? { sourceSearchAlternateUrl: sourceSearchAlternateResult.url } : {}),
     ...(sourceSearchAlternateResult?.host ? { sourceSearchAlternateHost: sourceSearchAlternateResult.host } : {}),
+    ...(sourceSearchAlternateResult?.source ? { sourceSearchAlternateSource: sourceSearchAlternateResult.source } : {}),
     ...(typeof sourceSearchAlternateResult?.rank === "number" ? { sourceSearchAlternateRank: sourceSearchAlternateResult.rank } : {}),
     ...(sourceSearchAlternateResult?.openResult ? { sourceSearchAlternateOpenResult: sourceSearchAlternateResult.openResult } : {}),
+    ...(sourceSearchAlternateResult?.command ? { sourceSearchAlternateCommand: sourceSearchAlternateResult.command } : {}),
     ...(sourceSearchAlternateResult?.commandArgs ? { sourceSearchAlternateCommandArgs: sourceSearchAlternateResult.commandArgs } : {}),
+    ...(typeof sourceSearchAlternateResult?.sourceScore === "number" ? { sourceSearchAlternateSourceScore: sourceSearchAlternateResult.sourceScore } : {}),
+    ...(sourceSearchAlternateResult?.relevance ? { sourceSearchAlternateRelevance: sourceSearchAlternateResult.relevance } : {}),
+    ...(typeof sourceSearchAlternateResult?.isLikelyOfficial === "boolean" ? { sourceSearchAlternateLikelyOfficial: sourceSearchAlternateResult.isLikelyOfficial } : {}),
     ...(sourceSearchAlternateResult?.selectionReason ? { sourceSearchAlternateReason: sourceSearchAlternateResult.selectionReason } : {}),
     sourceSearchAlternateChoices,
     evidenceQualityScore: 0,
@@ -16860,9 +16900,14 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.sourceSearchSelectedTitle ? { sourceSearchSelectedTitle: agent.sourceSearchSelectedTitle } : {}),
     ...(agent.sourceSearchSelectedUrl ? { sourceSearchSelectedUrl: agent.sourceSearchSelectedUrl } : {}),
     ...(agent.sourceSearchSelectedHost ? { sourceSearchSelectedHost: agent.sourceSearchSelectedHost } : {}),
+    ...(agent.sourceSearchSelectedSource ? { sourceSearchSelectedSource: agent.sourceSearchSelectedSource } : {}),
     ...(agent.sourceSearchSelectedPath ? { sourceSearchSelectedPath: agent.sourceSearchSelectedPath } : {}),
     ...(agent.sourceSearchSelectedOpenResult ? { sourceSearchSelectedOpenResult: agent.sourceSearchSelectedOpenResult } : {}),
+    ...(agent.sourceSearchSelectedCommand ? { sourceSearchSelectedCommand: agent.sourceSearchSelectedCommand } : {}),
     ...(agent.sourceSearchSelectedCommandArgs ? { sourceSearchSelectedCommandArgs: agent.sourceSearchSelectedCommandArgs } : {}),
+    ...(typeof agent.sourceSearchSelectedSourceScore === "number" ? { sourceSearchSelectedSourceScore: agent.sourceSearchSelectedSourceScore } : {}),
+    ...(agent.sourceSearchSelectedRelevance ? { sourceSearchSelectedRelevance: agent.sourceSearchSelectedRelevance } : {}),
+    ...(typeof agent.sourceSearchSelectedLikelyOfficial === "boolean" ? { sourceSearchSelectedLikelyOfficial: agent.sourceSearchSelectedLikelyOfficial } : {}),
     ...(agent.sourceSearchSelectedReason ? { sourceSearchSelectedReason: agent.sourceSearchSelectedReason } : {}),
     ...(agent.sourceSearchFailureCode ? { sourceSearchFailureCode: agent.sourceSearchFailureCode } : {}),
     ...(typeof agent.sourceSearchFailureStatus === "number" ? { sourceSearchFailureStatus: agent.sourceSearchFailureStatus } : {}),
@@ -16873,9 +16918,14 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.sourceSearchAlternateTitle ? { sourceSearchAlternateTitle: agent.sourceSearchAlternateTitle } : {}),
     ...(agent.sourceSearchAlternateUrl ? { sourceSearchAlternateUrl: agent.sourceSearchAlternateUrl } : {}),
     ...(agent.sourceSearchAlternateHost ? { sourceSearchAlternateHost: agent.sourceSearchAlternateHost } : {}),
+    ...(agent.sourceSearchAlternateSource ? { sourceSearchAlternateSource: agent.sourceSearchAlternateSource } : {}),
     ...(typeof agent.sourceSearchAlternateRank === "number" ? { sourceSearchAlternateRank: agent.sourceSearchAlternateRank } : {}),
     ...(agent.sourceSearchAlternateOpenResult ? { sourceSearchAlternateOpenResult: agent.sourceSearchAlternateOpenResult } : {}),
+    ...(agent.sourceSearchAlternateCommand ? { sourceSearchAlternateCommand: agent.sourceSearchAlternateCommand } : {}),
     ...(agent.sourceSearchAlternateCommandArgs ? { sourceSearchAlternateCommandArgs: agent.sourceSearchAlternateCommandArgs } : {}),
+    ...(typeof agent.sourceSearchAlternateSourceScore === "number" ? { sourceSearchAlternateSourceScore: agent.sourceSearchAlternateSourceScore } : {}),
+    ...(agent.sourceSearchAlternateRelevance ? { sourceSearchAlternateRelevance: agent.sourceSearchAlternateRelevance } : {}),
+    ...(typeof agent.sourceSearchAlternateLikelyOfficial === "boolean" ? { sourceSearchAlternateLikelyOfficial: agent.sourceSearchAlternateLikelyOfficial } : {}),
     ...(agent.sourceSearchAlternateReason ? { sourceSearchAlternateReason: agent.sourceSearchAlternateReason } : {}),
     ...(agent.sourceSearchAlternateChoices.length > 0 ? { sourceSearchAlternateChoices: compactAgentCommandList(agent.sourceSearchAlternateChoices) } : {}),
     alternativeActionCount: agent.alternativeActionCount,
@@ -17786,9 +17836,14 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.sourceSearchSelectedTitle ? { sourceSearchSelectedTitle: agent.sourceSearchSelectedTitle } : {}),
     ...(agent.sourceSearchSelectedUrl ? { sourceSearchSelectedUrl: agent.sourceSearchSelectedUrl } : {}),
     ...(agent.sourceSearchSelectedHost ? { sourceSearchSelectedHost: agent.sourceSearchSelectedHost } : {}),
+    ...(agent.sourceSearchSelectedSource ? { sourceSearchSelectedSource: agent.sourceSearchSelectedSource } : {}),
     ...(agent.sourceSearchSelectedPath ? { sourceSearchSelectedPath: agent.sourceSearchSelectedPath } : {}),
     ...(agent.sourceSearchSelectedOpenResult ? { sourceSearchSelectedOpenResult: agent.sourceSearchSelectedOpenResult } : {}),
+    ...(agent.sourceSearchSelectedCommand ? { sourceSearchSelectedCommand: agent.sourceSearchSelectedCommand } : {}),
     ...(agent.sourceSearchSelectedCommandArgs ? { sourceSearchSelectedCommandArgs: agent.sourceSearchSelectedCommandArgs } : {}),
+    ...(typeof agent.sourceSearchSelectedSourceScore === "number" ? { sourceSearchSelectedSourceScore: agent.sourceSearchSelectedSourceScore } : {}),
+    ...(agent.sourceSearchSelectedRelevance ? { sourceSearchSelectedRelevance: agent.sourceSearchSelectedRelevance } : {}),
+    ...(typeof agent.sourceSearchSelectedLikelyOfficial === "boolean" ? { sourceSearchSelectedLikelyOfficial: agent.sourceSearchSelectedLikelyOfficial } : {}),
     ...(agent.sourceSearchSelectedReason ? { sourceSearchSelectedReason: agent.sourceSearchSelectedReason } : {}),
     ...(agent.sourceSearchFailureCode ? { sourceSearchFailureCode: agent.sourceSearchFailureCode } : {}),
     ...(typeof agent.sourceSearchFailureStatus === "number" ? { sourceSearchFailureStatus: agent.sourceSearchFailureStatus } : {}),
@@ -17799,9 +17854,14 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.sourceSearchAlternateTitle ? { sourceSearchAlternateTitle: agent.sourceSearchAlternateTitle } : {}),
     ...(agent.sourceSearchAlternateUrl ? { sourceSearchAlternateUrl: agent.sourceSearchAlternateUrl } : {}),
     ...(agent.sourceSearchAlternateHost ? { sourceSearchAlternateHost: agent.sourceSearchAlternateHost } : {}),
+    ...(agent.sourceSearchAlternateSource ? { sourceSearchAlternateSource: agent.sourceSearchAlternateSource } : {}),
     ...(typeof agent.sourceSearchAlternateRank === "number" ? { sourceSearchAlternateRank: agent.sourceSearchAlternateRank } : {}),
     ...(agent.sourceSearchAlternateOpenResult ? { sourceSearchAlternateOpenResult: agent.sourceSearchAlternateOpenResult } : {}),
+    ...(agent.sourceSearchAlternateCommand ? { sourceSearchAlternateCommand: agent.sourceSearchAlternateCommand } : {}),
     ...(agent.sourceSearchAlternateCommandArgs ? { sourceSearchAlternateCommandArgs: agent.sourceSearchAlternateCommandArgs } : {}),
+    ...(typeof agent.sourceSearchAlternateSourceScore === "number" ? { sourceSearchAlternateSourceScore: agent.sourceSearchAlternateSourceScore } : {}),
+    ...(agent.sourceSearchAlternateRelevance ? { sourceSearchAlternateRelevance: agent.sourceSearchAlternateRelevance } : {}),
+    ...(typeof agent.sourceSearchAlternateLikelyOfficial === "boolean" ? { sourceSearchAlternateLikelyOfficial: agent.sourceSearchAlternateLikelyOfficial } : {}),
     ...(agent.sourceSearchAlternateReason ? { sourceSearchAlternateReason: agent.sourceSearchAlternateReason } : {}),
     ...(agent.sourceSearchAlternateChoices.length > 0 ? { sourceSearchAlternateChoices: compactAgentCommandList(agent.sourceSearchAlternateChoices, 900) } : {}),
     evidenceQualityScore: agent.evidenceQualityScore,

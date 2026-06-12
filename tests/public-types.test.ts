@@ -440,9 +440,14 @@ describe("public agent types", () => {
       | "sourceSearchSelectedTitle"
       | "sourceSearchSelectedUrl"
       | "sourceSearchSelectedHost"
+      | "sourceSearchSelectedSource"
       | "sourceSearchSelectedPath"
       | "sourceSearchSelectedOpenResult"
+      | "sourceSearchSelectedCommand"
       | "sourceSearchSelectedCommandArgs"
+      | "sourceSearchSelectedSourceScore"
+      | "sourceSearchSelectedRelevance"
+      | "sourceSearchSelectedLikelyOfficial"
       | "sourceSearchSelectedReason"
       | "sourceSearchFailureCode"
       | "sourceSearchFailureStatus"
@@ -453,9 +458,14 @@ describe("public agent types", () => {
       | "sourceSearchAlternateTitle"
       | "sourceSearchAlternateUrl"
       | "sourceSearchAlternateHost"
+      | "sourceSearchAlternateSource"
       | "sourceSearchAlternateRank"
       | "sourceSearchAlternateOpenResult"
+      | "sourceSearchAlternateCommand"
       | "sourceSearchAlternateCommandArgs"
+      | "sourceSearchAlternateSourceScore"
+      | "sourceSearchAlternateRelevance"
+      | "sourceSearchAlternateLikelyOfficial"
       | "sourceSearchAlternateReason"
       | "sourceSearchAlternateChoices"
       | "verificationFoundQueries"
@@ -1327,9 +1337,14 @@ describe("public agent types", () => {
       sourceSearchSelectedTitle: "ax-grep documentation",
       sourceSearchSelectedUrl: "https://source.example/result",
       sourceSearchSelectedHost: "source.example",
+      sourceSearchSelectedSource: "source.example",
       sourceSearchSelectedPath: "sourceSearch.selectedResult",
       sourceSearchSelectedOpenResult: 2,
+      sourceSearchSelectedCommand: "ax-grep --search 'ax-grep docs' --open-result 2 --agent",
       sourceSearchSelectedCommandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "2", "--agent"],
+      sourceSearchSelectedSourceScore: 0.91,
+      sourceSearchSelectedRelevance: "high",
+      sourceSearchSelectedLikelyOfficial: true,
       sourceSearchSelectedReason: "Selected source result.",
       sourceSearchFailureCode: "HTTP_ERROR",
       sourceSearchFailureStatus: 403,
@@ -1340,9 +1355,14 @@ describe("public agent types", () => {
       sourceSearchAlternateTitle: "ax-grep mirror",
       sourceSearchAlternateUrl: "https://mirror.example/result",
       sourceSearchAlternateHost: "mirror.example",
+      sourceSearchAlternateSource: "mirror.example",
       sourceSearchAlternateRank: 3,
       sourceSearchAlternateOpenResult: 3,
+      sourceSearchAlternateCommand: "ax-grep --search 'ax-grep docs' --open-result 3 --agent",
       sourceSearchAlternateCommandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "3", "--agent"],
+      sourceSearchAlternateSourceScore: 0.64,
+      sourceSearchAlternateRelevance: "medium",
+      sourceSearchAlternateLikelyOfficial: false,
       sourceSearchAlternateReason: "Alternate source result.",
       sourceSearchAlternateChoices: [{
         id: "a3",
@@ -1988,9 +2008,17 @@ describe("public agent types", () => {
     expect(summary.sourceSearchQuery).toBe("ax-grep docs");
     expect(summary.sourceSearchTopFindQuery).toBe("install");
     expect(summary.sourceSearchSelectedTitle).toBe("ax-grep documentation");
+    expect(summary.sourceSearchSelectedCommand).toContain("--open-result 2");
+    expect(summary.sourceSearchSelectedSourceScore).toBe(0.91);
+    expect(summary.sourceSearchSelectedRelevance).toBe("high");
+    expect(summary.sourceSearchSelectedLikelyOfficial).toBe(true);
     expect(summary.sourceSearchSelectedCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.sourceSearchAlternateCount).toBe(1);
     expect(summary.sourceSearchAlternatePath).toBe("sourceSearch.alternateResults[0]");
+    expect(summary.sourceSearchAlternateCommand).toContain("--open-result 3");
+    expect(summary.sourceSearchAlternateSourceScore).toBe(0.64);
+    expect(summary.sourceSearchAlternateRelevance).toBe("medium");
+    expect(summary.sourceSearchAlternateLikelyOfficial).toBe(false);
     expect(summary.sourceSearchAlternateChoices?.[0]?.path).toBe("sourceSearch.alternateResults[0]");
     expect(summary.topActionName).toBe("read-content");
     expect(summary.topActionPriorityReason).toBe("Readable content is available.");
