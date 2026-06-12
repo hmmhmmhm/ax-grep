@@ -261,10 +261,10 @@ describe("cli", () => {
               <p>Example content for agent routing.</p>
               <table aria-label="Metrics" aria-rowcount="100" aria-colcount="4">
                 <thead>
-                  <tr><th>Metric</th><th>Value</th></tr>
+                  <tr><th id="metric-header">Metric</th><th id="value-header">Value</th></tr>
                 </thead>
                 <tbody>
-                  <tr aria-rowindex="2"><td aria-colindex="1" rowspan="2" colspan="2">Latency</td><td aria-colindex="3">120 ms</td></tr>
+                  <tr aria-rowindex="2"><td aria-colindex="1" rowspan="2" colspan="2" headers="metric-header">Latency</td><td aria-colindex="3" headers="metric-header value-header">120 ms</td></tr>
                 </tbody>
               </table>
               <ul aria-label="Highlights">
@@ -455,8 +455,8 @@ describe("cli", () => {
               headers: ["Metric", "Value"],
               sampleCells: ["Latency", "120 ms"],
               sampleCellRefs: [
-                { text: "Latency", rowIndex: 2, columnIndex: 1, rowSpan: 2, columnSpan: 2, selector: "td" },
-                { text: "120 ms", rowIndex: 2, columnIndex: 3, selector: "td:nth-of-type(2)" },
+                { text: "Latency", rowIndex: 2, columnIndex: 1, rowSpan: 2, columnSpan: 2, headers: ["Metric"], selector: "td" },
+                { text: "120 ms", rowIndex: 2, columnIndex: 3, headers: ["Metric", "Value"], selector: "td:nth-of-type(2)" },
               ],
               selector: "table",
             }),
@@ -628,8 +628,8 @@ describe("cli", () => {
         semanticTopTableHeaders: ["Metric", "Value"],
         semanticTopTableSampleCells: ["Latency", "120 ms"],
         semanticTopTableSampleCellRefs: [
-          { text: "Latency", rowIndex: 2, columnIndex: 1, rowSpan: 2, columnSpan: 2, selector: "td" },
-          { text: "120 ms", rowIndex: 2, columnIndex: 3, selector: "td:nth-of-type(2)" },
+          { text: "Latency", rowIndex: 2, columnIndex: 1, rowSpan: 2, columnSpan: 2, headers: ["Metric"], selector: "td" },
+          { text: "120 ms", rowIndex: 2, columnIndex: 3, headers: ["Metric", "Value"], selector: "td:nth-of-type(2)" },
         ],
         semanticTopTableSelector: "table",
         semanticTopListRole: "list",

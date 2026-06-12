@@ -1713,7 +1713,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopTableDeclaredColumnCount?: number;
       semanticTopTableHeaders?: string[];
       semanticTopTableSampleCells?: string[];
-      semanticTopTableSampleCellRefs?: Array<{ text?: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; selector?: string }>;
+      semanticTopTableSampleCellRefs?: Array<{ text?: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; selector?: string }>;
       semanticTopTableSelector?: string;
       semanticTopListRole?: string;
       semanticTopListPath?: string;
@@ -4956,7 +4956,7 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopTableDeclaredColumnCount?: number;
   semanticTopTableHeaders?: string[];
   semanticTopTableSampleCells?: string[];
-  semanticTopTableSampleCellRefs?: Array<{ text?: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; selector?: string }>;
+  semanticTopTableSampleCellRefs?: Array<{ text?: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; selector?: string }>;
   semanticTopTableSelector?: string;
   semanticTopListRole?: string;
   semanticTopListPath?: string;

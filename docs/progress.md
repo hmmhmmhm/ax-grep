@@ -16,10 +16,10 @@ percentage as a fixed contract.
 | Process safety | 85% | `AGENTS.md`, `pnpm check:processes`, and non-browser gates are in place. |
 | Search result handoff | 80% | Result choices, source hints, verification, and command args are exposed. |
 | Page check handoff | 78% | Forms, action targets, hidden signals, barriers, and read targets are exposed. |
-| Semantic accessibility signals | 74% | Landmarks, headings, links, buttons, fields, values, relations, choices, states, and list item refs are exposed. |
+| Semantic accessibility signals | 75% | Landmarks, headings, links, buttons, fields, values, relations, choices, states, list item refs, and table cell header refs are exposed. |
 | Browser-tree parity research | 60% | Static gates exist; browser-backed checks must stay sequential and limited. |
 
-Overall estimate: 77%. This is intentionally conservative because the final
+Overall estimate: 78%. This is intentionally conservative because the final
 goal is comparative usefulness, not just passing the current tests.
 
 ## Done
@@ -32,6 +32,8 @@ goal is comparative usefulness, not just passing the current tests.
   resolved text.
 - Added list item refs with role, position, set size, current, selected, and
   expanded state for list/tree/menu navigation.
+- Added table cell header refs so sampled table/grid cells keep resolved
+  `headers` context.
 - Added non-browser fixture gates and readiness audits for repeatable checks.
 - Added process-safety guidance: run tests and browser-backed checks
   sequentially, and verify process cleanup.
@@ -46,7 +48,7 @@ goal is comparative usefulness, not just passing the current tests.
 - Add missing top-level shortcuts only when they improve agent routing or
   reduce the need for browser handoff.
 - Improve table/grid summaries where browser trees expose useful ownership or
-  navigation context not already covered by row/column refs.
+  navigation context not already covered by row/column/header refs.
 - Track cases where static HTML should stop and recommend browser capture
   instead of guessing.
 
