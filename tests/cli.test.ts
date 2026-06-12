@@ -4259,6 +4259,16 @@ describe("cli", () => {
       semanticTopState: "current=page",
       semanticTopStateCurrent: "page",
       semanticTopStateSelector: "a",
+      semanticTopModalStateRole: "dialog",
+      semanticTopModalStatePath: "agent.semanticSummary.stateItems[2]",
+      semanticTopModalStateName: "Filter reports",
+      semanticTopModalState: "modal=true",
+      semanticTopModalStateSelector: "#filters",
+      semanticTopLiveStateRole: "status",
+      semanticTopLiveStatePath: "agent.semanticSummary.stateItems[3]",
+      semanticTopLiveState: "live=polite",
+      semanticTopLiveStateLive: "polite",
+      semanticTopLiveStateSelector: "div",
     });
   });
 
@@ -4482,6 +4492,8 @@ describe("cli", () => {
           <p id="q-details">Search across public and private archive records.</p>
           <p id="q-error">Use at least two letters.</p>
           <div id="suggestion-1" role="option" aria-selected="true" aria-current="page" aria-level="2">Quarterly reports</div>
+          <dialog id="filters" open aria-label="Filter reports" aria-modal="true"></dialog>
+          <div role="status" aria-live="polite">Saved</div>
           <p>Readable page content for relation routing.</p>
         </main>
       `, { headers: { "content-type": "text/html" } }),
@@ -4589,6 +4601,8 @@ describe("cli", () => {
           <p id="q-details">Search across public and private archive records.</p>
           <p id="q-error">Use at least two letters.</p>
           <div id="suggestion-1" role="option" aria-selected="true" aria-current="page" aria-level="2">Quarterly reports</div>
+          <dialog id="filters" open aria-label="Filter reports" aria-modal="true"></dialog>
+          <div role="status" aria-live="polite">Saved</div>
           <p>Readable page content for relation routing.</p>
         </main>
       `, { headers: { "content-type": "text/html" } }),
@@ -4615,6 +4629,14 @@ describe("cli", () => {
       semanticTopStateHaspopup: "listbox",
       semanticTopStateControls: "category",
       semanticTopStateSelector: "#q",
+      semanticTopModalStateRole: "dialog",
+      semanticTopModalStateName: "Filter reports",
+      semanticTopModalState: "modal=true",
+      semanticTopModalStateSelector: "#filters",
+      semanticTopLiveStateRole: "status",
+      semanticTopLiveState: "live=polite",
+      semanticTopLiveStateLive: "polite",
+      semanticTopLiveStateSelector: "div:nth-of-type(3)",
     });
   });
 

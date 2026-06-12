@@ -19,8 +19,34 @@ type Check = {
   pass: boolean;
 };
 
-const fixtureUrl = "https://fixture.local/browser-parity";
-const fixtureHtml = `<!doctype html>
+type Fixture = {
+  id: string;
+  url: string;
+  html: string;
+  checks: (namedRoles: string[], nodes: SemanticNode[], agent: AgentSummary) => Check[];
+};
+
+type FixtureResult = {
+  fixture: string;
+  browser: {
+    nodeCount: number;
+    namedRoleCount: number;
+    namedRoles: string[];
+  };
+  agent: Record<string, unknown>;
+  checks: Check[];
+  gate: {
+    pass: boolean;
+    failed: string[];
+  };
+};
+
+const fixtures: Fixture[] = [
+  {
+    id: "core-static-accessibility",
+    url: "https://fixture.local/browser-parity/core",
+    checks: buildCoreChecks,
+    html: `<!doctype html>
 <html lang="en">
   <head>
     <title>Browser parity fixture</title>
@@ -61,14 +87,56 @@ const fixtureHtml = `<!doctype html>
       </figure>
     </main>
   </body>
-</html>`;
+</html>`,
+  },
+  {
+    id: "stateful-overlay-links",
+    url: "https://fixture.local/browser-parity/stateful-overlay",
+    checks: buildStatefulOverlayChecks,
+    html: `<!doctype html>
+<html lang="en">
+  <head>
+    <title>Stateful overlay fixture</title>
+  </head>
+  <body>
+    <main>
+      <button aria-expanded="true" aria-haspopup="dialog" aria-controls="settings-panel">Settings</button>
+      <section id="settings-panel" role="dialog" aria-label="Settings panel" aria-modal="true">
+        <p aria-live="polite">Saved settings</p>
+        <a href="/current" aria-current="page">Current page</a>
+      </section>
+    </main>
+  </body>
+</html>`,
+  },
+];
 
 const browser = await puppeteer.launch({ headless: true });
 
 try {
-  const page = await browser.newPage();
+  const results: FixtureResult[] = [];
+  for (const fixture of fixtures) {
+    results.push(await runFixture(browser, fixture));
+  }
+  const failed = results.flatMap((result) => result.gate.failed.map((id) => `${result.fixture}:${id}`));
+  console.log(JSON.stringify({
+    generatedAt: new Date().toISOString(),
+    fixtureCount: fixtures.length,
+    results,
+    gate: {
+      pass: failed.length === 0,
+      failed,
+    },
+  }, null, 2));
+  if (failed.length > 0) process.exitCode = 1;
+} finally {
+  await browser.close();
+}
+
+async function runFixture(activeBrowser: Awaited<ReturnType<typeof puppeteer.launch>>, fixture: Fixture): Promise<FixtureResult> {
+  const page = await activeBrowser.newPage();
   try {
-    await page.setContent(fixtureHtml, { waitUntil: "domcontentloaded" });
+    await page.setContent(fixture.html, { waitUntil: "domcontentloaded" });
     const browserTree = await page.evaluate(
       createExtractorScript({
         mode: "compact",
@@ -80,47 +148,35 @@ try {
     ) as SemanticNode;
     const browserSummary = summarizeSemanticTree(browserTree);
     const browserNodes = flattenSemanticTree(browserTree);
-    const agent = await runAgentBrief();
-    const checks = buildChecks(browserSummary.namedRoles, browserNodes, agent);
+    const agent = await runAgentBrief(fixture);
+    const checks = fixture.checks(browserSummary.namedRoles, browserNodes, agent);
     const failed = checks.filter((check) => !check.pass);
-    console.log(JSON.stringify({
-      generatedAt: new Date().toISOString(),
-      fixture: fixtureUrl,
+    return {
+      fixture: fixture.id,
       browser: {
         nodeCount: browserSummary.nodeCount,
         namedRoleCount: browserSummary.namedRoles.length,
         namedRoles: browserSummary.namedRoles,
       },
-      agent: {
-        status: agent.status,
-        semanticNodeCount: agent.semanticNodeCount,
-        semanticNamedRoleCount: agent.semanticNamedRoleCount,
-        semanticTopTableName: agent.semanticTopTableName,
-        semanticTopFieldName: agent.semanticTopFieldName,
-        semanticTopButtonName: agent.semanticTopButtonName,
-        semanticTopKeyboardShortcutName: agent.semanticTopKeyboardShortcutName,
-      },
+      agent: summarizeAgent(agent),
       checks,
       gate: {
         pass: failed.length === 0,
         failed: failed.map((check) => check.id),
       },
-    }, null, 2));
-    if (failed.length > 0) process.exitCode = 1;
+    };
   } finally {
     await page.close();
   }
-} finally {
-  await browser.close();
 }
 
-async function runAgentBrief(): Promise<AgentSummary> {
+async function runAgentBrief(fixture: Fixture): Promise<AgentSummary> {
   const stdout = createMemoryWriter();
   const stderr = createMemoryWriter();
-  const status = await runCli([fixtureUrl, "--stdin", "--agent-brief"], {
+  const status = await runCli([fixture.url, "--stdin", "--agent-brief"], {
     stdout,
     stderr,
-    stdin: Readable.from([fixtureHtml]) as NodeJS.ReadStream,
+    stdin: Readable.from([fixture.html]) as NodeJS.ReadStream,
   });
   if (status !== 0) {
     throw new Error(`ax-grep --agent-brief exited ${status}: ${trim(stderr.output || stdout.output)}`);
@@ -130,7 +186,40 @@ async function runAgentBrief(): Promise<AgentSummary> {
   return envelope.agent;
 }
 
-function buildChecks(namedRoles: string[], nodes: SemanticNode[], agent: AgentSummary): Check[] {
+function summarizeAgent(agent: AgentSummary): Record<string, unknown> {
+  return {
+    status: agent.status,
+    semanticNodeCount: agent.semanticNodeCount,
+    semanticNamedRoleCount: agent.semanticNamedRoleCount,
+    semanticTopTableName: agent.semanticTopTableName,
+    semanticTopFieldName: agent.semanticTopFieldName,
+    semanticTopButtonName: agent.semanticTopButtonName,
+    semanticTopButtonExpanded: agent.semanticTopButtonExpanded,
+    semanticTopButtonHaspopup: agent.semanticTopButtonHaspopup,
+    semanticTopButtonControls: agent.semanticTopButtonControls,
+    semanticTopLinkName: agent.semanticTopLinkName,
+    semanticTopLinkCurrent: agent.semanticTopLinkCurrent,
+    semanticTopStateRole: agent.semanticTopStateRole,
+    semanticTopStateName: agent.semanticTopStateName,
+    semanticTopStateExpanded: agent.semanticTopStateExpanded,
+    semanticTopStateHaspopup: agent.semanticTopStateHaspopup,
+    semanticTopStateControls: agent.semanticTopStateControls,
+    semanticTopStateCurrent: agent.semanticTopStateCurrent,
+    semanticTopStateLive: agent.semanticTopStateLive,
+    semanticTopStateModal: agent.semanticTopStateModal,
+    semanticTopModalStateRole: agent.semanticTopModalStateRole,
+    semanticTopModalStateName: agent.semanticTopModalStateName,
+    semanticTopModalState: agent.semanticTopModalState,
+    semanticTopModalStateSelector: agent.semanticTopModalStateSelector,
+    semanticTopLiveStateRole: agent.semanticTopLiveStateRole,
+    semanticTopLiveState: agent.semanticTopLiveState,
+    semanticTopLiveStateLive: agent.semanticTopLiveStateLive,
+    semanticTopLiveStateSelector: agent.semanticTopLiveStateSelector,
+    semanticTopKeyboardShortcutName: agent.semanticTopKeyboardShortcutName,
+  };
+}
+
+function buildCoreChecks(namedRoles: string[], nodes: SemanticNode[], agent: AgentSummary): Check[] {
   return [
     {
       id: "heading-link-button-field-image-parity",
@@ -210,6 +299,74 @@ function buildChecks(namedRoles: string[], nodes: SemanticNode[], agent: AgentSu
         && Array.isArray(agent.semanticTopKeyboardShortcutKeys)
         && agent.semanticTopKeyboardShortcutKeys.includes("Alt+S")
         && typeof agent.semanticTopKeyboardShortcutSelector === "string",
+    },
+  ];
+}
+
+function buildStatefulOverlayChecks(namedRoles: string[], nodes: SemanticNode[], agent: AgentSummary): Check[] {
+  const button = nodes.find((node) => node.role === "button" && node.name === "Settings");
+  const link = nodes.find((node) => node.role === "link" && node.name === "Current page");
+  const dialog = nodes.find((node) => node.role === "dialog" && node.name === "Settings panel");
+  const live = nodes.find((node) => node.state?.live === "polite");
+  return [
+    {
+      id: "expanded-popup-controls-parity",
+      browserEvidence: JSON.stringify({
+        namedRoles: evidence(namedRoles, ["button:Settings", "dialog:Settings panel"]),
+        expanded: button?.state?.expanded,
+        haspopup: button?.state?.haspopup,
+        controls: button?.state?.controls,
+      }),
+      agentEvidence: JSON.stringify({
+        button: agent.semanticTopButtonName,
+        expanded: agent.semanticTopButtonExpanded,
+        haspopup: agent.semanticTopButtonHaspopup,
+        controls: agent.semanticTopButtonControls,
+      }),
+      decision: "covered",
+      pass: includesAll(namedRoles, ["button:Settings", "dialog:Settings panel"])
+        && button?.state?.expanded === true
+        && button?.state?.haspopup === "dialog"
+        && button?.state?.controls === "settings-panel"
+        && agent.semanticTopButtonName === "Settings"
+        && agent.semanticTopButtonExpanded === true
+        && agent.semanticTopButtonHaspopup === "dialog"
+        && agent.semanticTopButtonControls === "settings-panel",
+    },
+    {
+      id: "current-link-modal-live-state-parity",
+      browserEvidence: JSON.stringify({
+        namedRoles: evidence(namedRoles, ["link:Current page", "dialog:Settings panel"]),
+        current: link?.state?.current,
+        modal: dialog?.state?.modal,
+        live: live?.state?.live,
+      }),
+      agentEvidence: JSON.stringify({
+        link: agent.semanticTopLinkName,
+        current: agent.semanticTopLinkCurrent,
+        stateRole: agent.semanticTopStateRole,
+        stateName: agent.semanticTopStateName,
+        stateCurrent: agent.semanticTopStateCurrent,
+        stateModal: agent.semanticTopStateModal,
+        stateLive: agent.semanticTopStateLive,
+        modalRole: agent.semanticTopModalStateRole,
+        modalName: agent.semanticTopModalStateName,
+        modalState: agent.semanticTopModalState,
+        liveRole: agent.semanticTopLiveStateRole,
+        liveState: agent.semanticTopLiveState,
+        liveValue: agent.semanticTopLiveStateLive,
+      }),
+      decision: "covered",
+      pass: includesAll(namedRoles, ["link:Current page", "dialog:Settings panel"])
+        && link?.state?.current === "page"
+        && dialog?.state?.modal === true
+        && live?.state?.live === "polite"
+        && agent.semanticTopLinkName === "Current page"
+        && agent.semanticTopLinkCurrent === "page"
+        && agent.semanticTopModalStateRole === "dialog"
+        && agent.semanticTopModalStateName === "Settings panel"
+        && agent.semanticTopModalState === "modal=true"
+        && agent.semanticTopLiveStateLive === "polite",
     },
   ];
 }

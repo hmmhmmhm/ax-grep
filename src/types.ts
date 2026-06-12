@@ -872,6 +872,17 @@ export type AgentSummary = {
   semanticTopStateValueNow?: number;
   semanticTopStateValueText?: string;
   semanticTopStateSelector?: string;
+  semanticTopModalStateRole?: string;
+  semanticTopModalStatePath?: string;
+  semanticTopModalStateName?: string;
+  semanticTopModalState?: string;
+  semanticTopModalStateSelector?: string;
+  semanticTopLiveStateRole?: string;
+  semanticTopLiveStatePath?: string;
+  semanticTopLiveStateName?: string;
+  semanticTopLiveState?: string;
+  semanticTopLiveStateLive?: string;
+  semanticTopLiveStateSelector?: string;
   semanticTopUnavailablePath?: string;
   semanticTopUnavailableTag?: string;
   semanticTopUnavailableRole?: string;

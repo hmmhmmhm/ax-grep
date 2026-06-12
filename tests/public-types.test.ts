@@ -764,6 +764,17 @@ describe("public agent types", () => {
       | "semanticTopStateValueNow"
       | "semanticTopStateValueText"
       | "semanticTopStateSelector"
+      | "semanticTopModalStateRole"
+      | "semanticTopModalStatePath"
+      | "semanticTopModalStateName"
+      | "semanticTopModalState"
+      | "semanticTopModalStateSelector"
+      | "semanticTopLiveStateRole"
+      | "semanticTopLiveStatePath"
+      | "semanticTopLiveStateName"
+      | "semanticTopLiveState"
+      | "semanticTopLiveStateLive"
+      | "semanticTopLiveStateSelector"
       | "semanticTopUnavailablePath"
       | "semanticTopUnavailableTag"
       | "semanticTopUnavailableRole"
@@ -1517,6 +1528,17 @@ describe("public agent types", () => {
       semanticTopStateValueNow: 40,
       semanticTopStateValueText: "40 percent",
       semanticTopStateSelector: "input[name=\"email\"]",
+      semanticTopModalStateRole: "dialog",
+      semanticTopModalStatePath: "agent.semanticSummary.stateItems[1]",
+      semanticTopModalStateName: "Details",
+      semanticTopModalState: "modal=true",
+      semanticTopModalStateSelector: "#details",
+      semanticTopLiveStateRole: "status",
+      semanticTopLiveStatePath: "agent.semanticSummary.stateItems[2]",
+      semanticTopLiveStateName: "Sync status",
+      semanticTopLiveState: "live=polite",
+      semanticTopLiveStateLive: "polite",
+      semanticTopLiveStateSelector: "#sync-status",
       semanticTopUnavailablePath: "agent.semanticSummary.unavailableItems[0]",
       semanticTopUnavailableTag: "iframe",
       semanticTopUnavailableRole: "iframe",
