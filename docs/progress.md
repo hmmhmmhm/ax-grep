@@ -3,7 +3,7 @@
 Status: about 99.2% fit for the goal of making `ax-grep --agent` a useful
 first-pass page/search checker before `agent-browser`.
 
-Last updated: 2026-06-13.
+Last updated: 2026-06-14.
 
 This is a research track, so the target can expand when comparison work finds a
 new class of browser accessibility-tree signal that static HTML can expose
@@ -785,6 +785,9 @@ When research expands:
 - Counted all focused page content toward `pageCheck.contentLength` while
   keeping previews/evidence capped, so text-heavy fetched pages are not
   under-scored as thin content.
+- Tightened readiness audit coverage for controls target shortcuts so
+  interactive, focusable, button, field, selected-choice, and state outputs
+  must keep target role/name/selector fields wired through types and tests.
 
 ## In Progress
 
