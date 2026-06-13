@@ -2461,6 +2461,9 @@ export type AgentSummary = {
   recommendedRank?: number;
   recommendedSource?: string;
   recommendedSourceScore?: number;
+  recommendedDateText?: string;
+  recommendedDatePrecision?: "day" | "month" | "year";
+  recommendedDateSource?: "title" | "snippet";
   recommendedRelevance?: AgentTarget["relevance"];
   recommendedLikelyOfficial?: boolean;
   recommendedSelectionReason?: string;

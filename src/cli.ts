@@ -2096,6 +2096,9 @@ type AgentSummary = {
   recommendedRank?: number;
   recommendedSource?: string;
   recommendedSourceScore?: number;
+  recommendedDateText?: string;
+  recommendedDatePrecision?: ResultSummary["datePrecision"];
+  recommendedDateSource?: ResultSummary["dateSource"];
   recommendedRelevance?: ResultSummary["relevance"];
   recommendedLikelyOfficial?: boolean;
   recommendedSelectionReason?: string;
@@ -4340,6 +4343,9 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.recommendedRank) lines.push(`  recommendedRank: ${agent.recommendedRank}`);
   if (agent.recommendedSource) lines.push(`  recommendedSource: ${agent.recommendedSource}`);
   if (typeof agent.recommendedSourceScore === "number") lines.push(`  recommendedSourceScore: ${agent.recommendedSourceScore}`);
+  if (agent.recommendedDateText) lines.push(`  recommendedDateText: ${agent.recommendedDateText}`);
+  if (agent.recommendedDatePrecision) lines.push(`  recommendedDatePrecision: ${agent.recommendedDatePrecision}`);
+  if (agent.recommendedDateSource) lines.push(`  recommendedDateSource: ${agent.recommendedDateSource}`);
   if (agent.recommendedRelevance) lines.push(`  recommendedRelevance: ${agent.recommendedRelevance}`);
   if (typeof agent.recommendedLikelyOfficial === "boolean") lines.push(`  recommendedLikelyOfficial: ${agent.recommendedLikelyOfficial}`);
   if (agent.recommendedSelectionReason) lines.push(`  recommendedSelectionReason: ${agent.recommendedSelectionReason}`);
@@ -12966,6 +12972,9 @@ function summarizeAgent(
     agent.recommendedRank = recommendedResult.rank;
     agent.recommendedSource = recommendedResult.source;
     if (typeof recommendedResult.sourceScore === "number") agent.recommendedSourceScore = recommendedResult.sourceScore;
+    if (recommendedResult.dateText) agent.recommendedDateText = recommendedResult.dateText;
+    if (recommendedResult.datePrecision) agent.recommendedDatePrecision = recommendedResult.datePrecision;
+    if (recommendedResult.dateSource) agent.recommendedDateSource = recommendedResult.dateSource;
     if (recommendedResult.relevance) agent.recommendedRelevance = recommendedResult.relevance;
     if (typeof recommendedResult.isLikelyOfficial === "boolean") agent.recommendedLikelyOfficial = recommendedResult.isLikelyOfficial;
     agent.recommendedSelectionReason = recommendedResult.selectionReason ?? searchResultSelectionReason(recommendedResult);
@@ -17406,6 +17415,9 @@ function compactAgentRecommended(agent: AgentSummary, searchCommandContext?: Sea
     ...(agent.recommendedRank ? { recommendedRank: agent.recommendedRank } : {}),
     ...(agent.recommendedSource ? { recommendedSource: agent.recommendedSource } : {}),
     ...(typeof agent.recommendedSourceScore === "number" ? { recommendedSourceScore: agent.recommendedSourceScore } : {}),
+    ...(agent.recommendedDateText ? { recommendedDateText: agent.recommendedDateText } : {}),
+    ...(agent.recommendedDatePrecision ? { recommendedDatePrecision: agent.recommendedDatePrecision } : {}),
+    ...(agent.recommendedDateSource ? { recommendedDateSource: agent.recommendedDateSource } : {}),
     ...(agent.recommendedRelevance ? { recommendedRelevance: agent.recommendedRelevance } : {}),
     ...(typeof agent.recommendedLikelyOfficial === "boolean" ? { recommendedLikelyOfficial: agent.recommendedLikelyOfficial } : {}),
     ...(agent.recommendedSelectionReason ? { recommendedSelectionReason: agent.recommendedSelectionReason } : {}),
