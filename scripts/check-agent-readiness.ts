@@ -247,6 +247,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "sourceSearchAlternateCommandArgs",
           "executorBrowserHtmlReasonCode",
           "handoffBrowserHtmlReasonCode",
+          "executorReadValueReferencePath",
+          "handoffReadValueReferencePath",
         ]);
         requireFileIncludes(root, failures, "docs/comparison-baseline.md", [
           "minCliAgentScore",
@@ -1553,6 +1555,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "A111",
           "A112",
           "A113",
+          "A114",
         ]);
       },
     ),

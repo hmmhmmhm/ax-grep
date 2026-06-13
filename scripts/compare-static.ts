@@ -224,6 +224,8 @@ type CliAgentNextShape = CliActionShape & {
     path?: string;
     value?: unknown;
     valuePath?: string;
+    valueType?: "array" | "object";
+    count?: number;
   };
   browserHtml?: CliAgentBrowserHtmlShape;
 };
@@ -252,6 +254,8 @@ type CliAgentRunbookShape = {
     path?: string;
     value?: unknown;
     valuePath?: string;
+    valueType?: "array" | "object";
+    count?: number;
   };
   url?: string;
   urlRef?: string;
@@ -283,6 +287,8 @@ type CliAgentExecutorShape = {
     path?: string;
     value?: unknown;
     valuePath?: string;
+    valueType?: "array" | "object";
+    count?: number;
   };
   url?: string;
   urlRef?: string;
@@ -320,6 +326,9 @@ type CliAgentHandoffShape = {
   readValue?: {
     path?: string;
     value?: unknown;
+    valuePath?: string;
+    valueType?: "array" | "object";
+    count?: number;
   };
   command?: string;
   commandArgs?: unknown[];
@@ -1697,6 +1706,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       executorTerminal?: boolean;
       executorCommandArgs?: string[];
       executorReadFrom?: string;
+      executorReadValuePath?: string;
+      executorReadValueType?: string;
+      executorReadValueCount?: number;
+      executorReadValueReferencePath?: string;
       executorUrl?: string;
       executorTargetUrl?: string;
       executorTargetPath?: string;
@@ -1723,6 +1736,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       handoffPriorityReason?: string;
       handoffCommandArgs?: string[];
       handoffReadFrom?: string;
+      handoffReadValuePath?: string;
+      handoffReadValueType?: string;
+      handoffReadValueCount?: number;
+      handoffReadValueReferencePath?: string;
       handoffUrl?: string;
       handoffTargetUrl?: string;
       handoffTargetPath?: string;
@@ -3345,6 +3362,31 @@ function scoreHandoffReadValueDetails(readFrom: string | undefined, readValue: {
       && typeof item.name === "string"
       && (typeof item.targetUrl === "string" || typeof item.urlTemplate === "string");
   }) ? 1 : 0;
+}
+
+function agentReadValueKind(readValue: { value?: unknown; valuePath?: string; valueType?: string } | undefined): string | undefined {
+  if (!readValue) return undefined;
+  if (typeof readValue.valuePath === "string") return readValue.valueType;
+  if (typeof readValue.value !== "undefined") {
+    if (Array.isArray(readValue.value)) return "array";
+    if (readValue.value === null) return "null";
+    return typeof readValue.value;
+  }
+  return undefined;
+}
+
+function agentReadValueCount(readValue: { value?: unknown; valueType?: string; count?: number } | undefined): number | undefined {
+  if (!readValue) return undefined;
+  if (readValue.valueType === "array") return readValue.count;
+  if (typeof readValue.value === "undefined") return undefined;
+  if (Array.isArray(readValue.value)) return readValue.value.length;
+  return undefined;
+}
+
+function agentReadValueReferencePath(readValue: { path?: string; value?: unknown; valuePath?: string } | undefined): string | undefined {
+  if (!readValue) return undefined;
+  if (typeof readValue.valuePath === "string") return readValue.valuePath;
+  return undefined;
 }
 
 function scoreAgentHandoff(
@@ -9081,6 +9123,10 @@ function scoreAgentExecutorShortcuts(agent: {
   executorReadTargetScore?: number;
   executorReadTargetPrimary?: boolean;
   executorReadTargetReason?: string;
+  executorReadValuePath?: string;
+  executorReadValueType?: string;
+  executorReadValueCount?: number;
+  executorReadValueReferencePath?: string;
   executorUrl?: string;
   executorTargetUrl?: string;
   executorTargetPath?: string;
@@ -9119,6 +9165,15 @@ function scoreAgentExecutorShortcuts(agent: {
     if (agent.executorReadFrom === executor.readFrom) matched += 1;
   } else if (agent.executorReadFrom) {
     required += 1;
+  }
+  if (executor.readValue) {
+    required += 4;
+    if (agent.executorReadValuePath === executor.readValue.path) matched += 1;
+    if (agent.executorReadValueType === agentReadValueKind(executor.readValue)) matched += 1;
+    if (agent.executorReadValueCount === agentReadValueCount(executor.readValue)) matched += 1;
+    if (agent.executorReadValueReferencePath === agentReadValueReferencePath(executor.readValue)) matched += 1;
+  } else if (agent.executorReadValuePath || agent.executorReadValueType || typeof agent.executorReadValueCount === "number" || agent.executorReadValueReferencePath) {
+    required += 4;
   }
   if (executor.readTarget?.kind) {
     required += 1;
@@ -9247,6 +9302,10 @@ function scoreAgentHandoffShortcuts(agent: {
   handoffReadTargetScore?: number;
   handoffReadTargetPrimary?: boolean;
   handoffReadTargetReason?: string;
+  handoffReadValuePath?: string;
+  handoffReadValueType?: string;
+  handoffReadValueCount?: number;
+  handoffReadValueReferencePath?: string;
   handoffUrl?: string;
   handoffTargetUrl?: string;
   handoffTargetPath?: string;
@@ -9298,6 +9357,15 @@ function scoreAgentHandoffShortcuts(agent: {
     if (agent.handoffReadFrom === handoff.readFrom) matched += 1;
   } else if (agent.handoffReadFrom) {
     required += 1;
+  }
+  if (handoff.readValue) {
+    required += 4;
+    if (agent.handoffReadValuePath === handoff.readValue.path) matched += 1;
+    if (agent.handoffReadValueType === agentReadValueKind(handoff.readValue)) matched += 1;
+    if (agent.handoffReadValueCount === agentReadValueCount(handoff.readValue)) matched += 1;
+    if (agent.handoffReadValueReferencePath === agentReadValueReferencePath(handoff.readValue)) matched += 1;
+  } else if (agent.handoffReadValuePath || agent.handoffReadValueType || typeof agent.handoffReadValueCount === "number" || agent.handoffReadValueReferencePath) {
+    required += 4;
   }
   if (handoff.readTarget?.kind) {
     required += 1;
