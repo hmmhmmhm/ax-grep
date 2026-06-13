@@ -6531,6 +6531,14 @@ describe("cli", () => {
         urlTemplate: "https://example.test/search?q={search_term_string}",
       }),
     ]));
+    expect(envelope.agent).toMatchObject({
+      topChoiceKind: "action-target",
+      topChoicePath: "pageCheck.actionTargets[0]",
+      topChoiceRank: 1,
+      topChoiceSource: "json-ld",
+      topChoiceMethod: "GET",
+      topChoiceSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+    });
     expect(envelope.agent.executor).toMatchObject({
       decision: "return",
       readFrom: "pageCheck.actionTargets",
