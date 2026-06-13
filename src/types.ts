@@ -301,6 +301,74 @@ export type AgentPageCitation = {
   selector?: string;
 };
 
+export type AgentPageBreadcrumbItem = {
+  label: string;
+  url?: string;
+  position?: number;
+};
+
+export type AgentPageBreadcrumb = {
+  id: string;
+  path: string;
+  rank: number;
+  source: "json-ld" | "html";
+  items: AgentPageBreadcrumbItem[];
+  text?: string;
+  selector?: string;
+};
+
+export type AgentPageSection = {
+  id: string;
+  path: string;
+  rank: number;
+  heading: string;
+  level: number;
+  text?: string;
+  excerpts: string[];
+  selector?: string;
+};
+
+export type AgentPagePagination = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "next" | "prev" | "first" | "last" | "page";
+  label: string;
+  text?: string;
+  source: "link" | "html";
+  url?: string;
+  current?: boolean;
+  selector?: string;
+};
+
+export type AgentPageTocItem = {
+  label: string;
+  url?: string;
+  level?: number;
+};
+
+export type AgentPageToc = {
+  id: string;
+  path: string;
+  rank: number;
+  items: AgentPageTocItem[];
+  text?: string;
+  title?: string;
+  selector?: string;
+};
+
+export type AgentPageAuthorLink = {
+  id: string;
+  path: string;
+  rank: number;
+  url: string;
+  text?: string;
+  source: "json-ld" | "link" | "html";
+  name?: string;
+  rel?: string;
+  selector?: string;
+};
+
 export type AgentPageCheck = AgentPageMetadata & {
   contentEvidence: AgentPageEvidence[];
   contentLength: number;
@@ -341,17 +409,17 @@ export type AgentPageCheck = AgentPageMetadata & {
   datasets?: Array<Record<string, unknown>>;
   timeline?: Array<Record<string, unknown>>;
   faqs?: Array<Record<string, unknown>>;
-  breadcrumbs?: Array<Record<string, unknown>>;
-  sections?: Array<Record<string, unknown>>;
-  pagination?: Array<Record<string, unknown>>;
-  toc?: Array<Record<string, unknown>>;
+  breadcrumbs?: AgentPageBreadcrumb[];
+  sections?: AgentPageSection[];
+  pagination?: AgentPagePagination[];
+  toc?: AgentPageToc[];
   codeBlocks?: AgentPageCodeBlock[];
   citations?: AgentPageCitation[];
   media?: AgentPageMedia[];
   resources?: AgentPageResource[];
   embeds?: Array<Record<string, unknown>>;
   transcripts?: Array<Record<string, unknown>>;
-  authorLinks?: Array<Record<string, unknown>>;
+  authorLinks?: AgentPageAuthorLink[];
 };
 
 export type AgentVerification = {

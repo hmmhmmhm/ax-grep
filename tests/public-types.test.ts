@@ -2620,6 +2620,46 @@ describe("public agent types", () => {
           title: "Report",
           type: "application/pdf",
         }],
+        breadcrumbs: [{
+          id: "bc1",
+          path: "pageCheck.breadcrumbs[0]",
+          rank: 1,
+          source: "html",
+          items: [{ label: "Home", url: "https://example.test", position: 1 }],
+        }],
+        sections: [{
+          id: "sec1",
+          path: "pageCheck.sections[0]",
+          rank: 1,
+          heading: "Overview",
+          level: 2,
+          excerpts: ["Example section excerpt."],
+        }],
+        pagination: [{
+          id: "pg1",
+          path: "pageCheck.pagination[0]",
+          rank: 1,
+          kind: "next",
+          label: "Next",
+          source: "link",
+          url: "https://example.test/page/2",
+        }],
+        toc: [{
+          id: "toc1",
+          path: "pageCheck.toc[0]",
+          rank: 1,
+          items: [{ label: "Overview", url: "#overview", level: 2 }],
+          title: "Contents",
+        }],
+        authorLinks: [{
+          id: "author1",
+          path: "pageCheck.authorLinks[0]",
+          rank: 1,
+          url: "https://example.test/authors/ada",
+          source: "link",
+          name: "Ada",
+          rel: "author",
+        }],
         forms: [{
           rank: 1,
           method: "GET",
@@ -2756,6 +2796,11 @@ describe("public agent types", () => {
     expect(envelopeRecommendation.pageCheck.citations?.[0]?.url).toContain("source.example");
     expect(envelopeRecommendation.pageCheck.media?.[0]?.alt).toBe("Hero");
     expect(envelopeRecommendation.pageCheck.resources?.[0]?.type).toBe("application/pdf");
+    expect(envelopeRecommendation.pageCheck.breadcrumbs?.[0]?.items[0]?.label).toBe("Home");
+    expect(envelopeRecommendation.pageCheck.sections?.[0]?.heading).toBe("Overview");
+    expect(envelopeRecommendation.pageCheck.pagination?.[0]?.kind).toBe("next");
+    expect(envelopeRecommendation.pageCheck.toc?.[0]?.items[0]?.level).toBe(2);
+    expect(envelopeRecommendation.pageCheck.authorLinks?.[0]?.rel).toBe("author");
     expect(envelopeRecommendation.pageCheck.forms?.[0]?.fields[0]?.name).toBe("q");
     expect(envelopeRecommendation.pageCheck.actionTargets?.[0]?.urlTemplate).toContain("{query}");
     expect(envelopeRecommendation.pageCheck.nextSteps?.[0]?.sourceLinkRef).toBe("pageCheck.sourceLinks[0]");
