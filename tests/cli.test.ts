@@ -4658,6 +4658,43 @@ describe("cli", () => {
     });
   });
 
+  it("keeps declarative shadow DOM controls in agent brief handoff", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/web-component", "--stdin", "--agent-brief"], {
+      stdout,
+      stdin: Readable.from([`
+        <main>
+          <x-result-card>
+            <template shadowrootmode="open">
+              <h2>Shadow result</h2>
+              <button aria-controls="shadow-panel">Open details</button>
+              <section id="shadow-panel" aria-label="Shadow details">Details body</section>
+            </template>
+          </x-result-card>
+          <template><button>Template payload</button></template>
+        </main>
+      `]) as NodeJS.ReadStream,
+      fetch: async () => {
+        throw new Error("fetch should not run for --stdin");
+      },
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      semanticTopHeading: "Shadow result",
+      semanticTopButtonName: "Open details",
+      semanticTopButtonControls: "shadow-panel",
+      semanticTopButtonControlsTargetRole: "region",
+      semanticTopButtonControlsTargetName: "Shadow details",
+      semanticTopButtonControlsTargetSelector: "#shadow-panel",
+      semanticTopNamedRoleRole: "heading",
+      semanticTopNamedRoleName: "Shadow result",
+    });
+    expect(JSON.stringify(envelope.agent)).not.toContain("Template payload");
+  });
+
   it("summarizes data tables as pageCheck read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/pricing", "--agent"], {

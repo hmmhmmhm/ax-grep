@@ -185,6 +185,11 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "<template shadowrootmode=\"open\">",
           "Template payload",
         ]);
+        requireFileIncludes(root, failures, "tests/cli.test.ts", [
+          "keeps declarative shadow DOM controls in agent brief handoff",
+          "semanticTopButtonControlsTargetSelector",
+          "Shadow details",
+        ]);
       },
     ),
     evidenceCheck(
