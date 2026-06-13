@@ -11309,6 +11309,37 @@ npx ax-grep https://example.test --agent</code></pre>
     });
   });
 
+  it("prints verification follow-up command shortcuts in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli([
+      "https://example.test/article",
+      "--find",
+      "page checking summary",
+      "--find",
+      "not present",
+    ], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <article>
+            <h1>Article heading</h1>
+            <p>This article paragraph is long enough to appear in the page checking summary for agents.</p>
+            <a href="https://source.example/report">Source report</a>
+          </article>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("verification\n  status: partial\n  found: 1/2");
+    expect(stdout.output).toContain("  missing: not present");
+    expect(stdout.output).toContain("  next: open-source-link - Some requested text was not found; inspect the strongest external source link.");
+    expect(stdout.output).toContain("  command: ax-grep 'https://source.example/report' --find 'not present' --json --summary");
+    expect(stdout.output).toContain("  commandArgs: [\"ax-grep\",\"https://source.example/report\",\"--find\",\"not present\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  verificationCommand: ax-grep 'https://source.example/report' --find 'not present' --json --summary");
+    expect(stdout.output).toContain("  verificationCommandArgs: [\"ax-grep\",\"https://source.example/report\",\"--find\",\"not present\",\"--json\",\"--summary\"]");
+  });
+
   it("prints find checks in text output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/article", "--find", "source report"], {

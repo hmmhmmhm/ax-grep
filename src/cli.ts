@@ -4781,6 +4781,10 @@ function formatVerificationText(verification: VerificationSummary): string[] {
     lines.push(`  next: ${verification.recommendedAction.action} - ${verification.recommendedAction.reason}`);
     if (verification.recommendedAction.command) lines.push(`  command: ${verification.recommendedAction.command}`);
     if (verification.recommendedAction.commandArgs) lines.push(`  commandArgs: ${formatCommandArgsText(verification.recommendedAction.commandArgs)}`);
+    if (verification.recommendedAction.command) lines.push(`  verificationCommand: ${verification.recommendedAction.command}`);
+    if (verification.recommendedAction.commandArgs) lines.push(`  verificationCommandArgs: ${formatCommandArgsText(verification.recommendedAction.commandArgs)}`);
+    if (verification.recommendedAction.afterInteractionCommand) lines.push(`  verificationAfterInteractionCommand: ${verification.recommendedAction.afterInteractionCommand}`);
+    if (verification.recommendedAction.afterInteractionCommandArgs) lines.push(`  verificationAfterInteractionCommandArgs: ${formatCommandArgsText(verification.recommendedAction.afterInteractionCommandArgs)}`);
   }
   return lines;
 }
