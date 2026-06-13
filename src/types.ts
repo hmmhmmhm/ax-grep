@@ -248,6 +248,59 @@ export type AgentPageBarrier = {
   selector?: string;
 };
 
+export type AgentPageCodeBlock = {
+  id: string;
+  path: string;
+  rank: number;
+  text?: string;
+  lineCount: number;
+  source: "pre" | "code";
+  language?: string;
+  commandLike?: boolean;
+  selector?: string;
+};
+
+export type AgentPageMedia = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "open-graph" | "figure" | "image";
+  url: string;
+  text?: string;
+  alt?: string;
+  caption?: string;
+  title?: string;
+  width?: number;
+  height?: number;
+  selector?: string;
+};
+
+export type AgentPageResource = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "feed" | "alternate" | "amp" | "license" | "manifest" | "sitemap" | "search" | "document" | "download";
+  url: string;
+  text?: string;
+  title?: string;
+  rel?: string;
+  type?: string;
+  hreflang?: string;
+  selector?: string;
+};
+
+export type AgentPageCitation = {
+  id: string;
+  path: string;
+  rank: number;
+  source: "blockquote" | "cite" | "footnote" | "reference";
+  text?: string;
+  quote?: string;
+  title?: string;
+  url?: string;
+  selector?: string;
+};
+
 export type AgentPageCheck = AgentPageMetadata & {
   contentEvidence: AgentPageEvidence[];
   contentLength: number;
@@ -292,10 +345,10 @@ export type AgentPageCheck = AgentPageMetadata & {
   sections?: Array<Record<string, unknown>>;
   pagination?: Array<Record<string, unknown>>;
   toc?: Array<Record<string, unknown>>;
-  codeBlocks?: Array<Record<string, unknown>>;
-  citations?: Array<Record<string, unknown>>;
-  media?: Array<Record<string, unknown>>;
-  resources?: Array<Record<string, unknown>>;
+  codeBlocks?: AgentPageCodeBlock[];
+  citations?: AgentPageCitation[];
+  media?: AgentPageMedia[];
+  resources?: AgentPageResource[];
   embeds?: Array<Record<string, unknown>>;
   transcripts?: Array<Record<string, unknown>>;
   authorLinks?: Array<Record<string, unknown>>;

@@ -2586,6 +2586,40 @@ describe("public agent types", () => {
           evidence: "Cookie banner detected.",
           source: "content",
         }],
+        codeBlocks: [{
+          id: "code1",
+          path: "pageCheck.codeBlocks[0]",
+          rank: 1,
+          lineCount: 1,
+          source: "pre",
+          language: "bash",
+          commandLike: true,
+        }],
+        citations: [{
+          id: "cite1",
+          path: "pageCheck.citations[0]",
+          rank: 1,
+          source: "reference",
+          title: "Reference",
+          url: "https://source.example/report",
+        }],
+        media: [{
+          id: "m1",
+          path: "pageCheck.media[0]",
+          rank: 1,
+          kind: "image",
+          url: "https://example.test/hero.png",
+          alt: "Hero",
+        }],
+        resources: [{
+          id: "rsc1",
+          path: "pageCheck.resources[0]",
+          rank: 1,
+          kind: "document",
+          url: "https://example.test/report.pdf",
+          title: "Report",
+          type: "application/pdf",
+        }],
         forms: [{
           rank: 1,
           method: "GET",
@@ -2718,6 +2752,10 @@ describe("public agent types", () => {
     expect(envelopeRecommendation.pageCheck.sourceLinks?.[0]?.commandArgs?.[0]).toBe("ax-grep");
     expect(envelopeRecommendation.pageCheck.dataTables?.[0]?.headers[1]).toBe("Price");
     expect(envelopeRecommendation.pageCheck.barriers?.[0]?.kind).toBe("cookie-consent");
+    expect(envelopeRecommendation.pageCheck.codeBlocks?.[0]?.commandLike).toBe(true);
+    expect(envelopeRecommendation.pageCheck.citations?.[0]?.url).toContain("source.example");
+    expect(envelopeRecommendation.pageCheck.media?.[0]?.alt).toBe("Hero");
+    expect(envelopeRecommendation.pageCheck.resources?.[0]?.type).toBe("application/pdf");
     expect(envelopeRecommendation.pageCheck.forms?.[0]?.fields[0]?.name).toBe("q");
     expect(envelopeRecommendation.pageCheck.actionTargets?.[0]?.urlTemplate).toContain("{query}");
     expect(envelopeRecommendation.pageCheck.nextSteps?.[0]?.sourceLinkRef).toBe("pageCheck.sourceLinks[0]");
