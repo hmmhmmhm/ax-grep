@@ -11445,6 +11445,9 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  executorBrowserHtmlReason: Browser-captured HTML or browser inspection is needed.");
     expect(stdout.output).toContain("  executorBrowserHtmlReasonCode: no-inspectable-content");
     expect(stdout.output).toContain("  executorBrowserHtmlUrl: https://example.test");
+    expect(stdout.output).toContain("    reason: The page is not reliably readable from fetched HTML.");
+    expect(stdout.output).toContain("    command: ax-grep 'https://example.test' --html-file captured.html --json --summary");
+    expect(stdout.output).toContain("  executorBrowserHtmlCommand: ax-grep 'https://example.test' --html-file captured.html --json --summary");
     expect(stdout.output).toContain("  executorBrowserHtmlCommandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  handoff: browser/capture-browser-html/low action=retry-with-browser-html priority=high - ");
     expect(stdout.output).toContain("  handoffCommand: ax-grep 'https://example.test' --html-file captured.html --json --summary");
@@ -11456,6 +11459,9 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  handoffBrowserHtmlUrl: https://example.test");
     expect(stdout.output).toContain("  handoffBrowserHtmlFile: captured.html");
     expect(stdout.output).toContain("  handoffBrowserHtmlCaptureScript: document.documentElement.outerHTML");
+    expect(stdout.output).toContain("    reason: The page is not reliably readable from fetched HTML.");
+    expect(stdout.output).toContain("    command: ax-grep 'https://example.test' --html-file captured.html --json --summary");
+    expect(stdout.output).toContain("  handoffBrowserHtmlCommand: ax-grep 'https://example.test' --html-file captured.html --json --summary");
     expect(stdout.output).toContain("  handoffBrowserHtmlCommandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  handoffSignal: browser/warning - Browser-captured HTML is recommended before trusting page content.");
     expect(stdout.output).toContain("  handoffQualityGate: browser fail/warning score=0 path=agent.needsBrowserHtml - Browser-captured HTML or browser inspection is needed.");

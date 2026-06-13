@@ -4145,7 +4145,10 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.executor.browserHtml) {
     lines.push(`  executorBrowserHtml: ${agent.executor.browserHtml.htmlFile} capture=${agent.executor.browserHtml.captureScript}`);
     if (agent.executor.browserHtml.url) lines.push(`  executorBrowserHtmlUrl: ${agent.executor.browserHtml.url}`);
+    if (agent.executor.browserHtml.reason) lines.push(`    reason: ${agent.executor.browserHtml.reason}`);
+    if (agent.executor.browserHtml.command) lines.push(`    command: ${agent.executor.browserHtml.command}`);
     if (agent.executor.browserHtml.commandArgs) lines.push(`  executorBrowserHtmlCommandArgs: ${formatCommandArgsText(agent.executor.browserHtml.commandArgs)}`);
+    if (agent.executor.browserHtml.command) lines.push(`  executorBrowserHtmlCommand: ${agent.executor.browserHtml.command}`);
   }
   if (agent.handoff.readFrom) lines.push(`  handoffReadFrom: ${agent.handoff.readFrom}`);
   if (agent.handoffReadTargetKind) lines.push(`  handoffReadTargetKind: ${agent.handoffReadTargetKind}`);
@@ -4175,6 +4178,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     if (agent.handoff.browserHtml.url) lines.push(`  handoffBrowserHtmlUrl: ${agent.handoff.browserHtml.url}`);
     lines.push(`  handoffBrowserHtmlFile: ${agent.handoff.browserHtml.htmlFile}`);
     lines.push(`  handoffBrowserHtmlCaptureScript: ${agent.handoff.browserHtml.captureScript}`);
+    if (agent.handoff.browserHtml.reason) lines.push(`    reason: ${agent.handoff.browserHtml.reason}`);
     if (agent.handoff.browserHtml.command) lines.push(`    command: ${agent.handoff.browserHtml.command}`);
     if (agent.handoff.browserHtml.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(agent.handoff.browserHtml.commandArgs)}`);
     if (agent.handoff.browserHtml.command) lines.push(`  handoffBrowserHtmlCommand: ${agent.handoff.browserHtml.command}`);

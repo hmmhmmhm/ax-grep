@@ -275,6 +275,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "prints executable action-target commands in text output",
           "topFormChoiceCommandArgs",
           "topActionTargetChoiceCommandArgs",
+          "executorBrowserHtmlCommand:",
+          "handoffBrowserHtmlCommand:",
         ]);
         requireFileIncludes(root, failures, "docs/comparison-baseline.md", [
           "minCliAgentScore",
