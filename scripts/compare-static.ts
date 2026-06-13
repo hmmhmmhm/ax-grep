@@ -6393,6 +6393,26 @@ function observedSemanticTableColumnCount(table: {
   return maxColumn > 0 ? maxColumn : undefined;
 }
 
+function scoreSelectedTableCellShortcuts(agentRecord: Record<string, unknown>, sampleCellRefs: unknown): { matched: number; required: number } {
+  const selectedTableCellRef = Array.isArray(sampleCellRefs)
+    ? sampleCellRefs.find((cell): cell is { path?: unknown; text?: unknown; rowIndex?: unknown; columnIndex?: unknown; headers?: unknown; rowHeaders?: unknown; columnHeaders?: unknown; selected?: unknown; current?: unknown; selector?: unknown } => Boolean(cell && typeof cell === "object" && (cell as { selected?: unknown }).selected === true))
+    : undefined;
+  if (!selectedTableCellRef) return { matched: 0, required: 0 };
+  let matched = 0;
+  const required = 10;
+  if (agentRecord.semanticTopSelectedTableCellPath === selectedTableCellRef.path) matched += 1;
+  if (agentRecord.semanticTopSelectedTableCellText === selectedTableCellRef.text) matched += 1;
+  if (agentRecord.semanticTopSelectedTableCellRowIndex === selectedTableCellRef.rowIndex) matched += 1;
+  if (agentRecord.semanticTopSelectedTableCellColumnIndex === selectedTableCellRef.columnIndex) matched += 1;
+  if (JSON.stringify(agentRecord.semanticTopSelectedTableCellHeaders) === JSON.stringify(selectedTableCellRef.headers)) matched += 1;
+  if (JSON.stringify(agentRecord.semanticTopSelectedTableCellRowHeaders) === JSON.stringify(selectedTableCellRef.rowHeaders)) matched += 1;
+  if (JSON.stringify(agentRecord.semanticTopSelectedTableCellColumnHeaders) === JSON.stringify(selectedTableCellRef.columnHeaders)) matched += 1;
+  if (agentRecord.semanticTopSelectedTableCellSelected === selectedTableCellRef.selected) matched += 1;
+  if (agentRecord.semanticTopSelectedTableCellCurrent === selectedTableCellRef.current) matched += 1;
+  if (agentRecord.semanticTopSelectedTableCellSelector === selectedTableCellRef.selector) matched += 1;
+  return { matched, required };
+}
+
 function scoreAgentSemanticSummary(agent: {
   semanticSummary?: unknown;
   semanticNodeCount?: number;
@@ -7347,19 +7367,9 @@ function scoreAgentSemanticSummary(agent: {
   const ownedSampleScore = scoreOwnedSampleCellShortcuts(agentRecord, table?.sampleCellRefs);
   matched += ownedSampleScore.matched;
   required += ownedSampleScore.required;
-  const selectedTableCellRef = Array.isArray(table?.sampleCellRefs)
-    ? table.sampleCellRefs.find((cell): cell is { path?: unknown; text?: unknown; rowIndex?: unknown; columnIndex?: unknown; selected?: unknown; current?: unknown; selector?: unknown } => Boolean(cell && typeof cell === "object" && (cell as { selected?: unknown }).selected === true))
-    : undefined;
-  if (selectedTableCellRef) {
-    required += 7;
-    if (agentRecord.semanticTopSelectedTableCellPath === selectedTableCellRef.path) matched += 1;
-    if (agentRecord.semanticTopSelectedTableCellText === selectedTableCellRef.text) matched += 1;
-    if (agentRecord.semanticTopSelectedTableCellRowIndex === selectedTableCellRef.rowIndex) matched += 1;
-    if (agentRecord.semanticTopSelectedTableCellColumnIndex === selectedTableCellRef.columnIndex) matched += 1;
-    if (agentRecord.semanticTopSelectedTableCellSelected === selectedTableCellRef.selected) matched += 1;
-    if (agentRecord.semanticTopSelectedTableCellCurrent === selectedTableCellRef.current) matched += 1;
-    if (agentRecord.semanticTopSelectedTableCellSelector === selectedTableCellRef.selector) matched += 1;
-  }
+  const selectedCellScore = scoreSelectedTableCellShortcuts(agentRecord, table?.sampleCellRefs);
+  matched += selectedCellScore.matched;
+  required += selectedCellScore.required;
   if (table && typeof table.selector === "string") {
     required += 1;
     if (agent?.semanticTopTableSelector === table.selector) matched += 1;

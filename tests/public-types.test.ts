@@ -809,6 +809,9 @@ describe("public agent types", () => {
       | "semanticTopSelectedTableCellText"
       | "semanticTopSelectedTableCellRowIndex"
       | "semanticTopSelectedTableCellColumnIndex"
+      | "semanticTopSelectedTableCellHeaders"
+      | "semanticTopSelectedTableCellRowHeaders"
+      | "semanticTopSelectedTableCellColumnHeaders"
       | "semanticTopSelectedTableCellSelected"
       | "semanticTopSelectedTableCellCurrent"
       | "semanticTopSelectedTableCellSelector"
@@ -1872,6 +1875,9 @@ describe("public agent types", () => {
       semanticTopSelectedTableCellText: "Pro",
       semanticTopSelectedTableCellRowIndex: 2,
       semanticTopSelectedTableCellColumnIndex: 1,
+      semanticTopSelectedTableCellHeaders: ["Plan", "Price"],
+      semanticTopSelectedTableCellRowHeaders: ["Plan"],
+      semanticTopSelectedTableCellColumnHeaders: ["Price"],
       semanticTopSelectedTableCellSelected: true,
       semanticTopSelectedTableCellCurrent: "page",
       semanticTopSelectedTableCellSelector: "td:nth-of-type(1)",
