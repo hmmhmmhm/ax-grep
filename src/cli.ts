@@ -239,7 +239,7 @@ type ResultSummary = {
   date?: string;
   datePrecision?: "day" | "month" | "year";
   dateSource?: "title" | "snippet";
-  sitelinks?: Array<{ title: string; url: string; selector?: string }>;
+  sitelinks?: Array<{ title: string; url: string; selector?: string; command?: string; commandArgs?: string[] }>;
   relevance?: "low" | "medium" | "high";
   matchedTerms?: string[];
   findMatches?: string[];
@@ -2932,6 +2932,26 @@ function actionTargetCommandSpec(target: PageActionTargetSummary | undefined, fi
 
 function firstSitelinkCommandSpec(sitelink: { url?: string } | undefined, agentMode: boolean, findQueries: string[] = [], timeoutMs?: number, userAgent?: string): CommandSpec | undefined {
   return sitelink?.url ? pageCommandSpec(sitelink.url, agentMode, false, findQueries, timeoutMs, userAgent) : undefined;
+}
+
+function compactAgentSitelinks(
+  sitelinks: ResultSummary["sitelinks"] | undefined,
+  commandContext?: PageLinkCommandContext,
+): ResultSummary["sitelinks"] | undefined {
+  if (!sitelinks?.length) return undefined;
+  return sitelinks.map((sitelink) => ({
+    ...sitelink,
+    ...(commandContext ? commandFields(pageCommandSpec(sitelink.url, commandContext.agentMode, false, commandContext.findQueries, commandContext.timeoutMs, commandContext.userAgent)) : {}),
+  }));
+}
+
+function pageLinkCommandContextFromSearch(commandContext: SearchResultCommandContext): PageLinkCommandContext {
+  return {
+    agentMode: commandContext.agentMode,
+    findQueries: commandContext.findQueries,
+    ...(typeof commandContext.timeoutMs === "number" ? { timeoutMs: commandContext.timeoutMs } : {}),
+    ...(commandContext.userAgent ? { userAgent: commandContext.userAgent } : {}),
+  };
 }
 
 function fillSearchUrlTemplate(template: string, query: string): string | undefined {
@@ -13487,6 +13507,17 @@ function summarizeAgentResultChoices(
     const recommended = Boolean(recommendedResult && result.rank === recommendedResult.rank && result.url === recommendedResult.url);
     const primary = Boolean(primaryAction?.url === result.url || (typeof primaryAction?.rank === "number" && primaryAction.rank === result.rank));
     const host = result.host ?? sourceFromUrl(result.url);
+    const sitelinkCommandContext: PageLinkCommandContext = sourceSearch ? {
+      agentMode: true,
+      findQueries: sourceSearch.findQueries ?? [],
+      ...(typeof sourceSearch.timeoutMs === "number" ? { timeoutMs: sourceSearch.timeoutMs } : {}),
+      ...(sourceSearch.userAgent ? { userAgent: sourceSearch.userAgent } : {}),
+    } : {
+      agentMode,
+      findQueries,
+      ...(typeof timeoutMs === "number" ? { timeoutMs } : {}),
+      ...(userAgent ? { userAgent } : {}),
+    };
     const command = sourceSearch ? searchOpenCommandSpec(
       sourceSearch.query,
       sourceSearch.selectedEngine ?? sourceSearch.engine,
@@ -13514,7 +13545,7 @@ function summarizeAgentResultChoices(
       ...(result.date ? { date: result.date } : {}),
       ...(result.datePrecision ? { datePrecision: result.datePrecision } : {}),
       ...(result.dateSource ? { dateSource: result.dateSource } : {}),
-      ...(result.sitelinks?.length ? { sitelinks: result.sitelinks } : {}),
+      ...(result.sitelinks?.length ? { sitelinks: compactAgentSitelinks(result.sitelinks, sitelinkCommandContext)! } : {}),
       ...(result.relevance ? { relevance: result.relevance } : {}),
       ...(result.matchedTerms?.length ? { matchedTerms: result.matchedTerms } : {}),
       ...(result.findMatches?.length ? { findMatches: result.findMatches } : {}),
@@ -20878,11 +20909,17 @@ function compactAgentSourceSearchResult(sourceSearch: SourceSearchSummary, resul
   );
   const path = index === undefined ? "sourceSearch.selectedResult" : `sourceSearch.alternateResults[${index}]`;
   const id = index === undefined ? "selected" : `a${result.rank}`;
+  const sitelinkCommandContext: PageLinkCommandContext = {
+    agentMode: true,
+    findQueries: sourceSearch.findQueries ?? [],
+    ...(typeof sourceSearch.timeoutMs === "number" ? { timeoutMs: sourceSearch.timeoutMs } : {}),
+    ...(sourceSearch.userAgent ? { userAgent: sourceSearch.userAgent } : {}),
+  };
   return {
     ...compactAgentSearchResult(result, undefined, {
       id,
       path,
-    }),
+    }, sitelinkCommandContext),
     id,
     path,
     openResult: result.rank,
@@ -21000,6 +21037,7 @@ function compactAgentSearchResult(
   reference?: { id: string; path: string },
   fallbackCommandContext?: PageLinkCommandContext,
 ): ResultSummary & Partial<Pick<SuggestedAction, "openResult" | "command" | "commandArgs">> {
+  const sitelinkCommandContext = commandContext ? pageLinkCommandContextFromSearch(commandContext) : fallbackCommandContext;
   const command = commandContext
     ? searchOpenCommandSpec(
         commandContext.query,
@@ -21032,7 +21070,7 @@ function compactAgentSearchResult(
   if (result.date) compact.date = result.date;
   if (result.datePrecision) compact.datePrecision = result.datePrecision;
   if (result.dateSource) compact.dateSource = result.dateSource;
-  if (result.sitelinks?.length) compact.sitelinks = result.sitelinks;
+  if (result.sitelinks?.length) compact.sitelinks = compactAgentSitelinks(result.sitelinks, sitelinkCommandContext)!;
   if (result.relevance) compact.relevance = result.relevance;
   if (result.matchedTerms?.length) compact.matchedTerms = result.matchedTerms;
   if (result.findMatches?.length) compact.findMatches = result.findMatches;

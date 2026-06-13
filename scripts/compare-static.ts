@@ -474,7 +474,7 @@ type CliAgentTargetShape = {
   date?: string;
   datePrecision?: "day" | "month" | "year";
   dateSource?: "title" | "snippet";
-  sitelinks?: Array<{ title?: string; url?: string }>;
+  sitelinks?: Array<{ title?: string; url?: string; selector?: string; command?: string; commandArgs?: unknown[] }>;
   relevance?: "low" | "medium" | "high";
   matchedTerms?: string[];
   findMatches?: string[];
@@ -537,7 +537,7 @@ type CliSearchResultShape = {
   date?: string;
   datePrecision?: "day" | "month" | "year";
   dateSource?: "title" | "snippet";
-  sitelinks?: Array<{ title?: string; url?: string }>;
+  sitelinks?: Array<{ title?: string; url?: string; selector?: string; command?: string; commandArgs?: unknown[] }>;
   sourceScore?: number;
   relevance?: "low" | "medium" | "high";
   isLikelyOfficial?: boolean;

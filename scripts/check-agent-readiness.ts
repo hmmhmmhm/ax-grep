@@ -303,6 +303,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
         requireFileIncludes(root, failures, "src/cli.ts", [
           "compactAgentSourceSearchResultList(handoff.resultChoices.map",
           "compactAgentSourceSearchResultList(resultChoices.map",
+          "compactAgentSitelinks",
           "choice.command ? { command: choice.command }",
           "topFormChoiceCommand",
           "topActionTargetChoiceCommand",
@@ -1205,6 +1206,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
         ]);
         requireFileIncludes(root, failures, "tests/cli.test.ts", [
           "keeps generic top choice and recommended command in agent brief output",
+          "https://www.npmjs.com/package/ax-grep?activeTab=readme",
           "exposes likely official source choice hints without requiring nested source choices",
           "keeps executable form details in brief read handoff",
           "keeps executable action target details in brief read handoff",

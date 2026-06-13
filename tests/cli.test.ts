@@ -2661,8 +2661,18 @@ describe("cli", () => {
       datePrecision: "day",
       dateSource: "snippet",
       sitelinks: [
-        expect.objectContaining({ title: "Readme", selector: "a" }),
-        expect.objectContaining({ title: "Versions", selector: "a:nth-of-type(2)" }),
+        expect.objectContaining({
+          title: "Readme",
+          selector: "a",
+          command: "ax-grep 'https://www.npmjs.com/package/ax-grep?activeTab=readme' --json --summary",
+          commandArgs: ["ax-grep", "https://www.npmjs.com/package/ax-grep?activeTab=readme", "--json", "--summary"],
+        }),
+        expect.objectContaining({
+          title: "Versions",
+          selector: "a:nth-of-type(2)",
+          command: "ax-grep 'https://www.npmjs.com/package/ax-grep?activeTab=versions' --json --summary",
+          commandArgs: ["ax-grep", "https://www.npmjs.com/package/ax-grep?activeTab=versions", "--json", "--summary"],
+        }),
       ],
     });
     expect(envelope.agent).toMatchObject({

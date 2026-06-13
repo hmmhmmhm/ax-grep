@@ -1826,6 +1826,13 @@ describe("public agent types", () => {
         dateSource: "snippet",
         matchedTerms: ["docs"],
         findMatches: ["mirror"],
+        sitelinks: [{
+          title: "Mirror docs",
+          url: "https://mirror.example/result#docs",
+          selector: "a",
+          command: "ax-grep 'https://mirror.example/result#docs' --agent",
+          commandArgs: ["ax-grep", "https://mirror.example/result#docs", "--agent"],
+        }],
         openResult: 3,
         command: "ax-grep --search 'ax-grep docs' --open-result 3 --agent",
         commandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "3", "--agent"],
@@ -2818,6 +2825,7 @@ describe("public agent types", () => {
     expect(summary.sourceSearchAlternateChoices?.[0]?.datePrecision).toBe("day");
     expect(summary.sourceSearchAlternateChoices?.[0]?.dateSource).toBe("snippet");
     expect(summary.sourceSearchAlternateChoices?.[0]?.matchedTerms?.[0]).toBe("docs");
+    expect(summary.sourceSearchAlternateChoices?.[0]?.sitelinks?.[0]?.commandArgs).toEqual(["ax-grep", "https://mirror.example/result#docs", "--agent"]);
     expect(summary.sourceSearchAlternateChoices?.[0]?.relevance).toBe("medium");
     expect(summary.sourceSearchAlternateChoices?.[0]?.isLikelyOfficial).toBe(false);
     expect(summary.topActionName).toBe("read-content");
