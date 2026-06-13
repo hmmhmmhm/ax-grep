@@ -21,8 +21,12 @@ describe("agent readiness audit", () => {
       "weak-target-diagnostics",
       "executable-agent-continuations",
       "count-shortcuts",
+      "brief-generic-choice-routing",
+      "semantic-state-text-parity",
+      "browser-fallback-command-text",
       "public-type-shortcuts",
       "readme-doc-split",
+      "progress-tracker-current",
     ]);
     expect(checks.every((check) => check.status === "pass")).toBe(true);
   });
