@@ -2538,6 +2538,51 @@ describe("public agent types", () => {
         siteName: "Example",
         structuredDataTypes: ["Article"],
       },
+      pageCheck: {
+        contentEvidence: [{
+          id: "e1",
+          path: "pageCheck.contentEvidence[0]",
+          rank: 1,
+          text: "Example evidence",
+          role: "main",
+          source: "semantic",
+          score: 0.9,
+          quality: "high",
+          qualityReason: "Readable semantic evidence.",
+          selector: "main",
+        }],
+        contentLength: 1200,
+        confidence: "high",
+        readability: {
+          level: "high",
+          score: 0.95,
+          reasons: ["Readable article body."],
+        },
+        sourceLinks: [{
+          id: "s1",
+          path: "pageCheck.sourceLinks[0]",
+          kind: "external",
+          title: "Source report",
+          url: "https://source.example/report",
+          rank: 1,
+          commandArgs: ["ax-grep", "https://source.example/report", "--agent"],
+        }],
+        recommendedAction: {
+          action: "read-content",
+          execution: "read-current",
+          reason: "Readable content is available.",
+          readFrom: "pageCheck.contentEvidence",
+        },
+        nextSteps: [{
+          action: "open-source-link",
+          execution: "run-command",
+          reason: "Open source.",
+          sourceLinkRef: "pageCheck.sourceLinks[0]",
+        }],
+        title: "Example result",
+        canonicalUrl: "https://example.test",
+        mainHeading: "Example result",
+      },
       verification: {
         status: "matched",
         requestedCount: 1,
@@ -2619,9 +2664,12 @@ describe("public agent types", () => {
           isLikelyOfficial: true,
         },
       }],
-    } satisfies Pick<AgentJsonEnvelope, "sourceSearch" | "page" | "verification" | "finds" | "searchResults" | "recommendedResult" | "suggestedActions">;
+    } satisfies Pick<AgentJsonEnvelope, "sourceSearch" | "page" | "pageCheck" | "verification" | "finds" | "searchResults" | "recommendedResult" | "suggestedActions">;
     expect(envelopeRecommendation.sourceSearch.selectedResult?.commandArgs?.[4]).toBe("1");
     expect(envelopeRecommendation.page.structuredDataTypes?.[0]).toBe("Article");
+    expect(envelopeRecommendation.pageCheck.contentEvidence[0]?.quality).toBe("high");
+    expect(envelopeRecommendation.pageCheck.sourceLinks?.[0]?.commandArgs?.[0]).toBe("ax-grep");
+    expect(envelopeRecommendation.pageCheck.nextSteps?.[0]?.sourceLinkRef).toBe("pageCheck.sourceLinks[0]");
     expect(envelopeRecommendation.verification.bestEvidence?.quality).toBe("high");
     expect(envelopeRecommendation.finds[0]?.matches[0]?.source).toBe("semantic");
     expect(envelopeRecommendation.searchResults[0]?.recommendedPath).toBe("recommendedResult");

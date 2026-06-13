@@ -203,6 +203,78 @@ export type AgentFindSummary = {
   matches: AgentFindMatch[];
 };
 
+export type AgentPageEvidence = {
+  id: string;
+  path: string;
+  rank: number;
+  text: string;
+  role: string;
+  source: "semantic" | "fallback";
+  score: number;
+  quality: "low" | "medium" | "high";
+  qualityReason: string;
+  selector?: string;
+};
+
+export type AgentPageAction = {
+  type: string;
+  text: string;
+  selector?: string;
+};
+
+export type AgentPageCheck = AgentPageMetadata & {
+  contentEvidence: AgentPageEvidence[];
+  contentLength: number;
+  confidence: "low" | "medium" | "high";
+  readability: {
+    level: "low" | "medium" | "high";
+    score: number;
+    reasons: string[];
+  };
+  primaryLinks?: AgentSourceChoice[];
+  sourceLinks?: AgentSourceChoice[];
+  actions?: AgentPageAction[];
+  recommendedAction?: AgentAction;
+  nextSteps?: AgentAction[];
+  title?: string;
+  canonicalUrl?: string;
+  mainHeading?: string;
+  dataTables?: Array<Record<string, unknown>>;
+  barriers?: Array<Record<string, unknown>>;
+  forms?: Array<Record<string, unknown>>;
+  actionTargets?: Array<Record<string, unknown>>;
+  hydration?: Array<Record<string, unknown>>;
+  apiEndpoints?: Array<Record<string, unknown>>;
+  clientState?: Array<Record<string, unknown>>;
+  runtime?: Array<Record<string, unknown>>;
+  config?: Array<Record<string, unknown>>;
+  appHints?: Array<Record<string, unknown>>;
+  mobileHints?: Array<Record<string, unknown>>;
+  topics?: Array<Record<string, unknown>>;
+  contactPoints?: Array<Record<string, unknown>>;
+  keyValues?: Array<Record<string, unknown>>;
+  metaFacts?: Array<Record<string, unknown>>;
+  provenance?: Array<Record<string, unknown>>;
+  httpPolicies?: Array<Record<string, unknown>>;
+  schemaFacts?: Array<Record<string, unknown>>;
+  offers?: Array<Record<string, unknown>>;
+  identities?: Array<Record<string, unknown>>;
+  datasets?: Array<Record<string, unknown>>;
+  timeline?: Array<Record<string, unknown>>;
+  faqs?: Array<Record<string, unknown>>;
+  breadcrumbs?: Array<Record<string, unknown>>;
+  sections?: Array<Record<string, unknown>>;
+  pagination?: Array<Record<string, unknown>>;
+  toc?: Array<Record<string, unknown>>;
+  codeBlocks?: Array<Record<string, unknown>>;
+  citations?: Array<Record<string, unknown>>;
+  media?: Array<Record<string, unknown>>;
+  resources?: Array<Record<string, unknown>>;
+  embeds?: Array<Record<string, unknown>>;
+  transcripts?: Array<Record<string, unknown>>;
+  authorLinks?: Array<Record<string, unknown>>;
+};
+
 export type AgentVerification = {
   status: "matched" | "partial" | "missing";
   requestedCount: number;
@@ -1849,7 +1921,7 @@ export type AgentJsonEnvelope = {
   warnings?: Array<{ code: string; message: string }>;
   agent: AgentSummary;
   page?: AgentPageMetadata;
-  pageCheck?: Record<string, unknown>;
+  pageCheck?: AgentPageCheck;
   verification?: AgentVerification;
   finds?: AgentFindSummary[];
   searchResults?: AgentResultChoice[];
