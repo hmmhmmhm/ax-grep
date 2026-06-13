@@ -46,7 +46,8 @@ describe("cli", () => {
       stdout,
       fetch: async () => new Response(`
         <main>
-          <button aria-disabled="true" aria-pressed="false">Archive</button>
+          <button aria-disabled="true" aria-pressed="false" aria-controls="archive-panel">Archive</button>
+          <section id="archive-panel" aria-label="Archive panel">Archived reports</section>
         </main>
       `),
     });
@@ -55,6 +56,12 @@ describe("cli", () => {
     expect(stdout.output).toContain("semanticTopInteractive: agent.semanticSummary.interactiveRoles[0] button:Archive");
     expect(stdout.output).toContain("disabled=true");
     expect(stdout.output).toContain("pressed=false");
+    expect(stdout.output).toContain("controls=archive-panel");
+    expect(stdout.output).toContain("controlsTargetRole=region");
+    expect(stdout.output).toContain("controlsTargetName=Archive panel");
+    expect(stdout.output).toContain("controlsTargetSelector=#archive-panel");
+    expect(stdout.output).toContain("semanticTopButton: agent.semanticSummary.buttons[0] Archive");
+    expect(stdout.output).toContain("controlsTargetSelector=#archive-panel");
   });
 
   it("prints top accessibility state scalars in text output", async () => {
@@ -77,6 +84,8 @@ describe("cli", () => {
     expect(stdout.output).toContain("invalid=spelling");
     expect(stdout.output).toContain("haspopup=listbox");
     expect(stdout.output).toContain("controls=suggestions");
+    expect(stdout.output).toContain("controlsTargetRole=listbox");
+    expect(stdout.output).toContain("controlsTargetSelector=#suggestions");
   });
 
   it("unwraps known search redirect links in text output", async () => {
