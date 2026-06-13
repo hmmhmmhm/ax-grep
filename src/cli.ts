@@ -3584,10 +3584,11 @@ function formatAgentSourceChoiceText(choice: AgentSourceChoice, prefix = "source
   const sourceType = choice.sourceType ? ` type=${choice.sourceType}` : "";
   const kind = choice.kind ? ` kind=${choice.kind}` : "";
   const official = typeof choice.isLikelyOfficial === "boolean" ? ` official=${choice.isLikelyOfficial}` : "";
+  const selector = choice.selector ? ` selector=${choice.selector}` : "";
   const target = choice.url ? ` <${choice.url}>` : "";
   const reason = choice.selectionReason ? ` - ${choice.selectionReason}` : "";
   const title = choice.title ? ` ${choice.title}` : "";
-  const lines = [`  ${prefix}: ${choice.id} ${choice.path}${rank}${primary}${score}${source}${sourceType}${kind}${official}${target}${reason}${title}`];
+  const lines = [`  ${prefix}: ${choice.id} ${choice.path}${rank}${primary}${score}${source}${sourceType}${kind}${official}${selector}${target}${reason}${title}`];
   if (choice.command) lines.push(`    command: ${choice.command}`);
   if (choice.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
   if (choice.command) lines.push(`  ${prefix}Command: ${choice.command}`);

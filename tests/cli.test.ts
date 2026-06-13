@@ -11160,7 +11160,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  citation: s1 pageCheck.sourceLinks[0] source-link medium score=");
     expect(stdout.output).toContain("Possible source candidate: news-like.");
     expect(stdout.output).toContain("  sourceChoice: s1 pageCheck.sourceLinks[0] rank=1");
-    expect(stdout.output).toContain("source=source.example type=news kind=external <https://source.example/report> - Possible source candidate: news-like. Source report");
+    expect(stdout.output).toContain("source=source.example type=news kind=external selector=a <https://source.example/report> - Possible source candidate: news-like. Source report");
     expect(stdout.output).toContain("    command: ax-grep 'https://source.example/report' --json --summary");
     expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://source.example/report\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  actionCandidate: pageCheck.nextSteps open-source-link <https://source.example/report>");
