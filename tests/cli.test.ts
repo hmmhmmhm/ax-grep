@@ -11156,6 +11156,10 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://source.example/report\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  actionCandidate: pageCheck.nextSteps open-source-link <https://source.example/report>");
     expect(stdout.output).toContain("    sourceLinkRef: pageCheck.sourceLinks[0]");
+    expect(stdout.output).toContain("    command: ax-grep 'https://source.example/report' --json --summary");
+    expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://source.example/report\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  actionCandidateCommand: ax-grep 'https://source.example/report' --json --summary");
+    expect(stdout.output).toContain("  actionCandidateCommandArgs: [\"ax-grep\",\"https://source.example/report\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  bestReadTarget: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  bestReadTargetCount: 1");
     expect(stdout.output).toContain("  bestReadTargetPrimary: true");

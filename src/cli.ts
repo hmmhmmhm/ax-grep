@@ -4493,6 +4493,14 @@ function formatAgentText(agent: AgentSummary): string[] {
     const target = action.url ? ` <${action.url}>` : "";
     lines.push(`  actionCandidate: ${action.source}${primary} ${formatActionLabel(action)}${target} - ${action.priority ?? actionPriority(action)} - ${action.reason}`);
     if (action.sourceLinkRef) lines.push(`    sourceLinkRef: ${action.sourceLinkRef}`);
+    if (action.command) lines.push(`    command: ${action.command}`);
+    if (action.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(action.commandArgs)}`);
+    if (action.command) lines.push(`  actionCandidateCommand: ${action.command}`);
+    if (action.commandArgs) lines.push(`  actionCandidateCommandArgs: ${formatCommandArgsText(action.commandArgs)}`);
+    if (action.afterInteractionCommand) lines.push(`    afterInteractionCommand: ${action.afterInteractionCommand}`);
+    if (action.afterInteractionCommandArgs) lines.push(`    afterInteractionCommandArgs: ${formatCommandArgsText(action.afterInteractionCommandArgs)}`);
+    if (action.afterInteractionCommand) lines.push(`  actionCandidateAfterInteractionCommand: ${action.afterInteractionCommand}`);
+    if (action.afterInteractionCommandArgs) lines.push(`  actionCandidateAfterInteractionCommandArgs: ${formatCommandArgsText(action.afterInteractionCommandArgs)}`);
   }
   if (agent.primaryAction) {
     lines.push(`  next: ${formatActionLabel(agent.primaryAction)} - ${agent.primaryAction.reason}`);
