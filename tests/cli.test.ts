@@ -3867,6 +3867,8 @@ describe("cli", () => {
         sourceSearchFailureUrl: "https://target.example/article",
         sourceSearchFailureHost: "target.example",
         sourceSearchFailureReason: "Selected sourceSearch result failed with HTTP_ERROR status 403.",
+        sourceSearchFailureCommand: "ax-grep --search 'agent browser' --engine duckduckgo --open-result 1 --agent",
+        sourceSearchFailureCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--open-result", "1", "--agent"],
       },
       error: {
         code: "HTTP_ERROR",
@@ -3906,6 +3908,8 @@ describe("cli", () => {
       sourceSearchFailureUrl: "https://target.example/rate-limited",
       sourceSearchFailureHost: "target.example",
       sourceSearchFailureReason: "Selected sourceSearch result failed with HTTP_ERROR status 429.",
+      sourceSearchFailureCommand: "ax-grep --search 'agent browser' --engine duckduckgo --open-result 1 --agent-brief",
+      sourceSearchFailureCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--open-result", "1", "--agent-brief"],
     });
   });
 

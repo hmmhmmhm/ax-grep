@@ -2216,6 +2216,8 @@ export type AgentSummary = {
   sourceSearchFailureUrl?: string;
   sourceSearchFailureHost?: string;
   sourceSearchFailureReason?: string;
+  sourceSearchFailureCommand?: string;
+  sourceSearchFailureCommandArgs?: string[];
   sourceSearchAlternateCount?: number;
   sourceSearchAlternatePath?: string;
   sourceSearchAlternateTitle?: string;

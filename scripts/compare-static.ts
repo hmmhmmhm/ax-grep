@@ -1694,6 +1694,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchFailureUrl?: string;
       sourceSearchFailureHost?: string;
       sourceSearchFailureReason?: string;
+      sourceSearchFailureCommand?: string;
+      sourceSearchFailureCommandArgs?: unknown[];
       sourceSearchAlternateCount?: number;
       sourceSearchAlternatePath?: string;
       sourceSearchAlternateTitle?: string;
@@ -5519,6 +5521,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchFailureUrl?: string;
   sourceSearchFailureHost?: string;
   sourceSearchFailureReason?: string;
+  sourceSearchFailureCommand?: string;
+  sourceSearchFailureCommandArgs?: unknown[];
   sourceSearchAlternateCount?: number;
   sourceSearchAlternatePath?: string;
   sourceSearchAlternateTitle?: string;
@@ -5598,6 +5602,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchFailureUrl === "undefined"
       && typeof agent?.sourceSearchFailureHost === "undefined"
       && typeof agent?.sourceSearchFailureReason === "undefined"
+      && typeof agent?.sourceSearchFailureCommand === "undefined"
+      && typeof agent?.sourceSearchFailureCommandArgs === "undefined"
       && typeof agent?.sourceSearchAlternatePath === "undefined"
       && typeof agent?.sourceSearchAlternateTitle === "undefined"
       && typeof agent?.sourceSearchAlternateUrl === "undefined"

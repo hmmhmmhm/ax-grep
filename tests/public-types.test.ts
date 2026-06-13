@@ -600,6 +600,8 @@ describe("public agent types", () => {
       | "sourceSearchFailureUrl"
       | "sourceSearchFailureHost"
       | "sourceSearchFailureReason"
+      | "sourceSearchFailureCommand"
+      | "sourceSearchFailureCommandArgs"
       | "sourceSearchAlternateCount"
       | "sourceSearchAlternatePath"
       | "sourceSearchAlternateTitle"
@@ -1785,6 +1787,8 @@ describe("public agent types", () => {
       sourceSearchFailureUrl: "https://source.example/result",
       sourceSearchFailureHost: "source.example",
       sourceSearchFailureReason: "Selected sourceSearch result failed with HTTP_ERROR status 403.",
+      sourceSearchFailureCommand: "ax-grep --search 'ax-grep docs' --open-result 2 --agent",
+      sourceSearchFailureCommandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "2", "--agent"],
       sourceSearchAlternateCount: 1,
       sourceSearchAlternatePath: "sourceSearch.alternateResults[0]",
       sourceSearchAlternateTitle: "ax-grep mirror",
@@ -2803,6 +2807,8 @@ describe("public agent types", () => {
     expect(summary.sourceSearchSelectedCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.sourceSearchFailurePath).toBe("sourceSearch.selectedResult");
     expect(summary.sourceSearchFailureHost).toBe("source.example");
+    expect(summary.sourceSearchFailureCommand).toContain("--open-result 2");
+    expect(summary.sourceSearchFailureCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.sourceSearchAlternateCount).toBe(1);
     expect(summary.sourceSearchAlternatePath).toBe("sourceSearch.alternateResults[0]");
     expect(summary.sourceSearchAlternateSnippet).toBe("Alternate source summary");

@@ -1849,6 +1849,8 @@ type AgentSummary = {
   sourceSearchFailureUrl?: string;
   sourceSearchFailureHost?: string;
   sourceSearchFailureReason?: string;
+  sourceSearchFailureCommand?: string;
+  sourceSearchFailureCommandArgs?: string[];
   sourceSearchAlternateCount: number;
   sourceSearchAlternatePath?: string;
   sourceSearchAlternateTitle?: string;
@@ -4096,6 +4098,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.sourceSearchFailureUrl ? [`  sourceSearchFailureUrl: ${agent.sourceSearchFailureUrl}`] : []),
     ...(agent.sourceSearchFailureHost ? [`  sourceSearchFailureHost: ${agent.sourceSearchFailureHost}`] : []),
     ...(agent.sourceSearchFailureReason ? [`  sourceSearchFailureReason: ${agent.sourceSearchFailureReason}`] : []),
+    ...(agent.sourceSearchFailureCommand ? [`  sourceSearchFailureCommand: ${agent.sourceSearchFailureCommand}`] : []),
+    ...(agent.sourceSearchFailureCommandArgs ? [`  sourceSearchFailureCommandArgs: ${JSON.stringify(agent.sourceSearchFailureCommandArgs)}`] : []),
     `  sourceSearchAlternateCount: ${agent.sourceSearchAlternateCount}`,
     ...(agent.sourceSearchAlternatePath ? [`  sourceSearchAlternatePath: ${agent.sourceSearchAlternatePath}`] : []),
     ...(agent.sourceSearchAlternateUrl ? [`  sourceSearchAlternateUrl: ${agent.sourceSearchAlternateUrl}`] : []),
@@ -16356,6 +16360,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(sourceSearch ? { sourceSearchFailureUrl: sourceSearch.selectedUrl } : {}),
     ...(sourceSearchFailureHost ? { sourceSearchFailureHost } : {}),
     ...(sourceSearch ? { sourceSearchFailureReason: sourceSearchFailureReason(error) } : {}),
+    ...(sourceSearchSelectedResult?.command ? { sourceSearchFailureCommand: sourceSearchSelectedResult.command } : {}),
+    ...(sourceSearchSelectedResult?.commandArgs ? { sourceSearchFailureCommandArgs: sourceSearchSelectedResult.commandArgs } : {}),
     ...(sourceSearchAlternateResult ? { sourceSearchAlternatePath: sourceSearchAlternateResult.path } : {}),
     ...(sourceSearchAlternateResult?.title ? { sourceSearchAlternateTitle: sourceSearchAlternateResult.title } : {}),
     ...(sourceSearchAlternateResult?.url ? { sourceSearchAlternateUrl: sourceSearchAlternateResult.url } : {}),
@@ -18781,6 +18787,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.sourceSearchFailureUrl ? { sourceSearchFailureUrl: agent.sourceSearchFailureUrl } : {}),
     ...(agent.sourceSearchFailureHost ? { sourceSearchFailureHost: agent.sourceSearchFailureHost } : {}),
     ...(agent.sourceSearchFailureReason ? { sourceSearchFailureReason: agent.sourceSearchFailureReason } : {}),
+    ...(agent.sourceSearchFailureCommand ? { sourceSearchFailureCommand: agent.sourceSearchFailureCommand } : {}),
+    ...(agent.sourceSearchFailureCommandArgs ? { sourceSearchFailureCommandArgs: agent.sourceSearchFailureCommandArgs } : {}),
     sourceSearchAlternateCount: agent.sourceSearchAlternateCount,
     ...(agent.sourceSearchAlternatePath ? { sourceSearchAlternatePath: agent.sourceSearchAlternatePath } : {}),
     ...(agent.sourceSearchAlternateTitle ? { sourceSearchAlternateTitle: agent.sourceSearchAlternateTitle } : {}),
@@ -19981,6 +19989,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.sourceSearchFailureUrl ? { sourceSearchFailureUrl: agent.sourceSearchFailureUrl } : {}),
     ...(agent.sourceSearchFailureHost ? { sourceSearchFailureHost: agent.sourceSearchFailureHost } : {}),
     ...(agent.sourceSearchFailureReason ? { sourceSearchFailureReason: agent.sourceSearchFailureReason } : {}),
+    ...(agent.sourceSearchFailureCommand ? { sourceSearchFailureCommand: agent.sourceSearchFailureCommand } : {}),
+    ...(agent.sourceSearchFailureCommandArgs ? { sourceSearchFailureCommandArgs: agent.sourceSearchFailureCommandArgs } : {}),
     sourceSearchAlternateCount: agent.sourceSearchAlternateCount,
     ...(agent.sourceSearchAlternatePath ? { sourceSearchAlternatePath: agent.sourceSearchAlternatePath } : {}),
     ...(agent.sourceSearchAlternateTitle ? { sourceSearchAlternateTitle: agent.sourceSearchAlternateTitle } : {}),

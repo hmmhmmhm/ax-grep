@@ -283,6 +283,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
         ]);
         requireFileIncludes(root, failures, "scripts/compare-static.ts", [
           "sourceSearchSelectedCommandArgs",
+          "sourceSearchFailureCommandArgs",
           "sourceSearchAlternateCommandArgs",
           "typeof link.command === \"string\"",
           "link.command.length > 0",
@@ -436,6 +437,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "sourceSearchSelectedUrl",
           "sourceSearchFailurePath",
           "sourceSearchFailureHost",
+          "sourceSearchFailureCommandArgs",
           "sourceSearchAlternateCount",
           "sourceSearchAlternateDifferentHost",
           "needsBrowserInteraction",
