@@ -308,6 +308,7 @@ estimate whether the overall percentage should move.
 | A199 | Control target text coverage | 100% | Text-mode tests now assert controlled target role/name/selector output for top interactive/button and state shortcuts, so plain-text subagent handoff keeps the same `aria-controls` target routing guarantees as JSON and brief output. | Test-only guard for A197/A198 text output. | Focused CLI text tests, readiness audit, typecheck, README test, diff check, and process check pass. | No estimate increase; improves regression coverage for text-only control routing. |
 | A200 | Static declarative shadow DOM extraction | 100% | Static extraction now reads semantic children from declarative shadow DOM templates and prunes inert custom-element wrappers, so Web Component SSR can expose buttons, headings, regions, and control state without requiring a browser accessibility tree first. | Limited to declarative `shadowrootmode`/`shadowroot` templates in static HTML; normal inert templates remain pruned. | Focused static extractor test, readiness audit, agent-readiness test, typecheck, README test, diff check, and process check pass. | No headline increase; improves Web Component page-check parity without browser load. |
 | A201 | Declarative shadow agent brief coverage | 100% | `--agent-brief` now has a focused regression test proving declarative shadow DOM headings, buttons, controlled target role/name/selector, and inert template pruning reach the shallow handoff fields used by subagents. | Test-only guard for A200 agent-facing output. | Focused CLI test, readiness audit, typecheck, README test, diff check, and process check pass. | No estimate increase; protects Web Component handoff behavior. |
+| A202 | Declarative shadow slot projection | 100% | Static extraction now projects slotted light-DOM elements into declarative shadow DOM and suppresses unused fallback or unprojected light children, so agent brief output better matches the browser composed accessibility tree. | Limited to element children assigned through declarative shadow slots; text-only slot projection can be revisited if fixtures show it matters. | Focused static and CLI tests, readiness audit, typecheck, README test, diff check, and process check pass. | No headline increase; improves Web Component parity and avoids duplicate fallback controls. |
 
 ## Planned Work Detail
 
@@ -794,6 +795,8 @@ When research expands:
   expose shadow controls while ordinary inert templates remain pruned.
 - Added agent-brief coverage for declarative shadow DOM controls so the static
   extractor gain is verified at the subagent handoff layer.
+- Added declarative shadow slot projection so slotted controls replace fallback
+  controls in static and agent-brief output.
 
 ## In Progress
 

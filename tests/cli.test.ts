@@ -4695,6 +4695,42 @@ describe("cli", () => {
     expect(JSON.stringify(envelope.agent)).not.toContain("Template payload");
   });
 
+  it("projects declarative shadow DOM slots in agent brief handoff", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/slotted-component", "--stdin", "--agent-brief"], {
+      stdout,
+      stdin: Readable.from([`
+        <main>
+          <x-result-card>
+            <button slot="action" aria-controls="slot-panel">Slotted details</button>
+            <button>Unslotted light action</button>
+            <template shadowrootmode="open">
+              <h2>Slotted result</h2>
+              <slot name="action"><button>Fallback details</button></slot>
+              <section id="slot-panel" aria-label="Slot panel">Slot body</section>
+            </template>
+          </x-result-card>
+        </main>
+      `]) as NodeJS.ReadStream,
+      fetch: async () => {
+        throw new Error("fetch should not run for --stdin");
+      },
+    });
+
+    const envelope = JSON.parse(stdout.output);
+    const agentText = JSON.stringify(envelope.agent);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      semanticTopHeading: "Slotted result",
+      semanticTopButtonName: "Slotted details",
+      semanticTopButtonControlsTargetName: "Slot panel",
+      semanticTopButtonControlsTargetSelector: "#slot-panel",
+    });
+    expect(agentText).not.toContain("Fallback details");
+    expect(agentText).not.toContain("Unslotted light action");
+  });
+
   it("summarizes data tables as pageCheck read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/pricing", "--agent"], {

@@ -313,6 +313,35 @@ describe("static extract", () => {
     expect(flat.some((node) => node.tag === "x-card")).toBe(false);
   });
 
+  it("projects declarative shadow DOM slots instead of duplicating light DOM", () => {
+    const tree = extract(`
+      <main>
+        <x-result>
+          <a slot="action" href="/details">Slotted action</a>
+          <button>Unslotted light action</button>
+          <template shadowrootmode="open">
+            <section aria-label="Projected result">
+              <slot name="action"><button>Fallback action</button></slot>
+            </section>
+          </template>
+        </x-result>
+        <x-empty>
+          <template shadowrootmode="open">
+            <slot><button>Fallback only</button></slot>
+          </template>
+        </x-empty>
+      </main>
+    `);
+
+    const namedRoles = summarizeSemanticTree(tree).namedRoles;
+
+    expect(namedRoles).toContain("region:Projected result");
+    expect(namedRoles).toContain("link:Slotted action");
+    expect(namedRoles).toContain("button:Fallback only");
+    expect(namedRoles).not.toContain("button:Fallback action");
+    expect(namedRoles).not.toContain("button:Unslotted light action");
+  });
+
   it("summarizes very large repeated static subtrees", () => {
     const items = Array.from({ length: 8 }, (_, index) => `<li><a href="/${index}">Item ${index}</a></li>`).join("");
     const summarized = extract(`<ul>${items}</ul>`, { maxChildrenPerNode: 3 });

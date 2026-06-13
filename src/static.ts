@@ -12,6 +12,7 @@ type StaticContext = {
   ids: Map<string, Element>;
   collapsedControlledIds: Set<string>;
   labelsByFor: Map<string, string>;
+  slotAssignments: Map<string, Element[]> | undefined;
 };
 
 const defaultOptions = {
@@ -102,6 +103,7 @@ export function extractStaticSemanticTree(html: string, options: StaticSemanticT
     ids: new Map(),
     collapsedControlledIds: new Set(),
     labelsByFor: new Map(),
+    slotAssignments: undefined,
   };
   indexDocument(document.children, context);
   const root = findElement(document.children, "body") ?? findElement(document.children, "html") ?? fragmentRoot(document.children);
@@ -244,16 +246,39 @@ function collectChildren(element: Element, context: StaticContext): SemanticNode
   const children: SemanticNode[] = [];
   const repeatedSignatures = new Map<string, number>();
   let omitted = 0;
+  const shadowTemplate = element.children.find((child): child is Element => isElement(child) && isDeclarativeShadowTemplate(child));
+  if (shadowTemplate) {
+    const previousAssignments = context.slotAssignments;
+    context.slotAssignments = collectSlotAssignments(element);
+    for (const child of shadowTemplate.children) {
+      if (!isElement(child)) continue;
+      const semanticChild = walkElement(child, context);
+      omitted += appendSemanticChild(element, semanticChild, children, repeatedSignatures, context);
+    }
+    context.slotAssignments = previousAssignments;
+    const linkFarmSummary = summarizeLikelyLinkFarmChildren(element, children, context);
+    if (linkFarmSummary.omitted > 0) {
+      children.splice(0, children.length, ...linkFarmSummary.children);
+      omitted += linkFarmSummary.omitted;
+    }
+    if (omitted > 0) children.push(omittedNode(context, omitted));
+    return children;
+  }
+
+  if (element.name === "slot" && context.slotAssignments) {
+    const slotName = attr(element, "name") ?? "";
+    const assignedChildren = context.slotAssignments.get(slotName) ?? [];
+    const projectedChildren = assignedChildren.length > 0 ? assignedChildren : element.children.filter(isElement);
+    for (const child of projectedChildren) {
+      const semanticChild = walkElement(child, context);
+      omitted += appendSemanticChild(element, semanticChild, children, repeatedSignatures, context);
+    }
+    if (omitted > 0) children.push(omittedNode(context, omitted));
+    return children;
+  }
+
   for (const child of element.children) {
     if (isElement(child)) {
-      if (isDeclarativeShadowTemplate(child)) {
-        for (const shadowChild of child.children) {
-          if (!isElement(shadowChild)) continue;
-          const semanticChild = walkElement(shadowChild, context);
-          omitted += appendSemanticChild(element, semanticChild, children, repeatedSignatures, context);
-        }
-        continue;
-      }
       if (!context.options.includeSelectOptions && element.name === "select") continue;
       const semanticChild = walkElement(child, context);
       omitted += appendSemanticChild(element, semanticChild, children, repeatedSignatures, context);
@@ -285,6 +310,18 @@ function collectChildren(element: Element, context: StaticContext): SemanticNode
   }
   if (omitted > 0) children.push(omittedNode(context, omitted));
   return children;
+}
+
+function collectSlotAssignments(host: Element): Map<string, Element[]> {
+  const assignments = new Map<string, Element[]>();
+  for (const child of host.children) {
+    if (!isElement(child) || isDeclarativeShadowTemplate(child)) continue;
+    const slotName = attr(child, "slot") ?? "";
+    const assigned = assignments.get(slotName) ?? [];
+    assigned.push(child);
+    assignments.set(slotName, assigned);
+  }
+  return assignments;
 }
 
 function appendSemanticChild(

@@ -182,11 +182,13 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
         ]);
         requireFileIncludes(root, failures, "tests/static.test.ts", [
           "extracts declarative shadow DOM children while pruning inert templates",
+          "projects declarative shadow DOM slots instead of duplicating light DOM",
           "<template shadowrootmode=\"open\">",
           "Template payload",
         ]);
         requireFileIncludes(root, failures, "tests/cli.test.ts", [
           "keeps declarative shadow DOM controls in agent brief handoff",
+          "projects declarative shadow DOM slots in agent brief handoff",
           "semanticTopButtonControlsTargetSelector",
           "Shadow details",
         ]);
