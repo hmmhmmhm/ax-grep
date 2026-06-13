@@ -4804,7 +4804,15 @@ function formatResultsText(results: ResultSummary[]): string[] {
       const hints = result.sourceHints?.length ? ` (${result.sourceHints.join(", ")})` : "";
       lines.push(`     sourceType: ${result.sourceType} ${result.sourceScore ?? 0}${hints}`);
     }
+    if (result.relevance) lines.push(`     relevance: ${result.relevance}`);
+    if (typeof result.isLikelyOfficial === "boolean") lines.push(`     official: ${result.isLikelyOfficial}`);
+    if (result.matchedTerms?.length) lines.push(`     matchedTerms: ${result.matchedTerms.join(", ")}`);
+    if (result.findMatches?.length) lines.push(`     findMatches: ${result.findMatches.join(", ")}`);
+    lines.push(`     reason: ${result.selectionReason ?? searchResultSelectionReason(result)}`);
     if (result.date) lines.push(`     date: ${result.date}${result.dateText ? ` (${result.dateText})` : ""}`);
+    else if (result.dateText) lines.push(`     dateText: ${result.dateText}`);
+    if (result.datePrecision) lines.push(`     datePrecision: ${result.datePrecision}`);
+    if (result.dateSource) lines.push(`     dateSource: ${result.dateSource}`);
     if (result.snippet) lines.push(`     snippet: ${result.snippet}`);
     for (const sitelink of result.sitelinks ?? []) lines.push(`     sitelink: ${sitelink.title} <${sitelink.url}>`);
   }

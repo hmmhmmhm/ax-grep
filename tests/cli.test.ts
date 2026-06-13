@@ -11416,6 +11416,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("results\n  1. Result Title");
     expect(stdout.output).toContain("     url: https://result.example/article");
     expect(stdout.output).toContain("     source: result.example");
+    expect(stdout.output).toContain("     reason: Ranked result 1 from result.example.");
     expect(stdout.output).toContain("     snippet: Snippet text explains why this result is useful for the current investigation.");
   });
 
