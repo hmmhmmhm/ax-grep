@@ -1621,6 +1621,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topContactPointLabel?: string;
       topContactPointValue?: string;
       topContactPointUrl?: string;
+      topContactPointCommand?: string;
+      topContactPointCommandArgs?: string[];
       topContactPointSource?: string;
       topContactPointSelector?: string;
       structuredReadTargetCount?: number;
@@ -8155,6 +8157,8 @@ function scoreAgentStructuredShortcuts(agent: {
   topContactPointLabel?: string;
   topContactPointValue?: string;
   topContactPointUrl?: string;
+  topContactPointCommand?: string;
+  topContactPointCommandArgs?: string[];
   topContactPointSource?: string;
   topContactPointSelector?: string;
   structuredReadTargetCount?: number;
@@ -8516,7 +8520,12 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topContactPointUrl === topContactPoint.url) matched += 1;
     if (agent.topContactPointSource === topContactPoint.source) matched += 1;
     if (agent.topContactPointSelector === topContactPoint.selector) matched += 1;
-  } else if (agent.topContactPointPath || agent.topContactPointKind || agent.topContactPointLabel || agent.topContactPointValue || agent.topContactPointUrl || agent.topContactPointSource || agent.topContactPointSelector) {
+    if (topContactPoint.url && /^https?:\/\//i.test(topContactPoint.url)) {
+      required += 2;
+      if (agent.topContactPointCommand?.includes(topContactPoint.url)) matched += 1;
+      if (Array.isArray(agent.topContactPointCommandArgs) && agent.topContactPointCommandArgs.includes(topContactPoint.url)) matched += 1;
+    }
+  } else if (agent.topContactPointPath || agent.topContactPointKind || agent.topContactPointLabel || agent.topContactPointValue || agent.topContactPointUrl || agent.topContactPointCommand || agent.topContactPointCommandArgs || agent.topContactPointSource || agent.topContactPointSelector) {
     required += 1;
   }
 

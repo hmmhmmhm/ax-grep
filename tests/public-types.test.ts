@@ -497,6 +497,8 @@ describe("public agent types", () => {
       | "topContactPointLabel"
       | "topContactPointValue"
       | "topContactPointUrl"
+      | "topContactPointCommand"
+      | "topContactPointCommandArgs"
       | "topContactPointSource"
       | "topContactPointSelector"
       | "structuredReadTargetCount"
@@ -1721,12 +1723,14 @@ describe("public agent types", () => {
       topTimelineSource: "meta",
       topTimelineSelector: "meta[property=\"article:published_time\"]",
       topContactPointPath: "pageCheck.contactPoints[0]",
-      topContactPointKind: "email",
+      topContactPointKind: "contact-url",
       topContactPointLabel: "Press",
-      topContactPointValue: "press@example.test",
-      topContactPointUrl: "mailto:press@example.test",
-      topContactPointSource: "link",
-      topContactPointSelector: "a[href^=\"mailto:\"]",
+      topContactPointValue: "Press",
+      topContactPointUrl: "https://example.test/contact/press",
+      topContactPointCommand: "ax-grep 'https://example.test/contact/press' --agent",
+      topContactPointCommandArgs: ["ax-grep", "https://example.test/contact/press", "--agent"],
+      topContactPointSource: "html",
+      topContactPointSelector: "a[href=\"/contact/press\"]",
       structuredReadTargetCount: 2,
       bestStructuredReadTarget: "pageCheck.dataTables",
       bestStructuredReadTargetCount: 1,
@@ -2852,6 +2856,7 @@ describe("public agent types", () => {
     expect(summary.topDatasetDistributionCommandArgs?.[1]).toBe("https://example.test/downloads/example.csv");
     expect(summary.topDatasetLicenseCommandArgs?.[1]).toBe("https://creativecommons.org/licenses/by/4.0/");
     expect(summary.topIdentitySameAsCommandArgs?.[1]).toBe("https://github.com/example");
+    expect(summary.topContactPointCommandArgs?.[1]).toBe("https://example.test/contact/press");
     expect(summary.bestStructuredReadTarget).toBe("pageCheck.dataTables");
     expect(summary.bestStructuredReadTargetPrimary).toBe(true);
     expect(summary.formChoices?.[0]?.queryField).toBe("q");

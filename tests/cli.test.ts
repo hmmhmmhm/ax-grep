@@ -9760,6 +9760,33 @@ describe("cli", () => {
       topContactPointSource: "link",
       topContactPointSelector: "a:nth-of-type(1)",
     });
+    expect(envelope.agent.topContactPointCommand).toBeUndefined();
+    expect(envelope.agent.topContactPointCommandArgs).toBeUndefined();
+  });
+
+  it("exposes fetchable top contact point commands for agents", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/contact", "--agent"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <a href="/support/contact">Contact support</a>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contactPointCount: 1,
+      topContactPointKind: "contact-url",
+      topContactPointLabel: "Contact support",
+      topContactPointValue: "Contact support",
+      topContactPointUrl: "https://example.test/support/contact",
+      topContactPointCommand: "ax-grep 'https://example.test/support/contact' --agent",
+      topContactPointCommandArgs: ["ax-grep", "https://example.test/support/contact", "--agent"],
+    });
   });
 
   it("summarizes visible FAQ question-answer pairs as pageCheck read targets for agents", async () => {

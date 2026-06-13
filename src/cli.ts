@@ -1763,6 +1763,8 @@ type AgentSummary = {
   topContactPointLabel?: string;
   topContactPointValue?: string;
   topContactPointUrl?: string;
+  topContactPointCommand?: string;
+  topContactPointCommandArgs?: string[];
   topContactPointSource?: PageContactPointSummary["source"];
   topContactPointSelector?: string;
   structuredReadTargetCount: number;
@@ -4078,6 +4080,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topIdentitySameAsCommandArgs ? [`  topIdentitySameAsCommandArgs: ${formatCommandArgsText(agent.topIdentitySameAsCommandArgs)}`] : []),
     ...(agent.topTimelineValue ? [`  topTimeline: ${agent.topTimelinePath ?? ""} ${agent.topTimelineKind ?? ""}:${agent.topTimelineValue}`] : []),
     ...(agent.topContactPointValue ? [`  topContactPoint: ${agent.topContactPointPath ?? ""} ${agent.topContactPointKind ?? ""}:${agent.topContactPointValue}${agent.topContactPointUrl ? ` <${agent.topContactPointUrl}>` : ""}`] : []),
+    ...(agent.topContactPointCommand ? [`  topContactPointCommand: ${agent.topContactPointCommand}`] : []),
+    ...(agent.topContactPointCommandArgs ? [`  topContactPointCommandArgs: ${formatCommandArgsText(agent.topContactPointCommandArgs)}`] : []),
     ...(agent.topEmbedUrl ? [`  topEmbedUrl: ${agent.topEmbedUrl}`] : []),
     ...(agent.topEmbedCommand ? [`  topEmbedCommand: ${agent.topEmbedCommand}`] : []),
     ...(agent.topEmbedCommandArgs ? [`  topEmbedCommandArgs: ${formatCommandArgsText(agent.topEmbedCommandArgs)}`] : []),
@@ -12170,6 +12174,9 @@ function summarizeAgent(
   const topIdentitySameAsCommand = pageCheck.identities[0]?.sameAs?.[0] && /^https?:\/\//i.test(pageCheck.identities[0].sameAs[0])
     ? pageCommandSpec(pageCheck.identities[0].sameAs[0], agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topContactPointCommand = pageCheck.contactPoints[0]?.url && /^https?:\/\//i.test(pageCheck.contactPoints[0].url)
+    ? pageCommandSpec(pageCheck.contactPoints[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, sourceSearchAgent, signals, qualityGates, verification.foundQueries, verification.missingQueries);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   const topSemanticHeading = semanticSummary?.headingItems[0];
@@ -13078,6 +13085,8 @@ function summarizeAgent(
     ...(pageCheck.contactPoints[0]?.label ? { topContactPointLabel: pageCheck.contactPoints[0].label } : {}),
     ...(pageCheck.contactPoints[0]?.value ? { topContactPointValue: pageCheck.contactPoints[0].value } : {}),
     ...(pageCheck.contactPoints[0]?.url ? { topContactPointUrl: pageCheck.contactPoints[0].url } : {}),
+    ...(topContactPointCommand ? { topContactPointCommand: topContactPointCommand.command } : {}),
+    ...(topContactPointCommand ? { topContactPointCommandArgs: topContactPointCommand.commandArgs } : {}),
     ...(pageCheck.contactPoints[0] ? { topContactPointSource: pageCheck.contactPoints[0].source } : {}),
     ...(pageCheck.contactPoints[0]?.selector ? { topContactPointSelector: pageCheck.contactPoints[0].selector } : {}),
     structuredReadTargetCount,
@@ -18905,6 +18914,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topContactPointLabel ? { topContactPointLabel: agent.topContactPointLabel } : {}),
     ...(agent.topContactPointValue ? { topContactPointValue: agent.topContactPointValue } : {}),
     ...(agent.topContactPointUrl ? { topContactPointUrl: agent.topContactPointUrl } : {}),
+    ...(agent.topContactPointCommand ? { topContactPointCommand: agent.topContactPointCommand } : {}),
+    ...(agent.topContactPointCommandArgs ? { topContactPointCommandArgs: agent.topContactPointCommandArgs } : {}),
     ...(agent.topContactPointSource ? { topContactPointSource: agent.topContactPointSource } : {}),
     ...(agent.topContactPointSelector ? { topContactPointSelector: agent.topContactPointSelector } : {}),
     structuredReadTargetCount: agent.structuredReadTargetCount,
@@ -20148,6 +20159,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topContactPointLabel ? { topContactPointLabel: agent.topContactPointLabel } : {}),
     ...(agent.topContactPointValue ? { topContactPointValue: agent.topContactPointValue } : {}),
     ...(agent.topContactPointUrl ? { topContactPointUrl: agent.topContactPointUrl } : {}),
+    ...(agent.topContactPointCommand ? { topContactPointCommand: agent.topContactPointCommand } : {}),
+    ...(agent.topContactPointCommandArgs ? { topContactPointCommandArgs: agent.topContactPointCommandArgs } : {}),
     ...(agent.topContactPointSource ? { topContactPointSource: agent.topContactPointSource } : {}),
     ...(agent.topContactPointSelector ? { topContactPointSelector: agent.topContactPointSelector } : {}),
     structuredReadTargetCount: agent.structuredReadTargetCount,

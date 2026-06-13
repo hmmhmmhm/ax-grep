@@ -2130,6 +2130,8 @@ export type AgentSummary = {
   topContactPointLabel?: string;
   topContactPointValue?: string;
   topContactPointUrl?: string;
+  topContactPointCommand?: string;
+  topContactPointCommandArgs?: string[];
   topContactPointSource?: string;
   topContactPointSelector?: string;
   structuredReadTargetCount?: number;
