@@ -6,6 +6,7 @@ import type {
   AgentCitation,
   AgentFormChoice,
   AgentHandoff,
+  AgentJsonEnvelope,
   AgentResultChoice,
   AgentSourceChoice,
   AgentSourceSearchResult,
@@ -2511,5 +2512,26 @@ describe("public agent types", () => {
     expect(summary.searchDecisionRecommendedLikelyOfficial).toBe(true);
     expect(summary.recommendedCommand).toContain("example.test");
     expect(summary.recommendedCommandArgs?.[0]).toBe("ax-grep");
+
+    const envelopeRecommendation = {
+      recommendedResult: {
+        id: "r1",
+        path: "recommendedResult",
+        title: "Example result",
+        url: "https://example.test",
+        host: "example.test",
+        source: "example.test",
+        rank: 1,
+        snippet: "Result summary",
+        sourceScore: 0.92,
+        relevance: "high",
+        isLikelyOfficial: true,
+        selectionReason: "Best ranked result.",
+        openResult: 1,
+        command: "ax-grep --search example --open-result 1 --agent",
+        commandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent"],
+      },
+    } satisfies Pick<AgentJsonEnvelope, "recommendedResult">;
+    expect(envelopeRecommendation.recommendedResult.commandArgs?.[4]).toBe("1");
   });
 });

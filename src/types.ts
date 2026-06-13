@@ -1811,7 +1811,7 @@ export type AgentJsonEnvelope = {
   verification?: Record<string, unknown>;
   finds?: Array<Record<string, unknown>>;
   searchResults?: Array<Record<string, unknown>>;
-  recommendedResult?: Record<string, unknown>;
+  recommendedResult?: AgentResultChoice;
   suggestedActions?: Array<Record<string, unknown>>;
   error?: { code: string; message: string; status?: number };
   treeOmitted?: boolean;
