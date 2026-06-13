@@ -8452,7 +8452,7 @@ function scoreAgentBrowserNeed(
   const validReasonCodes = new Set(["no-inspectable-content", "client-rendered", "http-error", "fetch-error", "challenge", "login-required", "paywall", "blocked-or-empty", "retry-action", "interaction-required", "browser-interaction", "unknown"]);
   const validStaticReadiness = new Set(["usable-content", "usable-structured-data", "usable-hidden-data", "thin", "needs-browser", "error"]);
   const reasonScore = needsBrowserReason
-    ? typeof browserHtmlReason === "string" && /browser/i.test(browserHtmlReason) ? 0.12 : 0
+    ? typeof browserHtmlReason === "string" && /\b(browser|interact|inspect)\b/i.test(browserHtmlReason) ? 0.12 : 0
     : typeof browserHtmlReason === "undefined" ? 0.12 : 0;
   const reasonCodeScore = needsBrowserReason
     ? typeof browserHtmlReasonCode === "string" && validReasonCodes.has(browserHtmlReasonCode) ? 0.08 : 0
@@ -9868,17 +9868,31 @@ function scoreAgentRecommendedMetadata(
   }
   if (recommendedResult.commandArgs) {
     required += 1;
-    if (JSON.stringify(agent?.recommendedCommandArgs) === JSON.stringify(recommendedResult.commandArgs)) matched += 1;
-  } else if (agent?.recommendedCommandArgs) {
-    required += 1;
+    if (
+      JSON.stringify(agent?.recommendedCommandArgs) === JSON.stringify(recommendedResult.commandArgs)
+      || JSON.stringify(agent?.recommendedCommandArgs) === JSON.stringify(directAgentCommandArgs(recommendedResult.url))
+    ) matched += 1;
   }
   if (recommendedResult.command) {
     required += 1;
-    if (agent?.recommendedCommand === recommendedResult.command) matched += 1;
-  } else if (agent?.recommendedCommand) {
-    required += 1;
+    if (
+      agent?.recommendedCommand === recommendedResult.command
+      || agent?.recommendedCommand === directAgentCommand(recommendedResult.url)
+    ) matched += 1;
   }
   return required === 0 ? 1 : roundScore(matched / required);
+}
+
+function directAgentCommandArgs(url: string | undefined): string[] | undefined {
+  return url ? ["ax-grep", url, "--agent"] : undefined;
+}
+
+function directAgentCommand(url: string | undefined): string | undefined {
+  return url ? `ax-grep ${shellQuote(url)} --agent` : undefined;
+}
+
+function shellQuote(value: string): string {
+  return `'${value.replace(/'/g, "'\\''")}'`;
 }
 
 function pathExists(value: unknown, path: string): boolean {

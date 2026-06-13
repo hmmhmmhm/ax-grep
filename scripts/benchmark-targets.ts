@@ -132,6 +132,28 @@ const syntheticHiddenMetadataHtml = `
   </html>
 `;
 
+const syntheticWebComponentHtml = `
+  <main>
+    <h1>Web component controls</h1>
+    <x-host-action role="button" aria-describedby="host-help">
+      <span slot="label">Host action</span>
+      <span id="host-help" slot="help">Host help</span>
+      <span>Unprojected host text</span>
+      <template shadowrootmode="open">
+        <slot name="label">Fallback host action</slot>
+        <slot name="help">Fallback host help</slot>
+      </template>
+    </x-host-action>
+    <x-search-box>
+      <span id="slotted-label" slot="label">Slotted search label</span>
+      <template shadowrootmode="open">
+        <label><slot name="label">Fallback search label</slot></label>
+        <input type="search" aria-labelledby="slotted-label">
+      </template>
+    </x-search-box>
+  </main>
+`;
+
 export const koreaSocialTargets: BenchmarkTarget[] = [
   {
     category: "Clien home",
@@ -270,6 +292,11 @@ export const agentFixtureTargets: BenchmarkTarget[] = [
     category: "Synthetic hidden metadata gate",
     url: "https://hidden.example/agent",
     html: syntheticHiddenMetadataHtml,
+  },
+  {
+    category: "Synthetic web component gate",
+    url: "https://components.example/static",
+    html: syntheticWebComponentHtml,
   },
   {
     category: "Synthetic action target gate",

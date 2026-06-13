@@ -133,13 +133,14 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
       root,
       "fixture-loop-coverage",
       "Search and page-check agent loops must be covered without starting browsers or remote fetches.",
-      "The fixture gate uses synthetic HTML targets for search open/refine, site search, hidden metadata, actions, and browser HTML retry.",
+      "The fixture gate uses synthetic HTML targets for search open/refine, site search, hidden metadata, Web Components, actions, and browser HTML retry.",
       (failures) => {
         requireFileIncludes(root, failures, "scripts/benchmark-targets.ts", [
           "Synthetic search open gate",
           "Synthetic search refine gate",
           "Synthetic site search recovery gate",
           "Synthetic hidden metadata gate",
+          "Synthetic web component gate",
           "Synthetic action target gate",
           "Synthetic browser HTML retry gate",
         ]);
@@ -147,6 +148,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "open-result",
           "refine-search",
           "open-site-search",
+          "Synthetic web component gate",
           "retry-with-browser-html",
           "!warning.includes(\"agent-browser\")",
         ]);

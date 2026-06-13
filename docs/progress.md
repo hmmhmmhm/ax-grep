@@ -314,6 +314,7 @@ estimate whether the overall percentage should move.
 | A205 | Slotted label-for field names | 100% | Static extraction now computes `<label for>` text with the active declarative shadow slot assignment, so slotted field labels become agent-facing field names instead of fallback text. | Limited to static/declarative shadow DOM labels where the label element is available in HTML. | Focused static and CLI tests, readiness audit, typecheck, README test, diff check, and process check pass. | No headline increase; improves Web Component form handoff parity. |
 | A206 | Declarative shadow host action names | 100% | Static extraction now computes custom-element host accessible names from the declarative shadow composed tree, so host-level buttons/actions use projected slot text and ignore unprojected light DOM or fallback text. | Limited to declarative shadow DOM available in static HTML. | Focused static and CLI tests, readiness audit, typecheck, README test, diff check, and process check pass. | No headline increase; improves Web Component action target parity. |
 | A207 | Shadow host description separation | 100% | Static name-from-content now excludes `aria-describedby`, `aria-details`, and `aria-errormessage` target text while keeping those targets available as descriptions, so host action names do not absorb help/error text. | Limited to common description-style ARIA IDREF targets in static/declarative shadow DOM. | Focused static and CLI tests, readiness audit, typecheck, README test, diff check, and process check pass. | No headline increase; improves action name/description parity. |
+| A208 | Web Component static fixture gate | 100% | The non-browser `agent-fixtures` static comparison set now includes a declarative shadow DOM Web Component gate, so composed-tree button/field handoff regressions affect fixture scoring instead of only focused unit tests. | Synthetic fixture only; no browser or external fetch. | Static fixture comparison test, readiness audit, typecheck, README test, diff check, and process check pass. | No headline increase; improves gate coverage for Web Component parity. |
 
 ## Planned Work Detail
 
@@ -812,6 +813,8 @@ When research expands:
   text instead of raw light DOM or fallback text.
 - Kept description IDREF text out of name-from-content while preserving it in
   semantic description shortcuts for host actions.
+- Added a synthetic Web Component target to the static fixture gate so composed
+  tree handoff regressions are covered by non-browser comparison scoring.
 
 ## In Progress
 

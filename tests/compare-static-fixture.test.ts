@@ -22,6 +22,7 @@ describe("compare-static fixture comparisons", () => {
       "Synthetic search open gate",
       "Synthetic search refine gate",
       "Synthetic site search recovery gate",
+      "Synthetic web component gate",
     ]);
     expect(report.gateSummary.averageCliAgentScore).toBeGreaterThanOrEqual(0.8);
     expect(report.gateSummary.minCliAgentScore).toBeGreaterThanOrEqual(0.8);
@@ -64,6 +65,7 @@ describe("compare-static fixture comparisons", () => {
     expect(summaryFor(report, "Synthetic browser HTML retry gate")?.score).toBeGreaterThanOrEqual(0.8);
     expect(summaryFor(report, "Synthetic action target gate")?.pageCheck.hiddenSignalCount).toBeGreaterThan(0);
     expect(summaryFor(report, "Synthetic action target gate")?.actionExecutionCounts["read-current"]).toBeGreaterThan(0);
+    expect(summaryFor(report, "Synthetic web component gate")?.agentSemanticSummaryScore).toBe(1);
   });
 });
 
