@@ -396,6 +396,8 @@ describe("public agent types", () => {
       | "topResourceCommandArgs"
       | "topMediaKind"
       | "topMediaUrl"
+      | "topMediaCommand"
+      | "topMediaCommandArgs"
       | "topMediaText"
       | "topSectionPath"
       | "topSectionHeading"
@@ -1620,6 +1622,8 @@ describe("public agent types", () => {
       topResourceCommandArgs: ["ax-grep", "https://example.test/guide.pdf", "--agent"],
       topMediaKind: "image",
       topMediaUrl: "https://example.test/diagram.png",
+      topMediaCommand: "ax-grep 'https://example.test/diagram.png' --agent",
+      topMediaCommandArgs: ["ax-grep", "https://example.test/diagram.png", "--agent"],
       topMediaText: "Architecture diagram",
       topSectionPath: "pageCheck.sections[0]",
       topSectionHeading: "Install",
@@ -2834,6 +2838,7 @@ describe("public agent types", () => {
     expect(summary.topFaqQuestion).toBe("How do I install it?");
     expect(summary.topResourceUrl).toBe("https://example.test/guide.pdf");
     expect(summary.topResourceCommandArgs?.[1]).toBe("https://example.test/guide.pdf");
+    expect(summary.topMediaCommandArgs?.[1]).toBe("https://example.test/diagram.png");
     expect(summary.topPaginationCommandArgs?.[1]).toBe("https://example.test/next");
     expect(summary.topEmbedCommandArgs?.[1]).toBe("https://example.test/embed");
     expect(summary.topTranscriptCommandArgs?.[1]).toBe("https://example.test/transcript.txt");

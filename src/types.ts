@@ -2029,6 +2029,8 @@ export type AgentSummary = {
   topResourceCommandArgs?: string[];
   topMediaKind?: string;
   topMediaUrl?: string;
+  topMediaCommand?: string;
+  topMediaCommandArgs?: string[];
   topMediaText?: string;
   topSectionPath?: string;
   topSectionHeading?: string;

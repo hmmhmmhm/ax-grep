@@ -10544,6 +10544,8 @@ npx ax-grep https://example.test --agent</code></pre>
       mediaCount: 2,
       topMediaKind: "open-graph",
       topMediaUrl: "https://example.test/share.png",
+      topMediaCommand: "ax-grep 'https://example.test/share.png' --agent",
+      topMediaCommandArgs: ["ax-grep", "https://example.test/share.png", "--agent"],
       topMediaText: "Share preview chart - https://example.test/share.png",
     });
     expect(envelope.agent.primaryAction).toMatchObject({
@@ -10593,6 +10595,8 @@ npx ax-grep https://example.test --agent</code></pre>
       mediaCount: 1,
       topMediaKind: "open-graph",
       topMediaUrl: "https://example.test/share.png",
+      topMediaCommand: "ax-grep 'https://example.test/share.png' --agent-brief",
+      topMediaCommandArgs: ["ax-grep", "https://example.test/share.png", "--agent-brief"],
       topMediaText: "Share preview chart - https://example.test/share.png",
     });
   });

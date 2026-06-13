@@ -1662,6 +1662,8 @@ type AgentSummary = {
   topResourceCommandArgs?: string[];
   topMediaKind?: PageMediaSummary["kind"];
   topMediaUrl?: string;
+  topMediaCommand?: string;
+  topMediaCommandArgs?: string[];
   topMediaText?: string;
   topSectionPath?: string;
   topSectionHeading?: string;
@@ -4038,6 +4040,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topResourceCommand ? [`  topResourceCommand: ${agent.topResourceCommand}`] : []),
     ...(agent.topResourceCommandArgs ? [`  topResourceCommandArgs: ${formatCommandArgsText(agent.topResourceCommandArgs)}`] : []),
     ...(agent.topMediaUrl ? [`  topMediaUrl: ${agent.topMediaUrl}`] : []),
+    ...(agent.topMediaCommand ? [`  topMediaCommand: ${agent.topMediaCommand}`] : []),
+    ...(agent.topMediaCommandArgs ? [`  topMediaCommandArgs: ${formatCommandArgsText(agent.topMediaCommandArgs)}`] : []),
     ...(agent.topSectionPath ? [`  topSectionPath: ${agent.topSectionPath}`] : []),
     ...(agent.topSectionHeading ? [`  topSectionHeading: ${agent.topSectionHeading}`] : []),
     ...(typeof agent.topSectionLevel === "number" ? [`  topSectionLevel: ${agent.topSectionLevel}`] : []),
@@ -12120,6 +12124,9 @@ function summarizeAgent(
   const topResourceCommand = pageCheck.resources[0]?.url
     ? pageCommandSpec(pageCheck.resources[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topMediaCommand = pageCheck.media[0]?.url && /^https?:\/\//i.test(pageCheck.media[0].url)
+    ? pageCommandSpec(pageCheck.media[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topProvenanceCommand = pageCheck.provenance[0]?.url
     ? pageCommandSpec(pageCheck.provenance[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -12963,6 +12970,8 @@ function summarizeAgent(
     ...(topResourceCommand ? { topResourceCommandArgs: topResourceCommand.commandArgs } : {}),
     ...(pageCheck.media[0] ? { topMediaKind: pageCheck.media[0].kind } : {}),
     ...(pageCheck.media[0]?.url ? { topMediaUrl: pageCheck.media[0].url } : {}),
+    ...(topMediaCommand ? { topMediaCommand: topMediaCommand.command } : {}),
+    ...(topMediaCommand ? { topMediaCommandArgs: topMediaCommand.commandArgs } : {}),
     ...(pageCheck.media[0]?.text ? { topMediaText: pageCheck.media[0].text } : {}),
     ...(pageCheck.sections[0] ? { topSectionPath: pageCheck.sections[0].path } : {}),
     ...(pageCheck.sections[0]?.heading ? { topSectionHeading: pageCheck.sections[0].heading } : {}),
@@ -18786,6 +18795,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topResourceCommandArgs ? { topResourceCommandArgs: agent.topResourceCommandArgs } : {}),
     ...(agent.topMediaKind ? { topMediaKind: agent.topMediaKind } : {}),
     ...(agent.topMediaUrl ? { topMediaUrl: agent.topMediaUrl } : {}),
+    ...(agent.topMediaCommand ? { topMediaCommand: agent.topMediaCommand } : {}),
+    ...(agent.topMediaCommandArgs ? { topMediaCommandArgs: agent.topMediaCommandArgs } : {}),
     ...(agent.topMediaText ? { topMediaText: agent.topMediaText } : {}),
     ...(agent.topSectionPath ? { topSectionPath: agent.topSectionPath } : {}),
     ...(agent.topSectionHeading ? { topSectionHeading: agent.topSectionHeading } : {}),
@@ -20025,6 +20036,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topResourceCommandArgs ? { topResourceCommandArgs: agent.topResourceCommandArgs } : {}),
     ...(agent.topMediaKind ? { topMediaKind: agent.topMediaKind } : {}),
     ...(agent.topMediaUrl ? { topMediaUrl: agent.topMediaUrl } : {}),
+    ...(agent.topMediaCommand ? { topMediaCommand: agent.topMediaCommand } : {}),
+    ...(agent.topMediaCommandArgs ? { topMediaCommandArgs: agent.topMediaCommandArgs } : {}),
     ...(agent.topMediaText ? { topMediaText: agent.topMediaText } : {}),
     ...(agent.topSectionPath ? { topSectionPath: agent.topSectionPath } : {}),
     ...(agent.topSectionHeading ? { topSectionHeading: agent.topSectionHeading } : {}),

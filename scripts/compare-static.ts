@@ -1520,6 +1520,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topResourceCommandArgs?: string[];
       topMediaKind?: string;
       topMediaUrl?: string;
+      topMediaCommand?: string;
+      topMediaCommandArgs?: string[];
       topMediaText?: string;
       topSectionPath?: string;
       topSectionHeading?: string;
@@ -8050,6 +8052,8 @@ function scoreAgentStructuredShortcuts(agent: {
   topResourceCommandArgs?: string[];
   topMediaKind?: string;
   topMediaUrl?: string;
+  topMediaCommand?: string;
+  topMediaCommandArgs?: string[];
   topMediaText?: string;
   topSectionPath?: string;
   topSectionHeading?: string;
@@ -8273,7 +8277,12 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topMediaKind === topMedia.kind) matched += 1;
     if (agent.topMediaUrl === topMedia.url) matched += 1;
     if (agent.topMediaText === topMedia.text) matched += 1;
-  } else if (agent.topMediaKind || agent.topMediaUrl || agent.topMediaText) {
+    if (topMedia.url && /^https?:\/\//i.test(topMedia.url)) {
+      required += 2;
+      if (typeof agent.topMediaCommand === "string" && agent.topMediaCommand.includes(topMedia.url)) matched += 1;
+      if (Array.isArray(agent.topMediaCommandArgs) && agent.topMediaCommandArgs.includes(topMedia.url)) matched += 1;
+    }
+  } else if (agent.topMediaKind || agent.topMediaUrl || agent.topMediaCommand || agent.topMediaCommandArgs || agent.topMediaText) {
     required += 1;
   }
 
