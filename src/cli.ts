@@ -4386,6 +4386,10 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.primaryReadTargetReason) lines.push(`  primaryReadTargetReason: ${agent.primaryReadTargetReason}`);
   if (agent.primaryBrowserHtmlReason) lines.push(`  primaryBrowserHtmlReason: ${agent.primaryBrowserHtmlReason}`);
   if (agent.primaryBrowserHtmlReasonCode) lines.push(`  primaryBrowserHtmlReasonCode: ${agent.primaryBrowserHtmlReasonCode}`);
+  if (agent.primaryCommand) lines.push(`  primaryCommand: ${agent.primaryCommand}`);
+  if (agent.primaryCommandArgs) lines.push(`  primaryCommandArgs: ${formatCommandArgsText(agent.primaryCommandArgs)}`);
+  if (agent.primaryAfterInteractionCommand) lines.push(`  primaryAfterInteractionCommand: ${agent.primaryAfterInteractionCommand}`);
+  if (agent.primaryAfterInteractionCommandArgs) lines.push(`  primaryAfterInteractionCommandArgs: ${formatCommandArgsText(agent.primaryAfterInteractionCommandArgs)}`);
   if (agent.primarySourceLinkRef) lines.push(`  primarySourceLinkRef: ${agent.primarySourceLinkRef}`);
   if (agent.primaryTargetUrl) lines.push(`  primaryTargetUrl: ${agent.primaryTargetUrl}`);
   if (agent.primaryTargetPath) lines.push(`  primaryTargetPath: ${agent.primaryTargetPath}`);

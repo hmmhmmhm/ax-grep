@@ -11378,6 +11378,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain(" command=ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
     expect(stdout.output).toContain("  topChoiceCommandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  pageDecisionCommandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  primaryCommand: ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
+    expect(stdout.output).toContain("  primaryCommandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  topFormChoicePath: pageCheck.forms[0]");
     expect(stdout.output).toContain("  topFormChoiceMethod: get");
     expect(stdout.output).toContain("  topFormChoiceActionUrl: https://example.test/find");
