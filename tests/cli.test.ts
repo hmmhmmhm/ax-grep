@@ -2836,6 +2836,7 @@ describe("cli", () => {
         {
           title: "API reference",
           url: "https://docs.example/agent-browser/api",
+          selector: "a",
         },
       ],
     });
@@ -2848,6 +2849,7 @@ describe("cli", () => {
       topResultChoiceSitelinkCount: 1,
       topResultChoiceFirstSitelinkTitle: "API reference",
       topResultChoiceFirstSitelinkUrl: "https://docs.example/agent-browser/api",
+      topResultChoiceFirstSitelinkSelector: "a",
     });
   });
 
@@ -11428,6 +11430,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("     reason: Ranked result 1 from result.example.");
     expect(stdout.output).toContain("     snippet: Snippet text explains why this result is useful for the current investigation.");
     expect(stdout.output).toContain("     sitelink: Docs sitelink <https://result.example/article/docs> selector=a:nth-of-type(2)");
+    expect(stdout.output).toContain("resultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult source=result.example sitelinks=1 firstSitelinkSelector=a:nth-of-type(2)");
     expect(stdout.output).toContain("Result Title <https://result.example/article> role=link selector=a");
     expect(stdout.output).toContain("snippet: Snippet text explains why this result is useful for the current investigation.");
   });

@@ -3563,10 +3563,11 @@ function formatAgentResultChoiceText(choice: AgentResultChoice, prefix = "result
   const matchedTerms = choice.matchedTerms?.length ? ` terms=${choice.matchedTerms.join(",")}` : "";
   const findMatches = choice.findMatches?.length ? ` find=${choice.findMatches.join(",")}` : "";
   const sitelinks = choice.sitelinks?.length ? ` sitelinks=${choice.sitelinks.length}` : "";
+  const firstSitelinkSelector = choice.sitelinks?.[0]?.selector ? ` firstSitelinkSelector=${choice.sitelinks[0].selector}` : "";
   const target = choice.url ? ` <${choice.url}>` : "";
   const reason = choice.selectionReason ? ` - ${choice.selectionReason}` : "";
   const title = choice.title ? ` ${choice.title}` : "";
-  const lines = [`  ${prefix}: ${choice.id} ${choice.path}${rank}${flagText}${score}${relevance}${date}${dateText}${datePrecision}${dateSource}${source}${sourceType}${official}${matchedTerms}${findMatches}${sitelinks}${target}${reason}${title}`];
+  const lines = [`  ${prefix}: ${choice.id} ${choice.path}${rank}${flagText}${score}${relevance}${date}${dateText}${datePrecision}${dateSource}${source}${sourceType}${official}${matchedTerms}${findMatches}${sitelinks}${firstSitelinkSelector}${target}${reason}${title}`];
   if (choice.snippet) lines.push(`    snippet: ${choice.snippet}`);
   if (choice.command) lines.push(`    command: ${choice.command}`);
   if (choice.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
@@ -3650,10 +3651,11 @@ function formatAgentSourceSearchResultText(result: AgentSourceSearchResult, pref
   const sitelinks = result.sitelinks?.length ? ` sitelinks=${result.sitelinks.length}` : "";
   const firstSitelink = result.sitelinks?.[0]?.title ? ` firstSitelink=${result.sitelinks[0].title}` : "";
   const firstSitelinkUrl = result.sitelinks?.[0]?.url ? ` firstSitelinkUrl=${result.sitelinks[0].url}` : "";
+  const firstSitelinkSelector = result.sitelinks?.[0]?.selector ? ` firstSitelinkSelector=${result.sitelinks[0].selector}` : "";
   const target = result.url ? ` <${result.url}>` : "";
   const reason = result.selectionReason ? ` - ${result.selectionReason}` : "";
   const title = result.title ? ` ${result.title}` : "";
-  const lines = [`  ${prefix}: ${result.id} ${result.path}${rank}${openResult}${score}${relevance}${date}${dateText}${datePrecision}${dateSource}${source}${host}${sourceType}${official}${snippet}${matchedTerms}${findMatches}${sitelinks}${firstSitelink}${firstSitelinkUrl}${target}${reason}${title}`];
+  const lines = [`  ${prefix}: ${result.id} ${result.path}${rank}${openResult}${score}${relevance}${date}${dateText}${datePrecision}${dateSource}${source}${host}${sourceType}${official}${snippet}${matchedTerms}${findMatches}${sitelinks}${firstSitelink}${firstSitelinkUrl}${firstSitelinkSelector}${target}${reason}${title}`];
   if (result.command) lines.push(`    command: ${result.command}`);
   if (result.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(result.commandArgs)}`);
   if (result.command) lines.push(`  ${prefix}Command: ${result.command}`);
@@ -16201,6 +16203,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(sourceSearchSelectedResult?.sitelinks?.length ? { sourceSearchSelectedSitelinkCount: sourceSearchSelectedResult.sitelinks.length } : {}),
     ...(sourceSearchSelectedResult?.sitelinks?.[0]?.title ? { sourceSearchSelectedFirstSitelinkTitle: sourceSearchSelectedResult.sitelinks[0].title } : {}),
     ...(sourceSearchSelectedResult?.sitelinks?.[0]?.url ? { sourceSearchSelectedFirstSitelinkUrl: sourceSearchSelectedResult.sitelinks[0].url } : {}),
+    ...(sourceSearchSelectedResult?.sitelinks?.[0]?.selector ? { sourceSearchSelectedFirstSitelinkSelector: sourceSearchSelectedResult.sitelinks[0].selector } : {}),
     ...(sourceSearchSelectedResult?.openResult ? { sourceSearchSelectedOpenResult: sourceSearchSelectedResult.openResult } : {}),
     ...(sourceSearchSelectedResult?.command ? { sourceSearchSelectedCommand: sourceSearchSelectedResult.command } : {}),
     ...(sourceSearchSelectedResult?.commandArgs ? { sourceSearchSelectedCommandArgs: sourceSearchSelectedResult.commandArgs } : {}),
@@ -16232,6 +16235,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(sourceSearchAlternateResult?.sitelinks?.length ? { sourceSearchAlternateSitelinkCount: sourceSearchAlternateResult.sitelinks.length } : {}),
     ...(sourceSearchAlternateResult?.sitelinks?.[0]?.title ? { sourceSearchAlternateFirstSitelinkTitle: sourceSearchAlternateResult.sitelinks[0].title } : {}),
     ...(sourceSearchAlternateResult?.sitelinks?.[0]?.url ? { sourceSearchAlternateFirstSitelinkUrl: sourceSearchAlternateResult.sitelinks[0].url } : {}),
+    ...(sourceSearchAlternateResult?.sitelinks?.[0]?.selector ? { sourceSearchAlternateFirstSitelinkSelector: sourceSearchAlternateResult.sitelinks[0].selector } : {}),
     ...(sourceSearchAlternateResult?.openResult ? { sourceSearchAlternateOpenResult: sourceSearchAlternateResult.openResult } : {}),
     ...(sourceSearchAlternateResult?.command ? { sourceSearchAlternateCommand: sourceSearchAlternateResult.command } : {}),
     ...(sourceSearchAlternateResult?.commandArgs ? { sourceSearchAlternateCommandArgs: sourceSearchAlternateResult.commandArgs } : {}),
