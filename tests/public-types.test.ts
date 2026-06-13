@@ -675,6 +675,15 @@ describe("public agent types", () => {
       | "searchDecisionRecommendedDateSource"
       | "searchDecisionRecommendedRelevance"
       | "searchDecisionRecommendedLikelyOfficial"
+      | "searchDecisionFirstOfficialRank"
+      | "searchDecisionFirstOfficialPath"
+      | "searchDecisionFirstOfficialTitle"
+      | "searchDecisionFirstOfficialUrl"
+      | "searchDecisionFirstOfficialSource"
+      | "searchDecisionFirstOfficialSourceScore"
+      | "searchDecisionFirstOfficialRelevance"
+      | "searchDecisionFirstOfficialCommand"
+      | "searchDecisionFirstOfficialCommandArgs"
       | "searchDecisionCommand"
       | "searchDecisionCommandArgs"
       | "pageDecision"
@@ -1889,6 +1898,15 @@ describe("public agent types", () => {
         recommendedDateSource: "snippet",
         recommendedRelevance: "high",
         recommendedLikelyOfficial: true,
+        firstOfficialRank: 1,
+        firstOfficialPath: "searchResults[0]",
+        firstOfficialTitle: "Example result",
+        firstOfficialUrl: "https://example.test",
+        firstOfficialSource: "example.test",
+        firstOfficialSourceScore: 0.92,
+        firstOfficialRelevance: "high",
+        firstOfficialCommand: "ax-grep https://example.test --agent",
+        firstOfficialCommandArgs: ["ax-grep", "https://example.test", "--agent"],
         command: "ax-grep --search example --open-result 1 --agent",
         commandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent"],
       },
@@ -1912,6 +1930,15 @@ describe("public agent types", () => {
       searchDecisionRecommendedDateSource: "snippet",
       searchDecisionRecommendedRelevance: "high",
       searchDecisionRecommendedLikelyOfficial: true,
+      searchDecisionFirstOfficialRank: 1,
+      searchDecisionFirstOfficialPath: "searchResults[0]",
+      searchDecisionFirstOfficialTitle: "Example result",
+      searchDecisionFirstOfficialUrl: "https://example.test",
+      searchDecisionFirstOfficialSource: "example.test",
+      searchDecisionFirstOfficialSourceScore: 0.92,
+      searchDecisionFirstOfficialRelevance: "high",
+      searchDecisionFirstOfficialCommand: "ax-grep https://example.test --agent",
+      searchDecisionFirstOfficialCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       searchDecisionCommand: "ax-grep --search example --open-result 1 --agent",
       searchDecisionCommandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent"],
       pageDecision: {
@@ -2970,6 +2997,10 @@ describe("public agent types", () => {
     expect(summary.searchDecisionRecommendedDatePrecision).toBe("day");
     expect(summary.searchDecisionRecommendedDateSource).toBe("snippet");
     expect(summary.searchDecisionRecommendedLikelyOfficial).toBe(true);
+    expect(summary.searchDecisionFirstOfficialPath).toBe("searchResults[0]");
+    expect(summary.searchDecisionFirstOfficialSourceScore).toBe(0.92);
+    expect(summary.searchDecisionFirstOfficialCommand).toContain("example.test");
+    expect(summary.searchDecisionFirstOfficialCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.searchDecisionCommand).toContain("--open-result 1");
     expect(summary.searchDecision?.recommendedRelevance).toBe("high");
     expect(summary.searchDecision?.recommendedDateText).toBe("2026-05-31");

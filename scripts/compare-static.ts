@@ -593,6 +593,15 @@ type CliAgentSearchDecisionShape = {
   recommendedSourceScore?: number;
   recommendedRelevance?: CliSearchResultShape["relevance"];
   recommendedLikelyOfficial?: boolean;
+  firstOfficialRank?: number;
+  firstOfficialPath?: string;
+  firstOfficialTitle?: string;
+  firstOfficialUrl?: string;
+  firstOfficialSource?: string;
+  firstOfficialSourceScore?: number;
+  firstOfficialRelevance?: CliSearchResultShape["relevance"];
+  firstOfficialCommand?: string;
+  firstOfficialCommandArgs?: unknown[];
   command?: string;
   commandArgs?: unknown[];
 };
@@ -1245,6 +1254,15 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       searchDecisionRecommendedSourceScore?: number;
       searchDecisionRecommendedRelevance?: CliSearchResultShape["relevance"];
       searchDecisionRecommendedLikelyOfficial?: boolean;
+      searchDecisionFirstOfficialRank?: number;
+      searchDecisionFirstOfficialPath?: string;
+      searchDecisionFirstOfficialTitle?: string;
+      searchDecisionFirstOfficialUrl?: string;
+      searchDecisionFirstOfficialSource?: string;
+      searchDecisionFirstOfficialSourceScore?: number;
+      searchDecisionFirstOfficialRelevance?: CliSearchResultShape["relevance"];
+      searchDecisionFirstOfficialCommand?: string;
+      searchDecisionFirstOfficialCommandArgs?: string[];
       searchDecisionCommand?: string;
       searchDecisionCommandArgs?: string[];
       pageDecisionName?: CliAgentPageDecisionShape["decision"];
@@ -6258,6 +6276,15 @@ function scoreAgentSearchDecision(
     searchDecisionRecommendedSourceScore?: number;
     searchDecisionRecommendedRelevance?: CliSearchResultShape["relevance"];
     searchDecisionRecommendedLikelyOfficial?: boolean;
+    searchDecisionFirstOfficialRank?: number;
+    searchDecisionFirstOfficialPath?: string;
+    searchDecisionFirstOfficialTitle?: string;
+    searchDecisionFirstOfficialUrl?: string;
+    searchDecisionFirstOfficialSource?: string;
+    searchDecisionFirstOfficialSourceScore?: number;
+    searchDecisionFirstOfficialRelevance?: CliSearchResultShape["relevance"];
+    searchDecisionFirstOfficialCommand?: string;
+    searchDecisionFirstOfficialCommandArgs?: string[];
     searchDecisionCommand?: string;
     searchDecisionCommandArgs?: string[];
   } | undefined,
@@ -6351,6 +6378,60 @@ function scoreAgentSearchDecision(
     required += 1;
     if (agent?.searchDecisionRecommendedLikelyOfficial === decision.recommendedLikelyOfficial) matched += 1;
   } else if (typeof agent?.searchDecisionRecommendedLikelyOfficial === "boolean") {
+    required += 1;
+  }
+  if (typeof decision.firstOfficialRank === "number") {
+    required += 1;
+    if (agent?.searchDecisionFirstOfficialRank === decision.firstOfficialRank) matched += 1;
+  } else if (typeof agent?.searchDecisionFirstOfficialRank === "number") {
+    required += 1;
+  }
+  if (decision.firstOfficialPath) {
+    required += 1;
+    if (agent?.searchDecisionFirstOfficialPath === decision.firstOfficialPath) matched += 1;
+  } else if (agent?.searchDecisionFirstOfficialPath) {
+    required += 1;
+  }
+  if (decision.firstOfficialTitle) {
+    required += 1;
+    if (agent?.searchDecisionFirstOfficialTitle === decision.firstOfficialTitle) matched += 1;
+  } else if (agent?.searchDecisionFirstOfficialTitle) {
+    required += 1;
+  }
+  if (decision.firstOfficialUrl) {
+    required += 1;
+    if (agent?.searchDecisionFirstOfficialUrl === decision.firstOfficialUrl) matched += 1;
+  } else if (agent?.searchDecisionFirstOfficialUrl) {
+    required += 1;
+  }
+  if (decision.firstOfficialSource) {
+    required += 1;
+    if (agent?.searchDecisionFirstOfficialSource === decision.firstOfficialSource) matched += 1;
+  } else if (agent?.searchDecisionFirstOfficialSource) {
+    required += 1;
+  }
+  if (typeof decision.firstOfficialSourceScore === "number") {
+    required += 1;
+    if (agent?.searchDecisionFirstOfficialSourceScore === decision.firstOfficialSourceScore) matched += 1;
+  } else if (typeof agent?.searchDecisionFirstOfficialSourceScore === "number") {
+    required += 1;
+  }
+  if (decision.firstOfficialRelevance) {
+    required += 1;
+    if (agent?.searchDecisionFirstOfficialRelevance === decision.firstOfficialRelevance) matched += 1;
+  } else if (agent?.searchDecisionFirstOfficialRelevance) {
+    required += 1;
+  }
+  if (decision.firstOfficialCommandArgs) {
+    required += 1;
+    if (JSON.stringify(agent?.searchDecisionFirstOfficialCommandArgs) === JSON.stringify(decision.firstOfficialCommandArgs)) matched += 1;
+  } else if (agent?.searchDecisionFirstOfficialCommandArgs) {
+    required += 1;
+  }
+  if (decision.firstOfficialCommand) {
+    required += 1;
+    if (agent?.searchDecisionFirstOfficialCommand === decision.firstOfficialCommand) matched += 1;
+  } else if (agent?.searchDecisionFirstOfficialCommand) {
     required += 1;
   }
   if (decision.commandArgs) {
