@@ -12,7 +12,7 @@ type StaticContext = {
   ids: Map<string, Element>;
   collapsedControlledIds: Set<string>;
   labelsByFor: Map<string, string>;
-  slotAssignments: Map<string, Element[]> | undefined;
+  slotAssignments: Map<string, AnyNode[]> | undefined;
 };
 
 const defaultOptions = {
@@ -178,7 +178,7 @@ function indexDocument(nodes: AnyNode[], context: StaticContext): void {
     }
     if (node.name === "label") {
       const target = attr(node, "for");
-      if (target) context.labelsByFor.set(target, normalizeText(descendantText(node), context.options.maxTextLength));
+      if (target) context.labelsByFor.set(target, normalizeText(descendantText(node, context), context.options.maxTextLength));
     }
     indexDocument(node.children, context);
   }
@@ -270,8 +270,24 @@ function collectChildren(element: Element, context: StaticContext): SemanticNode
     const assignedChildren = context.slotAssignments.get(slotName) ?? [];
     const projectedChildren = assignedChildren.length > 0 ? assignedChildren : element.children.filter(isElement);
     for (const child of projectedChildren) {
-      const semanticChild = walkElement(child, context);
-      omitted += appendSemanticChild(element, semanticChild, children, repeatedSignatures, context);
+      if (isElement(child)) {
+        const semanticChild = walkElement(child, context);
+        omitted += appendSemanticChild(element, semanticChild, children, repeatedSignatures, context);
+      } else if (context.options.includeTextNodes && isText(child)) {
+        const text = normalizeText(child.data, context.options.maxTextLength);
+        if (text) {
+          children.push({
+            id: nextId(context),
+            tag: "#text",
+            role: "text",
+            name: text,
+            text,
+            interactive: false,
+            focusable: false,
+            children: [],
+          });
+        }
+      }
     }
     if (omitted > 0) children.push(omittedNode(context, omitted));
     return children;
@@ -312,16 +328,22 @@ function collectChildren(element: Element, context: StaticContext): SemanticNode
   return children;
 }
 
-function collectSlotAssignments(host: Element): Map<string, Element[]> {
-  const assignments = new Map<string, Element[]>();
+function collectSlotAssignments(host: Element): Map<string, AnyNode[]> {
+  const assignments = new Map<string, AnyNode[]>();
   for (const child of host.children) {
-    if (!isElement(child) || isDeclarativeShadowTemplate(child)) continue;
-    const slotName = attr(child, "slot") ?? "";
+    if (!isUsefulSlotAssignment(child)) continue;
+    const slotName = isElement(child) ? attr(child, "slot") ?? "" : "";
     const assigned = assignments.get(slotName) ?? [];
     assigned.push(child);
     assignments.set(slotName, assigned);
   }
   return assignments;
+}
+
+function isUsefulSlotAssignment(node: AnyNode): boolean {
+  if (isText(node)) return normalizeText(node.data, 120) !== "";
+  if (!isElement(node)) return false;
+  return !isDeclarativeShadowTemplate(node);
 }
 
 function appendSemanticChild(
@@ -665,7 +687,7 @@ function computeName(element: Element, role: string, context: StaticContext): st
       .split(/\s+/)
       .map((id) => context.ids.get(id))
       .filter((item): item is Element => Boolean(item))
-      .map((item) => descendantText(item))
+      .map((item) => descendantText(item, context))
       .join(" ");
     const normalized = normalizeText(value, context.options.maxTextLength);
     if (normalized) return normalized;
@@ -686,7 +708,7 @@ function computeName(element: Element, role: string, context: StaticContext): st
   }
 
   if (rolesNamedFromContents.has(role)) {
-    const contents = normalizeText(descendantText(element), context.options.maxTextLength);
+    const contents = normalizeText(descendantText(element, context), context.options.maxTextLength);
     if (contents) return contents;
   }
 
@@ -703,7 +725,7 @@ function labelName(element: Element, context: StaticContext): string {
     if (value) return value;
   }
   const label = findClosestLabel(element);
-  return label ? normalizeText(descendantText(label), context.options.maxTextLength) : "";
+  return label ? normalizeText(descendantText(label, context), context.options.maxTextLength) : "";
 }
 
 function findClosestLabel(element: Element): Element | null {
@@ -901,21 +923,27 @@ function directText(element: Element, maxLength: number): string {
   );
 }
 
-function descendantText(element: Element): string {
+function descendantText(element: Element, context?: StaticContext): string {
   const parts: string[] = [];
-  collectDescendantText(element.children, parts);
+  collectDescendantText(element.children, parts, context);
   return parts.join(" ");
 }
 
-function collectDescendantText(nodes: AnyNode[], parts: string[]): void {
+function collectDescendantText(nodes: AnyNode[], parts: string[], context?: StaticContext): void {
   for (const node of nodes) {
     if (isText(node)) {
       parts.push(node.data);
       continue;
     }
     if (!isElement(node)) continue;
+    if (node.name === "slot" && context?.slotAssignments) {
+      const slotName = attr(node, "name") ?? "";
+      const assigned = context.slotAssignments.get(slotName) ?? [];
+      collectDescendantText(assigned.length > 0 ? assigned : node.children, parts, context);
+      continue;
+    }
     if (nonSemanticTags.has(node.name) || node.name === "noscript") continue;
-    collectDescendantText(node.children, parts);
+    collectDescendantText(node.children, parts, context);
   }
 }
 
@@ -931,7 +959,7 @@ function computeDescription(element: Element, context: StaticContext): string {
       .split(/\s+/)
       .map((id) => context.ids.get(id))
       .filter((item): item is Element => Boolean(item))
-      .map((item) => descendantText(item))
+      .map((item) => descendantText(item, context))
       .filter(Boolean)
       .join(" ");
     if (text) return normalizeText(text, context.options.maxTextLength);

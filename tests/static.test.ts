@@ -330,6 +330,17 @@ describe("static extract", () => {
             <slot><button>Fallback only</button></slot>
           </template>
         </x-empty>
+        <x-text-button>
+          Slotted text action
+          <template shadowrootmode="open">
+            <button><slot>Fallback text action</slot></button>
+          </template>
+        </x-text-button>
+        <x-whitespace>
+          <template shadowrootmode="open">
+            <button><slot>Whitespace fallback</slot></button>
+          </template>
+        </x-whitespace>
       </main>
     `);
 
@@ -338,8 +349,11 @@ describe("static extract", () => {
     expect(namedRoles).toContain("region:Projected result");
     expect(namedRoles).toContain("link:Slotted action");
     expect(namedRoles).toContain("button:Fallback only");
+    expect(namedRoles).toContain("button:Slotted text action");
+    expect(namedRoles).toContain("button:Whitespace fallback");
     expect(namedRoles).not.toContain("button:Fallback action");
     expect(namedRoles).not.toContain("button:Unslotted light action");
+    expect(namedRoles).not.toContain("button:Fallback text action");
   });
 
   it("summarizes very large repeated static subtrees", () => {

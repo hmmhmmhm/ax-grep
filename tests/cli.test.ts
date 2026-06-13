@@ -4731,6 +4731,34 @@ describe("cli", () => {
     expect(agentText).not.toContain("Unslotted light action");
   });
 
+  it("uses slotted text for declarative shadow DOM accessible names", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/slotted-text", "--stdin", "--agent-brief"], {
+      stdout,
+      stdin: Readable.from([`
+        <main>
+          <x-action>
+            Slotted text action
+            <template shadowrootmode="open">
+              <button><slot>Fallback text action</slot></button>
+            </template>
+          </x-action>
+        </main>
+      `]) as NodeJS.ReadStream,
+      fetch: async () => {
+        throw new Error("fetch should not run for --stdin");
+      },
+    });
+
+    const envelope = JSON.parse(stdout.output);
+    const agentText = JSON.stringify(envelope.agent);
+
+    expect(status).toBe(0);
+    expect(envelope.agent.semanticTopButtonName).toBe("Slotted text action");
+    expect(envelope.agent.semanticTopInteractiveName).toBe("Slotted text action");
+    expect(agentText).not.toContain("Fallback text action");
+  });
+
   it("summarizes data tables as pageCheck read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/pricing", "--agent"], {
