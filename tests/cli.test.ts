@@ -11341,8 +11341,10 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  browserHtmlUrl: https://example.test");
     expect(stdout.output).toContain("  browserHtmlFile: captured.html");
     expect(stdout.output).toContain("  browserHtmlCaptureScript: document.documentElement.outerHTML");
+    expect(stdout.output).toContain("  browserHtmlCommand: ax-grep 'https://example.test' --html-file captured.html --json --summary");
     expect(stdout.output).toContain("  browserHtmlCommandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  executor: browser/capture-browser-html/low action=retry-with-browser-html status=blocked - ");
+    expect(stdout.output).toContain("  executorCommand: ax-grep 'https://example.test' --html-file captured.html --json --summary");
     expect(stdout.output).toContain("  executorCommandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  executorBrowserHtml: captured.html capture=document.documentElement.outerHTML");
     expect(stdout.output).toContain("  executorBrowserHtmlReason: Browser-captured HTML or browser inspection is needed.");
@@ -11350,6 +11352,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  executorBrowserHtmlUrl: https://example.test");
     expect(stdout.output).toContain("  executorBrowserHtmlCommandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  handoff: browser/capture-browser-html/low action=retry-with-browser-html priority=high - ");
+    expect(stdout.output).toContain("  handoffCommand: ax-grep 'https://example.test' --html-file captured.html --json --summary");
     expect(stdout.output).toContain("  handoffCommandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  handoffUrl: https://example.test");
     expect(stdout.output).toContain("  handoffBrowserHtml: captured.html capture=document.documentElement.outerHTML");
