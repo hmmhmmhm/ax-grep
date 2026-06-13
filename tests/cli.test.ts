@@ -733,6 +733,14 @@ describe("cli", () => {
         semanticTopTableFirstSampleCellSelected: true,
         semanticTopTableFirstSampleCellCurrent: "page",
         semanticTopTableFirstSampleCellSelector: "td",
+        semanticTopTableSecondSampleCellPath: "agent.semanticSummary.tableItems[0].sampleCellRefs[1]",
+        semanticTopTableSecondSampleCellText: "Queued",
+        semanticTopTableSecondSampleCellRowIndex: 50,
+        semanticTopTableSecondSampleCellColumnIndex: 4,
+        semanticTopTableSecondSampleCellHeaders: ["Value"],
+        semanticTopTableSecondSampleCellColumnHeaders: ["Value"],
+        semanticTopTableSecondSampleCellSelector: "span:nth-of-type(2)",
+        semanticTopTableSecondSampleCellOwnedTarget: "owned-rows",
         semanticTopTableFirstOwnedSampleCellPath: "agent.semanticSummary.tableItems[0].sampleCellRefs[1]",
         semanticTopTableFirstOwnedSampleCellText: "Queued",
         semanticTopTableFirstOwnedSampleCellRowIndex: 50,
@@ -5524,6 +5532,26 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  semanticTopTableFirstSampleCell: agent.semanticSummary.tableItems[0].sampleCellRefs[0] Q1 combined rowSpan=2 columnSpan=2");
+  });
+
+  it("prints second table sample cell in text agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/report"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h1>Quarterly report</h1>
+          <table aria-label="Revenue by quarter">
+            <tr><th>Quarter</th><th>Revenue</th></tr>
+            <tr><td>Q1</td><td>Q2 review</td></tr>
+          </table>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticTopTableSecondSampleCell: agent.semanticSummary.tableItems[0].sampleCellRefs[1] Q2 review");
   });
 
   it("prints first owned table sample cell in text agent output", async () => {

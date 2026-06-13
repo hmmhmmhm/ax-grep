@@ -841,6 +841,19 @@ describe("public agent types", () => {
       | "semanticTopTableFirstSampleCellCurrent"
       | "semanticTopTableFirstSampleCellSelector"
       | "semanticTopTableFirstSampleCellOwnedTarget"
+      | "semanticTopTableSecondSampleCellPath"
+      | "semanticTopTableSecondSampleCellText"
+      | "semanticTopTableSecondSampleCellRowIndex"
+      | "semanticTopTableSecondSampleCellColumnIndex"
+      | "semanticTopTableSecondSampleCellRowSpan"
+      | "semanticTopTableSecondSampleCellColumnSpan"
+      | "semanticTopTableSecondSampleCellHeaders"
+      | "semanticTopTableSecondSampleCellRowHeaders"
+      | "semanticTopTableSecondSampleCellColumnHeaders"
+      | "semanticTopTableSecondSampleCellSelected"
+      | "semanticTopTableSecondSampleCellCurrent"
+      | "semanticTopTableSecondSampleCellSelector"
+      | "semanticTopTableSecondSampleCellOwnedTarget"
       | "semanticTopTableFirstOwnedSampleCellPath"
       | "semanticTopTableFirstOwnedSampleCellText"
       | "semanticTopTableFirstOwnedSampleCellRowIndex"
@@ -2032,7 +2045,10 @@ describe("public agent types", () => {
       semanticTopTableOwnedCount: 1,
       semanticTopTableOwnedRefs: [{ target: "virtual-rows", role: "rowgroup", name: "Virtual rows", selector: "#virtual-rows" }],
       semanticTopTableSampleCells: ["Pro", "$20"],
-      semanticTopTableSampleCellRefs: [{ path: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]", text: "Pro", rowIndex: 2, columnIndex: 1, rowSpan: 2, columnSpan: 3, headers: ["Plan", "Price"], rowHeaders: ["Plan"], columnHeaders: ["Price"], selected: true, current: "page", selector: "td:nth-of-type(1)", ownedTarget: "virtual-rows" }],
+      semanticTopTableSampleCellRefs: [
+        { path: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]", text: "Pro", rowIndex: 2, columnIndex: 1, rowSpan: 2, columnSpan: 3, headers: ["Plan", "Price"], rowHeaders: ["Plan"], columnHeaders: ["Price"], selected: true, current: "page", selector: "td:nth-of-type(1)", ownedTarget: "virtual-rows" },
+        { path: "agent.semanticSummary.tableItems[0].sampleCellRefs[1]", text: "$20", rowIndex: 2, columnIndex: 2, rowSpan: 1, columnSpan: 1, headers: ["Price"], rowHeaders: ["Pro"], columnHeaders: ["Price"], selected: false, current: "false", selector: "td:nth-of-type(2)", ownedTarget: "virtual-rows" },
+      ],
       semanticTopTableFirstHeader: "Plan",
       semanticTopTableFirstHeaderPath: "agent.semanticSummary.tableItems[0].headerRefs[0]",
       semanticTopTableFirstHeaderRole: "columnheader",
@@ -2057,6 +2073,19 @@ describe("public agent types", () => {
       semanticTopTableFirstSampleCellCurrent: "page",
       semanticTopTableFirstSampleCellSelector: "td:nth-of-type(1)",
       semanticTopTableFirstSampleCellOwnedTarget: "virtual-rows",
+      semanticTopTableSecondSampleCellPath: "agent.semanticSummary.tableItems[0].sampleCellRefs[1]",
+      semanticTopTableSecondSampleCellText: "$20",
+      semanticTopTableSecondSampleCellRowIndex: 2,
+      semanticTopTableSecondSampleCellColumnIndex: 2,
+      semanticTopTableSecondSampleCellRowSpan: 1,
+      semanticTopTableSecondSampleCellColumnSpan: 1,
+      semanticTopTableSecondSampleCellHeaders: ["Price"],
+      semanticTopTableSecondSampleCellRowHeaders: ["Pro"],
+      semanticTopTableSecondSampleCellColumnHeaders: ["Price"],
+      semanticTopTableSecondSampleCellSelected: false,
+      semanticTopTableSecondSampleCellCurrent: "false",
+      semanticTopTableSecondSampleCellSelector: "td:nth-of-type(2)",
+      semanticTopTableSecondSampleCellOwnedTarget: "virtual-rows",
       semanticTopTableFirstOwnedSampleCellPath: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]",
       semanticTopTableFirstOwnedSampleCellText: "Pro",
       semanticTopTableFirstOwnedSampleCellRowIndex: 2,
