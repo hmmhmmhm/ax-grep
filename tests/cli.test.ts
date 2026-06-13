@@ -12148,6 +12148,7 @@ npx ax-grep https://example.test --agent</code></pre>
       needsBrowserInteraction: true,
       primaryAfterInteractionCommand: "ax-grep 'https://captured.example/challenge' --html-file captured.html --agent-brief",
       primaryAfterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent-brief"],
+      primaryBrowserHtmlReasonCode: "challenge",
       requiresBrowserInteraction: true,
       browserHtmlReasonCode: "challenge",
       responseStatus: expect.any(Number),
@@ -12229,6 +12230,7 @@ npx ax-grep https://example.test --agent</code></pre>
       primaryExecution: "interact-browser",
       primaryAfterInteractionCommand: "ax-grep 'https://captured.example/challenge' --html-file captured.html --agent",
       primaryAfterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent"],
+      primaryBrowserHtmlReasonCode: "challenge",
       requiresBrowserInteraction: true,
       primaryAction: {
         action: "inspect-browser-state",

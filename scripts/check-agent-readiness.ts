@@ -1546,6 +1546,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "A106",
           "A107",
           "A108",
+          "A109",
         ]);
       },
     ),

@@ -1981,6 +1981,8 @@ type AgentSummary = {
   primaryCommandArgs?: string[];
   primaryAfterInteractionCommand?: string;
   primaryAfterInteractionCommandArgs?: string[];
+  primaryBrowserHtmlReason?: string;
+  primaryBrowserHtmlReasonCode?: AgentBrowserHtmlReasonCode;
   primaryUrl?: string;
   primarySourceLinkRef?: string;
   primaryRank?: number;
@@ -4201,6 +4203,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (typeof agent.primaryReadTargetScore === "number") lines.push(`  primaryReadTargetScore: ${agent.primaryReadTargetScore}`);
   if (typeof agent.primaryReadTargetPrimary === "boolean") lines.push(`  primaryReadTargetPrimary: ${agent.primaryReadTargetPrimary}`);
   if (agent.primaryReadTargetReason) lines.push(`  primaryReadTargetReason: ${agent.primaryReadTargetReason}`);
+  if (agent.primaryBrowserHtmlReason) lines.push(`  primaryBrowserHtmlReason: ${agent.primaryBrowserHtmlReason}`);
+  if (agent.primaryBrowserHtmlReasonCode) lines.push(`  primaryBrowserHtmlReasonCode: ${agent.primaryBrowserHtmlReasonCode}`);
   if (agent.primarySourceLinkRef) lines.push(`  primarySourceLinkRef: ${agent.primarySourceLinkRef}`);
   if (agent.primaryTargetUrl) lines.push(`  primaryTargetUrl: ${agent.primaryTargetUrl}`);
   if (agent.primaryTargetPath) lines.push(`  primaryTargetPath: ${agent.primaryTargetPath}`);
@@ -12757,6 +12761,8 @@ function summarizeAgent(
     if (primaryAction.commandArgs) agent.primaryCommandArgs = primaryAction.commandArgs;
     if (primaryAction.afterInteractionCommand) agent.primaryAfterInteractionCommand = primaryAction.afterInteractionCommand;
     if (primaryAction.afterInteractionCommandArgs) agent.primaryAfterInteractionCommandArgs = primaryAction.afterInteractionCommandArgs;
+    if (browserHtmlReason) agent.primaryBrowserHtmlReason = browserHtmlReason;
+    if (browserHtmlReasonCode) agent.primaryBrowserHtmlReasonCode = browserHtmlReasonCode;
     if (primaryAction.url) agent.primaryUrl = primaryAction.url;
     if (primaryAction.sourceLinkRef) agent.primarySourceLinkRef = primaryAction.sourceLinkRef;
     if (primaryAction.rank) agent.primaryRank = primaryAction.rank;
@@ -15820,6 +15826,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(primaryAction?.commandArgs ? { primaryCommandArgs: primaryAction.commandArgs } : {}),
     ...(primaryAction?.afterInteractionCommand ? { primaryAfterInteractionCommand: primaryAction.afterInteractionCommand } : {}),
     ...(primaryAction?.afterInteractionCommandArgs ? { primaryAfterInteractionCommandArgs: primaryAction.afterInteractionCommandArgs } : {}),
+    ...(browserHtmlReason ? { primaryBrowserHtmlReason: browserHtmlReason } : {}),
+    ...(browserHtmlReasonCode ? { primaryBrowserHtmlReasonCode: browserHtmlReasonCode } : {}),
     ...(primaryAction?.url ? { primaryUrl: primaryAction.url } : {}),
     ...(primaryAction?.rank ? { primaryRank: primaryAction.rank } : {}),
     ...(primaryAction?.openResult ? { primaryOpenResult: primaryAction.openResult } : {}),
@@ -18242,6 +18250,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.primaryCommandArgs ? { primaryCommandArgs: agent.primaryCommandArgs } : {}),
     ...(agent.primaryAfterInteractionCommand ? { primaryAfterInteractionCommand: agent.primaryAfterInteractionCommand } : {}),
     ...(agent.primaryAfterInteractionCommandArgs ? { primaryAfterInteractionCommandArgs: agent.primaryAfterInteractionCommandArgs } : {}),
+    ...(agent.primaryBrowserHtmlReason ? { primaryBrowserHtmlReason: agent.primaryBrowserHtmlReason } : {}),
+    ...(agent.primaryBrowserHtmlReasonCode ? { primaryBrowserHtmlReasonCode: agent.primaryBrowserHtmlReasonCode } : {}),
     ...(agent.primaryUrl ? { primaryUrl: agent.primaryUrl } : {}),
     ...(agent.primarySourceLinkRef ? { primarySourceLinkRef: agent.primarySourceLinkRef } : {}),
     ...(agent.primaryRank ? { primaryRank: agent.primaryRank } : {}),
@@ -19342,6 +19352,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.primaryCommandArgs ? { primaryCommandArgs: agent.primaryCommandArgs } : {}),
     ...(agent.primaryAfterInteractionCommand ? { primaryAfterInteractionCommand: agent.primaryAfterInteractionCommand } : {}),
     ...(agent.primaryAfterInteractionCommandArgs ? { primaryAfterInteractionCommandArgs: agent.primaryAfterInteractionCommandArgs } : {}),
+    ...(agent.primaryBrowserHtmlReason ? { primaryBrowserHtmlReason: agent.primaryBrowserHtmlReason } : {}),
+    ...(agent.primaryBrowserHtmlReasonCode ? { primaryBrowserHtmlReasonCode: agent.primaryBrowserHtmlReasonCode } : {}),
     ...(agent.primaryUrl ? { primaryUrl: agent.primaryUrl } : {}),
     ...(agent.primarySourceLinkRef ? { primarySourceLinkRef: agent.primarySourceLinkRef } : {}),
     ...(agent.primaryRank ? { primaryRank: agent.primaryRank } : {}),

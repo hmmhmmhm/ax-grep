@@ -1233,6 +1233,8 @@ describe("public agent types", () => {
       | "primaryReadTargetScore"
       | "primaryReadTargetPrimary"
       | "primaryReadTargetReason"
+      | "primaryBrowserHtmlReason"
+      | "primaryBrowserHtmlReasonCode"
       | "primarySourceLinkRef"
       | "primaryTargetUrl"
       | "primaryTargetPath"
@@ -2415,6 +2417,8 @@ describe("public agent types", () => {
       primaryReadTargetScore: 0.9,
       primaryReadTargetPrimary: true,
       primaryReadTargetReason: "Top evidence.",
+      primaryBrowserHtmlReason: "Browser-captured HTML or browser inspection is needed.",
+      primaryBrowserHtmlReasonCode: "challenge",
       primarySourceLinkRef: "pageCheck.sourceLinks[0]",
       primaryTargetUrl: "https://example.test",
       primaryTargetPath: "pageCheck.links[0]",
@@ -2628,6 +2632,7 @@ describe("public agent types", () => {
     expect(summary.handoffTargetRelevance).toBe("high");
     expect(summary.primaryActionName).toBe("read-content");
     expect(summary.primaryExpectedOutcome).toBe("read-evidence");
+    expect(summary.primaryBrowserHtmlReasonCode).toBe("challenge");
     expect(summary.primarySourceLinkRef).toBe("pageCheck.sourceLinks[0]");
     expect(summary.primaryTargetTitle).toBe("Example target");
     expect(summary.primaryTargetSourceScore).toBe(0.92);

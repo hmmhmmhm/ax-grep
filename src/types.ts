@@ -2342,6 +2342,8 @@ export type AgentSummary = {
   primaryCommandArgs?: string[];
   primaryAfterInteractionCommand?: string;
   primaryAfterInteractionCommandArgs?: string[];
+  primaryBrowserHtmlReason?: string;
+  primaryBrowserHtmlReasonCode?: AgentBrowserHtmlReasonCode;
   primaryUrl?: string;
   primarySourceLinkRef?: string;
   primaryRank?: number;
