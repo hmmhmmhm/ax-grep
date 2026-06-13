@@ -2631,6 +2631,8 @@ describe("cli", () => {
       topResultChoiceSourceScore: 0.9,
       topResultChoiceSourceHints: ["package-registry"],
       topResultChoiceDateText: "2026-05-31",
+      topResultChoiceDatePrecision: "day",
+      topResultChoiceDateSource: "snippet",
       topResultChoiceRelevance: "high",
       topResultChoiceMatchedTerm: "ax-grep",
       topResultChoiceLikelyOfficial: true,
@@ -2693,6 +2695,30 @@ describe("cli", () => {
     expect(envelope.pageCheck.nextSteps).not.toContainEqual(expect.objectContaining({
       url: "https://www.npmjs.com/package/axios",
     }));
+  });
+
+  it("prints result-choice date detail metadata in text search output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["--search", "ax-grep npm", "--engine", "bing"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <ol>
+            <li class="b_algo">
+              <h2><a href="https://www.npmjs.com/package/ax-grep">ax-grep - npm</a></h2>
+              <p>2026-05-31 - Install ax-grep from npm.</p>
+            </li>
+          </ol>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("  topResultChoiceDateText: 2026-05-31");
+    expect(stdout.output).toContain("  topResultChoiceDatePrecision: day");
+    expect(stdout.output).toContain("  topResultChoiceDateSource: snippet");
+    expect(stdout.output).toContain("  resultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult");
+    expect(stdout.output).toContain("dateText=2026-05-31 datePrecision=day dateSource=snippet");
   });
 
   it("prefers freshness-matching search results for dated queries", async () => {

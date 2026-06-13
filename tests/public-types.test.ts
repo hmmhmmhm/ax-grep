@@ -259,6 +259,8 @@ describe("public agent types", () => {
       | "topResultChoiceSourceScore"
       | "topResultChoiceSourceHints"
       | "topResultChoiceDateText"
+      | "topResultChoiceDatePrecision"
+      | "topResultChoiceDateSource"
       | "topResultChoiceRelevance"
       | "topResultChoiceMatchedTerm"
       | "topResultChoiceFindMatch"
@@ -1385,6 +1387,8 @@ describe("public agent types", () => {
       topResultChoiceSourceScore: 0.9,
       topResultChoiceSourceHints: ["package-registry"],
       topResultChoiceDateText: "2026-05-31",
+      topResultChoiceDatePrecision: "day",
+      topResultChoiceDateSource: "snippet",
       topResultChoiceRelevance: "high",
       topResultChoiceMatchedTerm: "example",
       topResultChoiceFindMatch: "Example result",

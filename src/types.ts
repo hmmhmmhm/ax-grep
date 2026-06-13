@@ -1846,6 +1846,8 @@ export type AgentSummary = {
   topResultChoiceSourceScore?: number;
   topResultChoiceSourceHints?: string[];
   topResultChoiceDateText?: string;
+  topResultChoiceDatePrecision?: "day" | "month" | "year";
+  topResultChoiceDateSource?: "title" | "snippet";
   topResultChoiceRelevance?: "low" | "medium" | "high";
   topResultChoiceMatchedTerm?: string;
   topResultChoiceFindMatch?: string;

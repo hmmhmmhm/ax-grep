@@ -1478,6 +1478,8 @@ type AgentSummary = {
   topResultChoiceSourceScore?: number;
   topResultChoiceSourceHints?: string[];
   topResultChoiceDateText?: string;
+  topResultChoiceDatePrecision?: AgentResultChoice["datePrecision"];
+  topResultChoiceDateSource?: AgentResultChoice["dateSource"];
   topResultChoiceRelevance?: AgentResultChoice["relevance"];
   topResultChoiceMatchedTerm?: string;
   topResultChoiceFindMatch?: string;
@@ -3505,6 +3507,9 @@ function formatAgentResultChoiceText(choice: AgentResultChoice, prefix = "result
   const score = typeof choice.sourceScore === "number" ? ` score=${choice.sourceScore}` : "";
   const relevance = choice.relevance ? ` relevance=${choice.relevance}` : "";
   const date = choice.date ? ` date=${choice.date}` : "";
+  const dateText = choice.dateText ? ` dateText=${choice.dateText}` : "";
+  const datePrecision = choice.datePrecision ? ` datePrecision=${choice.datePrecision}` : "";
+  const dateSource = choice.dateSource ? ` dateSource=${choice.dateSource}` : "";
   const source = choice.source ? ` source=${choice.source}` : "";
   const sourceType = choice.sourceType ? ` type=${choice.sourceType}` : "";
   const official = typeof choice.isLikelyOfficial === "boolean" ? ` official=${choice.isLikelyOfficial}` : "";
@@ -3514,7 +3519,7 @@ function formatAgentResultChoiceText(choice: AgentResultChoice, prefix = "result
   const target = choice.url ? ` <${choice.url}>` : "";
   const reason = choice.selectionReason ? ` - ${choice.selectionReason}` : "";
   const title = choice.title ? ` ${choice.title}` : "";
-  const lines = [`  ${prefix}: ${choice.id} ${choice.path}${rank}${flagText}${score}${relevance}${date}${source}${sourceType}${official}${matchedTerms}${findMatches}${sitelinks}${target}${reason}${title}`];
+  const lines = [`  ${prefix}: ${choice.id} ${choice.path}${rank}${flagText}${score}${relevance}${date}${dateText}${datePrecision}${dateSource}${source}${sourceType}${official}${matchedTerms}${findMatches}${sitelinks}${target}${reason}${title}`];
   if (choice.snippet) lines.push(`    snippet: ${choice.snippet}`);
   if (choice.command) lines.push(`    command: ${choice.command}`);
   if (choice.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
@@ -3774,6 +3779,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topResultChoiceSourceScore === "number" ? [`  topResultChoiceSourceScore: ${agent.topResultChoiceSourceScore}`] : []),
     ...(agent.topResultChoiceSourceHints?.length ? [`  topResultChoiceSourceHints: ${agent.topResultChoiceSourceHints.join(",")}`] : []),
     ...(agent.topResultChoiceDateText ? [`  topResultChoiceDateText: ${agent.topResultChoiceDateText}`] : []),
+    ...(agent.topResultChoiceDatePrecision ? [`  topResultChoiceDatePrecision: ${agent.topResultChoiceDatePrecision}`] : []),
+    ...(agent.topResultChoiceDateSource ? [`  topResultChoiceDateSource: ${agent.topResultChoiceDateSource}`] : []),
     ...(agent.topResultChoiceRelevance ? [`  topResultChoiceRelevance: ${agent.topResultChoiceRelevance}`] : []),
     ...(agent.topResultChoiceMatchedTerm ? [`  topResultChoiceMatchedTerm: ${agent.topResultChoiceMatchedTerm}`] : []),
     ...(agent.topResultChoiceFindMatch ? [`  topResultChoiceFindMatch: ${agent.topResultChoiceFindMatch}`] : []),
@@ -12344,6 +12351,8 @@ function summarizeAgent(
     ...(typeof resultChoices[0]?.sourceScore === "number" ? { topResultChoiceSourceScore: resultChoices[0].sourceScore } : {}),
     ...(resultChoices[0]?.sourceHints?.length ? { topResultChoiceSourceHints: resultChoices[0].sourceHints } : {}),
     ...(resultChoices[0]?.dateText ? { topResultChoiceDateText: resultChoices[0].dateText } : {}),
+    ...(resultChoices[0]?.datePrecision ? { topResultChoiceDatePrecision: resultChoices[0].datePrecision } : {}),
+    ...(resultChoices[0]?.dateSource ? { topResultChoiceDateSource: resultChoices[0].dateSource } : {}),
     ...(resultChoices[0]?.relevance ? { topResultChoiceRelevance: resultChoices[0].relevance } : {}),
     ...(resultChoices[0]?.matchedTerms?.[0] ? { topResultChoiceMatchedTerm: resultChoices[0].matchedTerms[0] } : {}),
     ...(resultChoices[0]?.findMatches?.[0] ? { topResultChoiceFindMatch: resultChoices[0].findMatches[0] } : {}),
@@ -17955,6 +17964,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.topResultChoiceSourceScore === "number" ? { topResultChoiceSourceScore: agent.topResultChoiceSourceScore } : {}),
     ...(agent.topResultChoiceSourceHints?.length ? { topResultChoiceSourceHints: agent.topResultChoiceSourceHints } : {}),
     ...(agent.topResultChoiceDateText ? { topResultChoiceDateText: agent.topResultChoiceDateText } : {}),
+    ...(agent.topResultChoiceDatePrecision ? { topResultChoiceDatePrecision: agent.topResultChoiceDatePrecision } : {}),
+    ...(agent.topResultChoiceDateSource ? { topResultChoiceDateSource: agent.topResultChoiceDateSource } : {}),
     ...(agent.topResultChoiceRelevance ? { topResultChoiceRelevance: agent.topResultChoiceRelevance } : {}),
     ...(agent.topResultChoiceMatchedTerm ? { topResultChoiceMatchedTerm: agent.topResultChoiceMatchedTerm } : {}),
     ...(agent.topResultChoiceFindMatch ? { topResultChoiceFindMatch: agent.topResultChoiceFindMatch } : {}),
@@ -19103,6 +19114,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.topResultChoiceSourceScore === "number" ? { topResultChoiceSourceScore: agent.topResultChoiceSourceScore } : {}),
     ...(agent.topResultChoiceSourceHints?.length ? { topResultChoiceSourceHints: agent.topResultChoiceSourceHints } : {}),
     ...(agent.topResultChoiceDateText ? { topResultChoiceDateText: agent.topResultChoiceDateText } : {}),
+    ...(agent.topResultChoiceDatePrecision ? { topResultChoiceDatePrecision: agent.topResultChoiceDatePrecision } : {}),
+    ...(agent.topResultChoiceDateSource ? { topResultChoiceDateSource: agent.topResultChoiceDateSource } : {}),
     ...(agent.topResultChoiceRelevance ? { topResultChoiceRelevance: agent.topResultChoiceRelevance } : {}),
     ...(agent.topResultChoiceMatchedTerm ? { topResultChoiceMatchedTerm: agent.topResultChoiceMatchedTerm } : {}),
     ...(agent.topResultChoiceFindMatch ? { topResultChoiceFindMatch: agent.topResultChoiceFindMatch } : {}),
