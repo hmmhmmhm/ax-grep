@@ -1977,6 +1977,9 @@ type AgentSummary = {
   executorTargetSource?: string;
   executorTargetRank?: number;
   executorTargetSourceScore?: number;
+  executorTargetDateText?: string;
+  executorTargetDatePrecision?: AgentTarget["datePrecision"];
+  executorTargetDateSource?: AgentTarget["dateSource"];
   executorTargetRelevance?: AgentTarget["relevance"];
   executorTargetLikelyOfficial?: boolean;
   executorTargetSelector?: string;
@@ -4130,6 +4133,9 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.executorTargetSource) lines.push(`  executorTargetSource: ${agent.executorTargetSource}`);
   if (typeof agent.executorTargetRank === "number") lines.push(`  executorTargetRank: ${agent.executorTargetRank}`);
   if (typeof agent.executorTargetSourceScore === "number") lines.push(`  executorTargetSourceScore: ${agent.executorTargetSourceScore}`);
+  if (agent.executorTargetDateText) lines.push(`  executorTargetDateText: ${agent.executorTargetDateText}`);
+  if (agent.executorTargetDatePrecision) lines.push(`  executorTargetDatePrecision: ${agent.executorTargetDatePrecision}`);
+  if (agent.executorTargetDateSource) lines.push(`  executorTargetDateSource: ${agent.executorTargetDateSource}`);
   if (agent.executorTargetRelevance) lines.push(`  executorTargetRelevance: ${agent.executorTargetRelevance}`);
   if (typeof agent.executorTargetLikelyOfficial === "boolean") lines.push(`  executorTargetLikelyOfficial: ${agent.executorTargetLikelyOfficial}`);
   if (agent.executorTargetSelector) lines.push(`  executorTargetSelector: ${agent.executorTargetSelector}`);
@@ -12898,6 +12904,9 @@ function summarizeAgent(
     ...(executor.target?.source ? { executorTargetSource: executor.target.source } : {}),
     ...(typeof executor.target?.rank === "number" ? { executorTargetRank: executor.target.rank } : {}),
     ...(typeof executor.target?.sourceScore === "number" ? { executorTargetSourceScore: executor.target.sourceScore } : {}),
+    ...(executor.target?.dateText ? { executorTargetDateText: executor.target.dateText } : {}),
+    ...(executor.target?.datePrecision ? { executorTargetDatePrecision: executor.target.datePrecision } : {}),
+    ...(executor.target?.dateSource ? { executorTargetDateSource: executor.target.dateSource } : {}),
     ...(executor.target?.relevance ? { executorTargetRelevance: executor.target.relevance } : {}),
     ...(typeof executor.target?.isLikelyOfficial === "boolean" ? { executorTargetLikelyOfficial: executor.target.isLikelyOfficial } : {}),
     ...(executor.target?.selector ? { executorTargetSelector: executor.target.selector } : {}),
@@ -16072,6 +16081,9 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(executor.target?.source ? { executorTargetSource: executor.target.source } : {}),
     ...(typeof executor.target?.rank === "number" ? { executorTargetRank: executor.target.rank } : {}),
     ...(typeof executor.target?.sourceScore === "number" ? { executorTargetSourceScore: executor.target.sourceScore } : {}),
+    ...(executor.target?.dateText ? { executorTargetDateText: executor.target.dateText } : {}),
+    ...(executor.target?.datePrecision ? { executorTargetDatePrecision: executor.target.datePrecision } : {}),
+    ...(executor.target?.dateSource ? { executorTargetDateSource: executor.target.dateSource } : {}),
     ...(executor.target?.relevance ? { executorTargetRelevance: executor.target.relevance } : {}),
     ...(typeof executor.target?.isLikelyOfficial === "boolean" ? { executorTargetLikelyOfficial: executor.target.isLikelyOfficial } : {}),
     ...(executor.target?.selector ? { executorTargetSelector: executor.target.selector } : {}),
@@ -18539,6 +18551,9 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.executorTargetSource ? { executorTargetSource: agent.executorTargetSource } : {}),
     ...(typeof agent.executorTargetRank === "number" ? { executorTargetRank: agent.executorTargetRank } : {}),
     ...(typeof agent.executorTargetSourceScore === "number" ? { executorTargetSourceScore: agent.executorTargetSourceScore } : {}),
+    ...(agent.executorTargetDateText ? { executorTargetDateText: agent.executorTargetDateText } : {}),
+    ...(agent.executorTargetDatePrecision ? { executorTargetDatePrecision: agent.executorTargetDatePrecision } : {}),
+    ...(agent.executorTargetDateSource ? { executorTargetDateSource: agent.executorTargetDateSource } : {}),
     ...(agent.executorTargetRelevance ? { executorTargetRelevance: agent.executorTargetRelevance } : {}),
     ...(typeof agent.executorTargetLikelyOfficial === "boolean" ? { executorTargetLikelyOfficial: agent.executorTargetLikelyOfficial } : {}),
     ...(agent.executorTargetSelector ? { executorTargetSelector: agent.executorTargetSelector } : {}),
@@ -19700,6 +19715,9 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.executorTargetSource ? { executorTargetSource: agent.executorTargetSource } : {}),
     ...(typeof agent.executorTargetRank === "number" ? { executorTargetRank: agent.executorTargetRank } : {}),
     ...(typeof agent.executorTargetSourceScore === "number" ? { executorTargetSourceScore: agent.executorTargetSourceScore } : {}),
+    ...(agent.executorTargetDateText ? { executorTargetDateText: agent.executorTargetDateText } : {}),
+    ...(agent.executorTargetDatePrecision ? { executorTargetDatePrecision: agent.executorTargetDatePrecision } : {}),
+    ...(agent.executorTargetDateSource ? { executorTargetDateSource: agent.executorTargetDateSource } : {}),
     ...(agent.executorTargetRelevance ? { executorTargetRelevance: agent.executorTargetRelevance } : {}),
     ...(typeof agent.executorTargetLikelyOfficial === "boolean" ? { executorTargetLikelyOfficial: agent.executorTargetLikelyOfficial } : {}),
     ...(agent.executorTargetSelector ? { executorTargetSelector: agent.executorTargetSelector } : {}),

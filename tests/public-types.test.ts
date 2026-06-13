@@ -1257,6 +1257,9 @@ describe("public agent types", () => {
       | "executorTargetSource"
       | "executorTargetRank"
       | "executorTargetSourceScore"
+      | "executorTargetDateText"
+      | "executorTargetDatePrecision"
+      | "executorTargetDateSource"
       | "executorTargetRelevance"
       | "executorTargetLikelyOfficial"
       | "executorTargetSelector"
@@ -2516,6 +2519,9 @@ describe("public agent types", () => {
       executorTargetSource: "source-link",
       executorTargetRank: 1,
       executorTargetSourceScore: 0.92,
+      executorTargetDateText: "2026-05-31",
+      executorTargetDatePrecision: "day",
+      executorTargetDateSource: "snippet",
       executorTargetRelevance: "high",
       executorTargetLikelyOfficial: true,
       executorTargetSelector: "a.primary",
@@ -2802,6 +2808,9 @@ describe("public agent types", () => {
     expect(summary.executorReadValueReferencePath).toBe("pageCheck.contentEvidence");
     expect(summary.executorTargetSelector).toBe("a.primary");
     expect(summary.executorTargetSourceScore).toBe(0.92);
+    expect(summary.executorTargetDateText).toBe("2026-05-31");
+    expect(summary.executorTargetDatePrecision).toBe("day");
+    expect(summary.executorTargetDateSource).toBe("snippet");
     expect(summary.executorTargetLikelyOfficial).toBe(true);
     expect(summary.executorBrowserHtmlReasonCode).toBe("challenge");
     expect(summary.handoffAnswerStatus).toBe("ready");

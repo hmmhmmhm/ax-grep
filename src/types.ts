@@ -2345,6 +2345,9 @@ export type AgentSummary = {
   executorTargetSource?: string;
   executorTargetRank?: number;
   executorTargetSourceScore?: number;
+  executorTargetDateText?: string;
+  executorTargetDatePrecision?: "day" | "month" | "year";
+  executorTargetDateSource?: "title" | "snippet";
   executorTargetRelevance?: AgentTarget["relevance"];
   executorTargetLikelyOfficial?: boolean;
   executorTargetSelector?: string;
