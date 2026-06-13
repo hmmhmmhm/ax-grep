@@ -1223,6 +1223,7 @@ describe("public agent types", () => {
       | "handoffTerminal"
       | "handoffPriority"
       | "handoffPriorityReason"
+      | "handoffCommand"
       | "handoffCommandArgs"
       | "handoffReadFrom"
       | "handoffReadTargetKind"
@@ -2426,6 +2427,7 @@ describe("public agent types", () => {
       handoffTerminal: true,
       handoffPriority: "high",
       handoffPriorityReason: "Readable content is available.",
+      handoffCommand: "ax-grep https://example.test --agent",
       handoffCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       handoffReadFrom: "pageCheck.contentEvidence",
       handoffReadTargetKind: "evidence",
@@ -2680,6 +2682,7 @@ describe("public agent types", () => {
     expect(summary.executorBrowserHtmlReasonCode).toBe("challenge");
     expect(summary.handoffAnswerStatus).toBe("ready");
     expect(summary.handoffShouldContinue).toBe(false);
+    expect(summary.handoffCommand).toBe("ax-grep https://example.test --agent");
     expect(summary.handoffReadTargetKind).toBe("evidence");
     expect(summary.handoffReadTargetScore).toBe(0.9);
     expect(summary.handoffReadValuePath).toBe("pageCheck.contentEvidence");

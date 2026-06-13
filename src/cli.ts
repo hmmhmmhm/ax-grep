@@ -1954,6 +1954,7 @@ type AgentSummary = {
   handoffTerminal?: boolean;
   handoffPriority?: AgentHandoff["priority"];
   handoffPriorityReason?: string;
+  handoffCommand?: string;
   handoffCommandArgs?: string[];
   handoffReadFrom?: string;
   handoffReadTargetKind?: AgentReadTarget["kind"];
@@ -12772,6 +12773,7 @@ function summarizeAgent(
     handoffTerminal: handoff.terminal,
     ...(handoff.priority ? { handoffPriority: handoff.priority } : {}),
     ...(handoff.priorityReason ? { handoffPriorityReason: handoff.priorityReason } : {}),
+    ...(handoff.command ? { handoffCommand: handoff.command } : {}),
     ...(handoff.commandArgs ? { handoffCommandArgs: handoff.commandArgs } : {}),
     ...(handoff.readFrom ? { handoffReadFrom: handoff.readFrom } : {}),
     ...(handoffReadTarget?.kind ? { handoffReadTargetKind: handoffReadTarget.kind } : {}),
@@ -18333,6 +18335,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.handoffTerminal === "boolean" ? { handoffTerminal: agent.handoffTerminal } : {}),
     ...(agent.handoffPriority ? { handoffPriority: agent.handoffPriority } : {}),
     ...(agent.handoffPriorityReason ? { handoffPriorityReason: agent.handoffPriorityReason } : {}),
+    ...(agent.handoffCommand ? { handoffCommand: agent.handoffCommand } : {}),
     ...(agent.handoffCommandArgs ? { handoffCommandArgs: agent.handoffCommandArgs } : {}),
     ...(agent.handoffReadFrom ? { handoffReadFrom: agent.handoffReadFrom } : {}),
     ...(agent.handoffReadTargetKind ? { handoffReadTargetKind: agent.handoffReadTargetKind } : {}),
@@ -19453,6 +19456,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.handoffTerminal === "boolean" ? { handoffTerminal: agent.handoffTerminal } : {}),
     ...(agent.handoffPriority ? { handoffPriority: agent.handoffPriority } : {}),
     ...(agent.handoffPriorityReason ? { handoffPriorityReason: agent.handoffPriorityReason } : {}),
+    ...(agent.handoffCommand ? { handoffCommand: agent.handoffCommand } : {}),
     ...(agent.handoffCommandArgs ? { handoffCommandArgs: agent.handoffCommandArgs } : {}),
     ...(agent.handoffReadFrom ? { handoffReadFrom: agent.handoffReadFrom } : {}),
     ...(agent.handoffReadTargetKind ? { handoffReadTargetKind: agent.handoffReadTargetKind } : {}),

@@ -1745,6 +1745,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       handoffTerminal?: boolean;
       handoffPriority?: "low" | "medium" | "high";
       handoffPriorityReason?: string;
+      handoffCommand?: string;
       handoffCommandArgs?: string[];
       handoffReadFrom?: string;
       handoffReadValuePath?: string;
@@ -9355,6 +9356,7 @@ function scoreAgentHandoffShortcuts(agent: {
   handoffTerminal?: boolean;
   handoffPriority?: "low" | "medium" | "high";
   handoffPriorityReason?: string;
+  handoffCommand?: string;
   handoffCommandArgs?: string[];
   handoffReadFrom?: string;
   handoffReadTargetKind?: string;
@@ -9410,6 +9412,12 @@ function scoreAgentHandoffShortcuts(agent: {
     required += 1;
     if (JSON.stringify(agent.handoffCommandArgs) === JSON.stringify(handoff.commandArgs)) matched += 1;
   } else if (agent.handoffCommandArgs) {
+    required += 1;
+  }
+  if (handoff.command) {
+    required += 1;
+    if (agent.handoffCommand === handoff.command) matched += 1;
+  } else if (agent.handoffCommand) {
     required += 1;
   }
   if (handoff.readFrom) {
