@@ -1150,6 +1150,12 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "executorCommandArgs",
           "handoffCommandArgs",
         ]);
+        requireFileIncludes(root, failures, "tests/public-types.test.ts", [
+          "browserHtml: {",
+          "reason: \"Browser-captured HTML is needed.\"",
+          "expect(handoff.browserHtml?.reason).toContain(\"Browser-captured HTML\")",
+          "expect(handoff.browserHtml?.command).toContain(\"--html-file captured.html\")",
+        ]);
         requireFileIncludes(root, failures, "docs/progress.md", [
           "A129",
           "Browser fallback command text coverage",
@@ -1618,6 +1624,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "A130",
           "A131",
           "A132",
+          "A133",
         ]);
       },
     ),

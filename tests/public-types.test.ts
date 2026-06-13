@@ -116,6 +116,14 @@ describe("public agent types", () => {
         selectedUrl: sourceResult.url,
         selectedResult: sourceResult,
       },
+      browserHtml: {
+        url: "https://example.test/challenge",
+        htmlFile: "captured.html",
+        captureScript: "document.documentElement.outerHTML",
+        reason: "Browser-captured HTML is needed.",
+        command: "ax-grep 'https://example.test/challenge' --html-file captured.html --agent-brief",
+        commandArgs: ["ax-grep", "https://example.test/challenge", "--html-file", "captured.html", "--agent-brief"],
+      },
       readFrom: "pageCheck.contentEvidence",
       readValue: {
         path: "pageCheck.contentEvidence",
@@ -128,6 +136,8 @@ describe("public agent types", () => {
     expect(handoff.sourceChoices?.[0]?.selector).toBe("a:nth-of-type(1)");
     expect(handoff.verificationMissingQueries).toEqual(["missing"]);
     expect(handoff.answerEvidence?.[0]?.text).toBe("Readable evidence");
+    expect(handoff.browserHtml?.reason).toContain("Browser-captured HTML");
+    expect(handoff.browserHtml?.command).toContain("--html-file captured.html");
   });
 
   it("exports typed read value references for compact agent handoffs", () => {
