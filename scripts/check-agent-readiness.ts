@@ -1137,6 +1137,13 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "export type AgentBrowserHtmlCapture",
           "reason?: string",
         ]);
+        requireFileIncludes(root, failures, "scripts/compare-static.ts", [
+          "type CliAgentBrowserHtmlShape",
+          "reason?: string",
+          "&& (!right.reason || left.reason === right.reason)",
+          "&& (!right.command || left.command === right.command)",
+          "JSON.stringify(left.commandArgs) === JSON.stringify(right.commandArgs)",
+        ]);
         requireFileIncludes(root, failures, "tests/cli.test.ts", [
           "returns a structured warning when the page has no inspectable content",
           "prints browser capture handoff details in text output",
@@ -1625,6 +1632,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "A131",
           "A132",
           "A133",
+          "A134",
         ]);
       },
     ),
