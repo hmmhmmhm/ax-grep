@@ -365,6 +365,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "sourceSearchSelectedRank",
           "sourceSearchSelectedTitle",
           "sourceSearchSelectedUrl",
+          "sourceSearchFailurePath",
           "sourceSearchFailureHost",
           "sourceSearchAlternateCount",
           "sourceSearchAlternateDifferentHost",
@@ -1560,6 +1561,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "A115",
           "A116",
           "A117",
+          "A118",
         ]);
       },
     ),

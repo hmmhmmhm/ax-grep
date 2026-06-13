@@ -1674,6 +1674,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchFailureKind?: string;
       sourceSearchFailureRetryable?: boolean;
       sourceSearchFailureRetryAfter?: string;
+      sourceSearchFailurePath?: string;
       sourceSearchFailureUrl?: string;
       sourceSearchFailureHost?: string;
       sourceSearchFailureReason?: string;
@@ -5400,6 +5401,7 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchFailureKind?: string;
   sourceSearchFailureRetryable?: boolean;
   sourceSearchFailureRetryAfter?: string;
+  sourceSearchFailurePath?: string;
   sourceSearchFailureUrl?: string;
   sourceSearchFailureHost?: string;
   sourceSearchFailureReason?: string;
@@ -5474,6 +5476,7 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchFailureKind === "undefined"
       && typeof agent?.sourceSearchFailureRetryable === "undefined"
       && typeof agent?.sourceSearchFailureRetryAfter === "undefined"
+      && typeof agent?.sourceSearchFailurePath === "undefined"
       && typeof agent?.sourceSearchFailureUrl === "undefined"
       && typeof agent?.sourceSearchFailureHost === "undefined"
       && typeof agent?.sourceSearchFailureReason === "undefined"
@@ -5517,13 +5520,19 @@ function scoreAgentSourceSearchShortcuts(agent: {
     required += 2;
     if (agent?.sourceSearchFailureKind === sourceSearchFailureKind(failure)) matched += 1;
     if (agent?.sourceSearchFailureRetryable === sourceSearchFailureRetryable(failure)) matched += 1;
+    if (sourceSearch.selectedResult?.path) {
+      required += 1;
+      if (agent?.sourceSearchFailurePath === sourceSearch.selectedResult.path) matched += 1;
+    } else if (agent?.sourceSearchFailurePath) {
+      required += 1;
+    }
     if (sourceSearch.selectedUrl) {
       required += 1;
       if (agent?.sourceSearchFailureHost === sourceFromUrl(sourceSearch.selectedUrl)) matched += 1;
     } else if (agent?.sourceSearchFailureHost) {
       required += 1;
     }
-  } else if (agent?.sourceSearchFailureKind || typeof agent?.sourceSearchFailureRetryable === "boolean" || agent?.sourceSearchFailureHost) {
+  } else if (agent?.sourceSearchFailureKind || typeof agent?.sourceSearchFailureRetryable === "boolean" || agent?.sourceSearchFailurePath || agent?.sourceSearchFailureHost) {
     required += 1;
   }
   if (sourceSearch.lang) {

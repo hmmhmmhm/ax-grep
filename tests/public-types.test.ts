@@ -565,6 +565,7 @@ describe("public agent types", () => {
       | "sourceSearchFailureKind"
       | "sourceSearchFailureRetryable"
       | "sourceSearchFailureRetryAfter"
+      | "sourceSearchFailurePath"
       | "sourceSearchFailureUrl"
       | "sourceSearchFailureHost"
       | "sourceSearchFailureReason"
@@ -1653,6 +1654,7 @@ describe("public agent types", () => {
       sourceSearchFailureKind: "http-client-error",
       sourceSearchFailureRetryable: false,
       sourceSearchFailureRetryAfter: "120",
+      sourceSearchFailurePath: "sourceSearch.selectedResult",
       sourceSearchFailureUrl: "https://source.example/result",
       sourceSearchFailureHost: "source.example",
       sourceSearchFailureReason: "Selected sourceSearch result failed with HTTP_ERROR status 403.",
@@ -2572,6 +2574,7 @@ describe("public agent types", () => {
     expect(summary.sourceSearchSelectedRelevance).toBe("high");
     expect(summary.sourceSearchSelectedLikelyOfficial).toBe(true);
     expect(summary.sourceSearchSelectedCommandArgs?.[0]).toBe("ax-grep");
+    expect(summary.sourceSearchFailurePath).toBe("sourceSearch.selectedResult");
     expect(summary.sourceSearchFailureHost).toBe("source.example");
     expect(summary.sourceSearchAlternateCount).toBe(1);
     expect(summary.sourceSearchAlternatePath).toBe("sourceSearch.alternateResults[0]");

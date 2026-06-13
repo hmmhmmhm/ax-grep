@@ -1775,6 +1775,7 @@ type AgentSummary = {
   sourceSearchFailureKind?: AgentSourceSearchFailureKind;
   sourceSearchFailureRetryable?: boolean;
   sourceSearchFailureRetryAfter?: string;
+  sourceSearchFailurePath?: string;
   sourceSearchFailureUrl?: string;
   sourceSearchFailureHost?: string;
   sourceSearchFailureReason?: string;
@@ -3872,6 +3873,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.sourceSearchFailureKind ? [`  sourceSearchFailureKind: ${agent.sourceSearchFailureKind}`] : []),
     ...(typeof agent.sourceSearchFailureRetryable === "boolean" ? [`  sourceSearchFailureRetryable: ${agent.sourceSearchFailureRetryable}`] : []),
     ...(agent.sourceSearchFailureRetryAfter ? [`  sourceSearchFailureRetryAfter: ${agent.sourceSearchFailureRetryAfter}`] : []),
+    ...(agent.sourceSearchFailurePath ? [`  sourceSearchFailurePath: ${agent.sourceSearchFailurePath}`] : []),
     ...(agent.sourceSearchFailureUrl ? [`  sourceSearchFailureUrl: ${agent.sourceSearchFailureUrl}`] : []),
     ...(agent.sourceSearchFailureHost ? [`  sourceSearchFailureHost: ${agent.sourceSearchFailureHost}`] : []),
     ...(agent.sourceSearchFailureReason ? [`  sourceSearchFailureReason: ${agent.sourceSearchFailureReason}`] : []),
@@ -15762,6 +15764,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(sourceSearch ? { sourceSearchFailureKind: sourceSearchFailureKind(error) } : {}),
     ...(sourceSearch ? { sourceSearchFailureRetryable: sourceSearchFailureRetryable(error) } : {}),
     ...(sourceSearch && error.metadata.retryAfter ? { sourceSearchFailureRetryAfter: error.metadata.retryAfter } : {}),
+    ...(sourceSearchSelectedResult ? { sourceSearchFailurePath: sourceSearchSelectedResult.path } : {}),
     ...(sourceSearch ? { sourceSearchFailureUrl: sourceSearch.selectedUrl } : {}),
     ...(sourceSearchFailureHost ? { sourceSearchFailureHost } : {}),
     ...(sourceSearch ? { sourceSearchFailureReason: sourceSearchFailureReason(error) } : {}),
@@ -18100,6 +18103,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.sourceSearchFailureKind ? { sourceSearchFailureKind: agent.sourceSearchFailureKind } : {}),
     ...(typeof agent.sourceSearchFailureRetryable === "boolean" ? { sourceSearchFailureRetryable: agent.sourceSearchFailureRetryable } : {}),
     ...(agent.sourceSearchFailureRetryAfter ? { sourceSearchFailureRetryAfter: agent.sourceSearchFailureRetryAfter } : {}),
+    ...(agent.sourceSearchFailurePath ? { sourceSearchFailurePath: agent.sourceSearchFailurePath } : {}),
     ...(agent.sourceSearchFailureUrl ? { sourceSearchFailureUrl: agent.sourceSearchFailureUrl } : {}),
     ...(agent.sourceSearchFailureHost ? { sourceSearchFailureHost: agent.sourceSearchFailureHost } : {}),
     ...(agent.sourceSearchFailureReason ? { sourceSearchFailureReason: agent.sourceSearchFailureReason } : {}),
@@ -19211,6 +19215,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.sourceSearchFailureKind ? { sourceSearchFailureKind: agent.sourceSearchFailureKind } : {}),
     ...(typeof agent.sourceSearchFailureRetryable === "boolean" ? { sourceSearchFailureRetryable: agent.sourceSearchFailureRetryable } : {}),
     ...(agent.sourceSearchFailureRetryAfter ? { sourceSearchFailureRetryAfter: agent.sourceSearchFailureRetryAfter } : {}),
+    ...(agent.sourceSearchFailurePath ? { sourceSearchFailurePath: agent.sourceSearchFailurePath } : {}),
     ...(agent.sourceSearchFailureUrl ? { sourceSearchFailureUrl: agent.sourceSearchFailureUrl } : {}),
     ...(agent.sourceSearchFailureHost ? { sourceSearchFailureHost: agent.sourceSearchFailureHost } : {}),
     ...(agent.sourceSearchFailureReason ? { sourceSearchFailureReason: agent.sourceSearchFailureReason } : {}),
