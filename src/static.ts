@@ -10,6 +10,7 @@ type StaticContext = {
   >>;
   nextId: number;
   ids: Map<string, Element>;
+  referencedIds: Set<string>;
   collapsedControlledIds: Set<string>;
   labelsByFor: Map<string, string>;
   slotAssignments: Map<string, AnyNode[]> | undefined;
@@ -101,6 +102,7 @@ export function extractStaticSemanticTree(html: string, options: StaticSemanticT
     options: resolveStaticOptions(document.children, html, options),
     nextId: 1,
     ids: new Map(),
+    referencedIds: new Set(),
     collapsedControlledIds: new Set(),
     labelsByFor: new Map(),
     slotAssignments: undefined,
@@ -171,6 +173,9 @@ function indexDocument(nodes: AnyNode[], context: StaticContext): void {
     if (!isElement(node)) continue;
     const id = attr(node, "id");
     if (id) context.ids.set(id, node);
+    for (const referencedId of referencedIds(node)) {
+      context.referencedIds.add(referencedId);
+    }
     if (attr(node, "aria-expanded") === "false") {
       for (const controlledId of (attr(node, "aria-controls") ?? "").split(/\s+/)) {
         if (controlledId) context.collapsedControlledIds.add(controlledId);
@@ -182,6 +187,21 @@ function indexDocument(nodes: AnyNode[], context: StaticContext): void {
     }
     indexDocument(node.children, context);
   }
+}
+
+function referencedIds(element: Element): string[] {
+  return [
+    attr(element, "aria-labelledby"),
+    attr(element, "aria-describedby"),
+    attr(element, "aria-details"),
+    attr(element, "aria-errormessage"),
+    attr(element, "aria-controls"),
+    attr(element, "aria-owns"),
+    attr(element, "aria-flowto"),
+    attr(element, "aria-activedescendant"),
+  ]
+    .filter((value): value is string => Boolean(value))
+    .flatMap((value) => value.split(/\s+/).map((item) => item.trim()).filter(Boolean));
 }
 
 function walkElement(element: Element | undefined, context: StaticContext): SemanticNode | null {
@@ -588,9 +608,15 @@ function shouldPrune(
   if (interactive) return false;
   if (role && role !== "generic") return false;
   if (name) return false;
+  if (isReferencedIdTarget(element, context)) return false;
   if (children.length === 0) return true;
   if (attr(element, "id") || attr(element, "aria-label") || attr(element, "aria-labelledby")) return false;
   return children.length > 0;
+}
+
+function isReferencedIdTarget(element: Element, context: StaticContext): boolean {
+  const id = attr(element, "id");
+  return Boolean(id && context.referencedIds.has(id));
 }
 
 function shouldPruneListItemWrapper(role: string | null, children: SemanticNode[], context: StaticContext): boolean {

@@ -185,13 +185,16 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "projects declarative shadow DOM slots instead of duplicating light DOM",
           "<template shadowrootmode=\"open\">",
           "Slotted text action",
+          "Slotted field label",
           "Template payload",
         ]);
         requireFileIncludes(root, failures, "tests/cli.test.ts", [
           "keeps declarative shadow DOM controls in agent brief handoff",
           "projects declarative shadow DOM slots in agent brief handoff",
           "uses slotted text for declarative shadow DOM accessible names",
+          "uses slotted IDREF labels for declarative shadow DOM fields",
           "semanticTopButtonControlsTargetSelector",
+          "semanticTopFieldLabelledBySelector",
           "Shadow details",
         ]);
       },

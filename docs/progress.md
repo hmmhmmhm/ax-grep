@@ -310,6 +310,7 @@ estimate whether the overall percentage should move.
 | A201 | Declarative shadow agent brief coverage | 100% | `--agent-brief` now has a focused regression test proving declarative shadow DOM headings, buttons, controlled target role/name/selector, and inert template pruning reach the shallow handoff fields used by subagents. | Test-only guard for A200 agent-facing output. | Focused CLI test, readiness audit, typecheck, README test, diff check, and process check pass. | No estimate increase; protects Web Component handoff behavior. |
 | A202 | Declarative shadow slot projection | 100% | Static extraction now projects slotted light-DOM elements into declarative shadow DOM and suppresses unused fallback or unprojected light children, so agent brief output better matches the browser composed accessibility tree. | Limited to element children assigned through declarative shadow slots; text-only slot projection can be revisited if fixtures show it matters. | Focused static and CLI tests, readiness audit, typecheck, README test, diff check, and process check pass. | No headline increase; improves Web Component parity and avoids duplicate fallback controls. |
 | A203 | Slotted text accessible names | 100% | Static extraction now uses assigned slot text when computing declarative shadow DOM accessible names, so button/link names in agent brief output match the composed tree instead of stale fallback text. | Limited to text and element assignments available in static declarative shadow DOM. | Focused static and CLI tests, readiness audit, typecheck, README test, diff check, and process check pass. | No headline increase; improves Web Component action naming parity. |
+| A204 | Slotted IDREF selector preservation | 100% | Static extraction now preserves IDREF target nodes that would otherwise be pruned, so slotted labels/descriptions can still provide `semanticTopField*Selector` shortcuts in agent brief output. | Applies to common ARIA idref attributes such as labelledby, describedby, details, errormessage, controls, owns, flowto, and activedescendant. | Focused static and CLI tests, readiness audit, typecheck, README test, diff check, and process check pass. | No headline increase; improves Web Component field repair and targeting parity. |
 
 ## Planned Work Detail
 
@@ -800,6 +801,8 @@ When research expands:
   controls in static and agent-brief output.
 - Added slotted text handling for declarative shadow DOM accessible names so
   static action labels match the composed accessibility tree.
+- Preserved referenced ID targets during pruning so slotted field labels keep
+  selector shortcuts in agent-brief handoff.
 
 ## In Progress
 

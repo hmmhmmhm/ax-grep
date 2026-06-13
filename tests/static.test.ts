@@ -341,6 +341,13 @@ describe("static extract", () => {
             <button><slot>Whitespace fallback</slot></button>
           </template>
         </x-whitespace>
+        <x-labelled-field>
+          <span id="slotted-label" slot="label">Slotted field label</span>
+          <template shadowrootmode="open">
+            <label><slot name="label">Fallback field label</slot></label>
+            <input aria-labelledby="slotted-label">
+          </template>
+        </x-labelled-field>
       </main>
     `);
 
@@ -351,9 +358,11 @@ describe("static extract", () => {
     expect(namedRoles).toContain("button:Fallback only");
     expect(namedRoles).toContain("button:Slotted text action");
     expect(namedRoles).toContain("button:Whitespace fallback");
+    expect(namedRoles).toContain("textbox:Slotted field label");
     expect(namedRoles).not.toContain("button:Fallback action");
     expect(namedRoles).not.toContain("button:Unslotted light action");
     expect(namedRoles).not.toContain("button:Fallback text action");
+    expect(namedRoles).not.toContain("textbox:Fallback field label");
   });
 
   it("summarizes very large repeated static subtrees", () => {
