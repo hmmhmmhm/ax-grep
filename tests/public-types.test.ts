@@ -628,6 +628,7 @@ describe("public agent types", () => {
       | "pageDecisionReadTargetReason"
       | "pageDecisionUrl"
       | "pageDecisionCommandArgs"
+      | "semanticSummary"
       | "semanticNodeCount"
       | "semanticNamedRoleCount"
       | "semanticInteractiveCount"
@@ -1743,6 +1744,76 @@ describe("public agent types", () => {
       pageDecisionReadTargetReason: "Top evidence.",
       pageDecisionUrl: "https://example.test",
       pageDecisionCommandArgs: ["ax-grep", "https://example.test", "--agent"],
+      semanticSummary: {
+        nodeCount: 12,
+        namedRoleCount: 4,
+        interactiveCount: 2,
+        focusableCount: 2,
+        headingCount: 1,
+        landmarkCount: 1,
+        linkCount: 2,
+        buttonCount: 1,
+        imageCount: 1,
+        tableCount: 1,
+        listCount: 1,
+        fieldCount: 1,
+        descriptionCount: 1,
+        valueCount: 1,
+        relationCount: 1,
+        choiceCount: 1,
+        stateCount: 1,
+        unavailableCount: 1,
+        roleCounts: { link: 2, button: 1 },
+        topRoles: [{ role: "link", count: 2 }],
+        landmarks: ["main"],
+        headings: ["Example"],
+        namedRoles: ["button:Save"],
+        semanticOutline: [{
+          path: "agent.semanticSummary.semanticOutline[0]",
+          kind: "heading",
+          role: "heading",
+          text: "Example",
+          level: 1,
+          depth: 1,
+          selector: "h1",
+        }],
+        keyboardItems: [{
+          path: "agent.semanticSummary.keyboardItems[0]",
+          role: "button",
+          name: "Save",
+          shortcuts: ["Control+S"],
+          focusable: true,
+          selector: "button.save",
+        }],
+        headingItems: [{ path: "agent.semanticSummary.headingItems[0]", text: "Example", level: 1, selector: "h1" }],
+        landmarkItems: [{ path: "agent.semanticSummary.landmarkItems[0]", role: "main", name: "Content", selector: "main" }],
+        namedRoleItems: [{ path: "agent.semanticSummary.namedRoleItems[0]", role: "button", name: "Save", selector: "button.save" }],
+        interactiveRoles: [{ path: "agent.semanticSummary.interactiveRoles[0]", role: "button", name: "Save", selector: "button.save", state: { disabled: false } }],
+        focusableItems: [{ path: "agent.semanticSummary.focusableItems[0]", role: "button", name: "Save", selector: "button.save", state: { focused: true } }],
+        links: [{ path: "agent.semanticSummary.links[0]", name: "Docs", url: "https://example.test/docs", rel: ["help"], selector: "a.docs" }],
+        inPageLinks: [{ path: "agent.semanticSummary.inPageLinks[0]", kind: "anchor", name: "Skip", url: "#content", targetId: "content" }],
+        buttons: [{ path: "agent.semanticSummary.buttons[0]", name: "Save", disabled: false, haspopup: false, selector: "button.save" }],
+        imageItems: [{ path: "agent.semanticSummary.imageItems[0]", name: "Logo", url: "https://example.test/logo.png", width: 64, height: 64 }],
+        tableItems: [{
+          path: "agent.semanticSummary.tableItems[0]",
+          role: "table",
+          name: "Pricing",
+          rowCount: 2,
+          cellCount: 4,
+          headers: ["Plan", "Price"],
+          headerRefs: [{ path: "agent.semanticSummary.tableItems[0].headerRefs[0]", text: "Plan", role: "columnheader", columnIndex: 1 }],
+          sampleCells: ["Pro"],
+          sampleCellRefs: [{ path: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]", text: "Pro", rowIndex: 2, columnIndex: 1, headers: ["Plan"] }],
+        }],
+        listItems: [{ path: "agent.semanticSummary.listItems[0]", role: "list", itemCount: 2, sampleItems: ["One"] }],
+        fieldItems: [{ path: "agent.semanticSummary.fieldItems[0]", role: "textbox", name: "Query", htmlName: "q", state: { required: true } }],
+        descriptionItems: [{ path: "agent.semanticSummary.descriptionItems[0]", role: "button", name: "Save", description: "Save changes" }],
+        valueItems: [{ path: "agent.semanticSummary.valueItems[0]", role: "textbox", name: "Query", value: "agent" }],
+        relationItems: [{ path: "agent.semanticSummary.relationItems[0]", role: "button", name: "Menu", relation: "controls", target: "menu" }],
+        choiceItems: [{ path: "agent.semanticSummary.choiceItems[0]", role: "option", name: "Pro", selected: true, state: { selected: true } }],
+        stateItems: [{ path: "agent.semanticSummary.stateItems[0]", role: "button", name: "Save", state: "focused=true", stateRaw: { focused: true } }],
+        unavailableItems: [{ path: "agent.semanticSummary.unavailableItems[0]", tag: "div", reason: "hidden" }],
+      },
       semanticNodeCount: 12,
       semanticNamedRoleCount: 4,
       semanticInteractiveCount: 2,
@@ -2548,6 +2619,8 @@ describe("public agent types", () => {
     expect(summary.searchDecisionRecommendedLikelyOfficial).toBe(true);
     expect(summary.searchDecision?.recommendedRelevance).toBe("high");
     expect(summary.pageDecision?.readability).toBe("high");
+    expect(summary.semanticSummary?.tableItems[0]?.sampleCellRefs?.[0]?.headers?.[0]).toBe("Plan");
+    expect(summary.semanticSummary?.fieldItems[0]?.state?.required).toBe(true);
     expect(summary.recommendedCommand).toContain("example.test");
     expect(summary.recommendedCommandArgs?.[0]).toBe("ax-grep");
 

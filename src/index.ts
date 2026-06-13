@@ -73,6 +73,7 @@ export type {
   AgentResultChoice,
   AgentRoutingIntent,
   AgentSearchDecision,
+  AgentSemanticSummary,
   AgentSignal,
   AgentSignalKind,
   AgentSignalSeverity,
