@@ -2660,6 +2660,59 @@ describe("public agent types", () => {
           name: "Ada",
           rel: "author",
         }],
+        contactPoints: [{
+          id: "contact1",
+          path: "pageCheck.contactPoints[0]",
+          rank: 1,
+          kind: "email",
+          label: "Support",
+          value: "support@example.test",
+          source: "html",
+        }],
+        offers: [{
+          id: "offer1",
+          path: "pageCheck.offers[0]",
+          rank: 1,
+          name: "Starter",
+          price: "19",
+          currency: "USD",
+          source: "json-ld",
+        }],
+        identities: [{
+          id: "identity1",
+          path: "pageCheck.identities[0]",
+          rank: 1,
+          kind: "organization",
+          name: "Example",
+          source: "json-ld",
+          url: "https://example.test",
+        }],
+        datasets: [{
+          id: "dataset1",
+          path: "pageCheck.datasets[0]",
+          rank: 1,
+          kind: "dataset",
+          name: "Example dataset",
+          source: "json-ld",
+          url: "https://example.test/data",
+        }],
+        timeline: [{
+          id: "time1",
+          path: "pageCheck.timeline[0]",
+          rank: 1,
+          kind: "published",
+          label: "Published",
+          value: "2026-01-02",
+          source: "meta",
+        }],
+        faqs: [{
+          id: "faq1",
+          path: "pageCheck.faqs[0]",
+          rank: 1,
+          question: "How do I install it?",
+          answer: "Run the installer.",
+          source: "html",
+        }],
         forms: [{
           rank: 1,
           method: "GET",
@@ -2801,6 +2854,12 @@ describe("public agent types", () => {
     expect(envelopeRecommendation.pageCheck.pagination?.[0]?.kind).toBe("next");
     expect(envelopeRecommendation.pageCheck.toc?.[0]?.items[0]?.level).toBe(2);
     expect(envelopeRecommendation.pageCheck.authorLinks?.[0]?.rel).toBe("author");
+    expect(envelopeRecommendation.pageCheck.contactPoints?.[0]?.value).toBe("support@example.test");
+    expect(envelopeRecommendation.pageCheck.offers?.[0]?.currency).toBe("USD");
+    expect(envelopeRecommendation.pageCheck.identities?.[0]?.kind).toBe("organization");
+    expect(envelopeRecommendation.pageCheck.datasets?.[0]?.kind).toBe("dataset");
+    expect(envelopeRecommendation.pageCheck.timeline?.[0]?.value).toBe("2026-01-02");
+    expect(envelopeRecommendation.pageCheck.faqs?.[0]?.question).toContain("install");
     expect(envelopeRecommendation.pageCheck.forms?.[0]?.fields[0]?.name).toBe("q");
     expect(envelopeRecommendation.pageCheck.actionTargets?.[0]?.urlTemplate).toContain("{query}");
     expect(envelopeRecommendation.pageCheck.nextSteps?.[0]?.sourceLinkRef).toBe("pageCheck.sourceLinks[0]");

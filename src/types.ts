@@ -369,6 +369,92 @@ export type AgentPageAuthorLink = {
   selector?: string;
 };
 
+export type AgentPageOffer = {
+  id: string;
+  path: string;
+  rank: number;
+  name?: string;
+  price?: string;
+  currency?: string;
+  availability?: string;
+  url?: string;
+  brand?: string;
+  sku?: string;
+  rating?: string;
+  reviewCount?: string;
+  text?: string;
+  source: "json-ld";
+  selector?: string;
+};
+
+export type AgentPageIdentity = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "organization" | "person" | "website" | "brand" | "thing";
+  name: string;
+  text?: string;
+  source: "json-ld" | "meta";
+  url?: string;
+  logoUrl?: string;
+  sameAs?: string[];
+  selector?: string;
+};
+
+export type AgentPageDataset = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "dataset" | "dataCatalog" | "dataDownload";
+  name: string;
+  text?: string;
+  source: "json-ld" | "link";
+  url?: string;
+  distributionUrls?: string[];
+  encodingFormat?: string;
+  licenseUrl?: string;
+  temporalCoverage?: string;
+  spatialCoverage?: string;
+  creator?: string;
+  selector?: string;
+};
+
+export type AgentPageTimeline = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "published" | "modified" | "created" | "updated" | "start" | "end" | "date";
+  label: string;
+  value: string;
+  text?: string;
+  source: "meta" | "json-ld" | "time" | "page";
+  selector?: string;
+};
+
+export type AgentPageContactPoint = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "email" | "phone" | "address" | "contact-url";
+  label: string;
+  value: string;
+  text?: string;
+  source: "json-ld" | "html" | "link";
+  url?: string;
+  selector?: string;
+};
+
+export type AgentPageFaq = {
+  id: string;
+  path: string;
+  rank: number;
+  question: string;
+  answer: string;
+  text?: string;
+  source: "details" | "html";
+  selector?: string;
+};
+
 export type AgentPageCheck = AgentPageMetadata & {
   contentEvidence: AgentPageEvidence[];
   contentLength: number;
@@ -398,17 +484,17 @@ export type AgentPageCheck = AgentPageMetadata & {
   appHints?: Array<Record<string, unknown>>;
   mobileHints?: Array<Record<string, unknown>>;
   topics?: Array<Record<string, unknown>>;
-  contactPoints?: Array<Record<string, unknown>>;
+  contactPoints?: AgentPageContactPoint[];
   keyValues?: Array<Record<string, unknown>>;
   metaFacts?: Array<Record<string, unknown>>;
   provenance?: Array<Record<string, unknown>>;
   httpPolicies?: Array<Record<string, unknown>>;
   schemaFacts?: Array<Record<string, unknown>>;
-  offers?: Array<Record<string, unknown>>;
-  identities?: Array<Record<string, unknown>>;
-  datasets?: Array<Record<string, unknown>>;
-  timeline?: Array<Record<string, unknown>>;
-  faqs?: Array<Record<string, unknown>>;
+  offers?: AgentPageOffer[];
+  identities?: AgentPageIdentity[];
+  datasets?: AgentPageDataset[];
+  timeline?: AgentPageTimeline[];
+  faqs?: AgentPageFaq[];
   breadcrumbs?: AgentPageBreadcrumb[];
   sections?: AgentPageSection[];
   pagination?: AgentPagePagination[];
