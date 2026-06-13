@@ -6178,6 +6178,13 @@ describe("cli", () => {
         selector: "form:nth-of-type(1)",
       }),
     ]);
+    expect(envelope.agent).toMatchObject({
+      topChoiceKind: "form",
+      topChoicePath: "pageCheck.forms[0]",
+      topChoiceRank: 1,
+      topChoiceMethod: "get",
+      topChoiceSelector: "form:nth-of-type(1)",
+    });
     expect(envelope.agent.actionTargetCount).toBe(0);
     expect(envelope.agent.actionTargetChoiceCount).toBe(0);
     expect(envelope.agent.executor).toMatchObject({
