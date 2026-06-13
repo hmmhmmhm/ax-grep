@@ -1344,6 +1344,7 @@ describe("cli", () => {
       if (typeof executor.readTarget?.primary === "boolean") expect(envelope.agent.executionPlanReadTargetPrimary).toBe(executor.readTarget.primary);
       if (executor.readTarget?.reason) expect(envelope.agent.executionPlanReadTargetReason).toBe(executor.readTarget.reason);
       if (executor.url) expect(envelope.agent.executionPlanUrl).toBe(executor.url);
+      if (executor.command) expect(envelope.agent.executorCommand).toBe(executor.command);
       if (executor.commandArgs) expect(envelope.agent.executorCommandArgs).toEqual(executor.commandArgs);
       if (executor.readFrom) expect(envelope.agent.executorReadFrom).toBe(executor.readFrom);
       if (executor.readTarget?.kind) expect(envelope.agent.executorReadTargetKind).toBe(executor.readTarget.kind);

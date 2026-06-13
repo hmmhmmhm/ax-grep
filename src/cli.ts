@@ -1916,6 +1916,7 @@ type AgentSummary = {
   executorAnswerReady?: boolean;
   executorShouldContinue?: boolean;
   executorTerminal?: boolean;
+  executorCommand?: string;
   executorCommandArgs?: string[];
   executorReadFrom?: string;
   executorReadTargetKind?: AgentReadTarget["kind"];
@@ -4097,6 +4098,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (typeof agent.executorReadValueCount === "number") lines.push(`  executorReadValueCount: ${agent.executorReadValueCount}`);
   if (agent.executorReadValueReferencePath) lines.push(`  executorReadValueReferencePath: ${agent.executorReadValueReferencePath}`);
   if (agent.executor.readValue) lines.push(...formatAgentReadValueText(agent.executor.readValue, "executorReadValue"));
+  if (agent.executor.command) lines.push(`  executorCommand: ${agent.executor.command}`);
   if (agent.executor.commandArgs) lines.push(`  executorCommandArgs: ${formatCommandArgsText(agent.executor.commandArgs)}`);
   if (agent.executor.afterInteractionCommandArgs) lines.push(`  executorAfterInteractionCommandArgs: ${formatCommandArgsText(agent.executor.afterInteractionCommandArgs)}`);
   if (agent.executor.url) lines.push(`  executorUrl: ${agent.executor.url}`);
@@ -12732,6 +12734,7 @@ function summarizeAgent(
     executorAnswerReady: executor.answerReady,
     executorShouldContinue: executor.shouldContinue,
     executorTerminal: executor.terminal,
+    ...(executor.command ? { executorCommand: executor.command } : {}),
     ...(executor.commandArgs ? { executorCommandArgs: executor.commandArgs } : {}),
     ...(executor.readFrom ? { executorReadFrom: executor.readFrom } : {}),
     ...(executorReadTarget?.kind ? { executorReadTargetKind: executorReadTarget.kind } : {}),
@@ -18292,6 +18295,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.executorAnswerReady === "boolean" ? { executorAnswerReady: agent.executorAnswerReady } : {}),
     ...(typeof agent.executorShouldContinue === "boolean" ? { executorShouldContinue: agent.executorShouldContinue } : {}),
     ...(typeof agent.executorTerminal === "boolean" ? { executorTerminal: agent.executorTerminal } : {}),
+    ...(agent.executorCommand ? { executorCommand: agent.executorCommand } : {}),
     ...(agent.executorCommandArgs ? { executorCommandArgs: agent.executorCommandArgs } : {}),
     ...(agent.executorReadFrom ? { executorReadFrom: agent.executorReadFrom } : {}),
     ...(agent.executorReadTargetKind ? { executorReadTargetKind: agent.executorReadTargetKind } : {}),
@@ -19411,6 +19415,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.executorAnswerReady === "boolean" ? { executorAnswerReady: agent.executorAnswerReady } : {}),
     ...(typeof agent.executorShouldContinue === "boolean" ? { executorShouldContinue: agent.executorShouldContinue } : {}),
     ...(typeof agent.executorTerminal === "boolean" ? { executorTerminal: agent.executorTerminal } : {}),
+    ...(agent.executorCommand ? { executorCommand: agent.executorCommand } : {}),
     ...(agent.executorCommandArgs ? { executorCommandArgs: agent.executorCommandArgs } : {}),
     ...(agent.executorReadFrom ? { executorReadFrom: agent.executorReadFrom } : {}),
     ...(agent.executorReadTargetKind ? { executorReadTargetKind: agent.executorReadTargetKind } : {}),

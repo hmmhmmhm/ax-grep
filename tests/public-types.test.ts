@@ -1185,6 +1185,7 @@ describe("public agent types", () => {
       | "executorAnswerReady"
       | "executorShouldContinue"
       | "executorTerminal"
+      | "executorCommand"
       | "executorCommandArgs"
       | "executorReadFrom"
       | "executorReadTargetKind"
@@ -2387,6 +2388,7 @@ describe("public agent types", () => {
       executorAnswerReady: true,
       executorShouldContinue: false,
       executorTerminal: true,
+      executorCommand: "ax-grep https://example.test --agent",
       executorCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       executorReadFrom: "pageCheck.contentEvidence",
       executorReadTargetKind: "evidence",
@@ -2607,6 +2609,7 @@ describe("public agent types", () => {
     expect(summary.topActionPriorityReason).toBe("Readable content is available.");
     expect(summary.runbookCommand).toBe("ax-grep https://example.test --agent");
     expect(summary.executionPlanCommand).toBe("ax-grep https://example.test --agent");
+    expect(summary.executorCommand).toBe("ax-grep https://example.test --agent");
     expect(summary.topActionCommand).toBe("ax-grep https://example.test --agent");
     expect(summary.topActionRank).toBe(1);
     expect(summary.topActionExpectedOutcome).toBe("read-evidence");

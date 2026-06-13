@@ -279,6 +279,7 @@ type CliAgentExecutorShape = {
   useCitationIds?: unknown[];
   verificationFoundQueries?: unknown[];
   verificationMissingQueries?: unknown[];
+  command?: string;
   commandArgs?: unknown[];
   afterInteractionCommandArgs?: unknown[];
   readFrom?: string;
@@ -1713,6 +1714,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       executorAnswerReady?: boolean;
       executorShouldContinue?: boolean;
       executorTerminal?: boolean;
+      executorCommand?: string;
       executorCommandArgs?: string[];
       executorReadFrom?: string;
       executorReadValuePath?: string;
@@ -9167,6 +9169,7 @@ function scoreAgentExecutorShortcuts(agent: {
   executorAnswerReady?: boolean;
   executorShouldContinue?: boolean;
   executorTerminal?: boolean;
+  executorCommand?: string;
   executorCommandArgs?: string[];
   executorReadFrom?: string;
   executorReadTargetKind?: string;
@@ -9209,6 +9212,12 @@ function scoreAgentExecutorShortcuts(agent: {
     required += 1;
     if (JSON.stringify(agent.executorCommandArgs) === JSON.stringify(executor.commandArgs)) matched += 1;
   } else if (agent.executorCommandArgs) {
+    required += 1;
+  }
+  if (executor.command) {
+    required += 1;
+    if (agent.executorCommand === executor.command) matched += 1;
+  } else if (agent.executorCommand) {
     required += 1;
   }
   if (executor.readFrom) {
