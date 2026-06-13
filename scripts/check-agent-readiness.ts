@@ -1122,6 +1122,28 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
     ),
     evidenceCheck(
       root,
+      "browser-fallback-command-text",
+      "Text-mode browser fallback output must keep copy-ready browser, executor, and handoff command strings beside command args.",
+      "A focused CLI test guards browserHtmlCommand, executorCommand, and handoffCommand text lines for no-inspectable pages.",
+      (failures) => {
+        requireFileIncludes(root, failures, "tests/cli.test.ts", [
+          "returns a structured warning when the page has no inspectable content",
+          "prints browser capture handoff details in text output",
+          "browserHtmlCommand: ax-grep 'https://example.test' --html-file captured.html --json --summary",
+          "executorCommand: ax-grep 'https://example.test' --html-file captured.html --json --summary",
+          "handoffCommand: ax-grep 'https://example.test' --html-file captured.html --json --summary",
+          "browserHtmlCommandArgs",
+          "executorCommandArgs",
+          "handoffCommandArgs",
+        ]);
+        requireFileIncludes(root, failures, "docs/progress.md", [
+          "A129",
+          "Browser fallback command text coverage",
+        ]);
+      },
+    ),
+    evidenceCheck(
+      root,
       "public-type-shortcuts",
       "Public TypeScript consumers must see the same action references and count shortcuts as the CLI JSON output.",
       "Public type tests compile the count shortcut and source-link reference surface.",
@@ -1579,6 +1601,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "A127",
           "A128",
           "A129",
+          "A130",
         ]);
       },
     ),
