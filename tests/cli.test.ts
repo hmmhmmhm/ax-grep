@@ -4210,6 +4210,8 @@ describe("cli", () => {
     expect(stdout.output).toContain("  sourceSearchAlternateCommandArgs: [\"ax-grep\",\"--search\",\"agent browser\",\"--engine\",\"duckduckgo\",\"--find\",\"target claim\",\"--open-result\",\"2\",\"--agent\"]");
     expect(stdout.output).toContain("  sourceSearchAlternateChoice: a2 sourceSearch.alternateResults[0] rank=2 openResult=2");
     expect(stdout.output).toContain("dateText=2026-05");
+    expect(stdout.output).toContain("datePrecision=month");
+    expect(stdout.output).toContain("dateSource=snippet");
     expect(stdout.output).toContain("host=alternate.example");
     expect(stdout.output).toContain("snippet=2026-05 update: This result contains the target claim for verification.");
     expect(stdout.output).toContain("  handoff: execute/execute-command/low action=open-alternate-result");

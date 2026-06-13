@@ -3578,6 +3578,8 @@ function formatAgentSourceSearchResultText(result: AgentSourceSearchResult, pref
   const relevance = result.relevance ? ` relevance=${result.relevance}` : "";
   const date = result.date ? ` date=${result.date}` : "";
   const dateText = result.dateText ? ` dateText=${result.dateText}` : "";
+  const datePrecision = result.datePrecision ? ` datePrecision=${result.datePrecision}` : "";
+  const dateSource = result.dateSource ? ` dateSource=${result.dateSource}` : "";
   const source = result.source ? ` source=${result.source}` : "";
   const host = result.host ? ` host=${result.host}` : "";
   const sourceType = result.sourceType ? ` type=${result.sourceType}` : "";
@@ -3591,7 +3593,7 @@ function formatAgentSourceSearchResultText(result: AgentSourceSearchResult, pref
   const target = result.url ? ` <${result.url}>` : "";
   const reason = result.selectionReason ? ` - ${result.selectionReason}` : "";
   const title = result.title ? ` ${result.title}` : "";
-  const lines = [`  ${prefix}: ${result.id} ${result.path}${rank}${openResult}${score}${relevance}${date}${dateText}${source}${host}${sourceType}${official}${snippet}${matchedTerms}${findMatches}${sitelinks}${firstSitelink}${firstSitelinkUrl}${target}${reason}${title}`];
+  const lines = [`  ${prefix}: ${result.id} ${result.path}${rank}${openResult}${score}${relevance}${date}${dateText}${datePrecision}${dateSource}${source}${host}${sourceType}${official}${snippet}${matchedTerms}${findMatches}${sitelinks}${firstSitelink}${firstSitelinkUrl}${target}${reason}${title}`];
   if (result.command) lines.push(`    command: ${result.command}`);
   if (result.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(result.commandArgs)}`);
   if (result.command) lines.push(`  ${prefix}Command: ${result.command}`);
