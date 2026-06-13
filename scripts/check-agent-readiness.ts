@@ -1046,6 +1046,38 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
     ),
     evidenceCheck(
       root,
+      "semantic-state-text-parity",
+      "Text-mode agent output must preserve shallow accessibility state scalars that are already present in JSON/brief output.",
+      "formatAgentText prints browser-tree state scalars and a focused CLI test guards the text handoff.",
+      (failures) => {
+        requireFileIncludes(root, failures, "src/cli.ts", [
+          "semanticTopStateHidden",
+          " hidden=${agent.semanticTopStateHidden}",
+          " disabled=${agent.semanticTopStateDisabled}",
+          " checked=${agent.semanticTopStateChecked}",
+          " selected=${agent.semanticTopStateSelected}",
+          " current=${agent.semanticTopStateCurrent}",
+          " focused=${agent.semanticTopStateFocused}",
+          " required=${agent.semanticTopStateRequired}",
+          " invalid=${agent.semanticTopStateInvalid}",
+          " readonly=${agent.semanticTopStateReadonly}",
+        ]);
+        requireFileIncludes(root, failures, "tests/cli.test.ts", [
+          "prints top accessibility state scalars in text output",
+          "semanticTopState: agent.semanticSummary.stateItems[0] searchbox:Archive search",
+          "disabled=true",
+          "required=true",
+          "readonly=true",
+          "invalid=spelling",
+        ]);
+        requireFileIncludes(root, failures, "docs/progress.md", [
+          "A80",
+          "Top accessibility state text parity",
+        ]);
+      },
+    ),
+    evidenceCheck(
+      root,
       "public-type-shortcuts",
       "Public TypeScript consumers must see the same action references and count shortcuts as the CLI JSON output.",
       "Public type tests compile the count shortcut and source-link reference surface.",
