@@ -426,6 +426,8 @@ export type AgentPageTimeline = {
   kind: "published" | "modified" | "created" | "updated" | "start" | "end" | "date";
   label: string;
   value: string;
+  isoDate?: string;
+  unixMs?: number;
   text?: string;
   source: "meta" | "json-ld" | "time" | "page";
   selector?: string;
@@ -2123,6 +2125,8 @@ export type AgentSummary = {
   topTimelineKind?: string;
   topTimelineLabel?: string;
   topTimelineValue?: string;
+  topTimelineIsoDate?: string;
+  topTimelineUnixMs?: number;
   topTimelineSource?: string;
   topTimelineSelector?: string;
   topContactPointPath?: string;

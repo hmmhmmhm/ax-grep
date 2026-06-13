@@ -1632,6 +1632,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topTimelineKind?: string;
       topTimelineLabel?: string;
       topTimelineValue?: string;
+      topTimelineIsoDate?: string;
+      topTimelineUnixMs?: number;
       topTimelineSource?: string;
       topTimelineSelector?: string;
       topContactPointPath?: string;
@@ -8238,6 +8240,8 @@ function scoreAgentStructuredShortcuts(agent: {
   topTimelineKind?: string;
   topTimelineLabel?: string;
   topTimelineValue?: string;
+  topTimelineIsoDate?: string;
+  topTimelineUnixMs?: number;
   topTimelineSource?: string;
   topTimelineSelector?: string;
   topContactPointPath?: string;
@@ -8273,7 +8277,7 @@ function scoreAgentStructuredShortcuts(agent: {
   offers?: Array<{ path?: string; name?: string; price?: string; currency?: string; availability?: string; url?: string; selector?: string }>;
   datasets?: Array<{ path?: string; kind?: string; name?: string; url?: string; distributionUrls?: string[]; licenseUrl?: string; encodingFormat?: string; selector?: string }>;
   identities?: Array<{ path?: string; kind?: string; name?: string; url?: string; logoUrl?: string; sameAs?: string[]; source?: string; selector?: string }>;
-  timeline?: Array<{ path?: string; kind?: string; label?: string; value?: string; source?: string; selector?: string }>;
+  timeline?: Array<{ path?: string; kind?: string; label?: string; value?: string; isoDate?: string; unixMs?: number; source?: string; selector?: string }>;
   contactPoints?: Array<{ path?: string; kind?: string; label?: string; value?: string; url?: string; source?: string; selector?: string }>;
 } | undefined): number {
   if (!agent) return 0;
@@ -8594,7 +8598,15 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topTimelineValue === topTimeline.value) matched += 1;
     if (agent.topTimelineSource === topTimeline.source) matched += 1;
     if (agent.topTimelineSelector === topTimeline.selector) matched += 1;
-  } else if (agent.topTimelinePath || agent.topTimelineKind || agent.topTimelineLabel || agent.topTimelineValue || agent.topTimelineSource || agent.topTimelineSelector) {
+    if (topTimeline.isoDate) {
+      required += 1;
+      if (agent.topTimelineIsoDate === topTimeline.isoDate) matched += 1;
+    }
+    if (typeof topTimeline.unixMs === "number") {
+      required += 1;
+      if (agent.topTimelineUnixMs === topTimeline.unixMs) matched += 1;
+    }
+  } else if (agent.topTimelinePath || agent.topTimelineKind || agent.topTimelineLabel || agent.topTimelineValue || agent.topTimelineIsoDate || typeof agent.topTimelineUnixMs === "number" || agent.topTimelineSource || agent.topTimelineSelector) {
     required += 1;
   }
 

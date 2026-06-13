@@ -490,6 +490,8 @@ describe("public agent types", () => {
       | "topTimelineKind"
       | "topTimelineLabel"
       | "topTimelineValue"
+      | "topTimelineIsoDate"
+      | "topTimelineUnixMs"
       | "topTimelineSource"
       | "topTimelineSelector"
       | "topContactPointPath"
@@ -1730,6 +1732,8 @@ describe("public agent types", () => {
       topTimelineKind: "published",
       topTimelineLabel: "Published",
       topTimelineValue: "2026-06-01T09:00:00Z",
+      topTimelineIsoDate: "2026-06-01T09:00:00.000Z",
+      topTimelineUnixMs: Date.parse("2026-06-01T09:00:00Z"),
       topTimelineSource: "meta",
       topTimelineSelector: "meta[property=\"article:published_time\"]",
       topContactPointPath: "pageCheck.contactPoints[0]",

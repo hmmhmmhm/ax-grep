@@ -710,6 +710,8 @@ type PageTimelineSummary = {
   kind: "published" | "modified" | "created" | "updated" | "start" | "end" | "date";
   label: string;
   value: string;
+  isoDate?: string;
+  unixMs?: number;
   text: string;
   source: "meta" | "json-ld" | "time" | "page";
   selector?: string;
@@ -1756,6 +1758,8 @@ type AgentSummary = {
   topTimelineKind?: PageTimelineSummary["kind"];
   topTimelineLabel?: string;
   topTimelineValue?: string;
+  topTimelineIsoDate?: string;
+  topTimelineUnixMs?: number;
   topTimelineSource?: PageTimelineSummary["source"];
   topTimelineSelector?: string;
   topContactPointPath?: string;
@@ -4089,6 +4093,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topIdentitySameAsCommand ? [`  topIdentitySameAsCommand: ${agent.topIdentitySameAsCommand}`] : []),
     ...(agent.topIdentitySameAsCommandArgs ? [`  topIdentitySameAsCommandArgs: ${formatCommandArgsText(agent.topIdentitySameAsCommandArgs)}`] : []),
     ...(agent.topTimelineValue ? [`  topTimeline: ${agent.topTimelinePath ?? ""} ${agent.topTimelineKind ?? ""}:${agent.topTimelineValue}`] : []),
+    ...(agent.topTimelineIsoDate ? [`  topTimelineIsoDate: ${agent.topTimelineIsoDate}`] : []),
+    ...(typeof agent.topTimelineUnixMs === "number" ? [`  topTimelineUnixMs: ${agent.topTimelineUnixMs}`] : []),
     ...(agent.topContactPointValue ? [`  topContactPoint: ${agent.topContactPointPath ?? ""} ${agent.topContactPointKind ?? ""}:${agent.topContactPointValue}${agent.topContactPointUrl ? ` <${agent.topContactPointUrl}>` : ""}`] : []),
     ...(agent.topContactPointCommand ? [`  topContactPointCommand: ${agent.topContactPointCommand}`] : []),
     ...(agent.topContactPointCommandArgs ? [`  topContactPointCommandArgs: ${formatCommandArgsText(agent.topContactPointCommandArgs)}`] : []),
@@ -9359,6 +9365,7 @@ function summarizeTimeline(html: string, page: PageSummary): PageTimelineSummary
     if (seen.has(key)) return;
     seen.add(key);
     const rank = items.length + 1;
+    const normalized = normalizeTimelineDate(value);
     items.push({
       id: `tl${rank}`,
       path: `pageCheck.timeline[${rank - 1}]`,
@@ -9366,6 +9373,7 @@ function summarizeTimeline(html: string, page: PageSummary): PageTimelineSummary
       ...item,
       label,
       value,
+      ...(normalized ? { isoDate: normalized.isoDate, unixMs: normalized.unixMs } : {}),
       text: timelineText(label, value, item.source),
     });
   };
@@ -9465,6 +9473,17 @@ function isUsefulTimelineValue(label: string, value: string): boolean {
   if (!label || !value || value.length > 160) return false;
   if (/^(date|time|published|modified|updated|created)$/i.test(value)) return false;
   return /\d{4}|\d{1,2}[./-]\d{1,2}|\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(value);
+}
+
+function normalizeTimelineDate(value: string): { isoDate: string; unixMs: number } | undefined {
+  const trimmed = cleanContentText(value);
+  if (!trimmed || trimmed.length > 80) return undefined;
+  const unixMs = Date.parse(trimmed);
+  if (!Number.isFinite(unixMs)) return undefined;
+  const isoDate = new Date(unixMs).toISOString();
+  const year = Number(isoDate.slice(0, 4));
+  if (!Number.isFinite(year) || year < 1000 || year > 9999) return undefined;
+  return { isoDate, unixMs };
 }
 
 function timelineText(label: string, value: string, source: PageTimelineSummary["source"]): string {
@@ -13115,6 +13134,8 @@ function summarizeAgent(
     ...(pageCheck.timeline[0] ? { topTimelineKind: pageCheck.timeline[0].kind } : {}),
     ...(pageCheck.timeline[0]?.label ? { topTimelineLabel: pageCheck.timeline[0].label } : {}),
     ...(pageCheck.timeline[0]?.value ? { topTimelineValue: pageCheck.timeline[0].value } : {}),
+    ...(pageCheck.timeline[0]?.isoDate ? { topTimelineIsoDate: pageCheck.timeline[0].isoDate } : {}),
+    ...(typeof pageCheck.timeline[0]?.unixMs === "number" ? { topTimelineUnixMs: pageCheck.timeline[0].unixMs } : {}),
     ...(pageCheck.timeline[0] ? { topTimelineSource: pageCheck.timeline[0].source } : {}),
     ...(pageCheck.timeline[0]?.selector ? { topTimelineSelector: pageCheck.timeline[0].selector } : {}),
     ...(pageCheck.contactPoints[0] ? { topContactPointPath: pageCheck.contactPoints[0].path } : {}),
@@ -18954,6 +18975,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topTimelineKind ? { topTimelineKind: agent.topTimelineKind } : {}),
     ...(agent.topTimelineLabel ? { topTimelineLabel: agent.topTimelineLabel } : {}),
     ...(agent.topTimelineValue ? { topTimelineValue: agent.topTimelineValue } : {}),
+    ...(agent.topTimelineIsoDate ? { topTimelineIsoDate: agent.topTimelineIsoDate } : {}),
+    ...(typeof agent.topTimelineUnixMs === "number" ? { topTimelineUnixMs: agent.topTimelineUnixMs } : {}),
     ...(agent.topTimelineSource ? { topTimelineSource: agent.topTimelineSource } : {}),
     ...(agent.topTimelineSelector ? { topTimelineSelector: agent.topTimelineSelector } : {}),
     ...(agent.topContactPointPath ? { topContactPointPath: agent.topContactPointPath } : {}),
@@ -20209,6 +20232,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topTimelineKind ? { topTimelineKind: agent.topTimelineKind } : {}),
     ...(agent.topTimelineLabel ? { topTimelineLabel: agent.topTimelineLabel } : {}),
     ...(agent.topTimelineValue ? { topTimelineValue: agent.topTimelineValue } : {}),
+    ...(agent.topTimelineIsoDate ? { topTimelineIsoDate: agent.topTimelineIsoDate } : {}),
+    ...(typeof agent.topTimelineUnixMs === "number" ? { topTimelineUnixMs: agent.topTimelineUnixMs } : {}),
     ...(agent.topTimelineSource ? { topTimelineSource: agent.topTimelineSource } : {}),
     ...(agent.topTimelineSelector ? { topTimelineSelector: agent.topTimelineSelector } : {}),
     ...(agent.topContactPointPath ? { topContactPointPath: agent.topContactPointPath } : {}),
