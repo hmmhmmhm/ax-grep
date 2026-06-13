@@ -1533,6 +1533,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topPaginationKind?: string;
       topPaginationLabel?: string;
       topPaginationUrl?: string;
+      topPaginationCommand?: string;
+      topPaginationCommandArgs?: string[];
       topPaginationCurrent?: boolean;
       topPaginationSelector?: string;
       topTocPath?: string;
@@ -8045,6 +8047,8 @@ function scoreAgentStructuredShortcuts(agent: {
   topPaginationKind?: string;
   topPaginationLabel?: string;
   topPaginationUrl?: string;
+  topPaginationCommand?: string;
+  topPaginationCommandArgs?: string[];
   topPaginationCurrent?: boolean;
   topPaginationSelector?: string;
   topTocPath?: string;
@@ -8272,7 +8276,12 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topPaginationUrl === topPagination.url) matched += 1;
     if (agent.topPaginationCurrent === topPagination.current) matched += 1;
     if (agent.topPaginationSelector === topPagination.selector) matched += 1;
-  } else if (agent.topPaginationPath || agent.topPaginationKind || agent.topPaginationLabel || agent.topPaginationUrl || typeof agent.topPaginationCurrent === "boolean" || agent.topPaginationSelector) {
+    if (topPagination.url && /^https?:\/\//i.test(topPagination.url)) {
+      required += 2;
+      if (typeof agent.topPaginationCommand === "string" && agent.topPaginationCommand.includes(topPagination.url)) matched += 1;
+      if (Array.isArray(agent.topPaginationCommandArgs) && agent.topPaginationCommandArgs.includes(topPagination.url)) matched += 1;
+    }
+  } else if (agent.topPaginationPath || agent.topPaginationKind || agent.topPaginationLabel || agent.topPaginationUrl || agent.topPaginationCommand || agent.topPaginationCommandArgs || typeof agent.topPaginationCurrent === "boolean" || agent.topPaginationSelector) {
     required += 1;
   }
 

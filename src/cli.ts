@@ -1675,6 +1675,8 @@ type AgentSummary = {
   topPaginationKind?: PagePaginationSummary["kind"];
   topPaginationLabel?: string;
   topPaginationUrl?: string;
+  topPaginationCommand?: string;
+  topPaginationCommandArgs?: string[];
   topPaginationCurrent?: boolean;
   topPaginationSelector?: string;
   topTocPath?: string;
@@ -4026,6 +4028,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topBreadcrumbText ? [`  topBreadcrumbText: ${agent.topBreadcrumbText}`] : []),
     ...(agent.topPaginationPath ? [`  topPaginationPath: ${agent.topPaginationPath}`] : []),
     ...(agent.topPaginationUrl ? [`  topPaginationUrl: ${agent.topPaginationUrl}`] : []),
+    ...(agent.topPaginationCommand ? [`  topPaginationCommand: ${agent.topPaginationCommand}`] : []),
+    ...(agent.topPaginationCommandArgs ? [`  topPaginationCommandArgs: ${formatCommandArgsText(agent.topPaginationCommandArgs)}`] : []),
     ...(agent.topTocPath ? [`  topTocPath: ${agent.topTocPath}`] : []),
     ...(agent.topTocText ? [`  topTocText: ${agent.topTocText}`] : []),
     ...(agent.topProvenanceValue ? [`  topProvenance: ${agent.topProvenancePath ?? ""} ${agent.topProvenanceKind ?? ""}=${agent.topProvenanceValue}${agent.topProvenanceUrl ? ` <${agent.topProvenanceUrl}>` : ""}`] : []),
@@ -12093,6 +12097,9 @@ function summarizeAgent(
   const topTranscriptCommand = pageCheck.transcripts[0]?.url && /^https?:\/\//i.test(pageCheck.transcripts[0].url)
     ? pageCommandSpec(pageCheck.transcripts[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topPaginationCommand = pageCheck.pagination[0]?.url && /^https?:\/\//i.test(pageCheck.pagination[0].url)
+    ? pageCommandSpec(pageCheck.pagination[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, sourceSearchAgent, signals, qualityGates, verification.foundQueries, verification.missingQueries);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   const topSemanticHeading = semanticSummary?.headingItems[0];
@@ -12913,6 +12920,8 @@ function summarizeAgent(
     ...(pageCheck.pagination[0] ? { topPaginationKind: pageCheck.pagination[0].kind } : {}),
     ...(pageCheck.pagination[0]?.label ? { topPaginationLabel: pageCheck.pagination[0].label } : {}),
     ...(pageCheck.pagination[0]?.url ? { topPaginationUrl: pageCheck.pagination[0].url } : {}),
+    ...(topPaginationCommand ? { topPaginationCommand: topPaginationCommand.command } : {}),
+    ...(topPaginationCommand ? { topPaginationCommandArgs: topPaginationCommand.commandArgs } : {}),
     ...(typeof pageCheck.pagination[0]?.current === "boolean" ? { topPaginationCurrent: pageCheck.pagination[0].current } : {}),
     ...(pageCheck.pagination[0]?.selector ? { topPaginationSelector: pageCheck.pagination[0].selector } : {}),
     ...(pageCheck.toc[0] ? { topTocPath: pageCheck.toc[0].path } : {}),
@@ -18718,6 +18727,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topPaginationKind ? { topPaginationKind: agent.topPaginationKind } : {}),
     ...(agent.topPaginationLabel ? { topPaginationLabel: agent.topPaginationLabel } : {}),
     ...(agent.topPaginationUrl ? { topPaginationUrl: agent.topPaginationUrl } : {}),
+    ...(agent.topPaginationCommand ? { topPaginationCommand: agent.topPaginationCommand } : {}),
+    ...(agent.topPaginationCommandArgs ? { topPaginationCommandArgs: agent.topPaginationCommandArgs } : {}),
     ...(typeof agent.topPaginationCurrent === "boolean" ? { topPaginationCurrent: agent.topPaginationCurrent } : {}),
     ...(agent.topPaginationSelector ? { topPaginationSelector: agent.topPaginationSelector } : {}),
     ...(agent.topTocPath ? { topTocPath: agent.topTocPath } : {}),
@@ -19939,6 +19950,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topPaginationKind ? { topPaginationKind: agent.topPaginationKind } : {}),
     ...(agent.topPaginationLabel ? { topPaginationLabel: agent.topPaginationLabel } : {}),
     ...(agent.topPaginationUrl ? { topPaginationUrl: agent.topPaginationUrl } : {}),
+    ...(agent.topPaginationCommand ? { topPaginationCommand: agent.topPaginationCommand } : {}),
+    ...(agent.topPaginationCommandArgs ? { topPaginationCommandArgs: agent.topPaginationCommandArgs } : {}),
     ...(typeof agent.topPaginationCurrent === "boolean" ? { topPaginationCurrent: agent.topPaginationCurrent } : {}),
     ...(agent.topPaginationSelector ? { topPaginationSelector: agent.topPaginationSelector } : {}),
     ...(agent.topTocPath ? { topTocPath: agent.topTocPath } : {}),

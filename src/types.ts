@@ -2042,6 +2042,8 @@ export type AgentSummary = {
   topPaginationKind?: string;
   topPaginationLabel?: string;
   topPaginationUrl?: string;
+  topPaginationCommand?: string;
+  topPaginationCommandArgs?: string[];
   topPaginationCurrent?: boolean;
   topPaginationSelector?: string;
   topTocPath?: string;

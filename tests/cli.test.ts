@@ -10126,6 +10126,8 @@ describe("cli", () => {
       topPaginationKind: "prev",
       topPaginationLabel: "Previous page",
       topPaginationUrl: "https://example.test/blog?page=1",
+      topPaginationCommand: "ax-grep 'https://example.test/blog?page=1' --find 'next Page 3' --agent",
+      topPaginationCommandArgs: ["ax-grep", "https://example.test/blog?page=1", "--find", "next Page 3", "--agent"],
     });
     expect(envelope.verification.bestEvidence).toMatchObject({
       field: "pagination",

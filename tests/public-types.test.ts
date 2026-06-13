@@ -409,6 +409,8 @@ describe("public agent types", () => {
       | "topPaginationKind"
       | "topPaginationLabel"
       | "topPaginationUrl"
+      | "topPaginationCommand"
+      | "topPaginationCommandArgs"
       | "topPaginationCurrent"
       | "topPaginationSelector"
       | "topTocPath"
@@ -1615,6 +1617,8 @@ describe("public agent types", () => {
       topPaginationKind: "next",
       topPaginationLabel: "Next",
       topPaginationUrl: "https://example.test/next",
+      topPaginationCommand: "ax-grep 'https://example.test/next' --agent",
+      topPaginationCommandArgs: ["ax-grep", "https://example.test/next", "--agent"],
       topPaginationCurrent: false,
       topPaginationSelector: "a[rel=\"next\"]",
       topTocPath: "pageCheck.toc[0]",
@@ -2798,6 +2802,7 @@ describe("public agent types", () => {
     expect(summary.topFaqQuestion).toBe("How do I install it?");
     expect(summary.topResourceUrl).toBe("https://example.test/guide.pdf");
     expect(summary.topResourceCommandArgs?.[1]).toBe("https://example.test/guide.pdf");
+    expect(summary.topPaginationCommandArgs?.[1]).toBe("https://example.test/next");
     expect(summary.topTranscriptCommandArgs?.[1]).toBe("https://example.test/transcript.txt");
     expect(summary.topAuthorLinkCommandArgs?.[1]).toBe("https://example.test/author");
     expect(summary.bestStructuredReadTarget).toBe("pageCheck.dataTables");
