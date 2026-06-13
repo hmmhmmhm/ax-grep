@@ -1165,6 +1165,9 @@ describe("public agent types", () => {
       | "topActionTargetSource"
       | "topActionTargetRank"
       | "topActionTargetSourceScore"
+      | "topActionTargetDateText"
+      | "topActionTargetDatePrecision"
+      | "topActionTargetDateSource"
       | "topActionTargetRelevance"
       | "topActionTargetLikelyOfficial"
       | "topActionTargetSelector"
@@ -2421,6 +2424,9 @@ describe("public agent types", () => {
       topActionTargetSource: "source-link",
       topActionTargetRank: 1,
       topActionTargetSourceScore: 0.92,
+      topActionTargetDateText: "2026-05-31",
+      topActionTargetDatePrecision: "day",
+      topActionTargetDateSource: "snippet",
       topActionTargetRelevance: "high",
       topActionTargetLikelyOfficial: true,
       topActionTargetSelector: "a.primary",
@@ -2731,6 +2737,9 @@ describe("public agent types", () => {
     expect(summary.topActionExpectedOutcome).toBe("read-evidence");
     expect(summary.topActionTargetTitle).toBe("Example target");
     expect(summary.topActionTargetSourceScore).toBe(0.92);
+    expect(summary.topActionTargetDateText).toBe("2026-05-31");
+    expect(summary.topActionTargetDatePrecision).toBe("day");
+    expect(summary.topActionTargetDateSource).toBe("snippet");
     expect(summary.topActionTargetLikelyOfficial).toBe(true);
     expect(summary.pagePublishedTime).toBe("2026-02-03T04:05:06Z");
     expect(summary.verificationMissingQueries).toEqual(["missing"]);

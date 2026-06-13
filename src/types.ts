@@ -2299,6 +2299,9 @@ export type AgentSummary = {
   topActionTargetSource?: string;
   topActionTargetRank?: number;
   topActionTargetSourceScore?: number;
+  topActionTargetDateText?: string;
+  topActionTargetDatePrecision?: "day" | "month" | "year";
+  topActionTargetDateSource?: "title" | "snippet";
   topActionTargetRelevance?: AgentTarget["relevance"];
   topActionTargetLikelyOfficial?: boolean;
   topActionTargetSelector?: string;

@@ -1931,6 +1931,9 @@ type AgentSummary = {
   topActionTargetSource?: string;
   topActionTargetRank?: number;
   topActionTargetSourceScore?: number;
+  topActionTargetDateText?: string;
+  topActionTargetDatePrecision?: AgentTarget["datePrecision"];
+  topActionTargetDateSource?: AgentTarget["dateSource"];
   topActionTargetRelevance?: AgentTarget["relevance"];
   topActionTargetLikelyOfficial?: boolean;
   topActionTargetSelector?: string;
@@ -4079,6 +4082,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topActionTargetSource ? [`  topActionTargetSource: ${agent.topActionTargetSource}`] : []),
     ...(typeof agent.topActionTargetRank === "number" ? [`  topActionTargetRank: ${agent.topActionTargetRank}`] : []),
     ...(typeof agent.topActionTargetSourceScore === "number" ? [`  topActionTargetSourceScore: ${agent.topActionTargetSourceScore}`] : []),
+    ...(agent.topActionTargetDateText ? [`  topActionTargetDateText: ${agent.topActionTargetDateText}`] : []),
+    ...(agent.topActionTargetDatePrecision ? [`  topActionTargetDatePrecision: ${agent.topActionTargetDatePrecision}`] : []),
+    ...(agent.topActionTargetDateSource ? [`  topActionTargetDateSource: ${agent.topActionTargetDateSource}`] : []),
     ...(agent.topActionTargetRelevance ? [`  topActionTargetRelevance: ${agent.topActionTargetRelevance}`] : []),
     ...(typeof agent.topActionTargetLikelyOfficial === "boolean" ? [`  topActionTargetLikelyOfficial: ${agent.topActionTargetLikelyOfficial}`] : []),
     ...(agent.topActionTargetSelector ? [`  topActionTargetSelector: ${agent.topActionTargetSelector}`] : []),
@@ -12816,6 +12822,9 @@ function summarizeAgent(
     ...(actions[0]?.target?.source ? { topActionTargetSource: actions[0].target.source } : {}),
     ...(typeof actions[0]?.target?.rank === "number" ? { topActionTargetRank: actions[0].target.rank } : {}),
     ...(typeof actions[0]?.target?.sourceScore === "number" ? { topActionTargetSourceScore: actions[0].target.sourceScore } : {}),
+    ...(actions[0]?.target?.dateText ? { topActionTargetDateText: actions[0].target.dateText } : {}),
+    ...(actions[0]?.target?.datePrecision ? { topActionTargetDatePrecision: actions[0].target.datePrecision } : {}),
+    ...(actions[0]?.target?.dateSource ? { topActionTargetDateSource: actions[0].target.dateSource } : {}),
     ...(actions[0]?.target?.relevance ? { topActionTargetRelevance: actions[0].target.relevance } : {}),
     ...(typeof actions[0]?.target?.isLikelyOfficial === "boolean" ? { topActionTargetLikelyOfficial: actions[0].target.isLikelyOfficial } : {}),
     ...(actions[0]?.target?.selector ? { topActionTargetSelector: actions[0].target.selector } : {}),
@@ -16026,6 +16035,9 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(primaryAction?.target?.source ? { topActionTargetSource: primaryAction.target.source } : {}),
     ...(typeof primaryAction?.target?.rank === "number" ? { topActionTargetRank: primaryAction.target.rank } : {}),
     ...(typeof primaryAction?.target?.sourceScore === "number" ? { topActionTargetSourceScore: primaryAction.target.sourceScore } : {}),
+    ...(primaryAction?.target?.dateText ? { topActionTargetDateText: primaryAction.target.dateText } : {}),
+    ...(primaryAction?.target?.datePrecision ? { topActionTargetDatePrecision: primaryAction.target.datePrecision } : {}),
+    ...(primaryAction?.target?.dateSource ? { topActionTargetDateSource: primaryAction.target.dateSource } : {}),
     ...(primaryAction?.target?.relevance ? { topActionTargetRelevance: primaryAction.target.relevance } : {}),
     ...(typeof primaryAction?.target?.isLikelyOfficial === "boolean" ? { topActionTargetLikelyOfficial: primaryAction.target.isLikelyOfficial } : {}),
     ...(primaryAction?.target?.selector ? { topActionTargetSelector: primaryAction.target.selector } : {}),
@@ -18445,6 +18457,9 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topActionTargetSource ? { topActionTargetSource: agent.topActionTargetSource } : {}),
     ...(typeof agent.topActionTargetRank === "number" ? { topActionTargetRank: agent.topActionTargetRank } : {}),
     ...(typeof agent.topActionTargetSourceScore === "number" ? { topActionTargetSourceScore: agent.topActionTargetSourceScore } : {}),
+    ...(agent.topActionTargetDateText ? { topActionTargetDateText: agent.topActionTargetDateText } : {}),
+    ...(agent.topActionTargetDatePrecision ? { topActionTargetDatePrecision: agent.topActionTargetDatePrecision } : {}),
+    ...(agent.topActionTargetDateSource ? { topActionTargetDateSource: agent.topActionTargetDateSource } : {}),
     ...(agent.topActionTargetRelevance ? { topActionTargetRelevance: agent.topActionTargetRelevance } : {}),
     ...(typeof agent.topActionTargetLikelyOfficial === "boolean" ? { topActionTargetLikelyOfficial: agent.topActionTargetLikelyOfficial } : {}),
     ...(agent.topActionTargetSelector ? { topActionTargetSelector: agent.topActionTargetSelector } : {}),
@@ -19603,6 +19618,9 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topActionTargetSource ? { topActionTargetSource: agent.topActionTargetSource } : {}),
     ...(typeof agent.topActionTargetRank === "number" ? { topActionTargetRank: agent.topActionTargetRank } : {}),
     ...(typeof agent.topActionTargetSourceScore === "number" ? { topActionTargetSourceScore: agent.topActionTargetSourceScore } : {}),
+    ...(agent.topActionTargetDateText ? { topActionTargetDateText: agent.topActionTargetDateText } : {}),
+    ...(agent.topActionTargetDatePrecision ? { topActionTargetDatePrecision: agent.topActionTargetDatePrecision } : {}),
+    ...(agent.topActionTargetDateSource ? { topActionTargetDateSource: agent.topActionTargetDateSource } : {}),
     ...(agent.topActionTargetRelevance ? { topActionTargetRelevance: agent.topActionTargetRelevance } : {}),
     ...(typeof agent.topActionTargetLikelyOfficial === "boolean" ? { topActionTargetLikelyOfficial: agent.topActionTargetLikelyOfficial } : {}),
     ...(agent.topActionTargetSelector ? { topActionTargetSelector: agent.topActionTargetSelector } : {}),
