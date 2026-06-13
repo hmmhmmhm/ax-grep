@@ -5355,6 +5355,27 @@ describe("cli", () => {
     });
   });
 
+  it("prints first table sample cell spans in text agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/report"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h1>Quarterly report</h1>
+          <table aria-label="Revenue by quarter">
+            <tr><th>Quarter</th><th>Revenue</th></tr>
+            <tr><td rowspan="2" colspan="2">Q1 combined</td></tr>
+            <tr></tr>
+          </table>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticTopTableFirstSampleCell: agent.semanticSummary.tableItems[0].sampleCellRefs[0] Q1 combined rowSpan=2 columnSpan=2");
+  });
+
   it("keeps list sample text when list items compact to links in agent brief output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/releases", "--agent-brief"], {
