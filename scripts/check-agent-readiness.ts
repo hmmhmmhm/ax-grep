@@ -1168,6 +1168,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "reason: \"Browser-captured HTML is needed.\"",
           "expect(handoff.browserHtml?.reason).toContain(\"Browser-captured HTML\")",
           "expect(handoff.browserHtml?.command).toContain(\"--html-file captured.html\")",
+          "expect(envelopeRecommendation.pageCheck.sourceLinks?.[0]?.command).toContain(\"source.example/report\")",
         ]);
         requireFileIncludes(root, failures, "docs/progress.md", [
           "A129",
@@ -1642,6 +1643,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "A135",
           "A136",
           "A137",
+          "A138",
         ]);
       },
     ),

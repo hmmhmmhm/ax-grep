@@ -2799,6 +2799,7 @@ describe("public agent types", () => {
           title: "Source report",
           url: "https://source.example/report",
           rank: 1,
+          command: "ax-grep 'https://source.example/report' --agent",
           commandArgs: ["ax-grep", "https://source.example/report", "--agent"],
         }],
         dataTables: [{
@@ -3209,6 +3210,7 @@ describe("public agent types", () => {
     expect(envelopeRecommendation.sourceSearch.selectedResult?.commandArgs?.[4]).toBe("1");
     expect(envelopeRecommendation.page.structuredDataTypes?.[0]).toBe("Article");
     expect(envelopeRecommendation.pageCheck.contentEvidence[0]?.quality).toBe("high");
+    expect(envelopeRecommendation.pageCheck.sourceLinks?.[0]?.command).toContain("source.example/report");
     expect(envelopeRecommendation.pageCheck.sourceLinks?.[0]?.commandArgs?.[0]).toBe("ax-grep");
     expect(envelopeRecommendation.pageCheck.dataTables?.[0]?.headers[1]).toBe("Price");
     expect(envelopeRecommendation.pageCheck.barriers?.[0]?.kind).toBe("cookie-consent");
