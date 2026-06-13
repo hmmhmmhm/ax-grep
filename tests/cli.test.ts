@@ -2201,6 +2201,7 @@ describe("cli", () => {
       topChoicePath: "searchResults[0]",
       topChoiceUrl: "https://result.example/article",
       topChoiceHost: "result.example",
+      topChoiceCommand: "ax-grep --search 'agent browser' --engine bing --open-result 1 --agent-brief",
       topChoiceCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent-brief"],
       topChoiceRank: 1,
       topChoiceOpenResult: 1,
@@ -2209,6 +2210,7 @@ describe("cli", () => {
       recommendedPath: "recommendedResult",
       recommendedTitle: "Agent browser guide",
       recommendedRank: 1,
+      recommendedCommand: "ax-grep --search 'agent browser' --engine bing --open-result 1 --agent-brief",
       recommendedCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent-brief"],
     });
   });

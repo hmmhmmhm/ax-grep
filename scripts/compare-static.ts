@@ -1347,6 +1347,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       recommendedSourceScore?: number;
       recommendedRelevance?: "low" | "medium" | "high";
       recommendedLikelyOfficial?: boolean;
+      recommendedCommand?: string;
       recommendedCommandArgs?: string[];
       resultCount?: number;
       resultChoiceCount?: number;
@@ -9968,6 +9969,7 @@ function scoreAgentRecommendedMetadata(
     recommendedSourceScore?: number;
     recommendedRelevance?: "low" | "medium" | "high";
     recommendedLikelyOfficial?: boolean;
+    recommendedCommand?: string;
     recommendedCommandArgs?: string[];
     recommendedSelectionReason?: string;
   } | undefined,
@@ -10016,6 +10018,12 @@ function scoreAgentRecommendedMetadata(
     required += 1;
     if (JSON.stringify(agent?.recommendedCommandArgs) === JSON.stringify(recommendedResult.commandArgs)) matched += 1;
   } else if (agent?.recommendedCommandArgs) {
+    required += 1;
+  }
+  if (recommendedResult.command) {
+    required += 1;
+    if (agent?.recommendedCommand === recommendedResult.command) matched += 1;
+  } else if (agent?.recommendedCommand) {
     required += 1;
   }
   return required === 0 ? 1 : roundScore(matched / required);
