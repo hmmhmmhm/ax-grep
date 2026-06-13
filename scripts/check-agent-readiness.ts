@@ -1145,6 +1145,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "&& (!right.reason || left.reason === right.reason)",
           "&& (!right.command || left.command === right.command)",
           "JSON.stringify(left.commandArgs) === JSON.stringify(right.commandArgs)",
+          "executor.command === handoff.command",
+          "executor.afterInteractionCommand === handoff.afterInteractionCommand",
         ]);
         requireFileIncludes(root, failures, "tests/cli.test.ts", [
           "returns a structured warning when the page has no inspectable content",
@@ -1636,6 +1638,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "A133",
           "A134",
           "A135",
+          "A136",
         ]);
       },
     ),

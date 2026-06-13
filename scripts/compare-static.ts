@@ -3332,9 +3332,17 @@ function scoreBriefAgentExecutorEnvelope(envelope: unknown): number {
     required += 1;
     if (JSON.stringify(executor.commandArgs) === JSON.stringify(handoff.commandArgs)) matched += 1;
   }
+  if (handoff.command) {
+    required += 1;
+    if (executor.command === handoff.command) matched += 1;
+  }
   if (handoff.afterInteractionCommandArgs) {
     required += 1;
     if (JSON.stringify(executor.afterInteractionCommandArgs) === JSON.stringify(handoff.afterInteractionCommandArgs)) matched += 1;
+  }
+  if (handoff.afterInteractionCommand) {
+    required += 1;
+    if (executor.afterInteractionCommand === handoff.afterInteractionCommand) matched += 1;
   }
   if (handoff.readFrom) {
     required += 3;
