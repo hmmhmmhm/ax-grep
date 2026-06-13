@@ -3528,7 +3528,10 @@ function formatAgentFormChoiceText(choice: AgentFormChoice, prefix = "formChoice
   const firstHidden = choice.hiddenFields?.[0]?.name ? ` firstHidden=${choice.hiddenFields[0].name}` : "";
   const target = choice.formTarget ? ` target=${choice.formTarget}` : "";
   const encType = choice.formEncType ? ` enctype=${choice.formEncType}` : "";
-  return [`  ${prefix}: ${choice.id} ${choice.path} rank=${choice.rank} method=${choice.method} fields=${choice.fieldCount}${hidden}${firstHidden}${query}${template}${target}${encType}${selector}${action}${submit} - ${choice.text}`];
+  const lines = [`  ${prefix}: ${choice.id} ${choice.path} rank=${choice.rank} method=${choice.method} fields=${choice.fieldCount}${hidden}${firstHidden}${query}${template}${target}${encType}${selector}${action}${submit} - ${choice.text}`];
+  if (choice.command) lines.push(`    command: ${choice.command}`);
+  if (choice.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
+  return lines;
 }
 
 function formatAgentActionTargetChoiceText(choice: AgentActionTargetChoice, prefix = "actionTargetChoice"): string[] {
@@ -3542,7 +3545,10 @@ function formatAgentActionTargetChoiceText(choice: AgentActionTargetChoice, pref
   const haspopup = typeof choice.haspopup !== "undefined" ? ` haspopup=${choice.haspopup}` : "";
   const controls = choice.controls ? ` controls=${choice.controls}` : "";
   const selector = choice.selector ? ` selector=${choice.selector}` : "";
-  return [`  ${prefix}: ${choice.id} ${choice.path} rank=${choice.rank} kind=${choice.kind} source=${choice.source}${template}${query}${method}${disabled}${pressed}${expanded}${haspopup}${controls}${selector}${target} - ${choice.name}`];
+  const lines = [`  ${prefix}: ${choice.id} ${choice.path} rank=${choice.rank} kind=${choice.kind} source=${choice.source}${template}${query}${method}${disabled}${pressed}${expanded}${haspopup}${controls}${selector}${target} - ${choice.name}`];
+  if (choice.command) lines.push(`    command: ${choice.command}`);
+  if (choice.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
+  return lines;
 }
 
 function formatAgentSourceSearchResultText(result: AgentSourceSearchResult, prefix: string): string[] {
@@ -3757,6 +3763,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topFormChoicePath ? [`  topFormChoicePath: ${agent.topFormChoicePath}`] : []),
     ...(agent.topFormChoiceUrlTemplate ? [`  topFormChoiceUrlTemplate: ${agent.topFormChoiceUrlTemplate}`] : []),
     ...(agent.topFormChoiceQueryField ? [`  topFormChoiceQueryField: ${agent.topFormChoiceQueryField}`] : []),
+    ...(agent.topFormChoiceCommand ? [`  topFormChoiceCommand: ${agent.topFormChoiceCommand}`] : []),
+    ...(agent.topFormChoiceCommandArgs ? [`  topFormChoiceCommandArgs: ${formatCommandArgsText(agent.topFormChoiceCommandArgs)}`] : []),
     ...(agent.topFormChoiceSubmitText ? [`  topFormChoiceSubmitText: ${agent.topFormChoiceSubmitText}`] : []),
     ...(agent.topFormChoiceSubmitType || agent.topFormChoiceSubmitSelector ? [`  topFormChoiceSubmit: ${agent.topFormChoiceSubmitText ?? ""}${agent.topFormChoiceSubmitType ? ` type=${agent.topFormChoiceSubmitType}` : ""}${agent.topFormChoiceSubmitName ? ` name=${agent.topFormChoiceSubmitName}` : ""}${agent.topFormChoiceSubmitValue ? ` value=${agent.topFormChoiceSubmitValue}` : ""}${typeof agent.topFormChoiceSubmitDisabled === "boolean" ? ` disabled=${agent.topFormChoiceSubmitDisabled}` : ""}${agent.topFormChoiceSubmitSelector ? ` selector=${agent.topFormChoiceSubmitSelector}` : ""}${agent.topFormChoiceSubmitFormActionUrl ? ` formaction=${agent.topFormChoiceSubmitFormActionUrl}` : ""}${agent.topFormChoiceSubmitFormMethod ? ` formmethod=${agent.topFormChoiceSubmitFormMethod}` : ""}${agent.topFormChoiceSubmitFormTarget ? ` formtarget=${agent.topFormChoiceSubmitFormTarget}` : ""}${agent.topFormChoiceSubmitFormEncType ? ` formenctype=${agent.topFormChoiceSubmitFormEncType}` : ""}${typeof agent.topFormChoiceSubmitFormNoValidate === "boolean" ? ` formnovalidate=${agent.topFormChoiceSubmitFormNoValidate}` : ""}${agent.topFormChoiceSubmitFormId ? ` form=${agent.topFormChoiceSubmitFormId}` : ""}`] : []),
     ...(agent.topFormChoiceHiddenFieldCount ? [`  topFormChoiceHiddenFields: ${agent.topFormChoiceHiddenFieldCount}${agent.topFormChoiceFirstHiddenFieldName ? ` first=${agent.topFormChoiceFirstHiddenFieldName}` : ""}${agent.topFormChoiceFirstHiddenFieldValue ? ` value=${agent.topFormChoiceFirstHiddenFieldValue}` : ""}${agent.topFormChoiceFirstHiddenFieldSelector ? ` selector=${agent.topFormChoiceFirstHiddenFieldSelector}` : ""}`] : []),
@@ -3765,6 +3773,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topActionTargetChoiceUrlTemplate ? [`  topActionTargetChoiceUrlTemplate: ${agent.topActionTargetChoiceUrlTemplate}`] : []),
     ...(agent.topActionTargetChoiceQueryInput ? [`  topActionTargetChoiceQueryInput: ${agent.topActionTargetChoiceQueryInput}`] : []),
     ...(agent.topActionTargetChoiceEncodingType ? [`  topActionTargetChoiceEncodingType: ${agent.topActionTargetChoiceEncodingType}`] : []),
+    ...(agent.topActionTargetChoiceCommand ? [`  topActionTargetChoiceCommand: ${agent.topActionTargetChoiceCommand}`] : []),
+    ...(agent.topActionTargetChoiceCommandArgs ? [`  topActionTargetChoiceCommandArgs: ${formatCommandArgsText(agent.topActionTargetChoiceCommandArgs)}`] : []),
     `  barrierCount: ${agent.barrierCount}`,
     ...(agent.topBarrierKind ? [`  topBarrier: ${agent.topBarrierSeverity}/${agent.topBarrierKind} ${agent.topBarrierPath} - ${agent.topBarrierText}`] : []),
     ...(agent.topBarrierSource ? [`  topBarrierSource: ${agent.topBarrierSource}`] : []),

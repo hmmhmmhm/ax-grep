@@ -271,6 +271,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
         ]);
         requireFileIncludes(root, failures, "tests/cli.test.ts", [
           "adds executable commands to site-search form choices when find text is missing",
+          "prints executable form choice commands in text output",
+          "prints executable action-target commands in text output",
           "topFormChoiceCommandArgs",
           "topActionTargetChoiceCommandArgs",
         ]);

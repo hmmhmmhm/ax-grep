@@ -11232,6 +11232,60 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("     snippet: Snippet text explains why this result is useful for the current investigation.");
   });
 
+  it("prints executable form choice commands in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/search", "--find", "quarterly report"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <form method="GET" action="/find">
+            <label for="q">Archive search</label>
+            <input id="q" name="query" type="search">
+            <button>Search</button>
+          </form>
+        </main>
+      `),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("  topChoice: form pageCheck.forms[0] rank=1 method=get");
+    expect(stdout.output).toContain(" command=ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
+    expect(stdout.output).toContain("  topFormChoiceCommand: ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
+    expect(stdout.output).toContain("  topFormChoiceCommandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  formChoice: f1 pageCheck.forms[0] rank=1 method=get fields=1 query=query template=https://example.test/find?query=%7Bquery%7D selector=form:nth-of-type(1)");
+    expect(stdout.output).toContain("    command: ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
+    expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
+  });
+
+  it("prints executable action-target commands in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/docs", "--find", "search_term_string"], {
+      stdout,
+      fetch: async () => new Response(`
+        <script type="application/ld+json">
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "Example Docs",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "/search?q={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          }
+        </script>
+        <main><h1>Docs</h1></main>
+      `),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("  topActionTargetChoiceCommand: ax-grep 'https://example.test/search?q=search_term_string' --find 'search_term_string' --json --summary");
+    expect(stdout.output).toContain("  topActionTargetChoiceCommandArgs: [\"ax-grep\",\"https://example.test/search?q=search_term_string\",\"--find\",\"search_term_string\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  actionTargetChoice: at1 pageCheck.actionTargets[0] rank=1 kind=search source=json-ld template=https://example.test/search?q={search_term_string}");
+    expect(stdout.output).toContain("    command: ax-grep 'https://example.test/search?q=search_term_string' --find 'search_term_string' --json --summary");
+    expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://example.test/search?q=search_term_string\",\"--find\",\"search_term_string\",\"--json\",\"--summary\"]");
+  });
+
   it("returns a structured warning when the page has no inspectable content", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test", "--json"], {
