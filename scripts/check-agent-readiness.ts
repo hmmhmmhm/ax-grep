@@ -251,6 +251,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "typeof choice.command === \"string\"",
           "choice.command.length > 0",
           "choice.command === expected.command",
+          "agentChoice?.command === choice.command",
           "executorBrowserHtmlReasonCode",
           "handoffBrowserHtmlReasonCode",
           "executorReadValueReferencePath",
@@ -1648,6 +1649,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "A137",
           "A138",
           "A139",
+          "A140",
         ]);
       },
     ),

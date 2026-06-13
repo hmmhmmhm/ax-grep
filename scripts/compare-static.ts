@@ -4604,7 +4604,10 @@ function scoreAgentResultChoices(
     if (sitelinkSources.every((result) => choices.some((choice) => choice.rank === result.rank
       && JSON.stringify(choice.sitelinks) === JSON.stringify(result.sitelinks)))) matched += 1;
   }
-  const runnableChoices = choices.filter((choice) => Array.isArray(choice.commandArgs) && choice.commandArgs.length > 0).length;
+  const runnableChoices = choices.filter((choice) => typeof choice.command === "string"
+    && choice.command.length > 0
+    && Array.isArray(choice.commandArgs)
+    && choice.commandArgs.length > 0).length;
   required += 1;
   if (runnableChoices === choices.length) matched += 1;
   if (primaryAction?.url || primaryAction?.rank) {
@@ -5769,7 +5772,7 @@ function scoreAgentSourceSearchShortcuts(agent: {
     const comparableChoices = sourceSearch.alternateResults.slice(0, 3);
     for (const [index, choice] of comparableChoices.entries()) {
       const agentChoice = agent?.sourceSearchAlternateChoices?.[index];
-      required += 10;
+      required += 11;
       if (agentChoice?.path === choice.path) matched += 1;
       if (agentChoice?.title === choice.title) matched += 1;
       if (agentChoice?.url === choice.url) matched += 1;
@@ -5777,6 +5780,7 @@ function scoreAgentSourceSearchShortcuts(agent: {
       if (agentChoice?.source === choice.source) matched += 1;
       if (agentChoice?.rank === choice.rank) matched += 1;
       if (agentChoice?.openResult === choice.openResult) matched += 1;
+      if (agentChoice?.command === choice.command) matched += 1;
       if (JSON.stringify(agentChoice?.commandArgs) === JSON.stringify(choice.commandArgs)) matched += 1;
       if (agentChoice?.relevance === choice.relevance) matched += 1;
       if (agentChoice?.isLikelyOfficial === choice.isLikelyOfficial) matched += 1;
