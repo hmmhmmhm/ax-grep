@@ -612,14 +612,17 @@ describe("cli", () => {
         semanticTopHeading: "Example",
         semanticTopHeadingPath: "agent.semanticSummary.headingItems[0]",
         semanticTopHeadingLevel: 1,
+        semanticTopHeadingSelector: "h1",
         semanticTopLandmark: "main",
         semanticTopLandmarkPath: "agent.semanticSummary.landmarkItems[0]",
         semanticTopLandmarkRole: "main",
+        semanticTopLandmarkSelector: "main",
         semanticTopNamedRole: "heading:Example",
         semanticTopNamedRolePath: "agent.semanticSummary.namedRoleItems[0]",
         semanticTopNamedRoleRole: "heading",
         semanticTopNamedRoleName: "Example",
         semanticTopNamedRoleDescription: "article title",
+        semanticTopNamedRoleSelector: "h1",
         semanticTopInteractiveRole: "button",
         semanticTopInteractivePath: "agent.semanticSummary.interactiveRoles[0]",
         semanticTopInteractiveName: "Toggle details",
@@ -11125,7 +11128,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  semanticLandmark: agent.semanticSummary.landmarkItems[0] main");
     expect(stdout.output).toContain("  semanticNodeCount:");
     expect(stdout.output).toContain("  semanticNamedRoleCount:");
-    expect(stdout.output).toContain("  semanticTopHeading: agent.semanticSummary.headingItems[0] Article heading");
+    expect(stdout.output).toContain("  semanticTopHeading: agent.semanticSummary.headingItems[0] Article heading level=1 selector=h1");
     expect(stdout.output).toContain("  qualityGate: fetch pass/info score=1 path=agent.responseStatus - Fetched response was converted into an agent payload.");
     expect(stdout.output).toContain("  qualityGate: content pass/info score=");
     expect(stdout.output).toContain("  qualityGate: source pass/info score=");

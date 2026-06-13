@@ -739,15 +739,18 @@ describe("public agent types", () => {
       | "semanticTopHeading"
       | "semanticTopHeadingPath"
       | "semanticTopHeadingLevel"
+      | "semanticTopHeadingSelector"
       | "semanticTopLandmark"
       | "semanticTopLandmarkPath"
       | "semanticTopLandmarkRole"
       | "semanticTopLandmarkName"
+      | "semanticTopLandmarkSelector"
       | "semanticTopNamedRole"
       | "semanticTopNamedRolePath"
       | "semanticTopNamedRoleRole"
       | "semanticTopNamedRoleName"
       | "semanticTopNamedRoleDescription"
+      | "semanticTopNamedRoleSelector"
       | "semanticTopInteractiveRole"
       | "semanticTopInteractivePath"
       | "semanticTopInteractiveName"
@@ -2021,14 +2024,17 @@ describe("public agent types", () => {
       semanticTopHeading: "Example",
       semanticTopHeadingPath: "agent.semanticSummary.headingItems[0]",
       semanticTopHeadingLevel: 1,
+      semanticTopHeadingSelector: "h1",
       semanticTopLandmark: "main",
       semanticTopLandmarkPath: "agent.semanticSummary.landmarkItems[0]",
       semanticTopLandmarkRole: "main",
+      semanticTopLandmarkSelector: "main",
       semanticTopNamedRole: "heading:Example",
       semanticTopNamedRolePath: "agent.semanticSummary.namedRoleItems[0]",
       semanticTopNamedRoleRole: "heading",
       semanticTopNamedRoleName: "Example",
       semanticTopNamedRoleDescription: "article title",
+      semanticTopNamedRoleSelector: "h1",
       semanticTopInteractiveRole: "link",
       semanticTopInteractivePath: "agent.semanticSummary.interactiveRoles[0]",
       semanticTopInteractiveName: "Read more",
@@ -2797,8 +2803,11 @@ describe("public agent types", () => {
     expect(summary.pageDecisionCommand).toContain("example.test");
     expect(summary.semanticTopHeading).toBe("Example");
     expect(summary.semanticTopHeadingPath).toBe("agent.semanticSummary.headingItems[0]");
+    expect(summary.semanticTopHeadingSelector).toBe("h1");
     expect(summary.semanticTopLandmarkRole).toBe("main");
+    expect(summary.semanticTopLandmarkSelector).toBe("main");
     expect(summary.semanticTopNamedRoleName).toBe("Example");
+    expect(summary.semanticTopNamedRoleSelector).toBe("h1");
     expect(summary.readTargetCount).toBe(3);
     expect(summary.topReadTarget).toBe("pageCheck.contentEvidence");
     expect(summary.topReadTargetKind).toBe("evidence");

@@ -1459,15 +1459,18 @@ export type AgentSummary = {
   semanticTopHeading?: string;
   semanticTopHeadingPath?: string;
   semanticTopHeadingLevel?: number;
+  semanticTopHeadingSelector?: string;
   semanticTopLandmark?: string;
   semanticTopLandmarkPath?: string;
   semanticTopLandmarkRole?: string;
   semanticTopLandmarkName?: string;
+  semanticTopLandmarkSelector?: string;
   semanticTopNamedRole?: string;
   semanticTopNamedRolePath?: string;
   semanticTopNamedRoleRole?: string;
   semanticTopNamedRoleName?: string;
   semanticTopNamedRoleDescription?: string;
+  semanticTopNamedRoleSelector?: string;
   semanticTopInteractiveRole?: string;
   semanticTopInteractivePath?: string;
   semanticTopInteractiveName?: string;
