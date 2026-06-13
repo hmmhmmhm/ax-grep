@@ -1859,6 +1859,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topCitationText?: string;
       topCitationTitle?: string;
       topCitationUrl?: string;
+      topCitationCommand?: string;
+      topCitationCommandArgs?: string[];
       topCitationConfidence?: CliAgentCitationShape["confidence"];
       topCitationReason?: string;
       topCitationScore?: number;
@@ -1869,6 +1871,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topAnswerEvidenceText?: string;
       topAnswerEvidenceTitle?: string;
       topAnswerEvidenceUrl?: string;
+      topAnswerEvidenceCommand?: string;
+      topAnswerEvidenceCommandArgs?: string[];
       topAnswerEvidenceConfidence?: CliAgentCitationShape["confidence"];
       topAnswerEvidenceReason?: string;
       topAnswerEvidenceScore?: number;
@@ -9700,6 +9704,8 @@ function scoreAgentAnswerShortcuts(agent: {
   topAnswerEvidenceText?: string;
   topAnswerEvidenceTitle?: string;
   topAnswerEvidenceUrl?: string;
+  topAnswerEvidenceCommand?: string;
+  topAnswerEvidenceCommandArgs?: string[];
   topAnswerEvidenceConfidence?: CliAgentCitationShape["confidence"];
   topAnswerEvidenceReason?: string;
   topAnswerEvidenceScore?: number;
@@ -9839,6 +9845,11 @@ function scoreAgentAnswerShortcuts(agent: {
     if (topEvidence.url) {
       required += 1;
       if (agent.topAnswerEvidenceUrl === topEvidence.url) matched += 1;
+      if (/^https?:\/\//i.test(topEvidence.url)) {
+        required += 2;
+        if (agent.topAnswerEvidenceCommand?.includes(topEvidence.url)) matched += 1;
+        if (Array.isArray(agent.topAnswerEvidenceCommandArgs) && agent.topAnswerEvidenceCommandArgs.includes(topEvidence.url)) matched += 1;
+      }
     } else if (agent.topAnswerEvidenceUrl) {
       required += 1;
     }
@@ -9860,7 +9871,7 @@ function scoreAgentAnswerShortcuts(agent: {
     } else if (typeof agent.topAnswerEvidenceScore === "number") {
       required += 1;
     }
-  } else if (agent.topAnswerEvidenceId || agent.topAnswerEvidencePath || agent.topAnswerEvidenceKind) {
+  } else if (agent.topAnswerEvidenceId || agent.topAnswerEvidencePath || agent.topAnswerEvidenceKind || agent.topAnswerEvidenceCommand || agent.topAnswerEvidenceCommandArgs) {
     required += 3;
   }
   return roundScore(matched / required);
@@ -9874,6 +9885,8 @@ function scoreAgentTopCitationShortcuts(agent: {
   topCitationText?: string;
   topCitationTitle?: string;
   topCitationUrl?: string;
+  topCitationCommand?: string;
+  topCitationCommandArgs?: string[];
   topCitationConfidence?: CliAgentCitationShape["confidence"];
   topCitationReason?: string;
   topCitationScore?: number;
@@ -9886,6 +9899,8 @@ function scoreAgentTopCitationShortcuts(agent: {
       || agent?.topCitationText
       || agent?.topCitationTitle
       || agent?.topCitationUrl
+      || agent?.topCitationCommand
+      || agent?.topCitationCommandArgs
       || agent?.topCitationConfidence
       || agent?.topCitationReason
       || typeof agent?.topCitationScore === "number" ? 0 : 1;
@@ -9910,6 +9925,11 @@ function scoreAgentTopCitationShortcuts(agent: {
   if (top.url) {
     required += 1;
     if (agent?.topCitationUrl === top.url) matched += 1;
+    if (/^https?:\/\//i.test(top.url)) {
+      required += 2;
+      if (agent?.topCitationCommand?.includes(top.url)) matched += 1;
+      if (Array.isArray(agent?.topCitationCommandArgs) && agent?.topCitationCommandArgs.includes(top.url)) matched += 1;
+    }
   } else if (agent?.topCitationUrl) {
     required += 1;
   }

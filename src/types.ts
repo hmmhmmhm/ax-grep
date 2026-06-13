@@ -2314,6 +2314,8 @@ export type AgentSummary = {
   topCitationText?: string;
   topCitationTitle?: string;
   topCitationUrl?: string;
+  topCitationCommand?: string;
+  topCitationCommandArgs?: string[];
   topCitationConfidence?: AgentCitation["confidence"];
   topCitationReason?: string;
   topCitationScore?: number;
@@ -2325,6 +2327,8 @@ export type AgentSummary = {
   topAnswerEvidenceText?: string;
   topAnswerEvidenceTitle?: string;
   topAnswerEvidenceUrl?: string;
+  topAnswerEvidenceCommand?: string;
+  topAnswerEvidenceCommandArgs?: string[];
   topAnswerEvidenceConfidence?: AgentCitation["confidence"];
   topAnswerEvidenceReason?: string;
   topAnswerEvidenceScore?: number;
