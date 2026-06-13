@@ -1561,6 +1561,14 @@ describe("cli", () => {
         if (topResultChoice.sitelinks?.[0]?.title) expect(envelope.agent.topResultChoiceFirstSitelinkTitle).toBe(topResultChoice.sitelinks[0].title);
         if (topResultChoice.sitelinks?.[0]?.url) expect(envelope.agent.topResultChoiceFirstSitelinkUrl).toBe(topResultChoice.sitelinks[0].url);
         if (topResultChoice.sitelinks?.[0]?.selector) expect(envelope.agent.topResultChoiceFirstSitelinkSelector).toBe(topResultChoice.sitelinks[0].selector);
+        if (topResultChoice.sitelinks?.[0]?.url) {
+          const agentFlag = envelope.agent.topResultChoiceFirstSitelinkCommandArgs?.includes("--agent-brief") ? "--agent-brief" : "--agent";
+          expect(envelope.agent.topResultChoiceFirstSitelinkCommand).toContain(`ax-grep '${topResultChoice.sitelinks[0].url}'`);
+          expect(envelope.agent.topResultChoiceFirstSitelinkCommand).toContain(agentFlag);
+          expect(envelope.agent.topResultChoiceFirstSitelinkCommandArgs[0]).toBe("ax-grep");
+          expect(envelope.agent.topResultChoiceFirstSitelinkCommandArgs[1]).toBe(topResultChoice.sitelinks[0].url);
+          expect(envelope.agent.topResultChoiceFirstSitelinkCommandArgs).toContain(agentFlag);
+        }
       } else if (topSourceChoice) {
         expect(envelope.agent.topChoiceKind).toBe("source");
         expect(envelope.agent.topChoicePath).toBe(topSourceChoice.path);
@@ -1612,7 +1620,7 @@ describe("cli", () => {
             url: "https://result.example/",
             snippet: "agent browser comparison details",
             primary: true,
-            commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent-brief"],
+            commandArgs: ["ax-grep", "https://result.example/", "--agent-brief"],
           }),
         ]);
       }
@@ -2692,6 +2700,8 @@ describe("cli", () => {
       topResultChoiceFirstSitelinkTitle: "Readme",
       topResultChoiceFirstSitelinkUrl: "https://www.npmjs.com/package/ax-grep?activeTab=readme",
       topResultChoiceFirstSitelinkSelector: "a",
+      topResultChoiceFirstSitelinkCommand: "ax-grep 'https://www.npmjs.com/package/ax-grep?activeTab=readme' --json --summary",
+      topResultChoiceFirstSitelinkCommandArgs: ["ax-grep", "https://www.npmjs.com/package/ax-grep?activeTab=readme", "--json", "--summary"],
     });
     expect(envelope.agent.primaryAction.target).toMatchObject({
       title: "ax-grep - npm",
@@ -2871,6 +2881,8 @@ describe("cli", () => {
       topResultChoiceFirstSitelinkTitle: "API reference",
       topResultChoiceFirstSitelinkUrl: "https://docs.example/agent-browser/api",
       topResultChoiceFirstSitelinkSelector: "a",
+      topResultChoiceFirstSitelinkCommand: "ax-grep 'https://docs.example/agent-browser/api' --find 'API reference' --agent",
+      topResultChoiceFirstSitelinkCommandArgs: ["ax-grep", "https://docs.example/agent-browser/api", "--find", "API reference", "--agent"],
     });
   });
 
@@ -11699,6 +11711,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("     reason: Ranked result 1 from result.example.");
     expect(stdout.output).toContain("     snippet: Snippet text explains why this result is useful for the current investigation.");
     expect(stdout.output).toContain("     sitelink: Docs sitelink <https://result.example/article/docs> selector=a:nth-of-type(2)");
+    expect(stdout.output).toContain("  topResultChoiceFirstSitelinkCommand: ax-grep 'https://result.example/article/docs' --json --summary");
+    expect(stdout.output).toContain("  topResultChoiceFirstSitelinkCommandArgs: [\"ax-grep\",\"https://result.example/article/docs\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("resultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult source=result.example sitelinks=1 firstSitelinkSelector=a:nth-of-type(2)");
     expect(stdout.output).toContain("Result Title <https://result.example/article> role=link selector=a");
     expect(stdout.output).toContain("snippet: Snippet text explains why this result is useful for the current investigation.");

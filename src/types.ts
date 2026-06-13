@@ -1884,6 +1884,8 @@ export type AgentSummary = {
   topResultChoiceFirstSitelinkTitle?: string;
   topResultChoiceFirstSitelinkUrl?: string;
   topResultChoiceFirstSitelinkSelector?: string;
+  topResultChoiceFirstSitelinkCommand?: string;
+  topResultChoiceFirstSitelinkCommandArgs?: string[];
   topResultChoiceReason?: string;
   evidenceCount?: number;
   formCount?: number;
@@ -2196,6 +2198,8 @@ export type AgentSummary = {
   sourceSearchSelectedFirstSitelinkTitle?: string;
   sourceSearchSelectedFirstSitelinkUrl?: string;
   sourceSearchSelectedFirstSitelinkSelector?: string;
+  sourceSearchSelectedFirstSitelinkCommand?: string;
+  sourceSearchSelectedFirstSitelinkCommandArgs?: string[];
   sourceSearchSelectedOpenResult?: number | "best";
   sourceSearchSelectedCommand?: string;
   sourceSearchSelectedCommandArgs?: string[];
@@ -2229,6 +2233,8 @@ export type AgentSummary = {
   sourceSearchAlternateFirstSitelinkTitle?: string;
   sourceSearchAlternateFirstSitelinkUrl?: string;
   sourceSearchAlternateFirstSitelinkSelector?: string;
+  sourceSearchAlternateFirstSitelinkCommand?: string;
+  sourceSearchAlternateFirstSitelinkCommandArgs?: string[];
   sourceSearchAlternateOpenResult?: number | "best";
   sourceSearchAlternateCommand?: string;
   sourceSearchAlternateCommandArgs?: string[];

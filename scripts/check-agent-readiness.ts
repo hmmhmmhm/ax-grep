@@ -379,6 +379,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "topResultChoiceSitelinkCount",
           "topResultChoiceFirstSitelinkTitle",
           "topResultChoiceFirstSitelinkUrl",
+          "topResultChoiceFirstSitelinkCommand",
+          "topResultChoiceFirstSitelinkCommandArgs",
           "commandArgs",
           "sourceLinkRef",
           "formChoices",
