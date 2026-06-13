@@ -2648,6 +2648,9 @@ describe("cli", () => {
       executorTargetDateText: "2026-05-31",
       executorTargetDatePrecision: "day",
       executorTargetDateSource: "snippet",
+      handoffTargetDateText: "2026-05-31",
+      handoffTargetDatePrecision: "day",
+      handoffTargetDateSource: "snippet",
       primaryTargetDateText: "2026-05-31",
       primaryTargetDatePrecision: "day",
       primaryTargetDateSource: "snippet",
@@ -2747,6 +2750,9 @@ describe("cli", () => {
     expect(stdout.output).toContain("  executorTargetDateText: 2026-05-31");
     expect(stdout.output).toContain("  executorTargetDatePrecision: day");
     expect(stdout.output).toContain("  executorTargetDateSource: snippet");
+    expect(stdout.output).toContain("  handoffTargetDateText: 2026-05-31");
+    expect(stdout.output).toContain("  handoffTargetDatePrecision: day");
+    expect(stdout.output).toContain("  handoffTargetDateSource: snippet");
     expect(stdout.output).toContain("  primaryTargetDateText: 2026-05-31");
     expect(stdout.output).toContain("  primaryTargetDatePrecision: day");
     expect(stdout.output).toContain("  primaryTargetDateSource: snippet");

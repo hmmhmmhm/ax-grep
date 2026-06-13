@@ -2020,6 +2020,9 @@ type AgentSummary = {
   handoffTargetSource?: string;
   handoffTargetRank?: number;
   handoffTargetSourceScore?: number;
+  handoffTargetDateText?: string;
+  handoffTargetDatePrecision?: AgentTarget["datePrecision"];
+  handoffTargetDateSource?: AgentTarget["dateSource"];
   handoffTargetRelevance?: AgentTarget["relevance"];
   handoffTargetLikelyOfficial?: boolean;
   handoffTargetSelector?: string;
@@ -4161,6 +4164,9 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.handoffTargetSource) lines.push(`  handoffTargetSource: ${agent.handoffTargetSource}`);
   if (typeof agent.handoffTargetRank === "number") lines.push(`  handoffTargetRank: ${agent.handoffTargetRank}`);
   if (typeof agent.handoffTargetSourceScore === "number") lines.push(`  handoffTargetSourceScore: ${agent.handoffTargetSourceScore}`);
+  if (agent.handoffTargetDateText) lines.push(`  handoffTargetDateText: ${agent.handoffTargetDateText}`);
+  if (agent.handoffTargetDatePrecision) lines.push(`  handoffTargetDatePrecision: ${agent.handoffTargetDatePrecision}`);
+  if (agent.handoffTargetDateSource) lines.push(`  handoffTargetDateSource: ${agent.handoffTargetDateSource}`);
   if (agent.handoffTargetRelevance) lines.push(`  handoffTargetRelevance: ${agent.handoffTargetRelevance}`);
   if (typeof agent.handoffTargetLikelyOfficial === "boolean") lines.push(`  handoffTargetLikelyOfficial: ${agent.handoffTargetLikelyOfficial}`);
   if (agent.handoffTargetSelector) lines.push(`  handoffTargetSelector: ${agent.handoffTargetSelector}`);
@@ -12947,6 +12953,9 @@ function summarizeAgent(
     ...(handoff.target?.source ? { handoffTargetSource: handoff.target.source } : {}),
     ...(typeof handoff.target?.rank === "number" ? { handoffTargetRank: handoff.target.rank } : {}),
     ...(typeof handoff.target?.sourceScore === "number" ? { handoffTargetSourceScore: handoff.target.sourceScore } : {}),
+    ...(handoff.target?.dateText ? { handoffTargetDateText: handoff.target.dateText } : {}),
+    ...(handoff.target?.datePrecision ? { handoffTargetDatePrecision: handoff.target.datePrecision } : {}),
+    ...(handoff.target?.dateSource ? { handoffTargetDateSource: handoff.target.dateSource } : {}),
     ...(handoff.target?.relevance ? { handoffTargetRelevance: handoff.target.relevance } : {}),
     ...(typeof handoff.target?.isLikelyOfficial === "boolean" ? { handoffTargetLikelyOfficial: handoff.target.isLikelyOfficial } : {}),
     ...(handoff.target?.selector ? { handoffTargetSelector: handoff.target.selector } : {}),
@@ -16110,6 +16119,9 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(handoff.target?.source ? { handoffTargetSource: handoff.target.source } : {}),
     ...(typeof handoff.target?.rank === "number" ? { handoffTargetRank: handoff.target.rank } : {}),
     ...(typeof handoff.target?.sourceScore === "number" ? { handoffTargetSourceScore: handoff.target.sourceScore } : {}),
+    ...(handoff.target?.dateText ? { handoffTargetDateText: handoff.target.dateText } : {}),
+    ...(handoff.target?.datePrecision ? { handoffTargetDatePrecision: handoff.target.datePrecision } : {}),
+    ...(handoff.target?.dateSource ? { handoffTargetDateSource: handoff.target.dateSource } : {}),
     ...(handoff.target?.relevance ? { handoffTargetRelevance: handoff.target.relevance } : {}),
     ...(typeof handoff.target?.isLikelyOfficial === "boolean" ? { handoffTargetLikelyOfficial: handoff.target.isLikelyOfficial } : {}),
     ...(handoff.target?.selector ? { handoffTargetSelector: handoff.target.selector } : {}),
@@ -18594,6 +18606,9 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.handoffTargetSource ? { handoffTargetSource: agent.handoffTargetSource } : {}),
     ...(typeof agent.handoffTargetRank === "number" ? { handoffTargetRank: agent.handoffTargetRank } : {}),
     ...(typeof agent.handoffTargetSourceScore === "number" ? { handoffTargetSourceScore: agent.handoffTargetSourceScore } : {}),
+    ...(agent.handoffTargetDateText ? { handoffTargetDateText: agent.handoffTargetDateText } : {}),
+    ...(agent.handoffTargetDatePrecision ? { handoffTargetDatePrecision: agent.handoffTargetDatePrecision } : {}),
+    ...(agent.handoffTargetDateSource ? { handoffTargetDateSource: agent.handoffTargetDateSource } : {}),
     ...(agent.handoffTargetRelevance ? { handoffTargetRelevance: agent.handoffTargetRelevance } : {}),
     ...(typeof agent.handoffTargetLikelyOfficial === "boolean" ? { handoffTargetLikelyOfficial: agent.handoffTargetLikelyOfficial } : {}),
     ...(agent.handoffTargetSelector ? { handoffTargetSelector: agent.handoffTargetSelector } : {}),
@@ -19758,6 +19773,9 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.handoffTargetSource ? { handoffTargetSource: agent.handoffTargetSource } : {}),
     ...(typeof agent.handoffTargetRank === "number" ? { handoffTargetRank: agent.handoffTargetRank } : {}),
     ...(typeof agent.handoffTargetSourceScore === "number" ? { handoffTargetSourceScore: agent.handoffTargetSourceScore } : {}),
+    ...(agent.handoffTargetDateText ? { handoffTargetDateText: agent.handoffTargetDateText } : {}),
+    ...(agent.handoffTargetDatePrecision ? { handoffTargetDatePrecision: agent.handoffTargetDatePrecision } : {}),
+    ...(agent.handoffTargetDateSource ? { handoffTargetDateSource: agent.handoffTargetDateSource } : {}),
     ...(agent.handoffTargetRelevance ? { handoffTargetRelevance: agent.handoffTargetRelevance } : {}),
     ...(typeof agent.handoffTargetLikelyOfficial === "boolean" ? { handoffTargetLikelyOfficial: agent.handoffTargetLikelyOfficial } : {}),
     ...(agent.handoffTargetSelector ? { handoffTargetSelector: agent.handoffTargetSelector } : {}),

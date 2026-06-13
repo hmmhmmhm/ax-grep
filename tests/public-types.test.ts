@@ -1300,6 +1300,9 @@ describe("public agent types", () => {
       | "handoffTargetSource"
       | "handoffTargetRank"
       | "handoffTargetSourceScore"
+      | "handoffTargetDateText"
+      | "handoffTargetDatePrecision"
+      | "handoffTargetDateSource"
       | "handoffTargetRelevance"
       | "handoffTargetLikelyOfficial"
       | "handoffTargetSelector"
@@ -2562,6 +2565,9 @@ describe("public agent types", () => {
       handoffTargetSource: "source-link",
       handoffTargetRank: 1,
       handoffTargetSourceScore: 0.92,
+      handoffTargetDateText: "2026-05-31",
+      handoffTargetDatePrecision: "day",
+      handoffTargetDateSource: "snippet",
       handoffTargetRelevance: "high",
       handoffTargetLikelyOfficial: true,
       handoffTargetSelector: "a.primary",
@@ -2824,6 +2830,9 @@ describe("public agent types", () => {
     expect(summary.handoffTargetPath).toBe("pageCheck.links[0]");
     expect(summary.handoffTargetTitle).toBe("Example target");
     expect(summary.handoffTargetRelevance).toBe("high");
+    expect(summary.handoffTargetDateText).toBe("2026-05-31");
+    expect(summary.handoffTargetDatePrecision).toBe("day");
+    expect(summary.handoffTargetDateSource).toBe("snippet");
     expect(summary.handoffBrowserHtmlReasonCode).toBe("challenge");
     expect(summary.primaryActionName).toBe("read-content");
     expect(summary.primaryExpectedOutcome).toBe("read-evidence");

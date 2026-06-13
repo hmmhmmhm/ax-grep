@@ -2388,6 +2388,9 @@ export type AgentSummary = {
   handoffTargetSource?: string;
   handoffTargetRank?: number;
   handoffTargetSourceScore?: number;
+  handoffTargetDateText?: string;
+  handoffTargetDatePrecision?: "day" | "month" | "year";
+  handoffTargetDateSource?: "title" | "snippet";
   handoffTargetRelevance?: AgentTarget["relevance"];
   handoffTargetLikelyOfficial?: boolean;
   handoffTargetSelector?: string;
