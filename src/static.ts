@@ -207,6 +207,9 @@ function walkElement(element: Element | undefined, context: StaticContext): Sema
   if (context.options.mode === "interactive" && !interactive) {
     return children.length > 0 ? containerNode(context, tag, children) : null;
   }
+  if (shouldPruneCustomElementWrapper(element, role, name, interactive, children, context)) {
+    return children.length === 1 ? children[0] ?? null : containerNode(context, "fragment", children);
+  }
   if (shouldPruneListItemWrapper(role, children, context)) {
     return children.length === 1 ? children[0] ?? null : containerNode(context, tag, children);
   }
@@ -243,19 +246,17 @@ function collectChildren(element: Element, context: StaticContext): SemanticNode
   let omitted = 0;
   for (const child of element.children) {
     if (isElement(child)) {
+      if (isDeclarativeShadowTemplate(child)) {
+        for (const shadowChild of child.children) {
+          if (!isElement(shadowChild)) continue;
+          const semanticChild = walkElement(shadowChild, context);
+          omitted += appendSemanticChild(element, semanticChild, children, repeatedSignatures, context);
+        }
+        continue;
+      }
       if (!context.options.includeSelectOptions && element.name === "select") continue;
       const semanticChild = walkElement(child, context);
-      if (semanticChild) {
-        if (shouldSummarizeRepeatedChild(element, semanticChild, repeatedSignatures, context)) {
-          omitted += countSemanticNodes(semanticChild);
-          continue;
-        }
-        if (shouldSummarizeMoreChildren(element, children, context)) {
-          omitted += countSemanticNodes(semanticChild);
-        } else {
-          children.push(semanticChild);
-        }
-      }
+      omitted += appendSemanticChild(element, semanticChild, children, repeatedSignatures, context);
     } else if (context.options.includeTextNodes && isText(child)) {
       const text = normalizeText(child.data, context.options.maxTextLength);
       if (text) {
@@ -286,11 +287,36 @@ function collectChildren(element: Element, context: StaticContext): SemanticNode
   return children;
 }
 
+function appendSemanticChild(
+  parent: Element,
+  child: SemanticNode | null,
+  children: SemanticNode[],
+  repeatedSignatures: Map<string, number>,
+  context: StaticContext,
+): number {
+  if (!child) return 0;
+  if (shouldSummarizeRepeatedChild(parent, child, repeatedSignatures, context)) {
+    return countSemanticNodes(child);
+  }
+  if (shouldSummarizeMoreChildren(parent, children, context)) {
+    return countSemanticNodes(child);
+  }
+  children.push(child);
+  return 0;
+}
+
 function shouldSkipElement(element: Element, context: StaticContext): boolean {
   if (context.options.mode === "full") return false;
+  if (isDeclarativeShadowTemplate(element)) return false;
   if (nonSemanticTags.has(element.name)) return true;
   if (element.name === "noscript") return true;
   return false;
+}
+
+function isDeclarativeShadowTemplate(element: Element): boolean {
+  if (element.name !== "template") return false;
+  const mode = attr(element, "shadowrootmode") ?? attr(element, "shadowroot");
+  return mode === "open" || mode === "closed";
 }
 
 function shouldSummarizeMoreChildren(element: Element, children: SemanticNode[], context: StaticContext): boolean {
@@ -512,6 +538,42 @@ function shouldPruneListItemWrapper(role: string | null, children: SemanticNode[
   if (context.options.mode === "full") return false;
   if (role !== "listitem") return false;
   return children.some((child) => child.role === "link" || child.role === "button");
+}
+
+function shouldPruneCustomElementWrapper(
+  element: Element,
+  role: string | null,
+  name: string,
+  interactive: boolean,
+  children: SemanticNode[],
+  context: StaticContext,
+): boolean {
+  if (context.options.mode === "full") return false;
+  if (!isCustomElement(element)) return false;
+  if (interactive) return false;
+  if (role && role !== "generic") return false;
+  if (name) return false;
+  if (children.length === 0) return false;
+  if (hasUsefulHostSignal(element)) return false;
+  return true;
+}
+
+function isCustomElement(element: Element): boolean {
+  return element.name.includes("-");
+}
+
+function hasUsefulHostSignal(element: Element): boolean {
+  return Boolean(
+    attr(element, "id")
+      || attr(element, "aria-label")
+      || attr(element, "aria-labelledby")
+      || attr(element, "aria-describedby")
+      || attr(element, "aria-controls")
+      || attr(element, "aria-expanded")
+      || attr(element, "aria-selected")
+      || attr(element, "aria-current")
+      || attr(element, "tabindex")
+  );
 }
 
 function getRole(element: Element): string | null {

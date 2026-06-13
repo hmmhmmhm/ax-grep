@@ -306,6 +306,7 @@ estimate whether the overall percentage should move.
 | A197 | Top state controls target shortcuts | 100% | Top semantic state shortcuts now preserve the controlled target role, name, and selector for resolved `aria-controls` relations in full, brief, text, and public types, so agents can jump from stateful controls to controlled panels/listboxes without parsing relation arrays or browser trees. | Limited to `controls` relations already resolved in `semanticSummary.relationItems`. | Focused CLI/public type tests, readiness audit, typecheck, README test, diff check, and process check pass. | No estimate increase; improves stateful control target routing. |
 | A198 | Top control relation target shortcuts | 100% | Top interactive, focusable, button, and field shortcuts now preserve resolved `aria-controls` target role, name, and selector in full, brief, text, and public types, so agents can jump from common controls to controlled regions without parsing relation arrays or browser trees. | Limited to controls relations already resolved in `semanticSummary.relationItems`. | Focused CLI/public type tests, readiness audit, typecheck, README test, diff check, and process check pass. | No estimate increase; improves controlled target routing consistency. |
 | A199 | Control target text coverage | 100% | Text-mode tests now assert controlled target role/name/selector output for top interactive/button and state shortcuts, so plain-text subagent handoff keeps the same `aria-controls` target routing guarantees as JSON and brief output. | Test-only guard for A197/A198 text output. | Focused CLI text tests, readiness audit, typecheck, README test, diff check, and process check pass. | No estimate increase; improves regression coverage for text-only control routing. |
+| A200 | Static declarative shadow DOM extraction | 100% | Static extraction now reads semantic children from declarative shadow DOM templates and prunes inert custom-element wrappers, so Web Component SSR can expose buttons, headings, regions, and control state without requiring a browser accessibility tree first. | Limited to declarative `shadowrootmode`/`shadowroot` templates in static HTML; normal inert templates remain pruned. | Focused static extractor test, readiness audit, agent-readiness test, typecheck, README test, diff check, and process check pass. | No headline increase; improves Web Component page-check parity without browser load. |
 
 ## Planned Work Detail
 
@@ -788,6 +789,8 @@ When research expands:
 - Tightened readiness audit coverage for controls target shortcuts so
   interactive, focusable, button, field, selected-choice, and state outputs
   must keep target role/name/selector fields wired through types and tests.
+- Added static declarative shadow DOM extraction so SSR Web Components can
+  expose shadow controls while ordinary inert templates remain pruned.
 
 ## In Progress
 

@@ -171,6 +171,24 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
     ),
     evidenceCheck(
       root,
+      "declarative-shadow-static",
+      "Static extraction must preserve useful declarative shadow DOM controls without keeping inert template payloads.",
+      "Static extractor and tests cover shadowrootmode templates, custom-element wrapper pruning, and normal template pruning.",
+      (failures) => {
+        requireFileIncludes(root, failures, "src/static.ts", [
+          "isDeclarativeShadowTemplate",
+          "shadowrootmode",
+          "shouldPruneCustomElementWrapper",
+        ]);
+        requireFileIncludes(root, failures, "tests/static.test.ts", [
+          "extracts declarative shadow DOM children while pruning inert templates",
+          "<template shadowrootmode=\"open\">",
+          "Template payload",
+        ]);
+      },
+    ),
+    evidenceCheck(
+      root,
       "agent-browser-smoke",
       "At least one bounded `agent-browser` comparison must prove static named-role parity before the goal can move beyond local and fetched-page smoke evidence.",
       "readiness:agent-browser-smoke runs pnpm compare on https://example.com, https://books.toscrape.com/, https://news.ycombinator.com, and https://www.gov.uk/foreign-travel-advice with per-target floors.",

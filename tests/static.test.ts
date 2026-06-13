@@ -286,6 +286,33 @@ describe("static extract", () => {
     expect(flat.filter((node) => node.role === "listitem")).toHaveLength(1);
   });
 
+  it("extracts declarative shadow DOM children while pruning inert templates", () => {
+    const tree = extract(`
+      <main>
+        <x-card>
+          <template shadowrootmode="open">
+            <h2>Shadow card</h2>
+            <button aria-controls="shadow-panel">Open shadow action</button>
+            <section id="shadow-panel" aria-label="Shadow panel">Panel body</section>
+          </template>
+        </x-card>
+        <template>
+          <button>Template payload</button>
+        </template>
+      </main>
+    `);
+
+    const summary = summarizeSemanticTree(tree);
+    const flat = flattenSemanticTree(tree);
+
+    expect(summary.namedRoles).toContain("heading:Shadow card");
+    expect(summary.namedRoles).toContain("button:Open shadow action");
+    expect(summary.namedRoles).toContain("region:Shadow panel");
+    expect(summary.namedRoles).not.toContain("button:Template payload");
+    expect(flat.find((node) => node.role === "button")?.state?.controls).toBe("shadow-panel");
+    expect(flat.some((node) => node.tag === "x-card")).toBe(false);
+  });
+
   it("summarizes very large repeated static subtrees", () => {
     const items = Array.from({ length: 8 }, (_, index) => `<li><a href="/${index}">Item ${index}</a></li>`).join("");
     const summarized = extract(`<ul>${items}</ul>`, { maxChildrenPerNode: 3 });
