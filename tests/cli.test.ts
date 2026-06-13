@@ -4824,6 +4824,39 @@ describe("cli", () => {
     expect(agentText).not.toContain("Fallback for-label");
   });
 
+  it("uses projected slot text for declarative shadow DOM host action names", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/slotted-host-action", "--stdin", "--agent-brief"], {
+      stdout,
+      stdin: Readable.from([`
+        <main>
+          <x-host-action role="button">
+            <span slot="label">Host action</span>
+            <span>Unprojected host text</span>
+            <template shadowrootmode="open">
+              <slot name="label">Fallback host action</slot>
+            </template>
+          </x-host-action>
+        </main>
+      `]) as NodeJS.ReadStream,
+      fetch: async () => {
+        throw new Error("fetch should not run for --stdin");
+      },
+    });
+
+    const envelope = JSON.parse(stdout.output);
+    const agentText = JSON.stringify(envelope.agent);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      semanticTopButtonName: "Host action",
+      semanticTopInteractiveName: "Host action",
+      semanticTopInteractiveSelector: "x-host-action",
+    });
+    expect(agentText).not.toContain("Unprojected host text");
+    expect(agentText).not.toContain("Fallback host action");
+  });
+
   it("summarizes data tables as pageCheck read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/pricing", "--agent"], {

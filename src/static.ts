@@ -954,6 +954,14 @@ function directText(element: Element, maxLength: number): string {
 
 function descendantText(element: Element, context?: StaticContext): string {
   const parts: string[] = [];
+  const shadowTemplate = element.children.find((child): child is Element => isElement(child) && isDeclarativeShadowTemplate(child));
+  if (shadowTemplate && context) {
+    const previousAssignments = context.slotAssignments;
+    context.slotAssignments = collectSlotAssignments(element);
+    collectDescendantText(shadowTemplate.children, parts, context);
+    context.slotAssignments = previousAssignments;
+    return parts.join(" ");
+  }
   collectDescendantText(element.children, parts, context);
   return parts.join(" ");
 }

@@ -312,6 +312,7 @@ estimate whether the overall percentage should move.
 | A203 | Slotted text accessible names | 100% | Static extraction now uses assigned slot text when computing declarative shadow DOM accessible names, so button/link names in agent brief output match the composed tree instead of stale fallback text. | Limited to text and element assignments available in static declarative shadow DOM. | Focused static and CLI tests, readiness audit, typecheck, README test, diff check, and process check pass. | No headline increase; improves Web Component action naming parity. |
 | A204 | Slotted IDREF selector preservation | 100% | Static extraction now preserves IDREF target nodes that would otherwise be pruned, so slotted labels/descriptions can still provide `semanticTopField*Selector` shortcuts in agent brief output. | Applies to common ARIA idref attributes such as labelledby, describedby, details, errormessage, controls, owns, flowto, and activedescendant. | Focused static and CLI tests, readiness audit, typecheck, README test, diff check, and process check pass. | No headline increase; improves Web Component field repair and targeting parity. |
 | A205 | Slotted label-for field names | 100% | Static extraction now computes `<label for>` text with the active declarative shadow slot assignment, so slotted field labels become agent-facing field names instead of fallback text. | Limited to static/declarative shadow DOM labels where the label element is available in HTML. | Focused static and CLI tests, readiness audit, typecheck, README test, diff check, and process check pass. | No headline increase; improves Web Component form handoff parity. |
+| A206 | Declarative shadow host action names | 100% | Static extraction now computes custom-element host accessible names from the declarative shadow composed tree, so host-level buttons/actions use projected slot text and ignore unprojected light DOM or fallback text. | Limited to declarative shadow DOM available in static HTML. | Focused static and CLI tests, readiness audit, typecheck, README test, diff check, and process check pass. | No headline increase; improves Web Component action target parity. |
 
 ## Planned Work Detail
 
@@ -806,6 +807,8 @@ When research expands:
   selector shortcuts in agent-brief handoff.
 - Made `label for` name lookup slot-aware so declarative shadow fields use
   slotted label text in static and agent-brief output.
+- Made custom-element host action names use projected declarative shadow slot
+  text instead of raw light DOM or fallback text.
 
 ## In Progress
 

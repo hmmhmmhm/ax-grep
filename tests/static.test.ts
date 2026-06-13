@@ -355,6 +355,13 @@ describe("static extract", () => {
             <input id="shadow-query" type="search">
           </template>
         </x-for-labelled-field>
+        <x-host-action role="button">
+          <span slot="label">Host action</span>
+          <span>Unprojected host text</span>
+          <template shadowrootmode="open">
+            <slot name="label">Fallback host action</slot>
+          </template>
+        </x-host-action>
       </main>
     `);
 
@@ -367,9 +374,12 @@ describe("static extract", () => {
     expect(namedRoles).toContain("button:Whitespace fallback");
     expect(namedRoles).toContain("textbox:Slotted field label");
     expect(namedRoles).toContain("searchbox:Slotted for-label");
+    expect(namedRoles).toContain("button:Host action");
     expect(namedRoles).not.toContain("button:Fallback action");
     expect(namedRoles).not.toContain("button:Unslotted light action");
     expect(namedRoles).not.toContain("button:Fallback text action");
+    expect(namedRoles).not.toContain("button:Host action Unprojected host text");
+    expect(namedRoles).not.toContain("button:Fallback host action");
     expect(namedRoles).not.toContain("textbox:Fallback field label");
     expect(namedRoles).not.toContain("searchbox:Fallback for-label");
   });
