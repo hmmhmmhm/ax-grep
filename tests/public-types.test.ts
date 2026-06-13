@@ -824,6 +824,13 @@ describe("public agent types", () => {
       | "semanticTopTableFirstHeaderColumnIndex"
       | "semanticTopTableFirstHeaderSort"
       | "semanticTopTableFirstHeaderSelector"
+      | "semanticTopTableSecondHeader"
+      | "semanticTopTableSecondHeaderPath"
+      | "semanticTopTableSecondHeaderRole"
+      | "semanticTopTableSecondHeaderRowIndex"
+      | "semanticTopTableSecondHeaderColumnIndex"
+      | "semanticTopTableSecondHeaderSort"
+      | "semanticTopTableSecondHeaderSelector"
       | "semanticTopTableFirstOwnedTarget"
       | "semanticTopTableFirstOwnedRole"
       | "semanticTopTableFirstOwnedName"
@@ -2041,7 +2048,10 @@ describe("public agent types", () => {
       semanticTopTableDeclaredRowCount: 100,
       semanticTopTableDeclaredColumnCount: 4,
       semanticTopTableHeaders: ["Plan", "Price"],
-      semanticTopTableHeaderRefs: [{ path: "agent.semanticSummary.tableItems[0].headerRefs[0]", text: "Plan", role: "columnheader", rowIndex: 1, columnIndex: 1, sort: "ascending", selector: "th:nth-of-type(1)" }],
+      semanticTopTableHeaderRefs: [
+        { path: "agent.semanticSummary.tableItems[0].headerRefs[0]", text: "Plan", role: "columnheader", rowIndex: 1, columnIndex: 1, sort: "ascending", selector: "th:nth-of-type(1)" },
+        { path: "agent.semanticSummary.tableItems[0].headerRefs[1]", text: "Price", role: "columnheader", rowIndex: 1, columnIndex: 2, sort: "descending", selector: "th:nth-of-type(2)" },
+      ],
       semanticTopTableOwnedCount: 1,
       semanticTopTableOwnedRefs: [{ target: "virtual-rows", role: "rowgroup", name: "Virtual rows", selector: "#virtual-rows" }],
       semanticTopTableSampleCells: ["Pro", "$20"],
@@ -2056,6 +2066,13 @@ describe("public agent types", () => {
       semanticTopTableFirstHeaderColumnIndex: 1,
       semanticTopTableFirstHeaderSort: "ascending",
       semanticTopTableFirstHeaderSelector: "th:nth-of-type(1)",
+      semanticTopTableSecondHeader: "Price",
+      semanticTopTableSecondHeaderPath: "agent.semanticSummary.tableItems[0].headerRefs[1]",
+      semanticTopTableSecondHeaderRole: "columnheader",
+      semanticTopTableSecondHeaderRowIndex: 1,
+      semanticTopTableSecondHeaderColumnIndex: 2,
+      semanticTopTableSecondHeaderSort: "descending",
+      semanticTopTableSecondHeaderSelector: "th:nth-of-type(2)",
       semanticTopTableFirstOwnedTarget: "virtual-rows",
       semanticTopTableFirstOwnedRole: "rowgroup",
       semanticTopTableFirstOwnedName: "Virtual rows",

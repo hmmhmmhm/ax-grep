@@ -1553,6 +1553,13 @@ export type AgentSummary = {
   semanticTopTableFirstHeaderColumnIndex?: number;
   semanticTopTableFirstHeaderSort?: string;
   semanticTopTableFirstHeaderSelector?: string;
+  semanticTopTableSecondHeader?: string;
+  semanticTopTableSecondHeaderPath?: string;
+  semanticTopTableSecondHeaderRole?: string;
+  semanticTopTableSecondHeaderRowIndex?: number;
+  semanticTopTableSecondHeaderColumnIndex?: number;
+  semanticTopTableSecondHeaderSort?: string;
+  semanticTopTableSecondHeaderSelector?: string;
   semanticTopTableFirstOwnedTarget?: string;
   semanticTopTableFirstOwnedRole?: string;
   semanticTopTableFirstOwnedName?: string;

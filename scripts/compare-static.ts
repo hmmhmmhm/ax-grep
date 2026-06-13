@@ -2075,6 +2075,13 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopTableFirstHeaderColumnIndex?: number;
       semanticTopTableFirstHeaderSort?: string;
       semanticTopTableFirstHeaderSelector?: string;
+      semanticTopTableSecondHeader?: string;
+      semanticTopTableSecondHeaderPath?: string;
+      semanticTopTableSecondHeaderRole?: string;
+      semanticTopTableSecondHeaderRowIndex?: number;
+      semanticTopTableSecondHeaderColumnIndex?: number;
+      semanticTopTableSecondHeaderSort?: string;
+      semanticTopTableSecondHeaderSelector?: string;
       semanticTopTableFirstOwnedTarget?: string;
       semanticTopTableFirstOwnedRole?: string;
       semanticTopTableFirstOwnedName?: string;
@@ -6584,6 +6591,29 @@ function scoreSecondSampleCellShortcuts(agentRecord: Record<string, unknown>, sa
   return { matched, required };
 }
 
+function scoreSecondHeaderShortcuts(agentRecord: Record<string, unknown>, table: { headers?: unknown; headerRefs?: unknown } | undefined): { matched: number; required: number } {
+  let matched = 0;
+  let required = 0;
+  if (table && Array.isArray(table.headers) && typeof table.headers[1] === "string") {
+    required += 1;
+    if (agentRecord.semanticTopTableSecondHeader === table.headers[1]) matched += 1;
+  }
+  const secondHeaderRef = Array.isArray(table?.headerRefs)
+    ? table.headerRefs[1] as { path?: unknown; text?: unknown; role?: unknown; rowIndex?: unknown; columnIndex?: unknown; sort?: unknown; selector?: unknown } | undefined
+    : undefined;
+  if (secondHeaderRef) {
+    required += 7;
+    if (agentRecord.semanticTopTableSecondHeaderPath === secondHeaderRef.path) matched += 1;
+    if (agentRecord.semanticTopTableSecondHeader === secondHeaderRef.text) matched += 1;
+    if (agentRecord.semanticTopTableSecondHeaderRole === secondHeaderRef.role) matched += 1;
+    if (agentRecord.semanticTopTableSecondHeaderRowIndex === secondHeaderRef.rowIndex) matched += 1;
+    if (agentRecord.semanticTopTableSecondHeaderColumnIndex === secondHeaderRef.columnIndex) matched += 1;
+    if (agentRecord.semanticTopTableSecondHeaderSort === secondHeaderRef.sort) matched += 1;
+    if (agentRecord.semanticTopTableSecondHeaderSelector === secondHeaderRef.selector) matched += 1;
+  }
+  return { matched, required };
+}
+
 function observedSemanticTableColumnCount(table: {
   headerRefs?: unknown;
   sampleCellRefs?: unknown;
@@ -7332,6 +7362,9 @@ function scoreAgentSemanticSummary(agent: Record<string, any> | undefined): numb
     if (agent?.semanticTopTableFirstHeaderSort === firstHeaderRef.sort) matched += 1;
     if (agent?.semanticTopTableFirstHeaderSelector === firstHeaderRef.selector) matched += 1;
   }
+  const secondHeaderScore = scoreSecondHeaderShortcuts(agentRecord, table);
+  matched += secondHeaderScore.matched;
+  required += secondHeaderScore.required;
   const firstOwnedRef = Array.isArray(table?.ownedRefs) ? table.ownedRefs[0] as { target?: unknown; role?: unknown; name?: unknown; selector?: unknown } | undefined : undefined;
   if (firstOwnedRef) {
     required += 4;

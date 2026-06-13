@@ -497,7 +497,7 @@ describe("cli", () => {
               headers: ["Metric", "Value", "Latency", "Virtual metric"],
               headerRefs: [
                 { path: "agent.semanticSummary.tableItems[0].headerRefs[0]", text: "Metric", role: "columnheader", rowIndex: 1, columnIndex: 1, sort: "ascending", selector: "#metric-header" },
-                { path: "agent.semanticSummary.tableItems[0].headerRefs[1]", text: "Value", role: "columnheader", rowIndex: 1, columnIndex: 2, selector: "#value-header" },
+                { path: "agent.semanticSummary.tableItems[0].headerRefs[1]", text: "Value", role: "columnheader", rowIndex: 1, columnIndex: 2, sort: "descending", selector: "#value-header" },
                 { path: "agent.semanticSummary.tableItems[0].headerRefs[2]", text: "Latency", role: "rowheader", rowIndex: 2, columnIndex: 1, selector: "#latency-row" },
                 { path: "agent.semanticSummary.tableItems[0].headerRefs[3]", text: "Virtual metric", role: "rowheader", rowIndex: 50, columnIndex: 1, selector: "span" },
               ],
@@ -717,6 +717,13 @@ describe("cli", () => {
         semanticTopTableFirstHeaderColumnIndex: 1,
         semanticTopTableFirstHeaderSort: "ascending",
         semanticTopTableFirstHeaderSelector: "#metric-header",
+        semanticTopTableSecondHeader: "Value",
+        semanticTopTableSecondHeaderPath: "agent.semanticSummary.tableItems[0].headerRefs[1]",
+        semanticTopTableSecondHeaderRole: "columnheader",
+        semanticTopTableSecondHeaderRowIndex: 1,
+        semanticTopTableSecondHeaderColumnIndex: 2,
+        semanticTopTableSecondHeaderSort: "descending",
+        semanticTopTableSecondHeaderSelector: "#value-header",
         semanticTopTableFirstOwnedTarget: "owned-rows",
         semanticTopTableFirstOwnedRole: "rowgroup",
         semanticTopTableFirstOwnedName: "Virtual rows",
@@ -5542,7 +5549,7 @@ describe("cli", () => {
         <main>
           <h1>Quarterly report</h1>
           <table aria-label="Revenue by quarter">
-            <tr><th>Quarter</th><th>Revenue</th></tr>
+            <tr><th id="quarter">Quarter</th><th id="revenue" aria-sort="descending">Revenue</th></tr>
             <tr><td>Q1</td><td>Q2 review</td></tr>
           </table>
         </main>
@@ -5551,6 +5558,7 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticTopTableSecondHeader: agent.semanticSummary.tableItems[0].headerRefs[1] Revenue role=columnheader sort=descending selector=#revenue");
     expect(stdout.output).toContain("  semanticTopTableSecondSampleCell: agent.semanticSummary.tableItems[0].sampleCellRefs[1] Q2 review");
   });
 
