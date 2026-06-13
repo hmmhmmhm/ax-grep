@@ -1722,8 +1722,14 @@ type AgentSummary = {
   topDatasetKind?: PageDatasetSummary["kind"];
   topDatasetName?: string;
   topDatasetUrl?: string;
+  topDatasetCommand?: string;
+  topDatasetCommandArgs?: string[];
   topDatasetDistributionUrl?: string;
+  topDatasetDistributionCommand?: string;
+  topDatasetDistributionCommandArgs?: string[];
   topDatasetLicenseUrl?: string;
+  topDatasetLicenseCommand?: string;
+  topDatasetLicenseCommandArgs?: string[];
   topDatasetEncodingFormat?: string;
   topDatasetSelector?: string;
   topIdentityPath?: string;
@@ -4039,6 +4045,12 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topProvenanceCommandArgs ? [`  topProvenanceCommandArgs: ${formatCommandArgsText(agent.topProvenanceCommandArgs)}`] : []),
     ...(agent.topOfferPrice ? [`  topOffer: ${agent.topOfferPath ?? ""} ${agent.topOfferCurrency ?? ""} ${agent.topOfferPrice}${agent.topOfferAvailability ? ` availability=${agent.topOfferAvailability}` : ""}${agent.topOfferUrl ? ` <${agent.topOfferUrl}>` : ""}`] : []),
     ...(agent.topDatasetName ? [`  topDataset: ${agent.topDatasetPath ?? ""} ${agent.topDatasetKind ?? ""}:${agent.topDatasetName}${agent.topDatasetUrl ? ` <${agent.topDatasetUrl}>` : ""}`] : []),
+    ...(agent.topDatasetCommand ? [`  topDatasetCommand: ${agent.topDatasetCommand}`] : []),
+    ...(agent.topDatasetCommandArgs ? [`  topDatasetCommandArgs: ${formatCommandArgsText(agent.topDatasetCommandArgs)}`] : []),
+    ...(agent.topDatasetDistributionCommand ? [`  topDatasetDistributionCommand: ${agent.topDatasetDistributionCommand}`] : []),
+    ...(agent.topDatasetDistributionCommandArgs ? [`  topDatasetDistributionCommandArgs: ${formatCommandArgsText(agent.topDatasetDistributionCommandArgs)}`] : []),
+    ...(agent.topDatasetLicenseCommand ? [`  topDatasetLicenseCommand: ${agent.topDatasetLicenseCommand}`] : []),
+    ...(agent.topDatasetLicenseCommandArgs ? [`  topDatasetLicenseCommandArgs: ${formatCommandArgsText(agent.topDatasetLicenseCommandArgs)}`] : []),
     ...(agent.topIdentityName ? [`  topIdentity: ${agent.topIdentityPath ?? ""} ${agent.topIdentityKind ?? ""}:${agent.topIdentityName}${agent.topIdentityUrl ? ` <${agent.topIdentityUrl}>` : ""}`] : []),
     ...(agent.topTimelineValue ? [`  topTimeline: ${agent.topTimelinePath ?? ""} ${agent.topTimelineKind ?? ""}:${agent.topTimelineValue}`] : []),
     ...(agent.topContactPointValue ? [`  topContactPoint: ${agent.topContactPointPath ?? ""} ${agent.topContactPointKind ?? ""}:${agent.topContactPointValue}${agent.topContactPointUrl ? ` <${agent.topContactPointUrl}>` : ""}`] : []),
@@ -12107,6 +12119,15 @@ function summarizeAgent(
   const topEmbedCommand = pageCheck.embeds[0]?.url && /^https?:\/\//i.test(pageCheck.embeds[0].url)
     ? pageCommandSpec(pageCheck.embeds[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topDatasetCommand = pageCheck.datasets[0]?.url && /^https?:\/\//i.test(pageCheck.datasets[0].url)
+    ? pageCommandSpec(pageCheck.datasets[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
+  const topDatasetDistributionCommand = pageCheck.datasets[0]?.distributionUrls?.[0] && /^https?:\/\//i.test(pageCheck.datasets[0].distributionUrls[0])
+    ? pageCommandSpec(pageCheck.datasets[0].distributionUrls[0], agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
+  const topDatasetLicenseCommand = pageCheck.datasets[0]?.licenseUrl && /^https?:\/\//i.test(pageCheck.datasets[0].licenseUrl)
+    ? pageCommandSpec(pageCheck.datasets[0].licenseUrl, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, sourceSearchAgent, signals, qualityGates, verification.foundQueries, verification.missingQueries);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   const topSemanticHeading = semanticSummary?.headingItems[0];
@@ -12974,8 +12995,14 @@ function summarizeAgent(
     ...(pageCheck.datasets[0] ? { topDatasetKind: pageCheck.datasets[0].kind } : {}),
     ...(pageCheck.datasets[0]?.name ? { topDatasetName: pageCheck.datasets[0].name } : {}),
     ...(pageCheck.datasets[0]?.url ? { topDatasetUrl: pageCheck.datasets[0].url } : {}),
+    ...(topDatasetCommand ? { topDatasetCommand: topDatasetCommand.command } : {}),
+    ...(topDatasetCommand ? { topDatasetCommandArgs: topDatasetCommand.commandArgs } : {}),
     ...(pageCheck.datasets[0]?.distributionUrls?.[0] ? { topDatasetDistributionUrl: pageCheck.datasets[0].distributionUrls[0] } : {}),
+    ...(topDatasetDistributionCommand ? { topDatasetDistributionCommand: topDatasetDistributionCommand.command } : {}),
+    ...(topDatasetDistributionCommand ? { topDatasetDistributionCommandArgs: topDatasetDistributionCommand.commandArgs } : {}),
     ...(pageCheck.datasets[0]?.licenseUrl ? { topDatasetLicenseUrl: pageCheck.datasets[0].licenseUrl } : {}),
+    ...(topDatasetLicenseCommand ? { topDatasetLicenseCommand: topDatasetLicenseCommand.command } : {}),
+    ...(topDatasetLicenseCommand ? { topDatasetLicenseCommandArgs: topDatasetLicenseCommand.commandArgs } : {}),
     ...(pageCheck.datasets[0]?.encodingFormat ? { topDatasetEncodingFormat: pageCheck.datasets[0].encodingFormat } : {}),
     ...(pageCheck.datasets[0]?.selector ? { topDatasetSelector: pageCheck.datasets[0].selector } : {}),
     ...(pageCheck.identities[0] ? { topIdentityPath: pageCheck.identities[0].path } : {}),
@@ -18783,8 +18810,14 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topDatasetKind ? { topDatasetKind: agent.topDatasetKind } : {}),
     ...(agent.topDatasetName ? { topDatasetName: agent.topDatasetName } : {}),
     ...(agent.topDatasetUrl ? { topDatasetUrl: agent.topDatasetUrl } : {}),
+    ...(agent.topDatasetCommand ? { topDatasetCommand: agent.topDatasetCommand } : {}),
+    ...(agent.topDatasetCommandArgs ? { topDatasetCommandArgs: agent.topDatasetCommandArgs } : {}),
     ...(agent.topDatasetDistributionUrl ? { topDatasetDistributionUrl: agent.topDatasetDistributionUrl } : {}),
+    ...(agent.topDatasetDistributionCommand ? { topDatasetDistributionCommand: agent.topDatasetDistributionCommand } : {}),
+    ...(agent.topDatasetDistributionCommandArgs ? { topDatasetDistributionCommandArgs: agent.topDatasetDistributionCommandArgs } : {}),
     ...(agent.topDatasetLicenseUrl ? { topDatasetLicenseUrl: agent.topDatasetLicenseUrl } : {}),
+    ...(agent.topDatasetLicenseCommand ? { topDatasetLicenseCommand: agent.topDatasetLicenseCommand } : {}),
+    ...(agent.topDatasetLicenseCommandArgs ? { topDatasetLicenseCommandArgs: agent.topDatasetLicenseCommandArgs } : {}),
     ...(agent.topDatasetEncodingFormat ? { topDatasetEncodingFormat: agent.topDatasetEncodingFormat } : {}),
     ...(agent.topDatasetSelector ? { topDatasetSelector: agent.topDatasetSelector } : {}),
     ...(agent.topIdentityPath ? { topIdentityPath: agent.topIdentityPath } : {}),
@@ -20008,8 +20041,14 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topDatasetKind ? { topDatasetKind: agent.topDatasetKind } : {}),
     ...(agent.topDatasetName ? { topDatasetName: agent.topDatasetName } : {}),
     ...(agent.topDatasetUrl ? { topDatasetUrl: agent.topDatasetUrl } : {}),
+    ...(agent.topDatasetCommand ? { topDatasetCommand: agent.topDatasetCommand } : {}),
+    ...(agent.topDatasetCommandArgs ? { topDatasetCommandArgs: agent.topDatasetCommandArgs } : {}),
     ...(agent.topDatasetDistributionUrl ? { topDatasetDistributionUrl: agent.topDatasetDistributionUrl } : {}),
+    ...(agent.topDatasetDistributionCommand ? { topDatasetDistributionCommand: agent.topDatasetDistributionCommand } : {}),
+    ...(agent.topDatasetDistributionCommandArgs ? { topDatasetDistributionCommandArgs: agent.topDatasetDistributionCommandArgs } : {}),
     ...(agent.topDatasetLicenseUrl ? { topDatasetLicenseUrl: agent.topDatasetLicenseUrl } : {}),
+    ...(agent.topDatasetLicenseCommand ? { topDatasetLicenseCommand: agent.topDatasetLicenseCommand } : {}),
+    ...(agent.topDatasetLicenseCommandArgs ? { topDatasetLicenseCommandArgs: agent.topDatasetLicenseCommandArgs } : {}),
     ...(agent.topDatasetEncodingFormat ? { topDatasetEncodingFormat: agent.topDatasetEncodingFormat } : {}),
     ...(agent.topDatasetSelector ? { topDatasetSelector: agent.topDatasetSelector } : {}),
     ...(agent.topIdentityPath ? { topIdentityPath: agent.topIdentityPath } : {}),

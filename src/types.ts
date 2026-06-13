@@ -2089,8 +2089,14 @@ export type AgentSummary = {
   topDatasetKind?: string;
   topDatasetName?: string;
   topDatasetUrl?: string;
+  topDatasetCommand?: string;
+  topDatasetCommandArgs?: string[];
   topDatasetDistributionUrl?: string;
+  topDatasetDistributionCommand?: string;
+  topDatasetDistributionCommandArgs?: string[];
   topDatasetLicenseUrl?: string;
+  topDatasetLicenseCommand?: string;
+  topDatasetLicenseCommandArgs?: string[];
   topDatasetEncodingFormat?: string;
   topDatasetSelector?: string;
   topIdentityPath?: string;

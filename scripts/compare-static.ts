@@ -1580,8 +1580,14 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topDatasetKind?: string;
       topDatasetName?: string;
       topDatasetUrl?: string;
+      topDatasetCommand?: string;
+      topDatasetCommandArgs?: string[];
       topDatasetDistributionUrl?: string;
+      topDatasetDistributionCommand?: string;
+      topDatasetDistributionCommandArgs?: string[];
       topDatasetLicenseUrl?: string;
+      topDatasetLicenseCommand?: string;
+      topDatasetLicenseCommandArgs?: string[];
       topDatasetEncodingFormat?: string;
       topDatasetSelector?: string;
       topIdentityPath?: string;
@@ -8096,8 +8102,14 @@ function scoreAgentStructuredShortcuts(agent: {
   topDatasetKind?: string;
   topDatasetName?: string;
   topDatasetUrl?: string;
+  topDatasetCommand?: string;
+  topDatasetCommandArgs?: string[];
   topDatasetDistributionUrl?: string;
+  topDatasetDistributionCommand?: string;
+  topDatasetDistributionCommandArgs?: string[];
   topDatasetLicenseUrl?: string;
+  topDatasetLicenseCommand?: string;
+  topDatasetLicenseCommandArgs?: string[];
   topDatasetEncodingFormat?: string;
   topDatasetSelector?: string;
   topIdentityPath?: string;
@@ -8393,7 +8405,22 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topDatasetLicenseUrl === topDataset.licenseUrl) matched += 1;
     if (agent.topDatasetEncodingFormat === topDataset.encodingFormat) matched += 1;
     if (agent.topDatasetSelector === topDataset.selector) matched += 1;
-  } else if (agent.topDatasetPath || agent.topDatasetKind || agent.topDatasetName || agent.topDatasetUrl || agent.topDatasetDistributionUrl || agent.topDatasetLicenseUrl || agent.topDatasetEncodingFormat || agent.topDatasetSelector) {
+    if (topDataset.url && /^https?:\/\//i.test(topDataset.url)) {
+      required += 2;
+      if (typeof agent.topDatasetCommand === "string" && agent.topDatasetCommand.includes(topDataset.url)) matched += 1;
+      if (Array.isArray(agent.topDatasetCommandArgs) && agent.topDatasetCommandArgs.includes(topDataset.url)) matched += 1;
+    }
+    if (topDataset.distributionUrls?.[0] && /^https?:\/\//i.test(topDataset.distributionUrls[0])) {
+      required += 2;
+      if (typeof agent.topDatasetDistributionCommand === "string" && agent.topDatasetDistributionCommand.includes(topDataset.distributionUrls[0])) matched += 1;
+      if (Array.isArray(agent.topDatasetDistributionCommandArgs) && agent.topDatasetDistributionCommandArgs.includes(topDataset.distributionUrls[0])) matched += 1;
+    }
+    if (topDataset.licenseUrl && /^https?:\/\//i.test(topDataset.licenseUrl)) {
+      required += 2;
+      if (typeof agent.topDatasetLicenseCommand === "string" && agent.topDatasetLicenseCommand.includes(topDataset.licenseUrl)) matched += 1;
+      if (Array.isArray(agent.topDatasetLicenseCommandArgs) && agent.topDatasetLicenseCommandArgs.includes(topDataset.licenseUrl)) matched += 1;
+    }
+  } else if (agent.topDatasetPath || agent.topDatasetKind || agent.topDatasetName || agent.topDatasetUrl || agent.topDatasetCommand || agent.topDatasetCommandArgs || agent.topDatasetDistributionUrl || agent.topDatasetDistributionCommand || agent.topDatasetDistributionCommandArgs || agent.topDatasetLicenseUrl || agent.topDatasetLicenseCommand || agent.topDatasetLicenseCommandArgs || agent.topDatasetEncodingFormat || agent.topDatasetSelector) {
     required += 1;
   }
 

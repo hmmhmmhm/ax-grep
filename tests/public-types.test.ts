@@ -456,8 +456,14 @@ describe("public agent types", () => {
       | "topDatasetKind"
       | "topDatasetName"
       | "topDatasetUrl"
+      | "topDatasetCommand"
+      | "topDatasetCommandArgs"
       | "topDatasetDistributionUrl"
+      | "topDatasetDistributionCommand"
+      | "topDatasetDistributionCommandArgs"
       | "topDatasetLicenseUrl"
+      | "topDatasetLicenseCommand"
+      | "topDatasetLicenseCommandArgs"
       | "topDatasetEncodingFormat"
       | "topDatasetSelector"
       | "topIdentityPath"
@@ -1666,8 +1672,14 @@ describe("public agent types", () => {
       topDatasetKind: "dataset",
       topDatasetName: "Example dataset",
       topDatasetUrl: "https://example.test/datasets/example",
+      topDatasetCommand: "ax-grep 'https://example.test/datasets/example' --agent",
+      topDatasetCommandArgs: ["ax-grep", "https://example.test/datasets/example", "--agent"],
       topDatasetDistributionUrl: "https://example.test/downloads/example.csv",
+      topDatasetDistributionCommand: "ax-grep 'https://example.test/downloads/example.csv' --agent",
+      topDatasetDistributionCommandArgs: ["ax-grep", "https://example.test/downloads/example.csv", "--agent"],
       topDatasetLicenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+      topDatasetLicenseCommand: "ax-grep 'https://creativecommons.org/licenses/by/4.0/' --agent",
+      topDatasetLicenseCommandArgs: ["ax-grep", "https://creativecommons.org/licenses/by/4.0/", "--agent"],
       topDatasetEncodingFormat: "text/csv",
       topDatasetSelector: "script[type=\"application/ld+json\"]:nth-of-type(2)",
       topIdentityPath: "pageCheck.identities[0]",
@@ -2810,6 +2822,8 @@ describe("public agent types", () => {
     expect(summary.topEmbedCommandArgs?.[1]).toBe("https://example.test/embed");
     expect(summary.topTranscriptCommandArgs?.[1]).toBe("https://example.test/transcript.txt");
     expect(summary.topAuthorLinkCommandArgs?.[1]).toBe("https://example.test/author");
+    expect(summary.topDatasetDistributionCommandArgs?.[1]).toBe("https://example.test/downloads/example.csv");
+    expect(summary.topDatasetLicenseCommandArgs?.[1]).toBe("https://creativecommons.org/licenses/by/4.0/");
     expect(summary.bestStructuredReadTarget).toBe("pageCheck.dataTables");
     expect(summary.bestStructuredReadTargetPrimary).toBe(true);
     expect(summary.formChoices?.[0]?.queryField).toBe("q");
