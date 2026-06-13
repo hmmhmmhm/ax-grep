@@ -2066,6 +2066,8 @@ export type AgentSummary = {
   topProvenanceUrl?: string;
   topProvenanceSource?: string;
   topProvenanceSelector?: string;
+  topProvenanceCommand?: string;
+  topProvenanceCommandArgs?: string[];
   topOfferPath?: string;
   topOfferName?: string;
   topOfferPrice?: string;

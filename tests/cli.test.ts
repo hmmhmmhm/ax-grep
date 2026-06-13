@@ -8840,6 +8840,8 @@ describe("cli", () => {
       topProvenanceUrl: "https://doi.org/10.5555/example.2026",
       topProvenanceSource: "meta",
       topProvenanceSelector: "meta:nth-of-type(1)",
+      topProvenanceCommand: "ax-grep 'https://doi.org/10.5555/example.2026' --agent-brief",
+      topProvenanceCommandArgs: ["ax-grep", "https://doi.org/10.5555/example.2026", "--agent-brief"],
     });
   });
 

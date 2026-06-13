@@ -433,6 +433,8 @@ describe("public agent types", () => {
       | "topProvenanceUrl"
       | "topProvenanceSource"
       | "topProvenanceSelector"
+      | "topProvenanceCommand"
+      | "topProvenanceCommandArgs"
       | "topOfferPath"
       | "topOfferName"
       | "topOfferPrice"
@@ -1631,6 +1633,8 @@ describe("public agent types", () => {
       topProvenanceUrl: "https://doi.org/10.5555/example.2026",
       topProvenanceSource: "meta",
       topProvenanceSelector: "meta:nth-of-type(1)",
+      topProvenanceCommand: "ax-grep 'https://doi.org/10.5555/example.2026' --agent",
+      topProvenanceCommandArgs: ["ax-grep", "https://doi.org/10.5555/example.2026", "--agent"],
       topOfferPath: "pageCheck.offers[0]",
       topOfferName: "Agent Browser Pro",
       topOfferPrice: "19.99",

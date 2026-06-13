@@ -1557,6 +1557,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topProvenanceUrl?: string;
       topProvenanceSource?: string;
       topProvenanceSelector?: string;
+      topProvenanceCommand?: string;
+      topProvenanceCommandArgs?: string[];
       topOfferPath?: string;
       topOfferName?: string;
       topOfferPrice?: string;
@@ -8061,6 +8063,8 @@ function scoreAgentStructuredShortcuts(agent: {
   topProvenanceUrl?: string;
   topProvenanceSource?: string;
   topProvenanceSelector?: string;
+  topProvenanceCommand?: string;
+  topProvenanceCommandArgs?: string[];
   topOfferPath?: string;
   topOfferName?: string;
   topOfferPrice?: string;
@@ -8310,6 +8314,11 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topProvenanceUrl === topProvenance.url) matched += 1;
     if (agent.topProvenanceSource === topProvenance.source) matched += 1;
     if (agent.topProvenanceSelector === topProvenance.selector) matched += 1;
+    if (topProvenance.url) {
+      required += 2;
+      if (typeof agent.topProvenanceCommand === "string" && agent.topProvenanceCommand.includes(topProvenance.url)) matched += 1;
+      if (Array.isArray(agent.topProvenanceCommandArgs) && agent.topProvenanceCommandArgs.includes(topProvenance.url)) matched += 1;
+    }
   } else if (agent.topProvenancePath || agent.topProvenanceKind || agent.topProvenanceValue || agent.topProvenanceUrl || agent.topProvenanceSource || agent.topProvenanceSelector) {
     required += 1;
   }

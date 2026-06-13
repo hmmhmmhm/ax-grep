@@ -1699,6 +1699,8 @@ type AgentSummary = {
   topProvenanceUrl?: string;
   topProvenanceSource?: PageProvenanceSummary["source"];
   topProvenanceSelector?: string;
+  topProvenanceCommand?: string;
+  topProvenanceCommandArgs?: string[];
   topOfferPath?: string;
   topOfferName?: string;
   topOfferPrice?: string;
@@ -4019,6 +4021,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topTocPath ? [`  topTocPath: ${agent.topTocPath}`] : []),
     ...(agent.topTocText ? [`  topTocText: ${agent.topTocText}`] : []),
     ...(agent.topProvenanceValue ? [`  topProvenance: ${agent.topProvenancePath ?? ""} ${agent.topProvenanceKind ?? ""}=${agent.topProvenanceValue}${agent.topProvenanceUrl ? ` <${agent.topProvenanceUrl}>` : ""}`] : []),
+    ...(agent.topProvenanceCommand ? [`  topProvenanceCommand: ${agent.topProvenanceCommand}`] : []),
+    ...(agent.topProvenanceCommandArgs ? [`  topProvenanceCommandArgs: ${formatCommandArgsText(agent.topProvenanceCommandArgs)}`] : []),
     ...(agent.topOfferPrice ? [`  topOffer: ${agent.topOfferPath ?? ""} ${agent.topOfferCurrency ?? ""} ${agent.topOfferPrice}${agent.topOfferAvailability ? ` availability=${agent.topOfferAvailability}` : ""}${agent.topOfferUrl ? ` <${agent.topOfferUrl}>` : ""}`] : []),
     ...(agent.topDatasetName ? [`  topDataset: ${agent.topDatasetPath ?? ""} ${agent.topDatasetKind ?? ""}:${agent.topDatasetName}${agent.topDatasetUrl ? ` <${agent.topDatasetUrl}>` : ""}`] : []),
     ...(agent.topIdentityName ? [`  topIdentity: ${agent.topIdentityPath ?? ""} ${agent.topIdentityKind ?? ""}:${agent.topIdentityName}${agent.topIdentityUrl ? ` <${agent.topIdentityUrl}>` : ""}`] : []),
@@ -12065,6 +12069,9 @@ function summarizeAgent(
   const sourceSearchAlternateDifferentHost = sourceSearchSelectedResult?.host && sourceSearchAlternateResult?.host
     ? sourceSearchAlternateResult.host !== sourceSearchSelectedResult.host
     : undefined;
+  const topProvenanceCommand = pageCheck.provenance[0]?.url
+    ? pageCommandSpec(pageCheck.provenance[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, sourceSearchAgent, signals, qualityGates, verification.foundQueries, verification.missingQueries);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   const topSemanticHeading = semanticSummary?.headingItems[0];
@@ -12909,6 +12916,8 @@ function summarizeAgent(
     ...(pageCheck.provenance[0]?.url ? { topProvenanceUrl: pageCheck.provenance[0].url } : {}),
     ...(pageCheck.provenance[0] ? { topProvenanceSource: pageCheck.provenance[0].source } : {}),
     ...(pageCheck.provenance[0]?.selector ? { topProvenanceSelector: pageCheck.provenance[0].selector } : {}),
+    ...(topProvenanceCommand ? { topProvenanceCommand: topProvenanceCommand.command } : {}),
+    ...(topProvenanceCommand ? { topProvenanceCommandArgs: topProvenanceCommand.commandArgs } : {}),
     ...(pageCheck.offers[0] ? { topOfferPath: pageCheck.offers[0].path } : {}),
     ...(pageCheck.offers[0]?.name ? { topOfferName: pageCheck.offers[0].name } : {}),
     ...(pageCheck.offers[0]?.price ? { topOfferPrice: pageCheck.offers[0].price } : {}),
@@ -18706,6 +18715,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topProvenanceUrl ? { topProvenanceUrl: agent.topProvenanceUrl } : {}),
     ...(agent.topProvenanceSource ? { topProvenanceSource: agent.topProvenanceSource } : {}),
     ...(agent.topProvenanceSelector ? { topProvenanceSelector: agent.topProvenanceSelector } : {}),
+    ...(agent.topProvenanceCommand ? { topProvenanceCommand: agent.topProvenanceCommand } : {}),
+    ...(agent.topProvenanceCommandArgs ? { topProvenanceCommandArgs: agent.topProvenanceCommandArgs } : {}),
     ...(agent.topOfferPath ? { topOfferPath: agent.topOfferPath } : {}),
     ...(agent.topOfferName ? { topOfferName: agent.topOfferName } : {}),
     ...(agent.topOfferPrice ? { topOfferPrice: agent.topOfferPrice } : {}),
@@ -19919,6 +19930,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topProvenanceUrl ? { topProvenanceUrl: agent.topProvenanceUrl } : {}),
     ...(agent.topProvenanceSource ? { topProvenanceSource: agent.topProvenanceSource } : {}),
     ...(agent.topProvenanceSelector ? { topProvenanceSelector: agent.topProvenanceSelector } : {}),
+    ...(agent.topProvenanceCommand ? { topProvenanceCommand: agent.topProvenanceCommand } : {}),
+    ...(agent.topProvenanceCommandArgs ? { topProvenanceCommandArgs: agent.topProvenanceCommandArgs } : {}),
     ...(agent.topOfferPath ? { topOfferPath: agent.topOfferPath } : {}),
     ...(agent.topOfferName ? { topOfferName: agent.topOfferName } : {}),
     ...(agent.topOfferPrice ? { topOfferPrice: agent.topOfferPrice } : {}),
