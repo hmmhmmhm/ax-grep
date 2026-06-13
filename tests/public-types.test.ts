@@ -521,6 +521,8 @@ describe("public agent types", () => {
       | "topApiEndpointKind"
       | "topApiEndpointMethod"
       | "topApiEndpointUrl"
+      | "topApiEndpointCommand"
+      | "topApiEndpointCommandArgs"
       | "topApiEndpointSelector"
       | "topClientStatePath"
       | "topClientStateKind"
@@ -1753,8 +1755,10 @@ describe("public agent types", () => {
       topHydrationSelector: "script#__NEXT_DATA__",
       topApiEndpointPath: "pageCheck.apiEndpoints[0]",
       topApiEndpointKind: "graphql",
-      topApiEndpointMethod: "POST",
+      topApiEndpointMethod: "GET",
       topApiEndpointUrl: "https://example.test/graphql",
+      topApiEndpointCommand: "ax-grep 'https://example.test/graphql' --agent",
+      topApiEndpointCommandArgs: ["ax-grep", "https://example.test/graphql", "--agent"],
       topApiEndpointSelector: "script:nth-of-type(1)",
       topClientStatePath: "pageCheck.clientState[0]",
       topClientStateKind: "local-storage",
@@ -2841,6 +2845,7 @@ describe("public agent types", () => {
     expect(summary.hiddenSignalCount).toBe(4);
     expect(summary.hiddenApiEndpointCount).toBe(2);
     expect(summary.topApiEndpointUrl).toBe("https://example.test/graphql");
+    expect(summary.topApiEndpointCommandArgs?.[1]).toBe("https://example.test/graphql");
     expect(summary.topClientStateKey).toBe("session");
     expect(summary.topHiddenSignalPath).toBe("pageCheck.apiEndpoints[0]");
     expect(summary.bestHiddenReadTarget).toBe("pageCheck.apiEndpoints");

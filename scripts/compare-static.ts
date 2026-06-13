@@ -1645,6 +1645,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topApiEndpointKind?: string;
       topApiEndpointMethod?: string;
       topApiEndpointUrl?: string;
+      topApiEndpointCommand?: string;
+      topApiEndpointCommandArgs?: string[];
       topApiEndpointSelector?: string;
       topClientStatePath?: string;
       topClientStateKind?: string;
@@ -5150,6 +5152,8 @@ function scoreAgentTopHiddenSignalShortcuts(agent: {
   topApiEndpointKind?: string;
   topApiEndpointMethod?: string;
   topApiEndpointUrl?: string;
+  topApiEndpointCommand?: string;
+  topApiEndpointCommandArgs?: string[];
   topApiEndpointSelector?: string;
   topClientStatePath?: string;
   topClientStateKind?: string;
@@ -5243,8 +5247,24 @@ function scoreAgentTopHiddenSignalShortcuts(agent: {
       url: "topAppHintUrl",
       selector: "topAppHintSelector",
     }),
+    scoreTopApiEndpointCommandShortcut(pageCheck, agent),
   ];
   return roundScore(average([topHiddenScore, ...groupScores]));
+}
+
+function scoreTopApiEndpointCommandShortcut(pageCheck: unknown, agent: {
+  topApiEndpointCommand?: string;
+  topApiEndpointCommandArgs?: string[];
+} | undefined): number {
+  const endpoint = firstPageCheckArrayRecord(pageCheck, "apiEndpoints");
+  const url = typeof endpoint?.url === "string" ? endpoint.url : "";
+  const method = typeof endpoint?.method === "string" ? endpoint.method.toUpperCase() : "";
+  const shouldHaveCommand = /^https?:\/\//i.test(url) && (!method || method === "GET");
+  if (!shouldHaveCommand) return agent?.topApiEndpointCommand || agent?.topApiEndpointCommandArgs ? 0 : 1;
+  let matched = 0;
+  if (agent?.topApiEndpointCommand?.includes(url)) matched += 1;
+  if (Array.isArray(agent?.topApiEndpointCommandArgs) && agent?.topApiEndpointCommandArgs.includes(url)) matched += 1;
+  return roundScore(matched / 2);
 }
 
 function scoreTopPageCheckGroupShortcut(

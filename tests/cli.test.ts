@@ -7409,6 +7409,8 @@ describe("cli", () => {
       bestHiddenReadTargetPrimary: true,
       bestHiddenReadTargetReason: "Inline script API, GraphQL, XHR, and event-stream endpoint hints extracted from page HTML.",
     });
+    expect(envelope.agent.topApiEndpointCommand).toBeUndefined();
+    expect(envelope.agent.topApiEndpointCommandArgs).toBeUndefined();
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -7461,6 +7463,7 @@ describe("cli", () => {
         }),
       ],
     });
+    expect(envelope.agent.topApiEndpointCommandArgs).toEqual(["ax-grep", "https://example.test/api/agent-report", "--agent"]);
   });
 
   it("keeps author and hidden read target reasons in agent brief output", async () => {

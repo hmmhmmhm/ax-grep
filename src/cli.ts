@@ -1787,6 +1787,8 @@ type AgentSummary = {
   topApiEndpointKind?: string;
   topApiEndpointMethod?: string;
   topApiEndpointUrl?: string;
+  topApiEndpointCommand?: string;
+  topApiEndpointCommandArgs?: string[];
   topApiEndpointSelector?: string;
   topClientStatePath?: string;
   topClientStateKind?: string;
@@ -4109,6 +4111,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topHydrationPath ? [`  topHydration: ${agent.topHydrationPath} ${agent.topHydrationKind ?? ""}${agent.topHydrationUrl ? ` <${agent.topHydrationUrl}>` : ""}`] : []),
     ...(agent.topHydrationSelector ? [`  topHydrationSelector: ${agent.topHydrationSelector}`] : []),
     ...(agent.topApiEndpointPath ? [`  topApiEndpoint: ${agent.topApiEndpointPath} ${agent.topApiEndpointKind ?? ""}${agent.topApiEndpointMethod ? ` ${agent.topApiEndpointMethod}` : ""}${agent.topApiEndpointUrl ? ` <${agent.topApiEndpointUrl}>` : ""}`] : []),
+    ...(agent.topApiEndpointCommand ? [`  topApiEndpointCommand: ${agent.topApiEndpointCommand}`] : []),
+    ...(agent.topApiEndpointCommandArgs ? [`  topApiEndpointCommandArgs: ${formatCommandArgsText(agent.topApiEndpointCommandArgs)}`] : []),
     ...(agent.topApiEndpointSelector ? [`  topApiEndpointSelector: ${agent.topApiEndpointSelector}`] : []),
     ...(agent.topClientStatePath ? [`  topClientState: ${agent.topClientStatePath} ${agent.topClientStateKind ?? ""}${agent.topClientStateOperation ? ` ${agent.topClientStateOperation}` : ""}${agent.topClientStateKey ? ` ${agent.topClientStateKey}` : ""}`] : []),
     ...(agent.topClientStateSelector ? [`  topClientStateSelector: ${agent.topClientStateSelector}`] : []),
@@ -12087,6 +12091,11 @@ function summarizeAgent(
   const hiddenAppHintCount = pageCheck.appHints.length;
   const topHydration = pageCheck.hydration[0];
   const topApiEndpoint = pageCheck.apiEndpoints[0];
+  const topApiEndpointCommand = topApiEndpoint?.url
+    && /^https?:\/\//i.test(topApiEndpoint.url)
+    && (!topApiEndpoint.method || topApiEndpoint.method.toUpperCase() === "GET")
+    ? pageCommandSpec(topApiEndpoint.url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topClientState = pageCheck.clientState[0];
   const topAppHint = pageCheck.appHints[0];
   const topHiddenSignal = selectTopHiddenAgentPageCheckSignal(pageCheck);
@@ -13123,6 +13132,8 @@ function summarizeAgent(
     ...(topApiEndpoint ? { topApiEndpointKind: topApiEndpoint.kind } : {}),
     ...(topApiEndpoint?.method ? { topApiEndpointMethod: topApiEndpoint.method } : {}),
     ...(topApiEndpoint?.url ? { topApiEndpointUrl: topApiEndpoint.url } : {}),
+    ...(topApiEndpointCommand ? { topApiEndpointCommand: topApiEndpointCommand.command } : {}),
+    ...(topApiEndpointCommand ? { topApiEndpointCommandArgs: topApiEndpointCommand.commandArgs } : {}),
     ...(topApiEndpoint?.selector ? { topApiEndpointSelector: topApiEndpoint.selector } : {}),
     ...(topClientState ? { topClientStatePath: topClientState.path } : {}),
     ...(topClientState ? { topClientStateKind: topClientState.kind } : {}),
@@ -18956,6 +18967,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topApiEndpointKind ? { topApiEndpointKind: agent.topApiEndpointKind } : {}),
     ...(agent.topApiEndpointMethod ? { topApiEndpointMethod: agent.topApiEndpointMethod } : {}),
     ...(agent.topApiEndpointUrl ? { topApiEndpointUrl: agent.topApiEndpointUrl } : {}),
+    ...(agent.topApiEndpointCommand ? { topApiEndpointCommand: agent.topApiEndpointCommand } : {}),
+    ...(agent.topApiEndpointCommandArgs ? { topApiEndpointCommandArgs: agent.topApiEndpointCommandArgs } : {}),
     ...(agent.topApiEndpointSelector ? { topApiEndpointSelector: agent.topApiEndpointSelector } : {}),
     ...(agent.topClientStatePath ? { topClientStatePath: agent.topClientStatePath } : {}),
     ...(agent.topClientStateKind ? { topClientStateKind: agent.topClientStateKind } : {}),
@@ -20205,6 +20218,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topApiEndpointKind ? { topApiEndpointKind: agent.topApiEndpointKind } : {}),
     ...(agent.topApiEndpointMethod ? { topApiEndpointMethod: agent.topApiEndpointMethod } : {}),
     ...(agent.topApiEndpointUrl ? { topApiEndpointUrl: agent.topApiEndpointUrl } : {}),
+    ...(agent.topApiEndpointCommand ? { topApiEndpointCommand: agent.topApiEndpointCommand } : {}),
+    ...(agent.topApiEndpointCommandArgs ? { topApiEndpointCommandArgs: agent.topApiEndpointCommandArgs } : {}),
     ...(agent.topApiEndpointSelector ? { topApiEndpointSelector: agent.topApiEndpointSelector } : {}),
     ...(agent.topClientStatePath ? { topClientStatePath: agent.topClientStatePath } : {}),
     ...(agent.topClientStateKind ? { topClientStateKind: agent.topClientStateKind } : {}),
