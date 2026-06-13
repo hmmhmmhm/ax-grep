@@ -2126,6 +2126,9 @@ export type AgentSummary = {
   topChoiceUrl?: string;
   topChoiceHost?: string;
   topChoiceSnippet?: string;
+  topChoiceDateText?: string;
+  topChoiceDatePrecision?: "day" | "month" | "year";
+  topChoiceDateSource?: "title" | "snippet";
   topChoiceCommand?: string;
   topChoiceCommandArgs?: string[];
   topChoiceRank?: number;

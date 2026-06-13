@@ -1758,6 +1758,9 @@ type AgentSummary = {
   topChoiceUrl?: string;
   topChoiceHost?: string;
   topChoiceSnippet?: string;
+  topChoiceDateText?: string;
+  topChoiceDatePrecision?: AgentTarget["datePrecision"];
+  topChoiceDateSource?: AgentTarget["dateSource"];
   topChoiceCommand?: string;
   topChoiceCommandArgs?: string[];
   topChoiceRank?: number;
@@ -3912,7 +3915,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topSourceChoicePrimary === "boolean" ? [`  topSourceChoicePrimary: ${agent.topSourceChoicePrimary}`] : []),
     ...(agent.topSourceChoiceSelector ? [`  topSourceChoiceSelector: ${agent.topSourceChoiceSelector}`] : []),
     ...(agent.topSourceChoiceReason ? [`  topSourceChoiceReason: ${agent.topSourceChoiceReason}`] : []),
-    ...(agent.topChoiceKind ? [`  topChoice: ${agent.topChoiceKind} ${agent.topChoicePath}${typeof agent.topChoiceRank === "number" ? ` rank=${agent.topChoiceRank}` : ""}${agent.topChoiceOpenResult ? ` openResult=${agent.topChoiceOpenResult}` : ""}${typeof agent.topChoiceRecommended === "boolean" ? ` recommended=${agent.topChoiceRecommended}` : ""}${typeof agent.topChoicePrimary === "boolean" ? ` primary=${agent.topChoicePrimary}` : ""}${agent.topChoiceHost ? ` host=${agent.topChoiceHost}` : ""}${agent.topChoiceSource ? ` source=${agent.topChoiceSource}` : ""}${agent.topChoiceSourceType ? ` sourceType=${agent.topChoiceSourceType}` : ""}${typeof agent.topChoiceSourceScore === "number" ? ` score=${agent.topChoiceSourceScore}` : ""}${agent.topChoiceRelevance ? ` relevance=${agent.topChoiceRelevance}` : ""}${typeof agent.topChoiceLikelyOfficial === "boolean" ? ` official=${agent.topChoiceLikelyOfficial}` : ""}${agent.topChoiceMethod ? ` method=${agent.topChoiceMethod}` : ""}${agent.topChoiceSelector ? ` selector=${agent.topChoiceSelector}` : ""}${agent.topChoiceUrl ? ` <${agent.topChoiceUrl}>` : ""}${agent.topChoiceCommand ? ` command=${agent.topChoiceCommand}` : ""}${agent.topChoiceReason ? ` reason=${agent.topChoiceReason}` : ""}${agent.topChoiceSnippet ? ` snippet=${agent.topChoiceSnippet}` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
+    ...(agent.topChoiceKind ? [`  topChoice: ${agent.topChoiceKind} ${agent.topChoicePath}${typeof agent.topChoiceRank === "number" ? ` rank=${agent.topChoiceRank}` : ""}${agent.topChoiceOpenResult ? ` openResult=${agent.topChoiceOpenResult}` : ""}${typeof agent.topChoiceRecommended === "boolean" ? ` recommended=${agent.topChoiceRecommended}` : ""}${typeof agent.topChoicePrimary === "boolean" ? ` primary=${agent.topChoicePrimary}` : ""}${agent.topChoiceHost ? ` host=${agent.topChoiceHost}` : ""}${agent.topChoiceSource ? ` source=${agent.topChoiceSource}` : ""}${agent.topChoiceSourceType ? ` sourceType=${agent.topChoiceSourceType}` : ""}${typeof agent.topChoiceSourceScore === "number" ? ` score=${agent.topChoiceSourceScore}` : ""}${agent.topChoiceDateText ? ` dateText=${agent.topChoiceDateText}` : ""}${agent.topChoiceDatePrecision ? ` datePrecision=${agent.topChoiceDatePrecision}` : ""}${agent.topChoiceDateSource ? ` dateSource=${agent.topChoiceDateSource}` : ""}${agent.topChoiceRelevance ? ` relevance=${agent.topChoiceRelevance}` : ""}${typeof agent.topChoiceLikelyOfficial === "boolean" ? ` official=${agent.topChoiceLikelyOfficial}` : ""}${agent.topChoiceMethod ? ` method=${agent.topChoiceMethod}` : ""}${agent.topChoiceSelector ? ` selector=${agent.topChoiceSelector}` : ""}${agent.topChoiceUrl ? ` <${agent.topChoiceUrl}>` : ""}${agent.topChoiceCommand ? ` command=${agent.topChoiceCommand}` : ""}${agent.topChoiceReason ? ` reason=${agent.topChoiceReason}` : ""}${agent.topChoiceSnippet ? ` snippet=${agent.topChoiceSnippet}` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
     ...(agent.sourceSearchQuery ? [`  sourceSearchQuery: ${agent.sourceSearchQuery}`] : []),
     ...(agent.sourceSearchEngine ? [`  sourceSearchEngine: ${agent.sourceSearchEngine}`] : []),
     ...(agent.sourceSearchSelectedEngine ? [`  sourceSearchSelectedEngine: ${agent.sourceSearchSelectedEngine}`] : []),
@@ -12631,6 +12634,9 @@ function summarizeAgent(
     ...(topChoice?.url ? { topChoiceUrl: topChoice.url } : {}),
     ...(topChoice?.host ? { topChoiceHost: topChoice.host } : {}),
     ...(topChoice?.snippet ? { topChoiceSnippet: topChoice.snippet } : {}),
+    ...(topChoice?.dateText ? { topChoiceDateText: topChoice.dateText } : {}),
+    ...(topChoice?.datePrecision ? { topChoiceDatePrecision: topChoice.datePrecision } : {}),
+    ...(topChoice?.dateSource ? { topChoiceDateSource: topChoice.dateSource } : {}),
     ...(topChoice?.command ? { topChoiceCommand: topChoice.command } : {}),
     ...(topChoice?.commandArgs ? { topChoiceCommandArgs: topChoice.commandArgs } : {}),
     ...(typeof topChoice?.rank === "number" ? { topChoiceRank: topChoice.rank } : {}),
@@ -14882,6 +14888,9 @@ function summarizeAgentTopChoice(
   url?: string;
   host?: string;
   snippet?: string;
+  dateText?: string;
+  datePrecision?: AgentTarget["datePrecision"];
+  dateSource?: AgentTarget["dateSource"];
   command?: string;
   commandArgs?: string[];
   rank?: number;
@@ -14906,6 +14915,9 @@ function summarizeAgentTopChoice(
       ...(result.title ? { label: result.title } : {}),
       ...(result.host ? { host: result.host } : {}),
       ...(result.snippet ? { snippet: result.snippet } : {}),
+      ...(result.dateText ? { dateText: result.dateText } : {}),
+      ...(result.datePrecision ? { datePrecision: result.datePrecision } : {}),
+      ...(result.dateSource ? { dateSource: result.dateSource } : {}),
       ...(result.command ? { command: result.command } : {}),
       ...(result.commandArgs ? { commandArgs: result.commandArgs } : {}),
       ...(typeof result.rank === "number" ? { rank: result.rank } : {}),
@@ -17356,6 +17368,9 @@ function compactAgentTopChoice(agent: AgentSummary, searchCommandContext?: Searc
     ...(agent.topChoiceUrl ? { topChoiceUrl: agent.topChoiceUrl } : {}),
     ...(agent.topChoiceHost ? { topChoiceHost: agent.topChoiceHost } : {}),
     ...(agent.topChoiceSnippet ? { topChoiceSnippet: agent.topChoiceSnippet } : {}),
+    ...(agent.topChoiceDateText ? { topChoiceDateText: agent.topChoiceDateText } : {}),
+    ...(agent.topChoiceDatePrecision ? { topChoiceDatePrecision: agent.topChoiceDatePrecision } : {}),
+    ...(agent.topChoiceDateSource ? { topChoiceDateSource: agent.topChoiceDateSource } : {}),
     ...(command ? { topChoiceCommand: command } : {}),
     ...(commandArgs ? { topChoiceCommandArgs: commandArgs } : {}),
     ...(typeof agent.topChoiceRank === "number" ? { topChoiceRank: agent.topChoiceRank } : {}),

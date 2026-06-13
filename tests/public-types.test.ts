@@ -538,6 +538,9 @@ describe("public agent types", () => {
       | "topChoiceUrl"
       | "topChoiceHost"
       | "topChoiceSnippet"
+      | "topChoiceDateText"
+      | "topChoiceDatePrecision"
+      | "topChoiceDateSource"
       | "topChoiceCommand"
       | "topChoiceCommandArgs"
       | "topChoiceRank"
@@ -1666,6 +1669,9 @@ describe("public agent types", () => {
       topChoiceUrl: "https://source.example/report",
       topChoiceHost: "source.example",
       topChoiceSnippet: "Source summary",
+      topChoiceDateText: "2026-05-31",
+      topChoiceDatePrecision: "day",
+      topChoiceDateSource: "snippet",
       topChoiceCommand: "ax-grep https://source.example/report --agent",
       topChoiceCommandArgs: ["ax-grep", "https://source.example/report", "--agent"],
       topChoiceRank: 1,
