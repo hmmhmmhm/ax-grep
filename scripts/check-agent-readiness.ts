@@ -246,6 +246,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
         requireFileIncludes(root, failures, "scripts/compare-static.ts", [
           "sourceSearchSelectedCommandArgs",
           "sourceSearchAlternateCommandArgs",
+          "typeof link.command === \"string\"",
+          "link.command.length > 0",
           "executorBrowserHtmlReasonCode",
           "handoffBrowserHtmlReasonCode",
           "executorReadValueReferencePath",
@@ -1639,6 +1641,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "A134",
           "A135",
           "A136",
+          "A137",
         ]);
       },
     ),

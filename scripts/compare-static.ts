@@ -3749,8 +3749,12 @@ function scorePageLinkCommands(
       && link.id.length > 0
       && typeof link.path === "string"
       && link.path.length > 0
-      && (Array.isArray(link.commandArgs) && link.commandArgs.length > 0
-        || typeof link.url === "string" && link.url.length > 0)
+      && typeof link.url === "string"
+      && link.url.length > 0
+      && typeof link.command === "string"
+      && link.command.length > 0
+      && Array.isArray(link.commandArgs)
+      && link.commandArgs.length > 0
       && (typeof link.selectionReason === "string" && link.selectionReason.length > 0
         || typeof link.sourceScore === "number");
   }).length;
