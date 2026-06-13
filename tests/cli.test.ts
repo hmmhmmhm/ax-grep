@@ -10928,6 +10928,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(0);
     expect(stdout.output).toContain("  next: open-source-link - The page has limited readable content, but an external source link is available.");
     expect(stdout.output).toContain("  url: https://source.example/report");
+    expect(stdout.output).toContain("  pageCheckCommand: ax-grep 'https://source.example/report' --json --summary");
+    expect(stdout.output).toContain("  pageCheckCommandArgs: [\"ax-grep\",\"https://source.example/report\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  primarySourceLinkRef: pageCheck.sourceLinks[0]");
     expect(stdout.output).toContain("  sourceLinkRef: pageCheck.sourceLinks[0]");
     expect(stdout.output).toMatch(
@@ -11199,6 +11201,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("    execution: run-command");
     expect(stdout.output).toContain("    sourceLinkRef: pageCheck.sourceLinks[0]");
     expect(stdout.output).toContain("    command: ax-grep 'https://source.example/report' --json --summary");
+    expect(stdout.output).toContain("  pageCheckStepCommand: ax-grep 'https://source.example/report' --json --summary");
+    expect(stdout.output).toContain("  pageCheckStepCommandArgs: [\"ax-grep\",\"https://source.example/report\",\"--json\",\"--summary\"]");
   });
 
   it("checks requested text against page summaries", async () => {

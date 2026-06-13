@@ -4715,8 +4715,12 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   if (pageCheck.recommendedAction.requiresBrowserInteraction) lines.push("  requiresBrowserInteraction: true");
   if (pageCheck.recommendedAction.command) lines.push(`  command: ${pageCheck.recommendedAction.command}`);
   if (pageCheck.recommendedAction.commandArgs) lines.push(`  commandArgs: ${formatCommandArgsText(pageCheck.recommendedAction.commandArgs)}`);
+  if (pageCheck.recommendedAction.command) lines.push(`  pageCheckCommand: ${pageCheck.recommendedAction.command}`);
+  if (pageCheck.recommendedAction.commandArgs) lines.push(`  pageCheckCommandArgs: ${formatCommandArgsText(pageCheck.recommendedAction.commandArgs)}`);
   if (pageCheck.recommendedAction.afterInteractionCommand) lines.push(`  afterInteractionCommand: ${pageCheck.recommendedAction.afterInteractionCommand}`);
   if (pageCheck.recommendedAction.afterInteractionCommandArgs) lines.push(`  afterInteractionCommandArgs: ${formatCommandArgsText(pageCheck.recommendedAction.afterInteractionCommandArgs)}`);
+  if (pageCheck.recommendedAction.afterInteractionCommand) lines.push(`  pageCheckAfterInteractionCommand: ${pageCheck.recommendedAction.afterInteractionCommand}`);
+  if (pageCheck.recommendedAction.afterInteractionCommandArgs) lines.push(`  pageCheckAfterInteractionCommandArgs: ${formatCommandArgsText(pageCheck.recommendedAction.afterInteractionCommandArgs)}`);
   for (const [index, step] of pageCheck.nextSteps.entries()) {
     const target = step.url ? ` <${step.url}>` : "";
     lines.push(`  step: ${index + 1}. ${formatActionLabel(step)}${target} - ${step.reason}`);
@@ -4727,6 +4731,12 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     if (step.requiresBrowserInteraction) lines.push("    requiresBrowserInteraction: true");
     if (step.command) lines.push(`    command: ${step.command}`);
     if (step.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(step.commandArgs)}`);
+    if (step.command) lines.push(`  pageCheckStepCommand: ${step.command}`);
+    if (step.commandArgs) lines.push(`  pageCheckStepCommandArgs: ${formatCommandArgsText(step.commandArgs)}`);
+    if (step.afterInteractionCommand) lines.push(`    afterInteractionCommand: ${step.afterInteractionCommand}`);
+    if (step.afterInteractionCommandArgs) lines.push(`    afterInteractionCommandArgs: ${formatCommandArgsText(step.afterInteractionCommandArgs)}`);
+    if (step.afterInteractionCommand) lines.push(`  pageCheckStepAfterInteractionCommand: ${step.afterInteractionCommand}`);
+    if (step.afterInteractionCommandArgs) lines.push(`  pageCheckStepAfterInteractionCommandArgs: ${formatCommandArgsText(step.afterInteractionCommandArgs)}`);
   }
   return ["pageCheck", ...lines];
 }
