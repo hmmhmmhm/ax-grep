@@ -4376,6 +4376,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.primaryReason) lines.push(`  primaryReason: ${agent.primaryReason}`);
   if (agent.primaryPriority) lines.push(`  primaryPriority: ${agent.primaryPriority}`);
   if (agent.primaryPriorityReason) lines.push(`  primaryPriorityReason: ${agent.primaryPriorityReason}`);
+  if (agent.primaryExecution) lines.push(`  primaryExecution: ${agent.primaryExecution}`);
   if (agent.primaryExpectedOutcome) lines.push(`  primaryExpectedOutcome: ${agent.primaryExpectedOutcome}`);
   if (agent.primaryExpectedOutcomeMessage) lines.push(`  primaryExpectedOutcomeMessage: ${agent.primaryExpectedOutcomeMessage}`);
   if (agent.primaryReadFrom) lines.push(`  primaryReadFrom: ${agent.primaryReadFrom}`);
@@ -4390,7 +4391,10 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.primaryCommandArgs) lines.push(`  primaryCommandArgs: ${formatCommandArgsText(agent.primaryCommandArgs)}`);
   if (agent.primaryAfterInteractionCommand) lines.push(`  primaryAfterInteractionCommand: ${agent.primaryAfterInteractionCommand}`);
   if (agent.primaryAfterInteractionCommandArgs) lines.push(`  primaryAfterInteractionCommandArgs: ${formatCommandArgsText(agent.primaryAfterInteractionCommandArgs)}`);
+  if (agent.primaryUrl) lines.push(`  primaryUrl: ${agent.primaryUrl}`);
   if (agent.primarySourceLinkRef) lines.push(`  primarySourceLinkRef: ${agent.primarySourceLinkRef}`);
+  if (typeof agent.primaryRank === "number") lines.push(`  primaryRank: ${agent.primaryRank}`);
+  if (agent.primaryOpenResult) lines.push(`  primaryOpenResult: ${agent.primaryOpenResult}`);
   if (agent.primaryTargetUrl) lines.push(`  primaryTargetUrl: ${agent.primaryTargetUrl}`);
   if (agent.primaryTargetPath) lines.push(`  primaryTargetPath: ${agent.primaryTargetPath}`);
   if (agent.primaryTargetTitle) lines.push(`  primaryTargetTitle: ${agent.primaryTargetTitle}`);
