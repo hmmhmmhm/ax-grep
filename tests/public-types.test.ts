@@ -817,6 +817,7 @@ describe("public agent types", () => {
       | "semanticTopSelectedTableCellSelected"
       | "semanticTopSelectedTableCellCurrent"
       | "semanticTopSelectedTableCellSelector"
+      | "semanticTopSelectedTableCellOwnedTarget"
       | "semanticTopTableSelector"
       | "semanticTopListRole"
       | "semanticTopListPath"
@@ -1885,6 +1886,7 @@ describe("public agent types", () => {
       semanticTopSelectedTableCellSelected: true,
       semanticTopSelectedTableCellCurrent: "page",
       semanticTopSelectedTableCellSelector: "td:nth-of-type(1)",
+      semanticTopSelectedTableCellOwnedTarget: "virtual-rows",
       semanticTopTableSelector: "table:nth-of-type(1)",
       semanticTopListRole: "list",
       semanticTopListPath: "agent.semanticSummary.listItems[0]",

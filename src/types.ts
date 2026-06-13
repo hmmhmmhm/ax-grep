@@ -877,6 +877,7 @@ export type AgentSummary = {
   semanticTopSelectedTableCellSelected?: boolean;
   semanticTopSelectedTableCellCurrent?: SemanticNodeState["current"];
   semanticTopSelectedTableCellSelector?: string;
+  semanticTopSelectedTableCellOwnedTarget?: string;
   semanticTopTableSelector?: string;
   semanticTopListRole?: string;
   semanticTopListPath?: string;

@@ -5105,6 +5105,35 @@ describe("cli", () => {
     });
   });
 
+  it("keeps selected owned table cell target in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/grid", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <table aria-label="Issue board" aria-owns="owned-rows">
+            <tr><th id="id">ID</th><th id="status">Status</th></tr>
+          </table>
+          <div id="owned-rows" role="rowgroup" aria-label="Virtual rows">
+            <div role="row" aria-rowindex="50"><span role="rowheader" aria-colindex="1">BUG-9</span><span role="gridcell" aria-colindex="2" headers="status" aria-selected="true">Blocked</span></div>
+          </div>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      semanticTopSelectedTableCellText: "Blocked",
+      semanticTopSelectedTableCellRowIndex: 50,
+      semanticTopSelectedTableCellColumnIndex: 2,
+      semanticTopSelectedTableCellSelected: true,
+      semanticTopSelectedTableCellOwnedTarget: "owned-rows",
+    });
+  });
+
   it("keeps semantic selectors and core states in agent brief output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/relations", "--agent-brief"], {
@@ -5388,7 +5417,7 @@ describe("cli", () => {
             <tr><td headers="metric value">Latency</td></tr>
           </table>
           <div id="owned-rows" role="rowgroup" aria-label="Virtual rows">
-            <div role="row" aria-rowindex="50"><span role="rowheader" aria-colindex="1">Virtual metric</span><span role="gridcell" aria-colindex="4" headers="value">Queued</span></div>
+            <div role="row" aria-rowindex="50"><span role="rowheader" aria-colindex="1">Virtual metric</span><span role="gridcell" aria-colindex="4" headers="value" aria-selected="true">Queued</span></div>
           </div>
         </main>
       `, { headers: { "content-type": "text/html" } }),
@@ -5398,6 +5427,9 @@ describe("cli", () => {
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  semanticTopTableFirstOwnedSampleCell:");
     expect(stdout.output).toContain("Queued");
+    expect(stdout.output).toContain("ownedTarget=owned-rows");
+    expect(stdout.output).toContain("  semanticTopSelectedTableCell:");
+    expect(stdout.output).toContain("selected=true");
     expect(stdout.output).toContain("ownedTarget=owned-rows");
   });
 

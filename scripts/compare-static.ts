@@ -2059,6 +2059,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopSelectedTableCellSelected?: boolean;
       semanticTopSelectedTableCellCurrent?: boolean | string;
       semanticTopSelectedTableCellSelector?: string;
+      semanticTopSelectedTableCellOwnedTarget?: string;
       semanticTopTableSelector?: string;
       semanticTopListRole?: string;
       semanticTopListPath?: string;
@@ -6400,11 +6401,11 @@ function observedSemanticTableColumnCount(table: {
 
 function scoreSelectedTableCellShortcuts(agentRecord: Record<string, unknown>, sampleCellRefs: unknown): { matched: number; required: number } {
   const selectedTableCellRef = Array.isArray(sampleCellRefs)
-    ? sampleCellRefs.find((cell): cell is { path?: unknown; text?: unknown; rowIndex?: unknown; columnIndex?: unknown; rowSpan?: unknown; columnSpan?: unknown; headers?: unknown; rowHeaders?: unknown; columnHeaders?: unknown; selected?: unknown; current?: unknown; selector?: unknown } => Boolean(cell && typeof cell === "object" && (cell as { selected?: unknown }).selected === true))
+    ? sampleCellRefs.find((cell): cell is { path?: unknown; text?: unknown; rowIndex?: unknown; columnIndex?: unknown; rowSpan?: unknown; columnSpan?: unknown; headers?: unknown; rowHeaders?: unknown; columnHeaders?: unknown; selected?: unknown; current?: unknown; selector?: unknown; ownedTarget?: unknown } => Boolean(cell && typeof cell === "object" && (cell as { selected?: unknown }).selected === true))
     : undefined;
   if (!selectedTableCellRef) return { matched: 0, required: 0 };
   let matched = 0;
-  const required = 12;
+  const required = 13;
   if (agentRecord.semanticTopSelectedTableCellPath === selectedTableCellRef.path) matched += 1;
   if (agentRecord.semanticTopSelectedTableCellText === selectedTableCellRef.text) matched += 1;
   if (agentRecord.semanticTopSelectedTableCellRowIndex === selectedTableCellRef.rowIndex) matched += 1;
@@ -6417,6 +6418,7 @@ function scoreSelectedTableCellShortcuts(agentRecord: Record<string, unknown>, s
   if (agentRecord.semanticTopSelectedTableCellSelected === selectedTableCellRef.selected) matched += 1;
   if (agentRecord.semanticTopSelectedTableCellCurrent === selectedTableCellRef.current) matched += 1;
   if (agentRecord.semanticTopSelectedTableCellSelector === selectedTableCellRef.selector) matched += 1;
+  if (agentRecord.semanticTopSelectedTableCellOwnedTarget === selectedTableCellRef.ownedTarget) matched += 1;
   return { matched, required };
 }
 
