@@ -1594,6 +1594,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topOfferPath?: string;
       topOfferName?: string;
       topOfferPrice?: string;
+      topOfferPriceAmount?: number;
       topOfferCurrency?: string;
       topOfferAvailability?: string;
       topOfferUrl?: string;
@@ -8202,6 +8203,7 @@ function scoreAgentStructuredShortcuts(agent: {
   topOfferPath?: string;
   topOfferName?: string;
   topOfferPrice?: string;
+  topOfferPriceAmount?: number;
   topOfferCurrency?: string;
   topOfferAvailability?: string;
   topOfferUrl?: string;
@@ -8274,7 +8276,7 @@ function scoreAgentStructuredShortcuts(agent: {
   transcripts?: Array<{ kind?: string; url?: string; label?: string; language?: string }>;
   authorLinks?: Array<{ name?: string; url?: string; source?: string }>;
   provenance?: Array<{ path?: string; kind?: string; label?: string; value?: string; url?: string; source?: string; selector?: string }>;
-  offers?: Array<{ path?: string; name?: string; price?: string; currency?: string; availability?: string; url?: string; selector?: string }>;
+  offers?: Array<{ path?: string; name?: string; price?: string; priceAmount?: number; currency?: string; availability?: string; url?: string; selector?: string }>;
   datasets?: Array<{ path?: string; kind?: string; name?: string; url?: string; distributionUrls?: string[]; licenseUrl?: string; encodingFormat?: string; selector?: string }>;
   identities?: Array<{ path?: string; kind?: string; name?: string; url?: string; logoUrl?: string; sameAs?: string[]; source?: string; selector?: string }>;
   timeline?: Array<{ path?: string; kind?: string; label?: string; value?: string; isoDate?: string; unixMs?: number; source?: string; selector?: string }>;
@@ -8520,12 +8522,16 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topOfferAvailability === topOffer.availability) matched += 1;
     if (agent.topOfferUrl === topOffer.url) matched += 1;
     if (agent.topOfferSelector === topOffer.selector) matched += 1;
+    if (typeof topOffer.priceAmount === "number") {
+      required += 1;
+      if (agent.topOfferPriceAmount === topOffer.priceAmount) matched += 1;
+    }
     if (topOffer.url && /^https?:\/\//i.test(topOffer.url)) {
       required += 2;
       if (typeof agent.topOfferCommand === "string" && agent.topOfferCommand.includes(topOffer.url)) matched += 1;
       if (Array.isArray(agent.topOfferCommandArgs) && agent.topOfferCommandArgs.includes(topOffer.url)) matched += 1;
     }
-  } else if (agent.topOfferPath || agent.topOfferName || agent.topOfferPrice || agent.topOfferCurrency || agent.topOfferAvailability || agent.topOfferUrl || agent.topOfferCommand || agent.topOfferCommandArgs || agent.topOfferSelector) {
+  } else if (agent.topOfferPath || agent.topOfferName || agent.topOfferPrice || typeof agent.topOfferPriceAmount === "number" || agent.topOfferCurrency || agent.topOfferAvailability || agent.topOfferUrl || agent.topOfferCommand || agent.topOfferCommandArgs || agent.topOfferSelector) {
     required += 1;
   }
 

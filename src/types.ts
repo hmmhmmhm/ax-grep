@@ -375,6 +375,7 @@ export type AgentPageOffer = {
   rank: number;
   name?: string;
   price?: string;
+  priceAmount?: number;
   currency?: string;
   availability?: string;
   url?: string;
@@ -2087,6 +2088,7 @@ export type AgentSummary = {
   topOfferPath?: string;
   topOfferName?: string;
   topOfferPrice?: string;
+  topOfferPriceAmount?: number;
   topOfferCurrency?: string;
   topOfferAvailability?: string;
   topOfferUrl?: string;

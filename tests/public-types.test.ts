@@ -452,6 +452,7 @@ describe("public agent types", () => {
       | "topOfferPath"
       | "topOfferName"
       | "topOfferPrice"
+      | "topOfferPriceAmount"
       | "topOfferCurrency"
       | "topOfferAvailability"
       | "topOfferUrl"
@@ -1694,6 +1695,7 @@ describe("public agent types", () => {
       topOfferPath: "pageCheck.offers[0]",
       topOfferName: "Agent Browser Pro",
       topOfferPrice: "19.99",
+      topOfferPriceAmount: 19.99,
       topOfferCurrency: "USD",
       topOfferAvailability: "InStock",
       topOfferUrl: "https://example.test/buy",
@@ -3280,6 +3282,7 @@ describe("public agent types", () => {
           rank: 1,
           name: "Starter",
           price: "19",
+          priceAmount: 19,
           currency: "USD",
           source: "json-ld",
         }],

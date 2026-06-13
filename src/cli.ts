@@ -659,6 +659,7 @@ type PageOfferSummary = {
   rank: number;
   name?: string;
   price?: string;
+  priceAmount?: number;
   currency?: string;
   availability?: string;
   url?: string;
@@ -1720,6 +1721,7 @@ type AgentSummary = {
   topOfferPath?: string;
   topOfferName?: string;
   topOfferPrice?: string;
+  topOfferPriceAmount?: number;
   topOfferCurrency?: string;
   topOfferAvailability?: string;
   topOfferUrl?: string;
@@ -4076,6 +4078,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topProvenanceCommand ? [`  topProvenanceCommand: ${agent.topProvenanceCommand}`] : []),
     ...(agent.topProvenanceCommandArgs ? [`  topProvenanceCommandArgs: ${formatCommandArgsText(agent.topProvenanceCommandArgs)}`] : []),
     ...(agent.topOfferPrice ? [`  topOffer: ${agent.topOfferPath ?? ""} ${agent.topOfferCurrency ?? ""} ${agent.topOfferPrice}${agent.topOfferAvailability ? ` availability=${agent.topOfferAvailability}` : ""}${agent.topOfferUrl ? ` <${agent.topOfferUrl}>` : ""}`] : []),
+    ...(typeof agent.topOfferPriceAmount === "number" ? [`  topOfferPriceAmount: ${agent.topOfferPriceAmount}`] : []),
     ...(agent.topOfferCommand ? [`  topOfferCommand: ${agent.topOfferCommand}`] : []),
     ...(agent.topOfferCommandArgs ? [`  topOfferCommandArgs: ${formatCommandArgsText(agent.topOfferCommandArgs)}`] : []),
     ...(agent.topDatasetName ? [`  topDataset: ${agent.topDatasetPath ?? ""} ${agent.topDatasetKind ?? ""}:${agent.topDatasetName}${agent.topDatasetUrl ? ` <${agent.topDatasetUrl}>` : ""}`] : []),
@@ -8982,6 +8985,7 @@ function offerSummaryFromJsonLd(
   const summary = {
     ...(name ? { name } : {}),
     ...(price ? { price } : {}),
+    ...(price ? normalizedOfferPriceAmount(price) : {}),
     ...(currency ? { currency } : {}),
     ...(availability ? { availability } : {}),
     ...(url ? { url } : {}),
@@ -9002,6 +9006,16 @@ function offerPriceValue(offer: Record<string, unknown>): string {
   return low || high;
 }
 
+function normalizedOfferPriceAmount(price: string): { priceAmount: number } | undefined {
+  const match = cleanContentText(price)
+    .replace(/,/g, "")
+    .match(/-?\d+(?:\.\d+)?/);
+  if (!match) return undefined;
+  const priceAmount = Number(match[0]);
+  if (!Number.isFinite(priceAmount)) return undefined;
+  return { priceAmount };
+}
+
 function schemaRatingValue(value: unknown): string {
   const rating = schemaObjectArray(value)[0];
   if (!rating) return "";
@@ -9018,6 +9032,7 @@ function offerText(offer: Omit<PageOfferSummary, "id" | "path" | "rank" | "text"
   return cleanContentText([
     offer.name ? `Name: ${offer.name}` : "",
     price ? `Price: ${price}` : "",
+    typeof offer.priceAmount === "number" ? `Price amount: ${offer.priceAmount}` : "",
     offer.availability ? `Availability: ${offer.availability}` : "",
     offer.brand ? `Brand: ${offer.brand}` : "",
     offer.sku ? `SKU: ${offer.sku}` : "",
@@ -13096,6 +13111,7 @@ function summarizeAgent(
     ...(pageCheck.offers[0] ? { topOfferPath: pageCheck.offers[0].path } : {}),
     ...(pageCheck.offers[0]?.name ? { topOfferName: pageCheck.offers[0].name } : {}),
     ...(pageCheck.offers[0]?.price ? { topOfferPrice: pageCheck.offers[0].price } : {}),
+    ...(typeof pageCheck.offers[0]?.priceAmount === "number" ? { topOfferPriceAmount: pageCheck.offers[0].priceAmount } : {}),
     ...(pageCheck.offers[0]?.currency ? { topOfferCurrency: pageCheck.offers[0].currency } : {}),
     ...(pageCheck.offers[0]?.availability ? { topOfferAvailability: pageCheck.offers[0].availability } : {}),
     ...(pageCheck.offers[0]?.url ? { topOfferUrl: pageCheck.offers[0].url } : {}),
@@ -18937,6 +18953,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topOfferPath ? { topOfferPath: agent.topOfferPath } : {}),
     ...(agent.topOfferName ? { topOfferName: agent.topOfferName } : {}),
     ...(agent.topOfferPrice ? { topOfferPrice: agent.topOfferPrice } : {}),
+    ...(typeof agent.topOfferPriceAmount === "number" ? { topOfferPriceAmount: agent.topOfferPriceAmount } : {}),
     ...(agent.topOfferCurrency ? { topOfferCurrency: agent.topOfferCurrency } : {}),
     ...(agent.topOfferAvailability ? { topOfferAvailability: agent.topOfferAvailability } : {}),
     ...(agent.topOfferUrl ? { topOfferUrl: agent.topOfferUrl } : {}),
@@ -20194,6 +20211,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topOfferPath ? { topOfferPath: agent.topOfferPath } : {}),
     ...(agent.topOfferName ? { topOfferName: agent.topOfferName } : {}),
     ...(agent.topOfferPrice ? { topOfferPrice: agent.topOfferPrice } : {}),
+    ...(typeof agent.topOfferPriceAmount === "number" ? { topOfferPriceAmount: agent.topOfferPriceAmount } : {}),
     ...(agent.topOfferCurrency ? { topOfferCurrency: agent.topOfferCurrency } : {}),
     ...(agent.topOfferAvailability ? { topOfferAvailability: agent.topOfferAvailability } : {}),
     ...(agent.topOfferUrl ? { topOfferUrl: agent.topOfferUrl } : {}),
