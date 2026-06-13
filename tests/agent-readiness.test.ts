@@ -81,6 +81,7 @@ function makeMinimalProject(): string {
     "averageCliAgentScore",
     "averageAgentExecutorScore",
     "averageAgentHiddenSignalScore",
+    "averageAgentHiddenCommandShortcutScore",
   ].join("\n"));
   writeFileSync(join(root, "docs", "agent-readiness.md"), [
     "Do not call this objective complete from unit tests alone",

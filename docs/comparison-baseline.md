@@ -236,6 +236,8 @@ shortcuts.
 `averageAgentTopHiddenSignalShortcutScore` tracks whether
 `agent.topHiddenSignal*` mirrors the first hidden metadata, API, config, or
 provenance signal.
+`averageAgentHiddenCommandShortcutScore` tracks whether hidden hydration, safe
+GET-like API, and app-hint URLs keep executable top-level follow-up commands.
 `averageAgentBrowserAdvantageScore` tracks whether those hidden `pageCheck`
 signals create a concrete agent-browser advantage when they exist, rather than
 only matching visible accessibility-tree roles.

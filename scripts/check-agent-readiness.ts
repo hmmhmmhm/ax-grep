@@ -73,6 +73,7 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
     "averageAgentHiddenSignalScore",
     "averageAgentHiddenSignalCountScore",
     "averageAgentTopHiddenSignalShortcutScore",
+    "averageAgentHiddenCommandShortcutScore",
     "averageAgentPageMetadataShortcutScore",
     "averageAgentBrowserHtmlScore",
   ]);
