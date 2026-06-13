@@ -2713,6 +2713,52 @@ describe("public agent types", () => {
           answer: "Run the installer.",
           source: "html",
         }],
+        hydration: [{
+          id: "h1",
+          path: "pageCheck.hydration[0]",
+          rank: 1,
+          kind: "next-data",
+          label: "__NEXT_DATA__",
+          source: "script",
+          framework: "next",
+          route: "/docs",
+        }],
+        apiEndpoints: [{
+          id: "api1",
+          path: "pageCheck.apiEndpoints[0]",
+          rank: 1,
+          kind: "graphql",
+          method: "POST",
+          url: "https://example.test/graphql",
+          source: "script",
+        }],
+        clientState: [{
+          id: "state1",
+          path: "pageCheck.clientState[0]",
+          rank: 1,
+          kind: "local-storage",
+          operation: "read",
+          key: "session",
+          source: "script",
+        }],
+        runtime: [{
+          id: "runtime1",
+          path: "pageCheck.runtime[0]",
+          rank: 1,
+          kind: "service-worker",
+          url: "https://example.test/sw.js",
+          source: "script",
+        }],
+        config: [{
+          id: "config1",
+          path: "pageCheck.config[0]",
+          rank: 1,
+          kind: "feature-flags",
+          name: "flags",
+          keys: ["beta"],
+          keyCount: 1,
+          source: "script",
+        }],
         forms: [{
           rank: 1,
           method: "GET",
@@ -2860,6 +2906,11 @@ describe("public agent types", () => {
     expect(envelopeRecommendation.pageCheck.datasets?.[0]?.kind).toBe("dataset");
     expect(envelopeRecommendation.pageCheck.timeline?.[0]?.value).toBe("2026-01-02");
     expect(envelopeRecommendation.pageCheck.faqs?.[0]?.question).toContain("install");
+    expect(envelopeRecommendation.pageCheck.hydration?.[0]?.framework).toBe("next");
+    expect(envelopeRecommendation.pageCheck.apiEndpoints?.[0]?.kind).toBe("graphql");
+    expect(envelopeRecommendation.pageCheck.clientState?.[0]?.key).toBe("session");
+    expect(envelopeRecommendation.pageCheck.runtime?.[0]?.kind).toBe("service-worker");
+    expect(envelopeRecommendation.pageCheck.config?.[0]?.keys[0]).toBe("beta");
     expect(envelopeRecommendation.pageCheck.forms?.[0]?.fields[0]?.name).toBe("q");
     expect(envelopeRecommendation.pageCheck.actionTargets?.[0]?.urlTemplate).toContain("{query}");
     expect(envelopeRecommendation.pageCheck.nextSteps?.[0]?.sourceLinkRef).toBe("pageCheck.sourceLinks[0]");

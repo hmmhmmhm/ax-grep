@@ -455,6 +455,69 @@ export type AgentPageFaq = {
   selector?: string;
 };
 
+export type AgentPageHydration = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "next-data" | "nuxt-data" | "gatsby-data" | "fetch-preload" | "json-script";
+  label: string;
+  text?: string;
+  source: "script" | "link";
+  framework?: string;
+  route?: string;
+  buildId?: string;
+  url?: string;
+  selector?: string;
+};
+
+export type AgentPageApiEndpoint = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "fetch" | "axios" | "xhr" | "graphql" | "event-stream";
+  method?: string;
+  url: string;
+  text?: string;
+  source: "script";
+  selector?: string;
+};
+
+export type AgentPageClientState = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "local-storage" | "session-storage" | "cookie";
+  operation: "read" | "write" | "delete";
+  key: string;
+  text?: string;
+  source: "script";
+  selector?: string;
+};
+
+export type AgentPageRuntime = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "service-worker" | "web-worker" | "shared-worker" | "worklet" | "dynamic-import" | "module-preload";
+  url: string;
+  text?: string;
+  source: "script" | "link";
+  selector?: string;
+};
+
+export type AgentPageConfig = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "app-config" | "initial-state" | "env" | "feature-flags" | "data-layer" | "config";
+  name: string;
+  keys: string[];
+  keyCount: number;
+  text?: string;
+  source: "script";
+  selector?: string;
+};
+
 export type AgentPageCheck = AgentPageMetadata & {
   contentEvidence: AgentPageEvidence[];
   contentLength: number;
@@ -476,11 +539,11 @@ export type AgentPageCheck = AgentPageMetadata & {
   barriers?: AgentPageBarrier[];
   forms?: AgentPageForm[];
   actionTargets?: AgentActionTargetChoice[];
-  hydration?: Array<Record<string, unknown>>;
-  apiEndpoints?: Array<Record<string, unknown>>;
-  clientState?: Array<Record<string, unknown>>;
-  runtime?: Array<Record<string, unknown>>;
-  config?: Array<Record<string, unknown>>;
+  hydration?: AgentPageHydration[];
+  apiEndpoints?: AgentPageApiEndpoint[];
+  clientState?: AgentPageClientState[];
+  runtime?: AgentPageRuntime[];
+  config?: AgentPageConfig[];
   appHints?: Array<Record<string, unknown>>;
   mobileHints?: Array<Record<string, unknown>>;
   topics?: Array<Record<string, unknown>>;
