@@ -1102,6 +1102,8 @@ describe("public agent types", () => {
       | "topActionTargetSelector"
       | "topActionTargetText"
       | "topActionRequiresBrowserInteraction"
+      | "topActionBrowserHtmlReason"
+      | "topActionBrowserHtmlReasonCode"
       | "bestReadTarget"
       | "bestReadTargetKind"
       | "bestReadTargetCount"
@@ -1281,6 +1283,8 @@ describe("public agent types", () => {
       | "alternativeActionTargetSelector"
       | "alternativeActionTargetText"
       | "alternativeActionRequiresBrowserInteraction"
+      | "alternativeActionBrowserHtmlReason"
+      | "alternativeActionBrowserHtmlReasonCode"
       | "recommendedUrl"
       | "recommendedPath"
       | "recommendedTitle"
@@ -2286,6 +2290,8 @@ describe("public agent types", () => {
       topActionTargetSelector: "a.primary",
       topActionTargetText: "Read more",
       topActionRequiresBrowserInteraction: false,
+      topActionBrowserHtmlReason: "Browser-captured HTML or browser inspection is needed.",
+      topActionBrowserHtmlReasonCode: "challenge",
       bestReadTarget: "pageCheck.contentEvidence",
       bestReadTargetKind: "evidence",
       bestReadTargetCount: 1,
@@ -2465,6 +2471,8 @@ describe("public agent types", () => {
       alternativeActionTargetSelector: "a.source",
       alternativeActionTargetText: "Source report",
       alternativeActionRequiresBrowserInteraction: false,
+      alternativeActionBrowserHtmlReason: "Browser interaction may expose additional content or controls.",
+      alternativeActionBrowserHtmlReasonCode: "interaction-required",
       recommendedUrl: "https://example.test",
       recommendedPath: "recommendedResult",
       recommendedTitle: "Example result",
@@ -2633,6 +2641,7 @@ describe("public agent types", () => {
     expect(summary.primaryActionName).toBe("read-content");
     expect(summary.primaryExpectedOutcome).toBe("read-evidence");
     expect(summary.primaryBrowserHtmlReasonCode).toBe("challenge");
+    expect(summary.topActionBrowserHtmlReasonCode).toBe("challenge");
     expect(summary.primarySourceLinkRef).toBe("pageCheck.sourceLinks[0]");
     expect(summary.primaryTargetTitle).toBe("Example target");
     expect(summary.primaryTargetSourceScore).toBe(0.92);

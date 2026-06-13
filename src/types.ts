@@ -2252,6 +2252,8 @@ export type AgentSummary = {
   topActionTargetSelector?: string;
   topActionTargetText?: string;
   topActionRequiresBrowserInteraction?: boolean;
+  topActionBrowserHtmlReason?: string;
+  topActionBrowserHtmlReasonCode?: AgentBrowserHtmlReasonCode;
   bestReadTarget?: string;
   bestReadTargetKind?: AgentReadTarget["kind"];
   bestReadTargetCount?: number;
@@ -2395,6 +2397,8 @@ export type AgentSummary = {
   alternativeActionTargetSelector?: string;
   alternativeActionTargetText?: string;
   alternativeActionRequiresBrowserInteraction?: boolean;
+  alternativeActionBrowserHtmlReason?: string;
+  alternativeActionBrowserHtmlReasonCode?: AgentBrowserHtmlReasonCode;
   recommendedUrl?: string;
   recommendedPath?: string;
   recommendedTitle?: string;
