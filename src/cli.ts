@@ -1957,6 +1957,8 @@ type AgentSummary = {
   handoffPriorityReason?: string;
   handoffCommand?: string;
   handoffCommandArgs?: string[];
+  handoffAfterInteractionCommand?: string;
+  handoffAfterInteractionCommandArgs?: string[];
   handoffReadFrom?: string;
   handoffReadTargetKind?: AgentReadTarget["kind"];
   handoffReadTargetCount?: number;
@@ -12779,6 +12781,8 @@ function summarizeAgent(
     ...(handoff.priorityReason ? { handoffPriorityReason: handoff.priorityReason } : {}),
     ...(handoff.command ? { handoffCommand: handoff.command } : {}),
     ...(handoff.commandArgs ? { handoffCommandArgs: handoff.commandArgs } : {}),
+    ...(handoff.afterInteractionCommand ? { handoffAfterInteractionCommand: handoff.afterInteractionCommand } : {}),
+    ...(handoff.afterInteractionCommandArgs ? { handoffAfterInteractionCommandArgs: handoff.afterInteractionCommandArgs } : {}),
     ...(handoff.readFrom ? { handoffReadFrom: handoff.readFrom } : {}),
     ...(handoffReadTarget?.kind ? { handoffReadTargetKind: handoffReadTarget.kind } : {}),
     ...(typeof handoffReadTarget?.count === "number" ? { handoffReadTargetCount: handoffReadTarget.count } : {}),
@@ -18342,6 +18346,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.handoffPriorityReason ? { handoffPriorityReason: agent.handoffPriorityReason } : {}),
     ...(agent.handoffCommand ? { handoffCommand: agent.handoffCommand } : {}),
     ...(agent.handoffCommandArgs ? { handoffCommandArgs: agent.handoffCommandArgs } : {}),
+    ...(agent.handoffAfterInteractionCommand ? { handoffAfterInteractionCommand: agent.handoffAfterInteractionCommand } : {}),
+    ...(agent.handoffAfterInteractionCommandArgs ? { handoffAfterInteractionCommandArgs: agent.handoffAfterInteractionCommandArgs } : {}),
     ...(agent.handoffReadFrom ? { handoffReadFrom: agent.handoffReadFrom } : {}),
     ...(agent.handoffReadTargetKind ? { handoffReadTargetKind: agent.handoffReadTargetKind } : {}),
     ...(typeof agent.handoffReadTargetCount === "number" ? { handoffReadTargetCount: agent.handoffReadTargetCount } : {}),
@@ -19464,6 +19470,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.handoffPriorityReason ? { handoffPriorityReason: agent.handoffPriorityReason } : {}),
     ...(agent.handoffCommand ? { handoffCommand: agent.handoffCommand } : {}),
     ...(agent.handoffCommandArgs ? { handoffCommandArgs: agent.handoffCommandArgs } : {}),
+    ...(agent.handoffAfterInteractionCommand ? { handoffAfterInteractionCommand: agent.handoffAfterInteractionCommand } : {}),
+    ...(agent.handoffAfterInteractionCommandArgs ? { handoffAfterInteractionCommandArgs: agent.handoffAfterInteractionCommandArgs } : {}),
     ...(agent.handoffReadFrom ? { handoffReadFrom: agent.handoffReadFrom } : {}),
     ...(agent.handoffReadTargetKind ? { handoffReadTargetKind: agent.handoffReadTargetKind } : {}),
     ...(typeof agent.handoffReadTargetCount === "number" ? { handoffReadTargetCount: agent.handoffReadTargetCount } : {}),

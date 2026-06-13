@@ -1747,6 +1747,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       handoffPriorityReason?: string;
       handoffCommand?: string;
       handoffCommandArgs?: string[];
+      handoffAfterInteractionCommand?: string;
+      handoffAfterInteractionCommandArgs?: string[];
       handoffReadFrom?: string;
       handoffReadValuePath?: string;
       handoffReadValueType?: string;
@@ -9359,6 +9361,8 @@ function scoreAgentHandoffShortcuts(agent: {
   handoffPriorityReason?: string;
   handoffCommand?: string;
   handoffCommandArgs?: string[];
+  handoffAfterInteractionCommand?: string;
+  handoffAfterInteractionCommandArgs?: string[];
   handoffReadFrom?: string;
   handoffReadTargetKind?: string;
   handoffReadTargetCount?: number;
@@ -9419,6 +9423,18 @@ function scoreAgentHandoffShortcuts(agent: {
     required += 1;
     if (agent.handoffCommand === handoff.command) matched += 1;
   } else if (agent.handoffCommand) {
+    required += 1;
+  }
+  if (handoff.afterInteractionCommand) {
+    required += 1;
+    if (agent.handoffAfterInteractionCommand === handoff.afterInteractionCommand) matched += 1;
+  } else if (agent.handoffAfterInteractionCommand) {
+    required += 1;
+  }
+  if (handoff.afterInteractionCommandArgs) {
+    required += 1;
+    if (JSON.stringify(agent.handoffAfterInteractionCommandArgs) === JSON.stringify(handoff.afterInteractionCommandArgs)) matched += 1;
+  } else if (agent.handoffAfterInteractionCommandArgs) {
     required += 1;
   }
   if (handoff.readFrom) {

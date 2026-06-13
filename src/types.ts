@@ -2319,6 +2319,8 @@ export type AgentSummary = {
   handoffPriorityReason?: string;
   handoffCommand?: string;
   handoffCommandArgs?: string[];
+  handoffAfterInteractionCommand?: string;
+  handoffAfterInteractionCommandArgs?: string[];
   handoffReadFrom?: string;
   handoffReadTargetKind?: AgentReadTarget["kind"];
   handoffReadTargetCount?: number;

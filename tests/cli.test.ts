@@ -1390,6 +1390,8 @@ describe("cli", () => {
       if (handoff.priorityReason) expect(envelope.agent.handoffPriorityReason).toBe(handoff.priorityReason);
       if (handoff.command) expect(envelope.agent.handoffCommand).toBe(handoff.command);
       if (handoff.commandArgs) expect(envelope.agent.handoffCommandArgs).toEqual(handoff.commandArgs);
+      if (handoff.afterInteractionCommand) expect(envelope.agent.handoffAfterInteractionCommand).toBe(handoff.afterInteractionCommand);
+      if (handoff.afterInteractionCommandArgs) expect(envelope.agent.handoffAfterInteractionCommandArgs).toEqual(handoff.afterInteractionCommandArgs);
       if (handoff.readFrom) expect(envelope.agent.handoffReadFrom).toBe(handoff.readFrom);
       if (handoff.readTarget?.kind) expect(envelope.agent.handoffReadTargetKind).toBe(handoff.readTarget.kind);
       if (typeof handoff.readTarget?.count === "number") expect(envelope.agent.handoffReadTargetCount).toBe(handoff.readTarget.count);
