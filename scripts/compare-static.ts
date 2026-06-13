@@ -1575,6 +1575,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topOfferCurrency?: string;
       topOfferAvailability?: string;
       topOfferUrl?: string;
+      topOfferCommand?: string;
+      topOfferCommandArgs?: string[];
       topOfferSelector?: string;
       topDatasetPath?: string;
       topDatasetKind?: string;
@@ -8097,6 +8099,8 @@ function scoreAgentStructuredShortcuts(agent: {
   topOfferCurrency?: string;
   topOfferAvailability?: string;
   topOfferUrl?: string;
+  topOfferCommand?: string;
+  topOfferCommandArgs?: string[];
   topOfferSelector?: string;
   topDatasetPath?: string;
   topDatasetKind?: string;
@@ -8390,7 +8394,12 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topOfferAvailability === topOffer.availability) matched += 1;
     if (agent.topOfferUrl === topOffer.url) matched += 1;
     if (agent.topOfferSelector === topOffer.selector) matched += 1;
-  } else if (agent.topOfferPath || agent.topOfferName || agent.topOfferPrice || agent.topOfferCurrency || agent.topOfferAvailability || agent.topOfferUrl || agent.topOfferSelector) {
+    if (topOffer.url && /^https?:\/\//i.test(topOffer.url)) {
+      required += 2;
+      if (typeof agent.topOfferCommand === "string" && agent.topOfferCommand.includes(topOffer.url)) matched += 1;
+      if (Array.isArray(agent.topOfferCommandArgs) && agent.topOfferCommandArgs.includes(topOffer.url)) matched += 1;
+    }
+  } else if (agent.topOfferPath || agent.topOfferName || agent.topOfferPrice || agent.topOfferCurrency || agent.topOfferAvailability || agent.topOfferUrl || agent.topOfferCommand || agent.topOfferCommandArgs || agent.topOfferSelector) {
     required += 1;
   }
 

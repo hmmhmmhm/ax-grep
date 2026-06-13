@@ -2084,6 +2084,8 @@ export type AgentSummary = {
   topOfferCurrency?: string;
   topOfferAvailability?: string;
   topOfferUrl?: string;
+  topOfferCommand?: string;
+  topOfferCommandArgs?: string[];
   topOfferSelector?: string;
   topDatasetPath?: string;
   topDatasetKind?: string;

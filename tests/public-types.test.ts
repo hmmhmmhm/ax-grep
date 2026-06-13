@@ -451,6 +451,8 @@ describe("public agent types", () => {
       | "topOfferCurrency"
       | "topOfferAvailability"
       | "topOfferUrl"
+      | "topOfferCommand"
+      | "topOfferCommandArgs"
       | "topOfferSelector"
       | "topDatasetPath"
       | "topDatasetKind"
@@ -1667,6 +1669,8 @@ describe("public agent types", () => {
       topOfferCurrency: "USD",
       topOfferAvailability: "InStock",
       topOfferUrl: "https://example.test/buy",
+      topOfferCommand: "ax-grep 'https://example.test/buy' --agent",
+      topOfferCommandArgs: ["ax-grep", "https://example.test/buy", "--agent"],
       topOfferSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
       topDatasetPath: "pageCheck.datasets[0]",
       topDatasetKind: "dataset",
@@ -2822,6 +2826,7 @@ describe("public agent types", () => {
     expect(summary.topEmbedCommandArgs?.[1]).toBe("https://example.test/embed");
     expect(summary.topTranscriptCommandArgs?.[1]).toBe("https://example.test/transcript.txt");
     expect(summary.topAuthorLinkCommandArgs?.[1]).toBe("https://example.test/author");
+    expect(summary.topOfferCommandArgs?.[1]).toBe("https://example.test/buy");
     expect(summary.topDatasetDistributionCommandArgs?.[1]).toBe("https://example.test/downloads/example.csv");
     expect(summary.topDatasetLicenseCommandArgs?.[1]).toBe("https://creativecommons.org/licenses/by/4.0/");
     expect(summary.bestStructuredReadTarget).toBe("pageCheck.dataTables");

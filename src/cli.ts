@@ -1717,6 +1717,8 @@ type AgentSummary = {
   topOfferCurrency?: string;
   topOfferAvailability?: string;
   topOfferUrl?: string;
+  topOfferCommand?: string;
+  topOfferCommandArgs?: string[];
   topOfferSelector?: string;
   topDatasetPath?: string;
   topDatasetKind?: PageDatasetSummary["kind"];
@@ -4044,6 +4046,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topProvenanceCommand ? [`  topProvenanceCommand: ${agent.topProvenanceCommand}`] : []),
     ...(agent.topProvenanceCommandArgs ? [`  topProvenanceCommandArgs: ${formatCommandArgsText(agent.topProvenanceCommandArgs)}`] : []),
     ...(agent.topOfferPrice ? [`  topOffer: ${agent.topOfferPath ?? ""} ${agent.topOfferCurrency ?? ""} ${agent.topOfferPrice}${agent.topOfferAvailability ? ` availability=${agent.topOfferAvailability}` : ""}${agent.topOfferUrl ? ` <${agent.topOfferUrl}>` : ""}`] : []),
+    ...(agent.topOfferCommand ? [`  topOfferCommand: ${agent.topOfferCommand}`] : []),
+    ...(agent.topOfferCommandArgs ? [`  topOfferCommandArgs: ${formatCommandArgsText(agent.topOfferCommandArgs)}`] : []),
     ...(agent.topDatasetName ? [`  topDataset: ${agent.topDatasetPath ?? ""} ${agent.topDatasetKind ?? ""}:${agent.topDatasetName}${agent.topDatasetUrl ? ` <${agent.topDatasetUrl}>` : ""}`] : []),
     ...(agent.topDatasetCommand ? [`  topDatasetCommand: ${agent.topDatasetCommand}`] : []),
     ...(agent.topDatasetCommandArgs ? [`  topDatasetCommandArgs: ${formatCommandArgsText(agent.topDatasetCommandArgs)}`] : []),
@@ -12128,6 +12132,9 @@ function summarizeAgent(
   const topDatasetLicenseCommand = pageCheck.datasets[0]?.licenseUrl && /^https?:\/\//i.test(pageCheck.datasets[0].licenseUrl)
     ? pageCommandSpec(pageCheck.datasets[0].licenseUrl, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topOfferCommand = pageCheck.offers[0]?.url && /^https?:\/\//i.test(pageCheck.offers[0].url)
+    ? pageCommandSpec(pageCheck.offers[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, sourceSearchAgent, signals, qualityGates, verification.foundQueries, verification.missingQueries);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   const topSemanticHeading = semanticSummary?.headingItems[0];
@@ -12990,6 +12997,8 @@ function summarizeAgent(
     ...(pageCheck.offers[0]?.currency ? { topOfferCurrency: pageCheck.offers[0].currency } : {}),
     ...(pageCheck.offers[0]?.availability ? { topOfferAvailability: pageCheck.offers[0].availability } : {}),
     ...(pageCheck.offers[0]?.url ? { topOfferUrl: pageCheck.offers[0].url } : {}),
+    ...(topOfferCommand ? { topOfferCommand: topOfferCommand.command } : {}),
+    ...(topOfferCommand ? { topOfferCommandArgs: topOfferCommand.commandArgs } : {}),
     ...(pageCheck.offers[0]?.selector ? { topOfferSelector: pageCheck.offers[0].selector } : {}),
     ...(pageCheck.datasets[0] ? { topDatasetPath: pageCheck.datasets[0].path } : {}),
     ...(pageCheck.datasets[0] ? { topDatasetKind: pageCheck.datasets[0].kind } : {}),
@@ -18805,6 +18814,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topOfferCurrency ? { topOfferCurrency: agent.topOfferCurrency } : {}),
     ...(agent.topOfferAvailability ? { topOfferAvailability: agent.topOfferAvailability } : {}),
     ...(agent.topOfferUrl ? { topOfferUrl: agent.topOfferUrl } : {}),
+    ...(agent.topOfferCommand ? { topOfferCommand: agent.topOfferCommand } : {}),
+    ...(agent.topOfferCommandArgs ? { topOfferCommandArgs: agent.topOfferCommandArgs } : {}),
     ...(agent.topOfferSelector ? { topOfferSelector: agent.topOfferSelector } : {}),
     ...(agent.topDatasetPath ? { topDatasetPath: agent.topDatasetPath } : {}),
     ...(agent.topDatasetKind ? { topDatasetKind: agent.topDatasetKind } : {}),
@@ -20036,6 +20047,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topOfferCurrency ? { topOfferCurrency: agent.topOfferCurrency } : {}),
     ...(agent.topOfferAvailability ? { topOfferAvailability: agent.topOfferAvailability } : {}),
     ...(agent.topOfferUrl ? { topOfferUrl: agent.topOfferUrl } : {}),
+    ...(agent.topOfferCommand ? { topOfferCommand: agent.topOfferCommand } : {}),
+    ...(agent.topOfferCommandArgs ? { topOfferCommandArgs: agent.topOfferCommandArgs } : {}),
     ...(agent.topOfferSelector ? { topOfferSelector: agent.topOfferSelector } : {}),
     ...(agent.topDatasetPath ? { topDatasetPath: agent.topDatasetPath } : {}),
     ...(agent.topDatasetKind ? { topDatasetKind: agent.topDatasetKind } : {}),

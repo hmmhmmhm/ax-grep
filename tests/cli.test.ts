@@ -9141,6 +9141,8 @@ describe("cli", () => {
       topOfferCurrency: "USD",
       topOfferAvailability: "InStock",
       topOfferUrl: "https://example.test/buy",
+      topOfferCommand: "ax-grep 'https://example.test/buy' --find 'source=json-ld' --agent",
+      topOfferCommandArgs: ["ax-grep", "https://example.test/buy", "--find", "source=json-ld", "--agent"],
       topOfferSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
@@ -9195,6 +9197,8 @@ describe("cli", () => {
       topOfferCurrency: "USD",
       topOfferAvailability: "InStock",
       topOfferUrl: "https://example.test/buy",
+      topOfferCommand: "ax-grep 'https://example.test/buy' --agent-brief",
+      topOfferCommandArgs: ["ax-grep", "https://example.test/buy", "--agent-brief"],
       topOfferSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
     });
   });
