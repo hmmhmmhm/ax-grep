@@ -2790,6 +2790,13 @@ function sameAgentBrowserHtml(
       || JSON.stringify(left.afterInteractionCommandArgs) === JSON.stringify(right.afterInteractionCommandArgs));
 }
 
+function hasExecutableCommand(item: { command?: unknown; commandArgs?: unknown }): boolean {
+  return typeof item.command === "string"
+    && item.command.length > 0
+    && Array.isArray(item.commandArgs)
+    && item.commandArgs.length > 0;
+}
+
 function scoreAgentAnswerEvidence(
   answerEvidence: CliAgentCitationShape[],
   answerPlan: CliAgentAnswerPlanShape | undefined,
@@ -3369,11 +3376,11 @@ function scoreBriefAgentExecutorEnvelope(envelope: unknown): number {
   }
   if (Array.isArray(handoff.resultChoices) && handoff.resultChoices.length > 0) {
     required += 1;
-    if (handoff.resultChoices.some((choice) => Array.isArray(choice.commandArgs))) matched += 1;
+    if (handoff.resultChoices.some(hasExecutableCommand)) matched += 1;
   }
   if (Array.isArray(handoff.sourceChoices) && handoff.sourceChoices.length > 0) {
     required += 1;
-    if (handoff.sourceChoices.some((choice) => choice.url === agent.primaryAction?.url)) matched += 1;
+    if (handoff.sourceChoices.some((choice) => choice.url === agent.primaryAction?.url && hasExecutableCommand(choice))) matched += 1;
   }
   if (agent.status === "error" || agent.needsBrowserHtml === true) {
     required += 2;
@@ -4604,10 +4611,7 @@ function scoreAgentResultChoices(
     if (sitelinkSources.every((result) => choices.some((choice) => choice.rank === result.rank
       && JSON.stringify(choice.sitelinks) === JSON.stringify(result.sitelinks)))) matched += 1;
   }
-  const runnableChoices = choices.filter((choice) => typeof choice.command === "string"
-    && choice.command.length > 0
-    && Array.isArray(choice.commandArgs)
-    && choice.commandArgs.length > 0).length;
+  const runnableChoices = choices.filter(hasExecutableCommand).length;
   required += 1;
   if (runnableChoices === choices.length) matched += 1;
   if (primaryAction?.url || primaryAction?.rank) {
@@ -5216,10 +5220,7 @@ function scoreAgentSourceChoices(
   if (validChoices === choices.length) matched += 1;
   const runnableChoices = choices.filter((choice, index) => {
     const source = sourceLinks[index];
-    return typeof choice.command === "string"
-      && choice.command.length > 0
-      && Array.isArray(choice.commandArgs)
-      && choice.commandArgs.length > 0
+    return hasExecutableCommand(choice)
       && (!source?.command || choice.command === source.command)
       && (!source?.commandArgs || JSON.stringify(choice.commandArgs) === JSON.stringify(source.commandArgs));
   }).length;

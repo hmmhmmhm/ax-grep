@@ -19582,7 +19582,7 @@ function compactAgentBriefHandoff(handoff: AgentHandoff, primaryUrl?: string, se
     ...(handoff.readValue ? { readValue: compactAgentReadValue(handoff.readValue, true) } : {}),
     ...(handoff.browserHtml ? { browserHtml: compactAgentBrowserHtml(handoff.browserHtml) } : {}),
     ...(handoff.sourceSearch ? { sourceSearch: handoff.sourceSearch } : {}),
-    ...(handoff.resultChoices && handoff.resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(handoff.resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext, pageLinkContext)), 900) } : {}),
+    ...(handoff.resultChoices && handoff.resultChoices.length > 0 ? { resultChoices: compactAgentSourceSearchResultList(handoff.resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext, pageLinkContext)), 900) } : {}),
     ...(handoff.sourceChoices && handoff.sourceChoices.length > 0 ? { sourceChoices: compactAgentSourceChoiceList(handoff.sourceChoices, 900) } : {}),
     ...(handoff.answerEvidence && handoff.answerEvidence.length > 0 ? { answerEvidence: handoff.answerEvidence.map(compactAgentAnswerEvidenceRef) } : {}),
     ...(signals.length > 0 ? { signals } : {}),
@@ -19781,7 +19781,7 @@ function compactAgentHandoff(handoff: AgentHandoff, primaryUrl?: string, searchC
     ...(target ? { target: compactAgentTarget(target, handoff.action) } : {}),
     ...(readTarget ? { readTarget: compactAgentHandoffReadTarget(readTarget) } : {}),
     ...(answerEvidence && answerEvidence.length > 0 ? { answerEvidence: answerEvidence.map(compactAgentAnswerEvidenceRef) } : {}),
-    ...(resultChoices && resultChoices.length > 0 ? { resultChoices: compactAgentCommandList(resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext, pageLinkContext))) } : {}),
+    ...(resultChoices && resultChoices.length > 0 ? { resultChoices: compactAgentSourceSearchResultList(resultChoices.map((choice) => compactAgentResultChoice(choice, searchCommandContext, pageLinkContext))) } : {}),
     ...(sourceChoices && sourceChoices.length > 0 ? { sourceChoices: compactAgentSourceChoiceList(sourceChoices) } : {}),
     ...(readValue ? { readValue: compactAgentReadValue(readValue, true) } : {}),
   }, primaryUrl);
@@ -19839,6 +19839,7 @@ function compactAgentSourceChoiceRef(choice: AgentSourceChoice): object {
       ...(choice.text ? { text: choice.text } : {}),
       ...(choice.snippet ? { snippet: choice.snippet } : {}),
       ...(choice.selector ? { selector: choice.selector } : {}),
+      ...(choice.command ? { command: choice.command } : {}),
       ...(choice.commandArgs ? { commandArgs: choice.commandArgs } : {}),
       ...(choice.primary ? { primary: true } : {}),
     };
@@ -19854,6 +19855,8 @@ function compactAgentSourceChoiceRef(choice: AgentSourceChoice): object {
     ...(choice.snippet ? { snippet: choice.snippet } : {}),
     ...(choice.selector ? { selector: choice.selector } : {}),
     kind: choice.kind,
+    ...(choice.command ? { command: choice.command } : {}),
+    ...(choice.commandArgs ? { commandArgs: choice.commandArgs } : {}),
     ...(choice.primary ? { primary: true } : {}),
   };
 }

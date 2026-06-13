@@ -248,15 +248,22 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "sourceSearchAlternateCommandArgs",
           "typeof link.command === \"string\"",
           "link.command.length > 0",
-          "typeof choice.command === \"string\"",
-          "choice.command.length > 0",
+          "typeof item.command === \"string\"",
+          "item.command.length > 0",
           "choice.command === expected.command",
           "agentChoice?.command === choice.command",
+          "function hasExecutableCommand",
+          "handoff.resultChoices.some(hasExecutableCommand)",
           "executorBrowserHtmlReasonCode",
           "handoffBrowserHtmlReasonCode",
           "executorReadValueReferencePath",
           "handoffReadValueReferencePath",
           "runbookReadValueReferencePath",
+        ]);
+        requireFileIncludes(root, failures, "src/cli.ts", [
+          "compactAgentSourceSearchResultList(handoff.resultChoices.map",
+          "compactAgentSourceSearchResultList(resultChoices.map",
+          "choice.command ? { command: choice.command }",
         ]);
         requireFileIncludes(root, failures, "docs/comparison-baseline.md", [
           "minCliAgentScore",
@@ -1650,6 +1657,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "A138",
           "A139",
           "A140",
+          "A141",
+          "A142",
         ]);
       },
     ),
