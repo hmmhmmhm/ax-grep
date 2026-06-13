@@ -796,7 +796,7 @@ export type AgentSemanticSummary = {
   imageItems: Array<{ path: string; name?: string; url?: string; width?: number; height?: number; loading?: string; decoding?: string; srcset?: string; sizes?: string; selector?: string }>;
   tableItems: Array<{ path: string; role: string; name?: string; rowCount: number; cellCount: number; declaredRowCount?: number; declaredColumnCount?: number; headers?: string[]; headerRefs?: Array<{ path?: string; text: string; role?: string; rowIndex?: number; columnIndex?: number; sort?: string; selector?: string }>; ownedRefs?: Array<{ target: string; role?: string; name?: string; selector?: string }>; sampleCells?: string[]; sampleCellRefs?: Array<{ path?: string; text: string; rowIndex?: number; columnIndex?: number; rowSpan?: number; columnSpan?: number; headers?: string[]; rowHeaders?: string[]; columnHeaders?: string[]; selected?: boolean; current?: SemanticNodeState["current"]; selector?: string; ownedTarget?: string }>; selector?: string }>;
   listItems: Array<{ path: string; role: string; name?: string; itemCount: number; sampleItems?: string[]; itemRefs?: Array<{ text: string; role?: string; level?: number; posInSet?: number; setSize?: number; selected?: boolean; current?: SemanticNodeState["current"]; expanded?: boolean; selector?: string }>; selector?: string }>;
-  fieldItems: Array<{ path: string; role: string; name?: string; description?: string; value?: string; htmlName?: string; htmlType?: string; placeholder?: string; ariaPlaceholder?: string; autocomplete?: string; ariaAutocomplete?: string; inputMode?: string; pattern?: string; min?: string; max?: string; step?: string; minLength?: number; maxLength?: number; labelledBy?: string; labelledByText?: string; describedBy?: string; describedByText?: string; details?: string; detailsText?: string; errorMessage?: string; errorMessageText?: string; selector?: string; state?: SemanticNodeState }>;
+  fieldItems: Array<{ path: string; role: string; name?: string; description?: string; value?: string; htmlName?: string; htmlType?: string; placeholder?: string; ariaPlaceholder?: string; autocomplete?: string; ariaAutocomplete?: string; inputMode?: string; pattern?: string; min?: string; max?: string; step?: string; minLength?: number; maxLength?: number; labelledBy?: string; labelledByText?: string; labelledBySelector?: string; describedBy?: string; describedByText?: string; describedBySelector?: string; details?: string; detailsText?: string; detailsSelector?: string; errorMessage?: string; errorMessageText?: string; errorMessageSelector?: string; selector?: string; state?: SemanticNodeState }>;
   descriptionItems: Array<{ path: string; role: string; name?: string; description: string; selector?: string }>;
   valueItems: Array<{ path: string; role: string; name?: string; value: string; selector?: string }>;
   relationItems: Array<{ path: string; role: string; name?: string; relation: "controls" | "owns" | "flowto" | "activeDescendant" | "details" | "errorMessage"; target: string; targetRole?: string; targetName?: string; targetSelector?: string; selector?: string }>;
@@ -1662,12 +1662,16 @@ export type AgentSummary = {
   semanticTopFieldMaxLength?: number;
   semanticTopFieldLabelledBy?: string;
   semanticTopFieldLabelledByText?: string;
+  semanticTopFieldLabelledBySelector?: string;
   semanticTopFieldDescribedBy?: string;
   semanticTopFieldDescribedByText?: string;
+  semanticTopFieldDescribedBySelector?: string;
   semanticTopFieldDetails?: string;
   semanticTopFieldDetailsText?: string;
+  semanticTopFieldDetailsSelector?: string;
   semanticTopFieldErrorMessage?: string;
   semanticTopFieldErrorMessageText?: string;
+  semanticTopFieldErrorMessageSelector?: string;
   semanticTopFieldState?: string;
   semanticTopFieldDisabled?: boolean;
   semanticTopFieldRequired?: boolean;

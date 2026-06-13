@@ -942,12 +942,16 @@ describe("public agent types", () => {
       | "semanticTopFieldMaxLength"
       | "semanticTopFieldLabelledBy"
       | "semanticTopFieldLabelledByText"
+      | "semanticTopFieldLabelledBySelector"
       | "semanticTopFieldDescribedBy"
       | "semanticTopFieldDescribedByText"
+      | "semanticTopFieldDescribedBySelector"
       | "semanticTopFieldDetails"
       | "semanticTopFieldDetailsText"
+      | "semanticTopFieldDetailsSelector"
       | "semanticTopFieldErrorMessage"
       | "semanticTopFieldErrorMessageText"
+      | "semanticTopFieldErrorMessageSelector"
       | "semanticTopFieldState"
       | "semanticTopFieldDisabled"
       | "semanticTopFieldRequired"
@@ -2222,12 +2226,16 @@ describe("public agent types", () => {
       semanticTopFieldMaxLength: 120,
       semanticTopFieldLabelledBy: "email-label",
       semanticTopFieldLabelledByText: "Email",
+      semanticTopFieldLabelledBySelector: "#email-label",
       semanticTopFieldDescribedBy: "email-help",
       semanticTopFieldDescribedByText: "Used for updates",
+      semanticTopFieldDescribedBySelector: "#email-help",
       semanticTopFieldDetails: "email-details",
       semanticTopFieldDetailsText: "Used for account notifications",
+      semanticTopFieldDetailsSelector: "#email-details",
       semanticTopFieldErrorMessage: "email-error",
       semanticTopFieldErrorMessageText: "Enter a valid email",
+      semanticTopFieldErrorMessageSelector: "#email-error",
       semanticTopFieldState: "disabled=true required=true readonly=true checked=true expanded=true invalid=spelling haspopup=listbox controls=email-suggestions",
       semanticTopFieldDisabled: true,
       semanticTopFieldRequired: true,

@@ -5170,7 +5170,9 @@ describe("cli", () => {
       stdout,
       fetch: async () => new Response(`
         <main>
-          <input id="q" type="search" aria-label="Archive search" aria-activedescendant="suggestion-1" aria-details="q-details" aria-errormessage="q-error">
+          <h2 id="q-label">Archive search</h2>
+          <input id="q" type="search" aria-label="Archive search" aria-labelledby="q-label" aria-describedby="q-help" aria-activedescendant="suggestion-1" aria-details="q-details" aria-errormessage="q-error">
+          <p id="q-help">Use report names or dates.</p>
           <p id="q-details">Search across public and private archive records.</p>
           <p id="q-error">Use at least two letters.</p>
           <div id="suggestion-1" role="option" aria-selected="true" aria-current="page" aria-level="2">Quarterly reports</div>
@@ -5190,10 +5192,18 @@ describe("cli", () => {
         path: "agent.semanticSummary.fieldItems[0]",
         role: "searchbox",
         name: "Archive search",
+        labelledBy: "q-label",
+        labelledByText: "Archive search",
+        labelledBySelector: "#q-label",
+        describedBy: "q-help",
+        describedByText: "Use report names or dates.",
+        describedBySelector: "#q-help",
         details: "q-details",
         detailsText: "Search across public and private archive records.",
+        detailsSelector: "#q-details",
         errorMessage: "q-error",
         errorMessageText: "Use at least two letters.",
+        errorMessageSelector: "#q-error",
         selector: "#q",
       }),
     ]);
@@ -5248,10 +5258,18 @@ describe("cli", () => {
       semanticTopFieldRole: "searchbox",
       semanticTopFieldPath: "agent.semanticSummary.fieldItems[0]",
       semanticTopFieldName: "Archive search",
+      semanticTopFieldLabelledBy: "q-label",
+      semanticTopFieldLabelledByText: "Archive search",
+      semanticTopFieldLabelledBySelector: "#q-label",
+      semanticTopFieldDescribedBy: "q-help",
+      semanticTopFieldDescribedByText: "Use report names or dates.",
+      semanticTopFieldDescribedBySelector: "#q-help",
       semanticTopFieldDetails: "q-details",
       semanticTopFieldDetailsText: "Search across public and private archive records.",
+      semanticTopFieldDetailsSelector: "#q-details",
       semanticTopFieldErrorMessage: "q-error",
       semanticTopFieldErrorMessageText: "Use at least two letters.",
+      semanticTopFieldErrorMessageSelector: "#q-error",
       semanticTopChoiceRole: "option",
       semanticTopChoicePath: "agent.semanticSummary.choiceItems[0]",
       semanticTopChoiceName: "Quarterly reports",
