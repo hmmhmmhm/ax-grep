@@ -1687,6 +1687,8 @@ type AgentSummary = {
   topTocText?: string;
   topTocFirstItemLabel?: string;
   topTocFirstItemUrl?: string;
+  topTocFirstItemCommand?: string;
+  topTocFirstItemCommandArgs?: string[];
   topTocSelector?: string;
   topEmbedKind?: PageEmbedSummary["kind"];
   topEmbedUrl?: string;
@@ -4052,6 +4054,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topPaginationCommandArgs ? [`  topPaginationCommandArgs: ${formatCommandArgsText(agent.topPaginationCommandArgs)}`] : []),
     ...(agent.topTocPath ? [`  topTocPath: ${agent.topTocPath}`] : []),
     ...(agent.topTocText ? [`  topTocText: ${agent.topTocText}`] : []),
+    ...(agent.topTocFirstItemCommand ? [`  topTocFirstItemCommand: ${agent.topTocFirstItemCommand}`] : []),
+    ...(agent.topTocFirstItemCommandArgs ? [`  topTocFirstItemCommandArgs: ${formatCommandArgsText(agent.topTocFirstItemCommandArgs)}`] : []),
     ...(agent.topProvenanceValue ? [`  topProvenance: ${agent.topProvenancePath ?? ""} ${agent.topProvenanceKind ?? ""}=${agent.topProvenanceValue}${agent.topProvenanceUrl ? ` <${agent.topProvenanceUrl}>` : ""}`] : []),
     ...(agent.topProvenanceCommand ? [`  topProvenanceCommand: ${agent.topProvenanceCommand}`] : []),
     ...(agent.topProvenanceCommandArgs ? [`  topProvenanceCommandArgs: ${formatCommandArgsText(agent.topProvenanceCommandArgs)}`] : []),
@@ -12127,6 +12131,9 @@ function summarizeAgent(
   const topMediaCommand = pageCheck.media[0]?.url && /^https?:\/\//i.test(pageCheck.media[0].url)
     ? pageCommandSpec(pageCheck.media[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topTocFirstItemCommand = pageCheck.toc[0]?.items[0]?.url && /^https?:\/\//i.test(pageCheck.toc[0].items[0].url)
+    ? pageCommandSpec(pageCheck.toc[0].items[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topProvenanceCommand = pageCheck.provenance[0]?.url
     ? pageCommandSpec(pageCheck.provenance[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -12995,6 +13002,8 @@ function summarizeAgent(
     ...(pageCheck.toc[0]?.text ? { topTocText: pageCheck.toc[0].text } : {}),
     ...(pageCheck.toc[0]?.items[0]?.label ? { topTocFirstItemLabel: pageCheck.toc[0].items[0].label } : {}),
     ...(pageCheck.toc[0]?.items[0]?.url ? { topTocFirstItemUrl: pageCheck.toc[0].items[0].url } : {}),
+    ...(topTocFirstItemCommand ? { topTocFirstItemCommand: topTocFirstItemCommand.command } : {}),
+    ...(topTocFirstItemCommand ? { topTocFirstItemCommandArgs: topTocFirstItemCommand.commandArgs } : {}),
     ...(pageCheck.toc[0]?.selector ? { topTocSelector: pageCheck.toc[0].selector } : {}),
     ...(pageCheck.embeds[0] ? { topEmbedKind: pageCheck.embeds[0].kind } : {}),
     ...(pageCheck.embeds[0]?.url ? { topEmbedUrl: pageCheck.embeds[0].url } : {}),
@@ -18820,6 +18829,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topTocText ? { topTocText: agent.topTocText } : {}),
     ...(agent.topTocFirstItemLabel ? { topTocFirstItemLabel: agent.topTocFirstItemLabel } : {}),
     ...(agent.topTocFirstItemUrl ? { topTocFirstItemUrl: agent.topTocFirstItemUrl } : {}),
+    ...(agent.topTocFirstItemCommand ? { topTocFirstItemCommand: agent.topTocFirstItemCommand } : {}),
+    ...(agent.topTocFirstItemCommandArgs ? { topTocFirstItemCommandArgs: agent.topTocFirstItemCommandArgs } : {}),
     ...(agent.topTocSelector ? { topTocSelector: agent.topTocSelector } : {}),
     ...(agent.topEmbedKind ? { topEmbedKind: agent.topEmbedKind } : {}),
     ...(agent.topEmbedUrl ? { topEmbedUrl: agent.topEmbedUrl } : {}),
@@ -20061,6 +20072,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topTocText ? { topTocText: agent.topTocText } : {}),
     ...(agent.topTocFirstItemLabel ? { topTocFirstItemLabel: agent.topTocFirstItemLabel } : {}),
     ...(agent.topTocFirstItemUrl ? { topTocFirstItemUrl: agent.topTocFirstItemUrl } : {}),
+    ...(agent.topTocFirstItemCommand ? { topTocFirstItemCommand: agent.topTocFirstItemCommand } : {}),
+    ...(agent.topTocFirstItemCommandArgs ? { topTocFirstItemCommandArgs: agent.topTocFirstItemCommandArgs } : {}),
     ...(agent.topTocSelector ? { topTocSelector: agent.topTocSelector } : {}),
     ...(agent.topEmbedKind ? { topEmbedKind: agent.topEmbedKind } : {}),
     ...(agent.topEmbedUrl ? { topEmbedUrl: agent.topEmbedUrl } : {}),

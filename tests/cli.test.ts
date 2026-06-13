@@ -10221,6 +10221,8 @@ describe("cli", () => {
       topTocText: "Installation; Configuration; API reference",
       topTocFirstItemLabel: "Installation",
       topTocFirstItemUrl: "https://example.test/docs/guide#install",
+      topTocFirstItemCommand: "ax-grep 'https://example.test/docs/guide#install' --agent",
+      topTocFirstItemCommandArgs: ["ax-grep", "https://example.test/docs/guide#install", "--agent"],
       topTocSelector: "nav:nth-of-type(1)",
     });
     expect(envelope.agent.next.readValue).toMatchObject({

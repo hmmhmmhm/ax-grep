@@ -1545,6 +1545,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topTocText?: string;
       topTocFirstItemLabel?: string;
       topTocFirstItemUrl?: string;
+      topTocFirstItemCommand?: string;
+      topTocFirstItemCommandArgs?: string[];
       topTocSelector?: string;
       topEmbedKind?: string;
       topEmbedUrl?: string;
@@ -8077,6 +8079,8 @@ function scoreAgentStructuredShortcuts(agent: {
   topTocText?: string;
   topTocFirstItemLabel?: string;
   topTocFirstItemUrl?: string;
+  topTocFirstItemCommand?: string;
+  topTocFirstItemCommandArgs?: string[];
   topTocSelector?: string;
   topEmbedKind?: string;
   topEmbedUrl?: string;
@@ -8336,7 +8340,12 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topTocFirstItemLabel === topToc.items?.[0]?.label) matched += 1;
     if (agent.topTocFirstItemUrl === topToc.items?.[0]?.url) matched += 1;
     if (agent.topTocSelector === topToc.selector) matched += 1;
-  } else if (agent.topTocPath || agent.topTocTitle || typeof agent.topTocItemCount === "number" || agent.topTocText || agent.topTocFirstItemLabel || agent.topTocFirstItemUrl || agent.topTocSelector) {
+    if (topToc.items?.[0]?.url && /^https?:\/\//i.test(topToc.items[0].url)) {
+      required += 2;
+      if (typeof agent.topTocFirstItemCommand === "string" && agent.topTocFirstItemCommand.includes(topToc.items[0].url)) matched += 1;
+      if (Array.isArray(agent.topTocFirstItemCommandArgs) && agent.topTocFirstItemCommandArgs.includes(topToc.items[0].url)) matched += 1;
+    }
+  } else if (agent.topTocPath || agent.topTocTitle || typeof agent.topTocItemCount === "number" || agent.topTocText || agent.topTocFirstItemLabel || agent.topTocFirstItemUrl || agent.topTocFirstItemCommand || agent.topTocFirstItemCommandArgs || agent.topTocSelector) {
     required += 1;
   }
 

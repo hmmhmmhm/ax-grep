@@ -421,6 +421,8 @@ describe("public agent types", () => {
       | "topTocText"
       | "topTocFirstItemLabel"
       | "topTocFirstItemUrl"
+      | "topTocFirstItemCommand"
+      | "topTocFirstItemCommandArgs"
       | "topTocSelector"
       | "topEmbedKind"
       | "topEmbedUrl"
@@ -1647,6 +1649,8 @@ describe("public agent types", () => {
       topTocText: "Install; Configure",
       topTocFirstItemLabel: "Install",
       topTocFirstItemUrl: "https://example.test/install#install",
+      topTocFirstItemCommand: "ax-grep 'https://example.test/install#install' --agent",
+      topTocFirstItemCommandArgs: ["ax-grep", "https://example.test/install#install", "--agent"],
       topTocSelector: "nav[aria-label=\"On this page\"]",
       topEmbedKind: "iframe",
       topEmbedUrl: "https://example.test/embed",
@@ -2840,6 +2844,7 @@ describe("public agent types", () => {
     expect(summary.topResourceCommandArgs?.[1]).toBe("https://example.test/guide.pdf");
     expect(summary.topMediaCommandArgs?.[1]).toBe("https://example.test/diagram.png");
     expect(summary.topPaginationCommandArgs?.[1]).toBe("https://example.test/next");
+    expect(summary.topTocFirstItemCommandArgs?.[1]).toBe("https://example.test/install#install");
     expect(summary.topEmbedCommandArgs?.[1]).toBe("https://example.test/embed");
     expect(summary.topTranscriptCommandArgs?.[1]).toBe("https://example.test/transcript.txt");
     expect(summary.topAuthorLinkCommandArgs?.[1]).toBe("https://example.test/author");

@@ -2054,6 +2054,8 @@ export type AgentSummary = {
   topTocText?: string;
   topTocFirstItemLabel?: string;
   topTocFirstItemUrl?: string;
+  topTocFirstItemCommand?: string;
+  topTocFirstItemCommandArgs?: string[];
   topTocSelector?: string;
   topEmbedKind?: string;
   topEmbedUrl?: string;
