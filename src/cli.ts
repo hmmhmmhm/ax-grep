@@ -239,7 +239,7 @@ type ResultSummary = {
   date?: string;
   datePrecision?: "day" | "month" | "year";
   dateSource?: "title" | "snippet";
-  sitelinks?: Array<{ title: string; url: string }>;
+  sitelinks?: Array<{ title: string; url: string; selector?: string }>;
   relevance?: "low" | "medium" | "high";
   matchedTerms?: string[];
   findMatches?: string[];
@@ -4839,7 +4839,10 @@ function formatResultsText(results: ResultSummary[]): string[] {
     if (result.datePrecision) lines.push(`     datePrecision: ${result.datePrecision}`);
     if (result.dateSource) lines.push(`     dateSource: ${result.dateSource}`);
     if (result.snippet) lines.push(`     snippet: ${result.snippet}`);
-    for (const sitelink of result.sitelinks ?? []) lines.push(`     sitelink: ${sitelink.title} <${sitelink.url}>`);
+    for (const sitelink of result.sitelinks ?? []) {
+      const selector = sitelink.selector ? ` selector=${sitelink.selector}` : "";
+      lines.push(`     sitelink: ${sitelink.title} <${sitelink.url}>${selector}`);
+    }
   }
   return lines;
 }
@@ -5362,8 +5365,8 @@ function resultSnippet(card: Element, title: string): string {
   return snippet;
 }
 
-function resultSitelinks(card: Element, titleLink: Element, resultUrl: string, baseUrl: string): Array<{ title: string; url: string }> {
-  const items: Array<{ title: string; url: string }> = [];
+function resultSitelinks(card: Element, titleLink: Element, resultUrl: string, baseUrl: string): Array<{ title: string; url: string; selector?: string }> {
+  const items: Array<{ title: string; url: string; selector?: string }> = [];
   const seen = new Set<string>([resultUrl]);
   for (const anchor of findElements(card.children, (item) => item.name === "a")) {
     if (anchor === titleLink) continue;
@@ -5373,10 +5376,27 @@ function resultSitelinks(card: Element, titleLink: Element, resultUrl: string, b
     const title = cleanLinkText(descendantText(anchor));
     if (!isUsefulResultSitelink(title, url, resultUrl)) continue;
     seen.add(url);
-    items.push({ title, url });
+    const selector = searchCardSelector(anchor);
+    const item: { title: string; url: string; selector?: string } = { title, url };
+    if (selector) item.selector = selector;
+    items.push(item);
     if (items.length >= 4) break;
   }
   return items;
+}
+
+function searchCardSelector(element: Element): string {
+  const id = attr(element, "id");
+  if (id) return `#${cssEscapeSelector(id)}`;
+  const parent = element.parent;
+  if (!parent || !("children" in parent)) return element.name;
+  const siblings = parent.children.filter((node): node is Element => node instanceof DomElement && node.name === element.name);
+  const index = siblings.indexOf(element);
+  return index > 0 ? `${element.name}:nth-of-type(${index + 1})` : element.name;
+}
+
+function cssEscapeSelector(value: string): string {
+  return value.replace(/[^a-zA-Z0-9_-]/g, (char) => `\\${char}`);
 }
 
 function isUsefulResultSitelink(title: string, url: string, resultUrl: string): boolean {

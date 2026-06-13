@@ -1136,7 +1136,7 @@ export type AgentTarget = {
   date?: string;
   datePrecision?: "day" | "month" | "year";
   dateSource?: "title" | "snippet";
-  sitelinks?: Array<{ title: string; url: string }>;
+  sitelinks?: Array<{ title: string; url: string; selector?: string }>;
   relevance?: "low" | "medium" | "high";
   matchedTerms?: string[];
   findMatches?: string[];

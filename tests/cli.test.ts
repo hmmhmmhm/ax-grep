@@ -2603,10 +2603,12 @@ describe("cli", () => {
         {
           title: "Readme",
           url: "https://www.npmjs.com/package/ax-grep?activeTab=readme",
+          selector: "a",
         },
         {
           title: "Versions",
           url: "https://www.npmjs.com/package/ax-grep?activeTab=versions",
+          selector: "a:nth-of-type(2)",
         },
       ],
       relevance: "high",
@@ -2629,8 +2631,8 @@ describe("cli", () => {
       datePrecision: "day",
       dateSource: "snippet",
       sitelinks: [
-        expect.objectContaining({ title: "Readme" }),
-        expect.objectContaining({ title: "Versions" }),
+        expect.objectContaining({ title: "Readme", selector: "a" }),
+        expect.objectContaining({ title: "Versions", selector: "a:nth-of-type(2)" }),
       ],
     });
     expect(envelope.agent).toMatchObject({
@@ -11387,6 +11389,7 @@ npx ax-grep https://example.test --agent</code></pre>
             <li>
               <a href="https://result.example/article">Result Title</a>
               <p>Snippet text explains why this result is useful for the current investigation.</p>
+              <a href="https://result.example/article/docs">Docs sitelink</a>
             </li>
           </ol>
         </main>
@@ -11422,7 +11425,9 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("     source: result.example");
     expect(stdout.output).toContain("     reason: Ranked result 1 from result.example.");
     expect(stdout.output).toContain("     snippet: Snippet text explains why this result is useful for the current investigation.");
-    expect(stdout.output).toContain("links\n  1. Result Title <https://result.example/article> role=link selector=a\n     snippet: Snippet text explains why this result is useful for the current investigation.");
+    expect(stdout.output).toContain("     sitelink: Docs sitelink <https://result.example/article/docs> selector=a:nth-of-type(2)");
+    expect(stdout.output).toContain("Result Title <https://result.example/article> role=link selector=a");
+    expect(stdout.output).toContain("snippet: Snippet text explains why this result is useful for the current investigation.");
   });
 
   it("prints executable form choice commands in text output", async () => {
