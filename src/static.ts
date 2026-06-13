@@ -12,7 +12,7 @@ type StaticContext = {
   ids: Map<string, Element>;
   referencedIds: Set<string>;
   collapsedControlledIds: Set<string>;
-  labelsByFor: Map<string, string>;
+  labelsByFor: Map<string, Element>;
   slotAssignments: Map<string, AnyNode[]> | undefined;
 };
 
@@ -183,7 +183,7 @@ function indexDocument(nodes: AnyNode[], context: StaticContext): void {
     }
     if (node.name === "label") {
       const target = attr(node, "for");
-      if (target) context.labelsByFor.set(target, normalizeText(descendantText(node, context), context.options.maxTextLength));
+      if (target) context.labelsByFor.set(target, node);
     }
     indexDocument(node.children, context);
   }
@@ -747,8 +747,11 @@ function computeName(element: Element, role: string, context: StaticContext): st
 function labelName(element: Element, context: StaticContext): string {
   const id = attr(element, "id");
   if (id) {
-    const value = context.labelsByFor.get(id);
-    if (value) return value;
+    const label = context.labelsByFor.get(id);
+    if (label) {
+      const value = normalizeText(descendantText(label, context), context.options.maxTextLength);
+      if (value) return value;
+    }
   }
   const label = findClosestLabel(element);
   return label ? normalizeText(descendantText(label, context), context.options.maxTextLength) : "";

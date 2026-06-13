@@ -186,6 +186,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "<template shadowrootmode=\"open\">",
           "Slotted text action",
           "Slotted field label",
+          "Slotted for-label",
           "Template payload",
         ]);
         requireFileIncludes(root, failures, "tests/cli.test.ts", [
@@ -193,6 +194,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "projects declarative shadow DOM slots in agent brief handoff",
           "uses slotted text for declarative shadow DOM accessible names",
           "uses slotted IDREF labels for declarative shadow DOM fields",
+          "uses slotted label-for text for declarative shadow DOM fields",
           "semanticTopButtonControlsTargetSelector",
           "semanticTopFieldLabelledBySelector",
           "Shadow details",

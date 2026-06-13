@@ -4793,6 +4793,37 @@ describe("cli", () => {
     expect(agentText).not.toContain("Fallback search label");
   });
 
+  it("uses slotted label-for text for declarative shadow DOM fields", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/slotted-for-label", "--stdin", "--agent-brief"], {
+      stdout,
+      stdin: Readable.from([`
+        <main>
+          <x-search-box>
+            <span slot="label">Slotted for-label</span>
+            <template shadowrootmode="open">
+              <label for="shadow-query"><slot name="label">Fallback for-label</slot></label>
+              <input id="shadow-query" type="search">
+            </template>
+          </x-search-box>
+        </main>
+      `]) as NodeJS.ReadStream,
+      fetch: async () => {
+        throw new Error("fetch should not run for --stdin");
+      },
+    });
+
+    const envelope = JSON.parse(stdout.output);
+    const agentText = JSON.stringify(envelope.agent);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      semanticTopFieldRole: "searchbox",
+      semanticTopFieldName: "Slotted for-label",
+    });
+    expect(agentText).not.toContain("Fallback for-label");
+  });
+
   it("summarizes data tables as pageCheck read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/pricing", "--agent"], {
