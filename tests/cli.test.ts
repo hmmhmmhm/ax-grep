@@ -11315,6 +11315,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  verificationFoundQueries: source report");
     expect(stdout.output).toContain("  topVerificationFoundQuery: source report");
     expect(stdout.output).toContain("  next: use-evidence - All requested text was found in the page summaries.");
+    expect(stdout.output).toContain("  topAnswerEvidencePath: verification.bestEvidence");
+    expect(stdout.output).toContain("  topAnswerEvidenceKind: verification");
     expect(stdout.output).toContain("  topAnswerEvidenceUrl: https://source.example/report");
     expect(stdout.output).toContain("finds\n  found: source report");
     expect(stdout.output).toContain("sourceLink: Source report <https://source.example/report>");

@@ -4082,6 +4082,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topCitationReason ? [`  topCitationReason: ${agent.topCitationReason}`] : []),
     `  answerEvidenceCount: ${agent.answerEvidenceCount}`,
     ...(agent.topAnswerEvidenceId ? [`  topAnswerEvidence: ${agent.topAnswerEvidenceId} ${agent.topAnswerEvidencePath}${typeof agent.topAnswerEvidenceScore === "number" ? ` score=${agent.topAnswerEvidenceScore}` : ""}${agent.topAnswerEvidenceText ? ` - ${agent.topAnswerEvidenceText}` : ""}`] : []),
+    ...(agent.topAnswerEvidencePath ? [`  topAnswerEvidencePath: ${agent.topAnswerEvidencePath}`] : []),
+    ...(agent.topAnswerEvidenceKind ? [`  topAnswerEvidenceKind: ${agent.topAnswerEvidenceKind}`] : []),
     ...(agent.topAnswerEvidenceTitle ? [`  topAnswerEvidenceTitle: ${agent.topAnswerEvidenceTitle}`] : []),
     ...(agent.topAnswerEvidenceUrl ? [`  topAnswerEvidenceUrl: ${agent.topAnswerEvidenceUrl}`] : []),
     ...(agent.topAnswerEvidenceConfidence ? [`  topAnswerEvidenceConfidence: ${agent.topAnswerEvidenceConfidence}`] : []),
