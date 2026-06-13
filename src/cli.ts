@@ -4220,6 +4220,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.answerPlanCommandArgs?.length) lines.push(`  answerPlanCommandArgs: ${formatCommandArgsText(agent.answerPlanCommandArgs)}`);
   if (agent.answerPlanAfterInteractionCommand) lines.push(`  answerPlanAfterInteractionCommand: ${agent.answerPlanAfterInteractionCommand}`);
   if (agent.answerPlanAfterInteractionCommandArgs?.length) lines.push(`  answerPlanAfterInteractionCommandArgs: ${JSON.stringify(agent.answerPlanAfterInteractionCommandArgs)}`);
+  if (agent.answerPlanUrl) lines.push(`  answerPlanUrl: ${agent.answerPlanUrl}`);
   if (agent.executor.readFrom) lines.push(`  executorReadFrom: ${agent.executor.readFrom}`);
   if (agent.executorReadTargetKind) lines.push(`  executorReadTargetKind: ${agent.executorReadTargetKind}`);
   if (typeof agent.executorReadTargetCount === "number") lines.push(`  executorReadTargetCount: ${agent.executorReadTargetCount}`);
