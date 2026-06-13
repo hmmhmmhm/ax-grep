@@ -518,6 +518,82 @@ export type AgentPageConfig = {
   selector?: string;
 };
 
+export type AgentPageTopic = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "keyword" | "tag" | "section" | "category" | "about" | "mention";
+  label: string;
+  value: string;
+  text?: string;
+  source: "meta" | "json-ld";
+  selector?: string;
+};
+
+export type AgentPageKeyValue = {
+  id: string;
+  path: string;
+  rank: number;
+  label: string;
+  value: string;
+  text?: string;
+  source: "definition-list" | "time" | "text";
+  datetime?: string;
+  selector?: string;
+};
+
+export type AgentPageMetaFact = {
+  id: string;
+  path: string;
+  rank: number;
+  label: string;
+  value: string;
+  text?: string;
+  source: "meta" | "link";
+  url?: string;
+  selector?: string;
+};
+
+export type AgentPageProvenance = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "doi" | "pmid" | "arxiv" | "isbn" | "publisher" | "journal" | "license" | "identifier";
+  label: string;
+  value: string;
+  text?: string;
+  source: "meta" | "link" | "json-ld";
+  url?: string;
+  selector?: string;
+};
+
+export type AgentPageHttpPolicy = {
+  id: string;
+  path: string;
+  rank: number;
+  name: string;
+  value: string;
+  text?: string;
+  source: "header" | "meta";
+  selector?: string;
+};
+
+export type AgentPageSchemaFactValue = {
+  label: string;
+  value: string;
+};
+
+export type AgentPageSchemaFact = {
+  id: string;
+  path: string;
+  rank: number;
+  types: string[];
+  facts: AgentPageSchemaFactValue[];
+  text?: string;
+  source: "json-ld";
+  selector?: string;
+};
+
 export type AgentPageCheck = AgentPageMetadata & {
   contentEvidence: AgentPageEvidence[];
   contentLength: number;
@@ -546,13 +622,13 @@ export type AgentPageCheck = AgentPageMetadata & {
   config?: AgentPageConfig[];
   appHints?: Array<Record<string, unknown>>;
   mobileHints?: Array<Record<string, unknown>>;
-  topics?: Array<Record<string, unknown>>;
+  topics?: AgentPageTopic[];
   contactPoints?: AgentPageContactPoint[];
-  keyValues?: Array<Record<string, unknown>>;
-  metaFacts?: Array<Record<string, unknown>>;
-  provenance?: Array<Record<string, unknown>>;
-  httpPolicies?: Array<Record<string, unknown>>;
-  schemaFacts?: Array<Record<string, unknown>>;
+  keyValues?: AgentPageKeyValue[];
+  metaFacts?: AgentPageMetaFact[];
+  provenance?: AgentPageProvenance[];
+  httpPolicies?: AgentPageHttpPolicy[];
+  schemaFacts?: AgentPageSchemaFact[];
   offers?: AgentPageOffer[];
   identities?: AgentPageIdentity[];
   datasets?: AgentPageDataset[];

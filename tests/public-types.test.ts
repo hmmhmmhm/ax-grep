@@ -2759,6 +2759,56 @@ describe("public agent types", () => {
           keyCount: 1,
           source: "script",
         }],
+        topics: [{
+          id: "topic1",
+          path: "pageCheck.topics[0]",
+          rank: 1,
+          kind: "keyword",
+          label: "Keyword",
+          value: "agent",
+          source: "meta",
+        }],
+        keyValues: [{
+          id: "kv1",
+          path: "pageCheck.keyValues[0]",
+          rank: 1,
+          label: "Version",
+          value: "1.0",
+          source: "definition-list",
+        }],
+        metaFacts: [{
+          id: "meta1",
+          path: "pageCheck.metaFacts[0]",
+          rank: 1,
+          label: "Generator",
+          value: "ax-grep",
+          source: "meta",
+        }],
+        provenance: [{
+          id: "prov1",
+          path: "pageCheck.provenance[0]",
+          rank: 1,
+          kind: "doi",
+          label: "DOI",
+          value: "10.1000/example",
+          source: "meta",
+        }],
+        httpPolicies: [{
+          id: "policy1",
+          path: "pageCheck.httpPolicies[0]",
+          rank: 1,
+          name: "content-security-policy",
+          value: "default-src 'self'",
+          source: "header",
+        }],
+        schemaFacts: [{
+          id: "schema1",
+          path: "pageCheck.schemaFacts[0]",
+          rank: 1,
+          types: ["Article"],
+          facts: [{ label: "headline", value: "Example" }],
+          source: "json-ld",
+        }],
         forms: [{
           rank: 1,
           method: "GET",
@@ -2911,6 +2961,12 @@ describe("public agent types", () => {
     expect(envelopeRecommendation.pageCheck.clientState?.[0]?.key).toBe("session");
     expect(envelopeRecommendation.pageCheck.runtime?.[0]?.kind).toBe("service-worker");
     expect(envelopeRecommendation.pageCheck.config?.[0]?.keys[0]).toBe("beta");
+    expect(envelopeRecommendation.pageCheck.topics?.[0]?.value).toBe("agent");
+    expect(envelopeRecommendation.pageCheck.keyValues?.[0]?.label).toBe("Version");
+    expect(envelopeRecommendation.pageCheck.metaFacts?.[0]?.value).toBe("ax-grep");
+    expect(envelopeRecommendation.pageCheck.provenance?.[0]?.kind).toBe("doi");
+    expect(envelopeRecommendation.pageCheck.httpPolicies?.[0]?.name).toBe("content-security-policy");
+    expect(envelopeRecommendation.pageCheck.schemaFacts?.[0]?.facts[0]?.label).toBe("headline");
     expect(envelopeRecommendation.pageCheck.forms?.[0]?.fields[0]?.name).toBe("q");
     expect(envelopeRecommendation.pageCheck.actionTargets?.[0]?.urlTemplate).toContain("{query}");
     expect(envelopeRecommendation.pageCheck.nextSteps?.[0]?.sourceLinkRef).toBe("pageCheck.sourceLinks[0]");
