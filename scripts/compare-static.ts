@@ -1213,6 +1213,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       executionPlanTerminal?: boolean;
       executionPlanExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
       executionPlanReadFrom?: string;
+      executionPlanCommand?: string;
       executionPlanCommandArgs?: string[];
       executionPlanAfterInteractionCommand?: string;
       executionPlanAfterInteractionCommandArgs?: string[];
@@ -9780,6 +9781,7 @@ function scoreAgentPlanShortcuts(agent: {
   executionPlanReadTargetScore?: number;
   executionPlanReadTargetPrimary?: boolean;
   executionPlanReadTargetReason?: string;
+  executionPlanCommand?: string;
   executionPlanCommandArgs?: string[];
   executionPlanAfterInteractionCommand?: string;
   executionPlanAfterInteractionCommandArgs?: string[];
@@ -9842,6 +9844,12 @@ function scoreAgentPlanShortcuts(agent: {
     required += 1;
     if (JSON.stringify(agent.executionPlanCommandArgs) === JSON.stringify(plan.commandArgs)) matched += 1;
   } else if (agent.executionPlanCommandArgs) {
+    required += 1;
+  }
+  if (plan.command) {
+    required += 1;
+    if (agent.executionPlanCommand === plan.command) matched += 1;
+  } else if (agent.executionPlanCommand) {
     required += 1;
   }
   if (plan.afterInteractionCommand) {

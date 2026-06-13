@@ -989,6 +989,7 @@ type AgentSummary = {
   executionPlanReadTargetScore?: number;
   executionPlanReadTargetPrimary?: boolean;
   executionPlanReadTargetReason?: string;
+  executionPlanCommand?: string;
   executionPlanCommandArgs?: string[];
   executionPlanAfterInteractionCommand?: string;
   executionPlanAfterInteractionCommandArgs?: string[];
@@ -3604,6 +3605,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.executionPlanReadTargetScore === "number" ? [`  executionPlanReadTargetScore: ${agent.executionPlanReadTargetScore}`] : []),
     ...(typeof agent.executionPlanReadTargetPrimary === "boolean" ? [`  executionPlanReadTargetPrimary: ${agent.executionPlanReadTargetPrimary}`] : []),
     ...(agent.executionPlanReadTargetReason ? [`  executionPlanReadTargetReason: ${agent.executionPlanReadTargetReason}`] : []),
+    ...(agent.executionPlan.command ? [`  executionPlanCommand: ${agent.executionPlan.command}`] : []),
     ...(agent.executionPlan.commandArgs ? [`  executionPlanCommandArgs: ${JSON.stringify(agent.executionPlan.commandArgs)}`] : []),
     ...(agent.executionPlan.afterInteractionCommand ? [`  executionPlanAfterInteractionCommand: ${agent.executionPlan.afterInteractionCommand}`] : []),
     ...(agent.executionPlan.afterInteractionCommandArgs ? [`  executionPlanAfterInteractionCommandArgs: ${JSON.stringify(agent.executionPlan.afterInteractionCommandArgs)}`] : []),
@@ -11782,6 +11784,7 @@ function summarizeAgent(
     ...(typeof executionPlanReadTarget?.score === "number" ? { executionPlanReadTargetScore: executionPlanReadTarget.score } : {}),
     ...(typeof executionPlanReadTarget?.primary === "boolean" ? { executionPlanReadTargetPrimary: executionPlanReadTarget.primary } : {}),
     ...(executionPlanReadTarget?.reason ? { executionPlanReadTargetReason: executionPlanReadTarget.reason } : {}),
+    ...(executionPlan.command ? { executionPlanCommand: executionPlan.command } : {}),
     ...(executionPlan.commandArgs ? { executionPlanCommandArgs: executionPlan.commandArgs } : {}),
     ...(executionPlan.afterInteractionCommand ? { executionPlanAfterInteractionCommand: executionPlan.afterInteractionCommand } : {}),
     ...(executionPlan.afterInteractionCommandArgs ? { executionPlanAfterInteractionCommandArgs: executionPlan.afterInteractionCommandArgs } : {}),
@@ -17346,6 +17349,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.executionPlanReadTargetScore === "number" ? { executionPlanReadTargetScore: agent.executionPlanReadTargetScore } : {}),
     ...(typeof agent.executionPlanReadTargetPrimary === "boolean" ? { executionPlanReadTargetPrimary: agent.executionPlanReadTargetPrimary } : {}),
     ...(agent.executionPlanReadTargetReason ? { executionPlanReadTargetReason: agent.executionPlanReadTargetReason } : {}),
+    ...(agent.executionPlanCommand ? { executionPlanCommand: agent.executionPlanCommand } : {}),
     ...(agent.executionPlanCommandArgs ? { executionPlanCommandArgs: agent.executionPlanCommandArgs } : {}),
     ...(agent.executionPlanAfterInteractionCommand ? { executionPlanAfterInteractionCommand: agent.executionPlanAfterInteractionCommand } : {}),
     ...(agent.executionPlanAfterInteractionCommandArgs ? { executionPlanAfterInteractionCommandArgs: agent.executionPlanAfterInteractionCommandArgs } : {}),
@@ -18469,6 +18473,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.executionPlanReadTargetScore === "number" ? { executionPlanReadTargetScore: agent.executionPlanReadTargetScore } : {}),
     ...(typeof agent.executionPlanReadTargetPrimary === "boolean" ? { executionPlanReadTargetPrimary: agent.executionPlanReadTargetPrimary } : {}),
     ...(agent.executionPlanReadTargetReason ? { executionPlanReadTargetReason: agent.executionPlanReadTargetReason } : {}),
+    ...(agent.executionPlanCommand ? { executionPlanCommand: agent.executionPlanCommand } : {}),
     ...(agent.executionPlanCommandArgs ? { executionPlanCommandArgs: agent.executionPlanCommandArgs } : {}),
     ...(agent.executionPlanAfterInteractionCommand ? { executionPlanAfterInteractionCommand: agent.executionPlanAfterInteractionCommand } : {}),
     ...(agent.executionPlanAfterInteractionCommandArgs ? { executionPlanAfterInteractionCommandArgs: agent.executionPlanAfterInteractionCommandArgs } : {}),

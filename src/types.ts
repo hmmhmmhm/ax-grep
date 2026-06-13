@@ -1350,6 +1350,7 @@ export type AgentSummary = {
   executionPlanReadTargetScore?: number;
   executionPlanReadTargetPrimary?: boolean;
   executionPlanReadTargetReason?: string;
+  executionPlanCommand?: string;
   executionPlanCommandArgs?: string[];
   executionPlanAfterInteractionCommand?: string;
   executionPlanAfterInteractionCommandArgs?: string[];

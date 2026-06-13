@@ -1336,6 +1336,7 @@ describe("cli", () => {
       expect(envelope.agent.executionPlanTerminal).toBe(executor.terminal);
       expect(envelope.agent.executionPlanExpectedOutcome).toBe(executor.expectedOutcome);
       if (executor.commandArgs) expect(envelope.agent.executionPlanCommandArgs).toEqual(executor.commandArgs);
+      if (executor.command) expect(envelope.agent.executionPlanCommand).toBe(executor.command);
       if (executor.readFrom) expect(envelope.agent.executionPlanReadFrom).toBe(executor.readFrom);
       if (executor.readTarget?.kind) expect(envelope.agent.executionPlanReadTargetKind).toBe(executor.readTarget.kind);
       if (typeof executor.readTarget?.count === "number") expect(envelope.agent.executionPlanReadTargetCount).toBe(executor.readTarget.count);
