@@ -1973,8 +1973,12 @@ describe("cli", () => {
     expect(stdout.output).toContain("  handoffCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  handoffResultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult");
     expect(stdout.output).toContain("    snippet: agent browser comparison details");
+    expect(stdout.output).toContain("  handoffResultChoiceCommand: ax-grep 'https://result.example/' --json --summary");
+    expect(stdout.output).toContain("  handoffResultChoiceCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  topResultChoiceSnippet: agent browser comparison details");
     expect(stdout.output).toContain("  resultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult");
+    expect(stdout.output).toContain("  resultChoiceCommand: ax-grep 'https://result.example/' --json --summary");
+    expect(stdout.output).toContain("  resultChoiceCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("source=result.example <https://result.example/> - Ranked result 1 from result.example. Agent browser result");
   });
 
@@ -11065,6 +11069,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  handoffReadTarget: pageCheck.contentEvidence kind=evidence count=1");
     expect(stdout.output).toContain("  handoffEvidence: e1 pageCheck.contentEvidence[0] content high score=");
     expect(stdout.output).toContain("  handoffSourceChoice: s1 pageCheck.sourceLinks[0] rank=1");
+    expect(stdout.output).toContain("  handoffSourceChoiceCommand: ax-grep 'https://source.example/report' --json --summary");
+    expect(stdout.output).toContain("  handoffSourceChoiceCommandArgs: [\"ax-grep\",\"https://source.example/report\",\"--json\",\"--summary\"]");
     const sourceChoiceCommandArgs =
       stdout.output.match(/    commandArgs: \["ax-grep","https:\/\/source\.example\/report","--json","--summary"\]/g)?.length ?? 0;
     expect(sourceChoiceCommandArgs).toBeGreaterThanOrEqual(2);
@@ -11418,6 +11424,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  formChoice: f1 pageCheck.forms[0] rank=1 method=get fields=1 hidden=1 firstHidden=csrf query=query template=https://example.test/find?query=%7Bquery%7D target=_blank enctype=multipart/form-data selector=form:nth-of-type(1)");
     expect(stdout.output).toContain("    command: ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
     expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  formChoiceCommand: ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
+    expect(stdout.output).toContain("  formChoiceCommandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
   });
 
   it("prints executable action-target commands in text output", async () => {
@@ -11454,6 +11462,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  actionTargetChoice: at1 pageCheck.actionTargets[0] rank=1 kind=search source=json-ld template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string selector=script[type=\"application/ld+json\"]:nth-of-type(1)");
     expect(stdout.output).toContain("    command: ax-grep 'https://example.test/search?q=search_term_string' --find 'search_term_string' --json --summary");
     expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://example.test/search?q=search_term_string\",\"--find\",\"search_term_string\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  actionTargetChoiceCommand: ax-grep 'https://example.test/search?q=search_term_string' --find 'search_term_string' --json --summary");
+    expect(stdout.output).toContain("  actionTargetChoiceCommandArgs: [\"ax-grep\",\"https://example.test/search?q=search_term_string\",\"--find\",\"search_term_string\",\"--json\",\"--summary\"]");
   });
 
   it("prints link action-target state shortcuts in text output", async () => {

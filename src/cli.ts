@@ -3554,6 +3554,8 @@ function formatAgentResultChoiceText(choice: AgentResultChoice, prefix = "result
   if (choice.snippet) lines.push(`    snippet: ${choice.snippet}`);
   if (choice.command) lines.push(`    command: ${choice.command}`);
   if (choice.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
+  if (choice.command) lines.push(`  ${prefix}Command: ${choice.command}`);
+  if (choice.commandArgs) lines.push(`  ${prefix}CommandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
   return lines;
 }
 
@@ -3571,6 +3573,8 @@ function formatAgentSourceChoiceText(choice: AgentSourceChoice, prefix = "source
   const lines = [`  ${prefix}: ${choice.id} ${choice.path}${rank}${primary}${score}${source}${sourceType}${kind}${official}${target}${reason}${title}`];
   if (choice.command) lines.push(`    command: ${choice.command}`);
   if (choice.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
+  if (choice.command) lines.push(`  ${prefix}Command: ${choice.command}`);
+  if (choice.commandArgs) lines.push(`  ${prefix}CommandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
   return lines;
 }
 
@@ -3587,6 +3591,8 @@ function formatAgentFormChoiceText(choice: AgentFormChoice, prefix = "formChoice
   const lines = [`  ${prefix}: ${choice.id} ${choice.path} rank=${choice.rank} method=${choice.method} fields=${choice.fieldCount}${hidden}${firstHidden}${query}${template}${target}${encType}${selector}${action}${submit} - ${choice.text}`];
   if (choice.command) lines.push(`    command: ${choice.command}`);
   if (choice.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
+  if (choice.command) lines.push(`  ${prefix}Command: ${choice.command}`);
+  if (choice.commandArgs) lines.push(`  ${prefix}CommandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
   return lines;
 }
 
@@ -3604,6 +3610,8 @@ function formatAgentActionTargetChoiceText(choice: AgentActionTargetChoice, pref
   const lines = [`  ${prefix}: ${choice.id} ${choice.path} rank=${choice.rank} kind=${choice.kind} source=${choice.source}${template}${query}${method}${disabled}${pressed}${expanded}${haspopup}${controls}${selector}${target} - ${choice.name}`];
   if (choice.command) lines.push(`    command: ${choice.command}`);
   if (choice.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
+  if (choice.command) lines.push(`  ${prefix}Command: ${choice.command}`);
+  if (choice.commandArgs) lines.push(`  ${prefix}CommandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
   return lines;
 }
 
@@ -11803,7 +11811,7 @@ function summarizeAgent(
   const citations = summarizeAgentCitations(analysis.kind, pageCheck, verification, primaryAction, recommendedResult, sourceSearch);
   const searchDecision = summarizeAgentSearchDecision(analysis, results, recommendedResult, primaryAction);
   const pageDecision = summarizeAgentPageDecision(analysis, pageCheck, primaryAction);
-  const resultChoices = summarizeAgentResultChoices(hasUsableSearchResults ? results : [], recommendedResult, primaryAction, sourceSearch);
+  const resultChoices = summarizeAgentResultChoices(hasUsableSearchResults ? results : [], recommendedResult, primaryAction, sourceSearch, agentMode, findQueries, timeoutMs, userAgent);
   const sourceChoices = summarizeAgentSourceChoices(analysis.kind, pageCheck.sourceLinks, primaryAction, agentMode, findQueries, timeoutMs, userAgent);
   const formChoices = summarizeAgentFormChoices(pageCheck.forms, findQueries, agentMode, timeoutMs, userAgent);
   const topFormChoice = formChoices[0];
@@ -13275,6 +13283,10 @@ function summarizeAgentResultChoices(
   recommendedResult: ResultSummary | undefined,
   primaryAction: SuggestedAction | undefined,
   sourceSearch?: SourceSearchSummary,
+  agentMode = false,
+  findQueries: string[] = [],
+  timeoutMs?: number,
+  userAgent?: string,
 ): AgentResultChoice[] {
   if (results.length === 0) return [];
   return selectCompactSearchResults(results, recommendedResult).map((result, index) => {
@@ -13291,7 +13303,7 @@ function summarizeAgentResultChoices(
       result.rank,
       sourceSearch.timeoutMs,
       sourceSearch.userAgent,
-    ) : undefined;
+    ) : pageCommandSpec(result.url, agentMode, false, findQueries, timeoutMs, userAgent);
     return {
       id: `r${result.rank}`,
       path: `searchResults[${index}]`,
