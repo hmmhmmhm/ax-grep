@@ -1782,6 +1782,8 @@ type AgentSummary = {
   topHydrationKind?: string;
   topHydrationLabel?: string;
   topHydrationUrl?: string;
+  topHydrationCommand?: string;
+  topHydrationCommandArgs?: string[];
   topHydrationSelector?: string;
   topApiEndpointPath?: string;
   topApiEndpointKind?: string;
@@ -1799,6 +1801,8 @@ type AgentSummary = {
   topAppHintKind?: string;
   topAppHintLabel?: string;
   topAppHintUrl?: string;
+  topAppHintCommand?: string;
+  topAppHintCommandArgs?: string[];
   topAppHintSelector?: string;
   topHiddenSignalGroup?: string;
   topHiddenSignalPath?: string;
@@ -4109,6 +4113,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  hiddenClientStateCount: ${agent.hiddenClientStateCount}`,
     `  hiddenAppHintCount: ${agent.hiddenAppHintCount}`,
     ...(agent.topHydrationPath ? [`  topHydration: ${agent.topHydrationPath} ${agent.topHydrationKind ?? ""}${agent.topHydrationUrl ? ` <${agent.topHydrationUrl}>` : ""}`] : []),
+    ...(agent.topHydrationCommand ? [`  topHydrationCommand: ${agent.topHydrationCommand}`] : []),
+    ...(agent.topHydrationCommandArgs ? [`  topHydrationCommandArgs: ${formatCommandArgsText(agent.topHydrationCommandArgs)}`] : []),
     ...(agent.topHydrationSelector ? [`  topHydrationSelector: ${agent.topHydrationSelector}`] : []),
     ...(agent.topApiEndpointPath ? [`  topApiEndpoint: ${agent.topApiEndpointPath} ${agent.topApiEndpointKind ?? ""}${agent.topApiEndpointMethod ? ` ${agent.topApiEndpointMethod}` : ""}${agent.topApiEndpointUrl ? ` <${agent.topApiEndpointUrl}>` : ""}`] : []),
     ...(agent.topApiEndpointCommand ? [`  topApiEndpointCommand: ${agent.topApiEndpointCommand}`] : []),
@@ -4117,6 +4123,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topClientStatePath ? [`  topClientState: ${agent.topClientStatePath} ${agent.topClientStateKind ?? ""}${agent.topClientStateOperation ? ` ${agent.topClientStateOperation}` : ""}${agent.topClientStateKey ? ` ${agent.topClientStateKey}` : ""}`] : []),
     ...(agent.topClientStateSelector ? [`  topClientStateSelector: ${agent.topClientStateSelector}`] : []),
     ...(agent.topAppHintPath ? [`  topAppHint: ${agent.topAppHintPath} ${agent.topAppHintKind ?? ""}${agent.topAppHintUrl ? ` <${agent.topAppHintUrl}>` : ""}`] : []),
+    ...(agent.topAppHintCommand ? [`  topAppHintCommand: ${agent.topAppHintCommand}`] : []),
+    ...(agent.topAppHintCommandArgs ? [`  topAppHintCommandArgs: ${formatCommandArgsText(agent.topAppHintCommandArgs)}`] : []),
     ...(agent.topAppHintSelector ? [`  topAppHintSelector: ${agent.topAppHintSelector}`] : []),
     ...(agent.topHiddenSignalGroup ? [`  topHiddenSignalGroup: ${agent.topHiddenSignalGroup}`] : []),
     ...(agent.topHiddenSignalPath ? [`  topHiddenSignalPath: ${agent.topHiddenSignalPath}`] : []),
@@ -12090,6 +12098,9 @@ function summarizeAgent(
   const hiddenClientStateCount = pageCheck.clientState.length;
   const hiddenAppHintCount = pageCheck.appHints.length;
   const topHydration = pageCheck.hydration[0];
+  const topHydrationCommand = topHydration?.url && /^https?:\/\//i.test(topHydration.url)
+    ? pageCommandSpec(topHydration.url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topApiEndpoint = pageCheck.apiEndpoints[0];
   const topApiEndpointCommand = topApiEndpoint?.url
     && /^https?:\/\//i.test(topApiEndpoint.url)
@@ -12098,6 +12109,9 @@ function summarizeAgent(
     : undefined;
   const topClientState = pageCheck.clientState[0];
   const topAppHint = pageCheck.appHints[0];
+  const topAppHintCommand = topAppHint?.url && /^https?:\/\//i.test(topAppHint.url)
+    ? pageCommandSpec(topAppHint.url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topHiddenSignal = selectTopHiddenAgentPageCheckSignal(pageCheck);
   const structuredReadTargetCount = countStructuredAgentReadTargets(readTargets);
   const hiddenReadTargetCount = countHiddenAgentReadTargets(readTargets);
@@ -13127,6 +13141,8 @@ function summarizeAgent(
     ...(topHydration ? { topHydrationKind: topHydration.kind } : {}),
     ...(topHydration?.label ? { topHydrationLabel: topHydration.label } : {}),
     ...(topHydration?.url ? { topHydrationUrl: topHydration.url } : {}),
+    ...(topHydrationCommand ? { topHydrationCommand: topHydrationCommand.command } : {}),
+    ...(topHydrationCommand ? { topHydrationCommandArgs: topHydrationCommand.commandArgs } : {}),
     ...(topHydration?.selector ? { topHydrationSelector: topHydration.selector } : {}),
     ...(topApiEndpoint ? { topApiEndpointPath: topApiEndpoint.path } : {}),
     ...(topApiEndpoint ? { topApiEndpointKind: topApiEndpoint.kind } : {}),
@@ -13144,6 +13160,8 @@ function summarizeAgent(
     ...(topAppHint ? { topAppHintKind: topAppHint.kind } : {}),
     ...(topAppHint?.label ? { topAppHintLabel: topAppHint.label } : {}),
     ...(topAppHint?.url ? { topAppHintUrl: topAppHint.url } : {}),
+    ...(topAppHintCommand ? { topAppHintCommand: topAppHintCommand.command } : {}),
+    ...(topAppHintCommand ? { topAppHintCommandArgs: topAppHintCommand.commandArgs } : {}),
     ...(topAppHint?.selector ? { topAppHintSelector: topAppHint.selector } : {}),
     ...(topHiddenSignal ? { topHiddenSignalGroup: topHiddenSignal.group } : {}),
     ...(topHiddenSignal ? { topHiddenSignalPath: topHiddenSignal.path } : {}),
@@ -18962,6 +18980,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topHydrationKind ? { topHydrationKind: agent.topHydrationKind } : {}),
     ...(agent.topHydrationLabel ? { topHydrationLabel: agent.topHydrationLabel } : {}),
     ...(agent.topHydrationUrl ? { topHydrationUrl: agent.topHydrationUrl } : {}),
+    ...(agent.topHydrationCommand ? { topHydrationCommand: agent.topHydrationCommand } : {}),
+    ...(agent.topHydrationCommandArgs ? { topHydrationCommandArgs: agent.topHydrationCommandArgs } : {}),
     ...(agent.topHydrationSelector ? { topHydrationSelector: agent.topHydrationSelector } : {}),
     ...(agent.topApiEndpointPath ? { topApiEndpointPath: agent.topApiEndpointPath } : {}),
     ...(agent.topApiEndpointKind ? { topApiEndpointKind: agent.topApiEndpointKind } : {}),
@@ -18979,6 +18999,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topAppHintKind ? { topAppHintKind: agent.topAppHintKind } : {}),
     ...(agent.topAppHintLabel ? { topAppHintLabel: agent.topAppHintLabel } : {}),
     ...(agent.topAppHintUrl ? { topAppHintUrl: agent.topAppHintUrl } : {}),
+    ...(agent.topAppHintCommand ? { topAppHintCommand: agent.topAppHintCommand } : {}),
+    ...(agent.topAppHintCommandArgs ? { topAppHintCommandArgs: agent.topAppHintCommandArgs } : {}),
     ...(agent.topAppHintSelector ? { topAppHintSelector: agent.topAppHintSelector } : {}),
     ...(agent.topHiddenSignalGroup ? { topHiddenSignalGroup: agent.topHiddenSignalGroup } : {}),
     ...(agent.topHiddenSignalPath ? { topHiddenSignalPath: agent.topHiddenSignalPath } : {}),
@@ -20213,6 +20235,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topHydrationKind ? { topHydrationKind: agent.topHydrationKind } : {}),
     ...(agent.topHydrationLabel ? { topHydrationLabel: agent.topHydrationLabel } : {}),
     ...(agent.topHydrationUrl ? { topHydrationUrl: agent.topHydrationUrl } : {}),
+    ...(agent.topHydrationCommand ? { topHydrationCommand: agent.topHydrationCommand } : {}),
+    ...(agent.topHydrationCommandArgs ? { topHydrationCommandArgs: agent.topHydrationCommandArgs } : {}),
     ...(agent.topHydrationSelector ? { topHydrationSelector: agent.topHydrationSelector } : {}),
     ...(agent.topApiEndpointPath ? { topApiEndpointPath: agent.topApiEndpointPath } : {}),
     ...(agent.topApiEndpointKind ? { topApiEndpointKind: agent.topApiEndpointKind } : {}),
@@ -20230,6 +20254,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topAppHintKind ? { topAppHintKind: agent.topAppHintKind } : {}),
     ...(agent.topAppHintLabel ? { topAppHintLabel: agent.topAppHintLabel } : {}),
     ...(agent.topAppHintUrl ? { topAppHintUrl: agent.topAppHintUrl } : {}),
+    ...(agent.topAppHintCommand ? { topAppHintCommand: agent.topAppHintCommand } : {}),
+    ...(agent.topAppHintCommandArgs ? { topAppHintCommandArgs: agent.topAppHintCommandArgs } : {}),
     ...(agent.topAppHintSelector ? { topAppHintSelector: agent.topAppHintSelector } : {}),
     ...(agent.topHiddenSignalGroup ? { topHiddenSignalGroup: agent.topHiddenSignalGroup } : {}),
     ...(agent.topHiddenSignalPath ? { topHiddenSignalPath: agent.topHiddenSignalPath } : {}),

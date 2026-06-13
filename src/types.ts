@@ -2149,6 +2149,8 @@ export type AgentSummary = {
   topHydrationKind?: string;
   topHydrationLabel?: string;
   topHydrationUrl?: string;
+  topHydrationCommand?: string;
+  topHydrationCommandArgs?: string[];
   topHydrationSelector?: string;
   topApiEndpointPath?: string;
   topApiEndpointKind?: string;
@@ -2166,6 +2168,8 @@ export type AgentSummary = {
   topAppHintKind?: string;
   topAppHintLabel?: string;
   topAppHintUrl?: string;
+  topAppHintCommand?: string;
+  topAppHintCommandArgs?: string[];
   topAppHintSelector?: string;
   topHiddenSignalGroup?: string;
   topHiddenSignalPath?: string;

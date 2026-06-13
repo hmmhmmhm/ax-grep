@@ -516,6 +516,8 @@ describe("public agent types", () => {
       | "topHydrationKind"
       | "topHydrationLabel"
       | "topHydrationUrl"
+      | "topHydrationCommand"
+      | "topHydrationCommandArgs"
       | "topHydrationSelector"
       | "topApiEndpointPath"
       | "topApiEndpointKind"
@@ -533,6 +535,8 @@ describe("public agent types", () => {
       | "topAppHintKind"
       | "topAppHintLabel"
       | "topAppHintUrl"
+      | "topAppHintCommand"
+      | "topAppHintCommandArgs"
       | "topAppHintSelector"
       | "hiddenReadTargetCount"
       | "topHiddenSignalGroup"
@@ -1752,6 +1756,8 @@ describe("public agent types", () => {
       topHydrationKind: "next-data",
       topHydrationLabel: "Next.js data",
       topHydrationUrl: "https://example.test/_next/data/build/index.json",
+      topHydrationCommand: "ax-grep 'https://example.test/_next/data/build/index.json' --agent",
+      topHydrationCommandArgs: ["ax-grep", "https://example.test/_next/data/build/index.json", "--agent"],
       topHydrationSelector: "script#__NEXT_DATA__",
       topApiEndpointPath: "pageCheck.apiEndpoints[0]",
       topApiEndpointKind: "graphql",
@@ -1769,6 +1775,8 @@ describe("public agent types", () => {
       topAppHintKind: "manifest",
       topAppHintLabel: "manifest",
       topAppHintUrl: "https://example.test/manifest.json",
+      topAppHintCommand: "ax-grep 'https://example.test/manifest.json' --agent",
+      topAppHintCommandArgs: ["ax-grep", "https://example.test/manifest.json", "--agent"],
       topAppHintSelector: "link[rel=\"manifest\"]",
       hiddenReadTargetCount: 2,
       topHiddenSignalGroup: "apiEndpoints",
@@ -2843,9 +2851,11 @@ describe("public agent types", () => {
     };
 
     expect(summary.hiddenSignalCount).toBe(4);
+    expect(summary.topHydrationCommandArgs?.[1]).toBe("https://example.test/_next/data/build/index.json");
     expect(summary.hiddenApiEndpointCount).toBe(2);
     expect(summary.topApiEndpointUrl).toBe("https://example.test/graphql");
     expect(summary.topApiEndpointCommandArgs?.[1]).toBe("https://example.test/graphql");
+    expect(summary.topAppHintCommandArgs?.[1]).toBe("https://example.test/manifest.json");
     expect(summary.topClientStateKey).toBe("session");
     expect(summary.topHiddenSignalPath).toBe("pageCheck.apiEndpoints[0]");
     expect(summary.bestHiddenReadTarget).toBe("pageCheck.apiEndpoints");

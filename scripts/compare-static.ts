@@ -1640,6 +1640,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topHydrationKind?: string;
       topHydrationLabel?: string;
       topHydrationUrl?: string;
+      topHydrationCommand?: string;
+      topHydrationCommandArgs?: string[];
       topHydrationSelector?: string;
       topApiEndpointPath?: string;
       topApiEndpointKind?: string;
@@ -1657,6 +1659,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topAppHintKind?: string;
       topAppHintLabel?: string;
       topAppHintUrl?: string;
+      topAppHintCommand?: string;
+      topAppHintCommandArgs?: string[];
       topAppHintSelector?: string;
       topHiddenSignalGroup?: string;
       topHiddenSignalPath?: string;
@@ -5147,6 +5151,8 @@ function scoreAgentTopHiddenSignalShortcuts(agent: {
   topHydrationKind?: string;
   topHydrationLabel?: string;
   topHydrationUrl?: string;
+  topHydrationCommand?: string;
+  topHydrationCommandArgs?: string[];
   topHydrationSelector?: string;
   topApiEndpointPath?: string;
   topApiEndpointKind?: string;
@@ -5164,6 +5170,8 @@ function scoreAgentTopHiddenSignalShortcuts(agent: {
   topAppHintKind?: string;
   topAppHintLabel?: string;
   topAppHintUrl?: string;
+  topAppHintCommand?: string;
+  topAppHintCommandArgs?: string[];
   topAppHintSelector?: string;
   topHiddenSignalGroup?: string;
   topHiddenSignalPath?: string;
@@ -5226,6 +5234,7 @@ function scoreAgentTopHiddenSignalShortcuts(agent: {
       url: "topHydrationUrl",
       selector: "topHydrationSelector",
     }),
+    scoreTopHiddenUrlCommandShortcut(pageCheck, "hydration", agent, "topHydrationCommand", "topHydrationCommandArgs"),
     scoreTopPageCheckGroupShortcut(pageCheck, "apiEndpoints", agent, {
       path: "topApiEndpointPath",
       kind: "topApiEndpointKind",
@@ -5247,9 +5256,29 @@ function scoreAgentTopHiddenSignalShortcuts(agent: {
       url: "topAppHintUrl",
       selector: "topAppHintSelector",
     }),
+    scoreTopHiddenUrlCommandShortcut(pageCheck, "appHints", agent, "topAppHintCommand", "topAppHintCommandArgs"),
     scoreTopApiEndpointCommandShortcut(pageCheck, agent),
   ];
   return roundScore(average([topHiddenScore, ...groupScores]));
+}
+
+function scoreTopHiddenUrlCommandShortcut(
+  pageCheck: unknown,
+  key: string,
+  agent: Record<string, unknown> | undefined,
+  commandField: string,
+  commandArgsField: string,
+): number {
+  const item = firstPageCheckArrayRecord(pageCheck, key);
+  const url = typeof item?.url === "string" ? item.url : "";
+  const shouldHaveCommand = /^https?:\/\//i.test(url);
+  if (!shouldHaveCommand) return agent?.[commandField] || agent?.[commandArgsField] ? 0 : 1;
+  const command = agent?.[commandField];
+  const commandArgs = agent?.[commandArgsField];
+  let matched = 0;
+  if (typeof command === "string" && command.includes(url)) matched += 1;
+  if (Array.isArray(commandArgs) && commandArgs.includes(url)) matched += 1;
+  return roundScore(matched / 2);
 }
 
 function scoreTopApiEndpointCommandShortcut(pageCheck: unknown, agent: {

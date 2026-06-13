@@ -7224,6 +7224,7 @@ describe("cli", () => {
       staticReadinessReasonCode: "hidden-data",
       staticReadinessReadFrom: "pageCheck.hydration",
       staticReadinessReason: expect.stringContaining("hidden app data"),
+      topHydrationCommandArgs: ["ax-grep", "https://example.test/_next/data/build-123/docs.json", "--agent"],
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.hydration",
@@ -8043,6 +8044,7 @@ describe("cli", () => {
       execution: "read-current",
       readFrom: "pageCheck.appHints",
     });
+    expect(envelope.agent.topAppHintCommandArgs).toEqual(["ax-grep", "https://example.test/site.webmanifest", "--agent"]);
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.appHints",
       count: 5,
