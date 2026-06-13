@@ -1751,6 +1751,9 @@ export type AgentSummary = {
   semanticTopStateCurrent?: boolean | string;
   semanticTopStateHaspopup?: boolean | string;
   semanticTopStateControls?: string;
+  semanticTopStateControlsTargetRole?: string;
+  semanticTopStateControlsTargetName?: string;
+  semanticTopStateControlsTargetSelector?: string;
   semanticTopStateLive?: string;
   semanticTopStateModal?: boolean;
   semanticTopStateOrientation?: string;

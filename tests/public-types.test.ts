@@ -1031,6 +1031,9 @@ describe("public agent types", () => {
       | "semanticTopStateCurrent"
       | "semanticTopStateHaspopup"
       | "semanticTopStateControls"
+      | "semanticTopStateControlsTargetRole"
+      | "semanticTopStateControlsTargetName"
+      | "semanticTopStateControlsTargetSelector"
       | "semanticTopStateLive"
       | "semanticTopStateModal"
       | "semanticTopStateOrientation"
@@ -2315,6 +2318,9 @@ describe("public agent types", () => {
       semanticTopStateCurrent: "page",
       semanticTopStateHaspopup: "dialog",
       semanticTopStateControls: "details-panel",
+      semanticTopStateControlsTargetRole: "region",
+      semanticTopStateControlsTargetName: "Details panel",
+      semanticTopStateControlsTargetSelector: "#details-panel",
       semanticTopStateLive: "polite",
       semanticTopStateModal: true,
       semanticTopStateOrientation: "horizontal",
