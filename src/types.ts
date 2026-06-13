@@ -594,6 +594,65 @@ export type AgentPageSchemaFact = {
   selector?: string;
 };
 
+export type AgentPageAppHint = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "manifest" | "app-name" | "icon" | "theme" | "capability";
+  label: string;
+  value: string;
+  text?: string;
+  source: "link" | "meta";
+  url?: string;
+  sizes?: string;
+  media?: string;
+  selector?: string;
+};
+
+export type AgentPageMobileHint = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "viewport" | "format-detection" | "color-scheme" | "smart-app-banner" | "app-link";
+  label: string;
+  value: string;
+  text?: string;
+  source: "meta" | "link";
+  platform?: string;
+  url?: string;
+  selector?: string;
+};
+
+export type AgentPageEmbed = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "iframe" | "video" | "audio" | "embed" | "object";
+  url: string;
+  text?: string;
+  title?: string;
+  type?: string;
+  posterUrl?: string;
+  sourceUrls?: string[];
+  sandbox?: string;
+  allow?: string;
+  loading?: string;
+  selector?: string;
+};
+
+export type AgentPageTranscript = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "captions" | "subtitles" | "descriptions" | "chapters" | "metadata" | "transcript";
+  url: string;
+  text?: string;
+  mediaKind?: "video" | "audio";
+  label?: string;
+  language?: string;
+  selector?: string;
+};
+
 export type AgentPageCheck = AgentPageMetadata & {
   contentEvidence: AgentPageEvidence[];
   contentLength: number;
@@ -620,8 +679,8 @@ export type AgentPageCheck = AgentPageMetadata & {
   clientState?: AgentPageClientState[];
   runtime?: AgentPageRuntime[];
   config?: AgentPageConfig[];
-  appHints?: Array<Record<string, unknown>>;
-  mobileHints?: Array<Record<string, unknown>>;
+  appHints?: AgentPageAppHint[];
+  mobileHints?: AgentPageMobileHint[];
   topics?: AgentPageTopic[];
   contactPoints?: AgentPageContactPoint[];
   keyValues?: AgentPageKeyValue[];
@@ -642,8 +701,8 @@ export type AgentPageCheck = AgentPageMetadata & {
   citations?: AgentPageCitation[];
   media?: AgentPageMedia[];
   resources?: AgentPageResource[];
-  embeds?: Array<Record<string, unknown>>;
-  transcripts?: Array<Record<string, unknown>>;
+  embeds?: AgentPageEmbed[];
+  transcripts?: AgentPageTranscript[];
   authorLinks?: AgentPageAuthorLink[];
 };
 

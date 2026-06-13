@@ -2809,6 +2809,43 @@ describe("public agent types", () => {
           facts: [{ label: "headline", value: "Example" }],
           source: "json-ld",
         }],
+        appHints: [{
+          id: "app1",
+          path: "pageCheck.appHints[0]",
+          rank: 1,
+          kind: "manifest",
+          label: "Manifest",
+          value: "/manifest.webmanifest",
+          source: "link",
+          url: "https://example.test/manifest.webmanifest",
+        }],
+        mobileHints: [{
+          id: "mobile1",
+          path: "pageCheck.mobileHints[0]",
+          rank: 1,
+          kind: "viewport",
+          label: "Viewport",
+          value: "width=device-width",
+          source: "meta",
+        }],
+        embeds: [{
+          id: "embed1",
+          path: "pageCheck.embeds[0]",
+          rank: 1,
+          kind: "iframe",
+          url: "https://player.example/embed",
+          title: "Player",
+          loading: "lazy",
+        }],
+        transcripts: [{
+          id: "transcript1",
+          path: "pageCheck.transcripts[0]",
+          rank: 1,
+          kind: "captions",
+          url: "https://example.test/captions.vtt",
+          mediaKind: "video",
+          language: "en",
+        }],
         forms: [{
           rank: 1,
           method: "GET",
@@ -2967,6 +3004,10 @@ describe("public agent types", () => {
     expect(envelopeRecommendation.pageCheck.provenance?.[0]?.kind).toBe("doi");
     expect(envelopeRecommendation.pageCheck.httpPolicies?.[0]?.name).toBe("content-security-policy");
     expect(envelopeRecommendation.pageCheck.schemaFacts?.[0]?.facts[0]?.label).toBe("headline");
+    expect(envelopeRecommendation.pageCheck.appHints?.[0]?.kind).toBe("manifest");
+    expect(envelopeRecommendation.pageCheck.mobileHints?.[0]?.value).toContain("width");
+    expect(envelopeRecommendation.pageCheck.embeds?.[0]?.loading).toBe("lazy");
+    expect(envelopeRecommendation.pageCheck.transcripts?.[0]?.language).toBe("en");
     expect(envelopeRecommendation.pageCheck.forms?.[0]?.fields[0]?.name).toBe("q");
     expect(envelopeRecommendation.pageCheck.actionTargets?.[0]?.urlTemplate).toContain("{query}");
     expect(envelopeRecommendation.pageCheck.nextSteps?.[0]?.sourceLinkRef).toBe("pageCheck.sourceLinks[0]");
