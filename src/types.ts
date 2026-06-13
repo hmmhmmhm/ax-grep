@@ -222,6 +222,32 @@ export type AgentPageAction = {
   selector?: string;
 };
 
+export type AgentPageDataTable = {
+  id: string;
+  path: string;
+  rank: number;
+  rowCount: number;
+  columnCount: number;
+  headers: string[];
+  sampleRows: string[][];
+  text?: string;
+  caption?: string;
+  selector?: string;
+};
+
+export type AgentPageBarrier = {
+  id: string;
+  path: string;
+  rank: number;
+  kind: "challenge" | "login" | "paywall" | "cookie-consent" | "age-gate" | "geo-block";
+  severity: "info" | "warning" | "error";
+  text?: string;
+  evidence: string;
+  diagnosticCode?: string;
+  source: "diagnostic" | "content" | "action";
+  selector?: string;
+};
+
 export type AgentPageCheck = AgentPageMetadata & {
   contentEvidence: AgentPageEvidence[];
   contentLength: number;
@@ -239,8 +265,8 @@ export type AgentPageCheck = AgentPageMetadata & {
   title?: string;
   canonicalUrl?: string;
   mainHeading?: string;
-  dataTables?: Array<Record<string, unknown>>;
-  barriers?: Array<Record<string, unknown>>;
+  dataTables?: AgentPageDataTable[];
+  barriers?: AgentPageBarrier[];
   forms?: AgentPageForm[];
   actionTargets?: AgentActionTargetChoice[];
   hydration?: Array<Record<string, unknown>>;

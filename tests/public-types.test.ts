@@ -2567,6 +2567,25 @@ describe("public agent types", () => {
           rank: 1,
           commandArgs: ["ax-grep", "https://source.example/report", "--agent"],
         }],
+        dataTables: [{
+          id: "t1",
+          path: "pageCheck.dataTables[0]",
+          rank: 1,
+          rowCount: 2,
+          columnCount: 2,
+          headers: ["Plan", "Price"],
+          sampleRows: [["Starter", "$19"]],
+          caption: "Pricing",
+        }],
+        barriers: [{
+          id: "b1",
+          path: "pageCheck.barriers[0]",
+          rank: 1,
+          kind: "cookie-consent",
+          severity: "info",
+          evidence: "Cookie banner detected.",
+          source: "content",
+        }],
         forms: [{
           rank: 1,
           method: "GET",
@@ -2697,6 +2716,8 @@ describe("public agent types", () => {
     expect(envelopeRecommendation.page.structuredDataTypes?.[0]).toBe("Article");
     expect(envelopeRecommendation.pageCheck.contentEvidence[0]?.quality).toBe("high");
     expect(envelopeRecommendation.pageCheck.sourceLinks?.[0]?.commandArgs?.[0]).toBe("ax-grep");
+    expect(envelopeRecommendation.pageCheck.dataTables?.[0]?.headers[1]).toBe("Price");
+    expect(envelopeRecommendation.pageCheck.barriers?.[0]?.kind).toBe("cookie-consent");
     expect(envelopeRecommendation.pageCheck.forms?.[0]?.fields[0]?.name).toBe("q");
     expect(envelopeRecommendation.pageCheck.actionTargets?.[0]?.urlTemplate).toContain("{query}");
     expect(envelopeRecommendation.pageCheck.nextSteps?.[0]?.sourceLinkRef).toBe("pageCheck.sourceLinks[0]");
