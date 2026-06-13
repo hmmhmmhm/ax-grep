@@ -64,6 +64,8 @@ describe("compare-static fixture comparisons", () => {
     expect(summaryFor(report, "Synthetic site search recovery gate")?.agentPrimaryAction).toBe("open-site-search");
     expect(summaryFor(report, "Synthetic browser HTML retry gate")?.agentPrimaryAction).toBe("retry-with-browser-html");
     expect(summaryFor(report, "Synthetic browser HTML retry gate")?.score).toBeGreaterThanOrEqual(0.8);
+    expect(summaryFor(report, "Synthetic hidden metadata gate")?.pageCheck.hiddenSignalCount).toBeGreaterThan(0);
+    expect(summaryFor(report, "Synthetic hidden metadata gate")?.agentHiddenCommandShortcutScore).toBe(1);
     expect(summaryFor(report, "Synthetic action target gate")?.pageCheck.hiddenSignalCount).toBeGreaterThan(0);
     expect(summaryFor(report, "Synthetic action target gate")?.actionExecutionCounts["read-current"]).toBeGreaterThan(0);
     expect(summaryFor(report, "Synthetic web component gate")?.agentSemanticSummaryScore).toBe(1);

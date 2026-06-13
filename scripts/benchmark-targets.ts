@@ -122,6 +122,9 @@ const syntheticHiddenMetadataHtml = `
         };
         fetch("/api/agent-report");
       </script>
+      <script id="__NEXT_DATA__" type="application/json">
+        { "buildId": "hidden-build", "page": "/agent", "props": { "pageProps": { "title": "Hidden agent payload" } } }
+      </script>
     </head>
     <body>
       <main>
