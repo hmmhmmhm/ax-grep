@@ -57,6 +57,28 @@ describe("cli", () => {
     expect(stdout.output).toContain("pressed=false");
   });
 
+  it("prints top accessibility state scalars in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <input id="q" type="search" aria-label="Archive search" disabled required readonly aria-invalid="spelling" aria-haspopup="listbox" aria-controls="suggestions">
+          <div id="suggestions" role="listbox"></div>
+        </main>
+      `),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("semanticTopState: agent.semanticSummary.stateItems[0] searchbox:Archive search");
+    expect(stdout.output).toContain("disabled=true");
+    expect(stdout.output).toContain("required=true");
+    expect(stdout.output).toContain("readonly=true");
+    expect(stdout.output).toContain("invalid=spelling");
+    expect(stdout.output).toContain("haspopup=listbox");
+    expect(stdout.output).toContain("controls=suggestions");
+  });
+
   it("unwraps known search redirect links in text output", async () => {
     const stdout = new MemoryWriter();
     const bingTarget = `a1${Buffer.from("https://target.example/article", "utf8").toString("base64url")}`;
