@@ -108,6 +108,7 @@ type CliAgentSummary = {
   agentTopFormActionChoiceShortcutScore: number;
   agentHiddenSignalCountScore: number;
   agentTopHiddenSignalShortcutScore: number;
+  agentHiddenCommandShortcutScore: number;
   agentSourceChoiceScore: number;
   agentTopSourceChoiceShortcutScore: number;
   agentSourceSearchShortcutScore: number;
@@ -683,6 +684,7 @@ export type GateSummary = {
   averageAgentTopFormActionChoiceShortcutScore: number;
   averageAgentHiddenSignalCountScore: number;
   averageAgentTopHiddenSignalShortcutScore: number;
+  averageAgentHiddenCommandShortcutScore: number;
   averageAgentSourceChoiceScore: number;
   averageAgentTopSourceChoiceShortcutScore: number;
   averageAgentSourceSearchShortcutScore: number;
@@ -2452,6 +2454,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentTopFormActionChoiceShortcutScore: scoreAgentTopFormActionChoiceShortcuts(item.agent),
     agentHiddenSignalCountScore: scoreAgentHiddenSignalCounts(item.agent, hiddenSignalCount, item.pageCheck),
     agentTopHiddenSignalShortcutScore: scoreAgentTopHiddenSignalShortcuts(item.agent, item.pageCheck),
+    agentHiddenCommandShortcutScore: scoreAgentHiddenCommandShortcuts(item.agent, item.pageCheck),
     agentSourceChoiceScore: scoreAgentSourceChoices(item.kind ?? "unknown", item.agent?.sourceChoices ?? [], item.pageCheck?.sourceLinks ?? [], item.agent?.primaryAction),
     agentTopSourceChoiceShortcutScore: scoreAgentTopSourceChoiceShortcuts(item.agent),
     agentSourceSearchShortcutScore: scoreAgentSourceSearchShortcuts(item.agent, item.sourceSearch, item.error),
@@ -2546,6 +2549,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentTopFormActionChoiceShortcutScore: 0,
     agentHiddenSignalCountScore: 0,
     agentTopHiddenSignalShortcutScore: 0,
+    agentHiddenCommandShortcutScore: 0,
     agentSourceChoiceScore: 0,
     agentTopSourceChoiceShortcutScore: 0,
     agentSourceSearchShortcutScore: 0,
@@ -5260,6 +5264,21 @@ function scoreAgentTopHiddenSignalShortcuts(agent: {
     scoreTopApiEndpointCommandShortcut(pageCheck, agent),
   ];
   return roundScore(average([topHiddenScore, ...groupScores]));
+}
+
+function scoreAgentHiddenCommandShortcuts(agent: {
+  topHydrationCommand?: string;
+  topHydrationCommandArgs?: string[];
+  topApiEndpointCommand?: string;
+  topApiEndpointCommandArgs?: string[];
+  topAppHintCommand?: string;
+  topAppHintCommandArgs?: string[];
+} | undefined, pageCheck: unknown): number {
+  return roundScore(average([
+    scoreTopHiddenUrlCommandShortcut(pageCheck, "hydration", agent as Record<string, unknown> | undefined, "topHydrationCommand", "topHydrationCommandArgs"),
+    scoreTopApiEndpointCommandShortcut(pageCheck, agent),
+    scoreTopHiddenUrlCommandShortcut(pageCheck, "appHints", agent as Record<string, unknown> | undefined, "topAppHintCommand", "topAppHintCommandArgs"),
+  ]));
 }
 
 function scoreTopHiddenUrlCommandShortcut(
@@ -10336,6 +10355,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentResponseMetadataScore * 0.005
     + summary.agentHiddenSignalScore * 0.005
     + summary.agentTopHiddenSignalShortcutScore * 0.005
+    + summary.agentHiddenCommandShortcutScore * 0.005
     + summary.agentRoutingIntentScore * 0.005
     + summary.agentContinuationModeScore * 0.005
     + summary.agentNextScore * 0.005
@@ -10429,6 +10449,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentSignalCountShortcutScore,
     summary.agentTopQualityShortcutScore,
     summary.agentTopHiddenSignalShortcutScore,
+    summary.agentHiddenCommandShortcutScore,
     summary.agentHiddenSignalScore,
   ]));
 }
@@ -10516,6 +10537,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentTopFormActionChoiceShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentTopFormActionChoiceShortcutScore)),
     averageAgentHiddenSignalCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentHiddenSignalCountScore)),
     averageAgentTopHiddenSignalShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentTopHiddenSignalShortcutScore)),
+    averageAgentHiddenCommandShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentHiddenCommandShortcutScore)),
     averageAgentSourceChoiceScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSourceChoiceScore)),
     averageAgentTopSourceChoiceShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentTopSourceChoiceShortcutScore)),
     averageAgentSourceSearchShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSourceSearchShortcutScore)),
