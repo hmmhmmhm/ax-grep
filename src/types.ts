@@ -1688,7 +1688,7 @@ export type AgentSummary = {
   recommendedRank?: number;
   recommendedSource?: string;
   recommendedSourceScore?: number;
-  recommendedRelevance?: number;
+  recommendedRelevance?: AgentTarget["relevance"];
   recommendedLikelyOfficial?: boolean;
   recommendedSelectionReason?: string;
   recommendedCommand?: string;

@@ -1261,6 +1261,9 @@ describe("public agent types", () => {
       | "recommendedRank"
       | "recommendedSource"
       | "recommendedSourceScore"
+      | "recommendedRelevance"
+      | "recommendedLikelyOfficial"
+      | "recommendedSelectionReason"
       | "recommendedCommand"
       | "recommendedCommandArgs"
     > = {
@@ -2328,6 +2331,9 @@ describe("public agent types", () => {
       recommendedRank: 1,
       recommendedSource: "example.test",
       recommendedSourceScore: 0.92,
+      recommendedRelevance: "high",
+      recommendedLikelyOfficial: true,
+      recommendedSelectionReason: "Best ranked result.",
       recommendedCommand: "ax-grep https://example.test --agent",
       recommendedCommandArgs: ["ax-grep", "https://example.test", "--agent"],
     };
@@ -2497,6 +2503,9 @@ describe("public agent types", () => {
     expect(summary.alternativeActionTargetLikelyOfficial).toBe(false);
     expect(summary.recommendedPath).toBe("recommendedResult");
     expect(summary.recommendedSourceScore).toBe(0.92);
+    expect(summary.recommendedRelevance).toBe("high");
+    expect(summary.recommendedLikelyOfficial).toBe(true);
+    expect(summary.recommendedSelectionReason).toBe("Best ranked result.");
     expect(summary.searchDecisionRecommendedPath).toBe("recommendedResult");
     expect(summary.searchDecisionRecommendedSourceScore).toBe(0.92);
     expect(summary.searchDecisionRecommendedLikelyOfficial).toBe(true);
