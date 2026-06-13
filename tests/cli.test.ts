@@ -4204,8 +4204,12 @@ describe("cli", () => {
     expect(stdout.output).toContain("  sourceSearchAlternatePath: sourceSearch.alternateResults[0]");
     expect(stdout.output).toContain("  sourceSearchAlternateHost: alternate.example");
     expect(stdout.output).toContain("  sourceSearchAlternateSource: alternate.example");
+    expect(stdout.output).toContain("  sourceSearchAlternateSnippet: This result contains the target claim for verification.");
     expect(stdout.output).toContain("  sourceSearchAlternateCommand: ax-grep --search 'agent browser' --engine duckduckgo --find 'target claim' --open-result 2 --agent");
     expect(stdout.output).toContain("  sourceSearchAlternateCommandArgs: [\"ax-grep\",\"--search\",\"agent browser\",\"--engine\",\"duckduckgo\",\"--find\",\"target claim\",\"--open-result\",\"2\",\"--agent\"]");
+    expect(stdout.output).toContain("  sourceSearchAlternateChoice: a2 sourceSearch.alternateResults[0] rank=2 openResult=2");
+    expect(stdout.output).toContain("host=alternate.example");
+    expect(stdout.output).toContain("snippet=This result contains the target claim for verification.");
     expect(stdout.output).toContain("  handoff: execute/execute-command/low action=open-alternate-result");
     expect(stdout.output).toContain("  handoffSourceSearch: agent browser engine=duckduckgo selected=1 alternates=1 <https://first.example/article>");
     expect(stdout.output).toContain("  handoffSourceSearchQuery: agent browser");
@@ -4216,6 +4220,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  handoffSourceSearchSelectedUrl: https://first.example/article");
     expect(stdout.output).toContain("  handoffSourceSearchResult: selected sourceSearch.selectedResult rank=1");
     expect(stdout.output).toContain("  handoffSourceSearchAlternate: a2 sourceSearch.alternateResults[0] rank=2");
+    expect(stdout.output).toContain("source=alternate.example host=alternate.example");
     expect(stdout.output).toContain("find=target claim <https://alternate.example/article>");
     expect(stdout.output).toContain("  handoffSourceSearchAlternateCommandArgs: [\"ax-grep\",\"--search\",\"agent browser\",\"--engine\",\"duckduckgo\",\"--find\",\"target claim\",\"--open-result\",\"2\",\"--agent\"]");
     expect(stdout.output).toContain("  handoffCommandArgs: [\"ax-grep\",\"--search\",\"agent browser\",\"--engine\",\"duckduckgo\",\"--find\",\"target claim\",\"--open-result\",\"2\",\"--json\",\"--summary\"]");
