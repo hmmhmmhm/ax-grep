@@ -2161,6 +2161,43 @@ describe("cli", () => {
     expect(envelope.suggestedActions).toBeUndefined();
   });
 
+  it("keeps generic top choice and recommended command in agent brief output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["--search", "agent browser", "--engine", "bing", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <ol>
+            <li class="b_algo">
+              <h2><a href="https://result.example/article">Agent browser guide</a></h2>
+              <p>Agent browser comparison details for static handoff.</p>
+            </li>
+          </ol>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      topChoiceKind: "result",
+      topChoicePath: "searchResults[0]",
+      topChoiceUrl: "https://result.example/article",
+      topChoiceHost: "result.example",
+      topChoiceCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent-brief"],
+      topChoiceRank: 1,
+      topChoiceOpenResult: 1,
+      topChoiceRecommended: true,
+      recommendedUrl: "https://result.example/article",
+      recommendedPath: "recommendedResult",
+      recommendedTitle: "Agent browser guide",
+      recommendedRank: 1,
+      recommendedCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent-brief"],
+    });
+  });
+
   it("can set search language and region hints", async () => {
     const stdout = new MemoryWriter();
     let requestedUrl = "";
