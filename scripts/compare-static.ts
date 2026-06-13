@@ -1248,6 +1248,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       pageDecisionSourceQualityScore?: number;
       pageDecisionReadFrom?: string;
       pageDecisionUrl?: string;
+      pageDecisionCommand?: string;
       pageDecisionCommandArgs?: string[];
       signalCount?: number;
       signalWarningCount?: number;
@@ -6252,6 +6253,7 @@ function scoreAgentPageDecision(
     pageDecisionReadTargetPrimary?: boolean;
     pageDecisionReadTargetReason?: string;
     pageDecisionUrl?: string;
+    pageDecisionCommand?: string;
     pageDecisionCommandArgs?: string[];
   } | undefined,
   kind: string | undefined,
@@ -6345,6 +6347,12 @@ function scoreAgentPageDecision(
     required += 1;
     if (JSON.stringify(agent?.pageDecisionCommandArgs) === JSON.stringify(decision.commandArgs)) matched += 1;
   } else if (agent?.pageDecisionCommandArgs) {
+    required += 1;
+  }
+  if (decision.command) {
+    required += 1;
+    if (agent?.pageDecisionCommand === decision.command) matched += 1;
+  } else if (agent?.pageDecisionCommand) {
     required += 1;
   }
   return roundScore(matched / required);

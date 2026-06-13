@@ -652,6 +652,7 @@ describe("public agent types", () => {
       | "pageDecisionReadTargetPrimary"
       | "pageDecisionReadTargetReason"
       | "pageDecisionUrl"
+      | "pageDecisionCommand"
       | "pageDecisionCommandArgs"
       | "semanticSummary"
       | "semanticNodeCount"
@@ -1791,6 +1792,7 @@ describe("public agent types", () => {
       pageDecisionReadTargetPrimary: true,
       pageDecisionReadTargetReason: "Top evidence.",
       pageDecisionUrl: "https://example.test",
+      pageDecisionCommand: "ax-grep https://example.test --agent",
       pageDecisionCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       semanticSummary: {
         nodeCount: 12,
@@ -2613,6 +2615,7 @@ describe("public agent types", () => {
     expect(summary.pageDecisionReadability).toBe("high");
     expect(summary.pageDecisionEvidenceQualityScore).toBe(0.9);
     expect(summary.pageDecisionSourceQualityScore).toBe(0.92);
+    expect(summary.pageDecisionCommand).toContain("example.test");
     expect(summary.semanticTopHeading).toBe("Example");
     expect(summary.semanticTopHeadingPath).toBe("agent.semanticSummary.headingItems[0]");
     expect(summary.semanticTopLandmarkRole).toBe("main");

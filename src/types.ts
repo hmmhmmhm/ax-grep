@@ -1390,6 +1390,7 @@ export type AgentSummary = {
   pageDecisionReadTargetPrimary?: boolean;
   pageDecisionReadTargetReason?: string;
   pageDecisionUrl?: string;
+  pageDecisionCommand?: string;
   pageDecisionCommandArgs?: string[];
   semanticSummary?: AgentSemanticSummary;
   semanticNodeCount?: number;

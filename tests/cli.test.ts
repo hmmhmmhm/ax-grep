@@ -6338,6 +6338,7 @@ describe("cli", () => {
     });
     expect(envelope.agent.pageDecision).toMatchObject({
       decision: "open-site-search",
+      command: "ax-grep 'https://example.test/find?query=target%20report' --find 'target report' --agent",
       commandArgs: ["ax-grep", "https://example.test/find?query=target%20report", "--find", "target report", "--agent"],
       url: "https://example.test/find?query=target%20report",
     });
@@ -6345,6 +6346,7 @@ describe("cli", () => {
       pageDecisionName: "open-site-search",
       pageDecisionConfidence: expect.stringMatching(/^(low|medium|high)$/),
       pageDecisionUrl: "https://example.test/find?query=target%20report",
+      pageDecisionCommand: "ax-grep 'https://example.test/find?query=target%20report' --find 'target report' --agent",
       pageDecisionCommandArgs: ["ax-grep", "https://example.test/find?query=target%20report", "--find", "target report", "--agent"],
     });
   });

@@ -1029,6 +1029,7 @@ type AgentSummary = {
   pageDecisionReadTargetPrimary?: boolean;
   pageDecisionReadTargetReason?: string;
   pageDecisionUrl?: string;
+  pageDecisionCommand?: string;
   pageDecisionCommandArgs?: string[];
   semanticSummary?: AgentSemanticSummary;
   semanticNodeCount?: number;
@@ -3657,6 +3658,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.pageDecisionReadTargetPrimary === "boolean" ? [`  pageDecisionReadTargetPrimary: ${agent.pageDecisionReadTargetPrimary}`] : []),
     ...(agent.pageDecisionReadTargetReason ? [`  pageDecisionReadTargetReason: ${agent.pageDecisionReadTargetReason}`] : []),
     ...(agent.pageDecisionUrl ? [`  pageDecisionUrl: ${agent.pageDecisionUrl}`] : []),
+    ...(agent.pageDecisionCommand ? [`  pageDecisionCommand: ${agent.pageDecisionCommand}`] : []),
     `  summary: ${agent.summary}`,
     `  signalCount: ${agent.signalCount}`,
     `  signalWarnings: ${agent.signalWarningCount}`,
@@ -11816,6 +11818,7 @@ function summarizeAgent(
     ...(typeof pageDecisionReadTarget?.primary === "boolean" ? { pageDecisionReadTargetPrimary: pageDecisionReadTarget.primary } : {}),
     ...(pageDecisionReadTarget?.reason ? { pageDecisionReadTargetReason: pageDecisionReadTarget.reason } : {}),
     ...(pageDecision?.url ? { pageDecisionUrl: pageDecision.url } : {}),
+    ...(pageDecision?.command ? { pageDecisionCommand: pageDecision.command } : {}),
     ...(pageDecision?.commandArgs ? { pageDecisionCommandArgs: pageDecision.commandArgs } : {}),
     ...(semanticSummary ? { semanticSummary } : {}),
     ...(semanticSummary ? { semanticNodeCount: semanticSummary.nodeCount } : {}),
@@ -17376,6 +17379,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.pageDecisionReadTargetPrimary === "boolean" ? { pageDecisionReadTargetPrimary: agent.pageDecisionReadTargetPrimary } : {}),
     ...(agent.pageDecisionReadTargetReason ? { pageDecisionReadTargetReason: agent.pageDecisionReadTargetReason } : {}),
     ...(agent.pageDecisionUrl ? { pageDecisionUrl: agent.pageDecisionUrl } : {}),
+    ...(agent.pageDecisionCommand ? { pageDecisionCommand: agent.pageDecisionCommand } : {}),
     ...(agent.pageDecisionCommandArgs ? { pageDecisionCommandArgs: agent.pageDecisionCommandArgs } : {}),
     ...(agent.semanticSummary ? { semanticSummary: compactAgentSemanticSummary(agent.semanticSummary) } : {}),
     ...(typeof agent.semanticNodeCount === "number" ? { semanticNodeCount: agent.semanticNodeCount } : {}),
@@ -18493,6 +18497,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.pageDecisionReadTargetPrimary === "boolean" ? { pageDecisionReadTargetPrimary: agent.pageDecisionReadTargetPrimary } : {}),
     ...(agent.pageDecisionReadTargetReason ? { pageDecisionReadTargetReason: agent.pageDecisionReadTargetReason } : {}),
     ...(agent.pageDecisionUrl ? { pageDecisionUrl: agent.pageDecisionUrl } : {}),
+    ...(agent.pageDecisionCommand ? { pageDecisionCommand: agent.pageDecisionCommand } : {}),
     ...(agent.pageDecisionCommandArgs ? { pageDecisionCommandArgs: agent.pageDecisionCommandArgs } : {}),
     ...(typeof agent.semanticNodeCount === "number" ? { semanticNodeCount: agent.semanticNodeCount } : {}),
     ...(typeof agent.semanticNamedRoleCount === "number" ? { semanticNamedRoleCount: agent.semanticNamedRoleCount } : {}),
