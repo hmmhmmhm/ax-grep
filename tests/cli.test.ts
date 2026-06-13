@@ -264,7 +264,7 @@ describe("cli", () => {
                   <tr aria-rowindex="1"><th id="metric-header" aria-colindex="1" aria-sort="ascending">Metric</th><th id="value-header" aria-colindex="2">Value</th></tr>
                 </thead>
                 <tbody>
-                  <tr aria-rowindex="2"><th id="latency-row" scope="row" aria-colindex="1" rowspan="2" headers="metric-header">Latency</th><td aria-colindex="2" headers="latency-row value-header" aria-selected="true" aria-current="page">120 ms</td></tr>
+                  <tr aria-rowindex="2"><th id="latency-row" scope="row" aria-colindex="1" rowspan="2" headers="metric-header">Latency</th><td aria-colindex="2" rowspan="2" colspan="2" headers="latency-row value-header" aria-selected="true" aria-current="page">120 ms</td></tr>
                 </tbody>
               </table>
               <div id="owned-rows" role="rowgroup" aria-label="Virtual rows">
@@ -467,7 +467,7 @@ describe("cli", () => {
               ],
               sampleCells: ["120 ms", "Queued"],
               sampleCellRefs: [
-                { path: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]", text: "120 ms", rowIndex: 2, columnIndex: 2, headers: ["Latency", "Value"], rowHeaders: ["Latency"], columnHeaders: ["Value"], selected: true, current: "page", selector: "td" },
+                { path: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]", text: "120 ms", rowIndex: 2, columnIndex: 2, rowSpan: 2, columnSpan: 2, headers: ["Latency", "Value"], rowHeaders: ["Latency"], columnHeaders: ["Value"], selected: true, current: "page", selector: "td" },
                 { path: "agent.semanticSummary.tableItems[0].sampleCellRefs[1]", text: "Queued", rowIndex: 50, columnIndex: 4, headers: ["Value"], columnHeaders: ["Value"], selector: "span:nth-of-type(2)", ownedTarget: "owned-rows" },
               ],
               selector: "table",
@@ -668,7 +668,7 @@ describe("cli", () => {
         ],
         semanticTopTableSampleCells: ["120 ms", "Queued"],
         semanticTopTableSampleCellRefs: [
-          { path: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]", text: "120 ms", rowIndex: 2, columnIndex: 2, headers: ["Latency", "Value"], rowHeaders: ["Latency"], columnHeaders: ["Value"], selected: true, current: "page", selector: "td" },
+          { path: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]", text: "120 ms", rowIndex: 2, columnIndex: 2, rowSpan: 2, columnSpan: 2, headers: ["Latency", "Value"], rowHeaders: ["Latency"], columnHeaders: ["Value"], selected: true, current: "page", selector: "td" },
           { path: "agent.semanticSummary.tableItems[0].sampleCellRefs[1]", text: "Queued", rowIndex: 50, columnIndex: 4, headers: ["Value"], columnHeaders: ["Value"], selector: "span:nth-of-type(2)", ownedTarget: "owned-rows" },
         ],
         semanticTopTableFirstHeader: "Metric",
@@ -686,6 +686,8 @@ describe("cli", () => {
         semanticTopTableFirstSampleCellText: "120 ms",
         semanticTopTableFirstSampleCellRowIndex: 2,
         semanticTopTableFirstSampleCellColumnIndex: 2,
+        semanticTopTableFirstSampleCellRowSpan: 2,
+        semanticTopTableFirstSampleCellColumnSpan: 2,
         semanticTopTableFirstSampleCellHeaders: ["Latency", "Value"],
         semanticTopTableFirstSampleCellRowHeaders: ["Latency"],
         semanticTopTableFirstSampleCellColumnHeaders: ["Value"],
@@ -704,6 +706,8 @@ describe("cli", () => {
         semanticTopSelectedTableCellText: "120 ms",
         semanticTopSelectedTableCellRowIndex: 2,
         semanticTopSelectedTableCellColumnIndex: 2,
+        semanticTopSelectedTableCellRowSpan: 2,
+        semanticTopSelectedTableCellColumnSpan: 2,
         semanticTopSelectedTableCellHeaders: ["Latency", "Value"],
         semanticTopSelectedTableCellRowHeaders: ["Latency"],
         semanticTopSelectedTableCellColumnHeaders: ["Value"],

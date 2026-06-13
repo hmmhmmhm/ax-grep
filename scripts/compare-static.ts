@@ -2051,6 +2051,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopSelectedTableCellText?: string;
       semanticTopSelectedTableCellRowIndex?: number;
       semanticTopSelectedTableCellColumnIndex?: number;
+      semanticTopSelectedTableCellRowSpan?: number;
+      semanticTopSelectedTableCellColumnSpan?: number;
+      semanticTopSelectedTableCellHeaders?: string[];
+      semanticTopSelectedTableCellRowHeaders?: string[];
+      semanticTopSelectedTableCellColumnHeaders?: string[];
       semanticTopSelectedTableCellSelected?: boolean;
       semanticTopSelectedTableCellCurrent?: boolean | string;
       semanticTopSelectedTableCellSelector?: string;
@@ -6395,15 +6400,17 @@ function observedSemanticTableColumnCount(table: {
 
 function scoreSelectedTableCellShortcuts(agentRecord: Record<string, unknown>, sampleCellRefs: unknown): { matched: number; required: number } {
   const selectedTableCellRef = Array.isArray(sampleCellRefs)
-    ? sampleCellRefs.find((cell): cell is { path?: unknown; text?: unknown; rowIndex?: unknown; columnIndex?: unknown; headers?: unknown; rowHeaders?: unknown; columnHeaders?: unknown; selected?: unknown; current?: unknown; selector?: unknown } => Boolean(cell && typeof cell === "object" && (cell as { selected?: unknown }).selected === true))
+    ? sampleCellRefs.find((cell): cell is { path?: unknown; text?: unknown; rowIndex?: unknown; columnIndex?: unknown; rowSpan?: unknown; columnSpan?: unknown; headers?: unknown; rowHeaders?: unknown; columnHeaders?: unknown; selected?: unknown; current?: unknown; selector?: unknown } => Boolean(cell && typeof cell === "object" && (cell as { selected?: unknown }).selected === true))
     : undefined;
   if (!selectedTableCellRef) return { matched: 0, required: 0 };
   let matched = 0;
-  const required = 10;
+  const required = 12;
   if (agentRecord.semanticTopSelectedTableCellPath === selectedTableCellRef.path) matched += 1;
   if (agentRecord.semanticTopSelectedTableCellText === selectedTableCellRef.text) matched += 1;
   if (agentRecord.semanticTopSelectedTableCellRowIndex === selectedTableCellRef.rowIndex) matched += 1;
   if (agentRecord.semanticTopSelectedTableCellColumnIndex === selectedTableCellRef.columnIndex) matched += 1;
+  if (agentRecord.semanticTopSelectedTableCellRowSpan === selectedTableCellRef.rowSpan) matched += 1;
+  if (agentRecord.semanticTopSelectedTableCellColumnSpan === selectedTableCellRef.columnSpan) matched += 1;
   if (JSON.stringify(agentRecord.semanticTopSelectedTableCellHeaders) === JSON.stringify(selectedTableCellRef.headers)) matched += 1;
   if (JSON.stringify(agentRecord.semanticTopSelectedTableCellRowHeaders) === JSON.stringify(selectedTableCellRef.rowHeaders)) matched += 1;
   if (JSON.stringify(agentRecord.semanticTopSelectedTableCellColumnHeaders) === JSON.stringify(selectedTableCellRef.columnHeaders)) matched += 1;

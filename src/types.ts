@@ -869,6 +869,8 @@ export type AgentSummary = {
   semanticTopSelectedTableCellText?: string;
   semanticTopSelectedTableCellRowIndex?: number;
   semanticTopSelectedTableCellColumnIndex?: number;
+  semanticTopSelectedTableCellRowSpan?: number;
+  semanticTopSelectedTableCellColumnSpan?: number;
   semanticTopSelectedTableCellHeaders?: string[];
   semanticTopSelectedTableCellRowHeaders?: string[];
   semanticTopSelectedTableCellColumnHeaders?: string[];
