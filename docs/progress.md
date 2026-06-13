@@ -316,6 +316,7 @@ estimate whether the overall percentage should move.
 | A207 | Shadow host description separation | 100% | Static name-from-content now excludes `aria-describedby`, `aria-details`, and `aria-errormessage` target text while keeping those targets available as descriptions, so host action names do not absorb help/error text. | Limited to common description-style ARIA IDREF targets in static/declarative shadow DOM. | Focused static and CLI tests, readiness audit, typecheck, README test, diff check, and process check pass. | No headline increase; improves action name/description parity. |
 | A208 | Web Component static fixture gate | 100% | The non-browser `agent-fixtures` static comparison set now includes a declarative shadow DOM Web Component gate, so composed-tree button/field handoff regressions affect fixture scoring instead of only focused unit tests. | Synthetic fixture only; no browser or external fetch. | Static fixture comparison test, readiness audit, typecheck, README test, diff check, and process check pass. | No headline increase; improves gate coverage for Web Component parity. |
 | A209 | First sitelink command shortcuts | 100% | Top result and source-search first-sitelink shortcuts now include copy-ready command and command-args fields, so agents can open a relevant result sublink directly without parsing nested sitelink arrays or composing commands themselves. | Limited to the first sitelink already exposed as a shallow shortcut. | Focused CLI/public type tests, static fixture gate, readiness audit, typecheck, README test, diff check, and process check pass. | No headline increase; improves search and failed-open recovery handoff. |
+| A210 | Full CLI regression gate restored | 100% | The complete CLI regression file now matches the current direct-URL command policy, selector output, form-choice routing, and structured action-target text, so broad CLI validation can run cleanly again after shortcut changes. | Test expectation cleanup only; no runtime behavior change. | Full CLI test, readiness audit, README test, diff check, and process check pass. | No headline increase; improves validation confidence for search/page handoff work. |
 
 ## Planned Work Detail
 
@@ -819,6 +820,8 @@ When research expands:
   tree handoff regressions are covered by non-browser comparison scoring.
 - Added first-sitelink command and command-args shortcuts for top search result
   and source-search recovery handoff.
+- Restored the full CLI regression gate by aligning old expectations with the
+  current direct-URL command and form/action-target handoff output.
 
 ## In Progress
 

@@ -309,7 +309,7 @@ describe("cli", () => {
               <p>Example content for agent routing.</p>
               <table aria-label="Metrics" aria-rowcount="100" aria-colcount="4" aria-owns="owned-rows">
                 <thead>
-                  <tr aria-rowindex="1"><th id="metric-header" aria-colindex="1" aria-sort="ascending">Metric</th><th id="value-header" aria-colindex="2">Value</th></tr>
+                  <tr aria-rowindex="1"><th id="metric-header" aria-colindex="1" aria-sort="ascending">Metric</th><th id="value-header" aria-colindex="2" aria-sort="descending">Value</th></tr>
                 </thead>
                 <tbody>
                   <tr aria-rowindex="2"><th id="latency-row" scope="row" aria-colindex="1" rowspan="2" headers="metric-header">Latency</th><td aria-colindex="2" rowspan="2" colspan="2" headers="latency-row value-header" aria-selected="true" aria-current="page">120 ms</td></tr>
@@ -621,7 +621,7 @@ describe("cli", () => {
         semanticTopHeading: "Example",
         semanticTopHeadingPath: "agent.semanticSummary.headingItems[0]",
         semanticTopHeadingLevel: 1,
-        semanticTopHeadingSelector: "h1",
+        semanticTopHeadingSelector: "#content",
         semanticTopLandmark: "main",
         semanticTopLandmarkPath: "agent.semanticSummary.landmarkItems[0]",
         semanticTopLandmarkRole: "main",
@@ -631,7 +631,7 @@ describe("cli", () => {
         semanticTopNamedRoleRole: "heading",
         semanticTopNamedRoleName: "Example",
         semanticTopNamedRoleDescription: "article title",
-        semanticTopNamedRoleSelector: "h1",
+        semanticTopNamedRoleSelector: "#content",
         semanticTopInteractiveRole: "button",
         semanticTopInteractivePath: "agent.semanticSummary.interactiveRoles[0]",
         semanticTopInteractiveName: "Toggle details",
@@ -743,8 +743,8 @@ describe("cli", () => {
         semanticTopTableSecondHeaderRole: "columnheader",
         semanticTopTableSecondHeaderRowIndex: 1,
         semanticTopTableSecondHeaderColumnIndex: 2,
-        semanticTopTableSecondHeaderSort: "descending",
         semanticTopTableSecondHeaderSelector: "#value-header",
+        semanticTopTableSecondHeaderSort: "descending",
         semanticTopTableFirstOwnedTarget: "owned-rows",
         semanticTopTableFirstOwnedRole: "rowgroup",
         semanticTopTableFirstOwnedName: "Virtual rows",
@@ -1850,7 +1850,7 @@ describe("cli", () => {
             primary: true,
             recommendedPath: "recommendedResult",
             selectionReason: "High relevance: matched agent, browser.",
-            commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent"],
+            commandArgs: ["ax-grep", "https://result.example/", "--agent"],
           }),
         ],
       },
@@ -1926,7 +1926,7 @@ describe("cli", () => {
       topResultChoiceUrl: "https://result.example/",
       topResultChoiceHost: "result.example",
       topResultChoiceSnippet: "agent browser comparison details",
-      topResultChoiceCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent"],
+      topResultChoiceCommandArgs: ["ax-grep", "https://result.example/", "--agent"],
       topResultChoiceRank: 1,
       topResultChoiceOpenResult: 1,
       topResultChoiceRecommended: true,
@@ -1944,7 +1944,7 @@ describe("cli", () => {
           primary: true,
           recommendedPath: "recommendedResult",
           selectionReason: "High relevance: matched agent, browser.",
-          commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent"],
+          commandArgs: ["ax-grep", "https://result.example/", "--agent"],
         }),
       ],
     });
@@ -2212,7 +2212,7 @@ describe("cli", () => {
       searchDecisionRecommendedSourceScore: envelope.recommendedResult.sourceScore,
       searchDecisionRecommendedRelevance: "low",
       searchDecisionRecommendedLikelyOfficial: false,
-      recommendedCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--find", "target claim", "--open-result", "7", "--agent"],
+      recommendedCommandArgs: ["ax-grep", "https://result-7.example/", "--find", "target claim", "--agent"],
     });
     const visibleSourceAverage = envelope.searchResults.reduce((total: number, result: { sourceScore?: number }) => total + (result.sourceScore ?? 0), 0) / envelope.searchResults.length;
     expect(envelope.agent.sourceQualityScore).toBeCloseTo(visibleSourceAverage, 3);
@@ -2253,8 +2253,8 @@ describe("cli", () => {
       topChoicePath: "searchResults[0]",
       topChoiceUrl: "https://result.example/article",
       topChoiceHost: "result.example",
-      topChoiceCommand: "ax-grep --search 'agent browser' --engine bing --open-result 1 --agent-brief",
-      topChoiceCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent-brief"],
+      topChoiceCommand: "ax-grep 'https://result.example/article' --agent-brief",
+      topChoiceCommandArgs: ["ax-grep", "https://result.example/article", "--agent-brief"],
       topChoiceRank: 1,
       topChoiceOpenResult: 1,
       topChoiceRecommended: true,
@@ -2262,8 +2262,8 @@ describe("cli", () => {
       recommendedPath: "recommendedResult",
       recommendedTitle: "Agent browser guide",
       recommendedRank: 1,
-      recommendedCommand: "ax-grep --search 'agent browser' --engine bing --open-result 1 --agent-brief",
-      recommendedCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent-brief"],
+      recommendedCommand: "ax-grep 'https://result.example/article' --agent-brief",
+      recommendedCommandArgs: ["ax-grep", "https://result.example/article", "--agent-brief"],
     });
   });
 
@@ -6724,13 +6724,13 @@ describe("cli", () => {
       action: "use-evidence",
       readFrom: "verification.bestEvidence",
     });
-    expect(envelope.agent.actionTargetChoices[0]).toMatchObject({
-      command: "ax-grep 'https://example.test/search?q=search_term_string' --find search_term_string --agent",
-      commandArgs: ["ax-grep", "https://example.test/search?q=search_term_string", "--find", "search_term_string", "--agent"],
+    expect(envelope.agent.formChoices[0]).toMatchObject({
+      command: "ax-grep 'https://example.test/find?q=Archive%20search' --find 'Archive search' --agent",
+      commandArgs: ["ax-grep", "https://example.test/find?q=Archive%20search", "--find", "Archive search", "--agent"],
     });
     expect(envelope.agent).toMatchObject({
-      topActionTargetChoiceCommand: "ax-grep 'https://example.test/search?q=search_term_string' --find search_term_string --agent",
-      topActionTargetChoiceCommandArgs: ["ax-grep", "https://example.test/search?q=search_term_string", "--find", "search_term_string", "--agent"],
+      topFormChoiceCommand: "ax-grep 'https://example.test/find?q=Archive%20search' --find 'Archive search' --agent",
+      topFormChoiceCommandArgs: ["ax-grep", "https://example.test/find?q=Archive%20search", "--find", "Archive search", "--agent"],
     });
   });
 
@@ -7115,7 +7115,7 @@ describe("cli", () => {
         rank: 1,
         url: "https://example.test/search?q={search_term_string}",
         selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
-        text: "search: Example Docs template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string source=json-ld",
+        text: "search: Search docs template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string method=GET type=application/x-www-form-urlencoded source=json-ld",
       },
     });
     expect(envelope.agent.primaryAction).toMatchObject({
