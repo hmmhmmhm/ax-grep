@@ -1061,6 +1061,11 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           " required=${agent.semanticTopStateRequired}",
           " invalid=${agent.semanticTopStateInvalid}",
           " readonly=${agent.semanticTopStateReadonly}",
+          "typeof agent.semanticTopInteractiveHaspopup !== \"undefined\"",
+          "typeof agent.semanticTopFocusableHaspopup !== \"undefined\"",
+          "typeof agent.semanticTopButtonHaspopup !== \"undefined\"",
+          "typeof agent.semanticTopFieldInvalid !== \"undefined\"",
+          "typeof agent.semanticTopFieldHaspopup !== \"undefined\"",
         ]);
         requireFileIncludes(root, failures, "tests/cli.test.ts", [
           "prints top accessibility state scalars in text output",
