@@ -1049,6 +1049,32 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
     ),
     evidenceCheck(
       root,
+      "brief-generic-choice-routing",
+      "Brief agent output must keep generic topChoice routing shortcuts for result, source, form, and action-target choices.",
+      "Focused CLI tests prove compact executor output can route without parsing nested choice arrays first.",
+      (failures) => {
+        requireFileIncludes(root, failures, "src/cli.ts", [
+          "function compactAgentTopChoice",
+          "topChoiceKind: agent.topChoiceKind",
+          "topChoiceCommandArgs",
+          "topChoiceSelector",
+          "function compactAgentRecommended",
+          "recommendedCommandArgs",
+        ]);
+        requireFileIncludes(root, failures, "tests/cli.test.ts", [
+          "keeps generic top choice and recommended command in agent brief output",
+          "exposes likely official source choice hints without requiring nested source choices",
+          "keeps executable form details in brief read handoff",
+          "keeps executable action target details in brief read handoff",
+          "topChoiceKind: \"result\"",
+          "topChoiceKind: \"source\"",
+          "topChoiceKind: \"form\"",
+          "topChoiceKind: \"action-target\"",
+        ]);
+      },
+    ),
+    evidenceCheck(
+      root,
       "semantic-state-text-parity",
       "Text-mode agent output must preserve shallow accessibility state scalars that are already present in JSON/brief output.",
       "formatAgentText prints browser-tree state scalars and a focused CLI test guards the text handoff.",
