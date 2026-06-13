@@ -1691,6 +1691,8 @@ type AgentSummary = {
   topTranscriptUrl?: string;
   topTranscriptLabel?: string;
   topTranscriptLanguage?: string;
+  topTranscriptCommand?: string;
+  topTranscriptCommandArgs?: string[];
   topAuthorLinkName?: string;
   topAuthorLinkUrl?: string;
   topAuthorLinkSource?: PageAuthorLinkSummary["source"];
@@ -4036,6 +4038,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topContactPointValue ? [`  topContactPoint: ${agent.topContactPointPath ?? ""} ${agent.topContactPointKind ?? ""}:${agent.topContactPointValue}${agent.topContactPointUrl ? ` <${agent.topContactPointUrl}>` : ""}`] : []),
     ...(agent.topEmbedUrl ? [`  topEmbedUrl: ${agent.topEmbedUrl}`] : []),
     ...(agent.topTranscriptUrl ? [`  topTranscriptUrl: ${agent.topTranscriptUrl}`] : []),
+    ...(agent.topTranscriptCommand ? [`  topTranscriptCommand: ${agent.topTranscriptCommand}`] : []),
+    ...(agent.topTranscriptCommandArgs ? [`  topTranscriptCommandArgs: ${formatCommandArgsText(agent.topTranscriptCommandArgs)}`] : []),
     ...(agent.topAuthorLinkUrl ? [`  topAuthorLinkUrl: ${agent.topAuthorLinkUrl}`] : []),
     ...(agent.topAuthorLinkCommand ? [`  topAuthorLinkCommand: ${agent.topAuthorLinkCommand}`] : []),
     ...(agent.topAuthorLinkCommandArgs ? [`  topAuthorLinkCommandArgs: ${formatCommandArgsText(agent.topAuthorLinkCommandArgs)}`] : []),
@@ -12086,6 +12090,9 @@ function summarizeAgent(
   const topAuthorLinkCommand = pageCheck.authorLinks[0]?.url && /^https?:\/\//i.test(pageCheck.authorLinks[0].url)
     ? pageCommandSpec(pageCheck.authorLinks[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topTranscriptCommand = pageCheck.transcripts[0]?.url && /^https?:\/\//i.test(pageCheck.transcripts[0].url)
+    ? pageCommandSpec(pageCheck.transcripts[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, sourceSearchAgent, signals, qualityGates, verification.foundQueries, verification.missingQueries);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   const topSemanticHeading = semanticSummary?.headingItems[0];
@@ -12922,6 +12929,8 @@ function summarizeAgent(
     ...(pageCheck.transcripts[0]?.url ? { topTranscriptUrl: pageCheck.transcripts[0].url } : {}),
     ...(pageCheck.transcripts[0]?.label ? { topTranscriptLabel: pageCheck.transcripts[0].label } : {}),
     ...(pageCheck.transcripts[0]?.language ? { topTranscriptLanguage: pageCheck.transcripts[0].language } : {}),
+    ...(topTranscriptCommand ? { topTranscriptCommand: topTranscriptCommand.command } : {}),
+    ...(topTranscriptCommand ? { topTranscriptCommandArgs: topTranscriptCommand.commandArgs } : {}),
     ...(pageCheck.authorLinks[0]?.name ? { topAuthorLinkName: pageCheck.authorLinks[0].name } : {}),
     ...(pageCheck.authorLinks[0]?.url ? { topAuthorLinkUrl: pageCheck.authorLinks[0].url } : {}),
     ...(pageCheck.authorLinks[0] ? { topAuthorLinkSource: pageCheck.authorLinks[0].source } : {}),
@@ -18725,6 +18734,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topTranscriptUrl ? { topTranscriptUrl: agent.topTranscriptUrl } : {}),
     ...(agent.topTranscriptLabel ? { topTranscriptLabel: agent.topTranscriptLabel } : {}),
     ...(agent.topTranscriptLanguage ? { topTranscriptLanguage: agent.topTranscriptLanguage } : {}),
+    ...(agent.topTranscriptCommand ? { topTranscriptCommand: agent.topTranscriptCommand } : {}),
+    ...(agent.topTranscriptCommandArgs ? { topTranscriptCommandArgs: agent.topTranscriptCommandArgs } : {}),
     ...(agent.topAuthorLinkName ? { topAuthorLinkName: agent.topAuthorLinkName } : {}),
     ...(agent.topAuthorLinkUrl ? { topAuthorLinkUrl: agent.topAuthorLinkUrl } : {}),
     ...(agent.topAuthorLinkSource ? { topAuthorLinkSource: agent.topAuthorLinkSource } : {}),
@@ -19944,6 +19955,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topTranscriptUrl ? { topTranscriptUrl: agent.topTranscriptUrl } : {}),
     ...(agent.topTranscriptLabel ? { topTranscriptLabel: agent.topTranscriptLabel } : {}),
     ...(agent.topTranscriptLanguage ? { topTranscriptLanguage: agent.topTranscriptLanguage } : {}),
+    ...(agent.topTranscriptCommand ? { topTranscriptCommand: agent.topTranscriptCommand } : {}),
+    ...(agent.topTranscriptCommandArgs ? { topTranscriptCommandArgs: agent.topTranscriptCommandArgs } : {}),
     ...(agent.topAuthorLinkName ? { topAuthorLinkName: agent.topAuthorLinkName } : {}),
     ...(agent.topAuthorLinkUrl ? { topAuthorLinkUrl: agent.topAuthorLinkUrl } : {}),
     ...(agent.topAuthorLinkSource ? { topAuthorLinkSource: agent.topAuthorLinkSource } : {}),

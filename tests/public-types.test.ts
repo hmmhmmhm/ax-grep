@@ -425,6 +425,8 @@ describe("public agent types", () => {
       | "topTranscriptUrl"
       | "topTranscriptLabel"
       | "topTranscriptLanguage"
+      | "topTranscriptCommand"
+      | "topTranscriptCommandArgs"
       | "topAuthorLinkName"
       | "topAuthorLinkUrl"
       | "topAuthorLinkSource"
@@ -1629,6 +1631,8 @@ describe("public agent types", () => {
       topTranscriptUrl: "https://example.test/transcript.txt",
       topTranscriptLabel: "Full transcript",
       topTranscriptLanguage: "en",
+      topTranscriptCommand: "ax-grep 'https://example.test/transcript.txt' --agent",
+      topTranscriptCommandArgs: ["ax-grep", "https://example.test/transcript.txt", "--agent"],
       topAuthorLinkName: "Example Author",
       topAuthorLinkUrl: "https://example.test/author",
       topAuthorLinkSource: "html",
@@ -2794,6 +2798,7 @@ describe("public agent types", () => {
     expect(summary.topFaqQuestion).toBe("How do I install it?");
     expect(summary.topResourceUrl).toBe("https://example.test/guide.pdf");
     expect(summary.topResourceCommandArgs?.[1]).toBe("https://example.test/guide.pdf");
+    expect(summary.topTranscriptCommandArgs?.[1]).toBe("https://example.test/transcript.txt");
     expect(summary.topAuthorLinkCommandArgs?.[1]).toBe("https://example.test/author");
     expect(summary.bestStructuredReadTarget).toBe("pageCheck.dataTables");
     expect(summary.bestStructuredReadTargetPrimary).toBe(true);

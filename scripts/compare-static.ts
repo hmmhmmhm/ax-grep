@@ -1549,6 +1549,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topTranscriptUrl?: string;
       topTranscriptLabel?: string;
       topTranscriptLanguage?: string;
+      topTranscriptCommand?: string;
+      topTranscriptCommandArgs?: string[];
       topAuthorLinkName?: string;
       topAuthorLinkUrl?: string;
       topAuthorLinkSource?: string;
@@ -8059,6 +8061,8 @@ function scoreAgentStructuredShortcuts(agent: {
   topTranscriptUrl?: string;
   topTranscriptLabel?: string;
   topTranscriptLanguage?: string;
+  topTranscriptCommand?: string;
+  topTranscriptCommandArgs?: string[];
   topAuthorLinkName?: string;
   topAuthorLinkUrl?: string;
   topAuthorLinkSource?: string;
@@ -8303,7 +8307,12 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topTranscriptUrl === topTranscript.url) matched += 1;
     if (agent.topTranscriptLabel === topTranscript.label) matched += 1;
     if (agent.topTranscriptLanguage === topTranscript.language) matched += 1;
-  } else if (agent.topTranscriptKind || agent.topTranscriptUrl || agent.topTranscriptLabel || agent.topTranscriptLanguage) {
+    if (topTranscript.url && /^https?:\/\//i.test(topTranscript.url)) {
+      required += 2;
+      if (typeof agent.topTranscriptCommand === "string" && agent.topTranscriptCommand.includes(topTranscript.url)) matched += 1;
+      if (Array.isArray(agent.topTranscriptCommandArgs) && agent.topTranscriptCommandArgs.includes(topTranscript.url)) matched += 1;
+    }
+  } else if (agent.topTranscriptKind || agent.topTranscriptUrl || agent.topTranscriptLabel || agent.topTranscriptLanguage || agent.topTranscriptCommand || agent.topTranscriptCommandArgs) {
     required += 1;
   }
 

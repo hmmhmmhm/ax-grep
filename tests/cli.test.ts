@@ -10970,6 +10970,15 @@ npx ax-grep https://example.test --agent</code></pre>
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("3 transcripts");
+    expect(envelope.agent).toMatchObject({
+      transcriptCount: 3,
+      topTranscriptKind: "captions",
+      topTranscriptUrl: "https://example.test/media/walkthrough.en.vtt",
+      topTranscriptLabel: "English captions",
+      topTranscriptLanguage: "en",
+      topTranscriptCommand: "ax-grep 'https://example.test/media/walkthrough.en.vtt' --agent",
+      topTranscriptCommandArgs: ["ax-grep", "https://example.test/media/walkthrough.en.vtt", "--agent"],
+    });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",

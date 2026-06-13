@@ -2058,6 +2058,8 @@ export type AgentSummary = {
   topTranscriptUrl?: string;
   topTranscriptLabel?: string;
   topTranscriptLanguage?: string;
+  topTranscriptCommand?: string;
+  topTranscriptCommandArgs?: string[];
   topAuthorLinkName?: string;
   topAuthorLinkUrl?: string;
   topAuthorLinkSource?: string;
