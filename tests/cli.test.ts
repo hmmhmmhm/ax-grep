@@ -11351,6 +11351,10 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  executorTargetTitle: Result Title");
     expect(stdout.output).toContain("  executorTargetHost: result.example");
     expect(stdout.output).toContain("  executorTargetRank: 1");
+    expect(stdout.output).toContain("  handoffTargetUrl: https://result.example/article");
+    expect(stdout.output).toContain("  handoffTargetTitle: Result Title");
+    expect(stdout.output).toContain("  handoffTargetHost: result.example");
+    expect(stdout.output).toContain("  handoffTargetRank: 1");
     expect(stdout.output).toContain("  rank: 1");
     expect(stdout.output).toContain("  openResult: 1");
     expect(stdout.output).toContain("  command: ax-grep 'https://result.example/article' --json --summary");

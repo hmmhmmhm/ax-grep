@@ -4281,6 +4281,20 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.handoff.afterInteractionCommand) lines.push(`  handoffAfterInteractionCommand: ${agent.handoff.afterInteractionCommand}`);
   if (agent.handoff.afterInteractionCommandArgs) lines.push(`  handoffAfterInteractionCommandArgs: ${formatCommandArgsText(agent.handoff.afterInteractionCommandArgs)}`);
   if (agent.handoff.url) lines.push(`  handoffUrl: ${agent.handoff.url}`);
+  if (agent.handoffTargetUrl) lines.push(`  handoffTargetUrl: ${agent.handoffTargetUrl}`);
+  if (agent.handoffTargetPath) lines.push(`  handoffTargetPath: ${agent.handoffTargetPath}`);
+  if (agent.handoffTargetTitle) lines.push(`  handoffTargetTitle: ${agent.handoffTargetTitle}`);
+  if (agent.handoffTargetHost) lines.push(`  handoffTargetHost: ${agent.handoffTargetHost}`);
+  if (agent.handoffTargetSource) lines.push(`  handoffTargetSource: ${agent.handoffTargetSource}`);
+  if (typeof agent.handoffTargetRank === "number") lines.push(`  handoffTargetRank: ${agent.handoffTargetRank}`);
+  if (typeof agent.handoffTargetSourceScore === "number") lines.push(`  handoffTargetSourceScore: ${agent.handoffTargetSourceScore}`);
+  if (agent.handoffTargetDateText) lines.push(`  handoffTargetDateText: ${agent.handoffTargetDateText}`);
+  if (agent.handoffTargetDatePrecision) lines.push(`  handoffTargetDatePrecision: ${agent.handoffTargetDatePrecision}`);
+  if (agent.handoffTargetDateSource) lines.push(`  handoffTargetDateSource: ${agent.handoffTargetDateSource}`);
+  if (agent.handoffTargetRelevance) lines.push(`  handoffTargetRelevance: ${agent.handoffTargetRelevance}`);
+  if (typeof agent.handoffTargetLikelyOfficial === "boolean") lines.push(`  handoffTargetLikelyOfficial: ${agent.handoffTargetLikelyOfficial}`);
+  if (agent.handoffTargetSelector) lines.push(`  handoffTargetSelector: ${agent.handoffTargetSelector}`);
+  if (agent.handoffTargetText) lines.push(`  handoffTargetText: ${agent.handoffTargetText}`);
   if (agent.handoff.readTarget) {
     const count = typeof agent.handoff.readTarget.count === "number" ? ` count=${agent.handoff.readTarget.count}` : "";
     const score = typeof agent.handoff.readTarget.score === "number" ? ` score=${agent.handoff.readTarget.score}` : "";
