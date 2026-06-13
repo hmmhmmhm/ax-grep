@@ -1261,6 +1261,7 @@ describe("public agent types", () => {
       | "recommendedRank"
       | "recommendedSource"
       | "recommendedSourceScore"
+      | "recommendedCommand"
       | "recommendedCommandArgs"
     > = {
       resultCount: 2,
@@ -2327,6 +2328,7 @@ describe("public agent types", () => {
       recommendedRank: 1,
       recommendedSource: "example.test",
       recommendedSourceScore: 0.92,
+      recommendedCommand: "ax-grep https://example.test --agent",
       recommendedCommandArgs: ["ax-grep", "https://example.test", "--agent"],
     };
 
@@ -2498,6 +2500,7 @@ describe("public agent types", () => {
     expect(summary.searchDecisionRecommendedPath).toBe("recommendedResult");
     expect(summary.searchDecisionRecommendedSourceScore).toBe(0.92);
     expect(summary.searchDecisionRecommendedLikelyOfficial).toBe(true);
+    expect(summary.recommendedCommand).toContain("example.test");
     expect(summary.recommendedCommandArgs?.[0]).toBe("ax-grep");
   });
 });
