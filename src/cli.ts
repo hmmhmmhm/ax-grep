@@ -4236,6 +4236,20 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.executor.afterInteractionCommand) lines.push(`  executorAfterInteractionCommand: ${agent.executor.afterInteractionCommand}`);
   if (agent.executor.afterInteractionCommandArgs) lines.push(`  executorAfterInteractionCommandArgs: ${formatCommandArgsText(agent.executor.afterInteractionCommandArgs)}`);
   if (agent.executor.url) lines.push(`  executorUrl: ${agent.executor.url}`);
+  if (agent.executorTargetUrl) lines.push(`  executorTargetUrl: ${agent.executorTargetUrl}`);
+  if (agent.executorTargetPath) lines.push(`  executorTargetPath: ${agent.executorTargetPath}`);
+  if (agent.executorTargetTitle) lines.push(`  executorTargetTitle: ${agent.executorTargetTitle}`);
+  if (agent.executorTargetHost) lines.push(`  executorTargetHost: ${agent.executorTargetHost}`);
+  if (agent.executorTargetSource) lines.push(`  executorTargetSource: ${agent.executorTargetSource}`);
+  if (typeof agent.executorTargetRank === "number") lines.push(`  executorTargetRank: ${agent.executorTargetRank}`);
+  if (typeof agent.executorTargetSourceScore === "number") lines.push(`  executorTargetSourceScore: ${agent.executorTargetSourceScore}`);
+  if (agent.executorTargetDateText) lines.push(`  executorTargetDateText: ${agent.executorTargetDateText}`);
+  if (agent.executorTargetDatePrecision) lines.push(`  executorTargetDatePrecision: ${agent.executorTargetDatePrecision}`);
+  if (agent.executorTargetDateSource) lines.push(`  executorTargetDateSource: ${agent.executorTargetDateSource}`);
+  if (agent.executorTargetRelevance) lines.push(`  executorTargetRelevance: ${agent.executorTargetRelevance}`);
+  if (typeof agent.executorTargetLikelyOfficial === "boolean") lines.push(`  executorTargetLikelyOfficial: ${agent.executorTargetLikelyOfficial}`);
+  if (agent.executorTargetSelector) lines.push(`  executorTargetSelector: ${agent.executorTargetSelector}`);
+  if (agent.executorTargetText) lines.push(`  executorTargetText: ${agent.executorTargetText}`);
   if (agent.executor.readTarget) {
     const count = typeof agent.executor.readTarget.count === "number" ? ` count=${agent.executor.readTarget.count}` : "";
     const score = typeof agent.executor.readTarget.score === "number" ? ` score=${agent.executor.readTarget.score}` : "";
