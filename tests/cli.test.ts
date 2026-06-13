@@ -4479,6 +4479,14 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(envelope.agent).toMatchObject({
+      topChoiceKind: "source",
+      topChoicePath: "pageCheck.sourceLinks[0]",
+      topChoiceUrl: "https://openai.com/research",
+      topChoiceHost: "openai.com",
+      topChoiceCommand: "ax-grep 'https://openai.com/research' --agent-brief",
+      topChoiceCommandArgs: ["ax-grep", "https://openai.com/research", "--agent-brief"],
+      topChoiceSourceType: "official",
+      topChoiceLikelyOfficial: true,
       topSourceChoicePath: "pageCheck.sourceLinks[0]",
       topSourceChoiceUrl: "https://openai.com/research",
       topSourceChoiceCommand: "ax-grep 'https://openai.com/research' --agent-brief",
