@@ -3437,7 +3437,10 @@ function formatActionsText(actions: ActionSummary[]): string[] {
   if (actions.length === 0) return [];
   return [
     "actions",
-    ...actions.map((action, index) => `  ${index + 1}. ${action.type} ${action.text}`),
+    ...actions.map((action, index) => {
+      const selector = action.selector ? ` (${action.selector})` : "";
+      return `  ${index + 1}. ${action.type}${selector} ${action.text}`;
+    }),
   ];
 }
 

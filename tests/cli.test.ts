@@ -34,7 +34,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  dir: ltr");
     expect(stdout.output).toContain("analysis\n  kind: page");
     expect(stdout.output).toContain("outline\n  1. h1 Example");
-    expect(stdout.output).toContain("actions\n  1. button Run");
+    expect(stdout.output).toContain("actions\n  1. button (button) Run");
     expect(stdout.output).toContain("main");
     expect(stdout.output).toContain("heading 'Example'");
     expect(stdout.output).toContain("[i] link 'Docs' <https://example.test/docs>");
