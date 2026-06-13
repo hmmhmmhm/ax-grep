@@ -1741,6 +1741,9 @@ type AgentSummary = {
   topDatasetLicenseCommand?: string;
   topDatasetLicenseCommandArgs?: string[];
   topDatasetEncodingFormat?: string;
+  topDatasetTemporalCoverage?: string;
+  topDatasetSpatialCoverage?: string;
+  topDatasetCreator?: string;
   topDatasetSelector?: string;
   topIdentityPath?: string;
   topIdentityKind?: PageIdentitySummary["kind"];
@@ -4088,6 +4091,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topDatasetDistributionCommandArgs ? [`  topDatasetDistributionCommandArgs: ${formatCommandArgsText(agent.topDatasetDistributionCommandArgs)}`] : []),
     ...(agent.topDatasetLicenseCommand ? [`  topDatasetLicenseCommand: ${agent.topDatasetLicenseCommand}`] : []),
     ...(agent.topDatasetLicenseCommandArgs ? [`  topDatasetLicenseCommandArgs: ${formatCommandArgsText(agent.topDatasetLicenseCommandArgs)}`] : []),
+    ...(agent.topDatasetTemporalCoverage ? [`  topDatasetTemporalCoverage: ${agent.topDatasetTemporalCoverage}`] : []),
+    ...(agent.topDatasetSpatialCoverage ? [`  topDatasetSpatialCoverage: ${agent.topDatasetSpatialCoverage}`] : []),
+    ...(agent.topDatasetCreator ? [`  topDatasetCreator: ${agent.topDatasetCreator}`] : []),
     ...(agent.topIdentityName ? [`  topIdentity: ${agent.topIdentityPath ?? ""} ${agent.topIdentityKind ?? ""}:${agent.topIdentityName}${agent.topIdentityUrl ? ` <${agent.topIdentityUrl}>` : ""}`] : []),
     ...(agent.topIdentityCommand ? [`  topIdentityCommand: ${agent.topIdentityCommand}`] : []),
     ...(agent.topIdentityCommandArgs ? [`  topIdentityCommandArgs: ${formatCommandArgsText(agent.topIdentityCommandArgs)}`] : []),
@@ -13131,6 +13137,9 @@ function summarizeAgent(
     ...(topDatasetLicenseCommand ? { topDatasetLicenseCommand: topDatasetLicenseCommand.command } : {}),
     ...(topDatasetLicenseCommand ? { topDatasetLicenseCommandArgs: topDatasetLicenseCommand.commandArgs } : {}),
     ...(pageCheck.datasets[0]?.encodingFormat ? { topDatasetEncodingFormat: pageCheck.datasets[0].encodingFormat } : {}),
+    ...(pageCheck.datasets[0]?.temporalCoverage ? { topDatasetTemporalCoverage: pageCheck.datasets[0].temporalCoverage } : {}),
+    ...(pageCheck.datasets[0]?.spatialCoverage ? { topDatasetSpatialCoverage: pageCheck.datasets[0].spatialCoverage } : {}),
+    ...(pageCheck.datasets[0]?.creator ? { topDatasetCreator: pageCheck.datasets[0].creator } : {}),
     ...(pageCheck.datasets[0]?.selector ? { topDatasetSelector: pageCheck.datasets[0].selector } : {}),
     ...(pageCheck.identities[0] ? { topIdentityPath: pageCheck.identities[0].path } : {}),
     ...(pageCheck.identities[0] ? { topIdentityKind: pageCheck.identities[0].kind } : {}),
@@ -18973,6 +18982,9 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topDatasetLicenseCommand ? { topDatasetLicenseCommand: agent.topDatasetLicenseCommand } : {}),
     ...(agent.topDatasetLicenseCommandArgs ? { topDatasetLicenseCommandArgs: agent.topDatasetLicenseCommandArgs } : {}),
     ...(agent.topDatasetEncodingFormat ? { topDatasetEncodingFormat: agent.topDatasetEncodingFormat } : {}),
+    ...(agent.topDatasetTemporalCoverage ? { topDatasetTemporalCoverage: agent.topDatasetTemporalCoverage } : {}),
+    ...(agent.topDatasetSpatialCoverage ? { topDatasetSpatialCoverage: agent.topDatasetSpatialCoverage } : {}),
+    ...(agent.topDatasetCreator ? { topDatasetCreator: agent.topDatasetCreator } : {}),
     ...(agent.topDatasetSelector ? { topDatasetSelector: agent.topDatasetSelector } : {}),
     ...(agent.topIdentityPath ? { topIdentityPath: agent.topIdentityPath } : {}),
     ...(agent.topIdentityKind ? { topIdentityKind: agent.topIdentityKind } : {}),
@@ -20231,6 +20243,9 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topDatasetLicenseCommand ? { topDatasetLicenseCommand: agent.topDatasetLicenseCommand } : {}),
     ...(agent.topDatasetLicenseCommandArgs ? { topDatasetLicenseCommandArgs: agent.topDatasetLicenseCommandArgs } : {}),
     ...(agent.topDatasetEncodingFormat ? { topDatasetEncodingFormat: agent.topDatasetEncodingFormat } : {}),
+    ...(agent.topDatasetTemporalCoverage ? { topDatasetTemporalCoverage: agent.topDatasetTemporalCoverage } : {}),
+    ...(agent.topDatasetSpatialCoverage ? { topDatasetSpatialCoverage: agent.topDatasetSpatialCoverage } : {}),
+    ...(agent.topDatasetCreator ? { topDatasetCreator: agent.topDatasetCreator } : {}),
     ...(agent.topDatasetSelector ? { topDatasetSelector: agent.topDatasetSelector } : {}),
     ...(agent.topIdentityPath ? { topIdentityPath: agent.topIdentityPath } : {}),
     ...(agent.topIdentityKind ? { topIdentityKind: agent.topIdentityKind } : {}),

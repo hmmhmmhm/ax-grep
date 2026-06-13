@@ -2108,6 +2108,9 @@ export type AgentSummary = {
   topDatasetLicenseCommand?: string;
   topDatasetLicenseCommandArgs?: string[];
   topDatasetEncodingFormat?: string;
+  topDatasetTemporalCoverage?: string;
+  topDatasetSpatialCoverage?: string;
+  topDatasetCreator?: string;
   topDatasetSelector?: string;
   topIdentityPath?: string;
   topIdentityKind?: string;

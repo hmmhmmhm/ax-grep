@@ -9453,6 +9453,9 @@ describe("cli", () => {
       topDatasetLicenseCommand: "ax-grep 'https://creativecommons.org/licenses/by/4.0/' --find 'creativecommons.org/licenses/by/4.0' --agent",
       topDatasetLicenseCommandArgs: ["ax-grep", "https://creativecommons.org/licenses/by/4.0/", "--find", "creativecommons.org/licenses/by/4.0", "--agent"],
       topDatasetEncodingFormat: "text/csv",
+      topDatasetTemporalCoverage: "2020/2025",
+      topDatasetSpatialCoverage: "United States",
+      topDatasetCreator: "Example Lab",
       topDatasetSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
@@ -9485,6 +9488,9 @@ describe("cli", () => {
             "name": "Example emissions dataset",
             "url": "/datasets/emissions",
             "license": "https://creativecommons.org/licenses/by/4.0/",
+            "creator": { "@type": "Organization", "name": "Example Lab" },
+            "temporalCoverage": "2020/2025",
+            "spatialCoverage": { "@type": "Place", "name": "United States" },
             "distribution": [
               {
                 "@type": "DataDownload",
@@ -9516,6 +9522,9 @@ describe("cli", () => {
       topDatasetLicenseCommand: "ax-grep 'https://creativecommons.org/licenses/by/4.0/' --agent-brief",
       topDatasetLicenseCommandArgs: ["ax-grep", "https://creativecommons.org/licenses/by/4.0/", "--agent-brief"],
       topDatasetEncodingFormat: "text/csv",
+      topDatasetTemporalCoverage: "2020/2025",
+      topDatasetSpatialCoverage: "United States",
+      topDatasetCreator: "Example Lab",
       topDatasetSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
     });
   });

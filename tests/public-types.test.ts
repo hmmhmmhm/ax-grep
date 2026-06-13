@@ -472,6 +472,9 @@ describe("public agent types", () => {
       | "topDatasetLicenseCommand"
       | "topDatasetLicenseCommandArgs"
       | "topDatasetEncodingFormat"
+      | "topDatasetTemporalCoverage"
+      | "topDatasetSpatialCoverage"
+      | "topDatasetCreator"
       | "topDatasetSelector"
       | "topIdentityPath"
       | "topIdentityKind"
@@ -1715,6 +1718,9 @@ describe("public agent types", () => {
       topDatasetLicenseCommand: "ax-grep 'https://creativecommons.org/licenses/by/4.0/' --agent",
       topDatasetLicenseCommandArgs: ["ax-grep", "https://creativecommons.org/licenses/by/4.0/", "--agent"],
       topDatasetEncodingFormat: "text/csv",
+      topDatasetTemporalCoverage: "2020/2025",
+      topDatasetSpatialCoverage: "United States",
+      topDatasetCreator: "Example Lab",
       topDatasetSelector: "script[type=\"application/ld+json\"]:nth-of-type(2)",
       topIdentityPath: "pageCheck.identities[0]",
       topIdentityKind: "organization",
@@ -3303,6 +3309,9 @@ describe("public agent types", () => {
           name: "Example dataset",
           source: "json-ld",
           url: "https://example.test/data",
+          temporalCoverage: "2020/2025",
+          spatialCoverage: "United States",
+          creator: "Example Lab",
         }],
         timeline: [{
           id: "time1",

@@ -1614,6 +1614,9 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topDatasetLicenseCommand?: string;
       topDatasetLicenseCommandArgs?: string[];
       topDatasetEncodingFormat?: string;
+      topDatasetTemporalCoverage?: string;
+      topDatasetSpatialCoverage?: string;
+      topDatasetCreator?: string;
       topDatasetSelector?: string;
       topIdentityPath?: string;
       topIdentityKind?: string;
@@ -8223,6 +8226,9 @@ function scoreAgentStructuredShortcuts(agent: {
   topDatasetLicenseCommand?: string;
   topDatasetLicenseCommandArgs?: string[];
   topDatasetEncodingFormat?: string;
+  topDatasetTemporalCoverage?: string;
+  topDatasetSpatialCoverage?: string;
+  topDatasetCreator?: string;
   topDatasetSelector?: string;
   topIdentityPath?: string;
   topIdentityKind?: string;
@@ -8277,7 +8283,7 @@ function scoreAgentStructuredShortcuts(agent: {
   authorLinks?: Array<{ name?: string; url?: string; source?: string }>;
   provenance?: Array<{ path?: string; kind?: string; label?: string; value?: string; url?: string; source?: string; selector?: string }>;
   offers?: Array<{ path?: string; name?: string; price?: string; priceAmount?: number; currency?: string; availability?: string; url?: string; selector?: string }>;
-  datasets?: Array<{ path?: string; kind?: string; name?: string; url?: string; distributionUrls?: string[]; licenseUrl?: string; encodingFormat?: string; selector?: string }>;
+  datasets?: Array<{ path?: string; kind?: string; name?: string; url?: string; distributionUrls?: string[]; licenseUrl?: string; encodingFormat?: string; temporalCoverage?: string; spatialCoverage?: string; creator?: string; selector?: string }>;
   identities?: Array<{ path?: string; kind?: string; name?: string; url?: string; logoUrl?: string; sameAs?: string[]; source?: string; selector?: string }>;
   timeline?: Array<{ path?: string; kind?: string; label?: string; value?: string; isoDate?: string; unixMs?: number; source?: string; selector?: string }>;
   contactPoints?: Array<{ path?: string; kind?: string; label?: string; value?: string; url?: string; source?: string; selector?: string }>;
@@ -8537,7 +8543,7 @@ function scoreAgentStructuredShortcuts(agent: {
 
   const topDataset = datasets[0];
   if (topDataset) {
-    required += 8;
+    required += 11;
     if (agent.topDatasetPath === topDataset.path) matched += 1;
     if (agent.topDatasetKind === topDataset.kind) matched += 1;
     if (agent.topDatasetName === topDataset.name) matched += 1;
@@ -8545,6 +8551,9 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topDatasetDistributionUrl === topDataset.distributionUrls?.[0]) matched += 1;
     if (agent.topDatasetLicenseUrl === topDataset.licenseUrl) matched += 1;
     if (agent.topDatasetEncodingFormat === topDataset.encodingFormat) matched += 1;
+    if (agent.topDatasetTemporalCoverage === topDataset.temporalCoverage) matched += 1;
+    if (agent.topDatasetSpatialCoverage === topDataset.spatialCoverage) matched += 1;
+    if (agent.topDatasetCreator === topDataset.creator) matched += 1;
     if (agent.topDatasetSelector === topDataset.selector) matched += 1;
     if (topDataset.url && /^https?:\/\//i.test(topDataset.url)) {
       required += 2;
@@ -8561,7 +8570,7 @@ function scoreAgentStructuredShortcuts(agent: {
       if (typeof agent.topDatasetLicenseCommand === "string" && agent.topDatasetLicenseCommand.includes(topDataset.licenseUrl)) matched += 1;
       if (Array.isArray(agent.topDatasetLicenseCommandArgs) && agent.topDatasetLicenseCommandArgs.includes(topDataset.licenseUrl)) matched += 1;
     }
-  } else if (agent.topDatasetPath || agent.topDatasetKind || agent.topDatasetName || agent.topDatasetUrl || agent.topDatasetCommand || agent.topDatasetCommandArgs || agent.topDatasetDistributionUrl || agent.topDatasetDistributionCommand || agent.topDatasetDistributionCommandArgs || agent.topDatasetLicenseUrl || agent.topDatasetLicenseCommand || agent.topDatasetLicenseCommandArgs || agent.topDatasetEncodingFormat || agent.topDatasetSelector) {
+  } else if (agent.topDatasetPath || agent.topDatasetKind || agent.topDatasetName || agent.topDatasetUrl || agent.topDatasetCommand || agent.topDatasetCommandArgs || agent.topDatasetDistributionUrl || agent.topDatasetDistributionCommand || agent.topDatasetDistributionCommandArgs || agent.topDatasetLicenseUrl || agent.topDatasetLicenseCommand || agent.topDatasetLicenseCommandArgs || agent.topDatasetEncodingFormat || agent.topDatasetTemporalCoverage || agent.topDatasetSpatialCoverage || agent.topDatasetCreator || agent.topDatasetSelector) {
     required += 1;
   }
 
