@@ -1483,6 +1483,9 @@ export type AgentSummary = {
   semanticTopInteractiveExpanded?: boolean;
   semanticTopInteractiveHaspopup?: SemanticNodeState["haspopup"];
   semanticTopInteractiveControls?: string;
+  semanticTopInteractiveControlsTargetRole?: string;
+  semanticTopInteractiveControlsTargetName?: string;
+  semanticTopInteractiveControlsTargetSelector?: string;
   semanticTopInteractiveSelector?: string;
   semanticTopFocusableRole?: string;
   semanticTopFocusablePath?: string;
@@ -1494,6 +1497,9 @@ export type AgentSummary = {
   semanticTopFocusableExpanded?: boolean;
   semanticTopFocusableHaspopup?: SemanticNodeState["haspopup"];
   semanticTopFocusableControls?: string;
+  semanticTopFocusableControlsTargetRole?: string;
+  semanticTopFocusableControlsTargetName?: string;
+  semanticTopFocusableControlsTargetSelector?: string;
   semanticTopFocusableSelector?: string;
   semanticTopLinkName?: string;
   semanticTopLinkPath?: string;
@@ -1524,6 +1530,9 @@ export type AgentSummary = {
   semanticTopButtonExpanded?: boolean;
   semanticTopButtonHaspopup?: SemanticNodeState["haspopup"];
   semanticTopButtonControls?: string;
+  semanticTopButtonControlsTargetRole?: string;
+  semanticTopButtonControlsTargetName?: string;
+  semanticTopButtonControlsTargetSelector?: string;
   semanticTopButtonFormAction?: string;
   semanticTopButtonFormMethod?: string;
   semanticTopButtonFormTarget?: string;
@@ -1681,6 +1690,9 @@ export type AgentSummary = {
   semanticTopFieldExpanded?: boolean;
   semanticTopFieldHaspopup?: SemanticNodeState["haspopup"];
   semanticTopFieldControls?: string;
+  semanticTopFieldControlsTargetRole?: string;
+  semanticTopFieldControlsTargetName?: string;
+  semanticTopFieldControlsTargetSelector?: string;
   semanticTopFieldValueMin?: number;
   semanticTopFieldValueMax?: number;
   semanticTopFieldValueNow?: number;

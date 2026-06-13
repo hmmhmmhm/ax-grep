@@ -763,6 +763,9 @@ describe("public agent types", () => {
       | "semanticTopInteractiveExpanded"
       | "semanticTopInteractiveHaspopup"
       | "semanticTopInteractiveControls"
+      | "semanticTopInteractiveControlsTargetRole"
+      | "semanticTopInteractiveControlsTargetName"
+      | "semanticTopInteractiveControlsTargetSelector"
       | "semanticTopInteractiveSelector"
       | "semanticTopFocusableRole"
       | "semanticTopFocusablePath"
@@ -774,6 +777,9 @@ describe("public agent types", () => {
       | "semanticTopFocusableExpanded"
       | "semanticTopFocusableHaspopup"
       | "semanticTopFocusableControls"
+      | "semanticTopFocusableControlsTargetRole"
+      | "semanticTopFocusableControlsTargetName"
+      | "semanticTopFocusableControlsTargetSelector"
       | "semanticTopFocusableSelector"
       | "semanticTopLinkName"
       | "semanticTopLinkPath"
@@ -804,6 +810,9 @@ describe("public agent types", () => {
       | "semanticTopButtonExpanded"
       | "semanticTopButtonHaspopup"
       | "semanticTopButtonControls"
+      | "semanticTopButtonControlsTargetRole"
+      | "semanticTopButtonControlsTargetName"
+      | "semanticTopButtonControlsTargetSelector"
       | "semanticTopButtonFormAction"
       | "semanticTopButtonFormMethod"
       | "semanticTopButtonFormTarget"
@@ -961,6 +970,9 @@ describe("public agent types", () => {
       | "semanticTopFieldExpanded"
       | "semanticTopFieldHaspopup"
       | "semanticTopFieldControls"
+      | "semanticTopFieldControlsTargetRole"
+      | "semanticTopFieldControlsTargetName"
+      | "semanticTopFieldControlsTargetSelector"
       | "semanticTopFieldValueMin"
       | "semanticTopFieldValueMax"
       | "semanticTopFieldValueNow"
@@ -2088,6 +2100,9 @@ describe("public agent types", () => {
       semanticTopButtonExpanded: true,
       semanticTopButtonHaspopup: "dialog",
       semanticTopButtonControls: "subscribe-dialog",
+      semanticTopButtonControlsTargetRole: "dialog",
+      semanticTopButtonControlsTargetName: "Subscribe dialog",
+      semanticTopButtonControlsTargetSelector: "#subscribe-dialog",
       semanticTopButtonFormAction: "https://example.test/subscribe",
       semanticTopButtonFormMethod: "post",
       semanticTopButtonFormTarget: "_self",
@@ -2248,6 +2263,9 @@ describe("public agent types", () => {
       semanticTopFieldExpanded: true,
       semanticTopFieldHaspopup: "listbox",
       semanticTopFieldControls: "email-suggestions",
+      semanticTopFieldControlsTargetRole: "listbox",
+      semanticTopFieldControlsTargetName: "Email suggestions",
+      semanticTopFieldControlsTargetSelector: "#email-suggestions",
       semanticTopFieldValueMin: 0,
       semanticTopFieldValueMax: 100,
       semanticTopFieldValueNow: 40,
