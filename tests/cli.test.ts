@@ -2632,6 +2632,8 @@ describe("cli", () => {
       sourceHints: ["package-registry"],
       dateText: "2026-05-31",
       date: "2026-05-31",
+      dateIso: "2026-05-31T00:00:00.000Z",
+      dateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       datePrecision: "day",
       dateSource: "snippet",
       sitelinks: [
@@ -2663,6 +2665,8 @@ describe("cli", () => {
     expect(envelope.agent.resultChoices[0]).toMatchObject({
       dateText: "2026-05-31",
       date: "2026-05-31",
+      dateIso: "2026-05-31T00:00:00.000Z",
+      dateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       datePrecision: "day",
       dateSource: "snippet",
       sitelinks: [
@@ -2685,15 +2689,23 @@ describe("cli", () => {
       topResultChoiceSourceScore: 0.9,
       topResultChoiceSourceHints: ["package-registry"],
       topResultChoiceDateText: "2026-05-31",
+      topResultChoiceDateIso: "2026-05-31T00:00:00.000Z",
+      topResultChoiceDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       topResultChoiceDatePrecision: "day",
       topResultChoiceDateSource: "snippet",
       topChoiceDateText: "2026-05-31",
+      topChoiceDateIso: "2026-05-31T00:00:00.000Z",
+      topChoiceDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       topChoiceDatePrecision: "day",
       topChoiceDateSource: "snippet",
       recommendedDateText: "2026-05-31",
+      recommendedDateIso: "2026-05-31T00:00:00.000Z",
+      recommendedDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       recommendedDatePrecision: "day",
       recommendedDateSource: "snippet",
       searchDecisionRecommendedDateText: "2026-05-31",
+      searchDecisionRecommendedDateIso: "2026-05-31T00:00:00.000Z",
+      searchDecisionRecommendedDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       searchDecisionRecommendedDatePrecision: "day",
       searchDecisionRecommendedDateSource: "snippet",
       searchDecisionFirstOfficialRank: 1,
@@ -2802,12 +2814,15 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("  topResultChoiceDateText: 2026-05-31");
+    expect(stdout.output).toContain("  topResultChoiceDateIso: 2026-05-31T00:00:00.000Z");
     expect(stdout.output).toContain("  topResultChoiceDatePrecision: day");
     expect(stdout.output).toContain("  topResultChoiceDateSource: snippet");
     expect(stdout.output).toContain("  recommendedDateText: 2026-05-31");
+    expect(stdout.output).toContain("  recommendedDateIso: 2026-05-31T00:00:00.000Z");
     expect(stdout.output).toContain("  recommendedDatePrecision: day");
     expect(stdout.output).toContain("  recommendedDateSource: snippet");
     expect(stdout.output).toContain("  searchDecisionRecommendedDateText: 2026-05-31");
+    expect(stdout.output).toContain("  searchDecisionRecommendedDateIso: 2026-05-31T00:00:00.000Z");
     expect(stdout.output).toContain("  searchDecisionRecommendedDatePrecision: day");
     expect(stdout.output).toContain("  searchDecisionRecommendedDateSource: snippet");
     expect(stdout.output).toContain("  topActionTargetDateText: 2026-05-31");
@@ -2823,9 +2838,9 @@ describe("cli", () => {
     expect(stdout.output).toContain("  primaryTargetDatePrecision: day");
     expect(stdout.output).toContain("  primaryTargetDateSource: snippet");
     expect(stdout.output).toContain("  topChoice: result searchResults[0]");
-    expect(stdout.output).toContain("dateText=2026-05-31 datePrecision=day dateSource=snippet");
+    expect(stdout.output).toContain("dateText=2026-05-31 dateIso=2026-05-31T00:00:00.000Z dateUnixMs=1780185600000 datePrecision=day dateSource=snippet");
     expect(stdout.output).toContain("  resultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult");
-    expect(stdout.output).toContain("dateText=2026-05-31 datePrecision=day dateSource=snippet");
+    expect(stdout.output).toContain("dateText=2026-05-31 dateIso=2026-05-31T00:00:00.000Z dateUnixMs=1780185600000 datePrecision=day dateSource=snippet");
   });
 
   it("prefers freshness-matching search results for dated queries", async () => {

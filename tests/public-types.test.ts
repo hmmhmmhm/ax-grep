@@ -259,6 +259,8 @@ describe("public agent types", () => {
       | "topResultChoiceSourceScore"
       | "topResultChoiceSourceHints"
       | "topResultChoiceDateText"
+      | "topResultChoiceDateIso"
+      | "topResultChoiceDateUnixMs"
       | "topResultChoiceDatePrecision"
       | "topResultChoiceDateSource"
       | "topResultChoiceRelevance"
@@ -586,6 +588,8 @@ describe("public agent types", () => {
       | "topChoiceHost"
       | "topChoiceSnippet"
       | "topChoiceDateText"
+      | "topChoiceDateIso"
+      | "topChoiceDateUnixMs"
       | "topChoiceDatePrecision"
       | "topChoiceDateSource"
       | "topChoiceCommand"
@@ -719,6 +723,8 @@ describe("public agent types", () => {
       | "searchDecisionRecommendedSource"
       | "searchDecisionRecommendedSourceScore"
       | "searchDecisionRecommendedDateText"
+      | "searchDecisionRecommendedDateIso"
+      | "searchDecisionRecommendedDateUnixMs"
       | "searchDecisionRecommendedDatePrecision"
       | "searchDecisionRecommendedDateSource"
       | "searchDecisionRecommendedRelevance"
@@ -1479,6 +1485,8 @@ describe("public agent types", () => {
       | "recommendedSource"
       | "recommendedSourceScore"
       | "recommendedDateText"
+      | "recommendedDateIso"
+      | "recommendedDateUnixMs"
       | "recommendedDatePrecision"
       | "recommendedDateSource"
       | "recommendedRelevance"
@@ -1505,6 +1513,8 @@ describe("public agent types", () => {
       topResultChoiceSourceScore: 0.9,
       topResultChoiceSourceHints: ["package-registry"],
       topResultChoiceDateText: "2026-05-31",
+      topResultChoiceDateIso: "2026-05-31T00:00:00.000Z",
+      topResultChoiceDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       topResultChoiceDatePrecision: "day",
       topResultChoiceDateSource: "snippet",
       topResultChoiceRelevance: "high",
@@ -1832,6 +1842,8 @@ describe("public agent types", () => {
       topChoiceHost: "source.example",
       topChoiceSnippet: "Source summary",
       topChoiceDateText: "2026-05-31",
+      topChoiceDateIso: "2026-05-31T00:00:00.000Z",
+      topChoiceDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       topChoiceDatePrecision: "day",
       topChoiceDateSource: "snippet",
       topChoiceCommand: "ax-grep https://source.example/report --agent",
@@ -1990,6 +2002,8 @@ describe("public agent types", () => {
         recommendedSource: "example.test",
         recommendedSourceScore: 0.92,
         recommendedDateText: "2026-05-31",
+        recommendedDateIso: "2026-05-31T00:00:00.000Z",
+        recommendedDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
         recommendedDatePrecision: "day",
         recommendedDateSource: "snippet",
         recommendedRelevance: "high",
@@ -2022,6 +2036,8 @@ describe("public agent types", () => {
       searchDecisionRecommendedSource: "example.test",
       searchDecisionRecommendedSourceScore: 0.92,
       searchDecisionRecommendedDateText: "2026-05-31",
+      searchDecisionRecommendedDateIso: "2026-05-31T00:00:00.000Z",
+      searchDecisionRecommendedDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       searchDecisionRecommendedDatePrecision: "day",
       searchDecisionRecommendedDateSource: "snippet",
       searchDecisionRecommendedRelevance: "high",
@@ -2853,6 +2869,8 @@ describe("public agent types", () => {
       recommendedSource: "example.test",
       recommendedSourceScore: 0.92,
       recommendedDateText: "2026-05-31",
+      recommendedDateIso: "2026-05-31T00:00:00.000Z",
+      recommendedDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       recommendedDatePrecision: "day",
       recommendedDateSource: "snippet",
       recommendedRelevance: "high",
@@ -3107,6 +3125,8 @@ describe("public agent types", () => {
     expect(summary.searchDecisionRecommendedPath).toBe("recommendedResult");
     expect(summary.searchDecisionRecommendedSourceScore).toBe(0.92);
     expect(summary.searchDecisionRecommendedDateText).toBe("2026-05-31");
+    expect(summary.searchDecisionRecommendedDateIso).toBe("2026-05-31T00:00:00.000Z");
+    expect(summary.searchDecisionRecommendedDateUnixMs).toBe(Date.parse("2026-05-31T00:00:00.000Z"));
     expect(summary.searchDecisionRecommendedDatePrecision).toBe("day");
     expect(summary.searchDecisionRecommendedDateSource).toBe("snippet");
     expect(summary.searchDecisionRecommendedLikelyOfficial).toBe(true);

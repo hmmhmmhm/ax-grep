@@ -473,6 +473,8 @@ type CliAgentTargetShape = {
   sourceHints?: string[];
   dateText?: string;
   date?: string;
+  dateIso?: string;
+  dateUnixMs?: number;
   datePrecision?: "day" | "month" | "year";
   dateSource?: "title" | "snippet";
   sitelinks?: Array<{ title?: string; url?: string; selector?: string; command?: string; commandArgs?: unknown[] }>;
@@ -536,6 +538,8 @@ type CliSearchResultShape = {
   snippet?: string;
   dateText?: string;
   date?: string;
+  dateIso?: string;
+  dateUnixMs?: number;
   datePrecision?: "day" | "month" | "year";
   dateSource?: "title" | "snippet";
   sitelinks?: Array<{ title?: string; url?: string; selector?: string; command?: string; commandArgs?: unknown[] }>;
@@ -592,6 +596,8 @@ type CliAgentSearchDecisionShape = {
   recommendedUrl?: string;
   recommendedSource?: string;
   recommendedSourceScore?: number;
+  recommendedDateIso?: string;
+  recommendedDateUnixMs?: number;
   recommendedRelevance?: CliSearchResultShape["relevance"];
   recommendedLikelyOfficial?: boolean;
   firstOfficialRank?: number;
@@ -1386,6 +1392,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       recommendedTitle?: string;
       recommendedSource?: string;
       recommendedSourceScore?: number;
+      recommendedDateIso?: string;
+      recommendedDateUnixMs?: number;
       recommendedRelevance?: "low" | "medium" | "high";
       recommendedLikelyOfficial?: boolean;
       recommendedCommand?: string;
@@ -1407,6 +1415,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topResultChoiceSourceScore?: number;
       topResultChoiceSourceHints?: string[];
       topResultChoiceDateText?: string;
+      topResultChoiceDateIso?: string;
+      topResultChoiceDateUnixMs?: number;
       topResultChoiceRelevance?: "low" | "medium" | "high";
       topResultChoiceMatchedTerm?: string;
       topResultChoiceFindMatch?: string;
@@ -4402,6 +4412,8 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
   topResultChoiceSourceScore?: number;
   topResultChoiceSourceHints?: string[];
   topResultChoiceDateText?: string;
+  topResultChoiceDateIso?: string;
+  topResultChoiceDateUnixMs?: number;
   topResultChoiceRelevance?: "low" | "medium" | "high";
   topResultChoiceMatchedTerm?: string;
   topResultChoiceFindMatch?: string;
@@ -4505,6 +4517,18 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
     required += 1;
     if (agent?.topResultChoiceDateText === top.dateText) matched += 1;
   } else if (agent?.topResultChoiceDateText) {
+    required += 1;
+  }
+  if (top.dateIso) {
+    required += 1;
+    if (agent?.topResultChoiceDateIso === top.dateIso) matched += 1;
+  } else if (agent?.topResultChoiceDateIso) {
+    required += 1;
+  }
+  if (typeof top.dateUnixMs === "number") {
+    required += 1;
+    if (agent?.topResultChoiceDateUnixMs === top.dateUnixMs) matched += 1;
+  } else if (typeof agent?.topResultChoiceDateUnixMs === "number") {
     required += 1;
   }
   if (top.relevance) {
@@ -10203,6 +10227,8 @@ function scoreAgentRecommendedMetadata(
     recommendedTitle?: string;
     recommendedSource?: string;
     recommendedSourceScore?: number;
+    recommendedDateIso?: string;
+    recommendedDateUnixMs?: number;
     recommendedRelevance?: "low" | "medium" | "high";
     recommendedLikelyOfficial?: boolean;
     recommendedCommand?: string;
@@ -10237,6 +10263,14 @@ function scoreAgentRecommendedMetadata(
   if (typeof recommendedResult.sourceScore === "number") {
     required += 1;
     if (agent?.recommendedSourceScore === recommendedResult.sourceScore) matched += 1;
+  }
+  if (recommendedResult.dateIso) {
+    required += 1;
+    if (agent?.recommendedDateIso === recommendedResult.dateIso) matched += 1;
+  }
+  if (typeof recommendedResult.dateUnixMs === "number") {
+    required += 1;
+    if (agent?.recommendedDateUnixMs === recommendedResult.dateUnixMs) matched += 1;
   }
   if (recommendedResult.relevance) {
     required += 1;

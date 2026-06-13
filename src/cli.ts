@@ -138,6 +138,8 @@ type AgentSearchDecision = {
   recommendedSource?: string;
   recommendedSourceScore?: number;
   recommendedDateText?: string;
+  recommendedDateIso?: string;
+  recommendedDateUnixMs?: number;
   recommendedDatePrecision?: ResultSummary["datePrecision"];
   recommendedDateSource?: ResultSummary["dateSource"];
   recommendedRelevance?: ResultSummary["relevance"];
@@ -246,6 +248,8 @@ type ResultSummary = {
   sourceHints?: string[];
   dateText?: string;
   date?: string;
+  dateIso?: string;
+  dateUnixMs?: number;
   datePrecision?: "day" | "month" | "year";
   dateSource?: "title" | "snippet";
   sitelinks?: Array<{ title: string; url: string; selector?: string; command?: string; commandArgs?: string[] }>;
@@ -1029,6 +1033,8 @@ type AgentSummary = {
   searchDecisionRecommendedSource?: string;
   searchDecisionRecommendedSourceScore?: number;
   searchDecisionRecommendedDateText?: string;
+  searchDecisionRecommendedDateIso?: string;
+  searchDecisionRecommendedDateUnixMs?: number;
   searchDecisionRecommendedDatePrecision?: ResultSummary["datePrecision"];
   searchDecisionRecommendedDateSource?: ResultSummary["dateSource"];
   searchDecisionRecommendedRelevance?: ResultSummary["relevance"];
@@ -1528,6 +1534,8 @@ type AgentSummary = {
   topResultChoiceSourceScore?: number;
   topResultChoiceSourceHints?: string[];
   topResultChoiceDateText?: string;
+  topResultChoiceDateIso?: string;
+  topResultChoiceDateUnixMs?: number;
   topResultChoiceDatePrecision?: AgentResultChoice["datePrecision"];
   topResultChoiceDateSource?: AgentResultChoice["dateSource"];
   topResultChoiceRelevance?: AgentResultChoice["relevance"];
@@ -1856,6 +1864,8 @@ type AgentSummary = {
   topChoiceHost?: string;
   topChoiceSnippet?: string;
   topChoiceDateText?: string;
+  topChoiceDateIso?: string;
+  topChoiceDateUnixMs?: number;
   topChoiceDatePrecision?: AgentTarget["datePrecision"];
   topChoiceDateSource?: AgentTarget["dateSource"];
   topChoiceCommand?: string;
@@ -2225,6 +2235,8 @@ type AgentSummary = {
   recommendedSource?: string;
   recommendedSourceScore?: number;
   recommendedDateText?: string;
+  recommendedDateIso?: string;
+  recommendedDateUnixMs?: number;
   recommendedDatePrecision?: ResultSummary["datePrecision"];
   recommendedDateSource?: ResultSummary["dateSource"];
   recommendedRelevance?: ResultSummary["relevance"];
@@ -3678,6 +3690,8 @@ function formatAgentResultChoiceText(choice: AgentResultChoice, prefix = "result
   const relevance = choice.relevance ? ` relevance=${choice.relevance}` : "";
   const date = choice.date ? ` date=${choice.date}` : "";
   const dateText = choice.dateText ? ` dateText=${choice.dateText}` : "";
+  const dateIso = choice.dateIso ? ` dateIso=${choice.dateIso}` : "";
+  const dateUnixMs = typeof choice.dateUnixMs === "number" ? ` dateUnixMs=${choice.dateUnixMs}` : "";
   const datePrecision = choice.datePrecision ? ` datePrecision=${choice.datePrecision}` : "";
   const dateSource = choice.dateSource ? ` dateSource=${choice.dateSource}` : "";
   const source = choice.source ? ` source=${choice.source}` : "";
@@ -3690,7 +3704,7 @@ function formatAgentResultChoiceText(choice: AgentResultChoice, prefix = "result
   const target = choice.url ? ` <${choice.url}>` : "";
   const reason = choice.selectionReason ? ` - ${choice.selectionReason}` : "";
   const title = choice.title ? ` ${choice.title}` : "";
-  const lines = [`  ${prefix}: ${choice.id} ${choice.path}${rank}${flagText}${score}${relevance}${date}${dateText}${datePrecision}${dateSource}${source}${sourceType}${official}${matchedTerms}${findMatches}${sitelinks}${firstSitelinkSelector}${target}${reason}${title}`];
+  const lines = [`  ${prefix}: ${choice.id} ${choice.path}${rank}${flagText}${score}${relevance}${date}${dateText}${dateIso}${dateUnixMs}${datePrecision}${dateSource}${source}${sourceType}${official}${matchedTerms}${findMatches}${sitelinks}${firstSitelinkSelector}${target}${reason}${title}`];
   if (choice.snippet) lines.push(`    snippet: ${choice.snippet}`);
   if (choice.command) lines.push(`    command: ${choice.command}`);
   if (choice.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
@@ -3763,6 +3777,8 @@ function formatAgentSourceSearchResultText(result: AgentSourceSearchResult, pref
   const relevance = result.relevance ? ` relevance=${result.relevance}` : "";
   const date = result.date ? ` date=${result.date}` : "";
   const dateText = result.dateText ? ` dateText=${result.dateText}` : "";
+  const dateIso = result.dateIso ? ` dateIso=${result.dateIso}` : "";
+  const dateUnixMs = typeof result.dateUnixMs === "number" ? ` dateUnixMs=${result.dateUnixMs}` : "";
   const datePrecision = result.datePrecision ? ` datePrecision=${result.datePrecision}` : "";
   const dateSource = result.dateSource ? ` dateSource=${result.dateSource}` : "";
   const source = result.source ? ` source=${result.source}` : "";
@@ -3779,7 +3795,7 @@ function formatAgentSourceSearchResultText(result: AgentSourceSearchResult, pref
   const target = result.url ? ` <${result.url}>` : "";
   const reason = result.selectionReason ? ` - ${result.selectionReason}` : "";
   const title = result.title ? ` ${result.title}` : "";
-  const lines = [`  ${prefix}: ${result.id} ${result.path}${rank}${openResult}${score}${relevance}${date}${dateText}${datePrecision}${dateSource}${source}${host}${sourceType}${official}${snippet}${matchedTerms}${findMatches}${sitelinks}${firstSitelink}${firstSitelinkUrl}${firstSitelinkSelector}${target}${reason}${title}`];
+  const lines = [`  ${prefix}: ${result.id} ${result.path}${rank}${openResult}${score}${relevance}${date}${dateText}${dateIso}${dateUnixMs}${datePrecision}${dateSource}${source}${host}${sourceType}${official}${snippet}${matchedTerms}${findMatches}${sitelinks}${firstSitelink}${firstSitelinkUrl}${firstSitelinkSelector}${target}${reason}${title}`];
   if (result.command) lines.push(`    command: ${result.command}`);
   if (result.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(result.commandArgs)}`);
   if (result.command) lines.push(`  ${prefix}Command: ${result.command}`);
@@ -3885,6 +3901,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.searchDecisionRecommendedSource ? [`  searchDecisionRecommendedSource: ${agent.searchDecisionRecommendedSource}`] : []),
     ...(typeof agent.searchDecisionRecommendedSourceScore === "number" ? [`  searchDecisionRecommendedSourceScore: ${agent.searchDecisionRecommendedSourceScore}`] : []),
     ...(agent.searchDecisionRecommendedDateText ? [`  searchDecisionRecommendedDateText: ${agent.searchDecisionRecommendedDateText}`] : []),
+    ...(agent.searchDecisionRecommendedDateIso ? [`  searchDecisionRecommendedDateIso: ${agent.searchDecisionRecommendedDateIso}`] : []),
+    ...(typeof agent.searchDecisionRecommendedDateUnixMs === "number" ? [`  searchDecisionRecommendedDateUnixMs: ${agent.searchDecisionRecommendedDateUnixMs}`] : []),
     ...(agent.searchDecisionRecommendedDatePrecision ? [`  searchDecisionRecommendedDatePrecision: ${agent.searchDecisionRecommendedDatePrecision}`] : []),
     ...(agent.searchDecisionRecommendedDateSource ? [`  searchDecisionRecommendedDateSource: ${agent.searchDecisionRecommendedDateSource}`] : []),
     ...(agent.searchDecisionRecommendedRelevance ? [`  searchDecisionRecommendedRelevance: ${agent.searchDecisionRecommendedRelevance}`] : []),
@@ -3974,6 +3992,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topResultChoiceSourceScore === "number" ? [`  topResultChoiceSourceScore: ${agent.topResultChoiceSourceScore}`] : []),
     ...(agent.topResultChoiceSourceHints?.length ? [`  topResultChoiceSourceHints: ${agent.topResultChoiceSourceHints.join(",")}`] : []),
     ...(agent.topResultChoiceDateText ? [`  topResultChoiceDateText: ${agent.topResultChoiceDateText}`] : []),
+    ...(agent.topResultChoiceDateIso ? [`  topResultChoiceDateIso: ${agent.topResultChoiceDateIso}`] : []),
+    ...(typeof agent.topResultChoiceDateUnixMs === "number" ? [`  topResultChoiceDateUnixMs: ${agent.topResultChoiceDateUnixMs}`] : []),
     ...(agent.topResultChoiceDatePrecision ? [`  topResultChoiceDatePrecision: ${agent.topResultChoiceDatePrecision}`] : []),
     ...(agent.topResultChoiceDateSource ? [`  topResultChoiceDateSource: ${agent.topResultChoiceDateSource}`] : []),
     ...(agent.topResultChoiceRelevance ? [`  topResultChoiceRelevance: ${agent.topResultChoiceRelevance}`] : []),
@@ -4176,7 +4196,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topSourceChoicePrimary === "boolean" ? [`  topSourceChoicePrimary: ${agent.topSourceChoicePrimary}`] : []),
     ...(agent.topSourceChoiceSelector ? [`  topSourceChoiceSelector: ${agent.topSourceChoiceSelector}`] : []),
     ...(agent.topSourceChoiceReason ? [`  topSourceChoiceReason: ${agent.topSourceChoiceReason}`] : []),
-    ...(agent.topChoiceKind ? [`  topChoice: ${agent.topChoiceKind} ${agent.topChoicePath}${typeof agent.topChoiceRank === "number" ? ` rank=${agent.topChoiceRank}` : ""}${agent.topChoiceOpenResult ? ` openResult=${agent.topChoiceOpenResult}` : ""}${typeof agent.topChoiceRecommended === "boolean" ? ` recommended=${agent.topChoiceRecommended}` : ""}${typeof agent.topChoicePrimary === "boolean" ? ` primary=${agent.topChoicePrimary}` : ""}${agent.topChoiceHost ? ` host=${agent.topChoiceHost}` : ""}${agent.topChoiceSource ? ` source=${agent.topChoiceSource}` : ""}${agent.topChoiceSourceType ? ` sourceType=${agent.topChoiceSourceType}` : ""}${typeof agent.topChoiceSourceScore === "number" ? ` score=${agent.topChoiceSourceScore}` : ""}${agent.topChoiceDateText ? ` dateText=${agent.topChoiceDateText}` : ""}${agent.topChoiceDatePrecision ? ` datePrecision=${agent.topChoiceDatePrecision}` : ""}${agent.topChoiceDateSource ? ` dateSource=${agent.topChoiceDateSource}` : ""}${agent.topChoiceRelevance ? ` relevance=${agent.topChoiceRelevance}` : ""}${typeof agent.topChoiceLikelyOfficial === "boolean" ? ` official=${agent.topChoiceLikelyOfficial}` : ""}${agent.topChoiceMethod ? ` method=${agent.topChoiceMethod}` : ""}${agent.topChoiceSelector ? ` selector=${agent.topChoiceSelector}` : ""}${agent.topChoiceUrl ? ` <${agent.topChoiceUrl}>` : ""}${agent.topChoiceCommand ? ` command=${agent.topChoiceCommand}` : ""}${agent.topChoiceReason ? ` reason=${agent.topChoiceReason}` : ""}${agent.topChoiceSnippet ? ` snippet=${agent.topChoiceSnippet}` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
+    ...(agent.topChoiceKind ? [`  topChoice: ${agent.topChoiceKind} ${agent.topChoicePath}${typeof agent.topChoiceRank === "number" ? ` rank=${agent.topChoiceRank}` : ""}${agent.topChoiceOpenResult ? ` openResult=${agent.topChoiceOpenResult}` : ""}${typeof agent.topChoiceRecommended === "boolean" ? ` recommended=${agent.topChoiceRecommended}` : ""}${typeof agent.topChoicePrimary === "boolean" ? ` primary=${agent.topChoicePrimary}` : ""}${agent.topChoiceHost ? ` host=${agent.topChoiceHost}` : ""}${agent.topChoiceSource ? ` source=${agent.topChoiceSource}` : ""}${agent.topChoiceSourceType ? ` sourceType=${agent.topChoiceSourceType}` : ""}${typeof agent.topChoiceSourceScore === "number" ? ` score=${agent.topChoiceSourceScore}` : ""}${agent.topChoiceDateText ? ` dateText=${agent.topChoiceDateText}` : ""}${agent.topChoiceDateIso ? ` dateIso=${agent.topChoiceDateIso}` : ""}${typeof agent.topChoiceDateUnixMs === "number" ? ` dateUnixMs=${agent.topChoiceDateUnixMs}` : ""}${agent.topChoiceDatePrecision ? ` datePrecision=${agent.topChoiceDatePrecision}` : ""}${agent.topChoiceDateSource ? ` dateSource=${agent.topChoiceDateSource}` : ""}${agent.topChoiceRelevance ? ` relevance=${agent.topChoiceRelevance}` : ""}${typeof agent.topChoiceLikelyOfficial === "boolean" ? ` official=${agent.topChoiceLikelyOfficial}` : ""}${agent.topChoiceMethod ? ` method=${agent.topChoiceMethod}` : ""}${agent.topChoiceSelector ? ` selector=${agent.topChoiceSelector}` : ""}${agent.topChoiceUrl ? ` <${agent.topChoiceUrl}>` : ""}${agent.topChoiceCommand ? ` command=${agent.topChoiceCommand}` : ""}${agent.topChoiceReason ? ` reason=${agent.topChoiceReason}` : ""}${agent.topChoiceSnippet ? ` snippet=${agent.topChoiceSnippet}` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
     ...(agent.topChoiceCommandArgs ? [`  topChoiceCommandArgs: ${formatCommandArgsText(agent.topChoiceCommandArgs)}`] : []),
     ...(agent.sourceSearchQuery ? [`  sourceSearchQuery: ${agent.sourceSearchQuery}`] : []),
     ...(agent.sourceSearchEngine ? [`  sourceSearchEngine: ${agent.sourceSearchEngine}`] : []),
@@ -4681,6 +4701,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.recommendedSource) lines.push(`  recommendedSource: ${agent.recommendedSource}`);
   if (typeof agent.recommendedSourceScore === "number") lines.push(`  recommendedSourceScore: ${agent.recommendedSourceScore}`);
   if (agent.recommendedDateText) lines.push(`  recommendedDateText: ${agent.recommendedDateText}`);
+  if (agent.recommendedDateIso) lines.push(`  recommendedDateIso: ${agent.recommendedDateIso}`);
+  if (typeof agent.recommendedDateUnixMs === "number") lines.push(`  recommendedDateUnixMs: ${agent.recommendedDateUnixMs}`);
   if (agent.recommendedDatePrecision) lines.push(`  recommendedDatePrecision: ${agent.recommendedDatePrecision}`);
   if (agent.recommendedDateSource) lines.push(`  recommendedDateSource: ${agent.recommendedDateSource}`);
   if (agent.recommendedRelevance) lines.push(`  recommendedRelevance: ${agent.recommendedRelevance}`);
@@ -5617,14 +5639,14 @@ function withResultDateHint(result: ResultSummary): ResultSummary {
   };
 }
 
-function resultDateHint(title: string, snippet?: string): Pick<ResultSummary, "dateText" | "date" | "datePrecision" | "dateSource"> {
+function resultDateHint(title: string, snippet?: string): Pick<ResultSummary, "dateText" | "date" | "dateIso" | "dateUnixMs" | "datePrecision" | "dateSource"> {
   const snippetHint = snippet ? extractDateHint(snippet) : null;
   if (snippetHint) return { ...snippetHint, dateSource: "snippet" };
   const titleHint = extractDateHint(title);
   return titleHint ? { ...titleHint, dateSource: "title" } : {};
 }
 
-function extractDateHint(text: string): Pick<ResultSummary, "dateText" | "date" | "datePrecision"> | null {
+function extractDateHint(text: string): Pick<ResultSummary, "dateText" | "date" | "dateIso" | "dateUnixMs" | "datePrecision"> | null {
   const compact = cleanContentText(text);
   const numeric = /\b((?:19|20)\d{2})[./-]\s*(\d{1,2})(?:[./-]\s*(\d{1,2}))?\b/.exec(compact);
   if (numeric) {
@@ -5633,9 +5655,11 @@ function extractDateHint(text: string): Pick<ResultSummary, "dateText" | "date" 
     const day = numeric[3] ? Number(numeric[3]) : 1;
     const date = normalizedDate(year, month, day);
     if (date) {
+      const normalized = normalizedSearchResultDate(date);
       return {
         dateText: numeric[0],
         date,
+        ...(normalized ? { dateIso: normalized.dateIso, dateUnixMs: normalized.dateUnixMs } : {}),
         datePrecision: numeric[3] ? "day" : "month",
       };
     }
@@ -5647,7 +5671,10 @@ function extractDateHint(text: string): Pick<ResultSummary, "dateText" | "date" 
     const day = Number(monthName[2]);
     const year = Number(monthName[3]);
     const date = normalizedDate(year, month, day);
-    if (date) return { dateText: monthName[0], date, datePrecision: "day" };
+    if (date) {
+      const normalized = normalizedSearchResultDate(date);
+      return { dateText: monthName[0], date, ...(normalized ? { dateIso: normalized.dateIso, dateUnixMs: normalized.dateUnixMs } : {}), datePrecision: "day" };
+    }
   }
 
   const dayMonthName = /\b(\d{1,2})\s+(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\.?\s+((?:19|20)\d{2})\b/i.exec(compact);
@@ -5656,7 +5683,10 @@ function extractDateHint(text: string): Pick<ResultSummary, "dateText" | "date" 
     const month = monthNumber(dayMonthName[2]);
     const year = Number(dayMonthName[3]);
     const date = normalizedDate(year, month, day);
-    if (date) return { dateText: dayMonthName[0], date, datePrecision: "day" };
+    if (date) {
+      const normalized = normalizedSearchResultDate(date);
+      return { dateText: dayMonthName[0], date, ...(normalized ? { dateIso: normalized.dateIso, dateUnixMs: normalized.dateUnixMs } : {}), datePrecision: "day" };
+    }
   }
 
   return null;
@@ -5665,6 +5695,12 @@ function extractDateHint(text: string): Pick<ResultSummary, "dateText" | "date" 
 function monthNumber(name: string): number {
   return ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
     .findIndex((month) => name.toLowerCase().startsWith(month)) + 1;
+}
+
+function normalizedSearchResultDate(date: string): { dateIso: string; dateUnixMs: number } | undefined {
+  const dateUnixMs = Date.parse(`${date}T00:00:00.000Z`);
+  if (!Number.isFinite(dateUnixMs)) return undefined;
+  return { dateIso: new Date(dateUnixMs).toISOString(), dateUnixMs };
 }
 
 function normalizedDate(year: number, month: number, day: number): string | null {
@@ -12425,6 +12461,8 @@ function summarizeAgent(
     ...(searchDecision?.recommendedSource ? { searchDecisionRecommendedSource: searchDecision.recommendedSource } : {}),
     ...(typeof searchDecision?.recommendedSourceScore === "number" ? { searchDecisionRecommendedSourceScore: searchDecision.recommendedSourceScore } : {}),
     ...(searchDecision?.recommendedDateText ? { searchDecisionRecommendedDateText: searchDecision.recommendedDateText } : {}),
+    ...(searchDecision?.recommendedDateIso ? { searchDecisionRecommendedDateIso: searchDecision.recommendedDateIso } : {}),
+    ...(typeof searchDecision?.recommendedDateUnixMs === "number" ? { searchDecisionRecommendedDateUnixMs: searchDecision.recommendedDateUnixMs } : {}),
     ...(searchDecision?.recommendedDatePrecision ? { searchDecisionRecommendedDatePrecision: searchDecision.recommendedDatePrecision } : {}),
     ...(searchDecision?.recommendedDateSource ? { searchDecisionRecommendedDateSource: searchDecision.recommendedDateSource } : {}),
     ...(searchDecision?.recommendedRelevance ? { searchDecisionRecommendedRelevance: searchDecision.recommendedRelevance } : {}),
@@ -12924,6 +12962,8 @@ function summarizeAgent(
     ...(typeof resultChoices[0]?.sourceScore === "number" ? { topResultChoiceSourceScore: resultChoices[0].sourceScore } : {}),
     ...(resultChoices[0]?.sourceHints?.length ? { topResultChoiceSourceHints: resultChoices[0].sourceHints } : {}),
     ...(resultChoices[0]?.dateText ? { topResultChoiceDateText: resultChoices[0].dateText } : {}),
+    ...(resultChoices[0]?.dateIso ? { topResultChoiceDateIso: resultChoices[0].dateIso } : {}),
+    ...(typeof resultChoices[0]?.dateUnixMs === "number" ? { topResultChoiceDateUnixMs: resultChoices[0].dateUnixMs } : {}),
     ...(resultChoices[0]?.datePrecision ? { topResultChoiceDatePrecision: resultChoices[0].datePrecision } : {}),
     ...(resultChoices[0]?.dateSource ? { topResultChoiceDateSource: resultChoices[0].dateSource } : {}),
     ...(resultChoices[0]?.relevance ? { topResultChoiceRelevance: resultChoices[0].relevance } : {}),
@@ -13252,6 +13292,8 @@ function summarizeAgent(
     ...(topChoice?.host ? { topChoiceHost: topChoice.host } : {}),
     ...(topChoice?.snippet ? { topChoiceSnippet: topChoice.snippet } : {}),
     ...(topChoice?.dateText ? { topChoiceDateText: topChoice.dateText } : {}),
+    ...(topChoice?.dateIso ? { topChoiceDateIso: topChoice.dateIso } : {}),
+    ...(typeof topChoice?.dateUnixMs === "number" ? { topChoiceDateUnixMs: topChoice.dateUnixMs } : {}),
     ...(topChoice?.datePrecision ? { topChoiceDatePrecision: topChoice.datePrecision } : {}),
     ...(topChoice?.dateSource ? { topChoiceDateSource: topChoice.dateSource } : {}),
     ...(topChoice?.command ? { topChoiceCommand: topChoice.command } : {}),
@@ -13613,6 +13655,8 @@ function summarizeAgent(
     agent.recommendedSource = recommendedResult.source;
     if (typeof recommendedResult.sourceScore === "number") agent.recommendedSourceScore = recommendedResult.sourceScore;
     if (recommendedResult.dateText) agent.recommendedDateText = recommendedResult.dateText;
+    if (recommendedResult.dateIso) agent.recommendedDateIso = recommendedResult.dateIso;
+    if (typeof recommendedResult.dateUnixMs === "number") agent.recommendedDateUnixMs = recommendedResult.dateUnixMs;
     if (recommendedResult.datePrecision) agent.recommendedDatePrecision = recommendedResult.datePrecision;
     if (recommendedResult.dateSource) agent.recommendedDateSource = recommendedResult.dateSource;
     if (recommendedResult.relevance) agent.recommendedRelevance = recommendedResult.relevance;
@@ -13820,6 +13864,8 @@ function summarizeAgentResultChoices(
       ...(result.sourceHints?.length ? { sourceHints: result.sourceHints } : {}),
       ...(result.dateText ? { dateText: result.dateText } : {}),
       ...(result.date ? { date: result.date } : {}),
+      ...(result.dateIso ? { dateIso: result.dateIso } : {}),
+      ...(typeof result.dateUnixMs === "number" ? { dateUnixMs: result.dateUnixMs } : {}),
       ...(result.datePrecision ? { datePrecision: result.datePrecision } : {}),
       ...(result.dateSource ? { dateSource: result.dateSource } : {}),
       ...(result.sitelinks?.length ? { sitelinks: compactAgentSitelinks(result.sitelinks, sitelinkCommandContext)! } : {}),
@@ -14015,6 +14061,8 @@ function summarizeAgentSearchDecision(
       recommendedSource: recommendedResult.source,
       ...(typeof recommendedResult.sourceScore === "number" ? { recommendedSourceScore: recommendedResult.sourceScore } : {}),
       ...(recommendedResult.dateText ? { recommendedDateText: recommendedResult.dateText } : {}),
+      ...(recommendedResult.dateIso ? { recommendedDateIso: recommendedResult.dateIso } : {}),
+      ...(typeof recommendedResult.dateUnixMs === "number" ? { recommendedDateUnixMs: recommendedResult.dateUnixMs } : {}),
       ...(recommendedResult.datePrecision ? { recommendedDatePrecision: recommendedResult.datePrecision } : {}),
       ...(recommendedResult.dateSource ? { recommendedDateSource: recommendedResult.dateSource } : {}),
       ...(recommendedResult.relevance ? { recommendedRelevance: recommendedResult.relevance } : {}),
@@ -15576,6 +15624,8 @@ function summarizeAgentTopChoice(
   host?: string;
   snippet?: string;
   dateText?: string;
+  dateIso?: string;
+  dateUnixMs?: number;
   datePrecision?: AgentTarget["datePrecision"];
   dateSource?: AgentTarget["dateSource"];
   command?: string;
@@ -15603,6 +15653,8 @@ function summarizeAgentTopChoice(
       ...(result.host ? { host: result.host } : {}),
       ...(result.snippet ? { snippet: result.snippet } : {}),
       ...(result.dateText ? { dateText: result.dateText } : {}),
+      ...(result.dateIso ? { dateIso: result.dateIso } : {}),
+      ...(typeof result.dateUnixMs === "number" ? { dateUnixMs: result.dateUnixMs } : {}),
       ...(result.datePrecision ? { datePrecision: result.datePrecision } : {}),
       ...(result.dateSource ? { dateSource: result.dateSource } : {}),
       ...(result.command ? { command: result.command } : {}),
@@ -18122,6 +18174,8 @@ function compactAgentTopChoice(agent: AgentSummary, searchCommandContext?: Searc
     ...(agent.topChoiceHost ? { topChoiceHost: agent.topChoiceHost } : {}),
     ...(agent.topChoiceSnippet ? { topChoiceSnippet: agent.topChoiceSnippet } : {}),
     ...(agent.topChoiceDateText ? { topChoiceDateText: agent.topChoiceDateText } : {}),
+    ...(agent.topChoiceDateIso ? { topChoiceDateIso: agent.topChoiceDateIso } : {}),
+    ...(typeof agent.topChoiceDateUnixMs === "number" ? { topChoiceDateUnixMs: agent.topChoiceDateUnixMs } : {}),
     ...(agent.topChoiceDatePrecision ? { topChoiceDatePrecision: agent.topChoiceDatePrecision } : {}),
     ...(agent.topChoiceDateSource ? { topChoiceDateSource: agent.topChoiceDateSource } : {}),
     ...(command ? { topChoiceCommand: command } : {}),
@@ -18160,6 +18214,8 @@ function compactAgentRecommended(agent: AgentSummary, searchCommandContext?: Sea
     ...(agent.recommendedSource ? { recommendedSource: agent.recommendedSource } : {}),
     ...(typeof agent.recommendedSourceScore === "number" ? { recommendedSourceScore: agent.recommendedSourceScore } : {}),
     ...(agent.recommendedDateText ? { recommendedDateText: agent.recommendedDateText } : {}),
+    ...(agent.recommendedDateIso ? { recommendedDateIso: agent.recommendedDateIso } : {}),
+    ...(typeof agent.recommendedDateUnixMs === "number" ? { recommendedDateUnixMs: agent.recommendedDateUnixMs } : {}),
     ...(agent.recommendedDatePrecision ? { recommendedDatePrecision: agent.recommendedDatePrecision } : {}),
     ...(agent.recommendedDateSource ? { recommendedDateSource: agent.recommendedDateSource } : {}),
     ...(agent.recommendedRelevance ? { recommendedRelevance: agent.recommendedRelevance } : {}),
@@ -18270,6 +18326,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.searchDecisionRecommendedSource ? { searchDecisionRecommendedSource: agent.searchDecisionRecommendedSource } : {}),
     ...(typeof agent.searchDecisionRecommendedSourceScore === "number" ? { searchDecisionRecommendedSourceScore: agent.searchDecisionRecommendedSourceScore } : {}),
     ...(agent.searchDecisionRecommendedDateText ? { searchDecisionRecommendedDateText: agent.searchDecisionRecommendedDateText } : {}),
+    ...(agent.searchDecisionRecommendedDateIso ? { searchDecisionRecommendedDateIso: agent.searchDecisionRecommendedDateIso } : {}),
+    ...(typeof agent.searchDecisionRecommendedDateUnixMs === "number" ? { searchDecisionRecommendedDateUnixMs: agent.searchDecisionRecommendedDateUnixMs } : {}),
     ...(agent.searchDecisionRecommendedDatePrecision ? { searchDecisionRecommendedDatePrecision: agent.searchDecisionRecommendedDatePrecision } : {}),
     ...(agent.searchDecisionRecommendedDateSource ? { searchDecisionRecommendedDateSource: agent.searchDecisionRecommendedDateSource } : {}),
     ...(agent.searchDecisionRecommendedRelevance ? { searchDecisionRecommendedRelevance: agent.searchDecisionRecommendedRelevance } : {}),
@@ -18769,6 +18827,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.topResultChoiceSourceScore === "number" ? { topResultChoiceSourceScore: agent.topResultChoiceSourceScore } : {}),
     ...(agent.topResultChoiceSourceHints?.length ? { topResultChoiceSourceHints: agent.topResultChoiceSourceHints } : {}),
     ...(agent.topResultChoiceDateText ? { topResultChoiceDateText: agent.topResultChoiceDateText } : {}),
+    ...(agent.topResultChoiceDateIso ? { topResultChoiceDateIso: agent.topResultChoiceDateIso } : {}),
+    ...(typeof agent.topResultChoiceDateUnixMs === "number" ? { topResultChoiceDateUnixMs: agent.topResultChoiceDateUnixMs } : {}),
     ...(agent.topResultChoiceDatePrecision ? { topResultChoiceDatePrecision: agent.topResultChoiceDatePrecision } : {}),
     ...(agent.topResultChoiceDateSource ? { topResultChoiceDateSource: agent.topResultChoiceDateSource } : {}),
     ...(agent.topResultChoiceRelevance ? { topResultChoiceRelevance: agent.topResultChoiceRelevance } : {}),
@@ -19536,6 +19596,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.searchDecisionRecommendedSource ? { searchDecisionRecommendedSource: agent.searchDecisionRecommendedSource } : {}),
     ...(typeof agent.searchDecisionRecommendedSourceScore === "number" ? { searchDecisionRecommendedSourceScore: agent.searchDecisionRecommendedSourceScore } : {}),
     ...(agent.searchDecisionRecommendedDateText ? { searchDecisionRecommendedDateText: agent.searchDecisionRecommendedDateText } : {}),
+    ...(agent.searchDecisionRecommendedDateIso ? { searchDecisionRecommendedDateIso: agent.searchDecisionRecommendedDateIso } : {}),
+    ...(typeof agent.searchDecisionRecommendedDateUnixMs === "number" ? { searchDecisionRecommendedDateUnixMs: agent.searchDecisionRecommendedDateUnixMs } : {}),
     ...(agent.searchDecisionRecommendedDatePrecision ? { searchDecisionRecommendedDatePrecision: agent.searchDecisionRecommendedDatePrecision } : {}),
     ...(agent.searchDecisionRecommendedDateSource ? { searchDecisionRecommendedDateSource: agent.searchDecisionRecommendedDateSource } : {}),
     ...(agent.searchDecisionRecommendedRelevance ? { searchDecisionRecommendedRelevance: agent.searchDecisionRecommendedRelevance } : {}),
@@ -20031,6 +20093,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.topResultChoiceSourceScore === "number" ? { topResultChoiceSourceScore: agent.topResultChoiceSourceScore } : {}),
     ...(agent.topResultChoiceSourceHints?.length ? { topResultChoiceSourceHints: agent.topResultChoiceSourceHints } : {}),
     ...(agent.topResultChoiceDateText ? { topResultChoiceDateText: agent.topResultChoiceDateText } : {}),
+    ...(agent.topResultChoiceDateIso ? { topResultChoiceDateIso: agent.topResultChoiceDateIso } : {}),
+    ...(typeof agent.topResultChoiceDateUnixMs === "number" ? { topResultChoiceDateUnixMs: agent.topResultChoiceDateUnixMs } : {}),
     ...(agent.topResultChoiceDatePrecision ? { topResultChoiceDatePrecision: agent.topResultChoiceDatePrecision } : {}),
     ...(agent.topResultChoiceDateSource ? { topResultChoiceDateSource: agent.topResultChoiceDateSource } : {}),
     ...(agent.topResultChoiceRelevance ? { topResultChoiceRelevance: agent.topResultChoiceRelevance } : {}),
@@ -21485,6 +21549,8 @@ function compactAgentSearchResult(
   if (result.sourceHints?.length) compact.sourceHints = result.sourceHints;
   if (result.dateText) compact.dateText = result.dateText;
   if (result.date) compact.date = result.date;
+  if (result.dateIso) compact.dateIso = result.dateIso;
+  if (typeof result.dateUnixMs === "number") compact.dateUnixMs = result.dateUnixMs;
   if (result.datePrecision) compact.datePrecision = result.datePrecision;
   if (result.dateSource) compact.dateSource = result.dateSource;
   if (result.sitelinks?.length) compact.sitelinks = compactAgentSitelinks(result.sitelinks, sitelinkCommandContext)!;

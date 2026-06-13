@@ -738,6 +738,8 @@ export type AgentSearchDecision = {
   recommendedSource?: string;
   recommendedSourceScore?: number;
   recommendedDateText?: string;
+  recommendedDateIso?: string;
+  recommendedDateUnixMs?: number;
   recommendedDatePrecision?: "day" | "month" | "year";
   recommendedDateSource?: "title" | "snippet";
   recommendedRelevance?: "low" | "medium" | "high";
@@ -1146,6 +1148,8 @@ export type AgentTarget = {
   sourceHints?: string[];
   dateText?: string;
   date?: string;
+  dateIso?: string;
+  dateUnixMs?: number;
   datePrecision?: "day" | "month" | "year";
   dateSource?: "title" | "snippet";
   sitelinks?: Array<{ title: string; url: string; selector?: string; command?: string; commandArgs?: string[] }>;
@@ -1396,6 +1400,8 @@ export type AgentSummary = {
   searchDecisionRecommendedSource?: string;
   searchDecisionRecommendedSourceScore?: number;
   searchDecisionRecommendedDateText?: string;
+  searchDecisionRecommendedDateIso?: string;
+  searchDecisionRecommendedDateUnixMs?: number;
   searchDecisionRecommendedDatePrecision?: "day" | "month" | "year";
   searchDecisionRecommendedDateSource?: "title" | "snippet";
   searchDecisionRecommendedRelevance?: "low" | "medium" | "high";
@@ -1895,6 +1901,8 @@ export type AgentSummary = {
   topResultChoiceSourceScore?: number;
   topResultChoiceSourceHints?: string[];
   topResultChoiceDateText?: string;
+  topResultChoiceDateIso?: string;
+  topResultChoiceDateUnixMs?: number;
   topResultChoiceDatePrecision?: "day" | "month" | "year";
   topResultChoiceDateSource?: "title" | "snippet";
   topResultChoiceRelevance?: "low" | "medium" | "high";
@@ -2223,6 +2231,8 @@ export type AgentSummary = {
   topChoiceHost?: string;
   topChoiceSnippet?: string;
   topChoiceDateText?: string;
+  topChoiceDateIso?: string;
+  topChoiceDateUnixMs?: number;
   topChoiceDatePrecision?: "day" | "month" | "year";
   topChoiceDateSource?: "title" | "snippet";
   topChoiceCommand?: string;
@@ -2589,6 +2599,8 @@ export type AgentSummary = {
   recommendedSource?: string;
   recommendedSourceScore?: number;
   recommendedDateText?: string;
+  recommendedDateIso?: string;
+  recommendedDateUnixMs?: number;
   recommendedDatePrecision?: "day" | "month" | "year";
   recommendedDateSource?: "title" | "snippet";
   recommendedRelevance?: AgentTarget["relevance"];
