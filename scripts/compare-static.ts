@@ -3584,7 +3584,9 @@ function scoreHandoffSourceChoices(handoffChoices: CliAgentSourceChoiceShape[] |
       && (typeof choice.url === "undefined" || choice.url === expected.url)
       && (typeof expected.text !== "string" || choice.text === expected.text)
       && (typeof expected.snippet !== "string" || choice.snippet === expected.snippet)
-      && (typeof expected.selector !== "string" || choice.selector === expected.selector);
+      && (typeof expected.selector !== "string" || choice.selector === expected.selector)
+      && (typeof expected.command !== "string" || choice.command === expected.command)
+      && (!expected.commandArgs || JSON.stringify(choice.commandArgs) === JSON.stringify(expected.commandArgs));
   });
   return valid ? 1 : 0;
 }
@@ -5209,8 +5211,15 @@ function scoreAgentSourceChoices(
         || typeof source.sourceScore === "number");
   }).length;
   if (validChoices === choices.length) matched += 1;
-  const runnableChoices = choices.filter((choice, index) => Array.isArray(choice.commandArgs) && choice.commandArgs.length > 0
-    || Array.isArray(sourceLinks[index]?.commandArgs) && (sourceLinks[index]?.commandArgs?.length ?? 0) > 0).length;
+  const runnableChoices = choices.filter((choice, index) => {
+    const source = sourceLinks[index];
+    return typeof choice.command === "string"
+      && choice.command.length > 0
+      && Array.isArray(choice.commandArgs)
+      && choice.commandArgs.length > 0
+      && (!source?.command || choice.command === source.command)
+      && (!source?.commandArgs || JSON.stringify(choice.commandArgs) === JSON.stringify(source.commandArgs));
+  }).length;
   if (runnableChoices === choices.length) matched += 1;
   const sourcePrimaryAction = primaryAction?.action === "open-source-link"
     || sourceLinks.some((source) => primaryAction?.url && source.url === primaryAction.url);
