@@ -11343,6 +11343,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  recommendedRank: 1");
     expect(stdout.output).toContain("  recommendedSource: result.example");
     expect(stdout.output).toContain("  recommendedCommandArgs: [\"ax-grep\",\"https://result.example/article\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  searchDecisionCommandArgs: [\"ax-grep\",\"https://result.example/article\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  next: open-result <https://result.example/article>");
     expect(stdout.output).toContain("  execution: run-command");
     expect(stdout.output).toContain("  url: https://result.example/article");

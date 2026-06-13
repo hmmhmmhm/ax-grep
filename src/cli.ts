@@ -3736,6 +3736,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.searchDecisionRecommendedRelevance ? [`  searchDecisionRecommendedRelevance: ${agent.searchDecisionRecommendedRelevance}`] : []),
     ...(typeof agent.searchDecisionRecommendedLikelyOfficial === "boolean" ? [`  searchDecisionRecommendedLikelyOfficial: ${agent.searchDecisionRecommendedLikelyOfficial}`] : []),
     ...(agent.searchDecisionCommand ? [`  searchDecisionCommand: ${agent.searchDecisionCommand}`] : []),
+    ...(agent.searchDecisionCommandArgs ? [`  searchDecisionCommandArgs: ${formatCommandArgsText(agent.searchDecisionCommandArgs)}`] : []),
     ...(agent.pageDecision ? [`  pageDecision: ${agent.pageDecision.decision}/${agent.pageDecision.confidence} - ${agent.pageDecision.reason}`] : []),
     ...(agent.pageDecisionName ? [`  pageDecisionName: ${agent.pageDecisionName}`] : []),
     ...(agent.pageDecisionConfidence ? [`  pageDecisionConfidence: ${agent.pageDecisionConfidence}`] : []),
