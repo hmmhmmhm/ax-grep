@@ -15,7 +15,7 @@ percentage as a fixed contract.
 | Area | Current estimate | Evidence |
 | --- | ---: | --- |
 | README/docs hygiene | 90% | Root README is short; detailed docs live under `docs/`. |
-| Process safety | 87% | `AGENTS.md`, `pnpm check:processes`, non-browser gates, the single-target real-page smoke gate, and four-target `agent-browser` smoke gate are in place. |
+| Process safety | 89% | `AGENTS.md`, `pnpm check:processes`, non-browser gates, the single-target real-page smoke gate, four-target `agent-browser` smoke gate, browser comparison lock, and finally-based browser session close checks are in place. |
 | Search result handoff | 91% | Result choices, top choice snippet/host/provenance/official-source shortcuts, brief-mode search provenance, source-search selected/alternate/failure path shortcuts, failure retry commands, alternate-choice arrays, source hints, verification, search-decision command shortcuts, decision counts/reasons, first-official result shortcuts, command args, command strings, source scores, relevance, and likely-official flags are exposed. |
 | Page check handoff | 97% | Forms, action targets, FAQ answers, code block text, resource titles and follow-up commands, media/section text, and structured metadata labels/selectors in brief mode, provenance and author follow-up commands, table navigation shortcuts, brief-mode table path/selector targeting, semantic table/grid read-current fallback, hidden signal group counts/top shortcuts/selectors, author/source metadata, static-readiness reason codes/reasons, fetched-HTML usability in brief mode, control-plane shortcuts, generic top-choice execution metadata, page/search decision command shortcuts, runbook/execution-plan/answer-plan/executor/handoff command shortcuts, barrier-specific browser-capture reason codes, primary execution shortcuts, barriers, read targets, and full focused-content length scoring are exposed in full and brief modes. |
 | Semantic accessibility signals | 96% | Landmarks, headings, links, interactive/focusable controls, keyboard shortcut selectors in brief mode, buttons, fields, values, relations, choices, selected-choice shortcuts with controlled targets, states, modal/live state shortcuts, list item refs, first list item shortcuts, list samples from compacted link items, interactive/focusable/actionable selectors in brief mode, table/list names and container selectors in brief mode, table header/cell navigation shortcuts, selected table/grid cell shortcuts, sample cell spans, table ownership refs, owned and selected-owned sample-cell shortcuts, semantic counts, outline selectors, and brief-mode semantic selectors/states are exposed. |
@@ -856,11 +856,17 @@ When research expands:
   manifest, license, and download resources from page-check summary fields.
 - Added top author follow-up command shortcuts so agents can open author or
   profile pages directly from page-check summary fields.
+- Hardened browser-backed comparison cleanup so `compare.ts` and
+  `compare-static.ts` serialize `agent-browser` use and close opened sessions
+  from `finally` blocks even when snapshot or rendered-HTML fallback fails.
 
 ## In Progress
 
 - Compare static semantic output against browser accessibility output for a
   small, sequential fixture set and record any newly discovered signal gaps.
+- Keep browser-backed validation resource-safe by auditing comparison-script
+  locks, finally-based session close paths, and clean `pnpm check:processes`
+  results before and after risky runs.
 
 ## Next Candidates
 

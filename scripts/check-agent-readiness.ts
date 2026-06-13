@@ -132,6 +132,26 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
     ),
     evidenceCheck(
       root,
+      "browser-session-cleanup",
+      "Browser-backed comparison scripts must serialize `agent-browser` use and close sessions on failure paths.",
+      "compare.ts and compare-static.ts use a shared lock pattern plus finally-based session close helpers.",
+      (failures) => {
+        requireFileIncludes(root, failures, "scripts/compare.ts", [
+          "withAgentBrowserLock",
+          "closeAgentBrowserSession",
+          "finally",
+          "\"close\"",
+        ]);
+        requireFileIncludes(root, failures, "scripts/compare-static.ts", [
+          "withAgentBrowserLock",
+          "closeAgentBrowserSession",
+          "finally",
+          "\"close\"",
+        ]);
+      },
+    ),
+    evidenceCheck(
+      root,
       "fixture-loop-coverage",
       "Search and page-check agent loops must be covered without starting browsers or remote fetches.",
       "The fixture gate uses synthetic HTML targets for search open/refine, site search, hidden metadata, Web Components, actions, and browser HTML retry.",

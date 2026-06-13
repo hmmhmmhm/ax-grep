@@ -13,6 +13,7 @@ describe("agent readiness audit", () => {
     const checks = collectAgentReadinessEvidence();
     expect(checks.map((check) => check.id)).toEqual([
       "resource-safety",
+      "browser-session-cleanup",
       "fixture-loop-coverage",
       "real-page-smoke",
       "declarative-shadow-static",

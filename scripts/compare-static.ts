@@ -905,18 +905,21 @@ function runAgentBrowserSnapshotLocked(
     return null;
   }
 
-  const snapshot = spawnSync(agentBrowserBin, ["--session", session, "snapshot", "-c", "-d", "8"], {
-    encoding: "utf8",
-    timeout: 45_000,
-  });
-  spawnSync(agentBrowserBin, ["--session", session, "close"], { encoding: "utf8", timeout: 10_000 });
+  try {
+    const snapshot = spawnSync(agentBrowserBin, ["--session", session, "snapshot", "-c", "-d", "8"], {
+      encoding: "utf8",
+      timeout: 45_000,
+    });
 
-  if (snapshot.status !== 0) {
-    warnings.push(`agent-browser snapshot failed: ${trimError(snapshot.stderr || snapshot.stdout)}`);
-    return null;
+    if (snapshot.status !== 0) {
+      warnings.push(`agent-browser snapshot failed: ${trimError(snapshot.stderr || snapshot.stdout)}`);
+      return null;
+    }
+
+    return parseAgentBrowserSnapshot(snapshot.stdout);
+  } finally {
+    closeAgentBrowserSession(agentBrowserBin, session, warnings);
   }
-
-  return parseAgentBrowserSnapshot(snapshot.stdout);
 }
 
 function runAgentBrowserHtml(url: string, session: string, warnings: string[]): { html: string; agentBrowser: StaticComparison["agentBrowser"] } | null {
@@ -939,28 +942,41 @@ function runAgentBrowserHtmlLocked(url: string, session: string, warnings: strin
     return null;
   }
 
-  spawnSync(agentBrowserBin, ["--session", session, "wait", "3000"], { encoding: "utf8", timeout: 10_000 });
-  const rendered = spawnSync(agentBrowserBin, ["--session", session, "eval", "document.documentElement.outerHTML"], {
-    encoding: "utf8",
-    timeout: 45_000,
-  });
-  const snapshot = spawnSync(agentBrowserBin, ["--session", session, "snapshot", "-c", "-d", "8"], {
-    encoding: "utf8",
-    timeout: 45_000,
-  });
-  spawnSync(agentBrowserBin, ["--session", session, "close"], { encoding: "utf8", timeout: 10_000 });
+  try {
+    spawnSync(agentBrowserBin, ["--session", session, "wait", "3000"], { encoding: "utf8", timeout: 10_000 });
+    const rendered = spawnSync(agentBrowserBin, ["--session", session, "eval", "document.documentElement.outerHTML"], {
+      encoding: "utf8",
+      timeout: 45_000,
+    });
+    const snapshot = spawnSync(agentBrowserBin, ["--session", session, "snapshot", "-c", "-d", "8"], {
+      encoding: "utf8",
+      timeout: 45_000,
+    });
 
-  if (rendered.status !== 0 && !looksLikeHtml(rendered.stdout)) {
-    warnings.push(`agent-browser rendered HTML eval failed: ${trimError(rendered.stderr || rendered.stdout)}`);
-    return null;
+    if (rendered.status !== 0 && !looksLikeHtml(rendered.stdout)) {
+      warnings.push(`agent-browser rendered HTML eval failed: ${trimError(rendered.stderr || rendered.stdout)}`);
+      return null;
+    }
+    const agentBrowser = snapshot.status === 0 ? parseAgentBrowserSnapshot(snapshot.stdout) : null;
+    if (snapshot.status !== 0) warnings.push(`agent-browser rendered snapshot failed: ${trimError(snapshot.stderr || snapshot.stdout)}`);
+    warnings.push("used agent-browser rendered HTML fallback");
+    return {
+      html: decodeAgentBrowserEvalHtml(rendered.stdout),
+      agentBrowser,
+    };
+  } finally {
+    closeAgentBrowserSession(agentBrowserBin, session, warnings);
   }
-  const agentBrowser = snapshot.status === 0 ? parseAgentBrowserSnapshot(snapshot.stdout) : null;
-  if (snapshot.status !== 0) warnings.push(`agent-browser rendered snapshot failed: ${trimError(snapshot.stderr || snapshot.stdout)}`);
-  warnings.push("used agent-browser rendered HTML fallback");
-  return {
-    html: decodeAgentBrowserEvalHtml(rendered.stdout),
-    agentBrowser,
-  };
+}
+
+function closeAgentBrowserSession(agentBrowserBin: string, session: string, warnings: string[]): void {
+  const close = spawnSync(agentBrowserBin, ["--session", session, "close"], {
+    encoding: "utf8",
+    timeout: 10_000,
+  });
+  if (close.status !== 0) {
+    warnings.push(`agent-browser close failed: ${trimError(close.stderr || close.stdout)}`);
+  }
 }
 
 function withAgentBrowserLock<T>(warnings: string[], run: () => T): T | null {

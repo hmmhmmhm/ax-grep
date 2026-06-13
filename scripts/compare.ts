@@ -1,5 +1,7 @@
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import process from "node:process";
 import puppeteer from "puppeteer";
 import {
@@ -101,64 +103,74 @@ const targets = urls.length > 0
   ? urls
   : ["https://example.com", "https://www.wikipedia.org"];
 
-const browser = await puppeteer.launch({ headless: true });
 const comparisons: Comparison[] = [];
+const browser = await puppeteer.launch({ headless: true });
 
-for (const [index, url] of targets.entries()) {
-  const page = await browser.newPage();
-  const warnings: string[] = [];
-  try {
-    if (comparisonViewport) await page.setViewport(comparisonViewport);
-    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
-    if (comparisonSetupScript) {
-      await page.evaluate(comparisonSetupScript);
+try {
+  for (const [index, url] of targets.entries()) {
+    const page = await browser.newPage();
+    const warnings: string[] = [];
+    try {
+      if (comparisonViewport) await page.setViewport(comparisonViewport);
+      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
+      if (comparisonSetupScript) {
+        await page.evaluate(comparisonSetupScript);
+      }
+      await page.waitForNetworkIdle({ idleTime: 750, timeout: 10_000 }).catch(() => {
+        warnings.push("Puppeteer network idle timed out; used DOMContentLoaded state");
+      });
+
+      const tree = await page.evaluate(
+        createExtractorScript({
+          mode: "compact",
+          includeBounds: false,
+          includeTextNodes: false,
+          includeSelectOptions: false,
+          excludeLikelyAds: true,
+        }),
+      ) as SemanticNode;
+      const axLite = summarizeSemanticTree(tree);
+      const axLiteNormalized = normalizeNamedRoles(axLite.namedRoles);
+      const agentBrowser = runAgentBrowserSnapshot(url, `ax-grep-compare-${Date.now()}-${index}`, warnings);
+      const agentNamedRoles = new Set(agentBrowser?.normalized.namedRoles ?? []);
+      const matches = axLiteNormalized.namedRoles.filter((item) => agentNamedRoles.has(item)).length;
+      const namedRoleTotal = Math.max(axLiteNormalized.namedRoles.length, agentBrowser?.normalized.namedRoles.length ?? 0);
+      const agentReadiness = scoreAgentReadiness(axLiteNormalized, agentBrowser?.normalized ?? emptyNormalizedSummary());
+
+      comparisons.push({
+        url,
+        axLite,
+        axLiteNormalized,
+        agentBrowser,
+        overlap: {
+          namedRoleMatches: matches,
+          namedRoleTotal,
+          ratio: namedRoleTotal === 0 ? 1 : matches / namedRoleTotal,
+        },
+        agentReadiness,
+        warnings,
+      });
+
+      printTreeSample(url, tree);
+    } finally {
+      await page.close().catch(() => undefined);
     }
-    await page.waitForNetworkIdle({ idleTime: 750, timeout: 10_000 }).catch(() => {
-      warnings.push("Puppeteer network idle timed out; used DOMContentLoaded state");
-    });
-
-    const tree = await page.evaluate(
-      createExtractorScript({
-        mode: "compact",
-        includeBounds: false,
-        includeTextNodes: false,
-        includeSelectOptions: false,
-        excludeLikelyAds: true,
-      }),
-    ) as SemanticNode;
-    const axLite = summarizeSemanticTree(tree);
-    const axLiteNormalized = normalizeNamedRoles(axLite.namedRoles);
-    const agentBrowser = runAgentBrowserSnapshot(url, `ax-grep-compare-${Date.now()}-${index}`, warnings);
-    const agentNamedRoles = new Set(agentBrowser?.normalized.namedRoles ?? []);
-    const matches = axLiteNormalized.namedRoles.filter((item) => agentNamedRoles.has(item)).length;
-    const namedRoleTotal = Math.max(axLiteNormalized.namedRoles.length, agentBrowser?.normalized.namedRoles.length ?? 0);
-    const agentReadiness = scoreAgentReadiness(axLiteNormalized, agentBrowser?.normalized ?? emptyNormalizedSummary());
-
-    comparisons.push({
-      url,
-      axLite,
-      axLiteNormalized,
-      agentBrowser,
-      overlap: {
-        namedRoleMatches: matches,
-        namedRoleTotal,
-        ratio: namedRoleTotal === 0 ? 1 : matches / namedRoleTotal,
-      },
-      agentReadiness,
-      warnings,
-    });
-
-    printTreeSample(url, tree);
-  } finally {
-    await page.close();
   }
+} finally {
+  await browser.close().catch(() => undefined);
 }
-
-await browser.close();
 
 console.log(JSON.stringify({ generatedAt: new Date().toISOString(), comparisons }, null, 2));
 
 function runAgentBrowserSnapshot(
+  url: string,
+  session: string,
+  warnings: string[],
+): Comparison["agentBrowser"] {
+  return withAgentBrowserLock(warnings, () => runAgentBrowserSnapshotLocked(url, session, warnings));
+}
+
+function runAgentBrowserSnapshotLocked(
   url: string,
   session: string,
   warnings: string[],
@@ -195,28 +207,70 @@ function runAgentBrowserSnapshot(
     return null;
   }
 
-  if (comparisonSetupScript) {
-    const setup = spawnSync(agentBrowserBin, ["--session", session, "eval", comparisonSetupScript], {
+  try {
+    if (comparisonSetupScript) {
+      const setup = spawnSync(agentBrowserBin, ["--session", session, "eval", comparisonSetupScript], {
+        encoding: "utf8",
+        timeout: 15_000,
+      });
+      if (setup.status !== 0) {
+        warnings.push(`agent-browser setup script failed: ${trimError(setup.stderr || setup.stdout)}`);
+      }
+    }
+
+    const snapshot = spawnSync(agentBrowserBin, ["--session", session, "snapshot", "-c", "-d", "8"], {
       encoding: "utf8",
-      timeout: 15_000,
+      timeout: 45_000,
     });
-    if (setup.status !== 0) {
-      warnings.push(`agent-browser setup script failed: ${trimError(setup.stderr || setup.stdout)}`);
+
+    if (snapshot.status !== 0) {
+      warnings.push(`agent-browser snapshot failed: ${trimError(snapshot.stderr || snapshot.stdout)}`);
+      return null;
+    }
+
+    return parseAgentBrowserSnapshot(snapshot.stdout);
+  } finally {
+    closeAgentBrowserSession(agentBrowserBin, session, warnings);
+  }
+}
+
+function closeAgentBrowserSession(agentBrowserBin: string, session: string, warnings: string[]): void {
+  const close = spawnSync(agentBrowserBin, ["--session", session, "close"], {
+    encoding: "utf8",
+    timeout: 10_000,
+  });
+  if (close.status !== 0) {
+    warnings.push(`agent-browser close failed: ${trimError(close.stderr || close.stdout)}`);
+  }
+}
+
+function withAgentBrowserLock<T>(warnings: string[], run: () => T): T | null {
+  const lockDir = join(tmpdir(), "ax-grep-agent-browser.lock");
+  try {
+    mkdirSync(lockDir);
+    writeFileSync(join(lockDir, "pid"), `${process.pid}\n`, "utf8");
+  } catch {
+    try {
+      const ageMs = Date.now() - statSync(lockDir).mtimeMs;
+      if (ageMs > 10 * 60_000) {
+        rmSync(lockDir, { recursive: true, force: true });
+        mkdirSync(lockDir);
+        writeFileSync(join(lockDir, "pid"), `${process.pid}\n`, "utf8");
+      } else {
+        warnings.push("agent-browser is already running for another comparison; skipped browser snapshot to avoid overloading the host");
+        return null;
+      }
+    } catch {
+      warnings.push("agent-browser lock could not be acquired; skipped browser snapshot to avoid overloading the host");
+      return null;
     }
   }
 
-  const snapshot = spawnSync(agentBrowserBin, ["--session", session, "snapshot", "-c", "-d", "8"], {
-    encoding: "utf8",
-    timeout: 45_000,
-  });
-  spawnSync(agentBrowserBin, ["--session", session, "close"], { encoding: "utf8", timeout: 10_000 });
-
-  if (snapshot.status !== 0) {
-    warnings.push(`agent-browser snapshot failed: ${trimError(snapshot.stderr || snapshot.stdout)}`);
-    return null;
+  try {
+    return run();
+  } finally {
+    rmSync(lockDir, { recursive: true, force: true });
   }
-
-  return parseAgentBrowserSnapshot(snapshot.stdout);
 }
 
 function parseAgentBrowserSnapshot(output: string): NonNullable<Comparison["agentBrowser"]> {
