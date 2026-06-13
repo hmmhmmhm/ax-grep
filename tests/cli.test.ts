@@ -11189,8 +11189,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  mainHeading: Article heading");
     expect(stdout.output).toContain("  excerpt: This article paragraph is long enough to appear in the page checking summary for agents.");
     expect(stdout.output).toContain("  evidence: e1 pageCheck.contentEvidence[0] 1. p (p) high - high evidence from semantic extraction, 88 chars, p content, selector available. This article paragraph is long enough to appear in the page checking summary for agents.");
-    expect(stdout.output).toContain("  link: external Source report <https://source.example/report> - Possible source candidate: news-like.");
-    expect(stdout.output).toContain("  sourceLink: Source report <https://source.example/report> - Possible source candidate: news-like.");
+    expect(stdout.output).toContain("  link: external Source report type=news score=0.58 hints=news-like <https://source.example/report> - Possible source candidate: news-like.");
+    expect(stdout.output).toContain("  sourceLink: Source report type=news score=0.58 hints=news-like <https://source.example/report> - Possible source candidate: news-like.");
     expect(stdout.output).toContain("  next: read-content [terminal] - The page has enough structured evidence for source checking.");
     expect(stdout.output).toContain("  execution: read-current");
     expect(stdout.output).toContain("  readFrom: pageCheck.contentEvidence");
@@ -11370,7 +11370,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("finds\n  found: source report");
     expect(stdout.output).toContain("sourceLink source=semantic score=0.58 quality=medium");
     expect(stdout.output).toContain("reason=Possible source candidate: news-like.");
-    expect(stdout.output).toContain("sourceLink: Source report <https://source.example/report>");
+    expect(stdout.output).toContain("sourceLink: Source report type=news score=0.58 hints=news-like <https://source.example/report>");
   });
 
   it("prints ranked result details in text output", async () => {

@@ -4701,8 +4701,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const selector = authorLink.selector ? ` (${authorLink.selector})` : "";
     lines.push(`  authorLink: ${authorLink.id} ${authorLink.path} ${authorLink.source}${rel}${selector}${name} <${authorLink.url}> - ${authorLink.text}`);
   }
-  for (const link of pageCheck.primaryLinks) lines.push(`  link: ${link.kind} ${link.title} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`);
-  for (const link of pageCheck.sourceLinks) lines.push(`  sourceLink: ${link.title} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`);
+  for (const link of pageCheck.primaryLinks) lines.push(formatPageCheckLinkText(link, "link"));
+  for (const link of pageCheck.sourceLinks) lines.push(formatPageCheckLinkText(link, "sourceLink"));
   for (const action of pageCheck.actions) lines.push(`  action: ${action.type} ${action.text}`);
   lines.push(`  next: ${formatActionLabel(pageCheck.recommendedAction)} - ${pageCheck.recommendedAction.reason}`);
   lines.push(`  execution: ${actionExecution(pageCheck.recommendedAction)}`);
@@ -4747,6 +4747,15 @@ function formatActionLabel(action: SuggestedAction): string {
 
 function formatCommandArgsText(commandArgs: string[]): string {
   return JSON.stringify(commandArgs);
+}
+
+function formatPageCheckLinkText(link: PageLinkSummary, prefix: "link" | "sourceLink"): string {
+  const kind = prefix === "link" ? `${link.kind} ` : "";
+  const sourceType = link.sourceType ? ` type=${link.sourceType}` : "";
+  const sourceScore = typeof link.sourceScore === "number" ? ` score=${link.sourceScore}` : "";
+  const sourceHints = link.sourceHints?.length ? ` hints=${link.sourceHints.join(",")}` : "";
+  const official = typeof link.isLikelyOfficial === "boolean" ? ` official=${link.isLikelyOfficial}` : "";
+  return `  ${prefix}: ${kind}${link.title}${sourceType}${sourceScore}${sourceHints}${official} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`;
 }
 
 function formatFindsText(finds: FindSummary[]): string[] {
