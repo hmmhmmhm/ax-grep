@@ -11018,6 +11018,7 @@ npx ax-grep https://example.test --agent</code></pre>
                 <h1>Article heading</h1>
                 <p>This article paragraph is long enough to appear in the page checking summary for agents.</p>
                 <a href="https://source.example/report">Source report</a>
+                <button>Subscribe</button>
               </article>
             </main>
           </body>
@@ -11131,7 +11132,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  bestHiddenReadTargetCount:");
     expect(stdout.output).toContain("  sourceLinkCount: 1");
     expect(stdout.output).toContain("  sourceChoiceCount: 1");
-    expect(stdout.output).toContain("  alternativeActionCount: 1");
+    expect(stdout.output).toContain("  alternativeActionCount: 2");
     expect(stdout.output).toContain("  alternativeActionName:");
     expect(stdout.output).toContain("  alternativeActionExecution:");
     expect(stdout.output).toContain("  alternativeActionCommandArgs:");
@@ -11144,7 +11145,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  citationCount: 2");
     expect(stdout.output).toContain("  answerEvidenceCount: 1");
     expect(stdout.output).toContain("  readTargetCount: 5");
-    expect(stdout.output).toContain("  actionCount: 2");
+    expect(stdout.output).toContain("  actionCount: 3");
     expect(stdout.output).toContain("  verification: 0/0 found, 0 missing");
     expect(stdout.output).toContain("  readability: medium");
     expect(stdout.output).toContain("  citation: e1 pageCheck.contentEvidence[0] content high score=");
@@ -11191,6 +11192,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  evidence: e1 pageCheck.contentEvidence[0] 1. p (p) high - high evidence from semantic extraction, 88 chars, p content, selector available. This article paragraph is long enough to appear in the page checking summary for agents.");
     expect(stdout.output).toContain("  link: external Source report type=news score=0.58 hints=news-like <https://source.example/report> - Possible source candidate: news-like.");
     expect(stdout.output).toContain("  sourceLink: Source report type=news score=0.58 hints=news-like <https://source.example/report> - Possible source candidate: news-like.");
+    expect(stdout.output).toContain("  action: button (button) Subscribe");
     expect(stdout.output).toContain("  next: read-content [terminal] - The page has enough structured evidence for source checking.");
     expect(stdout.output).toContain("  execution: read-current");
     expect(stdout.output).toContain("  readFrom: pageCheck.contentEvidence");

@@ -4711,7 +4711,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   }
   for (const link of pageCheck.primaryLinks) lines.push(formatPageCheckLinkText(link, "link"));
   for (const link of pageCheck.sourceLinks) lines.push(formatPageCheckLinkText(link, "sourceLink"));
-  for (const action of pageCheck.actions) lines.push(`  action: ${action.type} ${action.text}`);
+  for (const action of pageCheck.actions) {
+    const selector = action.selector ? ` (${action.selector})` : "";
+    lines.push(`  action: ${action.type}${selector} ${action.text}`);
+  }
   lines.push(`  next: ${formatActionLabel(pageCheck.recommendedAction)} - ${pageCheck.recommendedAction.reason}`);
   lines.push(`  execution: ${actionExecution(pageCheck.recommendedAction)}`);
   lines.push(`  priority: ${pageCheck.recommendedAction.priority ?? actionPriority(pageCheck.recommendedAction)} - ${pageCheck.recommendedAction.priorityReason ?? actionPriorityReason(pageCheck.recommendedAction)}`);
