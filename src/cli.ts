@@ -2145,6 +2145,10 @@ const agentContract: AgentContract = {
     "hiddenSignal.shortcuts",
     "afterInteractionCommand",
     "browserHtml",
+    "browserHtml.shortcuts",
+    "browserHtml.reasonCodes",
+    "executor.browserHtml.shortcuts",
+    "handoff.browserHtml.shortcuts",
     "primaryActionShortcuts",
   ],
 };

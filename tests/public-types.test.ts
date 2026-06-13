@@ -4,6 +4,7 @@ import type {
   AgentActionTargetChoice,
   AgentAnswerPlan,
   AgentCitation,
+  AgentContractFeature,
   AgentFormChoice,
   AgentHandoff,
   AgentJsonEnvelope,
@@ -16,6 +17,17 @@ import type {
 } from "../src/index";
 
 describe("public agent types", () => {
+  it("exposes browser fallback shortcut contract feature markers", () => {
+    const features: AgentContractFeature[] = [
+      "browserHtml.shortcuts",
+      "browserHtml.reasonCodes",
+      "executor.browserHtml.shortcuts",
+      "handoff.browserHtml.shortcuts",
+    ];
+
+    expect(features).toContain("browserHtml.reasonCodes");
+  });
+
   it("exports detailed handoff choice and evidence shapes", () => {
     const target: AgentTarget = {
       title: "Challenge",
