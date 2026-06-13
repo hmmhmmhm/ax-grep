@@ -15581,6 +15581,10 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const handoffReadValueType = agentReadValueType(handoff.readValue);
   const handoffReadValueCount = agentReadValueCount(handoff.readValue);
   const handoffReadValueReferencePath = agentReadValueReferencePath(handoff.readValue);
+  const runbookReadTarget = readTargets.find((target) => target.path === runbook.readFrom);
+  const runbookReadValueType = agentReadValueType(runbook.readValue);
+  const runbookReadValueCount = agentReadValueCount(runbook.readValue);
+  const runbookReadValueReferencePath = agentReadValueReferencePath(runbook.readValue);
   return {
     contract: agentContract,
     status: "error",
@@ -15590,6 +15594,30 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     continuationMode: agentContinuationMode(primaryAction),
     next,
     runbook,
+    runbookDecision: runbook.decision,
+    runbookMode: runbook.mode,
+    runbookOperation: runbook.operation,
+    ...(runbook.action ? { runbookActionName: runbook.action } : {}),
+    runbookReason: runbook.reason,
+    runbookConfidence: runbook.confidence,
+    runbookAnswerStatus: runbook.answerStatus,
+    runbookAnswerReady: runbook.answerReady,
+    runbookShouldContinue: runbook.shouldContinue,
+    runbookTerminal: runbook.terminal,
+    runbookMaxSuggestedIterations: runbook.maxSuggestedIterations,
+    runbookExpectedOutcome: runbook.expectedOutcome,
+    ...(runbook.readFrom ? { runbookReadFrom: runbook.readFrom } : {}),
+    ...(runbookReadTarget?.kind ? { runbookReadTargetKind: runbookReadTarget.kind } : {}),
+    ...(typeof runbookReadTarget?.count === "number" ? { runbookReadTargetCount: runbookReadTarget.count } : {}),
+    ...(typeof runbookReadTarget?.score === "number" ? { runbookReadTargetScore: runbookReadTarget.score } : {}),
+    ...(typeof runbookReadTarget?.primary === "boolean" ? { runbookReadTargetPrimary: runbookReadTarget.primary } : {}),
+    ...(runbookReadTarget?.reason ? { runbookReadTargetReason: runbookReadTarget.reason } : {}),
+    ...(runbook.readValue?.path ? { runbookReadValuePath: runbook.readValue.path } : {}),
+    ...(runbookReadValueType ? { runbookReadValueType } : {}),
+    ...(typeof runbookReadValueCount === "number" ? { runbookReadValueCount } : {}),
+    ...(runbookReadValueReferencePath ? { runbookReadValueReferencePath } : {}),
+    ...(runbook.commandArgs ? { runbookCommandArgs: runbook.commandArgs } : {}),
+    ...(runbook.url ? { runbookUrl: runbook.url } : {}),
     ...(next.action ? { nextActionName: next.action } : {}),
     ...(next.execution ? { nextExecution: next.execution } : {}),
     ...(next.command ? { nextCommand: next.command } : {}),
