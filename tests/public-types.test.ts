@@ -1169,6 +1169,10 @@ describe("public agent types", () => {
       | "executorReadTargetScore"
       | "executorReadTargetPrimary"
       | "executorReadTargetReason"
+      | "executorReadValuePath"
+      | "executorReadValueType"
+      | "executorReadValueCount"
+      | "executorReadValueReferencePath"
       | "executorUrl"
       | "executorTargetUrl"
       | "executorTargetPath"
@@ -1200,6 +1204,10 @@ describe("public agent types", () => {
       | "handoffReadTargetScore"
       | "handoffReadTargetPrimary"
       | "handoffReadTargetReason"
+      | "handoffReadValuePath"
+      | "handoffReadValueType"
+      | "handoffReadValueCount"
+      | "handoffReadValueReferencePath"
       | "handoffUrl"
       | "handoffTargetUrl"
       | "handoffTargetPath"
@@ -2343,6 +2351,10 @@ describe("public agent types", () => {
       executorReadTargetScore: 0.9,
       executorReadTargetPrimary: true,
       executorReadTargetReason: "Top evidence.",
+      executorReadValuePath: "pageCheck.contentEvidence",
+      executorReadValueType: "array",
+      executorReadValueCount: 1,
+      executorReadValueReferencePath: "pageCheck.contentEvidence",
       executorUrl: "https://example.test",
       executorTargetUrl: "https://example.test",
       executorTargetPath: "pageCheck.links[0]",
@@ -2374,6 +2386,10 @@ describe("public agent types", () => {
       handoffReadTargetScore: 0.9,
       handoffReadTargetPrimary: true,
       handoffReadTargetReason: "Top evidence.",
+      handoffReadValuePath: "pageCheck.contentEvidence",
+      handoffReadValueType: "array",
+      handoffReadValueCount: 1,
+      handoffReadValueReferencePath: "pageCheck.contentEvidence",
       handoffUrl: "https://example.test",
       handoffTargetUrl: "https://example.test",
       handoffTargetPath: "pageCheck.links[0]",
@@ -2596,6 +2612,8 @@ describe("public agent types", () => {
     expect(summary.executorReadTargetKind).toBe("evidence");
     expect(summary.executorReadTargetCount).toBe(1);
     expect(summary.executorReadTargetReason).toBe("Top evidence.");
+    expect(summary.executorReadValueType).toBe("array");
+    expect(summary.executorReadValueReferencePath).toBe("pageCheck.contentEvidence");
     expect(summary.executorTargetSelector).toBe("a.primary");
     expect(summary.executorTargetSourceScore).toBe(0.92);
     expect(summary.executorTargetLikelyOfficial).toBe(true);
@@ -2603,6 +2621,8 @@ describe("public agent types", () => {
     expect(summary.handoffShouldContinue).toBe(false);
     expect(summary.handoffReadTargetKind).toBe("evidence");
     expect(summary.handoffReadTargetScore).toBe(0.9);
+    expect(summary.handoffReadValuePath).toBe("pageCheck.contentEvidence");
+    expect(summary.handoffReadValueCount).toBe(1);
     expect(summary.handoffTargetPath).toBe("pageCheck.links[0]");
     expect(summary.handoffTargetTitle).toBe("Example target");
     expect(summary.handoffTargetRelevance).toBe("high");

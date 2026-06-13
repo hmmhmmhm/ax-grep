@@ -1021,6 +1021,8 @@ export type AgentReadTarget = {
 
 export type AgentReadValueScalar = string | number | boolean | null;
 
+export type AgentReadValueKind = "array" | "object" | "string" | "number" | "boolean" | "null";
+
 export type AgentReadValueReference =
   | {
       path: string;
@@ -2271,6 +2273,10 @@ export type AgentSummary = {
   executorReadTargetScore?: number;
   executorReadTargetPrimary?: boolean;
   executorReadTargetReason?: string;
+  executorReadValuePath?: string;
+  executorReadValueType?: AgentReadValueKind;
+  executorReadValueCount?: number;
+  executorReadValueReferencePath?: string;
   executorUrl?: string;
   executorTargetUrl?: string;
   executorTargetPath?: string;
@@ -2302,6 +2308,10 @@ export type AgentSummary = {
   handoffReadTargetScore?: number;
   handoffReadTargetPrimary?: boolean;
   handoffReadTargetReason?: string;
+  handoffReadValuePath?: string;
+  handoffReadValueType?: AgentReadValueKind;
+  handoffReadValueCount?: number;
+  handoffReadValueReferencePath?: string;
   handoffUrl?: string;
   handoffTargetUrl?: string;
   handoffTargetPath?: string;

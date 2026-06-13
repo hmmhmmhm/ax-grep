@@ -26,6 +26,7 @@ import type {
   AgentQualityGate,
   AgentReadTarget,
   AgentReadValue,
+  AgentReadValueKind,
   AgentResultChoice,
   AgentRoutingIntent,
   AgentRunbook,
@@ -1911,6 +1912,10 @@ type AgentSummary = {
   executorReadTargetScore?: number;
   executorReadTargetPrimary?: boolean;
   executorReadTargetReason?: string;
+  executorReadValuePath?: string;
+  executorReadValueType?: AgentReadValueKind;
+  executorReadValueCount?: number;
+  executorReadValueReferencePath?: string;
   executorUrl?: string;
   executorTargetUrl?: string;
   executorTargetPath?: string;
@@ -1942,6 +1947,10 @@ type AgentSummary = {
   handoffReadTargetScore?: number;
   handoffReadTargetPrimary?: boolean;
   handoffReadTargetReason?: string;
+  handoffReadValuePath?: string;
+  handoffReadValueType?: AgentReadValueKind;
+  handoffReadValueCount?: number;
+  handoffReadValueReferencePath?: string;
   handoffUrl?: string;
   handoffTargetUrl?: string;
   handoffTargetPath?: string;
@@ -3384,6 +3393,27 @@ function formatAgentReadValueText(readValue: AgentReadValue, prefix = "handoffRe
   return lines;
 }
 
+function agentReadValueType(readValue: AgentReadValue | undefined): AgentReadValueKind | undefined {
+  if (!readValue) return undefined;
+  if (!("value" in readValue)) return readValue.valueType;
+  if (Array.isArray(readValue.value)) return "array";
+  if (readValue.value === null) return "null";
+  if (typeof readValue.value === "string") return "string";
+  if (typeof readValue.value === "number") return "number";
+  if (typeof readValue.value === "boolean") return "boolean";
+  return "object";
+}
+
+function agentReadValueCount(readValue: AgentReadValue | undefined): number | undefined {
+  if (!readValue) return undefined;
+  if (!("value" in readValue)) return readValue.valueType === "array" ? readValue.count : undefined;
+  return Array.isArray(readValue.value) ? readValue.value.length : undefined;
+}
+
+function agentReadValueReferencePath(readValue: AgentReadValue | undefined): string | undefined {
+  return readValue && !("value" in readValue) ? readValue.valuePath : undefined;
+}
+
 function formatAgentReadValueItemText(value: unknown, fallbackPath: string): string {
   if (!value || typeof value !== "object") return `${fallbackPath} - ${String(value)}`;
   const item = value as Record<string, unknown>;
@@ -4022,6 +4052,10 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (typeof agent.executorReadTargetScore === "number") lines.push(`  executorReadTargetScore: ${agent.executorReadTargetScore}`);
   if (typeof agent.executorReadTargetPrimary === "boolean") lines.push(`  executorReadTargetPrimary: ${agent.executorReadTargetPrimary}`);
   if (agent.executorReadTargetReason) lines.push(`  executorReadTargetReason: ${agent.executorReadTargetReason}`);
+  if (agent.executorReadValuePath) lines.push(`  executorReadValuePath: ${agent.executorReadValuePath}`);
+  if (agent.executorReadValueType) lines.push(`  executorReadValueType: ${agent.executorReadValueType}`);
+  if (typeof agent.executorReadValueCount === "number") lines.push(`  executorReadValueCount: ${agent.executorReadValueCount}`);
+  if (agent.executorReadValueReferencePath) lines.push(`  executorReadValueReferencePath: ${agent.executorReadValueReferencePath}`);
   if (agent.executor.readValue) lines.push(...formatAgentReadValueText(agent.executor.readValue, "executorReadValue"));
   if (agent.executor.commandArgs) lines.push(`  executorCommandArgs: ${formatCommandArgsText(agent.executor.commandArgs)}`);
   if (agent.executor.afterInteractionCommandArgs) lines.push(`  executorAfterInteractionCommandArgs: ${formatCommandArgsText(agent.executor.afterInteractionCommandArgs)}`);
@@ -4044,6 +4078,10 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (typeof agent.handoffReadTargetScore === "number") lines.push(`  handoffReadTargetScore: ${agent.handoffReadTargetScore}`);
   if (typeof agent.handoffReadTargetPrimary === "boolean") lines.push(`  handoffReadTargetPrimary: ${agent.handoffReadTargetPrimary}`);
   if (agent.handoffReadTargetReason) lines.push(`  handoffReadTargetReason: ${agent.handoffReadTargetReason}`);
+  if (agent.handoffReadValuePath) lines.push(`  handoffReadValuePath: ${agent.handoffReadValuePath}`);
+  if (agent.handoffReadValueType) lines.push(`  handoffReadValueType: ${agent.handoffReadValueType}`);
+  if (typeof agent.handoffReadValueCount === "number") lines.push(`  handoffReadValueCount: ${agent.handoffReadValueCount}`);
+  if (agent.handoffReadValueReferencePath) lines.push(`  handoffReadValueReferencePath: ${agent.handoffReadValueReferencePath}`);
   if (agent.handoff.readValue) lines.push(...formatAgentReadValueText(agent.handoff.readValue));
   if (agent.handoff.command) lines.push(`  handoffCommand: ${agent.handoff.command}`);
   if (agent.handoff.commandArgs) lines.push(`  handoffCommandArgs: ${formatCommandArgsText(agent.handoff.commandArgs)}`);
@@ -11616,6 +11654,12 @@ function summarizeAgent(
   const primaryActionReadTarget = readTargetFor(primaryAction?.readFrom);
   const executorReadTarget = executor.readTarget ?? readTargetFor(executor.readFrom);
   const handoffReadTarget = handoff.readTarget ?? readTargetFor(handoff.readFrom);
+  const executorReadValueType = agentReadValueType(executor.readValue);
+  const executorReadValueCount = agentReadValueCount(executor.readValue);
+  const executorReadValueReferencePath = agentReadValueReferencePath(executor.readValue);
+  const handoffReadValueType = agentReadValueType(handoff.readValue);
+  const handoffReadValueCount = agentReadValueCount(handoff.readValue);
+  const handoffReadValueReferencePath = agentReadValueReferencePath(handoff.readValue);
   const agent: AgentSummary = {
     contract: agentContract,
     status,
@@ -12634,6 +12678,10 @@ function summarizeAgent(
     ...(typeof executorReadTarget?.score === "number" ? { executorReadTargetScore: executorReadTarget.score } : {}),
     ...(typeof executorReadTarget?.primary === "boolean" ? { executorReadTargetPrimary: executorReadTarget.primary } : {}),
     ...(executorReadTarget?.reason ? { executorReadTargetReason: executorReadTarget.reason } : {}),
+    ...(executor.readValue?.path ? { executorReadValuePath: executor.readValue.path } : {}),
+    ...(executorReadValueType ? { executorReadValueType } : {}),
+    ...(typeof executorReadValueCount === "number" ? { executorReadValueCount } : {}),
+    ...(executorReadValueReferencePath ? { executorReadValueReferencePath } : {}),
     ...(executor.url ? { executorUrl: executor.url } : {}),
     ...(executor.target?.url ? { executorTargetUrl: executor.target.url } : {}),
     ...(executor.target?.path ? { executorTargetPath: executor.target.path } : {}),
@@ -12665,6 +12713,10 @@ function summarizeAgent(
     ...(typeof handoffReadTarget?.score === "number" ? { handoffReadTargetScore: handoffReadTarget.score } : {}),
     ...(typeof handoffReadTarget?.primary === "boolean" ? { handoffReadTargetPrimary: handoffReadTarget.primary } : {}),
     ...(handoffReadTarget?.reason ? { handoffReadTargetReason: handoffReadTarget.reason } : {}),
+    ...(handoff.readValue?.path ? { handoffReadValuePath: handoff.readValue.path } : {}),
+    ...(handoffReadValueType ? { handoffReadValueType } : {}),
+    ...(typeof handoffReadValueCount === "number" ? { handoffReadValueCount } : {}),
+    ...(handoffReadValueReferencePath ? { handoffReadValueReferencePath } : {}),
     ...(handoff.url ? { handoffUrl: handoff.url } : {}),
     ...(handoff.target?.url ? { handoffTargetUrl: handoff.target.url } : {}),
     ...(handoff.target?.path ? { handoffTargetPath: handoff.target.path } : {}),
@@ -15462,6 +15514,12 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     : undefined;
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, [], [], [], sourceSearchAgent, signals, qualityGates);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
+  const executorReadValueType = agentReadValueType(executor.readValue);
+  const executorReadValueCount = agentReadValueCount(executor.readValue);
+  const executorReadValueReferencePath = agentReadValueReferencePath(executor.readValue);
+  const handoffReadValueType = agentReadValueType(handoff.readValue);
+  const handoffReadValueCount = agentReadValueCount(handoff.readValue);
+  const handoffReadValueReferencePath = agentReadValueReferencePath(handoff.readValue);
   return {
     contract: agentContract,
     status: "error",
@@ -15711,6 +15769,10 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     executorShouldContinue: executor.shouldContinue,
     executorTerminal: executor.terminal,
     executorExpectedOutcome: executor.expectedOutcome,
+    ...(executor.readValue?.path ? { executorReadValuePath: executor.readValue.path } : {}),
+    ...(executorReadValueType ? { executorReadValueType } : {}),
+    ...(typeof executorReadValueCount === "number" ? { executorReadValueCount } : {}),
+    ...(executorReadValueReferencePath ? { executorReadValueReferencePath } : {}),
     ...(executor.target?.url ? { executorTargetUrl: executor.target.url } : {}),
     ...(executor.target?.path ? { executorTargetPath: executor.target.path } : {}),
     ...(executor.target?.title ? { executorTargetTitle: executor.target.title } : {}),
@@ -15731,6 +15793,10 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     handoffShouldContinue: handoff.shouldContinue,
     handoffTerminal: handoff.terminal,
     handoffExpectedOutcome: handoff.expectedOutcome,
+    ...(handoff.readValue?.path ? { handoffReadValuePath: handoff.readValue.path } : {}),
+    ...(handoffReadValueType ? { handoffReadValueType } : {}),
+    ...(typeof handoffReadValueCount === "number" ? { handoffReadValueCount } : {}),
+    ...(handoffReadValueReferencePath ? { handoffReadValueReferencePath } : {}),
     ...(handoff.target?.url ? { handoffTargetUrl: handoff.target.url } : {}),
     ...(handoff.target?.path ? { handoffTargetPath: handoff.target.path } : {}),
     ...(handoff.target?.title ? { handoffTargetTitle: handoff.target.title } : {}),
@@ -18107,6 +18173,10 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.executorReadTargetScore === "number" ? { executorReadTargetScore: agent.executorReadTargetScore } : {}),
     ...(typeof agent.executorReadTargetPrimary === "boolean" ? { executorReadTargetPrimary: agent.executorReadTargetPrimary } : {}),
     ...(agent.executorReadTargetReason ? { executorReadTargetReason: agent.executorReadTargetReason } : {}),
+    ...(agent.executorReadValuePath ? { executorReadValuePath: agent.executorReadValuePath } : {}),
+    ...(agent.executorReadValueType ? { executorReadValueType: agent.executorReadValueType } : {}),
+    ...(typeof agent.executorReadValueCount === "number" ? { executorReadValueCount: agent.executorReadValueCount } : {}),
+    ...(agent.executorReadValueReferencePath ? { executorReadValueReferencePath: agent.executorReadValueReferencePath } : {}),
     ...(agent.executorUrl ? { executorUrl: agent.executorUrl } : {}),
     ...(agent.executorTargetUrl ? { executorTargetUrl: agent.executorTargetUrl } : {}),
     ...(agent.executorTargetPath ? { executorTargetPath: agent.executorTargetPath } : {}),
@@ -18138,6 +18208,10 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.handoffReadTargetScore === "number" ? { handoffReadTargetScore: agent.handoffReadTargetScore } : {}),
     ...(typeof agent.handoffReadTargetPrimary === "boolean" ? { handoffReadTargetPrimary: agent.handoffReadTargetPrimary } : {}),
     ...(agent.handoffReadTargetReason ? { handoffReadTargetReason: agent.handoffReadTargetReason } : {}),
+    ...(agent.handoffReadValuePath ? { handoffReadValuePath: agent.handoffReadValuePath } : {}),
+    ...(agent.handoffReadValueType ? { handoffReadValueType: agent.handoffReadValueType } : {}),
+    ...(typeof agent.handoffReadValueCount === "number" ? { handoffReadValueCount: agent.handoffReadValueCount } : {}),
+    ...(agent.handoffReadValueReferencePath ? { handoffReadValueReferencePath: agent.handoffReadValueReferencePath } : {}),
     ...(agent.handoffUrl ? { handoffUrl: agent.handoffUrl } : {}),
     ...(agent.handoffTargetUrl ? { handoffTargetUrl: agent.handoffTargetUrl } : {}),
     ...(agent.handoffTargetPath ? { handoffTargetPath: agent.handoffTargetPath } : {}),
@@ -19199,6 +19273,10 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.executorReadTargetScore === "number" ? { executorReadTargetScore: agent.executorReadTargetScore } : {}),
     ...(typeof agent.executorReadTargetPrimary === "boolean" ? { executorReadTargetPrimary: agent.executorReadTargetPrimary } : {}),
     ...(agent.executorReadTargetReason ? { executorReadTargetReason: agent.executorReadTargetReason } : {}),
+    ...(agent.executorReadValuePath ? { executorReadValuePath: agent.executorReadValuePath } : {}),
+    ...(agent.executorReadValueType ? { executorReadValueType: agent.executorReadValueType } : {}),
+    ...(typeof agent.executorReadValueCount === "number" ? { executorReadValueCount: agent.executorReadValueCount } : {}),
+    ...(agent.executorReadValueReferencePath ? { executorReadValueReferencePath: agent.executorReadValueReferencePath } : {}),
     ...(agent.executorUrl ? { executorUrl: agent.executorUrl } : {}),
     ...(agent.executorTargetUrl ? { executorTargetUrl: agent.executorTargetUrl } : {}),
     ...(agent.executorTargetPath ? { executorTargetPath: agent.executorTargetPath } : {}),
@@ -19230,6 +19308,10 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.handoffReadTargetScore === "number" ? { handoffReadTargetScore: agent.handoffReadTargetScore } : {}),
     ...(typeof agent.handoffReadTargetPrimary === "boolean" ? { handoffReadTargetPrimary: agent.handoffReadTargetPrimary } : {}),
     ...(agent.handoffReadTargetReason ? { handoffReadTargetReason: agent.handoffReadTargetReason } : {}),
+    ...(agent.handoffReadValuePath ? { handoffReadValuePath: agent.handoffReadValuePath } : {}),
+    ...(agent.handoffReadValueType ? { handoffReadValueType: agent.handoffReadValueType } : {}),
+    ...(typeof agent.handoffReadValueCount === "number" ? { handoffReadValueCount: agent.handoffReadValueCount } : {}),
+    ...(agent.handoffReadValueReferencePath ? { handoffReadValueReferencePath: agent.handoffReadValueReferencePath } : {}),
     ...(agent.handoffUrl ? { handoffUrl: agent.handoffUrl } : {}),
     ...(agent.handoffTargetUrl ? { handoffTargetUrl: agent.handoffTargetUrl } : {}),
     ...(agent.handoffTargetPath ? { handoffTargetPath: agent.handoffTargetPath } : {}),

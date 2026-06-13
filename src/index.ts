@@ -71,6 +71,7 @@ export type {
   AgentReadTarget,
   AgentReadValue,
   AgentReadValueInline,
+  AgentReadValueKind,
   AgentReadValuePayload,
   AgentReadValueReference,
   AgentReadValueScalar,

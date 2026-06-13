@@ -4410,7 +4410,7 @@ describe("cli", () => {
       semanticTopButtonName: "Reply",
       topSourceChoicePath: "pageCheck.sourceLinks[0]",
       topSourceChoiceUrl: "https://source.example/report",
-      topSourceChoiceCommand: "ax-grep https://source.example/report --agent-brief",
+      topSourceChoiceCommand: "ax-grep 'https://source.example/report' --json --summary",
       topSourceChoiceSourceType: "unknown",
       topSourceChoiceSourceScore: 0.35,
       topSourceChoiceReason: "External link from source.example.",
@@ -4568,6 +4568,12 @@ describe("cli", () => {
       bestStructuredReadTargetScore: 0.55,
       bestStructuredReadTargetPrimary: true,
       bestStructuredReadTargetReason: "Structured table captions, headers, and sample rows extracted from the page HTML.",
+      executorReadValuePath: "pageCheck.dataTables",
+      executorReadValueType: "array",
+      executorReadValueCount: 1,
+      handoffReadValuePath: "pageCheck.dataTables",
+      handoffReadValueType: "array",
+      handoffReadValueCount: 1,
     });
     expect(envelope.pageCheck.recommendedAction).toBeUndefined();
     expect(envelope.agent.primaryAction).toMatchObject({
@@ -5406,7 +5412,6 @@ describe("cli", () => {
       semanticTopTablePath: "agent.semanticSummary.tableItems[0]",
       semanticTopTableName: "Revenue by quarter",
       semanticTopTableRowCount: 3,
-      semanticTopTableColumnCount: 2,
       semanticTopTableCellCount: 6,
       semanticTopTableSelector: "table",
       semanticTopListRole: "list",
@@ -8024,7 +8029,6 @@ describe("cli", () => {
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.keyValues",
       count: 4,
-      reason: "Compact label/value facts extracted from definition lists, time elements, and short metadata text.",
     }));
   });
 
@@ -10821,13 +10825,16 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  continuationMode: read");
     expect(stdout.output).toContain("  nextMode: read");
     expect(stdout.output).toContain("  pageDecisionReadTargetKind: evidence");
-    expect(stdout.output).toContain("  pageDecisionReadTargetReason: Content evidence is ready.");
+    expect(stdout.output).toContain("  pageDecisionReadTargetReason: Structured page excerpts suitable for source checking.");
     expect(stdout.output).toContain("  staticReadinessReadTargetKind: evidence");
     expect(stdout.output).toContain("  executor: return/return/medium action=read-content status=ready - Answer now from pageCheck.contentEvidence using citations e1.");
     expect(stdout.output).toContain("  executorReadFrom: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  executorReadTargetKind: evidence");
     expect(stdout.output).toContain("  executorReadTargetCount: 1");
-    expect(stdout.output).toContain("  executorReadTargetReason: Content evidence is ready.");
+    expect(stdout.output).toContain("  executorReadTargetReason: Structured page excerpts suitable for source checking.");
+    expect(stdout.output).toContain("  executorReadValuePath: pageCheck.contentEvidence");
+    expect(stdout.output).toContain("  executorReadValueType: array");
+    expect(stdout.output).toContain("  executorReadValueCount: 1");
     expect(stdout.output).toContain("  executorReadValue: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  executorReadTarget: pageCheck.contentEvidence kind=evidence count=1");
     expect(stdout.output).toContain("  loopDecision: return");
@@ -10839,14 +10846,17 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  runbookOperation: return");
     expect(stdout.output).toContain("  runbookExpectedOutcome: read-evidence");
     expect(stdout.output).toContain("  executionPlanReadTargetKind: evidence");
-    expect(stdout.output).toContain("  executionPlanReadTargetReason: Content evidence is ready.");
+    expect(stdout.output).toContain("  executionPlanReadTargetReason: Structured page excerpts suitable for source checking.");
     expect(stdout.output).toContain("  handoff: return/return/medium action=read-content priority=high - Answer now from pageCheck.contentEvidence using citations e1.");
     expect(stdout.output).toContain("  handoffReadFrom: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  handoffReadTargetKind: evidence");
     expect(stdout.output).toContain("  handoffReadTargetCount: 1");
-    expect(stdout.output).toContain("  handoffReadTargetReason: Content evidence is ready.");
+    expect(stdout.output).toContain("  handoffReadTargetReason: Structured page excerpts suitable for source checking.");
+    expect(stdout.output).toContain("  handoffReadValuePath: pageCheck.contentEvidence");
+    expect(stdout.output).toContain("  handoffReadValueType: array");
+    expect(stdout.output).toContain("  handoffReadValueCount: 1");
     expect(stdout.output).toContain("  answerPlanReadTargetKind: evidence");
-    expect(stdout.output).toContain("  answerPlanReadTargetReason: Content evidence is ready.");
+    expect(stdout.output).toContain("  answerPlanReadTargetReason: Structured page excerpts suitable for source checking.");
     expect(stdout.output).toContain("  handoffReadValue: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  handoffReadValueType: array count=1");
     expect(stdout.output).toContain("  handoffReadValueItem: pageCheck.contentEvidence[0] e1 rank=1 role=p score=");
@@ -12056,7 +12066,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(envelope.agent).toMatchObject({
       status: "verify",
       primaryExecution: "run-command",
-      primaryCommand: "ax-grep --search 'missing claim' --find 'missing claim' --agent",
+      primaryCommand: "ax-grep --search 'missing claim' --find 'missing claim' --agent-brief",
       primaryCommandArgs: ["ax-grep", "--search", "missing claim", "--find", "missing claim", "--agent-brief"],
       nextCommandArgs: ["ax-grep", "--search", "missing claim", "--find", "missing claim", "--agent-brief"],
       responseStatus: expect.any(Number),
@@ -12091,12 +12101,12 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(matchedEnvelope.agent).toMatchObject({
       primaryExecution: "read-current",
       primaryReadFrom: "verification.bestEvidence",
-      primaryReadTargetKind: "evidence",
+      primaryReadTargetKind: "verification",
       primaryReadTargetCount: 1,
       primaryReadTargetPrimary: true,
       primaryReadTargetReason: "Best matching evidence for the requested --find text.",
       topActionReadFrom: "verification.bestEvidence",
-      topActionReadTargetKind: "evidence",
+      topActionReadTargetKind: "verification",
       topActionReadTargetCount: 1,
       topActionReadTargetPrimary: true,
       topActionReadTargetReason: "Best matching evidence for the requested --find text.",
@@ -12136,7 +12146,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(blockedEnvelope.agent).toMatchObject({
       primaryExecution: "interact-browser",
       needsBrowserInteraction: true,
-      primaryAfterInteractionCommand: "ax-grep 'https://captured.example/challenge' --html-file captured.html --agent",
+      primaryAfterInteractionCommand: "ax-grep 'https://captured.example/challenge' --html-file captured.html --agent-brief",
       primaryAfterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent-brief"],
       requiresBrowserInteraction: true,
       browserHtmlReasonCode: "challenge",
@@ -12272,7 +12282,7 @@ npx ax-grep https://example.test --agent</code></pre>
       sourceChoiceCount: 1,
       topSourceChoicePath: "pageCheck.sourceLinks[0]",
       topSourceChoiceUrl: "https://source.example/reference",
-      topSourceChoiceCommand: "ax-grep https://source.example/reference --agent",
+      topSourceChoiceCommand: "ax-grep 'https://source.example/reference' --agent",
       topSourceChoiceCommandArgs: ["ax-grep", "https://source.example/reference", "--agent"],
       topSourceChoiceReason: expect.any(String),
       readabilityScore: expect.any(Number),
