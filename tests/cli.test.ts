@@ -1862,6 +1862,7 @@ describe("cli", () => {
       searchDecisionRecommendedSourceScore: expect.any(Number),
       searchDecisionRecommendedRelevance: "high",
       searchDecisionRecommendedLikelyOfficial: false,
+      searchDecisionCommand: "ax-grep --search 'agent browser' --engine bing --open-result best --agent",
       searchDecisionCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "best", "--agent"],
       topResultChoicePath: "searchResults[0]",
       topResultChoiceTitle: "Agent browser result",
@@ -2796,6 +2797,7 @@ describe("cli", () => {
       searchDecisionLowRelevanceCount: 1,
       searchDecisionOfficialCount: 0,
       searchDecisionFindMatchCount: 0,
+      searchDecisionCommand: "ax-grep --search '\"ax-grep\"' --engine duckduckgo --agent",
       searchDecisionCommandArgs: ["ax-grep", "--search", "\"ax-grep\"", "--engine", "duckduckgo", "--agent"],
     });
   });

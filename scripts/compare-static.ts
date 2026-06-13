@@ -1236,6 +1236,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       searchDecisionRecommendedSourceScore?: number;
       searchDecisionRecommendedRelevance?: CliSearchResultShape["relevance"];
       searchDecisionRecommendedLikelyOfficial?: boolean;
+      searchDecisionCommand?: string;
       searchDecisionCommandArgs?: string[];
       pageDecisionName?: CliAgentPageDecisionShape["decision"];
       pageDecisionConfidence?: CliAgentPageDecisionShape["confidence"];
@@ -6124,6 +6125,7 @@ function scoreAgentSearchDecision(
     searchDecisionRecommendedSourceScore?: number;
     searchDecisionRecommendedRelevance?: CliSearchResultShape["relevance"];
     searchDecisionRecommendedLikelyOfficial?: boolean;
+    searchDecisionCommand?: string;
     searchDecisionCommandArgs?: string[];
   } | undefined,
   kind: string | undefined,
@@ -6222,6 +6224,12 @@ function scoreAgentSearchDecision(
     required += 1;
     if (JSON.stringify(agent?.searchDecisionCommandArgs) === JSON.stringify(decision.commandArgs)) matched += 1;
   } else if (agent?.searchDecisionCommandArgs) {
+    required += 1;
+  }
+  if (decision.command) {
+    required += 1;
+    if (agent?.searchDecisionCommand === decision.command) matched += 1;
+  } else if (agent?.searchDecisionCommand) {
     required += 1;
   }
   return roundScore(matched / required);

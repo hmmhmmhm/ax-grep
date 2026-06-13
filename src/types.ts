@@ -1373,6 +1373,7 @@ export type AgentSummary = {
   searchDecisionRecommendedSourceScore?: number;
   searchDecisionRecommendedRelevance?: "low" | "medium" | "high";
   searchDecisionRecommendedLikelyOfficial?: boolean;
+  searchDecisionCommand?: string;
   searchDecisionCommandArgs?: string[];
   pageDecisionName?: string;
   pageDecisionConfidence?: "low" | "medium" | "high";

@@ -634,6 +634,7 @@ describe("public agent types", () => {
       | "searchDecisionRecommendedSourceScore"
       | "searchDecisionRecommendedRelevance"
       | "searchDecisionRecommendedLikelyOfficial"
+      | "searchDecisionCommand"
       | "searchDecisionCommandArgs"
       | "pageDecision"
       | "pageDecisionName"
@@ -1742,6 +1743,7 @@ describe("public agent types", () => {
         recommendedSourceScore: 0.92,
         recommendedRelevance: "high",
         recommendedLikelyOfficial: true,
+        command: "ax-grep --search example --open-result 1 --agent",
         commandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent"],
       },
       searchDecisionName: "open-result",
@@ -1761,6 +1763,7 @@ describe("public agent types", () => {
       searchDecisionRecommendedSourceScore: 0.92,
       searchDecisionRecommendedRelevance: "high",
       searchDecisionRecommendedLikelyOfficial: true,
+      searchDecisionCommand: "ax-grep --search example --open-result 1 --agent",
       searchDecisionCommandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent"],
       pageDecision: {
         decision: "read-content",
@@ -2701,6 +2704,7 @@ describe("public agent types", () => {
     expect(summary.searchDecisionRecommendedPath).toBe("recommendedResult");
     expect(summary.searchDecisionRecommendedSourceScore).toBe(0.92);
     expect(summary.searchDecisionRecommendedLikelyOfficial).toBe(true);
+    expect(summary.searchDecisionCommand).toContain("--open-result 1");
     expect(summary.searchDecision?.recommendedRelevance).toBe("high");
     expect(summary.pageDecision?.readability).toBe("high");
     expect(summary.semanticSummary?.tableItems[0]?.sampleCellRefs?.[0]?.headers?.[0]).toBe("Plan");

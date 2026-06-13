@@ -1012,6 +1012,7 @@ type AgentSummary = {
   searchDecisionRecommendedSourceScore?: number;
   searchDecisionRecommendedRelevance?: ResultSummary["relevance"];
   searchDecisionRecommendedLikelyOfficial?: boolean;
+  searchDecisionCommand?: string;
   searchDecisionCommandArgs?: string[];
   pageDecisionName?: AgentPageDecision["decision"];
   pageDecisionConfidence?: AgentPageDecision["confidence"];
@@ -3641,6 +3642,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.searchDecisionRecommendedSourceScore === "number" ? [`  searchDecisionRecommendedSourceScore: ${agent.searchDecisionRecommendedSourceScore}`] : []),
     ...(agent.searchDecisionRecommendedRelevance ? [`  searchDecisionRecommendedRelevance: ${agent.searchDecisionRecommendedRelevance}`] : []),
     ...(typeof agent.searchDecisionRecommendedLikelyOfficial === "boolean" ? [`  searchDecisionRecommendedLikelyOfficial: ${agent.searchDecisionRecommendedLikelyOfficial}`] : []),
+    ...(agent.searchDecisionCommand ? [`  searchDecisionCommand: ${agent.searchDecisionCommand}`] : []),
     ...(agent.pageDecision ? [`  pageDecision: ${agent.pageDecision.decision}/${agent.pageDecision.confidence} - ${agent.pageDecision.reason}`] : []),
     ...(agent.pageDecisionName ? [`  pageDecisionName: ${agent.pageDecisionName}`] : []),
     ...(agent.pageDecisionConfidence ? [`  pageDecisionConfidence: ${agent.pageDecisionConfidence}`] : []),
@@ -11801,6 +11803,7 @@ function summarizeAgent(
     ...(typeof searchDecision?.recommendedSourceScore === "number" ? { searchDecisionRecommendedSourceScore: searchDecision.recommendedSourceScore } : {}),
     ...(searchDecision?.recommendedRelevance ? { searchDecisionRecommendedRelevance: searchDecision.recommendedRelevance } : {}),
     ...(typeof searchDecision?.recommendedLikelyOfficial === "boolean" ? { searchDecisionRecommendedLikelyOfficial: searchDecision.recommendedLikelyOfficial } : {}),
+    ...(searchDecision?.command ? { searchDecisionCommand: searchDecision.command } : {}),
     ...(searchDecision?.commandArgs ? { searchDecisionCommandArgs: searchDecision.commandArgs } : {}),
     ...(pageDecision ? { pageDecisionName: pageDecision.decision } : {}),
     ...(pageDecision ? { pageDecisionConfidence: pageDecision.confidence } : {}),
@@ -17362,6 +17365,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.searchDecisionRecommendedSourceScore === "number" ? { searchDecisionRecommendedSourceScore: agent.searchDecisionRecommendedSourceScore } : {}),
     ...(agent.searchDecisionRecommendedRelevance ? { searchDecisionRecommendedRelevance: agent.searchDecisionRecommendedRelevance } : {}),
     ...(typeof agent.searchDecisionRecommendedLikelyOfficial === "boolean" ? { searchDecisionRecommendedLikelyOfficial: agent.searchDecisionRecommendedLikelyOfficial } : {}),
+    ...(agent.searchDecisionCommand ? { searchDecisionCommand: agent.searchDecisionCommand } : {}),
     ...(agent.searchDecisionCommandArgs ? { searchDecisionCommandArgs: agent.searchDecisionCommandArgs } : {}),
     ...(agent.pageDecisionName ? { pageDecisionName: agent.pageDecisionName } : {}),
     ...(agent.pageDecisionConfidence ? { pageDecisionConfidence: agent.pageDecisionConfidence } : {}),
@@ -18480,6 +18484,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.searchDecisionRecommendedSourceScore === "number" ? { searchDecisionRecommendedSourceScore: agent.searchDecisionRecommendedSourceScore } : {}),
     ...(agent.searchDecisionRecommendedRelevance ? { searchDecisionRecommendedRelevance: agent.searchDecisionRecommendedRelevance } : {}),
     ...(typeof agent.searchDecisionRecommendedLikelyOfficial === "boolean" ? { searchDecisionRecommendedLikelyOfficial: agent.searchDecisionRecommendedLikelyOfficial } : {}),
+    ...(agent.searchDecisionCommand ? { searchDecisionCommand: agent.searchDecisionCommand } : {}),
     ...(agent.searchDecisionCommandArgs ? { searchDecisionCommandArgs: agent.searchDecisionCommandArgs } : {}),
     ...(agent.pageDecisionName ? { pageDecisionName: agent.pageDecisionName } : {}),
     ...(agent.pageDecisionConfidence ? { pageDecisionConfidence: agent.pageDecisionConfidence } : {}),
