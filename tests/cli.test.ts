@@ -4084,7 +4084,7 @@ describe("cli", () => {
               </div>
               <div class="result">
                 <a class="result__a" href="https://alternate.example/article">Independent source</a>
-                <div class="result__snippet">This result contains the target claim for verification.</div>
+                <div class="result__snippet">2026-05 update: This result contains the target claim for verification.</div>
               </div>
             </main>
           `, { headers: { "content-type": "text/html" } });
@@ -4171,7 +4171,7 @@ describe("cli", () => {
               </div>
               <div class="result">
                 <a class="result__a" href="https://alternate.example/article">Independent source</a>
-                <div class="result__snippet">This result contains the target claim for verification.</div>
+                <div class="result__snippet">2026-05 update: This result contains the target claim for verification.</div>
               </div>
             </main>
           `, { headers: { "content-type": "text/html" } });
@@ -4204,12 +4204,14 @@ describe("cli", () => {
     expect(stdout.output).toContain("  sourceSearchAlternatePath: sourceSearch.alternateResults[0]");
     expect(stdout.output).toContain("  sourceSearchAlternateHost: alternate.example");
     expect(stdout.output).toContain("  sourceSearchAlternateSource: alternate.example");
-    expect(stdout.output).toContain("  sourceSearchAlternateSnippet: This result contains the target claim for verification.");
+    expect(stdout.output).toContain("  sourceSearchAlternateSnippet: 2026-05 update: This result contains the target claim for verification.");
+    expect(stdout.output).toContain("  sourceSearchAlternateDateText: 2026-05");
     expect(stdout.output).toContain("  sourceSearchAlternateCommand: ax-grep --search 'agent browser' --engine duckduckgo --find 'target claim' --open-result 2 --agent");
     expect(stdout.output).toContain("  sourceSearchAlternateCommandArgs: [\"ax-grep\",\"--search\",\"agent browser\",\"--engine\",\"duckduckgo\",\"--find\",\"target claim\",\"--open-result\",\"2\",\"--agent\"]");
     expect(stdout.output).toContain("  sourceSearchAlternateChoice: a2 sourceSearch.alternateResults[0] rank=2 openResult=2");
+    expect(stdout.output).toContain("dateText=2026-05");
     expect(stdout.output).toContain("host=alternate.example");
-    expect(stdout.output).toContain("snippet=This result contains the target claim for verification.");
+    expect(stdout.output).toContain("snippet=2026-05 update: This result contains the target claim for verification.");
     expect(stdout.output).toContain("  handoff: execute/execute-command/low action=open-alternate-result");
     expect(stdout.output).toContain("  handoffSourceSearch: agent browser engine=duckduckgo selected=1 alternates=1 <https://first.example/article>");
     expect(stdout.output).toContain("  handoffSourceSearchQuery: agent browser");
