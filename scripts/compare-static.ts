@@ -1315,6 +1315,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       browserHtmlCommandArgs?: unknown[];
       browserHtmlAfterInteractionCommand?: string;
       browserHtmlAfterInteractionCommandArgs?: unknown[];
+      executorBrowserHtmlReason?: string;
+      executorBrowserHtmlReasonCode?: string;
+      handoffBrowserHtmlReason?: string;
+      handoffBrowserHtmlReasonCode?: string;
       readabilityReasons?: unknown[];
       recommendedRank?: number;
       recommendedUrl?: string;
@@ -8504,6 +8508,8 @@ function scoreAgentBrowserNeed(
 
 function scoreAgentBrowserHtml(
   agent: {
+    browserHtmlReason?: string;
+    browserHtmlReasonCode?: string;
     browserHtmlActionName?: string;
     browserHtmlOperation?: string;
     browserHtmlUrl?: string;
@@ -8513,6 +8519,10 @@ function scoreAgentBrowserHtml(
     browserHtmlCommandArgs?: unknown[];
     browserHtmlAfterInteractionCommand?: string;
     browserHtmlAfterInteractionCommandArgs?: unknown[];
+    executorBrowserHtmlReason?: string;
+    executorBrowserHtmlReasonCode?: string;
+    handoffBrowserHtmlReason?: string;
+    handoffBrowserHtmlReasonCode?: string;
   } | undefined,
   next: CliAgentNextShape | undefined,
   plan: CliAgentExecutionPlanShape | undefined,
@@ -8548,6 +8558,13 @@ function scoreAgentBrowserHtml(
     required += 2;
     if (JSON.stringify(next.browserHtml.commandArgs) === JSON.stringify(primaryAction.commandArgs)) matched += 1;
     if (JSON.stringify(plan.browserHtml.commandArgs) === JSON.stringify(primaryAction.commandArgs)) matched += 1;
+  }
+  if (agent?.browserHtmlReason || agent?.browserHtmlReasonCode) {
+    required += 4;
+    if (typeof agent.executorBrowserHtmlReason === "string" && agent.executorBrowserHtmlReason === agent.browserHtmlReason) matched += 1;
+    if (typeof agent.executorBrowserHtmlReasonCode === "string" && agent.executorBrowserHtmlReasonCode === agent.browserHtmlReasonCode) matched += 1;
+    if (typeof agent.handoffBrowserHtmlReason === "string" && agent.handoffBrowserHtmlReason === agent.browserHtmlReason) matched += 1;
+    if (typeof agent.handoffBrowserHtmlReasonCode === "string" && agent.handoffBrowserHtmlReasonCode === agent.browserHtmlReasonCode) matched += 1;
   }
   if (primaryAction?.afterInteractionCommandArgs) {
     required += 4;
