@@ -4758,7 +4758,11 @@ function formatFindsText(finds: FindSummary[]): string[] {
       const rank = match.rank ? `${match.rank}. ` : "";
       const url = match.url ? ` <${match.url}>` : "";
       const selector = match.selector ? ` (${match.selector})` : "";
-      lines.push(`    ${rank}${match.field}${selector}: ${match.text}${url}`);
+      const source = match.source ? ` source=${match.source}` : "";
+      const score = typeof match.score === "number" ? ` score=${match.score}` : "";
+      const quality = match.quality ? ` quality=${match.quality}` : "";
+      const qualityReason = match.qualityReason ? ` reason=${match.qualityReason}` : "";
+      lines.push(`    ${rank}${match.field}${selector}${source}${score}${quality}${qualityReason}: ${match.text}${url}`);
     }
   }
   return lines;
@@ -15651,13 +15655,52 @@ function findCandidates(
       ...(authorLink.selector ? { selector: authorLink.selector } : {}),
     });
   }
-  for (const link of pageCheck.sourceLinks) add({ field: "sourceLink", text: link.title, rank: link.rank, url: link.url });
-  for (const link of pageCheck.primaryLinks) add({ field: "primaryLink", text: link.title, rank: link.rank, url: link.url });
-  for (const result of results) add({ field: "result", text: resultEvidenceText(result), rank: result.rank, url: result.url });
+  for (const link of pageCheck.sourceLinks) add({
+    field: "sourceLink",
+    text: link.title,
+    rank: link.rank,
+    url: link.url,
+    source: "semantic",
+    ...(typeof link.sourceScore === "number" ? {
+      score: link.sourceScore,
+      quality: sourceMatchQuality(link.sourceScore),
+      qualityReason: link.selectionReason ?? sourceLinkSelectionReason(link),
+    } : {}),
+  });
+  for (const link of pageCheck.primaryLinks) add({
+    field: "primaryLink",
+    text: link.title,
+    rank: link.rank,
+    url: link.url,
+    source: "semantic",
+    ...(typeof link.sourceScore === "number" ? {
+      score: link.sourceScore,
+      quality: sourceMatchQuality(link.sourceScore),
+      qualityReason: link.selectionReason ?? sourceLinkSelectionReason(link),
+    } : {}),
+  });
+  for (const result of results) add({
+    field: "result",
+    text: resultEvidenceText(result),
+    rank: result.rank,
+    url: result.url,
+    source: "semantic",
+    ...(typeof result.sourceScore === "number" ? {
+      score: result.sourceScore,
+      quality: sourceMatchQuality(result.sourceScore),
+      qualityReason: result.selectionReason ?? searchResultSelectionReason(result),
+    } : {}),
+  });
   for (const item of outline) add({ field: "heading", text: item.text, ...(item.level ? { rank: item.level } : {}) });
   for (const link of links) add({ field: "link", text: [link.text, link.snippet].filter(Boolean).join(" "), url: link.url });
   for (const item of content) add({ field: "content", text: item.text, ...(item.selector ? { selector: item.selector } : {}) });
   return candidates;
+}
+
+function sourceMatchQuality(score: number): PageEvidenceSummary["quality"] {
+  if (score >= 0.78) return "high";
+  if (score >= 0.5) return "medium";
+  return "low";
 }
 
 function normalizeFindValue(value: string): string {

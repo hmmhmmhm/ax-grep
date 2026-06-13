@@ -11368,6 +11368,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topAnswerEvidenceKind: verification");
     expect(stdout.output).toContain("  topAnswerEvidenceUrl: https://source.example/report");
     expect(stdout.output).toContain("finds\n  found: source report");
+    expect(stdout.output).toContain("sourceLink source=semantic score=0.58 quality=medium");
+    expect(stdout.output).toContain("reason=Possible source candidate: news-like.");
     expect(stdout.output).toContain("sourceLink: Source report <https://source.example/report>");
   });
 
