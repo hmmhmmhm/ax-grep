@@ -1803,14 +1803,14 @@ export type AgentJsonEnvelope = {
   selectedSearchEngine?: string;
   searchLang?: string;
   searchRegion?: string;
-  sourceSearch?: Record<string, unknown>;
+  sourceSearch?: AgentSourceSearch;
   warnings?: Array<{ code: string; message: string }>;
   agent: AgentSummary;
   page?: Record<string, unknown>;
   pageCheck?: Record<string, unknown>;
   verification?: Record<string, unknown>;
   finds?: Array<Record<string, unknown>>;
-  searchResults?: Array<Record<string, unknown>>;
+  searchResults?: AgentResultChoice[];
   recommendedResult?: AgentResultChoice;
   suggestedActions?: Array<Record<string, unknown>>;
   error?: { code: string; message: string; status?: number };

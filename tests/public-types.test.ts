@@ -2514,6 +2514,35 @@ describe("public agent types", () => {
     expect(summary.recommendedCommandArgs?.[0]).toBe("ax-grep");
 
     const envelopeRecommendation = {
+      sourceSearch: {
+        query: "example",
+        engine: "auto",
+        selectedEngine: "duckduckgo",
+        searchUrl: "https://duckduckgo.com/?q=example",
+        selectedRank: 1,
+        selectedTitle: "Example result",
+        selectedUrl: "https://example.test",
+        selectedResult: {
+          id: "selected",
+          path: "sourceSearch.selectedResult",
+          title: "Example result",
+          url: "https://example.test",
+          rank: 1,
+          openResult: 1,
+          commandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent"],
+        },
+      },
+      searchResults: [{
+        id: "r1",
+        path: "searchResults[0]",
+        title: "Example result",
+        url: "https://example.test",
+        rank: 1,
+        recommended: true,
+        recommendedPath: "recommendedResult",
+        openResult: 1,
+        commandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent"],
+      }],
       recommendedResult: {
         id: "r1",
         path: "recommendedResult",
@@ -2531,7 +2560,9 @@ describe("public agent types", () => {
         command: "ax-grep --search example --open-result 1 --agent",
         commandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent"],
       },
-    } satisfies Pick<AgentJsonEnvelope, "recommendedResult">;
+    } satisfies Pick<AgentJsonEnvelope, "sourceSearch" | "searchResults" | "recommendedResult">;
+    expect(envelopeRecommendation.sourceSearch.selectedResult?.commandArgs?.[4]).toBe("1");
+    expect(envelopeRecommendation.searchResults[0]?.recommendedPath).toBe("recommendedResult");
     expect(envelopeRecommendation.recommendedResult.commandArgs?.[4]).toBe("1");
   });
 });
