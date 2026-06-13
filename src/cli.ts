@@ -2101,6 +2101,9 @@ type AgentSummary = {
   alternativeActionTargetSource?: string;
   alternativeActionTargetRank?: number;
   alternativeActionTargetSourceScore?: number;
+  alternativeActionTargetDateText?: string;
+  alternativeActionTargetDatePrecision?: AgentTarget["datePrecision"];
+  alternativeActionTargetDateSource?: AgentTarget["dateSource"];
   alternativeActionTargetRelevance?: AgentTarget["relevance"];
   alternativeActionTargetLikelyOfficial?: boolean;
   alternativeActionTargetSelector?: string;
@@ -4030,6 +4033,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.alternativeActionTargetSource ? [`  alternativeActionTargetSource: ${agent.alternativeActionTargetSource}`] : []),
     ...(typeof agent.alternativeActionTargetRank === "number" ? [`  alternativeActionTargetRank: ${agent.alternativeActionTargetRank}`] : []),
     ...(typeof agent.alternativeActionTargetSourceScore === "number" ? [`  alternativeActionTargetSourceScore: ${agent.alternativeActionTargetSourceScore}`] : []),
+    ...(agent.alternativeActionTargetDateText ? [`  alternativeActionTargetDateText: ${agent.alternativeActionTargetDateText}`] : []),
+    ...(agent.alternativeActionTargetDatePrecision ? [`  alternativeActionTargetDatePrecision: ${agent.alternativeActionTargetDatePrecision}`] : []),
+    ...(agent.alternativeActionTargetDateSource ? [`  alternativeActionTargetDateSource: ${agent.alternativeActionTargetDateSource}`] : []),
     ...(agent.alternativeActionTargetRelevance ? [`  alternativeActionTargetRelevance: ${agent.alternativeActionTargetRelevance}`] : []),
     ...(typeof agent.alternativeActionTargetLikelyOfficial === "boolean" ? [`  alternativeActionTargetLikelyOfficial: ${agent.alternativeActionTargetLikelyOfficial}`] : []),
     ...(agent.alternativeActionTargetSelector ? [`  alternativeActionTargetSelector: ${agent.alternativeActionTargetSelector}`] : []),
@@ -12873,6 +12879,9 @@ function summarizeAgent(
     ...(alternativeAction?.target?.source ? { alternativeActionTargetSource: alternativeAction.target.source } : {}),
     ...(typeof alternativeAction?.target?.rank === "number" ? { alternativeActionTargetRank: alternativeAction.target.rank } : {}),
     ...(typeof alternativeAction?.target?.sourceScore === "number" ? { alternativeActionTargetSourceScore: alternativeAction.target.sourceScore } : {}),
+    ...(alternativeAction?.target?.dateText ? { alternativeActionTargetDateText: alternativeAction.target.dateText } : {}),
+    ...(alternativeAction?.target?.datePrecision ? { alternativeActionTargetDatePrecision: alternativeAction.target.datePrecision } : {}),
+    ...(alternativeAction?.target?.dateSource ? { alternativeActionTargetDateSource: alternativeAction.target.dateSource } : {}),
     ...(alternativeAction?.target?.relevance ? { alternativeActionTargetRelevance: alternativeAction.target.relevance } : {}),
     ...(typeof alternativeAction?.target?.isLikelyOfficial === "boolean" ? { alternativeActionTargetLikelyOfficial: alternativeAction.target.isLikelyOfficial } : {}),
     ...(alternativeAction?.target?.selector ? { alternativeActionTargetSelector: alternativeAction.target.selector } : {}),
@@ -18520,6 +18529,9 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.alternativeActionTargetSource ? { alternativeActionTargetSource: agent.alternativeActionTargetSource } : {}),
     ...(typeof agent.alternativeActionTargetRank === "number" ? { alternativeActionTargetRank: agent.alternativeActionTargetRank } : {}),
     ...(typeof agent.alternativeActionTargetSourceScore === "number" ? { alternativeActionTargetSourceScore: agent.alternativeActionTargetSourceScore } : {}),
+    ...(agent.alternativeActionTargetDateText ? { alternativeActionTargetDateText: agent.alternativeActionTargetDateText } : {}),
+    ...(agent.alternativeActionTargetDatePrecision ? { alternativeActionTargetDatePrecision: agent.alternativeActionTargetDatePrecision } : {}),
+    ...(agent.alternativeActionTargetDateSource ? { alternativeActionTargetDateSource: agent.alternativeActionTargetDateSource } : {}),
     ...(agent.alternativeActionTargetRelevance ? { alternativeActionTargetRelevance: agent.alternativeActionTargetRelevance } : {}),
     ...(typeof agent.alternativeActionTargetLikelyOfficial === "boolean" ? { alternativeActionTargetLikelyOfficial: agent.alternativeActionTargetLikelyOfficial } : {}),
     ...(agent.alternativeActionTargetSelector ? { alternativeActionTargetSelector: agent.alternativeActionTargetSelector } : {}),
@@ -19687,6 +19699,9 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.alternativeActionTargetSource ? { alternativeActionTargetSource: agent.alternativeActionTargetSource } : {}),
     ...(typeof agent.alternativeActionTargetRank === "number" ? { alternativeActionTargetRank: agent.alternativeActionTargetRank } : {}),
     ...(typeof agent.alternativeActionTargetSourceScore === "number" ? { alternativeActionTargetSourceScore: agent.alternativeActionTargetSourceScore } : {}),
+    ...(agent.alternativeActionTargetDateText ? { alternativeActionTargetDateText: agent.alternativeActionTargetDateText } : {}),
+    ...(agent.alternativeActionTargetDatePrecision ? { alternativeActionTargetDatePrecision: agent.alternativeActionTargetDatePrecision } : {}),
+    ...(agent.alternativeActionTargetDateSource ? { alternativeActionTargetDateSource: agent.alternativeActionTargetDateSource } : {}),
     ...(agent.alternativeActionTargetRelevance ? { alternativeActionTargetRelevance: agent.alternativeActionTargetRelevance } : {}),
     ...(typeof agent.alternativeActionTargetLikelyOfficial === "boolean" ? { alternativeActionTargetLikelyOfficial: agent.alternativeActionTargetLikelyOfficial } : {}),
     ...(agent.alternativeActionTargetSelector ? { alternativeActionTargetSelector: agent.alternativeActionTargetSelector } : {}),

@@ -1368,6 +1368,9 @@ describe("public agent types", () => {
       | "alternativeActionTargetSource"
       | "alternativeActionTargetRank"
       | "alternativeActionTargetSourceScore"
+      | "alternativeActionTargetDateText"
+      | "alternativeActionTargetDatePrecision"
+      | "alternativeActionTargetDateSource"
       | "alternativeActionTargetRelevance"
       | "alternativeActionTargetLikelyOfficial"
       | "alternativeActionTargetSelector"
@@ -2633,6 +2636,9 @@ describe("public agent types", () => {
       alternativeActionTargetSource: "source-link",
       alternativeActionTargetRank: 1,
       alternativeActionTargetSourceScore: 0.84,
+      alternativeActionTargetDateText: "2026-05-30",
+      alternativeActionTargetDatePrecision: "day",
+      alternativeActionTargetDateSource: "snippet",
       alternativeActionTargetRelevance: "medium",
       alternativeActionTargetLikelyOfficial: false,
       alternativeActionTargetSelector: "a.source",
@@ -2853,6 +2859,9 @@ describe("public agent types", () => {
     expect(summary.alternativeActionCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.alternativeActionTargetTitle).toBe("Source report");
     expect(summary.alternativeActionTargetSourceScore).toBe(0.84);
+    expect(summary.alternativeActionTargetDateText).toBe("2026-05-30");
+    expect(summary.alternativeActionTargetDatePrecision).toBe("day");
+    expect(summary.alternativeActionTargetDateSource).toBe("snippet");
     expect(summary.alternativeActionTargetLikelyOfficial).toBe(false);
     expect(summary.recommendedPath).toBe("recommendedResult");
     expect(summary.recommendedSourceScore).toBe(0.92);

@@ -2466,6 +2466,9 @@ export type AgentSummary = {
   alternativeActionTargetSource?: string;
   alternativeActionTargetRank?: number;
   alternativeActionTargetSourceScore?: number;
+  alternativeActionTargetDateText?: string;
+  alternativeActionTargetDatePrecision?: "day" | "month" | "year";
+  alternativeActionTargetDateSource?: "title" | "snippet";
   alternativeActionTargetRelevance?: AgentTarget["relevance"];
   alternativeActionTargetLikelyOfficial?: boolean;
   alternativeActionTargetSelector?: string;

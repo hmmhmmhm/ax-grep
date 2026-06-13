@@ -1500,6 +1500,9 @@ describe("cli", () => {
         if (alternativeAction?.target?.source) expect(envelope.agent.alternativeActionTargetSource).toBe(alternativeAction.target.source);
         if (typeof alternativeAction?.target?.rank === "number") expect(envelope.agent.alternativeActionTargetRank).toBe(alternativeAction.target.rank);
         if (typeof alternativeAction?.target?.sourceScore === "number") expect(envelope.agent.alternativeActionTargetSourceScore).toBe(alternativeAction.target.sourceScore);
+        if (alternativeAction?.target?.dateText) expect(envelope.agent.alternativeActionTargetDateText).toBe(alternativeAction.target.dateText);
+        if (alternativeAction?.target?.datePrecision) expect(envelope.agent.alternativeActionTargetDatePrecision).toBe(alternativeAction.target.datePrecision);
+        if (alternativeAction?.target?.dateSource) expect(envelope.agent.alternativeActionTargetDateSource).toBe(alternativeAction.target.dateSource);
         if (alternativeAction?.target?.relevance) expect(envelope.agent.alternativeActionTargetRelevance).toBe(alternativeAction.target.relevance);
         if (typeof alternativeAction?.target?.isLikelyOfficial === "boolean") expect(envelope.agent.alternativeActionTargetLikelyOfficial).toBe(alternativeAction.target.isLikelyOfficial);
         if (alternativeAction?.target?.selector) expect(envelope.agent.alternativeActionTargetSelector).toBe(alternativeAction.target.selector);
