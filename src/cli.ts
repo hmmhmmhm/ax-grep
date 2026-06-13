@@ -265,6 +265,7 @@ type PageSummary = {
 type OutlineSummary = {
   text: string;
   level?: number;
+  selector?: string;
 };
 
 type ActionSummary = {
@@ -3428,7 +3429,8 @@ function formatOutlineText(outline: OutlineSummary[]): string[] {
     "outline",
     ...outline.map((item, index) => {
       const level = item.level ? `h${item.level}` : "heading";
-      return `  ${index + 1}. ${level} ${item.text}`;
+      const selector = item.selector ? ` (${item.selector})` : "";
+      return `  ${index + 1}. ${level}${selector} ${item.text}`;
     }),
   ];
 }
@@ -5557,6 +5559,7 @@ function summarizeOutline(node: SemanticNode): OutlineSummary[] {
       const item: OutlineSummary = { text: current.name };
       const match = /^h([1-6])$/.exec(current.tag);
       if (match?.[1]) item.level = Number(match[1]);
+      if (current.selector) item.selector = current.selector;
       outline.push(item);
     }
     if (outline.length >= 20) return;

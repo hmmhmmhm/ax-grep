@@ -33,7 +33,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("page\n  title: Example page\n  description: Useful description\n  lang: en");
     expect(stdout.output).toContain("  dir: ltr");
     expect(stdout.output).toContain("analysis\n  kind: page");
-    expect(stdout.output).toContain("outline\n  1. h1 Example");
+    expect(stdout.output).toContain("outline\n  1. h1 (h1) Example");
     expect(stdout.output).toContain("actions\n  1. button (button) Run");
     expect(stdout.output).toContain("main");
     expect(stdout.output).toContain("heading 'Example'");
@@ -174,7 +174,7 @@ describe("cli", () => {
     expect(envelope.kind).toBe("page");
     expect(envelope.diagnostics).toEqual([]);
     expect(envelope.suggestedActions).toEqual([]);
-    expect(envelope.outline).toEqual([{ text: "Docs heading", level: 2 }]);
+    expect(envelope.outline).toEqual([{ text: "Docs heading", level: 2, selector: "h2" }]);
     expect(envelope.actions).toEqual([{ type: "button", text: "Save", selector: "button" }]);
   });
 
@@ -3595,7 +3595,7 @@ describe("cli", () => {
         selectedUrl: "https://target.example/article",
       },
     });
-    expect(envelope.outline).toEqual([{ text: "Target heading", level: 1 }]);
+    expect(envelope.outline).toEqual([{ text: "Target heading", level: 1, selector: "h1" }]);
     expect(envelope.results[0]).toMatchObject({
       title: "Next source",
       url: "https://target.example/next",
