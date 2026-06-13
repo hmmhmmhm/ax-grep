@@ -1943,12 +1943,21 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopInteractiveValue?: string;
       semanticTopInteractiveState?: string;
       semanticTopInteractiveDisabled?: boolean;
+      semanticTopInteractivePressed?: boolean | "mixed";
+      semanticTopInteractiveExpanded?: boolean;
+      semanticTopInteractiveHaspopup?: string | boolean;
+      semanticTopInteractiveControls?: string;
       semanticTopInteractiveSelector?: string;
       semanticTopFocusableRole?: string;
       semanticTopFocusablePath?: string;
       semanticTopFocusableName?: string;
       semanticTopFocusableRoleDescription?: string;
       semanticTopFocusableState?: string;
+      semanticTopFocusableDisabled?: boolean;
+      semanticTopFocusablePressed?: boolean | "mixed";
+      semanticTopFocusableExpanded?: boolean;
+      semanticTopFocusableHaspopup?: string | boolean;
+      semanticTopFocusableControls?: string;
       semanticTopFocusableSelector?: string;
       semanticTopLinkName?: string;
       semanticTopLinkPath?: string;
@@ -6422,6 +6431,41 @@ function scoreSelectedTableCellShortcuts(agentRecord: Record<string, unknown>, s
   return { matched, required };
 }
 
+function scoreSemanticControlStateShortcuts(
+  agentRecord: Record<string, unknown>,
+  state: Record<string, unknown>,
+  prefix: "semanticTopInteractive" | "semanticTopFocusable",
+): { matched: number; required: number } {
+  let matched = 0;
+  let required = 0;
+  const disabled = state.disabled;
+  if (typeof disabled === "boolean") {
+    required += 1;
+    if (agentRecord[`${prefix}Disabled`] === disabled) matched += 1;
+  }
+  const pressed = state.pressed;
+  if (typeof pressed === "boolean" || pressed === "mixed") {
+    required += 1;
+    if (agentRecord[`${prefix}Pressed`] === pressed) matched += 1;
+  }
+  const expanded = state.expanded;
+  if (typeof expanded === "boolean") {
+    required += 1;
+    if (agentRecord[`${prefix}Expanded`] === expanded) matched += 1;
+  }
+  const haspopup = state.haspopup;
+  if (typeof haspopup === "string" || typeof haspopup === "boolean") {
+    required += 1;
+    if (agentRecord[`${prefix}Haspopup`] === haspopup) matched += 1;
+  }
+  const controls = state.controls;
+  if (typeof controls === "string") {
+    required += 1;
+    if (agentRecord[`${prefix}Controls`] === controls) matched += 1;
+  }
+  return { matched, required };
+}
+
 function scoreAgentSemanticSummary(agent: {
   semanticSummary?: unknown;
   semanticNodeCount?: number;
@@ -6491,12 +6535,21 @@ function scoreAgentSemanticSummary(agent: {
   semanticTopInteractiveValue?: string;
   semanticTopInteractiveState?: string;
   semanticTopInteractiveDisabled?: boolean;
+  semanticTopInteractivePressed?: boolean | "mixed";
+  semanticTopInteractiveExpanded?: boolean;
+  semanticTopInteractiveHaspopup?: string | boolean;
+  semanticTopInteractiveControls?: string;
   semanticTopInteractiveSelector?: string;
   semanticTopFocusableRole?: string;
   semanticTopFocusablePath?: string;
   semanticTopFocusableName?: string;
   semanticTopFocusableRoleDescription?: string;
   semanticTopFocusableState?: string;
+  semanticTopFocusableDisabled?: boolean;
+  semanticTopFocusablePressed?: boolean | "mixed";
+  semanticTopFocusableExpanded?: boolean;
+  semanticTopFocusableHaspopup?: string | boolean;
+  semanticTopFocusableControls?: string;
   semanticTopFocusableSelector?: string;
   semanticTopLinkName?: string;
   semanticTopLinkPath?: string;
@@ -7044,11 +7097,9 @@ function scoreAgentSemanticSummary(agent: {
       required += 1;
       if (agent?.semanticTopInteractiveState === state) matched += 1;
     }
-    const disabled = (interactive.state as { disabled?: unknown }).disabled;
-    if (typeof disabled === "boolean") {
-      required += 1;
-      if (agent?.semanticTopInteractiveDisabled === disabled) matched += 1;
-    }
+    const controlStateScore = scoreSemanticControlStateShortcuts(agentRecord, interactive.state as Record<string, unknown>, "semanticTopInteractive");
+    required += controlStateScore.required;
+    matched += controlStateScore.matched;
   }
   if (interactive && typeof interactive.selector === "string") {
     required += 1;
@@ -7080,6 +7131,9 @@ function scoreAgentSemanticSummary(agent: {
       required += 1;
       if (agent?.semanticTopFocusableState === state) matched += 1;
     }
+    const controlStateScore = scoreSemanticControlStateShortcuts(agentRecord, focusable.state as Record<string, unknown>, "semanticTopFocusable");
+    required += controlStateScore.required;
+    matched += controlStateScore.matched;
   }
   if (focusable && typeof focusable.selector === "string") {
     required += 1;

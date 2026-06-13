@@ -40,6 +40,23 @@ describe("cli", () => {
     expect(stdout.output).toContain("[i] link 'Docs' <https://example.test/docs>");
   });
 
+  it("prints disabled state for the top interactive target in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <button aria-disabled="true" aria-pressed="false">Archive</button>
+        </main>
+      `),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("semanticTopInteractive: agent.semanticSummary.interactiveRoles[0] button:Archive");
+    expect(stdout.output).toContain("disabled=true");
+    expect(stdout.output).toContain("pressed=false");
+  });
+
   it("unwraps known search redirect links in text output", async () => {
     const stdout = new MemoryWriter();
     const bingTarget = `a1${Buffer.from("https://target.example/article", "utf8").toString("base64url")}`;
