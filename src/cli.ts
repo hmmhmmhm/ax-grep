@@ -3755,6 +3755,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.pageDecisionReadTargetReason ? [`  pageDecisionReadTargetReason: ${agent.pageDecisionReadTargetReason}`] : []),
     ...(agent.pageDecisionUrl ? [`  pageDecisionUrl: ${agent.pageDecisionUrl}`] : []),
     ...(agent.pageDecisionCommand ? [`  pageDecisionCommand: ${agent.pageDecisionCommand}`] : []),
+    ...(agent.pageDecisionCommandArgs ? [`  pageDecisionCommandArgs: ${formatCommandArgsText(agent.pageDecisionCommandArgs)}`] : []),
     `  summary: ${agent.summary}`,
     `  signalCount: ${agent.signalCount}`,
     `  signalWarnings: ${agent.signalWarningCount}`,
