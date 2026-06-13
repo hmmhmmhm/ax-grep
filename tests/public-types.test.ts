@@ -1188,6 +1188,8 @@ describe("public agent types", () => {
       | "executorTerminal"
       | "executorCommand"
       | "executorCommandArgs"
+      | "executorAfterInteractionCommand"
+      | "executorAfterInteractionCommandArgs"
       | "executorReadFrom"
       | "executorReadTargetKind"
       | "executorReadTargetCount"
@@ -2395,6 +2397,8 @@ describe("public agent types", () => {
       executorTerminal: true,
       executorCommand: "ax-grep https://example.test --agent",
       executorCommandArgs: ["ax-grep", "https://example.test", "--agent"],
+      executorAfterInteractionCommand: "ax-grep https://example.test --html-file captured.html --agent",
+      executorAfterInteractionCommandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--agent"],
       executorReadFrom: "pageCheck.contentEvidence",
       executorReadTargetKind: "evidence",
       executorReadTargetCount: 1,
@@ -2618,6 +2622,7 @@ describe("public agent types", () => {
     expect(summary.runbookCommand).toBe("ax-grep https://example.test --agent");
     expect(summary.executionPlanCommand).toBe("ax-grep https://example.test --agent");
     expect(summary.executorCommand).toBe("ax-grep https://example.test --agent");
+    expect(summary.executorAfterInteractionCommand).toBe("ax-grep https://example.test --html-file captured.html --agent");
     expect(summary.topActionCommand).toBe("ax-grep https://example.test --agent");
     expect(summary.topActionRank).toBe(1);
     expect(summary.topActionExpectedOutcome).toBe("read-evidence");

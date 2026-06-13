@@ -1919,6 +1919,8 @@ type AgentSummary = {
   executorTerminal?: boolean;
   executorCommand?: string;
   executorCommandArgs?: string[];
+  executorAfterInteractionCommand?: string;
+  executorAfterInteractionCommandArgs?: string[];
   executorReadFrom?: string;
   executorReadTargetKind?: AgentReadTarget["kind"];
   executorReadTargetCount?: number;
@@ -4106,6 +4108,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.executor.readValue) lines.push(...formatAgentReadValueText(agent.executor.readValue, "executorReadValue"));
   if (agent.executor.command) lines.push(`  executorCommand: ${agent.executor.command}`);
   if (agent.executor.commandArgs) lines.push(`  executorCommandArgs: ${formatCommandArgsText(agent.executor.commandArgs)}`);
+  if (agent.executor.afterInteractionCommand) lines.push(`  executorAfterInteractionCommand: ${agent.executor.afterInteractionCommand}`);
   if (agent.executor.afterInteractionCommandArgs) lines.push(`  executorAfterInteractionCommandArgs: ${formatCommandArgsText(agent.executor.afterInteractionCommandArgs)}`);
   if (agent.executor.url) lines.push(`  executorUrl: ${agent.executor.url}`);
   if (agent.executor.readTarget) {
@@ -12743,6 +12746,8 @@ function summarizeAgent(
     executorTerminal: executor.terminal,
     ...(executor.command ? { executorCommand: executor.command } : {}),
     ...(executor.commandArgs ? { executorCommandArgs: executor.commandArgs } : {}),
+    ...(executor.afterInteractionCommand ? { executorAfterInteractionCommand: executor.afterInteractionCommand } : {}),
+    ...(executor.afterInteractionCommandArgs ? { executorAfterInteractionCommandArgs: executor.afterInteractionCommandArgs } : {}),
     ...(executor.readFrom ? { executorReadFrom: executor.readFrom } : {}),
     ...(executorReadTarget?.kind ? { executorReadTargetKind: executorReadTarget.kind } : {}),
     ...(typeof executorReadTarget?.count === "number" ? { executorReadTargetCount: executorReadTarget.count } : {}),
@@ -13428,7 +13433,9 @@ function summarizeAgentExecutor(
     ...(answerPlan.useCitationIds.length > 0 ? { useCitationIds: answerPlan.useCitationIds } : {}),
     ...(handoff.verificationFoundQueries && handoff.verificationFoundQueries.length > 0 ? { verificationFoundQueries: handoff.verificationFoundQueries } : {}),
     ...(handoff.verificationMissingQueries && handoff.verificationMissingQueries.length > 0 ? { verificationMissingQueries: handoff.verificationMissingQueries } : {}),
+    ...(next.command ? { command: next.command } : {}),
     ...(next.commandArgs ? { commandArgs: next.commandArgs } : {}),
+    ...(next.afterInteractionCommand ? { afterInteractionCommand: next.afterInteractionCommand } : {}),
     ...(next.afterInteractionCommandArgs ? { afterInteractionCommandArgs: next.afterInteractionCommandArgs } : {}),
     ...(next.readFrom ? { readFrom: next.readFrom } : {}),
     ...(next.readTarget ? { readTarget: next.readTarget } : {}),
@@ -18308,6 +18315,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.executorTerminal === "boolean" ? { executorTerminal: agent.executorTerminal } : {}),
     ...(agent.executorCommand ? { executorCommand: agent.executorCommand } : {}),
     ...(agent.executorCommandArgs ? { executorCommandArgs: agent.executorCommandArgs } : {}),
+    ...(agent.executorAfterInteractionCommand ? { executorAfterInteractionCommand: agent.executorAfterInteractionCommand } : {}),
+    ...(agent.executorAfterInteractionCommandArgs ? { executorAfterInteractionCommandArgs: agent.executorAfterInteractionCommandArgs } : {}),
     ...(agent.executorReadFrom ? { executorReadFrom: agent.executorReadFrom } : {}),
     ...(agent.executorReadTargetKind ? { executorReadTargetKind: agent.executorReadTargetKind } : {}),
     ...(typeof agent.executorReadTargetCount === "number" ? { executorReadTargetCount: agent.executorReadTargetCount } : {}),
@@ -19432,6 +19441,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.executorTerminal === "boolean" ? { executorTerminal: agent.executorTerminal } : {}),
     ...(agent.executorCommand ? { executorCommand: agent.executorCommand } : {}),
     ...(agent.executorCommandArgs ? { executorCommandArgs: agent.executorCommandArgs } : {}),
+    ...(agent.executorAfterInteractionCommand ? { executorAfterInteractionCommand: agent.executorAfterInteractionCommand } : {}),
+    ...(agent.executorAfterInteractionCommandArgs ? { executorAfterInteractionCommandArgs: agent.executorAfterInteractionCommandArgs } : {}),
     ...(agent.executorReadFrom ? { executorReadFrom: agent.executorReadFrom } : {}),
     ...(agent.executorReadTargetKind ? { executorReadTargetKind: agent.executorReadTargetKind } : {}),
     ...(typeof agent.executorReadTargetCount === "number" ? { executorReadTargetCount: agent.executorReadTargetCount } : {}),

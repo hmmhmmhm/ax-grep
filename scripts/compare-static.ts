@@ -281,6 +281,7 @@ type CliAgentExecutorShape = {
   verificationMissingQueries?: unknown[];
   command?: string;
   commandArgs?: unknown[];
+  afterInteractionCommand?: string;
   afterInteractionCommandArgs?: unknown[];
   readFrom?: string;
   readTarget?: CliReadTargetShape;
@@ -1716,6 +1717,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       executorTerminal?: boolean;
       executorCommand?: string;
       executorCommandArgs?: string[];
+      executorAfterInteractionCommand?: string;
+      executorAfterInteractionCommandArgs?: string[];
       executorReadFrom?: string;
       executorReadValuePath?: string;
       executorReadValueType?: string;
@@ -3235,6 +3238,14 @@ function scoreAgentExecutorStep(
   if (next.commandArgs) {
     required += 1;
     if (JSON.stringify(executor.commandArgs) === JSON.stringify(next.commandArgs)) matched += 1;
+  }
+  if (next.command) {
+    required += 1;
+    if (executor.command === next.command) matched += 1;
+  }
+  if (next.afterInteractionCommand) {
+    required += 1;
+    if (executor.afterInteractionCommand === next.afterInteractionCommand) matched += 1;
   }
   if (next.afterInteractionCommandArgs) {
     required += 1;
@@ -9175,6 +9186,8 @@ function scoreAgentExecutorShortcuts(agent: {
   executorTerminal?: boolean;
   executorCommand?: string;
   executorCommandArgs?: string[];
+  executorAfterInteractionCommand?: string;
+  executorAfterInteractionCommandArgs?: string[];
   executorReadFrom?: string;
   executorReadTargetKind?: string;
   executorReadTargetCount?: number;
@@ -9222,6 +9235,18 @@ function scoreAgentExecutorShortcuts(agent: {
     required += 1;
     if (agent.executorCommand === executor.command) matched += 1;
   } else if (agent.executorCommand) {
+    required += 1;
+  }
+  if (executor.afterInteractionCommand) {
+    required += 1;
+    if (agent.executorAfterInteractionCommand === executor.afterInteractionCommand) matched += 1;
+  } else if (agent.executorAfterInteractionCommand) {
+    required += 1;
+  }
+  if (executor.afterInteractionCommandArgs) {
+    required += 1;
+    if (JSON.stringify(agent.executorAfterInteractionCommandArgs) === JSON.stringify(executor.afterInteractionCommandArgs)) matched += 1;
+  } else if (agent.executorAfterInteractionCommandArgs) {
     required += 1;
   }
   if (executor.readFrom) {

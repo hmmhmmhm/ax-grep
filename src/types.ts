@@ -953,6 +953,7 @@ export type AgentExecutorStep = {
   verificationMissingQueries?: string[];
   command?: string;
   commandArgs?: string[];
+  afterInteractionCommand?: string;
   afterInteractionCommandArgs?: string[];
   readFrom?: string;
   readTarget?: AgentReadTarget;
@@ -2281,6 +2282,8 @@ export type AgentSummary = {
   executorTerminal?: boolean;
   executorCommand?: string;
   executorCommandArgs?: string[];
+  executorAfterInteractionCommand?: string;
+  executorAfterInteractionCommandArgs?: string[];
   executorReadFrom?: string;
   executorReadTargetKind?: AgentReadTarget["kind"];
   executorReadTargetCount?: number;
