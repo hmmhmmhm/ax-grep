@@ -4830,11 +4830,13 @@ describe("cli", () => {
       stdout,
       stdin: Readable.from([`
         <main>
-          <x-host-action role="button">
+          <x-host-action role="button" aria-describedby="host-help">
             <span slot="label">Host action</span>
+            <span id="host-help" slot="help">Host help</span>
             <span>Unprojected host text</span>
             <template shadowrootmode="open">
               <slot name="label">Fallback host action</slot>
+              <slot name="help">Fallback host help</slot>
             </template>
           </x-host-action>
         </main>
@@ -4850,11 +4852,14 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(envelope.agent).toMatchObject({
       semanticTopButtonName: "Host action",
+      semanticTopButtonDescription: "Host help",
       semanticTopInteractiveName: "Host action",
+      semanticTopInteractiveDescription: "Host help",
       semanticTopInteractiveSelector: "x-host-action",
     });
     expect(agentText).not.toContain("Unprojected host text");
     expect(agentText).not.toContain("Fallback host action");
+    expect(agentText).not.toContain("Fallback host help");
   });
 
   it("summarizes data tables as pageCheck read targets for agents", async () => {

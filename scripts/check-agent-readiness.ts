@@ -188,6 +188,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "Slotted field label",
           "Slotted for-label",
           "Host action",
+          "Host help",
           "Template payload",
         ]);
         requireFileIncludes(root, failures, "tests/cli.test.ts", [
@@ -197,6 +198,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "uses slotted IDREF labels for declarative shadow DOM fields",
           "uses slotted label-for text for declarative shadow DOM fields",
           "uses projected slot text for declarative shadow DOM host action names",
+          "semanticTopButtonDescription",
           "semanticTopButtonControlsTargetSelector",
           "semanticTopFieldLabelledBySelector",
           "Shadow details",

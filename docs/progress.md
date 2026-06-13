@@ -313,6 +313,7 @@ estimate whether the overall percentage should move.
 | A204 | Slotted IDREF selector preservation | 100% | Static extraction now preserves IDREF target nodes that would otherwise be pruned, so slotted labels/descriptions can still provide `semanticTopField*Selector` shortcuts in agent brief output. | Applies to common ARIA idref attributes such as labelledby, describedby, details, errormessage, controls, owns, flowto, and activedescendant. | Focused static and CLI tests, readiness audit, typecheck, README test, diff check, and process check pass. | No headline increase; improves Web Component field repair and targeting parity. |
 | A205 | Slotted label-for field names | 100% | Static extraction now computes `<label for>` text with the active declarative shadow slot assignment, so slotted field labels become agent-facing field names instead of fallback text. | Limited to static/declarative shadow DOM labels where the label element is available in HTML. | Focused static and CLI tests, readiness audit, typecheck, README test, diff check, and process check pass. | No headline increase; improves Web Component form handoff parity. |
 | A206 | Declarative shadow host action names | 100% | Static extraction now computes custom-element host accessible names from the declarative shadow composed tree, so host-level buttons/actions use projected slot text and ignore unprojected light DOM or fallback text. | Limited to declarative shadow DOM available in static HTML. | Focused static and CLI tests, readiness audit, typecheck, README test, diff check, and process check pass. | No headline increase; improves Web Component action target parity. |
+| A207 | Shadow host description separation | 100% | Static name-from-content now excludes `aria-describedby`, `aria-details`, and `aria-errormessage` target text while keeping those targets available as descriptions, so host action names do not absorb help/error text. | Limited to common description-style ARIA IDREF targets in static/declarative shadow DOM. | Focused static and CLI tests, readiness audit, typecheck, README test, diff check, and process check pass. | No headline increase; improves action name/description parity. |
 
 ## Planned Work Detail
 
@@ -809,6 +810,8 @@ When research expands:
   slotted label text in static and agent-brief output.
 - Made custom-element host action names use projected declarative shadow slot
   text instead of raw light DOM or fallback text.
+- Kept description IDREF text out of name-from-content while preserving it in
+  semantic description shortcuts for host actions.
 
 ## In Progress
 

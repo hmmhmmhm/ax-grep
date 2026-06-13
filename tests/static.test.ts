@@ -355,11 +355,13 @@ describe("static extract", () => {
             <input id="shadow-query" type="search">
           </template>
         </x-for-labelled-field>
-        <x-host-action role="button">
+        <x-host-action role="button" aria-describedby="host-help">
           <span slot="label">Host action</span>
+          <span id="host-help" slot="help">Host help</span>
           <span>Unprojected host text</span>
           <template shadowrootmode="open">
             <slot name="label">Fallback host action</slot>
+            <slot name="help">Fallback host help</slot>
           </template>
         </x-host-action>
       </main>

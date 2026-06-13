@@ -3,6 +3,10 @@ import { Element as DomElement } from "domhandler";
 import type { AnyNode, Element, Text } from "domhandler";
 import type { SemanticNode, SemanticNodeState, SemanticTreeOptions } from "./types";
 
+type DescendantTextOptions = {
+  excludeIds?: Set<string>;
+};
+
 type StaticContext = {
   options: Required<Pick<
     SemanticTreeOptions,
@@ -202,6 +206,16 @@ function referencedIds(element: Element): string[] {
   ]
     .filter((value): value is string => Boolean(value))
     .flatMap((value) => value.split(/\s+/).map((item) => item.trim()).filter(Boolean));
+}
+
+function descriptionReferenceIds(element: Element): Set<string> {
+  return new Set([
+    attr(element, "aria-describedby"),
+    attr(element, "aria-details"),
+    attr(element, "aria-errormessage"),
+  ]
+    .filter((value): value is string => Boolean(value))
+    .flatMap((value) => value.split(/\s+/).map((item) => item.trim()).filter(Boolean)));
 }
 
 function walkElement(element: Element | undefined, context: StaticContext): SemanticNode | null {
@@ -734,7 +748,7 @@ function computeName(element: Element, role: string, context: StaticContext): st
   }
 
   if (rolesNamedFromContents.has(role)) {
-    const contents = normalizeText(descendantText(element, context), context.options.maxTextLength);
+    const contents = normalizeText(descendantText(element, context, { excludeIds: descriptionReferenceIds(element) }), context.options.maxTextLength);
     if (contents) return contents;
   }
 
@@ -952,35 +966,37 @@ function directText(element: Element, maxLength: number): string {
   );
 }
 
-function descendantText(element: Element, context?: StaticContext): string {
+function descendantText(element: Element, context?: StaticContext, options: DescendantTextOptions = {}): string {
   const parts: string[] = [];
   const shadowTemplate = element.children.find((child): child is Element => isElement(child) && isDeclarativeShadowTemplate(child));
   if (shadowTemplate && context) {
     const previousAssignments = context.slotAssignments;
     context.slotAssignments = collectSlotAssignments(element);
-    collectDescendantText(shadowTemplate.children, parts, context);
+    collectDescendantText(shadowTemplate.children, parts, context, options);
     context.slotAssignments = previousAssignments;
     return parts.join(" ");
   }
-  collectDescendantText(element.children, parts, context);
+  collectDescendantText(element.children, parts, context, options);
   return parts.join(" ");
 }
 
-function collectDescendantText(nodes: AnyNode[], parts: string[], context?: StaticContext): void {
+function collectDescendantText(nodes: AnyNode[], parts: string[], context?: StaticContext, options: DescendantTextOptions = {}): void {
   for (const node of nodes) {
     if (isText(node)) {
       parts.push(node.data);
       continue;
     }
     if (!isElement(node)) continue;
+    const nodeId = attr(node, "id");
+    if (nodeId && options.excludeIds?.has(nodeId)) continue;
     if (node.name === "slot" && context?.slotAssignments) {
       const slotName = attr(node, "name") ?? "";
       const assigned = context.slotAssignments.get(slotName) ?? [];
-      collectDescendantText(assigned.length > 0 ? assigned : node.children, parts, context);
+      collectDescendantText(assigned.length > 0 ? assigned : node.children, parts, context, options);
       continue;
     }
     if (nonSemanticTags.has(node.name) || node.name === "noscript") continue;
-    collectDescendantText(node.children, parts, context);
+    collectDescendantText(node.children, parts, context, options);
   }
 }
 
