@@ -241,7 +241,7 @@ export type AgentPageCheck = AgentPageMetadata & {
   mainHeading?: string;
   dataTables?: Array<Record<string, unknown>>;
   barriers?: Array<Record<string, unknown>>;
-  forms?: Array<Record<string, unknown>>;
+  forms?: AgentPageForm[];
   actionTargets?: AgentActionTargetChoice[];
   hydration?: Array<Record<string, unknown>>;
   apiEndpoints?: Array<Record<string, unknown>>;
@@ -581,14 +581,45 @@ export type AgentSourceChoice = AgentTarget & {
   commandArgs?: string[];
 };
 
-export type AgentFormChoice = {
-  id: string;
-  path: string;
+export type AgentFormHiddenField = {
+  name?: string;
+  value?: string;
+  selector?: string;
+};
+
+export type AgentFormField = {
+  name?: string;
+  type: string;
+  label?: string;
+  placeholder?: string;
+  value?: string;
+  autocomplete?: string;
+  inputMode?: string;
+  pattern?: string;
+  min?: string;
+  max?: string;
+  step?: string;
+  minLength?: number;
+  maxLength?: number;
+  required?: boolean;
+  checked?: boolean;
+  disabled?: boolean;
+  readonly?: boolean;
+  invalid?: SemanticNodeState["invalid"];
+  selector?: string;
+  options?: string[];
+  selectedOption?: string;
+  selectedValue?: string;
+};
+
+export type AgentPageForm = {
+  id?: string;
+  path?: string;
   rank: number;
   method: string;
   fieldCount: number;
   hiddenFieldCount: number;
-  text: string;
+  text?: string;
   actionUrl?: string;
   formId?: string;
   formName?: string;
@@ -611,35 +642,16 @@ export type AgentFormChoice = {
   queryField?: string;
   urlTemplate?: string;
   selector?: string;
-  hiddenFields: Array<{
-    name?: string;
-    value?: string;
-    selector?: string;
-  }>;
-  fields: Array<{
-    name?: string;
-    type: string;
-    label?: string;
-    placeholder?: string;
-    value?: string;
-    autocomplete?: string;
-    inputMode?: string;
-    pattern?: string;
-    min?: string;
-    max?: string;
-    step?: string;
-    minLength?: number;
-    maxLength?: number;
-    required?: boolean;
-    checked?: boolean;
-    disabled?: boolean;
-    readonly?: boolean;
-    invalid?: SemanticNodeState["invalid"];
-    selector?: string;
-    options?: string[];
-    selectedOption?: string;
-    selectedValue?: string;
-  }>;
+  hiddenFields?: AgentFormHiddenField[];
+  fields: AgentFormField[];
+};
+
+export type AgentFormChoice = AgentPageForm & {
+  id: string;
+  path: string;
+  text: string;
+  formAcceptCharset?: string;
+  hiddenFields: AgentFormHiddenField[];
 };
 
 export type AgentActionTargetChoice = {
