@@ -184,6 +184,9 @@ agents can open page links without reconstructing fetch flags.
 with the primary action: browser HTML retry actions should require browser
 HTML, while URL search recovery, alternate-result recovery, read-current, and
 retry-later actions should not.
+`averageAgentBrowserHtmlScore` tracks whether browser HTML fallback payloads
+preserve capture file/script data plus nested reason, command, and command-args
+fields across `agent.next`, execution plans, executor steps, and handoff steps.
 `averageAgentPageKindScore` tracks whether `agent.pageKind` mirrors the root
 payload `kind`, so agents can route from the top-level `agent` object without
 re-reading `analysis.kind` or the envelope root.

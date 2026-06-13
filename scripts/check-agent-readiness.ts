@@ -74,6 +74,7 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
     "averageAgentHiddenSignalCountScore",
     "averageAgentTopHiddenSignalShortcutScore",
     "averageAgentPageMetadataShortcutScore",
+    "averageAgentBrowserHtmlScore",
   ]);
   requireFileIncludes(root, failures, "docs/agent-readiness.md", [
     "Do not call this objective complete from unit tests alone",
@@ -266,6 +267,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "averageAgentAnswerShortcutScore",
           "averageAgentVerificationQueryScore",
           "averageAgentSourceSearchShortcutScore",
+          "averageAgentBrowserHtmlScore",
           "sourceSearchSelectedCommandArgs",
           "sourceSearchAlternateCommandArgs",
           "agent.handoff",
@@ -1633,6 +1635,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "A132",
           "A133",
           "A134",
+          "A135",
         ]);
       },
     ),
