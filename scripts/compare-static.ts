@@ -1552,6 +1552,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topAuthorLinkName?: string;
       topAuthorLinkUrl?: string;
       topAuthorLinkSource?: string;
+      topAuthorLinkCommand?: string;
+      topAuthorLinkCommandArgs?: string[];
       topProvenancePath?: string;
       topProvenanceKind?: string;
       topProvenanceLabel?: string;
@@ -8060,6 +8062,8 @@ function scoreAgentStructuredShortcuts(agent: {
   topAuthorLinkName?: string;
   topAuthorLinkUrl?: string;
   topAuthorLinkSource?: string;
+  topAuthorLinkCommand?: string;
+  topAuthorLinkCommandArgs?: string[];
   topProvenancePath?: string;
   topProvenanceKind?: string;
   topProvenanceLabel?: string;
@@ -8309,6 +8313,11 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topAuthorLinkName === topAuthorLink.name) matched += 1;
     if (agent.topAuthorLinkUrl === topAuthorLink.url) matched += 1;
     if (agent.topAuthorLinkSource === topAuthorLink.source) matched += 1;
+    if (topAuthorLink.url && /^https?:\/\//i.test(topAuthorLink.url)) {
+      required += 2;
+      if (typeof agent.topAuthorLinkCommand === "string" && agent.topAuthorLinkCommand.includes(topAuthorLink.url)) matched += 1;
+      if (Array.isArray(agent.topAuthorLinkCommandArgs) && agent.topAuthorLinkCommandArgs.includes(topAuthorLink.url)) matched += 1;
+    }
   } else if (agent.topAuthorLinkName || agent.topAuthorLinkUrl || agent.topAuthorLinkSource) {
     required += 1;
   }

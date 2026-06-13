@@ -1694,6 +1694,8 @@ type AgentSummary = {
   topAuthorLinkName?: string;
   topAuthorLinkUrl?: string;
   topAuthorLinkSource?: PageAuthorLinkSummary["source"];
+  topAuthorLinkCommand?: string;
+  topAuthorLinkCommandArgs?: string[];
   topProvenancePath?: string;
   topProvenanceKind?: PageProvenanceSummary["kind"];
   topProvenanceLabel?: string;
@@ -4035,6 +4037,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topEmbedUrl ? [`  topEmbedUrl: ${agent.topEmbedUrl}`] : []),
     ...(agent.topTranscriptUrl ? [`  topTranscriptUrl: ${agent.topTranscriptUrl}`] : []),
     ...(agent.topAuthorLinkUrl ? [`  topAuthorLinkUrl: ${agent.topAuthorLinkUrl}`] : []),
+    ...(agent.topAuthorLinkCommand ? [`  topAuthorLinkCommand: ${agent.topAuthorLinkCommand}`] : []),
+    ...(agent.topAuthorLinkCommandArgs ? [`  topAuthorLinkCommandArgs: ${formatCommandArgsText(agent.topAuthorLinkCommandArgs)}`] : []),
     `  structuredReadTargetCount: ${agent.structuredReadTargetCount}`,
     ...(agent.bestStructuredReadTarget ? [`  bestStructuredReadTarget: ${agent.bestStructuredReadTarget}`] : []),
     ...(typeof agent.bestStructuredReadTargetCount === "number" ? [`  bestStructuredReadTargetCount: ${agent.bestStructuredReadTargetCount}`] : []),
@@ -12079,6 +12083,9 @@ function summarizeAgent(
   const topProvenanceCommand = pageCheck.provenance[0]?.url
     ? pageCommandSpec(pageCheck.provenance[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topAuthorLinkCommand = pageCheck.authorLinks[0]?.url && /^https?:\/\//i.test(pageCheck.authorLinks[0].url)
+    ? pageCommandSpec(pageCheck.authorLinks[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, sourceSearchAgent, signals, qualityGates, verification.foundQueries, verification.missingQueries);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   const topSemanticHeading = semanticSummary?.headingItems[0];
@@ -12918,6 +12925,8 @@ function summarizeAgent(
     ...(pageCheck.authorLinks[0]?.name ? { topAuthorLinkName: pageCheck.authorLinks[0].name } : {}),
     ...(pageCheck.authorLinks[0]?.url ? { topAuthorLinkUrl: pageCheck.authorLinks[0].url } : {}),
     ...(pageCheck.authorLinks[0] ? { topAuthorLinkSource: pageCheck.authorLinks[0].source } : {}),
+    ...(topAuthorLinkCommand ? { topAuthorLinkCommand: topAuthorLinkCommand.command } : {}),
+    ...(topAuthorLinkCommand ? { topAuthorLinkCommandArgs: topAuthorLinkCommand.commandArgs } : {}),
     ...(pageCheck.provenance[0] ? { topProvenancePath: pageCheck.provenance[0].path } : {}),
     ...(pageCheck.provenance[0] ? { topProvenanceKind: pageCheck.provenance[0].kind } : {}),
     ...(pageCheck.provenance[0]?.label ? { topProvenanceLabel: pageCheck.provenance[0].label } : {}),
@@ -18719,6 +18728,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topAuthorLinkName ? { topAuthorLinkName: agent.topAuthorLinkName } : {}),
     ...(agent.topAuthorLinkUrl ? { topAuthorLinkUrl: agent.topAuthorLinkUrl } : {}),
     ...(agent.topAuthorLinkSource ? { topAuthorLinkSource: agent.topAuthorLinkSource } : {}),
+    ...(agent.topAuthorLinkCommand ? { topAuthorLinkCommand: agent.topAuthorLinkCommand } : {}),
+    ...(agent.topAuthorLinkCommandArgs ? { topAuthorLinkCommandArgs: agent.topAuthorLinkCommandArgs } : {}),
     ...(agent.topProvenancePath ? { topProvenancePath: agent.topProvenancePath } : {}),
     ...(agent.topProvenanceKind ? { topProvenanceKind: agent.topProvenanceKind } : {}),
     ...(agent.topProvenanceLabel ? { topProvenanceLabel: agent.topProvenanceLabel } : {}),
@@ -19936,6 +19947,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topAuthorLinkName ? { topAuthorLinkName: agent.topAuthorLinkName } : {}),
     ...(agent.topAuthorLinkUrl ? { topAuthorLinkUrl: agent.topAuthorLinkUrl } : {}),
     ...(agent.topAuthorLinkSource ? { topAuthorLinkSource: agent.topAuthorLinkSource } : {}),
+    ...(agent.topAuthorLinkCommand ? { topAuthorLinkCommand: agent.topAuthorLinkCommand } : {}),
+    ...(agent.topAuthorLinkCommandArgs ? { topAuthorLinkCommandArgs: agent.topAuthorLinkCommandArgs } : {}),
     ...(agent.topProvenancePath ? { topProvenancePath: agent.topProvenancePath } : {}),
     ...(agent.topProvenanceKind ? { topProvenanceKind: agent.topProvenanceKind } : {}),
     ...(agent.topProvenanceLabel ? { topProvenanceLabel: agent.topProvenanceLabel } : {}),

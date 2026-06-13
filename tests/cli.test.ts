@@ -7486,6 +7486,8 @@ describe("cli", () => {
       topAuthorLinkName: "Jane Doe",
       topAuthorLinkUrl: "https://example.test/authors/jane",
       topAuthorLinkSource: "link",
+      topAuthorLinkCommand: "ax-grep 'https://example.test/authors/jane' --agent-brief",
+      topAuthorLinkCommandArgs: ["ax-grep", "https://example.test/authors/jane", "--agent-brief"],
       bestHiddenReadTarget: "pageCheck.apiEndpoints",
       bestHiddenReadTargetCount: 2,
       bestHiddenReadTargetPrimary: true,

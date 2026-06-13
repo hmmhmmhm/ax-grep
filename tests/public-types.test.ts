@@ -428,6 +428,8 @@ describe("public agent types", () => {
       | "topAuthorLinkName"
       | "topAuthorLinkUrl"
       | "topAuthorLinkSource"
+      | "topAuthorLinkCommand"
+      | "topAuthorLinkCommandArgs"
       | "topProvenancePath"
       | "topProvenanceKind"
       | "topProvenanceLabel"
@@ -1630,6 +1632,8 @@ describe("public agent types", () => {
       topAuthorLinkName: "Example Author",
       topAuthorLinkUrl: "https://example.test/author",
       topAuthorLinkSource: "html",
+      topAuthorLinkCommand: "ax-grep 'https://example.test/author' --agent",
+      topAuthorLinkCommandArgs: ["ax-grep", "https://example.test/author", "--agent"],
       topProvenancePath: "pageCheck.provenance[0]",
       topProvenanceKind: "doi",
       topProvenanceLabel: "DOI",
@@ -2790,6 +2794,7 @@ describe("public agent types", () => {
     expect(summary.topFaqQuestion).toBe("How do I install it?");
     expect(summary.topResourceUrl).toBe("https://example.test/guide.pdf");
     expect(summary.topResourceCommandArgs?.[1]).toBe("https://example.test/guide.pdf");
+    expect(summary.topAuthorLinkCommandArgs?.[1]).toBe("https://example.test/author");
     expect(summary.bestStructuredReadTarget).toBe("pageCheck.dataTables");
     expect(summary.bestStructuredReadTargetPrimary).toBe(true);
     expect(summary.formChoices?.[0]?.queryField).toBe("q");

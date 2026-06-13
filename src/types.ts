@@ -2061,6 +2061,8 @@ export type AgentSummary = {
   topAuthorLinkName?: string;
   topAuthorLinkUrl?: string;
   topAuthorLinkSource?: string;
+  topAuthorLinkCommand?: string;
+  topAuthorLinkCommandArgs?: string[];
   topProvenancePath?: string;
   topProvenanceKind?: string;
   topProvenanceLabel?: string;
