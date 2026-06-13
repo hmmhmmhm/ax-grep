@@ -5414,7 +5414,6 @@ describe("cli", () => {
           <h1>Queue report</h1>
           <table aria-label="Metrics" aria-owns="owned-rows">
             <tr><th id="metric">Metric</th><th id="value">Value</th></tr>
-            <tr><td headers="metric value">Latency</td></tr>
           </table>
           <div id="owned-rows" role="rowgroup" aria-label="Virtual rows">
             <div role="row" aria-rowindex="50"><span role="rowheader" aria-colindex="1">Virtual metric</span><span role="gridcell" aria-colindex="4" headers="value" aria-selected="true">Queued</span></div>
@@ -5425,6 +5424,8 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticTopTableFirstSampleCell:");
+    expect(stdout.output).toContain("ownedTarget=owned-rows");
     expect(stdout.output).toContain("  semanticTopTableFirstOwnedSampleCell:");
     expect(stdout.output).toContain("Queued");
     expect(stdout.output).toContain("ownedTarget=owned-rows");
