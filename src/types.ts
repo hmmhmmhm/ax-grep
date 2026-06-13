@@ -1311,6 +1311,10 @@ export type AgentSummary = {
   runbookReadTargetScore?: number;
   runbookReadTargetPrimary?: boolean;
   runbookReadTargetReason?: string;
+  runbookReadValuePath?: string;
+  runbookReadValueType?: AgentReadValueKind;
+  runbookReadValueCount?: number;
+  runbookReadValueReferencePath?: string;
   runbookCommandArgs?: string[];
   runbookUrl?: string;
   nextActionName?: string;

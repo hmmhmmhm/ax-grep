@@ -1184,6 +1184,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       runbookMaxSuggestedIterations?: number;
       runbookExpectedOutcome?: CliAgentRunbookShape["expectedOutcome"];
       runbookReadFrom?: string;
+      runbookReadValuePath?: string;
+      runbookReadValueType?: string;
+      runbookReadValueCount?: number;
+      runbookReadValueReferencePath?: string;
       runbookCommandArgs?: string[];
       runbookUrl?: string;
       nextActionName?: string;
@@ -3093,6 +3097,10 @@ function scoreAgentRunbookShortcuts(agent: {
   runbookReadTargetScore?: number;
   runbookReadTargetPrimary?: boolean;
   runbookReadTargetReason?: string;
+  runbookReadValuePath?: string;
+  runbookReadValueType?: string;
+  runbookReadValueCount?: number;
+  runbookReadValueReferencePath?: string;
   runbookCommandArgs?: string[];
   runbookUrl?: string;
 } | undefined): number {
@@ -3156,6 +3164,15 @@ function scoreAgentRunbookShortcuts(agent: {
     } else if (agent.runbookReadTargetReason) {
       required += 1;
     }
+  }
+  if (runbook.readValue) {
+    required += 4;
+    if (agent.runbookReadValuePath === runbook.readValue.path) matched += 1;
+    if (agent.runbookReadValueType === agentReadValueKind(runbook.readValue)) matched += 1;
+    if (agent.runbookReadValueCount === agentReadValueCount(runbook.readValue)) matched += 1;
+    if (agent.runbookReadValueReferencePath === agentReadValueReferencePath(runbook.readValue)) matched += 1;
+  } else if (agent.runbookReadValuePath || agent.runbookReadValueType || typeof agent.runbookReadValueCount === "number" || agent.runbookReadValueReferencePath) {
+    required += 4;
   }
   if (runbook.commandArgs) {
     required += 1;

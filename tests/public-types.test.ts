@@ -1011,6 +1011,10 @@ describe("public agent types", () => {
       | "runbookReadTargetScore"
       | "runbookReadTargetPrimary"
       | "runbookReadTargetReason"
+      | "runbookReadValuePath"
+      | "runbookReadValueType"
+      | "runbookReadValueCount"
+      | "runbookReadValueReferencePath"
       | "runbookCommandArgs"
       | "runbookUrl"
       | "nextActionName"
@@ -2203,6 +2207,10 @@ describe("public agent types", () => {
       runbookReadTargetScore: 0.9,
       runbookReadTargetPrimary: true,
       runbookReadTargetReason: "Top evidence.",
+      runbookReadValuePath: "pageCheck.contentEvidence",
+      runbookReadValueType: "array",
+      runbookReadValueCount: 1,
+      runbookReadValueReferencePath: "pageCheck.contentEvidence",
       runbookCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       runbookUrl: "https://example.test",
       nextActionName: "read-content",
@@ -2635,6 +2643,8 @@ describe("public agent types", () => {
     expect(summary.runbookReadTargetKind).toBe("evidence");
     expect(summary.runbookReadTargetScore).toBe(0.9);
     expect(summary.runbookReadTargetReason).toBe("Top evidence.");
+    expect(summary.runbookReadValueType).toBe("array");
+    expect(summary.runbookReadValueReferencePath).toBe("pageCheck.contentEvidence");
     expect(summary.nextActionName).toBe("read-content");
     expect(summary.nextReadFrom).toBe("pageCheck.contentEvidence");
     expect(summary.nextReadTargetKind).toBe("evidence");

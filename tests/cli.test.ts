@@ -1310,6 +1310,11 @@ describe("cli", () => {
       if (typeof executor.readTarget?.score === "number") expect(envelope.agent.runbookReadTargetScore).toBe(executor.readTarget.score);
       if (typeof executor.readTarget?.primary === "boolean") expect(envelope.agent.runbookReadTargetPrimary).toBe(executor.readTarget.primary);
       if (executor.readTarget?.reason) expect(envelope.agent.runbookReadTargetReason).toBe(executor.readTarget.reason);
+      if (executor.readValue?.path) expect(envelope.agent.runbookReadValuePath).toBe(executor.readValue.path);
+      if (Array.isArray(executor.readValue?.value)) {
+        expect(envelope.agent.runbookReadValueType).toBe("array");
+        expect(envelope.agent.runbookReadValueCount).toBe(executor.readValue.value.length);
+      }
       if (executor.url) expect(envelope.agent.runbookUrl).toBe(executor.url);
       expect(envelope.agent.executorDecision).toBe(executor.decision);
       expect(envelope.agent.executorMode).toBe(executor.mode);
