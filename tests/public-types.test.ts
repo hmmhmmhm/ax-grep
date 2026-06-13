@@ -1323,6 +1323,9 @@ describe("public agent types", () => {
       | "primaryTargetSource"
       | "primaryTargetRank"
       | "primaryTargetSourceScore"
+      | "primaryTargetDateText"
+      | "primaryTargetDatePrecision"
+      | "primaryTargetDateSource"
       | "primaryTargetRelevance"
       | "primaryTargetLikelyOfficial"
       | "primaryTargetSelector"
@@ -2576,6 +2579,9 @@ describe("public agent types", () => {
       primaryTargetSource: "source-link",
       primaryTargetRank: 1,
       primaryTargetSourceScore: 0.92,
+      primaryTargetDateText: "2026-05-31",
+      primaryTargetDatePrecision: "day",
+      primaryTargetDateSource: "snippet",
       primaryTargetRelevance: "high",
       primaryTargetLikelyOfficial: true,
       primaryTargetSelector: "a.primary",
@@ -2808,6 +2814,9 @@ describe("public agent types", () => {
     expect(summary.primarySourceLinkRef).toBe("pageCheck.sourceLinks[0]");
     expect(summary.primaryTargetTitle).toBe("Example target");
     expect(summary.primaryTargetSourceScore).toBe(0.92);
+    expect(summary.primaryTargetDateText).toBe("2026-05-31");
+    expect(summary.primaryTargetDatePrecision).toBe("day");
+    expect(summary.primaryTargetDateSource).toBe("snippet");
     expect(summary.primaryTargetLikelyOfficial).toBe(true);
     expect(summary.alternativeActionName).toBe("open-source-link");
     expect(summary.alternativeActionPriorityReason).toBe("External source-like link can improve verification.");

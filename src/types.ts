@@ -2419,6 +2419,9 @@ export type AgentSummary = {
   primaryTargetSource?: string;
   primaryTargetRank?: number;
   primaryTargetSourceScore?: number;
+  primaryTargetDateText?: string;
+  primaryTargetDatePrecision?: "day" | "month" | "year";
+  primaryTargetDateSource?: "title" | "snippet";
   primaryTargetRelevance?: AgentTarget["relevance"];
   primaryTargetLikelyOfficial?: boolean;
   primaryTargetSelector?: string;

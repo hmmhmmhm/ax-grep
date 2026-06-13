@@ -2051,6 +2051,9 @@ type AgentSummary = {
   primaryTargetSource?: string;
   primaryTargetRank?: number;
   primaryTargetSourceScore?: number;
+  primaryTargetDateText?: string;
+  primaryTargetDatePrecision?: AgentTarget["datePrecision"];
+  primaryTargetDateSource?: AgentTarget["dateSource"];
   primaryTargetRelevance?: AgentTarget["relevance"];
   primaryTargetLikelyOfficial?: boolean;
   primaryTargetSelector?: string;
@@ -4342,6 +4345,9 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.primaryTargetSource) lines.push(`  primaryTargetSource: ${agent.primaryTargetSource}`);
   if (typeof agent.primaryTargetRank === "number") lines.push(`  primaryTargetRank: ${agent.primaryTargetRank}`);
   if (typeof agent.primaryTargetSourceScore === "number") lines.push(`  primaryTargetSourceScore: ${agent.primaryTargetSourceScore}`);
+  if (agent.primaryTargetDateText) lines.push(`  primaryTargetDateText: ${agent.primaryTargetDateText}`);
+  if (agent.primaryTargetDatePrecision) lines.push(`  primaryTargetDatePrecision: ${agent.primaryTargetDatePrecision}`);
+  if (agent.primaryTargetDateSource) lines.push(`  primaryTargetDateSource: ${agent.primaryTargetDateSource}`);
   if (agent.primaryTargetRelevance) lines.push(`  primaryTargetRelevance: ${agent.primaryTargetRelevance}`);
   if (typeof agent.primaryTargetLikelyOfficial === "boolean") lines.push(`  primaryTargetLikelyOfficial: ${agent.primaryTargetLikelyOfficial}`);
   if (agent.primaryTargetSelector) lines.push(`  primaryTargetSelector: ${agent.primaryTargetSelector}`);
@@ -12970,6 +12976,9 @@ function summarizeAgent(
     if (primaryAction.target?.source) agent.primaryTargetSource = primaryAction.target.source;
     if (typeof primaryAction.target?.rank === "number") agent.primaryTargetRank = primaryAction.target.rank;
     if (typeof primaryAction.target?.sourceScore === "number") agent.primaryTargetSourceScore = primaryAction.target.sourceScore;
+    if (primaryAction.target?.dateText) agent.primaryTargetDateText = primaryAction.target.dateText;
+    if (primaryAction.target?.datePrecision) agent.primaryTargetDatePrecision = primaryAction.target.datePrecision;
+    if (primaryAction.target?.dateSource) agent.primaryTargetDateSource = primaryAction.target.dateSource;
     if (primaryAction.target?.relevance) agent.primaryTargetRelevance = primaryAction.target.relevance;
     if (typeof primaryAction.target?.isLikelyOfficial === "boolean") agent.primaryTargetLikelyOfficial = primaryAction.target.isLikelyOfficial;
     if (primaryAction.target?.selector) agent.primaryTargetSelector = primaryAction.target.selector;
@@ -16105,6 +16114,9 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(primaryAction?.target?.source ? { primaryTargetSource: primaryAction.target.source } : {}),
     ...(typeof primaryAction?.target?.rank === "number" ? { primaryTargetRank: primaryAction.target.rank } : {}),
     ...(typeof primaryAction?.target?.sourceScore === "number" ? { primaryTargetSourceScore: primaryAction.target.sourceScore } : {}),
+    ...(primaryAction?.target?.dateText ? { primaryTargetDateText: primaryAction.target.dateText } : {}),
+    ...(primaryAction?.target?.datePrecision ? { primaryTargetDatePrecision: primaryAction.target.datePrecision } : {}),
+    ...(primaryAction?.target?.dateSource ? { primaryTargetDateSource: primaryAction.target.dateSource } : {}),
     ...(primaryAction?.target?.relevance ? { primaryTargetRelevance: primaryAction.target.relevance } : {}),
     ...(typeof primaryAction?.target?.isLikelyOfficial === "boolean" ? { primaryTargetLikelyOfficial: primaryAction.target.isLikelyOfficial } : {}),
     ...(primaryAction?.target?.selector ? { primaryTargetSelector: primaryAction.target.selector } : {}),
@@ -18589,6 +18601,9 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.primaryTargetSource ? { primaryTargetSource: agent.primaryTargetSource } : {}),
     ...(typeof agent.primaryTargetRank === "number" ? { primaryTargetRank: agent.primaryTargetRank } : {}),
     ...(typeof agent.primaryTargetSourceScore === "number" ? { primaryTargetSourceScore: agent.primaryTargetSourceScore } : {}),
+    ...(agent.primaryTargetDateText ? { primaryTargetDateText: agent.primaryTargetDateText } : {}),
+    ...(agent.primaryTargetDatePrecision ? { primaryTargetDatePrecision: agent.primaryTargetDatePrecision } : {}),
+    ...(agent.primaryTargetDateSource ? { primaryTargetDateSource: agent.primaryTargetDateSource } : {}),
     ...(agent.primaryTargetRelevance ? { primaryTargetRelevance: agent.primaryTargetRelevance } : {}),
     ...(typeof agent.primaryTargetLikelyOfficial === "boolean" ? { primaryTargetLikelyOfficial: agent.primaryTargetLikelyOfficial } : {}),
     ...(agent.primaryTargetSelector ? { primaryTargetSelector: agent.primaryTargetSelector } : {}),
@@ -19744,6 +19759,9 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.primaryTargetSource ? { primaryTargetSource: agent.primaryTargetSource } : {}),
     ...(typeof agent.primaryTargetRank === "number" ? { primaryTargetRank: agent.primaryTargetRank } : {}),
     ...(typeof agent.primaryTargetSourceScore === "number" ? { primaryTargetSourceScore: agent.primaryTargetSourceScore } : {}),
+    ...(agent.primaryTargetDateText ? { primaryTargetDateText: agent.primaryTargetDateText } : {}),
+    ...(agent.primaryTargetDatePrecision ? { primaryTargetDatePrecision: agent.primaryTargetDatePrecision } : {}),
+    ...(agent.primaryTargetDateSource ? { primaryTargetDateSource: agent.primaryTargetDateSource } : {}),
     ...(agent.primaryTargetRelevance ? { primaryTargetRelevance: agent.primaryTargetRelevance } : {}),
     ...(typeof agent.primaryTargetLikelyOfficial === "boolean" ? { primaryTargetLikelyOfficial: agent.primaryTargetLikelyOfficial } : {}),
     ...(agent.primaryTargetSelector ? { primaryTargetSelector: agent.primaryTargetSelector } : {}),
