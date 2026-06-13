@@ -954,6 +954,7 @@ type AgentSummary = {
   runbookReadValueType?: AgentReadValueKind;
   runbookReadValueCount?: number;
   runbookReadValueReferencePath?: string;
+  runbookCommand?: string;
   runbookCommandArgs?: string[];
   runbookUrl?: string;
   nextActionName?: string;
@@ -3584,6 +3585,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.runbookReadValueType ? [`  runbookReadValueType: ${agent.runbookReadValueType}`] : []),
     ...(typeof agent.runbookReadValueCount === "number" ? [`  runbookReadValueCount: ${agent.runbookReadValueCount}`] : []),
     ...(agent.runbookReadValueReferencePath ? [`  runbookReadValueReferencePath: ${agent.runbookReadValueReferencePath}`] : []),
+    ...(agent.runbook.command ? [`  runbookCommand: ${agent.runbook.command}`] : []),
     ...(agent.runbook.commandArgs ? [`  runbookCommandArgs: ${JSON.stringify(agent.runbook.commandArgs)}`] : []),
     ...(agent.runbook.url ? [`  runbookUrl: ${agent.runbook.url}`] : []),
     `  executor: ${agent.executor.decision}/${agent.executor.operation}/${agent.executor.confidence}${agent.executor.action ? ` action=${agent.executor.action}` : ""} status=${agent.executor.status} - ${agent.executor.instruction}`,
@@ -11745,6 +11747,7 @@ function summarizeAgent(
     ...(runbookReadValueType ? { runbookReadValueType } : {}),
     ...(typeof runbookReadValueCount === "number" ? { runbookReadValueCount } : {}),
     ...(runbookReadValueReferencePath ? { runbookReadValueReferencePath } : {}),
+    ...(runbook.command ? { runbookCommand: runbook.command } : {}),
     ...(runbook.commandArgs ? { runbookCommandArgs: runbook.commandArgs } : {}),
     ...(runbook.url ? { runbookUrl: runbook.url } : {}),
     ...(next.action ? { nextActionName: next.action } : {}),
@@ -15624,6 +15627,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(runbookReadValueType ? { runbookReadValueType } : {}),
     ...(typeof runbookReadValueCount === "number" ? { runbookReadValueCount } : {}),
     ...(runbookReadValueReferencePath ? { runbookReadValueReferencePath } : {}),
+    ...(runbook.command ? { runbookCommand: runbook.command } : {}),
     ...(runbook.commandArgs ? { runbookCommandArgs: runbook.commandArgs } : {}),
     ...(runbook.url ? { runbookUrl: runbook.url } : {}),
     ...(next.action ? { nextActionName: next.action } : {}),
@@ -17307,6 +17311,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.runbookReadValueType ? { runbookReadValueType: agent.runbookReadValueType } : {}),
     ...(typeof agent.runbookReadValueCount === "number" ? { runbookReadValueCount: agent.runbookReadValueCount } : {}),
     ...(agent.runbookReadValueReferencePath ? { runbookReadValueReferencePath: agent.runbookReadValueReferencePath } : {}),
+    ...(agent.runbookCommand ? { runbookCommand: agent.runbookCommand } : {}),
     ...(agent.runbookCommandArgs ? { runbookCommandArgs: agent.runbookCommandArgs } : {}),
     ...(agent.runbookUrl ? { runbookUrl: agent.runbookUrl } : {}),
     ...(agent.nextActionName ? { nextActionName: agent.nextActionName } : {}),
@@ -18431,6 +18436,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.runbookReadValueType ? { runbookReadValueType: agent.runbookReadValueType } : {}),
     ...(typeof agent.runbookReadValueCount === "number" ? { runbookReadValueCount: agent.runbookReadValueCount } : {}),
     ...(agent.runbookReadValueReferencePath ? { runbookReadValueReferencePath: agent.runbookReadValueReferencePath } : {}),
+    ...(agent.runbookCommand ? { runbookCommand: agent.runbookCommand } : {}),
     ...(agent.runbookCommandArgs ? { runbookCommandArgs: agent.runbookCommandArgs } : {}),
     ...(agent.runbookUrl ? { runbookUrl: agent.runbookUrl } : {}),
     ...(agent.nextActionName ? { nextActionName: agent.nextActionName } : {}),

@@ -1188,6 +1188,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       runbookReadValueType?: string;
       runbookReadValueCount?: number;
       runbookReadValueReferencePath?: string;
+      runbookCommand?: string;
       runbookCommandArgs?: string[];
       runbookUrl?: string;
       nextActionName?: string;
@@ -3104,6 +3105,7 @@ function scoreAgentRunbookShortcuts(agent: {
   runbookReadValueType?: string;
   runbookReadValueCount?: number;
   runbookReadValueReferencePath?: string;
+  runbookCommand?: string;
   runbookCommandArgs?: string[];
   runbookUrl?: string;
 } | undefined): number {
@@ -3181,6 +3183,12 @@ function scoreAgentRunbookShortcuts(agent: {
     required += 1;
     if (JSON.stringify(agent.runbookCommandArgs) === JSON.stringify(runbook.commandArgs)) matched += 1;
   } else if (agent.runbookCommandArgs) {
+    required += 1;
+  }
+  if (runbook.command) {
+    required += 1;
+    if (agent.runbookCommand === runbook.command) matched += 1;
+  } else if (agent.runbookCommand) {
     required += 1;
   }
   if (runbook.url || runbook.urlRef) {

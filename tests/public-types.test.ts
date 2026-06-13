@@ -1018,6 +1018,7 @@ describe("public agent types", () => {
       | "runbookReadValueType"
       | "runbookReadValueCount"
       | "runbookReadValueReferencePath"
+      | "runbookCommand"
       | "runbookCommandArgs"
       | "runbookUrl"
       | "nextActionName"
@@ -2218,6 +2219,7 @@ describe("public agent types", () => {
       runbookReadValueType: "array",
       runbookReadValueCount: 1,
       runbookReadValueReferencePath: "pageCheck.contentEvidence",
+      runbookCommand: "ax-grep https://example.test --agent",
       runbookCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       runbookUrl: "https://example.test",
       nextActionName: "read-content",
@@ -2601,6 +2603,7 @@ describe("public agent types", () => {
     expect(summary.sourceSearchAlternateChoices?.[0]?.isLikelyOfficial).toBe(false);
     expect(summary.topActionName).toBe("read-content");
     expect(summary.topActionPriorityReason).toBe("Readable content is available.");
+    expect(summary.runbookCommand).toBe("ax-grep https://example.test --agent");
     expect(summary.topActionCommand).toBe("ax-grep https://example.test --agent");
     expect(summary.topActionRank).toBe(1);
     expect(summary.topActionExpectedOutcome).toBe("read-evidence");

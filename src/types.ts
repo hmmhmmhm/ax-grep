@@ -1315,6 +1315,7 @@ export type AgentSummary = {
   runbookReadValueType?: AgentReadValueKind;
   runbookReadValueCount?: number;
   runbookReadValueReferencePath?: string;
+  runbookCommand?: string;
   runbookCommandArgs?: string[];
   runbookUrl?: string;
   nextActionName?: string;

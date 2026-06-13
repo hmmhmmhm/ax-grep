@@ -1303,6 +1303,7 @@ describe("cli", () => {
       expect(envelope.agent.runbookTerminal).toBe(executor.terminal);
       expect(envelope.agent.runbookMaxSuggestedIterations).toBe(executor.maxSuggestedIterations);
       expect(envelope.agent.runbookExpectedOutcome).toBe(executor.expectedOutcome);
+      if (executor.command) expect(envelope.agent.runbookCommand).toBe(executor.command);
       if (executor.commandArgs) expect(envelope.agent.runbookCommandArgs).toEqual(executor.commandArgs);
       if (executor.readFrom) expect(envelope.agent.runbookReadFrom).toBe(executor.readFrom);
       if (executor.readTarget?.kind) expect(envelope.agent.runbookReadTargetKind).toBe(executor.readTarget.kind);
@@ -3707,6 +3708,7 @@ describe("cli", () => {
         runbookShouldContinue: true,
         runbookTerminal: false,
         runbookExpectedOutcome: "capture-html",
+        runbookCommand: "ax-grep 'https://target.example/article' --html-file captured.html --json --summary",
         runbookCommandArgs: ["ax-grep", "https://target.example/article", "--html-file", "captured.html", "--json", "--summary"],
         runbookUrl: "https://target.example/article",
         sourceSearchFailureCode: "HTTP_ERROR",
