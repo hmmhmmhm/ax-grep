@@ -173,6 +173,48 @@ export type AgentAction = {
   path?: string;
 };
 
+export type AgentPageMetadata = {
+  description?: string;
+  lang?: string;
+  dir?: string;
+  siteName?: string;
+  author?: string;
+  publishedTime?: string;
+  modifiedTime?: string;
+  structuredDataTypes?: string[];
+};
+
+export type AgentFindMatch = {
+  field: string;
+  text: string;
+  rank?: number;
+  url?: string;
+  selector?: string;
+  source?: "semantic" | "fallback";
+  score?: number;
+  quality?: "low" | "medium" | "high";
+  qualityReason?: string;
+};
+
+export type AgentFindSummary = {
+  query: string;
+  found: boolean;
+  matchCount: number;
+  matches: AgentFindMatch[];
+};
+
+export type AgentVerification = {
+  status: "matched" | "partial" | "missing";
+  requestedCount: number;
+  foundCount: number;
+  missingCount: number;
+  evidenceCount: number;
+  foundQueries?: string[];
+  missingQueries?: string[];
+  bestEvidence?: AgentFindMatch;
+  recommendedAction?: AgentAction;
+};
+
 export type AgentNext = {
   mode: AgentContinuationMode;
   reason: string;
@@ -1806,10 +1848,10 @@ export type AgentJsonEnvelope = {
   sourceSearch?: AgentSourceSearch;
   warnings?: Array<{ code: string; message: string }>;
   agent: AgentSummary;
-  page?: Record<string, unknown>;
+  page?: AgentPageMetadata;
   pageCheck?: Record<string, unknown>;
-  verification?: Record<string, unknown>;
-  finds?: Array<Record<string, unknown>>;
+  verification?: AgentVerification;
+  finds?: AgentFindSummary[];
   searchResults?: AgentResultChoice[];
   recommendedResult?: AgentResultChoice;
   suggestedActions?: AgentAction[];

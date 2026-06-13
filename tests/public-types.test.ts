@@ -2532,6 +2532,46 @@ describe("public agent types", () => {
           commandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent"],
         },
       },
+      page: {
+        description: "Example page",
+        lang: "en",
+        siteName: "Example",
+        structuredDataTypes: ["Article"],
+      },
+      verification: {
+        status: "matched",
+        requestedCount: 1,
+        foundCount: 1,
+        missingCount: 0,
+        evidenceCount: 1,
+        foundQueries: ["example"],
+        bestEvidence: {
+          field: "content",
+          text: "Example evidence",
+          score: 0.9,
+          quality: "high",
+          qualityReason: "Matched requested query.",
+        },
+        recommendedAction: {
+          action: "use-evidence",
+          execution: "read-current",
+          reason: "Verification matched.",
+          readFrom: "verification.bestEvidence",
+        },
+      },
+      finds: [{
+        query: "example",
+        found: true,
+        matchCount: 1,
+        matches: [{
+          field: "content",
+          text: "Example evidence",
+          source: "semantic",
+          score: 0.9,
+          quality: "high",
+          qualityReason: "Matched requested query.",
+        }],
+      }],
       searchResults: [{
         id: "r1",
         path: "searchResults[0]",
@@ -2579,8 +2619,11 @@ describe("public agent types", () => {
           isLikelyOfficial: true,
         },
       }],
-    } satisfies Pick<AgentJsonEnvelope, "sourceSearch" | "searchResults" | "recommendedResult" | "suggestedActions">;
+    } satisfies Pick<AgentJsonEnvelope, "sourceSearch" | "page" | "verification" | "finds" | "searchResults" | "recommendedResult" | "suggestedActions">;
     expect(envelopeRecommendation.sourceSearch.selectedResult?.commandArgs?.[4]).toBe("1");
+    expect(envelopeRecommendation.page.structuredDataTypes?.[0]).toBe("Article");
+    expect(envelopeRecommendation.verification.bestEvidence?.quality).toBe("high");
+    expect(envelopeRecommendation.finds[0]?.matches[0]?.source).toBe("semantic");
     expect(envelopeRecommendation.searchResults[0]?.recommendedPath).toBe("recommendedResult");
     expect(envelopeRecommendation.recommendedResult.commandArgs?.[4]).toBe("1");
     expect(envelopeRecommendation.suggestedActions[0]?.target?.sourceScore).toBe(0.92);
