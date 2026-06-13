@@ -1772,6 +1772,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topAnswerUseCitationId?: string;
       answerUseCitationIds?: string[];
       answerPlanReadFrom?: string;
+      answerPlanCommand?: string;
       answerPlanCommandArgs?: string[];
       answerPlanUrl?: string;
       primaryActionName?: string;
@@ -9569,6 +9570,7 @@ function scoreAgentAnswerShortcuts(agent: {
   answerPlanReadTargetScore?: number;
   answerPlanReadTargetPrimary?: boolean;
   answerPlanReadTargetReason?: string;
+  answerPlanCommand?: string;
   answerPlanCommandArgs?: string[];
   answerPlanAfterInteractionCommand?: string;
   answerPlanAfterInteractionCommandArgs?: string[];
@@ -9643,6 +9645,12 @@ function scoreAgentAnswerShortcuts(agent: {
     required += 1;
     if (JSON.stringify(agent.answerPlanCommandArgs) === JSON.stringify(plan.commandArgs)) matched += 1;
   } else if (agent.answerPlanCommandArgs) {
+    required += 1;
+  }
+  if (plan.command) {
+    required += 1;
+    if (agent.answerPlanCommand === plan.command) matched += 1;
+  } else if (agent.answerPlanCommand) {
     required += 1;
   }
   if (plan.afterInteractionCommand) {

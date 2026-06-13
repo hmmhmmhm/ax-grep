@@ -1465,6 +1465,7 @@ describe("cli", () => {
       if (typeof handoff.readTarget?.score === "number") expect(envelope.agent.answerPlanReadTargetScore).toBe(handoff.readTarget.score);
       if (typeof handoff.readTarget?.primary === "boolean") expect(envelope.agent.answerPlanReadTargetPrimary).toBe(handoff.readTarget.primary);
       if (handoff.readTarget?.reason) expect(envelope.agent.answerPlanReadTargetReason).toBe(handoff.readTarget.reason);
+      if (handoff.command) expect(envelope.agent.answerPlanCommand).toBe(handoff.command);
       if (handoff.commandArgs) expect(envelope.agent.answerPlanCommandArgs).toEqual(handoff.commandArgs);
       if (handoff.url) expect(envelope.agent.answerPlanUrl).toBe(handoff.url);
       if (envelope.agent.alternativeActionCount > 0) {

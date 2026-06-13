@@ -1852,6 +1852,7 @@ type AgentSummary = {
   answerPlanReadTargetScore?: number;
   answerPlanReadTargetPrimary?: boolean;
   answerPlanReadTargetReason?: string;
+  answerPlanCommand?: string;
   answerPlanCommandArgs?: string[];
   answerPlanAfterInteractionCommand?: string;
   answerPlanAfterInteractionCommandArgs?: string[];
@@ -4086,6 +4087,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (typeof agent.answerPlanReadTargetScore === "number") lines.push(`  answerPlanReadTargetScore: ${agent.answerPlanReadTargetScore}`);
   if (typeof agent.answerPlanReadTargetPrimary === "boolean") lines.push(`  answerPlanReadTargetPrimary: ${agent.answerPlanReadTargetPrimary}`);
   if (agent.answerPlanReadTargetReason) lines.push(`  answerPlanReadTargetReason: ${agent.answerPlanReadTargetReason}`);
+  if (agent.answerPlanCommand) lines.push(`  answerPlanCommand: ${agent.answerPlanCommand}`);
+  if (agent.answerPlanCommandArgs?.length) lines.push(`  answerPlanCommandArgs: ${formatCommandArgsText(agent.answerPlanCommandArgs)}`);
   if (agent.answerPlanAfterInteractionCommand) lines.push(`  answerPlanAfterInteractionCommand: ${agent.answerPlanAfterInteractionCommand}`);
   if (agent.answerPlanAfterInteractionCommandArgs?.length) lines.push(`  answerPlanAfterInteractionCommandArgs: ${JSON.stringify(agent.answerPlanAfterInteractionCommandArgs)}`);
   if (agent.executor.readFrom) lines.push(`  executorReadFrom: ${agent.executor.readFrom}`);
@@ -12641,6 +12644,7 @@ function summarizeAgent(
     ...(typeof answerPlanReadTarget?.score === "number" ? { answerPlanReadTargetScore: answerPlanReadTarget.score } : {}),
     ...(typeof answerPlanReadTarget?.primary === "boolean" ? { answerPlanReadTargetPrimary: answerPlanReadTarget.primary } : {}),
     ...(answerPlanReadTarget?.reason ? { answerPlanReadTargetReason: answerPlanReadTarget.reason } : {}),
+    ...(answerPlan.command ? { answerPlanCommand: answerPlan.command } : {}),
     ...(answerPlan.commandArgs ? { answerPlanCommandArgs: answerPlan.commandArgs } : {}),
     ...(answerPlan.afterInteractionCommand ? { answerPlanAfterInteractionCommand: answerPlan.afterInteractionCommand } : {}),
     ...(answerPlan.afterInteractionCommandArgs ? { answerPlanAfterInteractionCommandArgs: answerPlan.afterInteractionCommandArgs } : {}),
@@ -18198,6 +18202,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.answerPlanReadTargetScore === "number" ? { answerPlanReadTargetScore: agent.answerPlanReadTargetScore } : {}),
     ...(typeof agent.answerPlanReadTargetPrimary === "boolean" ? { answerPlanReadTargetPrimary: agent.answerPlanReadTargetPrimary } : {}),
     ...(agent.answerPlanReadTargetReason ? { answerPlanReadTargetReason: agent.answerPlanReadTargetReason } : {}),
+    ...(agent.answerPlanCommand ? { answerPlanCommand: agent.answerPlanCommand } : {}),
     ...(agent.answerPlanCommandArgs ? { answerPlanCommandArgs: agent.answerPlanCommandArgs } : {}),
     ...(agent.answerPlanAfterInteractionCommand ? { answerPlanAfterInteractionCommand: agent.answerPlanAfterInteractionCommand } : {}),
     ...(agent.answerPlanAfterInteractionCommandArgs ? { answerPlanAfterInteractionCommandArgs: agent.answerPlanAfterInteractionCommandArgs } : {}),
@@ -19318,6 +19323,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.answerPlanReadTargetScore === "number" ? { answerPlanReadTargetScore: agent.answerPlanReadTargetScore } : {}),
     ...(typeof agent.answerPlanReadTargetPrimary === "boolean" ? { answerPlanReadTargetPrimary: agent.answerPlanReadTargetPrimary } : {}),
     ...(agent.answerPlanReadTargetReason ? { answerPlanReadTargetReason: agent.answerPlanReadTargetReason } : {}),
+    ...(agent.answerPlanCommand ? { answerPlanCommand: agent.answerPlanCommand } : {}),
     ...(agent.answerPlanCommandArgs ? { answerPlanCommandArgs: agent.answerPlanCommandArgs } : {}),
     ...(agent.answerPlanAfterInteractionCommand ? { answerPlanAfterInteractionCommand: agent.answerPlanAfterInteractionCommand } : {}),
     ...(agent.answerPlanAfterInteractionCommandArgs ? { answerPlanAfterInteractionCommandArgs: agent.answerPlanAfterInteractionCommandArgs } : {}),

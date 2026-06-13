@@ -1068,6 +1068,7 @@ describe("public agent types", () => {
       | "answerPlanReadTargetScore"
       | "answerPlanReadTargetPrimary"
       | "answerPlanReadTargetReason"
+      | "answerPlanCommand"
       | "answerPlanCommandArgs"
       | "answerPlanAfterInteractionCommand"
       | "answerPlanAfterInteractionCommandArgs"
@@ -2272,6 +2273,7 @@ describe("public agent types", () => {
       answerPlanReadTargetScore: 0.9,
       answerPlanReadTargetPrimary: true,
       answerPlanReadTargetReason: "Top evidence.",
+      answerPlanCommand: "ax-grep https://example.test --agent",
       answerPlanCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       answerPlanAfterInteractionCommand: "ax-grep https://example.test --html-file captured.html --agent",
       answerPlanAfterInteractionCommandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--agent"],
@@ -2658,6 +2660,7 @@ describe("public agent types", () => {
     expect(summary.answerPlanNextAction).toBe("read-content");
     expect(summary.answerPlanReadTargetKind).toBe("evidence");
     expect(summary.answerPlanReadTargetScore).toBe(0.9);
+    expect(summary.answerPlanCommand).toBe("ax-grep https://example.test --agent");
     expect(summary.executionPlanReadTargetKind).toBe("evidence");
     expect(summary.executionPlanReadTargetReason).toBe("Top evidence.");
     expect(summary.runbookReadTargetKind).toBe("evidence");

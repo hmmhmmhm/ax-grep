@@ -2214,6 +2214,7 @@ export type AgentSummary = {
   answerPlanReadTargetScore?: number;
   answerPlanReadTargetPrimary?: boolean;
   answerPlanReadTargetReason?: string;
+  answerPlanCommand?: string;
   answerPlanCommandArgs?: string[];
   answerPlanAfterInteractionCommand?: string;
   answerPlanAfterInteractionCommandArgs?: string[];
