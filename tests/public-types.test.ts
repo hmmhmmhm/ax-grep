@@ -7,6 +7,7 @@ import type {
   AgentFormChoice,
   AgentHandoff,
   AgentJsonEnvelope,
+  AgentReadValue,
   AgentResultChoice,
   AgentSourceChoice,
   AgentSourceSearchResult,
@@ -115,6 +116,17 @@ describe("public agent types", () => {
     expect(handoff.sourceChoices?.[0]?.selector).toBe("a:nth-of-type(1)");
     expect(handoff.verificationMissingQueries).toEqual(["missing"]);
     expect(handoff.answerEvidence?.[0]?.text).toBe("Readable evidence");
+  });
+
+  it("exports typed read value references for compact agent handoffs", () => {
+    const readValue: AgentReadValue = {
+      path: "pageCheck.resources",
+      valuePath: "pageCheck.resources",
+      valueType: "array",
+      count: 4,
+    };
+
+    expect(readValue.valueType).toBe("array");
   });
 
   it("exports source-link action references for agent action lists", () => {

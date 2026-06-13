@@ -1019,10 +1019,70 @@ export type AgentReadTarget = {
   primary?: boolean;
 };
 
-export type AgentReadValue = {
+export type AgentReadValueScalar = string | number | boolean | null;
+
+export type AgentReadValueReference =
+  | {
+      path: string;
+      valuePath: string;
+      valueType: "array";
+      count: number;
+    }
+  | {
+      path: string;
+      valuePath: string;
+      valueType: "object";
+    };
+
+export type AgentReadValuePayload =
+  | AgentReadValueScalar
+  | AgentCitation
+  | AgentFindMatch
+  | AgentTarget
+  | AgentSourceSearchResult
+  | AgentSemanticSummary
+  | AgentPageEvidence
+  | AgentPageDataTable
+  | AgentPageBarrier
+  | AgentPageForm
+  | AgentActionTargetChoice
+  | AgentPageHydration
+  | AgentPageApiEndpoint
+  | AgentPageClientState
+  | AgentPageRuntime
+  | AgentPageConfig
+  | AgentPageAppHint
+  | AgentPageMobileHint
+  | AgentPageTopic
+  | AgentPageContactPoint
+  | AgentPageKeyValue
+  | AgentPageMetaFact
+  | AgentPageProvenance
+  | AgentPageHttpPolicy
+  | AgentPageSchemaFact
+  | AgentPageOffer
+  | AgentPageIdentity
+  | AgentPageDataset
+  | AgentPageTimeline
+  | AgentPageFaq
+  | AgentPageBreadcrumb
+  | AgentPageSection
+  | AgentPagePagination
+  | AgentPageToc
+  | AgentPageCodeBlock
+  | AgentPageCitation
+  | AgentPageMedia
+  | AgentPageResource
+  | AgentPageEmbed
+  | AgentPageTranscript
+  | AgentPageAuthorLink;
+
+export type AgentReadValueInline = {
   path: string;
-  value: unknown;
+  value: AgentReadValuePayload | AgentReadValuePayload[];
 };
+
+export type AgentReadValue = AgentReadValueInline | AgentReadValueReference;
 
 export type AgentCitation = {
   kind: "content" | "verification" | "search-result" | "source-link" | "page-check";

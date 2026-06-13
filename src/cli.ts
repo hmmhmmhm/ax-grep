@@ -3360,6 +3360,12 @@ function formatAgentCitationText(citation: AgentCitation, prefix = "citation"): 
 
 function formatAgentReadValueText(readValue: AgentReadValue, prefix = "handoffReadValue"): string[] {
   const lines = [`  ${prefix}: ${readValue.path}`];
+  if (!("value" in readValue)) {
+    const count = readValue.valueType === "array" ? ` count=${readValue.count}` : "";
+    lines.push(`  ${prefix}Type: ${readValue.valueType} reference${count}`);
+    lines.push(`  ${prefix}ValuePath: ${readValue.valuePath}`);
+    return lines;
+  }
   if (Array.isArray(readValue.value)) {
     lines.push(`  ${prefix}Type: array count=${readValue.value.length}`);
     for (const [index, item] of readValue.value.slice(0, 3).entries()) {
@@ -19690,6 +19696,7 @@ function preferBriefAgentCommandString(value: string): string {
 }
 
 function compactAgentReadValue(readValue: AgentReadValue, forceReference = false): object {
+  if (!("value" in readValue)) return readValue;
   if (Array.isArray(readValue.value)) {
     const serialized = JSON.stringify(readValue.value);
     if (forceReference && readValue.path === "pageCheck.forms") return { path: readValue.path, value: compactAgentFormExecutionRefs(readValue.value as PageFormSummary[]) };
