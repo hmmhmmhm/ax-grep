@@ -2560,9 +2560,29 @@ describe("public agent types", () => {
         command: "ax-grep --search example --open-result 1 --agent",
         commandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent"],
       },
-    } satisfies Pick<AgentJsonEnvelope, "sourceSearch" | "searchResults" | "recommendedResult">;
+      suggestedActions: [{
+        action: "open-result",
+        execution: "run-command",
+        priority: "high",
+        priorityReason: "Best ranked result.",
+        reason: "Open the recommended result.",
+        openResult: 1,
+        command: "ax-grep --search example --open-result 1 --agent",
+        commandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent"],
+        target: {
+          title: "Example result",
+          url: "https://example.test",
+          path: "recommendedResult",
+          rank: 1,
+          sourceScore: 0.92,
+          relevance: "high",
+          isLikelyOfficial: true,
+        },
+      }],
+    } satisfies Pick<AgentJsonEnvelope, "sourceSearch" | "searchResults" | "recommendedResult" | "suggestedActions">;
     expect(envelopeRecommendation.sourceSearch.selectedResult?.commandArgs?.[4]).toBe("1");
     expect(envelopeRecommendation.searchResults[0]?.recommendedPath).toBe("recommendedResult");
     expect(envelopeRecommendation.recommendedResult.commandArgs?.[4]).toBe("1");
+    expect(envelopeRecommendation.suggestedActions[0]?.target?.sourceScore).toBe(0.92);
   });
 });

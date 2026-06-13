@@ -1812,7 +1812,7 @@ export type AgentJsonEnvelope = {
   finds?: Array<Record<string, unknown>>;
   searchResults?: AgentResultChoice[];
   recommendedResult?: AgentResultChoice;
-  suggestedActions?: Array<Record<string, unknown>>;
+  suggestedActions?: AgentAction[];
   error?: { code: string; message: string; status?: number };
   treeOmitted?: boolean;
 };
