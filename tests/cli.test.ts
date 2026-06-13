@@ -5582,6 +5582,7 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  semanticTopTableFirstSampleCell:");
+    expect(stdout.output).toContain("  semanticTopTableFirstOwned: owned-rows role=rowgroup name=Virtual rows selector=#owned-rows");
     expect(stdout.output).toContain("ownedTarget=owned-rows");
     expect(stdout.output).toContain("  semanticTopTableFirstOwnedSampleCell:");
     expect(stdout.output).toContain("Queued");
