@@ -2567,6 +2567,19 @@ describe("public agent types", () => {
           rank: 1,
           commandArgs: ["ax-grep", "https://source.example/report", "--agent"],
         }],
+        actionTargets: [{
+          id: "at1",
+          path: "pageCheck.actionTargets[0]",
+          rank: 1,
+          kind: "search",
+          name: "Search",
+          text: "Search example.test",
+          source: "link",
+          urlTemplate: "https://example.test/search?q={query}",
+          queryInput: "q",
+          method: "GET",
+          selector: "link[rel='search']",
+        }],
         recommendedAction: {
           action: "read-content",
           execution: "read-current",
@@ -2669,6 +2682,7 @@ describe("public agent types", () => {
     expect(envelopeRecommendation.page.structuredDataTypes?.[0]).toBe("Article");
     expect(envelopeRecommendation.pageCheck.contentEvidence[0]?.quality).toBe("high");
     expect(envelopeRecommendation.pageCheck.sourceLinks?.[0]?.commandArgs?.[0]).toBe("ax-grep");
+    expect(envelopeRecommendation.pageCheck.actionTargets?.[0]?.urlTemplate).toContain("{query}");
     expect(envelopeRecommendation.pageCheck.nextSteps?.[0]?.sourceLinkRef).toBe("pageCheck.sourceLinks[0]");
     expect(envelopeRecommendation.verification.bestEvidence?.quality).toBe("high");
     expect(envelopeRecommendation.finds[0]?.matches[0]?.source).toBe("semantic");

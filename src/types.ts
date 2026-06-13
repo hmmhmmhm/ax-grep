@@ -242,7 +242,7 @@ export type AgentPageCheck = AgentPageMetadata & {
   dataTables?: Array<Record<string, unknown>>;
   barriers?: Array<Record<string, unknown>>;
   forms?: Array<Record<string, unknown>>;
-  actionTargets?: Array<Record<string, unknown>>;
+  actionTargets?: AgentActionTargetChoice[];
   hydration?: Array<Record<string, unknown>>;
   apiEndpoints?: Array<Record<string, unknown>>;
   clientState?: Array<Record<string, unknown>>;
