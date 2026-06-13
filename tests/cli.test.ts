@@ -5376,6 +5376,31 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopTableFirstSampleCell: agent.semanticSummary.tableItems[0].sampleCellRefs[0] Q1 combined rowSpan=2 columnSpan=2");
   });
 
+  it("prints first owned table sample cell in text agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/report"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h1>Queue report</h1>
+          <table aria-label="Metrics" aria-owns="owned-rows">
+            <tr><th id="metric">Metric</th><th id="value">Value</th></tr>
+            <tr><td headers="metric value">Latency</td></tr>
+          </table>
+          <div id="owned-rows" role="rowgroup" aria-label="Virtual rows">
+            <div role="row" aria-rowindex="50"><span role="rowheader" aria-colindex="1">Virtual metric</span><span role="gridcell" aria-colindex="4" headers="value">Queued</span></div>
+          </div>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticTopTableFirstOwnedSampleCell:");
+    expect(stdout.output).toContain("Queued");
+    expect(stdout.output).toContain("ownedTarget=owned-rows");
+  });
+
   it("keeps list sample text when list items compact to links in agent brief output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/releases", "--agent-brief"], {
