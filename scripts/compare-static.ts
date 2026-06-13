@@ -411,6 +411,8 @@ type CliAgentFormChoiceShape = {
   queryField?: string;
   urlTemplate?: string;
   selector?: string;
+  command?: string;
+  commandArgs?: unknown[];
   hiddenFields?: unknown[];
   fields?: unknown[];
 };
@@ -434,6 +436,8 @@ type CliAgentActionTargetChoiceShape = {
   haspopup?: boolean | string;
   controls?: string;
   selector?: string;
+  command?: string;
+  commandArgs?: unknown[];
 };
 
 type CliAgentQualityGateShape = {
@@ -1404,6 +1408,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topFormChoiceSubmitFormId?: string;
       topFormChoiceQueryField?: string;
       topFormChoiceUrlTemplate?: string;
+      topFormChoiceCommand?: string;
+      topFormChoiceCommandArgs?: unknown[];
       topFormChoiceFieldCount?: number;
       topFormChoiceHiddenFieldCount?: number;
       topFormChoiceSelector?: string;
@@ -1441,6 +1447,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topActionTargetChoiceQueryInput?: string;
       topActionTargetChoiceMethod?: string;
       topActionTargetChoiceEncodingType?: string;
+      topActionTargetChoiceCommand?: string;
+      topActionTargetChoiceCommandArgs?: unknown[];
       topActionTargetChoiceDisabled?: boolean;
       topActionTargetChoicePressed?: boolean | "mixed";
       topActionTargetChoiceExpanded?: boolean;
@@ -4182,9 +4190,9 @@ function scoreAgentTopChoiceShortcuts(agent: {
     : source
       ? { kind: "source" as const, path: source.path, label: source.title || source.text, url: source.url, host: source.host, snippet: source.snippet, command: source.command, commandArgs: source.commandArgs, primary: source.primary, sourceType: source.sourceType, sourceScore: source.sourceScore, relevance: source.relevance, isLikelyOfficial: source.isLikelyOfficial }
       : form
-        ? { kind: "form" as const, path: form.path, label: form.text, url: form.actionUrl ?? form.urlTemplate }
+        ? { kind: "form" as const, path: form.path, label: form.text, url: form.actionUrl ?? form.urlTemplate, command: form.command, commandArgs: form.commandArgs }
         : actionTarget
-          ? { kind: "action-target" as const, path: actionTarget.path, label: actionTarget.name || actionTarget.text, url: actionTarget.targetUrl ?? actionTarget.urlTemplate }
+          ? { kind: "action-target" as const, path: actionTarget.path, label: actionTarget.name || actionTarget.text, url: actionTarget.targetUrl ?? actionTarget.urlTemplate, command: actionTarget.command, commandArgs: actionTarget.commandArgs }
           : undefined;
   if (!expected) {
     return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceHost && !agent.topChoiceSnippet && !agent.topChoiceCommand && !agent.topChoiceCommandArgs && !agent.topChoiceOpenResult && typeof agent.topChoiceRecommended !== "boolean" && typeof agent.topChoicePrimary !== "boolean" && !agent.topChoiceSourceType && typeof agent.topChoiceSourceScore !== "number" && !agent.topChoiceRelevance && typeof agent.topChoiceLikelyOfficial !== "boolean" ? 1 : 0;
@@ -4668,6 +4676,10 @@ function scoreAgentFormChoices(choices: CliAgentFormChoiceShape[], forms: unknow
     required += 1;
     if (choices.some((choice) => typeof choice.urlTemplate === "string" && choice.urlTemplate.length > 0 && typeof choice.queryField === "string" && choice.queryField.length > 0)) matched += 1;
   }
+  if (choices.some(hasExecutableCommand)) {
+    required += 1;
+    if (choices.filter((choice) => typeof choice.urlTemplate === "string").every(hasExecutableCommand)) matched += 1;
+  }
   if (expected.some((form) => typeof (form as { selector?: unknown }).selector === "string")) {
     required += 1;
     if (choices.every((choice, index) => {
@@ -4702,6 +4714,10 @@ function scoreAgentActionTargetChoices(choices: CliAgentActionTargetChoiceShape[
       if (!target) return false;
       return choice.urlTemplate === target.urlTemplate && choice.targetUrl === target.targetUrl;
     })) matched += 1;
+  }
+  if (choices.some(hasExecutableCommand)) {
+    required += 1;
+    if (choices.filter((choice) => typeof choice.targetUrl === "string").every(hasExecutableCommand)) matched += 1;
   }
   if (expected.some((target) => typeof (target as { selector?: unknown }).selector === "string")) {
     required += 1;
@@ -4751,6 +4767,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   topFormChoiceSubmitFormId?: string;
   topFormChoiceQueryField?: string;
   topFormChoiceUrlTemplate?: string;
+  topFormChoiceCommand?: string;
+  topFormChoiceCommandArgs?: unknown[];
   topFormChoiceFieldCount?: number;
   topFormChoiceHiddenFieldCount?: number;
   topFormChoiceSelector?: string;
@@ -4789,6 +4807,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   topActionTargetChoiceQueryInput?: string;
   topActionTargetChoiceMethod?: string;
   topActionTargetChoiceEncodingType?: string;
+  topActionTargetChoiceCommand?: string;
+  topActionTargetChoiceCommandArgs?: unknown[];
   topActionTargetChoiceDisabled?: boolean;
   topActionTargetChoicePressed?: boolean | "mixed";
   topActionTargetChoiceExpanded?: boolean;
@@ -4802,7 +4822,7 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   let matched = 0;
   if (form) {
     if (agent?.topFormChoicePath === form.path) matched += 1;
-    required += 50;
+    required += 52;
     const firstField = Array.isArray(form.fields) ? form.fields[0] as { name?: unknown; type?: unknown; label?: unknown; placeholder?: unknown; value?: unknown; options?: unknown; selectedOption?: unknown; selectedValue?: unknown; autocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; required?: unknown; checked?: unknown; disabled?: unknown; readonly?: unknown; invalid?: unknown; selector?: unknown } | undefined : undefined;
     const firstHiddenField = Array.isArray(form.hiddenFields) ? form.hiddenFields[0] as { name?: unknown; value?: unknown; selector?: unknown } | undefined : undefined;
     if (agent?.topFormChoiceMethod === form.method) matched += 1;
@@ -4827,6 +4847,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     if (agent?.topFormChoiceSubmitFormId === form.submitFormId) matched += 1;
     if (agent?.topFormChoiceQueryField === form.queryField) matched += 1;
     if (agent?.topFormChoiceUrlTemplate === form.urlTemplate) matched += 1;
+    if (agent?.topFormChoiceCommand === form.command) matched += 1;
+    if (JSON.stringify(agent?.topFormChoiceCommandArgs) === JSON.stringify(form.commandArgs)) matched += 1;
     if (agent?.topFormChoiceFieldCount === form.fieldCount) matched += 1;
     if (agent?.topFormChoiceHiddenFieldCount === form.hiddenFieldCount) matched += 1;
     if (agent?.topFormChoiceSelector === form.selector) matched += 1;
@@ -4879,6 +4901,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     || agent?.topFormChoiceSubmitFormId
     || agent?.topFormChoiceQueryField
     || agent?.topFormChoiceUrlTemplate
+    || agent?.topFormChoiceCommand
+    || agent?.topFormChoiceCommandArgs?.length
     || typeof agent?.topFormChoiceFieldCount === "number"
     || typeof agent?.topFormChoiceHiddenFieldCount === "number"
     || agent?.topFormChoiceSelector
@@ -4914,7 +4938,7 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   }
   if (actionTarget) {
     if (agent?.topActionTargetChoicePath === actionTarget.path) matched += 1;
-    required += 14;
+    required += 16;
     if (agent?.topActionTargetChoiceKind === actionTarget.kind) matched += 1;
     if (agent?.topActionTargetChoiceName === actionTarget.name) matched += 1;
     if (agent?.topActionTargetChoiceSource === actionTarget.source) matched += 1;
@@ -4923,6 +4947,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     if (agent?.topActionTargetChoiceQueryInput === actionTarget.queryInput) matched += 1;
     if (agent?.topActionTargetChoiceMethod === actionTarget.method) matched += 1;
     if (agent?.topActionTargetChoiceEncodingType === actionTarget.encodingType) matched += 1;
+    if (agent?.topActionTargetChoiceCommand === actionTarget.command) matched += 1;
+    if (JSON.stringify(agent?.topActionTargetChoiceCommandArgs) === JSON.stringify(actionTarget.commandArgs)) matched += 1;
     if (agent?.topActionTargetChoiceDisabled === actionTarget.disabled) matched += 1;
     if (agent?.topActionTargetChoicePressed === actionTarget.pressed) matched += 1;
     if (agent?.topActionTargetChoiceExpanded === actionTarget.expanded) matched += 1;
@@ -4939,6 +4965,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     || agent?.topActionTargetChoiceQueryInput
     || agent?.topActionTargetChoiceMethod
     || agent?.topActionTargetChoiceEncodingType
+    || agent?.topActionTargetChoiceCommand
+    || agent?.topActionTargetChoiceCommandArgs?.length
     || typeof agent?.topActionTargetChoiceDisabled === "boolean"
     || typeof agent?.topActionTargetChoicePressed !== "undefined"
     || typeof agent?.topActionTargetChoiceExpanded === "boolean"

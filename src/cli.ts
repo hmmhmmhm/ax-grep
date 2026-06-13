@@ -1493,6 +1493,8 @@ type AgentSummary = {
   topFormChoiceSubmitFormId?: string;
   topFormChoiceQueryField?: string;
   topFormChoiceUrlTemplate?: string;
+  topFormChoiceCommand?: string;
+  topFormChoiceCommandArgs?: string[];
   topFormChoiceFieldCount?: number;
   topFormChoiceHiddenFieldCount?: number;
   topFormChoiceSelector?: string;
@@ -1533,6 +1535,8 @@ type AgentSummary = {
   topActionTargetChoiceQueryInput?: string;
   topActionTargetChoiceMethod?: string;
   topActionTargetChoiceEncodingType?: string;
+  topActionTargetChoiceCommand?: string;
+  topActionTargetChoiceCommandArgs?: string[];
   topActionTargetChoiceDisabled?: boolean;
   topActionTargetChoicePressed?: SemanticNodeState["pressed"];
   topActionTargetChoiceExpanded?: boolean;
@@ -2827,6 +2831,16 @@ function siteSearchCommandSpec(form: PageFormSummary | undefined, findQueries: s
   if (!form?.urlTemplate || findQueries.length === 0) return undefined;
   const query = findQueries.join(" ");
   const url = fillSearchUrlTemplate(form.urlTemplate, query);
+  if (!url) return undefined;
+  return { ...pageCommandSpec(url, agentMode, false, findQueries, timeoutMs, userAgent), url };
+}
+
+function actionTargetCommandSpec(target: PageActionTargetSummary | undefined, findQueries: string[], agentMode: boolean, timeoutMs?: number, userAgent?: string): (CommandSpec & { url: string }) | undefined {
+  if (!target) return undefined;
+  const templatedUrl = target.urlTemplate && findQueries.length > 0
+    ? fillSearchUrlTemplate(target.urlTemplate, findQueries.join(" "))
+    : undefined;
+  const url = templatedUrl ?? target.targetUrl;
   if (!url) return undefined;
   return { ...pageCommandSpec(url, agentMode, false, findQueries, timeoutMs, userAgent), url };
 }
@@ -11612,11 +11626,11 @@ function summarizeAgent(
   const pageDecision = summarizeAgentPageDecision(analysis, pageCheck, primaryAction);
   const resultChoices = summarizeAgentResultChoices(hasUsableSearchResults ? results : [], recommendedResult, primaryAction, sourceSearch);
   const sourceChoices = summarizeAgentSourceChoices(analysis.kind, pageCheck.sourceLinks, primaryAction, agentMode, findQueries, timeoutMs, userAgent);
-  const formChoices = summarizeAgentFormChoices(pageCheck.forms);
+  const formChoices = summarizeAgentFormChoices(pageCheck.forms, findQueries, agentMode, timeoutMs, userAgent);
   const topFormChoice = formChoices[0];
   const topFormChoiceFirstField = topFormChoice?.fields[0];
   const topFormChoiceFirstHiddenField = topFormChoice?.hiddenFields[0];
-  const actionTargetChoices = summarizeAgentActionTargetChoices(pageCheck.actionTargets);
+  const actionTargetChoices = summarizeAgentActionTargetChoices(pageCheck.actionTargets, findQueries, agentMode, timeoutMs, userAgent);
   const topChoice = summarizeAgentTopChoice(resultChoices, sourceChoices, formChoices, actionTargetChoices);
   const topBarrier = primaryBlockingBarrier(pageCheck.barriers) ?? pageCheck.barriers[0];
   const next = summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch, semanticSummary));
@@ -12302,6 +12316,8 @@ function summarizeAgent(
     ...(topFormChoice?.submitFormId ? { topFormChoiceSubmitFormId: topFormChoice.submitFormId } : {}),
     ...(topFormChoice?.queryField ? { topFormChoiceQueryField: topFormChoice.queryField } : {}),
     ...(topFormChoice?.urlTemplate ? { topFormChoiceUrlTemplate: topFormChoice.urlTemplate } : {}),
+    ...(topFormChoice?.command ? { topFormChoiceCommand: topFormChoice.command } : {}),
+    ...(topFormChoice?.commandArgs ? { topFormChoiceCommandArgs: topFormChoice.commandArgs } : {}),
     ...(typeof topFormChoice?.fieldCount === "number" ? { topFormChoiceFieldCount: topFormChoice.fieldCount } : {}),
     ...(typeof topFormChoice?.hiddenFieldCount === "number" ? { topFormChoiceHiddenFieldCount: topFormChoice.hiddenFieldCount } : {}),
     ...(topFormChoice?.selector ? { topFormChoiceSelector: topFormChoice.selector } : {}),
@@ -12339,6 +12355,8 @@ function summarizeAgent(
     ...(actionTargetChoices[0]?.queryInput ? { topActionTargetChoiceQueryInput: actionTargetChoices[0].queryInput } : {}),
     ...(actionTargetChoices[0]?.method ? { topActionTargetChoiceMethod: actionTargetChoices[0].method } : {}),
     ...(actionTargetChoices[0]?.encodingType ? { topActionTargetChoiceEncodingType: actionTargetChoices[0].encodingType } : {}),
+    ...(actionTargetChoices[0]?.command ? { topActionTargetChoiceCommand: actionTargetChoices[0].command } : {}),
+    ...(actionTargetChoices[0]?.commandArgs ? { topActionTargetChoiceCommandArgs: actionTargetChoices[0].commandArgs } : {}),
     ...(typeof actionTargetChoices[0]?.disabled === "boolean" ? { topActionTargetChoiceDisabled: actionTargetChoices[0].disabled } : {}),
     ...(typeof actionTargetChoices[0]?.pressed !== "undefined" ? { topActionTargetChoicePressed: actionTargetChoices[0].pressed } : {}),
     ...(typeof actionTargetChoices[0]?.expanded === "boolean" ? { topActionTargetChoiceExpanded: actionTargetChoices[0].expanded } : {}),
@@ -14683,8 +14701,10 @@ function summarizeAgentActions(
   return actions;
 }
 
-function summarizeAgentFormChoices(forms: PageFormSummary[]): AgentFormChoice[] {
-  return forms.map((form) => ({
+function summarizeAgentFormChoices(forms: PageFormSummary[], findQueries: string[] = [], agentMode = false, timeoutMs?: number, userAgent?: string): AgentFormChoice[] {
+  return forms.map((form) => {
+    const command = siteSearchCommandSpec(form, findQueries, agentMode, timeoutMs, userAgent);
+    return {
     id: form.id,
     path: form.path,
     rank: form.rank,
@@ -14714,6 +14734,7 @@ function summarizeAgentFormChoices(forms: PageFormSummary[]): AgentFormChoice[] 
     ...(form.queryField ? { queryField: form.queryField } : {}),
     ...(form.urlTemplate ? { urlTemplate: form.urlTemplate } : {}),
     ...(form.selector ? { selector: form.selector } : {}),
+    ...(command ? commandFields(command) : {}),
     hiddenFields: form.hiddenFields.map((field) => ({
       ...(field.name ? { name: field.name } : {}),
       ...(field.value ? { value: field.value } : {}),
@@ -14743,11 +14764,14 @@ function summarizeAgentFormChoices(forms: PageFormSummary[]): AgentFormChoice[] 
       ...(field.selectedOption ? { selectedOption: field.selectedOption } : {}),
       ...(field.selectedValue ? { selectedValue: field.selectedValue } : {}),
     })),
-  }));
+  };
+  });
 }
 
-function summarizeAgentActionTargetChoices(targets: PageActionTargetSummary[]): AgentActionTargetChoice[] {
-  return targets.map((target) => ({
+function summarizeAgentActionTargetChoices(targets: PageActionTargetSummary[], findQueries: string[] = [], agentMode = false, timeoutMs?: number, userAgent?: string): AgentActionTargetChoice[] {
+  return targets.map((target) => {
+    const command = actionTargetCommandSpec(target, findQueries, agentMode, timeoutMs, userAgent);
+    return {
     id: target.id,
     path: target.path,
     rank: target.rank,
@@ -14766,7 +14790,9 @@ function summarizeAgentActionTargetChoices(targets: PageActionTargetSummary[]): 
     ...(typeof target.haspopup !== "undefined" ? { haspopup: target.haspopup } : {}),
     ...(target.controls ? { controls: target.controls } : {}),
     ...(target.selector ? { selector: target.selector } : {}),
-  }));
+    ...(command ? commandFields(command) : {}),
+  };
+  });
 }
 
 function summarizeAgentTopChoice(
@@ -14848,6 +14874,8 @@ function summarizeAgentTopChoice(
       path: form.path,
       label: form.text,
       ...(form.actionUrl || form.urlTemplate ? { url: form.actionUrl ?? form.urlTemplate } : {}),
+      ...(form.command ? { command: form.command } : {}),
+      ...(form.commandArgs ? { commandArgs: form.commandArgs } : {}),
       rank: form.rank,
       method: form.method,
       ...(form.selector ? { selector: form.selector } : {}),
@@ -14860,6 +14888,8 @@ function summarizeAgentTopChoice(
       path: actionTarget.path,
       label: actionTarget.name || actionTarget.text,
       ...(actionTarget.targetUrl || actionTarget.urlTemplate ? { url: actionTarget.targetUrl ?? actionTarget.urlTemplate } : {}),
+      ...(actionTarget.command ? { command: actionTarget.command } : {}),
+      ...(actionTarget.commandArgs ? { commandArgs: actionTarget.commandArgs } : {}),
       rank: actionTarget.rank,
       source: actionTarget.source,
       ...(actionTarget.method ? { method: actionTarget.method } : {}),
@@ -17877,6 +17907,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topFormChoiceSubmitFormId ? { topFormChoiceSubmitFormId: agent.topFormChoiceSubmitFormId } : {}),
     ...(agent.topFormChoiceQueryField ? { topFormChoiceQueryField: agent.topFormChoiceQueryField } : {}),
     ...(agent.topFormChoiceUrlTemplate ? { topFormChoiceUrlTemplate: agent.topFormChoiceUrlTemplate } : {}),
+    ...(agent.topFormChoiceCommand ? { topFormChoiceCommand: agent.topFormChoiceCommand } : {}),
+    ...(agent.topFormChoiceCommandArgs ? { topFormChoiceCommandArgs: agent.topFormChoiceCommandArgs } : {}),
     ...(typeof agent.topFormChoiceFieldCount === "number" ? { topFormChoiceFieldCount: agent.topFormChoiceFieldCount } : {}),
     ...(typeof agent.topFormChoiceHiddenFieldCount === "number" ? { topFormChoiceHiddenFieldCount: agent.topFormChoiceHiddenFieldCount } : {}),
     ...(agent.topFormChoiceSelector ? { topFormChoiceSelector: agent.topFormChoiceSelector } : {}),
@@ -17914,6 +17946,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topActionTargetChoiceQueryInput ? { topActionTargetChoiceQueryInput: agent.topActionTargetChoiceQueryInput } : {}),
     ...(agent.topActionTargetChoiceMethod ? { topActionTargetChoiceMethod: agent.topActionTargetChoiceMethod } : {}),
     ...(agent.topActionTargetChoiceEncodingType ? { topActionTargetChoiceEncodingType: agent.topActionTargetChoiceEncodingType } : {}),
+    ...(agent.topActionTargetChoiceCommand ? { topActionTargetChoiceCommand: agent.topActionTargetChoiceCommand } : {}),
+    ...(agent.topActionTargetChoiceCommandArgs ? { topActionTargetChoiceCommandArgs: agent.topActionTargetChoiceCommandArgs } : {}),
     ...(typeof agent.topActionTargetChoiceDisabled === "boolean" ? { topActionTargetChoiceDisabled: agent.topActionTargetChoiceDisabled } : {}),
     ...(typeof agent.topActionTargetChoicePressed !== "undefined" ? { topActionTargetChoicePressed: agent.topActionTargetChoicePressed } : {}),
     ...(typeof agent.topActionTargetChoiceExpanded === "boolean" ? { topActionTargetChoiceExpanded: agent.topActionTargetChoiceExpanded } : {}),
@@ -19001,6 +19035,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topFormChoiceSubmitFormId ? { topFormChoiceSubmitFormId: agent.topFormChoiceSubmitFormId } : {}),
     ...(agent.topFormChoiceQueryField ? { topFormChoiceQueryField: agent.topFormChoiceQueryField } : {}),
     ...(agent.topFormChoiceUrlTemplate ? { topFormChoiceUrlTemplate: agent.topFormChoiceUrlTemplate } : {}),
+    ...(agent.topFormChoiceCommand ? { topFormChoiceCommand: agent.topFormChoiceCommand } : {}),
+    ...(agent.topFormChoiceCommandArgs ? { topFormChoiceCommandArgs: agent.topFormChoiceCommandArgs } : {}),
     ...(typeof agent.topFormChoiceFieldCount === "number" ? { topFormChoiceFieldCount: agent.topFormChoiceFieldCount } : {}),
     ...(typeof agent.topFormChoiceHiddenFieldCount === "number" ? { topFormChoiceHiddenFieldCount: agent.topFormChoiceHiddenFieldCount } : {}),
     ...(agent.topFormChoiceSelector ? { topFormChoiceSelector: agent.topFormChoiceSelector } : {}),
@@ -19038,6 +19074,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topActionTargetChoiceQueryInput ? { topActionTargetChoiceQueryInput: agent.topActionTargetChoiceQueryInput } : {}),
     ...(agent.topActionTargetChoiceMethod ? { topActionTargetChoiceMethod: agent.topActionTargetChoiceMethod } : {}),
     ...(agent.topActionTargetChoiceEncodingType ? { topActionTargetChoiceEncodingType: agent.topActionTargetChoiceEncodingType } : {}),
+    ...(agent.topActionTargetChoiceCommand ? { topActionTargetChoiceCommand: agent.topActionTargetChoiceCommand } : {}),
+    ...(agent.topActionTargetChoiceCommandArgs ? { topActionTargetChoiceCommandArgs: agent.topActionTargetChoiceCommandArgs } : {}),
     ...(typeof agent.topActionTargetChoiceDisabled === "boolean" ? { topActionTargetChoiceDisabled: agent.topActionTargetChoiceDisabled } : {}),
     ...(typeof agent.topActionTargetChoicePressed !== "undefined" ? { topActionTargetChoicePressed: agent.topActionTargetChoicePressed } : {}),
     ...(typeof agent.topActionTargetChoiceExpanded === "boolean" ? { topActionTargetChoiceExpanded: agent.topActionTargetChoiceExpanded } : {}),
@@ -20004,7 +20042,7 @@ function compactAgentReadValue(readValue: AgentReadValue, forceReference = false
   };
 }
 
-function compactAgentFormExecutionRefs(forms: PageFormSummary[]): object[] {
+function compactAgentFormExecutionRefs(forms: Array<PageFormSummary & { command?: string; commandArgs?: string[] }>): object[] {
   return forms.slice(0, 4).map((form) => ({
     id: form.id,
     path: form.path,
@@ -20035,6 +20073,8 @@ function compactAgentFormExecutionRefs(forms: PageFormSummary[]): object[] {
     ...(typeof form.submitFormNoValidate === "boolean" ? { submitFormNoValidate: form.submitFormNoValidate } : {}),
     ...(form.submitFormId ? { submitFormId: form.submitFormId } : {}),
     ...(form.selector ? { selector: form.selector } : {}),
+    ...(form.command ? { command: form.command } : {}),
+    ...(form.commandArgs ? { commandArgs: form.commandArgs } : {}),
     ...(form.hiddenFields.length ? { hiddenFields: form.hiddenFields.map((field) => ({
       ...(field.name ? { name: field.name } : {}),
       ...(field.value ? { value: field.value } : {}),
@@ -20067,7 +20107,7 @@ function compactAgentFormExecutionRefs(forms: PageFormSummary[]): object[] {
   }));
 }
 
-function compactAgentActionTargetExecutionRefs(targets: PageActionTargetSummary[]): object[] {
+function compactAgentActionTargetExecutionRefs(targets: Array<PageActionTargetSummary & { command?: string; commandArgs?: string[] }>): object[] {
   return targets.slice(0, 5).map((target) => ({
     id: target.id,
     path: target.path,
@@ -20087,6 +20127,8 @@ function compactAgentActionTargetExecutionRefs(targets: PageActionTargetSummary[
     ...(typeof target.haspopup !== "undefined" ? { haspopup: target.haspopup } : {}),
     ...(target.controls ? { controls: target.controls } : {}),
     ...(target.selector ? { selector: target.selector } : {}),
+    ...(target.command ? { command: target.command } : {}),
+    ...(target.commandArgs ? { commandArgs: target.commandArgs } : {}),
   }));
 }
 

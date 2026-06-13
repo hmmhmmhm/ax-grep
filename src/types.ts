@@ -1232,6 +1232,8 @@ export type AgentFormChoice = AgentPageForm & {
   text: string;
   formAcceptCharset?: string;
   hiddenFields: AgentFormHiddenField[];
+  command?: string;
+  commandArgs?: string[];
 };
 
 export type AgentActionTargetChoice = {
@@ -1253,6 +1255,8 @@ export type AgentActionTargetChoice = {
   haspopup?: SemanticNodeState["haspopup"];
   controls?: string;
   selector?: string;
+  command?: string;
+  commandArgs?: string[];
 };
 
 export type AgentSourceSearchResult = AgentTarget & {
@@ -1857,6 +1861,8 @@ export type AgentSummary = {
   topFormChoiceSubmitFormId?: string;
   topFormChoiceQueryField?: string;
   topFormChoiceUrlTemplate?: string;
+  topFormChoiceCommand?: string;
+  topFormChoiceCommandArgs?: string[];
   topFormChoiceFieldCount?: number;
   topFormChoiceHiddenFieldCount?: number;
   topFormChoiceSelector?: string;
@@ -1897,6 +1903,8 @@ export type AgentSummary = {
   topActionTargetChoiceQueryInput?: string;
   topActionTargetChoiceMethod?: string;
   topActionTargetChoiceEncodingType?: string;
+  topActionTargetChoiceCommand?: string;
+  topActionTargetChoiceCommandArgs?: string[];
   topActionTargetChoiceDisabled?: boolean;
   topActionTargetChoicePressed?: SemanticNodeState["pressed"];
   topActionTargetChoiceExpanded?: boolean;

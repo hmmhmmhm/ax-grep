@@ -254,6 +254,8 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "agentChoice?.command === choice.command",
           "function hasExecutableCommand",
           "handoff.resultChoices.some(hasExecutableCommand)",
+          "topFormChoiceCommand",
+          "topActionTargetChoiceCommand",
           "executorBrowserHtmlReasonCode",
           "handoffBrowserHtmlReasonCode",
           "executorReadValueReferencePath",
@@ -264,6 +266,13 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "compactAgentSourceSearchResultList(handoff.resultChoices.map",
           "compactAgentSourceSearchResultList(resultChoices.map",
           "choice.command ? { command: choice.command }",
+          "topFormChoiceCommand",
+          "topActionTargetChoiceCommand",
+        ]);
+        requireFileIncludes(root, failures, "tests/cli.test.ts", [
+          "adds executable commands to site-search form choices when find text is missing",
+          "topFormChoiceCommandArgs",
+          "topActionTargetChoiceCommandArgs",
         ]);
         requireFileIncludes(root, failures, "docs/comparison-baseline.md", [
           "minCliAgentScore",

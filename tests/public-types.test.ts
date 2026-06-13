@@ -211,6 +211,8 @@ describe("public agent types", () => {
       submitFormId: "remote-form",
       queryField: "q",
       urlTemplate: "https://example.test/find?q={query}",
+      command: "ax-grep 'https://example.test/find?q=docs' --find docs --agent",
+      commandArgs: ["ax-grep", "https://example.test/find?q=docs", "--find", "docs", "--agent"],
       selector: "form:nth-of-type(1)",
       hiddenFields: [{ name: "csrf", value: "secret", selector: "input[name=\"csrf\"]" }],
       fields: [{ name: "q", type: "search", label: "Search", placeholder: "Search docs", value: "initial", autocomplete: "off", inputMode: "search", pattern: "[A-Za-z ]+", min: "1", max: "99", step: "1", minLength: 2, maxLength: 80, required: true, checked: true, disabled: true, readonly: true, invalid: "spelling", selector: "input[name=\"q\"]", options: ["All", "Docs"], selectedOption: "Docs", selectedValue: "docs" }],
@@ -228,6 +230,8 @@ describe("public agent types", () => {
       queryInput: "required name=query",
       method: "GET",
       encodingType: "application/x-www-form-urlencoded",
+      command: "ax-grep 'https://example.test/search?q=docs' --find docs --agent",
+      commandArgs: ["ax-grep", "https://example.test/search?q=docs", "--find", "docs", "--agent"],
       disabled: true,
       pressed: false,
       expanded: true,
@@ -290,6 +294,8 @@ describe("public agent types", () => {
       | "topFormChoiceSubmitFormId"
       | "topFormChoiceQueryField"
       | "topFormChoiceUrlTemplate"
+      | "topFormChoiceCommand"
+      | "topFormChoiceCommandArgs"
       | "topFormChoiceFieldCount"
       | "topFormChoiceHiddenFieldCount"
       | "topFormChoiceSelector"
@@ -330,6 +336,8 @@ describe("public agent types", () => {
       | "topActionTargetChoiceQueryInput"
       | "topActionTargetChoiceMethod"
       | "topActionTargetChoiceEncodingType"
+      | "topActionTargetChoiceCommand"
+      | "topActionTargetChoiceCommandArgs"
       | "topActionTargetChoiceDisabled"
       | "topActionTargetChoicePressed"
       | "topActionTargetChoiceExpanded"
@@ -1392,6 +1400,8 @@ describe("public agent types", () => {
       topFormChoiceSubmitFormId: "remote-form",
       topFormChoiceQueryField: "q",
       topFormChoiceUrlTemplate: "https://example.test/find?q={query}",
+      topFormChoiceCommand: "ax-grep 'https://example.test/find?q=docs' --find docs --agent",
+      topFormChoiceCommandArgs: ["ax-grep", "https://example.test/find?q=docs", "--find", "docs", "--agent"],
       topFormChoiceFieldCount: 1,
       topFormChoiceHiddenFieldCount: 1,
       topFormChoiceSelector: "form:nth-of-type(1)",
@@ -1432,6 +1442,8 @@ describe("public agent types", () => {
       topActionTargetChoiceQueryInput: "required name=query",
       topActionTargetChoiceMethod: "GET",
       topActionTargetChoiceEncodingType: "application/x-www-form-urlencoded",
+      topActionTargetChoiceCommand: "ax-grep 'https://example.test/search?q=docs' --find docs --agent",
+      topActionTargetChoiceCommandArgs: ["ax-grep", "https://example.test/search?q=docs", "--find", "docs", "--agent"],
       topActionTargetChoiceDisabled: true,
       topActionTargetChoicePressed: false,
       topActionTargetChoiceExpanded: true,
@@ -2567,9 +2579,13 @@ describe("public agent types", () => {
     expect(summary.bestStructuredReadTarget).toBe("pageCheck.dataTables");
     expect(summary.bestStructuredReadTargetPrimary).toBe(true);
     expect(summary.formChoices?.[0]?.queryField).toBe("q");
+    expect(summary.formChoices?.[0]?.command).toContain("find?q=docs");
     expect(summary.actionTargetChoices?.[0]?.kind).toBe("search");
+    expect(summary.actionTargetChoices?.[0]?.commandArgs?.[0]).toBe("ax-grep");
     expect(summary.topFormChoiceUrlTemplate).toBe("https://example.test/find?q={query}");
+    expect(summary.topFormChoiceCommand).toContain("find?q=docs");
     expect(summary.topActionTargetChoiceUrlTemplate).toBe("https://example.test/search?q={query}");
+    expect(summary.topActionTargetChoiceCommandArgs?.[1]).toBe("https://example.test/search?q=docs");
     expect(summary.topChoiceKind).toBe("source");
     expect(summary.topChoiceHost).toBe("source.example");
     expect(summary.topChoiceSnippet).toBe("Source summary");

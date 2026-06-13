@@ -6313,6 +6313,47 @@ describe("cli", () => {
       action: "use-evidence",
       readFrom: "verification.bestEvidence",
     });
+    expect(envelope.agent.actionTargetChoices[0]).toMatchObject({
+      command: "ax-grep 'https://example.test/search?q=search_term_string' --find search_term_string --agent",
+      commandArgs: ["ax-grep", "https://example.test/search?q=search_term_string", "--find", "search_term_string", "--agent"],
+    });
+    expect(envelope.agent).toMatchObject({
+      topActionTargetChoiceCommand: "ax-grep 'https://example.test/search?q=search_term_string' --find search_term_string --agent",
+      topActionTargetChoiceCommandArgs: ["ax-grep", "https://example.test/search?q=search_term_string", "--find", "search_term_string", "--agent"],
+    });
+  });
+
+  it("adds executable commands to site-search form choices when find text is missing", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/search", "--agent", "--find", "quarterly report"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <form method="GET" action="/find">
+            <label for="q">Archive search</label>
+            <input id="q" name="query" type="search" placeholder="Search reports">
+            <button type="submit">Search</button>
+          </form>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent.formChoices[0]).toMatchObject({
+      id: "f1",
+      path: "pageCheck.forms[0]",
+      urlTemplate: "https://example.test/find?query=%7Bquery%7D",
+      command: "ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --agent",
+      commandArgs: ["ax-grep", "https://example.test/find?query=quarterly%20report", "--find", "quarterly report", "--agent"],
+    });
+    expect(envelope.agent).toMatchObject({
+      topChoiceKind: "form",
+      topChoiceCommand: "ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --agent",
+      topFormChoiceCommand: "ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --agent",
+      topFormChoiceCommandArgs: ["ax-grep", "https://example.test/find?query=quarterly%20report", "--find", "quarterly report", "--agent"],
+    });
   });
 
   it("uses site search forms before broadening missing verification searches", async () => {
