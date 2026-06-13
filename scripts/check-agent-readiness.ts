@@ -1503,6 +1503,31 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
         ]);
       },
     ),
+    evidenceCheck(
+      root,
+      "progress-tracker-current",
+      "Progress tracking must stay detailed enough to resume the long-running research without bloating README.",
+      "docs/progress.md records estimates, expansion rules, active work, and recent A80+ handoff evidence.",
+      (failures) => {
+        requireFileIncludes(root, failures, "docs/progress.md", [
+          "Status: about",
+          "This is a research track",
+          "Current forecast board",
+          "Near-term queue with prediction",
+          "Active Work Tracker",
+          "Remaining Work Breakdown",
+          "Research Scope Ledger",
+          "A80",
+          "A81",
+          "A82",
+          "A83",
+          "A84",
+          "A85",
+          "A86",
+          "A87",
+        ]);
+      },
+    ),
   ];
 }
 
