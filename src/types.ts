@@ -734,6 +734,9 @@ export type AgentSearchDecision = {
   recommendedUrl?: string;
   recommendedSource?: string;
   recommendedSourceScore?: number;
+  recommendedDateText?: string;
+  recommendedDatePrecision?: "day" | "month" | "year";
+  recommendedDateSource?: "title" | "snippet";
   recommendedRelevance?: "low" | "medium" | "high";
   recommendedLikelyOfficial?: boolean;
   command?: string;
@@ -1380,6 +1383,9 @@ export type AgentSummary = {
   searchDecisionRecommendedUrl?: string;
   searchDecisionRecommendedSource?: string;
   searchDecisionRecommendedSourceScore?: number;
+  searchDecisionRecommendedDateText?: string;
+  searchDecisionRecommendedDatePrecision?: "day" | "month" | "year";
+  searchDecisionRecommendedDateSource?: "title" | "snippet";
   searchDecisionRecommendedRelevance?: "low" | "medium" | "high";
   searchDecisionRecommendedLikelyOfficial?: boolean;
   searchDecisionCommand?: string;

@@ -655,6 +655,9 @@ describe("public agent types", () => {
       | "searchDecisionRecommendedUrl"
       | "searchDecisionRecommendedSource"
       | "searchDecisionRecommendedSourceScore"
+      | "searchDecisionRecommendedDateText"
+      | "searchDecisionRecommendedDatePrecision"
+      | "searchDecisionRecommendedDateSource"
       | "searchDecisionRecommendedRelevance"
       | "searchDecisionRecommendedLikelyOfficial"
       | "searchDecisionCommand"
@@ -1805,6 +1808,9 @@ describe("public agent types", () => {
         recommendedUrl: "https://example.test",
         recommendedSource: "example.test",
         recommendedSourceScore: 0.92,
+        recommendedDateText: "2026-05-31",
+        recommendedDatePrecision: "day",
+        recommendedDateSource: "snippet",
         recommendedRelevance: "high",
         recommendedLikelyOfficial: true,
         command: "ax-grep --search example --open-result 1 --agent",
@@ -1825,6 +1831,9 @@ describe("public agent types", () => {
       searchDecisionRecommendedUrl: "https://example.test",
       searchDecisionRecommendedSource: "example.test",
       searchDecisionRecommendedSourceScore: 0.92,
+      searchDecisionRecommendedDateText: "2026-05-31",
+      searchDecisionRecommendedDatePrecision: "day",
+      searchDecisionRecommendedDateSource: "snippet",
       searchDecisionRecommendedRelevance: "high",
       searchDecisionRecommendedLikelyOfficial: true,
       searchDecisionCommand: "ax-grep --search example --open-result 1 --agent",
@@ -2819,9 +2828,15 @@ describe("public agent types", () => {
     expect(summary.recommendedSelectionReason).toBe("Best ranked result.");
     expect(summary.searchDecisionRecommendedPath).toBe("recommendedResult");
     expect(summary.searchDecisionRecommendedSourceScore).toBe(0.92);
+    expect(summary.searchDecisionRecommendedDateText).toBe("2026-05-31");
+    expect(summary.searchDecisionRecommendedDatePrecision).toBe("day");
+    expect(summary.searchDecisionRecommendedDateSource).toBe("snippet");
     expect(summary.searchDecisionRecommendedLikelyOfficial).toBe(true);
     expect(summary.searchDecisionCommand).toContain("--open-result 1");
     expect(summary.searchDecision?.recommendedRelevance).toBe("high");
+    expect(summary.searchDecision?.recommendedDateText).toBe("2026-05-31");
+    expect(summary.searchDecision?.recommendedDatePrecision).toBe("day");
+    expect(summary.searchDecision?.recommendedDateSource).toBe("snippet");
     expect(summary.pageDecision?.readability).toBe("high");
     expect(summary.semanticSummary?.tableItems[0]?.sampleCellRefs?.[0]?.headers?.[0]).toBe("Plan");
     expect(summary.semanticSummary?.fieldItems[0]?.state?.required).toBe(true);

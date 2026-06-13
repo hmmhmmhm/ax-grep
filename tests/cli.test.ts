@@ -2639,6 +2639,9 @@ describe("cli", () => {
       recommendedDateText: "2026-05-31",
       recommendedDatePrecision: "day",
       recommendedDateSource: "snippet",
+      searchDecisionRecommendedDateText: "2026-05-31",
+      searchDecisionRecommendedDatePrecision: "day",
+      searchDecisionRecommendedDateSource: "snippet",
       topResultChoiceRelevance: "high",
       topResultChoiceMatchedTerm: "ax-grep",
       topResultChoiceLikelyOfficial: true,
@@ -2726,6 +2729,9 @@ describe("cli", () => {
     expect(stdout.output).toContain("  recommendedDateText: 2026-05-31");
     expect(stdout.output).toContain("  recommendedDatePrecision: day");
     expect(stdout.output).toContain("  recommendedDateSource: snippet");
+    expect(stdout.output).toContain("  searchDecisionRecommendedDateText: 2026-05-31");
+    expect(stdout.output).toContain("  searchDecisionRecommendedDatePrecision: day");
+    expect(stdout.output).toContain("  searchDecisionRecommendedDateSource: snippet");
     expect(stdout.output).toContain("  topChoice: result searchResults[0]");
     expect(stdout.output).toContain("dateText=2026-05-31 datePrecision=day dateSource=snippet");
     expect(stdout.output).toContain("  resultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult");

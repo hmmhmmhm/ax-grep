@@ -137,6 +137,9 @@ type AgentSearchDecision = {
   recommendedUrl?: string;
   recommendedSource?: string;
   recommendedSourceScore?: number;
+  recommendedDateText?: string;
+  recommendedDatePrecision?: ResultSummary["datePrecision"];
+  recommendedDateSource?: ResultSummary["dateSource"];
   recommendedRelevance?: ResultSummary["relevance"];
   recommendedLikelyOfficial?: boolean;
   command?: string;
@@ -1012,6 +1015,9 @@ type AgentSummary = {
   searchDecisionRecommendedUrl?: string;
   searchDecisionRecommendedSource?: string;
   searchDecisionRecommendedSourceScore?: number;
+  searchDecisionRecommendedDateText?: string;
+  searchDecisionRecommendedDatePrecision?: ResultSummary["datePrecision"];
+  searchDecisionRecommendedDateSource?: ResultSummary["dateSource"];
   searchDecisionRecommendedRelevance?: ResultSummary["relevance"];
   searchDecisionRecommendedLikelyOfficial?: boolean;
   searchDecisionCommand?: string;
@@ -3709,6 +3715,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.searchDecisionRecommendedUrl ? [`  searchDecisionRecommendedUrl: ${agent.searchDecisionRecommendedUrl}`] : []),
     ...(agent.searchDecisionRecommendedSource ? [`  searchDecisionRecommendedSource: ${agent.searchDecisionRecommendedSource}`] : []),
     ...(typeof agent.searchDecisionRecommendedSourceScore === "number" ? [`  searchDecisionRecommendedSourceScore: ${agent.searchDecisionRecommendedSourceScore}`] : []),
+    ...(agent.searchDecisionRecommendedDateText ? [`  searchDecisionRecommendedDateText: ${agent.searchDecisionRecommendedDateText}`] : []),
+    ...(agent.searchDecisionRecommendedDatePrecision ? [`  searchDecisionRecommendedDatePrecision: ${agent.searchDecisionRecommendedDatePrecision}`] : []),
+    ...(agent.searchDecisionRecommendedDateSource ? [`  searchDecisionRecommendedDateSource: ${agent.searchDecisionRecommendedDateSource}`] : []),
     ...(agent.searchDecisionRecommendedRelevance ? [`  searchDecisionRecommendedRelevance: ${agent.searchDecisionRecommendedRelevance}`] : []),
     ...(typeof agent.searchDecisionRecommendedLikelyOfficial === "boolean" ? [`  searchDecisionRecommendedLikelyOfficial: ${agent.searchDecisionRecommendedLikelyOfficial}`] : []),
     ...(agent.searchDecisionCommand ? [`  searchDecisionCommand: ${agent.searchDecisionCommand}`] : []),
@@ -11894,6 +11903,9 @@ function summarizeAgent(
     ...(searchDecision?.recommendedUrl ? { searchDecisionRecommendedUrl: searchDecision.recommendedUrl } : {}),
     ...(searchDecision?.recommendedSource ? { searchDecisionRecommendedSource: searchDecision.recommendedSource } : {}),
     ...(typeof searchDecision?.recommendedSourceScore === "number" ? { searchDecisionRecommendedSourceScore: searchDecision.recommendedSourceScore } : {}),
+    ...(searchDecision?.recommendedDateText ? { searchDecisionRecommendedDateText: searchDecision.recommendedDateText } : {}),
+    ...(searchDecision?.recommendedDatePrecision ? { searchDecisionRecommendedDatePrecision: searchDecision.recommendedDatePrecision } : {}),
+    ...(searchDecision?.recommendedDateSource ? { searchDecisionRecommendedDateSource: searchDecision.recommendedDateSource } : {}),
     ...(searchDecision?.recommendedRelevance ? { searchDecisionRecommendedRelevance: searchDecision.recommendedRelevance } : {}),
     ...(typeof searchDecision?.recommendedLikelyOfficial === "boolean" ? { searchDecisionRecommendedLikelyOfficial: searchDecision.recommendedLikelyOfficial } : {}),
     ...(searchDecision?.command ? { searchDecisionCommand: searchDecision.command } : {}),
@@ -13341,6 +13353,9 @@ function summarizeAgentSearchDecision(
       recommendedUrl: recommendedResult.url,
       recommendedSource: recommendedResult.source,
       ...(typeof recommendedResult.sourceScore === "number" ? { recommendedSourceScore: recommendedResult.sourceScore } : {}),
+      ...(recommendedResult.dateText ? { recommendedDateText: recommendedResult.dateText } : {}),
+      ...(recommendedResult.datePrecision ? { recommendedDatePrecision: recommendedResult.datePrecision } : {}),
+      ...(recommendedResult.dateSource ? { recommendedDateSource: recommendedResult.dateSource } : {}),
       ...(recommendedResult.relevance ? { recommendedRelevance: recommendedResult.relevance } : {}),
       ...(typeof recommendedResult.isLikelyOfficial === "boolean" ? { recommendedLikelyOfficial: recommendedResult.isLikelyOfficial } : {}),
       ...(primaryAction.command ? { command: primaryAction.command } : {}),
@@ -17525,6 +17540,9 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.searchDecisionRecommendedUrl ? { searchDecisionRecommendedUrl: agent.searchDecisionRecommendedUrl } : {}),
     ...(agent.searchDecisionRecommendedSource ? { searchDecisionRecommendedSource: agent.searchDecisionRecommendedSource } : {}),
     ...(typeof agent.searchDecisionRecommendedSourceScore === "number" ? { searchDecisionRecommendedSourceScore: agent.searchDecisionRecommendedSourceScore } : {}),
+    ...(agent.searchDecisionRecommendedDateText ? { searchDecisionRecommendedDateText: agent.searchDecisionRecommendedDateText } : {}),
+    ...(agent.searchDecisionRecommendedDatePrecision ? { searchDecisionRecommendedDatePrecision: agent.searchDecisionRecommendedDatePrecision } : {}),
+    ...(agent.searchDecisionRecommendedDateSource ? { searchDecisionRecommendedDateSource: agent.searchDecisionRecommendedDateSource } : {}),
     ...(agent.searchDecisionRecommendedRelevance ? { searchDecisionRecommendedRelevance: agent.searchDecisionRecommendedRelevance } : {}),
     ...(typeof agent.searchDecisionRecommendedLikelyOfficial === "boolean" ? { searchDecisionRecommendedLikelyOfficial: agent.searchDecisionRecommendedLikelyOfficial } : {}),
     ...(agent.searchDecisionCommand ? { searchDecisionCommand: agent.searchDecisionCommand } : {}),
@@ -18679,6 +18697,9 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.searchDecisionRecommendedUrl ? { searchDecisionRecommendedUrl: agent.searchDecisionRecommendedUrl } : {}),
     ...(agent.searchDecisionRecommendedSource ? { searchDecisionRecommendedSource: agent.searchDecisionRecommendedSource } : {}),
     ...(typeof agent.searchDecisionRecommendedSourceScore === "number" ? { searchDecisionRecommendedSourceScore: agent.searchDecisionRecommendedSourceScore } : {}),
+    ...(agent.searchDecisionRecommendedDateText ? { searchDecisionRecommendedDateText: agent.searchDecisionRecommendedDateText } : {}),
+    ...(agent.searchDecisionRecommendedDatePrecision ? { searchDecisionRecommendedDatePrecision: agent.searchDecisionRecommendedDatePrecision } : {}),
+    ...(agent.searchDecisionRecommendedDateSource ? { searchDecisionRecommendedDateSource: agent.searchDecisionRecommendedDateSource } : {}),
     ...(agent.searchDecisionRecommendedRelevance ? { searchDecisionRecommendedRelevance: agent.searchDecisionRecommendedRelevance } : {}),
     ...(typeof agent.searchDecisionRecommendedLikelyOfficial === "boolean" ? { searchDecisionRecommendedLikelyOfficial: agent.searchDecisionRecommendedLikelyOfficial } : {}),
     ...(agent.searchDecisionCommand ? { searchDecisionCommand: agent.searchDecisionCommand } : {}),
