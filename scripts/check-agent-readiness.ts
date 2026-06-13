@@ -1130,7 +1130,12 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "function compactAgentBriefHandoff",
           "handoff.command ? { command: handoff.command }",
           "function compactAgentBrowserHtml",
+          "browserHtml.reason ? { reason: browserHtml.reason }",
           "browserHtml.command ? { command: browserHtml.command }",
+        ]);
+        requireFileIncludes(root, failures, "src/types.ts", [
+          "export type AgentBrowserHtmlCapture",
+          "reason?: string",
         ]);
         requireFileIncludes(root, failures, "tests/cli.test.ts", [
           "returns a structured warning when the page has no inspectable content",
@@ -1139,6 +1144,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "browserHtmlCommand: ax-grep 'https://example.test' --html-file captured.html --json --summary",
           "executorCommand: ax-grep 'https://example.test' --html-file captured.html --json --summary",
           "handoffCommand: ax-grep 'https://example.test' --html-file captured.html --json --summary",
+          "reason: \"Fetch failed before a usable page summary was available; retry with browser-captured HTML.\"",
           "command: \"ax-grep 'https://blocked.example/package' --html-file captured.html --find 'target claim' --agent-brief\"",
           "browserHtmlCommandArgs",
           "executorCommandArgs",
@@ -1611,6 +1617,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "A129",
           "A130",
           "A131",
+          "A132",
         ]);
       },
     ),

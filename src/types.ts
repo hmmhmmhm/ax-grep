@@ -1006,6 +1006,7 @@ export type AgentBrowserHtmlCapture = {
   url?: string;
   htmlFile: string;
   captureScript: string;
+  reason?: string;
   command?: string;
   commandArgs?: string[];
   afterInteractionCommand?: string;

@@ -11786,6 +11786,7 @@ npx ax-grep https://example.test --agent</code></pre>
         command: "ax-grep 'https://blocked.example/package' --html-file captured.html --find 'target claim' --agent-brief",
         commandArgs: ["ax-grep", "https://blocked.example/package", "--html-file", "captured.html", "--find", "target claim", "--agent-brief"],
         browserHtml: {
+          reason: "Fetch failed before a usable page summary was available; retry with browser-captured HTML.",
           command: "ax-grep 'https://blocked.example/package' --html-file captured.html --find 'target claim' --agent-brief",
           commandArgs: ["ax-grep", "https://blocked.example/package", "--html-file", "captured.html", "--find", "target claim", "--agent-brief"],
         },
@@ -11796,6 +11797,7 @@ npx ax-grep https://example.test --agent</code></pre>
         command: "ax-grep 'https://blocked.example/package' --html-file captured.html --find 'target claim' --agent-brief",
         commandArgs: ["ax-grep", "https://blocked.example/package", "--html-file", "captured.html", "--find", "target claim", "--agent-brief"],
         browserHtml: {
+          reason: "Fetch failed before a usable page summary was available; retry with browser-captured HTML.",
           command: "ax-grep 'https://blocked.example/package' --html-file captured.html --find 'target claim' --agent-brief",
           commandArgs: ["ax-grep", "https://blocked.example/package", "--html-file", "captured.html", "--find", "target claim", "--agent-brief"],
         },
