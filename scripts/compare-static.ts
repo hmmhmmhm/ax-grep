@@ -1547,6 +1547,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topEmbedKind?: string;
       topEmbedUrl?: string;
       topEmbedTitle?: string;
+      topEmbedCommand?: string;
+      topEmbedCommandArgs?: string[];
       topTranscriptKind?: string;
       topTranscriptUrl?: string;
       topTranscriptLabel?: string;
@@ -8061,6 +8063,8 @@ function scoreAgentStructuredShortcuts(agent: {
   topEmbedKind?: string;
   topEmbedUrl?: string;
   topEmbedTitle?: string;
+  topEmbedCommand?: string;
+  topEmbedCommandArgs?: string[];
   topTranscriptKind?: string;
   topTranscriptUrl?: string;
   topTranscriptLabel?: string;
@@ -8305,7 +8309,12 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topEmbedKind === topEmbed.kind) matched += 1;
     if (agent.topEmbedUrl === topEmbed.url) matched += 1;
     if (agent.topEmbedTitle === topEmbed.title) matched += 1;
-  } else if (agent.topEmbedKind || agent.topEmbedUrl || agent.topEmbedTitle) {
+    if (topEmbed.url && /^https?:\/\//i.test(topEmbed.url)) {
+      required += 2;
+      if (typeof agent.topEmbedCommand === "string" && agent.topEmbedCommand.includes(topEmbed.url)) matched += 1;
+      if (Array.isArray(agent.topEmbedCommandArgs) && agent.topEmbedCommandArgs.includes(topEmbed.url)) matched += 1;
+    }
+  } else if (agent.topEmbedKind || agent.topEmbedUrl || agent.topEmbedTitle || agent.topEmbedCommand || agent.topEmbedCommandArgs) {
     required += 1;
   }
 

@@ -1689,6 +1689,8 @@ type AgentSummary = {
   topEmbedKind?: PageEmbedSummary["kind"];
   topEmbedUrl?: string;
   topEmbedTitle?: string;
+  topEmbedCommand?: string;
+  topEmbedCommandArgs?: string[];
   topTranscriptKind?: PageTranscriptSummary["kind"];
   topTranscriptUrl?: string;
   topTranscriptLabel?: string;
@@ -4041,6 +4043,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topTimelineValue ? [`  topTimeline: ${agent.topTimelinePath ?? ""} ${agent.topTimelineKind ?? ""}:${agent.topTimelineValue}`] : []),
     ...(agent.topContactPointValue ? [`  topContactPoint: ${agent.topContactPointPath ?? ""} ${agent.topContactPointKind ?? ""}:${agent.topContactPointValue}${agent.topContactPointUrl ? ` <${agent.topContactPointUrl}>` : ""}`] : []),
     ...(agent.topEmbedUrl ? [`  topEmbedUrl: ${agent.topEmbedUrl}`] : []),
+    ...(agent.topEmbedCommand ? [`  topEmbedCommand: ${agent.topEmbedCommand}`] : []),
+    ...(agent.topEmbedCommandArgs ? [`  topEmbedCommandArgs: ${formatCommandArgsText(agent.topEmbedCommandArgs)}`] : []),
     ...(agent.topTranscriptUrl ? [`  topTranscriptUrl: ${agent.topTranscriptUrl}`] : []),
     ...(agent.topTranscriptCommand ? [`  topTranscriptCommand: ${agent.topTranscriptCommand}`] : []),
     ...(agent.topTranscriptCommandArgs ? [`  topTranscriptCommandArgs: ${formatCommandArgsText(agent.topTranscriptCommandArgs)}`] : []),
@@ -12100,6 +12104,9 @@ function summarizeAgent(
   const topPaginationCommand = pageCheck.pagination[0]?.url && /^https?:\/\//i.test(pageCheck.pagination[0].url)
     ? pageCommandSpec(pageCheck.pagination[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topEmbedCommand = pageCheck.embeds[0]?.url && /^https?:\/\//i.test(pageCheck.embeds[0].url)
+    ? pageCommandSpec(pageCheck.embeds[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, sourceSearchAgent, signals, qualityGates, verification.foundQueries, verification.missingQueries);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   const topSemanticHeading = semanticSummary?.headingItems[0];
@@ -12934,6 +12941,8 @@ function summarizeAgent(
     ...(pageCheck.embeds[0] ? { topEmbedKind: pageCheck.embeds[0].kind } : {}),
     ...(pageCheck.embeds[0]?.url ? { topEmbedUrl: pageCheck.embeds[0].url } : {}),
     ...(pageCheck.embeds[0]?.title ? { topEmbedTitle: pageCheck.embeds[0].title } : {}),
+    ...(topEmbedCommand ? { topEmbedCommand: topEmbedCommand.command } : {}),
+    ...(topEmbedCommand ? { topEmbedCommandArgs: topEmbedCommand.commandArgs } : {}),
     ...(pageCheck.transcripts[0] ? { topTranscriptKind: pageCheck.transcripts[0].kind } : {}),
     ...(pageCheck.transcripts[0]?.url ? { topTranscriptUrl: pageCheck.transcripts[0].url } : {}),
     ...(pageCheck.transcripts[0]?.label ? { topTranscriptLabel: pageCheck.transcripts[0].label } : {}),
@@ -18741,6 +18750,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topEmbedKind ? { topEmbedKind: agent.topEmbedKind } : {}),
     ...(agent.topEmbedUrl ? { topEmbedUrl: agent.topEmbedUrl } : {}),
     ...(agent.topEmbedTitle ? { topEmbedTitle: agent.topEmbedTitle } : {}),
+    ...(agent.topEmbedCommand ? { topEmbedCommand: agent.topEmbedCommand } : {}),
+    ...(agent.topEmbedCommandArgs ? { topEmbedCommandArgs: agent.topEmbedCommandArgs } : {}),
     ...(agent.topTranscriptKind ? { topTranscriptKind: agent.topTranscriptKind } : {}),
     ...(agent.topTranscriptUrl ? { topTranscriptUrl: agent.topTranscriptUrl } : {}),
     ...(agent.topTranscriptLabel ? { topTranscriptLabel: agent.topTranscriptLabel } : {}),
@@ -19964,6 +19975,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topEmbedKind ? { topEmbedKind: agent.topEmbedKind } : {}),
     ...(agent.topEmbedUrl ? { topEmbedUrl: agent.topEmbedUrl } : {}),
     ...(agent.topEmbedTitle ? { topEmbedTitle: agent.topEmbedTitle } : {}),
+    ...(agent.topEmbedCommand ? { topEmbedCommand: agent.topEmbedCommand } : {}),
+    ...(agent.topEmbedCommandArgs ? { topEmbedCommandArgs: agent.topEmbedCommandArgs } : {}),
     ...(agent.topTranscriptKind ? { topTranscriptKind: agent.topTranscriptKind } : {}),
     ...(agent.topTranscriptUrl ? { topTranscriptUrl: agent.topTranscriptUrl } : {}),
     ...(agent.topTranscriptLabel ? { topTranscriptLabel: agent.topTranscriptLabel } : {}),

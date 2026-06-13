@@ -10838,6 +10838,11 @@ npx ax-grep https://example.test --agent</code></pre>
       semanticTopUnavailablePath: "agent.semanticSummary.unavailableItems[0]",
       semanticTopUnavailableTag: "iframe",
       semanticTopUnavailableReason: "iframe content unavailable in static HTML",
+      topEmbedKind: "iframe",
+      topEmbedUrl: "https://example.test/embed/dashboard?region=us",
+      topEmbedTitle: "Interactive revenue dashboard",
+      topEmbedCommand: "ax-grep 'https://example.test/embed/dashboard?region=us' --agent",
+      topEmbedCommandArgs: ["ax-grep", "https://example.test/embed/dashboard?region=us", "--agent"],
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",

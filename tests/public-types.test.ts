@@ -423,6 +423,8 @@ describe("public agent types", () => {
       | "topEmbedKind"
       | "topEmbedUrl"
       | "topEmbedTitle"
+      | "topEmbedCommand"
+      | "topEmbedCommandArgs"
       | "topTranscriptKind"
       | "topTranscriptUrl"
       | "topTranscriptLabel"
@@ -1631,6 +1633,8 @@ describe("public agent types", () => {
       topEmbedKind: "iframe",
       topEmbedUrl: "https://example.test/embed",
       topEmbedTitle: "Dashboard",
+      topEmbedCommand: "ax-grep 'https://example.test/embed' --agent",
+      topEmbedCommandArgs: ["ax-grep", "https://example.test/embed", "--agent"],
       topTranscriptKind: "transcript",
       topTranscriptUrl: "https://example.test/transcript.txt",
       topTranscriptLabel: "Full transcript",
@@ -2803,6 +2807,7 @@ describe("public agent types", () => {
     expect(summary.topResourceUrl).toBe("https://example.test/guide.pdf");
     expect(summary.topResourceCommandArgs?.[1]).toBe("https://example.test/guide.pdf");
     expect(summary.topPaginationCommandArgs?.[1]).toBe("https://example.test/next");
+    expect(summary.topEmbedCommandArgs?.[1]).toBe("https://example.test/embed");
     expect(summary.topTranscriptCommandArgs?.[1]).toBe("https://example.test/transcript.txt");
     expect(summary.topAuthorLinkCommandArgs?.[1]).toBe("https://example.test/author");
     expect(summary.bestStructuredReadTarget).toBe("pageCheck.dataTables");
