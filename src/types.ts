@@ -2105,8 +2105,14 @@ export type AgentSummary = {
   topIdentityKind?: string;
   topIdentityName?: string;
   topIdentityUrl?: string;
+  topIdentityCommand?: string;
+  topIdentityCommandArgs?: string[];
   topIdentityLogoUrl?: string;
+  topIdentityLogoCommand?: string;
+  topIdentityLogoCommandArgs?: string[];
   topIdentitySameAsUrl?: string;
+  topIdentitySameAsCommand?: string;
+  topIdentitySameAsCommandArgs?: string[];
   topIdentitySource?: string;
   topIdentitySelector?: string;
   topTimelinePath?: string;

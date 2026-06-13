@@ -9288,6 +9288,8 @@ describe("cli", () => {
       topIdentityKind: "website",
       topIdentityName: "Example Labs",
       topIdentityUrl: "https://example.test/about",
+      topIdentityCommand: "ax-grep 'https://example.test/about' --find 'github.com/example' --agent",
+      topIdentityCommandArgs: ["ax-grep", "https://example.test/about", "--find", "github.com/example", "--agent"],
       topIdentitySource: "meta",
       topIdentitySelector: "meta[property=\"og:site_name\"], meta[name=\"application-name\"]",
     });
@@ -9337,8 +9339,14 @@ describe("cli", () => {
       topIdentityKind: "organization",
       topIdentityName: "Example Labs",
       topIdentityUrl: "https://example.test/",
+      topIdentityCommand: "ax-grep 'https://example.test/' --agent-brief",
+      topIdentityCommandArgs: ["ax-grep", "https://example.test/", "--agent-brief"],
       topIdentityLogoUrl: "https://example.test/logo.png",
+      topIdentityLogoCommand: "ax-grep 'https://example.test/logo.png' --agent-brief",
+      topIdentityLogoCommandArgs: ["ax-grep", "https://example.test/logo.png", "--agent-brief"],
       topIdentitySameAsUrl: "https://github.com/example",
+      topIdentitySameAsCommand: "ax-grep 'https://github.com/example' --agent-brief",
+      topIdentitySameAsCommandArgs: ["ax-grep", "https://github.com/example", "--agent-brief"],
       topIdentitySource: "json-ld",
       topIdentitySelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
     });

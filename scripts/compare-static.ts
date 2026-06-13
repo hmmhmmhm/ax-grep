@@ -1596,8 +1596,14 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topIdentityKind?: string;
       topIdentityName?: string;
       topIdentityUrl?: string;
+      topIdentityCommand?: string;
+      topIdentityCommandArgs?: string[];
       topIdentityLogoUrl?: string;
+      topIdentityLogoCommand?: string;
+      topIdentityLogoCommandArgs?: string[];
       topIdentitySameAsUrl?: string;
+      topIdentitySameAsCommand?: string;
+      topIdentitySameAsCommandArgs?: string[];
       topIdentitySource?: string;
       topIdentitySelector?: string;
       topTimelinePath?: string;
@@ -8120,8 +8126,14 @@ function scoreAgentStructuredShortcuts(agent: {
   topIdentityKind?: string;
   topIdentityName?: string;
   topIdentityUrl?: string;
+  topIdentityCommand?: string;
+  topIdentityCommandArgs?: string[];
   topIdentityLogoUrl?: string;
+  topIdentityLogoCommand?: string;
+  topIdentityLogoCommandArgs?: string[];
   topIdentitySameAsUrl?: string;
+  topIdentitySameAsCommand?: string;
+  topIdentitySameAsCommandArgs?: string[];
   topIdentitySource?: string;
   topIdentitySelector?: string;
   topTimelinePath?: string;
@@ -8444,7 +8456,22 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topIdentitySameAsUrl === topIdentity.sameAs?.[0]) matched += 1;
     if (agent.topIdentitySource === topIdentity.source) matched += 1;
     if (agent.topIdentitySelector === topIdentity.selector) matched += 1;
-  } else if (agent.topIdentityPath || agent.topIdentityKind || agent.topIdentityName || agent.topIdentityUrl || agent.topIdentityLogoUrl || agent.topIdentitySameAsUrl || agent.topIdentitySource || agent.topIdentitySelector) {
+    if (topIdentity.url && /^https?:\/\//i.test(topIdentity.url)) {
+      required += 2;
+      if (typeof agent.topIdentityCommand === "string" && agent.topIdentityCommand.includes(topIdentity.url)) matched += 1;
+      if (Array.isArray(agent.topIdentityCommandArgs) && agent.topIdentityCommandArgs.includes(topIdentity.url)) matched += 1;
+    }
+    if (topIdentity.logoUrl && /^https?:\/\//i.test(topIdentity.logoUrl)) {
+      required += 2;
+      if (typeof agent.topIdentityLogoCommand === "string" && agent.topIdentityLogoCommand.includes(topIdentity.logoUrl)) matched += 1;
+      if (Array.isArray(agent.topIdentityLogoCommandArgs) && agent.topIdentityLogoCommandArgs.includes(topIdentity.logoUrl)) matched += 1;
+    }
+    if (topIdentity.sameAs?.[0] && /^https?:\/\//i.test(topIdentity.sameAs[0])) {
+      required += 2;
+      if (typeof agent.topIdentitySameAsCommand === "string" && agent.topIdentitySameAsCommand.includes(topIdentity.sameAs[0])) matched += 1;
+      if (Array.isArray(agent.topIdentitySameAsCommandArgs) && agent.topIdentitySameAsCommandArgs.includes(topIdentity.sameAs[0])) matched += 1;
+    }
+  } else if (agent.topIdentityPath || agent.topIdentityKind || agent.topIdentityName || agent.topIdentityUrl || agent.topIdentityCommand || agent.topIdentityCommandArgs || agent.topIdentityLogoUrl || agent.topIdentityLogoCommand || agent.topIdentityLogoCommandArgs || agent.topIdentitySameAsUrl || agent.topIdentitySameAsCommand || agent.topIdentitySameAsCommandArgs || agent.topIdentitySource || agent.topIdentitySelector) {
     required += 1;
   }
 

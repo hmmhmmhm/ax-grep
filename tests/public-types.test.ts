@@ -472,8 +472,14 @@ describe("public agent types", () => {
       | "topIdentityKind"
       | "topIdentityName"
       | "topIdentityUrl"
+      | "topIdentityCommand"
+      | "topIdentityCommandArgs"
       | "topIdentityLogoUrl"
+      | "topIdentityLogoCommand"
+      | "topIdentityLogoCommandArgs"
       | "topIdentitySameAsUrl"
+      | "topIdentitySameAsCommand"
+      | "topIdentitySameAsCommandArgs"
       | "topIdentitySource"
       | "topIdentitySelector"
       | "topTimelinePath"
@@ -1690,8 +1696,14 @@ describe("public agent types", () => {
       topIdentityKind: "organization",
       topIdentityName: "Example Labs",
       topIdentityUrl: "https://example.test",
+      topIdentityCommand: "ax-grep 'https://example.test' --agent",
+      topIdentityCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       topIdentityLogoUrl: "https://example.test/logo.png",
+      topIdentityLogoCommand: "ax-grep 'https://example.test/logo.png' --agent",
+      topIdentityLogoCommandArgs: ["ax-grep", "https://example.test/logo.png", "--agent"],
       topIdentitySameAsUrl: "https://github.com/example",
+      topIdentitySameAsCommand: "ax-grep 'https://github.com/example' --agent",
+      topIdentitySameAsCommandArgs: ["ax-grep", "https://github.com/example", "--agent"],
       topIdentitySource: "json-ld",
       topIdentitySelector: "script[type=\"application/ld+json\"]:nth-of-type(3)",
       topTimelinePath: "pageCheck.timeline[0]",
@@ -2829,6 +2841,7 @@ describe("public agent types", () => {
     expect(summary.topOfferCommandArgs?.[1]).toBe("https://example.test/buy");
     expect(summary.topDatasetDistributionCommandArgs?.[1]).toBe("https://example.test/downloads/example.csv");
     expect(summary.topDatasetLicenseCommandArgs?.[1]).toBe("https://creativecommons.org/licenses/by/4.0/");
+    expect(summary.topIdentitySameAsCommandArgs?.[1]).toBe("https://github.com/example");
     expect(summary.bestStructuredReadTarget).toBe("pageCheck.dataTables");
     expect(summary.bestStructuredReadTargetPrimary).toBe(true);
     expect(summary.formChoices?.[0]?.queryField).toBe("q");
