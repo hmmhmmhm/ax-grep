@@ -1797,6 +1797,8 @@ type AgentSummary = {
   sourceSearchSelectedPath?: string;
   sourceSearchSelectedSnippet?: string;
   sourceSearchSelectedDateText?: string;
+  sourceSearchSelectedDatePrecision?: AgentSourceSearchResult["datePrecision"];
+  sourceSearchSelectedDateSource?: AgentSourceSearchResult["dateSource"];
   sourceSearchSelectedMatchedTerm?: string;
   sourceSearchSelectedFindMatch?: string;
   sourceSearchSelectedSitelinkCount?: number;
@@ -1827,6 +1829,8 @@ type AgentSummary = {
   sourceSearchAlternateRank?: number;
   sourceSearchAlternateSnippet?: string;
   sourceSearchAlternateDateText?: string;
+  sourceSearchAlternateDatePrecision?: AgentSourceSearchResult["datePrecision"];
+  sourceSearchAlternateDateSource?: AgentSourceSearchResult["dateSource"];
   sourceSearchAlternateMatchedTerm?: string;
   sourceSearchAlternateFindMatch?: string;
   sourceSearchAlternateSitelinkCount?: number;
@@ -3984,6 +3988,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.sourceSearchSelectedPath ? [`  sourceSearchSelectedPath: ${agent.sourceSearchSelectedPath}`] : []),
     ...(agent.sourceSearchSelectedSnippet ? [`  sourceSearchSelectedSnippet: ${agent.sourceSearchSelectedSnippet}`] : []),
     ...(agent.sourceSearchSelectedDateText ? [`  sourceSearchSelectedDateText: ${agent.sourceSearchSelectedDateText}`] : []),
+    ...(agent.sourceSearchSelectedDatePrecision ? [`  sourceSearchSelectedDatePrecision: ${agent.sourceSearchSelectedDatePrecision}`] : []),
+    ...(agent.sourceSearchSelectedDateSource ? [`  sourceSearchSelectedDateSource: ${agent.sourceSearchSelectedDateSource}`] : []),
     ...(agent.sourceSearchSelectedMatchedTerm ? [`  sourceSearchSelectedMatchedTerm: ${agent.sourceSearchSelectedMatchedTerm}`] : []),
     ...(agent.sourceSearchSelectedFindMatch ? [`  sourceSearchSelectedFindMatch: ${agent.sourceSearchSelectedFindMatch}`] : []),
     ...(typeof agent.sourceSearchSelectedSitelinkCount === "number" ? [`  sourceSearchSelectedSitelinkCount: ${agent.sourceSearchSelectedSitelinkCount}`] : []),
@@ -4017,6 +4023,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.sourceSearchAlternateCommandArgs ? [`  sourceSearchAlternateCommandArgs: ${JSON.stringify(agent.sourceSearchAlternateCommandArgs)}`] : []),
     ...(agent.sourceSearchAlternateSnippet ? [`  sourceSearchAlternateSnippet: ${agent.sourceSearchAlternateSnippet}`] : []),
     ...(agent.sourceSearchAlternateDateText ? [`  sourceSearchAlternateDateText: ${agent.sourceSearchAlternateDateText}`] : []),
+    ...(agent.sourceSearchAlternateDatePrecision ? [`  sourceSearchAlternateDatePrecision: ${agent.sourceSearchAlternateDatePrecision}`] : []),
+    ...(agent.sourceSearchAlternateDateSource ? [`  sourceSearchAlternateDateSource: ${agent.sourceSearchAlternateDateSource}`] : []),
     ...(agent.sourceSearchAlternateMatchedTerm ? [`  sourceSearchAlternateMatchedTerm: ${agent.sourceSearchAlternateMatchedTerm}`] : []),
     ...(agent.sourceSearchAlternateFindMatch ? [`  sourceSearchAlternateFindMatch: ${agent.sourceSearchAlternateFindMatch}`] : []),
     ...(typeof agent.sourceSearchAlternateSitelinkCount === "number" ? [`  sourceSearchAlternateSitelinkCount: ${agent.sourceSearchAlternateSitelinkCount}`] : []),
@@ -12787,6 +12795,8 @@ function summarizeAgent(
     ...(sourceSearchSelectedResult ? { sourceSearchSelectedPath: sourceSearchSelectedResult.path } : {}),
     ...(sourceSearchSelectedResult?.snippet ? { sourceSearchSelectedSnippet: sourceSearchSelectedResult.snippet } : {}),
     ...(sourceSearchSelectedResult?.dateText ? { sourceSearchSelectedDateText: sourceSearchSelectedResult.dateText } : {}),
+    ...(sourceSearchSelectedResult?.datePrecision ? { sourceSearchSelectedDatePrecision: sourceSearchSelectedResult.datePrecision } : {}),
+    ...(sourceSearchSelectedResult?.dateSource ? { sourceSearchSelectedDateSource: sourceSearchSelectedResult.dateSource } : {}),
     ...(sourceSearchSelectedResult?.matchedTerms?.[0] ? { sourceSearchSelectedMatchedTerm: sourceSearchSelectedResult.matchedTerms[0] } : {}),
     ...(sourceSearchSelectedResult?.findMatches?.[0] ? { sourceSearchSelectedFindMatch: sourceSearchSelectedResult.findMatches[0] } : {}),
     ...(sourceSearchSelectedResult?.sitelinks?.length ? { sourceSearchSelectedSitelinkCount: sourceSearchSelectedResult.sitelinks.length } : {}),
@@ -12808,6 +12818,8 @@ function summarizeAgent(
     ...(typeof sourceSearchAlternateResult?.rank === "number" ? { sourceSearchAlternateRank: sourceSearchAlternateResult.rank } : {}),
     ...(sourceSearchAlternateResult?.snippet ? { sourceSearchAlternateSnippet: sourceSearchAlternateResult.snippet } : {}),
     ...(sourceSearchAlternateResult?.dateText ? { sourceSearchAlternateDateText: sourceSearchAlternateResult.dateText } : {}),
+    ...(sourceSearchAlternateResult?.datePrecision ? { sourceSearchAlternateDatePrecision: sourceSearchAlternateResult.datePrecision } : {}),
+    ...(sourceSearchAlternateResult?.dateSource ? { sourceSearchAlternateDateSource: sourceSearchAlternateResult.dateSource } : {}),
     ...(sourceSearchAlternateResult?.matchedTerms?.[0] ? { sourceSearchAlternateMatchedTerm: sourceSearchAlternateResult.matchedTerms[0] } : {}),
     ...(sourceSearchAlternateResult?.findMatches?.[0] ? { sourceSearchAlternateFindMatch: sourceSearchAlternateResult.findMatches[0] } : {}),
     ...(sourceSearchAlternateResult?.sitelinks?.length ? { sourceSearchAlternateSitelinkCount: sourceSearchAlternateResult.sitelinks.length } : {}),
@@ -16039,6 +16051,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(sourceSearchSelectedResult ? { sourceSearchSelectedPath: sourceSearchSelectedResult.path } : {}),
     ...(sourceSearchSelectedResult?.snippet ? { sourceSearchSelectedSnippet: sourceSearchSelectedResult.snippet } : {}),
     ...(sourceSearchSelectedResult?.dateText ? { sourceSearchSelectedDateText: sourceSearchSelectedResult.dateText } : {}),
+    ...(sourceSearchSelectedResult?.datePrecision ? { sourceSearchSelectedDatePrecision: sourceSearchSelectedResult.datePrecision } : {}),
+    ...(sourceSearchSelectedResult?.dateSource ? { sourceSearchSelectedDateSource: sourceSearchSelectedResult.dateSource } : {}),
     ...(sourceSearchSelectedResult?.matchedTerms?.[0] ? { sourceSearchSelectedMatchedTerm: sourceSearchSelectedResult.matchedTerms[0] } : {}),
     ...(sourceSearchSelectedResult?.findMatches?.[0] ? { sourceSearchSelectedFindMatch: sourceSearchSelectedResult.findMatches[0] } : {}),
     ...(sourceSearchSelectedResult?.sitelinks?.length ? { sourceSearchSelectedSitelinkCount: sourceSearchSelectedResult.sitelinks.length } : {}),
@@ -16068,6 +16082,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(typeof sourceSearchAlternateResult?.rank === "number" ? { sourceSearchAlternateRank: sourceSearchAlternateResult.rank } : {}),
     ...(sourceSearchAlternateResult?.snippet ? { sourceSearchAlternateSnippet: sourceSearchAlternateResult.snippet } : {}),
     ...(sourceSearchAlternateResult?.dateText ? { sourceSearchAlternateDateText: sourceSearchAlternateResult.dateText } : {}),
+    ...(sourceSearchAlternateResult?.datePrecision ? { sourceSearchAlternateDatePrecision: sourceSearchAlternateResult.datePrecision } : {}),
+    ...(sourceSearchAlternateResult?.dateSource ? { sourceSearchAlternateDateSource: sourceSearchAlternateResult.dateSource } : {}),
     ...(sourceSearchAlternateResult?.matchedTerms?.[0] ? { sourceSearchAlternateMatchedTerm: sourceSearchAlternateResult.matchedTerms[0] } : {}),
     ...(sourceSearchAlternateResult?.findMatches?.[0] ? { sourceSearchAlternateFindMatch: sourceSearchAlternateResult.findMatches[0] } : {}),
     ...(sourceSearchAlternateResult?.sitelinks?.length ? { sourceSearchAlternateSitelinkCount: sourceSearchAlternateResult.sitelinks.length } : {}),
@@ -18429,6 +18445,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.sourceSearchSelectedPath ? { sourceSearchSelectedPath: agent.sourceSearchSelectedPath } : {}),
     ...(agent.sourceSearchSelectedSnippet ? { sourceSearchSelectedSnippet: agent.sourceSearchSelectedSnippet } : {}),
     ...(agent.sourceSearchSelectedDateText ? { sourceSearchSelectedDateText: agent.sourceSearchSelectedDateText } : {}),
+    ...(agent.sourceSearchSelectedDatePrecision ? { sourceSearchSelectedDatePrecision: agent.sourceSearchSelectedDatePrecision } : {}),
+    ...(agent.sourceSearchSelectedDateSource ? { sourceSearchSelectedDateSource: agent.sourceSearchSelectedDateSource } : {}),
     ...(agent.sourceSearchSelectedMatchedTerm ? { sourceSearchSelectedMatchedTerm: agent.sourceSearchSelectedMatchedTerm } : {}),
     ...(agent.sourceSearchSelectedFindMatch ? { sourceSearchSelectedFindMatch: agent.sourceSearchSelectedFindMatch } : {}),
     ...(typeof agent.sourceSearchSelectedSitelinkCount === "number" ? { sourceSearchSelectedSitelinkCount: agent.sourceSearchSelectedSitelinkCount } : {}),
@@ -18459,6 +18477,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.sourceSearchAlternateRank === "number" ? { sourceSearchAlternateRank: agent.sourceSearchAlternateRank } : {}),
     ...(agent.sourceSearchAlternateSnippet ? { sourceSearchAlternateSnippet: agent.sourceSearchAlternateSnippet } : {}),
     ...(agent.sourceSearchAlternateDateText ? { sourceSearchAlternateDateText: agent.sourceSearchAlternateDateText } : {}),
+    ...(agent.sourceSearchAlternateDatePrecision ? { sourceSearchAlternateDatePrecision: agent.sourceSearchAlternateDatePrecision } : {}),
+    ...(agent.sourceSearchAlternateDateSource ? { sourceSearchAlternateDateSource: agent.sourceSearchAlternateDateSource } : {}),
     ...(agent.sourceSearchAlternateMatchedTerm ? { sourceSearchAlternateMatchedTerm: agent.sourceSearchAlternateMatchedTerm } : {}),
     ...(agent.sourceSearchAlternateFindMatch ? { sourceSearchAlternateFindMatch: agent.sourceSearchAlternateFindMatch } : {}),
     ...(typeof agent.sourceSearchAlternateSitelinkCount === "number" ? { sourceSearchAlternateSitelinkCount: agent.sourceSearchAlternateSitelinkCount } : {}),
@@ -19596,6 +19616,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.sourceSearchSelectedPath ? { sourceSearchSelectedPath: agent.sourceSearchSelectedPath } : {}),
     ...(agent.sourceSearchSelectedSnippet ? { sourceSearchSelectedSnippet: agent.sourceSearchSelectedSnippet } : {}),
     ...(agent.sourceSearchSelectedDateText ? { sourceSearchSelectedDateText: agent.sourceSearchSelectedDateText } : {}),
+    ...(agent.sourceSearchSelectedDatePrecision ? { sourceSearchSelectedDatePrecision: agent.sourceSearchSelectedDatePrecision } : {}),
+    ...(agent.sourceSearchSelectedDateSource ? { sourceSearchSelectedDateSource: agent.sourceSearchSelectedDateSource } : {}),
     ...(agent.sourceSearchSelectedMatchedTerm ? { sourceSearchSelectedMatchedTerm: agent.sourceSearchSelectedMatchedTerm } : {}),
     ...(agent.sourceSearchSelectedFindMatch ? { sourceSearchSelectedFindMatch: agent.sourceSearchSelectedFindMatch } : {}),
     ...(typeof agent.sourceSearchSelectedSitelinkCount === "number" ? { sourceSearchSelectedSitelinkCount: agent.sourceSearchSelectedSitelinkCount } : {}),
@@ -19626,6 +19648,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.sourceSearchAlternateRank === "number" ? { sourceSearchAlternateRank: agent.sourceSearchAlternateRank } : {}),
     ...(agent.sourceSearchAlternateSnippet ? { sourceSearchAlternateSnippet: agent.sourceSearchAlternateSnippet } : {}),
     ...(agent.sourceSearchAlternateDateText ? { sourceSearchAlternateDateText: agent.sourceSearchAlternateDateText } : {}),
+    ...(agent.sourceSearchAlternateDatePrecision ? { sourceSearchAlternateDatePrecision: agent.sourceSearchAlternateDatePrecision } : {}),
+    ...(agent.sourceSearchAlternateDateSource ? { sourceSearchAlternateDateSource: agent.sourceSearchAlternateDateSource } : {}),
     ...(agent.sourceSearchAlternateMatchedTerm ? { sourceSearchAlternateMatchedTerm: agent.sourceSearchAlternateMatchedTerm } : {}),
     ...(agent.sourceSearchAlternateFindMatch ? { sourceSearchAlternateFindMatch: agent.sourceSearchAlternateFindMatch } : {}),
     ...(typeof agent.sourceSearchAlternateSitelinkCount === "number" ? { sourceSearchAlternateSitelinkCount: agent.sourceSearchAlternateSitelinkCount } : {}),

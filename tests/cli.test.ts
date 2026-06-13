@@ -4276,6 +4276,8 @@ describe("cli", () => {
     expect(stdout.output).toContain("  sourceSearchAlternateSource: alternate.example");
     expect(stdout.output).toContain("  sourceSearchAlternateSnippet: 2026-05 update: This result contains the target claim for verification.");
     expect(stdout.output).toContain("  sourceSearchAlternateDateText: 2026-05");
+    expect(stdout.output).toContain("  sourceSearchAlternateDatePrecision: month");
+    expect(stdout.output).toContain("  sourceSearchAlternateDateSource: snippet");
     expect(stdout.output).toContain("  sourceSearchAlternateCommand: ax-grep --search 'agent browser' --engine duckduckgo --find 'target claim' --open-result 2 --agent");
     expect(stdout.output).toContain("  sourceSearchAlternateCommandArgs: [\"ax-grep\",\"--search\",\"agent browser\",\"--engine\",\"duckduckgo\",\"--find\",\"target claim\",\"--open-result\",\"2\",\"--agent\"]");
     expect(stdout.output).toContain("  sourceSearchAlternateChoice: a2 sourceSearch.alternateResults[0] rank=2 openResult=2");

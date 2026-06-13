@@ -571,6 +571,8 @@ describe("public agent types", () => {
       | "sourceSearchSelectedPath"
       | "sourceSearchSelectedSnippet"
       | "sourceSearchSelectedDateText"
+      | "sourceSearchSelectedDatePrecision"
+      | "sourceSearchSelectedDateSource"
       | "sourceSearchSelectedMatchedTerm"
       | "sourceSearchSelectedFindMatch"
       | "sourceSearchSelectedSitelinkCount"
@@ -601,6 +603,8 @@ describe("public agent types", () => {
       | "sourceSearchAlternateRank"
       | "sourceSearchAlternateSnippet"
       | "sourceSearchAlternateDateText"
+      | "sourceSearchAlternateDatePrecision"
+      | "sourceSearchAlternateDateSource"
       | "sourceSearchAlternateMatchedTerm"
       | "sourceSearchAlternateFindMatch"
       | "sourceSearchAlternateSitelinkCount"
@@ -1721,6 +1725,8 @@ describe("public agent types", () => {
       sourceSearchSelectedPath: "sourceSearch.selectedResult",
       sourceSearchSelectedSnippet: "Selected source summary",
       sourceSearchSelectedDateText: "2026-05-31",
+      sourceSearchSelectedDatePrecision: "day",
+      sourceSearchSelectedDateSource: "snippet",
       sourceSearchSelectedMatchedTerm: "ax-grep",
       sourceSearchSelectedFindMatch: "install",
       sourceSearchSelectedSitelinkCount: 1,
@@ -1751,6 +1757,8 @@ describe("public agent types", () => {
       sourceSearchAlternateRank: 3,
       sourceSearchAlternateSnippet: "Alternate source summary",
       sourceSearchAlternateDateText: "2026-05-30",
+      sourceSearchAlternateDatePrecision: "day",
+      sourceSearchAlternateDateSource: "snippet",
       sourceSearchAlternateMatchedTerm: "docs",
       sourceSearchAlternateFindMatch: "mirror",
       sourceSearchAlternateSitelinkCount: 1,
@@ -1774,6 +1782,8 @@ describe("public agent types", () => {
         rank: 3,
         snippet: "Alternate source summary",
         dateText: "2026-05-30",
+        datePrecision: "day",
+        dateSource: "snippet",
         matchedTerms: ["docs"],
         findMatches: ["mirror"],
         openResult: 3,
@@ -2716,6 +2726,8 @@ describe("public agent types", () => {
     expect(summary.sourceSearchTopFindQuery).toBe("install");
     expect(summary.sourceSearchSelectedTitle).toBe("ax-grep documentation");
     expect(summary.sourceSearchSelectedSnippet).toBe("Selected source summary");
+    expect(summary.sourceSearchSelectedDatePrecision).toBe("day");
+    expect(summary.sourceSearchSelectedDateSource).toBe("snippet");
     expect(summary.sourceSearchSelectedMatchedTerm).toBe("ax-grep");
     expect(summary.sourceSearchSelectedFindMatch).toBe("install");
     expect(summary.sourceSearchSelectedFirstSitelinkTitle).toBe("Install");
@@ -2729,6 +2741,8 @@ describe("public agent types", () => {
     expect(summary.sourceSearchAlternateCount).toBe(1);
     expect(summary.sourceSearchAlternatePath).toBe("sourceSearch.alternateResults[0]");
     expect(summary.sourceSearchAlternateSnippet).toBe("Alternate source summary");
+    expect(summary.sourceSearchAlternateDatePrecision).toBe("day");
+    expect(summary.sourceSearchAlternateDateSource).toBe("snippet");
     expect(summary.sourceSearchAlternateMatchedTerm).toBe("docs");
     expect(summary.sourceSearchAlternateFindMatch).toBe("mirror");
     expect(summary.sourceSearchAlternateFirstSitelinkTitle).toBe("Mirror");
@@ -2741,6 +2755,8 @@ describe("public agent types", () => {
     expect(summary.sourceSearchAlternateChoices?.[0]?.command).toContain("--open-result 3");
     expect(summary.sourceSearchAlternateChoices?.[0]?.sourceScore).toBe(0.64);
     expect(summary.sourceSearchAlternateChoices?.[0]?.snippet).toBe("Alternate source summary");
+    expect(summary.sourceSearchAlternateChoices?.[0]?.datePrecision).toBe("day");
+    expect(summary.sourceSearchAlternateChoices?.[0]?.dateSource).toBe("snippet");
     expect(summary.sourceSearchAlternateChoices?.[0]?.matchedTerms?.[0]).toBe("docs");
     expect(summary.sourceSearchAlternateChoices?.[0]?.relevance).toBe("medium");
     expect(summary.sourceSearchAlternateChoices?.[0]?.isLikelyOfficial).toBe(false);
