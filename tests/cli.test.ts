@@ -11418,6 +11418,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("     source: result.example");
     expect(stdout.output).toContain("     reason: Ranked result 1 from result.example.");
     expect(stdout.output).toContain("     snippet: Snippet text explains why this result is useful for the current investigation.");
+    expect(stdout.output).toContain("links\n  1. Result Title <https://result.example/article> role=link selector=a\n     snippet: Snippet text explains why this result is useful for the current investigation.");
   });
 
   it("prints executable form choice commands in text output", async () => {
@@ -12286,7 +12287,7 @@ npx ax-grep https://example.test --agent</code></pre>
     });
 
     expect(status).toBe(0);
-    expect(stdout.output.trim()).toBe("links\n  1. Docs <https://example.test/docs>");
+    expect(stdout.output.trim()).toBe("links\n  1. Docs <https://example.test/docs> role=link selector=a");
   });
 
   it("can cap tree lines after the links summary", async () => {
@@ -12334,7 +12335,7 @@ npx ax-grep https://example.test --agent</code></pre>
     });
 
     expect(status).toBe(0);
-    expect(stdout.output.trim()).toBe("links\n  1. Captured <https://captured.example/captured>");
+    expect(stdout.output.trim()).toBe("links\n  1. Captured <https://captured.example/captured> role=link selector=a");
   });
 
   it("can extract browser-captured HTML from stdin", async () => {

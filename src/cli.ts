@@ -3375,10 +3375,18 @@ function formatCliText(
 }
 
 function formatLinksText(links: LinkSummary[]): string[] {
-  return [
-    "links",
-    ...links.map((link, index) => `  ${index + 1}. ${link.text || link.role} <${link.url}>`),
-  ];
+  const lines = ["links"];
+  for (const [index, link] of links.entries()) {
+    lines.push(`  ${index + 1}. ${formatLinkSummaryText(link)}`);
+    if (link.snippet) lines.push(`     snippet: ${link.snippet}`);
+  }
+  return lines;
+}
+
+function formatLinkSummaryText(link: LinkSummary): string {
+  const details = [`role=${link.role}`];
+  if (link.selector) details.push(`selector=${link.selector}`);
+  return `${link.text || link.role} <${link.url}> ${details.join(" ")}`;
 }
 
 function appendSection(lines: string[], section: string[]): void {
