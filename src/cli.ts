@@ -1494,6 +1494,7 @@ type AgentSummary = {
   topResultChoiceSitelinkCount?: number;
   topResultChoiceFirstSitelinkTitle?: string;
   topResultChoiceFirstSitelinkUrl?: string;
+  topResultChoiceFirstSitelinkSelector?: string;
   topResultChoiceReason?: string;
   evidenceCount: number;
   formCount: number;
@@ -1805,6 +1806,7 @@ type AgentSummary = {
   sourceSearchSelectedSitelinkCount?: number;
   sourceSearchSelectedFirstSitelinkTitle?: string;
   sourceSearchSelectedFirstSitelinkUrl?: string;
+  sourceSearchSelectedFirstSitelinkSelector?: string;
   sourceSearchSelectedOpenResult?: AgentSourceSearchResult["openResult"];
   sourceSearchSelectedCommand?: string;
   sourceSearchSelectedCommandArgs?: string[];
@@ -1837,6 +1839,7 @@ type AgentSummary = {
   sourceSearchAlternateSitelinkCount?: number;
   sourceSearchAlternateFirstSitelinkTitle?: string;
   sourceSearchAlternateFirstSitelinkUrl?: string;
+  sourceSearchAlternateFirstSitelinkSelector?: string;
   sourceSearchAlternateOpenResult?: AgentSourceSearchResult["openResult"];
   sourceSearchAlternateCommand?: string;
   sourceSearchAlternateCommandArgs?: string[];
@@ -3845,6 +3848,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topResultChoiceSitelinkCount === "number" ? [`  topResultChoiceSitelinkCount: ${agent.topResultChoiceSitelinkCount}`] : []),
     ...(agent.topResultChoiceFirstSitelinkTitle ? [`  topResultChoiceFirstSitelinkTitle: ${agent.topResultChoiceFirstSitelinkTitle}`] : []),
     ...(agent.topResultChoiceFirstSitelinkUrl ? [`  topResultChoiceFirstSitelinkUrl: ${agent.topResultChoiceFirstSitelinkUrl}`] : []),
+    ...(agent.topResultChoiceFirstSitelinkSelector ? [`  topResultChoiceFirstSitelinkSelector: ${agent.topResultChoiceFirstSitelinkSelector}`] : []),
     ...(agent.topResultChoiceReason ? [`  topResultChoiceReason: ${agent.topResultChoiceReason}`] : []),
     `  evidenceCount: ${agent.evidenceCount}`,
     `  formCount: ${agent.formCount}`,
@@ -4016,6 +4020,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.sourceSearchSelectedSitelinkCount === "number" ? [`  sourceSearchSelectedSitelinkCount: ${agent.sourceSearchSelectedSitelinkCount}`] : []),
     ...(agent.sourceSearchSelectedFirstSitelinkTitle ? [`  sourceSearchSelectedFirstSitelinkTitle: ${agent.sourceSearchSelectedFirstSitelinkTitle}`] : []),
     ...(agent.sourceSearchSelectedFirstSitelinkUrl ? [`  sourceSearchSelectedFirstSitelinkUrl: ${agent.sourceSearchSelectedFirstSitelinkUrl}`] : []),
+    ...(agent.sourceSearchSelectedFirstSitelinkSelector ? [`  sourceSearchSelectedFirstSitelinkSelector: ${agent.sourceSearchSelectedFirstSitelinkSelector}`] : []),
     ...(agent.sourceSearchSelectedOpenResult ? [`  sourceSearchSelectedOpenResult: ${agent.sourceSearchSelectedOpenResult}`] : []),
     ...(agent.sourceSearchSelectedCommand ? [`  sourceSearchSelectedCommand: ${agent.sourceSearchSelectedCommand}`] : []),
     ...(agent.sourceSearchSelectedCommandArgs ? [`  sourceSearchSelectedCommandArgs: ${JSON.stringify(agent.sourceSearchSelectedCommandArgs)}`] : []),
@@ -4051,6 +4056,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.sourceSearchAlternateSitelinkCount === "number" ? [`  sourceSearchAlternateSitelinkCount: ${agent.sourceSearchAlternateSitelinkCount}`] : []),
     ...(agent.sourceSearchAlternateFirstSitelinkTitle ? [`  sourceSearchAlternateFirstSitelinkTitle: ${agent.sourceSearchAlternateFirstSitelinkTitle}`] : []),
     ...(agent.sourceSearchAlternateFirstSitelinkUrl ? [`  sourceSearchAlternateFirstSitelinkUrl: ${agent.sourceSearchAlternateFirstSitelinkUrl}`] : []),
+    ...(agent.sourceSearchAlternateFirstSitelinkSelector ? [`  sourceSearchAlternateFirstSitelinkSelector: ${agent.sourceSearchAlternateFirstSitelinkSelector}`] : []),
     ...(typeof agent.sourceSearchAlternateSourceScore === "number" ? [`  sourceSearchAlternateSourceScore: ${agent.sourceSearchAlternateSourceScore}`] : []),
     ...(agent.sourceSearchAlternateRelevance ? [`  sourceSearchAlternateRelevance: ${agent.sourceSearchAlternateRelevance}`] : []),
     ...(typeof agent.sourceSearchAlternateLikelyOfficial === "boolean" ? [`  sourceSearchAlternateLikelyOfficial: ${agent.sourceSearchAlternateLikelyOfficial}`] : []),
@@ -12582,6 +12588,7 @@ function summarizeAgent(
     ...(resultChoices[0]?.sitelinks?.length ? { topResultChoiceSitelinkCount: resultChoices[0].sitelinks.length } : {}),
     ...(resultChoices[0]?.sitelinks?.[0]?.title ? { topResultChoiceFirstSitelinkTitle: resultChoices[0].sitelinks[0].title } : {}),
     ...(resultChoices[0]?.sitelinks?.[0]?.url ? { topResultChoiceFirstSitelinkUrl: resultChoices[0].sitelinks[0].url } : {}),
+    ...(resultChoices[0]?.sitelinks?.[0]?.selector ? { topResultChoiceFirstSitelinkSelector: resultChoices[0].sitelinks[0].selector } : {}),
     ...(resultChoices[0]?.selectionReason ? { topResultChoiceReason: resultChoices[0].selectionReason } : {}),
     evidenceCount: pageCheck.contentEvidence.length,
     formCount: pageCheck.forms.length,
@@ -12893,6 +12900,7 @@ function summarizeAgent(
     ...(sourceSearchSelectedResult?.sitelinks?.length ? { sourceSearchSelectedSitelinkCount: sourceSearchSelectedResult.sitelinks.length } : {}),
     ...(sourceSearchSelectedResult?.sitelinks?.[0]?.title ? { sourceSearchSelectedFirstSitelinkTitle: sourceSearchSelectedResult.sitelinks[0].title } : {}),
     ...(sourceSearchSelectedResult?.sitelinks?.[0]?.url ? { sourceSearchSelectedFirstSitelinkUrl: sourceSearchSelectedResult.sitelinks[0].url } : {}),
+    ...(sourceSearchSelectedResult?.sitelinks?.[0]?.selector ? { sourceSearchSelectedFirstSitelinkSelector: sourceSearchSelectedResult.sitelinks[0].selector } : {}),
     ...(sourceSearchSelectedResult?.openResult ? { sourceSearchSelectedOpenResult: sourceSearchSelectedResult.openResult } : {}),
     ...(sourceSearchSelectedResult?.command ? { sourceSearchSelectedCommand: sourceSearchSelectedResult.command } : {}),
     ...(sourceSearchSelectedResult?.commandArgs ? { sourceSearchSelectedCommandArgs: sourceSearchSelectedResult.commandArgs } : {}),
@@ -12916,6 +12924,7 @@ function summarizeAgent(
     ...(sourceSearchAlternateResult?.sitelinks?.length ? { sourceSearchAlternateSitelinkCount: sourceSearchAlternateResult.sitelinks.length } : {}),
     ...(sourceSearchAlternateResult?.sitelinks?.[0]?.title ? { sourceSearchAlternateFirstSitelinkTitle: sourceSearchAlternateResult.sitelinks[0].title } : {}),
     ...(sourceSearchAlternateResult?.sitelinks?.[0]?.url ? { sourceSearchAlternateFirstSitelinkUrl: sourceSearchAlternateResult.sitelinks[0].url } : {}),
+    ...(sourceSearchAlternateResult?.sitelinks?.[0]?.selector ? { sourceSearchAlternateFirstSitelinkSelector: sourceSearchAlternateResult.sitelinks[0].selector } : {}),
     ...(sourceSearchAlternateResult?.openResult ? { sourceSearchAlternateOpenResult: sourceSearchAlternateResult.openResult } : {}),
     ...(sourceSearchAlternateResult?.command ? { sourceSearchAlternateCommand: sourceSearchAlternateResult.command } : {}),
     ...(sourceSearchAlternateResult?.commandArgs ? { sourceSearchAlternateCommandArgs: sourceSearchAlternateResult.commandArgs } : {}),
@@ -18297,6 +18306,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.topResultChoiceSitelinkCount === "number" ? { topResultChoiceSitelinkCount: agent.topResultChoiceSitelinkCount } : {}),
     ...(agent.topResultChoiceFirstSitelinkTitle ? { topResultChoiceFirstSitelinkTitle: agent.topResultChoiceFirstSitelinkTitle } : {}),
     ...(agent.topResultChoiceFirstSitelinkUrl ? { topResultChoiceFirstSitelinkUrl: agent.topResultChoiceFirstSitelinkUrl } : {}),
+    ...(agent.topResultChoiceFirstSitelinkSelector ? { topResultChoiceFirstSitelinkSelector: agent.topResultChoiceFirstSitelinkSelector } : {}),
     ...(agent.topResultChoiceReason ? { topResultChoiceReason: agent.topResultChoiceReason } : {}),
     evidenceCount: agent.evidenceCount,
     formCount: agent.formCount,
@@ -18586,6 +18596,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.sourceSearchSelectedSitelinkCount === "number" ? { sourceSearchSelectedSitelinkCount: agent.sourceSearchSelectedSitelinkCount } : {}),
     ...(agent.sourceSearchSelectedFirstSitelinkTitle ? { sourceSearchSelectedFirstSitelinkTitle: agent.sourceSearchSelectedFirstSitelinkTitle } : {}),
     ...(agent.sourceSearchSelectedFirstSitelinkUrl ? { sourceSearchSelectedFirstSitelinkUrl: agent.sourceSearchSelectedFirstSitelinkUrl } : {}),
+    ...(agent.sourceSearchSelectedFirstSitelinkSelector ? { sourceSearchSelectedFirstSitelinkSelector: agent.sourceSearchSelectedFirstSitelinkSelector } : {}),
     ...(agent.sourceSearchSelectedOpenResult ? { sourceSearchSelectedOpenResult: agent.sourceSearchSelectedOpenResult } : {}),
     ...(agent.sourceSearchSelectedCommand ? { sourceSearchSelectedCommand: agent.sourceSearchSelectedCommand } : {}),
     ...(agent.sourceSearchSelectedCommandArgs ? { sourceSearchSelectedCommandArgs: agent.sourceSearchSelectedCommandArgs } : {}),
@@ -18618,6 +18629,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.sourceSearchAlternateSitelinkCount === "number" ? { sourceSearchAlternateSitelinkCount: agent.sourceSearchAlternateSitelinkCount } : {}),
     ...(agent.sourceSearchAlternateFirstSitelinkTitle ? { sourceSearchAlternateFirstSitelinkTitle: agent.sourceSearchAlternateFirstSitelinkTitle } : {}),
     ...(agent.sourceSearchAlternateFirstSitelinkUrl ? { sourceSearchAlternateFirstSitelinkUrl: agent.sourceSearchAlternateFirstSitelinkUrl } : {}),
+    ...(agent.sourceSearchAlternateFirstSitelinkSelector ? { sourceSearchAlternateFirstSitelinkSelector: agent.sourceSearchAlternateFirstSitelinkSelector } : {}),
     ...(agent.sourceSearchAlternateOpenResult ? { sourceSearchAlternateOpenResult: agent.sourceSearchAlternateOpenResult } : {}),
     ...(agent.sourceSearchAlternateCommand ? { sourceSearchAlternateCommand: agent.sourceSearchAlternateCommand } : {}),
     ...(agent.sourceSearchAlternateCommandArgs ? { sourceSearchAlternateCommandArgs: agent.sourceSearchAlternateCommandArgs } : {}),

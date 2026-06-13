@@ -268,6 +268,7 @@ describe("public agent types", () => {
       | "topResultChoiceSitelinkCount"
       | "topResultChoiceFirstSitelinkTitle"
       | "topResultChoiceFirstSitelinkUrl"
+      | "topResultChoiceFirstSitelinkSelector"
       | "topResultChoiceReason"
       | "evidenceCount"
       | "formCount"
@@ -578,6 +579,7 @@ describe("public agent types", () => {
       | "sourceSearchSelectedSitelinkCount"
       | "sourceSearchSelectedFirstSitelinkTitle"
       | "sourceSearchSelectedFirstSitelinkUrl"
+      | "sourceSearchSelectedFirstSitelinkSelector"
       | "sourceSearchSelectedOpenResult"
       | "sourceSearchSelectedCommand"
       | "sourceSearchSelectedCommandArgs"
@@ -610,6 +612,7 @@ describe("public agent types", () => {
       | "sourceSearchAlternateSitelinkCount"
       | "sourceSearchAlternateFirstSitelinkTitle"
       | "sourceSearchAlternateFirstSitelinkUrl"
+      | "sourceSearchAlternateFirstSitelinkSelector"
       | "sourceSearchAlternateOpenResult"
       | "sourceSearchAlternateCommand"
       | "sourceSearchAlternateCommandArgs"
@@ -1424,6 +1427,7 @@ describe("public agent types", () => {
       topResultChoiceSitelinkCount: 1,
       topResultChoiceFirstSitelinkTitle: "Readme",
       topResultChoiceFirstSitelinkUrl: "https://example.test/result#readme",
+      topResultChoiceFirstSitelinkSelector: "a",
       topResultChoiceReason: "High relevance.",
       evidenceCount: 1,
       formCount: 1,
@@ -1732,6 +1736,7 @@ describe("public agent types", () => {
       sourceSearchSelectedSitelinkCount: 1,
       sourceSearchSelectedFirstSitelinkTitle: "Install",
       sourceSearchSelectedFirstSitelinkUrl: "https://source.example/result#install",
+      sourceSearchSelectedFirstSitelinkSelector: "a",
       sourceSearchSelectedOpenResult: 2,
       sourceSearchSelectedCommand: "ax-grep --search 'ax-grep docs' --open-result 2 --agent",
       sourceSearchSelectedCommandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "2", "--agent"],
@@ -1764,6 +1769,7 @@ describe("public agent types", () => {
       sourceSearchAlternateSitelinkCount: 1,
       sourceSearchAlternateFirstSitelinkTitle: "Mirror",
       sourceSearchAlternateFirstSitelinkUrl: "https://mirror.example/result#mirror",
+      sourceSearchAlternateFirstSitelinkSelector: "a",
       sourceSearchAlternateOpenResult: 3,
       sourceSearchAlternateCommand: "ax-grep --search 'ax-grep docs' --open-result 3 --agent",
       sourceSearchAlternateCommandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "3", "--agent"],
@@ -2731,6 +2737,7 @@ describe("public agent types", () => {
     expect(summary.sourceSearchSelectedMatchedTerm).toBe("ax-grep");
     expect(summary.sourceSearchSelectedFindMatch).toBe("install");
     expect(summary.sourceSearchSelectedFirstSitelinkTitle).toBe("Install");
+    expect(summary.sourceSearchSelectedFirstSitelinkSelector).toBe("a");
     expect(summary.sourceSearchSelectedCommand).toContain("--open-result 2");
     expect(summary.sourceSearchSelectedSourceScore).toBe(0.91);
     expect(summary.sourceSearchSelectedRelevance).toBe("high");
@@ -2746,6 +2753,7 @@ describe("public agent types", () => {
     expect(summary.sourceSearchAlternateMatchedTerm).toBe("docs");
     expect(summary.sourceSearchAlternateFindMatch).toBe("mirror");
     expect(summary.sourceSearchAlternateFirstSitelinkTitle).toBe("Mirror");
+    expect(summary.sourceSearchAlternateFirstSitelinkSelector).toBe("a");
     expect(summary.sourceSearchAlternateCommand).toContain("--open-result 3");
     expect(summary.sourceSearchAlternateSourceScore).toBe(0.64);
     expect(summary.sourceSearchAlternateRelevance).toBe("medium");

@@ -1539,6 +1539,7 @@ describe("cli", () => {
         if (topResultChoice.sourceHints?.length) expect(envelope.agent.topResultChoiceSourceHints).toEqual(topResultChoice.sourceHints);
         if (topResultChoice.sitelinks?.[0]?.title) expect(envelope.agent.topResultChoiceFirstSitelinkTitle).toBe(topResultChoice.sitelinks[0].title);
         if (topResultChoice.sitelinks?.[0]?.url) expect(envelope.agent.topResultChoiceFirstSitelinkUrl).toBe(topResultChoice.sitelinks[0].url);
+        if (topResultChoice.sitelinks?.[0]?.selector) expect(envelope.agent.topResultChoiceFirstSitelinkSelector).toBe(topResultChoice.sitelinks[0].selector);
       } else if (topSourceChoice) {
         expect(envelope.agent.topChoiceKind).toBe("source");
         expect(envelope.agent.topChoicePath).toBe(topSourceChoice.path);
@@ -2669,6 +2670,7 @@ describe("cli", () => {
       topResultChoiceSitelinkCount: 2,
       topResultChoiceFirstSitelinkTitle: "Readme",
       topResultChoiceFirstSitelinkUrl: "https://www.npmjs.com/package/ax-grep?activeTab=readme",
+      topResultChoiceFirstSitelinkSelector: "a",
     });
     expect(envelope.agent.primaryAction.target).toMatchObject({
       title: "ax-grep - npm",
