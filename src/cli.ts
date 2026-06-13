@@ -19571,7 +19571,9 @@ function compactAgentBriefHandoff(handoff: AgentHandoff, primaryUrl?: string, se
     ...(handoff.verificationFoundQueries && handoff.verificationFoundQueries.length > 0 ? { verificationFoundQueries: handoff.verificationFoundQueries } : {}),
     ...(handoff.verificationMissingQueries && handoff.verificationMissingQueries.length > 0 ? { verificationMissingQueries: handoff.verificationMissingQueries } : {}),
     ...(handoff.readFrom ? { readFrom: handoff.readFrom } : {}),
+    ...(handoff.command ? { command: handoff.command } : {}),
     ...(handoff.commandArgs ? { commandArgs: handoff.commandArgs } : {}),
+    ...(handoff.afterInteractionCommand ? { afterInteractionCommand: handoff.afterInteractionCommand } : {}),
     ...(handoff.afterInteractionCommandArgs ? { afterInteractionCommandArgs: handoff.afterInteractionCommandArgs } : {}),
     ...(handoff.url ? { url: handoff.url } : {}),
     ...(handoff.target ? { target: compactAgentTarget(handoff.target, handoff.action) } : {}),
@@ -19602,7 +19604,10 @@ function compactAgentBrowserHtml(browserHtml: AgentBrowserHtmlCapture): object {
     htmlFile: browserHtml.htmlFile,
     captureScript: browserHtml.captureScript,
     ...(browserHtml.url ? { url: browserHtml.url } : {}),
+    ...(browserHtml.command ? { command: browserHtml.command } : {}),
     ...(browserHtml.commandArgs ? { commandArgs: browserHtml.commandArgs } : {}),
+    ...(browserHtml.afterInteractionCommand ? { afterInteractionCommand: browserHtml.afterInteractionCommand } : {}),
+    ...(browserHtml.afterInteractionCommandArgs ? { afterInteractionCommandArgs: browserHtml.afterInteractionCommandArgs } : {}),
   };
 }
 

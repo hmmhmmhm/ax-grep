@@ -11749,11 +11749,13 @@ npx ax-grep https://example.test --agent</code></pre>
       executor: {
         instruction: "Run ax-grep --search 'https://missing.example/page' --agent-brief and continue with its output.",
         action: "check-url-or-search",
+        command: "ax-grep --search 'https://missing.example/page' --agent-brief",
         commandArgs: ["ax-grep", "--search", "https://missing.example/page", "--agent-brief"],
       },
       handoff: {
         instruction: "Run ax-grep --search 'https://missing.example/page' --agent-brief and continue with its output.",
         action: "check-url-or-search",
+        command: "ax-grep --search 'https://missing.example/page' --agent-brief",
         commandArgs: ["ax-grep", "--search", "https://missing.example/page", "--agent-brief"],
         signals: expect.arrayContaining([
           expect.objectContaining({ kind: "diagnostic", severity: "error" }),
@@ -11781,16 +11783,20 @@ npx ax-grep https://example.test --agent</code></pre>
       executor: {
         instruction: "Capture rendered HTML into captured.html, then run ax-grep 'https://blocked.example/package' --html-file captured.html --find 'target claim' --agent-brief.",
         action: "retry-with-browser-html",
+        command: "ax-grep 'https://blocked.example/package' --html-file captured.html --find 'target claim' --agent-brief",
         commandArgs: ["ax-grep", "https://blocked.example/package", "--html-file", "captured.html", "--find", "target claim", "--agent-brief"],
         browserHtml: {
+          command: "ax-grep 'https://blocked.example/package' --html-file captured.html --find 'target claim' --agent-brief",
           commandArgs: ["ax-grep", "https://blocked.example/package", "--html-file", "captured.html", "--find", "target claim", "--agent-brief"],
         },
       },
       handoff: {
         instruction: "Capture rendered HTML into captured.html, then run ax-grep 'https://blocked.example/package' --html-file captured.html --find 'target claim' --agent-brief.",
         action: "retry-with-browser-html",
+        command: "ax-grep 'https://blocked.example/package' --html-file captured.html --find 'target claim' --agent-brief",
         commandArgs: ["ax-grep", "https://blocked.example/package", "--html-file", "captured.html", "--find", "target claim", "--agent-brief"],
         browserHtml: {
+          command: "ax-grep 'https://blocked.example/package' --html-file captured.html --find 'target claim' --agent-brief",
           commandArgs: ["ax-grep", "https://blocked.example/package", "--html-file", "captured.html", "--find", "target claim", "--agent-brief"],
         },
         signals: expect.arrayContaining([

@@ -1123,15 +1123,23 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
     evidenceCheck(
       root,
       "browser-fallback-command-text",
-      "Text-mode browser fallback output must keep copy-ready browser, executor, and handoff command strings beside command args.",
-      "A focused CLI test guards browserHtmlCommand, executorCommand, and handoffCommand text lines for no-inspectable pages.",
+      "Text-mode and brief browser fallback output must keep copy-ready browser, executor, and handoff command strings beside command args.",
+      "Focused CLI tests guard browserHtmlCommand, executorCommand, handoffCommand, and compact nested browser fallback command lines.",
       (failures) => {
+        requireFileIncludes(root, failures, "src/cli.ts", [
+          "function compactAgentBriefHandoff",
+          "handoff.command ? { command: handoff.command }",
+          "function compactAgentBrowserHtml",
+          "browserHtml.command ? { command: browserHtml.command }",
+        ]);
         requireFileIncludes(root, failures, "tests/cli.test.ts", [
           "returns a structured warning when the page has no inspectable content",
           "prints browser capture handoff details in text output",
+          "keeps brief mode in HTTP error recovery commands",
           "browserHtmlCommand: ax-grep 'https://example.test' --html-file captured.html --json --summary",
           "executorCommand: ax-grep 'https://example.test' --html-file captured.html --json --summary",
           "handoffCommand: ax-grep 'https://example.test' --html-file captured.html --json --summary",
+          "command: \"ax-grep 'https://blocked.example/package' --html-file captured.html --find 'target claim' --agent-brief\"",
           "browserHtmlCommandArgs",
           "executorCommandArgs",
           "handoffCommandArgs",
@@ -1602,6 +1610,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "A128",
           "A129",
           "A130",
+          "A131",
         ]);
       },
     ),
