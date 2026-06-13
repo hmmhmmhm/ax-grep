@@ -4848,7 +4848,10 @@ function formatContentText(content: ContentSummary[]): string[] {
   if (content.length === 0) return [];
   return [
     "content",
-    ...content.map((item, index) => `  ${index + 1}. ${item.text}`),
+    ...content.map((item, index) => {
+      const selector = item.selector ? ` (${item.selector})` : "";
+      return `  ${index + 1}. ${item.role}${selector} - ${item.text}`;
+    }),
   ];
 }
 

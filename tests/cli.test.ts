@@ -11205,6 +11205,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("    command: ax-grep 'https://source.example/report' --json --summary");
     expect(stdout.output).toContain("  pageCheckStepCommand: ax-grep 'https://source.example/report' --json --summary");
     expect(stdout.output).toContain("  pageCheckStepCommandArgs: [\"ax-grep\",\"https://source.example/report\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("content\n  1. article (article) - Article heading Article heading This article paragraph is long enough to appear in the page checking summary for agents. Source report Subscribe Subscribe");
+    expect(stdout.output).toContain("  2. p (p) - This article paragraph is long enough to appear in the page checking summary for agents.");
   });
 
   it("checks requested text against page summaries", async () => {
