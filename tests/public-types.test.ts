@@ -1188,6 +1188,8 @@ describe("public agent types", () => {
       | "executorTargetSelector"
       | "executorTargetText"
       | "executorExpectedOutcome"
+      | "executorBrowserHtmlReason"
+      | "executorBrowserHtmlReasonCode"
       | "handoffDecision"
       | "handoffMode"
       | "handoffActionName"
@@ -1223,6 +1225,8 @@ describe("public agent types", () => {
       | "handoffTargetSelector"
       | "handoffTargetText"
       | "handoffExpectedOutcome"
+      | "handoffBrowserHtmlReason"
+      | "handoffBrowserHtmlReasonCode"
       | "primaryActionName"
       | "primaryReason"
       | "primaryPriority"
@@ -2376,6 +2380,8 @@ describe("public agent types", () => {
       executorTargetSelector: "a.primary",
       executorTargetText: "Read more",
       executorExpectedOutcome: "read-evidence",
+      executorBrowserHtmlReason: "Browser-captured HTML or browser inspection is needed.",
+      executorBrowserHtmlReasonCode: "challenge",
       handoffDecision: "return",
       handoffMode: "read",
       handoffActionName: "read-content",
@@ -2411,6 +2417,8 @@ describe("public agent types", () => {
       handoffTargetSelector: "a.primary",
       handoffTargetText: "Read more",
       handoffExpectedOutcome: "read-evidence",
+      handoffBrowserHtmlReason: "Browser-captured HTML or browser inspection is needed.",
+      handoffBrowserHtmlReasonCode: "challenge",
       primaryActionName: "read-content",
       primaryReason: "Read current evidence.",
       primaryPriority: "high",
@@ -2629,6 +2637,7 @@ describe("public agent types", () => {
     expect(summary.executorTargetSelector).toBe("a.primary");
     expect(summary.executorTargetSourceScore).toBe(0.92);
     expect(summary.executorTargetLikelyOfficial).toBe(true);
+    expect(summary.executorBrowserHtmlReasonCode).toBe("challenge");
     expect(summary.handoffAnswerStatus).toBe("ready");
     expect(summary.handoffShouldContinue).toBe(false);
     expect(summary.handoffReadTargetKind).toBe("evidence");
@@ -2638,6 +2647,7 @@ describe("public agent types", () => {
     expect(summary.handoffTargetPath).toBe("pageCheck.links[0]");
     expect(summary.handoffTargetTitle).toBe("Example target");
     expect(summary.handoffTargetRelevance).toBe("high");
+    expect(summary.handoffBrowserHtmlReasonCode).toBe("challenge");
     expect(summary.primaryActionName).toBe("read-content");
     expect(summary.primaryExpectedOutcome).toBe("read-evidence");
     expect(summary.primaryBrowserHtmlReasonCode).toBe("challenge");

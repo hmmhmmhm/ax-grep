@@ -11272,6 +11272,10 @@ npx ax-grep https://example.test --agent</code></pre>
       browserHtmlCaptureScript: "document.documentElement.outerHTML",
       browserHtmlCommand: "ax-grep 'https://example.test' --html-file captured.html --json --summary",
       browserHtmlCommandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--json", "--summary"],
+      executorBrowserHtmlReason: "Browser-captured HTML or browser inspection is needed.",
+      executorBrowserHtmlReasonCode: "no-inspectable-content",
+      handoffBrowserHtmlReason: "Browser-captured HTML or browser inspection is needed.",
+      handoffBrowserHtmlReasonCode: "no-inspectable-content",
       primaryAction: {
         action: "retry-with-browser-html",
       },
@@ -11307,12 +11311,16 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  executor: browser/capture-browser-html/low action=retry-with-browser-html status=blocked - ");
     expect(stdout.output).toContain("  executorCommandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  executorBrowserHtml: captured.html capture=document.documentElement.outerHTML");
+    expect(stdout.output).toContain("  executorBrowserHtmlReason: Browser-captured HTML or browser inspection is needed.");
+    expect(stdout.output).toContain("  executorBrowserHtmlReasonCode: no-inspectable-content");
     expect(stdout.output).toContain("  executorBrowserHtmlUrl: https://example.test");
     expect(stdout.output).toContain("  executorBrowserHtmlCommandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  handoff: browser/capture-browser-html/low action=retry-with-browser-html priority=high - ");
     expect(stdout.output).toContain("  handoffCommandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  handoffUrl: https://example.test");
     expect(stdout.output).toContain("  handoffBrowserHtml: captured.html capture=document.documentElement.outerHTML");
+    expect(stdout.output).toContain("  handoffBrowserHtmlReason: Browser-captured HTML or browser inspection is needed.");
+    expect(stdout.output).toContain("  handoffBrowserHtmlReasonCode: no-inspectable-content");
     expect(stdout.output).toContain("  handoffBrowserHtmlUrl: https://example.test");
     expect(stdout.output).toContain("  handoffBrowserHtmlFile: captured.html");
     expect(stdout.output).toContain("  handoffBrowserHtmlCaptureScript: document.documentElement.outerHTML");
@@ -12150,6 +12158,8 @@ npx ax-grep https://example.test --agent</code></pre>
       primaryAfterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent-brief"],
       topActionBrowserHtmlReasonCode: "challenge",
       primaryBrowserHtmlReasonCode: "challenge",
+      executorBrowserHtmlReasonCode: "challenge",
+      handoffBrowserHtmlReasonCode: "challenge",
       requiresBrowserInteraction: true,
       browserHtmlReasonCode: "challenge",
       responseStatus: expect.any(Number),
@@ -12233,6 +12243,8 @@ npx ax-grep https://example.test --agent</code></pre>
       primaryAfterInteractionCommandArgs: ["ax-grep", "https://captured.example/challenge", "--html-file", "captured.html", "--agent"],
       topActionBrowserHtmlReasonCode: "challenge",
       primaryBrowserHtmlReasonCode: "challenge",
+      executorBrowserHtmlReasonCode: "challenge",
+      handoffBrowserHtmlReasonCode: "challenge",
       requiresBrowserInteraction: true,
       primaryAction: {
         action: "inspect-browser-state",

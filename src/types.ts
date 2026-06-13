@@ -2292,6 +2292,8 @@ export type AgentSummary = {
   executorTargetSelector?: string;
   executorTargetText?: string;
   executorExpectedOutcome?: AgentExpectedOutcome["kind"];
+  executorBrowserHtmlReason?: string;
+  executorBrowserHtmlReasonCode?: AgentBrowserHtmlReasonCode;
   handoffDecision?: AgentNext["loop"]["decision"];
   handoffMode?: AgentContinuationMode;
   handoffActionName?: string;
@@ -2327,6 +2329,8 @@ export type AgentSummary = {
   handoffTargetSelector?: string;
   handoffTargetText?: string;
   handoffExpectedOutcome?: AgentExpectedOutcome["kind"];
+  handoffBrowserHtmlReason?: string;
+  handoffBrowserHtmlReasonCode?: AgentBrowserHtmlReasonCode;
   primaryActionName?: string;
   primaryReason?: string;
   primaryPriority?: "low" | "medium" | "high";

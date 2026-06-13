@@ -1931,6 +1931,8 @@ type AgentSummary = {
   executorTargetSelector?: string;
   executorTargetText?: string;
   executorExpectedOutcome?: AgentExpectedOutcome["kind"];
+  executorBrowserHtmlReason?: string;
+  executorBrowserHtmlReasonCode?: AgentBrowserHtmlReasonCode;
   handoffDecision?: AgentNext["loop"]["decision"];
   handoffMode?: AgentContinuationMode;
   handoffActionName?: string;
@@ -1966,6 +1968,8 @@ type AgentSummary = {
   handoffTargetSelector?: string;
   handoffTargetText?: string;
   handoffExpectedOutcome?: AgentExpectedOutcome["kind"];
+  handoffBrowserHtmlReason?: string;
+  handoffBrowserHtmlReasonCode?: AgentBrowserHtmlReasonCode;
   primaryActionName?: string;
   primaryReason?: string;
   primaryPriority?: NonNullable<SuggestedAction["priority"]>;
@@ -4006,6 +4010,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (typeof agent.executorShouldContinue === "boolean") lines.push(`  executorShouldContinue: ${agent.executorShouldContinue}`);
   if (typeof agent.executorTerminal === "boolean") lines.push(`  executorTerminal: ${agent.executorTerminal}`);
   if (agent.executorExpectedOutcome) lines.push(`  executorExpectedOutcome: ${agent.executorExpectedOutcome}`);
+  if (agent.executorBrowserHtmlReason) lines.push(`  executorBrowserHtmlReason: ${agent.executorBrowserHtmlReason}`);
+  if (agent.executorBrowserHtmlReasonCode) lines.push(`  executorBrowserHtmlReasonCode: ${agent.executorBrowserHtmlReasonCode}`);
   if (agent.executorTargetUrl) lines.push(`  executorTargetUrl: ${agent.executorTargetUrl}`);
   if (agent.executorTargetPath) lines.push(`  executorTargetPath: ${agent.executorTargetPath}`);
   if (agent.executorTargetTitle) lines.push(`  executorTargetTitle: ${agent.executorTargetTitle}`);
@@ -4029,6 +4035,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.handoffPriority) lines.push(`  handoffPriority: ${agent.handoffPriority}`);
   if (agent.handoffPriorityReason) lines.push(`  handoffPriorityReason: ${agent.handoffPriorityReason}`);
   if (agent.handoffExpectedOutcome) lines.push(`  handoffExpectedOutcome: ${agent.handoffExpectedOutcome}`);
+  if (agent.handoffBrowserHtmlReason) lines.push(`  handoffBrowserHtmlReason: ${agent.handoffBrowserHtmlReason}`);
+  if (agent.handoffBrowserHtmlReasonCode) lines.push(`  handoffBrowserHtmlReasonCode: ${agent.handoffBrowserHtmlReasonCode}`);
   if (agent.handoffTargetUrl) lines.push(`  handoffTargetUrl: ${agent.handoffTargetUrl}`);
   if (agent.handoffTargetPath) lines.push(`  handoffTargetPath: ${agent.handoffTargetPath}`);
   if (agent.handoffTargetTitle) lines.push(`  handoffTargetTitle: ${agent.handoffTargetTitle}`);
@@ -12715,6 +12723,8 @@ function summarizeAgent(
     ...(executor.target?.selector ? { executorTargetSelector: executor.target.selector } : {}),
     ...(executor.target?.text ? { executorTargetText: executor.target.text } : {}),
     executorExpectedOutcome: executor.expectedOutcome,
+    ...(executor.browserHtml && browserHtmlReason ? { executorBrowserHtmlReason: browserHtmlReason } : {}),
+    ...(executor.browserHtml && browserHtmlReasonCode ? { executorBrowserHtmlReasonCode: browserHtmlReasonCode } : {}),
     handoffDecision: handoff.decision,
     handoffMode: handoff.mode,
     ...(handoff.action ? { handoffActionName: handoff.action } : {}),
@@ -12750,6 +12760,8 @@ function summarizeAgent(
     ...(handoff.target?.selector ? { handoffTargetSelector: handoff.target.selector } : {}),
     ...(handoff.target?.text ? { handoffTargetText: handoff.target.text } : {}),
     handoffExpectedOutcome: handoff.expectedOutcome,
+    ...(handoff.browserHtml && browserHtmlReason ? { handoffBrowserHtmlReason: browserHtmlReason } : {}),
+    ...(handoff.browserHtml && browserHtmlReasonCode ? { handoffBrowserHtmlReasonCode: browserHtmlReasonCode } : {}),
   };
   if (bestReadTarget) {
     agent.bestReadTarget = bestReadTarget.path;
@@ -15801,6 +15813,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     executorShouldContinue: executor.shouldContinue,
     executorTerminal: executor.terminal,
     executorExpectedOutcome: executor.expectedOutcome,
+    ...(executor.browserHtml && browserHtmlReason ? { executorBrowserHtmlReason: browserHtmlReason } : {}),
+    ...(executor.browserHtml && browserHtmlReasonCode ? { executorBrowserHtmlReasonCode: browserHtmlReasonCode } : {}),
     ...(executor.readValue?.path ? { executorReadValuePath: executor.readValue.path } : {}),
     ...(executorReadValueType ? { executorReadValueType } : {}),
     ...(typeof executorReadValueCount === "number" ? { executorReadValueCount } : {}),
@@ -15825,6 +15839,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     handoffShouldContinue: handoff.shouldContinue,
     handoffTerminal: handoff.terminal,
     handoffExpectedOutcome: handoff.expectedOutcome,
+    ...(handoff.browserHtml && browserHtmlReason ? { handoffBrowserHtmlReason: browserHtmlReason } : {}),
+    ...(handoff.browserHtml && browserHtmlReasonCode ? { handoffBrowserHtmlReasonCode: browserHtmlReasonCode } : {}),
     ...(handoff.readValue?.path ? { handoffReadValuePath: handoff.readValue.path } : {}),
     ...(handoffReadValueType ? { handoffReadValueType } : {}),
     ...(typeof handoffReadValueCount === "number" ? { handoffReadValueCount } : {}),
@@ -18228,6 +18244,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.executorTargetSelector ? { executorTargetSelector: agent.executorTargetSelector } : {}),
     ...(agent.executorTargetText ? { executorTargetText: agent.executorTargetText } : {}),
     ...(agent.executorExpectedOutcome ? { executorExpectedOutcome: agent.executorExpectedOutcome } : {}),
+    ...(agent.executorBrowserHtmlReason ? { executorBrowserHtmlReason: agent.executorBrowserHtmlReason } : {}),
+    ...(agent.executorBrowserHtmlReasonCode ? { executorBrowserHtmlReasonCode: agent.executorBrowserHtmlReasonCode } : {}),
     ...(agent.handoffDecision ? { handoffDecision: agent.handoffDecision } : {}),
     ...(agent.handoffMode ? { handoffMode: agent.handoffMode } : {}),
     ...(agent.handoffActionName ? { handoffActionName: agent.handoffActionName } : {}),
@@ -18263,6 +18281,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.handoffTargetSelector ? { handoffTargetSelector: agent.handoffTargetSelector } : {}),
     ...(agent.handoffTargetText ? { handoffTargetText: agent.handoffTargetText } : {}),
     ...(agent.handoffExpectedOutcome ? { handoffExpectedOutcome: agent.handoffExpectedOutcome } : {}),
+    ...(agent.handoffBrowserHtmlReason ? { handoffBrowserHtmlReason: agent.handoffBrowserHtmlReason } : {}),
+    ...(agent.handoffBrowserHtmlReasonCode ? { handoffBrowserHtmlReasonCode: agent.handoffBrowserHtmlReasonCode } : {}),
     ...(agent.primaryActionName ? { primaryActionName: agent.primaryActionName } : {}),
     ...(agent.primaryReason ? { primaryReason: agent.primaryReason } : {}),
     ...(agent.primaryPriority ? { primaryPriority: agent.primaryPriority } : {}),
@@ -19334,6 +19354,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.executorTargetSelector ? { executorTargetSelector: agent.executorTargetSelector } : {}),
     ...(agent.executorTargetText ? { executorTargetText: agent.executorTargetText } : {}),
     ...(agent.executorExpectedOutcome ? { executorExpectedOutcome: agent.executorExpectedOutcome } : {}),
+    ...(agent.executorBrowserHtmlReason ? { executorBrowserHtmlReason: agent.executorBrowserHtmlReason } : {}),
+    ...(agent.executorBrowserHtmlReasonCode ? { executorBrowserHtmlReasonCode: agent.executorBrowserHtmlReasonCode } : {}),
     ...(agent.handoffDecision ? { handoffDecision: agent.handoffDecision } : {}),
     ...(agent.handoffMode ? { handoffMode: agent.handoffMode } : {}),
     ...(agent.handoffActionName ? { handoffActionName: agent.handoffActionName } : {}),
@@ -19369,6 +19391,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.handoffTargetSelector ? { handoffTargetSelector: agent.handoffTargetSelector } : {}),
     ...(agent.handoffTargetText ? { handoffTargetText: agent.handoffTargetText } : {}),
     ...(agent.handoffExpectedOutcome ? { handoffExpectedOutcome: agent.handoffExpectedOutcome } : {}),
+    ...(agent.handoffBrowserHtmlReason ? { handoffBrowserHtmlReason: agent.handoffBrowserHtmlReason } : {}),
+    ...(agent.handoffBrowserHtmlReasonCode ? { handoffBrowserHtmlReasonCode: agent.handoffBrowserHtmlReasonCode } : {}),
     ...(agent.primaryActionName ? { primaryActionName: agent.primaryActionName } : {}),
     ...(agent.primaryReason ? { primaryReason: agent.primaryReason } : {}),
     ...(agent.primaryPriority ? { primaryPriority: agent.primaryPriority } : {}),
