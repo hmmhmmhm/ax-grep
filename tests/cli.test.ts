@@ -11362,7 +11362,8 @@ npx ax-grep https://example.test --agent</code></pre>
       stdout,
       fetch: async () => new Response(`
         <main>
-          <form method="GET" action="/find">
+          <form id="archive-form" name="archive" method="GET" action="/find" target="_blank" enctype="multipart/form-data" accept-charset="UTF-8" novalidate>
+            <input type="hidden" name="csrf" value="token">
             <label for="q">Archive search</label>
             <input id="q" name="query" type="search">
             <button>Search</button>
@@ -11374,9 +11375,23 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(0);
     expect(stdout.output).toContain("  topChoice: form pageCheck.forms[0] rank=1 method=get");
     expect(stdout.output).toContain(" command=ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
+    expect(stdout.output).toContain("  topFormChoicePath: pageCheck.forms[0]");
+    expect(stdout.output).toContain("  topFormChoiceMethod: get");
+    expect(stdout.output).toContain("  topFormChoiceActionUrl: https://example.test/find");
+    expect(stdout.output).toContain("  topFormChoiceFormId: archive-form");
+    expect(stdout.output).toContain("  topFormChoiceFormName: archive");
+    expect(stdout.output).toContain("  topFormChoiceFormTarget: _blank");
+    expect(stdout.output).toContain("  topFormChoiceFormEncType: multipart/form-data");
+    expect(stdout.output).toContain("  topFormChoiceFormAcceptCharset: UTF-8");
+    expect(stdout.output).toContain("  topFormChoiceFormNoValidate: true");
+    expect(stdout.output).toContain("  topFormChoiceUrlTemplate: https://example.test/find?query=%7Bquery%7D");
+    expect(stdout.output).toContain("  topFormChoiceQueryField: query");
+    expect(stdout.output).toContain("  topFormChoiceFieldCount: 1");
+    expect(stdout.output).toContain("  topFormChoiceHiddenFieldCount: 1");
+    expect(stdout.output).toContain("  topFormChoiceSelector: form:nth-of-type(1)");
     expect(stdout.output).toContain("  topFormChoiceCommand: ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
     expect(stdout.output).toContain("  topFormChoiceCommandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
-    expect(stdout.output).toContain("  formChoice: f1 pageCheck.forms[0] rank=1 method=get fields=1 query=query template=https://example.test/find?query=%7Bquery%7D selector=form:nth-of-type(1)");
+    expect(stdout.output).toContain("  formChoice: f1 pageCheck.forms[0] rank=1 method=get fields=1 hidden=1 firstHidden=csrf query=query template=https://example.test/find?query=%7Bquery%7D target=_blank enctype=multipart/form-data selector=form:nth-of-type(1)");
     expect(stdout.output).toContain("    command: ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
     expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
   });
