@@ -5710,6 +5710,25 @@ describe("cli", () => {
     });
   });
 
+  it("prints list item ref selectors in text agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/releases"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <ul aria-label="Release actions">
+            <li aria-posinset="1" aria-setsize="2" aria-current="page">Download report</li>
+            <li aria-posinset="2" aria-setsize="2" aria-expanded="false">Read notes</li>
+          </ul>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("itemRefs=Download report role=listitem pos=1 size=2 current=page selector=li, Read notes role=listitem pos=2 size=2 expanded=false selector=li:nth-of-type(2)");
+  });
+
   it("summarizes forms with action fields and query URL templates for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/search", "--agent"], {
