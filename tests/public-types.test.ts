@@ -591,6 +591,7 @@ describe("public agent types", () => {
       | "topAnswerEvidenceConfidence"
       | "topAnswerEvidenceReason"
       | "topAnswerEvidenceScore"
+      | "searchDecision"
       | "searchDecisionName"
       | "searchDecisionConfidence"
       | "searchDecisionReason"
@@ -609,6 +610,7 @@ describe("public agent types", () => {
       | "searchDecisionRecommendedRelevance"
       | "searchDecisionRecommendedLikelyOfficial"
       | "searchDecisionCommandArgs"
+      | "pageDecision"
       | "pageDecisionName"
       | "pageDecisionConfidence"
       | "pageDecisionReason"
@@ -1672,6 +1674,26 @@ describe("public agent types", () => {
       topAnswerEvidenceConfidence: "high",
       topAnswerEvidenceReason: "Primary answer evidence.",
       topAnswerEvidenceScore: 0.9,
+      searchDecision: {
+        decision: "open-result",
+        confidence: "high",
+        reason: "Use the best result.",
+        resultCount: 2,
+        highRelevanceCount: 1,
+        mediumRelevanceCount: 1,
+        lowRelevanceCount: 0,
+        officialCount: 1,
+        findMatchCount: 1,
+        recommendedRank: 1,
+        recommendedPath: "recommendedResult",
+        recommendedTitle: "Example result",
+        recommendedUrl: "https://example.test",
+        recommendedSource: "example.test",
+        recommendedSourceScore: 0.92,
+        recommendedRelevance: "high",
+        recommendedLikelyOfficial: true,
+        commandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent"],
+      },
       searchDecisionName: "open-result",
       searchDecisionConfidence: "high",
       searchDecisionReason: "Use the best result.",
@@ -1690,6 +1712,20 @@ describe("public agent types", () => {
       searchDecisionRecommendedRelevance: "high",
       searchDecisionRecommendedLikelyOfficial: true,
       searchDecisionCommandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent"],
+      pageDecision: {
+        decision: "read-content",
+        confidence: "high",
+        reason: "Readable content is available.",
+        readability: "high",
+        readabilityScore: 0.95,
+        evidenceCount: 2,
+        evidenceQualityScore: 0.9,
+        sourceLinkCount: 1,
+        sourceQualityScore: 0.92,
+        readFrom: "pageCheck.contentEvidence",
+        url: "https://example.test",
+        commandArgs: ["ax-grep", "https://example.test", "--agent"],
+      },
       pageDecisionName: "read-content",
       pageDecisionConfidence: "high",
       pageDecisionReason: "Readable content is available.",
@@ -2510,6 +2546,8 @@ describe("public agent types", () => {
     expect(summary.searchDecisionRecommendedPath).toBe("recommendedResult");
     expect(summary.searchDecisionRecommendedSourceScore).toBe(0.92);
     expect(summary.searchDecisionRecommendedLikelyOfficial).toBe(true);
+    expect(summary.searchDecision?.recommendedRelevance).toBe("high");
+    expect(summary.pageDecision?.readability).toBe("high");
     expect(summary.recommendedCommand).toContain("example.test");
     expect(summary.recommendedCommandArgs?.[0]).toBe("ax-grep");
 

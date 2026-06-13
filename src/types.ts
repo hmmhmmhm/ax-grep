@@ -718,6 +718,44 @@ export type AgentVerification = {
   recommendedAction?: AgentAction;
 };
 
+export type AgentSearchDecision = {
+  decision: "open-result" | "refine-search" | "none";
+  confidence: "low" | "medium" | "high";
+  reason: string;
+  resultCount: number;
+  highRelevanceCount: number;
+  mediumRelevanceCount: number;
+  lowRelevanceCount: number;
+  officialCount: number;
+  findMatchCount: number;
+  recommendedRank?: number;
+  recommendedPath?: string;
+  recommendedTitle?: string;
+  recommendedUrl?: string;
+  recommendedSource?: string;
+  recommendedSourceScore?: number;
+  recommendedRelevance?: "low" | "medium" | "high";
+  recommendedLikelyOfficial?: boolean;
+  command?: string;
+  commandArgs?: string[];
+};
+
+export type AgentPageDecision = {
+  decision: "read-content" | "open-source-link" | "open-site-search" | "retry-with-browser-html" | "inspect-actions" | "none";
+  confidence: "low" | "medium" | "high";
+  reason: string;
+  readability: "low" | "medium" | "high";
+  readabilityScore: number;
+  evidenceCount: number;
+  evidenceQualityScore: number;
+  sourceLinkCount: number;
+  sourceQualityScore: number;
+  readFrom?: string;
+  url?: string;
+  command?: string;
+  commandArgs?: string[];
+};
+
 export type AgentNext = {
   mode: AgentContinuationMode;
   reason: string;
@@ -1204,8 +1242,8 @@ export type AgentSummary = {
   executionPlanAfterInteractionCommandArgs?: string[];
   executionPlanUrl?: string;
   answerPlan?: AgentAnswerPlan;
-  searchDecision?: Record<string, unknown>;
-  pageDecision?: Record<string, unknown>;
+  searchDecision?: AgentSearchDecision;
+  pageDecision?: AgentPageDecision;
   searchDecisionName?: string;
   searchDecisionConfidence?: "low" | "medium" | "high";
   searchDecisionReason?: string;
