@@ -2025,6 +2025,8 @@ export type AgentSummary = {
   topResourceKind?: string;
   topResourceUrl?: string;
   topResourceTitle?: string;
+  topResourceCommand?: string;
+  topResourceCommandArgs?: string[];
   topMediaKind?: string;
   topMediaUrl?: string;
   topMediaText?: string;

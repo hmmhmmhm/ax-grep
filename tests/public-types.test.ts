@@ -392,6 +392,8 @@ describe("public agent types", () => {
       | "topResourceKind"
       | "topResourceUrl"
       | "topResourceTitle"
+      | "topResourceCommand"
+      | "topResourceCommandArgs"
       | "topMediaKind"
       | "topMediaUrl"
       | "topMediaText"
@@ -1592,6 +1594,8 @@ describe("public agent types", () => {
       topResourceKind: "download",
       topResourceUrl: "https://example.test/guide.pdf",
       topResourceTitle: "Guide PDF",
+      topResourceCommand: "ax-grep 'https://example.test/guide.pdf' --agent",
+      topResourceCommandArgs: ["ax-grep", "https://example.test/guide.pdf", "--agent"],
       topMediaKind: "image",
       topMediaUrl: "https://example.test/diagram.png",
       topMediaText: "Architecture diagram",
@@ -2785,6 +2789,7 @@ describe("public agent types", () => {
     expect(summary.topDataTableFirstRow?.[1]).toBe("$19.99");
     expect(summary.topFaqQuestion).toBe("How do I install it?");
     expect(summary.topResourceUrl).toBe("https://example.test/guide.pdf");
+    expect(summary.topResourceCommandArgs?.[1]).toBe("https://example.test/guide.pdf");
     expect(summary.bestStructuredReadTarget).toBe("pageCheck.dataTables");
     expect(summary.bestStructuredReadTargetPrimary).toBe(true);
     expect(summary.formChoices?.[0]?.queryField).toBe("q");

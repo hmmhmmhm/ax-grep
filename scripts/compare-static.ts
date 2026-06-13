@@ -1516,6 +1516,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topResourceKind?: string;
       topResourceUrl?: string;
       topResourceTitle?: string;
+      topResourceCommand?: string;
+      topResourceCommandArgs?: string[];
       topMediaKind?: string;
       topMediaUrl?: string;
       topMediaText?: string;
@@ -8022,6 +8024,8 @@ function scoreAgentStructuredShortcuts(agent: {
   topResourceKind?: string;
   topResourceUrl?: string;
   topResourceTitle?: string;
+  topResourceCommand?: string;
+  topResourceCommandArgs?: string[];
   topMediaKind?: string;
   topMediaUrl?: string;
   topMediaText?: string;
@@ -8210,6 +8214,11 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topResourceKind === topResource.kind) matched += 1;
     if (agent.topResourceUrl === topResource.url) matched += 1;
     if (agent.topResourceTitle === topResource.title) matched += 1;
+    if (topResource.url) {
+      required += 2;
+      if (typeof agent.topResourceCommand === "string" && agent.topResourceCommand.includes(topResource.url)) matched += 1;
+      if (Array.isArray(agent.topResourceCommandArgs) && agent.topResourceCommandArgs.includes(topResource.url)) matched += 1;
+    }
   } else if (agent.topResourceKind || agent.topResourceUrl || agent.topResourceTitle) {
     required += 1;
   }

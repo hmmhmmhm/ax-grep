@@ -1658,6 +1658,8 @@ type AgentSummary = {
   topResourceKind?: PageResourceSummary["kind"];
   topResourceUrl?: string;
   topResourceTitle?: string;
+  topResourceCommand?: string;
+  topResourceCommandArgs?: string[];
   topMediaKind?: PageMediaSummary["kind"];
   topMediaUrl?: string;
   topMediaText?: string;
@@ -4011,6 +4013,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topFaqQuestion ? [`  topFaqQuestion: ${agent.topFaqQuestion}`] : []),
     ...(agent.topCodeBlockText ? [`  topCodeBlockText: ${agent.topCodeBlockText}`] : []),
     ...(agent.topResourceUrl ? [`  topResourceUrl: ${agent.topResourceUrl}`] : []),
+    ...(agent.topResourceCommand ? [`  topResourceCommand: ${agent.topResourceCommand}`] : []),
+    ...(agent.topResourceCommandArgs ? [`  topResourceCommandArgs: ${formatCommandArgsText(agent.topResourceCommandArgs)}`] : []),
     ...(agent.topMediaUrl ? [`  topMediaUrl: ${agent.topMediaUrl}`] : []),
     ...(agent.topSectionPath ? [`  topSectionPath: ${agent.topSectionPath}`] : []),
     ...(agent.topSectionHeading ? [`  topSectionHeading: ${agent.topSectionHeading}`] : []),
@@ -12069,6 +12073,9 @@ function summarizeAgent(
   const sourceSearchAlternateDifferentHost = sourceSearchSelectedResult?.host && sourceSearchAlternateResult?.host
     ? sourceSearchAlternateResult.host !== sourceSearchSelectedResult.host
     : undefined;
+  const topResourceCommand = pageCheck.resources[0]?.url
+    ? pageCommandSpec(pageCheck.resources[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topProvenanceCommand = pageCheck.provenance[0]?.url
     ? pageCommandSpec(pageCheck.provenance[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -12875,6 +12882,8 @@ function summarizeAgent(
     ...(pageCheck.resources[0] ? { topResourceKind: pageCheck.resources[0].kind } : {}),
     ...(pageCheck.resources[0]?.url ? { topResourceUrl: pageCheck.resources[0].url } : {}),
     ...(pageCheck.resources[0]?.title ? { topResourceTitle: pageCheck.resources[0].title } : {}),
+    ...(topResourceCommand ? { topResourceCommand: topResourceCommand.command } : {}),
+    ...(topResourceCommand ? { topResourceCommandArgs: topResourceCommand.commandArgs } : {}),
     ...(pageCheck.media[0] ? { topMediaKind: pageCheck.media[0].kind } : {}),
     ...(pageCheck.media[0]?.url ? { topMediaUrl: pageCheck.media[0].url } : {}),
     ...(pageCheck.media[0]?.text ? { topMediaText: pageCheck.media[0].text } : {}),
@@ -18674,6 +18683,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topResourceKind ? { topResourceKind: agent.topResourceKind } : {}),
     ...(agent.topResourceUrl ? { topResourceUrl: agent.topResourceUrl } : {}),
     ...(agent.topResourceTitle ? { topResourceTitle: agent.topResourceTitle } : {}),
+    ...(agent.topResourceCommand ? { topResourceCommand: agent.topResourceCommand } : {}),
+    ...(agent.topResourceCommandArgs ? { topResourceCommandArgs: agent.topResourceCommandArgs } : {}),
     ...(agent.topMediaKind ? { topMediaKind: agent.topMediaKind } : {}),
     ...(agent.topMediaUrl ? { topMediaUrl: agent.topMediaUrl } : {}),
     ...(agent.topMediaText ? { topMediaText: agent.topMediaText } : {}),
@@ -19889,6 +19900,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topResourceKind ? { topResourceKind: agent.topResourceKind } : {}),
     ...(agent.topResourceUrl ? { topResourceUrl: agent.topResourceUrl } : {}),
     ...(agent.topResourceTitle ? { topResourceTitle: agent.topResourceTitle } : {}),
+    ...(agent.topResourceCommand ? { topResourceCommand: agent.topResourceCommand } : {}),
+    ...(agent.topResourceCommandArgs ? { topResourceCommandArgs: agent.topResourceCommandArgs } : {}),
     ...(agent.topMediaKind ? { topMediaKind: agent.topMediaKind } : {}),
     ...(agent.topMediaUrl ? { topMediaUrl: agent.topMediaUrl } : {}),
     ...(agent.topMediaText ? { topMediaText: agent.topMediaText } : {}),

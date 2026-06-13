@@ -10671,6 +10671,8 @@ npx ax-grep https://example.test --agent</code></pre>
       topResourceKind: "feed",
       topResourceUrl: "https://example.test/feed.xml",
       topResourceTitle: "Example feed",
+      topResourceCommand: "ax-grep 'https://example.test/feed.xml' --agent",
+      topResourceCommandArgs: ["ax-grep", "https://example.test/feed.xml", "--agent"],
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
@@ -10718,6 +10720,8 @@ npx ax-grep https://example.test --agent</code></pre>
       topResourceKind: "feed",
       topResourceUrl: "https://example.test/feed.xml",
       topResourceTitle: "Example feed",
+      topResourceCommand: "ax-grep 'https://example.test/feed.xml' --agent-brief",
+      topResourceCommandArgs: ["ax-grep", "https://example.test/feed.xml", "--agent-brief"],
       bestStructuredReadTarget: "pageCheck.resources",
     });
   });
