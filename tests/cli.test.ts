@@ -7669,9 +7669,11 @@ describe("cli", () => {
     expect(envelope.agent).toMatchObject({
       contract: { profile: "brief" },
       authorLinkCount: 1,
+      topAuthorLinkPath: "pageCheck.authorLinks[0]",
       topAuthorLinkName: "Jane Doe",
       topAuthorLinkUrl: "https://example.test/authors/jane",
       topAuthorLinkSource: "link",
+      topAuthorLinkSelector: "link[rel=\"author\"]:nth-of-type(1)",
       topAuthorLinkCommand: "ax-grep 'https://example.test/authors/jane' --agent-brief",
       topAuthorLinkCommandArgs: ["ax-grep", "https://example.test/authors/jane", "--agent-brief"],
       bestHiddenReadTarget: "pageCheck.apiEndpoints",
@@ -11134,9 +11136,11 @@ npx ax-grep https://example.test --agent</code></pre>
       semanticTopUnavailablePath: "agent.semanticSummary.unavailableItems[0]",
       semanticTopUnavailableTag: "iframe",
       semanticTopUnavailableReason: "iframe content unavailable in static HTML",
+      topEmbedPath: "pageCheck.embeds[0]",
       topEmbedKind: "iframe",
       topEmbedUrl: "https://example.test/embed/dashboard?region=us",
       topEmbedTitle: "Interactive revenue dashboard",
+      topEmbedSelector: "iframe:nth-of-type(1)",
       topEmbedCommand: "ax-grep 'https://example.test/embed/dashboard?region=us' --agent",
       topEmbedCommandArgs: ["ax-grep", "https://example.test/embed/dashboard?region=us", "--agent"],
     });
@@ -11160,6 +11164,34 @@ npx ax-grep https://example.test --agent</code></pre>
         }),
       ]),
     });
+  });
+
+  it("prints embed, transcript, and author locators in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/report"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <link rel="author" href="/authors/jane" title="Jane Doe">
+          </head>
+          <body>
+            <main>
+              <iframe src="/embed/dashboard" title="Interactive dashboard"></iframe>
+              <video controls>
+                <track kind="captions" src="/media/walkthrough.en.vtt" srclang="en" label="English captions">
+              </video>
+            </main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  topEmbed: pageCheck.embeds[0] iframe \"Interactive dashboard\" selector=iframe:nth-of-type(1) <https://example.test/embed/dashboard>");
+    expect(stdout.output).toContain("  topTranscript: pageCheck.transcripts[0] captions \"English captions\" lang=en selector=track:nth-of-type(1) <https://example.test/media/walkthrough.en.vtt>");
+    expect(stdout.output).toContain("  topAuthorLink: pageCheck.authorLinks[0] link \"Jane Doe\" selector=link[rel=\"author\"]:nth-of-type(1) <https://example.test/authors/jane>");
   });
 
   it("keeps unavailable semantic target details in agent brief output", async () => {
@@ -11275,10 +11307,12 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(envelope.pageCheck.readability.reasons).toContain("3 transcripts");
     expect(envelope.agent).toMatchObject({
       transcriptCount: 3,
+      topTranscriptPath: "pageCheck.transcripts[0]",
       topTranscriptKind: "captions",
       topTranscriptUrl: "https://example.test/media/walkthrough.en.vtt",
       topTranscriptLabel: "English captions",
       topTranscriptLanguage: "en",
+      topTranscriptSelector: "track:nth-of-type(1)",
       topTranscriptCommand: "ax-grep 'https://example.test/media/walkthrough.en.vtt' --agent",
       topTranscriptCommandArgs: ["ax-grep", "https://example.test/media/walkthrough.en.vtt", "--agent"],
     });

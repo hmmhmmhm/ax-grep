@@ -1600,20 +1600,26 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topTocFirstItemCommand?: string;
       topTocFirstItemCommandArgs?: string[];
       topTocSelector?: string;
+      topEmbedPath?: string;
       topEmbedKind?: string;
       topEmbedUrl?: string;
       topEmbedTitle?: string;
+      topEmbedSelector?: string;
       topEmbedCommand?: string;
       topEmbedCommandArgs?: string[];
+      topTranscriptPath?: string;
       topTranscriptKind?: string;
       topTranscriptUrl?: string;
       topTranscriptLabel?: string;
       topTranscriptLanguage?: string;
+      topTranscriptSelector?: string;
       topTranscriptCommand?: string;
       topTranscriptCommandArgs?: string[];
+      topAuthorLinkPath?: string;
       topAuthorLinkName?: string;
       topAuthorLinkUrl?: string;
       topAuthorLinkSource?: string;
+      topAuthorLinkSelector?: string;
       topAuthorLinkCommand?: string;
       topAuthorLinkCommandArgs?: string[];
       topProvenancePath?: string;
@@ -8610,20 +8616,26 @@ function scoreAgentStructuredShortcuts(agent: {
   topTocFirstItemCommand?: string;
   topTocFirstItemCommandArgs?: string[];
   topTocSelector?: string;
+  topEmbedPath?: string;
   topEmbedKind?: string;
   topEmbedUrl?: string;
   topEmbedTitle?: string;
+  topEmbedSelector?: string;
   topEmbedCommand?: string;
   topEmbedCommandArgs?: string[];
+  topTranscriptPath?: string;
   topTranscriptKind?: string;
   topTranscriptUrl?: string;
   topTranscriptLabel?: string;
   topTranscriptLanguage?: string;
+  topTranscriptSelector?: string;
   topTranscriptCommand?: string;
   topTranscriptCommandArgs?: string[];
+  topAuthorLinkPath?: string;
   topAuthorLinkName?: string;
   topAuthorLinkUrl?: string;
   topAuthorLinkSource?: string;
+  topAuthorLinkSelector?: string;
   topAuthorLinkCommand?: string;
   topAuthorLinkCommandArgs?: string[];
   topProvenancePath?: string;
@@ -8710,9 +8722,9 @@ function scoreAgentStructuredShortcuts(agent: {
   breadcrumbs?: Array<{ path?: string; text?: string; source?: string }>;
   pagination?: Array<{ path?: string; kind?: string; label?: string; url?: string; current?: boolean; selector?: string }>;
   toc?: Array<{ path?: string; title?: string; items?: Array<{ label?: string; url?: string }>; text?: string; selector?: string }>;
-  embeds?: Array<{ kind?: string; url?: string; title?: string }>;
-  transcripts?: Array<{ kind?: string; url?: string; label?: string; language?: string }>;
-  authorLinks?: Array<{ name?: string; url?: string; source?: string }>;
+  embeds?: Array<{ path?: string; kind?: string; url?: string; title?: string; selector?: string }>;
+  transcripts?: Array<{ path?: string; kind?: string; url?: string; label?: string; language?: string; selector?: string }>;
+  authorLinks?: Array<{ path?: string; name?: string; url?: string; source?: string; selector?: string }>;
   provenance?: Array<{ path?: string; kind?: string; label?: string; value?: string; url?: string; source?: string; selector?: string }>;
   offers?: Array<{ path?: string; name?: string; price?: string; priceAmount?: number; currency?: string; availability?: string; url?: string; selector?: string }>;
   datasets?: Array<{ path?: string; kind?: string; name?: string; url?: string; distributionUrls?: string[]; licenseUrl?: string; encodingFormat?: string; temporalCoverage?: string; spatialCoverage?: string; creator?: string; selector?: string }>;
@@ -8891,47 +8903,53 @@ function scoreAgentStructuredShortcuts(agent: {
 
   const topEmbed = embeds[0];
   if (topEmbed) {
-    required += 3;
+    required += 5;
+    if (agent.topEmbedPath === topEmbed.path) matched += 1;
     if (agent.topEmbedKind === topEmbed.kind) matched += 1;
     if (agent.topEmbedUrl === topEmbed.url) matched += 1;
     if (agent.topEmbedTitle === topEmbed.title) matched += 1;
+    if (agent.topEmbedSelector === topEmbed.selector) matched += 1;
     if (topEmbed.url && /^https?:\/\//i.test(topEmbed.url)) {
       required += 2;
       if (typeof agent.topEmbedCommand === "string" && agent.topEmbedCommand.includes(topEmbed.url)) matched += 1;
       if (Array.isArray(agent.topEmbedCommandArgs) && agent.topEmbedCommandArgs.includes(topEmbed.url)) matched += 1;
     }
-  } else if (agent.topEmbedKind || agent.topEmbedUrl || agent.topEmbedTitle || agent.topEmbedCommand || agent.topEmbedCommandArgs) {
+  } else if (agent.topEmbedPath || agent.topEmbedKind || agent.topEmbedUrl || agent.topEmbedTitle || agent.topEmbedSelector || agent.topEmbedCommand || agent.topEmbedCommandArgs) {
     required += 1;
   }
 
   const topTranscript = transcripts[0];
   if (topTranscript) {
-    required += 4;
+    required += 6;
+    if (agent.topTranscriptPath === topTranscript.path) matched += 1;
     if (agent.topTranscriptKind === topTranscript.kind) matched += 1;
     if (agent.topTranscriptUrl === topTranscript.url) matched += 1;
     if (agent.topTranscriptLabel === topTranscript.label) matched += 1;
     if (agent.topTranscriptLanguage === topTranscript.language) matched += 1;
+    if (agent.topTranscriptSelector === topTranscript.selector) matched += 1;
     if (topTranscript.url && /^https?:\/\//i.test(topTranscript.url)) {
       required += 2;
       if (typeof agent.topTranscriptCommand === "string" && agent.topTranscriptCommand.includes(topTranscript.url)) matched += 1;
       if (Array.isArray(agent.topTranscriptCommandArgs) && agent.topTranscriptCommandArgs.includes(topTranscript.url)) matched += 1;
     }
-  } else if (agent.topTranscriptKind || agent.topTranscriptUrl || agent.topTranscriptLabel || agent.topTranscriptLanguage || agent.topTranscriptCommand || agent.topTranscriptCommandArgs) {
+  } else if (agent.topTranscriptPath || agent.topTranscriptKind || agent.topTranscriptUrl || agent.topTranscriptLabel || agent.topTranscriptLanguage || agent.topTranscriptSelector || agent.topTranscriptCommand || agent.topTranscriptCommandArgs) {
     required += 1;
   }
 
   const topAuthorLink = authorLinks[0];
   if (topAuthorLink) {
-    required += 3;
+    required += 5;
+    if (agent.topAuthorLinkPath === topAuthorLink.path) matched += 1;
     if (agent.topAuthorLinkName === topAuthorLink.name) matched += 1;
     if (agent.topAuthorLinkUrl === topAuthorLink.url) matched += 1;
     if (agent.topAuthorLinkSource === topAuthorLink.source) matched += 1;
+    if (agent.topAuthorLinkSelector === topAuthorLink.selector) matched += 1;
     if (topAuthorLink.url && /^https?:\/\//i.test(topAuthorLink.url)) {
       required += 2;
       if (typeof agent.topAuthorLinkCommand === "string" && agent.topAuthorLinkCommand.includes(topAuthorLink.url)) matched += 1;
       if (Array.isArray(agent.topAuthorLinkCommandArgs) && agent.topAuthorLinkCommandArgs.includes(topAuthorLink.url)) matched += 1;
     }
-  } else if (agent.topAuthorLinkName || agent.topAuthorLinkUrl || agent.topAuthorLinkSource) {
+  } else if (agent.topAuthorLinkPath || agent.topAuthorLinkName || agent.topAuthorLinkUrl || agent.topAuthorLinkSource || agent.topAuthorLinkSelector) {
     required += 1;
   }
 

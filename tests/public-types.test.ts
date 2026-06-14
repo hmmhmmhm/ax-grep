@@ -438,20 +438,26 @@ describe("public agent types", () => {
       | "topTocFirstItemCommand"
       | "topTocFirstItemCommandArgs"
       | "topTocSelector"
+      | "topEmbedPath"
       | "topEmbedKind"
       | "topEmbedUrl"
       | "topEmbedTitle"
+      | "topEmbedSelector"
       | "topEmbedCommand"
       | "topEmbedCommandArgs"
+      | "topTranscriptPath"
       | "topTranscriptKind"
       | "topTranscriptUrl"
       | "topTranscriptLabel"
       | "topTranscriptLanguage"
+      | "topTranscriptSelector"
       | "topTranscriptCommand"
       | "topTranscriptCommandArgs"
+      | "topAuthorLinkPath"
       | "topAuthorLinkName"
       | "topAuthorLinkUrl"
       | "topAuthorLinkSource"
+      | "topAuthorLinkSelector"
       | "topAuthorLinkCommand"
       | "topAuthorLinkCommandArgs"
       | "topProvenancePath"
@@ -1751,20 +1757,26 @@ describe("public agent types", () => {
       topTocFirstItemCommand: "ax-grep 'https://example.test/install#install' --agent",
       topTocFirstItemCommandArgs: ["ax-grep", "https://example.test/install#install", "--agent"],
       topTocSelector: "nav[aria-label=\"On this page\"]",
+      topEmbedPath: "pageCheck.embeds[0]",
       topEmbedKind: "iframe",
       topEmbedUrl: "https://example.test/embed",
       topEmbedTitle: "Dashboard",
+      topEmbedSelector: "iframe:nth-of-type(1)",
       topEmbedCommand: "ax-grep 'https://example.test/embed' --agent",
       topEmbedCommandArgs: ["ax-grep", "https://example.test/embed", "--agent"],
+      topTranscriptPath: "pageCheck.transcripts[0]",
       topTranscriptKind: "transcript",
       topTranscriptUrl: "https://example.test/transcript.txt",
       topTranscriptLabel: "Full transcript",
       topTranscriptLanguage: "en",
+      topTranscriptSelector: "a[href=\"/transcript.txt\"]",
       topTranscriptCommand: "ax-grep 'https://example.test/transcript.txt' --agent",
       topTranscriptCommandArgs: ["ax-grep", "https://example.test/transcript.txt", "--agent"],
+      topAuthorLinkPath: "pageCheck.authorLinks[0]",
       topAuthorLinkName: "Example Author",
       topAuthorLinkUrl: "https://example.test/author",
       topAuthorLinkSource: "html",
+      topAuthorLinkSelector: "a[rel=\"author\"]",
       topAuthorLinkCommand: "ax-grep 'https://example.test/author' --agent",
       topAuthorLinkCommandArgs: ["ax-grep", "https://example.test/author", "--agent"],
       topProvenancePath: "pageCheck.provenance[0]",
@@ -3020,8 +3032,14 @@ describe("public agent types", () => {
     expect(summary.topMediaCommandArgs?.[1]).toBe("https://example.test/diagram.png");
     expect(summary.topPaginationCommandArgs?.[1]).toBe("https://example.test/next");
     expect(summary.topTocFirstItemCommandArgs?.[1]).toBe("https://example.test/install#install");
+    expect(summary.topEmbedPath).toBe("pageCheck.embeds[0]");
+    expect(summary.topEmbedSelector).toBe("iframe:nth-of-type(1)");
     expect(summary.topEmbedCommandArgs?.[1]).toBe("https://example.test/embed");
+    expect(summary.topTranscriptPath).toBe("pageCheck.transcripts[0]");
+    expect(summary.topTranscriptSelector).toBe("a[href=\"/transcript.txt\"]");
     expect(summary.topTranscriptCommandArgs?.[1]).toBe("https://example.test/transcript.txt");
+    expect(summary.topAuthorLinkPath).toBe("pageCheck.authorLinks[0]");
+    expect(summary.topAuthorLinkSelector).toBe("a[rel=\"author\"]");
     expect(summary.topAuthorLinkCommandArgs?.[1]).toBe("https://example.test/author");
     expect(summary.topOfferCommandArgs?.[1]).toBe("https://example.test/buy");
     expect(summary.topDatasetDistributionCommandArgs?.[1]).toBe("https://example.test/downloads/example.csv");

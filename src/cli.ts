@@ -1723,20 +1723,26 @@ type AgentSummary = {
   topTocFirstItemCommand?: string;
   topTocFirstItemCommandArgs?: string[];
   topTocSelector?: string;
+  topEmbedPath?: string;
   topEmbedKind?: PageEmbedSummary["kind"];
   topEmbedUrl?: string;
   topEmbedTitle?: string;
+  topEmbedSelector?: string;
   topEmbedCommand?: string;
   topEmbedCommandArgs?: string[];
+  topTranscriptPath?: string;
   topTranscriptKind?: PageTranscriptSummary["kind"];
   topTranscriptUrl?: string;
   topTranscriptLabel?: string;
   topTranscriptLanguage?: string;
+  topTranscriptSelector?: string;
   topTranscriptCommand?: string;
   topTranscriptCommandArgs?: string[];
+  topAuthorLinkPath?: string;
   topAuthorLinkName?: string;
   topAuthorLinkUrl?: string;
   topAuthorLinkSource?: PageAuthorLinkSummary["source"];
+  topAuthorLinkSelector?: string;
   topAuthorLinkCommand?: string;
   topAuthorLinkCommandArgs?: string[];
   topProvenancePath?: string;
@@ -4209,13 +4215,13 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topContactPointValue ? [`  topContactPoint: ${agent.topContactPointPath ?? ""} ${agent.topContactPointKind ?? ""}:${agent.topContactPointValue}${agent.topContactPointUrl ? ` <${agent.topContactPointUrl}>` : ""}`] : []),
     ...(agent.topContactPointCommand ? [`  topContactPointCommand: ${agent.topContactPointCommand}`] : []),
     ...(agent.topContactPointCommandArgs ? [`  topContactPointCommandArgs: ${formatCommandArgsText(agent.topContactPointCommandArgs)}`] : []),
-    ...(agent.topEmbedUrl ? [`  topEmbedUrl: ${agent.topEmbedUrl}`] : []),
+    ...(agent.topEmbedUrl ? [`  topEmbed: ${agent.topEmbedPath ?? ""} ${agent.topEmbedKind ?? ""}${agent.topEmbedTitle ? ` \"${agent.topEmbedTitle}\"` : ""}${agent.topEmbedSelector ? ` selector=${agent.topEmbedSelector}` : ""} <${agent.topEmbedUrl}>`] : []),
     ...(agent.topEmbedCommand ? [`  topEmbedCommand: ${agent.topEmbedCommand}`] : []),
     ...(agent.topEmbedCommandArgs ? [`  topEmbedCommandArgs: ${formatCommandArgsText(agent.topEmbedCommandArgs)}`] : []),
-    ...(agent.topTranscriptUrl ? [`  topTranscriptUrl: ${agent.topTranscriptUrl}`] : []),
+    ...(agent.topTranscriptUrl ? [`  topTranscript: ${agent.topTranscriptPath ?? ""} ${agent.topTranscriptKind ?? ""}${agent.topTranscriptLabel ? ` \"${agent.topTranscriptLabel}\"` : ""}${agent.topTranscriptLanguage ? ` lang=${agent.topTranscriptLanguage}` : ""}${agent.topTranscriptSelector ? ` selector=${agent.topTranscriptSelector}` : ""} <${agent.topTranscriptUrl}>`] : []),
     ...(agent.topTranscriptCommand ? [`  topTranscriptCommand: ${agent.topTranscriptCommand}`] : []),
     ...(agent.topTranscriptCommandArgs ? [`  topTranscriptCommandArgs: ${formatCommandArgsText(agent.topTranscriptCommandArgs)}`] : []),
-    ...(agent.topAuthorLinkUrl ? [`  topAuthorLinkUrl: ${agent.topAuthorLinkUrl}`] : []),
+    ...(agent.topAuthorLinkUrl ? [`  topAuthorLink: ${agent.topAuthorLinkPath ?? ""} ${agent.topAuthorLinkSource ?? ""}${agent.topAuthorLinkName ? ` \"${agent.topAuthorLinkName}\"` : ""}${agent.topAuthorLinkSelector ? ` selector=${agent.topAuthorLinkSelector}` : ""} <${agent.topAuthorLinkUrl}>`] : []),
     ...(agent.topAuthorLinkCommand ? [`  topAuthorLinkCommand: ${agent.topAuthorLinkCommand}`] : []),
     ...(agent.topAuthorLinkCommandArgs ? [`  topAuthorLinkCommandArgs: ${formatCommandArgsText(agent.topAuthorLinkCommandArgs)}`] : []),
     `  structuredReadTargetCount: ${agent.structuredReadTargetCount}`,
@@ -13256,20 +13262,26 @@ function summarizeAgent(
     ...(topTocFirstItemCommand ? { topTocFirstItemCommand: topTocFirstItemCommand.command } : {}),
     ...(topTocFirstItemCommand ? { topTocFirstItemCommandArgs: topTocFirstItemCommand.commandArgs } : {}),
     ...(pageCheck.toc[0]?.selector ? { topTocSelector: pageCheck.toc[0].selector } : {}),
+    ...(pageCheck.embeds[0] ? { topEmbedPath: pageCheck.embeds[0].path } : {}),
     ...(pageCheck.embeds[0] ? { topEmbedKind: pageCheck.embeds[0].kind } : {}),
     ...(pageCheck.embeds[0]?.url ? { topEmbedUrl: pageCheck.embeds[0].url } : {}),
     ...(pageCheck.embeds[0]?.title ? { topEmbedTitle: pageCheck.embeds[0].title } : {}),
+    ...(pageCheck.embeds[0]?.selector ? { topEmbedSelector: pageCheck.embeds[0].selector } : {}),
     ...(topEmbedCommand ? { topEmbedCommand: topEmbedCommand.command } : {}),
     ...(topEmbedCommand ? { topEmbedCommandArgs: topEmbedCommand.commandArgs } : {}),
+    ...(pageCheck.transcripts[0] ? { topTranscriptPath: pageCheck.transcripts[0].path } : {}),
     ...(pageCheck.transcripts[0] ? { topTranscriptKind: pageCheck.transcripts[0].kind } : {}),
     ...(pageCheck.transcripts[0]?.url ? { topTranscriptUrl: pageCheck.transcripts[0].url } : {}),
     ...(pageCheck.transcripts[0]?.label ? { topTranscriptLabel: pageCheck.transcripts[0].label } : {}),
     ...(pageCheck.transcripts[0]?.language ? { topTranscriptLanguage: pageCheck.transcripts[0].language } : {}),
+    ...(pageCheck.transcripts[0]?.selector ? { topTranscriptSelector: pageCheck.transcripts[0].selector } : {}),
     ...(topTranscriptCommand ? { topTranscriptCommand: topTranscriptCommand.command } : {}),
     ...(topTranscriptCommand ? { topTranscriptCommandArgs: topTranscriptCommand.commandArgs } : {}),
+    ...(pageCheck.authorLinks[0] ? { topAuthorLinkPath: pageCheck.authorLinks[0].path } : {}),
     ...(pageCheck.authorLinks[0]?.name ? { topAuthorLinkName: pageCheck.authorLinks[0].name } : {}),
     ...(pageCheck.authorLinks[0]?.url ? { topAuthorLinkUrl: pageCheck.authorLinks[0].url } : {}),
     ...(pageCheck.authorLinks[0] ? { topAuthorLinkSource: pageCheck.authorLinks[0].source } : {}),
+    ...(pageCheck.authorLinks[0]?.selector ? { topAuthorLinkSelector: pageCheck.authorLinks[0].selector } : {}),
     ...(topAuthorLinkCommand ? { topAuthorLinkCommand: topAuthorLinkCommand.command } : {}),
     ...(topAuthorLinkCommand ? { topAuthorLinkCommandArgs: topAuthorLinkCommand.commandArgs } : {}),
     ...(pageCheck.provenance[0] ? { topProvenancePath: pageCheck.provenance[0].path } : {}),
@@ -19299,20 +19311,26 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topTocFirstItemCommand ? { topTocFirstItemCommand: agent.topTocFirstItemCommand } : {}),
     ...(agent.topTocFirstItemCommandArgs ? { topTocFirstItemCommandArgs: agent.topTocFirstItemCommandArgs } : {}),
     ...(agent.topTocSelector ? { topTocSelector: agent.topTocSelector } : {}),
+    ...(agent.topEmbedPath ? { topEmbedPath: agent.topEmbedPath } : {}),
     ...(agent.topEmbedKind ? { topEmbedKind: agent.topEmbedKind } : {}),
     ...(agent.topEmbedUrl ? { topEmbedUrl: agent.topEmbedUrl } : {}),
     ...(agent.topEmbedTitle ? { topEmbedTitle: agent.topEmbedTitle } : {}),
+    ...(agent.topEmbedSelector ? { topEmbedSelector: agent.topEmbedSelector } : {}),
     ...(agent.topEmbedCommand ? { topEmbedCommand: agent.topEmbedCommand } : {}),
     ...(agent.topEmbedCommandArgs ? { topEmbedCommandArgs: agent.topEmbedCommandArgs } : {}),
+    ...(agent.topTranscriptPath ? { topTranscriptPath: agent.topTranscriptPath } : {}),
     ...(agent.topTranscriptKind ? { topTranscriptKind: agent.topTranscriptKind } : {}),
     ...(agent.topTranscriptUrl ? { topTranscriptUrl: agent.topTranscriptUrl } : {}),
     ...(agent.topTranscriptLabel ? { topTranscriptLabel: agent.topTranscriptLabel } : {}),
     ...(agent.topTranscriptLanguage ? { topTranscriptLanguage: agent.topTranscriptLanguage } : {}),
+    ...(agent.topTranscriptSelector ? { topTranscriptSelector: agent.topTranscriptSelector } : {}),
     ...(agent.topTranscriptCommand ? { topTranscriptCommand: agent.topTranscriptCommand } : {}),
     ...(agent.topTranscriptCommandArgs ? { topTranscriptCommandArgs: agent.topTranscriptCommandArgs } : {}),
+    ...(agent.topAuthorLinkPath ? { topAuthorLinkPath: agent.topAuthorLinkPath } : {}),
     ...(agent.topAuthorLinkName ? { topAuthorLinkName: agent.topAuthorLinkName } : {}),
     ...(agent.topAuthorLinkUrl ? { topAuthorLinkUrl: agent.topAuthorLinkUrl } : {}),
     ...(agent.topAuthorLinkSource ? { topAuthorLinkSource: agent.topAuthorLinkSource } : {}),
+    ...(agent.topAuthorLinkSelector ? { topAuthorLinkSelector: agent.topAuthorLinkSelector } : {}),
     ...(agent.topAuthorLinkCommand ? { topAuthorLinkCommand: agent.topAuthorLinkCommand } : {}),
     ...(agent.topAuthorLinkCommandArgs ? { topAuthorLinkCommandArgs: agent.topAuthorLinkCommandArgs } : {}),
     ...(agent.topProvenancePath ? { topProvenancePath: agent.topProvenancePath } : {}),
@@ -20601,20 +20619,26 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topTocFirstItemCommand ? { topTocFirstItemCommand: agent.topTocFirstItemCommand } : {}),
     ...(agent.topTocFirstItemCommandArgs ? { topTocFirstItemCommandArgs: agent.topTocFirstItemCommandArgs } : {}),
     ...(agent.topTocSelector ? { topTocSelector: agent.topTocSelector } : {}),
+    ...(agent.topEmbedPath ? { topEmbedPath: agent.topEmbedPath } : {}),
     ...(agent.topEmbedKind ? { topEmbedKind: agent.topEmbedKind } : {}),
     ...(agent.topEmbedUrl ? { topEmbedUrl: agent.topEmbedUrl } : {}),
     ...(agent.topEmbedTitle ? { topEmbedTitle: agent.topEmbedTitle } : {}),
+    ...(agent.topEmbedSelector ? { topEmbedSelector: agent.topEmbedSelector } : {}),
     ...(agent.topEmbedCommand ? { topEmbedCommand: agent.topEmbedCommand } : {}),
     ...(agent.topEmbedCommandArgs ? { topEmbedCommandArgs: agent.topEmbedCommandArgs } : {}),
+    ...(agent.topTranscriptPath ? { topTranscriptPath: agent.topTranscriptPath } : {}),
     ...(agent.topTranscriptKind ? { topTranscriptKind: agent.topTranscriptKind } : {}),
     ...(agent.topTranscriptUrl ? { topTranscriptUrl: agent.topTranscriptUrl } : {}),
     ...(agent.topTranscriptLabel ? { topTranscriptLabel: agent.topTranscriptLabel } : {}),
     ...(agent.topTranscriptLanguage ? { topTranscriptLanguage: agent.topTranscriptLanguage } : {}),
+    ...(agent.topTranscriptSelector ? { topTranscriptSelector: agent.topTranscriptSelector } : {}),
     ...(agent.topTranscriptCommand ? { topTranscriptCommand: agent.topTranscriptCommand } : {}),
     ...(agent.topTranscriptCommandArgs ? { topTranscriptCommandArgs: agent.topTranscriptCommandArgs } : {}),
+    ...(agent.topAuthorLinkPath ? { topAuthorLinkPath: agent.topAuthorLinkPath } : {}),
     ...(agent.topAuthorLinkName ? { topAuthorLinkName: agent.topAuthorLinkName } : {}),
     ...(agent.topAuthorLinkUrl ? { topAuthorLinkUrl: agent.topAuthorLinkUrl } : {}),
     ...(agent.topAuthorLinkSource ? { topAuthorLinkSource: agent.topAuthorLinkSource } : {}),
+    ...(agent.topAuthorLinkSelector ? { topAuthorLinkSelector: agent.topAuthorLinkSelector } : {}),
     ...(agent.topAuthorLinkCommand ? { topAuthorLinkCommand: agent.topAuthorLinkCommand } : {}),
     ...(agent.topAuthorLinkCommandArgs ? { topAuthorLinkCommandArgs: agent.topAuthorLinkCommandArgs } : {}),
     ...(agent.topProvenancePath ? { topProvenancePath: agent.topProvenancePath } : {}),
