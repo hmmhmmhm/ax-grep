@@ -2230,6 +2230,11 @@ export type AgentSummary = {
   topSourceChoiceRank?: number;
   topSourceChoiceText?: string;
   topSourceChoiceSnippet?: string;
+  topSourceChoiceDateText?: string;
+  topSourceChoiceDateIso?: string;
+  topSourceChoiceDateUnixMs?: number;
+  topSourceChoiceDatePrecision?: "day" | "month" | "year";
+  topSourceChoiceDateSource?: "title" | "snippet";
   topSourceChoiceCommand?: string;
   topSourceChoiceCommandArgs?: string[];
   topSourceChoiceSourceType?: string;

@@ -1186,7 +1186,7 @@ describe("cli", () => {
             <main>
               <h1>Example</h1>
               <p>Thin page.</p>
-              <a href="https://source.example/report">Source report</a>
+              <a href="https://source.example/report">2026-05-31 Source report</a>
             </main>
           </body>
         </html>
@@ -1226,18 +1226,36 @@ describe("cli", () => {
         reason: "Run the provided command and inspect the next agent payload.",
         commandArgs: ["ax-grep", "https://source.example/report", "--find", "missing claim", "--agent-brief"],
         target: {
-          title: "Source report",
+          title: "2026-05-31 Source report",
           url: "https://source.example/report",
           path: "pageCheck.sourceLinks[0]",
-          text: "Source report",
+          text: "2026-05-31 Source report",
           source: "source.example",
           rank: 1,
+          dateText: "2026-05-31",
+          dateIso: "2026-05-31T00:00:00.000Z",
+          dateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
+          datePrecision: "day",
+          dateSource: "title",
           selector: expect.any(String),
         },
       },
       primaryAction: {
         commandArgs: ["ax-grep", "https://source.example/report", "--find", "missing claim", "--agent-brief"],
       },
+      topSourceChoicePath: "pageCheck.sourceLinks[0]",
+      topSourceChoiceDateText: "2026-05-31",
+      topSourceChoiceDateIso: "2026-05-31T00:00:00.000Z",
+      topSourceChoiceDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
+      topSourceChoiceDatePrecision: "day",
+      topSourceChoiceDateSource: "title",
+      topChoiceKind: "source",
+      topChoicePath: "pageCheck.sourceLinks[0]",
+      topChoiceDateText: "2026-05-31",
+      topChoiceDateIso: "2026-05-31T00:00:00.000Z",
+      topChoiceDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
+      topChoiceDatePrecision: "day",
+      topChoiceDateSource: "title",
     });
     expect(envelope.agent.next).toBeUndefined();
     expect(envelope.agent.runbook).toBeUndefined();
@@ -1652,6 +1670,31 @@ describe("cli", () => {
       }
       if (executor.browserHtml?.commandArgs) expect(handoff.browserHtml.commandArgs).toEqual(executor.browserHtml.commandArgs);
     }
+  });
+
+  it("prints source choice freshness metadata in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test", "--find", "missing claim"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h1>Example</h1>
+          <p>Thin page.</p>
+          <a href="https://source.example/report">2026-05-31 Source report</a>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("  topSourceChoiceDateText: 2026-05-31");
+    expect(stdout.output).toContain("  topSourceChoiceDateIso: 2026-05-31T00:00:00.000Z");
+    expect(stdout.output).toContain("  topSourceChoiceDateUnixMs: 1780185600000");
+    expect(stdout.output).toContain("  topSourceChoiceDatePrecision: day");
+    expect(stdout.output).toContain("  topSourceChoiceDateSource: title");
+    expect(stdout.output).toContain("  topChoice: source pageCheck.sourceLinks[0]");
+    expect(stdout.output).toContain("dateText=2026-05-31 dateIso=2026-05-31T00:00:00.000Z dateUnixMs=1780185600000 datePrecision=day dateSource=title");
+    expect(stdout.output).toContain("sourceChoice: s1 pageCheck.sourceLinks[0]");
+    expect(stdout.output).toContain("handoffSourceChoice: s1 pageCheck.sourceLinks[0]");
   });
 
   it("checks requested text against author and profile links", async () => {

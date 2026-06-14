@@ -4180,7 +4180,13 @@ function scoreReadTargetMetadataShortcut(readTarget: CliReadTargetShape | undefi
   return { required, matched };
 }
 
-function scoreTargetDateShortcut(target: CliAgentTargetShape | undefined, shortcut: {
+function scoreTargetDateShortcut(target: {
+  dateText?: string | undefined;
+  dateIso?: string | undefined;
+  dateUnixMs?: number | undefined;
+  datePrecision?: CliAgentTargetShape["datePrecision"] | undefined;
+  dateSource?: CliAgentTargetShape["dateSource"] | undefined;
+} | undefined, shortcut: {
   dateText?: string | undefined;
   dateIso?: string | undefined;
   dateUnixMs?: number | undefined;
@@ -4381,6 +4387,11 @@ function scoreAgentTopChoiceShortcuts(agent: {
   topChoiceUrl?: string;
   topChoiceHost?: string;
   topChoiceSnippet?: string;
+  topChoiceDateText?: string;
+  topChoiceDateIso?: string;
+  topChoiceDateUnixMs?: number;
+  topChoiceDatePrecision?: CliAgentTargetShape["datePrecision"];
+  topChoiceDateSource?: CliAgentTargetShape["dateSource"];
   topChoiceCommand?: string;
   topChoiceCommandArgs?: string[];
   topChoiceOpenResult?: number | "best";
@@ -4397,16 +4408,16 @@ function scoreAgentTopChoiceShortcuts(agent: {
   const form = agent.formChoices?.[0];
   const actionTarget = agent.actionTargetChoices?.[0];
   const expected = result
-    ? { kind: "result" as const, path: result.path, label: result.title, url: result.url, host: result.host, snippet: result.snippet, command: result.command, commandArgs: result.commandArgs, openResult: result.openResult, recommended: result.recommended, primary: result.primary, sourceType: result.sourceType, sourceScore: result.sourceScore, relevance: result.relevance, isLikelyOfficial: result.isLikelyOfficial }
+    ? { kind: "result" as const, path: result.path, label: result.title, url: result.url, host: result.host, snippet: result.snippet, dateText: result.dateText, dateIso: result.dateIso, dateUnixMs: result.dateUnixMs, datePrecision: result.datePrecision, dateSource: result.dateSource, command: result.command, commandArgs: result.commandArgs, openResult: result.openResult, recommended: result.recommended, primary: result.primary, sourceType: result.sourceType, sourceScore: result.sourceScore, relevance: result.relevance, isLikelyOfficial: result.isLikelyOfficial }
     : source
-      ? { kind: "source" as const, path: source.path, label: source.title || source.text, url: source.url, host: source.host, snippet: source.snippet, command: source.command, commandArgs: source.commandArgs, primary: source.primary, sourceType: source.sourceType, sourceScore: source.sourceScore, relevance: source.relevance, isLikelyOfficial: source.isLikelyOfficial }
+      ? { kind: "source" as const, path: source.path, label: source.title || source.text, url: source.url, host: source.host, snippet: source.snippet, dateText: source.dateText, dateIso: source.dateIso, dateUnixMs: source.dateUnixMs, datePrecision: source.datePrecision, dateSource: source.dateSource, command: source.command, commandArgs: source.commandArgs, primary: source.primary, sourceType: source.sourceType, sourceScore: source.sourceScore, relevance: source.relevance, isLikelyOfficial: source.isLikelyOfficial }
       : form
         ? { kind: "form" as const, path: form.path, label: form.text, url: form.actionUrl ?? form.urlTemplate, command: form.command, commandArgs: form.commandArgs }
         : actionTarget
           ? { kind: "action-target" as const, path: actionTarget.path, label: actionTarget.name || actionTarget.text, url: actionTarget.targetUrl ?? actionTarget.urlTemplate, command: actionTarget.command, commandArgs: actionTarget.commandArgs }
           : undefined;
   if (!expected) {
-    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceHost && !agent.topChoiceSnippet && !agent.topChoiceCommand && !agent.topChoiceCommandArgs && !agent.topChoiceOpenResult && typeof agent.topChoiceRecommended !== "boolean" && typeof agent.topChoicePrimary !== "boolean" && !agent.topChoiceSourceType && typeof agent.topChoiceSourceScore !== "number" && !agent.topChoiceRelevance && typeof agent.topChoiceLikelyOfficial !== "boolean" ? 1 : 0;
+    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceHost && !agent.topChoiceSnippet && !agent.topChoiceDateText && !agent.topChoiceDateIso && typeof agent.topChoiceDateUnixMs !== "number" && !agent.topChoiceDatePrecision && !agent.topChoiceDateSource && !agent.topChoiceCommand && !agent.topChoiceCommandArgs && !agent.topChoiceOpenResult && typeof agent.topChoiceRecommended !== "boolean" && typeof agent.topChoicePrimary !== "boolean" && !agent.topChoiceSourceType && typeof agent.topChoiceSourceScore !== "number" && !agent.topChoiceRelevance && typeof agent.topChoiceLikelyOfficial !== "boolean" ? 1 : 0;
   }
   let required = 2;
   let matched = 0;
@@ -4436,6 +4447,15 @@ function scoreAgentTopChoiceShortcuts(agent: {
   } else if (agent.topChoiceSnippet) {
     required += 1;
   }
+  const dateScore = scoreTargetDateShortcut(expected, {
+    dateText: agent.topChoiceDateText,
+    dateIso: agent.topChoiceDateIso,
+    dateUnixMs: agent.topChoiceDateUnixMs,
+    datePrecision: agent.topChoiceDatePrecision,
+    dateSource: agent.topChoiceDateSource,
+  });
+  required += dateScore.required;
+  matched += dateScore.matched;
   if (expected.commandArgs) {
     required += 1;
     if (agent.topChoiceCommand === expected.command) matched += 1;
@@ -5561,6 +5581,11 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
   topSourceChoiceRank?: number;
   topSourceChoiceText?: string;
   topSourceChoiceSnippet?: string;
+  topSourceChoiceDateText?: string;
+  topSourceChoiceDateIso?: string;
+  topSourceChoiceDateUnixMs?: number;
+  topSourceChoiceDatePrecision?: CliAgentTargetShape["datePrecision"];
+  topSourceChoiceDateSource?: CliAgentTargetShape["dateSource"];
   topSourceChoiceCommand?: string;
   topSourceChoiceCommandArgs?: string[];
   topSourceChoiceSourceType?: string;
@@ -5584,6 +5609,11 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
       || typeof agent?.topSourceChoiceRank === "number"
       || agent?.topSourceChoiceText
       || agent?.topSourceChoiceSnippet
+      || agent?.topSourceChoiceDateText
+      || agent?.topSourceChoiceDateIso
+      || typeof agent?.topSourceChoiceDateUnixMs === "number"
+      || agent?.topSourceChoiceDatePrecision
+      || agent?.topSourceChoiceDateSource
       || agent?.topSourceChoiceCommand
       || agent?.topSourceChoiceCommandArgs
       || agent?.topSourceChoiceSourceType
@@ -5639,6 +5669,15 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
   } else if (agent?.topSourceChoiceSnippet) {
     required += 1;
   }
+  const dateScore = scoreTargetDateShortcut(top, {
+    dateText: agent?.topSourceChoiceDateText,
+    dateIso: agent?.topSourceChoiceDateIso,
+    dateUnixMs: agent?.topSourceChoiceDateUnixMs,
+    datePrecision: agent?.topSourceChoiceDatePrecision,
+    dateSource: agent?.topSourceChoiceDateSource,
+  });
+  required += dateScore.required;
+  matched += dateScore.matched;
   if (top.sourceType) {
     required += 1;
     if (agent?.topSourceChoiceSourceType === top.sourceType) matched += 1;

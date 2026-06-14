@@ -1863,6 +1863,11 @@ type AgentSummary = {
   topSourceChoiceRank?: number;
   topSourceChoiceText?: string;
   topSourceChoiceSnippet?: string;
+  topSourceChoiceDateText?: string;
+  topSourceChoiceDateIso?: string;
+  topSourceChoiceDateUnixMs?: number;
+  topSourceChoiceDatePrecision?: AgentSourceChoice["datePrecision"];
+  topSourceChoiceDateSource?: AgentSourceChoice["dateSource"];
   topSourceChoiceCommand?: string;
   topSourceChoiceCommandArgs?: string[];
   topSourceChoiceSourceType?: string;
@@ -3759,11 +3764,16 @@ function formatAgentSourceChoiceText(choice: AgentSourceChoice, prefix = "source
   const sourceType = choice.sourceType ? ` type=${choice.sourceType}` : "";
   const kind = choice.kind ? ` kind=${choice.kind}` : "";
   const official = typeof choice.isLikelyOfficial === "boolean" ? ` official=${choice.isLikelyOfficial}` : "";
+  const dateText = choice.dateText ? ` dateText=${choice.dateText}` : "";
+  const dateIso = choice.dateIso ? ` dateIso=${choice.dateIso}` : "";
+  const dateUnixMs = typeof choice.dateUnixMs === "number" ? ` dateUnixMs=${choice.dateUnixMs}` : "";
+  const datePrecision = choice.datePrecision ? ` datePrecision=${choice.datePrecision}` : "";
+  const dateSource = choice.dateSource ? ` dateSource=${choice.dateSource}` : "";
   const selector = choice.selector ? ` selector=${choice.selector}` : "";
   const target = choice.url ? ` <${choice.url}>` : "";
   const reason = choice.selectionReason ? ` - ${choice.selectionReason}` : "";
   const title = choice.title ? ` ${choice.title}` : "";
-  const lines = [`  ${prefix}: ${choice.id} ${choice.path}${rank}${primary}${score}${source}${sourceType}${kind}${official}${selector}${target}${reason}${title}`];
+  const lines = [`  ${prefix}: ${choice.id} ${choice.path}${rank}${primary}${score}${source}${sourceType}${kind}${official}${dateText}${dateIso}${dateUnixMs}${datePrecision}${dateSource}${selector}${target}${reason}${title}`];
   if (choice.command) lines.push(`    command: ${choice.command}`);
   if (choice.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
   if (choice.command) lines.push(`  ${prefix}Command: ${choice.command}`);
@@ -4231,6 +4241,11 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topSourceChoiceTitle ? [`  topSourceChoiceTitle: ${agent.topSourceChoiceTitle}`] : []),
     ...(agent.topSourceChoiceText ? [`  topSourceChoiceText: ${agent.topSourceChoiceText}`] : []),
     ...(agent.topSourceChoiceSnippet ? [`  topSourceChoiceSnippet: ${agent.topSourceChoiceSnippet}`] : []),
+    ...(agent.topSourceChoiceDateText ? [`  topSourceChoiceDateText: ${agent.topSourceChoiceDateText}`] : []),
+    ...(agent.topSourceChoiceDateIso ? [`  topSourceChoiceDateIso: ${agent.topSourceChoiceDateIso}`] : []),
+    ...(typeof agent.topSourceChoiceDateUnixMs === "number" ? [`  topSourceChoiceDateUnixMs: ${agent.topSourceChoiceDateUnixMs}`] : []),
+    ...(agent.topSourceChoiceDatePrecision ? [`  topSourceChoiceDatePrecision: ${agent.topSourceChoiceDatePrecision}`] : []),
+    ...(agent.topSourceChoiceDateSource ? [`  topSourceChoiceDateSource: ${agent.topSourceChoiceDateSource}`] : []),
     ...(agent.topSourceChoiceCommand ? [`  topSourceChoiceCommand: ${agent.topSourceChoiceCommand}`] : []),
     ...(agent.topSourceChoiceCommandArgs ? [`  topSourceChoiceCommandArgs: ${JSON.stringify(agent.topSourceChoiceCommandArgs)}`] : []),
     ...(agent.topSourceChoiceSourceType ? [`  topSourceChoiceSourceType: ${agent.topSourceChoiceSourceType}`] : []),
@@ -13353,6 +13368,11 @@ function summarizeAgent(
     ...(typeof sourceChoices[0]?.rank === "number" ? { topSourceChoiceRank: sourceChoices[0].rank } : {}),
     ...(sourceChoices[0]?.text ? { topSourceChoiceText: sourceChoices[0].text } : {}),
     ...(sourceChoices[0]?.snippet ? { topSourceChoiceSnippet: sourceChoices[0].snippet } : {}),
+    ...(sourceChoices[0]?.dateText ? { topSourceChoiceDateText: sourceChoices[0].dateText } : {}),
+    ...(sourceChoices[0]?.dateIso ? { topSourceChoiceDateIso: sourceChoices[0].dateIso } : {}),
+    ...(typeof sourceChoices[0]?.dateUnixMs === "number" ? { topSourceChoiceDateUnixMs: sourceChoices[0].dateUnixMs } : {}),
+    ...(sourceChoices[0]?.datePrecision ? { topSourceChoiceDatePrecision: sourceChoices[0].datePrecision } : {}),
+    ...(sourceChoices[0]?.dateSource ? { topSourceChoiceDateSource: sourceChoices[0].dateSource } : {}),
     ...(sourceChoices[0]?.command ? { topSourceChoiceCommand: sourceChoices[0].command } : {}),
     ...(sourceChoices[0]?.commandArgs ? { topSourceChoiceCommandArgs: sourceChoices[0].commandArgs } : {}),
     ...(sourceChoices[0]?.sourceType ? { topSourceChoiceSourceType: sourceChoices[0].sourceType } : {}),
@@ -14006,6 +14026,12 @@ function summarizeAgentSourceChoices(
       ...(link.text ? { text: link.text } : {}),
       ...(link.snippet ? { snippet: link.snippet } : {}),
       ...(link.selector ? { selector: link.selector } : {}),
+      ...(link.dateText ? { dateText: link.dateText } : {}),
+      ...(link.date ? { date: link.date } : {}),
+      ...(link.dateIso ? { dateIso: link.dateIso } : {}),
+      ...(typeof link.dateUnixMs === "number" ? { dateUnixMs: link.dateUnixMs } : {}),
+      ...(link.datePrecision ? { datePrecision: link.datePrecision } : {}),
+      ...(link.dateSource ? { dateSource: link.dateSource } : {}),
       kind: link.kind,
       ...(link.sourceType ? { sourceType: link.sourceType } : {}),
       ...(typeof link.sourceScore === "number" ? { sourceScore: link.sourceScore } : {}),
@@ -15789,6 +15815,11 @@ function summarizeAgentTopChoice(
       ...(source.title || source.text ? { label: source.title || source.text } : {}),
       ...(source.host ? { host: source.host } : {}),
       ...(source.snippet ? { snippet: source.snippet } : {}),
+      ...(source.dateText ? { dateText: source.dateText } : {}),
+      ...(source.dateIso ? { dateIso: source.dateIso } : {}),
+      ...(typeof source.dateUnixMs === "number" ? { dateUnixMs: source.dateUnixMs } : {}),
+      ...(source.datePrecision ? { datePrecision: source.datePrecision } : {}),
+      ...(source.dateSource ? { dateSource: source.dateSource } : {}),
       ...(source.command ? { command: source.command } : {}),
       ...(source.commandArgs ? { commandArgs: source.commandArgs } : {}),
       ...(typeof source.rank === "number" ? { rank: source.rank } : {}),
@@ -16447,6 +16478,7 @@ function summarizePrimaryPageLinks(links: LinkSummary[], baseUrl: string): PageL
     .slice(0, 8)
     .map((link, index) => {
       const sourceProfile = summarizeSourceProfile(link.url, link.text, link.snippet);
+      const dateHint = resultDateHint(link.text, link.snippet);
       const summary: PageLinkSummary = {
         title: link.text,
         url: link.url,
@@ -16457,6 +16489,7 @@ function summarizePrimaryPageLinks(links: LinkSummary[], baseUrl: string): PageL
         sourceType: sourceProfile.type,
         sourceScore: sourceProfile.score,
         sourceHints: sourceProfile.hints,
+        ...dateHint,
         ...(sourceProfile.type === "official" ? { isLikelyOfficial: true } : {}),
         selectionReason: sourceLinkSelectionReason({
           source: sourceFromUrl(link.url),
@@ -19274,6 +19307,11 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.topSourceChoiceRank === "number" ? { topSourceChoiceRank: agent.topSourceChoiceRank } : {}),
     ...(agent.topSourceChoiceText ? { topSourceChoiceText: agent.topSourceChoiceText } : {}),
     ...(agent.topSourceChoiceSnippet ? { topSourceChoiceSnippet: agent.topSourceChoiceSnippet } : {}),
+    ...(agent.topSourceChoiceDateText ? { topSourceChoiceDateText: agent.topSourceChoiceDateText } : {}),
+    ...(agent.topSourceChoiceDateIso ? { topSourceChoiceDateIso: agent.topSourceChoiceDateIso } : {}),
+    ...(typeof agent.topSourceChoiceDateUnixMs === "number" ? { topSourceChoiceDateUnixMs: agent.topSourceChoiceDateUnixMs } : {}),
+    ...(agent.topSourceChoiceDatePrecision ? { topSourceChoiceDatePrecision: agent.topSourceChoiceDatePrecision } : {}),
+    ...(agent.topSourceChoiceDateSource ? { topSourceChoiceDateSource: agent.topSourceChoiceDateSource } : {}),
     ...(agent.topSourceChoiceCommand ? { topSourceChoiceCommand: agent.topSourceChoiceCommand } : {}),
     ...(agent.topSourceChoiceCommandArgs ? { topSourceChoiceCommandArgs: agent.topSourceChoiceCommandArgs } : {}),
     ...(agent.topSourceChoiceSourceType ? { topSourceChoiceSourceType: agent.topSourceChoiceSourceType } : {}),
@@ -20565,6 +20603,11 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.topSourceChoiceRank === "number" ? { topSourceChoiceRank: agent.topSourceChoiceRank } : {}),
     ...(agent.topSourceChoiceText ? { topSourceChoiceText: agent.topSourceChoiceText } : {}),
     ...(agent.topSourceChoiceSnippet ? { topSourceChoiceSnippet: agent.topSourceChoiceSnippet } : {}),
+    ...(agent.topSourceChoiceDateText ? { topSourceChoiceDateText: agent.topSourceChoiceDateText } : {}),
+    ...(agent.topSourceChoiceDateIso ? { topSourceChoiceDateIso: agent.topSourceChoiceDateIso } : {}),
+    ...(typeof agent.topSourceChoiceDateUnixMs === "number" ? { topSourceChoiceDateUnixMs: agent.topSourceChoiceDateUnixMs } : {}),
+    ...(agent.topSourceChoiceDatePrecision ? { topSourceChoiceDatePrecision: agent.topSourceChoiceDatePrecision } : {}),
+    ...(agent.topSourceChoiceDateSource ? { topSourceChoiceDateSource: agent.topSourceChoiceDateSource } : {}),
     ...(agent.topSourceChoiceCommand ? { topSourceChoiceCommand: agent.topSourceChoiceCommand } : {}),
     ...(agent.topSourceChoiceCommandArgs ? { topSourceChoiceCommandArgs: agent.topSourceChoiceCommandArgs } : {}),
     ...(agent.topSourceChoiceSourceType ? { topSourceChoiceSourceType: agent.topSourceChoiceSourceType } : {}),
@@ -21233,6 +21276,12 @@ function compactAgentSourceChoiceRef(choice: AgentSourceChoice): object {
       ...(choice.text ? { text: choice.text } : {}),
       ...(choice.snippet ? { snippet: choice.snippet } : {}),
       ...(choice.selector ? { selector: choice.selector } : {}),
+      ...(choice.dateText ? { dateText: choice.dateText } : {}),
+      ...(choice.date ? { date: choice.date } : {}),
+      ...(choice.dateIso ? { dateIso: choice.dateIso } : {}),
+      ...(typeof choice.dateUnixMs === "number" ? { dateUnixMs: choice.dateUnixMs } : {}),
+      ...(choice.datePrecision ? { datePrecision: choice.datePrecision } : {}),
+      ...(choice.dateSource ? { dateSource: choice.dateSource } : {}),
       ...(choice.command ? { command: choice.command } : {}),
       ...(choice.commandArgs ? { commandArgs: choice.commandArgs } : {}),
       ...(choice.primary ? { primary: true } : {}),
@@ -21248,6 +21297,12 @@ function compactAgentSourceChoiceRef(choice: AgentSourceChoice): object {
     ...(choice.text ? { text: choice.text } : {}),
     ...(choice.snippet ? { snippet: choice.snippet } : {}),
     ...(choice.selector ? { selector: choice.selector } : {}),
+    ...(choice.dateText ? { dateText: choice.dateText } : {}),
+    ...(choice.date ? { date: choice.date } : {}),
+    ...(choice.dateIso ? { dateIso: choice.dateIso } : {}),
+    ...(typeof choice.dateUnixMs === "number" ? { dateUnixMs: choice.dateUnixMs } : {}),
+    ...(choice.datePrecision ? { datePrecision: choice.datePrecision } : {}),
+    ...(choice.dateSource ? { dateSource: choice.dateSource } : {}),
     kind: choice.kind,
     ...(choice.command ? { command: choice.command } : {}),
     ...(choice.commandArgs ? { commandArgs: choice.commandArgs } : {}),
@@ -21762,6 +21817,12 @@ function compactAgentPageLink(
     ...(link.text ? { text: link.text } : {}),
     ...(link.snippet ? { snippet: link.snippet } : {}),
     ...(link.selector ? { selector: link.selector } : {}),
+    ...(link.dateText ? { dateText: link.dateText } : {}),
+    ...(link.date ? { date: link.date } : {}),
+    ...(link.dateIso ? { dateIso: link.dateIso } : {}),
+    ...(typeof link.dateUnixMs === "number" ? { dateUnixMs: link.dateUnixMs } : {}),
+    ...(link.datePrecision ? { datePrecision: link.datePrecision } : {}),
+    ...(link.dateSource ? { dateSource: link.dateSource } : {}),
     kind: link.kind,
   };
   if (link.sourceType) compact.sourceType = link.sourceType;
@@ -21848,6 +21909,12 @@ function compactAgentTarget(target: AgentTarget, action?: string): object {
     ...(typeof target.rank === "number" ? { rank: target.rank } : {}),
     ...(target.snippet ? { snippet: target.snippet } : {}),
     ...(target.selector ? { selector: target.selector } : {}),
+    ...(target.dateText ? { dateText: target.dateText } : {}),
+    ...(target.date ? { date: target.date } : {}),
+    ...(target.dateIso ? { dateIso: target.dateIso } : {}),
+    ...(typeof target.dateUnixMs === "number" ? { dateUnixMs: target.dateUnixMs } : {}),
+    ...(target.datePrecision ? { datePrecision: target.datePrecision } : {}),
+    ...(target.dateSource ? { dateSource: target.dateSource } : {}),
     ...(target.sourceType ? { sourceType: target.sourceType } : {}),
     ...(typeof target.sourceScore === "number" ? { sourceScore: target.sourceScore } : {}),
     ...(target.sourceHints?.length ? { sourceHints: target.sourceHints } : {}),

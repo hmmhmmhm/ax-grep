@@ -58,6 +58,11 @@ describe("public agent types", () => {
       url: "https://source.example/report",
       host: "source.example",
       snippet: "Source summary",
+      dateText: "2026-05-31",
+      dateIso: "2026-05-31T00:00:00.000Z",
+      dateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
+      datePrecision: "day",
+      dateSource: "title",
       selector: "a:nth-of-type(1)",
       kind: "external",
       sourceScore: 0.91,
@@ -134,6 +139,7 @@ describe("public agent types", () => {
     expect(handoff.target?.selector).toBe("main > h1");
     expect(handoff.resultChoices?.[0]?.snippet).toBe("Result summary");
     expect(handoff.sourceChoices?.[0]?.selector).toBe("a:nth-of-type(1)");
+    expect(handoff.sourceChoices?.[0]?.dateIso).toBe("2026-05-31T00:00:00.000Z");
     expect(handoff.verificationMissingQueries).toEqual(["missing"]);
     expect(handoff.answerEvidence?.[0]?.text).toBe("Readable evidence");
     expect(handoff.browserHtml?.reason).toContain("Browser-captured HTML");
@@ -569,6 +575,11 @@ describe("public agent types", () => {
       | "topSourceChoiceRank"
       | "topSourceChoiceText"
       | "topSourceChoiceSnippet"
+      | "topSourceChoiceDateText"
+      | "topSourceChoiceDateIso"
+      | "topSourceChoiceDateUnixMs"
+      | "topSourceChoiceDatePrecision"
+      | "topSourceChoiceDateSource"
       | "topSourceChoiceCommand"
       | "topSourceChoiceCommandArgs"
       | "topSourceChoiceSourceType"
@@ -1852,6 +1863,11 @@ describe("public agent types", () => {
       topSourceChoiceRank: 1,
       topSourceChoiceText: "Source",
       topSourceChoiceSnippet: "Source summary",
+      topSourceChoiceDateText: "2026-05-31",
+      topSourceChoiceDateIso: "2026-05-31T00:00:00.000Z",
+      topSourceChoiceDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
+      topSourceChoiceDatePrecision: "day",
+      topSourceChoiceDateSource: "title",
       topSourceChoiceCommand: "ax-grep https://source.example/report --agent-brief",
       topSourceChoiceCommandArgs: ["ax-grep", "https://source.example/report", "--agent-brief"],
       topSourceChoiceSourceType: "report",
@@ -3003,6 +3019,11 @@ describe("public agent types", () => {
     expect(summary.topResultChoiceCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.topSourceChoicePath).toBe("pageCheck.sourceLinks[0]");
     expect(summary.topSourceChoiceSnippet).toBe("Source summary");
+    expect(summary.topSourceChoiceDateText).toBe("2026-05-31");
+    expect(summary.topSourceChoiceDateIso).toBe("2026-05-31T00:00:00.000Z");
+    expect(summary.topSourceChoiceDateUnixMs).toBe(Date.parse("2026-05-31T00:00:00.000Z"));
+    expect(summary.topSourceChoiceDatePrecision).toBe("day");
+    expect(summary.topSourceChoiceDateSource).toBe("title");
     expect(summary.topSourceChoiceRank).toBe(1);
     expect(summary.topSourceChoiceText).toBe("Source");
     expect(summary.topSourceChoiceSelector).toBe("a:nth-of-type(1)");
