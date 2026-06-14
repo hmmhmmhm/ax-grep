@@ -399,13 +399,17 @@ describe("public agent types", () => {
       | "topCodeBlockLanguage"
       | "topCodeBlockLineCount"
       | "topCodeBlockText"
+      | "topResourcePath"
       | "topResourceKind"
       | "topResourceUrl"
       | "topResourceTitle"
+      | "topResourceSelector"
       | "topResourceCommand"
       | "topResourceCommandArgs"
+      | "topMediaPath"
       | "topMediaKind"
       | "topMediaUrl"
+      | "topMediaSelector"
       | "topMediaCommand"
       | "topMediaCommandArgs"
       | "topMediaText"
@@ -1708,13 +1712,17 @@ describe("public agent types", () => {
       topCodeBlockLanguage: "bash",
       topCodeBlockLineCount: 1,
       topCodeBlockText: "pnpm install",
+      topResourcePath: "pageCheck.resources[0]",
       topResourceKind: "download",
       topResourceUrl: "https://example.test/guide.pdf",
       topResourceTitle: "Guide PDF",
+      topResourceSelector: "a[href=\"/guide.pdf\"]",
       topResourceCommand: "ax-grep 'https://example.test/guide.pdf' --agent",
       topResourceCommandArgs: ["ax-grep", "https://example.test/guide.pdf", "--agent"],
+      topMediaPath: "pageCheck.media[0]",
       topMediaKind: "image",
       topMediaUrl: "https://example.test/diagram.png",
+      topMediaSelector: "img:nth-of-type(1)",
       topMediaCommand: "ax-grep 'https://example.test/diagram.png' --agent",
       topMediaCommandArgs: ["ax-grep", "https://example.test/diagram.png", "--agent"],
       topMediaText: "Architecture diagram",
@@ -3003,8 +3011,12 @@ describe("public agent types", () => {
     expect(summary.topDataTableFirstCell).toBe("Starter");
     expect(summary.topDataTableFirstRow?.[1]).toBe("$19.99");
     expect(summary.topFaqQuestion).toBe("How do I install it?");
+    expect(summary.topResourcePath).toBe("pageCheck.resources[0]");
     expect(summary.topResourceUrl).toBe("https://example.test/guide.pdf");
+    expect(summary.topResourceSelector).toBe("a[href=\"/guide.pdf\"]");
     expect(summary.topResourceCommandArgs?.[1]).toBe("https://example.test/guide.pdf");
+    expect(summary.topMediaPath).toBe("pageCheck.media[0]");
+    expect(summary.topMediaSelector).toBe("img:nth-of-type(1)");
     expect(summary.topMediaCommandArgs?.[1]).toBe("https://example.test/diagram.png");
     expect(summary.topPaginationCommandArgs?.[1]).toBe("https://example.test/next");
     expect(summary.topTocFirstItemCommandArgs?.[1]).toBe("https://example.test/install#install");

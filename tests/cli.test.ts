@@ -10780,8 +10780,10 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(envelope.pageCheck.readability.reasons).toContain("2 media items");
     expect(envelope.agent).toMatchObject({
       mediaCount: 2,
+      topMediaPath: "pageCheck.media[0]",
       topMediaKind: "open-graph",
       topMediaUrl: "https://example.test/share.png",
+      topMediaSelector: "meta[property=\"og:image\"]",
       topMediaCommand: "ax-grep 'https://example.test/share.png' --agent",
       topMediaCommandArgs: ["ax-grep", "https://example.test/share.png", "--agent"],
       topMediaText: "Share preview chart - https://example.test/share.png",
@@ -10831,12 +10833,36 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(envelope.agent).toMatchObject({
       contract: { profile: "brief" },
       mediaCount: 1,
+      topMediaPath: "pageCheck.media[0]",
       topMediaKind: "open-graph",
       topMediaUrl: "https://example.test/share.png",
+      topMediaSelector: "meta[property=\"og:image\"]",
       topMediaCommand: "ax-grep 'https://example.test/share.png' --agent-brief",
       topMediaCommandArgs: ["ax-grep", "https://example.test/share.png", "--agent-brief"],
       topMediaText: "Share preview chart - https://example.test/share.png",
     });
+  });
+
+  it("prints top media and resource refs in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/gallery"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <link rel="alternate" type="application/rss+xml" title="Example feed" href="/feed.xml">
+            <meta property="og:image" content="/share.png">
+            <meta property="og:image:alt" content="Share preview chart">
+          </head>
+          <body><main><h1>Gallery</h1></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  topResource: pageCheck.resources[0] feed \"Example feed\" selector=link[rel=\"alternate\"] <https://example.test/feed.xml>");
+    expect(stdout.output).toContain("  topMedia: pageCheck.media[0] open-graph selector=meta[property=\"og:image\"] <https://example.test/share.png> - Share preview chart - https://example.test/share.png");
   });
 
   it("checks requested text against page media summaries", async () => {
@@ -10938,9 +10964,11 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(envelope.pageCheck.readability.reasons).toContain("4 resource links");
     expect(envelope.agent).toMatchObject({
       resourceCount: 4,
+      topResourcePath: "pageCheck.resources[0]",
       topResourceKind: "feed",
       topResourceUrl: "https://example.test/feed.xml",
       topResourceTitle: "Example feed",
+      topResourceSelector: "link[rel=\"alternate\"]",
       topResourceCommand: "ax-grep 'https://example.test/feed.xml' --agent",
       topResourceCommandArgs: ["ax-grep", "https://example.test/feed.xml", "--agent"],
     });
@@ -10987,9 +11015,11 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(envelope.agent).toMatchObject({
       contract: { profile: "brief" },
       resourceCount: 1,
+      topResourcePath: "pageCheck.resources[0]",
       topResourceKind: "feed",
       topResourceUrl: "https://example.test/feed.xml",
       topResourceTitle: "Example feed",
+      topResourceSelector: "link[rel=\"alternate\"]",
       topResourceCommand: "ax-grep 'https://example.test/feed.xml' --agent-brief",
       topResourceCommandArgs: ["ax-grep", "https://example.test/feed.xml", "--agent-brief"],
       bestStructuredReadTarget: "pageCheck.resources",

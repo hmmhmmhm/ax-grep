@@ -2052,13 +2052,17 @@ export type AgentSummary = {
   topCodeBlockLanguage?: string;
   topCodeBlockLineCount?: number;
   topCodeBlockText?: string;
+  topResourcePath?: string;
   topResourceKind?: string;
   topResourceUrl?: string;
   topResourceTitle?: string;
+  topResourceSelector?: string;
   topResourceCommand?: string;
   topResourceCommandArgs?: string[];
+  topMediaPath?: string;
   topMediaKind?: string;
   topMediaUrl?: string;
+  topMediaSelector?: string;
   topMediaCommand?: string;
   topMediaCommandArgs?: string[];
   topMediaText?: string;

@@ -1561,13 +1561,17 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topCodeBlockLanguage?: string;
       topCodeBlockLineCount?: number;
       topCodeBlockText?: string;
+      topResourcePath?: string;
       topResourceKind?: string;
       topResourceUrl?: string;
       topResourceTitle?: string;
+      topResourceSelector?: string;
       topResourceCommand?: string;
       topResourceCommandArgs?: string[];
+      topMediaPath?: string;
       topMediaKind?: string;
       topMediaUrl?: string;
+      topMediaSelector?: string;
       topMediaCommand?: string;
       topMediaCommandArgs?: string[];
       topMediaText?: string;
@@ -8567,13 +8571,17 @@ function scoreAgentStructuredShortcuts(agent: {
   topCodeBlockLanguage?: string;
   topCodeBlockLineCount?: number;
   topCodeBlockText?: string;
+  topResourcePath?: string;
   topResourceKind?: string;
   topResourceUrl?: string;
   topResourceTitle?: string;
+  topResourceSelector?: string;
   topResourceCommand?: string;
   topResourceCommandArgs?: string[];
+  topMediaPath?: string;
   topMediaKind?: string;
   topMediaUrl?: string;
+  topMediaSelector?: string;
   topMediaCommand?: string;
   topMediaCommandArgs?: string[];
   topMediaText?: string;
@@ -8696,8 +8704,8 @@ function scoreAgentStructuredShortcuts(agent: {
   dataTables?: Array<{ path?: string; caption?: string; rowCount?: number; columnCount?: number; headers?: string[]; sampleRows?: string[][]; selector?: string }>;
   faqs?: Array<{ question?: string; answer?: string }>;
   codeBlocks?: Array<{ language?: string; lineCount?: number; text?: string }>;
-  resources?: Array<{ kind?: string; url?: string; title?: string }>;
-  media?: Array<{ kind?: string; url?: string; text?: string }>;
+  resources?: Array<{ path?: string; kind?: string; url?: string; title?: string; selector?: string }>;
+  media?: Array<{ path?: string; kind?: string; url?: string; text?: string; selector?: string }>;
   sections?: Array<{ path?: string; heading?: string; level?: number; text?: string; selector?: string }>;
   breadcrumbs?: Array<{ path?: string; text?: string; source?: string }>;
   pagination?: Array<{ path?: string; kind?: string; label?: string; url?: string; current?: boolean; selector?: string }>;
@@ -8790,31 +8798,35 @@ function scoreAgentStructuredShortcuts(agent: {
 
   const topResource = resources[0];
   if (topResource) {
-    required += 3;
+    required += 5;
+    if (agent.topResourcePath === topResource.path) matched += 1;
     if (agent.topResourceKind === topResource.kind) matched += 1;
     if (agent.topResourceUrl === topResource.url) matched += 1;
     if (agent.topResourceTitle === topResource.title) matched += 1;
+    if (agent.topResourceSelector === topResource.selector) matched += 1;
     if (topResource.url) {
       required += 2;
       if (typeof agent.topResourceCommand === "string" && agent.topResourceCommand.includes(topResource.url)) matched += 1;
       if (Array.isArray(agent.topResourceCommandArgs) && agent.topResourceCommandArgs.includes(topResource.url)) matched += 1;
     }
-  } else if (agent.topResourceKind || agent.topResourceUrl || agent.topResourceTitle) {
+  } else if (agent.topResourcePath || agent.topResourceKind || agent.topResourceUrl || agent.topResourceTitle || agent.topResourceSelector) {
     required += 1;
   }
 
   const topMedia = media[0];
   if (topMedia) {
-    required += 3;
+    required += 5;
+    if (agent.topMediaPath === topMedia.path) matched += 1;
     if (agent.topMediaKind === topMedia.kind) matched += 1;
     if (agent.topMediaUrl === topMedia.url) matched += 1;
     if (agent.topMediaText === topMedia.text) matched += 1;
+    if (agent.topMediaSelector === topMedia.selector) matched += 1;
     if (topMedia.url && /^https?:\/\//i.test(topMedia.url)) {
       required += 2;
       if (typeof agent.topMediaCommand === "string" && agent.topMediaCommand.includes(topMedia.url)) matched += 1;
       if (Array.isArray(agent.topMediaCommandArgs) && agent.topMediaCommandArgs.includes(topMedia.url)) matched += 1;
     }
-  } else if (agent.topMediaKind || agent.topMediaUrl || agent.topMediaCommand || agent.topMediaCommandArgs || agent.topMediaText) {
+  } else if (agent.topMediaPath || agent.topMediaKind || agent.topMediaUrl || agent.topMediaCommand || agent.topMediaCommandArgs || agent.topMediaText || agent.topMediaSelector) {
     required += 1;
   }
 

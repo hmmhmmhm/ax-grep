@@ -1684,13 +1684,17 @@ type AgentSummary = {
   topCodeBlockLanguage?: string;
   topCodeBlockLineCount?: number;
   topCodeBlockText?: string;
+  topResourcePath?: string;
   topResourceKind?: PageResourceSummary["kind"];
   topResourceUrl?: string;
   topResourceTitle?: string;
+  topResourceSelector?: string;
   topResourceCommand?: string;
   topResourceCommandArgs?: string[];
+  topMediaPath?: string;
   topMediaKind?: PageMediaSummary["kind"];
   topMediaUrl?: string;
+  topMediaSelector?: string;
   topMediaCommand?: string;
   topMediaCommandArgs?: string[];
   topMediaText?: string;
@@ -4157,10 +4161,10 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  contactPointCount: ${agent.contactPointCount}`,
     ...(agent.topFaqQuestion ? [`  topFaqQuestion: ${agent.topFaqQuestion}`] : []),
     ...(agent.topCodeBlockText ? [`  topCodeBlockText: ${agent.topCodeBlockText}`] : []),
-    ...(agent.topResourceUrl ? [`  topResourceUrl: ${agent.topResourceUrl}`] : []),
+    ...(agent.topResourceUrl ? [`  topResource: ${agent.topResourcePath ?? ""} ${agent.topResourceKind ?? ""}${agent.topResourceTitle ? ` \"${agent.topResourceTitle}\"` : ""}${agent.topResourceSelector ? ` selector=${agent.topResourceSelector}` : ""} <${agent.topResourceUrl}>`] : []),
     ...(agent.topResourceCommand ? [`  topResourceCommand: ${agent.topResourceCommand}`] : []),
     ...(agent.topResourceCommandArgs ? [`  topResourceCommandArgs: ${formatCommandArgsText(agent.topResourceCommandArgs)}`] : []),
-    ...(agent.topMediaUrl ? [`  topMediaUrl: ${agent.topMediaUrl}`] : []),
+    ...(agent.topMediaUrl ? [`  topMedia: ${agent.topMediaPath ?? ""} ${agent.topMediaKind ?? ""}${agent.topMediaSelector ? ` selector=${agent.topMediaSelector}` : ""} <${agent.topMediaUrl}>${agent.topMediaText ? ` - ${agent.topMediaText}` : ""}`] : []),
     ...(agent.topMediaCommand ? [`  topMediaCommand: ${agent.topMediaCommand}`] : []),
     ...(agent.topMediaCommandArgs ? [`  topMediaCommandArgs: ${formatCommandArgsText(agent.topMediaCommandArgs)}`] : []),
     ...(agent.topSectionPath ? [`  topSectionPath: ${agent.topSectionPath}`] : []),
@@ -13213,13 +13217,17 @@ function summarizeAgent(
     ...(pageCheck.codeBlocks[0]?.language ? { topCodeBlockLanguage: pageCheck.codeBlocks[0].language } : {}),
     ...(pageCheck.codeBlocks[0] ? { topCodeBlockLineCount: pageCheck.codeBlocks[0].lineCount } : {}),
     ...(pageCheck.codeBlocks[0]?.text ? { topCodeBlockText: pageCheck.codeBlocks[0].text } : {}),
+    ...(pageCheck.resources[0] ? { topResourcePath: pageCheck.resources[0].path } : {}),
     ...(pageCheck.resources[0] ? { topResourceKind: pageCheck.resources[0].kind } : {}),
     ...(pageCheck.resources[0]?.url ? { topResourceUrl: pageCheck.resources[0].url } : {}),
     ...(pageCheck.resources[0]?.title ? { topResourceTitle: pageCheck.resources[0].title } : {}),
+    ...(pageCheck.resources[0]?.selector ? { topResourceSelector: pageCheck.resources[0].selector } : {}),
     ...(topResourceCommand ? { topResourceCommand: topResourceCommand.command } : {}),
     ...(topResourceCommand ? { topResourceCommandArgs: topResourceCommand.commandArgs } : {}),
+    ...(pageCheck.media[0] ? { topMediaPath: pageCheck.media[0].path } : {}),
     ...(pageCheck.media[0] ? { topMediaKind: pageCheck.media[0].kind } : {}),
     ...(pageCheck.media[0]?.url ? { topMediaUrl: pageCheck.media[0].url } : {}),
+    ...(pageCheck.media[0]?.selector ? { topMediaSelector: pageCheck.media[0].selector } : {}),
     ...(topMediaCommand ? { topMediaCommand: topMediaCommand.command } : {}),
     ...(topMediaCommand ? { topMediaCommandArgs: topMediaCommand.commandArgs } : {}),
     ...(pageCheck.media[0]?.text ? { topMediaText: pageCheck.media[0].text } : {}),
@@ -19252,13 +19260,17 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topCodeBlockLanguage ? { topCodeBlockLanguage: agent.topCodeBlockLanguage } : {}),
     ...(typeof agent.topCodeBlockLineCount === "number" ? { topCodeBlockLineCount: agent.topCodeBlockLineCount } : {}),
     ...(agent.topCodeBlockText ? { topCodeBlockText: agent.topCodeBlockText } : {}),
+    ...(agent.topResourcePath ? { topResourcePath: agent.topResourcePath } : {}),
     ...(agent.topResourceKind ? { topResourceKind: agent.topResourceKind } : {}),
     ...(agent.topResourceUrl ? { topResourceUrl: agent.topResourceUrl } : {}),
     ...(agent.topResourceTitle ? { topResourceTitle: agent.topResourceTitle } : {}),
+    ...(agent.topResourceSelector ? { topResourceSelector: agent.topResourceSelector } : {}),
     ...(agent.topResourceCommand ? { topResourceCommand: agent.topResourceCommand } : {}),
     ...(agent.topResourceCommandArgs ? { topResourceCommandArgs: agent.topResourceCommandArgs } : {}),
+    ...(agent.topMediaPath ? { topMediaPath: agent.topMediaPath } : {}),
     ...(agent.topMediaKind ? { topMediaKind: agent.topMediaKind } : {}),
     ...(agent.topMediaUrl ? { topMediaUrl: agent.topMediaUrl } : {}),
+    ...(agent.topMediaSelector ? { topMediaSelector: agent.topMediaSelector } : {}),
     ...(agent.topMediaCommand ? { topMediaCommand: agent.topMediaCommand } : {}),
     ...(agent.topMediaCommandArgs ? { topMediaCommandArgs: agent.topMediaCommandArgs } : {}),
     ...(agent.topMediaText ? { topMediaText: agent.topMediaText } : {}),
@@ -20550,13 +20562,17 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topCodeBlockLanguage ? { topCodeBlockLanguage: agent.topCodeBlockLanguage } : {}),
     ...(typeof agent.topCodeBlockLineCount === "number" ? { topCodeBlockLineCount: agent.topCodeBlockLineCount } : {}),
     ...(agent.topCodeBlockText ? { topCodeBlockText: agent.topCodeBlockText } : {}),
+    ...(agent.topResourcePath ? { topResourcePath: agent.topResourcePath } : {}),
     ...(agent.topResourceKind ? { topResourceKind: agent.topResourceKind } : {}),
     ...(agent.topResourceUrl ? { topResourceUrl: agent.topResourceUrl } : {}),
     ...(agent.topResourceTitle ? { topResourceTitle: agent.topResourceTitle } : {}),
+    ...(agent.topResourceSelector ? { topResourceSelector: agent.topResourceSelector } : {}),
     ...(agent.topResourceCommand ? { topResourceCommand: agent.topResourceCommand } : {}),
     ...(agent.topResourceCommandArgs ? { topResourceCommandArgs: agent.topResourceCommandArgs } : {}),
+    ...(agent.topMediaPath ? { topMediaPath: agent.topMediaPath } : {}),
     ...(agent.topMediaKind ? { topMediaKind: agent.topMediaKind } : {}),
     ...(agent.topMediaUrl ? { topMediaUrl: agent.topMediaUrl } : {}),
+    ...(agent.topMediaSelector ? { topMediaSelector: agent.topMediaSelector } : {}),
     ...(agent.topMediaCommand ? { topMediaCommand: agent.topMediaCommand } : {}),
     ...(agent.topMediaCommandArgs ? { topMediaCommandArgs: agent.topMediaCommandArgs } : {}),
     ...(agent.topMediaText ? { topMediaText: agent.topMediaText } : {}),
