@@ -1769,7 +1769,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topChoicePrimary?: boolean;
       topChoiceSourceType?: string;
       topChoiceSourceScore?: number;
+      topChoiceSourceHints?: string[];
       topChoiceRelevance?: CliAgentTargetShape["relevance"];
+      topChoiceMatchedTerm?: string;
+      topChoiceFindMatch?: string;
+      topChoiceSitelinkCount?: number;
       topChoiceLikelyOfficial?: boolean;
       sourceSearchQuery?: string;
       sourceSearchEngine?: string;
@@ -4410,7 +4414,11 @@ function scoreAgentTopChoiceShortcuts(agent: {
   topChoicePrimary?: boolean;
   topChoiceSourceType?: string;
   topChoiceSourceScore?: number;
+  topChoiceSourceHints?: string[];
   topChoiceRelevance?: CliAgentTargetShape["relevance"];
+  topChoiceMatchedTerm?: string;
+  topChoiceFindMatch?: string;
+  topChoiceSitelinkCount?: number;
   topChoiceLikelyOfficial?: boolean;
 } | undefined): number {
   if (!agent) return 0;
@@ -4419,16 +4427,16 @@ function scoreAgentTopChoiceShortcuts(agent: {
   const form = agent.formChoices?.[0];
   const actionTarget = agent.actionTargetChoices?.[0];
   const expected = result
-    ? { kind: "result" as const, path: result.path, label: result.title, url: result.url, host: result.host, snippet: result.snippet, dateText: result.dateText, dateIso: result.dateIso, dateUnixMs: result.dateUnixMs, datePrecision: result.datePrecision, dateSource: result.dateSource, command: result.command, commandArgs: result.commandArgs, firstSitelink: result.sitelinks?.[0], openResult: result.openResult, recommended: result.recommended, primary: result.primary, sourceType: result.sourceType, sourceScore: result.sourceScore, relevance: result.relevance, isLikelyOfficial: result.isLikelyOfficial }
+    ? { kind: "result" as const, path: result.path, label: result.title, url: result.url, host: result.host, snippet: result.snippet, dateText: result.dateText, dateIso: result.dateIso, dateUnixMs: result.dateUnixMs, datePrecision: result.datePrecision, dateSource: result.dateSource, command: result.command, commandArgs: result.commandArgs, firstSitelink: result.sitelinks?.[0], openResult: result.openResult, recommended: result.recommended, primary: result.primary, sourceType: result.sourceType, sourceScore: result.sourceScore, sourceHints: result.sourceHints, relevance: result.relevance, matchedTerm: result.matchedTerms?.[0], findMatch: result.findMatches?.[0], sitelinkCount: result.sitelinks?.length, isLikelyOfficial: result.isLikelyOfficial }
     : source
-      ? { kind: "source" as const, path: source.path, label: source.title || source.text, url: source.url, host: source.host, snippet: source.snippet, dateText: source.dateText, dateIso: source.dateIso, dateUnixMs: source.dateUnixMs, datePrecision: source.datePrecision, dateSource: source.dateSource, command: source.command, commandArgs: source.commandArgs, primary: source.primary, sourceType: source.sourceType, sourceScore: source.sourceScore, relevance: source.relevance, isLikelyOfficial: source.isLikelyOfficial }
+      ? { kind: "source" as const, path: source.path, label: source.title || source.text, url: source.url, host: source.host, snippet: source.snippet, dateText: source.dateText, dateIso: source.dateIso, dateUnixMs: source.dateUnixMs, datePrecision: source.datePrecision, dateSource: source.dateSource, command: source.command, commandArgs: source.commandArgs, primary: source.primary, sourceType: source.sourceType, sourceScore: source.sourceScore, sourceHints: source.sourceHints, relevance: source.relevance, matchedTerm: source.matchedTerms?.[0], findMatch: source.findMatches?.[0], isLikelyOfficial: source.isLikelyOfficial }
       : form
         ? { kind: "form" as const, path: form.path, label: form.text, url: form.actionUrl ?? form.urlTemplate, command: form.command, commandArgs: form.commandArgs }
         : actionTarget
           ? { kind: "action-target" as const, path: actionTarget.path, label: actionTarget.name || actionTarget.text, url: actionTarget.targetUrl ?? actionTarget.urlTemplate, command: actionTarget.command, commandArgs: actionTarget.commandArgs }
           : undefined;
   if (!expected) {
-    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceHost && !agent.topChoiceSnippet && !agent.topChoiceDateText && !agent.topChoiceDateIso && typeof agent.topChoiceDateUnixMs !== "number" && !agent.topChoiceDatePrecision && !agent.topChoiceDateSource && !agent.topChoiceCommand && !agent.topChoiceCommandArgs && !agent.topChoiceFirstSitelinkTitle && !agent.topChoiceFirstSitelinkUrl && !agent.topChoiceFirstSitelinkSelector && !agent.topChoiceFirstSitelinkCommand && !agent.topChoiceFirstSitelinkCommandArgs && !agent.topChoiceOpenResult && typeof agent.topChoiceRecommended !== "boolean" && typeof agent.topChoicePrimary !== "boolean" && !agent.topChoiceSourceType && typeof agent.topChoiceSourceScore !== "number" && !agent.topChoiceRelevance && typeof agent.topChoiceLikelyOfficial !== "boolean" ? 1 : 0;
+    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceHost && !agent.topChoiceSnippet && !agent.topChoiceDateText && !agent.topChoiceDateIso && typeof agent.topChoiceDateUnixMs !== "number" && !agent.topChoiceDatePrecision && !agent.topChoiceDateSource && !agent.topChoiceCommand && !agent.topChoiceCommandArgs && !agent.topChoiceFirstSitelinkTitle && !agent.topChoiceFirstSitelinkUrl && !agent.topChoiceFirstSitelinkSelector && !agent.topChoiceFirstSitelinkCommand && !agent.topChoiceFirstSitelinkCommandArgs && !agent.topChoiceOpenResult && typeof agent.topChoiceRecommended !== "boolean" && typeof agent.topChoicePrimary !== "boolean" && !agent.topChoiceSourceType && typeof agent.topChoiceSourceScore !== "number" && !agent.topChoiceSourceHints?.length && !agent.topChoiceRelevance && !agent.topChoiceMatchedTerm && !agent.topChoiceFindMatch && typeof agent.topChoiceSitelinkCount !== "number" && typeof agent.topChoiceLikelyOfficial !== "boolean" ? 1 : 0;
   }
   let required = 2;
   let matched = 0;
@@ -4515,10 +4523,34 @@ function scoreAgentTopChoiceShortcuts(agent: {
   } else if (typeof agent.topChoiceSourceScore === "number") {
     required += 1;
   }
+  if (expected.sourceHints?.length) {
+    required += 1;
+    if (JSON.stringify(agent.topChoiceSourceHints) === JSON.stringify(expected.sourceHints)) matched += 1;
+  } else if (agent.topChoiceSourceHints?.length) {
+    required += 1;
+  }
   if (expected.relevance) {
     required += 1;
     if (agent.topChoiceRelevance === expected.relevance) matched += 1;
   } else if (agent.topChoiceRelevance) {
+    required += 1;
+  }
+  if (expected.matchedTerm) {
+    required += 1;
+    if (agent.topChoiceMatchedTerm === expected.matchedTerm) matched += 1;
+  } else if (agent.topChoiceMatchedTerm) {
+    required += 1;
+  }
+  if (expected.findMatch) {
+    required += 1;
+    if (agent.topChoiceFindMatch === expected.findMatch) matched += 1;
+  } else if (agent.topChoiceFindMatch) {
+    required += 1;
+  }
+  if (typeof expected.sitelinkCount === "number") {
+    required += 1;
+    if (agent.topChoiceSitelinkCount === expected.sitelinkCount) matched += 1;
+  } else if (typeof agent.topChoiceSitelinkCount === "number") {
     required += 1;
   }
   if (typeof expected.isLikelyOfficial === "boolean") {

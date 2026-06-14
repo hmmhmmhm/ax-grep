@@ -2272,7 +2272,11 @@ export type AgentSummary = {
   topChoiceSource?: string;
   topChoiceSourceType?: string;
   topChoiceSourceScore?: number;
+  topChoiceSourceHints?: string[];
   topChoiceRelevance?: AgentTarget["relevance"];
+  topChoiceMatchedTerm?: string;
+  topChoiceFindMatch?: string;
+  topChoiceSitelinkCount?: number;
   topChoiceLikelyOfficial?: boolean;
   topChoiceMethod?: string;
   topChoiceSelector?: string;

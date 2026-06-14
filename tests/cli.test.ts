@@ -1573,7 +1573,11 @@ describe("cli", () => {
         if (topResultChoice.source) expect(envelope.agent.topChoiceSource).toBe(topResultChoice.source);
         if (topResultChoice.sourceType) expect(envelope.agent.topChoiceSourceType).toBe(topResultChoice.sourceType);
         if (typeof topResultChoice.sourceScore === "number") expect(envelope.agent.topChoiceSourceScore).toBe(topResultChoice.sourceScore);
+        if (topResultChoice.sourceHints?.length) expect(envelope.agent.topChoiceSourceHints).toEqual(topResultChoice.sourceHints);
         if (topResultChoice.relevance) expect(envelope.agent.topChoiceRelevance).toBe(topResultChoice.relevance);
+        if (topResultChoice.matchedTerms?.[0]) expect(envelope.agent.topChoiceMatchedTerm).toBe(topResultChoice.matchedTerms[0]);
+        if (topResultChoice.findMatches?.[0]) expect(envelope.agent.topChoiceFindMatch).toBe(topResultChoice.findMatches[0]);
+        if (typeof topResultChoice.sitelinkCount === "number") expect(envelope.agent.topChoiceSitelinkCount).toBe(topResultChoice.sitelinkCount);
         if (typeof topResultChoice.isLikelyOfficial === "boolean") expect(envelope.agent.topChoiceLikelyOfficial).toBe(topResultChoice.isLikelyOfficial);
         if (topResultChoice.selectionReason) expect(envelope.agent.topChoiceReason).toBe(topResultChoice.selectionReason);
         expect(envelope.agent.topResultChoicePath).toBe(topResultChoice.path);
@@ -1616,9 +1620,12 @@ describe("cli", () => {
         if (topSourceChoice.source) expect(envelope.agent.topChoiceSource).toBe(topSourceChoice.source);
         if (topSourceChoice.sourceType) expect(envelope.agent.topChoiceSourceType).toBe(topSourceChoice.sourceType);
         if (typeof topSourceChoice.sourceScore === "number") expect(envelope.agent.topChoiceSourceScore).toBe(topSourceChoice.sourceScore);
+        if (topSourceChoice.sourceHints?.length) expect(envelope.agent.topChoiceSourceHints).toEqual(topSourceChoice.sourceHints);
         if (topSourceChoice.relevance) expect(envelope.agent.topChoiceRelevance).toBe(topSourceChoice.relevance);
         if (topSourceChoice.relevance) expect(envelope.agent.topSourceChoiceRelevance).toBe(topSourceChoice.relevance);
+        if (topSourceChoice.matchedTerms?.[0]) expect(envelope.agent.topChoiceMatchedTerm).toBe(topSourceChoice.matchedTerms[0]);
         if (topSourceChoice.matchedTerms?.[0]) expect(envelope.agent.topSourceChoiceMatchedTerm).toBe(topSourceChoice.matchedTerms[0]);
+        if (topSourceChoice.findMatches?.[0]) expect(envelope.agent.topChoiceFindMatch).toBe(topSourceChoice.findMatches[0]);
         if (topSourceChoice.findMatches?.[0]) expect(envelope.agent.topSourceChoiceFindMatch).toBe(topSourceChoice.findMatches[0]);
         if (typeof topSourceChoice.isLikelyOfficial === "boolean") expect(envelope.agent.topChoiceLikelyOfficial).toBe(topSourceChoice.isLikelyOfficial);
         if (topSourceChoice.selector) expect(envelope.agent.topChoiceSelector).toBe(topSourceChoice.selector);
@@ -11984,6 +11991,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("     reason: Ranked result 1 from result.example.");
     expect(stdout.output).toContain("     snippet: Snippet text explains why this result is useful for the current investigation.");
     expect(stdout.output).toContain("     sitelink: Docs sitelink <https://result.example/article/docs> selector=a:nth-of-type(2)");
+    expect(stdout.output).toContain("  topChoice: result searchResults[0] rank=1 openResult=1 recommended=true primary=true host=result.example source=result.example sitelinks=1");
     expect(stdout.output).toContain("  topChoiceFirstSitelink: Docs sitelink <https://result.example/article/docs> selector=a:nth-of-type(2) command=ax-grep 'https://result.example/article/docs' --json --summary");
     expect(stdout.output).toContain("  topChoiceFirstSitelinkCommandArgs: [\"ax-grep\",\"https://result.example/article/docs\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  topResultChoiceFirstSitelinkCommand: ax-grep 'https://result.example/article/docs' --json --summary");

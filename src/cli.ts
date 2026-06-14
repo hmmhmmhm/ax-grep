@@ -1905,7 +1905,11 @@ type AgentSummary = {
   topChoiceSource?: string;
   topChoiceSourceType?: string;
   topChoiceSourceScore?: number;
+  topChoiceSourceHints?: string[];
   topChoiceRelevance?: AgentTarget["relevance"];
+  topChoiceMatchedTerm?: string;
+  topChoiceFindMatch?: string;
+  topChoiceSitelinkCount?: number;
   topChoiceLikelyOfficial?: boolean;
   topChoiceMethod?: string;
   topChoiceSelector?: string;
@@ -4263,7 +4267,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topSourceChoicePrimary === "boolean" ? [`  topSourceChoicePrimary: ${agent.topSourceChoicePrimary}`] : []),
     ...(agent.topSourceChoiceSelector ? [`  topSourceChoiceSelector: ${agent.topSourceChoiceSelector}`] : []),
     ...(agent.topSourceChoiceReason ? [`  topSourceChoiceReason: ${agent.topSourceChoiceReason}`] : []),
-    ...(agent.topChoiceKind ? [`  topChoice: ${agent.topChoiceKind} ${agent.topChoicePath}${typeof agent.topChoiceRank === "number" ? ` rank=${agent.topChoiceRank}` : ""}${agent.topChoiceOpenResult ? ` openResult=${agent.topChoiceOpenResult}` : ""}${typeof agent.topChoiceRecommended === "boolean" ? ` recommended=${agent.topChoiceRecommended}` : ""}${typeof agent.topChoicePrimary === "boolean" ? ` primary=${agent.topChoicePrimary}` : ""}${agent.topChoiceHost ? ` host=${agent.topChoiceHost}` : ""}${agent.topChoiceSource ? ` source=${agent.topChoiceSource}` : ""}${agent.topChoiceSourceType ? ` sourceType=${agent.topChoiceSourceType}` : ""}${typeof agent.topChoiceSourceScore === "number" ? ` score=${agent.topChoiceSourceScore}` : ""}${agent.topChoiceDateText ? ` dateText=${agent.topChoiceDateText}` : ""}${agent.topChoiceDateIso ? ` dateIso=${agent.topChoiceDateIso}` : ""}${typeof agent.topChoiceDateUnixMs === "number" ? ` dateUnixMs=${agent.topChoiceDateUnixMs}` : ""}${agent.topChoiceDatePrecision ? ` datePrecision=${agent.topChoiceDatePrecision}` : ""}${agent.topChoiceDateSource ? ` dateSource=${agent.topChoiceDateSource}` : ""}${agent.topChoiceRelevance ? ` relevance=${agent.topChoiceRelevance}` : ""}${typeof agent.topChoiceLikelyOfficial === "boolean" ? ` official=${agent.topChoiceLikelyOfficial}` : ""}${agent.topChoiceMethod ? ` method=${agent.topChoiceMethod}` : ""}${agent.topChoiceSelector ? ` selector=${agent.topChoiceSelector}` : ""}${agent.topChoiceUrl ? ` <${agent.topChoiceUrl}>` : ""}${agent.topChoiceCommand ? ` command=${agent.topChoiceCommand}` : ""}${agent.topChoiceReason ? ` reason=${agent.topChoiceReason}` : ""}${agent.topChoiceSnippet ? ` snippet=${agent.topChoiceSnippet}` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
+    ...(agent.topChoiceKind ? [`  topChoice: ${agent.topChoiceKind} ${agent.topChoicePath}${typeof agent.topChoiceRank === "number" ? ` rank=${agent.topChoiceRank}` : ""}${agent.topChoiceOpenResult ? ` openResult=${agent.topChoiceOpenResult}` : ""}${typeof agent.topChoiceRecommended === "boolean" ? ` recommended=${agent.topChoiceRecommended}` : ""}${typeof agent.topChoicePrimary === "boolean" ? ` primary=${agent.topChoicePrimary}` : ""}${agent.topChoiceHost ? ` host=${agent.topChoiceHost}` : ""}${agent.topChoiceSource ? ` source=${agent.topChoiceSource}` : ""}${agent.topChoiceSourceType ? ` sourceType=${agent.topChoiceSourceType}` : ""}${typeof agent.topChoiceSourceScore === "number" ? ` score=${agent.topChoiceSourceScore}` : ""}${agent.topChoiceSourceHints?.length ? ` hints=${agent.topChoiceSourceHints.join(",")}` : ""}${agent.topChoiceMatchedTerm ? ` matched=${agent.topChoiceMatchedTerm}` : ""}${agent.topChoiceFindMatch ? ` find=${agent.topChoiceFindMatch}` : ""}${typeof agent.topChoiceSitelinkCount === "number" ? ` sitelinks=${agent.topChoiceSitelinkCount}` : ""}${agent.topChoiceDateText ? ` dateText=${agent.topChoiceDateText}` : ""}${agent.topChoiceDateIso ? ` dateIso=${agent.topChoiceDateIso}` : ""}${typeof agent.topChoiceDateUnixMs === "number" ? ` dateUnixMs=${agent.topChoiceDateUnixMs}` : ""}${agent.topChoiceDatePrecision ? ` datePrecision=${agent.topChoiceDatePrecision}` : ""}${agent.topChoiceDateSource ? ` dateSource=${agent.topChoiceDateSource}` : ""}${agent.topChoiceRelevance ? ` relevance=${agent.topChoiceRelevance}` : ""}${typeof agent.topChoiceLikelyOfficial === "boolean" ? ` official=${agent.topChoiceLikelyOfficial}` : ""}${agent.topChoiceMethod ? ` method=${agent.topChoiceMethod}` : ""}${agent.topChoiceSelector ? ` selector=${agent.topChoiceSelector}` : ""}${agent.topChoiceUrl ? ` <${agent.topChoiceUrl}>` : ""}${agent.topChoiceCommand ? ` command=${agent.topChoiceCommand}` : ""}${agent.topChoiceReason ? ` reason=${agent.topChoiceReason}` : ""}${agent.topChoiceSnippet ? ` snippet=${agent.topChoiceSnippet}` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
     ...(agent.topChoiceCommandArgs ? [`  topChoiceCommandArgs: ${formatCommandArgsText(agent.topChoiceCommandArgs)}`] : []),
     ...(agent.topChoiceFirstSitelinkTitle || agent.topChoiceFirstSitelinkUrl ? [`  topChoiceFirstSitelink: ${agent.topChoiceFirstSitelinkTitle ?? "first sitelink"}${agent.topChoiceFirstSitelinkUrl ? ` <${agent.topChoiceFirstSitelinkUrl}>` : ""}${agent.topChoiceFirstSitelinkSelector ? ` selector=${agent.topChoiceFirstSitelinkSelector}` : ""}${agent.topChoiceFirstSitelinkCommand ? ` command=${agent.topChoiceFirstSitelinkCommand}` : ""}`] : []),
     ...(agent.topChoiceFirstSitelinkCommandArgs ? [`  topChoiceFirstSitelinkCommandArgs: ${formatCommandArgsText(agent.topChoiceFirstSitelinkCommandArgs)}`] : []),
@@ -13417,7 +13421,11 @@ function summarizeAgent(
     ...(topChoice?.source ? { topChoiceSource: topChoice.source } : {}),
     ...(topChoice?.sourceType ? { topChoiceSourceType: topChoice.sourceType } : {}),
     ...(typeof topChoice?.sourceScore === "number" ? { topChoiceSourceScore: topChoice.sourceScore } : {}),
+    ...(topChoice?.sourceHints?.length ? { topChoiceSourceHints: topChoice.sourceHints } : {}),
     ...(topChoice?.relevance ? { topChoiceRelevance: topChoice.relevance } : {}),
+    ...(topChoice?.matchedTerm ? { topChoiceMatchedTerm: topChoice.matchedTerm } : {}),
+    ...(topChoice?.findMatch ? { topChoiceFindMatch: topChoice.findMatch } : {}),
+    ...(typeof topChoice?.sitelinkCount === "number" ? { topChoiceSitelinkCount: topChoice.sitelinkCount } : {}),
     ...(typeof topChoice?.isLikelyOfficial === "boolean" ? { topChoiceLikelyOfficial: topChoice.isLikelyOfficial } : {}),
     ...(topChoice?.method ? { topChoiceMethod: topChoice.method } : {}),
     ...(topChoice?.selector ? { topChoiceSelector: topChoice.selector } : {}),
@@ -15789,7 +15797,11 @@ function summarizeAgentTopChoice(
   source?: string;
   sourceType?: string;
   sourceScore?: number;
+  sourceHints?: string[];
   relevance?: AgentTarget["relevance"];
+  matchedTerm?: string;
+  findMatch?: string;
+  sitelinkCount?: number;
   isLikelyOfficial?: boolean;
   method?: string;
   selector?: string;
@@ -15823,7 +15835,11 @@ function summarizeAgentTopChoice(
       ...(result.source ? { source: result.source } : {}),
       ...(result.sourceType ? { sourceType: result.sourceType } : {}),
       ...(typeof result.sourceScore === "number" ? { sourceScore: result.sourceScore } : {}),
+      ...(result.sourceHints?.length ? { sourceHints: result.sourceHints } : {}),
       ...(result.relevance ? { relevance: result.relevance } : {}),
+      ...(result.matchedTerms?.[0] ? { matchedTerm: result.matchedTerms[0] } : {}),
+      ...(result.findMatches?.[0] ? { findMatch: result.findMatches[0] } : {}),
+      ...(result.sitelinks?.length ? { sitelinkCount: result.sitelinks.length } : {}),
       ...(typeof result.isLikelyOfficial === "boolean" ? { isLikelyOfficial: result.isLikelyOfficial } : {}),
       ...(result.selectionReason ? { reason: result.selectionReason } : {}),
     };
@@ -15849,7 +15865,10 @@ function summarizeAgentTopChoice(
       ...(source.source ? { source: source.source } : {}),
       ...(source.sourceType ? { sourceType: source.sourceType } : {}),
       ...(typeof source.sourceScore === "number" ? { sourceScore: source.sourceScore } : {}),
+      ...(source.sourceHints?.length ? { sourceHints: source.sourceHints } : {}),
       ...(source.relevance ? { relevance: source.relevance } : {}),
+      ...(source.matchedTerms?.[0] ? { matchedTerm: source.matchedTerms[0] } : {}),
+      ...(source.findMatches?.[0] ? { findMatch: source.findMatches[0] } : {}),
       ...(typeof source.isLikelyOfficial === "boolean" ? { isLikelyOfficial: source.isLikelyOfficial } : {}),
       ...(source.selector ? { selector: source.selector } : {}),
       ...(source.selectionReason ? { reason: source.selectionReason } : {}),
@@ -18372,7 +18391,11 @@ function compactAgentTopChoice(agent: AgentSummary, searchCommandContext?: Searc
     ...(agent.topChoiceSource ? { topChoiceSource: agent.topChoiceSource } : {}),
     ...(agent.topChoiceSourceType ? { topChoiceSourceType: agent.topChoiceSourceType } : {}),
     ...(typeof agent.topChoiceSourceScore === "number" ? { topChoiceSourceScore: agent.topChoiceSourceScore } : {}),
+    ...(agent.topChoiceSourceHints?.length ? { topChoiceSourceHints: agent.topChoiceSourceHints } : {}),
     ...(agent.topChoiceRelevance ? { topChoiceRelevance: agent.topChoiceRelevance } : {}),
+    ...(agent.topChoiceMatchedTerm ? { topChoiceMatchedTerm: agent.topChoiceMatchedTerm } : {}),
+    ...(agent.topChoiceFindMatch ? { topChoiceFindMatch: agent.topChoiceFindMatch } : {}),
+    ...(typeof agent.topChoiceSitelinkCount === "number" ? { topChoiceSitelinkCount: agent.topChoiceSitelinkCount } : {}),
     ...(typeof agent.topChoiceLikelyOfficial === "boolean" ? { topChoiceLikelyOfficial: agent.topChoiceLikelyOfficial } : {}),
     ...(agent.topChoiceMethod ? { topChoiceMethod: agent.topChoiceMethod } : {}),
     ...(agent.topChoiceSelector ? { topChoiceSelector: agent.topChoiceSelector } : {}),
