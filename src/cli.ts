@@ -1898,6 +1898,8 @@ type AgentSummary = {
   sourceSearchSelectedPath?: string;
   sourceSearchSelectedSnippet?: string;
   sourceSearchSelectedDateText?: string;
+  sourceSearchSelectedDateIso?: string;
+  sourceSearchSelectedDateUnixMs?: number;
   sourceSearchSelectedDatePrecision?: AgentSourceSearchResult["datePrecision"];
   sourceSearchSelectedDateSource?: AgentSourceSearchResult["dateSource"];
   sourceSearchSelectedMatchedTerm?: string;
@@ -1935,6 +1937,8 @@ type AgentSummary = {
   sourceSearchAlternateRank?: number;
   sourceSearchAlternateSnippet?: string;
   sourceSearchAlternateDateText?: string;
+  sourceSearchAlternateDateIso?: string;
+  sourceSearchAlternateDateUnixMs?: number;
   sourceSearchAlternateDatePrecision?: AgentSourceSearchResult["datePrecision"];
   sourceSearchAlternateDateSource?: AgentSourceSearchResult["dateSource"];
   sourceSearchAlternateMatchedTerm?: string;
@@ -4214,6 +4218,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.sourceSearchSelectedPath ? [`  sourceSearchSelectedPath: ${agent.sourceSearchSelectedPath}`] : []),
     ...(agent.sourceSearchSelectedSnippet ? [`  sourceSearchSelectedSnippet: ${agent.sourceSearchSelectedSnippet}`] : []),
     ...(agent.sourceSearchSelectedDateText ? [`  sourceSearchSelectedDateText: ${agent.sourceSearchSelectedDateText}`] : []),
+    ...(agent.sourceSearchSelectedDateIso ? [`  sourceSearchSelectedDateIso: ${agent.sourceSearchSelectedDateIso}`] : []),
+    ...(typeof agent.sourceSearchSelectedDateUnixMs === "number" ? [`  sourceSearchSelectedDateUnixMs: ${agent.sourceSearchSelectedDateUnixMs}`] : []),
     ...(agent.sourceSearchSelectedDatePrecision ? [`  sourceSearchSelectedDatePrecision: ${agent.sourceSearchSelectedDatePrecision}`] : []),
     ...(agent.sourceSearchSelectedDateSource ? [`  sourceSearchSelectedDateSource: ${agent.sourceSearchSelectedDateSource}`] : []),
     ...(agent.sourceSearchSelectedMatchedTerm ? [`  sourceSearchSelectedMatchedTerm: ${agent.sourceSearchSelectedMatchedTerm}`] : []),
@@ -4254,6 +4260,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.sourceSearchAlternateCommandArgs ? [`  sourceSearchAlternateCommandArgs: ${JSON.stringify(agent.sourceSearchAlternateCommandArgs)}`] : []),
     ...(agent.sourceSearchAlternateSnippet ? [`  sourceSearchAlternateSnippet: ${agent.sourceSearchAlternateSnippet}`] : []),
     ...(agent.sourceSearchAlternateDateText ? [`  sourceSearchAlternateDateText: ${agent.sourceSearchAlternateDateText}`] : []),
+    ...(agent.sourceSearchAlternateDateIso ? [`  sourceSearchAlternateDateIso: ${agent.sourceSearchAlternateDateIso}`] : []),
+    ...(typeof agent.sourceSearchAlternateDateUnixMs === "number" ? [`  sourceSearchAlternateDateUnixMs: ${agent.sourceSearchAlternateDateUnixMs}`] : []),
     ...(agent.sourceSearchAlternateDatePrecision ? [`  sourceSearchAlternateDatePrecision: ${agent.sourceSearchAlternateDatePrecision}`] : []),
     ...(agent.sourceSearchAlternateDateSource ? [`  sourceSearchAlternateDateSource: ${agent.sourceSearchAlternateDateSource}`] : []),
     ...(agent.sourceSearchAlternateMatchedTerm ? [`  sourceSearchAlternateMatchedTerm: ${agent.sourceSearchAlternateMatchedTerm}`] : []),
@@ -13326,6 +13334,8 @@ function summarizeAgent(
     ...(sourceSearchSelectedResult ? { sourceSearchSelectedPath: sourceSearchSelectedResult.path } : {}),
     ...(sourceSearchSelectedResult?.snippet ? { sourceSearchSelectedSnippet: sourceSearchSelectedResult.snippet } : {}),
     ...(sourceSearchSelectedResult?.dateText ? { sourceSearchSelectedDateText: sourceSearchSelectedResult.dateText } : {}),
+    ...(sourceSearchSelectedResult?.dateIso ? { sourceSearchSelectedDateIso: sourceSearchSelectedResult.dateIso } : {}),
+    ...(typeof sourceSearchSelectedResult?.dateUnixMs === "number" ? { sourceSearchSelectedDateUnixMs: sourceSearchSelectedResult.dateUnixMs } : {}),
     ...(sourceSearchSelectedResult?.datePrecision ? { sourceSearchSelectedDatePrecision: sourceSearchSelectedResult.datePrecision } : {}),
     ...(sourceSearchSelectedResult?.dateSource ? { sourceSearchSelectedDateSource: sourceSearchSelectedResult.dateSource } : {}),
     ...(sourceSearchSelectedResult?.matchedTerms?.[0] ? { sourceSearchSelectedMatchedTerm: sourceSearchSelectedResult.matchedTerms[0] } : {}),
@@ -13352,6 +13362,8 @@ function summarizeAgent(
     ...(typeof sourceSearchAlternateResult?.rank === "number" ? { sourceSearchAlternateRank: sourceSearchAlternateResult.rank } : {}),
     ...(sourceSearchAlternateResult?.snippet ? { sourceSearchAlternateSnippet: sourceSearchAlternateResult.snippet } : {}),
     ...(sourceSearchAlternateResult?.dateText ? { sourceSearchAlternateDateText: sourceSearchAlternateResult.dateText } : {}),
+    ...(sourceSearchAlternateResult?.dateIso ? { sourceSearchAlternateDateIso: sourceSearchAlternateResult.dateIso } : {}),
+    ...(typeof sourceSearchAlternateResult?.dateUnixMs === "number" ? { sourceSearchAlternateDateUnixMs: sourceSearchAlternateResult.dateUnixMs } : {}),
     ...(sourceSearchAlternateResult?.datePrecision ? { sourceSearchAlternateDatePrecision: sourceSearchAlternateResult.datePrecision } : {}),
     ...(sourceSearchAlternateResult?.dateSource ? { sourceSearchAlternateDateSource: sourceSearchAlternateResult.dateSource } : {}),
     ...(sourceSearchAlternateResult?.matchedTerms?.[0] ? { sourceSearchAlternateMatchedTerm: sourceSearchAlternateResult.matchedTerms[0] } : {}),
@@ -16679,6 +16691,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(sourceSearchSelectedResult ? { sourceSearchSelectedPath: sourceSearchSelectedResult.path } : {}),
     ...(sourceSearchSelectedResult?.snippet ? { sourceSearchSelectedSnippet: sourceSearchSelectedResult.snippet } : {}),
     ...(sourceSearchSelectedResult?.dateText ? { sourceSearchSelectedDateText: sourceSearchSelectedResult.dateText } : {}),
+    ...(sourceSearchSelectedResult?.dateIso ? { sourceSearchSelectedDateIso: sourceSearchSelectedResult.dateIso } : {}),
+    ...(typeof sourceSearchSelectedResult?.dateUnixMs === "number" ? { sourceSearchSelectedDateUnixMs: sourceSearchSelectedResult.dateUnixMs } : {}),
     ...(sourceSearchSelectedResult?.datePrecision ? { sourceSearchSelectedDatePrecision: sourceSearchSelectedResult.datePrecision } : {}),
     ...(sourceSearchSelectedResult?.dateSource ? { sourceSearchSelectedDateSource: sourceSearchSelectedResult.dateSource } : {}),
     ...(sourceSearchSelectedResult?.matchedTerms?.[0] ? { sourceSearchSelectedMatchedTerm: sourceSearchSelectedResult.matchedTerms[0] } : {}),
@@ -16715,6 +16729,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(typeof sourceSearchAlternateResult?.rank === "number" ? { sourceSearchAlternateRank: sourceSearchAlternateResult.rank } : {}),
     ...(sourceSearchAlternateResult?.snippet ? { sourceSearchAlternateSnippet: sourceSearchAlternateResult.snippet } : {}),
     ...(sourceSearchAlternateResult?.dateText ? { sourceSearchAlternateDateText: sourceSearchAlternateResult.dateText } : {}),
+    ...(sourceSearchAlternateResult?.dateIso ? { sourceSearchAlternateDateIso: sourceSearchAlternateResult.dateIso } : {}),
+    ...(typeof sourceSearchAlternateResult?.dateUnixMs === "number" ? { sourceSearchAlternateDateUnixMs: sourceSearchAlternateResult.dateUnixMs } : {}),
     ...(sourceSearchAlternateResult?.datePrecision ? { sourceSearchAlternateDatePrecision: sourceSearchAlternateResult.datePrecision } : {}),
     ...(sourceSearchAlternateResult?.dateSource ? { sourceSearchAlternateDateSource: sourceSearchAlternateResult.dateSource } : {}),
     ...(sourceSearchAlternateResult?.matchedTerms?.[0] ? { sourceSearchAlternateMatchedTerm: sourceSearchAlternateResult.matchedTerms[0] } : {}),
@@ -19167,6 +19183,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.sourceSearchSelectedPath ? { sourceSearchSelectedPath: agent.sourceSearchSelectedPath } : {}),
     ...(agent.sourceSearchSelectedSnippet ? { sourceSearchSelectedSnippet: agent.sourceSearchSelectedSnippet } : {}),
     ...(agent.sourceSearchSelectedDateText ? { sourceSearchSelectedDateText: agent.sourceSearchSelectedDateText } : {}),
+    ...(agent.sourceSearchSelectedDateIso ? { sourceSearchSelectedDateIso: agent.sourceSearchSelectedDateIso } : {}),
+    ...(typeof agent.sourceSearchSelectedDateUnixMs === "number" ? { sourceSearchSelectedDateUnixMs: agent.sourceSearchSelectedDateUnixMs } : {}),
     ...(agent.sourceSearchSelectedDatePrecision ? { sourceSearchSelectedDatePrecision: agent.sourceSearchSelectedDatePrecision } : {}),
     ...(agent.sourceSearchSelectedDateSource ? { sourceSearchSelectedDateSource: agent.sourceSearchSelectedDateSource } : {}),
     ...(agent.sourceSearchSelectedMatchedTerm ? { sourceSearchSelectedMatchedTerm: agent.sourceSearchSelectedMatchedTerm } : {}),
@@ -19204,6 +19222,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.sourceSearchAlternateRank === "number" ? { sourceSearchAlternateRank: agent.sourceSearchAlternateRank } : {}),
     ...(agent.sourceSearchAlternateSnippet ? { sourceSearchAlternateSnippet: agent.sourceSearchAlternateSnippet } : {}),
     ...(agent.sourceSearchAlternateDateText ? { sourceSearchAlternateDateText: agent.sourceSearchAlternateDateText } : {}),
+    ...(agent.sourceSearchAlternateDateIso ? { sourceSearchAlternateDateIso: agent.sourceSearchAlternateDateIso } : {}),
+    ...(typeof agent.sourceSearchAlternateDateUnixMs === "number" ? { sourceSearchAlternateDateUnixMs: agent.sourceSearchAlternateDateUnixMs } : {}),
     ...(agent.sourceSearchAlternateDatePrecision ? { sourceSearchAlternateDatePrecision: agent.sourceSearchAlternateDatePrecision } : {}),
     ...(agent.sourceSearchAlternateDateSource ? { sourceSearchAlternateDateSource: agent.sourceSearchAlternateDateSource } : {}),
     ...(agent.sourceSearchAlternateMatchedTerm ? { sourceSearchAlternateMatchedTerm: agent.sourceSearchAlternateMatchedTerm } : {}),
@@ -20431,6 +20451,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.sourceSearchSelectedPath ? { sourceSearchSelectedPath: agent.sourceSearchSelectedPath } : {}),
     ...(agent.sourceSearchSelectedSnippet ? { sourceSearchSelectedSnippet: agent.sourceSearchSelectedSnippet } : {}),
     ...(agent.sourceSearchSelectedDateText ? { sourceSearchSelectedDateText: agent.sourceSearchSelectedDateText } : {}),
+    ...(agent.sourceSearchSelectedDateIso ? { sourceSearchSelectedDateIso: agent.sourceSearchSelectedDateIso } : {}),
+    ...(typeof agent.sourceSearchSelectedDateUnixMs === "number" ? { sourceSearchSelectedDateUnixMs: agent.sourceSearchSelectedDateUnixMs } : {}),
     ...(agent.sourceSearchSelectedDatePrecision ? { sourceSearchSelectedDatePrecision: agent.sourceSearchSelectedDatePrecision } : {}),
     ...(agent.sourceSearchSelectedDateSource ? { sourceSearchSelectedDateSource: agent.sourceSearchSelectedDateSource } : {}),
     ...(agent.sourceSearchSelectedMatchedTerm ? { sourceSearchSelectedMatchedTerm: agent.sourceSearchSelectedMatchedTerm } : {}),
@@ -20467,6 +20489,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.sourceSearchAlternateRank === "number" ? { sourceSearchAlternateRank: agent.sourceSearchAlternateRank } : {}),
     ...(agent.sourceSearchAlternateSnippet ? { sourceSearchAlternateSnippet: agent.sourceSearchAlternateSnippet } : {}),
     ...(agent.sourceSearchAlternateDateText ? { sourceSearchAlternateDateText: agent.sourceSearchAlternateDateText } : {}),
+    ...(agent.sourceSearchAlternateDateIso ? { sourceSearchAlternateDateIso: agent.sourceSearchAlternateDateIso } : {}),
+    ...(typeof agent.sourceSearchAlternateDateUnixMs === "number" ? { sourceSearchAlternateDateUnixMs: agent.sourceSearchAlternateDateUnixMs } : {}),
     ...(agent.sourceSearchAlternateDatePrecision ? { sourceSearchAlternateDatePrecision: agent.sourceSearchAlternateDatePrecision } : {}),
     ...(agent.sourceSearchAlternateDateSource ? { sourceSearchAlternateDateSource: agent.sourceSearchAlternateDateSource } : {}),
     ...(agent.sourceSearchAlternateMatchedTerm ? { sourceSearchAlternateMatchedTerm: agent.sourceSearchAlternateMatchedTerm } : {}),

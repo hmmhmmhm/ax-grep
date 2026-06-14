@@ -622,6 +622,8 @@ describe("public agent types", () => {
       | "sourceSearchSelectedPath"
       | "sourceSearchSelectedSnippet"
       | "sourceSearchSelectedDateText"
+      | "sourceSearchSelectedDateIso"
+      | "sourceSearchSelectedDateUnixMs"
       | "sourceSearchSelectedDatePrecision"
       | "sourceSearchSelectedDateSource"
       | "sourceSearchSelectedMatchedTerm"
@@ -659,6 +661,8 @@ describe("public agent types", () => {
       | "sourceSearchAlternateRank"
       | "sourceSearchAlternateSnippet"
       | "sourceSearchAlternateDateText"
+      | "sourceSearchAlternateDateIso"
+      | "sourceSearchAlternateDateUnixMs"
       | "sourceSearchAlternateDatePrecision"
       | "sourceSearchAlternateDateSource"
       | "sourceSearchAlternateMatchedTerm"
@@ -1874,6 +1878,8 @@ describe("public agent types", () => {
       sourceSearchSelectedPath: "sourceSearch.selectedResult",
       sourceSearchSelectedSnippet: "Selected source summary",
       sourceSearchSelectedDateText: "2026-05-31",
+      sourceSearchSelectedDateIso: "2026-05-31T00:00:00.000Z",
+      sourceSearchSelectedDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       sourceSearchSelectedDatePrecision: "day",
       sourceSearchSelectedDateSource: "snippet",
       sourceSearchSelectedMatchedTerm: "ax-grep",
@@ -1911,6 +1917,8 @@ describe("public agent types", () => {
       sourceSearchAlternateRank: 3,
       sourceSearchAlternateSnippet: "Alternate source summary",
       sourceSearchAlternateDateText: "2026-05-30",
+      sourceSearchAlternateDateIso: "2026-05-30T00:00:00.000Z",
+      sourceSearchAlternateDateUnixMs: Date.parse("2026-05-30T00:00:00.000Z"),
       sourceSearchAlternateDatePrecision: "day",
       sourceSearchAlternateDateSource: "snippet",
       sourceSearchAlternateMatchedTerm: "docs",

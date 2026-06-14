@@ -2265,6 +2265,8 @@ export type AgentSummary = {
   sourceSearchSelectedPath?: string;
   sourceSearchSelectedSnippet?: string;
   sourceSearchSelectedDateText?: string;
+  sourceSearchSelectedDateIso?: string;
+  sourceSearchSelectedDateUnixMs?: number;
   sourceSearchSelectedDatePrecision?: AgentSourceSearchResult["datePrecision"];
   sourceSearchSelectedDateSource?: AgentSourceSearchResult["dateSource"];
   sourceSearchSelectedMatchedTerm?: string;
@@ -2302,6 +2304,8 @@ export type AgentSummary = {
   sourceSearchAlternateRank?: number;
   sourceSearchAlternateSnippet?: string;
   sourceSearchAlternateDateText?: string;
+  sourceSearchAlternateDateIso?: string;
+  sourceSearchAlternateDateUnixMs?: number;
   sourceSearchAlternateDatePrecision?: AgentSourceSearchResult["datePrecision"];
   sourceSearchAlternateDateSource?: AgentSourceSearchResult["dateSource"];
   sourceSearchAlternateMatchedTerm?: string;

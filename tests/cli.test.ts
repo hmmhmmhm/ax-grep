@@ -4236,7 +4236,7 @@ describe("cli", () => {
             <main>
               <div class="result">
                 <a class="result__a" href="https://first.example/article">Agent browser overview</a>
-                <div class="result__snippet">General overview without the requested claim.</div>
+                <div class="result__snippet">2026-06 overview without the requested claim.</div>
               </div>
               <div class="result">
                 <a class="result__a" href="https://alternate.example/article">Independent source</a>
@@ -4262,6 +4262,16 @@ describe("cli", () => {
     expect(envelope.agent).toMatchObject({
       status: "verify",
       verificationStatus: "missing",
+      sourceSearchSelectedDateText: "2026-06",
+      sourceSearchSelectedDateIso: "2026-06-01T00:00:00.000Z",
+      sourceSearchSelectedDateUnixMs: Date.parse("2026-06-01T00:00:00.000Z"),
+      sourceSearchSelectedDatePrecision: "month",
+      sourceSearchSelectedDateSource: "snippet",
+      sourceSearchAlternateDateText: "2026-05",
+      sourceSearchAlternateDateIso: "2026-05-01T00:00:00.000Z",
+      sourceSearchAlternateDateUnixMs: Date.parse("2026-05-01T00:00:00.000Z"),
+      sourceSearchAlternateDatePrecision: "month",
+      sourceSearchAlternateDateSource: "snippet",
       primaryAction: {
         action: "open-alternate-result",
         reason: "The opened result did not verify the requested text; an alternate original SERP result matches the missing query.",
@@ -4284,6 +4294,8 @@ describe("cli", () => {
               title: "Independent source",
               url: "https://alternate.example/article",
               rank: 2,
+              dateIso: "2026-05-01T00:00:00.000Z",
+              dateUnixMs: Date.parse("2026-05-01T00:00:00.000Z"),
               findMatches: ["target claim"],
               commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--find", "target claim", "--open-result", "2", "--agent"],
             }),
@@ -4298,6 +4310,8 @@ describe("cli", () => {
     expect(envelope.sourceSearch.alternateResults[0]).toMatchObject({
       title: "Independent source",
       url: "https://alternate.example/article",
+      dateIso: "2026-05-01T00:00:00.000Z",
+      dateUnixMs: Date.parse("2026-05-01T00:00:00.000Z"),
       findMatches: ["target claim"],
       command: "ax-grep --search 'agent browser' --engine duckduckgo --find 'target claim' --open-result 2 --agent",
     });
@@ -4323,7 +4337,7 @@ describe("cli", () => {
             <main>
               <div class="result">
                 <a class="result__a" href="https://first.example/article">Agent browser overview</a>
-                <div class="result__snippet">General overview without the requested claim.</div>
+                <div class="result__snippet">2026-06 overview without the requested claim.</div>
               </div>
               <div class="result">
                 <a class="result__a" href="https://alternate.example/article">Independent source</a>
@@ -4354,6 +4368,12 @@ describe("cli", () => {
     expect(stdout.output).toContain("  sourceSearchSelectedHost: first.example");
     expect(stdout.output).toContain("  sourceSearchSelectedSource: first.example");
     expect(stdout.output).toContain("  sourceSearchSelectedPath: sourceSearch.selectedResult");
+    expect(stdout.output).toContain("  sourceSearchSelectedSnippet: 2026-06 overview without the requested claim.");
+    expect(stdout.output).toContain("  sourceSearchSelectedDateText: 2026-06");
+    expect(stdout.output).toContain("  sourceSearchSelectedDateIso: 2026-06-01T00:00:00.000Z");
+    expect(stdout.output).toContain("  sourceSearchSelectedDateUnixMs: 1780272000000");
+    expect(stdout.output).toContain("  sourceSearchSelectedDatePrecision: month");
+    expect(stdout.output).toContain("  sourceSearchSelectedDateSource: snippet");
     expect(stdout.output).toContain("  sourceSearchSelectedCommand: ax-grep --search 'agent browser' --engine duckduckgo --find 'target claim' --open-result 1 --agent");
     expect(stdout.output).toContain("  sourceSearchSelectedCommandArgs: [\"ax-grep\",\"--search\",\"agent browser\",\"--engine\",\"duckduckgo\",\"--find\",\"target claim\",\"--open-result\",\"1\",\"--agent\"]");
     expect(stdout.output).toContain("  sourceSearchAlternateCount: 1");
@@ -4362,6 +4382,8 @@ describe("cli", () => {
     expect(stdout.output).toContain("  sourceSearchAlternateSource: alternate.example");
     expect(stdout.output).toContain("  sourceSearchAlternateSnippet: 2026-05 update: This result contains the target claim for verification.");
     expect(stdout.output).toContain("  sourceSearchAlternateDateText: 2026-05");
+    expect(stdout.output).toContain("  sourceSearchAlternateDateIso: 2026-05-01T00:00:00.000Z");
+    expect(stdout.output).toContain("  sourceSearchAlternateDateUnixMs: 1777593600000");
     expect(stdout.output).toContain("  sourceSearchAlternateDatePrecision: month");
     expect(stdout.output).toContain("  sourceSearchAlternateDateSource: snippet");
     expect(stdout.output).toContain("  sourceSearchAlternateCommand: ax-grep --search 'agent browser' --engine duckduckgo --find 'target claim' --open-result 2 --agent");

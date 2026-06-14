@@ -1763,6 +1763,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchSelectedPath?: string;
       sourceSearchSelectedSnippet?: string;
       sourceSearchSelectedDateText?: string;
+      sourceSearchSelectedDateIso?: string;
+      sourceSearchSelectedDateUnixMs?: number;
       sourceSearchSelectedMatchedTerm?: string;
       sourceSearchSelectedFindMatch?: string;
       sourceSearchSelectedSitelinkCount?: number;
@@ -1795,6 +1797,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchAlternateRank?: number;
       sourceSearchAlternateSnippet?: string;
       sourceSearchAlternateDateText?: string;
+      sourceSearchAlternateDateIso?: string;
+      sourceSearchAlternateDateUnixMs?: number;
       sourceSearchAlternateMatchedTerm?: string;
       sourceSearchAlternateFindMatch?: string;
       sourceSearchAlternateSitelinkCount?: number;
@@ -5666,6 +5670,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchSelectedPath?: string;
   sourceSearchSelectedSnippet?: string;
   sourceSearchSelectedDateText?: string;
+  sourceSearchSelectedDateIso?: string;
+  sourceSearchSelectedDateUnixMs?: number;
   sourceSearchSelectedMatchedTerm?: string;
   sourceSearchSelectedFindMatch?: string;
   sourceSearchSelectedSitelinkCount?: number;
@@ -5700,6 +5706,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchAlternateRank?: number;
   sourceSearchAlternateSnippet?: string;
   sourceSearchAlternateDateText?: string;
+  sourceSearchAlternateDateIso?: string;
+  sourceSearchAlternateDateUnixMs?: number;
   sourceSearchAlternateMatchedTerm?: string;
   sourceSearchAlternateFindMatch?: string;
   sourceSearchAlternateSitelinkCount?: number;
@@ -5747,6 +5755,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchSelectedPath === "undefined"
       && typeof agent?.sourceSearchSelectedSnippet === "undefined"
       && typeof agent?.sourceSearchSelectedDateText === "undefined"
+      && typeof agent?.sourceSearchSelectedDateIso === "undefined"
+      && typeof agent?.sourceSearchSelectedDateUnixMs === "undefined"
       && typeof agent?.sourceSearchSelectedMatchedTerm === "undefined"
       && typeof agent?.sourceSearchSelectedFindMatch === "undefined"
       && typeof agent?.sourceSearchSelectedSitelinkCount === "undefined"
@@ -5780,6 +5790,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchAlternateRank === "undefined"
       && typeof agent?.sourceSearchAlternateSnippet === "undefined"
       && typeof agent?.sourceSearchAlternateDateText === "undefined"
+      && typeof agent?.sourceSearchAlternateDateIso === "undefined"
+      && typeof agent?.sourceSearchAlternateDateUnixMs === "undefined"
       && typeof agent?.sourceSearchAlternateMatchedTerm === "undefined"
       && typeof agent?.sourceSearchAlternateFindMatch === "undefined"
       && typeof agent?.sourceSearchAlternateSitelinkCount === "undefined"
@@ -5883,6 +5895,18 @@ function scoreAgentSourceSearchShortcuts(agent: {
     } else if (agent?.sourceSearchSelectedDateText) {
       required += 1;
     }
+    if (selected.dateIso) {
+      required += 1;
+      if (agent?.sourceSearchSelectedDateIso === selected.dateIso) matched += 1;
+    } else if (agent?.sourceSearchSelectedDateIso) {
+      required += 1;
+    }
+    if (typeof selected.dateUnixMs === "number") {
+      required += 1;
+      if (agent?.sourceSearchSelectedDateUnixMs === selected.dateUnixMs) matched += 1;
+    } else if (typeof agent?.sourceSearchSelectedDateUnixMs === "number") {
+      required += 1;
+    }
     if (selected.matchedTerms?.[0]) {
       required += 1;
       if (agent?.sourceSearchSelectedMatchedTerm === selected.matchedTerms[0]) matched += 1;
@@ -5911,6 +5935,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
     || agent?.sourceSearchSelectedSource
     || agent?.sourceSearchSelectedSnippet
     || agent?.sourceSearchSelectedDateText
+    || agent?.sourceSearchSelectedDateIso
+    || typeof agent?.sourceSearchSelectedDateUnixMs === "number"
     || agent?.sourceSearchSelectedMatchedTerm
     || agent?.sourceSearchSelectedFindMatch
     || typeof agent?.sourceSearchSelectedSitelinkCount === "number"
@@ -5962,6 +5988,18 @@ function scoreAgentSourceSearchShortcuts(agent: {
     } else if (agent?.sourceSearchAlternateDateText) {
       required += 1;
     }
+    if (alternate.dateIso) {
+      required += 1;
+      if (agent?.sourceSearchAlternateDateIso === alternate.dateIso) matched += 1;
+    } else if (agent?.sourceSearchAlternateDateIso) {
+      required += 1;
+    }
+    if (typeof alternate.dateUnixMs === "number") {
+      required += 1;
+      if (agent?.sourceSearchAlternateDateUnixMs === alternate.dateUnixMs) matched += 1;
+    } else if (typeof agent?.sourceSearchAlternateDateUnixMs === "number") {
+      required += 1;
+    }
     if (alternate.matchedTerms?.[0]) {
       required += 1;
       if (agent?.sourceSearchAlternateMatchedTerm === alternate.matchedTerms[0]) matched += 1;
@@ -5993,6 +6031,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
     || typeof agent?.sourceSearchAlternateRank === "number"
     || agent?.sourceSearchAlternateSnippet
     || agent?.sourceSearchAlternateDateText
+    || agent?.sourceSearchAlternateDateIso
+    || typeof agent?.sourceSearchAlternateDateUnixMs === "number"
     || agent?.sourceSearchAlternateMatchedTerm
     || agent?.sourceSearchAlternateFindMatch
     || typeof agent?.sourceSearchAlternateSitelinkCount === "number"
