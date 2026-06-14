@@ -2075,6 +2075,8 @@ type AgentSummary = {
   topActionTargetRank?: number;
   topActionTargetSourceScore?: number;
   topActionTargetDateText?: string;
+  topActionTargetDateIso?: string;
+  topActionTargetDateUnixMs?: number;
   topActionTargetDatePrecision?: AgentTarget["datePrecision"];
   topActionTargetDateSource?: AgentTarget["dateSource"];
   topActionTargetRelevance?: AgentTarget["relevance"];
@@ -2121,6 +2123,8 @@ type AgentSummary = {
   executorTargetRank?: number;
   executorTargetSourceScore?: number;
   executorTargetDateText?: string;
+  executorTargetDateIso?: string;
+  executorTargetDateUnixMs?: number;
   executorTargetDatePrecision?: AgentTarget["datePrecision"];
   executorTargetDateSource?: AgentTarget["dateSource"];
   executorTargetRelevance?: AgentTarget["relevance"];
@@ -2164,6 +2168,8 @@ type AgentSummary = {
   handoffTargetRank?: number;
   handoffTargetSourceScore?: number;
   handoffTargetDateText?: string;
+  handoffTargetDateIso?: string;
+  handoffTargetDateUnixMs?: number;
   handoffTargetDatePrecision?: AgentTarget["datePrecision"];
   handoffTargetDateSource?: AgentTarget["dateSource"];
   handoffTargetRelevance?: AgentTarget["relevance"];
@@ -2204,6 +2210,8 @@ type AgentSummary = {
   primaryTargetRank?: number;
   primaryTargetSourceScore?: number;
   primaryTargetDateText?: string;
+  primaryTargetDateIso?: string;
+  primaryTargetDateUnixMs?: number;
   primaryTargetDatePrecision?: AgentTarget["datePrecision"];
   primaryTargetDateSource?: AgentTarget["dateSource"];
   primaryTargetRelevance?: AgentTarget["relevance"];
@@ -2245,6 +2253,8 @@ type AgentSummary = {
   alternativeActionTargetRank?: number;
   alternativeActionTargetSourceScore?: number;
   alternativeActionTargetDateText?: string;
+  alternativeActionTargetDateIso?: string;
+  alternativeActionTargetDateUnixMs?: number;
   alternativeActionTargetDatePrecision?: AgentTarget["datePrecision"];
   alternativeActionTargetDateSource?: AgentTarget["dateSource"];
   alternativeActionTargetRelevance?: AgentTarget["relevance"];
@@ -4346,6 +4356,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.alternativeActionTargetRank === "number" ? [`  alternativeActionTargetRank: ${agent.alternativeActionTargetRank}`] : []),
     ...(typeof agent.alternativeActionTargetSourceScore === "number" ? [`  alternativeActionTargetSourceScore: ${agent.alternativeActionTargetSourceScore}`] : []),
     ...(agent.alternativeActionTargetDateText ? [`  alternativeActionTargetDateText: ${agent.alternativeActionTargetDateText}`] : []),
+    ...(agent.alternativeActionTargetDateIso ? [`  alternativeActionTargetDateIso: ${agent.alternativeActionTargetDateIso}`] : []),
+    ...(typeof agent.alternativeActionTargetDateUnixMs === "number" ? [`  alternativeActionTargetDateUnixMs: ${agent.alternativeActionTargetDateUnixMs}`] : []),
     ...(agent.alternativeActionTargetDatePrecision ? [`  alternativeActionTargetDatePrecision: ${agent.alternativeActionTargetDatePrecision}`] : []),
     ...(agent.alternativeActionTargetDateSource ? [`  alternativeActionTargetDateSource: ${agent.alternativeActionTargetDateSource}`] : []),
     ...(agent.alternativeActionTargetRelevance ? [`  alternativeActionTargetRelevance: ${agent.alternativeActionTargetRelevance}`] : []),
@@ -4421,6 +4433,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topActionTargetRank === "number" ? [`  topActionTargetRank: ${agent.topActionTargetRank}`] : []),
     ...(typeof agent.topActionTargetSourceScore === "number" ? [`  topActionTargetSourceScore: ${agent.topActionTargetSourceScore}`] : []),
     ...(agent.topActionTargetDateText ? [`  topActionTargetDateText: ${agent.topActionTargetDateText}`] : []),
+    ...(agent.topActionTargetDateIso ? [`  topActionTargetDateIso: ${agent.topActionTargetDateIso}`] : []),
+    ...(typeof agent.topActionTargetDateUnixMs === "number" ? [`  topActionTargetDateUnixMs: ${agent.topActionTargetDateUnixMs}`] : []),
     ...(agent.topActionTargetDatePrecision ? [`  topActionTargetDatePrecision: ${agent.topActionTargetDatePrecision}`] : []),
     ...(agent.topActionTargetDateSource ? [`  topActionTargetDateSource: ${agent.topActionTargetDateSource}`] : []),
     ...(agent.topActionTargetRelevance ? [`  topActionTargetRelevance: ${agent.topActionTargetRelevance}`] : []),
@@ -4469,6 +4483,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (typeof agent.executorTargetRank === "number") lines.push(`  executorTargetRank: ${agent.executorTargetRank}`);
   if (typeof agent.executorTargetSourceScore === "number") lines.push(`  executorTargetSourceScore: ${agent.executorTargetSourceScore}`);
   if (agent.executorTargetDateText) lines.push(`  executorTargetDateText: ${agent.executorTargetDateText}`);
+  if (agent.executorTargetDateIso) lines.push(`  executorTargetDateIso: ${agent.executorTargetDateIso}`);
+  if (typeof agent.executorTargetDateUnixMs === "number") lines.push(`  executorTargetDateUnixMs: ${agent.executorTargetDateUnixMs}`);
   if (agent.executorTargetDatePrecision) lines.push(`  executorTargetDatePrecision: ${agent.executorTargetDatePrecision}`);
   if (agent.executorTargetDateSource) lines.push(`  executorTargetDateSource: ${agent.executorTargetDateSource}`);
   if (agent.executorTargetRelevance) lines.push(`  executorTargetRelevance: ${agent.executorTargetRelevance}`);
@@ -4497,6 +4513,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (typeof agent.handoffTargetRank === "number") lines.push(`  handoffTargetRank: ${agent.handoffTargetRank}`);
   if (typeof agent.handoffTargetSourceScore === "number") lines.push(`  handoffTargetSourceScore: ${agent.handoffTargetSourceScore}`);
   if (agent.handoffTargetDateText) lines.push(`  handoffTargetDateText: ${agent.handoffTargetDateText}`);
+  if (agent.handoffTargetDateIso) lines.push(`  handoffTargetDateIso: ${agent.handoffTargetDateIso}`);
+  if (typeof agent.handoffTargetDateUnixMs === "number") lines.push(`  handoffTargetDateUnixMs: ${agent.handoffTargetDateUnixMs}`);
   if (agent.handoffTargetDatePrecision) lines.push(`  handoffTargetDatePrecision: ${agent.handoffTargetDatePrecision}`);
   if (agent.handoffTargetDateSource) lines.push(`  handoffTargetDateSource: ${agent.handoffTargetDateSource}`);
   if (agent.handoffTargetRelevance) lines.push(`  handoffTargetRelevance: ${agent.handoffTargetRelevance}`);
@@ -4546,6 +4564,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (typeof agent.executorTargetRank === "number") lines.push(`  executorTargetRank: ${agent.executorTargetRank}`);
   if (typeof agent.executorTargetSourceScore === "number") lines.push(`  executorTargetSourceScore: ${agent.executorTargetSourceScore}`);
   if (agent.executorTargetDateText) lines.push(`  executorTargetDateText: ${agent.executorTargetDateText}`);
+  if (agent.executorTargetDateIso) lines.push(`  executorTargetDateIso: ${agent.executorTargetDateIso}`);
+  if (typeof agent.executorTargetDateUnixMs === "number") lines.push(`  executorTargetDateUnixMs: ${agent.executorTargetDateUnixMs}`);
   if (agent.executorTargetDatePrecision) lines.push(`  executorTargetDatePrecision: ${agent.executorTargetDatePrecision}`);
   if (agent.executorTargetDateSource) lines.push(`  executorTargetDateSource: ${agent.executorTargetDateSource}`);
   if (agent.executorTargetRelevance) lines.push(`  executorTargetRelevance: ${agent.executorTargetRelevance}`);
@@ -4591,6 +4611,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (typeof agent.handoffTargetRank === "number") lines.push(`  handoffTargetRank: ${agent.handoffTargetRank}`);
   if (typeof agent.handoffTargetSourceScore === "number") lines.push(`  handoffTargetSourceScore: ${agent.handoffTargetSourceScore}`);
   if (agent.handoffTargetDateText) lines.push(`  handoffTargetDateText: ${agent.handoffTargetDateText}`);
+  if (agent.handoffTargetDateIso) lines.push(`  handoffTargetDateIso: ${agent.handoffTargetDateIso}`);
+  if (typeof agent.handoffTargetDateUnixMs === "number") lines.push(`  handoffTargetDateUnixMs: ${agent.handoffTargetDateUnixMs}`);
   if (agent.handoffTargetDatePrecision) lines.push(`  handoffTargetDatePrecision: ${agent.handoffTargetDatePrecision}`);
   if (agent.handoffTargetDateSource) lines.push(`  handoffTargetDateSource: ${agent.handoffTargetDateSource}`);
   if (agent.handoffTargetRelevance) lines.push(`  handoffTargetRelevance: ${agent.handoffTargetRelevance}`);
@@ -4733,6 +4755,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (typeof agent.primaryTargetRank === "number") lines.push(`  primaryTargetRank: ${agent.primaryTargetRank}`);
   if (typeof agent.primaryTargetSourceScore === "number") lines.push(`  primaryTargetSourceScore: ${agent.primaryTargetSourceScore}`);
   if (agent.primaryTargetDateText) lines.push(`  primaryTargetDateText: ${agent.primaryTargetDateText}`);
+  if (agent.primaryTargetDateIso) lines.push(`  primaryTargetDateIso: ${agent.primaryTargetDateIso}`);
+  if (typeof agent.primaryTargetDateUnixMs === "number") lines.push(`  primaryTargetDateUnixMs: ${agent.primaryTargetDateUnixMs}`);
   if (agent.primaryTargetDatePrecision) lines.push(`  primaryTargetDatePrecision: ${agent.primaryTargetDatePrecision}`);
   if (agent.primaryTargetDateSource) lines.push(`  primaryTargetDateSource: ${agent.primaryTargetDateSource}`);
   if (agent.primaryTargetRelevance) lines.push(`  primaryTargetRelevance: ${agent.primaryTargetRelevance}`);
@@ -13530,6 +13554,8 @@ function summarizeAgent(
     ...(typeof actions[0]?.target?.rank === "number" ? { topActionTargetRank: actions[0].target.rank } : {}),
     ...(typeof actions[0]?.target?.sourceScore === "number" ? { topActionTargetSourceScore: actions[0].target.sourceScore } : {}),
     ...(actions[0]?.target?.dateText ? { topActionTargetDateText: actions[0].target.dateText } : {}),
+    ...(actions[0]?.target?.dateIso ? { topActionTargetDateIso: actions[0].target.dateIso } : {}),
+    ...(typeof actions[0]?.target?.dateUnixMs === "number" ? { topActionTargetDateUnixMs: actions[0].target.dateUnixMs } : {}),
     ...(actions[0]?.target?.datePrecision ? { topActionTargetDatePrecision: actions[0].target.datePrecision } : {}),
     ...(actions[0]?.target?.dateSource ? { topActionTargetDateSource: actions[0].target.dateSource } : {}),
     ...(actions[0]?.target?.relevance ? { topActionTargetRelevance: actions[0].target.relevance } : {}),
@@ -13569,6 +13595,8 @@ function summarizeAgent(
     ...(typeof alternativeAction?.target?.rank === "number" ? { alternativeActionTargetRank: alternativeAction.target.rank } : {}),
     ...(typeof alternativeAction?.target?.sourceScore === "number" ? { alternativeActionTargetSourceScore: alternativeAction.target.sourceScore } : {}),
     ...(alternativeAction?.target?.dateText ? { alternativeActionTargetDateText: alternativeAction.target.dateText } : {}),
+    ...(alternativeAction?.target?.dateIso ? { alternativeActionTargetDateIso: alternativeAction.target.dateIso } : {}),
+    ...(typeof alternativeAction?.target?.dateUnixMs === "number" ? { alternativeActionTargetDateUnixMs: alternativeAction.target.dateUnixMs } : {}),
     ...(alternativeAction?.target?.datePrecision ? { alternativeActionTargetDatePrecision: alternativeAction.target.datePrecision } : {}),
     ...(alternativeAction?.target?.dateSource ? { alternativeActionTargetDateSource: alternativeAction.target.dateSource } : {}),
     ...(alternativeAction?.target?.relevance ? { alternativeActionTargetRelevance: alternativeAction.target.relevance } : {}),
@@ -13609,6 +13637,8 @@ function summarizeAgent(
     ...(typeof executor.target?.rank === "number" ? { executorTargetRank: executor.target.rank } : {}),
     ...(typeof executor.target?.sourceScore === "number" ? { executorTargetSourceScore: executor.target.sourceScore } : {}),
     ...(executor.target?.dateText ? { executorTargetDateText: executor.target.dateText } : {}),
+    ...(executor.target?.dateIso ? { executorTargetDateIso: executor.target.dateIso } : {}),
+    ...(typeof executor.target?.dateUnixMs === "number" ? { executorTargetDateUnixMs: executor.target.dateUnixMs } : {}),
     ...(executor.target?.datePrecision ? { executorTargetDatePrecision: executor.target.datePrecision } : {}),
     ...(executor.target?.dateSource ? { executorTargetDateSource: executor.target.dateSource } : {}),
     ...(executor.target?.relevance ? { executorTargetRelevance: executor.target.relevance } : {}),
@@ -13652,6 +13682,8 @@ function summarizeAgent(
     ...(typeof handoff.target?.rank === "number" ? { handoffTargetRank: handoff.target.rank } : {}),
     ...(typeof handoff.target?.sourceScore === "number" ? { handoffTargetSourceScore: handoff.target.sourceScore } : {}),
     ...(handoff.target?.dateText ? { handoffTargetDateText: handoff.target.dateText } : {}),
+    ...(handoff.target?.dateIso ? { handoffTargetDateIso: handoff.target.dateIso } : {}),
+    ...(typeof handoff.target?.dateUnixMs === "number" ? { handoffTargetDateUnixMs: handoff.target.dateUnixMs } : {}),
     ...(handoff.target?.datePrecision ? { handoffTargetDatePrecision: handoff.target.datePrecision } : {}),
     ...(handoff.target?.dateSource ? { handoffTargetDateSource: handoff.target.dateSource } : {}),
     ...(handoff.target?.relevance ? { handoffTargetRelevance: handoff.target.relevance } : {}),
@@ -13702,6 +13734,8 @@ function summarizeAgent(
     if (typeof primaryAction.target?.rank === "number") agent.primaryTargetRank = primaryAction.target.rank;
     if (typeof primaryAction.target?.sourceScore === "number") agent.primaryTargetSourceScore = primaryAction.target.sourceScore;
     if (primaryAction.target?.dateText) agent.primaryTargetDateText = primaryAction.target.dateText;
+    if (primaryAction.target?.dateIso) agent.primaryTargetDateIso = primaryAction.target.dateIso;
+    if (typeof primaryAction.target?.dateUnixMs === "number") agent.primaryTargetDateUnixMs = primaryAction.target.dateUnixMs;
     if (primaryAction.target?.datePrecision) agent.primaryTargetDatePrecision = primaryAction.target.datePrecision;
     if (primaryAction.target?.dateSource) agent.primaryTargetDateSource = primaryAction.target.dateSource;
     if (primaryAction.target?.relevance) agent.primaryTargetRelevance = primaryAction.target.relevance;
@@ -16870,6 +16904,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(typeof primaryAction?.target?.rank === "number" ? { topActionTargetRank: primaryAction.target.rank } : {}),
     ...(typeof primaryAction?.target?.sourceScore === "number" ? { topActionTargetSourceScore: primaryAction.target.sourceScore } : {}),
     ...(primaryAction?.target?.dateText ? { topActionTargetDateText: primaryAction.target.dateText } : {}),
+    ...(primaryAction?.target?.dateIso ? { topActionTargetDateIso: primaryAction.target.dateIso } : {}),
+    ...(typeof primaryAction?.target?.dateUnixMs === "number" ? { topActionTargetDateUnixMs: primaryAction.target.dateUnixMs } : {}),
     ...(primaryAction?.target?.datePrecision ? { topActionTargetDatePrecision: primaryAction.target.datePrecision } : {}),
     ...(primaryAction?.target?.dateSource ? { topActionTargetDateSource: primaryAction.target.dateSource } : {}),
     ...(primaryAction?.target?.relevance ? { topActionTargetRelevance: primaryAction.target.relevance } : {}),
@@ -16907,6 +16943,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(typeof executor.target?.rank === "number" ? { executorTargetRank: executor.target.rank } : {}),
     ...(typeof executor.target?.sourceScore === "number" ? { executorTargetSourceScore: executor.target.sourceScore } : {}),
     ...(executor.target?.dateText ? { executorTargetDateText: executor.target.dateText } : {}),
+    ...(executor.target?.dateIso ? { executorTargetDateIso: executor.target.dateIso } : {}),
+    ...(typeof executor.target?.dateUnixMs === "number" ? { executorTargetDateUnixMs: executor.target.dateUnixMs } : {}),
     ...(executor.target?.datePrecision ? { executorTargetDatePrecision: executor.target.datePrecision } : {}),
     ...(executor.target?.dateSource ? { executorTargetDateSource: executor.target.dateSource } : {}),
     ...(executor.target?.relevance ? { executorTargetRelevance: executor.target.relevance } : {}),
@@ -16936,6 +16974,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(typeof handoff.target?.rank === "number" ? { handoffTargetRank: handoff.target.rank } : {}),
     ...(typeof handoff.target?.sourceScore === "number" ? { handoffTargetSourceScore: handoff.target.sourceScore } : {}),
     ...(handoff.target?.dateText ? { handoffTargetDateText: handoff.target.dateText } : {}),
+    ...(handoff.target?.dateIso ? { handoffTargetDateIso: handoff.target.dateIso } : {}),
+    ...(typeof handoff.target?.dateUnixMs === "number" ? { handoffTargetDateUnixMs: handoff.target.dateUnixMs } : {}),
     ...(handoff.target?.datePrecision ? { handoffTargetDatePrecision: handoff.target.datePrecision } : {}),
     ...(handoff.target?.dateSource ? { handoffTargetDateSource: handoff.target.dateSource } : {}),
     ...(handoff.target?.relevance ? { handoffTargetRelevance: handoff.target.relevance } : {}),
@@ -16967,6 +17007,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(typeof primaryAction?.target?.rank === "number" ? { primaryTargetRank: primaryAction.target.rank } : {}),
     ...(typeof primaryAction?.target?.sourceScore === "number" ? { primaryTargetSourceScore: primaryAction.target.sourceScore } : {}),
     ...(primaryAction?.target?.dateText ? { primaryTargetDateText: primaryAction.target.dateText } : {}),
+    ...(primaryAction?.target?.dateIso ? { primaryTargetDateIso: primaryAction.target.dateIso } : {}),
+    ...(typeof primaryAction?.target?.dateUnixMs === "number" ? { primaryTargetDateUnixMs: primaryAction.target.dateUnixMs } : {}),
     ...(primaryAction?.target?.datePrecision ? { primaryTargetDatePrecision: primaryAction.target.datePrecision } : {}),
     ...(primaryAction?.target?.dateSource ? { primaryTargetDateSource: primaryAction.target.dateSource } : {}),
     ...(primaryAction?.target?.relevance ? { primaryTargetRelevance: primaryAction.target.relevance } : {}),
@@ -19419,6 +19461,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.topActionTargetRank === "number" ? { topActionTargetRank: agent.topActionTargetRank } : {}),
     ...(typeof agent.topActionTargetSourceScore === "number" ? { topActionTargetSourceScore: agent.topActionTargetSourceScore } : {}),
     ...(agent.topActionTargetDateText ? { topActionTargetDateText: agent.topActionTargetDateText } : {}),
+    ...(agent.topActionTargetDateIso ? { topActionTargetDateIso: agent.topActionTargetDateIso } : {}),
+    ...(typeof agent.topActionTargetDateUnixMs === "number" ? { topActionTargetDateUnixMs: agent.topActionTargetDateUnixMs } : {}),
     ...(agent.topActionTargetDatePrecision ? { topActionTargetDatePrecision: agent.topActionTargetDatePrecision } : {}),
     ...(agent.topActionTargetDateSource ? { topActionTargetDateSource: agent.topActionTargetDateSource } : {}),
     ...(agent.topActionTargetRelevance ? { topActionTargetRelevance: agent.topActionTargetRelevance } : {}),
@@ -19458,6 +19502,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.alternativeActionTargetRank === "number" ? { alternativeActionTargetRank: agent.alternativeActionTargetRank } : {}),
     ...(typeof agent.alternativeActionTargetSourceScore === "number" ? { alternativeActionTargetSourceScore: agent.alternativeActionTargetSourceScore } : {}),
     ...(agent.alternativeActionTargetDateText ? { alternativeActionTargetDateText: agent.alternativeActionTargetDateText } : {}),
+    ...(agent.alternativeActionTargetDateIso ? { alternativeActionTargetDateIso: agent.alternativeActionTargetDateIso } : {}),
+    ...(typeof agent.alternativeActionTargetDateUnixMs === "number" ? { alternativeActionTargetDateUnixMs: agent.alternativeActionTargetDateUnixMs } : {}),
     ...(agent.alternativeActionTargetDatePrecision ? { alternativeActionTargetDatePrecision: agent.alternativeActionTargetDatePrecision } : {}),
     ...(agent.alternativeActionTargetDateSource ? { alternativeActionTargetDateSource: agent.alternativeActionTargetDateSource } : {}),
     ...(agent.alternativeActionTargetRelevance ? { alternativeActionTargetRelevance: agent.alternativeActionTargetRelevance } : {}),
@@ -19504,6 +19550,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.executorTargetRank === "number" ? { executorTargetRank: agent.executorTargetRank } : {}),
     ...(typeof agent.executorTargetSourceScore === "number" ? { executorTargetSourceScore: agent.executorTargetSourceScore } : {}),
     ...(agent.executorTargetDateText ? { executorTargetDateText: agent.executorTargetDateText } : {}),
+    ...(agent.executorTargetDateIso ? { executorTargetDateIso: agent.executorTargetDateIso } : {}),
+    ...(typeof agent.executorTargetDateUnixMs === "number" ? { executorTargetDateUnixMs: agent.executorTargetDateUnixMs } : {}),
     ...(agent.executorTargetDatePrecision ? { executorTargetDatePrecision: agent.executorTargetDatePrecision } : {}),
     ...(agent.executorTargetDateSource ? { executorTargetDateSource: agent.executorTargetDateSource } : {}),
     ...(agent.executorTargetRelevance ? { executorTargetRelevance: agent.executorTargetRelevance } : {}),
@@ -19547,6 +19595,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.handoffTargetRank === "number" ? { handoffTargetRank: agent.handoffTargetRank } : {}),
     ...(typeof agent.handoffTargetSourceScore === "number" ? { handoffTargetSourceScore: agent.handoffTargetSourceScore } : {}),
     ...(agent.handoffTargetDateText ? { handoffTargetDateText: agent.handoffTargetDateText } : {}),
+    ...(agent.handoffTargetDateIso ? { handoffTargetDateIso: agent.handoffTargetDateIso } : {}),
+    ...(typeof agent.handoffTargetDateUnixMs === "number" ? { handoffTargetDateUnixMs: agent.handoffTargetDateUnixMs } : {}),
     ...(agent.handoffTargetDatePrecision ? { handoffTargetDatePrecision: agent.handoffTargetDatePrecision } : {}),
     ...(agent.handoffTargetDateSource ? { handoffTargetDateSource: agent.handoffTargetDateSource } : {}),
     ...(agent.handoffTargetRelevance ? { handoffTargetRelevance: agent.handoffTargetRelevance } : {}),
@@ -19587,6 +19637,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.primaryTargetRank === "number" ? { primaryTargetRank: agent.primaryTargetRank } : {}),
     ...(typeof agent.primaryTargetSourceScore === "number" ? { primaryTargetSourceScore: agent.primaryTargetSourceScore } : {}),
     ...(agent.primaryTargetDateText ? { primaryTargetDateText: agent.primaryTargetDateText } : {}),
+    ...(agent.primaryTargetDateIso ? { primaryTargetDateIso: agent.primaryTargetDateIso } : {}),
+    ...(typeof agent.primaryTargetDateUnixMs === "number" ? { primaryTargetDateUnixMs: agent.primaryTargetDateUnixMs } : {}),
     ...(agent.primaryTargetDatePrecision ? { primaryTargetDatePrecision: agent.primaryTargetDatePrecision } : {}),
     ...(agent.primaryTargetDateSource ? { primaryTargetDateSource: agent.primaryTargetDateSource } : {}),
     ...(agent.primaryTargetRelevance ? { primaryTargetRelevance: agent.primaryTargetRelevance } : {}),
@@ -20701,6 +20753,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.topActionTargetRank === "number" ? { topActionTargetRank: agent.topActionTargetRank } : {}),
     ...(typeof agent.topActionTargetSourceScore === "number" ? { topActionTargetSourceScore: agent.topActionTargetSourceScore } : {}),
     ...(agent.topActionTargetDateText ? { topActionTargetDateText: agent.topActionTargetDateText } : {}),
+    ...(agent.topActionTargetDateIso ? { topActionTargetDateIso: agent.topActionTargetDateIso } : {}),
+    ...(typeof agent.topActionTargetDateUnixMs === "number" ? { topActionTargetDateUnixMs: agent.topActionTargetDateUnixMs } : {}),
     ...(agent.topActionTargetDatePrecision ? { topActionTargetDatePrecision: agent.topActionTargetDatePrecision } : {}),
     ...(agent.topActionTargetDateSource ? { topActionTargetDateSource: agent.topActionTargetDateSource } : {}),
     ...(agent.topActionTargetRelevance ? { topActionTargetRelevance: agent.topActionTargetRelevance } : {}),
@@ -20740,6 +20794,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.alternativeActionTargetRank === "number" ? { alternativeActionTargetRank: agent.alternativeActionTargetRank } : {}),
     ...(typeof agent.alternativeActionTargetSourceScore === "number" ? { alternativeActionTargetSourceScore: agent.alternativeActionTargetSourceScore } : {}),
     ...(agent.alternativeActionTargetDateText ? { alternativeActionTargetDateText: agent.alternativeActionTargetDateText } : {}),
+    ...(agent.alternativeActionTargetDateIso ? { alternativeActionTargetDateIso: agent.alternativeActionTargetDateIso } : {}),
+    ...(typeof agent.alternativeActionTargetDateUnixMs === "number" ? { alternativeActionTargetDateUnixMs: agent.alternativeActionTargetDateUnixMs } : {}),
     ...(agent.alternativeActionTargetDatePrecision ? { alternativeActionTargetDatePrecision: agent.alternativeActionTargetDatePrecision } : {}),
     ...(agent.alternativeActionTargetDateSource ? { alternativeActionTargetDateSource: agent.alternativeActionTargetDateSource } : {}),
     ...(agent.alternativeActionTargetRelevance ? { alternativeActionTargetRelevance: agent.alternativeActionTargetRelevance } : {}),
@@ -20786,6 +20842,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.executorTargetRank === "number" ? { executorTargetRank: agent.executorTargetRank } : {}),
     ...(typeof agent.executorTargetSourceScore === "number" ? { executorTargetSourceScore: agent.executorTargetSourceScore } : {}),
     ...(agent.executorTargetDateText ? { executorTargetDateText: agent.executorTargetDateText } : {}),
+    ...(agent.executorTargetDateIso ? { executorTargetDateIso: agent.executorTargetDateIso } : {}),
+    ...(typeof agent.executorTargetDateUnixMs === "number" ? { executorTargetDateUnixMs: agent.executorTargetDateUnixMs } : {}),
     ...(agent.executorTargetDatePrecision ? { executorTargetDatePrecision: agent.executorTargetDatePrecision } : {}),
     ...(agent.executorTargetDateSource ? { executorTargetDateSource: agent.executorTargetDateSource } : {}),
     ...(agent.executorTargetRelevance ? { executorTargetRelevance: agent.executorTargetRelevance } : {}),
@@ -20829,6 +20887,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.handoffTargetRank === "number" ? { handoffTargetRank: agent.handoffTargetRank } : {}),
     ...(typeof agent.handoffTargetSourceScore === "number" ? { handoffTargetSourceScore: agent.handoffTargetSourceScore } : {}),
     ...(agent.handoffTargetDateText ? { handoffTargetDateText: agent.handoffTargetDateText } : {}),
+    ...(agent.handoffTargetDateIso ? { handoffTargetDateIso: agent.handoffTargetDateIso } : {}),
+    ...(typeof agent.handoffTargetDateUnixMs === "number" ? { handoffTargetDateUnixMs: agent.handoffTargetDateUnixMs } : {}),
     ...(agent.handoffTargetDatePrecision ? { handoffTargetDatePrecision: agent.handoffTargetDatePrecision } : {}),
     ...(agent.handoffTargetDateSource ? { handoffTargetDateSource: agent.handoffTargetDateSource } : {}),
     ...(agent.handoffTargetRelevance ? { handoffTargetRelevance: agent.handoffTargetRelevance } : {}),
@@ -20869,6 +20929,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.primaryTargetRank === "number" ? { primaryTargetRank: agent.primaryTargetRank } : {}),
     ...(typeof agent.primaryTargetSourceScore === "number" ? { primaryTargetSourceScore: agent.primaryTargetSourceScore } : {}),
     ...(agent.primaryTargetDateText ? { primaryTargetDateText: agent.primaryTargetDateText } : {}),
+    ...(agent.primaryTargetDateIso ? { primaryTargetDateIso: agent.primaryTargetDateIso } : {}),
+    ...(typeof agent.primaryTargetDateUnixMs === "number" ? { primaryTargetDateUnixMs: agent.primaryTargetDateUnixMs } : {}),
     ...(agent.primaryTargetDatePrecision ? { primaryTargetDatePrecision: agent.primaryTargetDatePrecision } : {}),
     ...(agent.primaryTargetDateSource ? { primaryTargetDateSource: agent.primaryTargetDateSource } : {}),
     ...(agent.primaryTargetRelevance ? { primaryTargetRelevance: agent.primaryTargetRelevance } : {}),
@@ -21734,6 +21796,8 @@ function agentTargetFromResult(result: ResultSummary): AgentTarget {
     ...(result.sourceHints?.length ? { sourceHints: result.sourceHints } : {}),
     ...(result.dateText ? { dateText: result.dateText } : {}),
     ...(result.date ? { date: result.date } : {}),
+    ...(result.dateIso ? { dateIso: result.dateIso } : {}),
+    ...(typeof result.dateUnixMs === "number" ? { dateUnixMs: result.dateUnixMs } : {}),
     ...(result.datePrecision ? { datePrecision: result.datePrecision } : {}),
     ...(result.dateSource ? { dateSource: result.dateSource } : {}),
     ...(result.sitelinks?.length ? { sitelinks: result.sitelinks } : {}),

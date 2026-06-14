@@ -2442,6 +2442,8 @@ export type AgentSummary = {
   topActionTargetRank?: number;
   topActionTargetSourceScore?: number;
   topActionTargetDateText?: string;
+  topActionTargetDateIso?: string;
+  topActionTargetDateUnixMs?: number;
   topActionTargetDatePrecision?: "day" | "month" | "year";
   topActionTargetDateSource?: "title" | "snippet";
   topActionTargetRelevance?: AgentTarget["relevance"];
@@ -2488,6 +2490,8 @@ export type AgentSummary = {
   executorTargetRank?: number;
   executorTargetSourceScore?: number;
   executorTargetDateText?: string;
+  executorTargetDateIso?: string;
+  executorTargetDateUnixMs?: number;
   executorTargetDatePrecision?: "day" | "month" | "year";
   executorTargetDateSource?: "title" | "snippet";
   executorTargetRelevance?: AgentTarget["relevance"];
@@ -2531,6 +2535,8 @@ export type AgentSummary = {
   handoffTargetRank?: number;
   handoffTargetSourceScore?: number;
   handoffTargetDateText?: string;
+  handoffTargetDateIso?: string;
+  handoffTargetDateUnixMs?: number;
   handoffTargetDatePrecision?: "day" | "month" | "year";
   handoffTargetDateSource?: "title" | "snippet";
   handoffTargetRelevance?: AgentTarget["relevance"];
@@ -2571,6 +2577,8 @@ export type AgentSummary = {
   primaryTargetRank?: number;
   primaryTargetSourceScore?: number;
   primaryTargetDateText?: string;
+  primaryTargetDateIso?: string;
+  primaryTargetDateUnixMs?: number;
   primaryTargetDatePrecision?: "day" | "month" | "year";
   primaryTargetDateSource?: "title" | "snippet";
   primaryTargetRelevance?: AgentTarget["relevance"];
@@ -2609,6 +2617,8 @@ export type AgentSummary = {
   alternativeActionTargetRank?: number;
   alternativeActionTargetSourceScore?: number;
   alternativeActionTargetDateText?: string;
+  alternativeActionTargetDateIso?: string;
+  alternativeActionTargetDateUnixMs?: number;
   alternativeActionTargetDatePrecision?: "day" | "month" | "year";
   alternativeActionTargetDateSource?: "title" | "snippet";
   alternativeActionTargetRelevance?: AgentTarget["relevance"];

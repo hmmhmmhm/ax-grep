@@ -1283,6 +1283,8 @@ describe("public agent types", () => {
       | "topActionTargetRank"
       | "topActionTargetSourceScore"
       | "topActionTargetDateText"
+      | "topActionTargetDateIso"
+      | "topActionTargetDateUnixMs"
       | "topActionTargetDatePrecision"
       | "topActionTargetDateSource"
       | "topActionTargetRelevance"
@@ -1375,6 +1377,8 @@ describe("public agent types", () => {
       | "executorTargetRank"
       | "executorTargetSourceScore"
       | "executorTargetDateText"
+      | "executorTargetDateIso"
+      | "executorTargetDateUnixMs"
       | "executorTargetDatePrecision"
       | "executorTargetDateSource"
       | "executorTargetRelevance"
@@ -1418,6 +1422,8 @@ describe("public agent types", () => {
       | "handoffTargetRank"
       | "handoffTargetSourceScore"
       | "handoffTargetDateText"
+      | "handoffTargetDateIso"
+      | "handoffTargetDateUnixMs"
       | "handoffTargetDatePrecision"
       | "handoffTargetDateSource"
       | "handoffTargetRelevance"
@@ -1450,6 +1456,8 @@ describe("public agent types", () => {
       | "primaryTargetRank"
       | "primaryTargetSourceScore"
       | "primaryTargetDateText"
+      | "primaryTargetDateIso"
+      | "primaryTargetDateUnixMs"
       | "primaryTargetDatePrecision"
       | "primaryTargetDateSource"
       | "primaryTargetRelevance"
@@ -1486,6 +1494,8 @@ describe("public agent types", () => {
       | "alternativeActionTargetRank"
       | "alternativeActionTargetSourceScore"
       | "alternativeActionTargetDateText"
+      | "alternativeActionTargetDateIso"
+      | "alternativeActionTargetDateUnixMs"
       | "alternativeActionTargetDatePrecision"
       | "alternativeActionTargetDateSource"
       | "alternativeActionTargetRelevance"
@@ -2695,6 +2705,8 @@ describe("public agent types", () => {
       topActionTargetRank: 1,
       topActionTargetSourceScore: 0.92,
       topActionTargetDateText: "2026-05-31",
+      topActionTargetDateIso: "2026-05-31T00:00:00.000Z",
+      topActionTargetDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       topActionTargetDatePrecision: "day",
       topActionTargetDateSource: "snippet",
       topActionTargetRelevance: "high",
@@ -2787,6 +2799,8 @@ describe("public agent types", () => {
       executorTargetRank: 1,
       executorTargetSourceScore: 0.92,
       executorTargetDateText: "2026-05-31",
+      executorTargetDateIso: "2026-05-31T00:00:00.000Z",
+      executorTargetDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       executorTargetDatePrecision: "day",
       executorTargetDateSource: "snippet",
       executorTargetRelevance: "high",
@@ -2830,6 +2844,8 @@ describe("public agent types", () => {
       handoffTargetRank: 1,
       handoffTargetSourceScore: 0.92,
       handoffTargetDateText: "2026-05-31",
+      handoffTargetDateIso: "2026-05-31T00:00:00.000Z",
+      handoffTargetDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       handoffTargetDatePrecision: "day",
       handoffTargetDateSource: "snippet",
       handoffTargetRelevance: "high",
@@ -2862,6 +2878,8 @@ describe("public agent types", () => {
       primaryTargetRank: 1,
       primaryTargetSourceScore: 0.92,
       primaryTargetDateText: "2026-05-31",
+      primaryTargetDateIso: "2026-05-31T00:00:00.000Z",
+      primaryTargetDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       primaryTargetDatePrecision: "day",
       primaryTargetDateSource: "snippet",
       primaryTargetRelevance: "high",
@@ -2898,6 +2916,8 @@ describe("public agent types", () => {
       alternativeActionTargetRank: 1,
       alternativeActionTargetSourceScore: 0.84,
       alternativeActionTargetDateText: "2026-05-30",
+      alternativeActionTargetDateIso: "2026-05-30T00:00:00.000Z",
+      alternativeActionTargetDateUnixMs: Date.parse("2026-05-30T00:00:00.000Z"),
       alternativeActionTargetDatePrecision: "day",
       alternativeActionTargetDateSource: "snippet",
       alternativeActionTargetRelevance: "medium",
@@ -3049,6 +3069,8 @@ describe("public agent types", () => {
     expect(summary.topActionTargetTitle).toBe("Example target");
     expect(summary.topActionTargetSourceScore).toBe(0.92);
     expect(summary.topActionTargetDateText).toBe("2026-05-31");
+    expect(summary.topActionTargetDateIso).toBe("2026-05-31T00:00:00.000Z");
+    expect(summary.topActionTargetDateUnixMs).toBe(Date.parse("2026-05-31T00:00:00.000Z"));
     expect(summary.topActionTargetDatePrecision).toBe("day");
     expect(summary.topActionTargetDateSource).toBe("snippet");
     expect(summary.topActionTargetLikelyOfficial).toBe(true);
@@ -3119,6 +3141,8 @@ describe("public agent types", () => {
     expect(summary.executorTargetSelector).toBe("a.primary");
     expect(summary.executorTargetSourceScore).toBe(0.92);
     expect(summary.executorTargetDateText).toBe("2026-05-31");
+    expect(summary.executorTargetDateIso).toBe("2026-05-31T00:00:00.000Z");
+    expect(summary.executorTargetDateUnixMs).toBe(Date.parse("2026-05-31T00:00:00.000Z"));
     expect(summary.executorTargetDatePrecision).toBe("day");
     expect(summary.executorTargetDateSource).toBe("snippet");
     expect(summary.executorTargetLikelyOfficial).toBe(true);
@@ -3135,6 +3159,8 @@ describe("public agent types", () => {
     expect(summary.handoffTargetTitle).toBe("Example target");
     expect(summary.handoffTargetRelevance).toBe("high");
     expect(summary.handoffTargetDateText).toBe("2026-05-31");
+    expect(summary.handoffTargetDateIso).toBe("2026-05-31T00:00:00.000Z");
+    expect(summary.handoffTargetDateUnixMs).toBe(Date.parse("2026-05-31T00:00:00.000Z"));
     expect(summary.handoffTargetDatePrecision).toBe("day");
     expect(summary.handoffTargetDateSource).toBe("snippet");
     expect(summary.handoffBrowserHtmlReasonCode).toBe("challenge");
@@ -3146,6 +3172,8 @@ describe("public agent types", () => {
     expect(summary.primaryTargetTitle).toBe("Example target");
     expect(summary.primaryTargetSourceScore).toBe(0.92);
     expect(summary.primaryTargetDateText).toBe("2026-05-31");
+    expect(summary.primaryTargetDateIso).toBe("2026-05-31T00:00:00.000Z");
+    expect(summary.primaryTargetDateUnixMs).toBe(Date.parse("2026-05-31T00:00:00.000Z"));
     expect(summary.primaryTargetDatePrecision).toBe("day");
     expect(summary.primaryTargetDateSource).toBe("snippet");
     expect(summary.primaryTargetLikelyOfficial).toBe(true);
@@ -3158,6 +3186,8 @@ describe("public agent types", () => {
     expect(summary.alternativeActionTargetTitle).toBe("Source report");
     expect(summary.alternativeActionTargetSourceScore).toBe(0.84);
     expect(summary.alternativeActionTargetDateText).toBe("2026-05-30");
+    expect(summary.alternativeActionTargetDateIso).toBe("2026-05-30T00:00:00.000Z");
+    expect(summary.alternativeActionTargetDateUnixMs).toBe(Date.parse("2026-05-30T00:00:00.000Z"));
     expect(summary.alternativeActionTargetDatePrecision).toBe("day");
     expect(summary.alternativeActionTargetDateSource).toBe("snippet");
     expect(summary.alternativeActionTargetLikelyOfficial).toBe(false);

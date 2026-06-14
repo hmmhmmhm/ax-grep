@@ -1860,6 +1860,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       executorTargetSource?: string;
       executorTargetRank?: number;
       executorTargetSourceScore?: number;
+      executorTargetDateText?: string;
+      executorTargetDateIso?: string;
+      executorTargetDateUnixMs?: number;
+      executorTargetDatePrecision?: CliAgentTargetShape["datePrecision"];
+      executorTargetDateSource?: CliAgentTargetShape["dateSource"];
       executorTargetRelevance?: CliAgentTargetShape["relevance"];
       executorTargetLikelyOfficial?: boolean;
       executorTargetSelector?: string;
@@ -1893,6 +1898,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       handoffTargetSource?: string;
       handoffTargetRank?: number;
       handoffTargetSourceScore?: number;
+      handoffTargetDateText?: string;
+      handoffTargetDateIso?: string;
+      handoffTargetDateUnixMs?: number;
+      handoffTargetDatePrecision?: CliAgentTargetShape["datePrecision"];
+      handoffTargetDateSource?: CliAgentTargetShape["dateSource"];
       handoffTargetRelevance?: CliAgentTargetShape["relevance"];
       handoffTargetLikelyOfficial?: boolean;
       handoffTargetSelector?: string;
@@ -1973,6 +1983,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topActionTargetSource?: string;
       topActionTargetRank?: number;
       topActionTargetSourceScore?: number;
+      topActionTargetDateText?: string;
+      topActionTargetDateIso?: string;
+      topActionTargetDateUnixMs?: number;
+      topActionTargetDatePrecision?: CliAgentTargetShape["datePrecision"];
+      topActionTargetDateSource?: CliAgentTargetShape["dateSource"];
       topActionTargetRelevance?: CliAgentTargetShape["relevance"];
       topActionTargetLikelyOfficial?: boolean;
       topActionTargetSelector?: string;
@@ -2002,6 +2017,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       primaryTargetSource?: string;
       primaryTargetRank?: number;
       primaryTargetSourceScore?: number;
+      primaryTargetDateText?: string;
+      primaryTargetDateIso?: string;
+      primaryTargetDateUnixMs?: number;
+      primaryTargetDatePrecision?: CliAgentTargetShape["datePrecision"];
+      primaryTargetDateSource?: CliAgentTargetShape["dateSource"];
       primaryTargetRelevance?: CliAgentTargetShape["relevance"];
       primaryTargetLikelyOfficial?: boolean;
       primaryTargetSelector?: string;
@@ -2037,6 +2057,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       alternativeActionTargetSource?: string;
       alternativeActionTargetRank?: number;
       alternativeActionTargetSourceScore?: number;
+      alternativeActionTargetDateText?: string;
+      alternativeActionTargetDateIso?: string;
+      alternativeActionTargetDateUnixMs?: number;
+      alternativeActionTargetDatePrecision?: CliAgentTargetShape["datePrecision"];
+      alternativeActionTargetDateSource?: CliAgentTargetShape["dateSource"];
       alternativeActionTargetRelevance?: CliAgentTargetShape["relevance"];
       alternativeActionTargetLikelyOfficial?: boolean;
       alternativeActionTargetSelector?: string;
@@ -4155,6 +4180,48 @@ function scoreReadTargetMetadataShortcut(readTarget: CliReadTargetShape | undefi
   return { required, matched };
 }
 
+function scoreTargetDateShortcut(target: CliAgentTargetShape | undefined, shortcut: {
+  dateText?: string | undefined;
+  dateIso?: string | undefined;
+  dateUnixMs?: number | undefined;
+  datePrecision?: CliAgentTargetShape["datePrecision"] | undefined;
+  dateSource?: CliAgentTargetShape["dateSource"] | undefined;
+}): { required: number; matched: number } {
+  let required = 0;
+  let matched = 0;
+  if (target?.dateText) {
+    required += 1;
+    if (shortcut.dateText === target.dateText) matched += 1;
+  } else if (shortcut.dateText) {
+    required += 1;
+  }
+  if (target?.dateIso) {
+    required += 1;
+    if (shortcut.dateIso === target.dateIso) matched += 1;
+  } else if (shortcut.dateIso) {
+    required += 1;
+  }
+  if (typeof target?.dateUnixMs === "number") {
+    required += 1;
+    if (shortcut.dateUnixMs === target.dateUnixMs) matched += 1;
+  } else if (typeof shortcut.dateUnixMs === "number") {
+    required += 1;
+  }
+  if (target?.datePrecision) {
+    required += 1;
+    if (shortcut.datePrecision === target.datePrecision) matched += 1;
+  } else if (shortcut.datePrecision) {
+    required += 1;
+  }
+  if (target?.dateSource) {
+    required += 1;
+    if (shortcut.dateSource === target.dateSource) matched += 1;
+  } else if (shortcut.dateSource) {
+    required += 1;
+  }
+  return { required, matched };
+}
+
 function scoreAgentDiagnosticCounts(agent: {
   diagnosticCodes?: unknown[];
   diagnosticErrorCount?: number;
@@ -6251,6 +6318,11 @@ function scoreAgentTopActionShortcuts(agent: {
   topActionTargetSource?: string;
   topActionTargetRank?: number;
   topActionTargetSourceScore?: number;
+  topActionTargetDateText?: string;
+  topActionTargetDateIso?: string;
+  topActionTargetDateUnixMs?: number;
+  topActionTargetDatePrecision?: CliAgentTargetShape["datePrecision"];
+  topActionTargetDateSource?: CliAgentTargetShape["dateSource"];
   topActionTargetRelevance?: CliAgentTargetShape["relevance"];
   topActionTargetLikelyOfficial?: boolean;
   topActionTargetSelector?: string;
@@ -6288,6 +6360,11 @@ function scoreAgentTopActionShortcuts(agent: {
       || agent?.topActionTargetSource
       || typeof agent?.topActionTargetRank === "number"
       || typeof agent?.topActionTargetSourceScore === "number"
+      || agent?.topActionTargetDateText
+      || agent?.topActionTargetDateIso
+      || typeof agent?.topActionTargetDateUnixMs === "number"
+      || agent?.topActionTargetDatePrecision
+      || agent?.topActionTargetDateSource
       || agent?.topActionTargetRelevance
       || typeof agent?.topActionTargetLikelyOfficial === "boolean"
       || agent?.topActionTargetSelector
@@ -6421,6 +6498,15 @@ function scoreAgentTopActionShortcuts(agent: {
   } else if (typeof agent?.topActionTargetSourceScore === "number") {
     required += 1;
   }
+  const targetDateScore = scoreTargetDateShortcut(top.target, {
+    dateText: agent?.topActionTargetDateText,
+    dateIso: agent?.topActionTargetDateIso,
+    dateUnixMs: agent?.topActionTargetDateUnixMs,
+    datePrecision: agent?.topActionTargetDatePrecision,
+    dateSource: agent?.topActionTargetDateSource,
+  });
+  required += targetDateScore.required;
+  matched += targetDateScore.matched;
   if (top.target?.relevance) {
     required += 1;
     if (agent?.topActionTargetRelevance === top.target.relevance) matched += 1;
@@ -9125,6 +9211,11 @@ function scoreAgentPrimaryShortcuts(agent: {
   primaryTargetSource?: string;
   primaryTargetRank?: number;
   primaryTargetSourceScore?: number;
+  primaryTargetDateText?: string;
+  primaryTargetDateIso?: string;
+  primaryTargetDateUnixMs?: number;
+  primaryTargetDatePrecision?: CliAgentTargetShape["datePrecision"];
+  primaryTargetDateSource?: CliAgentTargetShape["dateSource"];
   primaryTargetRelevance?: CliAgentTargetShape["relevance"];
   primaryTargetLikelyOfficial?: boolean;
   primaryTargetSelector?: string;
@@ -9161,6 +9252,11 @@ function scoreAgentPrimaryShortcuts(agent: {
       || agent?.primaryTargetSource
       || typeof agent?.primaryTargetRank === "number"
       || typeof agent?.primaryTargetSourceScore === "number"
+      || agent?.primaryTargetDateText
+      || agent?.primaryTargetDateIso
+      || typeof agent?.primaryTargetDateUnixMs === "number"
+      || agent?.primaryTargetDatePrecision
+      || agent?.primaryTargetDateSource
       || agent?.primaryTargetRelevance
       || typeof agent?.primaryTargetLikelyOfficial === "boolean"
       || agent?.primaryTargetSelector
@@ -9292,6 +9388,15 @@ function scoreAgentPrimaryShortcuts(agent: {
   } else if (typeof agent?.primaryTargetSourceScore === "number") {
     required += 1;
   }
+  const targetDateScore = scoreTargetDateShortcut(action.target, {
+    dateText: agent?.primaryTargetDateText,
+    dateIso: agent?.primaryTargetDateIso,
+    dateUnixMs: agent?.primaryTargetDateUnixMs,
+    datePrecision: agent?.primaryTargetDatePrecision,
+    dateSource: agent?.primaryTargetDateSource,
+  });
+  required += targetDateScore.required;
+  matched += targetDateScore.matched;
   if (action.target?.relevance) {
     required += 1;
     if (agent?.primaryTargetRelevance === action.target.relevance) matched += 1;
@@ -9357,6 +9462,11 @@ function scoreAgentAlternativeActionShortcuts(agent: {
   alternativeActionTargetSource?: string;
   alternativeActionTargetRank?: number;
   alternativeActionTargetSourceScore?: number;
+  alternativeActionTargetDateText?: string;
+  alternativeActionTargetDateIso?: string;
+  alternativeActionTargetDateUnixMs?: number;
+  alternativeActionTargetDatePrecision?: CliAgentTargetShape["datePrecision"];
+  alternativeActionTargetDateSource?: CliAgentTargetShape["dateSource"];
   alternativeActionTargetRelevance?: CliAgentTargetShape["relevance"];
   alternativeActionTargetLikelyOfficial?: boolean;
   alternativeActionTargetSelector?: string;
@@ -9394,6 +9504,11 @@ function scoreAgentAlternativeActionShortcuts(agent: {
       || agent?.alternativeActionTargetSource
       || typeof agent?.alternativeActionTargetRank === "number"
       || typeof agent?.alternativeActionTargetSourceScore === "number"
+      || agent?.alternativeActionTargetDateText
+      || agent?.alternativeActionTargetDateIso
+      || typeof agent?.alternativeActionTargetDateUnixMs === "number"
+      || agent?.alternativeActionTargetDatePrecision
+      || agent?.alternativeActionTargetDateSource
       || agent?.alternativeActionTargetRelevance
       || typeof agent?.alternativeActionTargetLikelyOfficial === "boolean"
       || agent?.alternativeActionTargetSelector
@@ -9527,6 +9642,15 @@ function scoreAgentAlternativeActionShortcuts(agent: {
   } else if (typeof agent?.alternativeActionTargetSourceScore === "number") {
     required += 1;
   }
+  const targetDateScore = scoreTargetDateShortcut(action.target, {
+    dateText: agent?.alternativeActionTargetDateText,
+    dateIso: agent?.alternativeActionTargetDateIso,
+    dateUnixMs: agent?.alternativeActionTargetDateUnixMs,
+    datePrecision: agent?.alternativeActionTargetDatePrecision,
+    dateSource: agent?.alternativeActionTargetDateSource,
+  });
+  required += targetDateScore.required;
+  matched += targetDateScore.matched;
   if (action.target?.relevance) {
     required += 1;
     if (agent?.alternativeActionTargetRelevance === action.target.relevance) matched += 1;
@@ -9592,6 +9716,11 @@ function scoreAgentExecutorShortcuts(agent: {
   executorTargetSource?: string;
   executorTargetRank?: number;
   executorTargetSourceScore?: number;
+  executorTargetDateText?: string;
+  executorTargetDateIso?: string;
+  executorTargetDateUnixMs?: number;
+  executorTargetDatePrecision?: CliAgentTargetShape["datePrecision"];
+  executorTargetDateSource?: CliAgentTargetShape["dateSource"];
   executorTargetRelevance?: CliAgentTargetShape["relevance"];
   executorTargetLikelyOfficial?: boolean;
   executorTargetSelector?: string;
@@ -9730,6 +9859,15 @@ function scoreAgentExecutorShortcuts(agent: {
   } else if (typeof agent.executorTargetSourceScore === "number") {
     required += 1;
   }
+  const targetDateScore = scoreTargetDateShortcut(executor.target, {
+    dateText: agent.executorTargetDateText,
+    dateIso: agent.executorTargetDateIso,
+    dateUnixMs: agent.executorTargetDateUnixMs,
+    datePrecision: agent.executorTargetDatePrecision,
+    dateSource: agent.executorTargetDateSource,
+  });
+  required += targetDateScore.required;
+  matched += targetDateScore.matched;
   if (executor.target?.relevance) {
     required += 1;
     if (agent.executorTargetRelevance === executor.target.relevance) matched += 1;
@@ -9792,6 +9930,11 @@ function scoreAgentHandoffShortcuts(agent: {
   handoffTargetSource?: string;
   handoffTargetRank?: number;
   handoffTargetSourceScore?: number;
+  handoffTargetDateText?: string;
+  handoffTargetDateIso?: string;
+  handoffTargetDateUnixMs?: number;
+  handoffTargetDatePrecision?: CliAgentTargetShape["datePrecision"];
+  handoffTargetDateSource?: CliAgentTargetShape["dateSource"];
   handoffTargetRelevance?: CliAgentTargetShape["relevance"];
   handoffTargetLikelyOfficial?: boolean;
   handoffTargetSelector?: string;
@@ -9943,6 +10086,15 @@ function scoreAgentHandoffShortcuts(agent: {
   } else if (typeof agent.handoffTargetSourceScore === "number") {
     required += 1;
   }
+  const targetDateScore = scoreTargetDateShortcut(handoff.target, {
+    dateText: agent.handoffTargetDateText,
+    dateIso: agent.handoffTargetDateIso,
+    dateUnixMs: agent.handoffTargetDateUnixMs,
+    datePrecision: agent.handoffTargetDatePrecision,
+    dateSource: agent.handoffTargetDateSource,
+  });
+  required += targetDateScore.required;
+  matched += targetDateScore.matched;
   if (handoff.target?.relevance) {
     required += 1;
     if (agent.handoffTargetRelevance === handoff.target.relevance) matched += 1;

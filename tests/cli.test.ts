@@ -1527,6 +1527,8 @@ describe("cli", () => {
         if (typeof alternativeAction?.target?.rank === "number") expect(envelope.agent.alternativeActionTargetRank).toBe(alternativeAction.target.rank);
         if (typeof alternativeAction?.target?.sourceScore === "number") expect(envelope.agent.alternativeActionTargetSourceScore).toBe(alternativeAction.target.sourceScore);
         if (alternativeAction?.target?.dateText) expect(envelope.agent.alternativeActionTargetDateText).toBe(alternativeAction.target.dateText);
+        if (alternativeAction?.target?.dateIso) expect(envelope.agent.alternativeActionTargetDateIso).toBe(alternativeAction.target.dateIso);
+        if (typeof alternativeAction?.target?.dateUnixMs === "number") expect(envelope.agent.alternativeActionTargetDateUnixMs).toBe(alternativeAction.target.dateUnixMs);
         if (alternativeAction?.target?.datePrecision) expect(envelope.agent.alternativeActionTargetDatePrecision).toBe(alternativeAction.target.datePrecision);
         if (alternativeAction?.target?.dateSource) expect(envelope.agent.alternativeActionTargetDateSource).toBe(alternativeAction.target.dateSource);
         if (alternativeAction?.target?.relevance) expect(envelope.agent.alternativeActionTargetRelevance).toBe(alternativeAction.target.relevance);
@@ -2729,15 +2731,23 @@ describe("cli", () => {
       searchDecisionFirstOfficialCommand: "ax-grep 'https://www.npmjs.com/package/ax-grep' --json --summary",
       searchDecisionFirstOfficialCommandArgs: ["ax-grep", "https://www.npmjs.com/package/ax-grep", "--json", "--summary"],
       topActionTargetDateText: "2026-05-31",
+      topActionTargetDateIso: "2026-05-31T00:00:00.000Z",
+      topActionTargetDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       topActionTargetDatePrecision: "day",
       topActionTargetDateSource: "snippet",
       executorTargetDateText: "2026-05-31",
+      executorTargetDateIso: "2026-05-31T00:00:00.000Z",
+      executorTargetDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       executorTargetDatePrecision: "day",
       executorTargetDateSource: "snippet",
       handoffTargetDateText: "2026-05-31",
+      handoffTargetDateIso: "2026-05-31T00:00:00.000Z",
+      handoffTargetDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       handoffTargetDatePrecision: "day",
       handoffTargetDateSource: "snippet",
       primaryTargetDateText: "2026-05-31",
+      primaryTargetDateIso: "2026-05-31T00:00:00.000Z",
+      primaryTargetDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       primaryTargetDatePrecision: "day",
       primaryTargetDateSource: "snippet",
       topResultChoiceRelevance: "high",
@@ -2848,15 +2858,23 @@ describe("cli", () => {
     expect(stdout.output).toContain("  searchDecisionRecommendedDatePrecision: day");
     expect(stdout.output).toContain("  searchDecisionRecommendedDateSource: snippet");
     expect(stdout.output).toContain("  topActionTargetDateText: 2026-05-31");
+    expect(stdout.output).toContain("  topActionTargetDateIso: 2026-05-31T00:00:00.000Z");
+    expect(stdout.output).toContain("  topActionTargetDateUnixMs: 1780185600000");
     expect(stdout.output).toContain("  topActionTargetDatePrecision: day");
     expect(stdout.output).toContain("  topActionTargetDateSource: snippet");
     expect(stdout.output).toContain("  executorTargetDateText: 2026-05-31");
+    expect(stdout.output).toContain("  executorTargetDateIso: 2026-05-31T00:00:00.000Z");
+    expect(stdout.output).toContain("  executorTargetDateUnixMs: 1780185600000");
     expect(stdout.output).toContain("  executorTargetDatePrecision: day");
     expect(stdout.output).toContain("  executorTargetDateSource: snippet");
     expect(stdout.output).toContain("  handoffTargetDateText: 2026-05-31");
+    expect(stdout.output).toContain("  handoffTargetDateIso: 2026-05-31T00:00:00.000Z");
+    expect(stdout.output).toContain("  handoffTargetDateUnixMs: 1780185600000");
     expect(stdout.output).toContain("  handoffTargetDatePrecision: day");
     expect(stdout.output).toContain("  handoffTargetDateSource: snippet");
     expect(stdout.output).toContain("  primaryTargetDateText: 2026-05-31");
+    expect(stdout.output).toContain("  primaryTargetDateIso: 2026-05-31T00:00:00.000Z");
+    expect(stdout.output).toContain("  primaryTargetDateUnixMs: 1780185600000");
     expect(stdout.output).toContain("  primaryTargetDatePrecision: day");
     expect(stdout.output).toContain("  primaryTargetDateSource: snippet");
     expect(stdout.output).toContain("  topChoice: result searchResults[0]");
