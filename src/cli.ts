@@ -4204,7 +4204,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topDatasetTemporalCoverage ? [`  topDatasetTemporalCoverage: ${agent.topDatasetTemporalCoverage}`] : []),
     ...(agent.topDatasetSpatialCoverage ? [`  topDatasetSpatialCoverage: ${agent.topDatasetSpatialCoverage}`] : []),
     ...(agent.topDatasetCreator ? [`  topDatasetCreator: ${agent.topDatasetCreator}`] : []),
-    ...(agent.topIdentityName ? [`  topIdentity: ${agent.topIdentityPath ?? ""} ${agent.topIdentityKind ?? ""}:${agent.topIdentityName}${agent.topIdentityUrl ? ` <${agent.topIdentityUrl}>` : ""}`] : []),
+    ...(agent.topIdentityName ? [`  topIdentity: ${agent.topIdentityPath ?? ""} ${agent.topIdentityKind ?? ""}:${agent.topIdentityName}${agent.topIdentitySource ? ` source=${agent.topIdentitySource}` : ""}${agent.topIdentitySelector ? ` selector=${agent.topIdentitySelector}` : ""}${agent.topIdentityLogoUrl ? ` logo=<${agent.topIdentityLogoUrl}>` : ""}${agent.topIdentitySameAsUrl ? ` sameAs=<${agent.topIdentitySameAsUrl}>` : ""}${agent.topIdentityUrl ? ` <${agent.topIdentityUrl}>` : ""}`] : []),
     ...(agent.topIdentityCommand ? [`  topIdentityCommand: ${agent.topIdentityCommand}`] : []),
     ...(agent.topIdentityCommandArgs ? [`  topIdentityCommandArgs: ${formatCommandArgsText(agent.topIdentityCommandArgs)}`] : []),
     ...(agent.topIdentityLogoCommand ? [`  topIdentityLogoCommand: ${agent.topIdentityLogoCommand}`] : []),

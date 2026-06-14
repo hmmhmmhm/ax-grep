@@ -9589,6 +9589,32 @@ describe("cli", () => {
     });
   });
 
+  it("prints top identity logo and source details in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/about"], {
+      stdout,
+      fetch: async () => new Response(`
+        <script type="application/ld+json">
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "Example Labs",
+            "url": "https://example.test",
+            "logo": "/logo.png",
+            "sameAs": "https://github.com/example"
+          }
+        </script>
+        <main><h1>About</h1></main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  topIdentity: pageCheck.identities[0] organization:Example Labs source=json-ld selector=script[type=\"application/ld+json\"]:nth-of-type(1) logo=<https://example.test/logo.png> sameAs=<https://github.com/example> <https://example.test/>");
+    expect(stdout.output).toContain("  topIdentityLogoCommand: ax-grep 'https://example.test/logo.png'");
+    expect(stdout.output).toContain("  topIdentitySameAsCommand: ax-grep 'https://github.com/example'");
+  });
+
   it("summarizes dataset and data download provenance as pageCheck read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/data", "--agent", "--find", "creativecommons.org/licenses/by/4.0"], {
