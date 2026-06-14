@@ -1556,11 +1556,15 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topDataTableFirstRow?: string[];
       topDataTableFirstCell?: string;
       topDataTableSelector?: string;
+      topFaqPath?: string;
       topFaqQuestion?: string;
       topFaqAnswer?: string;
+      topFaqSelector?: string;
+      topCodeBlockPath?: string;
       topCodeBlockLanguage?: string;
       topCodeBlockLineCount?: number;
       topCodeBlockText?: string;
+      topCodeBlockSelector?: string;
       topResourcePath?: string;
       topResourceKind?: string;
       topResourceUrl?: string;
@@ -8572,11 +8576,15 @@ function scoreAgentStructuredShortcuts(agent: {
   topDataTableFirstRow?: string[];
   topDataTableFirstCell?: string;
   topDataTableSelector?: string;
+  topFaqPath?: string;
   topFaqQuestion?: string;
   topFaqAnswer?: string;
+  topFaqSelector?: string;
+  topCodeBlockPath?: string;
   topCodeBlockLanguage?: string;
   topCodeBlockLineCount?: number;
   topCodeBlockText?: string;
+  topCodeBlockSelector?: string;
   topResourcePath?: string;
   topResourceKind?: string;
   topResourceUrl?: string;
@@ -8714,8 +8722,8 @@ function scoreAgentStructuredShortcuts(agent: {
   readTargets?: CliReadTargetShape[];
 } | undefined, pageCheck: {
   dataTables?: Array<{ path?: string; caption?: string; rowCount?: number; columnCount?: number; headers?: string[]; sampleRows?: string[][]; selector?: string }>;
-  faqs?: Array<{ question?: string; answer?: string }>;
-  codeBlocks?: Array<{ language?: string; lineCount?: number; text?: string }>;
+  faqs?: Array<{ path?: string; question?: string; answer?: string; selector?: string }>;
+  codeBlocks?: Array<{ path?: string; language?: string; lineCount?: number; text?: string; selector?: string }>;
   resources?: Array<{ path?: string; kind?: string; url?: string; title?: string; selector?: string }>;
   media?: Array<{ path?: string; kind?: string; url?: string; text?: string; selector?: string }>;
   sections?: Array<{ path?: string; heading?: string; level?: number; text?: string; selector?: string }>;
@@ -8791,20 +8799,24 @@ function scoreAgentStructuredShortcuts(agent: {
 
   const topFaq = faqs[0];
   if (topFaq) {
-    required += 2;
+    required += 4;
+    if (agent.topFaqPath === topFaq.path) matched += 1;
     if (agent.topFaqQuestion === topFaq.question) matched += 1;
     if (agent.topFaqAnswer === topFaq.answer) matched += 1;
-  } else if (agent.topFaqQuestion || agent.topFaqAnswer) {
+    if (agent.topFaqSelector === topFaq.selector) matched += 1;
+  } else if (agent.topFaqPath || agent.topFaqQuestion || agent.topFaqAnswer || agent.topFaqSelector) {
     required += 1;
   }
 
   const topCodeBlock = codeBlocks[0];
   if (topCodeBlock) {
-    required += 3;
+    required += 5;
+    if (agent.topCodeBlockPath === topCodeBlock.path) matched += 1;
     if (agent.topCodeBlockLanguage === topCodeBlock.language) matched += 1;
     if (agent.topCodeBlockLineCount === topCodeBlock.lineCount) matched += 1;
     if (agent.topCodeBlockText === topCodeBlock.text) matched += 1;
-  } else if (agent.topCodeBlockLanguage || typeof agent.topCodeBlockLineCount === "number" || agent.topCodeBlockText) {
+    if (agent.topCodeBlockSelector === topCodeBlock.selector) matched += 1;
+  } else if (agent.topCodeBlockPath || agent.topCodeBlockLanguage || typeof agent.topCodeBlockLineCount === "number" || agent.topCodeBlockText || agent.topCodeBlockSelector) {
     required += 1;
   }
 

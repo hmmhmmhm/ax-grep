@@ -394,11 +394,15 @@ describe("public agent types", () => {
       | "topDataTableFirstRow"
       | "topDataTableFirstCell"
       | "topDataTableSelector"
+      | "topFaqPath"
       | "topFaqQuestion"
       | "topFaqAnswer"
+      | "topFaqSelector"
+      | "topCodeBlockPath"
       | "topCodeBlockLanguage"
       | "topCodeBlockLineCount"
       | "topCodeBlockText"
+      | "topCodeBlockSelector"
       | "topResourcePath"
       | "topResourceKind"
       | "topResourceUrl"
@@ -1713,11 +1717,15 @@ describe("public agent types", () => {
       topDataTableFirstRow: ["Starter", "$19.99", "10 GB"],
       topDataTableFirstCell: "Starter",
       topDataTableSelector: "table:nth-of-type(1)",
+      topFaqPath: "pageCheck.faqs[0]",
       topFaqQuestion: "How do I install it?",
       topFaqAnswer: "Run pnpm install.",
+      topFaqSelector: "details:nth-of-type(1)",
+      topCodeBlockPath: "pageCheck.codeBlocks[0]",
       topCodeBlockLanguage: "bash",
       topCodeBlockLineCount: 1,
       topCodeBlockText: "pnpm install",
+      topCodeBlockSelector: "pre:nth-of-type(1)",
       topResourcePath: "pageCheck.resources[0]",
       topResourceKind: "download",
       topResourceUrl: "https://example.test/guide.pdf",
@@ -3022,7 +3030,11 @@ describe("public agent types", () => {
     expect(summary.dataTableCount).toBe(1);
     expect(summary.topDataTableFirstCell).toBe("Starter");
     expect(summary.topDataTableFirstRow?.[1]).toBe("$19.99");
+    expect(summary.topFaqPath).toBe("pageCheck.faqs[0]");
     expect(summary.topFaqQuestion).toBe("How do I install it?");
+    expect(summary.topFaqSelector).toBe("details:nth-of-type(1)");
+    expect(summary.topCodeBlockPath).toBe("pageCheck.codeBlocks[0]");
+    expect(summary.topCodeBlockSelector).toBe("pre:nth-of-type(1)");
     expect(summary.topResourcePath).toBe("pageCheck.resources[0]");
     expect(summary.topResourceUrl).toBe("https://example.test/guide.pdf");
     expect(summary.topResourceSelector).toBe("a[href=\"/guide.pdf\"]");

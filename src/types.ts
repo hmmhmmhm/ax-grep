@@ -2047,11 +2047,15 @@ export type AgentSummary = {
   topDataTableFirstRow?: string[];
   topDataTableFirstCell?: string;
   topDataTableSelector?: string;
+  topFaqPath?: string;
   topFaqQuestion?: string;
   topFaqAnswer?: string;
+  topFaqSelector?: string;
+  topCodeBlockPath?: string;
   topCodeBlockLanguage?: string;
   topCodeBlockLineCount?: number;
   topCodeBlockText?: string;
+  topCodeBlockSelector?: string;
   topResourcePath?: string;
   topResourceKind?: string;
   topResourceUrl?: string;
