@@ -4211,7 +4211,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topIdentityLogoCommandArgs ? [`  topIdentityLogoCommandArgs: ${formatCommandArgsText(agent.topIdentityLogoCommandArgs)}`] : []),
     ...(agent.topIdentitySameAsCommand ? [`  topIdentitySameAsCommand: ${agent.topIdentitySameAsCommand}`] : []),
     ...(agent.topIdentitySameAsCommandArgs ? [`  topIdentitySameAsCommandArgs: ${formatCommandArgsText(agent.topIdentitySameAsCommandArgs)}`] : []),
-    ...(agent.topTimelineValue ? [`  topTimeline: ${agent.topTimelinePath ?? ""} ${agent.topTimelineKind ?? ""}:${agent.topTimelineValue}`] : []),
+    ...(agent.topTimelineValue ? [`  topTimeline: ${agent.topTimelinePath ?? ""} ${agent.topTimelineKind ?? ""}${agent.topTimelineLabel ? ` label="${agent.topTimelineLabel}"` : ""}:${agent.topTimelineValue}${agent.topTimelineIsoDate ? ` iso=${agent.topTimelineIsoDate}` : ""}${typeof agent.topTimelineUnixMs === "number" ? ` unixMs=${agent.topTimelineUnixMs}` : ""}${agent.topTimelineSource ? ` source=${agent.topTimelineSource}` : ""}${agent.topTimelineSelector ? ` selector=${agent.topTimelineSelector}` : ""}`] : []),
     ...(agent.topTimelineIsoDate ? [`  topTimelineIsoDate: ${agent.topTimelineIsoDate}`] : []),
     ...(typeof agent.topTimelineUnixMs === "number" ? [`  topTimelineUnixMs: ${agent.topTimelineUnixMs}`] : []),
     ...(agent.topContactPointValue ? [`  topContactPoint: ${agent.topContactPointPath ?? ""} ${agent.topContactPointKind ?? ""}:${agent.topContactPointValue}${agent.topContactPointUrl ? ` <${agent.topContactPointUrl}>` : ""}`] : []),

@@ -9940,6 +9940,22 @@ describe("cli", () => {
     });
   });
 
+  it("prints top timeline freshness details in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/release"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <time class="updated" datetime="2026-06-08">Updated June 8 2026</time>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain(`  topTimeline: pageCheck.timeline[0] modified label="updated":2026-06-08 iso=2026-06-08T00:00:00.000Z unixMs=${Date.parse("2026-06-08")} source=time selector=time:nth-of-type(1)`);
+  });
+
   it("summarizes contact points as pageCheck read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/contact", "--agent", "--find", "press@example.test"], {
