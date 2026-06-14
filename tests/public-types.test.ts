@@ -126,6 +126,7 @@ describe("public agent types", () => {
         htmlFile: "captured.html",
         captureScript: "document.documentElement.outerHTML",
         reason: "Browser-captured HTML is needed.",
+        reasonCode: "challenge",
         command: "ax-grep 'https://example.test/challenge' --html-file captured.html --agent-brief",
         commandArgs: ["ax-grep", "https://example.test/challenge", "--html-file", "captured.html", "--agent-brief"],
       },
@@ -143,6 +144,7 @@ describe("public agent types", () => {
     expect(handoff.verificationMissingQueries).toEqual(["missing"]);
     expect(handoff.answerEvidence?.[0]?.text).toBe("Readable evidence");
     expect(handoff.browserHtml?.reason).toContain("Browser-captured HTML");
+    expect(handoff.browserHtml?.reasonCode).toBe("challenge");
     expect(handoff.browserHtml?.command).toContain("--html-file captured.html");
   });
 

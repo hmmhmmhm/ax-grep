@@ -4618,7 +4618,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     lines.push(`  executorReadTarget: ${agent.executor.readTarget.path}${kind}${count}${score}${primary} - ${agent.executor.readTarget.reason}`);
   }
   if (agent.executor.browserHtml) {
-    lines.push(`  executorBrowserHtml: ${agent.executor.browserHtml.htmlFile} capture=${agent.executor.browserHtml.captureScript}`);
+    lines.push(`  executorBrowserHtml: ${agent.executor.browserHtml.htmlFile} capture=${agent.executor.browserHtml.captureScript}${agent.executor.browserHtml.reasonCode ? ` reasonCode=${agent.executor.browserHtml.reasonCode}` : ""}`);
     if (agent.executor.browserHtml.url) lines.push(`  executorBrowserHtmlUrl: ${agent.executor.browserHtml.url}`);
     if (agent.executor.browserHtml.reason) lines.push(`    reason: ${agent.executor.browserHtml.reason}`);
     if (agent.executor.browserHtml.command) lines.push(`    command: ${agent.executor.browserHtml.command}`);
@@ -4665,7 +4665,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     lines.push(`  handoffReadTarget: ${agent.handoff.readTarget.path}${kind}${count}${score}${primary} - ${agent.handoff.readTarget.reason}`);
   }
   if (agent.handoff.browserHtml) {
-    lines.push(`  handoffBrowserHtml: ${agent.handoff.browserHtml.htmlFile} capture=${agent.handoff.browserHtml.captureScript}`);
+    lines.push(`  handoffBrowserHtml: ${agent.handoff.browserHtml.htmlFile} capture=${agent.handoff.browserHtml.captureScript}${agent.handoff.browserHtml.reasonCode ? ` reasonCode=${agent.handoff.browserHtml.reasonCode}` : ""}`);
     if (agent.handoff.browserHtml.url) lines.push(`  handoffBrowserHtmlUrl: ${agent.handoff.browserHtml.url}`);
     lines.push(`  handoffBrowserHtmlFile: ${agent.handoff.browserHtml.htmlFile}`);
     lines.push(`  handoffBrowserHtmlCaptureScript: ${agent.handoff.browserHtml.captureScript}`);
@@ -12312,15 +12312,16 @@ function summarizeAgent(
   const actionTargetChoices = summarizeAgentActionTargetChoices(pageCheck.actionTargets, findQueries, agentMode, timeoutMs, userAgent);
   const topChoice = summarizeAgentTopChoice(resultChoices, sourceChoices, formChoices, actionTargetChoices);
   const topBarrier = primaryBlockingBarrier(pageCheck.barriers) ?? pageCheck.barriers[0];
-  const next = summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch, semanticSummary));
+  const rawNext = summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch, semanticSummary));
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
   const answerPlan = summarizeAgentAnswerPlan(status, primaryAction, pageCheck, verification, citations, needsBrowserHtml, error);
   const needsBrowserInteraction = Boolean(primaryAction?.requiresBrowserInteraction || (primaryAction && actionExecution(primaryAction) === "interact-browser"));
   const browserHtmlReason = summarizeBrowserHtmlReason(needsBrowserHtml, answerPlan, primaryAction);
+  const browserHtmlReasonCode = summarizeBrowserHtmlReasonCode(needsBrowserHtml, analysis, primaryAction, error);
+  const next = withAgentBrowserHtmlReasonCode(rawNext, browserHtmlReasonCode);
   const answerEvidence = summarizeAgentAnswerEvidence(citations, answerPlan);
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, canUseFetchedHtml, needsBrowserHtml);
   const runbook = summarizeAgentRunbook(next, executionPlan, answerPlan);
-  const browserHtmlReasonCode = summarizeBrowserHtmlReasonCode(needsBrowserHtml, analysis, primaryAction, error);
   const staticReadiness = summarizeStaticReadiness(canUseFetchedHtml, needsBrowserHtml, pageCheck, primaryAction, error, browserHtmlReasonCode);
   const actions = summarizeAgentActions(analysis, pageCheck, verification, primaryAction);
   const alternativeAction = actions.find((action) => !action.primary);
@@ -15318,6 +15319,17 @@ function agentBrowserHtmlCaptureFields(primaryAction: SuggestedAction): { browse
   };
 }
 
+function withAgentBrowserHtmlReasonCode(next: AgentNext, reasonCode?: AgentBrowserHtmlReasonCode): AgentNext {
+  if (!next.browserHtml || !reasonCode || next.browserHtml.reasonCode === reasonCode) return next;
+  return {
+    ...next,
+    browserHtml: {
+      ...next.browserHtml,
+      reasonCode,
+    },
+  };
+}
+
 function summarizeAgentLoop(primaryAction: SuggestedAction | undefined): AgentLoopDirective {
   if (!primaryAction) {
     return {
@@ -16693,13 +16705,14 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const primaryAction = errorAction(error, url, agentMode, findQueries, sourceSearch, timeoutMs, userAgent);
   const readTargets = summarizeErrorAgentReadTargets(primaryAction, sourceSearch);
   const bestReadTarget = selectBestReadTarget(readTargets);
-  const next = summarizeAgentNext(primaryAction, readTargets, errorAgentReadValue(primaryAction, sourceSearch));
+  const rawNext = summarizeAgentNext(primaryAction, readTargets, errorAgentReadValue(primaryAction, sourceSearch));
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
   const needsBrowserHtml = errorNeedsBrowserHtml(primaryAction);
   const answerPlan = summarizeErrorAgentAnswerPlan(error, primaryAction, needsBrowserHtml);
   const needsBrowserInteraction = Boolean(primaryAction?.requiresBrowserInteraction || (primaryAction && actionExecution(primaryAction) === "interact-browser"));
   const browserHtmlReason = summarizeBrowserHtmlReason(needsBrowserHtml, answerPlan, primaryAction);
   const browserHtmlReasonCode = summarizeBrowserHtmlReasonCode(needsBrowserHtml, { kind: "empty", diagnostics: [], suggestedActions: [] }, primaryAction, error);
+  const next = withAgentBrowserHtmlReasonCode(rawNext, browserHtmlReasonCode);
   const staticReadiness = summarizeStaticReadiness(false, needsBrowserHtml, emptyPageCheck(), primaryAction, error);
   const executionPlan = summarizeAgentExecutionPlan(next, expectedOutcome, answerPlan, false, needsBrowserHtml);
   const runbook = summarizeAgentRunbook(next, executionPlan, answerPlan);
@@ -21157,6 +21170,7 @@ function compactAgentBrowserHtml(browserHtml: AgentBrowserHtmlCapture): object {
     captureScript: browserHtml.captureScript,
     ...(browserHtml.url ? { url: browserHtml.url } : {}),
     ...(browserHtml.reason ? { reason: browserHtml.reason } : {}),
+    ...(browserHtml.reasonCode ? { reasonCode: browserHtml.reasonCode } : {}),
     ...(browserHtml.command ? { command: browserHtml.command } : {}),
     ...(browserHtml.commandArgs ? { commandArgs: browserHtml.commandArgs } : {}),
     ...(browserHtml.afterInteractionCommand ? { afterInteractionCommand: browserHtml.afterInteractionCommand } : {}),

@@ -1033,6 +1033,7 @@ export type AgentBrowserHtmlCapture = {
   htmlFile: string;
   captureScript: string;
   reason?: string;
+  reasonCode?: AgentBrowserHtmlReasonCode;
   command?: string;
   commandArgs?: string[];
   afterInteractionCommand?: string;

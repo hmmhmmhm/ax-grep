@@ -348,6 +348,7 @@ type CliAgentBrowserHtmlShape = {
   htmlFile?: string;
   captureScript?: string;
   reason?: string;
+  reasonCode?: string;
   command?: string;
   commandArgs?: unknown[];
   afterInteractionCommand?: string;
@@ -2970,6 +2971,7 @@ function sameAgentBrowserHtml(
     && (!right.htmlFile || left.htmlFile === right.htmlFile)
     && (!right.captureScript || left.captureScript === right.captureScript)
     && (!right.reason || left.reason === right.reason)
+    && (!right.reasonCode || left.reasonCode === right.reasonCode)
     && (!right.command || left.command === right.command)
     && (!right.commandArgs || JSON.stringify(left.commandArgs) === JSON.stringify(right.commandArgs))
     && (!right.afterInteractionCommand || left.afterInteractionCommand === right.afterInteractionCommand)

@@ -12203,6 +12203,7 @@ npx ax-grep https://example.test --agent</code></pre>
           url: "https://example.test",
           htmlFile: "captured.html",
           captureScript: "document.documentElement.outerHTML",
+          reasonCode: "no-inspectable-content",
           command: "ax-grep 'https://example.test' --html-file captured.html --json --summary",
           commandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--json", "--summary"],
         },
@@ -12227,6 +12228,7 @@ npx ax-grep https://example.test --agent</code></pre>
         browserHtml: {
           htmlFile: "captured.html",
           captureScript: "document.documentElement.outerHTML",
+          reasonCode: "no-inspectable-content",
           commandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--json", "--summary"],
         },
       },
@@ -12247,6 +12249,7 @@ npx ax-grep https://example.test --agent</code></pre>
         browserHtml: {
           htmlFile: "captured.html",
           captureScript: "document.documentElement.outerHTML",
+          reasonCode: "no-inspectable-content",
           commandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--json", "--summary"],
         },
         answerReady: false,
@@ -12280,6 +12283,8 @@ npx ax-grep https://example.test --agent</code></pre>
       status: "not-requested",
       requestedCount: 0,
     });
+    expect(envelope.agent.executor.browserHtml.reasonCode).toBe("no-inspectable-content");
+    expect(envelope.agent.handoff.browserHtml.reasonCode).toBe("no-inspectable-content");
     expect(envelope.error).toMatchObject({
       code: "NO_INSPECTABLE_CONTENT",
       status: 200,
@@ -12308,7 +12313,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  executor: browser/capture-browser-html/low action=retry-with-browser-html status=blocked - ");
     expect(stdout.output).toContain("  executorCommand: ax-grep 'https://example.test' --html-file captured.html --json --summary");
     expect(stdout.output).toContain("  executorCommandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
-    expect(stdout.output).toContain("  executorBrowserHtml: captured.html capture=document.documentElement.outerHTML");
+    expect(stdout.output).toContain("  executorBrowserHtml: captured.html capture=document.documentElement.outerHTML reasonCode=no-inspectable-content");
     expect(stdout.output).toContain("  executorBrowserHtmlReason: Browser-captured HTML or browser inspection is needed.");
     expect(stdout.output).toContain("  executorBrowserHtmlReasonCode: no-inspectable-content");
     expect(stdout.output).toContain("  executorBrowserHtmlUrl: https://example.test");
@@ -12320,7 +12325,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  handoffCommand: ax-grep 'https://example.test' --html-file captured.html --json --summary");
     expect(stdout.output).toContain("  handoffCommandArgs: [\"ax-grep\",\"https://example.test\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  handoffUrl: https://example.test");
-    expect(stdout.output).toContain("  handoffBrowserHtml: captured.html capture=document.documentElement.outerHTML");
+    expect(stdout.output).toContain("  handoffBrowserHtml: captured.html capture=document.documentElement.outerHTML reasonCode=no-inspectable-content");
     expect(stdout.output).toContain("  handoffBrowserHtmlReason: Browser-captured HTML or browser inspection is needed.");
     expect(stdout.output).toContain("  handoffBrowserHtmlReasonCode: no-inspectable-content");
     expect(stdout.output).toContain("  handoffBrowserHtmlUrl: https://example.test");
