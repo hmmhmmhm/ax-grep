@@ -4194,7 +4194,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topOfferPriceAmount === "number" ? [`  topOfferPriceAmount: ${agent.topOfferPriceAmount}`] : []),
     ...(agent.topOfferCommand ? [`  topOfferCommand: ${agent.topOfferCommand}`] : []),
     ...(agent.topOfferCommandArgs ? [`  topOfferCommandArgs: ${formatCommandArgsText(agent.topOfferCommandArgs)}`] : []),
-    ...(agent.topDatasetName ? [`  topDataset: ${agent.topDatasetPath ?? ""} ${agent.topDatasetKind ?? ""}:${agent.topDatasetName}${agent.topDatasetUrl ? ` <${agent.topDatasetUrl}>` : ""}`] : []),
+    ...(agent.topDatasetName ? [`  topDataset: ${agent.topDatasetPath ?? ""} ${agent.topDatasetKind ?? ""}:${agent.topDatasetName}${agent.topDatasetEncodingFormat ? ` format=${agent.topDatasetEncodingFormat}` : ""}${agent.topDatasetTemporalCoverage ? ` temporal=${agent.topDatasetTemporalCoverage}` : ""}${agent.topDatasetSpatialCoverage ? ` spatial=${agent.topDatasetSpatialCoverage}` : ""}${agent.topDatasetCreator ? ` creator="${agent.topDatasetCreator}"` : ""}${agent.topDatasetSelector ? ` selector=${agent.topDatasetSelector}` : ""}${agent.topDatasetDistributionUrl ? ` distribution=<${agent.topDatasetDistributionUrl}>` : ""}${agent.topDatasetLicenseUrl ? ` license=<${agent.topDatasetLicenseUrl}>` : ""}${agent.topDatasetUrl ? ` <${agent.topDatasetUrl}>` : ""}`] : []),
     ...(agent.topDatasetCommand ? [`  topDatasetCommand: ${agent.topDatasetCommand}`] : []),
     ...(agent.topDatasetCommandArgs ? [`  topDatasetCommandArgs: ${formatCommandArgsText(agent.topDatasetCommandArgs)}`] : []),
     ...(agent.topDatasetDistributionCommand ? [`  topDatasetDistributionCommand: ${agent.topDatasetDistributionCommand}`] : []),

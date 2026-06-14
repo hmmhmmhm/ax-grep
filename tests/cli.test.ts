@@ -9753,6 +9753,41 @@ describe("cli", () => {
     });
   });
 
+  it("prints top dataset distribution details in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/data"], {
+      stdout,
+      fetch: async () => new Response(`
+        <script type="application/ld+json">
+          {
+            "@context": "https://schema.org",
+            "@type": "Dataset",
+            "name": "Example emissions dataset",
+            "url": "/datasets/emissions",
+            "license": "https://creativecommons.org/licenses/by/4.0/",
+            "creator": { "@type": "Organization", "name": "Example Lab" },
+            "temporalCoverage": "2020/2025",
+            "spatialCoverage": { "@type": "Place", "name": "United States" },
+            "distribution": [
+              {
+                "@type": "DataDownload",
+                "contentUrl": "/downloads/emissions.csv",
+                "encodingFormat": "text/csv"
+              }
+            ]
+          }
+        </script>
+        <main><h1>Data</h1></main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  topDataset: pageCheck.datasets[0] dataset:Example emissions dataset format=text/csv temporal=2020/2025 spatial=United States creator=\"Example Lab\" selector=script[type=\"application/ld+json\"]:nth-of-type(1) distribution=<https://example.test/downloads/emissions.csv> license=<https://creativecommons.org/licenses/by/4.0/> <https://example.test/datasets/emissions>");
+    expect(stdout.output).toContain("  topDatasetDistributionCommand: ax-grep 'https://example.test/downloads/emissions.csv'");
+    expect(stdout.output).toContain("  topDatasetLicenseCommand: ax-grep 'https://creativecommons.org/licenses/by/4.0/'");
+  });
+
   it("summarizes publication and update dates as pageCheck timeline read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/release", "--agent", "--find", "source=time"], {
