@@ -1442,6 +1442,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topResultChoiceSitelinkCount?: number;
       topResultChoiceFirstSitelinkTitle?: string;
       topResultChoiceFirstSitelinkUrl?: string;
+      topResultChoiceFirstSitelinkSelector?: string;
       topResultChoiceReason?: string;
       formCount?: number;
       formChoiceCount?: number;
@@ -4534,6 +4535,7 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
   topResultChoiceSitelinkCount?: number;
   topResultChoiceFirstSitelinkTitle?: string;
   topResultChoiceFirstSitelinkUrl?: string;
+  topResultChoiceFirstSitelinkSelector?: string;
   topResultChoiceFirstSitelinkCommand?: string;
   topResultChoiceFirstSitelinkCommandArgs?: unknown[];
   topResultChoiceReason?: string;
@@ -4561,6 +4563,7 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
       || typeof agent?.topResultChoiceSitelinkCount === "number"
       || agent?.topResultChoiceFirstSitelinkTitle
       || agent?.topResultChoiceFirstSitelinkUrl
+      || agent?.topResultChoiceFirstSitelinkSelector
       || agent?.topResultChoiceFirstSitelinkCommand
       || agent?.topResultChoiceFirstSitelinkCommandArgs
       || agent?.topResultChoiceReason ? 0 : 1;
@@ -4669,13 +4672,14 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
     required += 1;
   }
   if (top.sitelinks?.length) {
-    required += 5;
+    required += 6;
     if (agent?.topResultChoiceSitelinkCount === top.sitelinks.length) matched += 1;
     if (agent?.topResultChoiceFirstSitelinkTitle === top.sitelinks[0]?.title) matched += 1;
     if (agent?.topResultChoiceFirstSitelinkUrl === top.sitelinks[0]?.url) matched += 1;
+    if (agent?.topResultChoiceFirstSitelinkSelector === top.sitelinks[0]?.selector) matched += 1;
     if (agent?.topResultChoiceFirstSitelinkCommand === directAgentCommand(top.sitelinks[0]?.url)) matched += 1;
     if (JSON.stringify(agent?.topResultChoiceFirstSitelinkCommandArgs) === JSON.stringify(directAgentCommandArgs(top.sitelinks[0]?.url))) matched += 1;
-  } else if (typeof agent?.topResultChoiceSitelinkCount === "number" || agent?.topResultChoiceFirstSitelinkTitle || agent?.topResultChoiceFirstSitelinkUrl || agent?.topResultChoiceFirstSitelinkCommand || agent?.topResultChoiceFirstSitelinkCommandArgs) {
+  } else if (typeof agent?.topResultChoiceSitelinkCount === "number" || agent?.topResultChoiceFirstSitelinkTitle || agent?.topResultChoiceFirstSitelinkUrl || agent?.topResultChoiceFirstSitelinkSelector || agent?.topResultChoiceFirstSitelinkCommand || agent?.topResultChoiceFirstSitelinkCommandArgs) {
     required += 1;
   }
   if (top.selectionReason) {
@@ -5807,6 +5811,7 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchSelectedSitelinkCount?: number;
   sourceSearchSelectedFirstSitelinkTitle?: string;
   sourceSearchSelectedFirstSitelinkUrl?: string;
+  sourceSearchSelectedFirstSitelinkSelector?: string;
   sourceSearchSelectedFirstSitelinkCommand?: string;
   sourceSearchSelectedFirstSitelinkCommandArgs?: unknown[];
   sourceSearchSelectedOpenResult?: number | "best";
@@ -5845,6 +5850,7 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchAlternateSitelinkCount?: number;
   sourceSearchAlternateFirstSitelinkTitle?: string;
   sourceSearchAlternateFirstSitelinkUrl?: string;
+  sourceSearchAlternateFirstSitelinkSelector?: string;
   sourceSearchAlternateFirstSitelinkCommand?: string;
   sourceSearchAlternateFirstSitelinkCommandArgs?: unknown[];
   sourceSearchAlternateOpenResult?: number | "best";
@@ -5896,6 +5902,7 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchSelectedSitelinkCount === "undefined"
       && typeof agent?.sourceSearchSelectedFirstSitelinkTitle === "undefined"
       && typeof agent?.sourceSearchSelectedFirstSitelinkUrl === "undefined"
+      && typeof agent?.sourceSearchSelectedFirstSitelinkSelector === "undefined"
       && typeof agent?.sourceSearchSelectedFirstSitelinkCommand === "undefined"
       && typeof agent?.sourceSearchSelectedFirstSitelinkCommandArgs === "undefined"
       && typeof agent?.sourceSearchSelectedOpenResult === "undefined"
@@ -5933,6 +5940,7 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchAlternateSitelinkCount === "undefined"
       && typeof agent?.sourceSearchAlternateFirstSitelinkTitle === "undefined"
       && typeof agent?.sourceSearchAlternateFirstSitelinkUrl === "undefined"
+      && typeof agent?.sourceSearchAlternateFirstSitelinkSelector === "undefined"
       && typeof agent?.sourceSearchAlternateFirstSitelinkCommand === "undefined"
       && typeof agent?.sourceSearchAlternateFirstSitelinkCommandArgs === "undefined"
       && typeof agent?.sourceSearchAlternateOpenResult === "undefined"
@@ -6058,13 +6066,14 @@ function scoreAgentSourceSearchShortcuts(agent: {
       required += 1;
     }
     if (selected.sitelinks?.length) {
-      required += 5;
+      required += 6;
       if (agent?.sourceSearchSelectedSitelinkCount === selected.sitelinks.length) matched += 1;
       if (agent?.sourceSearchSelectedFirstSitelinkTitle === selected.sitelinks[0]?.title) matched += 1;
       if (agent?.sourceSearchSelectedFirstSitelinkUrl === selected.sitelinks[0]?.url) matched += 1;
+      if (agent?.sourceSearchSelectedFirstSitelinkSelector === selected.sitelinks[0]?.selector) matched += 1;
       if (agent?.sourceSearchSelectedFirstSitelinkCommand === directAgentCommand(selected.sitelinks[0]?.url)) matched += 1;
       if (JSON.stringify(agent?.sourceSearchSelectedFirstSitelinkCommandArgs) === JSON.stringify(directAgentCommandArgs(selected.sitelinks[0]?.url))) matched += 1;
-    } else if (typeof agent?.sourceSearchSelectedSitelinkCount === "number" || agent?.sourceSearchSelectedFirstSitelinkTitle || agent?.sourceSearchSelectedFirstSitelinkUrl || agent?.sourceSearchSelectedFirstSitelinkCommand || agent?.sourceSearchSelectedFirstSitelinkCommandArgs) {
+    } else if (typeof agent?.sourceSearchSelectedSitelinkCount === "number" || agent?.sourceSearchSelectedFirstSitelinkTitle || agent?.sourceSearchSelectedFirstSitelinkUrl || agent?.sourceSearchSelectedFirstSitelinkSelector || agent?.sourceSearchSelectedFirstSitelinkCommand || agent?.sourceSearchSelectedFirstSitelinkCommandArgs) {
       required += 1;
     }
   } else if (
@@ -6082,6 +6091,7 @@ function scoreAgentSourceSearchShortcuts(agent: {
     || typeof agent?.sourceSearchSelectedSitelinkCount === "number"
     || agent?.sourceSearchSelectedFirstSitelinkTitle
     || agent?.sourceSearchSelectedFirstSitelinkUrl
+    || agent?.sourceSearchSelectedFirstSitelinkSelector
     || agent?.sourceSearchSelectedFirstSitelinkCommand
     || agent?.sourceSearchSelectedFirstSitelinkCommandArgs
     || agent?.sourceSearchSelectedCommand
@@ -6155,13 +6165,14 @@ function scoreAgentSourceSearchShortcuts(agent: {
       required += 1;
     }
     if (alternate.sitelinks?.length) {
-      required += 5;
+      required += 6;
       if (agent?.sourceSearchAlternateSitelinkCount === alternate.sitelinks.length) matched += 1;
       if (agent?.sourceSearchAlternateFirstSitelinkTitle === alternate.sitelinks[0]?.title) matched += 1;
       if (agent?.sourceSearchAlternateFirstSitelinkUrl === alternate.sitelinks[0]?.url) matched += 1;
+      if (agent?.sourceSearchAlternateFirstSitelinkSelector === alternate.sitelinks[0]?.selector) matched += 1;
       if (agent?.sourceSearchAlternateFirstSitelinkCommand === directAgentCommand(alternate.sitelinks[0]?.url)) matched += 1;
       if (JSON.stringify(agent?.sourceSearchAlternateFirstSitelinkCommandArgs) === JSON.stringify(directAgentCommandArgs(alternate.sitelinks[0]?.url))) matched += 1;
-    } else if (typeof agent?.sourceSearchAlternateSitelinkCount === "number" || agent?.sourceSearchAlternateFirstSitelinkTitle || agent?.sourceSearchAlternateFirstSitelinkUrl || agent?.sourceSearchAlternateFirstSitelinkCommand || agent?.sourceSearchAlternateFirstSitelinkCommandArgs) {
+    } else if (typeof agent?.sourceSearchAlternateSitelinkCount === "number" || agent?.sourceSearchAlternateFirstSitelinkTitle || agent?.sourceSearchAlternateFirstSitelinkUrl || agent?.sourceSearchAlternateFirstSitelinkSelector || agent?.sourceSearchAlternateFirstSitelinkCommand || agent?.sourceSearchAlternateFirstSitelinkCommandArgs) {
       required += 1;
     }
   } else if (
@@ -6182,6 +6193,7 @@ function scoreAgentSourceSearchShortcuts(agent: {
     || typeof agent?.sourceSearchAlternateSitelinkCount === "number"
     || agent?.sourceSearchAlternateFirstSitelinkTitle
     || agent?.sourceSearchAlternateFirstSitelinkUrl
+    || agent?.sourceSearchAlternateFirstSitelinkSelector
     || agent?.sourceSearchAlternateFirstSitelinkCommand
     || agent?.sourceSearchAlternateFirstSitelinkCommandArgs
     || agent?.sourceSearchAlternateOpenResult

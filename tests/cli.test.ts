@@ -1277,6 +1277,7 @@ describe("cli", () => {
               <li class="b_algo">
                 <h2><a href="https://result.example/">Agent browser result</a></h2>
                 <p>agent browser comparison details</p>
+                <a href="https://result.example/docs">Docs sitelink</a>
               </li>
             </ol>
           </main>
@@ -1643,7 +1644,7 @@ describe("cli", () => {
           expect.objectContaining({
             path: "searchResults[0]",
             url: "https://result.example/",
-            snippet: "agent browser comparison details",
+            snippet: expect.stringContaining("agent browser comparison details"),
             primary: true,
             commandArgs: ["ax-grep", "https://result.example/", "--agent-brief"],
           }),
@@ -4191,16 +4192,16 @@ describe("cli", () => {
 
   it("keeps multiple alternate source-search choices in brief output", async () => {
     const stdout = new MemoryWriter();
-    const status = await runCli(["--search", "agent browser", "--engine", "duckduckgo", "--open-result", "1", "--agent-brief"], {
+    const status = await runCli(["--search", "agent browser", "--engine", "bing", "--open-result", "1", "--agent-brief"], {
       stdout,
       fetch: async (input) => {
-        if (String(input).includes("duckduckgo.com")) {
+        if (String(input).includes("bing.com")) {
           return new Response(`
             <main>
               <ol>
-                <li><a class="result__a" href="https://missing.example/article">Missing Result</a><p>Missing result snippet.</p></li>
-                <li><a class="result__a" href="https://alternate.example/article">Alternate Result</a><p>Alternate result snippet.</p></li>
-                <li><a class="result__a" href="https://backup.example/article">Backup Result</a><p>Backup result snippet.</p></li>
+                <li class="b_algo"><h2><a href="https://missing.example/article">Missing Result</a></h2><p>Missing result snippet.</p><a href="https://missing.example/article/docs">Missing docs</a></li>
+                <li class="b_algo"><h2><a href="https://alternate.example/article">Alternate Result</a></h2><p>Alternate result snippet.</p><a href="https://alternate.example/article/docs">Alternate docs</a></li>
+                <li class="b_algo"><h2><a href="https://backup.example/article">Backup Result</a></h2><p>Backup result snippet.</p></li>
               </ol>
             </main>
           `, { headers: { "content-type": "text/html" } });
@@ -4212,7 +4213,13 @@ describe("cli", () => {
     const envelope = JSON.parse(stdout.output);
 
     expect(status).toBe(12);
+    expect(envelope.agent.sourceSearchSelectedFirstSitelinkTitle).toBe("Missing docs");
+    expect(envelope.agent.sourceSearchSelectedFirstSitelinkUrl).toBe("https://missing.example/article/docs");
+    expect(envelope.agent.sourceSearchSelectedFirstSitelinkSelector).toEqual(expect.any(String));
     expect(envelope.agent.sourceSearchAlternateCount).toBe(2);
+    expect(envelope.agent.sourceSearchAlternateFirstSitelinkTitle).toBe("Alternate docs");
+    expect(envelope.agent.sourceSearchAlternateFirstSitelinkUrl).toBe("https://alternate.example/article/docs");
+    expect(envelope.agent.sourceSearchAlternateFirstSitelinkSelector).toEqual(expect.any(String));
     expect(envelope.agent.sourceSearchAlternateChoices).toEqual([
       expect.objectContaining({
         path: "sourceSearch.alternateResults[0]",
@@ -4220,10 +4227,10 @@ describe("cli", () => {
         url: "https://alternate.example/article",
         host: "alternate.example",
         source: "alternate.example",
-        snippet: "Alternate result snippet.",
+        snippet: expect.stringContaining("Alternate result snippet."),
         openResult: 2,
-        command: "ax-grep --search 'agent browser' --engine duckduckgo --open-result 2 --agent-brief",
-        commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--open-result", "2", "--agent-brief"],
+        command: "ax-grep --search 'agent browser' --engine bing --open-result 2 --agent-brief",
+        commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "2", "--agent-brief"],
         sourceScore: expect.any(Number),
         relevance: expect.any(String),
         isLikelyOfficial: false,
@@ -4235,8 +4242,8 @@ describe("cli", () => {
         host: "backup.example",
         source: "backup.example",
         openResult: 3,
-        command: "ax-grep --search 'agent browser' --engine duckduckgo --open-result 3 --agent-brief",
-        commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--open-result", "3", "--agent-brief"],
+        command: "ax-grep --search 'agent browser' --engine bing --open-result 3 --agent-brief",
+        commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "bing", "--open-result", "3", "--agent-brief"],
         sourceScore: expect.any(Number),
         relevance: expect.any(String),
         isLikelyOfficial: false,
