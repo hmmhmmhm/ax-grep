@@ -10552,6 +10552,30 @@ npx ax-grep https://example.test --agent</code></pre>
     });
   });
 
+  it("prints top table-of-contents details in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/docs/guide"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <body>
+            <nav aria-label="On this page">
+              <a class="toc-level-2" href="#install">Installation</a>
+              <a class="toc-level-2" href="#config">Configuration</a>
+              <a class="toc-level-3" href="#api">API reference</a>
+            </nav>
+            <main></main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  topToc: pageCheck.toc[0] title=\"On this page\" items=3 selector=nav:nth-of-type(1) first=\"Installation\" <https://example.test/docs/guide#install> - Installation; Configuration; API reference");
+    expect(stdout.output).toContain("  topTocFirstItemCommand: ax-grep 'https://example.test/docs/guide#install'");
+  });
+
   it("checks requested text against table-of-contents summaries", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/docs/guide", "--agent", "--find", "Installation; Configuration; API reference"], {
