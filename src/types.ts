@@ -2260,6 +2260,11 @@ export type AgentSummary = {
   topChoiceDateSource?: "title" | "snippet";
   topChoiceCommand?: string;
   topChoiceCommandArgs?: string[];
+  topChoiceFirstSitelinkTitle?: string;
+  topChoiceFirstSitelinkUrl?: string;
+  topChoiceFirstSitelinkSelector?: string;
+  topChoiceFirstSitelinkCommand?: string;
+  topChoiceFirstSitelinkCommandArgs?: string[];
   topChoiceRank?: number;
   topChoiceOpenResult?: number | "best";
   topChoiceRecommended?: boolean;

@@ -1893,6 +1893,11 @@ type AgentSummary = {
   topChoiceDateSource?: AgentTarget["dateSource"];
   topChoiceCommand?: string;
   topChoiceCommandArgs?: string[];
+  topChoiceFirstSitelinkTitle?: string;
+  topChoiceFirstSitelinkUrl?: string;
+  topChoiceFirstSitelinkSelector?: string;
+  topChoiceFirstSitelinkCommand?: string;
+  topChoiceFirstSitelinkCommandArgs?: string[];
   topChoiceRank?: number;
   topChoiceOpenResult?: AgentResultChoice["openResult"];
   topChoiceRecommended?: boolean;
@@ -4260,6 +4265,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topSourceChoiceReason ? [`  topSourceChoiceReason: ${agent.topSourceChoiceReason}`] : []),
     ...(agent.topChoiceKind ? [`  topChoice: ${agent.topChoiceKind} ${agent.topChoicePath}${typeof agent.topChoiceRank === "number" ? ` rank=${agent.topChoiceRank}` : ""}${agent.topChoiceOpenResult ? ` openResult=${agent.topChoiceOpenResult}` : ""}${typeof agent.topChoiceRecommended === "boolean" ? ` recommended=${agent.topChoiceRecommended}` : ""}${typeof agent.topChoicePrimary === "boolean" ? ` primary=${agent.topChoicePrimary}` : ""}${agent.topChoiceHost ? ` host=${agent.topChoiceHost}` : ""}${agent.topChoiceSource ? ` source=${agent.topChoiceSource}` : ""}${agent.topChoiceSourceType ? ` sourceType=${agent.topChoiceSourceType}` : ""}${typeof agent.topChoiceSourceScore === "number" ? ` score=${agent.topChoiceSourceScore}` : ""}${agent.topChoiceDateText ? ` dateText=${agent.topChoiceDateText}` : ""}${agent.topChoiceDateIso ? ` dateIso=${agent.topChoiceDateIso}` : ""}${typeof agent.topChoiceDateUnixMs === "number" ? ` dateUnixMs=${agent.topChoiceDateUnixMs}` : ""}${agent.topChoiceDatePrecision ? ` datePrecision=${agent.topChoiceDatePrecision}` : ""}${agent.topChoiceDateSource ? ` dateSource=${agent.topChoiceDateSource}` : ""}${agent.topChoiceRelevance ? ` relevance=${agent.topChoiceRelevance}` : ""}${typeof agent.topChoiceLikelyOfficial === "boolean" ? ` official=${agent.topChoiceLikelyOfficial}` : ""}${agent.topChoiceMethod ? ` method=${agent.topChoiceMethod}` : ""}${agent.topChoiceSelector ? ` selector=${agent.topChoiceSelector}` : ""}${agent.topChoiceUrl ? ` <${agent.topChoiceUrl}>` : ""}${agent.topChoiceCommand ? ` command=${agent.topChoiceCommand}` : ""}${agent.topChoiceReason ? ` reason=${agent.topChoiceReason}` : ""}${agent.topChoiceSnippet ? ` snippet=${agent.topChoiceSnippet}` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
     ...(agent.topChoiceCommandArgs ? [`  topChoiceCommandArgs: ${formatCommandArgsText(agent.topChoiceCommandArgs)}`] : []),
+    ...(agent.topChoiceFirstSitelinkTitle || agent.topChoiceFirstSitelinkUrl ? [`  topChoiceFirstSitelink: ${agent.topChoiceFirstSitelinkTitle ?? "first sitelink"}${agent.topChoiceFirstSitelinkUrl ? ` <${agent.topChoiceFirstSitelinkUrl}>` : ""}${agent.topChoiceFirstSitelinkSelector ? ` selector=${agent.topChoiceFirstSitelinkSelector}` : ""}${agent.topChoiceFirstSitelinkCommand ? ` command=${agent.topChoiceFirstSitelinkCommand}` : ""}`] : []),
+    ...(agent.topChoiceFirstSitelinkCommandArgs ? [`  topChoiceFirstSitelinkCommandArgs: ${formatCommandArgsText(agent.topChoiceFirstSitelinkCommandArgs)}`] : []),
     ...(agent.sourceSearchQuery ? [`  sourceSearchQuery: ${agent.sourceSearchQuery}`] : []),
     ...(agent.sourceSearchEngine ? [`  sourceSearchEngine: ${agent.sourceSearchEngine}`] : []),
     ...(agent.sourceSearchSelectedEngine ? [`  sourceSearchSelectedEngine: ${agent.sourceSearchSelectedEngine}`] : []),
@@ -13398,6 +13405,11 @@ function summarizeAgent(
     ...(topChoice?.dateSource ? { topChoiceDateSource: topChoice.dateSource } : {}),
     ...(topChoice?.command ? { topChoiceCommand: topChoice.command } : {}),
     ...(topChoice?.commandArgs ? { topChoiceCommandArgs: topChoice.commandArgs } : {}),
+    ...(topChoice?.firstSitelinkTitle ? { topChoiceFirstSitelinkTitle: topChoice.firstSitelinkTitle } : {}),
+    ...(topChoice?.firstSitelinkUrl ? { topChoiceFirstSitelinkUrl: topChoice.firstSitelinkUrl } : {}),
+    ...(topChoice?.firstSitelinkSelector ? { topChoiceFirstSitelinkSelector: topChoice.firstSitelinkSelector } : {}),
+    ...(topChoice?.firstSitelinkCommand ? { topChoiceFirstSitelinkCommand: topChoice.firstSitelinkCommand } : {}),
+    ...(topChoice?.firstSitelinkCommandArgs ? { topChoiceFirstSitelinkCommandArgs: topChoice.firstSitelinkCommandArgs } : {}),
     ...(typeof topChoice?.rank === "number" ? { topChoiceRank: topChoice.rank } : {}),
     ...(topChoice?.openResult ? { topChoiceOpenResult: topChoice.openResult } : {}),
     ...(typeof topChoice?.recommended === "boolean" ? { topChoiceRecommended: topChoice.recommended } : {}),
@@ -15765,6 +15777,11 @@ function summarizeAgentTopChoice(
   dateSource?: AgentTarget["dateSource"];
   command?: string;
   commandArgs?: string[];
+  firstSitelinkTitle?: string;
+  firstSitelinkUrl?: string;
+  firstSitelinkSelector?: string;
+  firstSitelinkCommand?: string;
+  firstSitelinkCommandArgs?: string[];
   rank?: number;
   openResult?: AgentResultChoice["openResult"];
   recommended?: boolean;
@@ -15794,6 +15811,11 @@ function summarizeAgentTopChoice(
       ...(result.dateSource ? { dateSource: result.dateSource } : {}),
       ...(result.command ? { command: result.command } : {}),
       ...(result.commandArgs ? { commandArgs: result.commandArgs } : {}),
+      ...(result.sitelinks?.[0]?.title ? { firstSitelinkTitle: result.sitelinks[0].title } : {}),
+      ...(result.sitelinks?.[0]?.url ? { firstSitelinkUrl: result.sitelinks[0].url } : {}),
+      ...(result.sitelinks?.[0]?.selector ? { firstSitelinkSelector: result.sitelinks[0].selector } : {}),
+      ...(result.sitelinks?.[0]?.command ? { firstSitelinkCommand: result.sitelinks[0].command } : {}),
+      ...(result.sitelinks?.[0]?.commandArgs ? { firstSitelinkCommandArgs: result.sitelinks[0].commandArgs } : {}),
       ...(typeof result.rank === "number" ? { rank: result.rank } : {}),
       ...(result.openResult ? { openResult: result.openResult } : {}),
       ...(typeof result.recommended === "boolean" ? { recommended: result.recommended } : {}),
@@ -18338,6 +18360,11 @@ function compactAgentTopChoice(agent: AgentSummary, searchCommandContext?: Searc
     ...(agent.topChoiceDateSource ? { topChoiceDateSource: agent.topChoiceDateSource } : {}),
     ...(command ? { topChoiceCommand: command } : {}),
     ...(commandArgs ? { topChoiceCommandArgs: commandArgs } : {}),
+    ...(agent.topChoiceFirstSitelinkTitle ? { topChoiceFirstSitelinkTitle: agent.topChoiceFirstSitelinkTitle } : {}),
+    ...(agent.topChoiceFirstSitelinkUrl ? { topChoiceFirstSitelinkUrl: agent.topChoiceFirstSitelinkUrl } : {}),
+    ...(agent.topChoiceFirstSitelinkSelector ? { topChoiceFirstSitelinkSelector: agent.topChoiceFirstSitelinkSelector } : {}),
+    ...(agent.topChoiceFirstSitelinkCommand ? { topChoiceFirstSitelinkCommand: agent.topChoiceFirstSitelinkCommand } : {}),
+    ...(agent.topChoiceFirstSitelinkCommandArgs ? { topChoiceFirstSitelinkCommandArgs: agent.topChoiceFirstSitelinkCommandArgs } : {}),
     ...(typeof agent.topChoiceRank === "number" ? { topChoiceRank: agent.topChoiceRank } : {}),
     ...(openResult ? { topChoiceOpenResult: openResult } : {}),
     ...(typeof recommended === "boolean" ? { topChoiceRecommended: recommended } : {}),

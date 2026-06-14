@@ -1584,6 +1584,11 @@ describe("cli", () => {
         if (topResultChoice.snippet) expect(envelope.agent.topResultChoiceSnippet).toBe(topResultChoice.snippet);
         if (typeof topResultChoice.rank === "number") expect(envelope.agent.topResultChoiceRank).toBe(topResultChoice.rank);
         if (topResultChoice.sourceHints?.length) expect(envelope.agent.topResultChoiceSourceHints).toEqual(topResultChoice.sourceHints);
+        if (topResultChoice.sitelinks?.[0]?.title) expect(envelope.agent.topChoiceFirstSitelinkTitle).toBe(topResultChoice.sitelinks[0].title);
+        if (topResultChoice.sitelinks?.[0]?.url) expect(envelope.agent.topChoiceFirstSitelinkUrl).toBe(topResultChoice.sitelinks[0].url);
+        if (topResultChoice.sitelinks?.[0]?.selector) expect(envelope.agent.topChoiceFirstSitelinkSelector).toBe(topResultChoice.sitelinks[0].selector);
+        if (topResultChoice.sitelinks?.[0]?.command) expect(envelope.agent.topChoiceFirstSitelinkCommand).toBe(topResultChoice.sitelinks[0].command);
+        if (topResultChoice.sitelinks?.[0]?.commandArgs) expect(envelope.agent.topChoiceFirstSitelinkCommandArgs).toEqual(topResultChoice.sitelinks[0].commandArgs);
         if (topResultChoice.sitelinks?.[0]?.title) expect(envelope.agent.topResultChoiceFirstSitelinkTitle).toBe(topResultChoice.sitelinks[0].title);
         if (topResultChoice.sitelinks?.[0]?.url) expect(envelope.agent.topResultChoiceFirstSitelinkUrl).toBe(topResultChoice.sitelinks[0].url);
         if (topResultChoice.sitelinks?.[0]?.selector) expect(envelope.agent.topResultChoiceFirstSitelinkSelector).toBe(topResultChoice.sitelinks[0].selector);
@@ -11979,6 +11984,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("     reason: Ranked result 1 from result.example.");
     expect(stdout.output).toContain("     snippet: Snippet text explains why this result is useful for the current investigation.");
     expect(stdout.output).toContain("     sitelink: Docs sitelink <https://result.example/article/docs> selector=a:nth-of-type(2)");
+    expect(stdout.output).toContain("  topChoiceFirstSitelink: Docs sitelink <https://result.example/article/docs> selector=a:nth-of-type(2) command=ax-grep 'https://result.example/article/docs' --json --summary");
+    expect(stdout.output).toContain("  topChoiceFirstSitelinkCommandArgs: [\"ax-grep\",\"https://result.example/article/docs\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  topResultChoiceFirstSitelinkCommand: ax-grep 'https://result.example/article/docs' --json --summary");
     expect(stdout.output).toContain("  topResultChoiceFirstSitelinkCommandArgs: [\"ax-grep\",\"https://result.example/article/docs\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("resultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult source=result.example sitelinks=1 firstSitelinkSelector=a:nth-of-type(2)");

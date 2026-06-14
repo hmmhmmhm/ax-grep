@@ -1759,6 +1759,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topChoiceSnippet?: string;
       topChoiceCommand?: string;
       topChoiceCommandArgs?: string[];
+      topChoiceFirstSitelinkTitle?: string;
+      topChoiceFirstSitelinkUrl?: string;
+      topChoiceFirstSitelinkSelector?: string;
+      topChoiceFirstSitelinkCommand?: string;
+      topChoiceFirstSitelinkCommandArgs?: unknown[];
       topChoiceOpenResult?: number | "best";
       topChoiceRecommended?: boolean;
       topChoicePrimary?: boolean;
@@ -4395,6 +4400,11 @@ function scoreAgentTopChoiceShortcuts(agent: {
   topChoiceDateSource?: CliAgentTargetShape["dateSource"];
   topChoiceCommand?: string;
   topChoiceCommandArgs?: string[];
+  topChoiceFirstSitelinkTitle?: string;
+  topChoiceFirstSitelinkUrl?: string;
+  topChoiceFirstSitelinkSelector?: string;
+  topChoiceFirstSitelinkCommand?: string;
+  topChoiceFirstSitelinkCommandArgs?: unknown[];
   topChoiceOpenResult?: number | "best";
   topChoiceRecommended?: boolean;
   topChoicePrimary?: boolean;
@@ -4409,7 +4419,7 @@ function scoreAgentTopChoiceShortcuts(agent: {
   const form = agent.formChoices?.[0];
   const actionTarget = agent.actionTargetChoices?.[0];
   const expected = result
-    ? { kind: "result" as const, path: result.path, label: result.title, url: result.url, host: result.host, snippet: result.snippet, dateText: result.dateText, dateIso: result.dateIso, dateUnixMs: result.dateUnixMs, datePrecision: result.datePrecision, dateSource: result.dateSource, command: result.command, commandArgs: result.commandArgs, openResult: result.openResult, recommended: result.recommended, primary: result.primary, sourceType: result.sourceType, sourceScore: result.sourceScore, relevance: result.relevance, isLikelyOfficial: result.isLikelyOfficial }
+    ? { kind: "result" as const, path: result.path, label: result.title, url: result.url, host: result.host, snippet: result.snippet, dateText: result.dateText, dateIso: result.dateIso, dateUnixMs: result.dateUnixMs, datePrecision: result.datePrecision, dateSource: result.dateSource, command: result.command, commandArgs: result.commandArgs, firstSitelink: result.sitelinks?.[0], openResult: result.openResult, recommended: result.recommended, primary: result.primary, sourceType: result.sourceType, sourceScore: result.sourceScore, relevance: result.relevance, isLikelyOfficial: result.isLikelyOfficial }
     : source
       ? { kind: "source" as const, path: source.path, label: source.title || source.text, url: source.url, host: source.host, snippet: source.snippet, dateText: source.dateText, dateIso: source.dateIso, dateUnixMs: source.dateUnixMs, datePrecision: source.datePrecision, dateSource: source.dateSource, command: source.command, commandArgs: source.commandArgs, primary: source.primary, sourceType: source.sourceType, sourceScore: source.sourceScore, relevance: source.relevance, isLikelyOfficial: source.isLikelyOfficial }
       : form
@@ -4418,7 +4428,7 @@ function scoreAgentTopChoiceShortcuts(agent: {
           ? { kind: "action-target" as const, path: actionTarget.path, label: actionTarget.name || actionTarget.text, url: actionTarget.targetUrl ?? actionTarget.urlTemplate, command: actionTarget.command, commandArgs: actionTarget.commandArgs }
           : undefined;
   if (!expected) {
-    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceHost && !agent.topChoiceSnippet && !agent.topChoiceDateText && !agent.topChoiceDateIso && typeof agent.topChoiceDateUnixMs !== "number" && !agent.topChoiceDatePrecision && !agent.topChoiceDateSource && !agent.topChoiceCommand && !agent.topChoiceCommandArgs && !agent.topChoiceOpenResult && typeof agent.topChoiceRecommended !== "boolean" && typeof agent.topChoicePrimary !== "boolean" && !agent.topChoiceSourceType && typeof agent.topChoiceSourceScore !== "number" && !agent.topChoiceRelevance && typeof agent.topChoiceLikelyOfficial !== "boolean" ? 1 : 0;
+    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceHost && !agent.topChoiceSnippet && !agent.topChoiceDateText && !agent.topChoiceDateIso && typeof agent.topChoiceDateUnixMs !== "number" && !agent.topChoiceDatePrecision && !agent.topChoiceDateSource && !agent.topChoiceCommand && !agent.topChoiceCommandArgs && !agent.topChoiceFirstSitelinkTitle && !agent.topChoiceFirstSitelinkUrl && !agent.topChoiceFirstSitelinkSelector && !agent.topChoiceFirstSitelinkCommand && !agent.topChoiceFirstSitelinkCommandArgs && !agent.topChoiceOpenResult && typeof agent.topChoiceRecommended !== "boolean" && typeof agent.topChoicePrimary !== "boolean" && !agent.topChoiceSourceType && typeof agent.topChoiceSourceScore !== "number" && !agent.topChoiceRelevance && typeof agent.topChoiceLikelyOfficial !== "boolean" ? 1 : 0;
   }
   let required = 2;
   let matched = 0;
@@ -4463,6 +4473,16 @@ function scoreAgentTopChoiceShortcuts(agent: {
     required += 1;
     if (JSON.stringify(agent.topChoiceCommandArgs) === JSON.stringify(expected.commandArgs)) matched += 1;
   } else if (agent.topChoiceCommand || agent.topChoiceCommandArgs) {
+    required += 1;
+  }
+  if (expected.firstSitelink) {
+    required += 5;
+    if (agent.topChoiceFirstSitelinkTitle === expected.firstSitelink.title) matched += 1;
+    if (agent.topChoiceFirstSitelinkUrl === expected.firstSitelink.url) matched += 1;
+    if (agent.topChoiceFirstSitelinkSelector === expected.firstSitelink.selector) matched += 1;
+    if (agent.topChoiceFirstSitelinkCommand === expected.firstSitelink.command) matched += 1;
+    if (JSON.stringify(agent.topChoiceFirstSitelinkCommandArgs) === JSON.stringify(expected.firstSitelink.commandArgs)) matched += 1;
+  } else if (agent.topChoiceFirstSitelinkTitle || agent.topChoiceFirstSitelinkUrl || agent.topChoiceFirstSitelinkSelector || agent.topChoiceFirstSitelinkCommand || agent.topChoiceFirstSitelinkCommandArgs) {
     required += 1;
   }
   if (typeof expected.openResult !== "undefined") {
