@@ -6077,6 +6077,27 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopTableFirstSampleCell: agent.semanticSummary.tableItems[0].sampleCellRefs[0] Q1 combined rowSpan=2 columnSpan=2");
   });
 
+  it("prints data table size and selector in text agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/pricing"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h1>Pricing</h1>
+          <table>
+            <caption>Plan comparison</caption>
+            <tr><th>Plan</th><th>Monthly price</th><th>Storage</th></tr>
+            <tr><td>Starter</td><td>$19.99</td><td>10 GB</td></tr>
+          </table>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  topDataTable: pageCheck.dataTables[0] \"Plan comparison\" 1x3 headers=3 selector=table:nth-of-type(1)");
+  });
+
   it("prints second table sample cell in text agent output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/report"], {

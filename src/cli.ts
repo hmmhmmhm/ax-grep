@@ -4133,7 +4133,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topBarrierSelector ? [`  topBarrierSelector: ${agent.topBarrierSelector}`] : []),
     ...(agent.topBarrierDiagnosticCode ? [`  topBarrierDiagnosticCode: ${agent.topBarrierDiagnosticCode}`] : []),
     `  dataTableCount: ${agent.dataTableCount}`,
-    ...(agent.topDataTablePath ? [`  topDataTable: ${agent.topDataTablePath}${agent.topDataTableCaption ? ` "${agent.topDataTableCaption}"` : ""} ${agent.topDataTableRowCount ?? 0}x${agent.topDataTableColumnCount ?? 0}`] : []),
+    ...(agent.topDataTablePath ? [`  topDataTable: ${agent.topDataTablePath}${agent.topDataTableCaption ? ` "${agent.topDataTableCaption}"` : ""} ${agent.topDataTableRowCount ?? 0}x${agent.topDataTableColumnCount ?? 0}${typeof agent.topDataTableHeaderCount === "number" ? ` headers=${agent.topDataTableHeaderCount}` : ""}${agent.topDataTableSelector ? ` selector=${agent.topDataTableSelector}` : ""}`] : []),
     ...(agent.topDataTableFirstHeader ? [`  topDataTableFirstHeader: ${agent.topDataTableFirstHeader}`] : []),
     ...(agent.topDataTableFirstRow?.length ? [`  topDataTableFirstRow: ${agent.topDataTableFirstRow.join(" | ")}`] : []),
     ...(agent.topDataTableFirstCell ? [`  topDataTableFirstCell: ${agent.topDataTableFirstCell}`] : []),
