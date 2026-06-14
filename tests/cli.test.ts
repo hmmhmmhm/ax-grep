@@ -9036,6 +9036,22 @@ describe("cli", () => {
     });
   });
 
+  it("prints top provenance labels and selectors in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/paper"], {
+      stdout,
+      fetch: async () => new Response(`
+        <meta name="citation_doi" content="10.5555/example.2026">
+        <main></main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  topProvenance: pageCheck.provenance[0] doi label=\"DOI\"=10.5555/example.2026 source=meta selector=meta:nth-of-type(1) <https://doi.org/10.5555/example.2026>");
+    expect(stdout.output).toContain("  topProvenanceCommand: ax-grep 'https://doi.org/10.5555/example.2026'");
+  });
+
   it("summarizes HTTP policy headers and meta directives as pageCheck read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/policy", "--agent"], {
