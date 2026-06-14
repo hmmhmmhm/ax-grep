@@ -2284,8 +2284,13 @@ export type AgentSummary = {
   topChoiceSitelinkCount?: number;
   topChoiceLikelyOfficial?: boolean;
   topChoiceMethod?: string;
+  topChoiceEncodingType?: string;
   topChoiceSubmitDisabled?: boolean;
   topChoiceDisabled?: boolean;
+  topChoicePressed?: SemanticNodeState["pressed"];
+  topChoiceExpanded?: boolean;
+  topChoiceHaspopup?: SemanticNodeState["haspopup"];
+  topChoiceControls?: string;
   topChoiceSelector?: string;
   topChoiceReason?: string;
   sourceSearchQuery?: string;

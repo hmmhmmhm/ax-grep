@@ -1917,8 +1917,13 @@ type AgentSummary = {
   topChoiceSitelinkCount?: number;
   topChoiceLikelyOfficial?: boolean;
   topChoiceMethod?: string;
+  topChoiceEncodingType?: string;
   topChoiceSubmitDisabled?: boolean;
   topChoiceDisabled?: boolean;
+  topChoicePressed?: SemanticNodeState["pressed"];
+  topChoiceExpanded?: boolean;
+  topChoiceHaspopup?: SemanticNodeState["haspopup"];
+  topChoiceControls?: string;
   topChoiceSelector?: string;
   topChoiceReason?: string;
   sourceSearchQuery?: string;
@@ -4274,7 +4279,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topSourceChoicePrimary === "boolean" ? [`  topSourceChoicePrimary: ${agent.topSourceChoicePrimary}`] : []),
     ...(agent.topSourceChoiceSelector ? [`  topSourceChoiceSelector: ${agent.topSourceChoiceSelector}`] : []),
     ...(agent.topSourceChoiceReason ? [`  topSourceChoiceReason: ${agent.topSourceChoiceReason}`] : []),
-    ...(agent.topChoiceKind ? [`  topChoice: ${agent.topChoiceKind} ${agent.topChoicePath}${typeof agent.topChoiceRank === "number" ? ` rank=${agent.topChoiceRank}` : ""}${agent.topChoiceOpenResult ? ` openResult=${agent.topChoiceOpenResult}` : ""}${typeof agent.topChoiceRecommended === "boolean" ? ` recommended=${agent.topChoiceRecommended}` : ""}${typeof agent.topChoicePrimary === "boolean" ? ` primary=${agent.topChoicePrimary}` : ""}${agent.topChoiceHost ? ` host=${agent.topChoiceHost}` : ""}${agent.topChoiceSource ? ` source=${agent.topChoiceSource}` : ""}${agent.topChoiceSourceType ? ` sourceType=${agent.topChoiceSourceType}` : ""}${typeof agent.topChoiceSourceScore === "number" ? ` score=${agent.topChoiceSourceScore}` : ""}${agent.topChoiceSourceHints?.length ? ` hints=${agent.topChoiceSourceHints.join(",")}` : ""}${agent.topChoiceMatchedTerm ? ` matched=${agent.topChoiceMatchedTerm}` : ""}${agent.topChoiceFindMatch ? ` find=${agent.topChoiceFindMatch}` : ""}${typeof agent.topChoiceSitelinkCount === "number" ? ` sitelinks=${agent.topChoiceSitelinkCount}` : ""}${agent.topChoiceDateText ? ` dateText=${agent.topChoiceDateText}` : ""}${agent.topChoiceDateIso ? ` dateIso=${agent.topChoiceDateIso}` : ""}${typeof agent.topChoiceDateUnixMs === "number" ? ` dateUnixMs=${agent.topChoiceDateUnixMs}` : ""}${agent.topChoiceDatePrecision ? ` datePrecision=${agent.topChoiceDatePrecision}` : ""}${agent.topChoiceDateSource ? ` dateSource=${agent.topChoiceDateSource}` : ""}${agent.topChoiceRelevance ? ` relevance=${agent.topChoiceRelevance}` : ""}${typeof agent.topChoiceLikelyOfficial === "boolean" ? ` official=${agent.topChoiceLikelyOfficial}` : ""}${agent.topChoiceMethod ? ` method=${agent.topChoiceMethod}` : ""}${agent.topChoiceActionUrl ? ` actionUrl=${agent.topChoiceActionUrl}` : ""}${agent.topChoiceTargetUrl ? ` targetUrl=${agent.topChoiceTargetUrl}` : ""}${agent.topChoiceUrlTemplate ? ` template=${agent.topChoiceUrlTemplate}` : ""}${agent.topChoiceQueryField ? ` queryField=${agent.topChoiceQueryField}` : ""}${agent.topChoiceQueryInput ? ` queryInput=${agent.topChoiceQueryInput}` : ""}${typeof agent.topChoiceSubmitDisabled === "boolean" ? ` submitDisabled=${agent.topChoiceSubmitDisabled}` : ""}${typeof agent.topChoiceDisabled === "boolean" ? ` disabled=${agent.topChoiceDisabled}` : ""}${agent.topChoiceSelector ? ` selector=${agent.topChoiceSelector}` : ""}${agent.topChoiceUrl ? ` <${agent.topChoiceUrl}>` : ""}${agent.topChoiceCommand ? ` command=${agent.topChoiceCommand}` : ""}${agent.topChoiceReason ? ` reason=${agent.topChoiceReason}` : ""}${agent.topChoiceSnippet ? ` snippet=${agent.topChoiceSnippet}` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
+    ...(agent.topChoiceKind ? [`  topChoice: ${agent.topChoiceKind} ${agent.topChoicePath}${typeof agent.topChoiceRank === "number" ? ` rank=${agent.topChoiceRank}` : ""}${agent.topChoiceOpenResult ? ` openResult=${agent.topChoiceOpenResult}` : ""}${typeof agent.topChoiceRecommended === "boolean" ? ` recommended=${agent.topChoiceRecommended}` : ""}${typeof agent.topChoicePrimary === "boolean" ? ` primary=${agent.topChoicePrimary}` : ""}${agent.topChoiceHost ? ` host=${agent.topChoiceHost}` : ""}${agent.topChoiceSource ? ` source=${agent.topChoiceSource}` : ""}${agent.topChoiceSourceType ? ` sourceType=${agent.topChoiceSourceType}` : ""}${typeof agent.topChoiceSourceScore === "number" ? ` score=${agent.topChoiceSourceScore}` : ""}${agent.topChoiceSourceHints?.length ? ` hints=${agent.topChoiceSourceHints.join(",")}` : ""}${agent.topChoiceMatchedTerm ? ` matched=${agent.topChoiceMatchedTerm}` : ""}${agent.topChoiceFindMatch ? ` find=${agent.topChoiceFindMatch}` : ""}${typeof agent.topChoiceSitelinkCount === "number" ? ` sitelinks=${agent.topChoiceSitelinkCount}` : ""}${agent.topChoiceDateText ? ` dateText=${agent.topChoiceDateText}` : ""}${agent.topChoiceDateIso ? ` dateIso=${agent.topChoiceDateIso}` : ""}${typeof agent.topChoiceDateUnixMs === "number" ? ` dateUnixMs=${agent.topChoiceDateUnixMs}` : ""}${agent.topChoiceDatePrecision ? ` datePrecision=${agent.topChoiceDatePrecision}` : ""}${agent.topChoiceDateSource ? ` dateSource=${agent.topChoiceDateSource}` : ""}${agent.topChoiceRelevance ? ` relevance=${agent.topChoiceRelevance}` : ""}${typeof agent.topChoiceLikelyOfficial === "boolean" ? ` official=${agent.topChoiceLikelyOfficial}` : ""}${agent.topChoiceMethod ? ` method=${agent.topChoiceMethod}` : ""}${agent.topChoiceEncodingType ? ` encoding=${agent.topChoiceEncodingType}` : ""}${agent.topChoiceActionUrl ? ` actionUrl=${agent.topChoiceActionUrl}` : ""}${agent.topChoiceTargetUrl ? ` targetUrl=${agent.topChoiceTargetUrl}` : ""}${agent.topChoiceUrlTemplate ? ` template=${agent.topChoiceUrlTemplate}` : ""}${agent.topChoiceQueryField ? ` queryField=${agent.topChoiceQueryField}` : ""}${agent.topChoiceQueryInput ? ` queryInput=${agent.topChoiceQueryInput}` : ""}${typeof agent.topChoiceSubmitDisabled === "boolean" ? ` submitDisabled=${agent.topChoiceSubmitDisabled}` : ""}${typeof agent.topChoiceDisabled === "boolean" ? ` disabled=${agent.topChoiceDisabled}` : ""}${typeof agent.topChoicePressed !== "undefined" ? ` pressed=${agent.topChoicePressed}` : ""}${typeof agent.topChoiceExpanded === "boolean" ? ` expanded=${agent.topChoiceExpanded}` : ""}${typeof agent.topChoiceHaspopup !== "undefined" ? ` haspopup=${agent.topChoiceHaspopup}` : ""}${agent.topChoiceControls ? ` controls=${agent.topChoiceControls}` : ""}${agent.topChoiceSelector ? ` selector=${agent.topChoiceSelector}` : ""}${agent.topChoiceUrl ? ` <${agent.topChoiceUrl}>` : ""}${agent.topChoiceCommand ? ` command=${agent.topChoiceCommand}` : ""}${agent.topChoiceReason ? ` reason=${agent.topChoiceReason}` : ""}${agent.topChoiceSnippet ? ` snippet=${agent.topChoiceSnippet}` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
     ...(agent.topChoiceCommandArgs ? [`  topChoiceCommandArgs: ${formatCommandArgsText(agent.topChoiceCommandArgs)}`] : []),
     ...(agent.topChoiceFirstSitelinkTitle || agent.topChoiceFirstSitelinkUrl ? [`  topChoiceFirstSitelink: ${agent.topChoiceFirstSitelinkTitle ?? "first sitelink"}${agent.topChoiceFirstSitelinkUrl ? ` <${agent.topChoiceFirstSitelinkUrl}>` : ""}${agent.topChoiceFirstSitelinkSelector ? ` selector=${agent.topChoiceFirstSitelinkSelector}` : ""}${agent.topChoiceFirstSitelinkCommand ? ` command=${agent.topChoiceFirstSitelinkCommand}` : ""}`] : []),
     ...(agent.topChoiceFirstSitelinkCommandArgs ? [`  topChoiceFirstSitelinkCommandArgs: ${formatCommandArgsText(agent.topChoiceFirstSitelinkCommandArgs)}`] : []),
@@ -13440,8 +13445,13 @@ function summarizeAgent(
     ...(typeof topChoice?.sitelinkCount === "number" ? { topChoiceSitelinkCount: topChoice.sitelinkCount } : {}),
     ...(typeof topChoice?.isLikelyOfficial === "boolean" ? { topChoiceLikelyOfficial: topChoice.isLikelyOfficial } : {}),
     ...(topChoice?.method ? { topChoiceMethod: topChoice.method } : {}),
+    ...(topChoice?.encodingType ? { topChoiceEncodingType: topChoice.encodingType } : {}),
     ...(typeof topChoice?.submitDisabled === "boolean" ? { topChoiceSubmitDisabled: topChoice.submitDisabled } : {}),
     ...(typeof topChoice?.disabled === "boolean" ? { topChoiceDisabled: topChoice.disabled } : {}),
+    ...(typeof topChoice?.pressed !== "undefined" ? { topChoicePressed: topChoice.pressed } : {}),
+    ...(typeof topChoice?.expanded === "boolean" ? { topChoiceExpanded: topChoice.expanded } : {}),
+    ...(typeof topChoice?.haspopup !== "undefined" ? { topChoiceHaspopup: topChoice.haspopup } : {}),
+    ...(topChoice?.controls ? { topChoiceControls: topChoice.controls } : {}),
     ...(topChoice?.selector ? { topChoiceSelector: topChoice.selector } : {}),
     ...(topChoice?.reason ? { topChoiceReason: topChoice.reason } : {}),
     ...(sourceSearch ? { sourceSearchQuery: sourceSearch.query } : {}),
@@ -15823,8 +15833,13 @@ function summarizeAgentTopChoice(
   sitelinkCount?: number;
   isLikelyOfficial?: boolean;
   method?: string;
+  encodingType?: string;
   submitDisabled?: boolean;
   disabled?: boolean;
+  pressed?: SemanticNodeState["pressed"];
+  expanded?: boolean;
+  haspopup?: SemanticNodeState["haspopup"];
+  controls?: string;
   selector?: string;
   reason?: string;
 } | undefined {
@@ -15928,7 +15943,12 @@ function summarizeAgentTopChoice(
       rank: actionTarget.rank,
       source: actionTarget.source,
       ...(actionTarget.method ? { method: actionTarget.method } : {}),
+      ...(actionTarget.encodingType ? { encodingType: actionTarget.encodingType } : {}),
       ...(typeof actionTarget.disabled === "boolean" ? { disabled: actionTarget.disabled } : {}),
+      ...(typeof actionTarget.pressed !== "undefined" ? { pressed: actionTarget.pressed } : {}),
+      ...(typeof actionTarget.expanded === "boolean" ? { expanded: actionTarget.expanded } : {}),
+      ...(typeof actionTarget.haspopup !== "undefined" ? { haspopup: actionTarget.haspopup } : {}),
+      ...(actionTarget.controls ? { controls: actionTarget.controls } : {}),
       ...(actionTarget.selector ? { selector: actionTarget.selector } : {}),
     };
   }
@@ -18432,8 +18452,13 @@ function compactAgentTopChoice(agent: AgentSummary, searchCommandContext?: Searc
     ...(typeof agent.topChoiceSitelinkCount === "number" ? { topChoiceSitelinkCount: agent.topChoiceSitelinkCount } : {}),
     ...(typeof agent.topChoiceLikelyOfficial === "boolean" ? { topChoiceLikelyOfficial: agent.topChoiceLikelyOfficial } : {}),
     ...(agent.topChoiceMethod ? { topChoiceMethod: agent.topChoiceMethod } : {}),
+    ...(agent.topChoiceEncodingType ? { topChoiceEncodingType: agent.topChoiceEncodingType } : {}),
     ...(typeof agent.topChoiceSubmitDisabled === "boolean" ? { topChoiceSubmitDisabled: agent.topChoiceSubmitDisabled } : {}),
     ...(typeof agent.topChoiceDisabled === "boolean" ? { topChoiceDisabled: agent.topChoiceDisabled } : {}),
+    ...(typeof agent.topChoicePressed !== "undefined" ? { topChoicePressed: agent.topChoicePressed } : {}),
+    ...(typeof agent.topChoiceExpanded === "boolean" ? { topChoiceExpanded: agent.topChoiceExpanded } : {}),
+    ...(typeof agent.topChoiceHaspopup !== "undefined" ? { topChoiceHaspopup: agent.topChoiceHaspopup } : {}),
+    ...(agent.topChoiceControls ? { topChoiceControls: agent.topChoiceControls } : {}),
     ...(agent.topChoiceSelector ? { topChoiceSelector: agent.topChoiceSelector } : {}),
     ...(agent.topChoiceReason ? { topChoiceReason: agent.topChoiceReason } : {}),
   };

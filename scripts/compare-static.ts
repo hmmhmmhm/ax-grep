@@ -4425,8 +4425,13 @@ function scoreAgentTopChoiceShortcuts(agent: {
   topChoiceFindMatch?: string;
   topChoiceSitelinkCount?: number;
   topChoiceLikelyOfficial?: boolean;
+  topChoiceEncodingType?: string;
   topChoiceSubmitDisabled?: boolean;
   topChoiceDisabled?: boolean;
+  topChoicePressed?: unknown;
+  topChoiceExpanded?: boolean;
+  topChoiceHaspopup?: unknown;
+  topChoiceControls?: string;
 } | undefined): number {
   if (!agent) return 0;
   const result = agent.resultChoices?.[0];
@@ -4440,10 +4445,10 @@ function scoreAgentTopChoiceShortcuts(agent: {
       : form
         ? { kind: "form" as const, path: form.path, label: form.text, url: form.actionUrl ?? form.urlTemplate, actionUrl: form.actionUrl, urlTemplate: form.urlTemplate, queryField: form.queryField, command: form.command, commandArgs: form.commandArgs, submitDisabled: form.submitDisabled }
         : actionTarget
-          ? { kind: "action-target" as const, path: actionTarget.path, label: actionTarget.name || actionTarget.text, url: actionTarget.targetUrl ?? actionTarget.urlTemplate, targetUrl: actionTarget.targetUrl, urlTemplate: actionTarget.urlTemplate, queryInput: actionTarget.queryInput, command: actionTarget.command, commandArgs: actionTarget.commandArgs, disabled: actionTarget.disabled }
+          ? { kind: "action-target" as const, path: actionTarget.path, label: actionTarget.name || actionTarget.text, url: actionTarget.targetUrl ?? actionTarget.urlTemplate, targetUrl: actionTarget.targetUrl, urlTemplate: actionTarget.urlTemplate, queryInput: actionTarget.queryInput, command: actionTarget.command, commandArgs: actionTarget.commandArgs, encodingType: actionTarget.encodingType, disabled: actionTarget.disabled, pressed: actionTarget.pressed, expanded: actionTarget.expanded, haspopup: actionTarget.haspopup, controls: actionTarget.controls }
           : undefined;
   if (!expected) {
-    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceActionUrl && !agent.topChoiceTargetUrl && !agent.topChoiceUrlTemplate && !agent.topChoiceQueryField && !agent.topChoiceQueryInput && !agent.topChoiceHost && !agent.topChoiceSnippet && !agent.topChoiceDateText && !agent.topChoiceDateIso && typeof agent.topChoiceDateUnixMs !== "number" && !agent.topChoiceDatePrecision && !agent.topChoiceDateSource && !agent.topChoiceCommand && !agent.topChoiceCommandArgs && !agent.topChoiceFirstSitelinkTitle && !agent.topChoiceFirstSitelinkUrl && !agent.topChoiceFirstSitelinkSelector && !agent.topChoiceFirstSitelinkCommand && !agent.topChoiceFirstSitelinkCommandArgs && !agent.topChoiceOpenResult && typeof agent.topChoiceRecommended !== "boolean" && typeof agent.topChoicePrimary !== "boolean" && !agent.topChoiceSourceType && typeof agent.topChoiceSourceScore !== "number" && !agent.topChoiceSourceHints?.length && !agent.topChoiceRelevance && !agent.topChoiceMatchedTerm && !agent.topChoiceFindMatch && typeof agent.topChoiceSitelinkCount !== "number" && typeof agent.topChoiceLikelyOfficial !== "boolean" && typeof agent.topChoiceSubmitDisabled !== "boolean" && typeof agent.topChoiceDisabled !== "boolean" ? 1 : 0;
+    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceActionUrl && !agent.topChoiceTargetUrl && !agent.topChoiceUrlTemplate && !agent.topChoiceQueryField && !agent.topChoiceQueryInput && !agent.topChoiceHost && !agent.topChoiceSnippet && !agent.topChoiceDateText && !agent.topChoiceDateIso && typeof agent.topChoiceDateUnixMs !== "number" && !agent.topChoiceDatePrecision && !agent.topChoiceDateSource && !agent.topChoiceCommand && !agent.topChoiceCommandArgs && !agent.topChoiceFirstSitelinkTitle && !agent.topChoiceFirstSitelinkUrl && !agent.topChoiceFirstSitelinkSelector && !agent.topChoiceFirstSitelinkCommand && !agent.topChoiceFirstSitelinkCommandArgs && !agent.topChoiceOpenResult && typeof agent.topChoiceRecommended !== "boolean" && typeof agent.topChoicePrimary !== "boolean" && !agent.topChoiceSourceType && typeof agent.topChoiceSourceScore !== "number" && !agent.topChoiceSourceHints?.length && !agent.topChoiceRelevance && !agent.topChoiceMatchedTerm && !agent.topChoiceFindMatch && typeof agent.topChoiceSitelinkCount !== "number" && typeof agent.topChoiceLikelyOfficial !== "boolean" && !agent.topChoiceEncodingType && typeof agent.topChoiceSubmitDisabled !== "boolean" && typeof agent.topChoiceDisabled !== "boolean" && typeof agent.topChoicePressed === "undefined" && typeof agent.topChoiceExpanded !== "boolean" && typeof agent.topChoiceHaspopup === "undefined" && !agent.topChoiceControls ? 1 : 0;
   }
   let required = 2;
   let matched = 0;
@@ -4580,6 +4585,12 @@ function scoreAgentTopChoiceShortcuts(agent: {
   } else if (typeof agent.topChoiceLikelyOfficial === "boolean") {
     required += 1;
   }
+  if (expected.encodingType) {
+    required += 1;
+    if (agent.topChoiceEncodingType === expected.encodingType) matched += 1;
+  } else if (agent.topChoiceEncodingType) {
+    required += 1;
+  }
   if (typeof expected.submitDisabled === "boolean") {
     required += 1;
     if (agent.topChoiceSubmitDisabled === expected.submitDisabled) matched += 1;
@@ -4590,6 +4601,30 @@ function scoreAgentTopChoiceShortcuts(agent: {
     required += 1;
     if (agent.topChoiceDisabled === expected.disabled) matched += 1;
   } else if (typeof agent.topChoiceDisabled === "boolean") {
+    required += 1;
+  }
+  if (typeof expected.pressed !== "undefined") {
+    required += 1;
+    if (agent.topChoicePressed === expected.pressed) matched += 1;
+  } else if (typeof agent.topChoicePressed !== "undefined") {
+    required += 1;
+  }
+  if (typeof expected.expanded === "boolean") {
+    required += 1;
+    if (agent.topChoiceExpanded === expected.expanded) matched += 1;
+  } else if (typeof agent.topChoiceExpanded === "boolean") {
+    required += 1;
+  }
+  if (typeof expected.haspopup !== "undefined") {
+    required += 1;
+    if (agent.topChoiceHaspopup === expected.haspopup) matched += 1;
+  } else if (typeof agent.topChoiceHaspopup !== "undefined") {
+    required += 1;
+  }
+  if (expected.controls) {
+    required += 1;
+    if (agent.topChoiceControls === expected.controls) matched += 1;
+  } else if (agent.topChoiceControls) {
     required += 1;
   }
   return roundScore(matched / required);

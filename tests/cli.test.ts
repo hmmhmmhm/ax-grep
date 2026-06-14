@@ -1649,10 +1649,15 @@ describe("cli", () => {
         expect(envelope.agent.topChoiceRank).toBe(topActionTargetChoice.rank);
         expect(envelope.agent.topChoiceSource).toBe(topActionTargetChoice.source);
         if (topActionTargetChoice.method) expect(envelope.agent.topChoiceMethod).toBe(topActionTargetChoice.method);
+        if (topActionTargetChoice.encodingType) expect(envelope.agent.topChoiceEncodingType).toBe(topActionTargetChoice.encodingType);
         if (topActionTargetChoice.targetUrl) expect(envelope.agent.topChoiceTargetUrl).toBe(topActionTargetChoice.targetUrl);
         if (topActionTargetChoice.urlTemplate) expect(envelope.agent.topChoiceUrlTemplate).toBe(topActionTargetChoice.urlTemplate);
         if (topActionTargetChoice.queryInput) expect(envelope.agent.topChoiceQueryInput).toBe(topActionTargetChoice.queryInput);
         if (typeof topActionTargetChoice.disabled === "boolean") expect(envelope.agent.topChoiceDisabled).toBe(topActionTargetChoice.disabled);
+        if (typeof topActionTargetChoice.pressed !== "undefined") expect(envelope.agent.topChoicePressed).toBe(topActionTargetChoice.pressed);
+        if (typeof topActionTargetChoice.expanded === "boolean") expect(envelope.agent.topChoiceExpanded).toBe(topActionTargetChoice.expanded);
+        if (typeof topActionTargetChoice.haspopup !== "undefined") expect(envelope.agent.topChoiceHaspopup).toBe(topActionTargetChoice.haspopup);
+        if (topActionTargetChoice.controls) expect(envelope.agent.topChoiceControls).toBe(topActionTargetChoice.controls);
         if (topActionTargetChoice.selector) expect(envelope.agent.topChoiceSelector).toBe(topActionTargetChoice.selector);
       }
       if (executor.commandArgs) expect(handoff.commandArgs).toEqual(executor.commandArgs);
@@ -12112,7 +12117,7 @@ npx ax-grep https://example.test --agent</code></pre>
     });
 
     expect(status).toBe(0);
-    expect(stdout.output).toContain("  topChoice: action-target pageCheck.actionTargets[0] rank=1 source=link targetUrl=https://example.test/opensearch.xml disabled=true");
+    expect(stdout.output).toContain("  topChoice: action-target pageCheck.actionTargets[0] rank=1 source=link encoding=application/opensearchdescription+xml targetUrl=https://example.test/opensearch.xml disabled=true expanded=false haspopup=dialog controls=docs-search-panel");
     expect(stdout.output).toContain("  topActionTargetChoicePath: pageCheck.actionTargets[0]");
     expect(stdout.output).toContain("  topActionTargetChoiceKind: search");
     expect(stdout.output).toContain("  topActionTargetChoiceName: Docs OpenSearch");
