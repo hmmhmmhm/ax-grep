@@ -739,6 +739,11 @@ describe("public agent types", () => {
       | "searchDecisionFirstOfficialUrl"
       | "searchDecisionFirstOfficialSource"
       | "searchDecisionFirstOfficialSourceScore"
+      | "searchDecisionFirstOfficialDateText"
+      | "searchDecisionFirstOfficialDateIso"
+      | "searchDecisionFirstOfficialDateUnixMs"
+      | "searchDecisionFirstOfficialDatePrecision"
+      | "searchDecisionFirstOfficialDateSource"
       | "searchDecisionFirstOfficialRelevance"
       | "searchDecisionFirstOfficialCommand"
       | "searchDecisionFirstOfficialCommandArgs"
@@ -2022,6 +2027,11 @@ describe("public agent types", () => {
         firstOfficialUrl: "https://example.test",
         firstOfficialSource: "example.test",
         firstOfficialSourceScore: 0.92,
+        firstOfficialDateText: "2026-05-31",
+        firstOfficialDateIso: "2026-05-31T00:00:00.000Z",
+        firstOfficialDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
+        firstOfficialDatePrecision: "day",
+        firstOfficialDateSource: "snippet",
         firstOfficialRelevance: "high",
         firstOfficialCommand: "ax-grep https://example.test --agent",
         firstOfficialCommandArgs: ["ax-grep", "https://example.test", "--agent"],
@@ -2056,6 +2066,11 @@ describe("public agent types", () => {
       searchDecisionFirstOfficialUrl: "https://example.test",
       searchDecisionFirstOfficialSource: "example.test",
       searchDecisionFirstOfficialSourceScore: 0.92,
+      searchDecisionFirstOfficialDateText: "2026-05-31",
+      searchDecisionFirstOfficialDateIso: "2026-05-31T00:00:00.000Z",
+      searchDecisionFirstOfficialDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
+      searchDecisionFirstOfficialDatePrecision: "day",
+      searchDecisionFirstOfficialDateSource: "snippet",
       searchDecisionFirstOfficialRelevance: "high",
       searchDecisionFirstOfficialCommand: "ax-grep https://example.test --agent",
       searchDecisionFirstOfficialCommandArgs: ["ax-grep", "https://example.test", "--agent"],
@@ -3140,6 +3155,8 @@ describe("public agent types", () => {
     expect(summary.searchDecisionRecommendedLikelyOfficial).toBe(true);
     expect(summary.searchDecisionFirstOfficialPath).toBe("searchResults[0]");
     expect(summary.searchDecisionFirstOfficialSourceScore).toBe(0.92);
+    expect(summary.searchDecisionFirstOfficialDateIso).toBe("2026-05-31T00:00:00.000Z");
+    expect(summary.searchDecisionFirstOfficialDateUnixMs).toBe(Date.parse("2026-05-31T00:00:00.000Z"));
     expect(summary.searchDecisionFirstOfficialCommand).toContain("example.test");
     expect(summary.searchDecisionFirstOfficialCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.searchDecisionCommand).toContain("--open-result 1");

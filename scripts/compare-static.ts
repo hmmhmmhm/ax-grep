@@ -606,6 +606,11 @@ type CliAgentSearchDecisionShape = {
   firstOfficialUrl?: string;
   firstOfficialSource?: string;
   firstOfficialSourceScore?: number;
+  firstOfficialDateText?: string;
+  firstOfficialDateIso?: string;
+  firstOfficialDateUnixMs?: number;
+  firstOfficialDatePrecision?: CliSearchResultShape["datePrecision"];
+  firstOfficialDateSource?: CliSearchResultShape["dateSource"];
   firstOfficialRelevance?: CliSearchResultShape["relevance"];
   firstOfficialCommand?: string;
   firstOfficialCommandArgs?: unknown[];
@@ -1284,6 +1289,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       searchDecisionFirstOfficialUrl?: string;
       searchDecisionFirstOfficialSource?: string;
       searchDecisionFirstOfficialSourceScore?: number;
+      searchDecisionFirstOfficialDateText?: string;
+      searchDecisionFirstOfficialDateIso?: string;
+      searchDecisionFirstOfficialDateUnixMs?: number;
+      searchDecisionFirstOfficialDatePrecision?: CliSearchResultShape["datePrecision"];
+      searchDecisionFirstOfficialDateSource?: CliSearchResultShape["dateSource"];
       searchDecisionFirstOfficialRelevance?: CliSearchResultShape["relevance"];
       searchDecisionFirstOfficialCommand?: string;
       searchDecisionFirstOfficialCommandArgs?: string[];
@@ -6472,6 +6482,11 @@ function scoreAgentSearchDecision(
     searchDecisionFirstOfficialUrl?: string;
     searchDecisionFirstOfficialSource?: string;
     searchDecisionFirstOfficialSourceScore?: number;
+    searchDecisionFirstOfficialDateText?: string;
+    searchDecisionFirstOfficialDateIso?: string;
+    searchDecisionFirstOfficialDateUnixMs?: number;
+    searchDecisionFirstOfficialDatePrecision?: CliSearchResultShape["datePrecision"];
+    searchDecisionFirstOfficialDateSource?: CliSearchResultShape["dateSource"];
     searchDecisionFirstOfficialRelevance?: CliSearchResultShape["relevance"];
     searchDecisionFirstOfficialCommand?: string;
     searchDecisionFirstOfficialCommandArgs?: string[];
@@ -6604,6 +6619,36 @@ function scoreAgentSearchDecision(
     required += 1;
     if (agent?.searchDecisionFirstOfficialSourceScore === decision.firstOfficialSourceScore) matched += 1;
   } else if (typeof agent?.searchDecisionFirstOfficialSourceScore === "number") {
+    required += 1;
+  }
+  if (decision.firstOfficialDateText) {
+    required += 1;
+    if (agent?.searchDecisionFirstOfficialDateText === decision.firstOfficialDateText) matched += 1;
+  } else if (agent?.searchDecisionFirstOfficialDateText) {
+    required += 1;
+  }
+  if (decision.firstOfficialDateIso) {
+    required += 1;
+    if (agent?.searchDecisionFirstOfficialDateIso === decision.firstOfficialDateIso) matched += 1;
+  } else if (agent?.searchDecisionFirstOfficialDateIso) {
+    required += 1;
+  }
+  if (typeof decision.firstOfficialDateUnixMs === "number") {
+    required += 1;
+    if (agent?.searchDecisionFirstOfficialDateUnixMs === decision.firstOfficialDateUnixMs) matched += 1;
+  } else if (typeof agent?.searchDecisionFirstOfficialDateUnixMs === "number") {
+    required += 1;
+  }
+  if (decision.firstOfficialDatePrecision) {
+    required += 1;
+    if (agent?.searchDecisionFirstOfficialDatePrecision === decision.firstOfficialDatePrecision) matched += 1;
+  } else if (agent?.searchDecisionFirstOfficialDatePrecision) {
+    required += 1;
+  }
+  if (decision.firstOfficialDateSource) {
+    required += 1;
+    if (agent?.searchDecisionFirstOfficialDateSource === decision.firstOfficialDateSource) matched += 1;
+  } else if (agent?.searchDecisionFirstOfficialDateSource) {
     required += 1;
   }
   if (decision.firstOfficialRelevance) {

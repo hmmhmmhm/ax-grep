@@ -750,6 +750,11 @@ export type AgentSearchDecision = {
   firstOfficialUrl?: string;
   firstOfficialSource?: string;
   firstOfficialSourceScore?: number;
+  firstOfficialDateText?: string;
+  firstOfficialDateIso?: string;
+  firstOfficialDateUnixMs?: number;
+  firstOfficialDatePrecision?: "day" | "month" | "year";
+  firstOfficialDateSource?: "title" | "snippet";
   firstOfficialRelevance?: "low" | "medium" | "high";
   firstOfficialCommand?: string;
   firstOfficialCommandArgs?: string[];
@@ -1412,6 +1417,11 @@ export type AgentSummary = {
   searchDecisionFirstOfficialUrl?: string;
   searchDecisionFirstOfficialSource?: string;
   searchDecisionFirstOfficialSourceScore?: number;
+  searchDecisionFirstOfficialDateText?: string;
+  searchDecisionFirstOfficialDateIso?: string;
+  searchDecisionFirstOfficialDateUnixMs?: number;
+  searchDecisionFirstOfficialDatePrecision?: "day" | "month" | "year";
+  searchDecisionFirstOfficialDateSource?: "title" | "snippet";
   searchDecisionFirstOfficialRelevance?: "low" | "medium" | "high";
   searchDecisionFirstOfficialCommand?: string;
   searchDecisionFirstOfficialCommandArgs?: string[];

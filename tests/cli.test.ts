@@ -2714,6 +2714,11 @@ describe("cli", () => {
       searchDecisionFirstOfficialUrl: "https://www.npmjs.com/package/ax-grep",
       searchDecisionFirstOfficialSource: "npmjs.com",
       searchDecisionFirstOfficialSourceScore: 0.9,
+      searchDecisionFirstOfficialDateText: "2026-05-31",
+      searchDecisionFirstOfficialDateIso: "2026-05-31T00:00:00.000Z",
+      searchDecisionFirstOfficialDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
+      searchDecisionFirstOfficialDatePrecision: "day",
+      searchDecisionFirstOfficialDateSource: "snippet",
       searchDecisionFirstOfficialRelevance: "high",
       searchDecisionFirstOfficialCommand: "ax-grep 'https://www.npmjs.com/package/ax-grep' --json --summary",
       searchDecisionFirstOfficialCommandArgs: ["ax-grep", "https://www.npmjs.com/package/ax-grep", "--json", "--summary"],
@@ -2823,6 +2828,11 @@ describe("cli", () => {
     expect(stdout.output).toContain("  recommendedDateSource: snippet");
     expect(stdout.output).toContain("  searchDecisionRecommendedDateText: 2026-05-31");
     expect(stdout.output).toContain("  searchDecisionRecommendedDateIso: 2026-05-31T00:00:00.000Z");
+    expect(stdout.output).toContain("  searchDecisionFirstOfficialDateText: 2026-05-31");
+    expect(stdout.output).toContain("  searchDecisionFirstOfficialDateIso: 2026-05-31T00:00:00.000Z");
+    expect(stdout.output).toContain("  searchDecisionFirstOfficialDateUnixMs: 1780185600000");
+    expect(stdout.output).toContain("  searchDecisionFirstOfficialDatePrecision: day");
+    expect(stdout.output).toContain("  searchDecisionFirstOfficialDateSource: snippet");
     expect(stdout.output).toContain("  searchDecisionRecommendedDatePrecision: day");
     expect(stdout.output).toContain("  searchDecisionRecommendedDateSource: snippet");
     expect(stdout.output).toContain("  topActionTargetDateText: 2026-05-31");
