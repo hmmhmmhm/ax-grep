@@ -535,6 +535,8 @@ type CliSearchResultShape = {
   rank?: number;
   url?: string;
   source?: string;
+  sourceType?: "official" | "trusted" | "community" | "unknown";
+  sourceHints?: string[];
   snippet?: string;
   dateText?: string;
   date?: string;
@@ -596,6 +598,8 @@ type CliAgentSearchDecisionShape = {
   recommendedUrl?: string;
   recommendedSource?: string;
   recommendedSourceScore?: number;
+  recommendedSourceType?: CliSearchResultShape["sourceType"];
+  recommendedSourceHints?: string[];
   recommendedDateIso?: string;
   recommendedDateUnixMs?: number;
   recommendedRelevance?: CliSearchResultShape["relevance"];
@@ -606,6 +610,8 @@ type CliAgentSearchDecisionShape = {
   firstOfficialUrl?: string;
   firstOfficialSource?: string;
   firstOfficialSourceScore?: number;
+  firstOfficialSourceType?: CliSearchResultShape["sourceType"];
+  firstOfficialSourceHints?: string[];
   firstOfficialDateText?: string;
   firstOfficialDateIso?: string;
   firstOfficialDateUnixMs?: number;
@@ -1402,6 +1408,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       recommendedTitle?: string;
       recommendedSource?: string;
       recommendedSourceScore?: number;
+      recommendedSourceType?: CliSearchResultShape["sourceType"];
+      recommendedSourceHints?: string[];
       recommendedDateIso?: string;
       recommendedDateUnixMs?: number;
       recommendedRelevance?: "low" | "medium" | "high";
@@ -6474,6 +6482,8 @@ function scoreAgentSearchDecision(
     searchDecisionRecommendedUrl?: string;
     searchDecisionRecommendedSource?: string;
     searchDecisionRecommendedSourceScore?: number;
+    searchDecisionRecommendedSourceType?: CliSearchResultShape["sourceType"];
+    searchDecisionRecommendedSourceHints?: string[];
     searchDecisionRecommendedRelevance?: CliSearchResultShape["relevance"];
     searchDecisionRecommendedLikelyOfficial?: boolean;
     searchDecisionFirstOfficialRank?: number;
@@ -6482,6 +6492,8 @@ function scoreAgentSearchDecision(
     searchDecisionFirstOfficialUrl?: string;
     searchDecisionFirstOfficialSource?: string;
     searchDecisionFirstOfficialSourceScore?: number;
+    searchDecisionFirstOfficialSourceType?: CliSearchResultShape["sourceType"];
+    searchDecisionFirstOfficialSourceHints?: string[];
     searchDecisionFirstOfficialDateText?: string;
     searchDecisionFirstOfficialDateIso?: string;
     searchDecisionFirstOfficialDateUnixMs?: number;
@@ -6573,6 +6585,18 @@ function scoreAgentSearchDecision(
   } else if (typeof agent?.searchDecisionRecommendedSourceScore === "number") {
     required += 1;
   }
+  if (decision.recommendedSourceType) {
+    required += 1;
+    if (agent?.searchDecisionRecommendedSourceType === decision.recommendedSourceType) matched += 1;
+  } else if (agent?.searchDecisionRecommendedSourceType) {
+    required += 1;
+  }
+  if (decision.recommendedSourceHints?.length) {
+    required += 1;
+    if (JSON.stringify(agent?.searchDecisionRecommendedSourceHints) === JSON.stringify(decision.recommendedSourceHints)) matched += 1;
+  } else if (agent?.searchDecisionRecommendedSourceHints?.length) {
+    required += 1;
+  }
   if (decision.recommendedRelevance) {
     required += 1;
     if (agent?.searchDecisionRecommendedRelevance === decision.recommendedRelevance) matched += 1;
@@ -6619,6 +6643,18 @@ function scoreAgentSearchDecision(
     required += 1;
     if (agent?.searchDecisionFirstOfficialSourceScore === decision.firstOfficialSourceScore) matched += 1;
   } else if (typeof agent?.searchDecisionFirstOfficialSourceScore === "number") {
+    required += 1;
+  }
+  if (decision.firstOfficialSourceType) {
+    required += 1;
+    if (agent?.searchDecisionFirstOfficialSourceType === decision.firstOfficialSourceType) matched += 1;
+  } else if (agent?.searchDecisionFirstOfficialSourceType) {
+    required += 1;
+  }
+  if (decision.firstOfficialSourceHints?.length) {
+    required += 1;
+    if (JSON.stringify(agent?.searchDecisionFirstOfficialSourceHints) === JSON.stringify(decision.firstOfficialSourceHints)) matched += 1;
+  } else if (agent?.searchDecisionFirstOfficialSourceHints?.length) {
     required += 1;
   }
   if (decision.firstOfficialDateText) {
@@ -10312,6 +10348,8 @@ function scoreAgentRecommendedMetadata(
     recommendedTitle?: string;
     recommendedSource?: string;
     recommendedSourceScore?: number;
+    recommendedSourceType?: CliSearchResultShape["sourceType"];
+    recommendedSourceHints?: string[];
     recommendedDateIso?: string;
     recommendedDateUnixMs?: number;
     recommendedRelevance?: "low" | "medium" | "high";
@@ -10348,6 +10386,14 @@ function scoreAgentRecommendedMetadata(
   if (typeof recommendedResult.sourceScore === "number") {
     required += 1;
     if (agent?.recommendedSourceScore === recommendedResult.sourceScore) matched += 1;
+  }
+  if (recommendedResult.sourceType) {
+    required += 1;
+    if (agent?.recommendedSourceType === recommendedResult.sourceType) matched += 1;
+  }
+  if (recommendedResult.sourceHints?.length) {
+    required += 1;
+    if (JSON.stringify(agent?.recommendedSourceHints) === JSON.stringify(recommendedResult.sourceHints)) matched += 1;
   }
   if (recommendedResult.dateIso) {
     required += 1;

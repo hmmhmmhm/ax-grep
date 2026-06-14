@@ -137,6 +137,8 @@ type AgentSearchDecision = {
   recommendedUrl?: string;
   recommendedSource?: string;
   recommendedSourceScore?: number;
+  recommendedSourceType?: ResultSummary["sourceType"];
+  recommendedSourceHints?: string[];
   recommendedDateText?: string;
   recommendedDateIso?: string;
   recommendedDateUnixMs?: number;
@@ -150,6 +152,8 @@ type AgentSearchDecision = {
   firstOfficialUrl?: string;
   firstOfficialSource?: string;
   firstOfficialSourceScore?: number;
+  firstOfficialSourceType?: ResultSummary["sourceType"];
+  firstOfficialSourceHints?: string[];
   firstOfficialDateText?: string;
   firstOfficialDateIso?: string;
   firstOfficialDateUnixMs?: number;
@@ -1037,6 +1041,8 @@ type AgentSummary = {
   searchDecisionRecommendedUrl?: string;
   searchDecisionRecommendedSource?: string;
   searchDecisionRecommendedSourceScore?: number;
+  searchDecisionRecommendedSourceType?: ResultSummary["sourceType"];
+  searchDecisionRecommendedSourceHints?: string[];
   searchDecisionRecommendedDateText?: string;
   searchDecisionRecommendedDateIso?: string;
   searchDecisionRecommendedDateUnixMs?: number;
@@ -1050,6 +1056,8 @@ type AgentSummary = {
   searchDecisionFirstOfficialUrl?: string;
   searchDecisionFirstOfficialSource?: string;
   searchDecisionFirstOfficialSourceScore?: number;
+  searchDecisionFirstOfficialSourceType?: ResultSummary["sourceType"];
+  searchDecisionFirstOfficialSourceHints?: string[];
   searchDecisionFirstOfficialDateText?: string;
   searchDecisionFirstOfficialDateIso?: string;
   searchDecisionFirstOfficialDateUnixMs?: number;
@@ -2248,6 +2256,8 @@ type AgentSummary = {
   recommendedRank?: number;
   recommendedSource?: string;
   recommendedSourceScore?: number;
+  recommendedSourceType?: ResultSummary["sourceType"];
+  recommendedSourceHints?: string[];
   recommendedDateText?: string;
   recommendedDateIso?: string;
   recommendedDateUnixMs?: number;
@@ -3914,6 +3924,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.searchDecisionRecommendedUrl ? [`  searchDecisionRecommendedUrl: ${agent.searchDecisionRecommendedUrl}`] : []),
     ...(agent.searchDecisionRecommendedSource ? [`  searchDecisionRecommendedSource: ${agent.searchDecisionRecommendedSource}`] : []),
     ...(typeof agent.searchDecisionRecommendedSourceScore === "number" ? [`  searchDecisionRecommendedSourceScore: ${agent.searchDecisionRecommendedSourceScore}`] : []),
+    ...(agent.searchDecisionRecommendedSourceType ? [`  searchDecisionRecommendedSourceType: ${agent.searchDecisionRecommendedSourceType}`] : []),
+    ...(agent.searchDecisionRecommendedSourceHints?.length ? [`  searchDecisionRecommendedSourceHints: ${agent.searchDecisionRecommendedSourceHints.join(",")}`] : []),
     ...(agent.searchDecisionRecommendedDateText ? [`  searchDecisionRecommendedDateText: ${agent.searchDecisionRecommendedDateText}`] : []),
     ...(agent.searchDecisionRecommendedDateIso ? [`  searchDecisionRecommendedDateIso: ${agent.searchDecisionRecommendedDateIso}`] : []),
     ...(typeof agent.searchDecisionRecommendedDateUnixMs === "number" ? [`  searchDecisionRecommendedDateUnixMs: ${agent.searchDecisionRecommendedDateUnixMs}`] : []),
@@ -3927,6 +3939,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.searchDecisionFirstOfficialUrl ? [`  searchDecisionFirstOfficialUrl: ${agent.searchDecisionFirstOfficialUrl}`] : []),
     ...(agent.searchDecisionFirstOfficialSource ? [`  searchDecisionFirstOfficialSource: ${agent.searchDecisionFirstOfficialSource}`] : []),
     ...(typeof agent.searchDecisionFirstOfficialSourceScore === "number" ? [`  searchDecisionFirstOfficialSourceScore: ${agent.searchDecisionFirstOfficialSourceScore}`] : []),
+    ...(agent.searchDecisionFirstOfficialSourceType ? [`  searchDecisionFirstOfficialSourceType: ${agent.searchDecisionFirstOfficialSourceType}`] : []),
+    ...(agent.searchDecisionFirstOfficialSourceHints?.length ? [`  searchDecisionFirstOfficialSourceHints: ${agent.searchDecisionFirstOfficialSourceHints.join(",")}`] : []),
     ...(agent.searchDecisionFirstOfficialDateText ? [`  searchDecisionFirstOfficialDateText: ${agent.searchDecisionFirstOfficialDateText}`] : []),
     ...(agent.searchDecisionFirstOfficialDateIso ? [`  searchDecisionFirstOfficialDateIso: ${agent.searchDecisionFirstOfficialDateIso}`] : []),
     ...(typeof agent.searchDecisionFirstOfficialDateUnixMs === "number" ? [`  searchDecisionFirstOfficialDateUnixMs: ${agent.searchDecisionFirstOfficialDateUnixMs}`] : []),
@@ -4723,6 +4737,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.recommendedRank) lines.push(`  recommendedRank: ${agent.recommendedRank}`);
   if (agent.recommendedSource) lines.push(`  recommendedSource: ${agent.recommendedSource}`);
   if (typeof agent.recommendedSourceScore === "number") lines.push(`  recommendedSourceScore: ${agent.recommendedSourceScore}`);
+  if (agent.recommendedSourceType) lines.push(`  recommendedSourceType: ${agent.recommendedSourceType}`);
+  if (agent.recommendedSourceHints?.length) lines.push(`  recommendedSourceHints: ${agent.recommendedSourceHints.join(",")}`);
   if (agent.recommendedDateText) lines.push(`  recommendedDateText: ${agent.recommendedDateText}`);
   if (agent.recommendedDateIso) lines.push(`  recommendedDateIso: ${agent.recommendedDateIso}`);
   if (typeof agent.recommendedDateUnixMs === "number") lines.push(`  recommendedDateUnixMs: ${agent.recommendedDateUnixMs}`);
@@ -12483,6 +12499,8 @@ function summarizeAgent(
     ...(searchDecision?.recommendedUrl ? { searchDecisionRecommendedUrl: searchDecision.recommendedUrl } : {}),
     ...(searchDecision?.recommendedSource ? { searchDecisionRecommendedSource: searchDecision.recommendedSource } : {}),
     ...(typeof searchDecision?.recommendedSourceScore === "number" ? { searchDecisionRecommendedSourceScore: searchDecision.recommendedSourceScore } : {}),
+    ...(searchDecision?.recommendedSourceType ? { searchDecisionRecommendedSourceType: searchDecision.recommendedSourceType } : {}),
+    ...(searchDecision?.recommendedSourceHints?.length ? { searchDecisionRecommendedSourceHints: searchDecision.recommendedSourceHints } : {}),
     ...(searchDecision?.recommendedDateText ? { searchDecisionRecommendedDateText: searchDecision.recommendedDateText } : {}),
     ...(searchDecision?.recommendedDateIso ? { searchDecisionRecommendedDateIso: searchDecision.recommendedDateIso } : {}),
     ...(typeof searchDecision?.recommendedDateUnixMs === "number" ? { searchDecisionRecommendedDateUnixMs: searchDecision.recommendedDateUnixMs } : {}),
@@ -12496,6 +12514,8 @@ function summarizeAgent(
     ...(searchDecision?.firstOfficialUrl ? { searchDecisionFirstOfficialUrl: searchDecision.firstOfficialUrl } : {}),
     ...(searchDecision?.firstOfficialSource ? { searchDecisionFirstOfficialSource: searchDecision.firstOfficialSource } : {}),
     ...(typeof searchDecision?.firstOfficialSourceScore === "number" ? { searchDecisionFirstOfficialSourceScore: searchDecision.firstOfficialSourceScore } : {}),
+    ...(searchDecision?.firstOfficialSourceType ? { searchDecisionFirstOfficialSourceType: searchDecision.firstOfficialSourceType } : {}),
+    ...(searchDecision?.firstOfficialSourceHints?.length ? { searchDecisionFirstOfficialSourceHints: searchDecision.firstOfficialSourceHints } : {}),
     ...(searchDecision?.firstOfficialDateText ? { searchDecisionFirstOfficialDateText: searchDecision.firstOfficialDateText } : {}),
     ...(searchDecision?.firstOfficialDateIso ? { searchDecisionFirstOfficialDateIso: searchDecision.firstOfficialDateIso } : {}),
     ...(typeof searchDecision?.firstOfficialDateUnixMs === "number" ? { searchDecisionFirstOfficialDateUnixMs: searchDecision.firstOfficialDateUnixMs } : {}),
@@ -13686,6 +13706,8 @@ function summarizeAgent(
     agent.recommendedRank = recommendedResult.rank;
     agent.recommendedSource = recommendedResult.source;
     if (typeof recommendedResult.sourceScore === "number") agent.recommendedSourceScore = recommendedResult.sourceScore;
+    if (recommendedResult.sourceType) agent.recommendedSourceType = recommendedResult.sourceType;
+    if (recommendedResult.sourceHints?.length) agent.recommendedSourceHints = recommendedResult.sourceHints;
     if (recommendedResult.dateText) agent.recommendedDateText = recommendedResult.dateText;
     if (recommendedResult.dateIso) agent.recommendedDateIso = recommendedResult.dateIso;
     if (typeof recommendedResult.dateUnixMs === "number") agent.recommendedDateUnixMs = recommendedResult.dateUnixMs;
@@ -14071,6 +14093,8 @@ function summarizeAgentSearchDecision(
     firstOfficialUrl: firstOfficial.url,
     firstOfficialSource: firstOfficial.source,
     ...(typeof firstOfficial.sourceScore === "number" ? { firstOfficialSourceScore: firstOfficial.sourceScore } : {}),
+    ...(firstOfficial.sourceType ? { firstOfficialSourceType: firstOfficial.sourceType } : {}),
+    ...(firstOfficial.sourceHints?.length ? { firstOfficialSourceHints: firstOfficial.sourceHints } : {}),
     ...(firstOfficial.dateText ? { firstOfficialDateText: firstOfficial.dateText } : {}),
     ...(firstOfficial.dateIso ? { firstOfficialDateIso: firstOfficial.dateIso } : {}),
     ...(typeof firstOfficial.dateUnixMs === "number" ? { firstOfficialDateUnixMs: firstOfficial.dateUnixMs } : {}),
@@ -14097,6 +14121,8 @@ function summarizeAgentSearchDecision(
       recommendedUrl: recommendedResult.url,
       recommendedSource: recommendedResult.source,
       ...(typeof recommendedResult.sourceScore === "number" ? { recommendedSourceScore: recommendedResult.sourceScore } : {}),
+      ...(recommendedResult.sourceType ? { recommendedSourceType: recommendedResult.sourceType } : {}),
+      ...(recommendedResult.sourceHints?.length ? { recommendedSourceHints: recommendedResult.sourceHints } : {}),
       ...(recommendedResult.dateText ? { recommendedDateText: recommendedResult.dateText } : {}),
       ...(recommendedResult.dateIso ? { recommendedDateIso: recommendedResult.dateIso } : {}),
       ...(typeof recommendedResult.dateUnixMs === "number" ? { recommendedDateUnixMs: recommendedResult.dateUnixMs } : {}),
@@ -18254,6 +18280,8 @@ function compactAgentRecommended(agent: AgentSummary, searchCommandContext?: Sea
     ...(agent.recommendedRank ? { recommendedRank: agent.recommendedRank } : {}),
     ...(agent.recommendedSource ? { recommendedSource: agent.recommendedSource } : {}),
     ...(typeof agent.recommendedSourceScore === "number" ? { recommendedSourceScore: agent.recommendedSourceScore } : {}),
+    ...(agent.recommendedSourceType ? { recommendedSourceType: agent.recommendedSourceType } : {}),
+    ...(agent.recommendedSourceHints?.length ? { recommendedSourceHints: agent.recommendedSourceHints } : {}),
     ...(agent.recommendedDateText ? { recommendedDateText: agent.recommendedDateText } : {}),
     ...(agent.recommendedDateIso ? { recommendedDateIso: agent.recommendedDateIso } : {}),
     ...(typeof agent.recommendedDateUnixMs === "number" ? { recommendedDateUnixMs: agent.recommendedDateUnixMs } : {}),
@@ -18366,6 +18394,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.searchDecisionRecommendedUrl ? { searchDecisionRecommendedUrl: agent.searchDecisionRecommendedUrl } : {}),
     ...(agent.searchDecisionRecommendedSource ? { searchDecisionRecommendedSource: agent.searchDecisionRecommendedSource } : {}),
     ...(typeof agent.searchDecisionRecommendedSourceScore === "number" ? { searchDecisionRecommendedSourceScore: agent.searchDecisionRecommendedSourceScore } : {}),
+    ...(agent.searchDecisionRecommendedSourceType ? { searchDecisionRecommendedSourceType: agent.searchDecisionRecommendedSourceType } : {}),
+    ...(agent.searchDecisionRecommendedSourceHints?.length ? { searchDecisionRecommendedSourceHints: agent.searchDecisionRecommendedSourceHints } : {}),
     ...(agent.searchDecisionRecommendedDateText ? { searchDecisionRecommendedDateText: agent.searchDecisionRecommendedDateText } : {}),
     ...(agent.searchDecisionRecommendedDateIso ? { searchDecisionRecommendedDateIso: agent.searchDecisionRecommendedDateIso } : {}),
     ...(typeof agent.searchDecisionRecommendedDateUnixMs === "number" ? { searchDecisionRecommendedDateUnixMs: agent.searchDecisionRecommendedDateUnixMs } : {}),
@@ -18379,6 +18409,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.searchDecisionFirstOfficialUrl ? { searchDecisionFirstOfficialUrl: agent.searchDecisionFirstOfficialUrl } : {}),
     ...(agent.searchDecisionFirstOfficialSource ? { searchDecisionFirstOfficialSource: agent.searchDecisionFirstOfficialSource } : {}),
     ...(typeof agent.searchDecisionFirstOfficialSourceScore === "number" ? { searchDecisionFirstOfficialSourceScore: agent.searchDecisionFirstOfficialSourceScore } : {}),
+    ...(agent.searchDecisionFirstOfficialSourceType ? { searchDecisionFirstOfficialSourceType: agent.searchDecisionFirstOfficialSourceType } : {}),
+    ...(agent.searchDecisionFirstOfficialSourceHints?.length ? { searchDecisionFirstOfficialSourceHints: agent.searchDecisionFirstOfficialSourceHints } : {}),
     ...(agent.searchDecisionFirstOfficialDateText ? { searchDecisionFirstOfficialDateText: agent.searchDecisionFirstOfficialDateText } : {}),
     ...(agent.searchDecisionFirstOfficialDateIso ? { searchDecisionFirstOfficialDateIso: agent.searchDecisionFirstOfficialDateIso } : {}),
     ...(typeof agent.searchDecisionFirstOfficialDateUnixMs === "number" ? { searchDecisionFirstOfficialDateUnixMs: agent.searchDecisionFirstOfficialDateUnixMs } : {}),
@@ -19645,6 +19677,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.searchDecisionRecommendedUrl ? { searchDecisionRecommendedUrl: agent.searchDecisionRecommendedUrl } : {}),
     ...(agent.searchDecisionRecommendedSource ? { searchDecisionRecommendedSource: agent.searchDecisionRecommendedSource } : {}),
     ...(typeof agent.searchDecisionRecommendedSourceScore === "number" ? { searchDecisionRecommendedSourceScore: agent.searchDecisionRecommendedSourceScore } : {}),
+    ...(agent.searchDecisionRecommendedSourceType ? { searchDecisionRecommendedSourceType: agent.searchDecisionRecommendedSourceType } : {}),
+    ...(agent.searchDecisionRecommendedSourceHints?.length ? { searchDecisionRecommendedSourceHints: agent.searchDecisionRecommendedSourceHints } : {}),
     ...(agent.searchDecisionRecommendedDateText ? { searchDecisionRecommendedDateText: agent.searchDecisionRecommendedDateText } : {}),
     ...(agent.searchDecisionRecommendedDateIso ? { searchDecisionRecommendedDateIso: agent.searchDecisionRecommendedDateIso } : {}),
     ...(typeof agent.searchDecisionRecommendedDateUnixMs === "number" ? { searchDecisionRecommendedDateUnixMs: agent.searchDecisionRecommendedDateUnixMs } : {}),
@@ -19658,6 +19692,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.searchDecisionFirstOfficialUrl ? { searchDecisionFirstOfficialUrl: agent.searchDecisionFirstOfficialUrl } : {}),
     ...(agent.searchDecisionFirstOfficialSource ? { searchDecisionFirstOfficialSource: agent.searchDecisionFirstOfficialSource } : {}),
     ...(typeof agent.searchDecisionFirstOfficialSourceScore === "number" ? { searchDecisionFirstOfficialSourceScore: agent.searchDecisionFirstOfficialSourceScore } : {}),
+    ...(agent.searchDecisionFirstOfficialSourceType ? { searchDecisionFirstOfficialSourceType: agent.searchDecisionFirstOfficialSourceType } : {}),
+    ...(agent.searchDecisionFirstOfficialSourceHints?.length ? { searchDecisionFirstOfficialSourceHints: agent.searchDecisionFirstOfficialSourceHints } : {}),
     ...(agent.searchDecisionFirstOfficialDateText ? { searchDecisionFirstOfficialDateText: agent.searchDecisionFirstOfficialDateText } : {}),
     ...(agent.searchDecisionFirstOfficialDateIso ? { searchDecisionFirstOfficialDateIso: agent.searchDecisionFirstOfficialDateIso } : {}),
     ...(typeof agent.searchDecisionFirstOfficialDateUnixMs === "number" ? { searchDecisionFirstOfficialDateUnixMs: agent.searchDecisionFirstOfficialDateUnixMs } : {}),

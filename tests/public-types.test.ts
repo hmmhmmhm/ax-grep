@@ -726,6 +726,8 @@ describe("public agent types", () => {
       | "searchDecisionRecommendedUrl"
       | "searchDecisionRecommendedSource"
       | "searchDecisionRecommendedSourceScore"
+      | "searchDecisionRecommendedSourceType"
+      | "searchDecisionRecommendedSourceHints"
       | "searchDecisionRecommendedDateText"
       | "searchDecisionRecommendedDateIso"
       | "searchDecisionRecommendedDateUnixMs"
@@ -739,6 +741,8 @@ describe("public agent types", () => {
       | "searchDecisionFirstOfficialUrl"
       | "searchDecisionFirstOfficialSource"
       | "searchDecisionFirstOfficialSourceScore"
+      | "searchDecisionFirstOfficialSourceType"
+      | "searchDecisionFirstOfficialSourceHints"
       | "searchDecisionFirstOfficialDateText"
       | "searchDecisionFirstOfficialDateIso"
       | "searchDecisionFirstOfficialDateUnixMs"
@@ -1493,6 +1497,8 @@ describe("public agent types", () => {
       | "recommendedRank"
       | "recommendedSource"
       | "recommendedSourceScore"
+      | "recommendedSourceType"
+      | "recommendedSourceHints"
       | "recommendedDateText"
       | "recommendedDateIso"
       | "recommendedDateUnixMs"
@@ -2014,6 +2020,8 @@ describe("public agent types", () => {
         recommendedUrl: "https://example.test",
         recommendedSource: "example.test",
         recommendedSourceScore: 0.92,
+        recommendedSourceType: "official",
+        recommendedSourceHints: ["documentation"],
         recommendedDateText: "2026-05-31",
         recommendedDateIso: "2026-05-31T00:00:00.000Z",
         recommendedDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
@@ -2027,6 +2035,8 @@ describe("public agent types", () => {
         firstOfficialUrl: "https://example.test",
         firstOfficialSource: "example.test",
         firstOfficialSourceScore: 0.92,
+        firstOfficialSourceType: "official",
+        firstOfficialSourceHints: ["documentation"],
         firstOfficialDateText: "2026-05-31",
         firstOfficialDateIso: "2026-05-31T00:00:00.000Z",
         firstOfficialDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
@@ -2053,6 +2063,8 @@ describe("public agent types", () => {
       searchDecisionRecommendedUrl: "https://example.test",
       searchDecisionRecommendedSource: "example.test",
       searchDecisionRecommendedSourceScore: 0.92,
+      searchDecisionRecommendedSourceType: "official",
+      searchDecisionRecommendedSourceHints: ["documentation"],
       searchDecisionRecommendedDateText: "2026-05-31",
       searchDecisionRecommendedDateIso: "2026-05-31T00:00:00.000Z",
       searchDecisionRecommendedDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
@@ -2066,6 +2078,8 @@ describe("public agent types", () => {
       searchDecisionFirstOfficialUrl: "https://example.test",
       searchDecisionFirstOfficialSource: "example.test",
       searchDecisionFirstOfficialSourceScore: 0.92,
+      searchDecisionFirstOfficialSourceType: "official",
+      searchDecisionFirstOfficialSourceHints: ["documentation"],
       searchDecisionFirstOfficialDateText: "2026-05-31",
       searchDecisionFirstOfficialDateIso: "2026-05-31T00:00:00.000Z",
       searchDecisionFirstOfficialDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
@@ -2891,6 +2905,8 @@ describe("public agent types", () => {
       recommendedRank: 1,
       recommendedSource: "example.test",
       recommendedSourceScore: 0.92,
+      recommendedSourceType: "official",
+      recommendedSourceHints: ["documentation"],
       recommendedDateText: "2026-05-31",
       recommendedDateIso: "2026-05-31T00:00:00.000Z",
       recommendedDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),

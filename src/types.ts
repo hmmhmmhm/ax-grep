@@ -737,6 +737,8 @@ export type AgentSearchDecision = {
   recommendedUrl?: string;
   recommendedSource?: string;
   recommendedSourceScore?: number;
+  recommendedSourceType?: AgentTarget["sourceType"];
+  recommendedSourceHints?: string[];
   recommendedDateText?: string;
   recommendedDateIso?: string;
   recommendedDateUnixMs?: number;
@@ -750,6 +752,8 @@ export type AgentSearchDecision = {
   firstOfficialUrl?: string;
   firstOfficialSource?: string;
   firstOfficialSourceScore?: number;
+  firstOfficialSourceType?: AgentTarget["sourceType"];
+  firstOfficialSourceHints?: string[];
   firstOfficialDateText?: string;
   firstOfficialDateIso?: string;
   firstOfficialDateUnixMs?: number;
@@ -1404,6 +1408,8 @@ export type AgentSummary = {
   searchDecisionRecommendedUrl?: string;
   searchDecisionRecommendedSource?: string;
   searchDecisionRecommendedSourceScore?: number;
+  searchDecisionRecommendedSourceType?: AgentTarget["sourceType"];
+  searchDecisionRecommendedSourceHints?: string[];
   searchDecisionRecommendedDateText?: string;
   searchDecisionRecommendedDateIso?: string;
   searchDecisionRecommendedDateUnixMs?: number;
@@ -1417,6 +1423,8 @@ export type AgentSummary = {
   searchDecisionFirstOfficialUrl?: string;
   searchDecisionFirstOfficialSource?: string;
   searchDecisionFirstOfficialSourceScore?: number;
+  searchDecisionFirstOfficialSourceType?: AgentTarget["sourceType"];
+  searchDecisionFirstOfficialSourceHints?: string[];
   searchDecisionFirstOfficialDateText?: string;
   searchDecisionFirstOfficialDateIso?: string;
   searchDecisionFirstOfficialDateUnixMs?: number;
@@ -2612,6 +2620,8 @@ export type AgentSummary = {
   recommendedRank?: number;
   recommendedSource?: string;
   recommendedSourceScore?: number;
+  recommendedSourceType?: AgentTarget["sourceType"];
+  recommendedSourceHints?: string[];
   recommendedDateText?: string;
   recommendedDateIso?: string;
   recommendedDateUnixMs?: number;

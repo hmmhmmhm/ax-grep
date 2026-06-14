@@ -2698,6 +2698,8 @@ describe("cli", () => {
       topChoiceDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       topChoiceDatePrecision: "day",
       topChoiceDateSource: "snippet",
+      recommendedSourceType: "official",
+      recommendedSourceHints: ["package-registry"],
       recommendedDateText: "2026-05-31",
       recommendedDateIso: "2026-05-31T00:00:00.000Z",
       recommendedDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
@@ -2708,12 +2710,16 @@ describe("cli", () => {
       searchDecisionRecommendedDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       searchDecisionRecommendedDatePrecision: "day",
       searchDecisionRecommendedDateSource: "snippet",
+      searchDecisionRecommendedSourceType: "official",
+      searchDecisionRecommendedSourceHints: ["package-registry"],
       searchDecisionFirstOfficialRank: 1,
       searchDecisionFirstOfficialPath: "searchResults[0]",
       searchDecisionFirstOfficialTitle: "ax-grep - npm",
       searchDecisionFirstOfficialUrl: "https://www.npmjs.com/package/ax-grep",
       searchDecisionFirstOfficialSource: "npmjs.com",
       searchDecisionFirstOfficialSourceScore: 0.9,
+      searchDecisionFirstOfficialSourceType: "official",
+      searchDecisionFirstOfficialSourceHints: ["package-registry"],
       searchDecisionFirstOfficialDateText: "2026-05-31",
       searchDecisionFirstOfficialDateIso: "2026-05-31T00:00:00.000Z",
       searchDecisionFirstOfficialDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
@@ -2822,12 +2828,18 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topResultChoiceDateIso: 2026-05-31T00:00:00.000Z");
     expect(stdout.output).toContain("  topResultChoiceDatePrecision: day");
     expect(stdout.output).toContain("  topResultChoiceDateSource: snippet");
+    expect(stdout.output).toContain("  recommendedSourceType: official");
+    expect(stdout.output).toContain("  recommendedSourceHints: package-registry");
     expect(stdout.output).toContain("  recommendedDateText: 2026-05-31");
     expect(stdout.output).toContain("  recommendedDateIso: 2026-05-31T00:00:00.000Z");
     expect(stdout.output).toContain("  recommendedDatePrecision: day");
     expect(stdout.output).toContain("  recommendedDateSource: snippet");
     expect(stdout.output).toContain("  searchDecisionRecommendedDateText: 2026-05-31");
     expect(stdout.output).toContain("  searchDecisionRecommendedDateIso: 2026-05-31T00:00:00.000Z");
+    expect(stdout.output).toContain("  searchDecisionRecommendedSourceType: official");
+    expect(stdout.output).toContain("  searchDecisionRecommendedSourceHints: package-registry");
+    expect(stdout.output).toContain("  searchDecisionFirstOfficialSourceType: official");
+    expect(stdout.output).toContain("  searchDecisionFirstOfficialSourceHints: package-registry");
     expect(stdout.output).toContain("  searchDecisionFirstOfficialDateText: 2026-05-31");
     expect(stdout.output).toContain("  searchDecisionFirstOfficialDateIso: 2026-05-31T00:00:00.000Z");
     expect(stdout.output).toContain("  searchDecisionFirstOfficialDateUnixMs: 1780185600000");
