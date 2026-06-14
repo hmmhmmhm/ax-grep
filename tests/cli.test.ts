@@ -10382,6 +10382,25 @@ npx ax-grep https://example.test --agent</code></pre>
     });
   });
 
+  it("prints top section details in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/docs/runtime"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <section>
+            <h2>Latency budgets</h2>
+            <p>Production agents should compare timeout ceilings before retrying a browser capture.</p>
+          </section>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  topSection: pageCheck.sections[0] h2 selector=h2:nth-of-type(1) \"Latency budgets\" - Latency budgets; Production agents should compare timeout ceilings before retrying a browser capture.");
+  });
+
   it("summarizes pagination navigation as pageCheck read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/blog?page=2", "--agent", "--find", "next Page 3"], {
