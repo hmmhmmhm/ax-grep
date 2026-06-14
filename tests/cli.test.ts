@@ -1638,6 +1638,10 @@ describe("cli", () => {
         expect(envelope.agent.topChoicePath).toBe(topFormChoice.path);
         expect(envelope.agent.topChoiceRank).toBe(topFormChoice.rank);
         expect(envelope.agent.topChoiceMethod).toBe(topFormChoice.method);
+        if (topFormChoice.actionUrl) expect(envelope.agent.topChoiceActionUrl).toBe(topFormChoice.actionUrl);
+        if (topFormChoice.urlTemplate) expect(envelope.agent.topChoiceUrlTemplate).toBe(topFormChoice.urlTemplate);
+        if (topFormChoice.queryField) expect(envelope.agent.topChoiceQueryField).toBe(topFormChoice.queryField);
+        if (typeof topFormChoice.submitDisabled === "boolean") expect(envelope.agent.topChoiceSubmitDisabled).toBe(topFormChoice.submitDisabled);
         if (topFormChoice.selector) expect(envelope.agent.topChoiceSelector).toBe(topFormChoice.selector);
       } else if (topActionTargetChoice) {
         expect(envelope.agent.topChoiceKind).toBe("action-target");
@@ -1645,6 +1649,10 @@ describe("cli", () => {
         expect(envelope.agent.topChoiceRank).toBe(topActionTargetChoice.rank);
         expect(envelope.agent.topChoiceSource).toBe(topActionTargetChoice.source);
         if (topActionTargetChoice.method) expect(envelope.agent.topChoiceMethod).toBe(topActionTargetChoice.method);
+        if (topActionTargetChoice.targetUrl) expect(envelope.agent.topChoiceTargetUrl).toBe(topActionTargetChoice.targetUrl);
+        if (topActionTargetChoice.urlTemplate) expect(envelope.agent.topChoiceUrlTemplate).toBe(topActionTargetChoice.urlTemplate);
+        if (topActionTargetChoice.queryInput) expect(envelope.agent.topChoiceQueryInput).toBe(topActionTargetChoice.queryInput);
+        if (typeof topActionTargetChoice.disabled === "boolean") expect(envelope.agent.topChoiceDisabled).toBe(topActionTargetChoice.disabled);
         if (topActionTargetChoice.selector) expect(envelope.agent.topChoiceSelector).toBe(topActionTargetChoice.selector);
       }
       if (executor.commandArgs) expect(handoff.commandArgs).toEqual(executor.commandArgs);
@@ -12019,6 +12027,7 @@ npx ax-grep https://example.test --agent</code></pre>
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("  topChoice: form pageCheck.forms[0] rank=1 method=get");
+    expect(stdout.output).toContain("actionUrl=https://example.test/find template=https://example.test/find?query=%7Bquery%7D queryField=query");
     expect(stdout.output).toContain(" command=ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
     expect(stdout.output).toContain("  answerPlanUrl: https://example.test/find?query=quarterly%20report");
     expect(stdout.output).toContain("  topChoiceCommandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
@@ -12073,6 +12082,7 @@ npx ax-grep https://example.test --agent</code></pre>
     });
 
     expect(status).toBe(0);
+    expect(stdout.output).toContain("  topChoice: action-target pageCheck.actionTargets[0] rank=1 source=json-ld template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string");
     expect(stdout.output).toContain("  topActionTargetChoicePath: pageCheck.actionTargets[0]");
     expect(stdout.output).toContain("  topActionTargetChoiceKind: search");
     expect(stdout.output).toContain("  topActionTargetChoiceName: Example Docs");
@@ -12102,6 +12112,7 @@ npx ax-grep https://example.test --agent</code></pre>
     });
 
     expect(status).toBe(0);
+    expect(stdout.output).toContain("  topChoice: action-target pageCheck.actionTargets[0] rank=1 source=link targetUrl=https://example.test/opensearch.xml disabled=true");
     expect(stdout.output).toContain("  topActionTargetChoicePath: pageCheck.actionTargets[0]");
     expect(stdout.output).toContain("  topActionTargetChoiceKind: search");
     expect(stdout.output).toContain("  topActionTargetChoiceName: Docs OpenSearch");

@@ -1884,6 +1884,11 @@ type AgentSummary = {
   topChoicePath?: string;
   topChoiceLabel?: string;
   topChoiceUrl?: string;
+  topChoiceActionUrl?: string;
+  topChoiceTargetUrl?: string;
+  topChoiceUrlTemplate?: string;
+  topChoiceQueryField?: string;
+  topChoiceQueryInput?: string;
   topChoiceHost?: string;
   topChoiceSnippet?: string;
   topChoiceDateText?: string;
@@ -1912,6 +1917,8 @@ type AgentSummary = {
   topChoiceSitelinkCount?: number;
   topChoiceLikelyOfficial?: boolean;
   topChoiceMethod?: string;
+  topChoiceSubmitDisabled?: boolean;
+  topChoiceDisabled?: boolean;
   topChoiceSelector?: string;
   topChoiceReason?: string;
   sourceSearchQuery?: string;
@@ -4267,7 +4274,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topSourceChoicePrimary === "boolean" ? [`  topSourceChoicePrimary: ${agent.topSourceChoicePrimary}`] : []),
     ...(agent.topSourceChoiceSelector ? [`  topSourceChoiceSelector: ${agent.topSourceChoiceSelector}`] : []),
     ...(agent.topSourceChoiceReason ? [`  topSourceChoiceReason: ${agent.topSourceChoiceReason}`] : []),
-    ...(agent.topChoiceKind ? [`  topChoice: ${agent.topChoiceKind} ${agent.topChoicePath}${typeof agent.topChoiceRank === "number" ? ` rank=${agent.topChoiceRank}` : ""}${agent.topChoiceOpenResult ? ` openResult=${agent.topChoiceOpenResult}` : ""}${typeof agent.topChoiceRecommended === "boolean" ? ` recommended=${agent.topChoiceRecommended}` : ""}${typeof agent.topChoicePrimary === "boolean" ? ` primary=${agent.topChoicePrimary}` : ""}${agent.topChoiceHost ? ` host=${agent.topChoiceHost}` : ""}${agent.topChoiceSource ? ` source=${agent.topChoiceSource}` : ""}${agent.topChoiceSourceType ? ` sourceType=${agent.topChoiceSourceType}` : ""}${typeof agent.topChoiceSourceScore === "number" ? ` score=${agent.topChoiceSourceScore}` : ""}${agent.topChoiceSourceHints?.length ? ` hints=${agent.topChoiceSourceHints.join(",")}` : ""}${agent.topChoiceMatchedTerm ? ` matched=${agent.topChoiceMatchedTerm}` : ""}${agent.topChoiceFindMatch ? ` find=${agent.topChoiceFindMatch}` : ""}${typeof agent.topChoiceSitelinkCount === "number" ? ` sitelinks=${agent.topChoiceSitelinkCount}` : ""}${agent.topChoiceDateText ? ` dateText=${agent.topChoiceDateText}` : ""}${agent.topChoiceDateIso ? ` dateIso=${agent.topChoiceDateIso}` : ""}${typeof agent.topChoiceDateUnixMs === "number" ? ` dateUnixMs=${agent.topChoiceDateUnixMs}` : ""}${agent.topChoiceDatePrecision ? ` datePrecision=${agent.topChoiceDatePrecision}` : ""}${agent.topChoiceDateSource ? ` dateSource=${agent.topChoiceDateSource}` : ""}${agent.topChoiceRelevance ? ` relevance=${agent.topChoiceRelevance}` : ""}${typeof agent.topChoiceLikelyOfficial === "boolean" ? ` official=${agent.topChoiceLikelyOfficial}` : ""}${agent.topChoiceMethod ? ` method=${agent.topChoiceMethod}` : ""}${agent.topChoiceSelector ? ` selector=${agent.topChoiceSelector}` : ""}${agent.topChoiceUrl ? ` <${agent.topChoiceUrl}>` : ""}${agent.topChoiceCommand ? ` command=${agent.topChoiceCommand}` : ""}${agent.topChoiceReason ? ` reason=${agent.topChoiceReason}` : ""}${agent.topChoiceSnippet ? ` snippet=${agent.topChoiceSnippet}` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
+    ...(agent.topChoiceKind ? [`  topChoice: ${agent.topChoiceKind} ${agent.topChoicePath}${typeof agent.topChoiceRank === "number" ? ` rank=${agent.topChoiceRank}` : ""}${agent.topChoiceOpenResult ? ` openResult=${agent.topChoiceOpenResult}` : ""}${typeof agent.topChoiceRecommended === "boolean" ? ` recommended=${agent.topChoiceRecommended}` : ""}${typeof agent.topChoicePrimary === "boolean" ? ` primary=${agent.topChoicePrimary}` : ""}${agent.topChoiceHost ? ` host=${agent.topChoiceHost}` : ""}${agent.topChoiceSource ? ` source=${agent.topChoiceSource}` : ""}${agent.topChoiceSourceType ? ` sourceType=${agent.topChoiceSourceType}` : ""}${typeof agent.topChoiceSourceScore === "number" ? ` score=${agent.topChoiceSourceScore}` : ""}${agent.topChoiceSourceHints?.length ? ` hints=${agent.topChoiceSourceHints.join(",")}` : ""}${agent.topChoiceMatchedTerm ? ` matched=${agent.topChoiceMatchedTerm}` : ""}${agent.topChoiceFindMatch ? ` find=${agent.topChoiceFindMatch}` : ""}${typeof agent.topChoiceSitelinkCount === "number" ? ` sitelinks=${agent.topChoiceSitelinkCount}` : ""}${agent.topChoiceDateText ? ` dateText=${agent.topChoiceDateText}` : ""}${agent.topChoiceDateIso ? ` dateIso=${agent.topChoiceDateIso}` : ""}${typeof agent.topChoiceDateUnixMs === "number" ? ` dateUnixMs=${agent.topChoiceDateUnixMs}` : ""}${agent.topChoiceDatePrecision ? ` datePrecision=${agent.topChoiceDatePrecision}` : ""}${agent.topChoiceDateSource ? ` dateSource=${agent.topChoiceDateSource}` : ""}${agent.topChoiceRelevance ? ` relevance=${agent.topChoiceRelevance}` : ""}${typeof agent.topChoiceLikelyOfficial === "boolean" ? ` official=${agent.topChoiceLikelyOfficial}` : ""}${agent.topChoiceMethod ? ` method=${agent.topChoiceMethod}` : ""}${agent.topChoiceActionUrl ? ` actionUrl=${agent.topChoiceActionUrl}` : ""}${agent.topChoiceTargetUrl ? ` targetUrl=${agent.topChoiceTargetUrl}` : ""}${agent.topChoiceUrlTemplate ? ` template=${agent.topChoiceUrlTemplate}` : ""}${agent.topChoiceQueryField ? ` queryField=${agent.topChoiceQueryField}` : ""}${agent.topChoiceQueryInput ? ` queryInput=${agent.topChoiceQueryInput}` : ""}${typeof agent.topChoiceSubmitDisabled === "boolean" ? ` submitDisabled=${agent.topChoiceSubmitDisabled}` : ""}${typeof agent.topChoiceDisabled === "boolean" ? ` disabled=${agent.topChoiceDisabled}` : ""}${agent.topChoiceSelector ? ` selector=${agent.topChoiceSelector}` : ""}${agent.topChoiceUrl ? ` <${agent.topChoiceUrl}>` : ""}${agent.topChoiceCommand ? ` command=${agent.topChoiceCommand}` : ""}${agent.topChoiceReason ? ` reason=${agent.topChoiceReason}` : ""}${agent.topChoiceSnippet ? ` snippet=${agent.topChoiceSnippet}` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
     ...(agent.topChoiceCommandArgs ? [`  topChoiceCommandArgs: ${formatCommandArgsText(agent.topChoiceCommandArgs)}`] : []),
     ...(agent.topChoiceFirstSitelinkTitle || agent.topChoiceFirstSitelinkUrl ? [`  topChoiceFirstSitelink: ${agent.topChoiceFirstSitelinkTitle ?? "first sitelink"}${agent.topChoiceFirstSitelinkUrl ? ` <${agent.topChoiceFirstSitelinkUrl}>` : ""}${agent.topChoiceFirstSitelinkSelector ? ` selector=${agent.topChoiceFirstSitelinkSelector}` : ""}${agent.topChoiceFirstSitelinkCommand ? ` command=${agent.topChoiceFirstSitelinkCommand}` : ""}`] : []),
     ...(agent.topChoiceFirstSitelinkCommandArgs ? [`  topChoiceFirstSitelinkCommandArgs: ${formatCommandArgsText(agent.topChoiceFirstSitelinkCommandArgs)}`] : []),
@@ -13400,6 +13407,11 @@ function summarizeAgent(
     ...(topChoice ? { topChoicePath: topChoice.path } : {}),
     ...(topChoice?.label ? { topChoiceLabel: topChoice.label } : {}),
     ...(topChoice?.url ? { topChoiceUrl: topChoice.url } : {}),
+    ...(topChoice?.actionUrl ? { topChoiceActionUrl: topChoice.actionUrl } : {}),
+    ...(topChoice?.targetUrl ? { topChoiceTargetUrl: topChoice.targetUrl } : {}),
+    ...(topChoice?.urlTemplate ? { topChoiceUrlTemplate: topChoice.urlTemplate } : {}),
+    ...(topChoice?.queryField ? { topChoiceQueryField: topChoice.queryField } : {}),
+    ...(topChoice?.queryInput ? { topChoiceQueryInput: topChoice.queryInput } : {}),
     ...(topChoice?.host ? { topChoiceHost: topChoice.host } : {}),
     ...(topChoice?.snippet ? { topChoiceSnippet: topChoice.snippet } : {}),
     ...(topChoice?.dateText ? { topChoiceDateText: topChoice.dateText } : {}),
@@ -13428,6 +13440,8 @@ function summarizeAgent(
     ...(typeof topChoice?.sitelinkCount === "number" ? { topChoiceSitelinkCount: topChoice.sitelinkCount } : {}),
     ...(typeof topChoice?.isLikelyOfficial === "boolean" ? { topChoiceLikelyOfficial: topChoice.isLikelyOfficial } : {}),
     ...(topChoice?.method ? { topChoiceMethod: topChoice.method } : {}),
+    ...(typeof topChoice?.submitDisabled === "boolean" ? { topChoiceSubmitDisabled: topChoice.submitDisabled } : {}),
+    ...(typeof topChoice?.disabled === "boolean" ? { topChoiceDisabled: topChoice.disabled } : {}),
     ...(topChoice?.selector ? { topChoiceSelector: topChoice.selector } : {}),
     ...(topChoice?.reason ? { topChoiceReason: topChoice.reason } : {}),
     ...(sourceSearch ? { sourceSearchQuery: sourceSearch.query } : {}),
@@ -15776,6 +15790,11 @@ function summarizeAgentTopChoice(
   path: string;
   label?: string;
   url?: string;
+  actionUrl?: string;
+  targetUrl?: string;
+  urlTemplate?: string;
+  queryField?: string;
+  queryInput?: string;
   host?: string;
   snippet?: string;
   dateText?: string;
@@ -15804,6 +15823,8 @@ function summarizeAgentTopChoice(
   sitelinkCount?: number;
   isLikelyOfficial?: boolean;
   method?: string;
+  submitDisabled?: boolean;
+  disabled?: boolean;
   selector?: string;
   reason?: string;
 } | undefined {
@@ -15881,10 +15902,14 @@ function summarizeAgentTopChoice(
       path: form.path,
       label: form.text,
       ...(form.actionUrl || form.urlTemplate ? { url: form.actionUrl ?? form.urlTemplate } : {}),
+      ...(form.actionUrl ? { actionUrl: form.actionUrl } : {}),
+      ...(form.urlTemplate ? { urlTemplate: form.urlTemplate } : {}),
+      ...(form.queryField ? { queryField: form.queryField } : {}),
       ...(form.command ? { command: form.command } : {}),
       ...(form.commandArgs ? { commandArgs: form.commandArgs } : {}),
       rank: form.rank,
       method: form.method,
+      ...(typeof form.submitDisabled === "boolean" ? { submitDisabled: form.submitDisabled } : {}),
       ...(form.selector ? { selector: form.selector } : {}),
     };
   }
@@ -15895,11 +15920,15 @@ function summarizeAgentTopChoice(
       path: actionTarget.path,
       label: actionTarget.name || actionTarget.text,
       ...(actionTarget.targetUrl || actionTarget.urlTemplate ? { url: actionTarget.targetUrl ?? actionTarget.urlTemplate } : {}),
+      ...(actionTarget.targetUrl ? { targetUrl: actionTarget.targetUrl } : {}),
+      ...(actionTarget.urlTemplate ? { urlTemplate: actionTarget.urlTemplate } : {}),
+      ...(actionTarget.queryInput ? { queryInput: actionTarget.queryInput } : {}),
       ...(actionTarget.command ? { command: actionTarget.command } : {}),
       ...(actionTarget.commandArgs ? { commandArgs: actionTarget.commandArgs } : {}),
       rank: actionTarget.rank,
       source: actionTarget.source,
       ...(actionTarget.method ? { method: actionTarget.method } : {}),
+      ...(typeof actionTarget.disabled === "boolean" ? { disabled: actionTarget.disabled } : {}),
       ...(actionTarget.selector ? { selector: actionTarget.selector } : {}),
     };
   }
@@ -18370,6 +18399,11 @@ function compactAgentTopChoice(agent: AgentSummary, searchCommandContext?: Searc
     topChoicePath: agent.topChoicePath,
     ...(agent.topChoiceLabel ? { topChoiceLabel: agent.topChoiceLabel } : {}),
     ...(agent.topChoiceUrl ? { topChoiceUrl: agent.topChoiceUrl } : {}),
+    ...(agent.topChoiceActionUrl ? { topChoiceActionUrl: agent.topChoiceActionUrl } : {}),
+    ...(agent.topChoiceTargetUrl ? { topChoiceTargetUrl: agent.topChoiceTargetUrl } : {}),
+    ...(agent.topChoiceUrlTemplate ? { topChoiceUrlTemplate: agent.topChoiceUrlTemplate } : {}),
+    ...(agent.topChoiceQueryField ? { topChoiceQueryField: agent.topChoiceQueryField } : {}),
+    ...(agent.topChoiceQueryInput ? { topChoiceQueryInput: agent.topChoiceQueryInput } : {}),
     ...(agent.topChoiceHost ? { topChoiceHost: agent.topChoiceHost } : {}),
     ...(agent.topChoiceSnippet ? { topChoiceSnippet: agent.topChoiceSnippet } : {}),
     ...(agent.topChoiceDateText ? { topChoiceDateText: agent.topChoiceDateText } : {}),
@@ -18398,6 +18432,8 @@ function compactAgentTopChoice(agent: AgentSummary, searchCommandContext?: Searc
     ...(typeof agent.topChoiceSitelinkCount === "number" ? { topChoiceSitelinkCount: agent.topChoiceSitelinkCount } : {}),
     ...(typeof agent.topChoiceLikelyOfficial === "boolean" ? { topChoiceLikelyOfficial: agent.topChoiceLikelyOfficial } : {}),
     ...(agent.topChoiceMethod ? { topChoiceMethod: agent.topChoiceMethod } : {}),
+    ...(typeof agent.topChoiceSubmitDisabled === "boolean" ? { topChoiceSubmitDisabled: agent.topChoiceSubmitDisabled } : {}),
+    ...(typeof agent.topChoiceDisabled === "boolean" ? { topChoiceDisabled: agent.topChoiceDisabled } : {}),
     ...(agent.topChoiceSelector ? { topChoiceSelector: agent.topChoiceSelector } : {}),
     ...(agent.topChoiceReason ? { topChoiceReason: agent.topChoiceReason } : {}),
   };

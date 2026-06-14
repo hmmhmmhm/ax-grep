@@ -2251,6 +2251,11 @@ export type AgentSummary = {
   topChoicePath?: string;
   topChoiceLabel?: string;
   topChoiceUrl?: string;
+  topChoiceActionUrl?: string;
+  topChoiceTargetUrl?: string;
+  topChoiceUrlTemplate?: string;
+  topChoiceQueryField?: string;
+  topChoiceQueryInput?: string;
   topChoiceHost?: string;
   topChoiceSnippet?: string;
   topChoiceDateText?: string;
@@ -2279,6 +2284,8 @@ export type AgentSummary = {
   topChoiceSitelinkCount?: number;
   topChoiceLikelyOfficial?: boolean;
   topChoiceMethod?: string;
+  topChoiceSubmitDisabled?: boolean;
+  topChoiceDisabled?: boolean;
   topChoiceSelector?: string;
   topChoiceReason?: string;
   sourceSearchQuery?: string;
