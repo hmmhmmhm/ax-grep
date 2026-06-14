@@ -4190,7 +4190,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topProvenanceValue ? [`  topProvenance: ${agent.topProvenancePath ?? ""} ${agent.topProvenanceKind ?? ""}${agent.topProvenanceLabel ? ` label="${agent.topProvenanceLabel}"` : ""}=${agent.topProvenanceValue}${agent.topProvenanceSource ? ` source=${agent.topProvenanceSource}` : ""}${agent.topProvenanceSelector ? ` selector=${agent.topProvenanceSelector}` : ""}${agent.topProvenanceUrl ? ` <${agent.topProvenanceUrl}>` : ""}`] : []),
     ...(agent.topProvenanceCommand ? [`  topProvenanceCommand: ${agent.topProvenanceCommand}`] : []),
     ...(agent.topProvenanceCommandArgs ? [`  topProvenanceCommandArgs: ${formatCommandArgsText(agent.topProvenanceCommandArgs)}`] : []),
-    ...(agent.topOfferPrice ? [`  topOffer: ${agent.topOfferPath ?? ""} ${agent.topOfferCurrency ?? ""} ${agent.topOfferPrice}${agent.topOfferAvailability ? ` availability=${agent.topOfferAvailability}` : ""}${agent.topOfferUrl ? ` <${agent.topOfferUrl}>` : ""}`] : []),
+    ...(agent.topOfferPrice ? [`  topOffer: ${agent.topOfferPath ?? ""}${agent.topOfferName ? ` "${agent.topOfferName}"` : ""} ${agent.topOfferCurrency ?? ""} ${agent.topOfferPrice}${agent.topOfferAvailability ? ` availability=${agent.topOfferAvailability}` : ""}${agent.topOfferSelector ? ` selector=${agent.topOfferSelector}` : ""}${agent.topOfferUrl ? ` <${agent.topOfferUrl}>` : ""}`] : []),
     ...(typeof agent.topOfferPriceAmount === "number" ? [`  topOfferPriceAmount: ${agent.topOfferPriceAmount}`] : []),
     ...(agent.topOfferCommand ? [`  topOfferCommand: ${agent.topOfferCommand}`] : []),
     ...(agent.topOfferCommandArgs ? [`  topOfferCommandArgs: ${formatCommandArgsText(agent.topOfferCommandArgs)}`] : []),

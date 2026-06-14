@@ -9411,6 +9411,35 @@ describe("cli", () => {
     });
   });
 
+  it("prints top offer names and selectors in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/product"], {
+      stdout,
+      fetch: async () => new Response(`
+        <script type="application/ld+json">
+          {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": "Agent Browser Pro",
+            "offers": {
+              "@type": "Offer",
+              "price": "19.99",
+              "priceCurrency": "USD",
+              "availability": "https://schema.org/InStock",
+              "url": "/buy"
+            }
+          }
+        </script>
+        <main><h1>Product</h1></main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  topOffer: pageCheck.offers[0] \"Agent Browser Pro\" USD 19.99 availability=InStock selector=script[type=\"application/ld+json\"]:nth-of-type(1) <https://example.test/buy>");
+    expect(stdout.output).toContain("  topOfferCommand: ax-grep 'https://example.test/buy'");
+  });
+
   it("summarizes JSON-LD identities and sameAs links as pageCheck read targets for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/about", "--agent", "--find", "github.com/example"], {
