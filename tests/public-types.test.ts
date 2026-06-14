@@ -425,6 +425,7 @@ describe("public agent types", () => {
       | "topBreadcrumbPath"
       | "topBreadcrumbText"
       | "topBreadcrumbSource"
+      | "topBreadcrumbSelector"
       | "topPaginationPath"
       | "topPaginationKind"
       | "topPaginationLabel"
@@ -1748,6 +1749,7 @@ describe("public agent types", () => {
       topBreadcrumbPath: "pageCheck.breadcrumbs[0]",
       topBreadcrumbText: "Docs > Install",
       topBreadcrumbSource: "html",
+      topBreadcrumbSelector: "nav:nth-of-type(1)",
       topPaginationPath: "pageCheck.pagination[0]",
       topPaginationKind: "next",
       topPaginationLabel: "Next",

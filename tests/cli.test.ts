@@ -10201,6 +10201,13 @@ npx ax-grep https://example.test --agent</code></pre>
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("1 breadcrumb trail");
+    expect(envelope.agent).toMatchObject({
+      breadcrumbCount: 1,
+      topBreadcrumbPath: "pageCheck.breadcrumbs[0]",
+      topBreadcrumbText: "Docs > API > Responses",
+      topBreadcrumbSource: "json-ld",
+      topBreadcrumbSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+    });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -10221,6 +10228,31 @@ npx ax-grep https://example.test --agent</code></pre>
         }),
       ]),
     });
+  });
+
+  it("prints breadcrumb locator in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/docs/api/responses"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <body>
+            <nav aria-label="Breadcrumb">
+              <ol>
+                <li><a href="/docs">Docs</a></li>
+                <li><a href="/docs/api">API</a></li>
+                <li>Responses</li>
+              </ol>
+            </nav>
+            <main></main>
+          </body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  topBreadcrumb: pageCheck.breadcrumbs[0] html selector=nav:nth-of-type(1) - Docs > API > Responses");
   });
 
   it("checks requested text against breadcrumb summaries", async () => {

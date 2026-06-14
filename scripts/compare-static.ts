@@ -1587,6 +1587,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topBreadcrumbPath?: string;
       topBreadcrumbText?: string;
       topBreadcrumbSource?: string;
+      topBreadcrumbSelector?: string;
       topPaginationPath?: string;
       topPaginationKind?: string;
       topPaginationLabel?: string;
@@ -8607,6 +8608,7 @@ function scoreAgentStructuredShortcuts(agent: {
   topBreadcrumbPath?: string;
   topBreadcrumbText?: string;
   topBreadcrumbSource?: string;
+  topBreadcrumbSelector?: string;
   topPaginationPath?: string;
   topPaginationKind?: string;
   topPaginationLabel?: string;
@@ -8727,7 +8729,7 @@ function scoreAgentStructuredShortcuts(agent: {
   resources?: Array<{ path?: string; kind?: string; url?: string; title?: string; selector?: string }>;
   media?: Array<{ path?: string; kind?: string; url?: string; text?: string; selector?: string }>;
   sections?: Array<{ path?: string; heading?: string; level?: number; text?: string; selector?: string }>;
-  breadcrumbs?: Array<{ path?: string; text?: string; source?: string }>;
+  breadcrumbs?: Array<{ path?: string; text?: string; source?: string; selector?: string }>;
   pagination?: Array<{ path?: string; kind?: string; label?: string; url?: string; current?: boolean; selector?: string }>;
   toc?: Array<{ path?: string; title?: string; items?: Array<{ label?: string; url?: string }>; text?: string; selector?: string }>;
   embeds?: Array<{ path?: string; kind?: string; url?: string; title?: string; selector?: string }>;
@@ -8868,11 +8870,12 @@ function scoreAgentStructuredShortcuts(agent: {
 
   const topBreadcrumb = breadcrumbs[0];
   if (topBreadcrumb) {
-    required += 3;
+    required += 4;
     if (agent.topBreadcrumbPath === topBreadcrumb.path) matched += 1;
     if (agent.topBreadcrumbText === topBreadcrumb.text) matched += 1;
     if (agent.topBreadcrumbSource === topBreadcrumb.source) matched += 1;
-  } else if (agent.topBreadcrumbPath || agent.topBreadcrumbText || agent.topBreadcrumbSource) {
+    if (agent.topBreadcrumbSelector === topBreadcrumb.selector) matched += 1;
+  } else if (agent.topBreadcrumbPath || agent.topBreadcrumbText || agent.topBreadcrumbSource || agent.topBreadcrumbSelector) {
     required += 1;
   }
 
