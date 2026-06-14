@@ -619,6 +619,8 @@ describe("public agent types", () => {
       | "sourceSearchSelectedUrl"
       | "sourceSearchSelectedHost"
       | "sourceSearchSelectedSource"
+      | "sourceSearchSelectedSourceType"
+      | "sourceSearchSelectedSourceHints"
       | "sourceSearchSelectedPath"
       | "sourceSearchSelectedSnippet"
       | "sourceSearchSelectedDateText"
@@ -658,6 +660,8 @@ describe("public agent types", () => {
       | "sourceSearchAlternateUrl"
       | "sourceSearchAlternateHost"
       | "sourceSearchAlternateSource"
+      | "sourceSearchAlternateSourceType"
+      | "sourceSearchAlternateSourceHints"
       | "sourceSearchAlternateRank"
       | "sourceSearchAlternateSnippet"
       | "sourceSearchAlternateDateText"
@@ -1886,6 +1890,8 @@ describe("public agent types", () => {
       sourceSearchSelectedUrl: "https://source.example/result",
       sourceSearchSelectedHost: "source.example",
       sourceSearchSelectedSource: "source.example",
+      sourceSearchSelectedSourceType: "official",
+      sourceSearchSelectedSourceHints: ["documentation"],
       sourceSearchSelectedPath: "sourceSearch.selectedResult",
       sourceSearchSelectedSnippet: "Selected source summary",
       sourceSearchSelectedDateText: "2026-05-31",
@@ -1925,6 +1931,8 @@ describe("public agent types", () => {
       sourceSearchAlternateUrl: "https://mirror.example/result",
       sourceSearchAlternateHost: "mirror.example",
       sourceSearchAlternateSource: "mirror.example",
+      sourceSearchAlternateSourceType: "community",
+      sourceSearchAlternateSourceHints: ["mirror"],
       sourceSearchAlternateRank: 3,
       sourceSearchAlternateSnippet: "Alternate source summary",
       sourceSearchAlternateDateText: "2026-05-30",

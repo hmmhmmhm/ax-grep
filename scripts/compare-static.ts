@@ -1778,6 +1778,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchSelectedUrl?: string;
       sourceSearchSelectedHost?: string;
       sourceSearchSelectedSource?: string;
+      sourceSearchSelectedSourceType?: CliSearchResultShape["sourceType"];
+      sourceSearchSelectedSourceHints?: string[];
       sourceSearchSelectedPath?: string;
       sourceSearchSelectedSnippet?: string;
       sourceSearchSelectedDateText?: string;
@@ -1812,6 +1814,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchAlternateUrl?: string;
       sourceSearchAlternateHost?: string;
       sourceSearchAlternateSource?: string;
+      sourceSearchAlternateSourceType?: CliSearchResultShape["sourceType"];
+      sourceSearchAlternateSourceHints?: string[];
       sourceSearchAlternateRank?: number;
       sourceSearchAlternateSnippet?: string;
       sourceSearchAlternateDateText?: string;
@@ -5685,6 +5689,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchSelectedUrl?: string;
   sourceSearchSelectedHost?: string;
   sourceSearchSelectedSource?: string;
+  sourceSearchSelectedSourceType?: CliSearchResultShape["sourceType"];
+  sourceSearchSelectedSourceHints?: string[];
   sourceSearchSelectedPath?: string;
   sourceSearchSelectedSnippet?: string;
   sourceSearchSelectedDateText?: string;
@@ -5721,6 +5727,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchAlternateUrl?: string;
   sourceSearchAlternateHost?: string;
   sourceSearchAlternateSource?: string;
+  sourceSearchAlternateSourceType?: CliSearchResultShape["sourceType"];
+  sourceSearchAlternateSourceHints?: string[];
   sourceSearchAlternateRank?: number;
   sourceSearchAlternateSnippet?: string;
   sourceSearchAlternateDateText?: string;
@@ -5770,6 +5778,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchSelectedUrl === "undefined"
       && typeof agent?.sourceSearchSelectedHost === "undefined"
       && typeof agent?.sourceSearchSelectedSource === "undefined"
+      && typeof agent?.sourceSearchSelectedSourceType === "undefined"
+      && typeof agent?.sourceSearchSelectedSourceHints === "undefined"
       && typeof agent?.sourceSearchSelectedPath === "undefined"
       && typeof agent?.sourceSearchSelectedSnippet === "undefined"
       && typeof agent?.sourceSearchSelectedDateText === "undefined"
@@ -5805,6 +5815,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchAlternateUrl === "undefined"
       && typeof agent?.sourceSearchAlternateHost === "undefined"
       && typeof agent?.sourceSearchAlternateSource === "undefined"
+      && typeof agent?.sourceSearchAlternateSourceType === "undefined"
+      && typeof agent?.sourceSearchAlternateSourceHints === "undefined"
       && typeof agent?.sourceSearchAlternateRank === "undefined"
       && typeof agent?.sourceSearchAlternateSnippet === "undefined"
       && typeof agent?.sourceSearchAlternateDateText === "undefined"
@@ -5890,10 +5902,12 @@ function scoreAgentSourceSearchShortcuts(agent: {
     required += 1;
   }
   if (selected) {
-    required += 10;
+    required += 12;
     if (agent?.sourceSearchSelectedPath === selected.path) matched += 1;
     if (agent?.sourceSearchSelectedHost === selected.host) matched += 1;
     if (agent?.sourceSearchSelectedSource === selected.source) matched += 1;
+    if (agent?.sourceSearchSelectedSourceType === selected.sourceType) matched += 1;
+    if (JSON.stringify(agent?.sourceSearchSelectedSourceHints) === JSON.stringify(selected.sourceHints)) matched += 1;
     if (agent?.sourceSearchSelectedCommand === selected.command) matched += 1;
     if (JSON.stringify(agent?.sourceSearchSelectedCommandArgs) === JSON.stringify(selected.commandArgs)) matched += 1;
     if (agent?.sourceSearchSelectedOpenResult === selected.openResult) matched += 1;
@@ -5951,6 +5965,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
     agent?.sourceSearchSelectedPath
     || agent?.sourceSearchSelectedHost
     || agent?.sourceSearchSelectedSource
+    || agent?.sourceSearchSelectedSourceType
+    || agent?.sourceSearchSelectedSourceHints?.length
     || agent?.sourceSearchSelectedSnippet
     || agent?.sourceSearchSelectedDateText
     || agent?.sourceSearchSelectedDateIso
@@ -5973,12 +5989,14 @@ function scoreAgentSourceSearchShortcuts(agent: {
     required += 1;
   }
   if (alternate) {
-    required += 13;
+    required += 15;
     if (agent?.sourceSearchAlternatePath === alternate.path) matched += 1;
     if (agent?.sourceSearchAlternateTitle === alternate.title) matched += 1;
     if (agent?.sourceSearchAlternateUrl === alternate.url) matched += 1;
     if (agent?.sourceSearchAlternateHost === alternate.host) matched += 1;
     if (agent?.sourceSearchAlternateSource === alternate.source) matched += 1;
+    if (agent?.sourceSearchAlternateSourceType === alternate.sourceType) matched += 1;
+    if (JSON.stringify(agent?.sourceSearchAlternateSourceHints) === JSON.stringify(alternate.sourceHints)) matched += 1;
     if (agent?.sourceSearchAlternateRank === alternate.rank) matched += 1;
     if (agent?.sourceSearchAlternateOpenResult === alternate.openResult) matched += 1;
     if (agent?.sourceSearchAlternateCommand === alternate.command) matched += 1;
@@ -6046,6 +6064,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
     || agent?.sourceSearchAlternateUrl
     || agent?.sourceSearchAlternateHost
     || agent?.sourceSearchAlternateSource
+    || agent?.sourceSearchAlternateSourceType
+    || agent?.sourceSearchAlternateSourceHints?.length
     || typeof agent?.sourceSearchAlternateRank === "number"
     || agent?.sourceSearchAlternateSnippet
     || agent?.sourceSearchAlternateDateText

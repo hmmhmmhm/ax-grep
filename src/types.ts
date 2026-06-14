@@ -2280,6 +2280,8 @@ export type AgentSummary = {
   sourceSearchSelectedUrl?: string;
   sourceSearchSelectedHost?: string;
   sourceSearchSelectedSource?: string;
+  sourceSearchSelectedSourceType?: AgentSourceSearchResult["sourceType"];
+  sourceSearchSelectedSourceHints?: string[];
   sourceSearchSelectedPath?: string;
   sourceSearchSelectedSnippet?: string;
   sourceSearchSelectedDateText?: string;
@@ -2319,6 +2321,8 @@ export type AgentSummary = {
   sourceSearchAlternateUrl?: string;
   sourceSearchAlternateHost?: string;
   sourceSearchAlternateSource?: string;
+  sourceSearchAlternateSourceType?: AgentSourceSearchResult["sourceType"];
+  sourceSearchAlternateSourceHints?: string[];
   sourceSearchAlternateRank?: number;
   sourceSearchAlternateSnippet?: string;
   sourceSearchAlternateDateText?: string;
