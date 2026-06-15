@@ -394,6 +394,8 @@ describe("public agent types", () => {
       | "topDataTableFirstHeader"
       | "topDataTableFirstRow"
       | "topDataTableFirstCell"
+      | "topDataTableSecondRow"
+      | "topDataTableSecondCell"
       | "topDataTableSelector"
       | "topFaqPath"
       | "topFaqQuestion"
@@ -1783,6 +1785,8 @@ describe("public agent types", () => {
       topDataTableFirstHeader: "Plan",
       topDataTableFirstRow: ["Starter", "$19.99", "10 GB"],
       topDataTableFirstCell: "Starter",
+      topDataTableSecondRow: ["Team", "$49.99", "100 GB"],
+      topDataTableSecondCell: "Team",
       topDataTableSelector: "table:nth-of-type(1)",
       topFaqPath: "pageCheck.faqs[0]",
       topFaqQuestion: "How do I install it?",
@@ -3162,6 +3166,8 @@ describe("public agent types", () => {
     expect(summary.dataTableCount).toBe(1);
     expect(summary.topDataTableFirstCell).toBe("Starter");
     expect(summary.topDataTableFirstRow?.[1]).toBe("$19.99");
+    expect(summary.topDataTableSecondCell).toBe("Team");
+    expect(summary.topDataTableSecondRow?.[1]).toBe("$49.99");
     expect(summary.topFaqPath).toBe("pageCheck.faqs[0]");
     expect(summary.topFaqQuestion).toBe("How do I install it?");
     expect(summary.topFaqSelector).toBe("details:nth-of-type(1)");

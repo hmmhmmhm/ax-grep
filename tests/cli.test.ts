@@ -5307,6 +5307,8 @@ describe("cli", () => {
       topDataTableFirstHeader: "Plan",
       topDataTableFirstRow: ["Starter", "$19.99", "10 GB"],
       topDataTableFirstCell: "Starter",
+      topDataTableSecondRow: ["Team", "$49.99", "100 GB"],
+      topDataTableSecondCell: "Team",
       topDataTableSelector: "table:nth-of-type(1)",
       structuredReadTargetCount: 1,
       bestStructuredReadTarget: "pageCheck.dataTables",
@@ -6276,6 +6278,7 @@ describe("cli", () => {
             <caption>Plan comparison</caption>
             <tr><th>Plan</th><th>Monthly price</th><th>Storage</th></tr>
             <tr><td>Starter</td><td>$19.99</td><td>10 GB</td></tr>
+            <tr><td>Team</td><td>$49.99</td><td>100 GB</td></tr>
           </table>
         </main>
       `, { headers: { "content-type": "text/html" } }),
@@ -6283,9 +6286,11 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain("  topDataTable: path=pageCheck.dataTables[0] caption=\"Plan comparison\" rows=1 columns=3 headers=3 selector=table:nth-of-type(1)");
+    expect(stdout.output).toContain("  topDataTable: path=pageCheck.dataTables[0] caption=\"Plan comparison\" rows=2 columns=3 headers=3 selector=table:nth-of-type(1)");
     expect(stdout.output).toContain("  topDataTableHeaders: Plan | Monthly price | Storage");
-    expect(stdout.output).toContain("  dataTable: id=t1 path=pageCheck.dataTables[0] rank=1 rows=1 columns=3 headers=Plan|Monthly price|Storage caption=\"Plan comparison\" firstRow=\"Starter | $19.99 | 10 GB\" selector=table:nth-of-type(1) - Plan comparison; Headers: Plan | Monthly price | Storage; Starter | $19.99 | 10 GB");
+    expect(stdout.output).toContain("  topDataTableSecondRow: Team | $49.99 | 100 GB");
+    expect(stdout.output).toContain("  topDataTableSecondCell: Team");
+    expect(stdout.output).toContain("  dataTable: id=t1 path=pageCheck.dataTables[0] rank=1 rows=2 columns=3 headers=Plan|Monthly price|Storage caption=\"Plan comparison\" firstRow=\"Starter | $19.99 | 10 GB\" selector=table:nth-of-type(1) - Plan comparison; Headers: Plan | Monthly price | Storage; Starter | $19.99 | 10 GB; Team | $49.99 | 100 GB");
   });
 
   it("prints second table sample cell in text agent output", async () => {

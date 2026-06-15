@@ -1679,6 +1679,8 @@ type AgentSummary = {
   topDataTableFirstHeader?: string;
   topDataTableFirstRow?: string[];
   topDataTableFirstCell?: string;
+  topDataTableSecondRow?: string[];
+  topDataTableSecondCell?: string;
   topDataTableSelector?: string;
   topFaqPath?: string;
   topFaqQuestion?: string;
@@ -4400,6 +4402,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topDataTableFirstHeader ? [`  topDataTableFirstHeader: ${agent.topDataTableFirstHeader}`] : []),
     ...(agent.topDataTableFirstRow?.length ? [`  topDataTableFirstRow: ${agent.topDataTableFirstRow.join(" | ")}`] : []),
     ...(agent.topDataTableFirstCell ? [`  topDataTableFirstCell: ${agent.topDataTableFirstCell}`] : []),
+    ...(agent.topDataTableSecondRow?.length ? [`  topDataTableSecondRow: ${agent.topDataTableSecondRow.join(" | ")}`] : []),
+    ...(agent.topDataTableSecondCell ? [`  topDataTableSecondCell: ${agent.topDataTableSecondCell}`] : []),
     ...(agent.topDataTableSelector ? [`  topDataTableSelector: ${agent.topDataTableSelector}`] : []),
     `  faqCount: ${agent.faqCount}`,
     `  codeBlockCount: ${agent.codeBlockCount}`,
@@ -13796,6 +13800,8 @@ function summarizeAgent(
     ...(pageCheck.dataTables[0]?.headers[0] ? { topDataTableFirstHeader: pageCheck.dataTables[0].headers[0] } : {}),
     ...(pageCheck.dataTables[0]?.sampleRows[0] ? { topDataTableFirstRow: pageCheck.dataTables[0].sampleRows[0] } : {}),
     ...(pageCheck.dataTables[0]?.sampleRows[0]?.[0] ? { topDataTableFirstCell: pageCheck.dataTables[0].sampleRows[0][0] } : {}),
+    ...(pageCheck.dataTables[0]?.sampleRows[1] ? { topDataTableSecondRow: pageCheck.dataTables[0].sampleRows[1] } : {}),
+    ...(pageCheck.dataTables[0]?.sampleRows[1]?.[0] ? { topDataTableSecondCell: pageCheck.dataTables[0].sampleRows[1][0] } : {}),
     ...(pageCheck.dataTables[0]?.selector ? { topDataTableSelector: pageCheck.dataTables[0].selector } : {}),
     ...(pageCheck.faqs[0] ? { topFaqPath: pageCheck.faqs[0].path } : {}),
     ...(pageCheck.faqs[0]?.question ? { topFaqQuestion: pageCheck.faqs[0].question } : {}),
@@ -19923,6 +19929,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topDataTableFirstHeader ? { topDataTableFirstHeader: agent.topDataTableFirstHeader } : {}),
     ...(agent.topDataTableFirstRow?.length ? { topDataTableFirstRow: agent.topDataTableFirstRow } : {}),
     ...(agent.topDataTableFirstCell ? { topDataTableFirstCell: agent.topDataTableFirstCell } : {}),
+    ...(agent.topDataTableSecondRow?.length ? { topDataTableSecondRow: agent.topDataTableSecondRow } : {}),
+    ...(agent.topDataTableSecondCell ? { topDataTableSecondCell: agent.topDataTableSecondCell } : {}),
     ...(agent.topDataTableSelector ? { topDataTableSelector: agent.topDataTableSelector } : {}),
     ...(agent.topFaqPath ? { topFaqPath: agent.topFaqPath } : {}),
     ...(agent.topFaqQuestion ? { topFaqQuestion: agent.topFaqQuestion } : {}),
@@ -21302,6 +21310,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topDataTableFirstHeader ? { topDataTableFirstHeader: agent.topDataTableFirstHeader } : {}),
     ...(agent.topDataTableFirstRow?.length ? { topDataTableFirstRow: agent.topDataTableFirstRow } : {}),
     ...(agent.topDataTableFirstCell ? { topDataTableFirstCell: agent.topDataTableFirstCell } : {}),
+    ...(agent.topDataTableSecondRow?.length ? { topDataTableSecondRow: agent.topDataTableSecondRow } : {}),
+    ...(agent.topDataTableSecondCell ? { topDataTableSecondCell: agent.topDataTableSecondCell } : {}),
     ...(agent.topDataTableSelector ? { topDataTableSelector: agent.topDataTableSelector } : {}),
     ...(agent.topFaqPath ? { topFaqPath: agent.topFaqPath } : {}),
     ...(agent.topFaqQuestion ? { topFaqQuestion: agent.topFaqQuestion } : {}),

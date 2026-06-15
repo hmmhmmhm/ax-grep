@@ -1556,6 +1556,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topDataTableFirstHeader?: string;
       topDataTableFirstRow?: string[];
       topDataTableFirstCell?: string;
+      topDataTableSecondRow?: string[];
+      topDataTableSecondCell?: string;
       topDataTableSelector?: string;
       topFaqPath?: string;
       topFaqQuestion?: string;
@@ -8578,6 +8580,8 @@ function scoreAgentStructuredShortcuts(agent: {
   topDataTableFirstHeader?: string;
   topDataTableFirstRow?: string[];
   topDataTableFirstCell?: string;
+  topDataTableSecondRow?: string[];
+  topDataTableSecondCell?: string;
   topDataTableSelector?: string;
   topFaqPath?: string;
   topFaqQuestion?: string;
@@ -8797,8 +8801,13 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topDataTableFirstHeader === topDataTable.headers?.[0]) matched += 1;
     if (arraysEqual(agent.topDataTableFirstRow, topDataTable.sampleRows?.[0])) matched += 1;
     if (agent.topDataTableFirstCell === topDataTable.sampleRows?.[0]?.[0]) matched += 1;
+    if (topDataTable.sampleRows?.[1]) {
+      required += 2;
+      if (arraysEqual(agent.topDataTableSecondRow, topDataTable.sampleRows[1])) matched += 1;
+      if (agent.topDataTableSecondCell === topDataTable.sampleRows[1]?.[0]) matched += 1;
+    }
     if (agent.topDataTableSelector === topDataTable.selector) matched += 1;
-  } else if (agent.topDataTablePath || agent.topDataTableCaption || typeof agent.topDataTableRowCount === "number" || typeof agent.topDataTableColumnCount === "number" || typeof agent.topDataTableHeaderCount === "number" || agent.topDataTableHeaders || agent.topDataTableFirstHeader || agent.topDataTableFirstRow || agent.topDataTableFirstCell || agent.topDataTableSelector) {
+  } else if (agent.topDataTablePath || agent.topDataTableCaption || typeof agent.topDataTableRowCount === "number" || typeof agent.topDataTableColumnCount === "number" || typeof agent.topDataTableHeaderCount === "number" || agent.topDataTableHeaders || agent.topDataTableFirstHeader || agent.topDataTableFirstRow || agent.topDataTableFirstCell || agent.topDataTableSecondRow || agent.topDataTableSecondCell || agent.topDataTableSelector) {
     required += 1;
   }
 

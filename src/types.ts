@@ -2047,6 +2047,8 @@ export type AgentSummary = {
   topDataTableFirstHeader?: string;
   topDataTableFirstRow?: string[];
   topDataTableFirstCell?: string;
+  topDataTableSecondRow?: string[];
+  topDataTableSecondCell?: string;
   topDataTableSelector?: string;
   topFaqPath?: string;
   topFaqQuestion?: string;
