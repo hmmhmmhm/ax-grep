@@ -2173,6 +2173,8 @@ export type AgentSummary = {
   topPaginationKind?: string;
   topPaginationLabel?: string;
   topPaginationUrl?: string;
+  topPaginationUrlPath?: string;
+  topPaginationUrlQuery?: string;
   topPaginationCommand?: string;
   topPaginationCommandArgs?: string[];
   topPaginationCurrent?: boolean;
@@ -2183,6 +2185,8 @@ export type AgentSummary = {
   topTocText?: string;
   topTocFirstItemLabel?: string;
   topTocFirstItemUrl?: string;
+  topTocFirstItemUrlPath?: string;
+  topTocFirstItemUrlQuery?: string;
   topTocFirstItemCommand?: string;
   topTocFirstItemCommandArgs?: string[];
   topTocSelector?: string;

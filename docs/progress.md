@@ -1013,6 +1013,8 @@ When research expands:
   skip-link routing can compare targets without parsing full URLs.
 - Added submit-button `formaction` URL path/query shortcuts so form handoff can
   compare overridden submit targets without parsing full URLs.
+- Added pagination and table-of-contents URL path/query shortcuts so navigation
+  follow-up handoff can compare page and section targets without URL parsing.
 
 ## In Progress
 

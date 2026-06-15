@@ -487,6 +487,8 @@ describe("public agent types", () => {
       | "topPaginationKind"
       | "topPaginationLabel"
       | "topPaginationUrl"
+      | "topPaginationUrlPath"
+      | "topPaginationUrlQuery"
       | "topPaginationCommand"
       | "topPaginationCommandArgs"
       | "topPaginationCurrent"
@@ -497,6 +499,8 @@ describe("public agent types", () => {
       | "topTocText"
       | "topTocFirstItemLabel"
       | "topTocFirstItemUrl"
+      | "topTocFirstItemUrlPath"
+      | "topTocFirstItemUrlQuery"
       | "topTocFirstItemCommand"
       | "topTocFirstItemCommandArgs"
       | "topTocSelector"
@@ -1961,6 +1965,7 @@ describe("public agent types", () => {
       topPaginationKind: "next",
       topPaginationLabel: "Next",
       topPaginationUrl: "https://example.test/next",
+      topPaginationUrlPath: "/next",
       topPaginationCommand: "ax-grep 'https://example.test/next' --agent",
       topPaginationCommandArgs: ["ax-grep", "https://example.test/next", "--agent"],
       topPaginationCurrent: false,
@@ -1971,6 +1976,7 @@ describe("public agent types", () => {
       topTocText: "Install; Configure",
       topTocFirstItemLabel: "Install",
       topTocFirstItemUrl: "https://example.test/install#install",
+      topTocFirstItemUrlPath: "/install",
       topTocFirstItemCommand: "ax-grep 'https://example.test/install#install' --agent",
       topTocFirstItemCommandArgs: ["ax-grep", "https://example.test/install#install", "--agent"],
       topTocSelector: "nav[aria-label=\"On this page\"]",

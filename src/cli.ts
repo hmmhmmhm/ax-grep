@@ -1801,6 +1801,8 @@ type AgentSummary = {
   topPaginationKind?: PagePaginationSummary["kind"];
   topPaginationLabel?: string;
   topPaginationUrl?: string;
+  topPaginationUrlPath?: string;
+  topPaginationUrlQuery?: string;
   topPaginationCommand?: string;
   topPaginationCommandArgs?: string[];
   topPaginationCurrent?: boolean;
@@ -1811,6 +1813,8 @@ type AgentSummary = {
   topTocText?: string;
   topTocFirstItemLabel?: string;
   topTocFirstItemUrl?: string;
+  topTocFirstItemUrlPath?: string;
+  topTocFirstItemUrlQuery?: string;
   topTocFirstItemCommand?: string;
   topTocFirstItemCommandArgs?: string[];
   topTocSelector?: string;
@@ -4580,10 +4584,10 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topMediaCommandArgs ? [`  topMediaCommandArgs: ${formatCommandArgsText(agent.topMediaCommandArgs)}`] : []),
     ...(agent.topSectionPath ? [`  topSection: path=${agent.topSectionPath}${typeof agent.topSectionLevel === "number" ? ` level=${agent.topSectionLevel}` : ""}${agent.topSectionSelector ? ` selector=${agent.topSectionSelector}` : ""}${agent.topSectionHeading ? ` heading="${agent.topSectionHeading}"` : ""}${agent.topSectionText ? ` - ${agent.topSectionText}` : ""}`] : []),
     ...(agent.topBreadcrumbText ? [`  topBreadcrumb: path=${agent.topBreadcrumbPath ?? ""}${agent.topBreadcrumbSource ? ` source=${agent.topBreadcrumbSource}` : ""}${agent.topBreadcrumbSelector ? ` selector=${agent.topBreadcrumbSelector}` : ""} - ${agent.topBreadcrumbText}`] : []),
-    ...(agent.topPaginationPath ? [`  topPagination: path=${agent.topPaginationPath}${agent.topPaginationKind ? ` kind=${agent.topPaginationKind}` : ""}${agent.topPaginationLabel ? ` label="${agent.topPaginationLabel}"` : ""}${typeof agent.topPaginationCurrent === "boolean" ? ` current=${agent.topPaginationCurrent}` : ""}${agent.topPaginationSelector ? ` selector=${agent.topPaginationSelector}` : ""}${agent.topPaginationUrl ? ` url=<${agent.topPaginationUrl}>` : ""}`] : []),
+    ...(agent.topPaginationPath ? [`  topPagination: path=${agent.topPaginationPath}${agent.topPaginationKind ? ` kind=${agent.topPaginationKind}` : ""}${agent.topPaginationLabel ? ` label="${agent.topPaginationLabel}"` : ""}${typeof agent.topPaginationCurrent === "boolean" ? ` current=${agent.topPaginationCurrent}` : ""}${agent.topPaginationSelector ? ` selector=${agent.topPaginationSelector}` : ""}${agent.topPaginationUrl ? ` url=<${agent.topPaginationUrl}>` : ""}${agent.topPaginationUrlPath ? ` urlPath=${agent.topPaginationUrlPath}` : ""}${agent.topPaginationUrlQuery ? ` urlQuery=${agent.topPaginationUrlQuery}` : ""}`] : []),
     ...(agent.topPaginationCommand ? [`  topPaginationCommand: ${agent.topPaginationCommand}`] : []),
     ...(agent.topPaginationCommandArgs ? [`  topPaginationCommandArgs: ${formatCommandArgsText(agent.topPaginationCommandArgs)}`] : []),
-    ...(agent.topTocPath ? [`  topToc: path=${agent.topTocPath}${agent.topTocTitle ? ` title="${agent.topTocTitle}"` : ""}${typeof agent.topTocItemCount === "number" ? ` items=${agent.topTocItemCount}` : ""}${agent.topTocSelector ? ` selector=${agent.topTocSelector}` : ""}${agent.topTocFirstItemLabel ? ` first="${agent.topTocFirstItemLabel}"` : ""}${agent.topTocFirstItemUrl ? ` firstUrl=<${agent.topTocFirstItemUrl}>` : ""}${agent.topTocText ? ` - ${agent.topTocText}` : ""}`] : []),
+    ...(agent.topTocPath ? [`  topToc: path=${agent.topTocPath}${agent.topTocTitle ? ` title="${agent.topTocTitle}"` : ""}${typeof agent.topTocItemCount === "number" ? ` items=${agent.topTocItemCount}` : ""}${agent.topTocSelector ? ` selector=${agent.topTocSelector}` : ""}${agent.topTocFirstItemLabel ? ` first="${agent.topTocFirstItemLabel}"` : ""}${agent.topTocFirstItemUrl ? ` firstUrl=<${agent.topTocFirstItemUrl}>` : ""}${agent.topTocFirstItemUrlPath ? ` firstUrlPath=${agent.topTocFirstItemUrlPath}` : ""}${agent.topTocFirstItemUrlQuery ? ` firstUrlQuery=${agent.topTocFirstItemUrlQuery}` : ""}${agent.topTocText ? ` - ${agent.topTocText}` : ""}`] : []),
     ...(agent.topTocFirstItemCommand ? [`  topTocFirstItemCommand: ${agent.topTocFirstItemCommand}`] : []),
     ...(agent.topTocFirstItemCommandArgs ? [`  topTocFirstItemCommandArgs: ${formatCommandArgsText(agent.topTocFirstItemCommandArgs)}`] : []),
     ...(agent.topProvenanceValue ? [`  topProvenance: path=${agent.topProvenancePath ?? ""}${agent.topProvenanceKind ? ` kind=${agent.topProvenanceKind}` : ""}${agent.topProvenanceLabel ? ` label="${agent.topProvenanceLabel}"` : ""} value=${agent.topProvenanceValue}${agent.topProvenanceSource ? ` source=${agent.topProvenanceSource}` : ""}${agent.topProvenanceSelector ? ` selector=${agent.topProvenanceSelector}` : ""}${agent.topProvenanceUrl ? ` url=<${agent.topProvenanceUrl}>` : ""}`] : []),
@@ -13145,6 +13149,7 @@ function summarizeAgent(
   const topTocFirstItemCommand = pageCheck.toc[0]?.items[0]?.url && /^https?:\/\//i.test(pageCheck.toc[0].items[0].url)
     ? pageCommandSpec(pageCheck.toc[0].items[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topTocFirstItemUrlParts = pageCheck.toc[0]?.items[0]?.url ? urlPathParts(pageCheck.toc[0].items[0].url) : undefined;
   const topProvenanceCommand = pageCheck.provenance[0]?.url
     ? pageCommandSpec(pageCheck.provenance[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -13157,6 +13162,7 @@ function summarizeAgent(
   const topPaginationCommand = pageCheck.pagination[0]?.url && /^https?:\/\//i.test(pageCheck.pagination[0].url)
     ? pageCommandSpec(pageCheck.pagination[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topPaginationUrlParts = pageCheck.pagination[0]?.url ? urlPathParts(pageCheck.pagination[0].url) : undefined;
   const topEmbedCommand = pageCheck.embeds[0]?.url && /^https?:\/\//i.test(pageCheck.embeds[0].url)
     ? pageCommandSpec(pageCheck.embeds[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -14119,6 +14125,8 @@ function summarizeAgent(
     ...(pageCheck.pagination[0] ? { topPaginationKind: pageCheck.pagination[0].kind } : {}),
     ...(pageCheck.pagination[0]?.label ? { topPaginationLabel: pageCheck.pagination[0].label } : {}),
     ...(pageCheck.pagination[0]?.url ? { topPaginationUrl: pageCheck.pagination[0].url } : {}),
+    ...(topPaginationUrlParts?.urlPath ? { topPaginationUrlPath: topPaginationUrlParts.urlPath } : {}),
+    ...(topPaginationUrlParts?.urlQuery ? { topPaginationUrlQuery: topPaginationUrlParts.urlQuery } : {}),
     ...(topPaginationCommand ? { topPaginationCommand: topPaginationCommand.command } : {}),
     ...(topPaginationCommand ? { topPaginationCommandArgs: topPaginationCommand.commandArgs } : {}),
     ...(typeof pageCheck.pagination[0]?.current === "boolean" ? { topPaginationCurrent: pageCheck.pagination[0].current } : {}),
@@ -14129,6 +14137,8 @@ function summarizeAgent(
     ...(pageCheck.toc[0]?.text ? { topTocText: pageCheck.toc[0].text } : {}),
     ...(pageCheck.toc[0]?.items[0]?.label ? { topTocFirstItemLabel: pageCheck.toc[0].items[0].label } : {}),
     ...(pageCheck.toc[0]?.items[0]?.url ? { topTocFirstItemUrl: pageCheck.toc[0].items[0].url } : {}),
+    ...(topTocFirstItemUrlParts?.urlPath ? { topTocFirstItemUrlPath: topTocFirstItemUrlParts.urlPath } : {}),
+    ...(topTocFirstItemUrlParts?.urlQuery ? { topTocFirstItemUrlQuery: topTocFirstItemUrlParts.urlQuery } : {}),
     ...(topTocFirstItemCommand ? { topTocFirstItemCommand: topTocFirstItemCommand.command } : {}),
     ...(topTocFirstItemCommand ? { topTocFirstItemCommandArgs: topTocFirstItemCommand.commandArgs } : {}),
     ...(pageCheck.toc[0]?.selector ? { topTocSelector: pageCheck.toc[0].selector } : {}),
@@ -20389,6 +20399,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topPaginationKind ? { topPaginationKind: agent.topPaginationKind } : {}),
     ...(agent.topPaginationLabel ? { topPaginationLabel: agent.topPaginationLabel } : {}),
     ...(agent.topPaginationUrl ? { topPaginationUrl: agent.topPaginationUrl } : {}),
+    ...(agent.topPaginationUrlPath ? { topPaginationUrlPath: agent.topPaginationUrlPath } : {}),
+    ...(agent.topPaginationUrlQuery ? { topPaginationUrlQuery: agent.topPaginationUrlQuery } : {}),
     ...(agent.topPaginationCommand ? { topPaginationCommand: agent.topPaginationCommand } : {}),
     ...(agent.topPaginationCommandArgs ? { topPaginationCommandArgs: agent.topPaginationCommandArgs } : {}),
     ...(typeof agent.topPaginationCurrent === "boolean" ? { topPaginationCurrent: agent.topPaginationCurrent } : {}),
@@ -20399,6 +20411,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topTocText ? { topTocText: agent.topTocText } : {}),
     ...(agent.topTocFirstItemLabel ? { topTocFirstItemLabel: agent.topTocFirstItemLabel } : {}),
     ...(agent.topTocFirstItemUrl ? { topTocFirstItemUrl: agent.topTocFirstItemUrl } : {}),
+    ...(agent.topTocFirstItemUrlPath ? { topTocFirstItemUrlPath: agent.topTocFirstItemUrlPath } : {}),
+    ...(agent.topTocFirstItemUrlQuery ? { topTocFirstItemUrlQuery: agent.topTocFirstItemUrlQuery } : {}),
     ...(agent.topTocFirstItemCommand ? { topTocFirstItemCommand: agent.topTocFirstItemCommand } : {}),
     ...(agent.topTocFirstItemCommandArgs ? { topTocFirstItemCommandArgs: agent.topTocFirstItemCommandArgs } : {}),
     ...(agent.topTocSelector ? { topTocSelector: agent.topTocSelector } : {}),
@@ -21845,6 +21859,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topPaginationKind ? { topPaginationKind: agent.topPaginationKind } : {}),
     ...(agent.topPaginationLabel ? { topPaginationLabel: agent.topPaginationLabel } : {}),
     ...(agent.topPaginationUrl ? { topPaginationUrl: agent.topPaginationUrl } : {}),
+    ...(agent.topPaginationUrlPath ? { topPaginationUrlPath: agent.topPaginationUrlPath } : {}),
+    ...(agent.topPaginationUrlQuery ? { topPaginationUrlQuery: agent.topPaginationUrlQuery } : {}),
     ...(agent.topPaginationCommand ? { topPaginationCommand: agent.topPaginationCommand } : {}),
     ...(agent.topPaginationCommandArgs ? { topPaginationCommandArgs: agent.topPaginationCommandArgs } : {}),
     ...(typeof agent.topPaginationCurrent === "boolean" ? { topPaginationCurrent: agent.topPaginationCurrent } : {}),
@@ -21855,6 +21871,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topTocText ? { topTocText: agent.topTocText } : {}),
     ...(agent.topTocFirstItemLabel ? { topTocFirstItemLabel: agent.topTocFirstItemLabel } : {}),
     ...(agent.topTocFirstItemUrl ? { topTocFirstItemUrl: agent.topTocFirstItemUrl } : {}),
+    ...(agent.topTocFirstItemUrlPath ? { topTocFirstItemUrlPath: agent.topTocFirstItemUrlPath } : {}),
+    ...(agent.topTocFirstItemUrlQuery ? { topTocFirstItemUrlQuery: agent.topTocFirstItemUrlQuery } : {}),
     ...(agent.topTocFirstItemCommand ? { topTocFirstItemCommand: agent.topTocFirstItemCommand } : {}),
     ...(agent.topTocFirstItemCommandArgs ? { topTocFirstItemCommandArgs: agent.topTocFirstItemCommandArgs } : {}),
     ...(agent.topTocSelector ? { topTocSelector: agent.topTocSelector } : {}),

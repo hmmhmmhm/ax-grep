@@ -11104,6 +11104,8 @@ npx ax-grep https://example.test --agent</code></pre>
       topPaginationKind: "prev",
       topPaginationLabel: "Previous page",
       topPaginationUrl: "https://example.test/blog?page=1",
+      topPaginationUrlPath: "/blog",
+      topPaginationUrlQuery: "?page=1",
       topPaginationCommand: "ax-grep 'https://example.test/blog?page=1' --find 'next Page 3' --agent",
       topPaginationCommandArgs: ["ax-grep", "https://example.test/blog?page=1", "--find", "next Page 3", "--agent"],
     });
@@ -11137,6 +11139,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topPagination: path=pageCheck.pagination[0] kind=prev label=\"Previous\" selector=nav:nth-of-type(1) a url=<https://example.test/blog?page=1>");
+    expect(stdout.output).toContain("urlPath=/blog urlQuery=?page=1");
     expect(stdout.output).toContain("  pagination: id=pg1 path=pageCheck.pagination[0] kind=prev source=html label=\"Previous\" selector=nav:nth-of-type(1) a url=<https://example.test/blog?page=1> - prev Previous https://example.test/blog?page=1");
   });
 
@@ -11196,6 +11199,7 @@ npx ax-grep https://example.test --agent</code></pre>
       topTocText: "Installation; Configuration; API reference",
       topTocFirstItemLabel: "Installation",
       topTocFirstItemUrl: "https://example.test/docs/guide#install",
+      topTocFirstItemUrlPath: "/docs/guide",
       topTocFirstItemCommand: "ax-grep 'https://example.test/docs/guide#install' --agent",
       topTocFirstItemCommandArgs: ["ax-grep", "https://example.test/docs/guide#install", "--agent"],
       topTocSelector: "nav:nth-of-type(1)",
@@ -11231,7 +11235,7 @@ npx ax-grep https://example.test --agent</code></pre>
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain("  topToc: path=pageCheck.toc[0] title=\"On this page\" items=3 selector=nav:nth-of-type(1) first=\"Installation\" firstUrl=<https://example.test/docs/guide#install> - Installation; Configuration; API reference");
+    expect(stdout.output).toContain("  topToc: path=pageCheck.toc[0] title=\"On this page\" items=3 selector=nav:nth-of-type(1) first=\"Installation\" firstUrl=<https://example.test/docs/guide#install> firstUrlPath=/docs/guide - Installation; Configuration; API reference");
     expect(stdout.output).toContain("  toc: id=toc1 path=pageCheck.toc[0] title=\"On this page\" items=3 first=\"Installation\" firstLevel=2 last=\"API reference\" lastLevel=3 urls=https://example.test/docs/guide#install,https://example.test/docs/guide#config,https://example.test/docs/guide#api selector=nav:nth-of-type(1) - Installation; Configuration; API reference");
     expect(stdout.output).toContain("  topTocFirstItemCommand: ax-grep 'https://example.test/docs/guide#install'");
   });
