@@ -1799,6 +1799,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topHydrationKind?: string;
       topHydrationLabel?: string;
       topHydrationUrl?: string;
+      topHydrationUrlPath?: string;
+      topHydrationUrlQuery?: string;
       topHydrationCommand?: string;
       topHydrationCommandArgs?: string[];
       topHydrationSelector?: string;
@@ -1806,6 +1808,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topApiEndpointKind?: string;
       topApiEndpointMethod?: string;
       topApiEndpointUrl?: string;
+      topApiEndpointUrlPath?: string;
+      topApiEndpointUrlQuery?: string;
       topApiEndpointCommand?: string;
       topApiEndpointCommandArgs?: string[];
       topApiEndpointSelector?: string;
@@ -1818,6 +1822,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topAppHintKind?: string;
       topAppHintLabel?: string;
       topAppHintUrl?: string;
+      topAppHintUrlPath?: string;
+      topAppHintUrlQuery?: string;
       topAppHintCommand?: string;
       topAppHintCommandArgs?: string[];
       topAppHintSelector?: string;
@@ -1826,6 +1832,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topHiddenSignalKind?: string;
       topHiddenSignalText?: string;
       topHiddenSignalUrl?: string;
+      topHiddenSignalUrlPath?: string;
+      topHiddenSignalUrlQuery?: string;
       topHiddenSignalSource?: string;
       topHiddenSignalSelector?: string;
       hiddenReadTargetCount?: number;
@@ -5788,6 +5796,8 @@ function scoreAgentTopHiddenSignalShortcuts(agent: {
   topHydrationKind?: string;
   topHydrationLabel?: string;
   topHydrationUrl?: string;
+  topHydrationUrlPath?: string;
+  topHydrationUrlQuery?: string;
   topHydrationCommand?: string;
   topHydrationCommandArgs?: string[];
   topHydrationSelector?: string;
@@ -5795,6 +5805,8 @@ function scoreAgentTopHiddenSignalShortcuts(agent: {
   topApiEndpointKind?: string;
   topApiEndpointMethod?: string;
   topApiEndpointUrl?: string;
+  topApiEndpointUrlPath?: string;
+  topApiEndpointUrlQuery?: string;
   topApiEndpointCommand?: string;
   topApiEndpointCommandArgs?: string[];
   topApiEndpointSelector?: string;
@@ -5803,18 +5815,39 @@ function scoreAgentTopHiddenSignalShortcuts(agent: {
   topClientStateOperation?: string;
   topClientStateKey?: string;
   topClientStateSelector?: string;
+  topRuntimePath?: string;
+  topRuntimeKind?: string;
+  topRuntimeUrl?: string;
+  topRuntimeUrlPath?: string;
+  topRuntimeUrlQuery?: string;
+  topRuntimeCommand?: string;
+  topRuntimeCommandArgs?: string[];
+  topRuntimeSelector?: string;
   topAppHintPath?: string;
   topAppHintKind?: string;
   topAppHintLabel?: string;
   topAppHintUrl?: string;
+  topAppHintUrlPath?: string;
+  topAppHintUrlQuery?: string;
   topAppHintCommand?: string;
   topAppHintCommandArgs?: string[];
   topAppHintSelector?: string;
+  topMobileHintPath?: string;
+  topMobileHintKind?: string;
+  topMobileHintLabel?: string;
+  topMobileHintValue?: string;
+  topMobileHintPlatform?: string;
+  topMobileHintUrl?: string;
+  topMobileHintUrlPath?: string;
+  topMobileHintUrlQuery?: string;
+  topMobileHintSelector?: string;
   topHiddenSignalGroup?: string;
   topHiddenSignalPath?: string;
   topHiddenSignalKind?: string;
   topHiddenSignalText?: string;
   topHiddenSignalUrl?: string;
+  topHiddenSignalUrlPath?: string;
+  topHiddenSignalUrlQuery?: string;
   topHiddenSignalSource?: string;
   topHiddenSignalSelector?: string;
 } | undefined, pageCheck: unknown): number {
@@ -5847,7 +5880,22 @@ function scoreAgentTopHiddenSignalShortcuts(agent: {
   if (top.url) {
     required += 1;
     if (agent?.topHiddenSignalUrl === top.url) matched += 1;
+    const topHiddenSignalUrlParts = compareUrlPathParts(top.url);
+    if (topHiddenSignalUrlParts?.urlPath) {
+      required += 1;
+      if (agent?.topHiddenSignalUrlPath === topHiddenSignalUrlParts.urlPath) matched += 1;
+    } else if (agent?.topHiddenSignalUrlPath) {
+      required += 1;
+    }
+    if (topHiddenSignalUrlParts?.urlQuery) {
+      required += 1;
+      if (agent?.topHiddenSignalUrlQuery === topHiddenSignalUrlParts.urlQuery) matched += 1;
+    } else if (agent?.topHiddenSignalUrlQuery) {
+      required += 1;
+    }
   } else if (agent?.topHiddenSignalUrl) {
+    required += 1;
+  } else if (agent?.topHiddenSignalUrlPath || agent?.topHiddenSignalUrlQuery) {
     required += 1;
   }
   if (top.source) {
@@ -5871,6 +5919,7 @@ function scoreAgentTopHiddenSignalShortcuts(agent: {
       url: "topHydrationUrl",
       selector: "topHydrationSelector",
     }),
+    scoreTopPageCheckGroupUrlPathShortcut(pageCheck, "hydration", agent, "topHydrationUrlPath", "topHydrationUrlQuery"),
     scoreTopHiddenUrlCommandShortcut(pageCheck, "hydration", agent, "topHydrationCommand", "topHydrationCommandArgs"),
     scoreTopPageCheckGroupShortcut(pageCheck, "apiEndpoints", agent, {
       path: "topApiEndpointPath",
@@ -5879,6 +5928,7 @@ function scoreAgentTopHiddenSignalShortcuts(agent: {
       url: "topApiEndpointUrl",
       selector: "topApiEndpointSelector",
     }),
+    scoreTopPageCheckGroupUrlPathShortcut(pageCheck, "apiEndpoints", agent, "topApiEndpointUrlPath", "topApiEndpointUrlQuery"),
     scoreTopPageCheckGroupShortcut(pageCheck, "clientState", agent, {
       path: "topClientStatePath",
       kind: "topClientStateKind",
@@ -5886,6 +5936,13 @@ function scoreAgentTopHiddenSignalShortcuts(agent: {
       key: "topClientStateKey",
       selector: "topClientStateSelector",
     }),
+    scoreTopPageCheckGroupShortcut(pageCheck, "runtime", agent, {
+      path: "topRuntimePath",
+      kind: "topRuntimeKind",
+      url: "topRuntimeUrl",
+      selector: "topRuntimeSelector",
+    }),
+    scoreTopPageCheckGroupUrlPathShortcut(pageCheck, "runtime", agent, "topRuntimeUrlPath", "topRuntimeUrlQuery"),
     scoreTopPageCheckGroupShortcut(pageCheck, "appHints", agent, {
       path: "topAppHintPath",
       kind: "topAppHintKind",
@@ -5893,7 +5950,18 @@ function scoreAgentTopHiddenSignalShortcuts(agent: {
       url: "topAppHintUrl",
       selector: "topAppHintSelector",
     }),
+    scoreTopPageCheckGroupUrlPathShortcut(pageCheck, "appHints", agent, "topAppHintUrlPath", "topAppHintUrlQuery"),
     scoreTopHiddenUrlCommandShortcut(pageCheck, "appHints", agent, "topAppHintCommand", "topAppHintCommandArgs"),
+    scoreTopPageCheckGroupShortcut(pageCheck, "mobileHints", agent, {
+      path: "topMobileHintPath",
+      kind: "topMobileHintKind",
+      label: "topMobileHintLabel",
+      value: "topMobileHintValue",
+      platform: "topMobileHintPlatform",
+      url: "topMobileHintUrl",
+      selector: "topMobileHintSelector",
+    }),
+    scoreTopPageCheckGroupUrlPathShortcut(pageCheck, "mobileHints", agent, "topMobileHintUrlPath", "topMobileHintUrlQuery"),
     scoreTopApiEndpointCommandShortcut(pageCheck, agent),
   ];
   return roundScore(average([topHiddenScore, ...groupScores]));
@@ -5970,6 +6038,31 @@ function scoreTopPageCheckGroupShortcut(
     if (actual === expected) matched += 1;
   }
   return required === 0 ? 1 : roundScore(matched / required);
+}
+
+function scoreTopPageCheckGroupUrlPathShortcut(
+  pageCheck: unknown,
+  key: string,
+  agent: Record<string, unknown> | undefined,
+  pathField: string,
+  queryField: string,
+): number {
+  const item = firstPageCheckArrayRecord(pageCheck, key);
+  const url = typeof item?.url === "string" ? item.url : "";
+  const actualPath = agent?.[pathField];
+  const actualQuery = agent?.[queryField];
+  if (!url) return typeof actualPath !== "undefined" || typeof actualQuery !== "undefined" ? 0 : 1;
+  const urlParts = compareUrlPathParts(url);
+  if (!urlParts?.urlPath) return typeof actualPath !== "undefined" || typeof actualQuery !== "undefined" ? 0 : 1;
+  let required = 1;
+  let matched = actualPath === urlParts.urlPath ? 1 : 0;
+  if (urlParts.urlQuery) {
+    required += 1;
+    if (actualQuery === urlParts.urlQuery) matched += 1;
+  } else if (typeof actualQuery !== "undefined") {
+    required += 1;
+  }
+  return roundScore(matched / required);
 }
 
 function firstPageCheckArrayRecord(pageCheck: unknown, key: string): Record<string, unknown> | undefined {

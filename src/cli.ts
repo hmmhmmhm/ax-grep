@@ -1958,6 +1958,8 @@ type AgentSummary = {
   topHydrationKind?: string;
   topHydrationLabel?: string;
   topHydrationUrl?: string;
+  topHydrationUrlPath?: string;
+  topHydrationUrlQuery?: string;
   topHydrationCommand?: string;
   topHydrationCommandArgs?: string[];
   topHydrationSelector?: string;
@@ -1965,6 +1967,8 @@ type AgentSummary = {
   topApiEndpointKind?: string;
   topApiEndpointMethod?: string;
   topApiEndpointUrl?: string;
+  topApiEndpointUrlPath?: string;
+  topApiEndpointUrlQuery?: string;
   topApiEndpointCommand?: string;
   topApiEndpointCommandArgs?: string[];
   topApiEndpointSelector?: string;
@@ -1976,6 +1980,8 @@ type AgentSummary = {
   topRuntimePath?: string;
   topRuntimeKind?: string;
   topRuntimeUrl?: string;
+  topRuntimeUrlPath?: string;
+  topRuntimeUrlQuery?: string;
   topRuntimeCommand?: string;
   topRuntimeCommandArgs?: string[];
   topRuntimeSelector?: string;
@@ -1989,6 +1995,8 @@ type AgentSummary = {
   topAppHintKind?: string;
   topAppHintLabel?: string;
   topAppHintUrl?: string;
+  topAppHintUrlPath?: string;
+  topAppHintUrlQuery?: string;
   topAppHintCommand?: string;
   topAppHintCommandArgs?: string[];
   topAppHintSelector?: string;
@@ -1998,6 +2006,8 @@ type AgentSummary = {
   topMobileHintValue?: string;
   topMobileHintPlatform?: string;
   topMobileHintUrl?: string;
+  topMobileHintUrlPath?: string;
+  topMobileHintUrlQuery?: string;
   topMobileHintSelector?: string;
   topTopicPath?: string;
   topTopicKind?: string;
@@ -2033,6 +2043,8 @@ type AgentSummary = {
   topHiddenSignalKind?: string;
   topHiddenSignalText?: string;
   topHiddenSignalUrl?: string;
+  topHiddenSignalUrlPath?: string;
+  topHiddenSignalUrlQuery?: string;
   topHiddenSignalSource?: string;
   topHiddenSignalSelector?: string;
   hiddenReadTargetCount: number;
@@ -4680,31 +4692,31 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  hiddenMetaFactCount: ${agent.hiddenMetaFactCount}`,
     `  hiddenHttpPolicyCount: ${agent.hiddenHttpPolicyCount}`,
     `  hiddenSchemaFactCount: ${agent.hiddenSchemaFactCount}`,
-    ...(agent.topHydrationPath ? [`  topHydration: path=${agent.topHydrationPath}${agent.topHydrationKind ? ` kind=${agent.topHydrationKind}` : ""}${agent.topHydrationLabel ? ` label="${agent.topHydrationLabel}"` : ""}${agent.topHydrationSelector ? ` selector=${agent.topHydrationSelector}` : ""}${agent.topHydrationUrl ? ` url=<${agent.topHydrationUrl}>` : ""}`] : []),
+    ...(agent.topHydrationPath ? [`  topHydration: path=${agent.topHydrationPath}${agent.topHydrationKind ? ` kind=${agent.topHydrationKind}` : ""}${agent.topHydrationLabel ? ` label="${agent.topHydrationLabel}"` : ""}${agent.topHydrationSelector ? ` selector=${agent.topHydrationSelector}` : ""}${agent.topHydrationUrl ? ` url=<${agent.topHydrationUrl}>` : ""}${agent.topHydrationUrlPath ? ` urlPath=${agent.topHydrationUrlPath}` : ""}${agent.topHydrationUrlQuery ? ` urlQuery=${agent.topHydrationUrlQuery}` : ""}`] : []),
     ...(agent.topHydrationCommand ? [`  topHydrationCommand: ${agent.topHydrationCommand}`] : []),
     ...(agent.topHydrationCommandArgs ? [`  topHydrationCommandArgs: ${formatCommandArgsText(agent.topHydrationCommandArgs)}`] : []),
     ...(agent.topHydrationSelector ? [`  topHydrationSelector: ${agent.topHydrationSelector}`] : []),
-    ...(agent.topApiEndpointPath ? [`  topApiEndpoint: path=${agent.topApiEndpointPath}${agent.topApiEndpointKind ? ` kind=${agent.topApiEndpointKind}` : ""}${agent.topApiEndpointMethod ? ` method=${agent.topApiEndpointMethod}` : ""}${agent.topApiEndpointSelector ? ` selector=${agent.topApiEndpointSelector}` : ""}${agent.topApiEndpointUrl ? ` url=<${agent.topApiEndpointUrl}>` : ""}`] : []),
+    ...(agent.topApiEndpointPath ? [`  topApiEndpoint: path=${agent.topApiEndpointPath}${agent.topApiEndpointKind ? ` kind=${agent.topApiEndpointKind}` : ""}${agent.topApiEndpointMethod ? ` method=${agent.topApiEndpointMethod}` : ""}${agent.topApiEndpointSelector ? ` selector=${agent.topApiEndpointSelector}` : ""}${agent.topApiEndpointUrl ? ` url=<${agent.topApiEndpointUrl}>` : ""}${agent.topApiEndpointUrlPath ? ` urlPath=${agent.topApiEndpointUrlPath}` : ""}${agent.topApiEndpointUrlQuery ? ` urlQuery=${agent.topApiEndpointUrlQuery}` : ""}`] : []),
     ...(agent.topApiEndpointCommand ? [`  topApiEndpointCommand: ${agent.topApiEndpointCommand}`] : []),
     ...(agent.topApiEndpointCommandArgs ? [`  topApiEndpointCommandArgs: ${formatCommandArgsText(agent.topApiEndpointCommandArgs)}`] : []),
     ...(agent.topApiEndpointSelector ? [`  topApiEndpointSelector: ${agent.topApiEndpointSelector}`] : []),
     ...(agent.topClientStatePath ? [`  topClientState: path=${agent.topClientStatePath}${agent.topClientStateKind ? ` kind=${agent.topClientStateKind}` : ""}${agent.topClientStateOperation ? ` operation=${agent.topClientStateOperation}` : ""}${agent.topClientStateKey ? ` key=${agent.topClientStateKey}` : ""}${agent.topClientStateSelector ? ` selector=${agent.topClientStateSelector}` : ""}`] : []),
     ...(agent.topClientStateSelector ? [`  topClientStateSelector: ${agent.topClientStateSelector}`] : []),
-    ...(agent.topRuntimePath ? [`  topRuntime: path=${agent.topRuntimePath}${agent.topRuntimeKind ? ` kind=${agent.topRuntimeKind}` : ""}${agent.topRuntimeSelector ? ` selector=${agent.topRuntimeSelector}` : ""}${agent.topRuntimeUrl ? ` url=<${agent.topRuntimeUrl}>` : ""}`] : []),
+    ...(agent.topRuntimePath ? [`  topRuntime: path=${agent.topRuntimePath}${agent.topRuntimeKind ? ` kind=${agent.topRuntimeKind}` : ""}${agent.topRuntimeSelector ? ` selector=${agent.topRuntimeSelector}` : ""}${agent.topRuntimeUrl ? ` url=<${agent.topRuntimeUrl}>` : ""}${agent.topRuntimeUrlPath ? ` urlPath=${agent.topRuntimeUrlPath}` : ""}${agent.topRuntimeUrlQuery ? ` urlQuery=${agent.topRuntimeUrlQuery}` : ""}`] : []),
     ...(agent.topRuntimeCommand ? [`  topRuntimeCommand: ${agent.topRuntimeCommand}`] : []),
     ...(agent.topRuntimeCommandArgs ? [`  topRuntimeCommandArgs: ${formatCommandArgsText(agent.topRuntimeCommandArgs)}`] : []),
     ...(agent.topConfigPath ? [`  topConfig: path=${agent.topConfigPath}${agent.topConfigKind ? ` kind=${agent.topConfigKind}` : ""}${agent.topConfigName ? ` name=${agent.topConfigName}` : ""}${typeof agent.topConfigKeyCount === "number" ? ` keys=${agent.topConfigKeyCount}` : ""}${agent.topConfigKeys?.length ? ` keyNames=${agent.topConfigKeys.join(",")}` : ""}${agent.topConfigSelector ? ` selector=${agent.topConfigSelector}` : ""}`] : []),
-    ...(agent.topAppHintPath ? [`  topAppHint: path=${agent.topAppHintPath}${agent.topAppHintKind ? ` kind=${agent.topAppHintKind}` : ""}${agent.topAppHintLabel ? ` label="${agent.topAppHintLabel}"` : ""}${agent.topAppHintSelector ? ` selector=${agent.topAppHintSelector}` : ""}${agent.topAppHintUrl ? ` url=<${agent.topAppHintUrl}>` : ""}`] : []),
+    ...(agent.topAppHintPath ? [`  topAppHint: path=${agent.topAppHintPath}${agent.topAppHintKind ? ` kind=${agent.topAppHintKind}` : ""}${agent.topAppHintLabel ? ` label="${agent.topAppHintLabel}"` : ""}${agent.topAppHintSelector ? ` selector=${agent.topAppHintSelector}` : ""}${agent.topAppHintUrl ? ` url=<${agent.topAppHintUrl}>` : ""}${agent.topAppHintUrlPath ? ` urlPath=${agent.topAppHintUrlPath}` : ""}${agent.topAppHintUrlQuery ? ` urlQuery=${agent.topAppHintUrlQuery}` : ""}`] : []),
     ...(agent.topAppHintCommand ? [`  topAppHintCommand: ${agent.topAppHintCommand}`] : []),
     ...(agent.topAppHintCommandArgs ? [`  topAppHintCommandArgs: ${formatCommandArgsText(agent.topAppHintCommandArgs)}`] : []),
     ...(agent.topAppHintSelector ? [`  topAppHintSelector: ${agent.topAppHintSelector}`] : []),
-    ...(agent.topMobileHintPath ? [`  topMobileHint: path=${agent.topMobileHintPath}${agent.topMobileHintKind ? ` kind=${agent.topMobileHintKind}` : ""}${agent.topMobileHintLabel ? ` label="${agent.topMobileHintLabel}"` : ""}${agent.topMobileHintPlatform ? ` platform=${agent.topMobileHintPlatform}` : ""}${agent.topMobileHintSelector ? ` selector=${agent.topMobileHintSelector}` : ""}${agent.topMobileHintUrl ? ` url=<${agent.topMobileHintUrl}>` : ""}${agent.topMobileHintValue ? ` - ${agent.topMobileHintValue}` : ""}`] : []),
+    ...(agent.topMobileHintPath ? [`  topMobileHint: path=${agent.topMobileHintPath}${agent.topMobileHintKind ? ` kind=${agent.topMobileHintKind}` : ""}${agent.topMobileHintLabel ? ` label="${agent.topMobileHintLabel}"` : ""}${agent.topMobileHintPlatform ? ` platform=${agent.topMobileHintPlatform}` : ""}${agent.topMobileHintSelector ? ` selector=${agent.topMobileHintSelector}` : ""}${agent.topMobileHintUrl ? ` url=<${agent.topMobileHintUrl}>` : ""}${agent.topMobileHintUrlPath ? ` urlPath=${agent.topMobileHintUrlPath}` : ""}${agent.topMobileHintUrlQuery ? ` urlQuery=${agent.topMobileHintUrlQuery}` : ""}${agent.topMobileHintValue ? ` - ${agent.topMobileHintValue}` : ""}`] : []),
     ...(agent.topTopicPath ? [`  topTopic: path=${agent.topTopicPath}${agent.topTopicKind ? ` kind=${agent.topTopicKind}` : ""}${agent.topTopicLabel ? ` label="${agent.topTopicLabel}"` : ""}${agent.topTopicSource ? ` source=${agent.topTopicSource}` : ""}${agent.topTopicSelector ? ` selector=${agent.topTopicSelector}` : ""}${agent.topTopicValue ? ` - ${agent.topTopicValue}` : ""}`] : []),
     ...(agent.topKeyValuePath ? [`  topKeyValue: path=${agent.topKeyValuePath}${agent.topKeyValueLabel ? ` label="${agent.topKeyValueLabel}"` : ""}${agent.topKeyValueSource ? ` source=${agent.topKeyValueSource}` : ""}${agent.topKeyValueDatetime ? ` datetime=${agent.topKeyValueDatetime}` : ""}${agent.topKeyValueSelector ? ` selector=${agent.topKeyValueSelector}` : ""}${agent.topKeyValueValue ? ` - ${agent.topKeyValueValue}` : ""}`] : []),
     ...(agent.topMetaFactPath ? [`  topMetaFact: path=${agent.topMetaFactPath}${agent.topMetaFactLabel ? ` label="${agent.topMetaFactLabel}"` : ""}${agent.topMetaFactSource ? ` source=${agent.topMetaFactSource}` : ""}${agent.topMetaFactSelector ? ` selector=${agent.topMetaFactSelector}` : ""}${agent.topMetaFactUrl ? ` url=<${agent.topMetaFactUrl}>` : ""}${agent.topMetaFactValue ? ` - ${agent.topMetaFactValue}` : ""}`] : []),
     ...(agent.topHttpPolicyPath ? [`  topHttpPolicy: path=${agent.topHttpPolicyPath}${agent.topHttpPolicyName ? ` name="${agent.topHttpPolicyName}"` : ""}${agent.topHttpPolicySource ? ` source=${agent.topHttpPolicySource}` : ""}${agent.topHttpPolicySelector ? ` selector=${agent.topHttpPolicySelector}` : ""}${agent.topHttpPolicyValue ? ` - ${agent.topHttpPolicyValue}` : ""}`] : []),
     ...(agent.topSchemaFactPath ? [`  topSchemaFact: path=${agent.topSchemaFactPath}${agent.topSchemaFactTypes?.length ? ` types=${agent.topSchemaFactTypes.join(",")}` : ""}${typeof agent.topSchemaFactFactCount === "number" ? ` facts=${agent.topSchemaFactFactCount}` : ""}${agent.topSchemaFactSelector ? ` selector=${agent.topSchemaFactSelector}` : ""}${agent.topSchemaFactFirstLabel ? ` ${agent.topSchemaFactFirstLabel}=${agent.topSchemaFactFirstValue ?? ""}` : ""}`] : []),
-    ...(agent.topHiddenSignalPath ? [`  topHiddenSignal: ${agent.topHiddenSignalGroup ? `group=${agent.topHiddenSignalGroup} ` : ""}path=${agent.topHiddenSignalPath}${agent.topHiddenSignalKind ? ` kind=${agent.topHiddenSignalKind}` : ""}${agent.topHiddenSignalSource ? ` source=${agent.topHiddenSignalSource}` : ""}${agent.topHiddenSignalSelector ? ` selector=${agent.topHiddenSignalSelector}` : ""}${agent.topHiddenSignalUrl ? ` url=<${agent.topHiddenSignalUrl}>` : ""}${agent.topHiddenSignalText ? ` - ${agent.topHiddenSignalText}` : ""}`] : []),
+    ...(agent.topHiddenSignalPath ? [`  topHiddenSignal: ${agent.topHiddenSignalGroup ? `group=${agent.topHiddenSignalGroup} ` : ""}path=${agent.topHiddenSignalPath}${agent.topHiddenSignalKind ? ` kind=${agent.topHiddenSignalKind}` : ""}${agent.topHiddenSignalSource ? ` source=${agent.topHiddenSignalSource}` : ""}${agent.topHiddenSignalSelector ? ` selector=${agent.topHiddenSignalSelector}` : ""}${agent.topHiddenSignalUrl ? ` url=<${agent.topHiddenSignalUrl}>` : ""}${agent.topHiddenSignalUrlPath ? ` urlPath=${agent.topHiddenSignalUrlPath}` : ""}${agent.topHiddenSignalUrlQuery ? ` urlQuery=${agent.topHiddenSignalUrlQuery}` : ""}${agent.topHiddenSignalText ? ` - ${agent.topHiddenSignalText}` : ""}`] : []),
     ...(agent.topHiddenSignalGroup ? [`  topHiddenSignalGroup: ${agent.topHiddenSignalGroup}`] : []),
     ...(agent.topHiddenSignalPath ? [`  topHiddenSignalPath: ${agent.topHiddenSignalPath}`] : []),
     ...(agent.topHiddenSignalKind ? [`  topHiddenSignalKind: ${agent.topHiddenSignalKind}`] : []),
@@ -13091,23 +13103,28 @@ function summarizeAgent(
   const topHydrationCommand = topHydration?.url && /^https?:\/\//i.test(topHydration.url)
     ? pageCommandSpec(topHydration.url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topHydrationUrlParts = topHydration?.url ? urlPathParts(topHydration.url) : undefined;
   const topApiEndpoint = pageCheck.apiEndpoints[0];
   const topApiEndpointCommand = topApiEndpoint?.url
     && /^https?:\/\//i.test(topApiEndpoint.url)
     && (!topApiEndpoint.method || topApiEndpoint.method.toUpperCase() === "GET")
     ? pageCommandSpec(topApiEndpoint.url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topApiEndpointUrlParts = topApiEndpoint?.url ? urlPathParts(topApiEndpoint.url) : undefined;
   const topClientState = pageCheck.clientState[0];
   const topRuntime = pageCheck.runtime[0];
   const topRuntimeCommand = topRuntime?.url && /^https?:\/\//i.test(topRuntime.url)
     ? pageCommandSpec(topRuntime.url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topRuntimeUrlParts = topRuntime?.url ? urlPathParts(topRuntime.url) : undefined;
   const topConfig = pageCheck.config[0];
   const topAppHint = pageCheck.appHints[0];
   const topAppHintCommand = topAppHint?.url && /^https?:\/\//i.test(topAppHint.url)
     ? pageCommandSpec(topAppHint.url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topAppHintUrlParts = topAppHint?.url ? urlPathParts(topAppHint.url) : undefined;
   const topMobileHint = pageCheck.mobileHints[0];
+  const topMobileHintUrlParts = topMobileHint?.url ? urlPathParts(topMobileHint.url) : undefined;
   const topTopic = pageCheck.topics[0];
   const topKeyValue = pageCheck.keyValues[0];
   const topMetaFact = pageCheck.metaFacts[0];
@@ -13115,6 +13132,7 @@ function summarizeAgent(
   const topSchemaFact = pageCheck.schemaFacts[0];
   const topSchemaFactFirstFact = topSchemaFact?.facts[0];
   const topHiddenSignal = selectTopHiddenAgentPageCheckSignal(pageCheck);
+  const topHiddenSignalUrlParts = topHiddenSignal?.url ? urlPathParts(topHiddenSignal.url) : undefined;
   const structuredReadTargetCount = countStructuredAgentReadTargets(readTargets);
   const hiddenReadTargetCount = countHiddenAgentReadTargets(readTargets);
   const citations = summarizeAgentCitations(analysis.kind, pageCheck, verification, primaryAction, recommendedResult, sourceSearch);
@@ -14334,6 +14352,8 @@ function summarizeAgent(
     ...(topHydration ? { topHydrationKind: topHydration.kind } : {}),
     ...(topHydration?.label ? { topHydrationLabel: topHydration.label } : {}),
     ...(topHydration?.url ? { topHydrationUrl: topHydration.url } : {}),
+    ...(topHydrationUrlParts?.urlPath ? { topHydrationUrlPath: topHydrationUrlParts.urlPath } : {}),
+    ...(topHydrationUrlParts?.urlQuery ? { topHydrationUrlQuery: topHydrationUrlParts.urlQuery } : {}),
     ...(topHydrationCommand ? { topHydrationCommand: topHydrationCommand.command } : {}),
     ...(topHydrationCommand ? { topHydrationCommandArgs: topHydrationCommand.commandArgs } : {}),
     ...(topHydration?.selector ? { topHydrationSelector: topHydration.selector } : {}),
@@ -14341,6 +14361,8 @@ function summarizeAgent(
     ...(topApiEndpoint ? { topApiEndpointKind: topApiEndpoint.kind } : {}),
     ...(topApiEndpoint?.method ? { topApiEndpointMethod: topApiEndpoint.method } : {}),
     ...(topApiEndpoint?.url ? { topApiEndpointUrl: topApiEndpoint.url } : {}),
+    ...(topApiEndpointUrlParts?.urlPath ? { topApiEndpointUrlPath: topApiEndpointUrlParts.urlPath } : {}),
+    ...(topApiEndpointUrlParts?.urlQuery ? { topApiEndpointUrlQuery: topApiEndpointUrlParts.urlQuery } : {}),
     ...(topApiEndpointCommand ? { topApiEndpointCommand: topApiEndpointCommand.command } : {}),
     ...(topApiEndpointCommand ? { topApiEndpointCommandArgs: topApiEndpointCommand.commandArgs } : {}),
     ...(topApiEndpoint?.selector ? { topApiEndpointSelector: topApiEndpoint.selector } : {}),
@@ -14352,6 +14374,8 @@ function summarizeAgent(
     ...(topRuntime ? { topRuntimePath: topRuntime.path } : {}),
     ...(topRuntime ? { topRuntimeKind: topRuntime.kind } : {}),
     ...(topRuntime?.url ? { topRuntimeUrl: topRuntime.url } : {}),
+    ...(topRuntimeUrlParts?.urlPath ? { topRuntimeUrlPath: topRuntimeUrlParts.urlPath } : {}),
+    ...(topRuntimeUrlParts?.urlQuery ? { topRuntimeUrlQuery: topRuntimeUrlParts.urlQuery } : {}),
     ...(topRuntimeCommand ? { topRuntimeCommand: topRuntimeCommand.command } : {}),
     ...(topRuntimeCommand ? { topRuntimeCommandArgs: topRuntimeCommand.commandArgs } : {}),
     ...(topRuntime?.selector ? { topRuntimeSelector: topRuntime.selector } : {}),
@@ -14365,6 +14389,8 @@ function summarizeAgent(
     ...(topAppHint ? { topAppHintKind: topAppHint.kind } : {}),
     ...(topAppHint?.label ? { topAppHintLabel: topAppHint.label } : {}),
     ...(topAppHint?.url ? { topAppHintUrl: topAppHint.url } : {}),
+    ...(topAppHintUrlParts?.urlPath ? { topAppHintUrlPath: topAppHintUrlParts.urlPath } : {}),
+    ...(topAppHintUrlParts?.urlQuery ? { topAppHintUrlQuery: topAppHintUrlParts.urlQuery } : {}),
     ...(topAppHintCommand ? { topAppHintCommand: topAppHintCommand.command } : {}),
     ...(topAppHintCommand ? { topAppHintCommandArgs: topAppHintCommand.commandArgs } : {}),
     ...(topAppHint?.selector ? { topAppHintSelector: topAppHint.selector } : {}),
@@ -14374,6 +14400,8 @@ function summarizeAgent(
     ...(topMobileHint?.value ? { topMobileHintValue: topMobileHint.value } : {}),
     ...(topMobileHint?.platform ? { topMobileHintPlatform: topMobileHint.platform } : {}),
     ...(topMobileHint?.url ? { topMobileHintUrl: topMobileHint.url } : {}),
+    ...(topMobileHintUrlParts?.urlPath ? { topMobileHintUrlPath: topMobileHintUrlParts.urlPath } : {}),
+    ...(topMobileHintUrlParts?.urlQuery ? { topMobileHintUrlQuery: topMobileHintUrlParts.urlQuery } : {}),
     ...(topMobileHint?.selector ? { topMobileHintSelector: topMobileHint.selector } : {}),
     ...(topTopic ? { topTopicPath: topTopic.path } : {}),
     ...(topTopic ? { topTopicKind: topTopic.kind } : {}),
@@ -14409,6 +14437,8 @@ function summarizeAgent(
     ...(topHiddenSignal?.kind ? { topHiddenSignalKind: topHiddenSignal.kind } : {}),
     ...(topHiddenSignal?.text ? { topHiddenSignalText: topHiddenSignal.text } : {}),
     ...(topHiddenSignal?.url ? { topHiddenSignalUrl: topHiddenSignal.url } : {}),
+    ...(topHiddenSignalUrlParts?.urlPath ? { topHiddenSignalUrlPath: topHiddenSignalUrlParts.urlPath } : {}),
+    ...(topHiddenSignalUrlParts?.urlQuery ? { topHiddenSignalUrlQuery: topHiddenSignalUrlParts.urlQuery } : {}),
     ...(topHiddenSignal?.source ? { topHiddenSignalSource: topHiddenSignal.source } : {}),
     ...(topHiddenSignal?.selector ? { topHiddenSignalSelector: topHiddenSignal.selector } : {}),
     hiddenReadTargetCount,
@@ -20640,6 +20670,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topHydrationKind ? { topHydrationKind: agent.topHydrationKind } : {}),
     ...(agent.topHydrationLabel ? { topHydrationLabel: agent.topHydrationLabel } : {}),
     ...(agent.topHydrationUrl ? { topHydrationUrl: agent.topHydrationUrl } : {}),
+    ...(agent.topHydrationUrlPath ? { topHydrationUrlPath: agent.topHydrationUrlPath } : {}),
+    ...(agent.topHydrationUrlQuery ? { topHydrationUrlQuery: agent.topHydrationUrlQuery } : {}),
     ...(agent.topHydrationCommand ? { topHydrationCommand: agent.topHydrationCommand } : {}),
     ...(agent.topHydrationCommandArgs ? { topHydrationCommandArgs: agent.topHydrationCommandArgs } : {}),
     ...(agent.topHydrationSelector ? { topHydrationSelector: agent.topHydrationSelector } : {}),
@@ -20647,6 +20679,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topApiEndpointKind ? { topApiEndpointKind: agent.topApiEndpointKind } : {}),
     ...(agent.topApiEndpointMethod ? { topApiEndpointMethod: agent.topApiEndpointMethod } : {}),
     ...(agent.topApiEndpointUrl ? { topApiEndpointUrl: agent.topApiEndpointUrl } : {}),
+    ...(agent.topApiEndpointUrlPath ? { topApiEndpointUrlPath: agent.topApiEndpointUrlPath } : {}),
+    ...(agent.topApiEndpointUrlQuery ? { topApiEndpointUrlQuery: agent.topApiEndpointUrlQuery } : {}),
     ...(agent.topApiEndpointCommand ? { topApiEndpointCommand: agent.topApiEndpointCommand } : {}),
     ...(agent.topApiEndpointCommandArgs ? { topApiEndpointCommandArgs: agent.topApiEndpointCommandArgs } : {}),
     ...(agent.topApiEndpointSelector ? { topApiEndpointSelector: agent.topApiEndpointSelector } : {}),
@@ -20658,6 +20692,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topRuntimePath ? { topRuntimePath: agent.topRuntimePath } : {}),
     ...(agent.topRuntimeKind ? { topRuntimeKind: agent.topRuntimeKind } : {}),
     ...(agent.topRuntimeUrl ? { topRuntimeUrl: agent.topRuntimeUrl } : {}),
+    ...(agent.topRuntimeUrlPath ? { topRuntimeUrlPath: agent.topRuntimeUrlPath } : {}),
+    ...(agent.topRuntimeUrlQuery ? { topRuntimeUrlQuery: agent.topRuntimeUrlQuery } : {}),
     ...(agent.topRuntimeCommand ? { topRuntimeCommand: agent.topRuntimeCommand } : {}),
     ...(agent.topRuntimeCommandArgs ? { topRuntimeCommandArgs: agent.topRuntimeCommandArgs } : {}),
     ...(agent.topRuntimeSelector ? { topRuntimeSelector: agent.topRuntimeSelector } : {}),
@@ -20671,6 +20707,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topAppHintKind ? { topAppHintKind: agent.topAppHintKind } : {}),
     ...(agent.topAppHintLabel ? { topAppHintLabel: agent.topAppHintLabel } : {}),
     ...(agent.topAppHintUrl ? { topAppHintUrl: agent.topAppHintUrl } : {}),
+    ...(agent.topAppHintUrlPath ? { topAppHintUrlPath: agent.topAppHintUrlPath } : {}),
+    ...(agent.topAppHintUrlQuery ? { topAppHintUrlQuery: agent.topAppHintUrlQuery } : {}),
     ...(agent.topAppHintCommand ? { topAppHintCommand: agent.topAppHintCommand } : {}),
     ...(agent.topAppHintCommandArgs ? { topAppHintCommandArgs: agent.topAppHintCommandArgs } : {}),
     ...(agent.topAppHintSelector ? { topAppHintSelector: agent.topAppHintSelector } : {}),
@@ -20680,6 +20718,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topMobileHintValue ? { topMobileHintValue: agent.topMobileHintValue } : {}),
     ...(agent.topMobileHintPlatform ? { topMobileHintPlatform: agent.topMobileHintPlatform } : {}),
     ...(agent.topMobileHintUrl ? { topMobileHintUrl: agent.topMobileHintUrl } : {}),
+    ...(agent.topMobileHintUrlPath ? { topMobileHintUrlPath: agent.topMobileHintUrlPath } : {}),
+    ...(agent.topMobileHintUrlQuery ? { topMobileHintUrlQuery: agent.topMobileHintUrlQuery } : {}),
     ...(agent.topMobileHintSelector ? { topMobileHintSelector: agent.topMobileHintSelector } : {}),
     ...(agent.topTopicPath ? { topTopicPath: agent.topTopicPath } : {}),
     ...(agent.topTopicKind ? { topTopicKind: agent.topTopicKind } : {}),
@@ -20715,6 +20755,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topHiddenSignalKind ? { topHiddenSignalKind: agent.topHiddenSignalKind } : {}),
     ...(agent.topHiddenSignalText ? { topHiddenSignalText: agent.topHiddenSignalText } : {}),
     ...(agent.topHiddenSignalUrl ? { topHiddenSignalUrl: agent.topHiddenSignalUrl } : {}),
+    ...(agent.topHiddenSignalUrlPath ? { topHiddenSignalUrlPath: agent.topHiddenSignalUrlPath } : {}),
+    ...(agent.topHiddenSignalUrlQuery ? { topHiddenSignalUrlQuery: agent.topHiddenSignalUrlQuery } : {}),
     ...(agent.topHiddenSignalSource ? { topHiddenSignalSource: agent.topHiddenSignalSource } : {}),
     ...(agent.topHiddenSignalSelector ? { topHiddenSignalSelector: agent.topHiddenSignalSelector } : {}),
     hiddenReadTargetCount: agent.hiddenReadTargetCount,
@@ -22132,6 +22174,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topHydrationKind ? { topHydrationKind: agent.topHydrationKind } : {}),
     ...(agent.topHydrationLabel ? { topHydrationLabel: agent.topHydrationLabel } : {}),
     ...(agent.topHydrationUrl ? { topHydrationUrl: agent.topHydrationUrl } : {}),
+    ...(agent.topHydrationUrlPath ? { topHydrationUrlPath: agent.topHydrationUrlPath } : {}),
+    ...(agent.topHydrationUrlQuery ? { topHydrationUrlQuery: agent.topHydrationUrlQuery } : {}),
     ...(agent.topHydrationCommand ? { topHydrationCommand: agent.topHydrationCommand } : {}),
     ...(agent.topHydrationCommandArgs ? { topHydrationCommandArgs: agent.topHydrationCommandArgs } : {}),
     ...(agent.topHydrationSelector ? { topHydrationSelector: agent.topHydrationSelector } : {}),
@@ -22139,6 +22183,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topApiEndpointKind ? { topApiEndpointKind: agent.topApiEndpointKind } : {}),
     ...(agent.topApiEndpointMethod ? { topApiEndpointMethod: agent.topApiEndpointMethod } : {}),
     ...(agent.topApiEndpointUrl ? { topApiEndpointUrl: agent.topApiEndpointUrl } : {}),
+    ...(agent.topApiEndpointUrlPath ? { topApiEndpointUrlPath: agent.topApiEndpointUrlPath } : {}),
+    ...(agent.topApiEndpointUrlQuery ? { topApiEndpointUrlQuery: agent.topApiEndpointUrlQuery } : {}),
     ...(agent.topApiEndpointCommand ? { topApiEndpointCommand: agent.topApiEndpointCommand } : {}),
     ...(agent.topApiEndpointCommandArgs ? { topApiEndpointCommandArgs: agent.topApiEndpointCommandArgs } : {}),
     ...(agent.topApiEndpointSelector ? { topApiEndpointSelector: agent.topApiEndpointSelector } : {}),
@@ -22150,6 +22196,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topRuntimePath ? { topRuntimePath: agent.topRuntimePath } : {}),
     ...(agent.topRuntimeKind ? { topRuntimeKind: agent.topRuntimeKind } : {}),
     ...(agent.topRuntimeUrl ? { topRuntimeUrl: agent.topRuntimeUrl } : {}),
+    ...(agent.topRuntimeUrlPath ? { topRuntimeUrlPath: agent.topRuntimeUrlPath } : {}),
+    ...(agent.topRuntimeUrlQuery ? { topRuntimeUrlQuery: agent.topRuntimeUrlQuery } : {}),
     ...(agent.topRuntimeCommand ? { topRuntimeCommand: agent.topRuntimeCommand } : {}),
     ...(agent.topRuntimeCommandArgs ? { topRuntimeCommandArgs: agent.topRuntimeCommandArgs } : {}),
     ...(agent.topRuntimeSelector ? { topRuntimeSelector: agent.topRuntimeSelector } : {}),
@@ -22163,6 +22211,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topAppHintKind ? { topAppHintKind: agent.topAppHintKind } : {}),
     ...(agent.topAppHintLabel ? { topAppHintLabel: agent.topAppHintLabel } : {}),
     ...(agent.topAppHintUrl ? { topAppHintUrl: agent.topAppHintUrl } : {}),
+    ...(agent.topAppHintUrlPath ? { topAppHintUrlPath: agent.topAppHintUrlPath } : {}),
+    ...(agent.topAppHintUrlQuery ? { topAppHintUrlQuery: agent.topAppHintUrlQuery } : {}),
     ...(agent.topAppHintCommand ? { topAppHintCommand: agent.topAppHintCommand } : {}),
     ...(agent.topAppHintCommandArgs ? { topAppHintCommandArgs: agent.topAppHintCommandArgs } : {}),
     ...(agent.topAppHintSelector ? { topAppHintSelector: agent.topAppHintSelector } : {}),
@@ -22172,6 +22222,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topMobileHintValue ? { topMobileHintValue: agent.topMobileHintValue } : {}),
     ...(agent.topMobileHintPlatform ? { topMobileHintPlatform: agent.topMobileHintPlatform } : {}),
     ...(agent.topMobileHintUrl ? { topMobileHintUrl: agent.topMobileHintUrl } : {}),
+    ...(agent.topMobileHintUrlPath ? { topMobileHintUrlPath: agent.topMobileHintUrlPath } : {}),
+    ...(agent.topMobileHintUrlQuery ? { topMobileHintUrlQuery: agent.topMobileHintUrlQuery } : {}),
     ...(agent.topMobileHintSelector ? { topMobileHintSelector: agent.topMobileHintSelector } : {}),
     ...(agent.topTopicPath ? { topTopicPath: agent.topTopicPath } : {}),
     ...(agent.topTopicKind ? { topTopicKind: agent.topTopicKind } : {}),
@@ -22207,6 +22259,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topHiddenSignalKind ? { topHiddenSignalKind: agent.topHiddenSignalKind } : {}),
     ...(agent.topHiddenSignalText ? { topHiddenSignalText: agent.topHiddenSignalText } : {}),
     ...(agent.topHiddenSignalUrl ? { topHiddenSignalUrl: agent.topHiddenSignalUrl } : {}),
+    ...(agent.topHiddenSignalUrlPath ? { topHiddenSignalUrlPath: agent.topHiddenSignalUrlPath } : {}),
+    ...(agent.topHiddenSignalUrlQuery ? { topHiddenSignalUrlQuery: agent.topHiddenSignalUrlQuery } : {}),
     ...(agent.topHiddenSignalSource ? { topHiddenSignalSource: agent.topHiddenSignalSource } : {}),
     ...(agent.topHiddenSignalSelector ? { topHiddenSignalSelector: agent.topHiddenSignalSelector } : {}),
     hiddenReadTargetCount: agent.hiddenReadTargetCount,

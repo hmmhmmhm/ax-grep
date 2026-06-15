@@ -2330,6 +2330,8 @@ export type AgentSummary = {
   topHydrationKind?: string;
   topHydrationLabel?: string;
   topHydrationUrl?: string;
+  topHydrationUrlPath?: string;
+  topHydrationUrlQuery?: string;
   topHydrationCommand?: string;
   topHydrationCommandArgs?: string[];
   topHydrationSelector?: string;
@@ -2337,6 +2339,8 @@ export type AgentSummary = {
   topApiEndpointKind?: string;
   topApiEndpointMethod?: string;
   topApiEndpointUrl?: string;
+  topApiEndpointUrlPath?: string;
+  topApiEndpointUrlQuery?: string;
   topApiEndpointCommand?: string;
   topApiEndpointCommandArgs?: string[];
   topApiEndpointSelector?: string;
@@ -2348,6 +2352,8 @@ export type AgentSummary = {
   topRuntimePath?: string;
   topRuntimeKind?: string;
   topRuntimeUrl?: string;
+  topRuntimeUrlPath?: string;
+  topRuntimeUrlQuery?: string;
   topRuntimeCommand?: string;
   topRuntimeCommandArgs?: string[];
   topRuntimeSelector?: string;
@@ -2361,6 +2367,8 @@ export type AgentSummary = {
   topAppHintKind?: string;
   topAppHintLabel?: string;
   topAppHintUrl?: string;
+  topAppHintUrlPath?: string;
+  topAppHintUrlQuery?: string;
   topAppHintCommand?: string;
   topAppHintCommandArgs?: string[];
   topAppHintSelector?: string;
@@ -2370,6 +2378,8 @@ export type AgentSummary = {
   topMobileHintValue?: string;
   topMobileHintPlatform?: string;
   topMobileHintUrl?: string;
+  topMobileHintUrlPath?: string;
+  topMobileHintUrlQuery?: string;
   topMobileHintSelector?: string;
   topTopicPath?: string;
   topTopicKind?: string;
@@ -2405,6 +2415,8 @@ export type AgentSummary = {
   topHiddenSignalKind?: string;
   topHiddenSignalText?: string;
   topHiddenSignalUrl?: string;
+  topHiddenSignalUrlPath?: string;
+  topHiddenSignalUrlQuery?: string;
   topHiddenSignalSource?: string;
   topHiddenSignalSelector?: string;
   hiddenReadTargetCount?: number;

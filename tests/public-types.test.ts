@@ -644,6 +644,8 @@ describe("public agent types", () => {
       | "topHydrationKind"
       | "topHydrationLabel"
       | "topHydrationUrl"
+      | "topHydrationUrlPath"
+      | "topHydrationUrlQuery"
       | "topHydrationCommand"
       | "topHydrationCommandArgs"
       | "topHydrationSelector"
@@ -651,6 +653,8 @@ describe("public agent types", () => {
       | "topApiEndpointKind"
       | "topApiEndpointMethod"
       | "topApiEndpointUrl"
+      | "topApiEndpointUrlPath"
+      | "topApiEndpointUrlQuery"
       | "topApiEndpointCommand"
       | "topApiEndpointCommandArgs"
       | "topApiEndpointSelector"
@@ -662,6 +666,8 @@ describe("public agent types", () => {
       | "topRuntimePath"
       | "topRuntimeKind"
       | "topRuntimeUrl"
+      | "topRuntimeUrlPath"
+      | "topRuntimeUrlQuery"
       | "topRuntimeCommand"
       | "topRuntimeCommandArgs"
       | "topRuntimeSelector"
@@ -675,6 +681,8 @@ describe("public agent types", () => {
       | "topAppHintKind"
       | "topAppHintLabel"
       | "topAppHintUrl"
+      | "topAppHintUrlPath"
+      | "topAppHintUrlQuery"
       | "topAppHintCommand"
       | "topAppHintCommandArgs"
       | "topAppHintSelector"
@@ -684,6 +692,8 @@ describe("public agent types", () => {
       | "topMobileHintValue"
       | "topMobileHintPlatform"
       | "topMobileHintUrl"
+      | "topMobileHintUrlPath"
+      | "topMobileHintUrlQuery"
       | "topMobileHintSelector"
       | "topTopicPath"
       | "topTopicKind"
@@ -720,6 +730,8 @@ describe("public agent types", () => {
       | "topHiddenSignalKind"
       | "topHiddenSignalText"
       | "topHiddenSignalUrl"
+      | "topHiddenSignalUrlPath"
+      | "topHiddenSignalUrlQuery"
       | "topHiddenSignalSource"
       | "topHiddenSignalSelector"
       | "bestHiddenReadTarget"
@@ -2138,6 +2150,7 @@ describe("public agent types", () => {
       topHydrationKind: "next-data",
       topHydrationLabel: "Next.js data",
       topHydrationUrl: "https://example.test/_next/data/build/index.json",
+      topHydrationUrlPath: "/_next/data/build/index.json",
       topHydrationCommand: "ax-grep 'https://example.test/_next/data/build/index.json' --agent",
       topHydrationCommandArgs: ["ax-grep", "https://example.test/_next/data/build/index.json", "--agent"],
       topHydrationSelector: "script#__NEXT_DATA__",
@@ -2145,6 +2158,7 @@ describe("public agent types", () => {
       topApiEndpointKind: "graphql",
       topApiEndpointMethod: "GET",
       topApiEndpointUrl: "https://example.test/graphql",
+      topApiEndpointUrlPath: "/graphql",
       topApiEndpointCommand: "ax-grep 'https://example.test/graphql' --agent",
       topApiEndpointCommandArgs: ["ax-grep", "https://example.test/graphql", "--agent"],
       topApiEndpointSelector: "script:nth-of-type(1)",
@@ -2156,6 +2170,7 @@ describe("public agent types", () => {
       topRuntimePath: "pageCheck.runtime[0]",
       topRuntimeKind: "service-worker",
       topRuntimeUrl: "https://example.test/sw.js",
+      topRuntimeUrlPath: "/sw.js",
       topRuntimeCommand: "ax-grep 'https://example.test/sw.js' --agent",
       topRuntimeCommandArgs: ["ax-grep", "https://example.test/sw.js", "--agent"],
       topRuntimeSelector: "script:nth-of-type(3)",
@@ -2169,6 +2184,7 @@ describe("public agent types", () => {
       topAppHintKind: "manifest",
       topAppHintLabel: "manifest",
       topAppHintUrl: "https://example.test/manifest.json",
+      topAppHintUrlPath: "/manifest.json",
       topAppHintCommand: "ax-grep 'https://example.test/manifest.json' --agent",
       topAppHintCommandArgs: ["ax-grep", "https://example.test/manifest.json", "--agent"],
       topAppHintSelector: "link[rel=\"manifest\"]",
@@ -2178,6 +2194,7 @@ describe("public agent types", () => {
       topMobileHintValue: "width=device-width, initial-scale=1",
       topMobileHintPlatform: "ios",
       topMobileHintUrl: "https://example.test/app",
+      topMobileHintUrlPath: "/app",
       topMobileHintSelector: "meta[name=\"viewport\"]",
       topTopicPath: "pageCheck.topics[0]",
       topTopicKind: "keyword",
@@ -2214,6 +2231,7 @@ describe("public agent types", () => {
       topHiddenSignalKind: "graphql",
       topHiddenSignalText: "graphql endpoint: https://example.test/graphql",
       topHiddenSignalUrl: "https://example.test/graphql",
+      topHiddenSignalUrlPath: "/graphql",
       topHiddenSignalSource: "script",
       topHiddenSignalSelector: "script:nth-of-type(1)",
       bestHiddenReadTarget: "pageCheck.apiEndpoints",
@@ -3373,13 +3391,19 @@ describe("public agent types", () => {
     };
 
     expect(summary.hiddenSignalCount).toBe(4);
+    expect(summary.topHydrationUrlPath).toBe("/_next/data/build/index.json");
     expect(summary.topHydrationCommandArgs?.[1]).toBe("https://example.test/_next/data/build/index.json");
     expect(summary.hiddenApiEndpointCount).toBe(2);
     expect(summary.topApiEndpointUrl).toBe("https://example.test/graphql");
+    expect(summary.topApiEndpointUrlPath).toBe("/graphql");
     expect(summary.topApiEndpointCommandArgs?.[1]).toBe("https://example.test/graphql");
+    expect(summary.topRuntimeUrlPath).toBe("/sw.js");
+    expect(summary.topAppHintUrlPath).toBe("/manifest.json");
     expect(summary.topAppHintCommandArgs?.[1]).toBe("https://example.test/manifest.json");
+    expect(summary.topMobileHintUrlPath).toBe("/app");
     expect(summary.topClientStateKey).toBe("session");
     expect(summary.topHiddenSignalPath).toBe("pageCheck.apiEndpoints[0]");
+    expect(summary.topHiddenSignalUrlPath).toBe("/graphql");
     expect(summary.bestHiddenReadTarget).toBe("pageCheck.apiEndpoints");
     expect(summary.actionTargetCount).toBe(2);
     expect(summary.actionTargetChoiceCount).toBe(1);
