@@ -1317,7 +1317,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
         ]);
         requireFileIncludes(root, failures, "tests/cli.test.ts", [
           "prints top accessibility state scalars in text output",
-          "semanticTopState: agent.semanticSummary.stateItems[0] searchbox:Archive search",
+          "semanticTopState: agent.semanticSummary.stateItems[0] role=searchbox name=\\\"Archive search\\\"",
           "disabled=true",
           "required=true",
           "readonly=true",

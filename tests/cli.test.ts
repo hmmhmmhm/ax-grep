@@ -78,7 +78,7 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("semanticTopField: agent.semanticSummary.fieldItems[0] role=searchbox name=\"Archive search\"");
-    expect(stdout.output).toContain("semanticTopState: agent.semanticSummary.stateItems[0] searchbox:Archive search");
+    expect(stdout.output).toContain("semanticTopState: agent.semanticSummary.stateItems[0] role=searchbox name=\"Archive search\"");
     expect(stdout.output).toContain("disabled=true");
     expect(stdout.output).toContain("required=true");
     expect(stdout.output).toContain("readonly=true");
@@ -87,6 +87,35 @@ describe("cli", () => {
     expect(stdout.output).toContain("controls=suggestions");
     expect(stdout.output).toContain("controlsTargetRole=listbox");
     expect(stdout.output).toContain("controlsTargetSelector=#suggestions");
+  });
+
+  it("prints semantic relation choice and state names as fields in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/relations"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <p id="toggle-desc">Shows extra context</p>
+          <button aria-label="Toggle details" aria-describedby="toggle-desc" aria-controls="details-panel" aria-valuetext="details off">Toggle details</button>
+          <section id="details-panel" aria-label="Details panel">Extra details</section>
+          <input id="q" type="search" aria-label="Archive search" aria-activedescendant="suggestion-1" aria-required="true" aria-haspopup="listbox" aria-controls="category">
+          <div id="category" role="listbox" aria-label="Categories"></div>
+          <div id="suggestion-1" role="option" aria-selected="true" aria-current="page" aria-level="2">Quarterly reports</div>
+          <dialog id="filters" open aria-label="Filter reports" aria-modal="true"></dialog>
+          <div role="status" aria-live="polite">Saved</div>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("semanticTopDescription: agent.semanticSummary.descriptionItems[0] role=button name=\"Toggle details\" description=Shows extra context");
+    expect(stdout.output).toContain("semanticTopValue: agent.semanticSummary.valueItems[0] role=button name=\"Toggle details\" value=details off");
+    expect(stdout.output).toContain("semanticTopRelation: agent.semanticSummary.relationItems[0] role=button name=\"Toggle details\" relation=controls target=details-panel");
+    expect(stdout.output).toContain("semanticTopChoice: agent.semanticSummary.choiceItems[0] role=option name=\"Quarterly reports\"");
+    expect(stdout.output).toContain("semanticTopSelectedChoice: agent.semanticSummary.choiceItems[0] role=option name=\"Quarterly reports\"");
+    expect(stdout.output).toContain("semanticTopState: agent.semanticSummary.stateItems[0] role=button name=\"Toggle details\"");
+    expect(stdout.output).toContain("semanticTopModalState: agent.semanticSummary.stateItems[3] role=dialog name=\"Filter reports\" state=modal=true");
+    expect(stdout.output).toContain("semanticTopLiveState: agent.semanticSummary.stateItems[4] role=status state=live=polite");
   });
 
   it("unwraps known search redirect links in text output", async () => {
