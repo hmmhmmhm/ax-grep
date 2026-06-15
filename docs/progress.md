@@ -1009,6 +1009,8 @@ When research expands:
   even when the current link is not the first semantic link.
 - Added top/current semantic link URL path/query shortcuts so navigation
   comparison and routing can avoid parsing full link URLs.
+- Added top in-page semantic link URL path/query shortcuts so anchor and
+  skip-link routing can compare targets without parsing full URLs.
 
 ## In Progress
 

@@ -1076,6 +1076,8 @@ describe("public agent types", () => {
       | "semanticTopInPageLinkKind"
       | "semanticTopInPageLinkName"
       | "semanticTopInPageLinkUrl"
+      | "semanticTopInPageLinkUrlPath"
+      | "semanticTopInPageLinkUrlQuery"
       | "semanticTopInPageLinkTargetId"
       | "semanticTopInPageLinkSelector"
       | "semanticTopButtonName"
@@ -2657,6 +2659,7 @@ describe("public agent types", () => {
       semanticTopInPageLinkKind: "skip",
       semanticTopInPageLinkName: "Skip to content",
       semanticTopInPageLinkUrl: "https://example.test/#content",
+      semanticTopInPageLinkUrlPath: "/",
       semanticTopInPageLinkTargetId: "content",
       semanticTopInPageLinkSelector: "a.skip-link",
       semanticTopButtonName: "Subscribe",

@@ -1590,6 +1590,8 @@ export type AgentSummary = {
   semanticTopInPageLinkKind?: "skip" | "anchor";
   semanticTopInPageLinkName?: string;
   semanticTopInPageLinkUrl?: string;
+  semanticTopInPageLinkUrlPath?: string;
+  semanticTopInPageLinkUrlQuery?: string;
   semanticTopInPageLinkTargetId?: string;
   semanticTopInPageLinkSelector?: string;
   semanticTopButtonName?: string;

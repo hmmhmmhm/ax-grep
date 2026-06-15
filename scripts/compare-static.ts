@@ -2288,6 +2288,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopInPageLinkKind?: "skip" | "anchor";
       semanticTopInPageLinkName?: string;
       semanticTopInPageLinkUrl?: string;
+      semanticTopInPageLinkUrlPath?: string;
+      semanticTopInPageLinkUrlQuery?: string;
       semanticTopInPageLinkTargetId?: string;
       semanticTopInPageLinkSelector?: string;
       semanticTopButtonName?: string;
@@ -7848,6 +7850,56 @@ function scoreSemanticControlStateShortcuts(
   return { matched, required };
 }
 
+function scoreTopInPageLinkShortcuts(agentRecord: Record<string, unknown>, inPageLinks: unknown): { matched: number; required: number } {
+  let matched = 0;
+  let required = 0;
+  if (Array.isArray(inPageLinks)) {
+    required += 1;
+    if (agentRecord.semanticInPageLinkCount === inPageLinks.length) matched += 1;
+  }
+  const inPageLink = Array.isArray(inPageLinks)
+    ? inPageLinks[0] as { path?: unknown; kind?: unknown; name?: unknown; url?: unknown; targetId?: unknown; selector?: unknown } | undefined
+    : undefined;
+  if (inPageLink && typeof inPageLink.path === "string") {
+    required += 1;
+    if (agentRecord.semanticTopInPageLinkPath === inPageLink.path) matched += 1;
+  }
+  if (inPageLink && typeof inPageLink.kind === "string") {
+    required += 1;
+    if (agentRecord.semanticTopInPageLinkKind === inPageLink.kind) matched += 1;
+  }
+  if (inPageLink && typeof inPageLink.name === "string") {
+    required += 1;
+    if (agentRecord.semanticTopInPageLinkName === inPageLink.name) matched += 1;
+  }
+  if (inPageLink && typeof inPageLink.url === "string") {
+    required += 1;
+    if (agentRecord.semanticTopInPageLinkUrl === inPageLink.url) matched += 1;
+    const inPageLinkUrlParts = compareUrlPathParts(inPageLink.url);
+    if (inPageLinkUrlParts?.urlPath) {
+      required += 1;
+      if (agentRecord.semanticTopInPageLinkUrlPath === inPageLinkUrlParts.urlPath) matched += 1;
+    } else if (agentRecord.semanticTopInPageLinkUrlPath) {
+      required += 1;
+    }
+    if (inPageLinkUrlParts?.urlQuery) {
+      required += 1;
+      if (agentRecord.semanticTopInPageLinkUrlQuery === inPageLinkUrlParts.urlQuery) matched += 1;
+    } else if (agentRecord.semanticTopInPageLinkUrlQuery) {
+      required += 1;
+    }
+  }
+  if (inPageLink && typeof inPageLink.targetId === "string") {
+    required += 1;
+    if (agentRecord.semanticTopInPageLinkTargetId === inPageLink.targetId) matched += 1;
+  }
+  if (inPageLink && typeof inPageLink.selector === "string") {
+    required += 1;
+    if (agentRecord.semanticTopInPageLinkSelector === inPageLink.selector) matched += 1;
+  }
+  return { matched, required };
+}
+
 function scoreAgentSemanticSummary(agent: Record<string, any> | undefined): number {
   const summary = agent?.semanticSummary;
   if (!summary || typeof summary !== "object") return 0;
@@ -8303,35 +8355,9 @@ function scoreAgentSemanticSummary(agent: Record<string, any> | undefined): numb
   const currentLinkScore = scoreCurrentLinkShortcuts(agentRecord, item.links);
   matched += currentLinkScore.matched;
   required += currentLinkScore.required;
-  if (Array.isArray(item.inPageLinks)) {
-    required += 1;
-    if (agent?.semanticInPageLinkCount === item.inPageLinks.length) matched += 1;
-  }
-  const inPageLink = Array.isArray(item.inPageLinks) ? item.inPageLinks[0] as { path?: unknown; kind?: unknown; name?: unknown; url?: unknown; targetId?: unknown; selector?: unknown } | undefined : undefined;
-  if (inPageLink && typeof inPageLink.path === "string") {
-    required += 1;
-    if (agent?.semanticTopInPageLinkPath === inPageLink.path) matched += 1;
-  }
-  if (inPageLink && typeof inPageLink.kind === "string") {
-    required += 1;
-    if (agent?.semanticTopInPageLinkKind === inPageLink.kind) matched += 1;
-  }
-  if (inPageLink && typeof inPageLink.name === "string") {
-    required += 1;
-    if (agent?.semanticTopInPageLinkName === inPageLink.name) matched += 1;
-  }
-  if (inPageLink && typeof inPageLink.url === "string") {
-    required += 1;
-    if (agent?.semanticTopInPageLinkUrl === inPageLink.url) matched += 1;
-  }
-  if (inPageLink && typeof inPageLink.targetId === "string") {
-    required += 1;
-    if (agent?.semanticTopInPageLinkTargetId === inPageLink.targetId) matched += 1;
-  }
-  if (inPageLink && typeof inPageLink.selector === "string") {
-    required += 1;
-    if (agent?.semanticTopInPageLinkSelector === inPageLink.selector) matched += 1;
-  }
+  const inPageLinkScore = scoreTopInPageLinkShortcuts(agentRecord, item.inPageLinks);
+  matched += inPageLinkScore.matched;
+  required += inPageLinkScore.required;
   const button = Array.isArray(item.buttons) ? item.buttons[0] as { path?: unknown; name?: unknown; roleDescription?: unknown; description?: unknown; type?: unknown; state?: unknown; disabled?: unknown; pressed?: unknown; expanded?: unknown; haspopup?: unknown; controls?: unknown; formAction?: unknown; formMethod?: unknown; formTarget?: unknown; formEncType?: unknown; formNoValidate?: unknown; formId?: unknown; selector?: unknown } | undefined : undefined;
   if (button && typeof button.name === "string") {
     required += 1;
