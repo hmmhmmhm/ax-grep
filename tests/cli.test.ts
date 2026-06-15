@@ -1750,7 +1750,14 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topChoice: kind=source path=pageCheck.sourceLinks[0]");
     expect(stdout.output).toContain("dateText=2026-05-31 dateIso=2026-05-31T00:00:00.000Z dateUnixMs=1780185600000 datePrecision=day dateSource=title");
     expect(stdout.output).toContain("sourceChoice: id=s1 path=pageCheck.sourceLinks[0]");
+    expect(stdout.output).toContain("sourceChoiceDateText: 2026-05-31");
+    expect(stdout.output).toContain("sourceChoiceDateIso: 2026-05-31T00:00:00.000Z");
+    expect(stdout.output).toContain("sourceChoiceDateUnixMs: 1780185600000");
+    expect(stdout.output).toContain("sourceChoiceDatePrecision: day");
+    expect(stdout.output).toContain("sourceChoiceDateSource: title");
     expect(stdout.output).toContain("handoffSourceChoice: id=s1 path=pageCheck.sourceLinks[0]");
+    expect(stdout.output).toContain("handoffSourceChoiceDateText: 2026-05-31");
+    expect(stdout.output).toContain("handoffSourceChoiceDateIso: 2026-05-31T00:00:00.000Z");
   });
 
   it("checks requested text against author and profile links", async () => {
@@ -2109,13 +2116,23 @@ describe("cli", () => {
     expect(stdout.output).toContain("  handoffCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  handoffResultChoice: id=r1 path=searchResults[0] rank=1 recommended primary via=recommendedResult");
     expect(stdout.output).toContain("    snippet: agent browser comparison details");
+    expect(stdout.output).toContain("  handoffResultChoiceUrl: https://result.example/");
+    expect(stdout.output).toContain("  handoffResultChoiceTitle: Agent browser result");
+    expect(stdout.output).toContain("  handoffResultChoiceRank: 1");
+    expect(stdout.output).toContain("  handoffResultChoicePrimary: true");
+    expect(stdout.output).toContain("  handoffResultChoiceSnippet: agent browser comparison details");
     expect(stdout.output).toContain("  handoffResultChoiceCommand: ax-grep 'https://result.example/' --json --summary");
     expect(stdout.output).toContain("  handoffResultChoiceCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  topResultChoiceSnippet: agent browser comparison details");
     expect(stdout.output).toContain("  resultChoice: id=r1 path=searchResults[0] rank=1 recommended primary via=recommendedResult");
+    expect(stdout.output).toContain("  resultChoiceUrl: https://result.example/");
+    expect(stdout.output).toContain("  resultChoiceTitle: Agent browser result");
+    expect(stdout.output).toContain("  resultChoiceRank: 1");
+    expect(stdout.output).toContain("  resultChoicePrimary: true");
+    expect(stdout.output).toContain("  resultChoiceSnippet: agent browser comparison details");
     expect(stdout.output).toContain("  resultChoiceCommand: ax-grep 'https://result.example/' --json --summary");
     expect(stdout.output).toContain("  resultChoiceCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
-    expect(stdout.output).toContain("source=result.example <https://result.example/> - Ranked result 1 from result.example. Agent browser result");
+    expect(stdout.output).toContain("source=result.example url=<https://result.example/> - Ranked result 1 from result.example. Agent browser result");
   });
 
   it("keeps direct search page result choices executable in agent JSON", async () => {
