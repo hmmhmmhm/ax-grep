@@ -120,6 +120,12 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
     "runStaticComparisons",
     "checkComparisonGateReport",
   ]);
+  requireFileIncludes(root, failures, "scripts/check-agent-readiness.ts", [
+    "checkCommandShortcutSymmetry(root, failures)",
+    "shortcutArgsFields(readiness, \"CommandArgs\")",
+    "shortcutArgsFields(readiness, \"AfterInteractionCommandArgs\")",
+    "is guarded without matching",
+  ]);
   requireFileIncludes(root, failures, "tests/compare-static-fixture.test.ts", [
     "agent-fixtures",
     "!warning.includes(\"agent-browser\")",
