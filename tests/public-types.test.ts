@@ -554,6 +554,8 @@ describe("public agent types", () => {
       | "topOfferCurrency"
       | "topOfferAvailability"
       | "topOfferUrl"
+      | "topOfferUrlPath"
+      | "topOfferUrlQuery"
       | "topOfferCommand"
       | "topOfferCommandArgs"
       | "topOfferSelector"
@@ -2042,6 +2044,7 @@ describe("public agent types", () => {
       topOfferCurrency: "USD",
       topOfferAvailability: "InStock",
       topOfferUrl: "https://example.test/buy",
+      topOfferUrlPath: "/buy",
       topOfferCommand: "ax-grep 'https://example.test/buy' --agent",
       topOfferCommandArgs: ["ax-grep", "https://example.test/buy", "--agent"],
       topOfferSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
@@ -3398,6 +3401,7 @@ describe("public agent types", () => {
     expect(summary.topAuthorLinkSelector).toBe("a[rel=\"author\"]");
     expect(summary.topAuthorLinkCommandArgs?.[1]).toBe("https://example.test/author");
     expect(summary.topProvenanceUrlPath).toBe("/10.5555/example.2026");
+    expect(summary.topOfferUrlPath).toBe("/buy");
     expect(summary.topOfferCommandArgs?.[1]).toBe("https://example.test/buy");
     expect(summary.topDatasetUrlPath).toBe("/datasets/example");
     expect(summary.topDatasetDistributionUrlPath).toBe("/downloads/example.csv");

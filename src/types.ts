@@ -2240,6 +2240,8 @@ export type AgentSummary = {
   topOfferCurrency?: string;
   topOfferAvailability?: string;
   topOfferUrl?: string;
+  topOfferUrlPath?: string;
+  topOfferUrlQuery?: string;
   topOfferCommand?: string;
   topOfferCommandArgs?: string[];
   topOfferSelector?: string;

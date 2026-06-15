@@ -1717,6 +1717,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topOfferCurrency?: string;
       topOfferAvailability?: string;
       topOfferUrl?: string;
+      topOfferUrlPath?: string;
+      topOfferUrlQuery?: string;
       topOfferCommand?: string;
       topOfferCommandArgs?: string[];
       topOfferSelector?: string;
@@ -9228,6 +9230,8 @@ function scoreAgentStructuredShortcuts(agent: {
   topOfferCurrency?: string;
   topOfferAvailability?: string;
   topOfferUrl?: string;
+  topOfferUrlPath?: string;
+  topOfferUrlQuery?: string;
   topOfferCommand?: string;
   topOfferCommandArgs?: string[];
   topOfferSelector?: string;
@@ -9692,6 +9696,21 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topOfferCurrency === topOffer.currency) matched += 1;
     if (agent.topOfferAvailability === topOffer.availability) matched += 1;
     if (agent.topOfferUrl === topOffer.url) matched += 1;
+    if (topOffer.url) {
+      const topOfferUrlParts = compareUrlPathParts(topOffer.url);
+      if (topOfferUrlParts?.urlPath) {
+        required += 1;
+        if (agent.topOfferUrlPath === topOfferUrlParts.urlPath) matched += 1;
+      } else if (agent.topOfferUrlPath) {
+        required += 1;
+      }
+      if (topOfferUrlParts?.urlQuery) {
+        required += 1;
+        if (agent.topOfferUrlQuery === topOfferUrlParts.urlQuery) matched += 1;
+      } else if (agent.topOfferUrlQuery) {
+        required += 1;
+      }
+    }
     if (agent.topOfferSelector === topOffer.selector) matched += 1;
     if (typeof topOffer.priceAmount === "number") {
       required += 1;
@@ -9702,7 +9721,7 @@ function scoreAgentStructuredShortcuts(agent: {
       if (typeof agent.topOfferCommand === "string" && agent.topOfferCommand.includes(topOffer.url)) matched += 1;
       if (Array.isArray(agent.topOfferCommandArgs) && agent.topOfferCommandArgs.includes(topOffer.url)) matched += 1;
     }
-  } else if (agent.topOfferPath || agent.topOfferName || agent.topOfferPrice || typeof agent.topOfferPriceAmount === "number" || agent.topOfferCurrency || agent.topOfferAvailability || agent.topOfferUrl || agent.topOfferCommand || agent.topOfferCommandArgs || agent.topOfferSelector) {
+  } else if (agent.topOfferPath || agent.topOfferName || agent.topOfferPrice || typeof agent.topOfferPriceAmount === "number" || agent.topOfferCurrency || agent.topOfferAvailability || agent.topOfferUrl || agent.topOfferUrlPath || agent.topOfferUrlQuery || agent.topOfferCommand || agent.topOfferCommandArgs || agent.topOfferSelector) {
     required += 1;
   }
 

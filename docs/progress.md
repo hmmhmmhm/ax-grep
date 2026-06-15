@@ -1027,6 +1027,8 @@ When research expands:
 - Added top dataset, distribution, and license URL path/query shortcuts so data
   source, download, and license follow-up targets can be compared without
   parsing full URLs.
+- Added top offer URL path/query shortcuts so product, plan, and purchase
+  follow-up targets can be compared without parsing full URLs.
 
 ## In Progress
 

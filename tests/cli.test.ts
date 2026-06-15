@@ -9778,6 +9778,7 @@ describe("cli", () => {
       topOfferCurrency: "USD",
       topOfferAvailability: "InStock",
       topOfferUrl: "https://example.test/buy",
+      topOfferUrlPath: "/buy",
       topOfferCommand: "ax-grep 'https://example.test/buy' --find 'source=json-ld' --agent",
       topOfferCommandArgs: ["ax-grep", "https://example.test/buy", "--find", "source=json-ld", "--agent"],
       topOfferSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
@@ -9835,6 +9836,7 @@ describe("cli", () => {
       topOfferCurrency: "USD",
       topOfferAvailability: "InStock",
       topOfferUrl: "https://example.test/buy",
+      topOfferUrlPath: "/buy",
       topOfferCommand: "ax-grep 'https://example.test/buy' --agent-brief",
       topOfferCommandArgs: ["ax-grep", "https://example.test/buy", "--agent-brief"],
       topOfferSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
@@ -9866,7 +9868,7 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain("  topOffer: path=pageCheck.offers[0] name=\"Agent Browser Pro\" currency=USD price=19.99 availability=InStock selector=script[type=\"application/ld+json\"]:nth-of-type(1) url=<https://example.test/buy>");
+    expect(stdout.output).toContain("  topOffer: path=pageCheck.offers[0] name=\"Agent Browser Pro\" currency=USD price=19.99 availability=InStock selector=script[type=\"application/ld+json\"]:nth-of-type(1) url=<https://example.test/buy> urlPath=/buy");
     expect(stdout.output).toContain("  topOfferCommand: ax-grep 'https://example.test/buy'");
     expect(stdout.output).toContain("  offer: id=of1 path=pageCheck.offers[0] source=json-ld name=\"Agent Browser Pro\" currency=USD price=19.99 priceAmount=19.99 availability=InStock selector=script[type=\"application/ld+json\"]:nth-of-type(1) url=<https://example.test/buy>");
   });
