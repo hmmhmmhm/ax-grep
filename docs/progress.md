@@ -1136,6 +1136,9 @@ When research expands:
 - Added individual text rows for second semantic table headers, so text-only
   agents can read the second representative header without parsing the
   aggregate `semanticTopTableSecondHeader` line.
+- Added individual text rows for first semantic table owned targets, so
+  text-only agents can target `aria-owns`/virtualized rowgroups without parsing
+  the aggregate `semanticTopTableFirstOwned` line.
 
 ## In Progress
 
