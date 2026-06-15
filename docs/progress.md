@@ -1003,6 +1003,8 @@ When research expands:
   failed-open recovery can compare provenance without nested result parsing.
 - Added source-search selected/failure/alternate URL path/query shortcuts so
   recovery loops can route and compare candidates without parsing full URLs.
+- Added selected/current list-item shortcuts so agents can identify active
+  nav, tab, menu, and list entries without parsing list item arrays.
 
 ## In Progress
 

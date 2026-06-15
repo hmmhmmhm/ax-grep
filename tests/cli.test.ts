@@ -6158,8 +6158,8 @@ describe("cli", () => {
             <tr><td>Q2</td><td>$12</td></tr>
           </table>
           <ul aria-label="Highlights">
-            <li aria-posinset="1" aria-setsize="2" aria-current="page">North region grew</li>
-            <li aria-posinset="2" aria-setsize="2" aria-expanded="false">Renewals improved</li>
+            <li aria-posinset="1" aria-setsize="2">North region grew</li>
+            <li aria-posinset="2" aria-setsize="2" aria-selected="true" aria-current="page" aria-expanded="false">Renewals improved</li>
           </ul>
         </main>
       `, { headers: { "content-type": "text/html" } }),
@@ -6189,8 +6189,8 @@ describe("cli", () => {
           itemCount: 2,
           sampleItems: ["North region grew", "Renewals improved"],
           itemRefs: [
-            { text: "North region grew", role: "listitem", posInSet: 1, setSize: 2, current: "page", selector: "li" },
-            { text: "Renewals improved", role: "listitem", posInSet: 2, setSize: 2, expanded: false, selector: "li:nth-of-type(2)" },
+            { text: "North region grew", role: "listitem", posInSet: 1, setSize: 2, selector: "li" },
+            { text: "Renewals improved", role: "listitem", posInSet: 2, setSize: 2, selected: true, current: "page", expanded: false, selector: "li:nth-of-type(2)" },
           ],
           selector: "ul",
         }),
@@ -6211,15 +6211,22 @@ describe("cli", () => {
       semanticTopListItemCount: 2,
       semanticTopListItems: ["North region grew", "Renewals improved"],
       semanticTopListItemRefs: [
-        { text: "North region grew", role: "listitem", posInSet: 1, setSize: 2, current: "page", selector: "li" },
-        { text: "Renewals improved", role: "listitem", posInSet: 2, setSize: 2, expanded: false, selector: "li:nth-of-type(2)" },
+        { text: "North region grew", role: "listitem", posInSet: 1, setSize: 2, selector: "li" },
+        { text: "Renewals improved", role: "listitem", posInSet: 2, setSize: 2, selected: true, current: "page", expanded: false, selector: "li:nth-of-type(2)" },
       ],
       semanticTopListFirstItemText: "North region grew",
       semanticTopListFirstItemRole: "listitem",
       semanticTopListFirstItemPosInSet: 1,
       semanticTopListFirstItemSetSize: 2,
-      semanticTopListFirstItemCurrent: "page",
       semanticTopListFirstItemSelector: "li",
+      semanticTopSelectedListItemText: "Renewals improved",
+      semanticTopSelectedListItemRole: "listitem",
+      semanticTopSelectedListItemPosInSet: 2,
+      semanticTopSelectedListItemSetSize: 2,
+      semanticTopSelectedListItemSelected: true,
+      semanticTopSelectedListItemCurrent: "page",
+      semanticTopSelectedListItemExpanded: false,
+      semanticTopSelectedListItemSelector: "li:nth-of-type(2)",
       semanticTopListSelector: "ul",
     });
   });
@@ -6398,8 +6405,8 @@ describe("cli", () => {
       fetch: async () => new Response(`
         <main>
           <ul aria-label="Release actions">
-            <li aria-posinset="1" aria-setsize="2" aria-current="page">Download report</li>
-            <li aria-posinset="2" aria-setsize="2" aria-expanded="false">Read notes</li>
+            <li aria-posinset="1" aria-setsize="2">Download report</li>
+            <li aria-posinset="2" aria-setsize="2" aria-selected="true" aria-current="page" aria-expanded="false">Read notes</li>
           </ul>
         </main>
       `, { headers: { "content-type": "text/html" } }),
@@ -6408,7 +6415,8 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  semanticTopList: agent.semanticSummary.listItems[0] role=list name=\"Release actions\"");
-    expect(stdout.output).toContain("itemRefs=text=\"Download report\" role=listitem pos=1 size=2 current=page selector=li, text=\"Read notes\" role=listitem pos=2 size=2 expanded=false selector=li:nth-of-type(2)");
+    expect(stdout.output).toContain("itemRefs=text=\"Download report\" role=listitem pos=1 size=2 selector=li, text=\"Read notes\" role=listitem pos=2 size=2 selected=true current=page expanded=false selector=li:nth-of-type(2)");
+    expect(stdout.output).toContain("  semanticTopSelectedListItem: text=\"Read notes\" role=listitem pos=2 size=2 selected=true current=page expanded=false selector=li:nth-of-type(2)");
   });
 
   it("summarizes forms with action fields and query URL templates for agents", async () => {

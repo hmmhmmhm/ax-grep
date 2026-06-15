@@ -1194,6 +1194,15 @@ describe("public agent types", () => {
       | "semanticTopListFirstItemCurrent"
       | "semanticTopListFirstItemExpanded"
       | "semanticTopListFirstItemSelector"
+      | "semanticTopSelectedListItemText"
+      | "semanticTopSelectedListItemRole"
+      | "semanticTopSelectedListItemLevel"
+      | "semanticTopSelectedListItemPosInSet"
+      | "semanticTopSelectedListItemSetSize"
+      | "semanticTopSelectedListItemSelected"
+      | "semanticTopSelectedListItemCurrent"
+      | "semanticTopSelectedListItemExpanded"
+      | "semanticTopSelectedListItemSelector"
       | "semanticTopListSelector"
       | "semanticTopFieldRole"
       | "semanticTopFieldPath"
@@ -2756,6 +2765,14 @@ describe("public agent types", () => {
       semanticTopListFirstItemSetSize: 2,
       semanticTopListFirstItemCurrent: "page",
       semanticTopListFirstItemSelector: "li:nth-of-type(1)",
+      semanticTopSelectedListItemText: "Clear output",
+      semanticTopSelectedListItemRole: "listitem",
+      semanticTopSelectedListItemPosInSet: 2,
+      semanticTopSelectedListItemSetSize: 2,
+      semanticTopSelectedListItemSelected: true,
+      semanticTopSelectedListItemCurrent: "page",
+      semanticTopSelectedListItemExpanded: false,
+      semanticTopSelectedListItemSelector: "li:nth-of-type(2)",
       semanticTopListSelector: "ul:nth-of-type(1)",
       semanticTopFieldRole: "textbox",
       semanticTopFieldPath: "agent.semanticSummary.fieldItems[0]",

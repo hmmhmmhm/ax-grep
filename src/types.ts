@@ -1708,6 +1708,15 @@ export type AgentSummary = {
   semanticTopListFirstItemCurrent?: SemanticNodeState["current"];
   semanticTopListFirstItemExpanded?: boolean;
   semanticTopListFirstItemSelector?: string;
+  semanticTopSelectedListItemText?: string;
+  semanticTopSelectedListItemRole?: string;
+  semanticTopSelectedListItemLevel?: number;
+  semanticTopSelectedListItemPosInSet?: number;
+  semanticTopSelectedListItemSetSize?: number;
+  semanticTopSelectedListItemSelected?: boolean;
+  semanticTopSelectedListItemCurrent?: SemanticNodeState["current"];
+  semanticTopSelectedListItemExpanded?: boolean;
+  semanticTopSelectedListItemSelector?: string;
   semanticTopListSelector?: string;
   semanticTopFieldRole?: string;
   semanticTopFieldPath?: string;

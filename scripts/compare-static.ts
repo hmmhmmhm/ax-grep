@@ -2394,6 +2394,15 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopListItemCount?: number;
       semanticTopListItems?: string[];
       semanticTopListItemRefs?: Array<{ text?: string; role?: string; level?: number; posInSet?: number; setSize?: number; selected?: boolean; current?: boolean | string; expanded?: boolean; selector?: string }>;
+      semanticTopSelectedListItemText?: string;
+      semanticTopSelectedListItemRole?: string;
+      semanticTopSelectedListItemLevel?: number;
+      semanticTopSelectedListItemPosInSet?: number;
+      semanticTopSelectedListItemSetSize?: number;
+      semanticTopSelectedListItemSelected?: boolean;
+      semanticTopSelectedListItemCurrent?: boolean | string;
+      semanticTopSelectedListItemExpanded?: boolean;
+      semanticTopSelectedListItemSelector?: string;
       semanticTopListSelector?: string;
       semanticTopFieldRole?: string;
       semanticTopFieldPath?: string;
@@ -7703,6 +7712,41 @@ function scoreSelectedTableCellShortcuts(agentRecord: Record<string, unknown>, s
   return { matched, required };
 }
 
+function scoreSelectedListItemShortcuts(agentRecord: Record<string, unknown>, itemRefs: unknown): { matched: number; required: number } {
+  if (!Array.isArray(itemRefs)) return { matched: 0, required: 0 };
+  const selectedListItemRef = (itemRefs as Array<{ text?: unknown; role?: unknown; level?: unknown; posInSet?: unknown; setSize?: unknown; selected?: unknown; current?: unknown; expanded?: unknown; selector?: unknown }>).find((item) => item?.selected === true)
+    ?? (itemRefs as Array<{ text?: unknown; role?: unknown; level?: unknown; posInSet?: unknown; setSize?: unknown; selected?: unknown; current?: unknown; expanded?: unknown; selector?: unknown }>).find((item) => typeof item?.current !== "undefined");
+  if (selectedListItemRef) {
+    let matched = 0;
+    const required = 10;
+    if (agentRecord.semanticTopSelectedListItemText === selectedListItemRef.text) matched += 1;
+    if (agentRecord.semanticTopSelectedListItemRole === selectedListItemRef.role) matched += 1;
+    if (agentRecord.semanticTopSelectedListItemLevel === selectedListItemRef.level) matched += 1;
+    if (agentRecord.semanticTopSelectedListItemPosInSet === selectedListItemRef.posInSet) matched += 1;
+    if (agentRecord.semanticTopSelectedListItemSetSize === selectedListItemRef.setSize) matched += 1;
+    if (agentRecord.semanticTopSelectedListItemSelected === selectedListItemRef.selected) matched += 1;
+    if (agentRecord.semanticTopSelectedListItemCurrent === selectedListItemRef.current) matched += 1;
+    if (agentRecord.semanticTopSelectedListItemExpanded === selectedListItemRef.expanded) matched += 1;
+    if (agentRecord.semanticTopSelectedListItemSelector === selectedListItemRef.selector) matched += 1;
+    if (typeof agentRecord.semanticTopSelectedListItemText === "string" && agentRecord.semanticTopSelectedListItemText.length > 0) matched += 1;
+    return { matched, required };
+  }
+  if (
+    agentRecord.semanticTopSelectedListItemText
+    || agentRecord.semanticTopSelectedListItemRole
+    || typeof agentRecord.semanticTopSelectedListItemLevel === "number"
+    || typeof agentRecord.semanticTopSelectedListItemPosInSet === "number"
+    || typeof agentRecord.semanticTopSelectedListItemSetSize === "number"
+    || typeof agentRecord.semanticTopSelectedListItemSelected === "boolean"
+    || typeof agentRecord.semanticTopSelectedListItemCurrent !== "undefined"
+    || typeof agentRecord.semanticTopSelectedListItemExpanded === "boolean"
+    || agentRecord.semanticTopSelectedListItemSelector
+  ) {
+    return { matched: 0, required: 1 };
+  }
+  return { matched: 0, required: 0 };
+}
+
 function scoreSemanticControlStateShortcuts(
   agentRecord: Record<string, unknown>,
   state: Record<string, unknown>,
@@ -8460,6 +8504,9 @@ function scoreAgentSemanticSummary(agent: Record<string, any> | undefined): numb
   if (list && Array.isArray(list.itemRefs)) {
     required += 1;
     if (JSON.stringify(agent?.semanticTopListItemRefs) === JSON.stringify(list.itemRefs)) matched += 1;
+    const selectedListItemScore = scoreSelectedListItemShortcuts(agentRecord, list.itemRefs);
+    matched += selectedListItemScore.matched;
+    required += selectedListItemScore.required;
   }
   if (list && typeof list.selector === "string") {
     required += 1;
