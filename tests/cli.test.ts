@@ -12766,10 +12766,22 @@ npx ax-grep https://example.test --agent</code></pre>
 
     expect(status).toBe(0);
     expect(envelope.agent).toMatchObject({
+      runbookReadValuePath: "pageCheck.dataTables",
+      runbookReadValueType: "array",
+      runbookReadValueCount: 1,
+      runbookReadValueReferencePath: "pageCheck.dataTables",
       nextReadValuePath: "pageCheck.dataTables",
       nextReadValueType: "array",
       nextReadValueCount: 1,
       nextReadValueReferencePath: "pageCheck.dataTables",
+      executorReadValuePath: "pageCheck.dataTables",
+      executorReadValueType: "array",
+      executorReadValueCount: 1,
+      executorReadValueReferencePath: "pageCheck.dataTables",
+      handoffReadValuePath: "pageCheck.dataTables",
+      handoffReadValueType: "array",
+      handoffReadValueCount: 1,
+      handoffReadValueReferencePath: "pageCheck.dataTables",
     });
     expect(envelope.agent.next).toBeUndefined();
   });
