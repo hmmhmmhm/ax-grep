@@ -5003,11 +5003,13 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   }
   for (const barrier of pageCheck.barriers) {
     const details = [
+      `kind=${barrier.kind}`,
+      `severity=${barrier.severity}`,
       `source=${barrier.source}`,
       barrier.diagnosticCode ? `diagnostic=${barrier.diagnosticCode}` : "",
       barrier.selector ? `selector=${barrier.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  barrier: ${barrier.id} ${barrier.path} ${barrier.kind} ${barrier.severity} ${details} - ${barrier.text}`);
+    lines.push(`  barrier: ${barrier.id} ${barrier.path} ${details} - ${barrier.text}`);
   }
   for (const form of pageCheck.forms) {
     const details = [

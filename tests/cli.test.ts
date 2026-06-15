@@ -13031,7 +13031,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topBarrier: warning/login pageCheck.barriers[0] source=diagnostic diagnostic=LOGIN_REQUIRED - Login: The page appears to require login or account access.");
     expect(stdout.output).toContain("  topBarrierSource: diagnostic");
     expect(stdout.output).toContain("  topBarrierDiagnosticCode: LOGIN_REQUIRED");
-    expect(stdout.output).toContain("  barrier: br1 pageCheck.barriers[0] login warning source=diagnostic diagnostic=LOGIN_REQUIRED - Login: The page appears to require login or account access.");
+    expect(stdout.output).toContain("  barrier: br1 pageCheck.barriers[0] kind=login severity=warning source=diagnostic diagnostic=LOGIN_REQUIRED - Login: The page appears to require login or account access.");
   });
 
   it("summarizes consent actions as non-blocking page barriers", async () => {
