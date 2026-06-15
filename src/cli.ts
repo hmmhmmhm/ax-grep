@@ -3913,6 +3913,17 @@ function formatAgentActionTargetChoiceText(choice: AgentActionTargetChoice, pref
   const lines = [`  ${prefix}: id=${choice.id} path=${choice.path} rank=${choice.rank} kind=${choice.kind} source=${choice.source}${template}${query}${method}${disabled}${pressed}${expanded}${haspopup}${controls}${selector}${target} - ${choice.name}`];
   if (choice.command) lines.push(`    command: ${choice.command}`);
   if (choice.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
+  if (choice.targetUrl) lines.push(`  ${prefix}TargetUrl: ${choice.targetUrl}`);
+  if (choice.urlTemplate) lines.push(`  ${prefix}UrlTemplate: ${choice.urlTemplate}`);
+  if (choice.queryInput) lines.push(`  ${prefix}QueryInput: ${choice.queryInput}`);
+  if (choice.method) lines.push(`  ${prefix}Method: ${choice.method}`);
+  if (choice.encodingType) lines.push(`  ${prefix}EncodingType: ${choice.encodingType}`);
+  if (typeof choice.disabled === "boolean") lines.push(`  ${prefix}Disabled: ${choice.disabled}`);
+  if (typeof choice.pressed !== "undefined") lines.push(`  ${prefix}Pressed: ${choice.pressed}`);
+  if (typeof choice.expanded === "boolean") lines.push(`  ${prefix}Expanded: ${choice.expanded}`);
+  if (typeof choice.haspopup !== "undefined") lines.push(`  ${prefix}Haspopup: ${choice.haspopup}`);
+  if (choice.controls) lines.push(`  ${prefix}Controls: ${choice.controls}`);
+  if (choice.selector) lines.push(`  ${prefix}Selector: ${choice.selector}`);
   if (choice.command) lines.push(`  ${prefix}Command: ${choice.command}`);
   if (choice.commandArgs) lines.push(`  ${prefix}CommandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
   return lines;
