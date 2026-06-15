@@ -1115,6 +1115,9 @@ When research expands:
 - Added individual text rows for semantic top state, modal state, and live
   state, so text-only agents can route control state and announcements without
   parsing aggregate state rows.
+- Added individual text rows for semantic top descriptions, values, and
+  relations, so text-only agents can route descriptions, valuetext, and target
+  references without parsing aggregate relation rows.
 
 ## In Progress
 

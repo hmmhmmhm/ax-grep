@@ -6001,6 +6001,45 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopFieldSelector: #q");
   });
 
+  it("prints top semantic relation and value shortcuts in text agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/control"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <button
+            aria-label="Toggle details"
+            aria-valuetext="details off"
+            aria-controls="details-panel"
+          >Details</button>
+          <section id="details-panel" role="region" aria-label="Details panel">
+            Detailed report content.
+          </section>
+          <p>Readable page content for relation, value, and description routing.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticTopValue: agent.semanticSummary.valueItems[0] role=button name=\"Toggle details\" value=details off");
+    expect(stdout.output).toContain("  semanticTopValueRole: button");
+    expect(stdout.output).toContain("  semanticTopValuePath: agent.semanticSummary.valueItems[0]");
+    expect(stdout.output).toContain("  semanticTopValueName: Toggle details");
+    expect(stdout.output).toContain("  semanticTopValueText: details off");
+    expect(stdout.output).toContain("  semanticTopValueSelector: button");
+    expect(stdout.output).toContain("  semanticTopRelation: agent.semanticSummary.relationItems[0] role=button name=\"Toggle details\" relation=controls target=details-panel");
+    expect(stdout.output).toContain("  semanticTopRelationRole: button");
+    expect(stdout.output).toContain("  semanticTopRelationPath: agent.semanticSummary.relationItems[0]");
+    expect(stdout.output).toContain("  semanticTopRelationName: Toggle details");
+    expect(stdout.output).toContain("  semanticTopRelationType: controls");
+    expect(stdout.output).toContain("  semanticTopRelationTarget: details-panel");
+    expect(stdout.output).toContain("  semanticTopRelationTargetRole: region");
+    expect(stdout.output).toContain("  semanticTopRelationTargetName: Details panel");
+    expect(stdout.output).toContain("  semanticTopRelationTargetSelector: #details-panel");
+    expect(stdout.output).toContain("  semanticTopRelationSelector: button");
+  });
+
   it("prints top semantic choice shortcuts in text agent output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/tabs"], {
