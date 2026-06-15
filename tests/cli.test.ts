@@ -6,6 +6,21 @@ import { Readable } from "node:stream";
 import { runCli } from "../src/cli";
 
 describe("cli", () => {
+  it("keeps shortcut capability groups declared in the agent contract", async () => {
+    const source = await readFile(join(process.cwd(), "src/cli.ts"), "utf8");
+    const expectedFeatures = [
+      "text.shortcuts",
+      "semantic.shortcuts",
+      "citation.shortcuts",
+      "answerEvidence.shortcuts",
+      "diagnostics.shortcuts",
+    ];
+
+    for (const feature of expectedFeatures) {
+      expect(source).toContain(`"${feature}"`);
+    }
+  });
+
   it("keeps semantic top shortcuts labelled in text agent output", async () => {
     const source = await readFile(join(process.cwd(), "src/cli.ts"), "utf8");
     const semanticTopFields = Array.from(

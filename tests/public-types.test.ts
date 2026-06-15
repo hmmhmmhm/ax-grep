@@ -21,6 +21,11 @@ describe("public agent types", () => {
     const features: AgentContractFeature[] = [
       "readValue.shortcuts",
       "readValue.referencePaths",
+      "text.shortcuts",
+      "semantic.shortcuts",
+      "citation.shortcuts",
+      "answerEvidence.shortcuts",
+      "diagnostics.shortcuts",
       "browserHtml.shortcuts",
       "browserHtml.reasonCodes",
       "executor.browserHtml.shortcuts",
@@ -29,6 +34,11 @@ describe("public agent types", () => {
 
     expect(features).toContain("browserHtml.reasonCodes");
     expect(features).toContain("readValue.referencePaths");
+    expect(features).toContain("text.shortcuts");
+    expect(features).toContain("semantic.shortcuts");
+    expect(features).toContain("citation.shortcuts");
+    expect(features).toContain("answerEvidence.shortcuts");
+    expect(features).toContain("diagnostics.shortcuts");
   });
 
   it("exports detailed handoff choice and evidence shapes", () => {
