@@ -10383,6 +10383,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topFaq: pageCheck.faqs[0] selector=details:nth-of-type(1) - How do I install ax-grep?");
+    expect(stdout.output).toContain("  faq: faq1 pageCheck.faqs[0] source=details question=\"How do I install ax-grep?\" answer=\"Run pnpm add ax-grep and then call the CLI with --agent.\" selector=details:nth-of-type(1) - Q: How do I install ax-grep? A: Run pnpm add ax-grep and then call the CLI with --agent.");
     expect(stdout.output).toContain("  topCodeBlock: pageCheck.codeBlocks[0] lang=bash lines=2 selector=pre:nth-of-type(1) - pnpm add ax-grep");
   });
 

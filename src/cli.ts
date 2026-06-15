@@ -5210,8 +5210,13 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`  contactPoint: ${contact.id} ${contact.path} ${contact.kind} ${details}${url} - ${contact.text}`);
   }
   for (const faq of pageCheck.faqs) {
-    const selector = faq.selector ? ` (${faq.selector})` : "";
-    lines.push(`  faq: ${faq.id} ${faq.path} ${faq.source}${selector} - ${faq.text}`);
+    const details = [
+      `source=${faq.source}`,
+      `question="${faq.question}"`,
+      `answer="${faq.answer}"`,
+      faq.selector ? `selector=${faq.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  faq: ${faq.id} ${faq.path} ${details} - ${faq.text}`);
   }
   for (const breadcrumb of pageCheck.breadcrumbs) {
     const selector = breadcrumb.selector ? ` (${breadcrumb.selector})` : "";
