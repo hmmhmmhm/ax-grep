@@ -213,6 +213,7 @@ describe("public agent types", () => {
       submitDisabled: true,
       submitSelector: "button[name=\"submit-search\"]",
       submitFormActionUrl: "https://example.test/find",
+      submitFormActionUrlPath: "/find",
       submitFormMethod: "get",
       submitFormTarget: "_blank",
       submitFormEncType: "multipart/form-data",
@@ -312,6 +313,8 @@ describe("public agent types", () => {
       | "topFormChoiceSubmitDisabled"
       | "topFormChoiceSubmitSelector"
       | "topFormChoiceSubmitFormActionUrl"
+      | "topFormChoiceSubmitFormActionUrlPath"
+      | "topFormChoiceSubmitFormActionUrlQuery"
       | "topFormChoiceSubmitFormMethod"
       | "topFormChoiceSubmitFormTarget"
       | "topFormChoiceSubmitFormEncType"
@@ -1786,6 +1789,7 @@ describe("public agent types", () => {
       topFormChoiceSubmitDisabled: true,
       topFormChoiceSubmitSelector: "button[name=\"submit-search\"]",
       topFormChoiceSubmitFormActionUrl: "https://example.test/find",
+      topFormChoiceSubmitFormActionUrlPath: "/find",
       topFormChoiceSubmitFormMethod: "get",
       topFormChoiceSubmitFormTarget: "_blank",
       topFormChoiceSubmitFormEncType: "multipart/form-data",

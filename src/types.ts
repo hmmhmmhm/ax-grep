@@ -1247,6 +1247,8 @@ export type AgentPageForm = {
   submitDisabled?: boolean;
   submitSelector?: string;
   submitFormActionUrl?: string;
+  submitFormActionUrlPath?: string;
+  submitFormActionUrlQuery?: string;
   submitFormMethod?: string;
   submitFormTarget?: string;
   submitFormEncType?: string;
@@ -1997,6 +1999,8 @@ export type AgentSummary = {
   topFormChoiceSubmitDisabled?: boolean;
   topFormChoiceSubmitSelector?: string;
   topFormChoiceSubmitFormActionUrl?: string;
+  topFormChoiceSubmitFormActionUrlPath?: string;
+  topFormChoiceSubmitFormActionUrlQuery?: string;
   topFormChoiceSubmitFormMethod?: string;
   topFormChoiceSubmitFormTarget?: string;
   topFormChoiceSubmitFormEncType?: string;

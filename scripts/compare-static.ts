@@ -407,6 +407,8 @@ type CliAgentFormChoiceShape = {
   submitDisabled?: boolean;
   submitSelector?: string;
   submitFormActionUrl?: string;
+  submitFormActionUrlPath?: string;
+  submitFormActionUrlQuery?: string;
   submitFormMethod?: string;
   submitFormTarget?: string;
   submitFormEncType?: string;
@@ -1485,6 +1487,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topFormChoiceSubmitDisabled?: boolean;
       topFormChoiceSubmitSelector?: string;
       topFormChoiceSubmitFormActionUrl?: string;
+      topFormChoiceSubmitFormActionUrlPath?: string;
+      topFormChoiceSubmitFormActionUrlQuery?: string;
       topFormChoiceSubmitFormMethod?: string;
       topFormChoiceSubmitFormTarget?: string;
       topFormChoiceSubmitFormEncType?: string;
@@ -5322,6 +5326,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   topFormChoiceSubmitDisabled?: boolean;
   topFormChoiceSubmitSelector?: string;
   topFormChoiceSubmitFormActionUrl?: string;
+  topFormChoiceSubmitFormActionUrlPath?: string;
+  topFormChoiceSubmitFormActionUrlQuery?: string;
   topFormChoiceSubmitFormMethod?: string;
   topFormChoiceSubmitFormTarget?: string;
   topFormChoiceSubmitFormEncType?: string;
@@ -5417,7 +5423,7 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   let matched = 0;
   if (form) {
     if (agent?.topFormChoicePath === form.path) matched += 1;
-    required += 83;
+    required += 85;
     const firstField = Array.isArray(form.fields) ? form.fields[0] as { name?: unknown; type?: unknown; label?: unknown; placeholder?: unknown; value?: unknown; options?: unknown; selectedOption?: unknown; selectedValue?: unknown; autocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; required?: unknown; checked?: unknown; disabled?: unknown; readonly?: unknown; invalid?: unknown; selector?: unknown } | undefined : undefined;
     const requiredField = Array.isArray(form.fields) ? form.fields.find((field) => Boolean(field) && typeof field === "object" && (field as { required?: unknown }).required === true) as { name?: unknown; type?: unknown; label?: unknown; placeholder?: unknown; value?: unknown; options?: unknown; selectedOption?: unknown; selectedValue?: unknown; autocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; required?: unknown; checked?: unknown; disabled?: unknown; readonly?: unknown; invalid?: unknown; selector?: unknown } | undefined : undefined;
     const invalidField = Array.isArray(form.fields) ? form.fields.find((field) => Boolean(field) && typeof field === "object" && typeof (field as { invalid?: unknown }).invalid !== "undefined") as { name?: unknown; type?: unknown; label?: unknown; invalid?: unknown; selector?: unknown } | undefined : undefined;
@@ -5439,6 +5445,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     if (agent?.topFormChoiceSubmitDisabled === form.submitDisabled) matched += 1;
     if (agent?.topFormChoiceSubmitSelector === form.submitSelector) matched += 1;
     if (agent?.topFormChoiceSubmitFormActionUrl === form.submitFormActionUrl) matched += 1;
+    if (agent?.topFormChoiceSubmitFormActionUrlPath === form.submitFormActionUrlPath) matched += 1;
+    if (agent?.topFormChoiceSubmitFormActionUrlQuery === form.submitFormActionUrlQuery) matched += 1;
     if (agent?.topFormChoiceSubmitFormMethod === form.submitFormMethod) matched += 1;
     if (agent?.topFormChoiceSubmitFormTarget === form.submitFormTarget) matched += 1;
     if (agent?.topFormChoiceSubmitFormEncType === form.submitFormEncType) matched += 1;
@@ -5524,6 +5532,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     || typeof agent?.topFormChoiceSubmitDisabled === "boolean"
     || agent?.topFormChoiceSubmitSelector
     || agent?.topFormChoiceSubmitFormActionUrl
+    || agent?.topFormChoiceSubmitFormActionUrlPath
+    || agent?.topFormChoiceSubmitFormActionUrlQuery
     || agent?.topFormChoiceSubmitFormMethod
     || agent?.topFormChoiceSubmitFormTarget
     || agent?.topFormChoiceSubmitFormEncType

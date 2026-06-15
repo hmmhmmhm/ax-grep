@@ -469,6 +469,8 @@ type PageFormSummary = {
   submitDisabled?: boolean;
   submitSelector?: string;
   submitFormActionUrl?: string;
+  submitFormActionUrlPath?: string;
+  submitFormActionUrlQuery?: string;
   submitFormMethod?: string;
   submitFormTarget?: string;
   submitFormEncType?: string;
@@ -1625,6 +1627,8 @@ type AgentSummary = {
   topFormChoiceSubmitDisabled?: boolean;
   topFormChoiceSubmitSelector?: string;
   topFormChoiceSubmitFormActionUrl?: string;
+  topFormChoiceSubmitFormActionUrlPath?: string;
+  topFormChoiceSubmitFormActionUrlQuery?: string;
   topFormChoiceSubmitFormMethod?: string;
   topFormChoiceSubmitFormTarget?: string;
   topFormChoiceSubmitFormEncType?: string;
@@ -4063,6 +4067,8 @@ function formatAgentFormChoiceText(choice: AgentFormChoice, prefix = "formChoice
   if (typeof choice.submitDisabled === "boolean") lines.push(`  ${prefix}SubmitDisabled: ${choice.submitDisabled}`);
   if (choice.submitSelector) lines.push(`  ${prefix}SubmitSelector: ${choice.submitSelector}`);
   if (choice.submitFormActionUrl) lines.push(`  ${prefix}SubmitFormActionUrl: ${choice.submitFormActionUrl}`);
+  if (choice.submitFormActionUrlPath) lines.push(`  ${prefix}SubmitFormActionUrlPath: ${choice.submitFormActionUrlPath}`);
+  if (choice.submitFormActionUrlQuery) lines.push(`  ${prefix}SubmitFormActionUrlQuery: ${choice.submitFormActionUrlQuery}`);
   if (choice.submitFormMethod) lines.push(`  ${prefix}SubmitFormMethod: ${choice.submitFormMethod}`);
   if (choice.submitFormTarget) lines.push(`  ${prefix}SubmitFormTarget: ${choice.submitFormTarget}`);
   if (choice.submitFormEncType) lines.push(`  ${prefix}SubmitFormEncType: ${choice.submitFormEncType}`);
@@ -4447,6 +4453,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topFormChoiceSubmitDisabled === "boolean" ? [`  topFormChoiceSubmitDisabled: ${agent.topFormChoiceSubmitDisabled}`] : []),
     ...(agent.topFormChoiceSubmitSelector ? [`  topFormChoiceSubmitSelector: ${agent.topFormChoiceSubmitSelector}`] : []),
     ...(agent.topFormChoiceSubmitFormActionUrl ? [`  topFormChoiceSubmitFormActionUrl: ${agent.topFormChoiceSubmitFormActionUrl}`] : []),
+    ...(agent.topFormChoiceSubmitFormActionUrlPath ? [`  topFormChoiceSubmitFormActionUrlPath: ${agent.topFormChoiceSubmitFormActionUrlPath}`] : []),
+    ...(agent.topFormChoiceSubmitFormActionUrlQuery ? [`  topFormChoiceSubmitFormActionUrlQuery: ${agent.topFormChoiceSubmitFormActionUrlQuery}`] : []),
     ...(agent.topFormChoiceSubmitFormMethod ? [`  topFormChoiceSubmitFormMethod: ${agent.topFormChoiceSubmitFormMethod}`] : []),
     ...(agent.topFormChoiceSubmitFormTarget ? [`  topFormChoiceSubmitFormTarget: ${agent.topFormChoiceSubmitFormTarget}`] : []),
     ...(agent.topFormChoiceSubmitFormEncType ? [`  topFormChoiceSubmitFormEncType: ${agent.topFormChoiceSubmitFormEncType}`] : []),
@@ -7901,6 +7909,11 @@ function summarizeForm(form: Element, index: number, baseUrl: string, rootNodes:
   if (typeof submit?.disabled === "boolean") summary.submitDisabled = submit.disabled;
   if (submit?.selector) summary.submitSelector = submit.selector;
   if (submit?.formActionUrl) summary.submitFormActionUrl = submit.formActionUrl;
+  if (submit?.formActionUrl) {
+    const submitFormActionUrlParts = urlPathParts(submit.formActionUrl);
+    if (submitFormActionUrlParts?.urlPath) summary.submitFormActionUrlPath = submitFormActionUrlParts.urlPath;
+    if (submitFormActionUrlParts?.urlQuery) summary.submitFormActionUrlQuery = submitFormActionUrlParts.urlQuery;
+  }
   if (submit?.formMethod) summary.submitFormMethod = submit.formMethod;
   if (submit?.formTarget) summary.submitFormTarget = submit.formTarget;
   if (submit?.formEncType) summary.submitFormEncType = submit.formEncType;
@@ -13074,6 +13087,7 @@ function summarizeAgent(
   const formChoices = summarizeAgentFormChoices(pageCheck.forms, findQueries, agentMode, timeoutMs, userAgent);
   const topFormChoice = formChoices[0];
   const topFormChoiceActionUrlParts = topFormChoice?.actionUrl ? urlPathParts(topFormChoice.actionUrl) : undefined;
+  const topFormChoiceSubmitFormActionUrlParts = topFormChoice?.submitFormActionUrl ? urlPathParts(topFormChoice.submitFormActionUrl) : undefined;
   const topFormChoiceUrlTemplateParts = topFormChoice?.urlTemplate ? urlPathParts(topFormChoice.urlTemplate) : undefined;
   const topFormChoiceFirstField = topFormChoice?.fields[0];
   const topFormChoiceRequiredField = topFormChoice?.fields.find((field) => field.required === true);
@@ -13934,6 +13948,8 @@ function summarizeAgent(
     ...(typeof topFormChoice?.submitDisabled === "boolean" ? { topFormChoiceSubmitDisabled: topFormChoice.submitDisabled } : {}),
     ...(topFormChoice?.submitSelector ? { topFormChoiceSubmitSelector: topFormChoice.submitSelector } : {}),
     ...(topFormChoice?.submitFormActionUrl ? { topFormChoiceSubmitFormActionUrl: topFormChoice.submitFormActionUrl } : {}),
+    ...(topFormChoiceSubmitFormActionUrlParts?.urlPath ? { topFormChoiceSubmitFormActionUrlPath: topFormChoiceSubmitFormActionUrlParts.urlPath } : {}),
+    ...(topFormChoiceSubmitFormActionUrlParts?.urlQuery ? { topFormChoiceSubmitFormActionUrlQuery: topFormChoiceSubmitFormActionUrlParts.urlQuery } : {}),
     ...(topFormChoice?.submitFormMethod ? { topFormChoiceSubmitFormMethod: topFormChoice.submitFormMethod } : {}),
     ...(topFormChoice?.submitFormTarget ? { topFormChoiceSubmitFormTarget: topFormChoice.submitFormTarget } : {}),
     ...(topFormChoice?.submitFormEncType ? { topFormChoiceSubmitFormEncType: topFormChoice.submitFormEncType } : {}),
@@ -16666,6 +16682,7 @@ function summarizeAgentFormChoices(forms: PageFormSummary[], findQueries: string
   return forms.map((form) => {
     const command = siteSearchCommandSpec(form, findQueries, agentMode, timeoutMs, userAgent);
     const actionUrlParts = form.actionUrl ? urlPathParts(form.actionUrl) : undefined;
+    const submitFormActionUrlParts = form.submitFormActionUrl ? urlPathParts(form.submitFormActionUrl) : undefined;
     const urlTemplateParts = form.urlTemplate ? urlPathParts(form.urlTemplate) : undefined;
     return {
     id: form.id,
@@ -16691,6 +16708,8 @@ function summarizeAgentFormChoices(forms: PageFormSummary[], findQueries: string
     ...(typeof form.submitDisabled === "boolean" ? { submitDisabled: form.submitDisabled } : {}),
     ...(form.submitSelector ? { submitSelector: form.submitSelector } : {}),
     ...(form.submitFormActionUrl ? { submitFormActionUrl: form.submitFormActionUrl } : {}),
+    ...(submitFormActionUrlParts?.urlPath ? { submitFormActionUrlPath: submitFormActionUrlParts.urlPath } : {}),
+    ...(submitFormActionUrlParts?.urlQuery ? { submitFormActionUrlQuery: submitFormActionUrlParts.urlQuery } : {}),
     ...(form.submitFormMethod ? { submitFormMethod: form.submitFormMethod } : {}),
     ...(form.submitFormTarget ? { submitFormTarget: form.submitFormTarget } : {}),
     ...(form.submitFormEncType ? { submitFormEncType: form.submitFormEncType } : {}),
@@ -19305,6 +19324,8 @@ function compactAgentForms(items: PageFormSummary[], primaryAction?: SuggestedAc
     ...(typeof item.submitDisabled === "boolean" ? { submitDisabled: item.submitDisabled } : {}),
     ...(item.submitSelector ? { submitSelector: item.submitSelector } : {}),
     ...(item.submitFormActionUrl ? { submitFormActionUrl: item.submitFormActionUrl } : {}),
+    ...(item.submitFormActionUrlPath ? { submitFormActionUrlPath: item.submitFormActionUrlPath } : {}),
+    ...(item.submitFormActionUrlQuery ? { submitFormActionUrlQuery: item.submitFormActionUrlQuery } : {}),
     ...(item.submitFormMethod ? { submitFormMethod: item.submitFormMethod } : {}),
     ...(item.submitFormTarget ? { submitFormTarget: item.submitFormTarget } : {}),
     ...(item.submitFormEncType ? { submitFormEncType: item.submitFormEncType } : {}),
@@ -20196,6 +20217,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.topFormChoiceSubmitDisabled === "boolean" ? { topFormChoiceSubmitDisabled: agent.topFormChoiceSubmitDisabled } : {}),
     ...(agent.topFormChoiceSubmitSelector ? { topFormChoiceSubmitSelector: agent.topFormChoiceSubmitSelector } : {}),
     ...(agent.topFormChoiceSubmitFormActionUrl ? { topFormChoiceSubmitFormActionUrl: agent.topFormChoiceSubmitFormActionUrl } : {}),
+    ...(agent.topFormChoiceSubmitFormActionUrlPath ? { topFormChoiceSubmitFormActionUrlPath: agent.topFormChoiceSubmitFormActionUrlPath } : {}),
+    ...(agent.topFormChoiceSubmitFormActionUrlQuery ? { topFormChoiceSubmitFormActionUrlQuery: agent.topFormChoiceSubmitFormActionUrlQuery } : {}),
     ...(agent.topFormChoiceSubmitFormMethod ? { topFormChoiceSubmitFormMethod: agent.topFormChoiceSubmitFormMethod } : {}),
     ...(agent.topFormChoiceSubmitFormTarget ? { topFormChoiceSubmitFormTarget: agent.topFormChoiceSubmitFormTarget } : {}),
     ...(agent.topFormChoiceSubmitFormEncType ? { topFormChoiceSubmitFormEncType: agent.topFormChoiceSubmitFormEncType } : {}),
@@ -21652,6 +21675,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.topFormChoiceSubmitDisabled === "boolean" ? { topFormChoiceSubmitDisabled: agent.topFormChoiceSubmitDisabled } : {}),
     ...(agent.topFormChoiceSubmitSelector ? { topFormChoiceSubmitSelector: agent.topFormChoiceSubmitSelector } : {}),
     ...(agent.topFormChoiceSubmitFormActionUrl ? { topFormChoiceSubmitFormActionUrl: agent.topFormChoiceSubmitFormActionUrl } : {}),
+    ...(agent.topFormChoiceSubmitFormActionUrlPath ? { topFormChoiceSubmitFormActionUrlPath: agent.topFormChoiceSubmitFormActionUrlPath } : {}),
+    ...(agent.topFormChoiceSubmitFormActionUrlQuery ? { topFormChoiceSubmitFormActionUrlQuery: agent.topFormChoiceSubmitFormActionUrlQuery } : {}),
     ...(agent.topFormChoiceSubmitFormMethod ? { topFormChoiceSubmitFormMethod: agent.topFormChoiceSubmitFormMethod } : {}),
     ...(agent.topFormChoiceSubmitFormTarget ? { topFormChoiceSubmitFormTarget: agent.topFormChoiceSubmitFormTarget } : {}),
     ...(agent.topFormChoiceSubmitFormEncType ? { topFormChoiceSubmitFormEncType: agent.topFormChoiceSubmitFormEncType } : {}),
@@ -22906,6 +22931,8 @@ function compactAgentFormExecutionRefs(forms: Array<PageFormSummary & {
   commandArgs?: string[];
   actionUrlPath?: string;
   actionUrlQuery?: string;
+  submitFormActionUrlPath?: string;
+  submitFormActionUrlQuery?: string;
   urlTemplatePath?: string;
   urlTemplateQuery?: string;
 }>): object[] {
@@ -22937,6 +22964,8 @@ function compactAgentFormExecutionRefs(forms: Array<PageFormSummary & {
     ...(typeof form.submitDisabled === "boolean" ? { submitDisabled: form.submitDisabled } : {}),
     ...(form.submitSelector ? { submitSelector: form.submitSelector } : {}),
     ...(form.submitFormActionUrl ? { submitFormActionUrl: form.submitFormActionUrl } : {}),
+    ...(form.submitFormActionUrlPath ? { submitFormActionUrlPath: form.submitFormActionUrlPath } : {}),
+    ...(form.submitFormActionUrlQuery ? { submitFormActionUrlQuery: form.submitFormActionUrlQuery } : {}),
     ...(form.submitFormMethod ? { submitFormMethod: form.submitFormMethod } : {}),
     ...(form.submitFormTarget ? { submitFormTarget: form.submitFormTarget } : {}),
     ...(form.submitFormEncType ? { submitFormEncType: form.submitFormEncType } : {}),

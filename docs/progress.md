@@ -1011,6 +1011,8 @@ When research expands:
   comparison and routing can avoid parsing full link URLs.
 - Added top in-page semantic link URL path/query shortcuts so anchor and
   skip-link routing can compare targets without parsing full URLs.
+- Added submit-button `formaction` URL path/query shortcuts so form handoff can
+  compare overridden submit targets without parsing full URLs.
 
 ## In Progress
 

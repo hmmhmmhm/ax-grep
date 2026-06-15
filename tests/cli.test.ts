@@ -6842,6 +6842,7 @@ describe("cli", () => {
       submitType: "submit",
       submitSelector: "button[type=\"submit\"]:nth-of-type(1)",
       submitFormActionUrl: "https://example.test/override",
+      submitFormActionUrlPath: "/override",
       submitFormMethod: "get",
       submitFormTarget: "_blank",
       submitFormEncType: "multipart/form-data",
@@ -6855,6 +6856,7 @@ describe("cli", () => {
       topFormChoiceActionUrl: "https://example.test/override",
       topFormChoiceActionUrlPath: "/override",
       topFormChoiceSubmitFormActionUrl: "https://example.test/override",
+      topFormChoiceSubmitFormActionUrlPath: "/override",
       topFormChoiceSubmitFormMethod: "get",
       topFormChoiceSubmitFormTarget: "_blank",
       topFormChoiceSubmitFormEncType: "multipart/form-data",
@@ -6869,6 +6871,7 @@ describe("cli", () => {
       actionUrl: "https://example.test/override",
       actionUrlPath: "/override",
       submitFormActionUrl: "https://example.test/override",
+      submitFormActionUrlPath: "/override",
       submitFormMethod: "get",
       submitFormTarget: "_blank",
       submitFormEncType: "multipart/form-data",
@@ -6887,12 +6890,14 @@ describe("cli", () => {
 
     expect(textStatus).toBe(0);
     expect(textStdout.output).toContain("  topFormChoiceSubmitFormActionUrl: https://example.test/override");
+    expect(textStdout.output).toContain("  topFormChoiceSubmitFormActionUrlPath: /override");
     expect(textStdout.output).toContain("  topFormChoiceSubmitFormMethod: get");
     expect(textStdout.output).toContain("  topFormChoiceSubmitFormTarget: _blank");
     expect(textStdout.output).toContain("  topFormChoiceSubmitFormEncType: multipart/form-data");
     expect(textStdout.output).toContain("  topFormChoiceSubmitFormNoValidate: true");
     expect(textStdout.output).toContain("  topFormChoiceSubmitFormId: remote-form");
     expect(textStdout.output).toContain("  formChoiceSubmitFormActionUrl: https://example.test/override");
+    expect(textStdout.output).toContain("  formChoiceSubmitFormActionUrlPath: /override");
     expect(textStdout.output).toContain("  formChoiceSubmitFormMethod: get");
     expect(textStdout.output).toContain("  formChoiceSubmitFormTarget: _blank");
     expect(textStdout.output).toContain("  formChoiceSubmitFormEncType: multipart/form-data");
