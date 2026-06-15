@@ -6210,6 +6210,40 @@ describe("cli", () => {
     });
   });
 
+  it("prints top semantic link shortcuts in text agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/nav"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <nav aria-label="Primary">
+            <a href="/home?from=nav" target="_self" rel="bookmark" type="text/html" hreflang="en" aria-current="page" download="home.html">Home</a>
+            <a href="/reports">Reports</a>
+          </nav>
+          <h1>Home</h1>
+          <p>Readable home content for routing.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticTopLink: agent.semanticSummary.links[0] name=\"Home\" <https://example.test/home?from=nav> urlPath=/home urlQuery=?from=nav");
+    expect(stdout.output).toContain("  semanticTopLinkName: Home");
+    expect(stdout.output).toContain("  semanticTopLinkPath: agent.semanticSummary.links[0]");
+    expect(stdout.output).toContain("  semanticTopLinkUrl: https://example.test/home?from=nav");
+    expect(stdout.output).toContain("  semanticTopLinkUrlPath: /home");
+    expect(stdout.output).toContain("  semanticTopLinkUrlQuery: ?from=nav");
+    expect(stdout.output).toContain("  semanticTopLinkTarget: _self");
+    expect(stdout.output).toContain("  semanticTopLinkRel: bookmark");
+    expect(stdout.output).toContain("  semanticTopLinkType: text/html");
+    expect(stdout.output).toContain("  semanticTopLinkHreflang: en");
+    expect(stdout.output).toContain("  semanticTopLinkState: current=page");
+    expect(stdout.output).toContain("  semanticTopLinkCurrent: page");
+    expect(stdout.output).toContain("  semanticTopLinkDownload: home.html");
+    expect(stdout.output).toContain("  semanticTopLinkSelector: a");
+  });
+
   it("prints current semantic link shortcuts in text agent output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/nav"], {
