@@ -6891,6 +6891,9 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopTableSecondHeaderSort: descending");
     expect(stdout.output).toContain("  semanticTopTableSecondHeaderSelector: #revenue");
     expect(stdout.output).toContain("  semanticTopTableSecondSampleCell: agent.semanticSummary.tableItems[0].sampleCellRefs[1] text=\"Q2 review\"");
+    expect(stdout.output).toContain("  semanticTopTableSecondSampleCellPath: agent.semanticSummary.tableItems[0].sampleCellRefs[1]");
+    expect(stdout.output).toContain("  semanticTopTableSecondSampleCellText: Q2 review");
+    expect(stdout.output).toContain("  semanticTopTableSecondSampleCellSelector: td:nth-of-type(2)");
   });
 
   it("prints first owned table sample cell in text agent output", async () => {

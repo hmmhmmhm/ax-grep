@@ -1142,6 +1142,9 @@ When research expands:
 - Added individual text rows for first semantic table sample cells, so
   text-only agents can read representative cell path/text/span/header/selector
   fields without parsing the aggregate sample-cell row.
+- Added individual text rows for second semantic table sample cells, so
+  text-only agents can inspect the second representative cell without parsing
+  aggregate sample-cell rows.
 
 ## In Progress
 
