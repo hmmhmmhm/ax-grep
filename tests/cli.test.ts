@@ -12782,7 +12782,7 @@ npx ax-grep https://example.test --agent</code></pre>
           <form id="archive-form" name="archive" method="GET" action="/find" target="_blank" enctype="multipart/form-data" accept-charset="UTF-8" novalidate>
             <input type="hidden" name="csrf" value="token">
             <label for="q">Archive search</label>
-            <input id="q" name="query" type="search">
+            <input id="q" name="query" type="search" value="draft query" placeholder="Search reports" autocomplete="off" inputmode="search" pattern="[A-Za-z0-9 ]+" min="1" max="99" step="1" minlength="2" maxlength="80" required readonly aria-invalid="spelling">
             <button>Search</button>
           </form>
         </main>
@@ -12825,6 +12825,20 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topFormChoiceFirstHiddenFieldSelector: input[name=\"csrf\"]");
     expect(stdout.output).toContain("  topFormChoiceFirstFieldName: query");
     expect(stdout.output).toContain("  topFormChoiceFirstFieldType: search");
+    expect(stdout.output).toContain("  topFormChoiceFirstFieldLabel: Archive search");
+    expect(stdout.output).toContain("  topFormChoiceFirstFieldPlaceholder: Search reports");
+    expect(stdout.output).toContain("  topFormChoiceFirstFieldValue: draft query");
+    expect(stdout.output).toContain("  topFormChoiceFirstFieldAutocomplete: off");
+    expect(stdout.output).toContain("  topFormChoiceFirstFieldInputMode: search");
+    expect(stdout.output).toContain("  topFormChoiceFirstFieldPattern: [A-Za-z0-9 ]+");
+    expect(stdout.output).toContain("  topFormChoiceFirstFieldMin: 1");
+    expect(stdout.output).toContain("  topFormChoiceFirstFieldMax: 99");
+    expect(stdout.output).toContain("  topFormChoiceFirstFieldStep: 1");
+    expect(stdout.output).toContain("  topFormChoiceFirstFieldMinLength: 2");
+    expect(stdout.output).toContain("  topFormChoiceFirstFieldMaxLength: 80");
+    expect(stdout.output).toContain("  topFormChoiceFirstFieldRequired: true");
+    expect(stdout.output).toContain("  topFormChoiceFirstFieldReadonly: true");
+    expect(stdout.output).toContain("  topFormChoiceFirstFieldInvalid: spelling");
     expect(stdout.output).toContain("  topFormChoiceFirstFieldSelector: input[name=\"query\"]");
     expect(stdout.output).toContain("  form: id=f1 path=pageCheck.forms[0] method=get fields=1 hidden=1 actionUrl=https://example.test/find query=query template=https://example.test/find?query=%7Bquery%7D target=_blank enctype=multipart/form-data acceptCharset=UTF-8 novalidate=true selector=form:nth-of-type(1)");
     expect(stdout.output).toContain("  formChoice: id=f1 path=pageCheck.forms[0] rank=1 method=get fields=1 hidden=1 firstHidden=csrf query=query template=https://example.test/find?query=%7Bquery%7D target=_blank enctype=multipart/form-data selector=form:nth-of-type(1)");
