@@ -3952,6 +3952,11 @@ function formatAgentSourceSearchResultText(result: AgentSourceSearchResult, pref
 }
 
 function formatAgentText(agent: AgentSummary): string[] {
+  const topBarrierDetails = [
+    agent.topBarrierSource ? `source=${agent.topBarrierSource}` : "",
+    agent.topBarrierDiagnosticCode ? `diagnostic=${agent.topBarrierDiagnosticCode}` : "",
+    agent.topBarrierSelector ? `selector=${agent.topBarrierSelector}` : "",
+  ].filter(Boolean).join(" ");
   const lines = [
     "agent",
     `  status: ${agent.status}`,
@@ -4207,7 +4212,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topActionTargetChoiceControls ? [`  topActionTargetChoiceControls: ${agent.topActionTargetChoiceControls}`] : []),
     ...(agent.topActionTargetChoiceSelector ? [`  topActionTargetChoiceSelector: ${agent.topActionTargetChoiceSelector}`] : []),
     `  barrierCount: ${agent.barrierCount}`,
-    ...(agent.topBarrierKind ? [`  topBarrier: ${agent.topBarrierSeverity}/${agent.topBarrierKind} ${agent.topBarrierPath} - ${agent.topBarrierText}`] : []),
+    ...(agent.topBarrierKind ? [`  topBarrier: ${agent.topBarrierSeverity}/${agent.topBarrierKind} ${agent.topBarrierPath}${topBarrierDetails ? ` ${topBarrierDetails}` : ""} - ${agent.topBarrierText}`] : []),
     ...(agent.topBarrierSource ? [`  topBarrierSource: ${agent.topBarrierSource}`] : []),
     ...(agent.topBarrierSelector ? [`  topBarrierSelector: ${agent.topBarrierSelector}`] : []),
     ...(agent.topBarrierDiagnosticCode ? [`  topBarrierDiagnosticCode: ${agent.topBarrierDiagnosticCode}`] : []),

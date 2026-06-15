@@ -12962,6 +12962,24 @@ npx ax-grep https://example.test --agent</code></pre>
     });
   });
 
+  it("prints barrier source and diagnostic details in text agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://news.example/article"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h1>Premium article</h1>
+          <p>Log in to continue reading this premium article. Subscription required.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("  topBarrier: warning/login pageCheck.barriers[0] source=diagnostic diagnostic=LOGIN_REQUIRED - Login: The page appears to require login or account access.");
+    expect(stdout.output).toContain("  topBarrierSource: diagnostic");
+    expect(stdout.output).toContain("  topBarrierDiagnosticCode: LOGIN_REQUIRED");
+  });
+
   it("summarizes consent actions as non-blocking page barriers", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://shop.example/product", "--agent"], {
