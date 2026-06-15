@@ -53,7 +53,7 @@ describe("cli", () => {
     });
 
     expect(status).toBe(0);
-    expect(stdout.output).toContain("semanticTopInteractive: agent.semanticSummary.interactiveRoles[0] button:Archive");
+    expect(stdout.output).toContain("semanticTopInteractive: agent.semanticSummary.interactiveRoles[0] role=button name=\"Archive\"");
     expect(stdout.output).toContain("disabled=true");
     expect(stdout.output).toContain("pressed=false");
     expect(stdout.output).toContain("controls=archive-panel");
@@ -12200,7 +12200,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  semanticInteractive: agent.semanticSummary.interactiveRoles[1] role=button name=\"Subscribe\"");
     expect(stdout.output).toContain("  semanticNodeCount:");
     expect(stdout.output).toContain("  semanticNamedRoleCount:");
-    expect(stdout.output).toContain("  semanticTopHeading: agent.semanticSummary.headingItems[0] Article heading level=1 selector=h1");
+    expect(stdout.output).toContain("  semanticTopHeading: agent.semanticSummary.headingItems[0] text=\"Article heading\" level=1 selector=h1");
     expect(stdout.output).toContain("  qualityGate: fetch pass/info score=1 path=agent.responseStatus - Fetched response was converted into an agent payload.");
     expect(stdout.output).toContain("  qualityGate: content pass/info score=");
     expect(stdout.output).toContain("  qualityGate: source pass/info score=");
