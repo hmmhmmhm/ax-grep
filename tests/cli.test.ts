@@ -44,6 +44,24 @@ describe("cli", () => {
     expect(semanticTopFields.filter((field) => !briefAgentSource.includes(field))).toEqual([]);
   });
 
+  it("keeps browser fixture semantic checks visible in comparison summaries", async () => {
+    const source = await readFile(join(process.cwd(), "scripts/compare-browser-fixture.ts"), "utf8");
+    const summaryStart = source.indexOf("function summarizeAgent");
+    const summaryEnd = source.indexOf("function buildCoreChecks", summaryStart);
+
+    expect(summaryStart).toBeGreaterThanOrEqual(0);
+    expect(summaryEnd).toBeGreaterThan(summaryStart);
+
+    const summarySource = source.slice(summaryStart, summaryEnd);
+    const checkSource = source.slice(summaryEnd);
+    const checkedSemanticFields = Array.from(
+      new Set(Array.from(checkSource.matchAll(/agent\.(semanticTop[A-Za-z0-9]+)/g), (match) => match[1]!)),
+    );
+    const missingSummaryFields = checkedSemanticFields.filter((field) => !summarySource.includes(`agent.${field}`));
+
+    expect(missingSummaryFields).toEqual([]);
+  });
+
   it("documents agent handoff routing in help output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["--help"], { stdout });
