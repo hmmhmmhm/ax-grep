@@ -12194,7 +12194,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain(" named=");
     expect(stdout.output).toContain(" interactive=");
     expect(stdout.output).toContain("  semanticTopRoles:");
-    expect(stdout.output).toContain("  semanticOutline: agent.semanticSummary.semanticOutline[0] landmark:main role=main");
+    expect(stdout.output).toContain("  semanticOutline: agent.semanticSummary.semanticOutline[0] kind=landmark text=\"main\" role=main");
     expect(stdout.output).toContain("  semanticHeading: agent.semanticSummary.headingItems[0] Article heading");
     expect(stdout.output).toContain("  semanticLandmark: agent.semanticSummary.landmarkItems[0] main");
     expect(stdout.output).toContain("  semanticNodeCount:");
