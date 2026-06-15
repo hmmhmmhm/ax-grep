@@ -4967,6 +4967,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.sourceSearchFailureCommand ? [`  sourceSearchFailureCommand: ${agent.sourceSearchFailureCommand}`] : []),
     ...(agent.sourceSearchFailureCommandArgs ? [`  sourceSearchFailureCommandArgs: ${JSON.stringify(agent.sourceSearchFailureCommandArgs)}`] : []),
     `  sourceSearchAlternateCount: ${agent.sourceSearchAlternateCount}`,
+    ...(agent.sourceSearchAlternateChoices.length > 0 ? [`  sourceSearchAlternateChoices: ${agent.sourceSearchAlternateChoices.length} choices first=${agent.sourceSearchAlternateChoices[0]?.path ?? "sourceSearch.alternateResults[0]"}`] : []),
     ...(agent.sourceSearchAlternatePath ? [`  sourceSearchAlternatePath: ${agent.sourceSearchAlternatePath}`] : []),
     ...(agent.sourceSearchAlternateUrl ? [`  sourceSearchAlternateUrl: ${agent.sourceSearchAlternateUrl}`] : []),
     ...(agent.sourceSearchAlternateUrlPath ? [`  sourceSearchAlternateUrlPath: ${agent.sourceSearchAlternateUrlPath}`] : []),

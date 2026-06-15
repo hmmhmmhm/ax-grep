@@ -62,6 +62,40 @@ describe("cli", () => {
     expect(missingSummaryFields).toEqual([]);
   });
 
+  it("keeps source-search handoff shortcuts labelled in text agent output", async () => {
+    const source = await readFile(join(process.cwd(), "src/cli.ts"), "utf8");
+    const agentSummaryStart = source.indexOf("type AgentSummary = {");
+    const agentSummaryBodyStart = source.indexOf("{", agentSummaryStart);
+    let agentSummaryEnd = -1;
+    let braceDepth = 0;
+
+    for (let index = agentSummaryBodyStart; index < source.length; index += 1) {
+      if (source[index] === "{") braceDepth += 1;
+      if (source[index] === "}") braceDepth -= 1;
+      if (braceDepth === 0) {
+        agentSummaryEnd = index + 1;
+        break;
+      }
+    }
+    const formatStart = source.indexOf("function formatAgentText");
+    const formatEnd = source.indexOf("function formatPageCheckText", formatStart);
+
+    expect(agentSummaryStart).toBeGreaterThanOrEqual(0);
+    expect(agentSummaryBodyStart).toBeGreaterThan(agentSummaryStart);
+    expect(agentSummaryEnd).toBeGreaterThan(agentSummaryStart);
+    expect(formatStart).toBeGreaterThanOrEqual(0);
+    expect(formatEnd).toBeGreaterThan(formatStart);
+
+    const agentSummarySource = source.slice(agentSummaryStart, agentSummaryEnd);
+    const formatAgentTextSource = source.slice(formatStart, formatEnd);
+    const sourceSearchFields = Array.from(
+      new Set(Array.from(agentSummarySource.matchAll(/^\s*(sourceSearch[A-Za-z0-9]+)\??:/gm), (match) => match[1]!)),
+    );
+    const missingTextLabels = sourceSearchFields.filter((field) => !formatAgentTextSource.includes(`${field}:`));
+
+    expect(missingTextLabels).toEqual([]);
+  });
+
   it("documents agent handoff routing in help output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["--help"], { stdout });
@@ -4678,6 +4712,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  sourceSearchAlternateFirstSitelinkCommand: ax-grep 'https://alternate.example/article/docs' --find 'target claim' --agent");
     expect(stdout.output).toContain("  sourceSearchAlternateCommand: ax-grep --search 'agent browser' --engine duckduckgo --find 'target claim' --open-result 2 --agent");
     expect(stdout.output).toContain("  sourceSearchAlternateCommandArgs: [\"ax-grep\",\"--search\",\"agent browser\",\"--engine\",\"duckduckgo\",\"--find\",\"target claim\",\"--open-result\",\"2\",\"--agent\"]");
+    expect(stdout.output).toContain("  sourceSearchAlternateChoices: 1 choices first=sourceSearch.alternateResults[0]");
     expect(stdout.output).toContain("  sourceSearchAlternateChoice: a2 sourceSearch.alternateResults[0] rank=2 openResult=2");
     expect(stdout.output).toContain("  sourceSearchAlternateChoiceUrl: https://alternate.example/article");
     expect(stdout.output).toContain("  sourceSearchAlternateChoiceTitle: Independent source");
