@@ -1816,6 +1816,7 @@ describe("cli", () => {
         path: "pageCheck.authorLinks[0]",
         name: "Jane Doe",
         url: "https://example.test/authors/jane",
+        urlPath: "/authors/jane",
         source: "link",
       }),
     ]);
@@ -9339,6 +9340,7 @@ describe("cli", () => {
         text: "DOI: 10.5555/example.2026 kind=doi url=https://doi.org/10.5555/example.2026 source=meta",
         source: "meta",
         url: "https://doi.org/10.5555/example.2026",
+        urlPath: "/10.5555/example.2026",
         selector: "meta:nth-of-type(1)",
       },
       {
@@ -9351,6 +9353,7 @@ describe("cli", () => {
         text: "PMID: 12345678 kind=pmid url=https://pubmed.ncbi.nlm.nih.gov/12345678/ source=meta",
         source: "meta",
         url: "https://pubmed.ncbi.nlm.nih.gov/12345678/",
+        urlPath: "/12345678/",
         selector: "meta:nth-of-type(2)",
       },
       {
@@ -9363,6 +9366,7 @@ describe("cli", () => {
         text: "arXiv: 2606.01234 kind=arxiv url=https://arxiv.org/abs/2606.01234 source=meta",
         source: "meta",
         url: "https://arxiv.org/abs/2606.01234",
+        urlPath: "/abs/2606.01234",
         selector: "meta:nth-of-type(3)",
       },
       {
@@ -9483,7 +9487,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topProvenance: path=pageCheck.provenance[0] kind=doi label=\"DOI\" value=10.5555/example.2026 source=meta selector=meta:nth-of-type(1) url=<https://doi.org/10.5555/example.2026> urlPath=/10.5555/example.2026");
     expect(stdout.output).toContain("  topProvenanceCommand: ax-grep 'https://doi.org/10.5555/example.2026'");
-    expect(stdout.output).toContain("  provenance: id=pv1 path=pageCheck.provenance[0] kind=doi source=meta label=\"DOI\" value=10.5555/example.2026 selector=meta:nth-of-type(1) url=<https://doi.org/10.5555/example.2026>");
+    expect(stdout.output).toContain("  provenance: id=pv1 path=pageCheck.provenance[0] kind=doi source=meta label=\"DOI\" value=10.5555/example.2026 selector=meta:nth-of-type(1) urlPath=/10.5555/example.2026 url=<https://doi.org/10.5555/example.2026>");
   });
 
   it("summarizes HTTP policy headers and meta directives as pageCheck read targets for agents", async () => {
@@ -11109,6 +11113,8 @@ npx ax-grep https://example.test --agent</code></pre>
         label: "Previous page",
         source: "link",
         url: "https://example.test/blog?page=1",
+        urlPath: "/blog",
+        urlQuery: "?page=1",
       }),
       expect.objectContaining({
         id: "pg2",
@@ -11117,6 +11123,8 @@ npx ax-grep https://example.test --agent</code></pre>
         label: "Next page",
         source: "link",
         url: "https://example.test/blog?page=3",
+        urlPath: "/blog",
+        urlQuery: "?page=3",
       }),
       expect.objectContaining({
         kind: "page",
@@ -11173,7 +11181,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topPagination: path=pageCheck.pagination[0] kind=prev label=\"Previous\" selector=nav:nth-of-type(1) a url=<https://example.test/blog?page=1>");
     expect(stdout.output).toContain("urlPath=/blog urlQuery=?page=1");
-    expect(stdout.output).toContain("  pagination: id=pg1 path=pageCheck.pagination[0] kind=prev source=html label=\"Previous\" selector=nav:nth-of-type(1) a url=<https://example.test/blog?page=1> - prev Previous https://example.test/blog?page=1");
+    expect(stdout.output).toContain("  pagination: id=pg1 path=pageCheck.pagination[0] kind=prev source=html label=\"Previous\" selector=nav:nth-of-type(1) a urlPath=/blog urlQuery=?page=1 url=<https://example.test/blog?page=1> - prev Previous https://example.test/blog?page=1");
   });
 
   it("summarizes table-of-contents navigation as pageCheck read targets for agents", async () => {
@@ -11464,6 +11472,7 @@ npx ax-grep https://example.test --agent</code></pre>
         text: "Citation: Audit Report 2026 - https://example.test/papers/audit",
         title: "Audit Report 2026",
         url: "https://example.test/papers/audit",
+        urlPath: "/papers/audit",
         selector: "cite:nth-of-type(1)",
       },
       {
@@ -11545,7 +11554,7 @@ npx ax-grep https://example.test --agent</code></pre>
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain("  citation: id=ct1 path=pageCheck.citations[0] source=cite title=\"Audit Report 2026\" selector=cite:nth-of-type(1) url=<https://example.test/papers/audit> - Citation: Audit Report 2026 - https://example.test/papers/audit");
+    expect(stdout.output).toContain("  citation: id=ct1 path=pageCheck.citations[0] source=cite title=\"Audit Report 2026\" selector=cite:nth-of-type(1) urlPath=/papers/audit url=<https://example.test/papers/audit> - Citation: Audit Report 2026 - https://example.test/papers/audit");
     expect(stdout.output).toContain("  citation: id=ct2 path=pageCheck.citations[1] source=reference quote=\"Journal of Tests, 2026. Independent verification of the audited result.\" selector=li:nth-of-type(1) - Reference: Journal of Tests, 2026. Independent verification of the audited result.");
   });
 
@@ -11926,6 +11935,8 @@ npx ax-grep https://example.test --agent</code></pre>
         rank: 1,
         kind: "iframe",
         url: "https://example.test/embed/dashboard?region=us",
+        urlPath: "/embed/dashboard",
+        urlQuery: "?region=us",
         title: "Interactive revenue dashboard",
         sandbox: "allow-scripts allow-same-origin",
         allow: "fullscreen",
@@ -11938,6 +11949,7 @@ npx ax-grep https://example.test --agent</code></pre>
         rank: 2,
         kind: "video",
         url: "https://example.test/media/walkthrough.mp4",
+        urlPath: "/media/walkthrough.mp4",
         title: "Product walkthrough",
         type: "video/mp4",
         posterUrl: "https://example.test/media/walkthrough.jpg",
@@ -11953,6 +11965,7 @@ npx ax-grep https://example.test --agent</code></pre>
         rank: 3,
         kind: "object",
         url: "https://example.test/reports/appendix.pdf",
+        urlPath: "/reports/appendix.pdf",
         type: "application/pdf",
         selector: "object:nth-of-type(3)",
       }),
@@ -12029,11 +12042,11 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topEmbed: path=pageCheck.embeds[0] kind=iframe title=\"Interactive dashboard\" selector=iframe:nth-of-type(1) url=<https://example.test/embed/dashboard> urlPath=/embed/dashboard");
-    expect(stdout.output).toContain("  embed: id=em1 path=pageCheck.embeds[0] kind=iframe title=\"Interactive dashboard\" selector=iframe:nth-of-type(1) url=<https://example.test/embed/dashboard> - iframe: Interactive dashboard https://example.test/embed/dashboard");
+    expect(stdout.output).toContain("  embed: id=em1 path=pageCheck.embeds[0] kind=iframe title=\"Interactive dashboard\" selector=iframe:nth-of-type(1) urlPath=/embed/dashboard url=<https://example.test/embed/dashboard> - iframe: Interactive dashboard https://example.test/embed/dashboard");
     expect(stdout.output).toContain("  topTranscript: path=pageCheck.transcripts[0] kind=captions label=\"English captions\" lang=en selector=track:nth-of-type(1) url=<https://example.test/media/walkthrough.en.vtt> urlPath=/media/walkthrough.en.vtt");
-    expect(stdout.output).toContain("  transcript: id=tr1 path=pageCheck.transcripts[0] kind=captions media=video language=en label=\"English captions\" selector=track:nth-of-type(1) url=<https://example.test/media/walkthrough.en.vtt> - captions: English captions lang=en media=video https://example.test/media/walkthrough.en.vtt");
+    expect(stdout.output).toContain("  transcript: id=tr1 path=pageCheck.transcripts[0] kind=captions media=video language=en label=\"English captions\" selector=track:nth-of-type(1) urlPath=/media/walkthrough.en.vtt url=<https://example.test/media/walkthrough.en.vtt> - captions: English captions lang=en media=video https://example.test/media/walkthrough.en.vtt");
     expect(stdout.output).toContain("  topAuthorLink: path=pageCheck.authorLinks[0] source=link name=\"Jane Doe\" selector=link[rel=\"author\"]:nth-of-type(1) url=<https://example.test/authors/jane> urlPath=/authors/jane");
-    expect(stdout.output).toContain("  authorLink: id=au1 path=pageCheck.authorLinks[0] source=link name=\"Jane Doe\" rel=author selector=link[rel=\"author\"]:nth-of-type(1) url=<https://example.test/authors/jane> - Jane Doe source=link https://example.test/authors/jane");
+    expect(stdout.output).toContain("  authorLink: id=au1 path=pageCheck.authorLinks[0] source=link name=\"Jane Doe\" rel=author selector=link[rel=\"author\"]:nth-of-type(1) urlPath=/authors/jane url=<https://example.test/authors/jane> - Jane Doe source=link https://example.test/authors/jane");
   });
 
   it("prints unavailable semantic target details as named fields in text output", async () => {
@@ -12134,6 +12147,7 @@ npx ax-grep https://example.test --agent</code></pre>
         rank: 1,
         kind: "captions",
         url: "https://example.test/media/walkthrough.en.vtt",
+        urlPath: "/media/walkthrough.en.vtt",
         mediaKind: "video",
         label: "English captions",
         language: "en",
@@ -12146,6 +12160,7 @@ npx ax-grep https://example.test --agent</code></pre>
         rank: 2,
         kind: "subtitles",
         url: "https://example.test/audio/interview.ko.vtt",
+        urlPath: "/audio/interview.ko.vtt",
         mediaKind: "audio",
         label: "Korean subtitles",
         language: "ko",
@@ -12158,6 +12173,7 @@ npx ax-grep https://example.test --agent</code></pre>
         rank: 3,
         kind: "transcript",
         url: "https://example.test/media/walkthrough-transcript.txt",
+        urlPath: "/media/walkthrough-transcript.txt",
         label: "Full transcript",
         selector: "a:nth-of-type(1)",
         text: "transcript: Full transcript https://example.test/media/walkthrough-transcript.txt",

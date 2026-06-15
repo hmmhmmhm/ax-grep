@@ -650,6 +650,8 @@ type PageProvenanceSummary = {
   text: string;
   source: "meta" | "link" | "json-ld";
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   selector?: string;
 };
 
@@ -805,6 +807,8 @@ type PagePaginationSummary = {
   text: string;
   source: "link" | "html";
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   current?: boolean;
   selector?: string;
 };
@@ -879,6 +883,8 @@ type PageCitationSummary = {
   quote?: string;
   title?: string;
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   selector?: string;
 };
 
@@ -888,6 +894,8 @@ type PageEmbedSummary = {
   rank: number;
   kind: "iframe" | "video" | "audio" | "embed" | "object";
   url: string;
+  urlPath?: string;
+  urlQuery?: string;
   text: string;
   title?: string;
   type?: string;
@@ -905,6 +913,8 @@ type PageTranscriptSummary = {
   rank: number;
   kind: "captions" | "subtitles" | "descriptions" | "chapters" | "metadata" | "transcript";
   url: string;
+  urlPath?: string;
+  urlQuery?: string;
   text: string;
   mediaKind?: "video" | "audio";
   label?: string;
@@ -917,6 +927,8 @@ type PageAuthorLinkSummary = {
   path: string;
   rank: number;
   url: string;
+  urlPath?: string;
+  urlQuery?: string;
   text: string;
   source: "json-ld" | "link" | "html";
   name?: string;
@@ -5633,6 +5645,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       `label="${fact.label}"`,
       `value=${fact.value}`,
       fact.selector ? `selector=${fact.selector}` : "",
+      fact.urlPath ? `urlPath=${fact.urlPath}` : "",
+      fact.urlQuery ? `urlQuery=${fact.urlQuery}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  provenance: id=${fact.id} path=${fact.path} ${details}${url} - ${fact.text}`);
   }
@@ -5762,6 +5776,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       `label="${pagination.label}"`,
       pagination.current ? "current=true" : "",
       pagination.selector ? `selector=${pagination.selector}` : "",
+      pagination.urlPath ? `urlPath=${pagination.urlPath}` : "",
+      pagination.urlQuery ? `urlQuery=${pagination.urlQuery}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  pagination: id=${pagination.id} path=${pagination.path} ${details}${url} - ${pagination.text}`);
   }
@@ -5798,6 +5814,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       citation.title ? `title="${citation.title}"` : "",
       citation.quote ? `quote="${citation.quote}"` : "",
       citation.selector ? `selector=${citation.selector}` : "",
+      citation.urlPath ? `urlPath=${citation.urlPath}` : "",
+      citation.urlQuery ? `urlQuery=${citation.urlQuery}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  citation: id=${citation.id} path=${citation.path} ${details}${url} - ${citation.text}`);
   }
@@ -5839,6 +5857,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       embed.allow ? `allow="${embed.allow}"` : "",
       embed.loading ? `loading=${embed.loading}` : "",
       embed.selector ? `selector=${embed.selector}` : "",
+      embed.urlPath ? `urlPath=${embed.urlPath}` : "",
+      embed.urlQuery ? `urlQuery=${embed.urlQuery}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  embed: id=${embed.id} path=${embed.path} ${details} url=<${embed.url}> - ${embed.text}`);
   }
@@ -5849,6 +5869,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       transcript.language ? `language=${transcript.language}` : "",
       transcript.label ? `label="${transcript.label}"` : "",
       transcript.selector ? `selector=${transcript.selector}` : "",
+      transcript.urlPath ? `urlPath=${transcript.urlPath}` : "",
+      transcript.urlQuery ? `urlQuery=${transcript.urlQuery}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  transcript: id=${transcript.id} path=${transcript.path} ${details} url=<${transcript.url}> - ${transcript.text}`);
   }
@@ -5858,6 +5880,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       authorLink.name ? `name="${authorLink.name}"` : "",
       authorLink.rel ? `rel=${authorLink.rel}` : "",
       authorLink.selector ? `selector=${authorLink.selector}` : "",
+      authorLink.urlPath ? `urlPath=${authorLink.urlPath}` : "",
+      authorLink.urlQuery ? `urlQuery=${authorLink.urlQuery}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  authorLink: id=${authorLink.id} path=${authorLink.path} ${details} url=<${authorLink.url}> - ${authorLink.text}`);
   }
@@ -9764,6 +9788,7 @@ function summarizeProvenance(html: string, baseUrl: string): PageProvenanceSumma
       text: provenanceText(item.kind, label, value, url, item.source),
       source: item.source,
       ...(url ? { url } : {}),
+      ...(url ? urlPathParts(url) : {}),
       ...(item.selector ? { selector: item.selector } : {}),
     });
   };
@@ -11058,6 +11083,7 @@ function summarizePagination(html: string, baseUrl: string): PagePaginationSumma
       path: `pageCheck.pagination[${rank - 1}]`,
       rank,
       ...item,
+      ...(item.url ? urlPathParts(item.url) : {}),
       label,
       text: paginationText(item.kind, label, item.url, item.current),
     });
@@ -11358,6 +11384,7 @@ function summarizeCitations(html: string, baseUrl: string): PageCitationSummary[
       path: `pageCheck.citations[${rank - 1}]`,
       rank,
       ...item,
+      ...(item.url ? urlPathParts(item.url) : {}),
       text,
     });
   };
@@ -11723,6 +11750,7 @@ function summarizeEmbeds(html: string, baseUrl: string): PageEmbedSummary[] {
     .filter((embed): embed is PageEmbedSummary => Boolean(embed))
     .map((embed, index) => ({
       ...embed,
+      ...urlPathParts(embed.url),
       id: `em${index + 1}`,
       path: `pageCheck.embeds[${index}]`,
       rank: index + 1,
@@ -11835,6 +11863,7 @@ function summarizeTranscripts(html: string, baseUrl: string): PageTranscriptSumm
       rank,
       kind: item.kind,
       url,
+      ...urlPathParts(url),
       ...(item.mediaKind ? { mediaKind: item.mediaKind } : {}),
       ...(label ? { label } : {}),
       ...(language ? { language } : {}),
@@ -11932,6 +11961,7 @@ function summarizeAuthorLinks(html: string, baseUrl: string): PageAuthorLinkSumm
       path: `pageCheck.authorLinks[${rank - 1}]`,
       rank,
       ...item,
+      ...urlPathParts(item.url),
       ...(name ? { name } : {}),
       text: authorLinkText(name, item.source, url),
     });

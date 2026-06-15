@@ -1052,6 +1052,11 @@ When research expands:
   `pageCheck.resources`, and `pageCheck.media` entries, with a static gate, so
   agents reading the source arrays do not need to parse full URLs before routing
   follow-up checks.
+- Extended the same original-array URL path/query contract to
+  `pageCheck.pagination`, `pageCheck.citations`, `pageCheck.embeds`,
+  `pageCheck.transcripts`, `pageCheck.authorLinks`, and
+  `pageCheck.provenance`, so read-target follow-up arrays preserve the same
+  routing evidence as their top shortcuts.
 
 ## In Progress
 

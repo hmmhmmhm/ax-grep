@@ -2618,6 +2618,12 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       codeBlocks?: Array<{ language?: string; lineCount?: number; text?: string }>;
       resources?: Array<{ kind?: string; url?: string; title?: string }>;
       media?: Array<{ kind?: string; url?: string; text?: string }>;
+      pagination?: Array<{ path?: string; kind?: string; label?: string; url?: string; current?: boolean; selector?: string }>;
+      citations?: unknown[];
+      embeds?: Array<{ path?: string; kind?: string; url?: string; title?: string; selector?: string }>;
+      transcripts?: Array<{ path?: string; kind?: string; url?: string; label?: string; language?: string; selector?: string }>;
+      authorLinks?: Array<{ path?: string; name?: string; url?: string; source?: string; selector?: string }>;
+      provenance?: Array<{ path?: string; kind?: string; label?: string; value?: string; url?: string; source?: string; selector?: string }>;
       sections?: Array<{ heading?: string; text?: string }>;
       forms?: unknown[];
       actionTargets?: unknown[];
@@ -2718,7 +2724,17 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentResultChoiceScore: scoreAgentResultChoices(item.agent?.resultChoices ?? [], item.searchResults ?? [], item.recommendedResult, item.agent?.primaryAction),
     agentTopResultChoiceShortcutScore: scoreAgentTopResultChoiceShortcuts(item.agent),
     agentSourceLinkCountScore: scoreAgentSourceLinkCount(item.kind ?? "unknown", item.agent?.sourceLinkCount, item.pageCheck?.sourceLinks ?? []),
-    pageCheckUrlItemPathScore: scorePageCheckUrlItemPaths(item.pageCheck?.sourceLinks ?? [], item.pageCheck?.resources ?? [], item.pageCheck?.media ?? []),
+    pageCheckUrlItemPathScore: scorePageCheckUrlItemPaths(
+      item.pageCheck?.sourceLinks ?? [],
+      item.pageCheck?.resources ?? [],
+      item.pageCheck?.media ?? [],
+      item.pageCheck?.pagination ?? [],
+      item.pageCheck?.citations ?? [],
+      item.pageCheck?.embeds ?? [],
+      item.pageCheck?.transcripts ?? [],
+      item.pageCheck?.authorLinks ?? [],
+      item.pageCheck?.provenance ?? [],
+    ),
     pageCheckFormUrlPathScore: scorePageCheckFormUrlPaths(item.pageCheck?.forms ?? []),
     pageCheckActionTargetUrlPathScore: scorePageCheckActionTargetUrlPaths(item.pageCheck?.actionTargets ?? []),
     agentFormActionCountScore: scoreAgentFormActionCounts(item.agent?.formCount, item.agent?.actionTargetCount, item.pageCheck?.forms ?? [], item.pageCheck?.actionTargets ?? []),
