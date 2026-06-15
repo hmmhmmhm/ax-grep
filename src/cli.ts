@@ -1781,6 +1781,8 @@ type AgentSummary = {
   topMediaPath?: string;
   topMediaKind?: PageMediaSummary["kind"];
   topMediaUrl?: string;
+  topMediaUrlPath?: string;
+  topMediaUrlQuery?: string;
   topMediaSelector?: string;
   topMediaCommand?: string;
   topMediaCommandArgs?: string[];
@@ -4581,7 +4583,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topResourceUrl ? [`  topResource: path=${agent.topResourcePath ?? ""}${agent.topResourceKind ? ` kind=${agent.topResourceKind}` : ""}${agent.topResourceTitle ? ` title="${agent.topResourceTitle}"` : ""}${agent.topResourceRel ? ` rel=${agent.topResourceRel}` : ""}${agent.topResourceType ? ` type=${agent.topResourceType}` : ""}${agent.topResourceHreflang ? ` hreflang=${agent.topResourceHreflang}` : ""}${agent.topResourceSelector ? ` selector=${agent.topResourceSelector}` : ""} url=<${agent.topResourceUrl}>${agent.topResourceUrlPath ? ` urlPath=${agent.topResourceUrlPath}` : ""}${agent.topResourceUrlQuery ? ` urlQuery=${agent.topResourceUrlQuery}` : ""}`] : []),
     ...(agent.topResourceCommand ? [`  topResourceCommand: ${agent.topResourceCommand}`] : []),
     ...(agent.topResourceCommandArgs ? [`  topResourceCommandArgs: ${formatCommandArgsText(agent.topResourceCommandArgs)}`] : []),
-    ...(agent.topMediaUrl ? [`  topMedia: path=${agent.topMediaPath ?? ""}${agent.topMediaKind ? ` kind=${agent.topMediaKind}` : ""}${agent.topMediaAlt ? ` alt="${agent.topMediaAlt}"` : ""}${agent.topMediaCaption ? ` caption="${agent.topMediaCaption}"` : ""}${agent.topMediaTitle ? ` title="${agent.topMediaTitle}"` : ""}${typeof agent.topMediaWidth === "number" ? ` width=${agent.topMediaWidth}` : ""}${typeof agent.topMediaHeight === "number" ? ` height=${agent.topMediaHeight}` : ""}${agent.topMediaSelector ? ` selector=${agent.topMediaSelector}` : ""} url=<${agent.topMediaUrl}>${agent.topMediaText ? ` - ${agent.topMediaText}` : ""}`] : []),
+    ...(agent.topMediaUrl ? [`  topMedia: path=${agent.topMediaPath ?? ""}${agent.topMediaKind ? ` kind=${agent.topMediaKind}` : ""}${agent.topMediaAlt ? ` alt="${agent.topMediaAlt}"` : ""}${agent.topMediaCaption ? ` caption="${agent.topMediaCaption}"` : ""}${agent.topMediaTitle ? ` title="${agent.topMediaTitle}"` : ""}${typeof agent.topMediaWidth === "number" ? ` width=${agent.topMediaWidth}` : ""}${typeof agent.topMediaHeight === "number" ? ` height=${agent.topMediaHeight}` : ""}${agent.topMediaSelector ? ` selector=${agent.topMediaSelector}` : ""} url=<${agent.topMediaUrl}>${agent.topMediaUrlPath ? ` urlPath=${agent.topMediaUrlPath}` : ""}${agent.topMediaUrlQuery ? ` urlQuery=${agent.topMediaUrlQuery}` : ""}${agent.topMediaText ? ` - ${agent.topMediaText}` : ""}`] : []),
     ...(agent.topMediaCommand ? [`  topMediaCommand: ${agent.topMediaCommand}`] : []),
     ...(agent.topMediaCommandArgs ? [`  topMediaCommandArgs: ${formatCommandArgsText(agent.topMediaCommandArgs)}`] : []),
     ...(agent.topSectionPath ? [`  topSection: path=${agent.topSectionPath}${typeof agent.topSectionLevel === "number" ? ` level=${agent.topSectionLevel}` : ""}${agent.topSectionSelector ? ` selector=${agent.topSectionSelector}` : ""}${agent.topSectionHeading ? ` heading="${agent.topSectionHeading}"` : ""}${agent.topSectionText ? ` - ${agent.topSectionText}` : ""}`] : []),
@@ -13149,6 +13151,7 @@ function summarizeAgent(
   const topMediaCommand = pageCheck.media[0]?.url && /^https?:\/\//i.test(pageCheck.media[0].url)
     ? pageCommandSpec(pageCheck.media[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topMediaUrlParts = pageCheck.media[0]?.url ? urlPathParts(pageCheck.media[0].url) : undefined;
   const topTocFirstItemCommand = pageCheck.toc[0]?.items[0]?.url && /^https?:\/\//i.test(pageCheck.toc[0].items[0].url)
     ? pageCommandSpec(pageCheck.toc[0].items[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -14108,6 +14111,8 @@ function summarizeAgent(
     ...(pageCheck.media[0] ? { topMediaPath: pageCheck.media[0].path } : {}),
     ...(pageCheck.media[0] ? { topMediaKind: pageCheck.media[0].kind } : {}),
     ...(pageCheck.media[0]?.url ? { topMediaUrl: pageCheck.media[0].url } : {}),
+    ...(topMediaUrlParts?.urlPath ? { topMediaUrlPath: topMediaUrlParts.urlPath } : {}),
+    ...(topMediaUrlParts?.urlQuery ? { topMediaUrlQuery: topMediaUrlParts.urlQuery } : {}),
     ...(pageCheck.media[0]?.selector ? { topMediaSelector: pageCheck.media[0].selector } : {}),
     ...(topMediaCommand ? { topMediaCommand: topMediaCommand.command } : {}),
     ...(topMediaCommand ? { topMediaCommandArgs: topMediaCommand.commandArgs } : {}),
@@ -20383,6 +20388,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topMediaPath ? { topMediaPath: agent.topMediaPath } : {}),
     ...(agent.topMediaKind ? { topMediaKind: agent.topMediaKind } : {}),
     ...(agent.topMediaUrl ? { topMediaUrl: agent.topMediaUrl } : {}),
+    ...(agent.topMediaUrlPath ? { topMediaUrlPath: agent.topMediaUrlPath } : {}),
+    ...(agent.topMediaUrlQuery ? { topMediaUrlQuery: agent.topMediaUrlQuery } : {}),
     ...(agent.topMediaSelector ? { topMediaSelector: agent.topMediaSelector } : {}),
     ...(agent.topMediaCommand ? { topMediaCommand: agent.topMediaCommand } : {}),
     ...(agent.topMediaCommandArgs ? { topMediaCommandArgs: agent.topMediaCommandArgs } : {}),
@@ -21847,6 +21854,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topMediaPath ? { topMediaPath: agent.topMediaPath } : {}),
     ...(agent.topMediaKind ? { topMediaKind: agent.topMediaKind } : {}),
     ...(agent.topMediaUrl ? { topMediaUrl: agent.topMediaUrl } : {}),
+    ...(agent.topMediaUrlPath ? { topMediaUrlPath: agent.topMediaUrlPath } : {}),
+    ...(agent.topMediaUrlQuery ? { topMediaUrlQuery: agent.topMediaUrlQuery } : {}),
     ...(agent.topMediaSelector ? { topMediaSelector: agent.topMediaSelector } : {}),
     ...(agent.topMediaCommand ? { topMediaCommand: agent.topMediaCommand } : {}),
     ...(agent.topMediaCommandArgs ? { topMediaCommandArgs: agent.topMediaCommandArgs } : {}),

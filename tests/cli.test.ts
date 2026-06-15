@@ -11575,6 +11575,7 @@ npx ax-grep https://example.test --agent</code></pre>
       topMediaPath: "pageCheck.media[0]",
       topMediaKind: "open-graph",
       topMediaUrl: "https://example.test/share.png",
+      topMediaUrlPath: "/share.png",
       topMediaSelector: "meta[property=\"og:image\"]",
       topMediaCommand: "ax-grep 'https://example.test/share.png' --agent",
       topMediaCommandArgs: ["ax-grep", "https://example.test/share.png", "--agent"],
@@ -11629,6 +11630,7 @@ npx ax-grep https://example.test --agent</code></pre>
       topMediaPath: "pageCheck.media[0]",
       topMediaKind: "open-graph",
       topMediaUrl: "https://example.test/share.png",
+      topMediaUrlPath: "/share.png",
       topMediaSelector: "meta[property=\"og:image\"]",
       topMediaCommand: "ax-grep 'https://example.test/share.png' --agent-brief",
       topMediaCommandArgs: ["ax-grep", "https://example.test/share.png", "--agent-brief"],
@@ -11657,7 +11659,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topResource: path=pageCheck.resources[0] kind=feed title=\"Example feed\" rel=alternate type=application/rss+xml selector=link[rel=\"alternate\"] url=<https://example.test/feed.xml> urlPath=/feed.xml");
     expect(stdout.output).toContain("  resource: id=rs1 path=pageCheck.resources[0] kind=feed title=\"Example feed\" rel=alternate type=application/rss+xml selector=link[rel=\"alternate\"] url=<https://example.test/feed.xml> - feed: Example feed rel=alternate type=application/rss+xml https://example.test/feed.xml");
-    expect(stdout.output).toContain("  topMedia: path=pageCheck.media[0] kind=open-graph alt=\"Share preview chart\" selector=meta[property=\"og:image\"] url=<https://example.test/share.png> - Share preview chart - https://example.test/share.png");
+    expect(stdout.output).toContain("  topMedia: path=pageCheck.media[0] kind=open-graph alt=\"Share preview chart\" selector=meta[property=\"og:image\"] url=<https://example.test/share.png> urlPath=/share.png - Share preview chart - https://example.test/share.png");
     expect(stdout.output).toContain("  media: id=m1 path=pageCheck.media[0] kind=open-graph alt=\"Share preview chart\" selector=meta[property=\"og:image\"] url=<https://example.test/share.png> - Share preview chart - https://example.test/share.png");
   });
 

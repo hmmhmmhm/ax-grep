@@ -1017,6 +1017,8 @@ When research expands:
   follow-up handoff can compare page and section targets without URL parsing.
 - Added top resource URL path/query shortcuts so feed, PDF, manifest, and
   license follow-up targets can be compared without parsing full URLs.
+- Added top media URL path/query shortcuts so image and social-preview
+  follow-up targets can be compared without parsing full URLs.
 
 ## In Progress
 

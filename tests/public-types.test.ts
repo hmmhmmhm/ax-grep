@@ -467,6 +467,8 @@ describe("public agent types", () => {
       | "topMediaPath"
       | "topMediaKind"
       | "topMediaUrl"
+      | "topMediaUrlPath"
+      | "topMediaUrlQuery"
       | "topMediaSelector"
       | "topMediaCommand"
       | "topMediaCommandArgs"
@@ -1946,6 +1948,7 @@ describe("public agent types", () => {
       topMediaPath: "pageCheck.media[0]",
       topMediaKind: "image",
       topMediaUrl: "https://example.test/diagram.png",
+      topMediaUrlPath: "/diagram.png",
       topMediaSelector: "img:nth-of-type(1)",
       topMediaCommand: "ax-grep 'https://example.test/diagram.png' --agent",
       topMediaCommandArgs: ["ax-grep", "https://example.test/diagram.png", "--agent"],
@@ -3356,6 +3359,7 @@ describe("public agent types", () => {
     expect(summary.topResourceSelector).toBe("a[href=\"/guide.pdf\"]");
     expect(summary.topResourceCommandArgs?.[1]).toBe("https://example.test/guide.pdf");
     expect(summary.topMediaPath).toBe("pageCheck.media[0]");
+    expect(summary.topMediaUrlPath).toBe("/diagram.png");
     expect(summary.topMediaSelector).toBe("img:nth-of-type(1)");
     expect(summary.topMediaCommandArgs?.[1]).toBe("https://example.test/diagram.png");
     expect(summary.topPaginationCommandArgs?.[1]).toBe("https://example.test/next");

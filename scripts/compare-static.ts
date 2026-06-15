@@ -1635,6 +1635,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topMediaPath?: string;
       topMediaKind?: string;
       topMediaUrl?: string;
+      topMediaUrlPath?: string;
+      topMediaUrlQuery?: string;
       topMediaSelector?: string;
       topMediaCommand?: string;
       topMediaCommandArgs?: string[];
@@ -9130,6 +9132,8 @@ function scoreAgentStructuredShortcuts(agent: {
   topMediaPath?: string;
   topMediaKind?: string;
   topMediaUrl?: string;
+  topMediaUrlPath?: string;
+  topMediaUrlQuery?: string;
   topMediaSelector?: string;
   topMediaCommand?: string;
   topMediaCommandArgs?: string[];
@@ -9404,6 +9408,21 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topMediaPath === topMedia.path) matched += 1;
     if (agent.topMediaKind === topMedia.kind) matched += 1;
     if (agent.topMediaUrl === topMedia.url) matched += 1;
+    if (topMedia.url) {
+      const topMediaUrlParts = compareUrlPathParts(topMedia.url);
+      if (topMediaUrlParts?.urlPath) {
+        required += 1;
+        if (agent.topMediaUrlPath === topMediaUrlParts.urlPath) matched += 1;
+      } else if (agent.topMediaUrlPath) {
+        required += 1;
+      }
+      if (topMediaUrlParts?.urlQuery) {
+        required += 1;
+        if (agent.topMediaUrlQuery === topMediaUrlParts.urlQuery) matched += 1;
+      } else if (agent.topMediaUrlQuery) {
+        required += 1;
+      }
+    }
     if (agent.topMediaText === topMedia.text) matched += 1;
     if (agent.topMediaSelector === topMedia.selector) matched += 1;
     if (topMedia.url && /^https?:\/\//i.test(topMedia.url)) {
@@ -9411,7 +9430,7 @@ function scoreAgentStructuredShortcuts(agent: {
       if (typeof agent.topMediaCommand === "string" && agent.topMediaCommand.includes(topMedia.url)) matched += 1;
       if (Array.isArray(agent.topMediaCommandArgs) && agent.topMediaCommandArgs.includes(topMedia.url)) matched += 1;
     }
-  } else if (agent.topMediaPath || agent.topMediaKind || agent.topMediaUrl || agent.topMediaCommand || agent.topMediaCommandArgs || agent.topMediaText || agent.topMediaSelector) {
+  } else if (agent.topMediaPath || agent.topMediaKind || agent.topMediaUrl || agent.topMediaUrlPath || agent.topMediaUrlQuery || agent.topMediaCommand || agent.topMediaCommandArgs || agent.topMediaText || agent.topMediaSelector) {
     required += 1;
   }
 

@@ -2153,6 +2153,8 @@ export type AgentSummary = {
   topMediaPath?: string;
   topMediaKind?: string;
   topMediaUrl?: string;
+  topMediaUrlPath?: string;
+  topMediaUrlQuery?: string;
   topMediaSelector?: string;
   topMediaCommand?: string;
   topMediaCommandArgs?: string[];
