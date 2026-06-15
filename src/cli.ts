@@ -4286,13 +4286,13 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topContactPointValue ? [`  topContactPoint: ${agent.topContactPointPath ?? ""} ${agent.topContactPointKind ?? ""}${agent.topContactPointLabel ? ` label="${agent.topContactPointLabel}"` : ""}:${agent.topContactPointValue}${agent.topContactPointSource ? ` source=${agent.topContactPointSource}` : ""}${agent.topContactPointSelector ? ` selector=${agent.topContactPointSelector}` : ""}${agent.topContactPointUrl ? ` <${agent.topContactPointUrl}>` : ""}`] : []),
     ...(agent.topContactPointCommand ? [`  topContactPointCommand: ${agent.topContactPointCommand}`] : []),
     ...(agent.topContactPointCommandArgs ? [`  topContactPointCommandArgs: ${formatCommandArgsText(agent.topContactPointCommandArgs)}`] : []),
-    ...(agent.topEmbedUrl ? [`  topEmbed: ${agent.topEmbedPath ?? ""} ${agent.topEmbedKind ?? ""}${agent.topEmbedTitle ? ` \"${agent.topEmbedTitle}\"` : ""}${agent.topEmbedSelector ? ` selector=${agent.topEmbedSelector}` : ""} <${agent.topEmbedUrl}>`] : []),
+    ...(agent.topEmbedUrl ? [`  topEmbed: path=${agent.topEmbedPath ?? ""}${agent.topEmbedKind ? ` kind=${agent.topEmbedKind}` : ""}${agent.topEmbedTitle ? ` title="${agent.topEmbedTitle}"` : ""}${agent.topEmbedSelector ? ` selector=${agent.topEmbedSelector}` : ""} url=<${agent.topEmbedUrl}>`] : []),
     ...(agent.topEmbedCommand ? [`  topEmbedCommand: ${agent.topEmbedCommand}`] : []),
     ...(agent.topEmbedCommandArgs ? [`  topEmbedCommandArgs: ${formatCommandArgsText(agent.topEmbedCommandArgs)}`] : []),
-    ...(agent.topTranscriptUrl ? [`  topTranscript: ${agent.topTranscriptPath ?? ""} ${agent.topTranscriptKind ?? ""}${agent.topTranscriptLabel ? ` \"${agent.topTranscriptLabel}\"` : ""}${agent.topTranscriptLanguage ? ` lang=${agent.topTranscriptLanguage}` : ""}${agent.topTranscriptSelector ? ` selector=${agent.topTranscriptSelector}` : ""} <${agent.topTranscriptUrl}>`] : []),
+    ...(agent.topTranscriptUrl ? [`  topTranscript: path=${agent.topTranscriptPath ?? ""}${agent.topTranscriptKind ? ` kind=${agent.topTranscriptKind}` : ""}${agent.topTranscriptLabel ? ` label="${agent.topTranscriptLabel}"` : ""}${agent.topTranscriptLanguage ? ` lang=${agent.topTranscriptLanguage}` : ""}${agent.topTranscriptSelector ? ` selector=${agent.topTranscriptSelector}` : ""} url=<${agent.topTranscriptUrl}>`] : []),
     ...(agent.topTranscriptCommand ? [`  topTranscriptCommand: ${agent.topTranscriptCommand}`] : []),
     ...(agent.topTranscriptCommandArgs ? [`  topTranscriptCommandArgs: ${formatCommandArgsText(agent.topTranscriptCommandArgs)}`] : []),
-    ...(agent.topAuthorLinkUrl ? [`  topAuthorLink: ${agent.topAuthorLinkPath ?? ""} ${agent.topAuthorLinkSource ?? ""}${agent.topAuthorLinkName ? ` \"${agent.topAuthorLinkName}\"` : ""}${agent.topAuthorLinkSelector ? ` selector=${agent.topAuthorLinkSelector}` : ""} <${agent.topAuthorLinkUrl}>`] : []),
+    ...(agent.topAuthorLinkUrl ? [`  topAuthorLink: path=${agent.topAuthorLinkPath ?? ""}${agent.topAuthorLinkSource ? ` source=${agent.topAuthorLinkSource}` : ""}${agent.topAuthorLinkName ? ` name="${agent.topAuthorLinkName}"` : ""}${agent.topAuthorLinkSelector ? ` selector=${agent.topAuthorLinkSelector}` : ""} url=<${agent.topAuthorLinkUrl}>`] : []),
     ...(agent.topAuthorLinkCommand ? [`  topAuthorLinkCommand: ${agent.topAuthorLinkCommand}`] : []),
     ...(agent.topAuthorLinkCommandArgs ? [`  topAuthorLinkCommandArgs: ${formatCommandArgsText(agent.topAuthorLinkCommandArgs)}`] : []),
     `  structuredReadTargetCount: ${agent.structuredReadTargetCount}`,
@@ -5356,7 +5356,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       embed.loading ? `loading=${embed.loading}` : "",
       embed.selector ? `selector=${embed.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  embed: ${embed.id} ${embed.path} ${details} <${embed.url}> - ${embed.text}`);
+    lines.push(`  embed: id=${embed.id} path=${embed.path} ${details} url=<${embed.url}> - ${embed.text}`);
   }
   for (const transcript of pageCheck.transcripts) {
     const details = [
@@ -5366,7 +5366,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       transcript.label ? `label="${transcript.label}"` : "",
       transcript.selector ? `selector=${transcript.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  transcript: ${transcript.id} ${transcript.path} ${details} <${transcript.url}> - ${transcript.text}`);
+    lines.push(`  transcript: id=${transcript.id} path=${transcript.path} ${details} url=<${transcript.url}> - ${transcript.text}`);
   }
   for (const authorLink of pageCheck.authorLinks) {
     const details = [
@@ -5375,7 +5375,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       authorLink.rel ? `rel=${authorLink.rel}` : "",
       authorLink.selector ? `selector=${authorLink.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  authorLink: ${authorLink.id} ${authorLink.path} ${details} <${authorLink.url}> - ${authorLink.text}`);
+    lines.push(`  authorLink: id=${authorLink.id} path=${authorLink.path} ${details} url=<${authorLink.url}> - ${authorLink.text}`);
   }
   for (const link of pageCheck.primaryLinks) lines.push(formatPageCheckLinkText(link, "link"));
   for (const link of pageCheck.sourceLinks) lines.push(formatPageCheckLinkText(link, "sourceLink"));
