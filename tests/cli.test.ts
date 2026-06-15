@@ -1767,6 +1767,9 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topChoiceSelector: a");
     expect(stdout.output).toContain("  topChoiceReason: External link from source.example.");
     expect(stdout.output).toContain("  topChoiceCommand: ax-grep 'https://source.example/report?ref=docs' --find 'missing claim' --json --summary");
+    expect(stdout.output).toContain("  topActionTargetUrl: https://source.example/report?ref=docs");
+    expect(stdout.output).toContain("  topActionTargetUrlPath: /report");
+    expect(stdout.output).toContain("  topActionTargetUrlQuery: ?ref=docs");
     expect(stdout.output).toContain("dateText=2026-05-31 dateIso=2026-05-31T00:00:00.000Z dateUnixMs=1780185600000 datePrecision=day dateSource=title");
     expect(stdout.output).toContain("sourceChoice: id=s1 path=pageCheck.sourceLinks[0]");
     expect(stdout.output).toContain("sourceChoiceDateText: 2026-05-31");

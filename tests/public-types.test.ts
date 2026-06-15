@@ -1430,6 +1430,8 @@ describe("public agent types", () => {
       | "topActionExpectedOutcome"
       | "topActionExpectedOutcomeMessage"
       | "topActionTargetUrl"
+      | "topActionTargetUrlPath"
+      | "topActionTargetUrlQuery"
       | "topActionTargetPath"
       | "topActionTargetTitle"
       | "topActionTargetHost"
@@ -2976,7 +2978,9 @@ describe("public agent types", () => {
       topActionOpenResult: 1,
       topActionExpectedOutcome: "read-evidence",
       topActionExpectedOutcomeMessage: "Read pageCheck.contentEvidence from the current payload and treat it as the next evidence source.",
-      topActionTargetUrl: "https://example.test",
+      topActionTargetUrl: "https://example.test/source?ref=docs",
+      topActionTargetUrlPath: "/source",
+      topActionTargetUrlQuery: "?ref=docs",
       topActionTargetPath: "pageCheck.links[0]",
       topActionTargetTitle: "Example target",
       topActionTargetHost: "example.test",

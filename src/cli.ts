@@ -2214,6 +2214,8 @@ type AgentSummary = {
   topActionExpectedOutcome?: AgentExpectedOutcome["kind"];
   topActionExpectedOutcomeMessage?: string;
   topActionTargetUrl?: string;
+  topActionTargetUrlPath?: string;
+  topActionTargetUrlQuery?: string;
   topActionTargetPath?: string;
   topActionTargetTitle?: string;
   topActionTargetHost?: string;
@@ -4869,6 +4871,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topActionExpectedOutcome ? [`  topActionExpectedOutcome: ${agent.topActionExpectedOutcome}`] : []),
     ...(agent.topActionExpectedOutcomeMessage ? [`  topActionExpectedOutcomeMessage: ${agent.topActionExpectedOutcomeMessage}`] : []),
     ...(agent.topActionTargetUrl ? [`  topActionTargetUrl: ${agent.topActionTargetUrl}`] : []),
+    ...(agent.topActionTargetUrlPath ? [`  topActionTargetUrlPath: ${agent.topActionTargetUrlPath}`] : []),
+    ...(agent.topActionTargetUrlQuery ? [`  topActionTargetUrlQuery: ${agent.topActionTargetUrlQuery}`] : []),
     ...(agent.topActionTargetPath ? [`  topActionTargetPath: ${agent.topActionTargetPath}`] : []),
     ...(agent.topActionTargetTitle ? [`  topActionTargetTitle: ${agent.topActionTargetTitle}`] : []),
     ...(agent.topActionTargetHost ? [`  topActionTargetHost: ${agent.topActionTargetHost}`] : []),
@@ -13011,6 +13015,7 @@ function summarizeAgent(
   const runbook = summarizeAgentRunbook(next, executionPlan, answerPlan);
   const staticReadiness = summarizeStaticReadiness(canUseFetchedHtml, needsBrowserHtml, pageCheck, primaryAction, error, browserHtmlReasonCode);
   const actions = summarizeAgentActions(analysis, pageCheck, verification, primaryAction);
+  const topActionTargetUrlParts = actions[0]?.target?.url ? urlPathParts(actions[0].target.url) : undefined;
   const alternativeAction = actions.find((action) => !action.primary);
   const evidenceQualityScore = averageEvidenceScore(pageCheck.contentEvidence);
   const sourceQualityScore = agentSourceQualityScore(analysis.kind, pageCheck.sourceLinks, results, recommendedResult);
@@ -14419,6 +14424,8 @@ function summarizeAgent(
     ...(actions[0]?.expectedOutcome ? { topActionExpectedOutcome: actions[0].expectedOutcome } : {}),
     ...(actions[0]?.expectedOutcomeMessage ? { topActionExpectedOutcomeMessage: actions[0].expectedOutcomeMessage } : {}),
     ...(actions[0]?.target?.url ? { topActionTargetUrl: actions[0].target.url } : {}),
+    ...(topActionTargetUrlParts?.urlPath ? { topActionTargetUrlPath: topActionTargetUrlParts.urlPath } : {}),
+    ...(topActionTargetUrlParts?.urlQuery ? { topActionTargetUrlQuery: topActionTargetUrlParts.urlQuery } : {}),
     ...(actions[0]?.target?.path ? { topActionTargetPath: actions[0].target.path } : {}),
     ...(actions[0]?.target?.title ? { topActionTargetTitle: actions[0].target.title } : {}),
     ...(actions[0]?.target?.host ? { topActionTargetHost: actions[0].target.host } : {}),
@@ -17582,6 +17589,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const runbookReadValueType = agentReadValueType(runbook.readValue);
   const runbookReadValueCount = agentReadValueCount(runbook.readValue);
   const runbookReadValueReferencePath = agentReadValueReferencePath(runbook.readValue);
+  const topActionTargetUrlParts = primaryAction?.target?.url ? urlPathParts(primaryAction.target.url) : undefined;
   return {
     contract: agentContract,
     status: "error",
@@ -17860,6 +17868,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(primaryAction ? { topActionExpectedOutcome: expectedOutcome.kind } : {}),
     ...(primaryAction ? { topActionExpectedOutcomeMessage: expectedOutcome.message } : {}),
     ...(primaryAction?.target?.url ? { topActionTargetUrl: primaryAction.target.url } : {}),
+    ...(topActionTargetUrlParts?.urlPath ? { topActionTargetUrlPath: topActionTargetUrlParts.urlPath } : {}),
+    ...(topActionTargetUrlParts?.urlQuery ? { topActionTargetUrlQuery: topActionTargetUrlParts.urlQuery } : {}),
     ...(primaryAction?.target?.path ? { topActionTargetPath: primaryAction.target.path } : {}),
     ...(primaryAction?.target?.title ? { topActionTargetTitle: primaryAction.target.title } : {}),
     ...(primaryAction?.target?.host ? { topActionTargetHost: primaryAction.target.host } : {}),
@@ -20564,6 +20574,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topActionExpectedOutcome ? { topActionExpectedOutcome: agent.topActionExpectedOutcome } : {}),
     ...(agent.topActionExpectedOutcomeMessage ? { topActionExpectedOutcomeMessage: agent.topActionExpectedOutcomeMessage } : {}),
     ...(agent.topActionTargetUrl ? { topActionTargetUrl: agent.topActionTargetUrl } : {}),
+    ...(agent.topActionTargetUrlPath ? { topActionTargetUrlPath: agent.topActionTargetUrlPath } : {}),
+    ...(agent.topActionTargetUrlQuery ? { topActionTargetUrlQuery: agent.topActionTargetUrlQuery } : {}),
     ...(agent.topActionTargetPath ? { topActionTargetPath: agent.topActionTargetPath } : {}),
     ...(agent.topActionTargetTitle ? { topActionTargetTitle: agent.topActionTargetTitle } : {}),
     ...(agent.topActionTargetHost ? { topActionTargetHost: agent.topActionTargetHost } : {}),
@@ -21976,6 +21988,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topActionExpectedOutcome ? { topActionExpectedOutcome: agent.topActionExpectedOutcome } : {}),
     ...(agent.topActionExpectedOutcomeMessage ? { topActionExpectedOutcomeMessage: agent.topActionExpectedOutcomeMessage } : {}),
     ...(agent.topActionTargetUrl ? { topActionTargetUrl: agent.topActionTargetUrl } : {}),
+    ...(agent.topActionTargetUrlPath ? { topActionTargetUrlPath: agent.topActionTargetUrlPath } : {}),
+    ...(agent.topActionTargetUrlQuery ? { topActionTargetUrlQuery: agent.topActionTargetUrlQuery } : {}),
     ...(agent.topActionTargetPath ? { topActionTargetPath: agent.topActionTargetPath } : {}),
     ...(agent.topActionTargetTitle ? { topActionTargetTitle: agent.topActionTargetTitle } : {}),
     ...(agent.topActionTargetHost ? { topActionTargetHost: agent.topActionTargetHost } : {}),

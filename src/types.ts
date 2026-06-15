@@ -2582,6 +2582,8 @@ export type AgentSummary = {
   topActionExpectedOutcome?: AgentExpectedOutcome["kind"];
   topActionExpectedOutcomeMessage?: string;
   topActionTargetUrl?: string;
+  topActionTargetUrlPath?: string;
+  topActionTargetUrlQuery?: string;
   topActionTargetPath?: string;
   topActionTargetTitle?: string;
   topActionTargetHost?: string;

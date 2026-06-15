@@ -2049,6 +2049,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topActionExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
       topActionExpectedOutcomeMessage?: string;
       topActionTargetUrl?: string;
+      topActionTargetUrlPath?: string;
+      topActionTargetUrlQuery?: string;
       topActionTargetPath?: string;
       topActionTargetTitle?: string;
       topActionTargetHost?: string;
@@ -6700,6 +6702,8 @@ function scoreAgentTopActionShortcuts(agent: {
   topActionExpectedOutcome?: CliAgentExpectedOutcomeShape["kind"];
   topActionExpectedOutcomeMessage?: string;
   topActionTargetUrl?: string;
+  topActionTargetUrlPath?: string;
+  topActionTargetUrlQuery?: string;
   topActionTargetPath?: string;
   topActionTargetTitle?: string;
   topActionTargetHost?: string;
@@ -6742,6 +6746,8 @@ function scoreAgentTopActionShortcuts(agent: {
       || agent?.topActionExpectedOutcome
       || agent?.topActionExpectedOutcomeMessage
       || agent?.topActionTargetUrl
+      || agent?.topActionTargetUrlPath
+      || agent?.topActionTargetUrlQuery
       || agent?.topActionTargetPath
       || agent?.topActionTargetTitle
       || agent?.topActionTargetHost
@@ -6847,7 +6853,18 @@ function scoreAgentTopActionShortcuts(agent: {
   if (top.target?.url) {
     required += 1;
     if (agent?.topActionTargetUrl === top.target.url) matched += 1;
+    const targetUrlParts = compareUrlPathParts(top.target.url);
+    if (targetUrlParts?.urlPath) {
+      required += 1;
+      if (agent?.topActionTargetUrlPath === targetUrlParts.urlPath) matched += 1;
+    }
+    if (targetUrlParts?.urlQuery) {
+      required += 1;
+      if (agent?.topActionTargetUrlQuery === targetUrlParts.urlQuery) matched += 1;
+    }
   } else if (agent?.topActionTargetUrl) {
+    required += 1;
+  } else if (agent?.topActionTargetUrlPath || agent?.topActionTargetUrlQuery) {
     required += 1;
   }
   if (top.target?.path) {
