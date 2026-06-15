@@ -10140,6 +10140,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topApiEndpoint: pageCheck.apiEndpoints[0] fetch POST selector=script:nth-of-type(2) <https://example.test/api/search?q=agent>");
     expect(stdout.output).toContain("  topClientState: pageCheck.clientState[0] local-storage read key=session selector=script:nth-of-type(2)");
     expect(stdout.output).toContain("  topAppHint: pageCheck.appHints[0] manifest label=\"Web app manifest\" selector=link[rel=\"manifest\"]:nth-of-type(1) <https://example.test/site.webmanifest>");
+    expect(stdout.output).toContain("  topHiddenSignal: hydration pageCheck.hydration[0] next-data source=script selector=script#__NEXT_DATA__:nth-of-type(1) <https://example.test/_next/data/build-123/app.json> - Next.js data:");
   });
 
   it("exposes fetchable top contact point commands for agents", async () => {
