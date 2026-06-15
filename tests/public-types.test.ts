@@ -1048,6 +1048,8 @@ describe("public agent types", () => {
       | "semanticTopLinkName"
       | "semanticTopLinkPath"
       | "semanticTopLinkUrl"
+      | "semanticTopLinkUrlPath"
+      | "semanticTopLinkUrlQuery"
       | "semanticTopLinkTarget"
       | "semanticTopLinkRel"
       | "semanticTopLinkType"
@@ -1059,6 +1061,8 @@ describe("public agent types", () => {
       | "semanticTopCurrentLinkName"
       | "semanticTopCurrentLinkPath"
       | "semanticTopCurrentLinkUrl"
+      | "semanticTopCurrentLinkUrlPath"
+      | "semanticTopCurrentLinkUrlQuery"
       | "semanticTopCurrentLinkTarget"
       | "semanticTopCurrentLinkRel"
       | "semanticTopCurrentLinkType"
@@ -2627,6 +2631,7 @@ describe("public agent types", () => {
       semanticTopLinkName: "Read more",
       semanticTopLinkPath: "agent.semanticSummary.links[0]",
       semanticTopLinkUrl: "https://example.test/read-more",
+      semanticTopLinkUrlPath: "/read-more",
       semanticTopLinkTarget: "_blank",
       semanticTopLinkRel: ["noopener", "external"],
       semanticTopLinkType: "text/html",
@@ -2638,6 +2643,7 @@ describe("public agent types", () => {
       semanticTopCurrentLinkName: "Docs",
       semanticTopCurrentLinkPath: "agent.semanticSummary.links[1]",
       semanticTopCurrentLinkUrl: "https://example.test/docs",
+      semanticTopCurrentLinkUrlPath: "/docs",
       semanticTopCurrentLinkTarget: "_self",
       semanticTopCurrentLinkRel: ["bookmark"],
       semanticTopCurrentLinkType: "text/html",

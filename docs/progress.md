@@ -1007,6 +1007,8 @@ When research expands:
   nav, tab, menu, and list entries without parsing list item arrays.
 - Added current-link shortcuts so agents can identify active navigation links
   even when the current link is not the first semantic link.
+- Added top/current semantic link URL path/query shortcuts so navigation
+  comparison and routing can avoid parsing full link URLs.
 
 ## In Progress
 
