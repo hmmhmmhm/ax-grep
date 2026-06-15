@@ -6104,7 +6104,7 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain("  semanticTopTableFirstSampleCell: agent.semanticSummary.tableItems[0].sampleCellRefs[0] Q1 combined rowSpan=2 columnSpan=2");
+    expect(stdout.output).toContain("  semanticTopTableFirstSampleCell: agent.semanticSummary.tableItems[0].sampleCellRefs[0] text=\"Q1 combined\" rowSpan=2 columnSpan=2");
   });
 
   it("prints data table size and selector in text agent output", async () => {
@@ -6147,8 +6147,8 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  semanticTopTable: agent.semanticSummary.tableItems[0] role=table name=\"Revenue by quarter\"");
-    expect(stdout.output).toContain("  semanticTopTableSecondHeader: agent.semanticSummary.tableItems[0].headerRefs[1] Revenue role=columnheader sort=descending selector=#revenue");
-    expect(stdout.output).toContain("  semanticTopTableSecondSampleCell: agent.semanticSummary.tableItems[0].sampleCellRefs[1] Q2 review");
+    expect(stdout.output).toContain("  semanticTopTableSecondHeader: agent.semanticSummary.tableItems[0].headerRefs[1] text=\"Revenue\" role=columnheader sort=descending selector=#revenue");
+    expect(stdout.output).toContain("  semanticTopTableSecondSampleCell: agent.semanticSummary.tableItems[0].sampleCellRefs[1] text=\"Q2 review\"");
   });
 
   it("prints first owned table sample cell in text agent output", async () => {

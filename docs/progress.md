@@ -700,6 +700,7 @@ any earlier non-browser item can still reduce uncertainty.
 | 99 | Done | Preserve first sample-cell `ownedTarget` in text output when the first sample comes from an `aria-owns` rowgroup. | Typecheck, focused text CLI test, static fixture gate, readiness audit, README test, diff check, process check. | No headline increase; closes text-output parity gap. |
 | 100 | Done | Make text `semanticTopTable`, `semanticTopList`, and `semanticTopField` print role and name as named fields instead of positional `role:name` tokens. | Focused text CLI tests, public type test, typecheck, static fixture gate, readiness audit, README test, diff check, process check. | No headline increase; improves text-output readability for table/list/form handoff. |
 | 101 | Done | Make text semantic description, value, relation, choice, selected-choice, and state lines print role, name, relation, and target as named fields instead of positional tokens. | Focused text CLI tests, public type test, typecheck, static fixture gate, readiness audit, README test, diff check, process check. | No headline increase; improves text-output readability for relation/state handoff. |
+| 102 | Done | Make text table header and sample-cell shortcuts print cell/header content as `text="..."` instead of a positional token after the path. | Focused table text CLI tests, public type test, typecheck, static fixture gate, readiness audit, README test, diff check, process check. | No headline increase; improves table/grid text-output readability for accessibility-tree handoff. |
 
 When research expands:
 
