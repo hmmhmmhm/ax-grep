@@ -9,7 +9,7 @@ describe("cli", () => {
   it("keeps semantic top shortcuts labelled in text agent output", async () => {
     const source = await readFile(join(process.cwd(), "src/cli.ts"), "utf8");
     const semanticTopFields = Array.from(
-      new Set(Array.from(source.matchAll(/^\s*(semanticTop[A-Za-z0-9]+)\??:/gm), (match) => match[1])),
+      new Set(Array.from(source.matchAll(/^\s*(semanticTop[A-Za-z0-9]+)\??:/gm), (match) => match[1]!)),
     );
     const formatStart = source.indexOf("function formatAgentText");
     const formatEnd = source.indexOf("function formatPageCheckText");
@@ -21,6 +21,27 @@ describe("cli", () => {
     const missingTextLabels = semanticTopFields.filter((field) => !formatAgentTextSource.includes(`${field}:`));
 
     expect(missingTextLabels).toEqual([]);
+  });
+
+  it("keeps semantic top shortcuts in compact and brief agent output", async () => {
+    const source = await readFile(join(process.cwd(), "src/cli.ts"), "utf8");
+    const semanticTopFields = Array.from(
+      new Set(Array.from(source.matchAll(/^\s*(semanticTop[A-Za-z0-9]+)\??:/gm), (match) => match[1]!)),
+    );
+    const compactStart = source.indexOf("function compactAgentSummary");
+    const compactEnd = source.indexOf("function compactAgentBrief");
+    const briefStart = compactEnd;
+    const briefEnd = source.indexOf("function compactAgentBriefHandoff");
+
+    expect(compactStart).toBeGreaterThanOrEqual(0);
+    expect(compactEnd).toBeGreaterThan(compactStart);
+    expect(briefEnd).toBeGreaterThan(briefStart);
+
+    const compactAgentSource = source.slice(compactStart, compactEnd);
+    const briefAgentSource = source.slice(briefStart, briefEnd);
+
+    expect(semanticTopFields.filter((field) => !compactAgentSource.includes(field))).toEqual([]);
+    expect(semanticTopFields.filter((field) => !briefAgentSource.includes(field))).toEqual([]);
   });
 
   it("documents agent handoff routing in help output", async () => {
