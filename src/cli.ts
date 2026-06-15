@@ -4242,10 +4242,10 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topFaqQuestion ? [`  topFaq: ${agent.topFaqPath ?? ""}${agent.topFaqSelector ? ` selector=${agent.topFaqSelector}` : ""} - ${agent.topFaqQuestion}`] : []),
     ...(agent.topFaqAnswer ? [`  topFaqAnswer: ${agent.topFaqAnswer}`] : []),
     ...(agent.topCodeBlockText ? [`  topCodeBlock: ${agent.topCodeBlockPath ?? ""}${agent.topCodeBlockLanguage ? ` lang=${agent.topCodeBlockLanguage}` : ""}${typeof agent.topCodeBlockLineCount === "number" ? ` lines=${agent.topCodeBlockLineCount}` : ""}${agent.topCodeBlockSelector ? ` selector=${agent.topCodeBlockSelector}` : ""} - ${agent.topCodeBlockText}`] : []),
-    ...(agent.topResourceUrl ? [`  topResource: ${agent.topResourcePath ?? ""} ${agent.topResourceKind ?? ""}${agent.topResourceTitle ? ` \"${agent.topResourceTitle}\"` : ""}${agent.topResourceRel ? ` rel=${agent.topResourceRel}` : ""}${agent.topResourceType ? ` type=${agent.topResourceType}` : ""}${agent.topResourceHreflang ? ` hreflang=${agent.topResourceHreflang}` : ""}${agent.topResourceSelector ? ` selector=${agent.topResourceSelector}` : ""} <${agent.topResourceUrl}>`] : []),
+    ...(agent.topResourceUrl ? [`  topResource: path=${agent.topResourcePath ?? ""}${agent.topResourceKind ? ` kind=${agent.topResourceKind}` : ""}${agent.topResourceTitle ? ` title="${agent.topResourceTitle}"` : ""}${agent.topResourceRel ? ` rel=${agent.topResourceRel}` : ""}${agent.topResourceType ? ` type=${agent.topResourceType}` : ""}${agent.topResourceHreflang ? ` hreflang=${agent.topResourceHreflang}` : ""}${agent.topResourceSelector ? ` selector=${agent.topResourceSelector}` : ""} url=<${agent.topResourceUrl}>`] : []),
     ...(agent.topResourceCommand ? [`  topResourceCommand: ${agent.topResourceCommand}`] : []),
     ...(agent.topResourceCommandArgs ? [`  topResourceCommandArgs: ${formatCommandArgsText(agent.topResourceCommandArgs)}`] : []),
-    ...(agent.topMediaUrl ? [`  topMedia: ${agent.topMediaPath ?? ""} ${agent.topMediaKind ?? ""}${agent.topMediaAlt ? ` alt="${agent.topMediaAlt}"` : ""}${agent.topMediaCaption ? ` caption="${agent.topMediaCaption}"` : ""}${agent.topMediaTitle ? ` title="${agent.topMediaTitle}"` : ""}${typeof agent.topMediaWidth === "number" ? ` width=${agent.topMediaWidth}` : ""}${typeof agent.topMediaHeight === "number" ? ` height=${agent.topMediaHeight}` : ""}${agent.topMediaSelector ? ` selector=${agent.topMediaSelector}` : ""} <${agent.topMediaUrl}>${agent.topMediaText ? ` - ${agent.topMediaText}` : ""}`] : []),
+    ...(agent.topMediaUrl ? [`  topMedia: path=${agent.topMediaPath ?? ""}${agent.topMediaKind ? ` kind=${agent.topMediaKind}` : ""}${agent.topMediaAlt ? ` alt="${agent.topMediaAlt}"` : ""}${agent.topMediaCaption ? ` caption="${agent.topMediaCaption}"` : ""}${agent.topMediaTitle ? ` title="${agent.topMediaTitle}"` : ""}${typeof agent.topMediaWidth === "number" ? ` width=${agent.topMediaWidth}` : ""}${typeof agent.topMediaHeight === "number" ? ` height=${agent.topMediaHeight}` : ""}${agent.topMediaSelector ? ` selector=${agent.topMediaSelector}` : ""} url=<${agent.topMediaUrl}>${agent.topMediaText ? ` - ${agent.topMediaText}` : ""}`] : []),
     ...(agent.topMediaCommand ? [`  topMediaCommand: ${agent.topMediaCommand}`] : []),
     ...(agent.topMediaCommandArgs ? [`  topMediaCommandArgs: ${formatCommandArgsText(agent.topMediaCommandArgs)}`] : []),
     ...(agent.topSectionPath ? [`  topSection: ${agent.topSectionPath}${typeof agent.topSectionLevel === "number" ? ` h${agent.topSectionLevel}` : ""}${agent.topSectionSelector ? ` selector=${agent.topSectionSelector}` : ""}${agent.topSectionHeading ? ` "${agent.topSectionHeading}"` : ""}${agent.topSectionText ? ` - ${agent.topSectionText}` : ""}`] : []),
@@ -5331,7 +5331,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       dimensions ? `dimensions=${dimensions}` : "",
       media.selector ? `selector=${media.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  media: ${media.id} ${media.path} ${details} <${media.url}> - ${media.text}`);
+    lines.push(`  media: id=${media.id} path=${media.path} ${details} url=<${media.url}> - ${media.text}`);
   }
   for (const resource of pageCheck.resources) {
     const details = [
@@ -5342,7 +5342,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       resource.hreflang ? `hreflang=${resource.hreflang}` : "",
       resource.selector ? `selector=${resource.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  resource: ${resource.id} ${resource.path} ${details} <${resource.url}> - ${resource.text}`);
+    lines.push(`  resource: id=${resource.id} path=${resource.path} ${details} url=<${resource.url}> - ${resource.text}`);
   }
   for (const embed of pageCheck.embeds) {
     const details = [

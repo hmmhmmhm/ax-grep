@@ -11322,10 +11322,10 @@ npx ax-grep https://example.test --agent</code></pre>
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain("  topResource: pageCheck.resources[0] feed \"Example feed\" rel=alternate type=application/rss+xml selector=link[rel=\"alternate\"] <https://example.test/feed.xml>");
-    expect(stdout.output).toContain("  resource: rs1 pageCheck.resources[0] kind=feed title=\"Example feed\" rel=alternate type=application/rss+xml selector=link[rel=\"alternate\"] <https://example.test/feed.xml> - feed: Example feed rel=alternate type=application/rss+xml https://example.test/feed.xml");
-    expect(stdout.output).toContain("  topMedia: pageCheck.media[0] open-graph alt=\"Share preview chart\" selector=meta[property=\"og:image\"] <https://example.test/share.png> - Share preview chart - https://example.test/share.png");
-    expect(stdout.output).toContain("  media: m1 pageCheck.media[0] kind=open-graph alt=\"Share preview chart\" selector=meta[property=\"og:image\"] <https://example.test/share.png> - Share preview chart - https://example.test/share.png");
+    expect(stdout.output).toContain("  topResource: path=pageCheck.resources[0] kind=feed title=\"Example feed\" rel=alternate type=application/rss+xml selector=link[rel=\"alternate\"] url=<https://example.test/feed.xml>");
+    expect(stdout.output).toContain("  resource: id=rs1 path=pageCheck.resources[0] kind=feed title=\"Example feed\" rel=alternate type=application/rss+xml selector=link[rel=\"alternate\"] url=<https://example.test/feed.xml> - feed: Example feed rel=alternate type=application/rss+xml https://example.test/feed.xml");
+    expect(stdout.output).toContain("  topMedia: path=pageCheck.media[0] kind=open-graph alt=\"Share preview chart\" selector=meta[property=\"og:image\"] url=<https://example.test/share.png> - Share preview chart - https://example.test/share.png");
+    expect(stdout.output).toContain("  media: id=m1 path=pageCheck.media[0] kind=open-graph alt=\"Share preview chart\" selector=meta[property=\"og:image\"] url=<https://example.test/share.png> - Share preview chart - https://example.test/share.png");
   });
 
   it("checks requested text against page media summaries", async () => {
