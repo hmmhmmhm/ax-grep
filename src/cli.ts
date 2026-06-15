@@ -932,7 +932,11 @@ type PageEmbedSummary = {
   title?: string;
   type?: string;
   posterUrl?: string;
+  posterUrlPath?: string;
+  posterUrlQuery?: string;
   sourceUrls?: string[];
+  sourceUrlPaths?: string[];
+  sourceUrlQueries?: string[];
   sandbox?: string;
   allow?: string;
   loading?: string;
@@ -5920,7 +5924,11 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       embed.title ? `title="${embed.title}"` : "",
       embed.type ? `type=${embed.type}` : "",
       embed.posterUrl ? `poster=${embed.posterUrl}` : "",
+      embed.posterUrlPath ? `posterPath=${embed.posterUrlPath}` : "",
+      embed.posterUrlQuery ? `posterQuery=${embed.posterUrlQuery}` : "",
       embed.sourceUrls?.length ? `sources=${embed.sourceUrls.join(",")}` : "",
+      embed.sourceUrlPaths?.length ? `sourcePaths=${embed.sourceUrlPaths.join(",")}` : "",
+      embed.sourceUrlQueries?.some(Boolean) ? `sourceQueries=${embed.sourceUrlQueries.join(",")}` : "",
       embed.sandbox ? `sandbox="${embed.sandbox}"` : "",
       embed.allow ? `allow="${embed.allow}"` : "",
       embed.loading ? `loading=${embed.loading}` : "",
@@ -11887,7 +11895,9 @@ function summarizeEmbed(element: Element, index: number, baseUrl: string): PageE
     ...(title ? { title } : {}),
     ...(type ? { type } : {}),
     ...(posterUrl ? { posterUrl } : {}),
+    ...(posterUrl ? prefixUrlPathParts(posterUrl, "posterUrl") : {}),
     ...(sourceUrls.length > 0 ? { sourceUrls } : {}),
+    ...(sourceUrls.length > 0 ? listUrlPathParts(sourceUrls, "sourceUrl") : {}),
     ...(sandbox ? { sandbox } : {}),
     ...(allow ? { allow } : {}),
     ...(loading ? { loading } : {}),

@@ -2626,7 +2626,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       media?: Array<{ kind?: string; url?: string; text?: string }>;
       pagination?: Array<{ path?: string; kind?: string; label?: string; url?: string; current?: boolean; selector?: string }>;
       citations?: unknown[];
-      embeds?: Array<{ path?: string; kind?: string; url?: string; title?: string; selector?: string }>;
+      embeds?: Array<{ path?: string; kind?: string; url?: string; title?: string; posterUrl?: string; sourceUrls?: string[]; selector?: string }>;
       transcripts?: Array<{ path?: string; kind?: string; url?: string; label?: string; language?: string; selector?: string }>;
       authorLinks?: Array<{ path?: string; name?: string; url?: string; source?: string; selector?: string }>;
       provenance?: Array<{ path?: string; kind?: string; label?: string; value?: string; url?: string; source?: string; selector?: string }>;
@@ -5320,9 +5320,15 @@ function scorePageCheckUrlItemPaths(...groups: unknown[][]): number {
     const license = scorePageCheckSingleUrlPath(record, "licenseUrl", "licenseUrlPath", "licenseUrlQuery");
     required += license.required;
     matched += license.matched;
+    const poster = scorePageCheckSingleUrlPath(record, "posterUrl", "posterUrlPath", "posterUrlQuery");
+    required += poster.required;
+    matched += poster.matched;
     const distributions = scorePageCheckUrlListPaths(record, "distributionUrls", "distributionUrlPaths", "distributionUrlQueries");
     required += distributions.required;
     matched += distributions.matched;
+    const sources = scorePageCheckUrlListPaths(record, "sourceUrls", "sourceUrlPaths", "sourceUrlQueries");
+    required += sources.required;
+    matched += sources.matched;
     const sameAs = scorePageCheckUrlListPaths(record, "sameAs", "sameAsUrlPaths", "sameAsUrlQueries");
     required += sameAs.required;
     matched += sameAs.matched;

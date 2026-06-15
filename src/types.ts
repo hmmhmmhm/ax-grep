@@ -682,7 +682,11 @@ export type AgentPageEmbed = {
   title?: string;
   type?: string;
   posterUrl?: string;
+  posterUrlPath?: string;
+  posterUrlQuery?: string;
   sourceUrls?: string[];
+  sourceUrlPaths?: string[];
+  sourceUrlQueries?: string[];
   sandbox?: string;
   allow?: string;
   loading?: string;

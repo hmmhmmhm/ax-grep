@@ -11990,9 +11990,14 @@ npx ax-grep https://example.test --agent</code></pre>
         title: "Product walkthrough",
         type: "video/mp4",
         posterUrl: "https://example.test/media/walkthrough.jpg",
+        posterUrlPath: "/media/walkthrough.jpg",
         sourceUrls: [
           "https://example.test/media/walkthrough.mp4",
           "https://example.test/media/walkthrough.webm",
+        ],
+        sourceUrlPaths: [
+          "/media/walkthrough.mp4",
+          "/media/walkthrough.webm",
         ],
         selector: "video:nth-of-type(2)",
       }),

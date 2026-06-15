@@ -4114,6 +4114,10 @@ describe("public agent types", () => {
           url: "https://player.example/embed",
           urlPath: "/embed",
           title: "Player",
+          posterUrl: "https://player.example/poster.jpg",
+          posterUrlPath: "/poster.jpg",
+          sourceUrls: ["https://player.example/video.mp4"],
+          sourceUrlPaths: ["/video.mp4"],
           loading: "lazy",
         }],
         transcripts: [{
