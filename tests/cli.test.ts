@@ -6494,6 +6494,14 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopList: agent.semanticSummary.listItems[0] role=list name=\"Release actions\"");
     expect(stdout.output).toContain("itemRefs=text=\"Download report\" role=listitem pos=1 size=2 selector=li, text=\"Read notes\" role=listitem pos=2 size=2 selected=true current=page expanded=false selector=li:nth-of-type(2)");
     expect(stdout.output).toContain("  semanticTopSelectedListItem: text=\"Read notes\" role=listitem pos=2 size=2 selected=true current=page expanded=false selector=li:nth-of-type(2)");
+    expect(stdout.output).toContain("  semanticTopSelectedListItemText: Read notes");
+    expect(stdout.output).toContain("  semanticTopSelectedListItemRole: listitem");
+    expect(stdout.output).toContain("  semanticTopSelectedListItemPosInSet: 2");
+    expect(stdout.output).toContain("  semanticTopSelectedListItemSetSize: 2");
+    expect(stdout.output).toContain("  semanticTopSelectedListItemSelected: true");
+    expect(stdout.output).toContain("  semanticTopSelectedListItemCurrent: page");
+    expect(stdout.output).toContain("  semanticTopSelectedListItemExpanded: false");
+    expect(stdout.output).toContain("  semanticTopSelectedListItemSelector: li:nth-of-type(2)");
   });
 
   it("summarizes forms with action fields and query URL templates for agents", async () => {
