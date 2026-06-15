@@ -12943,6 +12943,11 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topFormChoiceRequiredFieldReadonly: true");
     expect(stdout.output).toContain("  topFormChoiceRequiredFieldInvalid: spelling");
     expect(stdout.output).toContain("  topFormChoiceRequiredFieldSelector: input[name=\"query\"]");
+    expect(stdout.output).toContain("  topFormChoiceInvalidFieldName: query");
+    expect(stdout.output).toContain("  topFormChoiceInvalidFieldType: search");
+    expect(stdout.output).toContain("  topFormChoiceInvalidFieldLabel: Archive search");
+    expect(stdout.output).toContain("  topFormChoiceInvalidFieldInvalid: spelling");
+    expect(stdout.output).toContain("  topFormChoiceInvalidFieldSelector: input[name=\"query\"]");
     expect(stdout.output).toContain("  form: id=f1 path=pageCheck.forms[0] method=get fields=1 hidden=1 actionUrl=https://example.test/find query=query template=https://example.test/find?query=%7Bquery%7D target=_blank enctype=multipart/form-data acceptCharset=UTF-8 novalidate=true selector=form:nth-of-type(1)");
     expect(stdout.output).toContain("  formChoice: id=f1 path=pageCheck.forms[0] rank=1 method=get fields=1 hidden=1 firstHidden=csrf query=query template=https://example.test/find?query=%7Bquery%7D target=_blank enctype=multipart/form-data selector=form:nth-of-type(1)");
     expect(stdout.output).toContain("    command: ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");

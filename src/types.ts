@@ -2016,6 +2016,11 @@ export type AgentSummary = {
   topFormChoiceRequiredFieldReadonly?: boolean;
   topFormChoiceRequiredFieldInvalid?: SemanticNodeState["invalid"];
   topFormChoiceRequiredFieldSelector?: string;
+  topFormChoiceInvalidFieldName?: string;
+  topFormChoiceInvalidFieldType?: string;
+  topFormChoiceInvalidFieldLabel?: string;
+  topFormChoiceInvalidFieldInvalid?: SemanticNodeState["invalid"];
+  topFormChoiceInvalidFieldSelector?: string;
   actionTargetCount?: number;
   actionTargetChoiceCount?: number;
   actionTargetChoices?: AgentActionTargetChoice[];

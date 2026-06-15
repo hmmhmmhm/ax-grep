@@ -363,6 +363,11 @@ describe("public agent types", () => {
       | "topFormChoiceRequiredFieldReadonly"
       | "topFormChoiceRequiredFieldInvalid"
       | "topFormChoiceRequiredFieldSelector"
+      | "topFormChoiceInvalidFieldName"
+      | "topFormChoiceInvalidFieldType"
+      | "topFormChoiceInvalidFieldLabel"
+      | "topFormChoiceInvalidFieldInvalid"
+      | "topFormChoiceInvalidFieldSelector"
       | "actionTargetCount"
       | "actionTargetChoiceCount"
       | "actionTargetChoices"
@@ -1780,6 +1785,11 @@ describe("public agent types", () => {
       topFormChoiceRequiredFieldReadonly: true,
       topFormChoiceRequiredFieldInvalid: "spelling",
       topFormChoiceRequiredFieldSelector: "input[name=\"q\"]",
+      topFormChoiceInvalidFieldName: "q",
+      topFormChoiceInvalidFieldType: "search",
+      topFormChoiceInvalidFieldLabel: "Search",
+      topFormChoiceInvalidFieldInvalid: "spelling",
+      topFormChoiceInvalidFieldSelector: "input[name=\"q\"]",
       actionTargetCount: 2,
       actionTargetChoiceCount: 1,
       actionTargetChoices: [actionTargetChoice],
@@ -3268,6 +3278,9 @@ describe("public agent types", () => {
     expect(summary.topFormChoiceRequiredFieldLabel).toBe("Search");
     expect(summary.topFormChoiceRequiredFieldPlaceholder).toBe("Search docs");
     expect(summary.topFormChoiceRequiredFieldInvalid).toBe("spelling");
+    expect(summary.topFormChoiceInvalidFieldLabel).toBe("Search");
+    expect(summary.topFormChoiceInvalidFieldInvalid).toBe("spelling");
+    expect(summary.topFormChoiceInvalidFieldSelector).toBe("input[name=\"q\"]");
     expect(summary.topActionTargetChoiceName).toBe("Search docs");
     expect(summary.topActionTargetChoiceKind).toBe("search");
     expect(summary.topActionTargetChoiceSource).toBe("json-ld");

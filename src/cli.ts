@@ -1648,6 +1648,11 @@ type AgentSummary = {
   topFormChoiceRequiredFieldReadonly?: boolean;
   topFormChoiceRequiredFieldInvalid?: SemanticNodeState["invalid"];
   topFormChoiceRequiredFieldSelector?: string;
+  topFormChoiceInvalidFieldName?: string;
+  topFormChoiceInvalidFieldType?: string;
+  topFormChoiceInvalidFieldLabel?: string;
+  topFormChoiceInvalidFieldInvalid?: SemanticNodeState["invalid"];
+  topFormChoiceInvalidFieldSelector?: string;
   actionTargetCount: number;
   actionTargetChoiceCount: number;
   actionTargetChoices: AgentActionTargetChoice[];
@@ -4425,6 +4430,12 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topFormChoiceRequiredFieldReadonly === "boolean" ? [`  topFormChoiceRequiredFieldReadonly: ${agent.topFormChoiceRequiredFieldReadonly}`] : []),
     ...(typeof agent.topFormChoiceRequiredFieldInvalid !== "undefined" ? [`  topFormChoiceRequiredFieldInvalid: ${agent.topFormChoiceRequiredFieldInvalid}`] : []),
     ...(agent.topFormChoiceRequiredFieldSelector ? [`  topFormChoiceRequiredFieldSelector: ${agent.topFormChoiceRequiredFieldSelector}`] : []),
+    ...(agent.topFormChoiceInvalidFieldName || agent.topFormChoiceInvalidFieldType ? [`  topFormChoiceInvalidField: ${agent.topFormChoiceInvalidFieldName ?? ""}${agent.topFormChoiceInvalidFieldType ? ` type=${agent.topFormChoiceInvalidFieldType}` : ""}${agent.topFormChoiceInvalidFieldLabel ? ` label=${agent.topFormChoiceInvalidFieldLabel}` : ""}${typeof agent.topFormChoiceInvalidFieldInvalid !== "undefined" ? ` invalid=${agent.topFormChoiceInvalidFieldInvalid}` : ""}${agent.topFormChoiceInvalidFieldSelector ? ` selector=${agent.topFormChoiceInvalidFieldSelector}` : ""}`] : []),
+    ...(agent.topFormChoiceInvalidFieldName ? [`  topFormChoiceInvalidFieldName: ${agent.topFormChoiceInvalidFieldName}`] : []),
+    ...(agent.topFormChoiceInvalidFieldType ? [`  topFormChoiceInvalidFieldType: ${agent.topFormChoiceInvalidFieldType}`] : []),
+    ...(agent.topFormChoiceInvalidFieldLabel ? [`  topFormChoiceInvalidFieldLabel: ${agent.topFormChoiceInvalidFieldLabel}`] : []),
+    ...(typeof agent.topFormChoiceInvalidFieldInvalid !== "undefined" ? [`  topFormChoiceInvalidFieldInvalid: ${agent.topFormChoiceInvalidFieldInvalid}`] : []),
+    ...(agent.topFormChoiceInvalidFieldSelector ? [`  topFormChoiceInvalidFieldSelector: ${agent.topFormChoiceInvalidFieldSelector}`] : []),
     ...(agent.topActionTargetChoicePath ? [`  topActionTargetChoicePath: ${agent.topActionTargetChoicePath}`] : []),
     ...(agent.topActionTargetChoiceKind ? [`  topActionTargetChoiceKind: ${agent.topActionTargetChoiceKind}`] : []),
     ...(agent.topActionTargetChoiceName ? [`  topActionTargetChoiceName: ${agent.topActionTargetChoiceName}`] : []),
@@ -12968,6 +12979,7 @@ function summarizeAgent(
   const topFormChoice = formChoices[0];
   const topFormChoiceFirstField = topFormChoice?.fields[0];
   const topFormChoiceRequiredField = topFormChoice?.fields.find((field) => field.required === true);
+  const topFormChoiceInvalidField = topFormChoice?.fields.find((field) => typeof field.invalid !== "undefined");
   const topFormChoiceFirstHiddenField = topFormChoice?.hiddenFields[0];
   const actionTargetChoices = summarizeAgentActionTargetChoices(pageCheck.actionTargets, findQueries, agentMode, timeoutMs, userAgent);
   const topChoice = summarizeAgentTopChoice(resultChoices, sourceChoices, formChoices, actionTargetChoices);
@@ -13840,6 +13852,11 @@ function summarizeAgent(
     ...(typeof topFormChoiceRequiredField?.readonly === "boolean" ? { topFormChoiceRequiredFieldReadonly: topFormChoiceRequiredField.readonly } : {}),
     ...(typeof topFormChoiceRequiredField?.invalid !== "undefined" ? { topFormChoiceRequiredFieldInvalid: topFormChoiceRequiredField.invalid } : {}),
     ...(topFormChoiceRequiredField?.selector ? { topFormChoiceRequiredFieldSelector: topFormChoiceRequiredField.selector } : {}),
+    ...(topFormChoiceInvalidField?.name ? { topFormChoiceInvalidFieldName: topFormChoiceInvalidField.name } : {}),
+    ...(topFormChoiceInvalidField?.type ? { topFormChoiceInvalidFieldType: topFormChoiceInvalidField.type } : {}),
+    ...(topFormChoiceInvalidField?.label ? { topFormChoiceInvalidFieldLabel: topFormChoiceInvalidField.label } : {}),
+    ...(typeof topFormChoiceInvalidField?.invalid !== "undefined" ? { topFormChoiceInvalidFieldInvalid: topFormChoiceInvalidField.invalid } : {}),
+    ...(topFormChoiceInvalidField?.selector ? { topFormChoiceInvalidFieldSelector: topFormChoiceInvalidField.selector } : {}),
     ...(actionTargetChoices[0] ? { topActionTargetChoicePath: actionTargetChoices[0].path } : {}),
     ...(actionTargetChoices[0]?.kind ? { topActionTargetChoiceKind: actionTargetChoices[0].kind } : {}),
     ...(actionTargetChoices[0]?.name ? { topActionTargetChoiceName: actionTargetChoices[0].name } : {}),
@@ -19995,6 +20012,11 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.topFormChoiceRequiredFieldReadonly === "boolean" ? { topFormChoiceRequiredFieldReadonly: agent.topFormChoiceRequiredFieldReadonly } : {}),
     ...(typeof agent.topFormChoiceRequiredFieldInvalid !== "undefined" ? { topFormChoiceRequiredFieldInvalid: agent.topFormChoiceRequiredFieldInvalid } : {}),
     ...(agent.topFormChoiceRequiredFieldSelector ? { topFormChoiceRequiredFieldSelector: agent.topFormChoiceRequiredFieldSelector } : {}),
+    ...(agent.topFormChoiceInvalidFieldName ? { topFormChoiceInvalidFieldName: agent.topFormChoiceInvalidFieldName } : {}),
+    ...(agent.topFormChoiceInvalidFieldType ? { topFormChoiceInvalidFieldType: agent.topFormChoiceInvalidFieldType } : {}),
+    ...(agent.topFormChoiceInvalidFieldLabel ? { topFormChoiceInvalidFieldLabel: agent.topFormChoiceInvalidFieldLabel } : {}),
+    ...(typeof agent.topFormChoiceInvalidFieldInvalid !== "undefined" ? { topFormChoiceInvalidFieldInvalid: agent.topFormChoiceInvalidFieldInvalid } : {}),
+    ...(agent.topFormChoiceInvalidFieldSelector ? { topFormChoiceInvalidFieldSelector: agent.topFormChoiceInvalidFieldSelector } : {}),
     ...(agent.topActionTargetChoicePath ? { topActionTargetChoicePath: agent.topActionTargetChoicePath } : {}),
     ...(agent.topActionTargetChoiceKind ? { topActionTargetChoiceKind: agent.topActionTargetChoiceKind } : {}),
     ...(agent.topActionTargetChoiceName ? { topActionTargetChoiceName: agent.topActionTargetChoiceName } : {}),
@@ -21402,6 +21424,11 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.topFormChoiceRequiredFieldReadonly === "boolean" ? { topFormChoiceRequiredFieldReadonly: agent.topFormChoiceRequiredFieldReadonly } : {}),
     ...(typeof agent.topFormChoiceRequiredFieldInvalid !== "undefined" ? { topFormChoiceRequiredFieldInvalid: agent.topFormChoiceRequiredFieldInvalid } : {}),
     ...(agent.topFormChoiceRequiredFieldSelector ? { topFormChoiceRequiredFieldSelector: agent.topFormChoiceRequiredFieldSelector } : {}),
+    ...(agent.topFormChoiceInvalidFieldName ? { topFormChoiceInvalidFieldName: agent.topFormChoiceInvalidFieldName } : {}),
+    ...(agent.topFormChoiceInvalidFieldType ? { topFormChoiceInvalidFieldType: agent.topFormChoiceInvalidFieldType } : {}),
+    ...(agent.topFormChoiceInvalidFieldLabel ? { topFormChoiceInvalidFieldLabel: agent.topFormChoiceInvalidFieldLabel } : {}),
+    ...(typeof agent.topFormChoiceInvalidFieldInvalid !== "undefined" ? { topFormChoiceInvalidFieldInvalid: agent.topFormChoiceInvalidFieldInvalid } : {}),
+    ...(agent.topFormChoiceInvalidFieldSelector ? { topFormChoiceInvalidFieldSelector: agent.topFormChoiceInvalidFieldSelector } : {}),
     ...(agent.topActionTargetChoicePath ? { topActionTargetChoicePath: agent.topActionTargetChoicePath } : {}),
     ...(agent.topActionTargetChoiceKind ? { topActionTargetChoiceKind: agent.topActionTargetChoiceKind } : {}),
     ...(agent.topActionTargetChoiceName ? { topActionTargetChoiceName: agent.topActionTargetChoiceName } : {}),

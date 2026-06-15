@@ -1528,6 +1528,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topFormChoiceRequiredFieldReadonly?: boolean;
       topFormChoiceRequiredFieldInvalid?: boolean | string;
       topFormChoiceRequiredFieldSelector?: string;
+      topFormChoiceInvalidFieldName?: string;
+      topFormChoiceInvalidFieldType?: string;
+      topFormChoiceInvalidFieldLabel?: string;
+      topFormChoiceInvalidFieldInvalid?: boolean | string;
+      topFormChoiceInvalidFieldSelector?: string;
       topActionTargetChoicePath?: string;
       topActionTargetChoiceKind?: string;
       topActionTargetChoiceName?: string;
@@ -5257,6 +5262,11 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   topFormChoiceRequiredFieldReadonly?: boolean;
   topFormChoiceRequiredFieldInvalid?: boolean | string;
   topFormChoiceRequiredFieldSelector?: string;
+  topFormChoiceInvalidFieldName?: string;
+  topFormChoiceInvalidFieldType?: string;
+  topFormChoiceInvalidFieldLabel?: string;
+  topFormChoiceInvalidFieldInvalid?: boolean | string;
+  topFormChoiceInvalidFieldSelector?: string;
   actionTargetChoices?: CliAgentActionTargetChoiceShape[];
   topActionTargetChoicePath?: string;
   topActionTargetChoiceKind?: string;
@@ -5282,9 +5292,10 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   let matched = 0;
   if (form) {
     if (agent?.topFormChoicePath === form.path) matched += 1;
-    required += 74;
+    required += 79;
     const firstField = Array.isArray(form.fields) ? form.fields[0] as { name?: unknown; type?: unknown; label?: unknown; placeholder?: unknown; value?: unknown; options?: unknown; selectedOption?: unknown; selectedValue?: unknown; autocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; required?: unknown; checked?: unknown; disabled?: unknown; readonly?: unknown; invalid?: unknown; selector?: unknown } | undefined : undefined;
     const requiredField = Array.isArray(form.fields) ? form.fields.find((field) => Boolean(field) && typeof field === "object" && (field as { required?: unknown }).required === true) as { name?: unknown; type?: unknown; label?: unknown; placeholder?: unknown; value?: unknown; options?: unknown; selectedOption?: unknown; selectedValue?: unknown; autocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; required?: unknown; checked?: unknown; disabled?: unknown; readonly?: unknown; invalid?: unknown; selector?: unknown } | undefined : undefined;
+    const invalidField = Array.isArray(form.fields) ? form.fields.find((field) => Boolean(field) && typeof field === "object" && typeof (field as { invalid?: unknown }).invalid !== "undefined") as { name?: unknown; type?: unknown; label?: unknown; invalid?: unknown; selector?: unknown } | undefined : undefined;
     const firstHiddenField = Array.isArray(form.hiddenFields) ? form.hiddenFields[0] as { name?: unknown; value?: unknown; selector?: unknown } | undefined : undefined;
     if (agent?.topFormChoiceMethod === form.method) matched += 1;
     if (agent?.topFormChoiceActionUrl === form.actionUrl) matched += 1;
@@ -5360,6 +5371,11 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     if (agent?.topFormChoiceRequiredFieldReadonly === requiredField?.readonly) matched += 1;
     if (agent?.topFormChoiceRequiredFieldInvalid === requiredField?.invalid) matched += 1;
     if (agent?.topFormChoiceRequiredFieldSelector === requiredField?.selector) matched += 1;
+    if (agent?.topFormChoiceInvalidFieldName === invalidField?.name) matched += 1;
+    if (agent?.topFormChoiceInvalidFieldType === invalidField?.type) matched += 1;
+    if (agent?.topFormChoiceInvalidFieldLabel === invalidField?.label) matched += 1;
+    if (agent?.topFormChoiceInvalidFieldInvalid === invalidField?.invalid) matched += 1;
+    if (agent?.topFormChoiceInvalidFieldSelector === invalidField?.selector) matched += 1;
   } else if (
     agent?.topFormChoicePath
     || agent?.topFormChoiceMethod
@@ -5436,6 +5452,11 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     || typeof agent?.topFormChoiceRequiredFieldReadonly === "boolean"
     || typeof agent?.topFormChoiceRequiredFieldInvalid !== "undefined"
     || agent?.topFormChoiceRequiredFieldSelector
+    || agent?.topFormChoiceInvalidFieldName
+    || agent?.topFormChoiceInvalidFieldType
+    || agent?.topFormChoiceInvalidFieldLabel
+    || typeof agent?.topFormChoiceInvalidFieldInvalid !== "undefined"
+    || agent?.topFormChoiceInvalidFieldSelector
   ) {
     required += 1;
   } else {
