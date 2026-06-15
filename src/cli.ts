@@ -5030,6 +5030,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   for (const target of pageCheck.actionTargets) {
     const url = target.targetUrl ? ` <${target.targetUrl}>` : "";
     const details = [
+      `kind=${target.kind}`,
       `source=${target.source}`,
       target.urlTemplate ? `template=${target.urlTemplate}` : "",
       target.queryInput ? `queryInput=${target.queryInput}` : "",
@@ -5042,7 +5043,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       target.controls ? `controls=${target.controls}` : "",
       target.selector ? `selector=${target.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  actionTarget: ${target.id} ${target.path} ${target.kind} ${details}${url} - ${target.text}`);
+    lines.push(`  actionTarget: ${target.id} ${target.path} ${details}${url} - ${target.text}`);
   }
   for (const item of pageCheck.hydration) {
     const url = item.url ? ` <${item.url}>` : "";

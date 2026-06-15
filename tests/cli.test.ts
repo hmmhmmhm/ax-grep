@@ -12627,7 +12627,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topActionTargetChoiceSelector: script[type=\"application/ld+json\"]:nth-of-type(1)");
     expect(stdout.output).toContain("  topActionTargetChoiceCommand: ax-grep 'https://example.test/search?q=search_term_string' --find 'search_term_string' --json --summary");
     expect(stdout.output).toContain("  topActionTargetChoiceCommandArgs: [\"ax-grep\",\"https://example.test/search?q=search_term_string\",\"--find\",\"search_term_string\",\"--json\",\"--summary\"]");
-    expect(stdout.output).toContain("  actionTarget: at1 pageCheck.actionTargets[0] search source=json-ld template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string selector=script[type=\"application/ld+json\"]:nth-of-type(1) - search: Example Docs");
+    expect(stdout.output).toContain("  actionTarget: at1 pageCheck.actionTargets[0] kind=search source=json-ld template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string selector=script[type=\"application/ld+json\"]:nth-of-type(1) - search: Example Docs");
     expect(stdout.output).toContain("  actionTargetChoice: at1 pageCheck.actionTargets[0] rank=1 kind=search source=json-ld template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string selector=script[type=\"application/ld+json\"]:nth-of-type(1)");
     expect(stdout.output).toContain("    command: ax-grep 'https://example.test/search?q=search_term_string' --find 'search_term_string' --json --summary");
     expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://example.test/search?q=search_term_string\",\"--find\",\"search_term_string\",\"--json\",\"--summary\"]");
@@ -12660,7 +12660,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topActionTargetChoiceHaspopup: dialog");
     expect(stdout.output).toContain("  topActionTargetChoiceControls: docs-search-panel");
     expect(stdout.output).toContain("  topActionTargetChoiceSelector: link[rel=\"search\"]:nth-of-type(1)");
-    expect(stdout.output).toContain("  actionTarget: at1 pageCheck.actionTargets[0] search source=link encoding=application/opensearchdescription+xml disabled=true expanded=false haspopup=dialog controls=docs-search-panel selector=link[rel=\"search\"]:nth-of-type(1) <https://example.test/opensearch.xml> - search: Docs OpenSearch");
+    expect(stdout.output).toContain("  actionTarget: at1 pageCheck.actionTargets[0] kind=search source=link encoding=application/opensearchdescription+xml disabled=true expanded=false haspopup=dialog controls=docs-search-panel selector=link[rel=\"search\"]:nth-of-type(1) <https://example.test/opensearch.xml> - search: Docs OpenSearch");
     expect(stdout.output).toContain("  actionTargetChoice: at1 pageCheck.actionTargets[0] rank=1 kind=search source=link disabled=true expanded=false haspopup=dialog controls=docs-search-panel selector=link[rel=\"search\"]:nth-of-type(1) <https://example.test/opensearch.xml> - Docs OpenSearch");
   });
 
