@@ -12755,6 +12755,10 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topChoiceReason: Ranked result 1 from result.example.");
     expect(stdout.output).toContain("  topChoiceCommand: ax-grep 'https://result.example/article' --json --summary");
     expect(stdout.output).toContain("  topChoiceFirstSitelink: Docs sitelink <https://result.example/article/docs> selector=a:nth-of-type(2) command=ax-grep 'https://result.example/article/docs' --json --summary");
+    expect(stdout.output).toContain("  topChoiceFirstSitelinkTitle: Docs sitelink");
+    expect(stdout.output).toContain("  topChoiceFirstSitelinkUrl: https://result.example/article/docs");
+    expect(stdout.output).toContain("  topChoiceFirstSitelinkSelector: a:nth-of-type(2)");
+    expect(stdout.output).toContain("  topChoiceFirstSitelinkCommand: ax-grep 'https://result.example/article/docs' --json --summary");
     expect(stdout.output).toContain("  topChoiceFirstSitelinkCommandArgs: [\"ax-grep\",\"https://result.example/article/docs\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  topResultChoiceFirstSitelinkCommand: ax-grep 'https://result.example/article/docs' --json --summary");
     expect(stdout.output).toContain("  topResultChoiceFirstSitelinkCommandArgs: [\"ax-grep\",\"https://result.example/article/docs\",\"--json\",\"--summary\"]");
