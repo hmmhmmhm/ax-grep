@@ -1133,6 +1133,9 @@ When research expands:
 - Added individual text rows plus static/readiness scoring for first semantic
   list-item shortcuts, closing the remaining text-only gap for
   `semanticTopListItemRefs[0]`.
+- Added individual text rows for second semantic table headers, so text-only
+  agents can read the second representative header without parsing the
+  aggregate `semanticTopTableSecondHeader` line.
 
 ## In Progress
 
