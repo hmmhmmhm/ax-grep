@@ -5324,23 +5324,25 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   for (const media of pageCheck.media) {
     const dimensions = media.width && media.height ? `${media.width}x${media.height}` : "";
     const details = [
+      `kind=${media.kind}`,
       media.alt ? `alt="${media.alt}"` : "",
       media.caption ? `caption="${media.caption}"` : "",
       media.title ? `title="${media.title}"` : "",
       dimensions ? `dimensions=${dimensions}` : "",
       media.selector ? `selector=${media.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  media: ${media.id} ${media.path} ${media.kind} ${details} <${media.url}> - ${media.text}`);
+    lines.push(`  media: ${media.id} ${media.path} ${details} <${media.url}> - ${media.text}`);
   }
   for (const resource of pageCheck.resources) {
     const details = [
+      `kind=${resource.kind}`,
       resource.title ? `title="${resource.title}"` : "",
       resource.rel ? `rel=${resource.rel}` : "",
       resource.type ? `type=${resource.type}` : "",
       resource.hreflang ? `hreflang=${resource.hreflang}` : "",
       resource.selector ? `selector=${resource.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  resource: ${resource.id} ${resource.path} ${resource.kind} ${details} <${resource.url}> - ${resource.text}`);
+    lines.push(`  resource: ${resource.id} ${resource.path} ${details} <${resource.url}> - ${resource.text}`);
   }
   for (const embed of pageCheck.embeds) {
     const details = [
