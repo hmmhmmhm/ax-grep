@@ -5949,6 +5949,58 @@ describe("cli", () => {
     });
   });
 
+  it("prints top semantic field shortcuts in text agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/relations"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h2 id="q-label">Archive search</h2>
+          <input
+            id="q"
+            type="search"
+            aria-label="Archive search"
+            aria-labelledby="q-label"
+            aria-describedby="q-help"
+            aria-details="q-details"
+            aria-errormessage="q-error"
+            aria-required="true"
+            aria-readonly="true"
+            aria-invalid="spelling"
+          >
+          <p id="q-help">Use report names or dates.</p>
+          <p id="q-details">Search across public and private archive records.</p>
+          <p id="q-error">Use at least two letters.</p>
+          <p>Readable page content for field relation routing and form inspection.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticTopField: agent.semanticSummary.fieldItems[0] role=searchbox name=\"Archive search\"");
+    expect(stdout.output).toContain("  semanticTopFieldRole: searchbox");
+    expect(stdout.output).toContain("  semanticTopFieldPath: agent.semanticSummary.fieldItems[0]");
+    expect(stdout.output).toContain("  semanticTopFieldName: Archive search");
+    expect(stdout.output).toContain("  semanticTopFieldLabelledBy: q-label");
+    expect(stdout.output).toContain("  semanticTopFieldLabelledByText: Archive search");
+    expect(stdout.output).toContain("  semanticTopFieldLabelledBySelector: #q-label");
+    expect(stdout.output).toContain("  semanticTopFieldDescribedBy: q-help");
+    expect(stdout.output).toContain("  semanticTopFieldDescribedByText: Use report names or dates.");
+    expect(stdout.output).toContain("  semanticTopFieldDescribedBySelector: #q-help");
+    expect(stdout.output).toContain("  semanticTopFieldDetails: q-details");
+    expect(stdout.output).toContain("  semanticTopFieldDetailsText: Search across public and private archive records.");
+    expect(stdout.output).toContain("  semanticTopFieldDetailsSelector: #q-details");
+    expect(stdout.output).toContain("  semanticTopFieldErrorMessage: q-error");
+    expect(stdout.output).toContain("  semanticTopFieldErrorMessageText: Use at least two letters.");
+    expect(stdout.output).toContain("  semanticTopFieldErrorMessageSelector: #q-error");
+    expect(stdout.output).toContain("  semanticTopFieldState: required=true readonly=true invalid=spelling");
+    expect(stdout.output).toContain("  semanticTopFieldRequired: true");
+    expect(stdout.output).toContain("  semanticTopFieldReadonly: true");
+    expect(stdout.output).toContain("  semanticTopFieldInvalid: spelling");
+    expect(stdout.output).toContain("  semanticTopFieldSelector: #q");
+  });
+
   it("keeps selected grid cell state in agent brief output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/grid", "--agent-brief"], {
