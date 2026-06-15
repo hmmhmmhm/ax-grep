@@ -4987,8 +4987,12 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`  dataTable: ${table.id} ${table.path} ${table.rowCount}x${table.columnCount}${caption} - ${table.text}`);
   }
   for (const barrier of pageCheck.barriers) {
-    const selector = barrier.selector ? ` (${barrier.selector})` : "";
-    lines.push(`  barrier: ${barrier.id} ${barrier.path} ${barrier.kind} ${barrier.severity}${selector} - ${barrier.text}`);
+    const details = [
+      `source=${barrier.source}`,
+      barrier.diagnosticCode ? `diagnostic=${barrier.diagnosticCode}` : "",
+      barrier.selector ? `selector=${barrier.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  barrier: ${barrier.id} ${barrier.path} ${barrier.kind} ${barrier.severity} ${details} - ${barrier.text}`);
   }
   for (const form of pageCheck.forms) {
     const template = form.urlTemplate ? ` template=${form.urlTemplate}` : "";
