@@ -5220,6 +5220,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   }
   for (const item of pageCheck.timeline) {
     const details = [
+      `kind=${item.kind}`,
       `source=${item.source}`,
       `label="${item.label}"`,
       `value=${item.value}`,
@@ -5227,17 +5228,18 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       typeof item.unixMs === "number" ? `unixMs=${item.unixMs}` : "",
       item.selector ? `selector=${item.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  timeline: ${item.id} ${item.path} ${item.kind} ${details} - ${item.text}`);
+    lines.push(`  timeline: ${item.id} ${item.path} ${details} - ${item.text}`);
   }
   for (const contact of pageCheck.contactPoints) {
     const url = contact.url ? ` <${contact.url}>` : "";
     const details = [
+      `kind=${contact.kind}`,
       `source=${contact.source}`,
       `label="${contact.label}"`,
       `value=${contact.value}`,
       contact.selector ? `selector=${contact.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  contactPoint: ${contact.id} ${contact.path} ${contact.kind} ${details}${url} - ${contact.text}`);
+    lines.push(`  contactPoint: ${contact.id} ${contact.path} ${details}${url} - ${contact.text}`);
   }
   for (const faq of pageCheck.faqs) {
     const details = [

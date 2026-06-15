@@ -10023,7 +10023,7 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain(`  topTimeline: pageCheck.timeline[0] modified label="updated":2026-06-08 iso=2026-06-08T00:00:00.000Z unixMs=${Date.parse("2026-06-08")} source=time selector=time:nth-of-type(1)`);
-    expect(stdout.output).toContain(`  timeline: tl1 pageCheck.timeline[0] modified source=time label="updated" value=2026-06-08 iso=2026-06-08T00:00:00.000Z unixMs=${Date.parse("2026-06-08")} selector=time:nth-of-type(1)`);
+    expect(stdout.output).toContain(`  timeline: tl1 pageCheck.timeline[0] kind=modified source=time label="updated" value=2026-06-08 iso=2026-06-08T00:00:00.000Z unixMs=${Date.parse("2026-06-08")} selector=time:nth-of-type(1)`);
   });
 
   it("summarizes contact points as pageCheck read targets for agents", async () => {
@@ -10181,7 +10181,7 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topContactPoint: pageCheck.contactPoints[0] email label=\"Press team\":press@example.test source=link selector=a:nth-of-type(1) <mailto:press@example.test>");
-    expect(stdout.output).toContain("  contactPoint: cp1 pageCheck.contactPoints[0] email source=link label=\"Press team\" value=press@example.test selector=a:nth-of-type(1) <mailto:press@example.test> - Press team: email press@example.test mailto:press@example.test source=link");
+    expect(stdout.output).toContain("  contactPoint: cp1 pageCheck.contactPoints[0] kind=email source=link label=\"Press team\" value=press@example.test selector=a:nth-of-type(1) <mailto:press@example.test> - Press team: email press@example.test mailto:press@example.test source=link");
   });
 
   it("prints hidden app signal locators in text output", async () => {
