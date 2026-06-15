@@ -898,6 +898,8 @@ describe("public agent types", () => {
       | "topCitationText"
       | "topCitationTitle"
       | "topCitationUrl"
+      | "topCitationUrlPath"
+      | "topCitationUrlQuery"
       | "topCitationCommand"
       | "topCitationCommandArgs"
       | "topCitationConfidence"
@@ -910,6 +912,8 @@ describe("public agent types", () => {
       | "topAnswerEvidenceText"
       | "topAnswerEvidenceTitle"
       | "topAnswerEvidenceUrl"
+      | "topAnswerEvidenceUrlPath"
+      | "topAnswerEvidenceUrlQuery"
       | "topAnswerEvidenceCommand"
       | "topAnswerEvidenceCommandArgs"
       | "topAnswerEvidenceConfidence"
@@ -2385,6 +2389,7 @@ describe("public agent types", () => {
       topCitationText: "Readable evidence",
       topCitationTitle: "Example evidence",
       topCitationUrl: "https://example.test",
+      topCitationUrlPath: "/",
       topCitationCommand: "ax-grep https://example.test --agent",
       topCitationCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       topCitationConfidence: "high",
@@ -2397,6 +2402,7 @@ describe("public agent types", () => {
       topAnswerEvidenceText: "Readable evidence",
       topAnswerEvidenceTitle: "Example evidence",
       topAnswerEvidenceUrl: "https://example.test",
+      topAnswerEvidenceUrlPath: "/",
       topAnswerEvidenceCommand: "ax-grep https://example.test --agent",
       topAnswerEvidenceCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       topAnswerEvidenceConfidence: "high",
@@ -3580,8 +3586,10 @@ describe("public agent types", () => {
     expect(summary.browserHtmlReason).toContain("Browser-captured HTML");
     expect(summary.topDiagnosticCode).toBe("NO_USEFUL_LINKS");
     expect(summary.topCitationPath).toBe("pageCheck.contentEvidence[0]");
+    expect(summary.topCitationUrlPath).toBe("/");
     expect(summary.topCitationCommandArgs?.[1]).toBe("https://example.test");
     expect(summary.topAnswerEvidencePath).toBe("pageCheck.contentEvidence[0]");
+    expect(summary.topAnswerEvidenceUrlPath).toBe("/");
     expect(summary.topAnswerEvidenceCommandArgs?.[1]).toBe("https://example.test");
     expect(summary.topAnswerEvidenceScore).toBe(0.9);
     expect(summary.answerPlanStatus).toBe("ready");

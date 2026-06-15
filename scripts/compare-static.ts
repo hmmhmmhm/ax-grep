@@ -2063,6 +2063,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topCitationText?: string;
       topCitationTitle?: string;
       topCitationUrl?: string;
+      topCitationUrlPath?: string;
+      topCitationUrlQuery?: string;
       topCitationCommand?: string;
       topCitationCommandArgs?: string[];
       topCitationConfidence?: CliAgentCitationShape["confidence"];
@@ -2075,6 +2077,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topAnswerEvidenceText?: string;
       topAnswerEvidenceTitle?: string;
       topAnswerEvidenceUrl?: string;
+      topAnswerEvidenceUrlPath?: string;
+      topAnswerEvidenceUrlQuery?: string;
       topAnswerEvidenceCommand?: string;
       topAnswerEvidenceCommandArgs?: string[];
       topAnswerEvidenceConfidence?: CliAgentCitationShape["confidence"];
@@ -11110,6 +11114,8 @@ function scoreAgentAnswerShortcuts(agent: {
   topAnswerEvidenceText?: string;
   topAnswerEvidenceTitle?: string;
   topAnswerEvidenceUrl?: string;
+  topAnswerEvidenceUrlPath?: string;
+  topAnswerEvidenceUrlQuery?: string;
   topAnswerEvidenceCommand?: string;
   topAnswerEvidenceCommandArgs?: string[];
   topAnswerEvidenceConfidence?: CliAgentCitationShape["confidence"];
@@ -11251,12 +11257,25 @@ function scoreAgentAnswerShortcuts(agent: {
     if (topEvidence.url) {
       required += 1;
       if (agent.topAnswerEvidenceUrl === topEvidence.url) matched += 1;
+      const topEvidenceUrlParts = compareUrlPathParts(topEvidence.url);
+      if (topEvidenceUrlParts) {
+        required += 1;
+        if (agent.topAnswerEvidenceUrlPath === topEvidenceUrlParts.urlPath) matched += 1;
+        if (topEvidenceUrlParts.urlQuery) {
+          required += 1;
+          if (agent.topAnswerEvidenceUrlQuery === topEvidenceUrlParts.urlQuery) matched += 1;
+        } else if (agent.topAnswerEvidenceUrlQuery) {
+          required += 1;
+        }
+      }
       if (/^https?:\/\//i.test(topEvidence.url)) {
         required += 2;
         if (agent.topAnswerEvidenceCommand?.includes(topEvidence.url)) matched += 1;
         if (Array.isArray(agent.topAnswerEvidenceCommandArgs) && agent.topAnswerEvidenceCommandArgs.includes(topEvidence.url)) matched += 1;
       }
     } else if (agent.topAnswerEvidenceUrl) {
+      required += 1;
+    } else if (agent.topAnswerEvidenceUrlPath || agent.topAnswerEvidenceUrlQuery) {
       required += 1;
     }
     if (topEvidence.confidence) {
@@ -11291,6 +11310,8 @@ function scoreAgentTopCitationShortcuts(agent: {
   topCitationText?: string;
   topCitationTitle?: string;
   topCitationUrl?: string;
+  topCitationUrlPath?: string;
+  topCitationUrlQuery?: string;
   topCitationCommand?: string;
   topCitationCommandArgs?: string[];
   topCitationConfidence?: CliAgentCitationShape["confidence"];
@@ -11305,6 +11326,8 @@ function scoreAgentTopCitationShortcuts(agent: {
       || agent?.topCitationText
       || agent?.topCitationTitle
       || agent?.topCitationUrl
+      || agent?.topCitationUrlPath
+      || agent?.topCitationUrlQuery
       || agent?.topCitationCommand
       || agent?.topCitationCommandArgs
       || agent?.topCitationConfidence
@@ -11331,12 +11354,25 @@ function scoreAgentTopCitationShortcuts(agent: {
   if (top.url) {
     required += 1;
     if (agent?.topCitationUrl === top.url) matched += 1;
+    const topUrlParts = compareUrlPathParts(top.url);
+    if (topUrlParts) {
+      required += 1;
+      if (agent?.topCitationUrlPath === topUrlParts.urlPath) matched += 1;
+      if (topUrlParts.urlQuery) {
+        required += 1;
+        if (agent?.topCitationUrlQuery === topUrlParts.urlQuery) matched += 1;
+      } else if (agent?.topCitationUrlQuery) {
+        required += 1;
+      }
+    }
     if (/^https?:\/\//i.test(top.url)) {
       required += 2;
       if (agent?.topCitationCommand?.includes(top.url)) matched += 1;
       if (Array.isArray(agent?.topCitationCommandArgs) && agent?.topCitationCommandArgs.includes(top.url)) matched += 1;
     }
   } else if (agent?.topCitationUrl) {
+    required += 1;
+  } else if (agent?.topCitationUrlPath || agent?.topCitationUrlQuery) {
     required += 1;
   }
   if (top.confidence) {

@@ -1541,6 +1541,7 @@ describe("cli", () => {
       if (envelope.agent.diagnosticCodes?.length) expect(envelope.agent.diagnosticCodes[0]).toEqual(expect.any(String));
       const topCitation = envelope.agent.citations?.[0];
       if (topCitation?.url?.startsWith("http")) {
+        expect(envelope.agent.topCitationUrlPath).toBe(new URL(topCitation.url).pathname || "/");
         expect(envelope.agent.topCitationCommandArgs?.[1]).toBe(topCitation.url);
       }
       const topAnswerEvidence = envelope.agent.answerEvidence?.[0] ?? handoff.answerEvidence?.[0];
@@ -1550,7 +1551,10 @@ describe("cli", () => {
         expect(envelope.agent.topAnswerEvidenceKind).toBe(topAnswerEvidence.kind);
         if (topAnswerEvidence.text) expect(envelope.agent.topAnswerEvidenceText).toBe(topAnswerEvidence.text);
         if (topAnswerEvidence.url) expect(envelope.agent.topAnswerEvidenceUrl).toBe(topAnswerEvidence.url);
-        if (topAnswerEvidence.url?.startsWith("http")) expect(envelope.agent.topAnswerEvidenceCommandArgs?.[1]).toBe(topAnswerEvidence.url);
+        if (topAnswerEvidence.url?.startsWith("http")) {
+          expect(envelope.agent.topAnswerEvidenceUrlPath).toBe(new URL(topAnswerEvidence.url).pathname || "/");
+          expect(envelope.agent.topAnswerEvidenceCommandArgs?.[1]).toBe(topAnswerEvidence.url);
+        }
         if (typeof topAnswerEvidence.score === "number") expect(envelope.agent.topAnswerEvidenceScore).toBe(topAnswerEvidence.score);
       }
       if (handoff.useCitationIds?.length) expect(envelope.agent.answerUseCitationIds).toEqual(handoff.useCitationIds);
@@ -12883,6 +12887,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topAnswerEvidencePath: verification.bestEvidence");
     expect(stdout.output).toContain("  topAnswerEvidenceKind: verification");
     expect(stdout.output).toContain("  topAnswerEvidenceUrl: https://source.example/report");
+    expect(stdout.output).toContain("  topAnswerEvidenceUrlPath: /report");
     expect(stdout.output).toContain("  topAnswerEvidenceCommandArgs: [\"ax-grep\",\"https://source.example/report\",\"--find\",\"source report\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("finds\n  found: source report");
     expect(stdout.output).toContain("sourceLink source=semantic score=0.58 quality=medium");

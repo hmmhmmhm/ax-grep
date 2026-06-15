@@ -2220,6 +2220,8 @@ type AgentSummary = {
   topCitationText?: string;
   topCitationTitle?: string;
   topCitationUrl?: string;
+  topCitationUrlPath?: string;
+  topCitationUrlQuery?: string;
   topCitationCommand?: string;
   topCitationCommandArgs?: string[];
   topCitationConfidence?: AgentCitation["confidence"];
@@ -2233,6 +2235,8 @@ type AgentSummary = {
   topAnswerEvidenceText?: string;
   topAnswerEvidenceTitle?: string;
   topAnswerEvidenceUrl?: string;
+  topAnswerEvidenceUrlPath?: string;
+  topAnswerEvidenceUrlQuery?: string;
   topAnswerEvidenceCommand?: string;
   topAnswerEvidenceCommandArgs?: string[];
   topAnswerEvidenceConfidence?: AgentCitation["confidence"];
@@ -4931,6 +4935,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topCitationKind ? [`  topCitationKind: ${agent.topCitationKind}`] : []),
     ...(agent.topCitationTitle ? [`  topCitationTitle: ${agent.topCitationTitle}`] : []),
     ...(agent.topCitationUrl ? [`  topCitationUrl: ${agent.topCitationUrl}`] : []),
+    ...(agent.topCitationUrlPath ? [`  topCitationUrlPath: ${agent.topCitationUrlPath}`] : []),
+    ...(agent.topCitationUrlQuery ? [`  topCitationUrlQuery: ${agent.topCitationUrlQuery}`] : []),
     ...(agent.topCitationCommand ? [`  topCitationCommand: ${agent.topCitationCommand}`] : []),
     ...(agent.topCitationCommandArgs ? [`  topCitationCommandArgs: ${formatCommandArgsText(agent.topCitationCommandArgs)}`] : []),
     ...(agent.topCitationConfidence ? [`  topCitationConfidence: ${agent.topCitationConfidence}`] : []),
@@ -4942,6 +4948,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topAnswerEvidenceKind ? [`  topAnswerEvidenceKind: ${agent.topAnswerEvidenceKind}`] : []),
     ...(agent.topAnswerEvidenceTitle ? [`  topAnswerEvidenceTitle: ${agent.topAnswerEvidenceTitle}`] : []),
     ...(agent.topAnswerEvidenceUrl ? [`  topAnswerEvidenceUrl: ${agent.topAnswerEvidenceUrl}`] : []),
+    ...(agent.topAnswerEvidenceUrlPath ? [`  topAnswerEvidenceUrlPath: ${agent.topAnswerEvidenceUrlPath}`] : []),
+    ...(agent.topAnswerEvidenceUrlQuery ? [`  topAnswerEvidenceUrlQuery: ${agent.topAnswerEvidenceUrlQuery}`] : []),
     ...(agent.topAnswerEvidenceCommand ? [`  topAnswerEvidenceCommand: ${agent.topAnswerEvidenceCommand}`] : []),
     ...(agent.topAnswerEvidenceCommandArgs ? [`  topAnswerEvidenceCommandArgs: ${formatCommandArgsText(agent.topAnswerEvidenceCommandArgs)}`] : []),
     ...(agent.topAnswerEvidenceConfidence ? [`  topAnswerEvidenceConfidence: ${agent.topAnswerEvidenceConfidence}`] : []),
@@ -13223,9 +13231,11 @@ function summarizeAgent(
   const topCitationCommand = citations[0]?.url && /^https?:\/\//i.test(citations[0].url)
     ? pageCommandSpec(citations[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topCitationUrlParts = citations[0]?.url ? urlPathParts(citations[0].url) : undefined;
   const topAnswerEvidenceCommand = answerEvidence[0]?.url && /^https?:\/\//i.test(answerEvidence[0].url)
     ? pageCommandSpec(answerEvidence[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topAnswerEvidenceUrlParts = answerEvidence[0]?.url ? urlPathParts(answerEvidence[0].url) : undefined;
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, sourceSearchAgent, signals, qualityGates, verification.foundQueries, verification.missingQueries);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   const topSemanticHeading = semanticSummary?.headingItems[0];
@@ -14561,6 +14571,8 @@ function summarizeAgent(
     ...(citations[0]?.text ? { topCitationText: citations[0].text } : {}),
     ...(citations[0]?.title ? { topCitationTitle: citations[0].title } : {}),
     ...(citations[0]?.url ? { topCitationUrl: citations[0].url } : {}),
+    ...(topCitationUrlParts?.urlPath ? { topCitationUrlPath: topCitationUrlParts.urlPath } : {}),
+    ...(topCitationUrlParts?.urlQuery ? { topCitationUrlQuery: topCitationUrlParts.urlQuery } : {}),
     ...(topCitationCommand ? { topCitationCommand: topCitationCommand.command } : {}),
     ...(topCitationCommand ? { topCitationCommandArgs: topCitationCommand.commandArgs } : {}),
     ...(citations[0]?.confidence ? { topCitationConfidence: citations[0].confidence } : {}),
@@ -14574,6 +14586,8 @@ function summarizeAgent(
     ...(answerEvidence[0]?.text ? { topAnswerEvidenceText: answerEvidence[0].text } : {}),
     ...(answerEvidence[0]?.title ? { topAnswerEvidenceTitle: answerEvidence[0].title } : {}),
     ...(answerEvidence[0]?.url ? { topAnswerEvidenceUrl: answerEvidence[0].url } : {}),
+    ...(topAnswerEvidenceUrlParts?.urlPath ? { topAnswerEvidenceUrlPath: topAnswerEvidenceUrlParts.urlPath } : {}),
+    ...(topAnswerEvidenceUrlParts?.urlQuery ? { topAnswerEvidenceUrlQuery: topAnswerEvidenceUrlParts.urlQuery } : {}),
     ...(topAnswerEvidenceCommand ? { topAnswerEvidenceCommand: topAnswerEvidenceCommand.command } : {}),
     ...(topAnswerEvidenceCommand ? { topAnswerEvidenceCommandArgs: topAnswerEvidenceCommand.commandArgs } : {}),
     ...(answerEvidence[0]?.confidence ? { topAnswerEvidenceConfidence: answerEvidence[0].confidence } : {}),
@@ -20816,6 +20830,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topCitationText ? { topCitationText: agent.topCitationText } : {}),
     ...(agent.topCitationTitle ? { topCitationTitle: agent.topCitationTitle } : {}),
     ...(agent.topCitationUrl ? { topCitationUrl: agent.topCitationUrl } : {}),
+    ...(agent.topCitationUrlPath ? { topCitationUrlPath: agent.topCitationUrlPath } : {}),
+    ...(agent.topCitationUrlQuery ? { topCitationUrlQuery: agent.topCitationUrlQuery } : {}),
     ...(agent.topCitationCommand ? { topCitationCommand: agent.topCitationCommand } : {}),
     ...(agent.topCitationCommandArgs ? { topCitationCommandArgs: agent.topCitationCommandArgs } : {}),
     ...(agent.topCitationConfidence ? { topCitationConfidence: agent.topCitationConfidence } : {}),
@@ -20829,6 +20845,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topAnswerEvidenceText ? { topAnswerEvidenceText: agent.topAnswerEvidenceText } : {}),
     ...(agent.topAnswerEvidenceTitle ? { topAnswerEvidenceTitle: agent.topAnswerEvidenceTitle } : {}),
     ...(agent.topAnswerEvidenceUrl ? { topAnswerEvidenceUrl: agent.topAnswerEvidenceUrl } : {}),
+    ...(agent.topAnswerEvidenceUrlPath ? { topAnswerEvidenceUrlPath: agent.topAnswerEvidenceUrlPath } : {}),
+    ...(agent.topAnswerEvidenceUrlQuery ? { topAnswerEvidenceUrlQuery: agent.topAnswerEvidenceUrlQuery } : {}),
     ...(agent.topAnswerEvidenceCommand ? { topAnswerEvidenceCommand: agent.topAnswerEvidenceCommand } : {}),
     ...(agent.topAnswerEvidenceCommandArgs ? { topAnswerEvidenceCommandArgs: agent.topAnswerEvidenceCommandArgs } : {}),
     ...(agent.topAnswerEvidenceConfidence ? { topAnswerEvidenceConfidence: agent.topAnswerEvidenceConfidence } : {}),
@@ -22298,6 +22316,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topCitationText ? { topCitationText: agent.topCitationText } : {}),
     ...(agent.topCitationTitle ? { topCitationTitle: agent.topCitationTitle } : {}),
     ...(agent.topCitationUrl ? { topCitationUrl: agent.topCitationUrl } : {}),
+    ...(agent.topCitationUrlPath ? { topCitationUrlPath: agent.topCitationUrlPath } : {}),
+    ...(agent.topCitationUrlQuery ? { topCitationUrlQuery: agent.topCitationUrlQuery } : {}),
     ...(agent.topCitationCommand ? { topCitationCommand: agent.topCitationCommand } : {}),
     ...(agent.topCitationCommandArgs ? { topCitationCommandArgs: agent.topCitationCommandArgs } : {}),
     ...(agent.topCitationConfidence ? { topCitationConfidence: agent.topCitationConfidence } : {}),
@@ -22310,6 +22330,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topAnswerEvidenceText ? { topAnswerEvidenceText: agent.topAnswerEvidenceText } : {}),
     ...(agent.topAnswerEvidenceTitle ? { topAnswerEvidenceTitle: agent.topAnswerEvidenceTitle } : {}),
     ...(agent.topAnswerEvidenceUrl ? { topAnswerEvidenceUrl: agent.topAnswerEvidenceUrl } : {}),
+    ...(agent.topAnswerEvidenceUrlPath ? { topAnswerEvidenceUrlPath: agent.topAnswerEvidenceUrlPath } : {}),
+    ...(agent.topAnswerEvidenceUrlQuery ? { topAnswerEvidenceUrlQuery: agent.topAnswerEvidenceUrlQuery } : {}),
     ...(agent.topAnswerEvidenceCommand ? { topAnswerEvidenceCommand: agent.topAnswerEvidenceCommand } : {}),
     ...(agent.topAnswerEvidenceCommandArgs ? { topAnswerEvidenceCommandArgs: agent.topAnswerEvidenceCommandArgs } : {}),
     ...(agent.topAnswerEvidenceConfidence ? { topAnswerEvidenceConfidence: agent.topAnswerEvidenceConfidence } : {}),
