@@ -6304,6 +6304,55 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopInPageLinkSelector: a");
   });
 
+  it("prints top semantic button shortcuts in text agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/actions"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <form id="details-form" action="/details" method="post" target="_blank" enctype="multipart/form-data" novalidate>
+            <button
+              type="submit"
+              aria-description="Shows extra context"
+              aria-pressed="false"
+              aria-expanded="true"
+              aria-haspopup="dialog"
+              aria-controls="details-panel"
+              formaction="/override"
+              formmethod="post"
+              formtarget="_blank"
+              formenctype="multipart/form-data"
+              formnovalidate
+            >Toggle details</button>
+          </form>
+          <section id="details-panel" aria-label="Details panel">Details</section>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticTopButton: agent.semanticSummary.buttons[0] name=\"Toggle details\"");
+    expect(stdout.output).toContain("  semanticTopButtonName: Toggle details");
+    expect(stdout.output).toContain("  semanticTopButtonPath: agent.semanticSummary.buttons[0]");
+    expect(stdout.output).toContain("  semanticTopButtonType: submit");
+    expect(stdout.output).toContain("  semanticTopButtonState: expanded=true pressed=false haspopup=dialog controls=details-panel");
+    expect(stdout.output).toContain("  semanticTopButtonDisabled: false");
+    expect(stdout.output).toContain("  semanticTopButtonPressed: false");
+    expect(stdout.output).toContain("  semanticTopButtonExpanded: true");
+    expect(stdout.output).toContain("  semanticTopButtonHaspopup: dialog");
+    expect(stdout.output).toContain("  semanticTopButtonControls: details-panel");
+    expect(stdout.output).toContain("  semanticTopButtonControlsTargetRole: region");
+    expect(stdout.output).toContain("  semanticTopButtonControlsTargetName: Details panel");
+    expect(stdout.output).toContain("  semanticTopButtonControlsTargetSelector: #details-panel");
+    expect(stdout.output).toContain("  semanticTopButtonFormAction: https://example.test/override");
+    expect(stdout.output).toContain("  semanticTopButtonFormMethod: post");
+    expect(stdout.output).toContain("  semanticTopButtonFormTarget: _blank");
+    expect(stdout.output).toContain("  semanticTopButtonFormEncType: multipart/form-data");
+    expect(stdout.output).toContain("  semanticTopButtonFormNoValidate: true");
+    expect(stdout.output).toContain("  semanticTopButtonSelector: button");
+  });
+
   it("exposes semantic table and list shortcuts for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/report", "--agent"], {
