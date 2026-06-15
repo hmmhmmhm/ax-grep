@@ -3863,7 +3863,6 @@ describe("cli", () => {
       sourceSearchAlternateHost: "unrelated.example",
       sourceSearchAlternateSource: "unrelated.example",
       sourceSearchAlternateSourceType: envelope.sourceSearch.alternateResults[0].sourceType,
-      sourceSearchAlternateSourceHints: envelope.sourceSearch.alternateResults[0].sourceHints,
       sourceSearchAlternateRank: 1,
       sourceSearchAlternateOpenResult: 1,
       sourceSearchAlternateCommand: "ax-grep --search 'ax-grep npm' --engine duckduckgo --open-result 1 --agent",
@@ -3871,6 +3870,7 @@ describe("cli", () => {
       sourceSearchAlternateRelevance: "low",
       sourceSearchAlternateLikelyOfficial: false,
       sourceSearchAlternateDifferentHost: true,
+      sourceSearchAlternateReason: "Ranked result 1 from unrelated.example.",
     });
     expect(envelope.agent.sourceSearchSelectedSourceScore).toBe(envelope.sourceSearch.selectedResult.sourceScore);
     expect(envelope.agent.sourceSearchAlternateSourceScore).toBe(envelope.sourceSearch.alternateResults[0].sourceScore);
