@@ -6426,6 +6426,10 @@ describe("cli", () => {
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  semanticTopTableFirstSampleCell:");
     expect(stdout.output).toContain("headerRefs=text=\"Metric\" role=columnheader selector=#metric");
+    expect(stdout.output).toContain("  semanticTopTableFirstHeaderPath: agent.semanticSummary.tableItems[0].headerRefs[0]");
+    expect(stdout.output).toContain("  semanticTopTableFirstHeaderText: Metric");
+    expect(stdout.output).toContain("  semanticTopTableFirstHeaderRole: columnheader");
+    expect(stdout.output).toContain("  semanticTopTableFirstHeaderSelector: #metric");
     expect(stdout.output).toContain("ownedRefs=target=owned-rows role=rowgroup name=\"Virtual rows\" selector=#owned-rows");
     expect(stdout.output).toContain("text=\"Queued\" row=50 column=4 headers=Value columnHeaders=Value selected=true selector=span:nth-of-type(2) ownedTarget=owned-rows");
     expect(stdout.output).toContain("  semanticTopTableFirstOwned: target=owned-rows role=rowgroup name=\"Virtual rows\" selector=#owned-rows");
@@ -6434,6 +6438,14 @@ describe("cli", () => {
     expect(stdout.output).toContain("Queued");
     expect(stdout.output).toContain("ownedTarget=owned-rows");
     expect(stdout.output).toContain("  semanticTopSelectedTableCell:");
+    expect(stdout.output).toContain("  semanticTopSelectedTableCellText: Queued");
+    expect(stdout.output).toContain("  semanticTopSelectedTableCellRowIndex: 50");
+    expect(stdout.output).toContain("  semanticTopSelectedTableCellColumnIndex: 4");
+    expect(stdout.output).toContain("  semanticTopSelectedTableCellHeaders: Value");
+    expect(stdout.output).toContain("  semanticTopSelectedTableCellColumnHeaders: Value");
+    expect(stdout.output).toContain("  semanticTopSelectedTableCellSelected: true");
+    expect(stdout.output).toContain("  semanticTopSelectedTableCellSelector: span:nth-of-type(2)");
+    expect(stdout.output).toContain("  semanticTopSelectedTableCellOwnedTarget: owned-rows");
     expect(stdout.output).toContain("selected=true");
     expect(stdout.output).toContain("ownedTarget=owned-rows");
   });

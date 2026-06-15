@@ -469,6 +469,7 @@ estimate whether the overall percentage should move.
 | A268 | Top result URL path shortcut | 100% | `topResultChoiceUrlPath` and optional `topResultChoiceUrlQuery` now expose parsed URL structure in full, brief, text, public types, static scoring, and readiness evidence, so agents can distinguish same-host result targets without parsing full URL strings. | Keep this to the top result choice until a fixture proves nested result/source choices need their own parsed URL parts. | Focused search CLI tests, public type test, typecheck, static fixture gate, readiness audit, README test, diff check, and process check pass. | No headline increase; improves search-result routing precision. |
 | A269 | Top source-choice URL path shortcut | 100% | `topSourceChoiceUrlPath` and optional `topSourceChoiceUrlQuery` now expose parsed page source-link URL structure in full, brief, text, public types, static scoring, and readiness evidence, so agents can distinguish same-host source targets without parsing full URL strings. | Keep this to the top source choice until a fixture proves nested source choices need parsed URL parts. | Focused source-choice CLI tests, public type test, typecheck, static fixture gate, readiness audit, README test, diff check, and process check pass. | No headline increase; improves page-check source routing precision. |
 | A270 | First sitelink URL path shortcuts | 100% | `topResultChoiceFirstSitelinkUrlPath`, `topChoiceFirstSitelinkUrlPath`, `sourceSearchSelectedFirstSitelinkUrlPath`, and `sourceSearchAlternateFirstSitelinkUrlPath` now expose parsed first-sitelink targets, with optional query fields when present, across full, brief, text, public types, and static scoring. | Keep this to the first sitelink already surfaced as a shortcut; nested/deeper sitelink arrays only get expanded if fixture evidence shows agents still need to parse them. | Focused CLI sitelink tests, public type test, typecheck, static fixture gate, readiness audit, README test, diff check, and process check pass. | No headline increase; improves sublink routing precision without making README longer. |
+| A271 | Semantic table/grid text row parity | 100% | Text-mode agent output now mirrors first table-header and selected table/grid-cell fields as individual prefix rows, including path, text, role, row/column indices when present, header arrays, selection/current state, selector, and owned target. | Keep this as text-only exposure of already-computed semantic table fields; do not synthesize missing row/column metadata without a focused extractor fixture. | Focused CLI table text test, typecheck, readiness audit, README test, diff check, and process check pass. | No headline increase; improves table/grid parsing for text-only subagents. |
 
 ## Planned Work Detail
 
@@ -1080,6 +1081,9 @@ When research expands:
 - Added first-sitelink URL path/query shortcuts for top result, generic top
   choice, and source-search selected/alternate handoff targets, so sublink
   routing no longer requires parsing full first-sitelink URLs.
+- Added individual text rows for semantic first table headers and selected
+  table/grid cells, so text-only agents can read table position and header
+  context without parsing aggregate table rows.
 
 ## In Progress
 
