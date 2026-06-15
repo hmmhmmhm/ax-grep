@@ -4239,21 +4239,21 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  identityCount: ${agent.identityCount}`,
     `  timelineCount: ${agent.timelineCount}`,
     `  contactPointCount: ${agent.contactPointCount}`,
-    ...(agent.topFaqQuestion ? [`  topFaq: ${agent.topFaqPath ?? ""}${agent.topFaqSelector ? ` selector=${agent.topFaqSelector}` : ""} - ${agent.topFaqQuestion}`] : []),
+    ...(agent.topFaqQuestion ? [`  topFaq: path=${agent.topFaqPath ?? ""}${agent.topFaqSelector ? ` selector=${agent.topFaqSelector}` : ""} - ${agent.topFaqQuestion}`] : []),
     ...(agent.topFaqAnswer ? [`  topFaqAnswer: ${agent.topFaqAnswer}`] : []),
-    ...(agent.topCodeBlockText ? [`  topCodeBlock: ${agent.topCodeBlockPath ?? ""}${agent.topCodeBlockLanguage ? ` lang=${agent.topCodeBlockLanguage}` : ""}${typeof agent.topCodeBlockLineCount === "number" ? ` lines=${agent.topCodeBlockLineCount}` : ""}${agent.topCodeBlockSelector ? ` selector=${agent.topCodeBlockSelector}` : ""} - ${agent.topCodeBlockText}`] : []),
+    ...(agent.topCodeBlockText ? [`  topCodeBlock: path=${agent.topCodeBlockPath ?? ""}${agent.topCodeBlockLanguage ? ` lang=${agent.topCodeBlockLanguage}` : ""}${typeof agent.topCodeBlockLineCount === "number" ? ` lines=${agent.topCodeBlockLineCount}` : ""}${agent.topCodeBlockSelector ? ` selector=${agent.topCodeBlockSelector}` : ""} - ${agent.topCodeBlockText}`] : []),
     ...(agent.topResourceUrl ? [`  topResource: path=${agent.topResourcePath ?? ""}${agent.topResourceKind ? ` kind=${agent.topResourceKind}` : ""}${agent.topResourceTitle ? ` title="${agent.topResourceTitle}"` : ""}${agent.topResourceRel ? ` rel=${agent.topResourceRel}` : ""}${agent.topResourceType ? ` type=${agent.topResourceType}` : ""}${agent.topResourceHreflang ? ` hreflang=${agent.topResourceHreflang}` : ""}${agent.topResourceSelector ? ` selector=${agent.topResourceSelector}` : ""} url=<${agent.topResourceUrl}>`] : []),
     ...(agent.topResourceCommand ? [`  topResourceCommand: ${agent.topResourceCommand}`] : []),
     ...(agent.topResourceCommandArgs ? [`  topResourceCommandArgs: ${formatCommandArgsText(agent.topResourceCommandArgs)}`] : []),
     ...(agent.topMediaUrl ? [`  topMedia: path=${agent.topMediaPath ?? ""}${agent.topMediaKind ? ` kind=${agent.topMediaKind}` : ""}${agent.topMediaAlt ? ` alt="${agent.topMediaAlt}"` : ""}${agent.topMediaCaption ? ` caption="${agent.topMediaCaption}"` : ""}${agent.topMediaTitle ? ` title="${agent.topMediaTitle}"` : ""}${typeof agent.topMediaWidth === "number" ? ` width=${agent.topMediaWidth}` : ""}${typeof agent.topMediaHeight === "number" ? ` height=${agent.topMediaHeight}` : ""}${agent.topMediaSelector ? ` selector=${agent.topMediaSelector}` : ""} url=<${agent.topMediaUrl}>${agent.topMediaText ? ` - ${agent.topMediaText}` : ""}`] : []),
     ...(agent.topMediaCommand ? [`  topMediaCommand: ${agent.topMediaCommand}`] : []),
     ...(agent.topMediaCommandArgs ? [`  topMediaCommandArgs: ${formatCommandArgsText(agent.topMediaCommandArgs)}`] : []),
-    ...(agent.topSectionPath ? [`  topSection: ${agent.topSectionPath}${typeof agent.topSectionLevel === "number" ? ` h${agent.topSectionLevel}` : ""}${agent.topSectionSelector ? ` selector=${agent.topSectionSelector}` : ""}${agent.topSectionHeading ? ` "${agent.topSectionHeading}"` : ""}${agent.topSectionText ? ` - ${agent.topSectionText}` : ""}`] : []),
-    ...(agent.topBreadcrumbText ? [`  topBreadcrumb: ${agent.topBreadcrumbPath ?? ""} ${agent.topBreadcrumbSource ?? ""}${agent.topBreadcrumbSelector ? ` selector=${agent.topBreadcrumbSelector}` : ""} - ${agent.topBreadcrumbText}`] : []),
-    ...(agent.topPaginationPath ? [`  topPagination: ${agent.topPaginationPath} ${agent.topPaginationKind ?? ""}${agent.topPaginationLabel ? ` \"${agent.topPaginationLabel}\"` : ""}${typeof agent.topPaginationCurrent === "boolean" ? ` current=${agent.topPaginationCurrent}` : ""}${agent.topPaginationSelector ? ` selector=${agent.topPaginationSelector}` : ""}${agent.topPaginationUrl ? ` <${agent.topPaginationUrl}>` : ""}`] : []),
+    ...(agent.topSectionPath ? [`  topSection: path=${agent.topSectionPath}${typeof agent.topSectionLevel === "number" ? ` level=${agent.topSectionLevel}` : ""}${agent.topSectionSelector ? ` selector=${agent.topSectionSelector}` : ""}${agent.topSectionHeading ? ` heading="${agent.topSectionHeading}"` : ""}${agent.topSectionText ? ` - ${agent.topSectionText}` : ""}`] : []),
+    ...(agent.topBreadcrumbText ? [`  topBreadcrumb: path=${agent.topBreadcrumbPath ?? ""}${agent.topBreadcrumbSource ? ` source=${agent.topBreadcrumbSource}` : ""}${agent.topBreadcrumbSelector ? ` selector=${agent.topBreadcrumbSelector}` : ""} - ${agent.topBreadcrumbText}`] : []),
+    ...(agent.topPaginationPath ? [`  topPagination: path=${agent.topPaginationPath}${agent.topPaginationKind ? ` kind=${agent.topPaginationKind}` : ""}${agent.topPaginationLabel ? ` label="${agent.topPaginationLabel}"` : ""}${typeof agent.topPaginationCurrent === "boolean" ? ` current=${agent.topPaginationCurrent}` : ""}${agent.topPaginationSelector ? ` selector=${agent.topPaginationSelector}` : ""}${agent.topPaginationUrl ? ` url=<${agent.topPaginationUrl}>` : ""}`] : []),
     ...(agent.topPaginationCommand ? [`  topPaginationCommand: ${agent.topPaginationCommand}`] : []),
     ...(agent.topPaginationCommandArgs ? [`  topPaginationCommandArgs: ${formatCommandArgsText(agent.topPaginationCommandArgs)}`] : []),
-    ...(agent.topTocPath ? [`  topToc: ${agent.topTocPath}${agent.topTocTitle ? ` title="${agent.topTocTitle}"` : ""}${typeof agent.topTocItemCount === "number" ? ` items=${agent.topTocItemCount}` : ""}${agent.topTocSelector ? ` selector=${agent.topTocSelector}` : ""}${agent.topTocFirstItemLabel ? ` first="${agent.topTocFirstItemLabel}"` : ""}${agent.topTocFirstItemUrl ? ` <${agent.topTocFirstItemUrl}>` : ""}${agent.topTocText ? ` - ${agent.topTocText}` : ""}`] : []),
+    ...(agent.topTocPath ? [`  topToc: path=${agent.topTocPath}${agent.topTocTitle ? ` title="${agent.topTocTitle}"` : ""}${typeof agent.topTocItemCount === "number" ? ` items=${agent.topTocItemCount}` : ""}${agent.topTocSelector ? ` selector=${agent.topTocSelector}` : ""}${agent.topTocFirstItemLabel ? ` first="${agent.topTocFirstItemLabel}"` : ""}${agent.topTocFirstItemUrl ? ` firstUrl=<${agent.topTocFirstItemUrl}>` : ""}${agent.topTocText ? ` - ${agent.topTocText}` : ""}`] : []),
     ...(agent.topTocFirstItemCommand ? [`  topTocFirstItemCommand: ${agent.topTocFirstItemCommand}`] : []),
     ...(agent.topTocFirstItemCommandArgs ? [`  topTocFirstItemCommandArgs: ${formatCommandArgsText(agent.topTocFirstItemCommandArgs)}`] : []),
     ...(agent.topProvenanceValue ? [`  topProvenance: path=${agent.topProvenancePath ?? ""}${agent.topProvenanceKind ? ` kind=${agent.topProvenanceKind}` : ""}${agent.topProvenanceLabel ? ` label="${agent.topProvenanceLabel}"` : ""} value=${agent.topProvenanceValue}${agent.topProvenanceSource ? ` source=${agent.topProvenanceSource}` : ""}${agent.topProvenanceSelector ? ` selector=${agent.topProvenanceSelector}` : ""}${agent.topProvenanceUrl ? ` url=<${agent.topProvenanceUrl}>` : ""}`] : []),
@@ -4513,7 +4513,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  diagnosticInfo: ${agent.diagnosticInfoCount}`,
     ...(agent.topDiagnosticCode ? [`  topDiagnostic: ${agent.topDiagnosticSeverity}/${agent.topDiagnosticCode} - ${agent.topDiagnosticMessage}`] : []),
     `  citationCount: ${agent.citationCount}`,
-    ...(agent.topCitationId ? [`  topCitation: ${agent.topCitationId} ${agent.topCitationPath} ${agent.topCitationKind}${agent.topCitationConfidence ? ` ${agent.topCitationConfidence}` : ""}${typeof agent.topCitationScore === "number" ? ` score=${agent.topCitationScore}` : ""}${agent.topCitationText ? ` - ${agent.topCitationText}` : ""}`] : []),
+    ...(agent.topCitationId ? [`  topCitation: id=${agent.topCitationId} path=${agent.topCitationPath} kind=${agent.topCitationKind}${agent.topCitationConfidence ? ` confidence=${agent.topCitationConfidence}` : ""}${typeof agent.topCitationScore === "number" ? ` score=${agent.topCitationScore}` : ""}${agent.topCitationText ? ` - ${agent.topCitationText}` : ""}`] : []),
     ...(agent.topCitationPath ? [`  topCitationPath: ${agent.topCitationPath}`] : []),
     ...(agent.topCitationKind ? [`  topCitationKind: ${agent.topCitationKind}`] : []),
     ...(agent.topCitationTitle ? [`  topCitationTitle: ${agent.topCitationTitle}`] : []),
@@ -5248,7 +5248,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       `answer="${faq.answer}"`,
       faq.selector ? `selector=${faq.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  faq: ${faq.id} ${faq.path} ${details} - ${faq.text}`);
+    lines.push(`  faq: id=${faq.id} path=${faq.path} ${details} - ${faq.text}`);
   }
   for (const breadcrumb of pageCheck.breadcrumbs) {
     const first = breadcrumb.items[0]?.label;
@@ -5262,7 +5262,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       urls.length ? `urls=${urls.join(",")}` : "",
       breadcrumb.selector ? `selector=${breadcrumb.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  breadcrumb: ${breadcrumb.id} ${breadcrumb.path} ${details} - ${breadcrumb.text}`);
+    lines.push(`  breadcrumb: id=${breadcrumb.id} path=${breadcrumb.path} ${details} - ${breadcrumb.text}`);
   }
   for (const section of pageCheck.sections) {
     const details = [
@@ -5272,10 +5272,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       section.excerpts[0] ? `firstExcerpt="${section.excerpts[0]}"` : "",
       section.selector ? `selector=${section.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  section: ${section.id} ${section.path} ${details} - ${section.text}`);
+    lines.push(`  section: id=${section.id} path=${section.path} ${details} - ${section.text}`);
   }
   for (const pagination of pageCheck.pagination) {
-    const url = pagination.url ? ` <${pagination.url}>` : "";
+    const url = pagination.url ? ` url=<${pagination.url}>` : "";
     const details = [
       `kind=${pagination.kind}`,
       `source=${pagination.source}`,
@@ -5283,7 +5283,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       pagination.current ? "current=true" : "",
       pagination.selector ? `selector=${pagination.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  pagination: ${pagination.id} ${pagination.path} ${details}${url} - ${pagination.text}`);
+    lines.push(`  pagination: id=${pagination.id} path=${pagination.path} ${details}${url} - ${pagination.text}`);
   }
   for (const toc of pageCheck.toc) {
     const first = toc.items[0];
@@ -5299,7 +5299,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       urls.length ? `urls=${urls.join(",")}` : "",
       toc.selector ? `selector=${toc.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  toc: ${toc.id} ${toc.path} ${details} - ${toc.text}`);
+    lines.push(`  toc: id=${toc.id} path=${toc.path} ${details} - ${toc.text}`);
   }
   for (const codeBlock of pageCheck.codeBlocks) {
     const details = [
@@ -5309,17 +5309,17 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       `lines=${codeBlock.lineCount}`,
       codeBlock.selector ? `selector=${codeBlock.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  codeBlock: ${codeBlock.id} ${codeBlock.path} ${details} - ${codeBlock.text}`);
+    lines.push(`  codeBlock: id=${codeBlock.id} path=${codeBlock.path} ${details} - ${codeBlock.text}`);
   }
   for (const citation of pageCheck.citations) {
-    const url = citation.url ? ` <${citation.url}>` : "";
+    const url = citation.url ? ` url=<${citation.url}>` : "";
     const details = [
       `source=${citation.source}`,
       citation.title ? `title="${citation.title}"` : "",
       citation.quote ? `quote="${citation.quote}"` : "",
       citation.selector ? `selector=${citation.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  citation: ${citation.id} ${citation.path} ${details}${url} - ${citation.text}`);
+    lines.push(`  citation: id=${citation.id} path=${citation.path} ${details}${url} - ${citation.text}`);
   }
   for (const media of pageCheck.media) {
     const dimensions = media.width && media.height ? `${media.width}x${media.height}` : "";

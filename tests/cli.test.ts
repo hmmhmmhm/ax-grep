@@ -10415,10 +10415,10 @@ npx ax-grep https://example.test --agent</code></pre>
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain("  topFaq: pageCheck.faqs[0] selector=details:nth-of-type(1) - How do I install ax-grep?");
-    expect(stdout.output).toContain("  faq: faq1 pageCheck.faqs[0] source=details question=\"How do I install ax-grep?\" answer=\"Run pnpm add ax-grep and then call the CLI with --agent.\" selector=details:nth-of-type(1) - Q: How do I install ax-grep? A: Run pnpm add ax-grep and then call the CLI with --agent.");
-    expect(stdout.output).toContain("  topCodeBlock: pageCheck.codeBlocks[0] lang=bash lines=2 selector=pre:nth-of-type(1) - pnpm add ax-grep");
-    expect(stdout.output).toContain("  codeBlock: cb1 pageCheck.codeBlocks[0] source=pre language=bash commandLike=true lines=2 selector=pre:nth-of-type(1) - pnpm add ax-grep");
+    expect(stdout.output).toContain("  topFaq: path=pageCheck.faqs[0] selector=details:nth-of-type(1) - How do I install ax-grep?");
+    expect(stdout.output).toContain("  faq: id=faq1 path=pageCheck.faqs[0] source=details question=\"How do I install ax-grep?\" answer=\"Run pnpm add ax-grep and then call the CLI with --agent.\" selector=details:nth-of-type(1) - Q: How do I install ax-grep? A: Run pnpm add ax-grep and then call the CLI with --agent.");
+    expect(stdout.output).toContain("  topCodeBlock: path=pageCheck.codeBlocks[0] lang=bash lines=2 selector=pre:nth-of-type(1) - pnpm add ax-grep");
+    expect(stdout.output).toContain("  codeBlock: id=cb1 path=pageCheck.codeBlocks[0] source=pre language=bash commandLike=true lines=2 selector=pre:nth-of-type(1) - pnpm add ax-grep");
   });
 
   it("checks requested text against visible FAQ summaries", async () => {
@@ -10560,8 +10560,8 @@ npx ax-grep https://example.test --agent</code></pre>
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain("  topBreadcrumb: pageCheck.breadcrumbs[0] html selector=nav:nth-of-type(1) - Docs > API > Responses");
-    expect(stdout.output).toContain("  breadcrumb: bc1 pageCheck.breadcrumbs[0] source=html items=3 first=\"Docs\" last=\"Responses\" urls=https://example.test/docs,https://example.test/docs/api selector=nav:nth-of-type(1) - Docs > API > Responses");
+    expect(stdout.output).toContain("  topBreadcrumb: path=pageCheck.breadcrumbs[0] source=html selector=nav:nth-of-type(1) - Docs > API > Responses");
+    expect(stdout.output).toContain("  breadcrumb: id=bc1 path=pageCheck.breadcrumbs[0] source=html items=3 first=\"Docs\" last=\"Responses\" urls=https://example.test/docs,https://example.test/docs/api selector=nav:nth-of-type(1) - Docs > API > Responses");
   });
 
   it("checks requested text against breadcrumb summaries", async () => {
@@ -10707,8 +10707,8 @@ npx ax-grep https://example.test --agent</code></pre>
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain("  topSection: pageCheck.sections[0] h2 selector=h2:nth-of-type(1) \"Latency budgets\" - Latency budgets; Production agents should compare timeout ceilings before retrying a browser capture.");
-    expect(stdout.output).toContain("  section: sec1 pageCheck.sections[0] level=2 heading=\"Latency budgets\" excerpts=1 firstExcerpt=\"Production agents should compare timeout ceilings before retrying a browser capture.\" selector=h2:nth-of-type(1) - Latency budgets; Production agents should compare timeout ceilings before retrying a browser capture.");
+    expect(stdout.output).toContain("  topSection: path=pageCheck.sections[0] level=2 selector=h2:nth-of-type(1) heading=\"Latency budgets\" - Latency budgets; Production agents should compare timeout ceilings before retrying a browser capture.");
+    expect(stdout.output).toContain("  section: id=sec1 path=pageCheck.sections[0] level=2 heading=\"Latency budgets\" excerpts=1 firstExcerpt=\"Production agents should compare timeout ceilings before retrying a browser capture.\" selector=h2:nth-of-type(1) - Latency budgets; Production agents should compare timeout ceilings before retrying a browser capture.");
   });
 
   it("summarizes pagination navigation as pageCheck read targets for agents", async () => {
@@ -10807,8 +10807,8 @@ npx ax-grep https://example.test --agent</code></pre>
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain("  topPagination: pageCheck.pagination[0] prev \"Previous\" selector=nav:nth-of-type(1) a <https://example.test/blog?page=1>");
-    expect(stdout.output).toContain("  pagination: pg1 pageCheck.pagination[0] kind=prev source=html label=\"Previous\" selector=nav:nth-of-type(1) a <https://example.test/blog?page=1> - prev Previous https://example.test/blog?page=1");
+    expect(stdout.output).toContain("  topPagination: path=pageCheck.pagination[0] kind=prev label=\"Previous\" selector=nav:nth-of-type(1) a url=<https://example.test/blog?page=1>");
+    expect(stdout.output).toContain("  pagination: id=pg1 path=pageCheck.pagination[0] kind=prev source=html label=\"Previous\" selector=nav:nth-of-type(1) a url=<https://example.test/blog?page=1> - prev Previous https://example.test/blog?page=1");
   });
 
   it("summarizes table-of-contents navigation as pageCheck read targets for agents", async () => {
@@ -10902,8 +10902,8 @@ npx ax-grep https://example.test --agent</code></pre>
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain("  topToc: pageCheck.toc[0] title=\"On this page\" items=3 selector=nav:nth-of-type(1) first=\"Installation\" <https://example.test/docs/guide#install> - Installation; Configuration; API reference");
-    expect(stdout.output).toContain("  toc: toc1 pageCheck.toc[0] title=\"On this page\" items=3 first=\"Installation\" firstLevel=2 last=\"API reference\" lastLevel=3 urls=https://example.test/docs/guide#install,https://example.test/docs/guide#config,https://example.test/docs/guide#api selector=nav:nth-of-type(1) - Installation; Configuration; API reference");
+    expect(stdout.output).toContain("  topToc: path=pageCheck.toc[0] title=\"On this page\" items=3 selector=nav:nth-of-type(1) first=\"Installation\" firstUrl=<https://example.test/docs/guide#install> - Installation; Configuration; API reference");
+    expect(stdout.output).toContain("  toc: id=toc1 path=pageCheck.toc[0] title=\"On this page\" items=3 first=\"Installation\" firstLevel=2 last=\"API reference\" lastLevel=3 urls=https://example.test/docs/guide#install,https://example.test/docs/guide#config,https://example.test/docs/guide#api selector=nav:nth-of-type(1) - Installation; Configuration; API reference");
     expect(stdout.output).toContain("  topTocFirstItemCommand: ax-grep 'https://example.test/docs/guide#install'");
   });
 
@@ -11179,8 +11179,8 @@ npx ax-grep https://example.test --agent</code></pre>
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain("  citation: ct1 pageCheck.citations[0] source=cite title=\"Audit Report 2026\" selector=cite:nth-of-type(1) <https://example.test/papers/audit> - Citation: Audit Report 2026 - https://example.test/papers/audit");
-    expect(stdout.output).toContain("  citation: ct2 pageCheck.citations[1] source=reference quote=\"Journal of Tests, 2026. Independent verification of the audited result.\" selector=li:nth-of-type(1) - Reference: Journal of Tests, 2026. Independent verification of the audited result.");
+    expect(stdout.output).toContain("  citation: id=ct1 path=pageCheck.citations[0] source=cite title=\"Audit Report 2026\" selector=cite:nth-of-type(1) url=<https://example.test/papers/audit> - Citation: Audit Report 2026 - https://example.test/papers/audit");
+    expect(stdout.output).toContain("  citation: id=ct2 path=pageCheck.citations[1] source=reference quote=\"Journal of Tests, 2026. Independent verification of the audited result.\" selector=li:nth-of-type(1) - Reference: Journal of Tests, 2026. Independent verification of the audited result.");
   });
 
   it("summarizes page media with resolved image urls and captions for agents", async () => {
