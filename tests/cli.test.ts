@@ -4403,10 +4403,12 @@ describe("cli", () => {
               <div class="result">
                 <a class="result__a" href="https://first.example/article">Agent browser overview</a>
                 <div class="result__snippet">2026-06 overview without the requested claim.</div>
+                <a href="https://first.example/article/docs">Selected docs</a>
               </div>
               <div class="result">
                 <a class="result__a" href="https://alternate.example/article">Independent source</a>
                 <div class="result__snippet">2026-05 update: This result contains the target claim for verification.</div>
+                <a href="https://alternate.example/article/docs">Alternate docs</a>
               </div>
             </main>
           `, { headers: { "content-type": "text/html" } });
@@ -4504,10 +4506,12 @@ describe("cli", () => {
               <div class="result">
                 <a class="result__a" href="https://first.example/article">Agent browser overview</a>
                 <div class="result__snippet">2026-06 overview without the requested claim.</div>
+                <a href="https://first.example/article/docs">Selected docs</a>
               </div>
               <div class="result">
                 <a class="result__a" href="https://alternate.example/article">Independent source</a>
                 <div class="result__snippet">2026-05 update: This result contains the target claim for verification.</div>
+                <a href="https://alternate.example/article/docs">Alternate docs</a>
               </div>
             </main>
           `, { headers: { "content-type": "text/html" } });
@@ -4540,6 +4544,9 @@ describe("cli", () => {
     expect(stdout.output).toContain("  sourceSearchSelectedDateUnixMs: 1780272000000");
     expect(stdout.output).toContain("  sourceSearchSelectedDatePrecision: month");
     expect(stdout.output).toContain("  sourceSearchSelectedDateSource: snippet");
+    expect(stdout.output).toContain("  sourceSearchSelectedFirstSitelinkTitle: Selected docs");
+    expect(stdout.output).toContain("  sourceSearchSelectedFirstSitelinkUrl: https://first.example/article/docs");
+    expect(stdout.output).toContain("  sourceSearchSelectedFirstSitelinkCommand: ax-grep 'https://first.example/article/docs' --find 'target claim' --agent");
     expect(stdout.output).toContain("  sourceSearchSelectedCommand: ax-grep --search 'agent browser' --engine duckduckgo --find 'target claim' --open-result 1 --agent");
     expect(stdout.output).toContain("  sourceSearchSelectedCommandArgs: [\"ax-grep\",\"--search\",\"agent browser\",\"--engine\",\"duckduckgo\",\"--find\",\"target claim\",\"--open-result\",\"1\",\"--agent\"]");
     expect(stdout.output).toContain("  sourceSearchAlternateCount: 1");
@@ -4552,9 +4559,15 @@ describe("cli", () => {
     expect(stdout.output).toContain("  sourceSearchAlternateDateUnixMs: 1777593600000");
     expect(stdout.output).toContain("  sourceSearchAlternateDatePrecision: month");
     expect(stdout.output).toContain("  sourceSearchAlternateDateSource: snippet");
+    expect(stdout.output).toContain("  sourceSearchAlternateFirstSitelinkTitle: Alternate docs");
+    expect(stdout.output).toContain("  sourceSearchAlternateFirstSitelinkUrl: https://alternate.example/article/docs");
+    expect(stdout.output).toContain("  sourceSearchAlternateFirstSitelinkCommand: ax-grep 'https://alternate.example/article/docs' --find 'target claim' --agent");
     expect(stdout.output).toContain("  sourceSearchAlternateCommand: ax-grep --search 'agent browser' --engine duckduckgo --find 'target claim' --open-result 2 --agent");
     expect(stdout.output).toContain("  sourceSearchAlternateCommandArgs: [\"ax-grep\",\"--search\",\"agent browser\",\"--engine\",\"duckduckgo\",\"--find\",\"target claim\",\"--open-result\",\"2\",\"--agent\"]");
     expect(stdout.output).toContain("  sourceSearchAlternateChoice: a2 sourceSearch.alternateResults[0] rank=2 openResult=2");
+    expect(stdout.output).toContain("  sourceSearchAlternateChoiceFirstSitelinkTitle: Alternate docs");
+    expect(stdout.output).toContain("  sourceSearchAlternateChoiceFirstSitelinkUrl: https://alternate.example/article/docs");
+    expect(stdout.output).toContain("  sourceSearchAlternateChoiceFirstSitelinkCommand: ax-grep 'https://alternate.example/article/docs' --find 'target claim' --agent");
     expect(stdout.output).toContain("dateText=2026-05");
     expect(stdout.output).toContain("datePrecision=month");
     expect(stdout.output).toContain("dateSource=snippet");
@@ -4569,9 +4582,16 @@ describe("cli", () => {
     expect(stdout.output).toContain("  handoffSourceSearchSelectedRank: 1");
     expect(stdout.output).toContain("  handoffSourceSearchSelectedUrl: https://first.example/article");
     expect(stdout.output).toContain("  handoffSourceSearchResult: selected sourceSearch.selectedResult rank=1");
+    expect(stdout.output).toContain("  handoffSourceSearchResultFirstSitelinkTitle: Selected docs");
+    expect(stdout.output).toContain("  handoffSourceSearchResultFirstSitelinkUrl: https://first.example/article/docs");
+    expect(stdout.output).toContain("  handoffSourceSearchResultFirstSitelinkCommand: ax-grep 'https://first.example/article/docs' --find 'target claim' --agent");
     expect(stdout.output).toContain("  handoffSourceSearchAlternate: a2 sourceSearch.alternateResults[0] rank=2");
+    expect(stdout.output).toContain("  handoffSourceSearchAlternateFirstSitelinkTitle: Alternate docs");
+    expect(stdout.output).toContain("  handoffSourceSearchAlternateFirstSitelinkUrl: https://alternate.example/article/docs");
+    expect(stdout.output).toContain("  handoffSourceSearchAlternateFirstSitelinkCommand: ax-grep 'https://alternate.example/article/docs' --find 'target claim' --agent");
     expect(stdout.output).toContain("source=alternate.example host=alternate.example");
-    expect(stdout.output).toContain("find=target claim <https://alternate.example/article>");
+    expect(stdout.output).toContain("find=target claim sitelinks=1");
+    expect(stdout.output).toContain("firstSitelinkUrl=https://alternate.example/article/docs");
     expect(stdout.output).toContain("  handoffSourceSearchAlternateCommandArgs: [\"ax-grep\",\"--search\",\"agent browser\",\"--engine\",\"duckduckgo\",\"--find\",\"target claim\",\"--open-result\",\"2\",\"--agent\"]");
     expect(stdout.output).toContain("  handoffCommandArgs: [\"ax-grep\",\"--search\",\"agent browser\",\"--engine\",\"duckduckgo\",\"--find\",\"target claim\",\"--open-result\",\"2\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  readTarget: sourceSearch.alternateResults count=1");
