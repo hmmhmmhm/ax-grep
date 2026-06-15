@@ -5396,12 +5396,18 @@ function formatCommandArgsText(commandArgs: string[]): string {
 }
 
 function formatPageCheckLinkText(link: PageLinkSummary, prefix: "link" | "sourceLink"): string {
-  const kind = prefix === "link" ? `${link.kind} ` : "";
-  const sourceType = link.sourceType ? ` type=${link.sourceType}` : "";
-  const sourceScore = typeof link.sourceScore === "number" ? ` score=${link.sourceScore}` : "";
-  const sourceHints = link.sourceHints?.length ? ` hints=${link.sourceHints.join(",")}` : "";
-  const official = typeof link.isLikelyOfficial === "boolean" ? ` official=${link.isLikelyOfficial}` : "";
-  return `  ${prefix}: ${kind}${link.title}${sourceType}${sourceScore}${sourceHints}${official} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`;
+  const details = [
+    prefix === "link" ? `kind=${link.kind}` : "",
+    `title="${link.title}"`,
+    `source=${link.source}`,
+    `rank=${link.rank}`,
+    link.sourceType ? `type=${link.sourceType}` : "",
+    typeof link.sourceScore === "number" ? `score=${link.sourceScore}` : "",
+    link.sourceHints?.length ? `hints=${link.sourceHints.join(",")}` : "",
+    typeof link.isLikelyOfficial === "boolean" ? `official=${link.isLikelyOfficial}` : "",
+    link.selector ? `selector=${link.selector}` : "",
+  ].filter(Boolean).join(" ");
+  return `  ${prefix}: ${details} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`;
 }
 
 function formatFindsText(finds: FindSummary[]): string[] {
