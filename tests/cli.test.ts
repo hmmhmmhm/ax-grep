@@ -6920,7 +6920,9 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopTableRowCount: 2");
     expect(stdout.output).toContain("  semanticTopTableCellCount: 4");
     expect(stdout.output).toContain("  semanticTopTableHeaders: Quarter | Revenue");
+    expect(stdout.output).toContain("  semanticTopTableHeaderRefs: text=\"Quarter\" role=columnheader selector=#quarter | text=\"Revenue\" role=columnheader sort=descending selector=#revenue");
     expect(stdout.output).toContain("  semanticTopTableSampleCells: Q1 | Q2 review");
+    expect(stdout.output).toContain("  semanticTopTableSampleCellRefs: text=\"Q1\" selector=td | text=\"Q2 review\" selector=td:nth-of-type(2)");
     expect(stdout.output).toContain("  semanticTopTableSelector: table");
     expect(stdout.output).toContain("  semanticTopTableSecondHeader: agent.semanticSummary.tableItems[0].headerRefs[1] text=\"Revenue\" role=columnheader sort=descending selector=#revenue");
     expect(stdout.output).toContain("  semanticTopTableSecondHeaderPath: agent.semanticSummary.tableItems[0].headerRefs[1]");
@@ -6960,6 +6962,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopTableFirstHeaderRole: columnheader");
     expect(stdout.output).toContain("  semanticTopTableFirstHeaderSelector: #metric");
     expect(stdout.output).toContain("ownedRefs=target=owned-rows role=rowgroup name=\"Virtual rows\" selector=#owned-rows");
+    expect(stdout.output).toContain("  semanticTopTableOwnedRefs: target=owned-rows role=rowgroup name=\"Virtual rows\" selector=#owned-rows");
     expect(stdout.output).toContain("text=\"Queued\" row=50 column=4 headers=Value columnHeaders=Value selected=true selector=span:nth-of-type(2) ownedTarget=owned-rows");
     expect(stdout.output).toContain("  semanticTopTableFirstOwned: target=owned-rows role=rowgroup name=\"Virtual rows\" selector=#owned-rows");
     expect(stdout.output).toContain("  semanticTopTableFirstOwnedTarget: owned-rows");
@@ -7039,6 +7042,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopListName: Release actions");
     expect(stdout.output).toContain("  semanticTopListItemCount: 2");
     expect(stdout.output).toContain("  semanticTopListItems: Download report | Read notes");
+    expect(stdout.output).toContain("  semanticTopListItemRefs: text=\"Download report\" role=listitem pos=1 size=2 selector=li | text=\"Read notes\" role=listitem pos=2 size=2 selected=true current=page expanded=false selector=li:nth-of-type(2)");
     expect(stdout.output).toContain("  semanticTopListSelector: ul");
     expect(stdout.output).toContain("itemRefs=text=\"Download report\" role=listitem pos=1 size=2 selector=li, text=\"Read notes\" role=listitem pos=2 size=2 selected=true current=page expanded=false selector=li:nth-of-type(2)");
     expect(stdout.output).toContain("  semanticTopListFirstItem: text=\"Download report\" role=listitem pos=1 size=2 selector=li");
@@ -13286,6 +13290,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain(" named=");
     expect(stdout.output).toContain(" interactive=");
     expect(stdout.output).toContain("  semanticTopRoles:");
+    expect(stdout.output).toContain("  semanticTopRoleCount:");
     expect(stdout.output).toContain("  semanticOutline: agent.semanticSummary.semanticOutline[0] kind=landmark text=\"main\" role=main");
     expect(stdout.output).toContain("  semanticTopOutlinePath: agent.semanticSummary.semanticOutline[0]");
     expect(stdout.output).toContain("  semanticTopOutlineKind: landmark");

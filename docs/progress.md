@@ -1161,6 +1161,9 @@ When research expands:
 - Added individual text rows for semantic top outline metadata, so text-only
   agents can jump to the first landmark/heading by path, kind, role, depth,
   parent, and selector without parsing aggregate outline rows.
+- Added direct text rows for remaining semantic top role/ref fields, so
+  text-only agents can read top role counts and shallow table/list ref arrays
+  without parsing aggregate table/list/role rows.
 
 ## In Progress
 
