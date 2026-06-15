@@ -2195,7 +2195,15 @@ export type AgentSummary = {
   hiddenHydrationCount?: number;
   hiddenApiEndpointCount?: number;
   hiddenClientStateCount?: number;
+  hiddenRuntimeCount?: number;
+  hiddenConfigCount?: number;
   hiddenAppHintCount?: number;
+  hiddenMobileHintCount?: number;
+  hiddenTopicCount?: number;
+  hiddenKeyValueCount?: number;
+  hiddenMetaFactCount?: number;
+  hiddenHttpPolicyCount?: number;
+  hiddenSchemaFactCount?: number;
   topHydrationPath?: string;
   topHydrationKind?: string;
   topHydrationLabel?: string;

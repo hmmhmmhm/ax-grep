@@ -1827,7 +1827,15 @@ type AgentSummary = {
   hiddenHydrationCount: number;
   hiddenApiEndpointCount: number;
   hiddenClientStateCount: number;
+  hiddenRuntimeCount: number;
+  hiddenConfigCount: number;
   hiddenAppHintCount: number;
+  hiddenMobileHintCount: number;
+  hiddenTopicCount: number;
+  hiddenKeyValueCount: number;
+  hiddenMetaFactCount: number;
+  hiddenHttpPolicyCount: number;
+  hiddenSchemaFactCount: number;
   topHydrationPath?: string;
   topHydrationKind?: string;
   topHydrationLabel?: string;
@@ -4236,7 +4244,15 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  hiddenHydrationCount: ${agent.hiddenHydrationCount}`,
     `  hiddenApiEndpointCount: ${agent.hiddenApiEndpointCount}`,
     `  hiddenClientStateCount: ${agent.hiddenClientStateCount}`,
+    `  hiddenRuntimeCount: ${agent.hiddenRuntimeCount}`,
+    `  hiddenConfigCount: ${agent.hiddenConfigCount}`,
     `  hiddenAppHintCount: ${agent.hiddenAppHintCount}`,
+    `  hiddenMobileHintCount: ${agent.hiddenMobileHintCount}`,
+    `  hiddenTopicCount: ${agent.hiddenTopicCount}`,
+    `  hiddenKeyValueCount: ${agent.hiddenKeyValueCount}`,
+    `  hiddenMetaFactCount: ${agent.hiddenMetaFactCount}`,
+    `  hiddenHttpPolicyCount: ${agent.hiddenHttpPolicyCount}`,
+    `  hiddenSchemaFactCount: ${agent.hiddenSchemaFactCount}`,
     ...(agent.topHydrationPath ? [`  topHydration: ${agent.topHydrationPath} ${agent.topHydrationKind ?? ""}${agent.topHydrationLabel ? ` label="${agent.topHydrationLabel}"` : ""}${agent.topHydrationSelector ? ` selector=${agent.topHydrationSelector}` : ""}${agent.topHydrationUrl ? ` <${agent.topHydrationUrl}>` : ""}`] : []),
     ...(agent.topHydrationCommand ? [`  topHydrationCommand: ${agent.topHydrationCommand}`] : []),
     ...(agent.topHydrationCommandArgs ? [`  topHydrationCommandArgs: ${formatCommandArgsText(agent.topHydrationCommandArgs)}`] : []),
@@ -12294,7 +12310,15 @@ function summarizeAgent(
   const hiddenHydrationCount = pageCheck.hydration.length;
   const hiddenApiEndpointCount = pageCheck.apiEndpoints.length;
   const hiddenClientStateCount = pageCheck.clientState.length;
+  const hiddenRuntimeCount = pageCheck.runtime.length;
+  const hiddenConfigCount = pageCheck.config.length;
   const hiddenAppHintCount = pageCheck.appHints.length;
+  const hiddenMobileHintCount = pageCheck.mobileHints.length;
+  const hiddenTopicCount = pageCheck.topics.length;
+  const hiddenKeyValueCount = pageCheck.keyValues.length;
+  const hiddenMetaFactCount = pageCheck.metaFacts.length;
+  const hiddenHttpPolicyCount = pageCheck.httpPolicies.length;
+  const hiddenSchemaFactCount = pageCheck.schemaFacts.length;
   const topHydration = pageCheck.hydration[0];
   const topHydrationCommand = topHydration?.url && /^https?:\/\//i.test(topHydration.url)
     ? pageCommandSpec(topHydration.url, agentMode, false, findQueries, timeoutMs, userAgent)
@@ -13369,7 +13393,15 @@ function summarizeAgent(
     hiddenHydrationCount,
     hiddenApiEndpointCount,
     hiddenClientStateCount,
+    hiddenRuntimeCount,
+    hiddenConfigCount,
     hiddenAppHintCount,
+    hiddenMobileHintCount,
+    hiddenTopicCount,
+    hiddenKeyValueCount,
+    hiddenMetaFactCount,
+    hiddenHttpPolicyCount,
+    hiddenSchemaFactCount,
     ...(topHydration ? { topHydrationPath: topHydration.path } : {}),
     ...(topHydration ? { topHydrationKind: topHydration.kind } : {}),
     ...(topHydration?.label ? { topHydrationLabel: topHydration.label } : {}),
@@ -16930,7 +16962,15 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     hiddenHydrationCount: 0,
     hiddenApiEndpointCount: 0,
     hiddenClientStateCount: 0,
+    hiddenRuntimeCount: 0,
+    hiddenConfigCount: 0,
     hiddenAppHintCount: 0,
+    hiddenMobileHintCount: 0,
+    hiddenTopicCount: 0,
+    hiddenKeyValueCount: 0,
+    hiddenMetaFactCount: 0,
+    hiddenHttpPolicyCount: 0,
+    hiddenSchemaFactCount: 0,
     hiddenReadTargetCount: 0,
     sourceLinkCount: 0,
     sourceChoiceCount: 0,
@@ -19424,7 +19464,15 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     hiddenHydrationCount: agent.hiddenHydrationCount,
     hiddenApiEndpointCount: agent.hiddenApiEndpointCount,
     hiddenClientStateCount: agent.hiddenClientStateCount,
+    hiddenRuntimeCount: agent.hiddenRuntimeCount,
+    hiddenConfigCount: agent.hiddenConfigCount,
     hiddenAppHintCount: agent.hiddenAppHintCount,
+    hiddenMobileHintCount: agent.hiddenMobileHintCount,
+    hiddenTopicCount: agent.hiddenTopicCount,
+    hiddenKeyValueCount: agent.hiddenKeyValueCount,
+    hiddenMetaFactCount: agent.hiddenMetaFactCount,
+    hiddenHttpPolicyCount: agent.hiddenHttpPolicyCount,
+    hiddenSchemaFactCount: agent.hiddenSchemaFactCount,
     ...(agent.topHydrationPath ? { topHydrationPath: agent.topHydrationPath } : {}),
     ...(agent.topHydrationKind ? { topHydrationKind: agent.topHydrationKind } : {}),
     ...(agent.topHydrationLabel ? { topHydrationLabel: agent.topHydrationLabel } : {}),
@@ -20736,7 +20784,15 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     hiddenHydrationCount: agent.hiddenHydrationCount,
     hiddenApiEndpointCount: agent.hiddenApiEndpointCount,
     hiddenClientStateCount: agent.hiddenClientStateCount,
+    hiddenRuntimeCount: agent.hiddenRuntimeCount,
+    hiddenConfigCount: agent.hiddenConfigCount,
     hiddenAppHintCount: agent.hiddenAppHintCount,
+    hiddenMobileHintCount: agent.hiddenMobileHintCount,
+    hiddenTopicCount: agent.hiddenTopicCount,
+    hiddenKeyValueCount: agent.hiddenKeyValueCount,
+    hiddenMetaFactCount: agent.hiddenMetaFactCount,
+    hiddenHttpPolicyCount: agent.hiddenHttpPolicyCount,
+    hiddenSchemaFactCount: agent.hiddenSchemaFactCount,
     ...(agent.topHydrationPath ? { topHydrationPath: agent.topHydrationPath } : {}),
     ...(agent.topHydrationKind ? { topHydrationKind: agent.topHydrationKind } : {}),
     ...(agent.topHydrationLabel ? { topHydrationLabel: agent.topHydrationLabel } : {}),

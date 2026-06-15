@@ -542,7 +542,15 @@ describe("public agent types", () => {
       | "hiddenHydrationCount"
       | "hiddenApiEndpointCount"
       | "hiddenClientStateCount"
+      | "hiddenRuntimeCount"
+      | "hiddenConfigCount"
       | "hiddenAppHintCount"
+      | "hiddenMobileHintCount"
+      | "hiddenTopicCount"
+      | "hiddenKeyValueCount"
+      | "hiddenMetaFactCount"
+      | "hiddenHttpPolicyCount"
+      | "hiddenSchemaFactCount"
       | "topHydrationPath"
       | "topHydrationKind"
       | "topHydrationLabel"
@@ -1866,7 +1874,15 @@ describe("public agent types", () => {
       hiddenHydrationCount: 1,
       hiddenApiEndpointCount: 2,
       hiddenClientStateCount: 1,
+      hiddenRuntimeCount: 0,
+      hiddenConfigCount: 0,
       hiddenAppHintCount: 0,
+      hiddenMobileHintCount: 0,
+      hiddenTopicCount: 0,
+      hiddenKeyValueCount: 0,
+      hiddenMetaFactCount: 0,
+      hiddenHttpPolicyCount: 0,
+      hiddenSchemaFactCount: 0,
       topHydrationPath: "pageCheck.hydration[0]",
       topHydrationKind: "next-data",
       topHydrationLabel: "Next.js data",

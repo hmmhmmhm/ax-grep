@@ -7958,6 +7958,8 @@ describe("cli", () => {
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("6 runtime hints");
+    expect(envelope.agent.hiddenRuntimeCount).toBe(6);
+    expect(envelope.agent.hiddenSignalCount).toBe(6);
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -8084,6 +8086,8 @@ describe("cli", () => {
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("3 config hints");
+    expect(envelope.agent.hiddenConfigCount).toBe(3);
+    expect(envelope.agent.hiddenSignalCount).toBe(3);
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -12082,7 +12086,15 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  hiddenHydrationCount:");
     expect(stdout.output).toContain("  hiddenApiEndpointCount:");
     expect(stdout.output).toContain("  hiddenClientStateCount:");
+    expect(stdout.output).toContain("  hiddenRuntimeCount:");
+    expect(stdout.output).toContain("  hiddenConfigCount:");
     expect(stdout.output).toContain("  hiddenAppHintCount:");
+    expect(stdout.output).toContain("  hiddenMobileHintCount:");
+    expect(stdout.output).toContain("  hiddenTopicCount:");
+    expect(stdout.output).toContain("  hiddenKeyValueCount:");
+    expect(stdout.output).toContain("  hiddenMetaFactCount:");
+    expect(stdout.output).toContain("  hiddenHttpPolicyCount:");
+    expect(stdout.output).toContain("  hiddenSchemaFactCount:");
     expect(stdout.output).not.toContain("  topApiEndpoint:");
     expect(stdout.output).toContain("  hiddenReadTargetCount: 2");
     expect(stdout.output).toContain("  bestHiddenReadTarget:");
