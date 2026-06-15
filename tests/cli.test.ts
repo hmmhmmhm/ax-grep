@@ -7047,6 +7047,22 @@ describe("cli", () => {
         urlTemplate: "https://example.test/find?query=%7Bquery%7D",
         queryField: "query",
         selector: "form:nth-of-type(1)",
+        fields: expect.arrayContaining([
+          expect.objectContaining({
+            name: "query",
+            type: "search",
+            label: "Archive search",
+            placeholder: "Search reports",
+            required: true,
+            selector: "input[name=\"query\"]",
+          }),
+          expect.objectContaining({
+            name: "category",
+            type: "select",
+            options: ["All", "Reports"],
+            selector: "select[name=\"category\"]",
+          }),
+        ]),
       }),
     ]);
     expect(envelope.agent).toMatchObject({
@@ -7055,6 +7071,12 @@ describe("cli", () => {
       topChoiceRank: 1,
       topChoiceMethod: "get",
       topChoiceSelector: "form:nth-of-type(1)",
+      topFormChoiceFirstFieldName: "query",
+      topFormChoiceFirstFieldType: "search",
+      topFormChoiceFirstFieldLabel: "Archive search",
+      topFormChoiceFirstFieldPlaceholder: "Search reports",
+      topFormChoiceFirstFieldRequired: true,
+      topFormChoiceFirstFieldSelector: "input[name=\"query\"]",
     });
     expect(envelope.agent.actionTargetCount).toBe(0);
     expect(envelope.agent.actionTargetChoiceCount).toBe(0);
@@ -7076,8 +7098,16 @@ describe("cli", () => {
               expect.objectContaining({
                 name: "query",
                 type: "search",
+                label: "Archive search",
+                placeholder: "Search reports",
                 selector: "input[name=\"query\"]",
                 required: true,
+              }),
+              expect.objectContaining({
+                name: "category",
+                type: "select",
+                options: ["All", "Reports"],
+                selector: "select[name=\"category\"]",
               }),
             ]),
           }),
@@ -7094,7 +7124,14 @@ describe("cli", () => {
           fields: expect.arrayContaining([
             expect.objectContaining({
               name: "query",
+              label: "Archive search",
+              placeholder: "Search reports",
               selector: "input[name=\"query\"]",
+            }),
+            expect.objectContaining({
+              name: "category",
+              options: ["All", "Reports"],
+              selector: "select[name=\"category\"]",
             }),
           ]),
         }),
@@ -7442,7 +7479,13 @@ describe("cli", () => {
         id: "at1",
         path: "pageCheck.actionTargets[0]",
         kind: "search",
+        name: "Search docs",
+        source: "json-ld",
         urlTemplate: "https://example.test/search?q={search_term_string}",
+        queryInput: "required name=search_term_string",
+        method: "GET",
+        encodingType: "application/x-www-form-urlencoded",
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
       }),
     ]));
     expect(envelope.agent).toMatchObject({
@@ -7452,6 +7495,15 @@ describe("cli", () => {
       topChoiceSource: "json-ld",
       topChoiceMethod: "GET",
       topChoiceSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      topActionTargetChoicePath: "pageCheck.actionTargets[0]",
+      topActionTargetChoiceName: "Search docs",
+      topActionTargetChoiceKind: "search",
+      topActionTargetChoiceSource: "json-ld",
+      topActionTargetChoiceUrlTemplate: "https://example.test/search?q={search_term_string}",
+      topActionTargetChoiceQueryInput: "required name=search_term_string",
+      topActionTargetChoiceMethod: "GET",
+      topActionTargetChoiceEncodingType: "application/x-www-form-urlencoded",
+      topActionTargetChoiceSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
     });
     expect(envelope.agent.executor).toMatchObject({
       decision: "return",
