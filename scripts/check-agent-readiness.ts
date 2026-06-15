@@ -2430,19 +2430,26 @@ function checkCommandShortcutSymmetry(root: string, failures: ReadinessFailure[]
   const source = readText(root, "src/cli.ts", failures);
   if (typeof readiness !== "string" || typeof source !== "string") return;
 
-  const commandArgsFields = [...readiness.matchAll(/"([A-Za-z0-9]+CommandArgs)"/g)]
-    .flatMap((match) => typeof match[1] === "string" ? [match[1]] : [])
-    .filter((field, index, fields) => fields.indexOf(field) === index);
+  const checkedArgsFields = [
+    ...shortcutArgsFields(readiness, "CommandArgs"),
+    ...shortcutArgsFields(readiness, "AfterInteractionCommandArgs"),
+  ];
 
-  for (const commandArgsField of commandArgsFields) {
-    const commandField = commandArgsField.replace(/Args$/, "");
+  for (const argsField of checkedArgsFields) {
+    const commandField = argsField.replace(/Args$/, "");
     if (!new RegExp(`\\b${escapeRegExp(commandField)}\\b`).test(source)) continue;
     if (readiness.includes(`"${commandField}"`)) continue;
     failures.push({
       file: "scripts/check-agent-readiness.ts",
-      message: `${commandArgsField} is guarded without matching ${commandField}`,
+      message: `${argsField} is guarded without matching ${commandField}`,
     });
   }
+}
+
+function shortcutArgsFields(text: string, suffix: "CommandArgs" | "AfterInteractionCommandArgs"): string[] {
+  return [...text.matchAll(new RegExp(`"([A-Za-z0-9]+${suffix})"`, "g"))]
+    .flatMap((match) => typeof match[1] === "string" ? [match[1]] : [])
+    .filter((field, index, fields) => fields.indexOf(field) === index);
 }
 
 function checkReadmeSplit(root: string, failures: ReadinessFailure[]): void {
