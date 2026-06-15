@@ -5323,10 +5323,13 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`  embed: ${embed.id} ${embed.path} ${embed.kind} ${details} <${embed.url}> - ${embed.text}`);
   }
   for (const transcript of pageCheck.transcripts) {
-    const language = transcript.language ? ` lang=${transcript.language}` : "";
-    const label = transcript.label ? ` label=${transcript.label}` : "";
-    const selector = transcript.selector ? ` (${transcript.selector})` : "";
-    lines.push(`  transcript: ${transcript.id} ${transcript.path} ${transcript.kind}${language}${label}${selector} <${transcript.url}> - ${transcript.text}`);
+    const details = [
+      transcript.mediaKind ? `media=${transcript.mediaKind}` : "",
+      transcript.language ? `language=${transcript.language}` : "",
+      transcript.label ? `label="${transcript.label}"` : "",
+      transcript.selector ? `selector=${transcript.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  transcript: ${transcript.id} ${transcript.path} ${transcript.kind} ${details} <${transcript.url}> - ${transcript.text}`);
   }
   for (const authorLink of pageCheck.authorLinks) {
     const name = authorLink.name ? ` ${authorLink.name}` : "";

@@ -11624,6 +11624,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topEmbed: pageCheck.embeds[0] iframe \"Interactive dashboard\" selector=iframe:nth-of-type(1) <https://example.test/embed/dashboard>");
     expect(stdout.output).toContain("  embed: em1 pageCheck.embeds[0] iframe title=\"Interactive dashboard\" selector=iframe:nth-of-type(1) <https://example.test/embed/dashboard> - iframe: Interactive dashboard https://example.test/embed/dashboard");
     expect(stdout.output).toContain("  topTranscript: pageCheck.transcripts[0] captions \"English captions\" lang=en selector=track:nth-of-type(1) <https://example.test/media/walkthrough.en.vtt>");
+    expect(stdout.output).toContain("  transcript: tr1 pageCheck.transcripts[0] captions media=video language=en label=\"English captions\" selector=track:nth-of-type(1) <https://example.test/media/walkthrough.en.vtt> - captions: English captions lang=en media=video https://example.test/media/walkthrough.en.vtt");
     expect(stdout.output).toContain("  topAuthorLink: pageCheck.authorLinks[0] link \"Jane Doe\" selector=link[rel=\"author\"]:nth-of-type(1) <https://example.test/authors/jane>");
   });
 
