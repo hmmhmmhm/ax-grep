@@ -4599,6 +4599,53 @@ describe("cli", () => {
     expect(stdout.output).toContain("source\n  search: agent browser via duckduckgo");
   });
 
+  it("prints source search result source hints in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli([
+      "--search",
+      "ax-grep npm docs",
+      "--engine",
+      "duckduckgo",
+      "--find",
+      "target claim",
+      "--open-result",
+      "1",
+    ], {
+      stdout,
+      fetch: async (input) => {
+        if (String(input).includes("duckduckgo.com")) {
+          return new Response(`
+            <main>
+              <div class="result">
+                <a class="result__a" href="https://www.npmjs.com/package/ax-grep">ax-grep - npm</a>
+                <div class="result__snippet">Install ax-grep from npm.</div>
+              </div>
+              <div class="result">
+                <a class="result__a" href="https://docs.example/ax-grep">ax-grep documentation</a>
+                <div class="result__snippet">API documentation includes the target claim for verification.</div>
+              </div>
+            </main>
+          `, { headers: { "content-type": "text/html" } });
+        }
+        return new Response(`
+          <main>
+            <article>
+              <h1>ax-grep package</h1>
+              <p>This opened package page does not contain the requested phrase.</p>
+            </article>
+          </main>
+        `, { headers: { "content-type": "text/html" } });
+      },
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("  sourceSearchSelectedSourceHints: package-registry");
+    expect(stdout.output).toContain("  sourceSearchAlternateSourceHints: documentation");
+    expect(stdout.output).toContain("  sourceSearchAlternateChoiceSourceHints: documentation");
+    expect(stdout.output).toContain("  handoffSourceSearchResultSourceHints: package-registry");
+    expect(stdout.output).toContain("  handoffSourceSearchAlternateSourceHints: documentation");
+  });
+
   it("rejects search with an explicit URL", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test", "--search", "agent", "--json"], { stdout });

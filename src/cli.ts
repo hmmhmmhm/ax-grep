@@ -4028,6 +4028,7 @@ function formatAgentSourceSearchResultText(result: AgentSourceSearchResult, pref
   const lines = [`  ${prefix}: ${result.id} ${result.path}${rank}${openResult}${score}${relevance}${date}${dateText}${dateIso}${dateUnixMs}${datePrecision}${dateSource}${source}${host}${sourceType}${official}${snippet}${matchedTerms}${findMatches}${sitelinks}${firstSitelink}${firstSitelinkUrl}${firstSitelinkSelector}${target}${reason}${title}`];
   if (result.command) lines.push(`    command: ${result.command}`);
   if (result.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(result.commandArgs)}`);
+  if (result.sourceHints?.length) lines.push(`  ${prefix}SourceHints: ${result.sourceHints.join(",")}`);
   if (result.sitelinks?.length) lines.push(`  ${prefix}SitelinkCount: ${result.sitelinks.length}`);
   if (result.sitelinks?.[0]?.title) lines.push(`  ${prefix}FirstSitelinkTitle: ${result.sitelinks[0].title}`);
   if (result.sitelinks?.[0]?.url) lines.push(`  ${prefix}FirstSitelinkUrl: ${result.sitelinks[0].url}`);
