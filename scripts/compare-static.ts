@@ -3823,6 +3823,7 @@ function agentReadValueCount(readValue: { value?: unknown; valueType?: string; c
 function agentReadValueReferencePath(readValue: { path?: string; value?: unknown; valuePath?: string } | undefined): string | undefined {
   if (!readValue) return undefined;
   if (typeof readValue.valuePath === "string") return readValue.valuePath;
+  if (typeof readValue.path === "string" && (Array.isArray(readValue.value) || (readValue.value && typeof readValue.value === "object"))) return readValue.path;
   return undefined;
 }
 
