@@ -31,6 +31,7 @@ describe("compare-static fixture comparisons", () => {
     expect(report.gateSummary.weakAgentTargets).toEqual([]);
     expect(report.gateSummary.averageActionSchemaScore).toBe(1);
     expect(report.gateSummary.averageSearchResultActionScore).toBe(1);
+    expect(report.gateSummary.averagePageCheckFormUrlPathScore).toBe(1);
     expect(report.gateSummary.averageAgentFormActionCountScore).toBe(1);
     expect(report.gateSummary.averageAgentFormActionChoiceScore).toBe(1);
     expect(report.gateSummary.averageAgentTopFormActionChoiceShortcutScore).toBe(1);

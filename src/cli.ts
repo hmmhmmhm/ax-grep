@@ -19482,6 +19482,8 @@ function compactAgentForms(items: PageFormSummary[], primaryAction?: SuggestedAc
       ...(field.selectedValue ? { selectedValue: field.selectedValue } : {}),
     })),
     ...(item.actionUrl ? { actionUrl: item.actionUrl } : {}),
+    ...(item.actionUrlPath ? { actionUrlPath: item.actionUrlPath } : {}),
+    ...(item.actionUrlQuery ? { actionUrlQuery: item.actionUrlQuery } : {}),
     ...(item.formId ? { formId: item.formId } : {}),
     ...(item.formName ? { formName: item.formName } : {}),
     ...(item.formTarget ? { formTarget: item.formTarget } : {}),
@@ -19504,6 +19506,8 @@ function compactAgentForms(items: PageFormSummary[], primaryAction?: SuggestedAc
     ...(item.submitFormId ? { submitFormId: item.submitFormId } : {}),
     ...(item.queryField ? { queryField: item.queryField } : {}),
     ...(item.urlTemplate ? { urlTemplate: item.urlTemplate } : {}),
+    ...(item.urlTemplatePath ? { urlTemplatePath: item.urlTemplatePath } : {}),
+    ...(item.urlTemplateQuery ? { urlTemplateQuery: item.urlTemplateQuery } : {}),
   }));
 }
 
