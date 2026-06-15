@@ -5310,8 +5310,17 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`  resource: ${resource.id} ${resource.path} ${resource.kind} ${details} <${resource.url}> - ${resource.text}`);
   }
   for (const embed of pageCheck.embeds) {
-    const type = embed.type ? ` type=${embed.type}` : "";
-    lines.push(`  embed: ${embed.id} ${embed.path} ${embed.kind}${type} <${embed.url}> - ${embed.text}`);
+    const details = [
+      embed.title ? `title="${embed.title}"` : "",
+      embed.type ? `type=${embed.type}` : "",
+      embed.posterUrl ? `poster=${embed.posterUrl}` : "",
+      embed.sourceUrls?.length ? `sources=${embed.sourceUrls.join(",")}` : "",
+      embed.sandbox ? `sandbox="${embed.sandbox}"` : "",
+      embed.allow ? `allow="${embed.allow}"` : "",
+      embed.loading ? `loading=${embed.loading}` : "",
+      embed.selector ? `selector=${embed.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  embed: ${embed.id} ${embed.path} ${embed.kind} ${details} <${embed.url}> - ${embed.text}`);
   }
   for (const transcript of pageCheck.transcripts) {
     const language = transcript.language ? ` lang=${transcript.language}` : "";
