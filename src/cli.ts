@@ -5011,9 +5011,20 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   }
   for (const target of pageCheck.actionTargets) {
     const url = target.targetUrl ? ` <${target.targetUrl}>` : "";
-    const template = target.urlTemplate ? ` template=${target.urlTemplate}` : "";
-    const selector = target.selector ? ` (${target.selector})` : "";
-    lines.push(`  actionTarget: ${target.id} ${target.path} ${target.kind}${template}${selector}${url} - ${target.text}`);
+    const details = [
+      `source=${target.source}`,
+      target.urlTemplate ? `template=${target.urlTemplate}` : "",
+      target.queryInput ? `queryInput=${target.queryInput}` : "",
+      target.method ? `method=${target.method}` : "",
+      target.encodingType ? `encoding=${target.encodingType}` : "",
+      typeof target.disabled === "boolean" ? `disabled=${target.disabled}` : "",
+      typeof target.pressed !== "undefined" ? `pressed=${target.pressed}` : "",
+      typeof target.expanded === "boolean" ? `expanded=${target.expanded}` : "",
+      typeof target.haspopup !== "undefined" ? `haspopup=${target.haspopup}` : "",
+      target.controls ? `controls=${target.controls}` : "",
+      target.selector ? `selector=${target.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  actionTarget: ${target.id} ${target.path} ${target.kind} ${details}${url} - ${target.text}`);
   }
   for (const item of pageCheck.hydration) {
     const url = item.url ? ` <${item.url}>` : "";
