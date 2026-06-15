@@ -5346,6 +5346,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   }
   for (const embed of pageCheck.embeds) {
     const details = [
+      `kind=${embed.kind}`,
       embed.title ? `title="${embed.title}"` : "",
       embed.type ? `type=${embed.type}` : "",
       embed.posterUrl ? `poster=${embed.posterUrl}` : "",
@@ -5355,16 +5356,17 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       embed.loading ? `loading=${embed.loading}` : "",
       embed.selector ? `selector=${embed.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  embed: ${embed.id} ${embed.path} ${embed.kind} ${details} <${embed.url}> - ${embed.text}`);
+    lines.push(`  embed: ${embed.id} ${embed.path} ${details} <${embed.url}> - ${embed.text}`);
   }
   for (const transcript of pageCheck.transcripts) {
     const details = [
+      `kind=${transcript.kind}`,
       transcript.mediaKind ? `media=${transcript.mediaKind}` : "",
       transcript.language ? `language=${transcript.language}` : "",
       transcript.label ? `label="${transcript.label}"` : "",
       transcript.selector ? `selector=${transcript.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  transcript: ${transcript.id} ${transcript.path} ${transcript.kind} ${details} <${transcript.url}> - ${transcript.text}`);
+    lines.push(`  transcript: ${transcript.id} ${transcript.path} ${details} <${transcript.url}> - ${transcript.text}`);
   }
   for (const authorLink of pageCheck.authorLinks) {
     const details = [
