@@ -4256,14 +4256,14 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topTocPath ? [`  topToc: ${agent.topTocPath}${agent.topTocTitle ? ` title="${agent.topTocTitle}"` : ""}${typeof agent.topTocItemCount === "number" ? ` items=${agent.topTocItemCount}` : ""}${agent.topTocSelector ? ` selector=${agent.topTocSelector}` : ""}${agent.topTocFirstItemLabel ? ` first="${agent.topTocFirstItemLabel}"` : ""}${agent.topTocFirstItemUrl ? ` <${agent.topTocFirstItemUrl}>` : ""}${agent.topTocText ? ` - ${agent.topTocText}` : ""}`] : []),
     ...(agent.topTocFirstItemCommand ? [`  topTocFirstItemCommand: ${agent.topTocFirstItemCommand}`] : []),
     ...(agent.topTocFirstItemCommandArgs ? [`  topTocFirstItemCommandArgs: ${formatCommandArgsText(agent.topTocFirstItemCommandArgs)}`] : []),
-    ...(agent.topProvenanceValue ? [`  topProvenance: ${agent.topProvenancePath ?? ""} ${agent.topProvenanceKind ?? ""}${agent.topProvenanceLabel ? ` label="${agent.topProvenanceLabel}"` : ""}=${agent.topProvenanceValue}${agent.topProvenanceSource ? ` source=${agent.topProvenanceSource}` : ""}${agent.topProvenanceSelector ? ` selector=${agent.topProvenanceSelector}` : ""}${agent.topProvenanceUrl ? ` <${agent.topProvenanceUrl}>` : ""}`] : []),
+    ...(agent.topProvenanceValue ? [`  topProvenance: path=${agent.topProvenancePath ?? ""}${agent.topProvenanceKind ? ` kind=${agent.topProvenanceKind}` : ""}${agent.topProvenanceLabel ? ` label="${agent.topProvenanceLabel}"` : ""} value=${agent.topProvenanceValue}${agent.topProvenanceSource ? ` source=${agent.topProvenanceSource}` : ""}${agent.topProvenanceSelector ? ` selector=${agent.topProvenanceSelector}` : ""}${agent.topProvenanceUrl ? ` url=<${agent.topProvenanceUrl}>` : ""}`] : []),
     ...(agent.topProvenanceCommand ? [`  topProvenanceCommand: ${agent.topProvenanceCommand}`] : []),
     ...(agent.topProvenanceCommandArgs ? [`  topProvenanceCommandArgs: ${formatCommandArgsText(agent.topProvenanceCommandArgs)}`] : []),
-    ...(agent.topOfferPrice ? [`  topOffer: ${agent.topOfferPath ?? ""}${agent.topOfferName ? ` "${agent.topOfferName}"` : ""} ${agent.topOfferCurrency ?? ""} ${agent.topOfferPrice}${agent.topOfferAvailability ? ` availability=${agent.topOfferAvailability}` : ""}${agent.topOfferSelector ? ` selector=${agent.topOfferSelector}` : ""}${agent.topOfferUrl ? ` <${agent.topOfferUrl}>` : ""}`] : []),
+    ...(agent.topOfferPrice ? [`  topOffer: path=${agent.topOfferPath ?? ""}${agent.topOfferName ? ` name="${agent.topOfferName}"` : ""}${agent.topOfferCurrency ? ` currency=${agent.topOfferCurrency}` : ""} price=${agent.topOfferPrice}${agent.topOfferAvailability ? ` availability=${agent.topOfferAvailability}` : ""}${agent.topOfferSelector ? ` selector=${agent.topOfferSelector}` : ""}${agent.topOfferUrl ? ` url=<${agent.topOfferUrl}>` : ""}`] : []),
     ...(typeof agent.topOfferPriceAmount === "number" ? [`  topOfferPriceAmount: ${agent.topOfferPriceAmount}`] : []),
     ...(agent.topOfferCommand ? [`  topOfferCommand: ${agent.topOfferCommand}`] : []),
     ...(agent.topOfferCommandArgs ? [`  topOfferCommandArgs: ${formatCommandArgsText(agent.topOfferCommandArgs)}`] : []),
-    ...(agent.topDatasetName ? [`  topDataset: ${agent.topDatasetPath ?? ""} ${agent.topDatasetKind ?? ""}:${agent.topDatasetName}${agent.topDatasetEncodingFormat ? ` format=${agent.topDatasetEncodingFormat}` : ""}${agent.topDatasetTemporalCoverage ? ` temporal=${agent.topDatasetTemporalCoverage}` : ""}${agent.topDatasetSpatialCoverage ? ` spatial=${agent.topDatasetSpatialCoverage}` : ""}${agent.topDatasetCreator ? ` creator="${agent.topDatasetCreator}"` : ""}${agent.topDatasetSelector ? ` selector=${agent.topDatasetSelector}` : ""}${agent.topDatasetDistributionUrl ? ` distribution=<${agent.topDatasetDistributionUrl}>` : ""}${agent.topDatasetLicenseUrl ? ` license=<${agent.topDatasetLicenseUrl}>` : ""}${agent.topDatasetUrl ? ` <${agent.topDatasetUrl}>` : ""}`] : []),
+    ...(agent.topDatasetName ? [`  topDataset: path=${agent.topDatasetPath ?? ""}${agent.topDatasetKind ? ` kind=${agent.topDatasetKind}` : ""} name="${agent.topDatasetName}"${agent.topDatasetEncodingFormat ? ` format=${agent.topDatasetEncodingFormat}` : ""}${agent.topDatasetTemporalCoverage ? ` temporal=${agent.topDatasetTemporalCoverage}` : ""}${agent.topDatasetSpatialCoverage ? ` spatial=${agent.topDatasetSpatialCoverage}` : ""}${agent.topDatasetCreator ? ` creator="${agent.topDatasetCreator}"` : ""}${agent.topDatasetSelector ? ` selector=${agent.topDatasetSelector}` : ""}${agent.topDatasetDistributionUrl ? ` distribution=<${agent.topDatasetDistributionUrl}>` : ""}${agent.topDatasetLicenseUrl ? ` license=<${agent.topDatasetLicenseUrl}>` : ""}${agent.topDatasetUrl ? ` url=<${agent.topDatasetUrl}>` : ""}`] : []),
     ...(agent.topDatasetCommand ? [`  topDatasetCommand: ${agent.topDatasetCommand}`] : []),
     ...(agent.topDatasetCommandArgs ? [`  topDatasetCommandArgs: ${formatCommandArgsText(agent.topDatasetCommandArgs)}`] : []),
     ...(agent.topDatasetDistributionCommand ? [`  topDatasetDistributionCommand: ${agent.topDatasetDistributionCommand}`] : []),
@@ -4273,17 +4273,17 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topDatasetTemporalCoverage ? [`  topDatasetTemporalCoverage: ${agent.topDatasetTemporalCoverage}`] : []),
     ...(agent.topDatasetSpatialCoverage ? [`  topDatasetSpatialCoverage: ${agent.topDatasetSpatialCoverage}`] : []),
     ...(agent.topDatasetCreator ? [`  topDatasetCreator: ${agent.topDatasetCreator}`] : []),
-    ...(agent.topIdentityName ? [`  topIdentity: ${agent.topIdentityPath ?? ""} ${agent.topIdentityKind ?? ""}:${agent.topIdentityName}${agent.topIdentitySource ? ` source=${agent.topIdentitySource}` : ""}${agent.topIdentitySelector ? ` selector=${agent.topIdentitySelector}` : ""}${agent.topIdentityLogoUrl ? ` logo=<${agent.topIdentityLogoUrl}>` : ""}${agent.topIdentitySameAsUrl ? ` sameAs=<${agent.topIdentitySameAsUrl}>` : ""}${agent.topIdentityUrl ? ` <${agent.topIdentityUrl}>` : ""}`] : []),
+    ...(agent.topIdentityName ? [`  topIdentity: path=${agent.topIdentityPath ?? ""}${agent.topIdentityKind ? ` kind=${agent.topIdentityKind}` : ""} name="${agent.topIdentityName}"${agent.topIdentitySource ? ` source=${agent.topIdentitySource}` : ""}${agent.topIdentitySelector ? ` selector=${agent.topIdentitySelector}` : ""}${agent.topIdentityLogoUrl ? ` logo=<${agent.topIdentityLogoUrl}>` : ""}${agent.topIdentitySameAsUrl ? ` sameAs=<${agent.topIdentitySameAsUrl}>` : ""}${agent.topIdentityUrl ? ` url=<${agent.topIdentityUrl}>` : ""}`] : []),
     ...(agent.topIdentityCommand ? [`  topIdentityCommand: ${agent.topIdentityCommand}`] : []),
     ...(agent.topIdentityCommandArgs ? [`  topIdentityCommandArgs: ${formatCommandArgsText(agent.topIdentityCommandArgs)}`] : []),
     ...(agent.topIdentityLogoCommand ? [`  topIdentityLogoCommand: ${agent.topIdentityLogoCommand}`] : []),
     ...(agent.topIdentityLogoCommandArgs ? [`  topIdentityLogoCommandArgs: ${formatCommandArgsText(agent.topIdentityLogoCommandArgs)}`] : []),
     ...(agent.topIdentitySameAsCommand ? [`  topIdentitySameAsCommand: ${agent.topIdentitySameAsCommand}`] : []),
     ...(agent.topIdentitySameAsCommandArgs ? [`  topIdentitySameAsCommandArgs: ${formatCommandArgsText(agent.topIdentitySameAsCommandArgs)}`] : []),
-    ...(agent.topTimelineValue ? [`  topTimeline: ${agent.topTimelinePath ?? ""} ${agent.topTimelineKind ?? ""}${agent.topTimelineLabel ? ` label="${agent.topTimelineLabel}"` : ""}:${agent.topTimelineValue}${agent.topTimelineIsoDate ? ` iso=${agent.topTimelineIsoDate}` : ""}${typeof agent.topTimelineUnixMs === "number" ? ` unixMs=${agent.topTimelineUnixMs}` : ""}${agent.topTimelineSource ? ` source=${agent.topTimelineSource}` : ""}${agent.topTimelineSelector ? ` selector=${agent.topTimelineSelector}` : ""}`] : []),
+    ...(agent.topTimelineValue ? [`  topTimeline: path=${agent.topTimelinePath ?? ""}${agent.topTimelineKind ? ` kind=${agent.topTimelineKind}` : ""}${agent.topTimelineLabel ? ` label="${agent.topTimelineLabel}"` : ""} value=${agent.topTimelineValue}${agent.topTimelineIsoDate ? ` iso=${agent.topTimelineIsoDate}` : ""}${typeof agent.topTimelineUnixMs === "number" ? ` unixMs=${agent.topTimelineUnixMs}` : ""}${agent.topTimelineSource ? ` source=${agent.topTimelineSource}` : ""}${agent.topTimelineSelector ? ` selector=${agent.topTimelineSelector}` : ""}`] : []),
     ...(agent.topTimelineIsoDate ? [`  topTimelineIsoDate: ${agent.topTimelineIsoDate}`] : []),
     ...(typeof agent.topTimelineUnixMs === "number" ? [`  topTimelineUnixMs: ${agent.topTimelineUnixMs}`] : []),
-    ...(agent.topContactPointValue ? [`  topContactPoint: ${agent.topContactPointPath ?? ""} ${agent.topContactPointKind ?? ""}${agent.topContactPointLabel ? ` label="${agent.topContactPointLabel}"` : ""}:${agent.topContactPointValue}${agent.topContactPointSource ? ` source=${agent.topContactPointSource}` : ""}${agent.topContactPointSelector ? ` selector=${agent.topContactPointSelector}` : ""}${agent.topContactPointUrl ? ` <${agent.topContactPointUrl}>` : ""}`] : []),
+    ...(agent.topContactPointValue ? [`  topContactPoint: path=${agent.topContactPointPath ?? ""}${agent.topContactPointKind ? ` kind=${agent.topContactPointKind}` : ""}${agent.topContactPointLabel ? ` label="${agent.topContactPointLabel}"` : ""} value=${agent.topContactPointValue}${agent.topContactPointSource ? ` source=${agent.topContactPointSource}` : ""}${agent.topContactPointSelector ? ` selector=${agent.topContactPointSelector}` : ""}${agent.topContactPointUrl ? ` url=<${agent.topContactPointUrl}>` : ""}`] : []),
     ...(agent.topContactPointCommand ? [`  topContactPointCommand: ${agent.topContactPointCommand}`] : []),
     ...(agent.topContactPointCommandArgs ? [`  topContactPointCommandArgs: ${formatCommandArgsText(agent.topContactPointCommandArgs)}`] : []),
     ...(agent.topEmbedUrl ? [`  topEmbed: path=${agent.topEmbedPath ?? ""}${agent.topEmbedKind ? ` kind=${agent.topEmbedKind}` : ""}${agent.topEmbedTitle ? ` title="${agent.topEmbedTitle}"` : ""}${agent.topEmbedSelector ? ` selector=${agent.topEmbedSelector}` : ""} url=<${agent.topEmbedUrl}>`] : []),
@@ -5146,7 +5146,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`  metaFact: id=${fact.id} path=${fact.path} ${details}${url} - ${fact.text}`);
   }
   for (const fact of pageCheck.provenance) {
-    const url = fact.url ? ` <${fact.url}>` : "";
+    const url = fact.url ? ` url=<${fact.url}>` : "";
     const details = [
       `kind=${fact.kind}`,
       `source=${fact.source}`,
@@ -5154,7 +5154,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       `value=${fact.value}`,
       fact.selector ? `selector=${fact.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  provenance: ${fact.id} ${fact.path} ${details}${url} - ${fact.text}`);
+    lines.push(`  provenance: id=${fact.id} path=${fact.path} ${details}${url} - ${fact.text}`);
   }
   for (const policy of pageCheck.httpPolicies) {
     const details = [
@@ -5174,7 +5174,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`  schemaFact: id=${fact.id} path=${fact.path} ${details} - ${fact.text}`);
   }
   for (const offer of pageCheck.offers) {
-    const url = offer.url ? ` <${offer.url}>` : "";
+    const url = offer.url ? ` url=<${offer.url}>` : "";
     const details = [
       `source=${offer.source}`,
       offer.name ? `name="${offer.name}"` : "",
@@ -5188,10 +5188,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       offer.reviewCount ? `reviews=${offer.reviewCount}` : "",
       offer.selector ? `selector=${offer.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  offer: ${offer.id} ${offer.path} ${details}${url} - ${offer.text}`);
+    lines.push(`  offer: id=${offer.id} path=${offer.path} ${details}${url} - ${offer.text}`);
   }
   for (const identity of pageCheck.identities) {
-    const url = identity.url ? ` <${identity.url}>` : "";
+    const url = identity.url ? ` url=<${identity.url}>` : "";
     const details = [
       `kind=${identity.kind}`,
       `source=${identity.source}`,
@@ -5200,10 +5200,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       identity.sameAs?.length ? `sameAs=${identity.sameAs.join(",")}` : "",
       identity.selector ? `selector=${identity.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  identity: ${identity.id} ${identity.path} ${details}${url} - ${identity.text}`);
+    lines.push(`  identity: id=${identity.id} path=${identity.path} ${details}${url} - ${identity.text}`);
   }
   for (const dataset of pageCheck.datasets) {
-    const url = dataset.url ? ` <${dataset.url}>` : "";
+    const url = dataset.url ? ` url=<${dataset.url}>` : "";
     const details = [
       `kind=${dataset.kind}`,
       `source=${dataset.source}`,
@@ -5216,7 +5216,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       dataset.licenseUrl ? `license=${dataset.licenseUrl}` : "",
       dataset.selector ? `selector=${dataset.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  dataset: ${dataset.id} ${dataset.path} ${details}${url} - ${dataset.text}`);
+    lines.push(`  dataset: id=${dataset.id} path=${dataset.path} ${details}${url} - ${dataset.text}`);
   }
   for (const item of pageCheck.timeline) {
     const details = [
@@ -5228,10 +5228,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       typeof item.unixMs === "number" ? `unixMs=${item.unixMs}` : "",
       item.selector ? `selector=${item.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  timeline: ${item.id} ${item.path} ${details} - ${item.text}`);
+    lines.push(`  timeline: id=${item.id} path=${item.path} ${details} - ${item.text}`);
   }
   for (const contact of pageCheck.contactPoints) {
-    const url = contact.url ? ` <${contact.url}>` : "";
+    const url = contact.url ? ` url=<${contact.url}>` : "";
     const details = [
       `kind=${contact.kind}`,
       `source=${contact.source}`,
@@ -5239,7 +5239,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       `value=${contact.value}`,
       contact.selector ? `selector=${contact.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  contactPoint: ${contact.id} ${contact.path} ${details}${url} - ${contact.text}`);
+    lines.push(`  contactPoint: id=${contact.id} path=${contact.path} ${details}${url} - ${contact.text}`);
   }
   for (const faq of pageCheck.faqs) {
     const details = [
