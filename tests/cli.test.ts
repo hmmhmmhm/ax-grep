@@ -12550,6 +12550,9 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  pageDecisionReadTargetKind: evidence");
     expect(stdout.output).toContain("  pageDecisionReadTargetReason: Structured page excerpts suitable for source checking.");
     expect(stdout.output).toContain("  staticReadinessReadTargetKind: evidence");
+    expect(stdout.output).toContain("  nextReadValuePath: pageCheck.contentEvidence");
+    expect(stdout.output).toContain("  nextReadValueType: array");
+    expect(stdout.output).toContain("  nextReadValueCount: 1");
     expect(stdout.output).toContain("  executor: return/return/medium action=read-content status=ready - Answer now from pageCheck.contentEvidence using citations e1.");
     expect(stdout.output).toContain("  executorReadFrom: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  executorReadTargetKind: evidence");

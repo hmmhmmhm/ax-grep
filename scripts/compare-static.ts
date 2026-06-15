@@ -1262,6 +1262,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       nextAfterInteractionCommand?: string;
       nextAfterInteractionCommandArgs?: string[];
       nextReadFrom?: string;
+      nextReadValuePath?: string;
+      nextReadValueType?: string;
+      nextReadValueCount?: number;
+      nextReadValueReferencePath?: string;
       nextUrl?: string;
       executor?: CliAgentExecutorShape;
       handoff?: CliAgentHandoffShape;
@@ -3301,6 +3305,10 @@ function scoreAgentNextShortcuts(agent: {
   nextReadTargetScore?: number;
   nextReadTargetPrimary?: boolean;
   nextReadTargetReason?: string;
+  nextReadValuePath?: string;
+  nextReadValueType?: string;
+  nextReadValueCount?: number;
+  nextReadValueReferencePath?: string;
   nextUrl?: string;
 } | undefined): number {
   const next = agent?.next;
@@ -3352,6 +3360,15 @@ function scoreAgentNextShortcuts(agent: {
     if (agent.nextReadTargetKind === next.readTarget.kind) matched += 1;
   } else if (agent.nextReadTargetKind) {
     required += 1;
+  }
+  if (next.readValue) {
+    required += 4;
+    if (agent.nextReadValuePath === next.readValue.path) matched += 1;
+    if (agent.nextReadValueType === agentReadValueKind(next.readValue)) matched += 1;
+    if (agent.nextReadValueCount === agentReadValueCount(next.readValue)) matched += 1;
+    if (agent.nextReadValueReferencePath === agentReadValueReferencePath(next.readValue)) matched += 1;
+  } else if (agent.nextReadValuePath || agent.nextReadValueType || typeof agent.nextReadValueCount === "number" || agent.nextReadValueReferencePath) {
+    required += 4;
   }
   if (next.readTarget) {
     if (typeof next.readTarget.count === "number") {

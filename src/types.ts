@@ -1378,6 +1378,10 @@ export type AgentSummary = {
   nextReadTargetScore?: number;
   nextReadTargetPrimary?: boolean;
   nextReadTargetReason?: string;
+  nextReadValuePath?: string;
+  nextReadValueType?: AgentReadValueKind;
+  nextReadValueCount?: number;
+  nextReadValueReferencePath?: string;
   nextUrl?: string;
   executor: AgentExecutorStep;
   handoff?: AgentHandoff;

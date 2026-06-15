@@ -1449,6 +1449,10 @@ describe("public agent types", () => {
       | "nextReadTargetScore"
       | "nextReadTargetPrimary"
       | "nextReadTargetReason"
+      | "nextReadValuePath"
+      | "nextReadValueType"
+      | "nextReadValueCount"
+      | "nextReadValueReferencePath"
       | "nextUrl"
       | "expectedOutcomeKind"
       | "expectedOutcomeMessage"
@@ -3058,6 +3062,10 @@ describe("public agent types", () => {
       nextReadTargetScore: 0.9,
       nextReadTargetPrimary: true,
       nextReadTargetReason: "Top evidence.",
+      nextReadValuePath: "pageCheck.contentEvidence",
+      nextReadValueType: "array",
+      nextReadValueCount: 1,
+      nextReadValueReferencePath: "pageCheck.contentEvidence",
       nextUrl: "https://example.test",
       expectedOutcomeKind: "read-evidence",
       expectedOutcomeMessage: "Read the current payload evidence.",
@@ -3648,6 +3656,10 @@ describe("public agent types", () => {
     expect(summary.nextReadFrom).toBe("pageCheck.contentEvidence");
     expect(summary.nextReadTargetKind).toBe("evidence");
     expect(summary.nextReadTargetPrimary).toBe(true);
+    expect(summary.nextReadValuePath).toBe("pageCheck.contentEvidence");
+    expect(summary.nextReadValueType).toBe("array");
+    expect(summary.nextReadValueCount).toBe(1);
+    expect(summary.nextReadValueReferencePath).toBe("pageCheck.contentEvidence");
     expect(summary.executorOperation).toBe("return");
     expect(summary.executorTerminal).toBe(true);
     expect(summary.executorReadTargetKind).toBe("evidence");

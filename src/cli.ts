@@ -1006,6 +1006,10 @@ type AgentSummary = {
   nextReadTargetScore?: number;
   nextReadTargetPrimary?: boolean;
   nextReadTargetReason?: string;
+  nextReadValuePath?: string;
+  nextReadValueType?: AgentReadValueKind;
+  nextReadValueCount?: number;
+  nextReadValueReferencePath?: string;
   nextUrl?: string;
   executor: AgentExecutorStep;
   handoff: AgentHandoff;
@@ -5040,6 +5044,10 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (typeof agent.nextReadTargetScore === "number") lines.push(`  nextReadTargetScore: ${agent.nextReadTargetScore}`);
   if (typeof agent.nextReadTargetPrimary === "boolean") lines.push(`  nextReadTargetPrimary: ${agent.nextReadTargetPrimary}`);
   if (agent.nextReadTargetReason) lines.push(`  nextReadTargetReason: ${agent.nextReadTargetReason}`);
+  if (agent.nextReadValuePath) lines.push(`  nextReadValuePath: ${agent.nextReadValuePath}`);
+  if (agent.nextReadValueType) lines.push(`  nextReadValueType: ${agent.nextReadValueType}`);
+  if (typeof agent.nextReadValueCount === "number") lines.push(`  nextReadValueCount: ${agent.nextReadValueCount}`);
+  if (agent.nextReadValueReferencePath) lines.push(`  nextReadValueReferencePath: ${agent.nextReadValueReferencePath}`);
   if (agent.nextCommand) lines.push(`  nextCommand: ${agent.nextCommand}`);
   if (agent.nextCommandArgs) lines.push(`  nextCommandArgs: ${formatCommandArgsText(agent.nextCommandArgs)}`);
   if (agent.nextAfterInteractionCommand) lines.push(`  nextAfterInteractionCommand: ${agent.nextAfterInteractionCommand}`);
@@ -13339,6 +13347,9 @@ function summarizeAgent(
   const runbookReadValueType = agentReadValueType(runbook.readValue);
   const runbookReadValueCount = agentReadValueCount(runbook.readValue);
   const runbookReadValueReferencePath = agentReadValueReferencePath(runbook.readValue);
+  const nextReadValueType = agentReadValueType(next.readValue);
+  const nextReadValueCount = agentReadValueCount(next.readValue);
+  const nextReadValueReferencePath = agentReadValueReferencePath(next.readValue);
   const executorReadValueType = agentReadValueType(executor.readValue);
   const executorReadValueCount = agentReadValueCount(executor.readValue);
   const executorReadValueReferencePath = agentReadValueReferencePath(executor.readValue);
@@ -13400,6 +13411,10 @@ function summarizeAgent(
     ...(typeof nextReadTarget?.score === "number" ? { nextReadTargetScore: nextReadTarget.score } : {}),
     ...(typeof nextReadTarget?.primary === "boolean" ? { nextReadTargetPrimary: nextReadTarget.primary } : {}),
     ...(nextReadTarget?.reason ? { nextReadTargetReason: nextReadTarget.reason } : {}),
+    ...(next.readValue?.path ? { nextReadValuePath: next.readValue.path } : {}),
+    ...(nextReadValueType ? { nextReadValueType } : {}),
+    ...(typeof nextReadValueCount === "number" ? { nextReadValueCount } : {}),
+    ...(nextReadValueReferencePath ? { nextReadValueReferencePath } : {}),
     ...(next.url ? { nextUrl: next.url } : {}),
     executor,
     handoff,
@@ -17879,6 +17894,9 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const executorReadValueType = agentReadValueType(executor.readValue);
   const executorReadValueCount = agentReadValueCount(executor.readValue);
   const executorReadValueReferencePath = agentReadValueReferencePath(executor.readValue);
+  const nextReadValueType = agentReadValueType(next.readValue);
+  const nextReadValueCount = agentReadValueCount(next.readValue);
+  const nextReadValueReferencePath = agentReadValueReferencePath(next.readValue);
   const handoffReadValueType = agentReadValueType(handoff.readValue);
   const handoffReadValueCount = agentReadValueCount(handoff.readValue);
   const handoffReadValueReferencePath = agentReadValueReferencePath(handoff.readValue);
@@ -17928,6 +17946,10 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(next.afterInteractionCommand ? { nextAfterInteractionCommand: next.afterInteractionCommand } : {}),
     ...(next.afterInteractionCommandArgs ? { nextAfterInteractionCommandArgs: next.afterInteractionCommandArgs } : {}),
     ...(next.readFrom ? { nextReadFrom: next.readFrom } : {}),
+    ...(next.readValue?.path ? { nextReadValuePath: next.readValue.path } : {}),
+    ...(nextReadValueType ? { nextReadValueType } : {}),
+    ...(typeof nextReadValueCount === "number" ? { nextReadValueCount } : {}),
+    ...(nextReadValueReferencePath ? { nextReadValueReferencePath } : {}),
     ...(next.url ? { nextUrl: next.url } : {}),
     executor,
     handoff,
@@ -19717,6 +19739,10 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.nextReadTargetScore === "number" ? { nextReadTargetScore: agent.nextReadTargetScore } : {}),
     ...(typeof agent.nextReadTargetPrimary === "boolean" ? { nextReadTargetPrimary: agent.nextReadTargetPrimary } : {}),
     ...(agent.nextReadTargetReason ? { nextReadTargetReason: agent.nextReadTargetReason } : {}),
+    ...(agent.nextReadValuePath ? { nextReadValuePath: agent.nextReadValuePath } : {}),
+    ...(agent.nextReadValueType ? { nextReadValueType: agent.nextReadValueType } : {}),
+    ...(typeof agent.nextReadValueCount === "number" ? { nextReadValueCount: agent.nextReadValueCount } : {}),
+    ...(agent.nextReadValueReferencePath ? { nextReadValueReferencePath: agent.nextReadValueReferencePath } : {}),
     ...(agent.nextUrl ? { nextUrl: agent.nextUrl } : {}),
     executor: compactAgentExecutor(agent.executor, agent.primaryUrl),
     handoff: compactAgentHandoff(agent.handoff, agent.primaryUrl, searchCommandContext, pageLinkContext),
@@ -21232,6 +21258,10 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.nextReadTargetScore === "number" ? { nextReadTargetScore: agent.nextReadTargetScore } : {}),
     ...(typeof agent.nextReadTargetPrimary === "boolean" ? { nextReadTargetPrimary: agent.nextReadTargetPrimary } : {}),
     ...(agent.nextReadTargetReason ? { nextReadTargetReason: agent.nextReadTargetReason } : {}),
+    ...(agent.nextReadValuePath ? { nextReadValuePath: agent.nextReadValuePath } : {}),
+    ...(agent.nextReadValueType ? { nextReadValueType: agent.nextReadValueType } : {}),
+    ...(typeof agent.nextReadValueCount === "number" ? { nextReadValueCount: agent.nextReadValueCount } : {}),
+    ...(agent.nextReadValueReferencePath ? { nextReadValueReferencePath: agent.nextReadValueReferencePath } : {}),
     ...(agent.nextUrl ? { nextUrl: agent.nextUrl } : {}),
     executor: compactAgentExecutor(agent.executor, agent.primaryUrl),
     handoff: compactAgentBriefHandoff(agent.handoff, agent.primaryUrl, searchCommandContext, pageLinkContext),
