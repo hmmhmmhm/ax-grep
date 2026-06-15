@@ -390,6 +390,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "resultChoices",
           "topResultChoicePath",
           "topResultChoiceHost",
+          "topResultChoiceUrlPath",
           "topResultChoiceCommandArgs",
           "topResultChoiceSourceType",
           "topResultChoiceSourceScore",

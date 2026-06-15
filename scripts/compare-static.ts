@@ -1424,6 +1424,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topResultChoiceTitle?: string;
       topResultChoiceUrl?: string;
       topResultChoiceHost?: string;
+      topResultChoiceUrlPath?: string;
+      topResultChoiceUrlQuery?: string;
       topResultChoiceCommand?: string;
       topResultChoiceCommandArgs?: unknown[];
       topResultChoiceRank?: number;
@@ -4656,6 +4658,8 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
   topResultChoiceTitle?: string;
   topResultChoiceUrl?: string;
   topResultChoiceHost?: string;
+  topResultChoiceUrlPath?: string;
+  topResultChoiceUrlQuery?: string;
   topResultChoiceCommand?: string;
   topResultChoiceCommandArgs?: unknown[];
   topResultChoiceRank?: number;
@@ -4686,6 +4690,8 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
       || agent?.topResultChoiceTitle
       || agent?.topResultChoiceUrl
       || agent?.topResultChoiceHost
+      || agent?.topResultChoiceUrlPath
+      || agent?.topResultChoiceUrlQuery
       || agent?.topResultChoiceCommand
       || agent?.topResultChoiceCommandArgs
       || typeof agent?.topResultChoiceRank === "number"
@@ -4712,6 +4718,19 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
   let matched = 0;
   if (agent?.topResultChoicePath === top.path) matched += 1;
   if (agent?.topResultChoiceUrl === top.url) matched += 1;
+  const topUrlParts = typeof top.url === "string" ? compareUrlPathParts(top.url) : undefined;
+  if (topUrlParts) {
+    required += 1;
+    if (agent?.topResultChoiceUrlPath === topUrlParts.urlPath) matched += 1;
+    if (topUrlParts.urlQuery) {
+      required += 1;
+      if (agent?.topResultChoiceUrlQuery === topUrlParts.urlQuery) matched += 1;
+    } else if (agent?.topResultChoiceUrlQuery) {
+      required += 1;
+    }
+  } else if (agent?.topResultChoiceUrlPath || agent?.topResultChoiceUrlQuery) {
+    required += 1;
+  }
   if (agent?.topResultChoiceRank === top.rank) matched += 1;
   if (top.host) {
     required += 1;
@@ -5384,6 +5403,18 @@ function arraysEqual(left: unknown, right: unknown): boolean {
   if (!Array.isArray(left) || !Array.isArray(right)) return false;
   if (left.length !== right.length) return false;
   return left.every((item, index) => item === right[index]);
+}
+
+function compareUrlPathParts(url: string): { urlPath: string; urlQuery?: string } | undefined {
+  try {
+    const parsed = new URL(url);
+    return {
+      urlPath: parsed.pathname || "/",
+      ...(parsed.search ? { urlQuery: parsed.search } : {}),
+    };
+  } catch {
+    return undefined;
+  }
 }
 
 function scoreAgentHiddenSignalCounts(

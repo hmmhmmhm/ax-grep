@@ -41,7 +41,7 @@ describe("public agent types", () => {
       id: "r1",
       path: "searchResults[0]",
       title: "Example result",
-      url: "https://example.test/result",
+      url: "https://example.test/result?tab=readme",
       host: "example.test",
       rank: 1,
       snippet: "Result summary",
@@ -256,6 +256,8 @@ describe("public agent types", () => {
       | "topResultChoiceTitle"
       | "topResultChoiceUrl"
       | "topResultChoiceHost"
+      | "topResultChoiceUrlPath"
+      | "topResultChoiceUrlQuery"
       | "topResultChoiceSnippet"
       | "topResultChoiceCommand"
       | "topResultChoiceCommandArgs"
@@ -1645,8 +1647,10 @@ describe("public agent types", () => {
       resultChoices: [resultChoice],
       topResultChoicePath: "searchResults[0]",
       topResultChoiceTitle: "Example result",
-      topResultChoiceUrl: "https://example.test/result",
+      topResultChoiceUrl: "https://example.test/result?tab=readme",
       topResultChoiceHost: "example.test",
+      topResultChoiceUrlPath: "/result",
+      topResultChoiceUrlQuery: "?tab=readme",
       topResultChoiceSnippet: "Result summary",
       topResultChoiceCommand: "ax-grep --search example --open-result 1 --agent-brief",
       topResultChoiceCommandArgs: ["ax-grep", "--search", "example", "--open-result", "1", "--agent-brief"],
@@ -3229,6 +3233,8 @@ describe("public agent types", () => {
     expect(summary.topChoiceRelevance).toBe("high");
     expect(summary.topChoiceLikelyOfficial).toBe(true);
     expect(summary.topResultChoicePath).toBe("searchResults[0]");
+    expect(summary.topResultChoiceUrlPath).toBe("/result");
+    expect(summary.topResultChoiceUrlQuery).toBe("?tab=readme");
     expect(summary.topResultChoiceSnippet).toBe("Result summary");
     expect(summary.topResultChoiceCommand).toContain("--open-result 1");
     expect(summary.topResultChoiceCommandArgs?.[0]).toBe("ax-grep");

@@ -2055,6 +2055,7 @@ describe("cli", () => {
       topResultChoiceTitle: "Agent browser result",
       topResultChoiceUrl: "https://result.example/",
       topResultChoiceHost: "result.example",
+      topResultChoiceUrlPath: "/",
       topResultChoiceSnippet: "agent browser comparison details",
       topResultChoiceCommandArgs: ["ax-grep", "https://result.example/", "--agent"],
       topResultChoiceRank: 1,
@@ -2078,6 +2079,7 @@ describe("cli", () => {
         }),
       ],
     });
+    expect(envelope.agent.topResultChoiceUrlQuery).toBeUndefined();
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "searchResults",
       count: 1,
@@ -2967,6 +2969,7 @@ describe("cli", () => {
     });
 
     expect(status).toBe(0);
+    expect(stdout.output).toContain("  topResultChoiceUrlPath: /package/ax-grep");
     expect(stdout.output).toContain("  topResultChoiceDateText: 2026-05-31");
     expect(stdout.output).toContain("  topResultChoiceDateIso: 2026-05-31T00:00:00.000Z");
     expect(stdout.output).toContain("  topResultChoiceDatePrecision: day");
