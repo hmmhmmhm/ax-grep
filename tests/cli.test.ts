@@ -4954,6 +4954,7 @@ describe("cli", () => {
       semanticTopButtonName: "Reply",
       topSourceChoicePath: "pageCheck.sourceLinks[0]",
       topSourceChoiceUrl: "https://source.example/report",
+      topSourceChoiceUrlPath: "/report",
       topSourceChoiceCommand: "ax-grep 'https://source.example/report' --json --summary",
       topSourceChoiceSourceType: "unknown",
       topSourceChoiceSourceScore: 0.35,
@@ -12530,6 +12531,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  bestHiddenReadTargetCount:");
     expect(stdout.output).toContain("  sourceLinkCount: 1");
     expect(stdout.output).toContain("  sourceChoiceCount: 1");
+    expect(stdout.output).toContain("  topSourceChoiceUrlPath: /report");
     expect(stdout.output).toContain("  alternativeActionCount: 2");
     expect(stdout.output).toContain("  alternativeActionName:");
     expect(stdout.output).toContain("  alternativeActionExecution:");
@@ -12552,7 +12554,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  citation: s1 pageCheck.sourceLinks[0] source-link medium score=");
     expect(stdout.output).toContain("Possible source candidate: news-like.");
     expect(stdout.output).toContain("  sourceChoice: id=s1 path=pageCheck.sourceLinks[0] rank=1");
-    expect(stdout.output).toContain("source=source.example type=news kind=external selector=a <https://source.example/report> - Possible source candidate: news-like. Source report");
+    expect(stdout.output).toContain("score=0.58 source=source.example type=news kind=external selector=a url=<https://source.example/report> - Possible source candidate: news-like. Source report");
     expect(stdout.output).toContain("  sourceChoiceSourceHints: news-like");
     expect(stdout.output).toContain("    command: ax-grep 'https://source.example/report' --json --summary");
     expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://source.example/report\",\"--json\",\"--summary\"]");

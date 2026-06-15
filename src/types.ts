@@ -2311,6 +2311,8 @@ export type AgentSummary = {
   topSourceChoiceTitle?: string;
   topSourceChoiceUrl?: string;
   topSourceChoiceHost?: string;
+  topSourceChoiceUrlPath?: string;
+  topSourceChoiceUrlQuery?: string;
   topSourceChoiceKind?: "internal" | "external";
   topSourceChoiceRank?: number;
   topSourceChoiceText?: string;

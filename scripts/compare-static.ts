@@ -1756,6 +1756,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topSourceChoiceTitle?: string;
       topSourceChoiceUrl?: string;
       topSourceChoiceHost?: string;
+      topSourceChoiceUrlPath?: string;
+      topSourceChoiceUrlQuery?: string;
       topSourceChoiceKind?: "internal" | "external";
       topSourceChoiceRank?: number;
       topSourceChoiceText?: string;
@@ -5752,6 +5754,8 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
   topSourceChoiceTitle?: string;
   topSourceChoiceUrl?: string;
   topSourceChoiceHost?: string;
+  topSourceChoiceUrlPath?: string;
+  topSourceChoiceUrlQuery?: string;
   topSourceChoiceKind?: "internal" | "external";
   topSourceChoiceRank?: number;
   topSourceChoiceText?: string;
@@ -5780,6 +5784,8 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
       || agent?.topSourceChoiceTitle
       || agent?.topSourceChoiceUrl
       || agent?.topSourceChoiceHost
+      || agent?.topSourceChoiceUrlPath
+      || agent?.topSourceChoiceUrlQuery
       || agent?.topSourceChoiceKind
       || typeof agent?.topSourceChoiceRank === "number"
       || agent?.topSourceChoiceText
@@ -5806,6 +5812,19 @@ function scoreAgentTopSourceChoiceShortcuts(agent: {
   let matched = 0;
   if (agent?.topSourceChoicePath === top.path) matched += 1;
   if (agent?.topSourceChoiceUrl === top.url) matched += 1;
+  const topUrlParts = typeof top.url === "string" ? compareUrlPathParts(top.url) : undefined;
+  if (topUrlParts) {
+    required += 1;
+    if (agent?.topSourceChoiceUrlPath === topUrlParts.urlPath) matched += 1;
+    if (topUrlParts.urlQuery) {
+      required += 1;
+      if (agent?.topSourceChoiceUrlQuery === topUrlParts.urlQuery) matched += 1;
+    } else if (agent?.topSourceChoiceUrlQuery) {
+      required += 1;
+    }
+  } else if (agent?.topSourceChoiceUrlPath || agent?.topSourceChoiceUrlQuery) {
+    required += 1;
+  }
   if (agent?.topSourceChoiceCommand === top.command) matched += 1;
   if (JSON.stringify(agent?.topSourceChoiceCommandArgs) === JSON.stringify(top.commandArgs)) matched += 1;
   if (top.host) {

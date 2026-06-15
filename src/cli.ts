@@ -1943,6 +1943,8 @@ type AgentSummary = {
   topSourceChoiceTitle?: string;
   topSourceChoiceUrl?: string;
   topSourceChoiceHost?: string;
+  topSourceChoiceUrlPath?: string;
+  topSourceChoiceUrlQuery?: string;
   topSourceChoiceKind?: AgentSourceChoice["kind"];
   topSourceChoiceRank?: number;
   topSourceChoiceText?: string;
@@ -4544,6 +4546,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topSourceChoicePath ? [`  topSourceChoicePath: ${agent.topSourceChoicePath}`] : []),
     ...(agent.topSourceChoiceUrl ? [`  topSourceChoiceUrl: ${agent.topSourceChoiceUrl}`] : []),
     ...(agent.topSourceChoiceHost ? [`  topSourceChoiceHost: ${agent.topSourceChoiceHost}`] : []),
+    ...(agent.topSourceChoiceUrlPath ? [`  topSourceChoiceUrlPath: ${agent.topSourceChoiceUrlPath}`] : []),
+    ...(agent.topSourceChoiceUrlQuery ? [`  topSourceChoiceUrlQuery: ${agent.topSourceChoiceUrlQuery}`] : []),
     ...(agent.topSourceChoiceKind ? [`  topSourceChoiceKind: ${agent.topSourceChoiceKind}`] : []),
     ...(typeof agent.topSourceChoiceRank === "number" ? [`  topSourceChoiceRank: ${agent.topSourceChoiceRank}`] : []),
     ...(agent.topSourceChoiceTitle ? [`  topSourceChoiceTitle: ${agent.topSourceChoiceTitle}`] : []),
@@ -12914,6 +12918,7 @@ function summarizeAgent(
   const resultChoices = summarizeAgentResultChoices(hasUsableSearchResults ? results : [], recommendedResult, primaryAction, sourceSearch, agentMode, findQueries, timeoutMs, userAgent);
   const topResultChoiceUrlParts = resultChoices[0]?.url ? urlPathParts(resultChoices[0].url) : undefined;
   const sourceChoices = summarizeAgentSourceChoices(analysis.kind, pageCheck.sourceLinks, primaryAction, agentMode, findQueries, timeoutMs, userAgent);
+  const topSourceChoiceUrlParts = sourceChoices[0]?.url ? urlPathParts(sourceChoices[0].url) : undefined;
   const formChoices = summarizeAgentFormChoices(pageCheck.forms, findQueries, agentMode, timeoutMs, userAgent);
   const topFormChoice = formChoices[0];
   const topFormChoiceFirstField = topFormChoice?.fields[0];
@@ -14081,6 +14086,8 @@ function summarizeAgent(
     ...(sourceChoices[0]?.title ? { topSourceChoiceTitle: sourceChoices[0].title } : {}),
     ...(sourceChoices[0]?.url ? { topSourceChoiceUrl: sourceChoices[0].url } : {}),
     ...(sourceChoices[0]?.host ? { topSourceChoiceHost: sourceChoices[0].host } : {}),
+    ...(topSourceChoiceUrlParts?.urlPath ? { topSourceChoiceUrlPath: topSourceChoiceUrlParts.urlPath } : {}),
+    ...(topSourceChoiceUrlParts?.urlQuery ? { topSourceChoiceUrlQuery: topSourceChoiceUrlParts.urlQuery } : {}),
     ...(sourceChoices[0]?.kind ? { topSourceChoiceKind: sourceChoices[0].kind } : {}),
     ...(typeof sourceChoices[0]?.rank === "number" ? { topSourceChoiceRank: sourceChoices[0].rank } : {}),
     ...(sourceChoices[0]?.text ? { topSourceChoiceText: sourceChoices[0].text } : {}),
@@ -20213,6 +20220,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topSourceChoiceTitle ? { topSourceChoiceTitle: agent.topSourceChoiceTitle } : {}),
     ...(agent.topSourceChoiceUrl ? { topSourceChoiceUrl: agent.topSourceChoiceUrl } : {}),
     ...(agent.topSourceChoiceHost ? { topSourceChoiceHost: agent.topSourceChoiceHost } : {}),
+    ...(agent.topSourceChoiceUrlPath ? { topSourceChoiceUrlPath: agent.topSourceChoiceUrlPath } : {}),
+    ...(agent.topSourceChoiceUrlQuery ? { topSourceChoiceUrlQuery: agent.topSourceChoiceUrlQuery } : {}),
     ...(agent.topSourceChoiceKind ? { topSourceChoiceKind: agent.topSourceChoiceKind } : {}),
     ...(typeof agent.topSourceChoiceRank === "number" ? { topSourceChoiceRank: agent.topSourceChoiceRank } : {}),
     ...(agent.topSourceChoiceText ? { topSourceChoiceText: agent.topSourceChoiceText } : {}),
@@ -21593,6 +21602,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topSourceChoiceTitle ? { topSourceChoiceTitle: agent.topSourceChoiceTitle } : {}),
     ...(agent.topSourceChoiceUrl ? { topSourceChoiceUrl: agent.topSourceChoiceUrl } : {}),
     ...(agent.topSourceChoiceHost ? { topSourceChoiceHost: agent.topSourceChoiceHost } : {}),
+    ...(agent.topSourceChoiceUrlPath ? { topSourceChoiceUrlPath: agent.topSourceChoiceUrlPath } : {}),
+    ...(agent.topSourceChoiceUrlQuery ? { topSourceChoiceUrlQuery: agent.topSourceChoiceUrlQuery } : {}),
     ...(agent.topSourceChoiceKind ? { topSourceChoiceKind: agent.topSourceChoiceKind } : {}),
     ...(typeof agent.topSourceChoiceRank === "number" ? { topSourceChoiceRank: agent.topSourceChoiceRank } : {}),
     ...(agent.topSourceChoiceText ? { topSourceChoiceText: agent.topSourceChoiceText } : {}),

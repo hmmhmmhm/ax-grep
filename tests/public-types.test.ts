@@ -55,7 +55,7 @@ describe("public agent types", () => {
       id: "s1",
       path: "pageCheck.sourceLinks[0]",
       title: "Source",
-      url: "https://source.example/report",
+      url: "https://source.example/report?ref=docs",
       host: "source.example",
       snippet: "Source summary",
       dateText: "2026-05-31",
@@ -67,7 +67,7 @@ describe("public agent types", () => {
       kind: "external",
       sourceScore: 0.91,
       selectionReason: "High-quality source link.",
-      commandArgs: ["ax-grep", "https://source.example/report", "--agent-brief"],
+      commandArgs: ["ax-grep", "https://source.example/report?ref=docs", "--agent-brief"],
     };
     const evidence: AgentCitation = {
       kind: "content",
@@ -657,6 +657,8 @@ describe("public agent types", () => {
       | "topSourceChoiceTitle"
       | "topSourceChoiceUrl"
       | "topSourceChoiceHost"
+      | "topSourceChoiceUrlPath"
+      | "topSourceChoiceUrlQuery"
       | "topSourceChoiceKind"
       | "topSourceChoiceRank"
       | "topSourceChoiceText"
@@ -2048,8 +2050,10 @@ describe("public agent types", () => {
       sourceChoiceCount: 1,
       topSourceChoicePath: "pageCheck.sourceLinks[0]",
       topSourceChoiceTitle: "Source",
-      topSourceChoiceUrl: "https://source.example/report",
+      topSourceChoiceUrl: "https://source.example/report?ref=docs",
       topSourceChoiceHost: "source.example",
+      topSourceChoiceUrlPath: "/report",
+      topSourceChoiceUrlQuery: "?ref=docs",
       topSourceChoiceKind: "external",
       topSourceChoiceRank: 1,
       topSourceChoiceText: "Source",
@@ -2059,8 +2063,8 @@ describe("public agent types", () => {
       topSourceChoiceDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       topSourceChoiceDatePrecision: "day",
       topSourceChoiceDateSource: "title",
-      topSourceChoiceCommand: "ax-grep https://source.example/report --agent-brief",
-      topSourceChoiceCommandArgs: ["ax-grep", "https://source.example/report", "--agent-brief"],
+      topSourceChoiceCommand: "ax-grep https://source.example/report?ref=docs --agent-brief",
+      topSourceChoiceCommandArgs: ["ax-grep", "https://source.example/report?ref=docs", "--agent-brief"],
       topSourceChoiceSourceType: "report",
       topSourceChoiceSourceScore: 0.91,
       topSourceChoiceSourceHints: ["report", "external"],
@@ -3239,6 +3243,8 @@ describe("public agent types", () => {
     expect(summary.topResultChoiceCommand).toContain("--open-result 1");
     expect(summary.topResultChoiceCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.topSourceChoicePath).toBe("pageCheck.sourceLinks[0]");
+    expect(summary.topSourceChoiceUrlPath).toBe("/report");
+    expect(summary.topSourceChoiceUrlQuery).toBe("?ref=docs");
     expect(summary.topSourceChoiceSnippet).toBe("Source summary");
     expect(summary.topSourceChoiceDateText).toBe("2026-05-31");
     expect(summary.topSourceChoiceDateIso).toBe("2026-05-31T00:00:00.000Z");
