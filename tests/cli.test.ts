@@ -3998,6 +3998,48 @@ describe("cli", () => {
     });
   });
 
+  it("prints auto search engine recovery shortcuts in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["--search", "agent browser", "--engine", "auto", "--open-result", "2"], {
+      stdout,
+      fetch: async (input) => {
+        const url = String(input);
+        if (url.includes("duckduckgo.com")) {
+          return new Response("blocked", { status: 403, statusText: "Forbidden" });
+        }
+        if (url.includes("bing.com")) {
+          return new Response(`
+            <main>
+              <ol>
+                <li class="b_algo"><h2><a href="https://first.example/">First</a></h2><p>First snippet.</p></li>
+                <li class="b_algo"><h2><a href="https://target.example/article">Target</a></h2><p>Target snippet.</p></li>
+              </ol>
+            </main>
+          `, { headers: { "content-type": "text/html" } });
+        }
+        if (url.includes("startpage.com")) {
+          return new Response(`
+            <main><div class="w-gl__result"><a class="w-gl__result-title" href="https://start.example/">Start</a></div></main>
+          `, { headers: { "content-type": "text/html" } });
+        }
+        return new Response(`
+          <html><head><title>Target</title></head><body><main><h1>Target page</h1><p>Opened from auto search.</p></main></body></html>
+        `, { headers: { "content-type": "text/html" } });
+      },
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("sourceSearchSelectedEngine: bing");
+    expect(stdout.output).toContain("sourceSearchEngineAttemptCount: 3");
+    expect(stdout.output).toContain("sourceSearchEngineSuccessCount: 2");
+    expect(stdout.output).toContain("sourceSearchEngineFailureCount: 1");
+    expect(stdout.output).toContain("sourceSearchFirstOkEngine: bing");
+    expect(stdout.output).toContain("sourceSearchFirstOkResultCount: 2");
+    expect(stdout.output).toContain("sourceSearchFirstFailedEngine: duckduckgo");
+    expect(stdout.output).toContain("sourceSearchFirstFailureCode: HTTP_ERROR");
+    expect(stdout.output).toContain("sourceSearchFirstFailureStatus: 403");
+  });
+
   it("can open a selected search result and analyze the target page", async () => {
     const stdout = new MemoryWriter();
     const requestedUrls: string[] = [];
