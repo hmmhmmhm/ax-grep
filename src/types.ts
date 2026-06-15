@@ -2223,6 +2223,18 @@ export type AgentSummary = {
   topClientStateOperation?: string;
   topClientStateKey?: string;
   topClientStateSelector?: string;
+  topRuntimePath?: string;
+  topRuntimeKind?: string;
+  topRuntimeUrl?: string;
+  topRuntimeCommand?: string;
+  topRuntimeCommandArgs?: string[];
+  topRuntimeSelector?: string;
+  topConfigPath?: string;
+  topConfigKind?: string;
+  topConfigName?: string;
+  topConfigKeys?: string[];
+  topConfigKeyCount?: number;
+  topConfigSelector?: string;
   topAppHintPath?: string;
   topAppHintKind?: string;
   topAppHintLabel?: string;

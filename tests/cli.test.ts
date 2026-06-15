@@ -7960,6 +7960,14 @@ describe("cli", () => {
     expect(envelope.pageCheck.readability.reasons).toContain("6 runtime hints");
     expect(envelope.agent.hiddenRuntimeCount).toBe(6);
     expect(envelope.agent.hiddenSignalCount).toBe(6);
+    expect(envelope.agent).toMatchObject({
+      topRuntimePath: "pageCheck.runtime[0]",
+      topRuntimeKind: "service-worker",
+      topRuntimeUrl: "https://example.test/sw.js",
+      topRuntimeCommand: "ax-grep 'https://example.test/sw.js' --agent",
+      topRuntimeCommandArgs: ["ax-grep", "https://example.test/sw.js", "--agent"],
+      topRuntimeSelector: "script:nth-of-type(1)",
+    });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -8088,6 +8096,14 @@ describe("cli", () => {
     expect(envelope.pageCheck.readability.reasons).toContain("3 config hints");
     expect(envelope.agent.hiddenConfigCount).toBe(3);
     expect(envelope.agent.hiddenSignalCount).toBe(3);
+    expect(envelope.agent).toMatchObject({
+      topConfigPath: "pageCheck.config[0]",
+      topConfigKind: "env",
+      topConfigName: "__APP_CONFIG__",
+      topConfigKeys: ["apiBase", "locale", "featureFlags", "release"],
+      topConfigKeyCount: 4,
+      topConfigSelector: "script:nth-of-type(1)",
+    });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -10131,6 +10147,8 @@ describe("cli", () => {
             <script>
               fetch("/api/search?q=agent", { method: "POST" });
               window.localStorage.getItem("session");
+              navigator.serviceWorker.register("/sw.js");
+              window.__APP_CONFIG__ = { apiBase: "/api", featureFlags: { betaSearch: true } };
             </script>
           </head>
           <body><main><h1>App shell</h1></main></body>
@@ -10143,6 +10161,9 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topHydration: pageCheck.hydration[0] next-data label=\"Next.js data\" selector=script#__NEXT_DATA__:nth-of-type(1) <https://example.test/_next/data/build-123/app.json>");
     expect(stdout.output).toContain("  topApiEndpoint: pageCheck.apiEndpoints[0] fetch POST selector=script:nth-of-type(2) <https://example.test/api/search?q=agent>");
     expect(stdout.output).toContain("  topClientState: pageCheck.clientState[0] local-storage read key=session selector=script:nth-of-type(2)");
+    expect(stdout.output).toContain("  topRuntime: pageCheck.runtime[0] service-worker selector=script:nth-of-type(2) <https://example.test/sw.js>");
+    expect(stdout.output).toContain("  topRuntimeCommand: ax-grep 'https://example.test/sw.js'");
+    expect(stdout.output).toContain("  topConfig: pageCheck.config[0] env name=__APP_CONFIG__ keys=2 keyNames=apiBase,featureFlags selector=script:nth-of-type(2)");
     expect(stdout.output).toContain("  topAppHint: pageCheck.appHints[0] manifest label=\"Web app manifest\" selector=link[rel=\"manifest\"]:nth-of-type(1) <https://example.test/site.webmanifest>");
     expect(stdout.output).toContain("  topHiddenSignal: hydration pageCheck.hydration[0] next-data source=script selector=script#__NEXT_DATA__:nth-of-type(1) <https://example.test/_next/data/build-123/app.json> - Next.js data:");
   });

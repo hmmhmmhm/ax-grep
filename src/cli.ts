@@ -1855,6 +1855,18 @@ type AgentSummary = {
   topClientStateOperation?: string;
   topClientStateKey?: string;
   topClientStateSelector?: string;
+  topRuntimePath?: string;
+  topRuntimeKind?: string;
+  topRuntimeUrl?: string;
+  topRuntimeCommand?: string;
+  topRuntimeCommandArgs?: string[];
+  topRuntimeSelector?: string;
+  topConfigPath?: string;
+  topConfigKind?: string;
+  topConfigName?: string;
+  topConfigKeys?: string[];
+  topConfigKeyCount?: number;
+  topConfigSelector?: string;
   topAppHintPath?: string;
   topAppHintKind?: string;
   topAppHintLabel?: string;
@@ -4263,6 +4275,10 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topApiEndpointSelector ? [`  topApiEndpointSelector: ${agent.topApiEndpointSelector}`] : []),
     ...(agent.topClientStatePath ? [`  topClientState: ${agent.topClientStatePath} ${agent.topClientStateKind ?? ""}${agent.topClientStateOperation ? ` ${agent.topClientStateOperation}` : ""}${agent.topClientStateKey ? ` key=${agent.topClientStateKey}` : ""}${agent.topClientStateSelector ? ` selector=${agent.topClientStateSelector}` : ""}`] : []),
     ...(agent.topClientStateSelector ? [`  topClientStateSelector: ${agent.topClientStateSelector}`] : []),
+    ...(agent.topRuntimePath ? [`  topRuntime: ${agent.topRuntimePath} ${agent.topRuntimeKind ?? ""}${agent.topRuntimeSelector ? ` selector=${agent.topRuntimeSelector}` : ""}${agent.topRuntimeUrl ? ` <${agent.topRuntimeUrl}>` : ""}`] : []),
+    ...(agent.topRuntimeCommand ? [`  topRuntimeCommand: ${agent.topRuntimeCommand}`] : []),
+    ...(agent.topRuntimeCommandArgs ? [`  topRuntimeCommandArgs: ${formatCommandArgsText(agent.topRuntimeCommandArgs)}`] : []),
+    ...(agent.topConfigPath ? [`  topConfig: ${agent.topConfigPath} ${agent.topConfigKind ?? ""}${agent.topConfigName ? ` name=${agent.topConfigName}` : ""}${typeof agent.topConfigKeyCount === "number" ? ` keys=${agent.topConfigKeyCount}` : ""}${agent.topConfigKeys?.length ? ` keyNames=${agent.topConfigKeys.join(",")}` : ""}${agent.topConfigSelector ? ` selector=${agent.topConfigSelector}` : ""}`] : []),
     ...(agent.topAppHintPath ? [`  topAppHint: ${agent.topAppHintPath} ${agent.topAppHintKind ?? ""}${agent.topAppHintLabel ? ` label="${agent.topAppHintLabel}"` : ""}${agent.topAppHintSelector ? ` selector=${agent.topAppHintSelector}` : ""}${agent.topAppHintUrl ? ` <${agent.topAppHintUrl}>` : ""}`] : []),
     ...(agent.topAppHintCommand ? [`  topAppHintCommand: ${agent.topAppHintCommand}`] : []),
     ...(agent.topAppHintCommandArgs ? [`  topAppHintCommandArgs: ${formatCommandArgsText(agent.topAppHintCommandArgs)}`] : []),
@@ -12330,6 +12346,11 @@ function summarizeAgent(
     ? pageCommandSpec(topApiEndpoint.url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
   const topClientState = pageCheck.clientState[0];
+  const topRuntime = pageCheck.runtime[0];
+  const topRuntimeCommand = topRuntime?.url && /^https?:\/\//i.test(topRuntime.url)
+    ? pageCommandSpec(topRuntime.url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
+  const topConfig = pageCheck.config[0];
   const topAppHint = pageCheck.appHints[0];
   const topAppHintCommand = topAppHint?.url && /^https?:\/\//i.test(topAppHint.url)
     ? pageCommandSpec(topAppHint.url, agentMode, false, findQueries, timeoutMs, userAgent)
@@ -13421,6 +13442,18 @@ function summarizeAgent(
     ...(topClientState ? { topClientStateOperation: topClientState.operation } : {}),
     ...(topClientState?.key ? { topClientStateKey: topClientState.key } : {}),
     ...(topClientState?.selector ? { topClientStateSelector: topClientState.selector } : {}),
+    ...(topRuntime ? { topRuntimePath: topRuntime.path } : {}),
+    ...(topRuntime ? { topRuntimeKind: topRuntime.kind } : {}),
+    ...(topRuntime?.url ? { topRuntimeUrl: topRuntime.url } : {}),
+    ...(topRuntimeCommand ? { topRuntimeCommand: topRuntimeCommand.command } : {}),
+    ...(topRuntimeCommand ? { topRuntimeCommandArgs: topRuntimeCommand.commandArgs } : {}),
+    ...(topRuntime?.selector ? { topRuntimeSelector: topRuntime.selector } : {}),
+    ...(topConfig ? { topConfigPath: topConfig.path } : {}),
+    ...(topConfig ? { topConfigKind: topConfig.kind } : {}),
+    ...(topConfig?.name ? { topConfigName: topConfig.name } : {}),
+    ...(topConfig ? { topConfigKeyCount: topConfig.keyCount } : {}),
+    ...(topConfig?.keys.length ? { topConfigKeys: topConfig.keys } : {}),
+    ...(topConfig?.selector ? { topConfigSelector: topConfig.selector } : {}),
     ...(topAppHint ? { topAppHintPath: topAppHint.path } : {}),
     ...(topAppHint ? { topAppHintKind: topAppHint.kind } : {}),
     ...(topAppHint?.label ? { topAppHintLabel: topAppHint.label } : {}),
@@ -19492,6 +19525,18 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topClientStateOperation ? { topClientStateOperation: agent.topClientStateOperation } : {}),
     ...(agent.topClientStateKey ? { topClientStateKey: agent.topClientStateKey } : {}),
     ...(agent.topClientStateSelector ? { topClientStateSelector: agent.topClientStateSelector } : {}),
+    ...(agent.topRuntimePath ? { topRuntimePath: agent.topRuntimePath } : {}),
+    ...(agent.topRuntimeKind ? { topRuntimeKind: agent.topRuntimeKind } : {}),
+    ...(agent.topRuntimeUrl ? { topRuntimeUrl: agent.topRuntimeUrl } : {}),
+    ...(agent.topRuntimeCommand ? { topRuntimeCommand: agent.topRuntimeCommand } : {}),
+    ...(agent.topRuntimeCommandArgs ? { topRuntimeCommandArgs: agent.topRuntimeCommandArgs } : {}),
+    ...(agent.topRuntimeSelector ? { topRuntimeSelector: agent.topRuntimeSelector } : {}),
+    ...(agent.topConfigPath ? { topConfigPath: agent.topConfigPath } : {}),
+    ...(agent.topConfigKind ? { topConfigKind: agent.topConfigKind } : {}),
+    ...(agent.topConfigName ? { topConfigName: agent.topConfigName } : {}),
+    ...(agent.topConfigKeys ? { topConfigKeys: agent.topConfigKeys } : {}),
+    ...(typeof agent.topConfigKeyCount === "number" ? { topConfigKeyCount: agent.topConfigKeyCount } : {}),
+    ...(agent.topConfigSelector ? { topConfigSelector: agent.topConfigSelector } : {}),
     ...(agent.topAppHintPath ? { topAppHintPath: agent.topAppHintPath } : {}),
     ...(agent.topAppHintKind ? { topAppHintKind: agent.topAppHintKind } : {}),
     ...(agent.topAppHintLabel ? { topAppHintLabel: agent.topAppHintLabel } : {}),
@@ -20812,6 +20857,18 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topClientStateOperation ? { topClientStateOperation: agent.topClientStateOperation } : {}),
     ...(agent.topClientStateKey ? { topClientStateKey: agent.topClientStateKey } : {}),
     ...(agent.topClientStateSelector ? { topClientStateSelector: agent.topClientStateSelector } : {}),
+    ...(agent.topRuntimePath ? { topRuntimePath: agent.topRuntimePath } : {}),
+    ...(agent.topRuntimeKind ? { topRuntimeKind: agent.topRuntimeKind } : {}),
+    ...(agent.topRuntimeUrl ? { topRuntimeUrl: agent.topRuntimeUrl } : {}),
+    ...(agent.topRuntimeCommand ? { topRuntimeCommand: agent.topRuntimeCommand } : {}),
+    ...(agent.topRuntimeCommandArgs ? { topRuntimeCommandArgs: agent.topRuntimeCommandArgs } : {}),
+    ...(agent.topRuntimeSelector ? { topRuntimeSelector: agent.topRuntimeSelector } : {}),
+    ...(agent.topConfigPath ? { topConfigPath: agent.topConfigPath } : {}),
+    ...(agent.topConfigKind ? { topConfigKind: agent.topConfigKind } : {}),
+    ...(agent.topConfigName ? { topConfigName: agent.topConfigName } : {}),
+    ...(agent.topConfigKeys ? { topConfigKeys: agent.topConfigKeys } : {}),
+    ...(typeof agent.topConfigKeyCount === "number" ? { topConfigKeyCount: agent.topConfigKeyCount } : {}),
+    ...(agent.topConfigSelector ? { topConfigSelector: agent.topConfigSelector } : {}),
     ...(agent.topAppHintPath ? { topAppHintPath: agent.topAppHintPath } : {}),
     ...(agent.topAppHintKind ? { topAppHintKind: agent.topAppHintKind } : {}),
     ...(agent.topAppHintLabel ? { topAppHintLabel: agent.topAppHintLabel } : {}),

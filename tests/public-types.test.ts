@@ -570,6 +570,18 @@ describe("public agent types", () => {
       | "topClientStateOperation"
       | "topClientStateKey"
       | "topClientStateSelector"
+      | "topRuntimePath"
+      | "topRuntimeKind"
+      | "topRuntimeUrl"
+      | "topRuntimeCommand"
+      | "topRuntimeCommandArgs"
+      | "topRuntimeSelector"
+      | "topConfigPath"
+      | "topConfigKind"
+      | "topConfigName"
+      | "topConfigKeys"
+      | "topConfigKeyCount"
+      | "topConfigSelector"
       | "topAppHintPath"
       | "topAppHintKind"
       | "topAppHintLabel"
@@ -1874,8 +1886,8 @@ describe("public agent types", () => {
       hiddenHydrationCount: 1,
       hiddenApiEndpointCount: 2,
       hiddenClientStateCount: 1,
-      hiddenRuntimeCount: 0,
-      hiddenConfigCount: 0,
+      hiddenRuntimeCount: 1,
+      hiddenConfigCount: 1,
       hiddenAppHintCount: 0,
       hiddenMobileHintCount: 0,
       hiddenTopicCount: 0,
@@ -1902,6 +1914,18 @@ describe("public agent types", () => {
       topClientStateOperation: "read",
       topClientStateKey: "session",
       topClientStateSelector: "script:nth-of-type(2)",
+      topRuntimePath: "pageCheck.runtime[0]",
+      topRuntimeKind: "service-worker",
+      topRuntimeUrl: "https://example.test/sw.js",
+      topRuntimeCommand: "ax-grep 'https://example.test/sw.js' --agent",
+      topRuntimeCommandArgs: ["ax-grep", "https://example.test/sw.js", "--agent"],
+      topRuntimeSelector: "script:nth-of-type(3)",
+      topConfigPath: "pageCheck.config[0]",
+      topConfigKind: "env",
+      topConfigName: "__APP_CONFIG__",
+      topConfigKeys: ["apiBase", "featureFlags"],
+      topConfigKeyCount: 2,
+      topConfigSelector: "script:nth-of-type(4)",
       topAppHintPath: "pageCheck.appHints[0]",
       topAppHintKind: "manifest",
       topAppHintLabel: "manifest",
