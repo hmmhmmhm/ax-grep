@@ -2624,6 +2624,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       transcripts?: Array<{ path?: string; kind?: string; url?: string; label?: string; language?: string; selector?: string }>;
       authorLinks?: Array<{ path?: string; name?: string; url?: string; source?: string; selector?: string }>;
       provenance?: Array<{ path?: string; kind?: string; label?: string; value?: string; url?: string; source?: string; selector?: string }>;
+      offers?: Array<{ path?: string; name?: string; url?: string; selector?: string }>;
+      datasets?: Array<{ path?: string; kind?: string; name?: string; url?: string; distributionUrls?: string[]; licenseUrl?: string; selector?: string }>;
+      identities?: Array<{ path?: string; kind?: string; name?: string; url?: string; logoUrl?: string; sameAs?: string[]; source?: string; selector?: string }>;
+      contactPoints?: Array<{ path?: string; kind?: string; label?: string; value?: string; url?: string; source?: string; selector?: string }>;
       sections?: Array<{ heading?: string; text?: string }>;
       forms?: unknown[];
       actionTargets?: unknown[];
@@ -2734,6 +2738,10 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       item.pageCheck?.transcripts ?? [],
       item.pageCheck?.authorLinks ?? [],
       item.pageCheck?.provenance ?? [],
+      item.pageCheck?.offers ?? [],
+      item.pageCheck?.datasets ?? [],
+      item.pageCheck?.identities ?? [],
+      item.pageCheck?.contactPoints ?? [],
     ),
     pageCheckFormUrlPathScore: scorePageCheckFormUrlPaths(item.pageCheck?.forms ?? []),
     pageCheckActionTargetUrlPathScore: scorePageCheckActionTargetUrlPaths(item.pageCheck?.actionTargets ?? []),
@@ -5282,17 +5290,55 @@ function scoreAgentFormActionCounts(
 function scorePageCheckUrlItemPaths(...groups: unknown[][]): number {
   const records = groups
     .flat()
-    .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object" && typeof (item as Record<string, unknown>).url === "string");
+    .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object");
   if (records.length === 0) return 1;
   let matched = 0;
   let required = 0;
   for (const record of records) {
-    const urlParts = compareUrlPathParts(record.url as string);
-    required += 2;
-    if (optionalFieldMatches(record.urlPath, urlParts?.urlPath)) matched += 1;
-    if (optionalFieldMatches(record.urlQuery, urlParts?.urlQuery)) matched += 1;
+    const direct = scorePageCheckSingleUrlPath(record, "url", "urlPath", "urlQuery");
+    required += direct.required;
+    matched += direct.matched;
+    const logo = scorePageCheckSingleUrlPath(record, "logoUrl", "logoUrlPath", "logoUrlQuery");
+    required += logo.required;
+    matched += logo.matched;
+    const license = scorePageCheckSingleUrlPath(record, "licenseUrl", "licenseUrlPath", "licenseUrlQuery");
+    required += license.required;
+    matched += license.matched;
+    const distributions = scorePageCheckUrlListPaths(record, "distributionUrls", "distributionUrlPaths", "distributionUrlQueries");
+    required += distributions.required;
+    matched += distributions.matched;
+    const sameAs = scorePageCheckUrlListPaths(record, "sameAs", "sameAsUrlPaths", "sameAsUrlQueries");
+    required += sameAs.required;
+    matched += sameAs.matched;
   }
   return required === 0 ? 1 : roundScore(matched / required);
+}
+
+function scorePageCheckSingleUrlPath(record: Record<string, unknown>, urlKey: string, pathKey: string, queryKey: string): { matched: number; required: number } {
+  if (typeof record[urlKey] !== "string") return { matched: 0, required: 0 };
+  const urlParts = compareUrlPathParts(record[urlKey]);
+  let matched = 0;
+  let required = 2;
+  if (optionalFieldMatches(record[pathKey], urlParts?.urlPath)) matched += 1;
+  if (optionalFieldMatches(record[queryKey], urlParts?.urlQuery)) matched += 1;
+  return { matched, required };
+}
+
+function scorePageCheckUrlListPaths(record: Record<string, unknown>, urlsKey: string, pathsKey: string, queriesKey: string): { matched: number; required: number } {
+  if (!Array.isArray(record[urlsKey]) || !record[urlsKey].every((url) => typeof url === "string")) return { matched: 0, required: 0 };
+  const urls = record[urlsKey];
+  const paths = Array.isArray(record[pathsKey]) ? record[pathsKey] : [];
+  const queries = Array.isArray(record[queriesKey]) ? record[queriesKey] : [];
+  let matched = 0;
+  let required = 0;
+  for (const [index, url] of urls.entries()) {
+    const urlParts = compareUrlPathParts(url);
+    required += 2;
+    if (paths[index] === urlParts?.urlPath) matched += 1;
+    const actualQuery = queries[index] === "" ? undefined : queries[index];
+    if (optionalFieldMatches(actualQuery, urlParts?.urlQuery)) matched += 1;
+  }
+  return { matched, required };
 }
 
 function scorePageCheckFormUrlPaths(forms: unknown[]): number {

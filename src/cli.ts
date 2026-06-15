@@ -692,6 +692,8 @@ type PageOfferSummary = {
   currency?: string;
   availability?: string;
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   brand?: string;
   sku?: string;
   rating?: string;
@@ -710,8 +712,14 @@ type PageIdentitySummary = {
   text: string;
   source: "json-ld" | "meta";
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   logoUrl?: string;
+  logoUrlPath?: string;
+  logoUrlQuery?: string;
   sameAs?: string[];
+  sameAsUrlPaths?: string[];
+  sameAsUrlQueries?: string[];
   selector?: string;
 };
 
@@ -724,9 +732,15 @@ type PageDatasetSummary = {
   text: string;
   source: "json-ld" | "link";
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   distributionUrls?: string[];
+  distributionUrlPaths?: string[];
+  distributionUrlQueries?: string[];
   encodingFormat?: string;
   licenseUrl?: string;
+  licenseUrlPath?: string;
+  licenseUrlQuery?: string;
   temporalCoverage?: string;
   spatialCoverage?: string;
   creator?: string;
@@ -757,6 +771,8 @@ type PageContactPointSummary = {
   text: string;
   source: "json-ld" | "html" | "link";
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   selector?: string;
 };
 
@@ -5681,6 +5697,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       offer.rating ? `rating=${offer.rating}` : "",
       offer.reviewCount ? `reviews=${offer.reviewCount}` : "",
       offer.selector ? `selector=${offer.selector}` : "",
+      offer.urlPath ? `urlPath=${offer.urlPath}` : "",
+      offer.urlQuery ? `urlQuery=${offer.urlQuery}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  offer: id=${offer.id} path=${offer.path} ${details}${url} - ${offer.text}`);
   }
@@ -5691,8 +5709,14 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       `source=${identity.source}`,
       `name="${identity.name}"`,
       identity.logoUrl ? `logo=${identity.logoUrl}` : "",
+      identity.logoUrlPath ? `logoPath=${identity.logoUrlPath}` : "",
+      identity.logoUrlQuery ? `logoQuery=${identity.logoUrlQuery}` : "",
       identity.sameAs?.length ? `sameAs=${identity.sameAs.join(",")}` : "",
+      identity.sameAsUrlPaths?.length ? `sameAsPaths=${identity.sameAsUrlPaths.join(",")}` : "",
+      identity.sameAsUrlQueries?.length ? `sameAsQueries=${identity.sameAsUrlQueries.join(",")}` : "",
       identity.selector ? `selector=${identity.selector}` : "",
+      identity.urlPath ? `urlPath=${identity.urlPath}` : "",
+      identity.urlQuery ? `urlQuery=${identity.urlQuery}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  identity: id=${identity.id} path=${identity.path} ${details}${url} - ${identity.text}`);
   }
@@ -5707,8 +5731,14 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       dataset.spatialCoverage ? `spatial=${dataset.spatialCoverage}` : "",
       dataset.creator ? `creator="${dataset.creator}"` : "",
       dataset.distributionUrls?.length ? `distribution=${dataset.distributionUrls[0]}` : "",
+      dataset.distributionUrlPaths?.length ? `distributionPaths=${dataset.distributionUrlPaths.join(",")}` : "",
+      dataset.distributionUrlQueries?.length ? `distributionQueries=${dataset.distributionUrlQueries.join(",")}` : "",
       dataset.licenseUrl ? `license=${dataset.licenseUrl}` : "",
+      dataset.licenseUrlPath ? `licensePath=${dataset.licenseUrlPath}` : "",
+      dataset.licenseUrlQuery ? `licenseQuery=${dataset.licenseUrlQuery}` : "",
       dataset.selector ? `selector=${dataset.selector}` : "",
+      dataset.urlPath ? `urlPath=${dataset.urlPath}` : "",
+      dataset.urlQuery ? `urlQuery=${dataset.urlQuery}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  dataset: id=${dataset.id} path=${dataset.path} ${details}${url} - ${dataset.text}`);
   }
@@ -5732,6 +5762,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       `label="${contact.label}"`,
       `value=${contact.value}`,
       contact.selector ? `selector=${contact.selector}` : "",
+      contact.urlPath ? `urlPath=${contact.urlPath}` : "",
+      contact.urlQuery ? `urlQuery=${contact.urlQuery}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  contactPoint: id=${contact.id} path=${contact.path} ${details}${url} - ${contact.text}`);
   }
@@ -6697,6 +6729,24 @@ function urlPathParts(url: string): { urlPath: string; urlQuery?: string } | und
   } catch {
     return undefined;
   }
+}
+
+function prefixUrlPathParts(url: string, prefix: string): Record<string, string> {
+  const parts = urlPathParts(url);
+  return {
+    ...(parts?.urlPath ? { [`${prefix}Path`]: parts.urlPath } : {}),
+    ...(parts?.urlQuery ? { [`${prefix}Query`]: parts.urlQuery } : {}),
+  };
+}
+
+function listUrlPathParts(urls: string[], prefix: string): Record<string, string[]> {
+  const parts = urls.map((url) => urlPathParts(url));
+  const paths = parts.map((part) => part?.urlPath).filter((path): path is string => Boolean(path));
+  const queries = parts.map((part) => part?.urlQuery ?? "");
+  return {
+    ...(paths.length > 0 ? { [`${prefix}Paths`]: paths } : {}),
+    ...(queries.some(Boolean) ? { [`${prefix}Queries`]: queries } : {}),
+  };
 }
 
 function observedSemanticTableColumnCount(table: {
@@ -9968,6 +10018,7 @@ function summarizeOffers(html: string, baseUrl: string): PageOfferSummary[] {
       path: `pageCheck.offers[${rank - 1}]`,
       rank,
       ...item,
+      ...(item.url ? urlPathParts(item.url) : {}),
       text,
       source: "json-ld",
     });
@@ -10113,8 +10164,11 @@ function summarizeIdentities(html: string, baseUrl: string): PageIdentitySummary
       ...item,
       name,
       ...(url ? { url } : {}),
+      ...(url ? urlPathParts(url) : {}),
       ...(logoUrl ? { logoUrl } : {}),
+      ...(logoUrl ? prefixUrlPathParts(logoUrl, "logoUrl") : {}),
       ...(sameAs.length > 0 ? { sameAs } : {}),
+      ...(sameAs.length > 0 ? listUrlPathParts(sameAs, "sameAsUrl") : {}),
       text: identityText(item.kind, name, url, logoUrl, sameAs, item.source),
     });
   };
@@ -10238,9 +10292,12 @@ function summarizeDatasets(html: string, baseUrl: string): PageDatasetSummary[] 
       name,
       source: item.source,
       ...(url ? { url } : {}),
+      ...(url ? urlPathParts(url) : {}),
       ...(distributionUrls.length > 0 ? { distributionUrls } : {}),
+      ...(distributionUrls.length > 0 ? listUrlPathParts(distributionUrls, "distributionUrl") : {}),
       ...(encodingFormat ? { encodingFormat } : {}),
       ...(licenseUrl ? { licenseUrl } : {}),
+      ...(licenseUrl ? prefixUrlPathParts(licenseUrl, "licenseUrl") : {}),
       ...(temporalCoverage ? { temporalCoverage } : {}),
       ...(spatialCoverage ? { spatialCoverage } : {}),
       ...(creator ? { creator } : {}),
@@ -10571,6 +10628,7 @@ function summarizeContactPoints(html: string, baseUrl: string): PageContactPoint
       label,
       value,
       ...(url ? { url } : {}),
+      ...(url ? urlPathParts(url) : {}),
       text: contactPointText(item.kind, label, value, url, item.source),
     });
   };

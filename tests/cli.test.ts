@@ -9781,6 +9781,7 @@ describe("cli", () => {
         currency: "USD",
         availability: "InStock",
         url: "https://example.test/buy",
+        urlPath: "/buy",
         brand: "Example Labs",
         sku: "ABP-2026",
         rating: "4.8 / 5",
@@ -9892,7 +9893,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topOffer: path=pageCheck.offers[0] name=\"Agent Browser Pro\" currency=USD price=19.99 availability=InStock selector=script[type=\"application/ld+json\"]:nth-of-type(1) url=<https://example.test/buy> urlPath=/buy");
     expect(stdout.output).toContain("  topOfferCommand: ax-grep 'https://example.test/buy'");
-    expect(stdout.output).toContain("  offer: id=of1 path=pageCheck.offers[0] source=json-ld name=\"Agent Browser Pro\" currency=USD price=19.99 priceAmount=19.99 availability=InStock selector=script[type=\"application/ld+json\"]:nth-of-type(1) url=<https://example.test/buy>");
+    expect(stdout.output).toContain("  offer: id=of1 path=pageCheck.offers[0] source=json-ld name=\"Agent Browser Pro\" currency=USD price=19.99 priceAmount=19.99 availability=InStock selector=script[type=\"application/ld+json\"]:nth-of-type(1) urlPath=/buy url=<https://example.test/buy>");
   });
 
   it("summarizes JSON-LD identities and sameAs links as pageCheck read targets for agents", async () => {
@@ -9943,6 +9944,7 @@ describe("cli", () => {
         text: "website: Example Labs url=https://example.test/about source=meta",
         source: "meta",
         url: "https://example.test/about",
+        urlPath: "/about",
         selector: "meta[property=\"og:site_name\"], meta[name=\"application-name\"]",
       },
       {
@@ -9954,10 +9956,16 @@ describe("cli", () => {
         text: "organization: Example Labs url=https://example.test/ logo=https://example.test/logo.png sameAs=https://github.com/example|https://www.linkedin.com/company/example-labs source=json-ld",
         source: "json-ld",
         url: "https://example.test/",
+        urlPath: "/",
         logoUrl: "https://example.test/logo.png",
+        logoUrlPath: "/logo.png",
         sameAs: [
           "https://github.com/example",
           "https://www.linkedin.com/company/example-labs",
+        ],
+        sameAsUrlPaths: [
+          "/example",
+          "/company/example-labs",
         ],
         selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
       },
@@ -9970,6 +9978,7 @@ describe("cli", () => {
         text: "website: Example Docs url=https://example.test/docs source=json-ld",
         source: "json-ld",
         url: "https://example.test/docs",
+        urlPath: "/docs",
         selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
       },
     ]);
@@ -10071,7 +10080,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topIdentity: path=pageCheck.identities[0] kind=organization name=\"Example Labs\" source=json-ld selector=script[type=\"application/ld+json\"]:nth-of-type(1) logo=<https://example.test/logo.png> logoPath=/logo.png sameAs=<https://github.com/example> sameAsPath=/example url=<https://example.test/> urlPath=/");
     expect(stdout.output).toContain("  topIdentityLogoCommand: ax-grep 'https://example.test/logo.png'");
     expect(stdout.output).toContain("  topIdentitySameAsCommand: ax-grep 'https://github.com/example'");
-    expect(stdout.output).toContain("  identity: id=id1 path=pageCheck.identities[0] kind=organization source=json-ld name=\"Example Labs\" logo=https://example.test/logo.png sameAs=https://github.com/example selector=script[type=\"application/ld+json\"]:nth-of-type(1) url=<https://example.test/>");
+    expect(stdout.output).toContain("  identity: id=id1 path=pageCheck.identities[0] kind=organization source=json-ld name=\"Example Labs\" logo=https://example.test/logo.png logoPath=/logo.png sameAs=https://github.com/example sameAsPaths=/example selector=script[type=\"application/ld+json\"]:nth-of-type(1) urlPath=/ url=<https://example.test/>");
   });
 
   it("summarizes dataset and data download provenance as pageCheck read targets for agents", async () => {
@@ -10124,9 +10133,12 @@ describe("cli", () => {
         text: "dataset: Example emissions dataset url=https://example.test/datasets/emissions distributions=https://example.test/downloads/emissions.csv format=text/csv license=https://creativecommons.org/licenses/by/4.0/ temporal=2020/2025 spatial=United States creator=Example Lab source=json-ld",
         source: "json-ld",
         url: "https://example.test/datasets/emissions",
+        urlPath: "/datasets/emissions",
         distributionUrls: ["https://example.test/downloads/emissions.csv"],
+        distributionUrlPaths: ["/downloads/emissions.csv"],
         encodingFormat: "text/csv",
         licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+        licenseUrlPath: "/licenses/by/4.0/",
         temporalCoverage: "2020/2025",
         spatialCoverage: "United States",
         creator: "Example Lab",
@@ -10141,7 +10153,9 @@ describe("cli", () => {
         text: "dataDownload: Population parquet data url=https://example.test/downloads/population.parquet distributions=https://example.test/downloads/population.parquet format=application/vnd.apache.parquet source=link",
         source: "link",
         url: "https://example.test/downloads/population.parquet",
+        urlPath: "/downloads/population.parquet",
         distributionUrls: ["https://example.test/downloads/population.parquet"],
+        distributionUrlPaths: ["/downloads/population.parquet"],
         encodingFormat: "application/vnd.apache.parquet",
         selector: "a:nth-of-type(1)",
       },
@@ -10277,7 +10291,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topDataset: path=pageCheck.datasets[0] kind=dataset name=\"Example emissions dataset\" format=text/csv temporal=2020/2025 spatial=United States creator=\"Example Lab\" selector=script[type=\"application/ld+json\"]:nth-of-type(1) distribution=<https://example.test/downloads/emissions.csv> distributionPath=/downloads/emissions.csv license=<https://creativecommons.org/licenses/by/4.0/> licensePath=/licenses/by/4.0/ url=<https://example.test/datasets/emissions> urlPath=/datasets/emissions");
     expect(stdout.output).toContain("  topDatasetDistributionCommand: ax-grep 'https://example.test/downloads/emissions.csv'");
     expect(stdout.output).toContain("  topDatasetLicenseCommand: ax-grep 'https://creativecommons.org/licenses/by/4.0/'");
-    expect(stdout.output).toContain("  dataset: id=ds1 path=pageCheck.datasets[0] kind=dataset source=json-ld name=\"Example emissions dataset\" format=text/csv temporal=2020/2025 spatial=United States creator=\"Example Lab\" distribution=https://example.test/downloads/emissions.csv license=https://creativecommons.org/licenses/by/4.0/ selector=script[type=\"application/ld+json\"]:nth-of-type(1) url=<https://example.test/datasets/emissions>");
+    expect(stdout.output).toContain("  dataset: id=ds1 path=pageCheck.datasets[0] kind=dataset source=json-ld name=\"Example emissions dataset\" format=text/csv temporal=2020/2025 spatial=United States creator=\"Example Lab\" distribution=https://example.test/downloads/emissions.csv distributionPaths=/downloads/emissions.csv license=https://creativecommons.org/licenses/by/4.0/ licensePath=/licenses/by/4.0/ selector=script[type=\"application/ld+json\"]:nth-of-type(1) urlPath=/datasets/emissions url=<https://example.test/datasets/emissions>");
   });
 
   it("summarizes publication and update dates as pageCheck timeline read targets for agents", async () => {
@@ -10481,6 +10495,7 @@ describe("cli", () => {
         text: "Support: contact-url https://example.test/support https://example.test/support source=json-ld",
         source: "json-ld",
         url: "https://example.test/support",
+        urlPath: "/support",
         selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
       },
       {
@@ -10493,6 +10508,7 @@ describe("cli", () => {
         text: "Press team: email press@example.test mailto:press@example.test source=link",
         source: "link",
         url: "mailto:press@example.test",
+        urlPath: "press@example.test",
         selector: "a:nth-of-type(1)",
       },
       {
@@ -10578,7 +10594,7 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topContactPoint: path=pageCheck.contactPoints[0] kind=email label=\"Press team\" value=press@example.test source=link selector=a:nth-of-type(1) url=<mailto:press@example.test>");
-    expect(stdout.output).toContain("  contactPoint: id=cp1 path=pageCheck.contactPoints[0] kind=email source=link label=\"Press team\" value=press@example.test selector=a:nth-of-type(1) url=<mailto:press@example.test> - Press team: email press@example.test mailto:press@example.test source=link");
+    expect(stdout.output).toContain("  contactPoint: id=cp1 path=pageCheck.contactPoints[0] kind=email source=link label=\"Press team\" value=press@example.test selector=a:nth-of-type(1) urlPath=press@example.test url=<mailto:press@example.test> - Press team: email press@example.test mailto:press@example.test source=link");
   });
 
   it("prints hidden app signal locators in text output", async () => {

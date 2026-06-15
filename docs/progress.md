@@ -1057,6 +1057,10 @@ When research expands:
   `pageCheck.transcripts`, `pageCheck.authorLinks`, and
   `pageCheck.provenance`, so read-target follow-up arrays preserve the same
   routing evidence as their top shortcuts.
+- Extended original structured read-target arrays with URL path/query evidence
+  for `pageCheck.offers`, `pageCheck.datasets`, `pageCheck.identities`, and
+  `pageCheck.contactPoints`, including dataset distribution/license URLs and
+  identity logo/sameAs URLs, under the same static gate.
 
 ## In Progress
 
