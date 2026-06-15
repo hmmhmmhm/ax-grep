@@ -199,6 +199,7 @@ describe("public agent types", () => {
       hiddenFieldCount: 1,
       text: "GET https://example.test/find; query field: q",
       actionUrl: "https://example.test/find",
+      actionUrlPath: "/find",
       formId: "archive-form",
       formName: "archive",
       formTarget: "_blank",
@@ -219,6 +220,8 @@ describe("public agent types", () => {
       submitFormId: "remote-form",
       queryField: "q",
       urlTemplate: "https://example.test/find?q={query}",
+      urlTemplatePath: "/find",
+      urlTemplateQuery: "?q={query}",
       command: "ax-grep 'https://example.test/find?q=docs' --find docs --agent",
       commandArgs: ["ax-grep", "https://example.test/find?q=docs", "--find", "docs", "--agent"],
       selector: "form:nth-of-type(1)",
@@ -294,6 +297,8 @@ describe("public agent types", () => {
       | "topFormChoicePath"
       | "topFormChoiceMethod"
       | "topFormChoiceActionUrl"
+      | "topFormChoiceActionUrlPath"
+      | "topFormChoiceActionUrlQuery"
       | "topFormChoiceFormId"
       | "topFormChoiceFormName"
       | "topFormChoiceFormTarget"
@@ -314,6 +319,8 @@ describe("public agent types", () => {
       | "topFormChoiceSubmitFormId"
       | "topFormChoiceQueryField"
       | "topFormChoiceUrlTemplate"
+      | "topFormChoiceUrlTemplatePath"
+      | "topFormChoiceUrlTemplateQuery"
       | "topFormChoiceCommand"
       | "topFormChoiceCommandArgs"
       | "topFormChoiceFieldCount"
@@ -1729,6 +1736,7 @@ describe("public agent types", () => {
       topFormChoicePath: "pageCheck.forms[0]",
       topFormChoiceMethod: "get",
       topFormChoiceActionUrl: "https://example.test/find",
+      topFormChoiceActionUrlPath: "/find",
       topFormChoiceFormId: "archive-form",
       topFormChoiceFormName: "archive",
       topFormChoiceFormTarget: "_blank",
@@ -1749,6 +1757,8 @@ describe("public agent types", () => {
       topFormChoiceSubmitFormId: "remote-form",
       topFormChoiceQueryField: "q",
       topFormChoiceUrlTemplate: "https://example.test/find?q={query}",
+      topFormChoiceUrlTemplatePath: "/find",
+      topFormChoiceUrlTemplateQuery: "?q={query}",
       topFormChoiceCommand: "ax-grep 'https://example.test/find?q=docs' --find docs --agent",
       topFormChoiceCommandArgs: ["ax-grep", "https://example.test/find?q=docs", "--find", "docs", "--agent"],
       topFormChoiceFieldCount: 1,
@@ -3298,7 +3308,10 @@ describe("public agent types", () => {
     expect(summary.actionTargetChoices?.[0]?.source).toBe("json-ld");
     expect(summary.actionTargetChoices?.[0]?.rank).toBe(1);
     expect(summary.actionTargetChoices?.[0]?.commandArgs?.[0]).toBe("ax-grep");
+    expect(summary.topFormChoiceActionUrlPath).toBe("/find");
     expect(summary.topFormChoiceUrlTemplate).toBe("https://example.test/find?q={query}");
+    expect(summary.topFormChoiceUrlTemplatePath).toBe("/find");
+    expect(summary.topFormChoiceUrlTemplateQuery).toBe("?q={query}");
     expect(summary.topFormChoiceCommand).toContain("find?q=docs");
     expect(summary.topFormChoiceFirstFieldLabel).toBe("Search");
     expect(summary.topFormChoiceFirstFieldPlaceholder).toBe("Search docs");

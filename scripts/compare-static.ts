@@ -392,6 +392,8 @@ type CliAgentFormChoiceShape = {
   hiddenFieldCount?: number;
   text?: string;
   actionUrl?: string;
+  actionUrlPath?: string;
+  actionUrlQuery?: string;
   formId?: string;
   formName?: string;
   formTarget?: string;
@@ -412,6 +414,8 @@ type CliAgentFormChoiceShape = {
   submitFormId?: string;
   queryField?: string;
   urlTemplate?: string;
+  urlTemplatePath?: string;
+  urlTemplateQuery?: string;
   selector?: string;
   command?: string;
   commandArgs?: unknown[];
@@ -1460,6 +1464,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topFormChoicePath?: string;
       topFormChoiceMethod?: string;
       topFormChoiceActionUrl?: string;
+      topFormChoiceActionUrlPath?: string;
+      topFormChoiceActionUrlQuery?: string;
       topFormChoiceFormId?: string;
       topFormChoiceFormName?: string;
       topFormChoiceFormTarget?: string;
@@ -1480,6 +1486,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topFormChoiceSubmitFormId?: string;
       topFormChoiceQueryField?: string;
       topFormChoiceUrlTemplate?: string;
+      topFormChoiceUrlTemplatePath?: string;
+      topFormChoiceUrlTemplateQuery?: string;
       topFormChoiceCommand?: string;
       topFormChoiceCommandArgs?: unknown[];
       topFormChoiceFieldCount?: number;
@@ -5166,6 +5174,19 @@ function scoreAgentFormChoices(choices: CliAgentFormChoiceShape[], forms: unknow
     required += 1;
     if (choices.some((choice) => typeof choice.urlTemplate === "string" && choice.urlTemplate.length > 0 && typeof choice.queryField === "string" && choice.queryField.length > 0)) matched += 1;
   }
+  if (expected.some((form) => typeof (form as { urlTemplate?: unknown }).urlTemplate === "string" || typeof (form as { actionUrl?: unknown }).actionUrl === "string")) {
+    required += 1;
+    if (choices.every((choice, index) => {
+      const form = expected[index];
+      if (!form) return false;
+      const actionUrlParts = typeof form.actionUrl === "string" ? compareUrlPathParts(form.actionUrl) : undefined;
+      const urlTemplateParts = typeof form.urlTemplate === "string" ? compareUrlPathParts(form.urlTemplate) : undefined;
+      return optionalFieldMatches(choice.actionUrlPath, actionUrlParts?.urlPath)
+        && optionalFieldMatches(choice.actionUrlQuery, actionUrlParts?.urlQuery)
+        && optionalFieldMatches(choice.urlTemplatePath, urlTemplateParts?.urlPath)
+        && optionalFieldMatches(choice.urlTemplateQuery, urlTemplateParts?.urlQuery);
+    })) matched += 1;
+  }
   if (choices.some(hasExecutableCommand)) {
     required += 1;
     if (choices.filter((choice) => typeof choice.urlTemplate === "string").every(hasExecutableCommand)) matched += 1;
@@ -5248,6 +5269,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   topFormChoicePath?: string;
   topFormChoiceMethod?: string;
   topFormChoiceActionUrl?: string;
+  topFormChoiceActionUrlPath?: string;
+  topFormChoiceActionUrlQuery?: string;
   topFormChoiceFormId?: string;
   topFormChoiceFormName?: string;
   topFormChoiceFormTarget?: string;
@@ -5268,6 +5291,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   topFormChoiceSubmitFormId?: string;
   topFormChoiceQueryField?: string;
   topFormChoiceUrlTemplate?: string;
+  topFormChoiceUrlTemplatePath?: string;
+  topFormChoiceUrlTemplateQuery?: string;
   topFormChoiceCommand?: string;
   topFormChoiceCommandArgs?: unknown[];
   topFormChoiceFieldCount?: number;
@@ -5354,13 +5379,15 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   let matched = 0;
   if (form) {
     if (agent?.topFormChoicePath === form.path) matched += 1;
-    required += 79;
+    required += 83;
     const firstField = Array.isArray(form.fields) ? form.fields[0] as { name?: unknown; type?: unknown; label?: unknown; placeholder?: unknown; value?: unknown; options?: unknown; selectedOption?: unknown; selectedValue?: unknown; autocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; required?: unknown; checked?: unknown; disabled?: unknown; readonly?: unknown; invalid?: unknown; selector?: unknown } | undefined : undefined;
     const requiredField = Array.isArray(form.fields) ? form.fields.find((field) => Boolean(field) && typeof field === "object" && (field as { required?: unknown }).required === true) as { name?: unknown; type?: unknown; label?: unknown; placeholder?: unknown; value?: unknown; options?: unknown; selectedOption?: unknown; selectedValue?: unknown; autocomplete?: unknown; inputMode?: unknown; pattern?: unknown; min?: unknown; max?: unknown; step?: unknown; minLength?: unknown; maxLength?: unknown; required?: unknown; checked?: unknown; disabled?: unknown; readonly?: unknown; invalid?: unknown; selector?: unknown } | undefined : undefined;
     const invalidField = Array.isArray(form.fields) ? form.fields.find((field) => Boolean(field) && typeof field === "object" && typeof (field as { invalid?: unknown }).invalid !== "undefined") as { name?: unknown; type?: unknown; label?: unknown; invalid?: unknown; selector?: unknown } | undefined : undefined;
     const firstHiddenField = Array.isArray(form.hiddenFields) ? form.hiddenFields[0] as { name?: unknown; value?: unknown; selector?: unknown } | undefined : undefined;
     if (agent?.topFormChoiceMethod === form.method) matched += 1;
     if (agent?.topFormChoiceActionUrl === form.actionUrl) matched += 1;
+    if (agent?.topFormChoiceActionUrlPath === form.actionUrlPath) matched += 1;
+    if (agent?.topFormChoiceActionUrlQuery === form.actionUrlQuery) matched += 1;
     if (agent?.topFormChoiceFormId === form.formId) matched += 1;
     if (agent?.topFormChoiceFormName === form.formName) matched += 1;
     if (agent?.topFormChoiceFormTarget === form.formTarget) matched += 1;
@@ -5381,6 +5408,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     if (agent?.topFormChoiceSubmitFormId === form.submitFormId) matched += 1;
     if (agent?.topFormChoiceQueryField === form.queryField) matched += 1;
     if (agent?.topFormChoiceUrlTemplate === form.urlTemplate) matched += 1;
+    if (agent?.topFormChoiceUrlTemplatePath === form.urlTemplatePath) matched += 1;
+    if (agent?.topFormChoiceUrlTemplateQuery === form.urlTemplateQuery) matched += 1;
     if (agent?.topFormChoiceCommand === form.command) matched += 1;
     if (JSON.stringify(agent?.topFormChoiceCommandArgs) === JSON.stringify(form.commandArgs)) matched += 1;
     if (agent?.topFormChoiceFieldCount === form.fieldCount) matched += 1;
@@ -5442,6 +5471,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     agent?.topFormChoicePath
     || agent?.topFormChoiceMethod
     || agent?.topFormChoiceActionUrl
+    || agent?.topFormChoiceActionUrlPath
+    || agent?.topFormChoiceActionUrlQuery
     || agent?.topFormChoiceFormId
     || agent?.topFormChoiceFormName
     || agent?.topFormChoiceFormTarget
@@ -5462,6 +5493,8 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     || agent?.topFormChoiceSubmitFormId
     || agent?.topFormChoiceQueryField
     || agent?.topFormChoiceUrlTemplate
+    || agent?.topFormChoiceUrlTemplatePath
+    || agent?.topFormChoiceUrlTemplateQuery
     || agent?.topFormChoiceCommand
     || agent?.topFormChoiceCommandArgs?.length
     || typeof agent?.topFormChoiceFieldCount === "number"

@@ -1230,6 +1230,8 @@ export type AgentPageForm = {
   hiddenFieldCount: number;
   text?: string;
   actionUrl?: string;
+  actionUrlPath?: string;
+  actionUrlQuery?: string;
   formId?: string;
   formName?: string;
   formTarget?: string;
@@ -1250,6 +1252,8 @@ export type AgentPageForm = {
   submitFormId?: string;
   queryField?: string;
   urlTemplate?: string;
+  urlTemplatePath?: string;
+  urlTemplateQuery?: string;
   selector?: string;
   hiddenFields?: AgentFormHiddenField[];
   fields: AgentFormField[];
@@ -1948,6 +1952,8 @@ export type AgentSummary = {
   topFormChoicePath?: string;
   topFormChoiceMethod?: string;
   topFormChoiceActionUrl?: string;
+  topFormChoiceActionUrlPath?: string;
+  topFormChoiceActionUrlQuery?: string;
   topFormChoiceFormId?: string;
   topFormChoiceFormName?: string;
   topFormChoiceFormTarget?: string;
@@ -1968,6 +1974,8 @@ export type AgentSummary = {
   topFormChoiceSubmitFormId?: string;
   topFormChoiceQueryField?: string;
   topFormChoiceUrlTemplate?: string;
+  topFormChoiceUrlTemplatePath?: string;
+  topFormChoiceUrlTemplateQuery?: string;
   topFormChoiceCommand?: string;
   topFormChoiceCommandArgs?: string[];
   topFormChoiceFieldCount?: number;

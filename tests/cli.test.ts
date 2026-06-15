@@ -6431,6 +6431,7 @@ describe("cli", () => {
         rank: 1,
         method: "get",
         actionUrl: "https://example.test/find",
+        actionUrlPath: "/find",
         formId: "archive-form",
         formName: "archive",
         formTarget: "_blank",
@@ -6617,6 +6618,7 @@ describe("cli", () => {
       topFormChoicePath: "pageCheck.forms[0]",
       topFormChoiceMethod: "get",
       topFormChoiceActionUrl: "https://example.test/find",
+      topFormChoiceActionUrlPath: "/find",
       topFormChoiceFormId: "archive-form",
       topFormChoiceFormName: "archive",
       topFormChoiceFormTarget: "_blank",
@@ -6631,6 +6633,8 @@ describe("cli", () => {
       topFormChoiceSubmitSelector: "button[name=\"submit-search\"]",
       topFormChoiceQueryField: "query",
       topFormChoiceUrlTemplate: "https://example.test/find?query=%7Bquery%7D",
+      topFormChoiceUrlTemplatePath: "/find",
+      topFormChoiceUrlTemplateQuery: "?query=%7Bquery%7D",
       topFormChoiceFieldCount: 2,
       topFormChoiceHiddenFieldCount: 1,
       topFormChoiceSelector: "form:nth-of-type(1)",
@@ -6674,6 +6678,8 @@ describe("cli", () => {
         submitDisabled: true,
         submitSelector: "button[name=\"submit-search\"]",
         urlTemplate: "https://example.test/find?query=%7Bquery%7D",
+        urlTemplatePath: "/find",
+        urlTemplateQuery: "?query=%7Bquery%7D",
         queryField: "query",
         selector: "form:nth-of-type(1)",
         hiddenFields: expect.arrayContaining([
@@ -6789,6 +6795,7 @@ describe("cli", () => {
     expect(envelope.agent).toMatchObject({
       topFormChoiceMethod: "get",
       topFormChoiceActionUrl: "https://example.test/override",
+      topFormChoiceActionUrlPath: "/override",
       topFormChoiceSubmitFormActionUrl: "https://example.test/override",
       topFormChoiceSubmitFormMethod: "get",
       topFormChoiceSubmitFormTarget: "_blank",
@@ -6796,10 +6803,13 @@ describe("cli", () => {
       topFormChoiceSubmitFormNoValidate: true,
       topFormChoiceSubmitFormId: "remote-form",
       topFormChoiceUrlTemplate: "https://example.test/override?q=%7Bquery%7D",
+      topFormChoiceUrlTemplatePath: "/override",
+      topFormChoiceUrlTemplateQuery: "?q=%7Bquery%7D",
     });
     expect(envelope.agent.formChoices[0]).toMatchObject({
       method: "get",
       actionUrl: "https://example.test/override",
+      actionUrlPath: "/override",
       submitFormActionUrl: "https://example.test/override",
       submitFormMethod: "get",
       submitFormTarget: "_blank",
@@ -6807,6 +6817,8 @@ describe("cli", () => {
       submitFormNoValidate: true,
       submitFormId: "remote-form",
       urlTemplate: "https://example.test/override?q=%7Bquery%7D",
+      urlTemplatePath: "/override",
+      urlTemplateQuery: "?q=%7Bquery%7D",
     });
 
     const textStdout = new MemoryWriter();
@@ -12908,6 +12920,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topFormChoicePath: pageCheck.forms[0]");
     expect(stdout.output).toContain("  topFormChoiceMethod: get");
     expect(stdout.output).toContain("  topFormChoiceActionUrl: https://example.test/find");
+    expect(stdout.output).toContain("  topFormChoiceActionUrlPath: /find");
     expect(stdout.output).toContain("  topFormChoiceFormId: archive-form");
     expect(stdout.output).toContain("  topFormChoiceFormName: archive");
     expect(stdout.output).toContain("  topFormChoiceFormTarget: _blank");
@@ -12915,6 +12928,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topFormChoiceFormAcceptCharset: UTF-8");
     expect(stdout.output).toContain("  topFormChoiceFormNoValidate: true");
     expect(stdout.output).toContain("  topFormChoiceUrlTemplate: https://example.test/find?query=%7Bquery%7D");
+    expect(stdout.output).toContain("  topFormChoiceUrlTemplatePath: /find");
+    expect(stdout.output).toContain("  topFormChoiceUrlTemplateQuery: ?query=%7Bquery%7D");
     expect(stdout.output).toContain("  topFormChoiceQueryField: query");
     expect(stdout.output).toContain("  topFormChoiceFieldCount: 1");
     expect(stdout.output).toContain("  topFormChoiceHiddenFieldCount: 1");
@@ -12971,7 +12986,10 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("    command: ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
     expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  formChoiceActionUrl: https://example.test/find");
+    expect(stdout.output).toContain("  formChoiceActionUrlPath: /find");
     expect(stdout.output).toContain("  formChoiceUrlTemplate: https://example.test/find?query=%7Bquery%7D");
+    expect(stdout.output).toContain("  formChoiceUrlTemplatePath: /find");
+    expect(stdout.output).toContain("  formChoiceUrlTemplateQuery: ?query=%7Bquery%7D");
     expect(stdout.output).toContain("  formChoiceQueryField: query");
     expect(stdout.output).toContain("  formChoiceFieldCount: 1");
     expect(stdout.output).toContain("  formChoiceHiddenFieldCount: 1");
