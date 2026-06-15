@@ -10113,6 +10113,35 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topContactPoint: pageCheck.contactPoints[0] email label=\"Press team\":press@example.test source=link selector=a:nth-of-type(1) <mailto:press@example.test>");
   });
 
+  it("prints hidden app signal locators in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/app"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <head>
+            <link rel="manifest" href="/site.webmanifest">
+            <script id="__NEXT_DATA__" type="application/json">
+              {"buildId":"build-123","page":"/app","props":{"pageProps":{"title":"Agent app"}}}
+            </script>
+            <script>
+              fetch("/api/search?q=agent", { method: "POST" });
+              window.localStorage.getItem("session");
+            </script>
+          </head>
+          <body><main><h1>App shell</h1></main></body>
+        </html>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  topHydration: pageCheck.hydration[0] next-data label=\"Next.js data\" selector=script#__NEXT_DATA__:nth-of-type(1) <https://example.test/_next/data/build-123/app.json>");
+    expect(stdout.output).toContain("  topApiEndpoint: pageCheck.apiEndpoints[0] fetch POST selector=script:nth-of-type(2) <https://example.test/api/search?q=agent>");
+    expect(stdout.output).toContain("  topClientState: pageCheck.clientState[0] local-storage read key=session selector=script:nth-of-type(2)");
+    expect(stdout.output).toContain("  topAppHint: pageCheck.appHints[0] manifest label=\"Web app manifest\" selector=link[rel=\"manifest\"]:nth-of-type(1) <https://example.test/site.webmanifest>");
+  });
+
   it("exposes fetchable top contact point commands for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/contact", "--agent"], {
