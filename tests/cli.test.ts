@@ -10240,9 +10240,9 @@ describe("cli", () => {
     expect(stdout.output).toContain("  clientState: cs1 pageCheck.clientState[0] kind=local-storage source=script operation=read key=session selector=script:nth-of-type(3)");
     expect(stdout.output).toContain("  runtime: rt1 pageCheck.runtime[0] kind=service-worker source=script selector=script:nth-of-type(3) <https://example.test/sw.js>");
     expect(stdout.output).toContain("  config: cfg1 pageCheck.config[0] kind=env source=script name=__APP_CONFIG__ keys=2 keyNames=apiBase,featureFlags selector=script:nth-of-type(3)");
-    expect(stdout.output).toContain("  appHint: ah1 pageCheck.appHints[0] manifest source=link label=\"Web app manifest\" selector=link[rel=\"manifest\"]:nth-of-type(1) <https://example.test/site.webmanifest>");
-    expect(stdout.output).toContain("  mobileHint: mh1 pageCheck.mobileHints[0] viewport source=meta label=\"Viewport\" selector=meta[name=\"viewport\"]:nth-of-type(1)");
-    expect(stdout.output).toContain("  topic: tp1 pageCheck.topics[0] keyword source=meta label=\"Keyword\" selector=meta[name=\"keywords\"]:nth-of-type(2)");
+    expect(stdout.output).toContain("  appHint: ah1 pageCheck.appHints[0] kind=manifest source=link label=\"Web app manifest\" selector=link[rel=\"manifest\"]:nth-of-type(1) <https://example.test/site.webmanifest>");
+    expect(stdout.output).toContain("  mobileHint: mh1 pageCheck.mobileHints[0] kind=viewport source=meta label=\"Viewport\" selector=meta[name=\"viewport\"]:nth-of-type(1)");
+    expect(stdout.output).toContain("  topic: tp1 pageCheck.topics[0] kind=keyword source=meta label=\"Keyword\" selector=meta[name=\"keywords\"]:nth-of-type(2)");
     expect(stdout.output).toContain("  keyValue: kv1 pageCheck.keyValues[0] source=definition-list label=\"Version\" selector=dl:nth-of-type(1)");
     expect(stdout.output).toContain("  metaFact: mf1 pageCheck.metaFacts[0] source=link label=\"Canonical URL\" selector=link[rel=\"canonical\"]:nth-of-type(2) <https://example.test/app/canonical>");
     expect(stdout.output).toContain("  httpPolicy: hp1 pageCheck.httpPolicies[0] source=meta name=\"Referrer-Policy\" selector=meta[http-equiv=\"referrer-policy\"]:nth-of-type(3)");

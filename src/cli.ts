@@ -5098,31 +5098,34 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   for (const hint of pageCheck.appHints) {
     const url = hint.url ? ` <${hint.url}>` : "";
     const details = [
+      `kind=${hint.kind}`,
       `source=${hint.source}`,
       `label="${hint.label}"`,
       hint.sizes ? `sizes=${hint.sizes}` : "",
       hint.media ? `media=${hint.media}` : "",
       hint.selector ? `selector=${hint.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  appHint: ${hint.id} ${hint.path} ${hint.kind} ${details}${url} - ${hint.text}`);
+    lines.push(`  appHint: ${hint.id} ${hint.path} ${details}${url} - ${hint.text}`);
   }
   for (const hint of pageCheck.mobileHints) {
     const url = hint.url ? ` <${hint.url}>` : "";
     const details = [
+      `kind=${hint.kind}`,
       `source=${hint.source}`,
       `label="${hint.label}"`,
       hint.platform ? `platform=${hint.platform}` : "",
       hint.selector ? `selector=${hint.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  mobileHint: ${hint.id} ${hint.path} ${hint.kind} ${details}${url} - ${hint.text}`);
+    lines.push(`  mobileHint: ${hint.id} ${hint.path} ${details}${url} - ${hint.text}`);
   }
   for (const topic of pageCheck.topics) {
     const details = [
+      `kind=${topic.kind}`,
       `source=${topic.source}`,
       `label="${topic.label}"`,
       topic.selector ? `selector=${topic.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  topic: ${topic.id} ${topic.path} ${topic.kind} ${details} - ${topic.text}`);
+    lines.push(`  topic: ${topic.id} ${topic.path} ${details} - ${topic.text}`);
   }
   for (const fact of pageCheck.keyValues) {
     const details = [
