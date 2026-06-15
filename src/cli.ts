@@ -3934,6 +3934,7 @@ function formatAgentSourceChoiceText(choice: AgentSourceChoice, prefix = "source
 }
 
 function formatAgentFormChoiceText(choice: AgentFormChoice, prefix = "formChoice"): string[] {
+  const firstField = choice.fields[0];
   const action = choice.actionUrl ? ` actionUrl=<${choice.actionUrl}>` : "";
   const query = choice.queryField ? ` query=${choice.queryField}` : "";
   const template = choice.urlTemplate ? ` template=${choice.urlTemplate}` : "";
@@ -3964,6 +3965,34 @@ function formatAgentFormChoiceText(choice: AgentFormChoice, prefix = "formChoice
   if (choice.submitValue) lines.push(`  ${prefix}SubmitValue: ${choice.submitValue}`);
   if (typeof choice.submitDisabled === "boolean") lines.push(`  ${prefix}SubmitDisabled: ${choice.submitDisabled}`);
   if (choice.submitSelector) lines.push(`  ${prefix}SubmitSelector: ${choice.submitSelector}`);
+  if (choice.submitFormActionUrl) lines.push(`  ${prefix}SubmitFormActionUrl: ${choice.submitFormActionUrl}`);
+  if (choice.submitFormMethod) lines.push(`  ${prefix}SubmitFormMethod: ${choice.submitFormMethod}`);
+  if (choice.submitFormTarget) lines.push(`  ${prefix}SubmitFormTarget: ${choice.submitFormTarget}`);
+  if (choice.submitFormEncType) lines.push(`  ${prefix}SubmitFormEncType: ${choice.submitFormEncType}`);
+  if (typeof choice.submitFormNoValidate === "boolean") lines.push(`  ${prefix}SubmitFormNoValidate: ${choice.submitFormNoValidate}`);
+  if (choice.submitFormId) lines.push(`  ${prefix}SubmitFormId: ${choice.submitFormId}`);
+  if (firstField?.name) lines.push(`  ${prefix}FirstFieldName: ${firstField.name}`);
+  if (firstField?.type) lines.push(`  ${prefix}FirstFieldType: ${firstField.type}`);
+  if (firstField?.label) lines.push(`  ${prefix}FirstFieldLabel: ${firstField.label}`);
+  if (firstField?.placeholder) lines.push(`  ${prefix}FirstFieldPlaceholder: ${firstField.placeholder}`);
+  if (firstField?.value) lines.push(`  ${prefix}FirstFieldValue: ${firstField.value}`);
+  if (firstField?.options?.length) lines.push(`  ${prefix}FirstFieldOptions: ${firstField.options.join(",")}`);
+  if (firstField?.selectedOption) lines.push(`  ${prefix}FirstFieldSelectedOption: ${firstField.selectedOption}`);
+  if (firstField?.selectedValue) lines.push(`  ${prefix}FirstFieldSelectedValue: ${firstField.selectedValue}`);
+  if (firstField?.autocomplete) lines.push(`  ${prefix}FirstFieldAutocomplete: ${firstField.autocomplete}`);
+  if (firstField?.inputMode) lines.push(`  ${prefix}FirstFieldInputMode: ${firstField.inputMode}`);
+  if (firstField?.pattern) lines.push(`  ${prefix}FirstFieldPattern: ${firstField.pattern}`);
+  if (firstField?.min) lines.push(`  ${prefix}FirstFieldMin: ${firstField.min}`);
+  if (firstField?.max) lines.push(`  ${prefix}FirstFieldMax: ${firstField.max}`);
+  if (firstField?.step) lines.push(`  ${prefix}FirstFieldStep: ${firstField.step}`);
+  if (typeof firstField?.minLength === "number") lines.push(`  ${prefix}FirstFieldMinLength: ${firstField.minLength}`);
+  if (typeof firstField?.maxLength === "number") lines.push(`  ${prefix}FirstFieldMaxLength: ${firstField.maxLength}`);
+  if (typeof firstField?.required === "boolean") lines.push(`  ${prefix}FirstFieldRequired: ${firstField.required}`);
+  if (typeof firstField?.checked === "boolean") lines.push(`  ${prefix}FirstFieldChecked: ${firstField.checked}`);
+  if (typeof firstField?.disabled === "boolean") lines.push(`  ${prefix}FirstFieldDisabled: ${firstField.disabled}`);
+  if (typeof firstField?.readonly === "boolean") lines.push(`  ${prefix}FirstFieldReadonly: ${firstField.readonly}`);
+  if (typeof firstField?.invalid !== "undefined") lines.push(`  ${prefix}FirstFieldInvalid: ${firstField.invalid}`);
+  if (firstField?.selector) lines.push(`  ${prefix}FirstFieldSelector: ${firstField.selector}`);
   if (choice.selector) lines.push(`  ${prefix}Selector: ${choice.selector}`);
   if (choice.command) lines.push(`  ${prefix}Command: ${choice.command}`);
   if (choice.commandArgs) lines.push(`  ${prefix}CommandArgs: ${formatCommandArgsText(choice.commandArgs)}`);

@@ -6737,9 +6737,7 @@ describe("cli", () => {
 
   it("applies submit button form overrides to form handoff", async () => {
     const stdout = new MemoryWriter();
-    const status = await runCli(["https://example.test/search", "--agent"], {
-      stdout,
-      fetch: async () => new Response(`
+    const html = `
         <main>
           <form method="POST" action="/default">
             <label for="q">Query</label>
@@ -6747,7 +6745,10 @@ describe("cli", () => {
             <button type="submit" formaction="/override" formmethod="GET" formtarget="_blank" formenctype="multipart/form-data" formnovalidate form="remote-form">Search archive</button>
           </form>
         </main>
-      `, { headers: { "content-type": "text/html" } }),
+      `;
+    const status = await runCli(["https://example.test/search", "--agent"], {
+      stdout,
+      fetch: async () => new Response(html, { headers: { "content-type": "text/html" } }),
     });
 
     const envelope = JSON.parse(stdout.output);
@@ -6790,6 +6791,26 @@ describe("cli", () => {
       submitFormId: "remote-form",
       urlTemplate: "https://example.test/override?q=%7Bquery%7D",
     });
+
+    const textStdout = new MemoryWriter();
+    const textStatus = await runCli(["https://example.test/search", "--find", "archive"], {
+      stdout: textStdout,
+      fetch: async () => new Response(html, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(textStatus).toBe(0);
+    expect(textStdout.output).toContain("  topFormChoiceSubmitFormActionUrl: https://example.test/override");
+    expect(textStdout.output).toContain("  topFormChoiceSubmitFormMethod: get");
+    expect(textStdout.output).toContain("  topFormChoiceSubmitFormTarget: _blank");
+    expect(textStdout.output).toContain("  topFormChoiceSubmitFormEncType: multipart/form-data");
+    expect(textStdout.output).toContain("  topFormChoiceSubmitFormNoValidate: true");
+    expect(textStdout.output).toContain("  topFormChoiceSubmitFormId: remote-form");
+    expect(textStdout.output).toContain("  formChoiceSubmitFormActionUrl: https://example.test/override");
+    expect(textStdout.output).toContain("  formChoiceSubmitFormMethod: get");
+    expect(textStdout.output).toContain("  formChoiceSubmitFormTarget: _blank");
+    expect(textStdout.output).toContain("  formChoiceSubmitFormEncType: multipart/form-data");
+    expect(textStdout.output).toContain("  formChoiceSubmitFormNoValidate: true");
+    expect(textStdout.output).toContain("  formChoiceSubmitFormId: remote-form");
   });
 
   it("exposes checked semantic field shortcuts for agents", async () => {
@@ -12859,6 +12880,23 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  formChoiceSubmitText: Search");
     expect(stdout.output).toContain("  formChoiceSubmitType: submit");
     expect(stdout.output).toContain("  formChoiceSubmitSelector: button:nth-of-type(1)");
+    expect(stdout.output).toContain("  formChoiceFirstFieldName: query");
+    expect(stdout.output).toContain("  formChoiceFirstFieldType: search");
+    expect(stdout.output).toContain("  formChoiceFirstFieldLabel: Archive search");
+    expect(stdout.output).toContain("  formChoiceFirstFieldPlaceholder: Search reports");
+    expect(stdout.output).toContain("  formChoiceFirstFieldValue: draft query");
+    expect(stdout.output).toContain("  formChoiceFirstFieldAutocomplete: off");
+    expect(stdout.output).toContain("  formChoiceFirstFieldInputMode: search");
+    expect(stdout.output).toContain("  formChoiceFirstFieldPattern: [A-Za-z0-9 ]+");
+    expect(stdout.output).toContain("  formChoiceFirstFieldMin: 1");
+    expect(stdout.output).toContain("  formChoiceFirstFieldMax: 99");
+    expect(stdout.output).toContain("  formChoiceFirstFieldStep: 1");
+    expect(stdout.output).toContain("  formChoiceFirstFieldMinLength: 2");
+    expect(stdout.output).toContain("  formChoiceFirstFieldMaxLength: 80");
+    expect(stdout.output).toContain("  formChoiceFirstFieldRequired: true");
+    expect(stdout.output).toContain("  formChoiceFirstFieldReadonly: true");
+    expect(stdout.output).toContain("  formChoiceFirstFieldInvalid: spelling");
+    expect(stdout.output).toContain("  formChoiceFirstFieldSelector: input[name=\"query\"]");
     expect(stdout.output).toContain("  formChoiceSelector: form:nth-of-type(1)");
     expect(stdout.output).toContain("  formChoiceCommand: ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
     expect(stdout.output).toContain("  formChoiceCommandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
