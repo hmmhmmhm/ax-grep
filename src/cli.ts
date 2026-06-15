@@ -1825,6 +1825,8 @@ type AgentSummary = {
   topEmbedPath?: string;
   topEmbedKind?: PageEmbedSummary["kind"];
   topEmbedUrl?: string;
+  topEmbedUrlPath?: string;
+  topEmbedUrlQuery?: string;
   topEmbedTitle?: string;
   topEmbedSelector?: string;
   topEmbedCommand?: string;
@@ -1832,6 +1834,8 @@ type AgentSummary = {
   topTranscriptPath?: string;
   topTranscriptKind?: PageTranscriptSummary["kind"];
   topTranscriptUrl?: string;
+  topTranscriptUrlPath?: string;
+  topTranscriptUrlQuery?: string;
   topTranscriptLabel?: string;
   topTranscriptLanguage?: string;
   topTranscriptSelector?: string;
@@ -4624,10 +4628,10 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topContactPointValue ? [`  topContactPoint: path=${agent.topContactPointPath ?? ""}${agent.topContactPointKind ? ` kind=${agent.topContactPointKind}` : ""}${agent.topContactPointLabel ? ` label="${agent.topContactPointLabel}"` : ""} value=${agent.topContactPointValue}${agent.topContactPointSource ? ` source=${agent.topContactPointSource}` : ""}${agent.topContactPointSelector ? ` selector=${agent.topContactPointSelector}` : ""}${agent.topContactPointUrl ? ` url=<${agent.topContactPointUrl}>` : ""}`] : []),
     ...(agent.topContactPointCommand ? [`  topContactPointCommand: ${agent.topContactPointCommand}`] : []),
     ...(agent.topContactPointCommandArgs ? [`  topContactPointCommandArgs: ${formatCommandArgsText(agent.topContactPointCommandArgs)}`] : []),
-    ...(agent.topEmbedUrl ? [`  topEmbed: path=${agent.topEmbedPath ?? ""}${agent.topEmbedKind ? ` kind=${agent.topEmbedKind}` : ""}${agent.topEmbedTitle ? ` title="${agent.topEmbedTitle}"` : ""}${agent.topEmbedSelector ? ` selector=${agent.topEmbedSelector}` : ""} url=<${agent.topEmbedUrl}>`] : []),
+    ...(agent.topEmbedUrl ? [`  topEmbed: path=${agent.topEmbedPath ?? ""}${agent.topEmbedKind ? ` kind=${agent.topEmbedKind}` : ""}${agent.topEmbedTitle ? ` title="${agent.topEmbedTitle}"` : ""}${agent.topEmbedSelector ? ` selector=${agent.topEmbedSelector}` : ""} url=<${agent.topEmbedUrl}>${agent.topEmbedUrlPath ? ` urlPath=${agent.topEmbedUrlPath}` : ""}${agent.topEmbedUrlQuery ? ` urlQuery=${agent.topEmbedUrlQuery}` : ""}`] : []),
     ...(agent.topEmbedCommand ? [`  topEmbedCommand: ${agent.topEmbedCommand}`] : []),
     ...(agent.topEmbedCommandArgs ? [`  topEmbedCommandArgs: ${formatCommandArgsText(agent.topEmbedCommandArgs)}`] : []),
-    ...(agent.topTranscriptUrl ? [`  topTranscript: path=${agent.topTranscriptPath ?? ""}${agent.topTranscriptKind ? ` kind=${agent.topTranscriptKind}` : ""}${agent.topTranscriptLabel ? ` label="${agent.topTranscriptLabel}"` : ""}${agent.topTranscriptLanguage ? ` lang=${agent.topTranscriptLanguage}` : ""}${agent.topTranscriptSelector ? ` selector=${agent.topTranscriptSelector}` : ""} url=<${agent.topTranscriptUrl}>`] : []),
+    ...(agent.topTranscriptUrl ? [`  topTranscript: path=${agent.topTranscriptPath ?? ""}${agent.topTranscriptKind ? ` kind=${agent.topTranscriptKind}` : ""}${agent.topTranscriptLabel ? ` label="${agent.topTranscriptLabel}"` : ""}${agent.topTranscriptLanguage ? ` lang=${agent.topTranscriptLanguage}` : ""}${agent.topTranscriptSelector ? ` selector=${agent.topTranscriptSelector}` : ""} url=<${agent.topTranscriptUrl}>${agent.topTranscriptUrlPath ? ` urlPath=${agent.topTranscriptUrlPath}` : ""}${agent.topTranscriptUrlQuery ? ` urlQuery=${agent.topTranscriptUrlQuery}` : ""}`] : []),
     ...(agent.topTranscriptCommand ? [`  topTranscriptCommand: ${agent.topTranscriptCommand}`] : []),
     ...(agent.topTranscriptCommandArgs ? [`  topTranscriptCommandArgs: ${formatCommandArgsText(agent.topTranscriptCommandArgs)}`] : []),
     ...(agent.topAuthorLinkUrl ? [`  topAuthorLink: path=${agent.topAuthorLinkPath ?? ""}${agent.topAuthorLinkSource ? ` source=${agent.topAuthorLinkSource}` : ""}${agent.topAuthorLinkName ? ` name="${agent.topAuthorLinkName}"` : ""}${agent.topAuthorLinkSelector ? ` selector=${agent.topAuthorLinkSelector}` : ""} url=<${agent.topAuthorLinkUrl}>`] : []),
@@ -13165,6 +13169,7 @@ function summarizeAgent(
   const topTranscriptCommand = pageCheck.transcripts[0]?.url && /^https?:\/\//i.test(pageCheck.transcripts[0].url)
     ? pageCommandSpec(pageCheck.transcripts[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topTranscriptUrlParts = pageCheck.transcripts[0]?.url ? urlPathParts(pageCheck.transcripts[0].url) : undefined;
   const topPaginationCommand = pageCheck.pagination[0]?.url && /^https?:\/\//i.test(pageCheck.pagination[0].url)
     ? pageCommandSpec(pageCheck.pagination[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -13172,6 +13177,7 @@ function summarizeAgent(
   const topEmbedCommand = pageCheck.embeds[0]?.url && /^https?:\/\//i.test(pageCheck.embeds[0].url)
     ? pageCommandSpec(pageCheck.embeds[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topEmbedUrlParts = pageCheck.embeds[0]?.url ? urlPathParts(pageCheck.embeds[0].url) : undefined;
   const topDatasetCommand = pageCheck.datasets[0]?.url && /^https?:\/\//i.test(pageCheck.datasets[0].url)
     ? pageCommandSpec(pageCheck.datasets[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -14155,6 +14161,8 @@ function summarizeAgent(
     ...(pageCheck.embeds[0] ? { topEmbedPath: pageCheck.embeds[0].path } : {}),
     ...(pageCheck.embeds[0] ? { topEmbedKind: pageCheck.embeds[0].kind } : {}),
     ...(pageCheck.embeds[0]?.url ? { topEmbedUrl: pageCheck.embeds[0].url } : {}),
+    ...(topEmbedUrlParts?.urlPath ? { topEmbedUrlPath: topEmbedUrlParts.urlPath } : {}),
+    ...(topEmbedUrlParts?.urlQuery ? { topEmbedUrlQuery: topEmbedUrlParts.urlQuery } : {}),
     ...(pageCheck.embeds[0]?.title ? { topEmbedTitle: pageCheck.embeds[0].title } : {}),
     ...(pageCheck.embeds[0]?.selector ? { topEmbedSelector: pageCheck.embeds[0].selector } : {}),
     ...(topEmbedCommand ? { topEmbedCommand: topEmbedCommand.command } : {}),
@@ -14162,6 +14170,8 @@ function summarizeAgent(
     ...(pageCheck.transcripts[0] ? { topTranscriptPath: pageCheck.transcripts[0].path } : {}),
     ...(pageCheck.transcripts[0] ? { topTranscriptKind: pageCheck.transcripts[0].kind } : {}),
     ...(pageCheck.transcripts[0]?.url ? { topTranscriptUrl: pageCheck.transcripts[0].url } : {}),
+    ...(topTranscriptUrlParts?.urlPath ? { topTranscriptUrlPath: topTranscriptUrlParts.urlPath } : {}),
+    ...(topTranscriptUrlParts?.urlQuery ? { topTranscriptUrlQuery: topTranscriptUrlParts.urlQuery } : {}),
     ...(pageCheck.transcripts[0]?.label ? { topTranscriptLabel: pageCheck.transcripts[0].label } : {}),
     ...(pageCheck.transcripts[0]?.language ? { topTranscriptLanguage: pageCheck.transcripts[0].language } : {}),
     ...(pageCheck.transcripts[0]?.selector ? { topTranscriptSelector: pageCheck.transcripts[0].selector } : {}),
@@ -20433,6 +20443,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topEmbedPath ? { topEmbedPath: agent.topEmbedPath } : {}),
     ...(agent.topEmbedKind ? { topEmbedKind: agent.topEmbedKind } : {}),
     ...(agent.topEmbedUrl ? { topEmbedUrl: agent.topEmbedUrl } : {}),
+    ...(agent.topEmbedUrlPath ? { topEmbedUrlPath: agent.topEmbedUrlPath } : {}),
+    ...(agent.topEmbedUrlQuery ? { topEmbedUrlQuery: agent.topEmbedUrlQuery } : {}),
     ...(agent.topEmbedTitle ? { topEmbedTitle: agent.topEmbedTitle } : {}),
     ...(agent.topEmbedSelector ? { topEmbedSelector: agent.topEmbedSelector } : {}),
     ...(agent.topEmbedCommand ? { topEmbedCommand: agent.topEmbedCommand } : {}),
@@ -20440,6 +20452,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topTranscriptPath ? { topTranscriptPath: agent.topTranscriptPath } : {}),
     ...(agent.topTranscriptKind ? { topTranscriptKind: agent.topTranscriptKind } : {}),
     ...(agent.topTranscriptUrl ? { topTranscriptUrl: agent.topTranscriptUrl } : {}),
+    ...(agent.topTranscriptUrlPath ? { topTranscriptUrlPath: agent.topTranscriptUrlPath } : {}),
+    ...(agent.topTranscriptUrlQuery ? { topTranscriptUrlQuery: agent.topTranscriptUrlQuery } : {}),
     ...(agent.topTranscriptLabel ? { topTranscriptLabel: agent.topTranscriptLabel } : {}),
     ...(agent.topTranscriptLanguage ? { topTranscriptLanguage: agent.topTranscriptLanguage } : {}),
     ...(agent.topTranscriptSelector ? { topTranscriptSelector: agent.topTranscriptSelector } : {}),
@@ -21897,6 +21911,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topEmbedPath ? { topEmbedPath: agent.topEmbedPath } : {}),
     ...(agent.topEmbedKind ? { topEmbedKind: agent.topEmbedKind } : {}),
     ...(agent.topEmbedUrl ? { topEmbedUrl: agent.topEmbedUrl } : {}),
+    ...(agent.topEmbedUrlPath ? { topEmbedUrlPath: agent.topEmbedUrlPath } : {}),
+    ...(agent.topEmbedUrlQuery ? { topEmbedUrlQuery: agent.topEmbedUrlQuery } : {}),
     ...(agent.topEmbedTitle ? { topEmbedTitle: agent.topEmbedTitle } : {}),
     ...(agent.topEmbedSelector ? { topEmbedSelector: agent.topEmbedSelector } : {}),
     ...(agent.topEmbedCommand ? { topEmbedCommand: agent.topEmbedCommand } : {}),
@@ -21904,6 +21920,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topTranscriptPath ? { topTranscriptPath: agent.topTranscriptPath } : {}),
     ...(agent.topTranscriptKind ? { topTranscriptKind: agent.topTranscriptKind } : {}),
     ...(agent.topTranscriptUrl ? { topTranscriptUrl: agent.topTranscriptUrl } : {}),
+    ...(agent.topTranscriptUrlPath ? { topTranscriptUrlPath: agent.topTranscriptUrlPath } : {}),
+    ...(agent.topTranscriptUrlQuery ? { topTranscriptUrlQuery: agent.topTranscriptUrlQuery } : {}),
     ...(agent.topTranscriptLabel ? { topTranscriptLabel: agent.topTranscriptLabel } : {}),
     ...(agent.topTranscriptLanguage ? { topTranscriptLanguage: agent.topTranscriptLanguage } : {}),
     ...(agent.topTranscriptSelector ? { topTranscriptSelector: agent.topTranscriptSelector } : {}),

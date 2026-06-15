@@ -2197,6 +2197,8 @@ export type AgentSummary = {
   topEmbedPath?: string;
   topEmbedKind?: string;
   topEmbedUrl?: string;
+  topEmbedUrlPath?: string;
+  topEmbedUrlQuery?: string;
   topEmbedTitle?: string;
   topEmbedSelector?: string;
   topEmbedCommand?: string;
@@ -2204,6 +2206,8 @@ export type AgentSummary = {
   topTranscriptPath?: string;
   topTranscriptKind?: string;
   topTranscriptUrl?: string;
+  topTranscriptUrlPath?: string;
+  topTranscriptUrlQuery?: string;
   topTranscriptLabel?: string;
   topTranscriptLanguage?: string;
   topTranscriptSelector?: string;

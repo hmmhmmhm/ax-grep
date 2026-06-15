@@ -11941,6 +11941,8 @@ npx ax-grep https://example.test --agent</code></pre>
       topEmbedPath: "pageCheck.embeds[0]",
       topEmbedKind: "iframe",
       topEmbedUrl: "https://example.test/embed/dashboard?region=us",
+      topEmbedUrlPath: "/embed/dashboard",
+      topEmbedUrlQuery: "?region=us",
       topEmbedTitle: "Interactive revenue dashboard",
       topEmbedSelector: "iframe:nth-of-type(1)",
       topEmbedCommand: "ax-grep 'https://example.test/embed/dashboard?region=us' --agent",
@@ -11991,9 +11993,9 @@ npx ax-grep https://example.test --agent</code></pre>
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain("  topEmbed: path=pageCheck.embeds[0] kind=iframe title=\"Interactive dashboard\" selector=iframe:nth-of-type(1) url=<https://example.test/embed/dashboard>");
+    expect(stdout.output).toContain("  topEmbed: path=pageCheck.embeds[0] kind=iframe title=\"Interactive dashboard\" selector=iframe:nth-of-type(1) url=<https://example.test/embed/dashboard> urlPath=/embed/dashboard");
     expect(stdout.output).toContain("  embed: id=em1 path=pageCheck.embeds[0] kind=iframe title=\"Interactive dashboard\" selector=iframe:nth-of-type(1) url=<https://example.test/embed/dashboard> - iframe: Interactive dashboard https://example.test/embed/dashboard");
-    expect(stdout.output).toContain("  topTranscript: path=pageCheck.transcripts[0] kind=captions label=\"English captions\" lang=en selector=track:nth-of-type(1) url=<https://example.test/media/walkthrough.en.vtt>");
+    expect(stdout.output).toContain("  topTranscript: path=pageCheck.transcripts[0] kind=captions label=\"English captions\" lang=en selector=track:nth-of-type(1) url=<https://example.test/media/walkthrough.en.vtt> urlPath=/media/walkthrough.en.vtt");
     expect(stdout.output).toContain("  transcript: id=tr1 path=pageCheck.transcripts[0] kind=captions media=video language=en label=\"English captions\" selector=track:nth-of-type(1) url=<https://example.test/media/walkthrough.en.vtt> - captions: English captions lang=en media=video https://example.test/media/walkthrough.en.vtt");
     expect(stdout.output).toContain("  topAuthorLink: path=pageCheck.authorLinks[0] source=link name=\"Jane Doe\" selector=link[rel=\"author\"]:nth-of-type(1) url=<https://example.test/authors/jane>");
     expect(stdout.output).toContain("  authorLink: id=au1 path=pageCheck.authorLinks[0] source=link name=\"Jane Doe\" rel=author selector=link[rel=\"author\"]:nth-of-type(1) url=<https://example.test/authors/jane> - Jane Doe source=link https://example.test/authors/jane");
@@ -12132,6 +12134,7 @@ npx ax-grep https://example.test --agent</code></pre>
       topTranscriptPath: "pageCheck.transcripts[0]",
       topTranscriptKind: "captions",
       topTranscriptUrl: "https://example.test/media/walkthrough.en.vtt",
+      topTranscriptUrlPath: "/media/walkthrough.en.vtt",
       topTranscriptLabel: "English captions",
       topTranscriptLanguage: "en",
       topTranscriptSelector: "track:nth-of-type(1)",

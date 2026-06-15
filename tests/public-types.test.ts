@@ -511,6 +511,8 @@ describe("public agent types", () => {
       | "topEmbedPath"
       | "topEmbedKind"
       | "topEmbedUrl"
+      | "topEmbedUrlPath"
+      | "topEmbedUrlQuery"
       | "topEmbedTitle"
       | "topEmbedSelector"
       | "topEmbedCommand"
@@ -518,6 +520,8 @@ describe("public agent types", () => {
       | "topTranscriptPath"
       | "topTranscriptKind"
       | "topTranscriptUrl"
+      | "topTranscriptUrlPath"
+      | "topTranscriptUrlQuery"
       | "topTranscriptLabel"
       | "topTranscriptLanguage"
       | "topTranscriptSelector"
@@ -1989,6 +1993,7 @@ describe("public agent types", () => {
       topEmbedPath: "pageCheck.embeds[0]",
       topEmbedKind: "iframe",
       topEmbedUrl: "https://example.test/embed",
+      topEmbedUrlPath: "/embed",
       topEmbedTitle: "Dashboard",
       topEmbedSelector: "iframe:nth-of-type(1)",
       topEmbedCommand: "ax-grep 'https://example.test/embed' --agent",
@@ -1996,6 +2001,7 @@ describe("public agent types", () => {
       topTranscriptPath: "pageCheck.transcripts[0]",
       topTranscriptKind: "transcript",
       topTranscriptUrl: "https://example.test/transcript.txt",
+      topTranscriptUrlPath: "/transcript.txt",
       topTranscriptLabel: "Full transcript",
       topTranscriptLanguage: "en",
       topTranscriptSelector: "a[href=\"/transcript.txt\"]",
@@ -3365,9 +3371,11 @@ describe("public agent types", () => {
     expect(summary.topPaginationCommandArgs?.[1]).toBe("https://example.test/next");
     expect(summary.topTocFirstItemCommandArgs?.[1]).toBe("https://example.test/install#install");
     expect(summary.topEmbedPath).toBe("pageCheck.embeds[0]");
+    expect(summary.topEmbedUrlPath).toBe("/embed");
     expect(summary.topEmbedSelector).toBe("iframe:nth-of-type(1)");
     expect(summary.topEmbedCommandArgs?.[1]).toBe("https://example.test/embed");
     expect(summary.topTranscriptPath).toBe("pageCheck.transcripts[0]");
+    expect(summary.topTranscriptUrlPath).toBe("/transcript.txt");
     expect(summary.topTranscriptSelector).toBe("a[href=\"/transcript.txt\"]");
     expect(summary.topTranscriptCommandArgs?.[1]).toBe("https://example.test/transcript.txt");
     expect(summary.topAuthorLinkPath).toBe("pageCheck.authorLinks[0]");

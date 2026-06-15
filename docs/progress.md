@@ -1019,6 +1019,9 @@ When research expands:
   license follow-up targets can be compared without parsing full URLs.
 - Added top media URL path/query shortcuts so image and social-preview
   follow-up targets can be compared without parsing full URLs.
+- Added top embed and transcript URL path/query shortcuts so iframe, media,
+  caption, and transcript follow-up targets can be compared without parsing
+  full URLs.
 
 ## In Progress
 

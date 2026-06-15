@@ -1674,6 +1674,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topEmbedPath?: string;
       topEmbedKind?: string;
       topEmbedUrl?: string;
+      topEmbedUrlPath?: string;
+      topEmbedUrlQuery?: string;
       topEmbedTitle?: string;
       topEmbedSelector?: string;
       topEmbedCommand?: string;
@@ -1681,6 +1683,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topTranscriptPath?: string;
       topTranscriptKind?: string;
       topTranscriptUrl?: string;
+      topTranscriptUrlPath?: string;
+      topTranscriptUrlQuery?: string;
       topTranscriptLabel?: string;
       topTranscriptLanguage?: string;
       topTranscriptSelector?: string;
@@ -9171,6 +9175,8 @@ function scoreAgentStructuredShortcuts(agent: {
   topEmbedPath?: string;
   topEmbedKind?: string;
   topEmbedUrl?: string;
+  topEmbedUrlPath?: string;
+  topEmbedUrlQuery?: string;
   topEmbedTitle?: string;
   topEmbedSelector?: string;
   topEmbedCommand?: string;
@@ -9178,6 +9184,8 @@ function scoreAgentStructuredShortcuts(agent: {
   topTranscriptPath?: string;
   topTranscriptKind?: string;
   topTranscriptUrl?: string;
+  topTranscriptUrlPath?: string;
+  topTranscriptUrlQuery?: string;
   topTranscriptLabel?: string;
   topTranscriptLanguage?: string;
   topTranscriptSelector?: string;
@@ -9530,6 +9538,21 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topEmbedPath === topEmbed.path) matched += 1;
     if (agent.topEmbedKind === topEmbed.kind) matched += 1;
     if (agent.topEmbedUrl === topEmbed.url) matched += 1;
+    if (topEmbed.url) {
+      const topEmbedUrlParts = compareUrlPathParts(topEmbed.url);
+      if (topEmbedUrlParts?.urlPath) {
+        required += 1;
+        if (agent.topEmbedUrlPath === topEmbedUrlParts.urlPath) matched += 1;
+      } else if (agent.topEmbedUrlPath) {
+        required += 1;
+      }
+      if (topEmbedUrlParts?.urlQuery) {
+        required += 1;
+        if (agent.topEmbedUrlQuery === topEmbedUrlParts.urlQuery) matched += 1;
+      } else if (agent.topEmbedUrlQuery) {
+        required += 1;
+      }
+    }
     if (agent.topEmbedTitle === topEmbed.title) matched += 1;
     if (agent.topEmbedSelector === topEmbed.selector) matched += 1;
     if (topEmbed.url && /^https?:\/\//i.test(topEmbed.url)) {
@@ -9537,7 +9560,7 @@ function scoreAgentStructuredShortcuts(agent: {
       if (typeof agent.topEmbedCommand === "string" && agent.topEmbedCommand.includes(topEmbed.url)) matched += 1;
       if (Array.isArray(agent.topEmbedCommandArgs) && agent.topEmbedCommandArgs.includes(topEmbed.url)) matched += 1;
     }
-  } else if (agent.topEmbedPath || agent.topEmbedKind || agent.topEmbedUrl || agent.topEmbedTitle || agent.topEmbedSelector || agent.topEmbedCommand || agent.topEmbedCommandArgs) {
+  } else if (agent.topEmbedPath || agent.topEmbedKind || agent.topEmbedUrl || agent.topEmbedUrlPath || agent.topEmbedUrlQuery || agent.topEmbedTitle || agent.topEmbedSelector || agent.topEmbedCommand || agent.topEmbedCommandArgs) {
     required += 1;
   }
 
@@ -9547,6 +9570,21 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topTranscriptPath === topTranscript.path) matched += 1;
     if (agent.topTranscriptKind === topTranscript.kind) matched += 1;
     if (agent.topTranscriptUrl === topTranscript.url) matched += 1;
+    if (topTranscript.url) {
+      const topTranscriptUrlParts = compareUrlPathParts(topTranscript.url);
+      if (topTranscriptUrlParts?.urlPath) {
+        required += 1;
+        if (agent.topTranscriptUrlPath === topTranscriptUrlParts.urlPath) matched += 1;
+      } else if (agent.topTranscriptUrlPath) {
+        required += 1;
+      }
+      if (topTranscriptUrlParts?.urlQuery) {
+        required += 1;
+        if (agent.topTranscriptUrlQuery === topTranscriptUrlParts.urlQuery) matched += 1;
+      } else if (agent.topTranscriptUrlQuery) {
+        required += 1;
+      }
+    }
     if (agent.topTranscriptLabel === topTranscript.label) matched += 1;
     if (agent.topTranscriptLanguage === topTranscript.language) matched += 1;
     if (agent.topTranscriptSelector === topTranscript.selector) matched += 1;
@@ -9555,7 +9593,7 @@ function scoreAgentStructuredShortcuts(agent: {
       if (typeof agent.topTranscriptCommand === "string" && agent.topTranscriptCommand.includes(topTranscript.url)) matched += 1;
       if (Array.isArray(agent.topTranscriptCommandArgs) && agent.topTranscriptCommandArgs.includes(topTranscript.url)) matched += 1;
     }
-  } else if (agent.topTranscriptPath || agent.topTranscriptKind || agent.topTranscriptUrl || agent.topTranscriptLabel || agent.topTranscriptLanguage || agent.topTranscriptSelector || agent.topTranscriptCommand || agent.topTranscriptCommandArgs) {
+  } else if (agent.topTranscriptPath || agent.topTranscriptKind || agent.topTranscriptUrl || agent.topTranscriptUrlPath || agent.topTranscriptUrlQuery || agent.topTranscriptLabel || agent.topTranscriptLanguage || agent.topTranscriptSelector || agent.topTranscriptCommand || agent.topTranscriptCommandArgs) {
     required += 1;
   }
 
