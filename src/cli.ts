@@ -5269,10 +5269,14 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`  toc: ${toc.id} ${toc.path} ${details} - ${toc.text}`);
   }
   for (const codeBlock of pageCheck.codeBlocks) {
-    const language = codeBlock.language ? ` language=${codeBlock.language}` : "";
-    const commandLike = codeBlock.commandLike ? " commandLike" : "";
-    const selector = codeBlock.selector ? ` (${codeBlock.selector})` : "";
-    lines.push(`  codeBlock: ${codeBlock.id} ${codeBlock.path}${language}${commandLike} lines=${codeBlock.lineCount}${selector} - ${codeBlock.text}`);
+    const details = [
+      `source=${codeBlock.source}`,
+      codeBlock.language ? `language=${codeBlock.language}` : "",
+      codeBlock.commandLike ? "commandLike=true" : "",
+      `lines=${codeBlock.lineCount}`,
+      codeBlock.selector ? `selector=${codeBlock.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  codeBlock: ${codeBlock.id} ${codeBlock.path} ${details} - ${codeBlock.text}`);
   }
   for (const citation of pageCheck.citations) {
     const url = citation.url ? ` <${citation.url}>` : "";
