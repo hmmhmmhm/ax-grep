@@ -1626,6 +1626,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topResourcePath?: string;
       topResourceKind?: string;
       topResourceUrl?: string;
+      topResourceUrlPath?: string;
+      topResourceUrlQuery?: string;
       topResourceTitle?: string;
       topResourceSelector?: string;
       topResourceCommand?: string;
@@ -9119,6 +9121,8 @@ function scoreAgentStructuredShortcuts(agent: {
   topResourcePath?: string;
   topResourceKind?: string;
   topResourceUrl?: string;
+  topResourceUrlPath?: string;
+  topResourceUrlQuery?: string;
   topResourceTitle?: string;
   topResourceSelector?: string;
   topResourceCommand?: string;
@@ -9368,6 +9372,21 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topResourcePath === topResource.path) matched += 1;
     if (agent.topResourceKind === topResource.kind) matched += 1;
     if (agent.topResourceUrl === topResource.url) matched += 1;
+    if (topResource.url) {
+      const topResourceUrlParts = compareUrlPathParts(topResource.url);
+      if (topResourceUrlParts?.urlPath) {
+        required += 1;
+        if (agent.topResourceUrlPath === topResourceUrlParts.urlPath) matched += 1;
+      } else if (agent.topResourceUrlPath) {
+        required += 1;
+      }
+      if (topResourceUrlParts?.urlQuery) {
+        required += 1;
+        if (agent.topResourceUrlQuery === topResourceUrlParts.urlQuery) matched += 1;
+      } else if (agent.topResourceUrlQuery) {
+        required += 1;
+      }
+    }
     if (agent.topResourceTitle === topResource.title) matched += 1;
     if (agent.topResourceSelector === topResource.selector) matched += 1;
     if (topResource.url) {
@@ -9375,7 +9394,7 @@ function scoreAgentStructuredShortcuts(agent: {
       if (typeof agent.topResourceCommand === "string" && agent.topResourceCommand.includes(topResource.url)) matched += 1;
       if (Array.isArray(agent.topResourceCommandArgs) && agent.topResourceCommandArgs.includes(topResource.url)) matched += 1;
     }
-  } else if (agent.topResourcePath || agent.topResourceKind || agent.topResourceUrl || agent.topResourceTitle || agent.topResourceSelector) {
+  } else if (agent.topResourcePath || agent.topResourceKind || agent.topResourceUrl || agent.topResourceUrlPath || agent.topResourceUrlQuery || agent.topResourceTitle || agent.topResourceSelector) {
     required += 1;
   }
 

@@ -455,6 +455,8 @@ describe("public agent types", () => {
       | "topResourcePath"
       | "topResourceKind"
       | "topResourceUrl"
+      | "topResourceUrlPath"
+      | "topResourceUrlQuery"
       | "topResourceTitle"
       | "topResourceRel"
       | "topResourceType"
@@ -1933,6 +1935,7 @@ describe("public agent types", () => {
       topResourcePath: "pageCheck.resources[0]",
       topResourceKind: "download",
       topResourceUrl: "https://example.test/guide.pdf",
+      topResourceUrlPath: "/guide.pdf",
       topResourceTitle: "Guide PDF",
       topResourceRel: "alternate",
       topResourceType: "application/pdf",
@@ -3349,6 +3352,7 @@ describe("public agent types", () => {
     expect(summary.topCodeBlockSelector).toBe("pre:nth-of-type(1)");
     expect(summary.topResourcePath).toBe("pageCheck.resources[0]");
     expect(summary.topResourceUrl).toBe("https://example.test/guide.pdf");
+    expect(summary.topResourceUrlPath).toBe("/guide.pdf");
     expect(summary.topResourceSelector).toBe("a[href=\"/guide.pdf\"]");
     expect(summary.topResourceCommandArgs?.[1]).toBe("https://example.test/guide.pdf");
     expect(summary.topMediaPath).toBe("pageCheck.media[0]");

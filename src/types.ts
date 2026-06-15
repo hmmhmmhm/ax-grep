@@ -2141,6 +2141,8 @@ export type AgentSummary = {
   topResourcePath?: string;
   topResourceKind?: string;
   topResourceUrl?: string;
+  topResourceUrlPath?: string;
+  topResourceUrlQuery?: string;
   topResourceTitle?: string;
   topResourceRel?: string;
   topResourceType?: string;
