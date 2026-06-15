@@ -6244,6 +6244,32 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopCurrentLinkSelector: a:nth-of-type(2)");
   });
 
+  it("prints in-page semantic link shortcuts in text agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/actions?view=summary"], {
+      stdout,
+      fetch: async () => new Response(`
+        <a href="#content?section=intro">Skip to content</a>
+        <main id="content">
+          <h1>Actions</h1>
+          <p>Readable action content for routing.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticTopInPageLink: agent.semanticSummary.inPageLinks[0] kind=skip name=\"Skip to content\" target=content");
+    expect(stdout.output).toContain("  semanticTopInPageLinkPath: agent.semanticSummary.inPageLinks[0]");
+    expect(stdout.output).toContain("  semanticTopInPageLinkKind: skip");
+    expect(stdout.output).toContain("  semanticTopInPageLinkName: Skip to content");
+    expect(stdout.output).toContain("  semanticTopInPageLinkUrl: https://example.test/actions?view=summary#content?section=intro");
+    expect(stdout.output).toContain("  semanticTopInPageLinkUrlPath: /actions");
+    expect(stdout.output).toContain("  semanticTopInPageLinkUrlQuery: ?view=summary");
+    expect(stdout.output).toContain("  semanticTopInPageLinkTargetId: content");
+    expect(stdout.output).toContain("  semanticTopInPageLinkSelector: a");
+  });
+
   it("exposes semantic table and list shortcuts for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/report", "--agent"], {
