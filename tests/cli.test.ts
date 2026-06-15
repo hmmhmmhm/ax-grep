@@ -8496,6 +8496,13 @@ describe("cli", () => {
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("6 mobile hints");
+    expect(envelope.agent).toMatchObject({
+      topMobileHintPath: "pageCheck.mobileHints[0]",
+      topMobileHintKind: "viewport",
+      topMobileHintLabel: "Viewport",
+      topMobileHintValue: "width=device-width, initial-scale=1, viewport-fit=cover",
+      topMobileHintSelector: "meta[name=\"viewport\"]:nth-of-type(1)",
+    });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -8638,6 +8645,14 @@ describe("cli", () => {
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("8 topics");
+    expect(envelope.agent).toMatchObject({
+      topTopicPath: "pageCheck.topics[0]",
+      topTopicKind: "keyword",
+      topTopicLabel: "Keyword",
+      topTopicValue: "retrieval",
+      topTopicSource: "meta",
+      topTopicSelector: "meta[name=\"keywords\"]:nth-of-type(1)",
+    });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -8752,6 +8767,13 @@ describe("cli", () => {
       }),
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("4 key-value facts");
+    expect(envelope.agent).toMatchObject({
+      topKeyValuePath: "pageCheck.keyValues[0]",
+      topKeyValueLabel: "Version",
+      topKeyValueValue: "2.4.1",
+      topKeyValueSource: "definition-list",
+      topKeyValueSelector: "dl:nth-of-type(1)",
+    });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.keyValues",
       count: 4,
@@ -8841,6 +8863,14 @@ describe("cli", () => {
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("3 meta facts");
+    expect(envelope.agent).toMatchObject({
+      topMetaFactPath: "pageCheck.metaFacts[0]",
+      topMetaFactLabel: "Canonical URL",
+      topMetaFactValue: "https://example.test/canonical-article",
+      topMetaFactUrl: "https://example.test/canonical-article",
+      topMetaFactSource: "link",
+      topMetaFactSelector: "link[rel=\"canonical\"]:nth-of-type(1)",
+    });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -10141,6 +10171,9 @@ describe("cli", () => {
         <html>
           <head>
             <link rel="manifest" href="/site.webmanifest">
+            <link rel="canonical" href="/app/canonical">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <meta name="keywords" content="agent shell">
             <script id="__NEXT_DATA__" type="application/json">
               {"buildId":"build-123","page":"/app","props":{"pageProps":{"title":"Agent app"}}}
             </script>
@@ -10151,7 +10184,12 @@ describe("cli", () => {
               window.__APP_CONFIG__ = { apiBase: "/api", featureFlags: { betaSearch: true } };
             </script>
           </head>
-          <body><main><h1>App shell</h1></main></body>
+          <body>
+            <main>
+              <h1>App shell</h1>
+              <dl><dt>Version</dt><dd>2.4.1</dd></dl>
+            </main>
+          </body>
         </html>
       `, { headers: { "content-type": "text/html" } }),
     });
@@ -10165,6 +10203,10 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topRuntimeCommand: ax-grep 'https://example.test/sw.js'");
     expect(stdout.output).toContain("  topConfig: pageCheck.config[0] env name=__APP_CONFIG__ keys=2 keyNames=apiBase,featureFlags selector=script:nth-of-type(2)");
     expect(stdout.output).toContain("  topAppHint: pageCheck.appHints[0] manifest label=\"Web app manifest\" selector=link[rel=\"manifest\"]:nth-of-type(1) <https://example.test/site.webmanifest>");
+    expect(stdout.output).toContain("  topMobileHint: pageCheck.mobileHints[0] viewport label=\"Viewport\" selector=meta[name=\"viewport\"]:nth-of-type(1) - width=device-width, initial-scale=1");
+    expect(stdout.output).toContain("  topTopic: pageCheck.topics[0] keyword label=\"Keyword\" source=meta selector=meta[name=\"keywords\"]:nth-of-type(2) - agent shell");
+    expect(stdout.output).toContain("  topKeyValue: pageCheck.keyValues[0] label=\"Version\" source=definition-list selector=dl:nth-of-type(1) - 2.4.1");
+    expect(stdout.output).toContain("  topMetaFact: pageCheck.metaFacts[0] label=\"Canonical URL\" source=link selector=link[rel=\"canonical\"]:nth-of-type(2) <https://example.test/app/canonical> - https://example.test/app/canonical");
     expect(stdout.output).toContain("  topHiddenSignal: hydration pageCheck.hydration[0] next-data source=script selector=script#__NEXT_DATA__:nth-of-type(1) <https://example.test/_next/data/build-123/app.json> - Next.js data:");
   });
 

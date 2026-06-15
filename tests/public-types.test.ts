@@ -589,6 +589,31 @@ describe("public agent types", () => {
       | "topAppHintCommand"
       | "topAppHintCommandArgs"
       | "topAppHintSelector"
+      | "topMobileHintPath"
+      | "topMobileHintKind"
+      | "topMobileHintLabel"
+      | "topMobileHintValue"
+      | "topMobileHintPlatform"
+      | "topMobileHintUrl"
+      | "topMobileHintSelector"
+      | "topTopicPath"
+      | "topTopicKind"
+      | "topTopicLabel"
+      | "topTopicValue"
+      | "topTopicSource"
+      | "topTopicSelector"
+      | "topKeyValuePath"
+      | "topKeyValueLabel"
+      | "topKeyValueValue"
+      | "topKeyValueDatetime"
+      | "topKeyValueSource"
+      | "topKeyValueSelector"
+      | "topMetaFactPath"
+      | "topMetaFactLabel"
+      | "topMetaFactValue"
+      | "topMetaFactUrl"
+      | "topMetaFactSource"
+      | "topMetaFactSelector"
       | "hiddenReadTargetCount"
       | "topHiddenSignalGroup"
       | "topHiddenSignalPath"
@@ -1889,10 +1914,10 @@ describe("public agent types", () => {
       hiddenRuntimeCount: 1,
       hiddenConfigCount: 1,
       hiddenAppHintCount: 0,
-      hiddenMobileHintCount: 0,
-      hiddenTopicCount: 0,
-      hiddenKeyValueCount: 0,
-      hiddenMetaFactCount: 0,
+      hiddenMobileHintCount: 1,
+      hiddenTopicCount: 1,
+      hiddenKeyValueCount: 1,
+      hiddenMetaFactCount: 1,
       hiddenHttpPolicyCount: 0,
       hiddenSchemaFactCount: 0,
       topHydrationPath: "pageCheck.hydration[0]",
@@ -1933,6 +1958,31 @@ describe("public agent types", () => {
       topAppHintCommand: "ax-grep 'https://example.test/manifest.json' --agent",
       topAppHintCommandArgs: ["ax-grep", "https://example.test/manifest.json", "--agent"],
       topAppHintSelector: "link[rel=\"manifest\"]",
+      topMobileHintPath: "pageCheck.mobileHints[0]",
+      topMobileHintKind: "viewport",
+      topMobileHintLabel: "viewport",
+      topMobileHintValue: "width=device-width, initial-scale=1",
+      topMobileHintPlatform: "ios",
+      topMobileHintUrl: "https://example.test/app",
+      topMobileHintSelector: "meta[name=\"viewport\"]",
+      topTopicPath: "pageCheck.topics[0]",
+      topTopicKind: "keyword",
+      topTopicLabel: "keywords",
+      topTopicValue: "agent",
+      topTopicSource: "meta",
+      topTopicSelector: "meta[name=\"keywords\"]",
+      topKeyValuePath: "pageCheck.keyValues[0]",
+      topKeyValueLabel: "Version",
+      topKeyValueValue: "1.2.3",
+      topKeyValueDatetime: "2026-06-01",
+      topKeyValueSource: "definition-list",
+      topKeyValueSelector: "dl:nth-of-type(1)",
+      topMetaFactPath: "pageCheck.metaFacts[0]",
+      topMetaFactLabel: "generator",
+      topMetaFactValue: "ax-grep",
+      topMetaFactUrl: "https://example.test/generator",
+      topMetaFactSource: "meta",
+      topMetaFactSelector: "meta[name=\"generator\"]",
       hiddenReadTargetCount: 2,
       topHiddenSignalGroup: "apiEndpoints",
       topHiddenSignalPath: "pageCheck.apiEndpoints[0]",
