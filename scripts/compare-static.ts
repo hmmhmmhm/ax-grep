@@ -1870,6 +1870,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchSelectedRank?: number;
       sourceSearchSelectedTitle?: string;
       sourceSearchSelectedUrl?: string;
+      sourceSearchSelectedUrlPath?: string;
+      sourceSearchSelectedUrlQuery?: string;
       sourceSearchSelectedHost?: string;
       sourceSearchSelectedSource?: string;
       sourceSearchSelectedSourceType?: CliSearchResultShape["sourceType"];
@@ -1898,6 +1900,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchFailureRetryAfter?: string;
       sourceSearchFailurePath?: string;
       sourceSearchFailureUrl?: string;
+      sourceSearchFailureUrlPath?: string;
+      sourceSearchFailureUrlQuery?: string;
       sourceSearchFailureHost?: string;
       sourceSearchFailureReason?: string;
       sourceSearchFailureCommand?: string;
@@ -1906,6 +1910,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchAlternatePath?: string;
       sourceSearchAlternateTitle?: string;
       sourceSearchAlternateUrl?: string;
+      sourceSearchAlternateUrlPath?: string;
+      sourceSearchAlternateUrlQuery?: string;
       sourceSearchAlternateHost?: string;
       sourceSearchAlternateSource?: string;
       sourceSearchAlternateSourceType?: CliSearchResultShape["sourceType"];
@@ -6206,6 +6212,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchSelectedRank?: number;
   sourceSearchSelectedTitle?: string;
   sourceSearchSelectedUrl?: string;
+  sourceSearchSelectedUrlPath?: string;
+  sourceSearchSelectedUrlQuery?: string;
   sourceSearchSelectedHost?: string;
   sourceSearchSelectedSource?: string;
   sourceSearchSelectedSourceType?: CliSearchResultShape["sourceType"];
@@ -6237,6 +6245,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchFailureRetryAfter?: string;
   sourceSearchFailurePath?: string;
   sourceSearchFailureUrl?: string;
+  sourceSearchFailureUrlPath?: string;
+  sourceSearchFailureUrlQuery?: string;
   sourceSearchFailureHost?: string;
   sourceSearchFailureReason?: string;
   sourceSearchFailureCommand?: string;
@@ -6245,6 +6255,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchAlternatePath?: string;
   sourceSearchAlternateTitle?: string;
   sourceSearchAlternateUrl?: string;
+  sourceSearchAlternateUrlPath?: string;
+  sourceSearchAlternateUrlQuery?: string;
   sourceSearchAlternateHost?: string;
   sourceSearchAlternateSource?: string;
   sourceSearchAlternateSourceType?: CliSearchResultShape["sourceType"];
@@ -6297,6 +6309,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchSelectedRank === "undefined"
       && typeof agent?.sourceSearchSelectedTitle === "undefined"
       && typeof agent?.sourceSearchSelectedUrl === "undefined"
+      && typeof agent?.sourceSearchSelectedUrlPath === "undefined"
+      && typeof agent?.sourceSearchSelectedUrlQuery === "undefined"
       && typeof agent?.sourceSearchSelectedHost === "undefined"
       && typeof agent?.sourceSearchSelectedSource === "undefined"
       && typeof agent?.sourceSearchSelectedSourceType === "undefined"
@@ -6328,6 +6342,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchFailureRetryAfter === "undefined"
       && typeof agent?.sourceSearchFailurePath === "undefined"
       && typeof agent?.sourceSearchFailureUrl === "undefined"
+      && typeof agent?.sourceSearchFailureUrlPath === "undefined"
+      && typeof agent?.sourceSearchFailureUrlQuery === "undefined"
       && typeof agent?.sourceSearchFailureHost === "undefined"
       && typeof agent?.sourceSearchFailureReason === "undefined"
       && typeof agent?.sourceSearchFailureCommand === "undefined"
@@ -6335,6 +6351,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchAlternatePath === "undefined"
       && typeof agent?.sourceSearchAlternateTitle === "undefined"
       && typeof agent?.sourceSearchAlternateUrl === "undefined"
+      && typeof agent?.sourceSearchAlternateUrlPath === "undefined"
+      && typeof agent?.sourceSearchAlternateUrlQuery === "undefined"
       && typeof agent?.sourceSearchAlternateHost === "undefined"
       && typeof agent?.sourceSearchAlternateSource === "undefined"
       && typeof agent?.sourceSearchAlternateSourceType === "undefined"
@@ -6373,6 +6391,19 @@ function scoreAgentSourceSearchShortcuts(agent: {
   if (agent?.sourceSearchSelectedRank === sourceSearch.selectedRank) matched += 1;
   if (agent?.sourceSearchSelectedTitle === sourceSearch.selectedTitle) matched += 1;
   if (agent?.sourceSearchSelectedUrl === sourceSearch.selectedUrl) matched += 1;
+  const selectedUrlParts = typeof sourceSearch.selectedUrl === "string" ? compareUrlPathParts(sourceSearch.selectedUrl) : undefined;
+  if (selectedUrlParts?.urlPath) {
+    required += 1;
+    if (agent?.sourceSearchSelectedUrlPath === selectedUrlParts.urlPath) matched += 1;
+  } else if (agent?.sourceSearchSelectedUrlPath) {
+    required += 1;
+  }
+  if (selectedUrlParts?.urlQuery) {
+    required += 1;
+    if (agent?.sourceSearchSelectedUrlQuery === selectedUrlParts.urlQuery) matched += 1;
+  } else if (agent?.sourceSearchSelectedUrlQuery) {
+    required += 1;
+  }
   if (agent?.sourceSearchAlternateCount === (sourceSearch.alternateResults?.length ?? 0)) matched += 1;
   const failure = sourceSearchFailureInfo(error);
   if (failure) {
@@ -6388,10 +6419,18 @@ function scoreAgentSourceSearchShortcuts(agent: {
     if (sourceSearch.selectedUrl) {
       required += 1;
       if (agent?.sourceSearchFailureHost === sourceFromUrl(sourceSearch.selectedUrl)) matched += 1;
+      if (selectedUrlParts?.urlPath) {
+        required += 1;
+        if (agent?.sourceSearchFailureUrlPath === selectedUrlParts.urlPath) matched += 1;
+      }
+      if (selectedUrlParts?.urlQuery) {
+        required += 1;
+        if (agent?.sourceSearchFailureUrlQuery === selectedUrlParts.urlQuery) matched += 1;
+      }
     } else if (agent?.sourceSearchFailureHost) {
       required += 1;
     }
-  } else if (agent?.sourceSearchFailureKind || typeof agent?.sourceSearchFailureRetryable === "boolean" || agent?.sourceSearchFailurePath || agent?.sourceSearchFailureHost) {
+  } else if (agent?.sourceSearchFailureKind || typeof agent?.sourceSearchFailureRetryable === "boolean" || agent?.sourceSearchFailurePath || agent?.sourceSearchFailureHost || agent?.sourceSearchFailureUrlPath || agent?.sourceSearchFailureUrlQuery) {
     required += 1;
   }
   if (sourceSearch.lang) {
@@ -6514,10 +6553,23 @@ function scoreAgentSourceSearchShortcuts(agent: {
     required += 1;
   }
   if (alternate) {
+    const alternateUrlParts = typeof alternate.url === "string" ? compareUrlPathParts(alternate.url) : undefined;
     required += 15;
     if (agent?.sourceSearchAlternatePath === alternate.path) matched += 1;
     if (agent?.sourceSearchAlternateTitle === alternate.title) matched += 1;
     if (agent?.sourceSearchAlternateUrl === alternate.url) matched += 1;
+    if (alternateUrlParts?.urlPath) {
+      required += 1;
+      if (agent?.sourceSearchAlternateUrlPath === alternateUrlParts.urlPath) matched += 1;
+    } else if (agent?.sourceSearchAlternateUrlPath) {
+      required += 1;
+    }
+    if (alternateUrlParts?.urlQuery) {
+      required += 1;
+      if (agent?.sourceSearchAlternateUrlQuery === alternateUrlParts.urlQuery) matched += 1;
+    } else if (agent?.sourceSearchAlternateUrlQuery) {
+      required += 1;
+    }
     if (agent?.sourceSearchAlternateHost === alternate.host) matched += 1;
     if (agent?.sourceSearchAlternateSource === alternate.source) matched += 1;
     if (agent?.sourceSearchAlternateSourceType === alternate.sourceType) matched += 1;
@@ -6588,6 +6640,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
     agent?.sourceSearchAlternatePath
     || agent?.sourceSearchAlternateTitle
     || agent?.sourceSearchAlternateUrl
+    || agent?.sourceSearchAlternateUrlPath
+    || agent?.sourceSearchAlternateUrlQuery
     || agent?.sourceSearchAlternateHost
     || agent?.sourceSearchAlternateSource
     || agent?.sourceSearchAlternateSourceType

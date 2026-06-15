@@ -785,6 +785,8 @@ describe("public agent types", () => {
       | "sourceSearchSelectedRank"
       | "sourceSearchSelectedTitle"
       | "sourceSearchSelectedUrl"
+      | "sourceSearchSelectedUrlPath"
+      | "sourceSearchSelectedUrlQuery"
       | "sourceSearchSelectedHost"
       | "sourceSearchSelectedSource"
       | "sourceSearchSelectedSourceType"
@@ -818,6 +820,8 @@ describe("public agent types", () => {
       | "sourceSearchFailureRetryAfter"
       | "sourceSearchFailurePath"
       | "sourceSearchFailureUrl"
+      | "sourceSearchFailureUrlPath"
+      | "sourceSearchFailureUrlQuery"
       | "sourceSearchFailureHost"
       | "sourceSearchFailureReason"
       | "sourceSearchFailureCommand"
@@ -826,6 +830,8 @@ describe("public agent types", () => {
       | "sourceSearchAlternatePath"
       | "sourceSearchAlternateTitle"
       | "sourceSearchAlternateUrl"
+      | "sourceSearchAlternateUrlPath"
+      | "sourceSearchAlternateUrlQuery"
       | "sourceSearchAlternateHost"
       | "sourceSearchAlternateSource"
       | "sourceSearchAlternateSourceType"
@@ -2203,6 +2209,7 @@ describe("public agent types", () => {
       sourceSearchSelectedRank: 2,
       sourceSearchSelectedTitle: "ax-grep documentation",
       sourceSearchSelectedUrl: "https://source.example/result",
+      sourceSearchSelectedUrlPath: "/result",
       sourceSearchSelectedHost: "source.example",
       sourceSearchSelectedSource: "source.example",
       sourceSearchSelectedSourceType: "official",
@@ -2236,6 +2243,7 @@ describe("public agent types", () => {
       sourceSearchFailureRetryAfter: "120",
       sourceSearchFailurePath: "sourceSearch.selectedResult",
       sourceSearchFailureUrl: "https://source.example/result",
+      sourceSearchFailureUrlPath: "/result",
       sourceSearchFailureHost: "source.example",
       sourceSearchFailureReason: "Selected sourceSearch result failed with HTTP_ERROR status 403.",
       sourceSearchFailureCommand: "ax-grep --search 'ax-grep docs' --open-result 2 --agent",
@@ -2244,6 +2252,7 @@ describe("public agent types", () => {
       sourceSearchAlternatePath: "sourceSearch.alternateResults[0]",
       sourceSearchAlternateTitle: "ax-grep mirror",
       sourceSearchAlternateUrl: "https://mirror.example/result",
+      sourceSearchAlternateUrlPath: "/result",
       sourceSearchAlternateHost: "mirror.example",
       sourceSearchAlternateSource: "mirror.example",
       sourceSearchAlternateSourceType: "community",

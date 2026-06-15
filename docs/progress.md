@@ -1001,6 +1001,8 @@ When research expands:
   compare source-profile rationale without nested search-result parsing.
 - Added source-search selected/alternate source type and hint shortcuts so
   failed-open recovery can compare provenance without nested result parsing.
+- Added source-search selected/failure/alternate URL path/query shortcuts so
+  recovery loops can route and compare candidates without parsing full URLs.
 
 ## In Progress
 

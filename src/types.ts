@@ -2445,6 +2445,8 @@ export type AgentSummary = {
   sourceSearchSelectedRank?: number;
   sourceSearchSelectedTitle?: string;
   sourceSearchSelectedUrl?: string;
+  sourceSearchSelectedUrlPath?: string;
+  sourceSearchSelectedUrlQuery?: string;
   sourceSearchSelectedHost?: string;
   sourceSearchSelectedSource?: string;
   sourceSearchSelectedSourceType?: AgentSourceSearchResult["sourceType"];
@@ -2478,6 +2480,8 @@ export type AgentSummary = {
   sourceSearchFailureRetryAfter?: string;
   sourceSearchFailurePath?: string;
   sourceSearchFailureUrl?: string;
+  sourceSearchFailureUrlPath?: string;
+  sourceSearchFailureUrlQuery?: string;
   sourceSearchFailureHost?: string;
   sourceSearchFailureReason?: string;
   sourceSearchFailureCommand?: string;
@@ -2486,6 +2490,8 @@ export type AgentSummary = {
   sourceSearchAlternatePath?: string;
   sourceSearchAlternateTitle?: string;
   sourceSearchAlternateUrl?: string;
+  sourceSearchAlternateUrlPath?: string;
+  sourceSearchAlternateUrlQuery?: string;
   sourceSearchAlternateHost?: string;
   sourceSearchAlternateSource?: string;
   sourceSearchAlternateSourceType?: AgentSourceSearchResult["sourceType"];
