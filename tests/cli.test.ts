@@ -6834,6 +6834,10 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  semanticTopTableFirstSampleCell: agent.semanticSummary.tableItems[0].sampleCellRefs[0] text=\"Q1 combined\" rowSpan=2 columnSpan=2");
+    expect(stdout.output).toContain("  semanticTopTableFirstSampleCellPath: agent.semanticSummary.tableItems[0].sampleCellRefs[0]");
+    expect(stdout.output).toContain("  semanticTopTableFirstSampleCellText: Q1 combined");
+    expect(stdout.output).toContain("  semanticTopTableFirstSampleCellRowSpan: 2");
+    expect(stdout.output).toContain("  semanticTopTableFirstSampleCellColumnSpan: 2");
   });
 
   it("prints data table size and selector in text agent output", async () => {

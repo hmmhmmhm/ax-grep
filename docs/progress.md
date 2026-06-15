@@ -1139,6 +1139,9 @@ When research expands:
 - Added individual text rows for first semantic table owned targets, so
   text-only agents can target `aria-owns`/virtualized rowgroups without parsing
   the aggregate `semanticTopTableFirstOwned` line.
+- Added individual text rows for first semantic table sample cells, so
+  text-only agents can read representative cell path/text/span/header/selector
+  fields without parsing the aggregate sample-cell row.
 
 ## In Progress
 
