@@ -5201,8 +5201,13 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   }
   for (const contact of pageCheck.contactPoints) {
     const url = contact.url ? ` <${contact.url}>` : "";
-    const selector = contact.selector ? ` (${contact.selector})` : "";
-    lines.push(`  contactPoint: ${contact.id} ${contact.path} ${contact.kind} ${contact.source}${selector}${url} - ${contact.text}`);
+    const details = [
+      `source=${contact.source}`,
+      `label="${contact.label}"`,
+      `value=${contact.value}`,
+      contact.selector ? `selector=${contact.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  contactPoint: ${contact.id} ${contact.path} ${contact.kind} ${details}${url} - ${contact.text}`);
   }
   for (const faq of pageCheck.faqs) {
     const selector = faq.selector ? ` (${faq.selector})` : "";

@@ -10180,6 +10180,7 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topContactPoint: pageCheck.contactPoints[0] email label=\"Press team\":press@example.test source=link selector=a:nth-of-type(1) <mailto:press@example.test>");
+    expect(stdout.output).toContain("  contactPoint: cp1 pageCheck.contactPoints[0] email source=link label=\"Press team\" value=press@example.test selector=a:nth-of-type(1) <mailto:press@example.test> - Press team: email press@example.test mailto:press@example.test source=link");
   });
 
   it("prints hidden app signal locators in text output", async () => {
