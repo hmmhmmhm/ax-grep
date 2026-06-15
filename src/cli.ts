@@ -5164,8 +5164,14 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   }
   for (const identity of pageCheck.identities) {
     const url = identity.url ? ` <${identity.url}>` : "";
-    const selector = identity.selector ? ` (${identity.selector})` : "";
-    lines.push(`  identity: ${identity.id} ${identity.path} ${identity.kind}${selector}${url} - ${identity.text}`);
+    const details = [
+      `source=${identity.source}`,
+      `name="${identity.name}"`,
+      identity.logoUrl ? `logo=${identity.logoUrl}` : "",
+      identity.sameAs?.length ? `sameAs=${identity.sameAs.join(",")}` : "",
+      identity.selector ? `selector=${identity.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  identity: ${identity.id} ${identity.path} ${identity.kind} ${details}${url} - ${identity.text}`);
   }
   for (const dataset of pageCheck.datasets) {
     const url = dataset.url ? ` <${dataset.url}>` : "";

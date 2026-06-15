@@ -9679,6 +9679,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topIdentity: pageCheck.identities[0] organization:Example Labs source=json-ld selector=script[type=\"application/ld+json\"]:nth-of-type(1) logo=<https://example.test/logo.png> sameAs=<https://github.com/example> <https://example.test/>");
     expect(stdout.output).toContain("  topIdentityLogoCommand: ax-grep 'https://example.test/logo.png'");
     expect(stdout.output).toContain("  topIdentitySameAsCommand: ax-grep 'https://github.com/example'");
+    expect(stdout.output).toContain("  identity: id1 pageCheck.identities[0] organization source=json-ld name=\"Example Labs\" logo=https://example.test/logo.png sameAs=https://github.com/example selector=script[type=\"application/ld+json\"]:nth-of-type(1) <https://example.test/>");
   });
 
   it("summarizes dataset and data download provenance as pageCheck read targets for agents", async () => {
