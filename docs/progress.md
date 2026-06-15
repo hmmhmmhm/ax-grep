@@ -1005,6 +1005,8 @@ When research expands:
   recovery loops can route and compare candidates without parsing full URLs.
 - Added selected/current list-item shortcuts so agents can identify active
   nav, tab, menu, and list entries without parsing list item arrays.
+- Added current-link shortcuts so agents can identify active navigation links
+  even when the current link is not the first semantic link.
 
 ## In Progress
 

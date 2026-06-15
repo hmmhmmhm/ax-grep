@@ -1056,6 +1056,17 @@ describe("public agent types", () => {
       | "semanticTopLinkCurrent"
       | "semanticTopLinkDownload"
       | "semanticTopLinkSelector"
+      | "semanticTopCurrentLinkName"
+      | "semanticTopCurrentLinkPath"
+      | "semanticTopCurrentLinkUrl"
+      | "semanticTopCurrentLinkTarget"
+      | "semanticTopCurrentLinkRel"
+      | "semanticTopCurrentLinkType"
+      | "semanticTopCurrentLinkHreflang"
+      | "semanticTopCurrentLinkState"
+      | "semanticTopCurrentLinkCurrent"
+      | "semanticTopCurrentLinkDownload"
+      | "semanticTopCurrentLinkSelector"
       | "semanticInPageLinkCount"
       | "semanticTopInPageLinkPath"
       | "semanticTopInPageLinkKind"
@@ -2624,6 +2635,17 @@ describe("public agent types", () => {
       semanticTopLinkCurrent: "page",
       semanticTopLinkDownload: true,
       semanticTopLinkSelector: "main a:nth-of-type(1)",
+      semanticTopCurrentLinkName: "Docs",
+      semanticTopCurrentLinkPath: "agent.semanticSummary.links[1]",
+      semanticTopCurrentLinkUrl: "https://example.test/docs",
+      semanticTopCurrentLinkTarget: "_self",
+      semanticTopCurrentLinkRel: ["bookmark"],
+      semanticTopCurrentLinkType: "text/html",
+      semanticTopCurrentLinkHreflang: "en",
+      semanticTopCurrentLinkState: "current=page",
+      semanticTopCurrentLinkCurrent: "page",
+      semanticTopCurrentLinkDownload: true,
+      semanticTopCurrentLinkSelector: "main a:nth-of-type(2)",
       semanticInPageLinkCount: 1,
       semanticTopInPageLinkPath: "agent.semanticSummary.inPageLinks[0]",
       semanticTopInPageLinkKind: "skip",

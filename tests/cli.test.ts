@@ -6145,6 +6145,43 @@ describe("cli", () => {
     });
   });
 
+  it("exposes the current semantic link when it is not the first link", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/nav", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <nav aria-label="Primary">
+            <a href="/home">Home</a>
+            <a href="/reports" target="_self" rel="bookmark" type="text/html" hreflang="en" aria-current="page" download="reports.html">Reports</a>
+          </nav>
+          <h1>Reports</h1>
+          <p>Readable report content for routing.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      contract: { profile: "brief" },
+      semanticTopLinkName: "Home",
+      semanticTopLinkUrl: "https://example.test/home",
+      semanticTopCurrentLinkName: "Reports",
+      semanticTopCurrentLinkPath: "agent.semanticSummary.links[1]",
+      semanticTopCurrentLinkUrl: "https://example.test/reports",
+      semanticTopCurrentLinkTarget: "_self",
+      semanticTopCurrentLinkRel: ["bookmark"],
+      semanticTopCurrentLinkType: "text/html",
+      semanticTopCurrentLinkHreflang: "en",
+      semanticTopCurrentLinkState: "current=page",
+      semanticTopCurrentLinkCurrent: "page",
+      semanticTopCurrentLinkDownload: "reports.html",
+      semanticTopCurrentLinkSelector: "a:nth-of-type(2)",
+    });
+  });
+
   it("exposes semantic table and list shortcuts for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/report", "--agent"], {

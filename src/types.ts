@@ -1570,6 +1570,17 @@ export type AgentSummary = {
   semanticTopLinkCurrent?: SemanticNodeState["current"];
   semanticTopLinkDownload?: string | true;
   semanticTopLinkSelector?: string;
+  semanticTopCurrentLinkName?: string;
+  semanticTopCurrentLinkPath?: string;
+  semanticTopCurrentLinkUrl?: string;
+  semanticTopCurrentLinkTarget?: string;
+  semanticTopCurrentLinkRel?: string[];
+  semanticTopCurrentLinkType?: string;
+  semanticTopCurrentLinkHreflang?: string;
+  semanticTopCurrentLinkState?: string;
+  semanticTopCurrentLinkCurrent?: SemanticNodeState["current"];
+  semanticTopCurrentLinkDownload?: string | true;
+  semanticTopCurrentLinkSelector?: string;
   semanticInPageLinkCount?: number;
   semanticTopInPageLinkPath?: string;
   semanticTopInPageLinkKind?: "skip" | "anchor";

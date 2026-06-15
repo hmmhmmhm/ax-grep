@@ -1198,6 +1198,17 @@ type AgentSummary = {
   semanticTopLinkCurrent?: SemanticNodeState["current"];
   semanticTopLinkDownload?: string | true;
   semanticTopLinkSelector?: string;
+  semanticTopCurrentLinkName?: string;
+  semanticTopCurrentLinkPath?: string;
+  semanticTopCurrentLinkUrl?: string;
+  semanticTopCurrentLinkTarget?: string;
+  semanticTopCurrentLinkRel?: string[];
+  semanticTopCurrentLinkType?: string;
+  semanticTopCurrentLinkHreflang?: string;
+  semanticTopCurrentLinkState?: string;
+  semanticTopCurrentLinkCurrent?: SemanticNodeState["current"];
+  semanticTopCurrentLinkDownload?: string | true;
+  semanticTopCurrentLinkSelector?: string;
   semanticInPageLinkCount?: number;
   semanticTopInPageLinkPath?: string;
   semanticTopInPageLinkKind?: "skip" | "anchor";
@@ -5197,6 +5208,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.semanticTopInteractiveRole) lines.push(`  semanticTopInteractive: ${agent.semanticTopInteractivePath ?? ""} role=${agent.semanticTopInteractiveRole}${agent.semanticTopInteractiveName ? ` name="${agent.semanticTopInteractiveName}"` : ""}${agent.semanticTopInteractiveRoleDescription ? ` roleDescription=${agent.semanticTopInteractiveRoleDescription}` : ""}${agent.semanticTopInteractiveDescription ? ` description=${agent.semanticTopInteractiveDescription}` : ""}${agent.semanticTopInteractiveValue ? ` value=${agent.semanticTopInteractiveValue}` : ""}${agent.semanticTopInteractiveState ? ` state=${agent.semanticTopInteractiveState}` : ""}${typeof agent.semanticTopInteractiveDisabled === "boolean" ? ` disabled=${agent.semanticTopInteractiveDisabled}` : ""}${typeof agent.semanticTopInteractivePressed !== "undefined" ? ` pressed=${agent.semanticTopInteractivePressed}` : ""}${typeof agent.semanticTopInteractiveExpanded === "boolean" ? ` expanded=${agent.semanticTopInteractiveExpanded}` : ""}${typeof agent.semanticTopInteractiveHaspopup !== "undefined" ? ` haspopup=${agent.semanticTopInteractiveHaspopup}` : ""}${agent.semanticTopInteractiveControls ? ` controls=${agent.semanticTopInteractiveControls}` : ""}${agent.semanticTopInteractiveControlsTargetRole ? ` controlsTargetRole=${agent.semanticTopInteractiveControlsTargetRole}` : ""}${agent.semanticTopInteractiveControlsTargetName ? ` controlsTargetName=${agent.semanticTopInteractiveControlsTargetName}` : ""}${agent.semanticTopInteractiveControlsTargetSelector ? ` controlsTargetSelector=${agent.semanticTopInteractiveControlsTargetSelector}` : ""}${agent.semanticTopInteractiveSelector ? ` selector=${agent.semanticTopInteractiveSelector}` : ""}`);
   if (agent.semanticTopFocusableRole) lines.push(`  semanticTopFocusable: ${agent.semanticTopFocusablePath ?? ""} role=${agent.semanticTopFocusableRole}${agent.semanticTopFocusableName ? ` name="${agent.semanticTopFocusableName}"` : ""}${agent.semanticTopFocusableRoleDescription ? ` roleDescription=${agent.semanticTopFocusableRoleDescription}` : ""}${agent.semanticTopFocusableState ? ` state=${agent.semanticTopFocusableState}` : ""}${typeof agent.semanticTopFocusableDisabled === "boolean" ? ` disabled=${agent.semanticTopFocusableDisabled}` : ""}${typeof agent.semanticTopFocusablePressed !== "undefined" ? ` pressed=${agent.semanticTopFocusablePressed}` : ""}${typeof agent.semanticTopFocusableExpanded === "boolean" ? ` expanded=${agent.semanticTopFocusableExpanded}` : ""}${typeof agent.semanticTopFocusableHaspopup !== "undefined" ? ` haspopup=${agent.semanticTopFocusableHaspopup}` : ""}${agent.semanticTopFocusableControls ? ` controls=${agent.semanticTopFocusableControls}` : ""}${agent.semanticTopFocusableControlsTargetRole ? ` controlsTargetRole=${agent.semanticTopFocusableControlsTargetRole}` : ""}${agent.semanticTopFocusableControlsTargetName ? ` controlsTargetName=${agent.semanticTopFocusableControlsTargetName}` : ""}${agent.semanticTopFocusableControlsTargetSelector ? ` controlsTargetSelector=${agent.semanticTopFocusableControlsTargetSelector}` : ""}${agent.semanticTopFocusableSelector ? ` selector=${agent.semanticTopFocusableSelector}` : ""}`);
   if (agent.semanticTopLinkName) lines.push(`  semanticTopLink: ${agent.semanticTopLinkPath ?? ""} name="${agent.semanticTopLinkName}"${agent.semanticTopLinkUrl ? ` <${agent.semanticTopLinkUrl}>` : ""}${agent.semanticTopLinkTarget ? ` target=${agent.semanticTopLinkTarget}` : ""}${agent.semanticTopLinkRel?.length ? ` rel=${agent.semanticTopLinkRel.join(",")}` : ""}${agent.semanticTopLinkType ? ` type=${agent.semanticTopLinkType}` : ""}${agent.semanticTopLinkHreflang ? ` hreflang=${agent.semanticTopLinkHreflang}` : ""}${agent.semanticTopLinkState ? ` state=${agent.semanticTopLinkState}` : ""}${typeof agent.semanticTopLinkCurrent !== "undefined" ? ` current=${agent.semanticTopLinkCurrent}` : ""}${agent.semanticTopLinkDownload ? ` download=${agent.semanticTopLinkDownload === true ? "true" : agent.semanticTopLinkDownload}` : ""}${agent.semanticTopLinkSelector ? ` selector=${agent.semanticTopLinkSelector}` : ""}`);
+  if (agent.semanticTopCurrentLinkName) lines.push(`  semanticTopCurrentLink: ${agent.semanticTopCurrentLinkPath ?? ""} name="${agent.semanticTopCurrentLinkName}"${agent.semanticTopCurrentLinkUrl ? ` <${agent.semanticTopCurrentLinkUrl}>` : ""}${agent.semanticTopCurrentLinkTarget ? ` target=${agent.semanticTopCurrentLinkTarget}` : ""}${agent.semanticTopCurrentLinkRel?.length ? ` rel=${agent.semanticTopCurrentLinkRel.join(",")}` : ""}${agent.semanticTopCurrentLinkType ? ` type=${agent.semanticTopCurrentLinkType}` : ""}${agent.semanticTopCurrentLinkHreflang ? ` hreflang=${agent.semanticTopCurrentLinkHreflang}` : ""}${agent.semanticTopCurrentLinkState ? ` state=${agent.semanticTopCurrentLinkState}` : ""}${typeof agent.semanticTopCurrentLinkCurrent !== "undefined" ? ` current=${agent.semanticTopCurrentLinkCurrent}` : ""}${agent.semanticTopCurrentLinkDownload ? ` download=${agent.semanticTopCurrentLinkDownload === true ? "true" : agent.semanticTopCurrentLinkDownload}` : ""}${agent.semanticTopCurrentLinkSelector ? ` selector=${agent.semanticTopCurrentLinkSelector}` : ""}`);
   if (agent.semanticTopInPageLinkName) lines.push(`  semanticTopInPageLink: ${agent.semanticTopInPageLinkPath ?? ""} kind=${agent.semanticTopInPageLinkKind ?? "anchor"} name="${agent.semanticTopInPageLinkName}"${agent.semanticTopInPageLinkTargetId ? ` target=${agent.semanticTopInPageLinkTargetId}` : ""}${agent.semanticTopInPageLinkUrl ? ` <${agent.semanticTopInPageLinkUrl}>` : ""}${agent.semanticTopInPageLinkSelector ? ` selector=${agent.semanticTopInPageLinkSelector}` : ""}`);
   if (agent.semanticTopButtonName) lines.push(`  semanticTopButton: ${agent.semanticTopButtonPath ?? ""} name="${agent.semanticTopButtonName}"${agent.semanticTopButtonRoleDescription ? ` roleDescription=${agent.semanticTopButtonRoleDescription}` : ""}${agent.semanticTopButtonDescription ? ` description=${agent.semanticTopButtonDescription}` : ""}${agent.semanticTopButtonType ? ` type=${agent.semanticTopButtonType}` : ""}${agent.semanticTopButtonState ? ` state=${agent.semanticTopButtonState}` : ""}${typeof agent.semanticTopButtonDisabled === "boolean" ? ` disabled=${agent.semanticTopButtonDisabled}` : ""}${typeof agent.semanticTopButtonPressed !== "undefined" ? ` pressed=${agent.semanticTopButtonPressed}` : ""}${typeof agent.semanticTopButtonExpanded === "boolean" ? ` expanded=${agent.semanticTopButtonExpanded}` : ""}${typeof agent.semanticTopButtonHaspopup !== "undefined" ? ` haspopup=${agent.semanticTopButtonHaspopup}` : ""}${agent.semanticTopButtonControls ? ` controls=${agent.semanticTopButtonControls}` : ""}${agent.semanticTopButtonControlsTargetRole ? ` controlsTargetRole=${agent.semanticTopButtonControlsTargetRole}` : ""}${agent.semanticTopButtonControlsTargetName ? ` controlsTargetName=${agent.semanticTopButtonControlsTargetName}` : ""}${agent.semanticTopButtonControlsTargetSelector ? ` controlsTargetSelector=${agent.semanticTopButtonControlsTargetSelector}` : ""}${agent.semanticTopButtonFormAction ? ` formAction=${agent.semanticTopButtonFormAction}` : ""}${agent.semanticTopButtonFormMethod ? ` formMethod=${agent.semanticTopButtonFormMethod}` : ""}${agent.semanticTopButtonFormTarget ? ` formTarget=${agent.semanticTopButtonFormTarget}` : ""}${agent.semanticTopButtonFormEncType ? ` formEncType=${agent.semanticTopButtonFormEncType}` : ""}${typeof agent.semanticTopButtonFormNoValidate === "boolean" ? ` formNoValidate=${agent.semanticTopButtonFormNoValidate}` : ""}${agent.semanticTopButtonFormId ? ` form=${agent.semanticTopButtonFormId}` : ""}${agent.semanticTopButtonSelector ? ` selector=${agent.semanticTopButtonSelector}` : ""}`);
   if (agent.semanticTopImagePath) lines.push(`  semanticTopImage: ${agent.semanticTopImagePath}${agent.semanticTopImageName ? ` name="${agent.semanticTopImageName}"` : ""}${agent.semanticTopImageUrl ? ` <${agent.semanticTopImageUrl}>` : ""}${typeof agent.semanticTopImageWidth === "number" ? ` width=${agent.semanticTopImageWidth}` : ""}${typeof agent.semanticTopImageHeight === "number" ? ` height=${agent.semanticTopImageHeight}` : ""}${agent.semanticTopImageLoading ? ` loading=${agent.semanticTopImageLoading}` : ""}${agent.semanticTopImageDecoding ? ` decoding=${agent.semanticTopImageDecoding}` : ""}${agent.semanticTopImageSrcset ? ` srcset=${agent.semanticTopImageSrcset}` : ""}${agent.semanticTopImageSizes ? ` sizes=${agent.semanticTopImageSizes}` : ""}${agent.semanticTopImageSelector ? ` selector=${agent.semanticTopImageSelector}` : ""}`);
@@ -13171,6 +13183,7 @@ function summarizeAgent(
   const topSemanticFocusable = semanticSummary?.focusableItems[0];
   const topSemanticFocusableState = formatSemanticState(topSemanticFocusable?.state);
   const topSemanticInPageLink = semanticSummary?.inPageLinks[0];
+  const topSemanticCurrentLink = semanticSummary?.links.find((link) => typeof link.current !== "undefined");
   const topSemanticImage = semanticSummary?.imageItems[0];
   const topSemanticTable = semanticSummary?.tableItems[0];
   const topSemanticTableColumnCount = observedSemanticTableColumnCount(topSemanticTable);
@@ -13481,6 +13494,17 @@ function summarizeAgent(
     ...(typeof semanticSummary?.links[0]?.current !== "undefined" ? { semanticTopLinkCurrent: semanticSummary.links[0].current } : {}),
     ...(semanticSummary?.links[0]?.download ? { semanticTopLinkDownload: semanticSummary.links[0].download } : {}),
     ...(semanticSummary?.links[0]?.selector ? { semanticTopLinkSelector: semanticSummary.links[0].selector } : {}),
+    ...(topSemanticCurrentLink?.name ? { semanticTopCurrentLinkName: topSemanticCurrentLink.name } : {}),
+    ...(topSemanticCurrentLink ? { semanticTopCurrentLinkPath: topSemanticCurrentLink.path } : {}),
+    ...(topSemanticCurrentLink?.url ? { semanticTopCurrentLinkUrl: topSemanticCurrentLink.url } : {}),
+    ...(topSemanticCurrentLink?.target ? { semanticTopCurrentLinkTarget: topSemanticCurrentLink.target } : {}),
+    ...(topSemanticCurrentLink?.rel?.length ? { semanticTopCurrentLinkRel: topSemanticCurrentLink.rel } : {}),
+    ...(topSemanticCurrentLink?.type ? { semanticTopCurrentLinkType: topSemanticCurrentLink.type } : {}),
+    ...(topSemanticCurrentLink?.hreflang ? { semanticTopCurrentLinkHreflang: topSemanticCurrentLink.hreflang } : {}),
+    ...(topSemanticCurrentLink?.state ? { semanticTopCurrentLinkState: topSemanticCurrentLink.state } : {}),
+    ...(typeof topSemanticCurrentLink?.current !== "undefined" ? { semanticTopCurrentLinkCurrent: topSemanticCurrentLink.current } : {}),
+    ...(topSemanticCurrentLink?.download ? { semanticTopCurrentLinkDownload: topSemanticCurrentLink.download } : {}),
+    ...(topSemanticCurrentLink?.selector ? { semanticTopCurrentLinkSelector: topSemanticCurrentLink.selector } : {}),
     ...(semanticSummary ? { semanticInPageLinkCount: semanticSummary.inPageLinks.length } : {}),
     ...(topSemanticInPageLink ? { semanticTopInPageLinkPath: topSemanticInPageLink.path } : {}),
     ...(topSemanticInPageLink ? { semanticTopInPageLinkKind: topSemanticInPageLink.kind } : {}),
@@ -19726,6 +19750,17 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.semanticTopLinkCurrent !== "undefined" ? { semanticTopLinkCurrent: agent.semanticTopLinkCurrent } : {}),
     ...(agent.semanticTopLinkDownload ? { semanticTopLinkDownload: agent.semanticTopLinkDownload } : {}),
     ...(agent.semanticTopLinkSelector ? { semanticTopLinkSelector: agent.semanticTopLinkSelector } : {}),
+    ...(agent.semanticTopCurrentLinkName ? { semanticTopCurrentLinkName: agent.semanticTopCurrentLinkName } : {}),
+    ...(agent.semanticTopCurrentLinkPath ? { semanticTopCurrentLinkPath: agent.semanticTopCurrentLinkPath } : {}),
+    ...(agent.semanticTopCurrentLinkUrl ? { semanticTopCurrentLinkUrl: agent.semanticTopCurrentLinkUrl } : {}),
+    ...(agent.semanticTopCurrentLinkTarget ? { semanticTopCurrentLinkTarget: agent.semanticTopCurrentLinkTarget } : {}),
+    ...(agent.semanticTopCurrentLinkRel?.length ? { semanticTopCurrentLinkRel: agent.semanticTopCurrentLinkRel } : {}),
+    ...(agent.semanticTopCurrentLinkType ? { semanticTopCurrentLinkType: agent.semanticTopCurrentLinkType } : {}),
+    ...(agent.semanticTopCurrentLinkHreflang ? { semanticTopCurrentLinkHreflang: agent.semanticTopCurrentLinkHreflang } : {}),
+    ...(agent.semanticTopCurrentLinkState ? { semanticTopCurrentLinkState: agent.semanticTopCurrentLinkState } : {}),
+    ...(typeof agent.semanticTopCurrentLinkCurrent !== "undefined" ? { semanticTopCurrentLinkCurrent: agent.semanticTopCurrentLinkCurrent } : {}),
+    ...(agent.semanticTopCurrentLinkDownload ? { semanticTopCurrentLinkDownload: agent.semanticTopCurrentLinkDownload } : {}),
+    ...(agent.semanticTopCurrentLinkSelector ? { semanticTopCurrentLinkSelector: agent.semanticTopCurrentLinkSelector } : {}),
     ...(typeof agent.semanticInPageLinkCount === "number" ? { semanticInPageLinkCount: agent.semanticInPageLinkCount } : {}),
     ...(agent.semanticTopInPageLinkPath ? { semanticTopInPageLinkPath: agent.semanticTopInPageLinkPath } : {}),
     ...(agent.semanticTopInPageLinkKind ? { semanticTopInPageLinkKind: agent.semanticTopInPageLinkKind } : {}),
@@ -21167,6 +21202,17 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.semanticTopLinkCurrent !== "undefined" ? { semanticTopLinkCurrent: agent.semanticTopLinkCurrent } : {}),
     ...(agent.semanticTopLinkDownload ? { semanticTopLinkDownload: agent.semanticTopLinkDownload } : {}),
     ...(agent.semanticTopLinkSelector ? { semanticTopLinkSelector: agent.semanticTopLinkSelector } : {}),
+    ...(agent.semanticTopCurrentLinkName ? { semanticTopCurrentLinkName: agent.semanticTopCurrentLinkName } : {}),
+    ...(agent.semanticTopCurrentLinkPath ? { semanticTopCurrentLinkPath: agent.semanticTopCurrentLinkPath } : {}),
+    ...(agent.semanticTopCurrentLinkUrl ? { semanticTopCurrentLinkUrl: agent.semanticTopCurrentLinkUrl } : {}),
+    ...(agent.semanticTopCurrentLinkTarget ? { semanticTopCurrentLinkTarget: agent.semanticTopCurrentLinkTarget } : {}),
+    ...(agent.semanticTopCurrentLinkRel?.length ? { semanticTopCurrentLinkRel: agent.semanticTopCurrentLinkRel } : {}),
+    ...(agent.semanticTopCurrentLinkType ? { semanticTopCurrentLinkType: agent.semanticTopCurrentLinkType } : {}),
+    ...(agent.semanticTopCurrentLinkHreflang ? { semanticTopCurrentLinkHreflang: agent.semanticTopCurrentLinkHreflang } : {}),
+    ...(agent.semanticTopCurrentLinkState ? { semanticTopCurrentLinkState: agent.semanticTopCurrentLinkState } : {}),
+    ...(typeof agent.semanticTopCurrentLinkCurrent !== "undefined" ? { semanticTopCurrentLinkCurrent: agent.semanticTopCurrentLinkCurrent } : {}),
+    ...(agent.semanticTopCurrentLinkDownload ? { semanticTopCurrentLinkDownload: agent.semanticTopCurrentLinkDownload } : {}),
+    ...(agent.semanticTopCurrentLinkSelector ? { semanticTopCurrentLinkSelector: agent.semanticTopCurrentLinkSelector } : {}),
     ...(typeof agent.semanticInPageLinkCount === "number" ? { semanticInPageLinkCount: agent.semanticInPageLinkCount } : {}),
     ...(agent.semanticTopInPageLinkPath ? { semanticTopInPageLinkPath: agent.semanticTopInPageLinkPath } : {}),
     ...(agent.semanticTopInPageLinkKind ? { semanticTopInPageLinkKind: agent.semanticTopInPageLinkKind } : {}),

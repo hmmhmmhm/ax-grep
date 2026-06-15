@@ -2268,6 +2268,17 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopLinkCurrent?: boolean | string;
       semanticTopLinkDownload?: string | true;
       semanticTopLinkSelector?: string;
+      semanticTopCurrentLinkName?: string;
+      semanticTopCurrentLinkPath?: string;
+      semanticTopCurrentLinkUrl?: string;
+      semanticTopCurrentLinkTarget?: string;
+      semanticTopCurrentLinkRel?: string[];
+      semanticTopCurrentLinkType?: string;
+      semanticTopCurrentLinkHreflang?: string;
+      semanticTopCurrentLinkState?: string;
+      semanticTopCurrentLinkCurrent?: boolean | string;
+      semanticTopCurrentLinkDownload?: string | true;
+      semanticTopCurrentLinkSelector?: string;
       semanticInPageLinkCount?: number;
       semanticTopInPageLinkPath?: string;
       semanticTopInPageLinkKind?: "skip" | "anchor";
@@ -7747,6 +7758,44 @@ function scoreSelectedListItemShortcuts(agentRecord: Record<string, unknown>, it
   return { matched: 0, required: 0 };
 }
 
+function scoreCurrentLinkShortcuts(agentRecord: Record<string, unknown>, links: unknown): { matched: number; required: number } {
+  if (!Array.isArray(links)) return { matched: 0, required: 0 };
+  const currentLink = (links as Array<{ path?: unknown; name?: unknown; url?: unknown; target?: unknown; rel?: unknown; type?: unknown; hreflang?: unknown; state?: unknown; current?: unknown; download?: unknown; selector?: unknown }>).find((link) => typeof link?.current !== "undefined");
+  if (currentLink) {
+    let matched = 0;
+    const required = 12;
+    if (agentRecord.semanticTopCurrentLinkName === currentLink.name) matched += 1;
+    if (agentRecord.semanticTopCurrentLinkPath === currentLink.path) matched += 1;
+    if (agentRecord.semanticTopCurrentLinkUrl === currentLink.url) matched += 1;
+    if (agentRecord.semanticTopCurrentLinkTarget === currentLink.target) matched += 1;
+    if (JSON.stringify(agentRecord.semanticTopCurrentLinkRel) === JSON.stringify(currentLink.rel)) matched += 1;
+    if (agentRecord.semanticTopCurrentLinkType === currentLink.type) matched += 1;
+    if (agentRecord.semanticTopCurrentLinkHreflang === currentLink.hreflang) matched += 1;
+    if (agentRecord.semanticTopCurrentLinkState === currentLink.state) matched += 1;
+    if (agentRecord.semanticTopCurrentLinkCurrent === currentLink.current) matched += 1;
+    if (agentRecord.semanticTopCurrentLinkDownload === currentLink.download) matched += 1;
+    if (agentRecord.semanticTopCurrentLinkSelector === currentLink.selector) matched += 1;
+    if (typeof agentRecord.semanticTopCurrentLinkName === "string" && agentRecord.semanticTopCurrentLinkName.length > 0) matched += 1;
+    return { matched, required };
+  }
+  if (
+    agentRecord.semanticTopCurrentLinkName
+    || agentRecord.semanticTopCurrentLinkPath
+    || agentRecord.semanticTopCurrentLinkUrl
+    || agentRecord.semanticTopCurrentLinkTarget
+    || Array.isArray(agentRecord.semanticTopCurrentLinkRel)
+    || agentRecord.semanticTopCurrentLinkType
+    || agentRecord.semanticTopCurrentLinkHreflang
+    || agentRecord.semanticTopCurrentLinkState
+    || typeof agentRecord.semanticTopCurrentLinkCurrent !== "undefined"
+    || agentRecord.semanticTopCurrentLinkDownload
+    || agentRecord.semanticTopCurrentLinkSelector
+  ) {
+    return { matched: 0, required: 1 };
+  }
+  return { matched: 0, required: 0 };
+}
+
 function scoreSemanticControlStateShortcuts(
   agentRecord: Record<string, unknown>,
   state: Record<string, unknown>,
@@ -8221,6 +8270,9 @@ function scoreAgentSemanticSummary(agent: Record<string, any> | undefined): numb
     required += 1;
     if (agent?.semanticTopLinkSelector === link.selector) matched += 1;
   }
+  const currentLinkScore = scoreCurrentLinkShortcuts(agentRecord, item.links);
+  matched += currentLinkScore.matched;
+  required += currentLinkScore.required;
   if (Array.isArray(item.inPageLinks)) {
     required += 1;
     if (agent?.semanticInPageLinkCount === item.inPageLinks.length) matched += 1;
