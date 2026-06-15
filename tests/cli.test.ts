@@ -6001,6 +6001,70 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopFieldSelector: #q");
   });
 
+  it("prints top semantic target shortcuts in text agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/targets"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main aria-label="Reports workspace">
+          <h1 id="title">Quarterly reports</h1>
+          <button
+            aria-label="Toggle details"
+            aria-roledescription="disclosure toggle"
+            aria-describedby="details-help"
+            aria-valuetext="details off"
+            aria-pressed="false"
+            aria-expanded="false"
+            aria-haspopup="dialog"
+            aria-controls="details-panel"
+          >Details</button>
+          <p id="details-help">Shows extra context</p>
+          <section id="details-panel" role="region" aria-label="Details panel">Detailed report content.</section>
+          <p>Readable target content for semantic shortcut routing.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticTopHeading: agent.semanticSummary.headingItems[0] text=\"Quarterly reports\" level=1 selector=#title");
+    expect(stdout.output).toContain("  semanticTopHeadingPath: agent.semanticSummary.headingItems[0]");
+    expect(stdout.output).toContain("  semanticTopHeadingText: Quarterly reports");
+    expect(stdout.output).toContain("  semanticTopHeadingLevel: 1");
+    expect(stdout.output).toContain("  semanticTopHeadingSelector: #title");
+    expect(stdout.output).toContain("  semanticTopLandmark: agent.semanticSummary.landmarkItems[0] role=main selector=main");
+    expect(stdout.output).toContain("  semanticTopLandmarkPath: agent.semanticSummary.landmarkItems[0]");
+    expect(stdout.output).toContain("  semanticTopLandmarkRole: main");
+    expect(stdout.output).toContain("  semanticTopLandmarkSelector: main");
+    expect(stdout.output).toContain("  semanticTopNamedRole: agent.semanticSummary.namedRoleItems[0] role=main name=\"Reports workspace\" selector=main");
+    expect(stdout.output).toContain("  semanticTopNamedRolePath: agent.semanticSummary.namedRoleItems[0]");
+    expect(stdout.output).toContain("  semanticTopNamedRoleRole: main");
+    expect(stdout.output).toContain("  semanticTopNamedRoleName: Reports workspace");
+    expect(stdout.output).toContain("  semanticTopNamedRoleSelector: main");
+    expect(stdout.output).toContain("  semanticTopInteractive: agent.semanticSummary.interactiveRoles[0] role=button name=\"Toggle details\"");
+    expect(stdout.output).toContain("  semanticTopInteractivePath: agent.semanticSummary.interactiveRoles[0]");
+    expect(stdout.output).toContain("  semanticTopInteractiveRole: button");
+    expect(stdout.output).toContain("  semanticTopInteractiveName: Toggle details");
+    expect(stdout.output).toContain("  semanticTopInteractiveRoleDescription: disclosure toggle");
+    expect(stdout.output).toContain("  semanticTopInteractiveDescription: Shows extra context");
+    expect(stdout.output).toContain("  semanticTopInteractiveValue: details off");
+    expect(stdout.output).toContain("  semanticTopInteractivePressed: false");
+    expect(stdout.output).toContain("  semanticTopInteractiveExpanded: false");
+    expect(stdout.output).toContain("  semanticTopInteractiveHaspopup: dialog");
+    expect(stdout.output).toContain("  semanticTopInteractiveControls: details-panel");
+    expect(stdout.output).toContain("  semanticTopInteractiveSelector: button");
+    expect(stdout.output).toContain("  semanticTopFocusable: agent.semanticSummary.focusableItems[0] role=button name=\"Toggle details\"");
+    expect(stdout.output).toContain("  semanticTopFocusablePath: agent.semanticSummary.focusableItems[0]");
+    expect(stdout.output).toContain("  semanticTopFocusableRole: button");
+    expect(stdout.output).toContain("  semanticTopFocusableName: Toggle details");
+    expect(stdout.output).toContain("  semanticTopFocusableRoleDescription: disclosure toggle");
+    expect(stdout.output).toContain("  semanticTopFocusablePressed: false");
+    expect(stdout.output).toContain("  semanticTopFocusableExpanded: false");
+    expect(stdout.output).toContain("  semanticTopFocusableHaspopup: dialog");
+    expect(stdout.output).toContain("  semanticTopFocusableControls: details-panel");
+    expect(stdout.output).toContain("  semanticTopFocusableSelector: button");
+  });
+
   it("prints top semantic relation and value shortcuts in text agent output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/control"], {

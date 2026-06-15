@@ -1121,6 +1121,9 @@ When research expands:
 - Added individual text rows for semantic unavailable targets, so text-only
   agents can identify iframe/static-HTML gaps without parsing aggregate
   unavailable rows.
+- Added individual text rows for semantic top heading, landmark, named-role,
+  interactive, and focusable targets, so text-only agents can route primary
+  accessibility targets without parsing aggregate target rows.
 
 ## In Progress
 
