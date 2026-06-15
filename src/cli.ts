@@ -4266,6 +4266,10 @@ function formatAgentText(agent: AgentSummary): string[] {
     agent.topBarrierDiagnosticCode ? `diagnostic=${agent.topBarrierDiagnosticCode}` : "",
     agent.topBarrierSelector ? `selector=${agent.topBarrierSelector}` : "",
   ].filter(Boolean).join(" ");
+  const runbookReadValueReferencePath = compactAgentReadValueReferencePath(agent.runbook.readValue, true);
+  const nextReadValueReferencePath = compactAgentReadValueReferencePath(agent.next.readValue);
+  const executorReadValueReferencePath = compactAgentReadValueReferencePath(agent.executor.readValue);
+  const handoffReadValueReferencePath = compactAgentReadValueReferencePath(agent.handoff.readValue, true);
   const lines = [
     "agent",
     `  status: ${agent.status}`,
@@ -4303,7 +4307,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.runbookReadValuePath ? [`  runbookReadValuePath: ${agent.runbookReadValuePath}`] : []),
     ...(agent.runbookReadValueType ? [`  runbookReadValueType: ${agent.runbookReadValueType}`] : []),
     ...(typeof agent.runbookReadValueCount === "number" ? [`  runbookReadValueCount: ${agent.runbookReadValueCount}`] : []),
-    ...(agent.runbookReadValueReferencePath ? [`  runbookReadValueReferencePath: ${agent.runbookReadValueReferencePath}`] : []),
+    ...(runbookReadValueReferencePath ? [`  runbookReadValueReferencePath: ${runbookReadValueReferencePath}`] : []),
     ...(agent.runbook.command ? [`  runbookCommand: ${agent.runbook.command}`] : []),
     ...(agent.runbook.commandArgs ? [`  runbookCommandArgs: ${JSON.stringify(agent.runbook.commandArgs)}`] : []),
     ...(agent.runbook.url ? [`  runbookUrl: ${agent.runbook.url}`] : []),
@@ -5056,7 +5060,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.nextReadValuePath) lines.push(`  nextReadValuePath: ${agent.nextReadValuePath}`);
   if (agent.nextReadValueType) lines.push(`  nextReadValueType: ${agent.nextReadValueType}`);
   if (typeof agent.nextReadValueCount === "number") lines.push(`  nextReadValueCount: ${agent.nextReadValueCount}`);
-  if (agent.nextReadValueReferencePath) lines.push(`  nextReadValueReferencePath: ${agent.nextReadValueReferencePath}`);
+  if (nextReadValueReferencePath) lines.push(`  nextReadValueReferencePath: ${nextReadValueReferencePath}`);
   if (agent.nextCommand) lines.push(`  nextCommand: ${agent.nextCommand}`);
   if (agent.nextCommandArgs) lines.push(`  nextCommandArgs: ${formatCommandArgsText(agent.nextCommandArgs)}`);
   if (agent.nextAfterInteractionCommand) lines.push(`  nextAfterInteractionCommand: ${agent.nextAfterInteractionCommand}`);
@@ -5147,7 +5151,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.executorReadValuePath) lines.push(`  executorReadValuePath: ${agent.executorReadValuePath}`);
   if (agent.executorReadValueType) lines.push(`  executorReadValueType: ${agent.executorReadValueType}`);
   if (typeof agent.executorReadValueCount === "number") lines.push(`  executorReadValueCount: ${agent.executorReadValueCount}`);
-  if (agent.executorReadValueReferencePath) lines.push(`  executorReadValueReferencePath: ${agent.executorReadValueReferencePath}`);
+  if (executorReadValueReferencePath) lines.push(`  executorReadValueReferencePath: ${executorReadValueReferencePath}`);
   if (agent.executor.readValue) lines.push(...formatAgentReadValueText(agent.executor.readValue, "executorReadValue"));
   if (agent.executor.command) lines.push(`  executorCommand: ${agent.executor.command}`);
   if (agent.executor.commandArgs) lines.push(`  executorCommandArgs: ${formatCommandArgsText(agent.executor.commandArgs)}`);
@@ -5194,7 +5198,7 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.handoffReadValuePath) lines.push(`  handoffReadValuePath: ${agent.handoffReadValuePath}`);
   if (agent.handoffReadValueType) lines.push(`  handoffReadValueType: ${agent.handoffReadValueType}`);
   if (typeof agent.handoffReadValueCount === "number") lines.push(`  handoffReadValueCount: ${agent.handoffReadValueCount}`);
-  if (agent.handoffReadValueReferencePath) lines.push(`  handoffReadValueReferencePath: ${agent.handoffReadValueReferencePath}`);
+  if (handoffReadValueReferencePath) lines.push(`  handoffReadValueReferencePath: ${handoffReadValueReferencePath}`);
   if (agent.handoff.readValue) lines.push(...formatAgentReadValueText(agent.handoff.readValue));
   if (agent.handoff.command) lines.push(`  handoffCommand: ${agent.handoff.command}`);
   if (agent.handoff.commandArgs) lines.push(`  handoffCommandArgs: ${formatCommandArgsText(agent.handoff.commandArgs)}`);

@@ -12553,6 +12553,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  nextReadValuePath: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  nextReadValueType: array");
     expect(stdout.output).toContain("  nextReadValueCount: 1");
+    expect(stdout.output).toContain("  nextReadValueReferencePath: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  executor: return/return/medium action=read-content status=ready - Answer now from pageCheck.contentEvidence using citations e1.");
     expect(stdout.output).toContain("  executorReadFrom: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  executorReadTargetKind: evidence");
@@ -12561,6 +12562,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  executorReadValuePath: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  executorReadValueType: array");
     expect(stdout.output).toContain("  executorReadValueCount: 1");
+    expect(stdout.output).toContain("  executorReadValueReferencePath: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  executorReadValue: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  executorReadTarget: pageCheck.contentEvidence kind=evidence count=1");
     expect(stdout.output).toContain("  loopDecision: return");
@@ -12571,6 +12573,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  runbookDecision: return");
     expect(stdout.output).toContain("  runbookOperation: return");
     expect(stdout.output).toContain("  runbookExpectedOutcome: read-evidence");
+    expect(stdout.output).toContain("  runbookReadValueReferencePath: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  executionPlanReadTargetKind: evidence");
     expect(stdout.output).toContain("  executionPlanReadTargetReason: Structured page excerpts suitable for source checking.");
     expect(stdout.output).toContain("  handoff: return/return/medium action=read-content priority=high - Answer now from pageCheck.contentEvidence using citations e1.");
@@ -12581,6 +12584,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  handoffReadValuePath: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  handoffReadValueType: array");
     expect(stdout.output).toContain("  handoffReadValueCount: 1");
+    expect(stdout.output).toContain("  handoffReadValueReferencePath: pageCheck.contentEvidence");
     expect(stdout.output).toContain("  answerPlanReadTargetKind: evidence");
     expect(stdout.output).toContain("  answerPlanReadTargetReason: Structured page excerpts suitable for source checking.");
     expect(stdout.output).toContain("  handoffReadValue: pageCheck.contentEvidence");
