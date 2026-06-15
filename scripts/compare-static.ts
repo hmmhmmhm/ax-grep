@@ -1471,6 +1471,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topResultChoiceSitelinkCount?: number;
       topResultChoiceFirstSitelinkTitle?: string;
       topResultChoiceFirstSitelinkUrl?: string;
+      topResultChoiceFirstSitelinkUrlPath?: string;
+      topResultChoiceFirstSitelinkUrlQuery?: string;
       topResultChoiceFirstSitelinkSelector?: string;
       topResultChoiceReason?: string;
       formCount?: number;
@@ -1899,6 +1901,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topChoiceCommandArgs?: string[];
       topChoiceFirstSitelinkTitle?: string;
       topChoiceFirstSitelinkUrl?: string;
+      topChoiceFirstSitelinkUrlPath?: string;
+      topChoiceFirstSitelinkUrlQuery?: string;
       topChoiceFirstSitelinkSelector?: string;
       topChoiceFirstSitelinkCommand?: string;
       topChoiceFirstSitelinkCommandArgs?: unknown[];
@@ -1940,6 +1944,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchSelectedSitelinkCount?: number;
       sourceSearchSelectedFirstSitelinkTitle?: string;
       sourceSearchSelectedFirstSitelinkUrl?: string;
+      sourceSearchSelectedFirstSitelinkUrlPath?: string;
+      sourceSearchSelectedFirstSitelinkUrlQuery?: string;
       sourceSearchSelectedOpenResult?: number | "best";
       sourceSearchSelectedCommand?: string;
       sourceSearchSelectedCommandArgs?: unknown[];
@@ -1980,6 +1986,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       sourceSearchAlternateSitelinkCount?: number;
       sourceSearchAlternateFirstSitelinkTitle?: string;
       sourceSearchAlternateFirstSitelinkUrl?: string;
+      sourceSearchAlternateFirstSitelinkUrlPath?: string;
+      sourceSearchAlternateFirstSitelinkUrlQuery?: string;
       sourceSearchAlternateOpenResult?: number | "best";
       sourceSearchAlternateCommand?: string;
       sourceSearchAlternateCommandArgs?: unknown[];
@@ -4657,6 +4665,8 @@ function scoreAgentTopChoiceShortcuts(agent: {
   topChoiceCommandArgs?: string[];
   topChoiceFirstSitelinkTitle?: string;
   topChoiceFirstSitelinkUrl?: string;
+  topChoiceFirstSitelinkUrlPath?: string;
+  topChoiceFirstSitelinkUrlQuery?: string;
   topChoiceFirstSitelinkSelector?: string;
   topChoiceFirstSitelinkCommand?: string;
   topChoiceFirstSitelinkCommandArgs?: unknown[];
@@ -4696,7 +4706,7 @@ function scoreAgentTopChoiceShortcuts(agent: {
           ? { kind: "action-target" as const, path: actionTarget.path, label: actionTarget.name || actionTarget.text, url: actionTarget.targetUrl ?? actionTarget.urlTemplate, targetUrl: actionTarget.targetUrl, urlTemplate: actionTarget.urlTemplate, queryInput: actionTarget.queryInput, command: actionTarget.command, commandArgs: actionTarget.commandArgs, encodingType: actionTarget.encodingType, disabled: actionTarget.disabled, pressed: actionTarget.pressed, expanded: actionTarget.expanded, haspopup: actionTarget.haspopup, controls: actionTarget.controls }
           : undefined;
   if (!expected) {
-    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceUrlPath && !agent.topChoiceUrlQuery && !agent.topChoiceActionUrl && !agent.topChoiceTargetUrl && !agent.topChoiceUrlTemplate && !agent.topChoiceQueryField && !agent.topChoiceQueryInput && !agent.topChoiceRequiredFieldName && !agent.topChoiceRequiredFieldSelector && !agent.topChoiceInvalidFieldName && typeof agent.topChoiceInvalidFieldInvalid === "undefined" && !agent.topChoiceInvalidFieldSelector && !agent.topChoiceHost && !agent.topChoiceSnippet && !agent.topChoiceDateText && !agent.topChoiceDateIso && typeof agent.topChoiceDateUnixMs !== "number" && !agent.topChoiceDatePrecision && !agent.topChoiceDateSource && !agent.topChoiceCommand && !agent.topChoiceCommandArgs && !agent.topChoiceFirstSitelinkTitle && !agent.topChoiceFirstSitelinkUrl && !agent.topChoiceFirstSitelinkSelector && !agent.topChoiceFirstSitelinkCommand && !agent.topChoiceFirstSitelinkCommandArgs && !agent.topChoiceOpenResult && typeof agent.topChoiceRecommended !== "boolean" && typeof agent.topChoicePrimary !== "boolean" && !agent.topChoiceSourceType && typeof agent.topChoiceSourceScore !== "number" && !agent.topChoiceSourceHints?.length && !agent.topChoiceRelevance && !agent.topChoiceMatchedTerm && !agent.topChoiceFindMatch && typeof agent.topChoiceSitelinkCount !== "number" && typeof agent.topChoiceLikelyOfficial !== "boolean" && !agent.topChoiceEncodingType && typeof agent.topChoiceSubmitDisabled !== "boolean" && typeof agent.topChoiceDisabled !== "boolean" && typeof agent.topChoicePressed === "undefined" && typeof agent.topChoiceExpanded !== "boolean" && typeof agent.topChoiceHaspopup === "undefined" && !agent.topChoiceControls ? 1 : 0;
+    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceUrlPath && !agent.topChoiceUrlQuery && !agent.topChoiceActionUrl && !agent.topChoiceTargetUrl && !agent.topChoiceUrlTemplate && !agent.topChoiceQueryField && !agent.topChoiceQueryInput && !agent.topChoiceRequiredFieldName && !agent.topChoiceRequiredFieldSelector && !agent.topChoiceInvalidFieldName && typeof agent.topChoiceInvalidFieldInvalid === "undefined" && !agent.topChoiceInvalidFieldSelector && !agent.topChoiceHost && !agent.topChoiceSnippet && !agent.topChoiceDateText && !agent.topChoiceDateIso && typeof agent.topChoiceDateUnixMs !== "number" && !agent.topChoiceDatePrecision && !agent.topChoiceDateSource && !agent.topChoiceCommand && !agent.topChoiceCommandArgs && !agent.topChoiceFirstSitelinkTitle && !agent.topChoiceFirstSitelinkUrl && !agent.topChoiceFirstSitelinkUrlPath && !agent.topChoiceFirstSitelinkUrlQuery && !agent.topChoiceFirstSitelinkSelector && !agent.topChoiceFirstSitelinkCommand && !agent.topChoiceFirstSitelinkCommandArgs && !agent.topChoiceOpenResult && typeof agent.topChoiceRecommended !== "boolean" && typeof agent.topChoicePrimary !== "boolean" && !agent.topChoiceSourceType && typeof agent.topChoiceSourceScore !== "number" && !agent.topChoiceSourceHints?.length && !agent.topChoiceRelevance && !agent.topChoiceMatchedTerm && !agent.topChoiceFindMatch && typeof agent.topChoiceSitelinkCount !== "number" && typeof agent.topChoiceLikelyOfficial !== "boolean" && !agent.topChoiceEncodingType && typeof agent.topChoiceSubmitDisabled !== "boolean" && typeof agent.topChoiceDisabled !== "boolean" && typeof agent.topChoicePressed === "undefined" && typeof agent.topChoiceExpanded !== "boolean" && typeof agent.topChoiceHaspopup === "undefined" && !agent.topChoiceControls ? 1 : 0;
   }
   let required = 2;
   let matched = 0;
@@ -4777,10 +4787,23 @@ function scoreAgentTopChoiceShortcuts(agent: {
     required += 5;
     if (agent.topChoiceFirstSitelinkTitle === expected.firstSitelink.title) matched += 1;
     if (agent.topChoiceFirstSitelinkUrl === expected.firstSitelink.url) matched += 1;
+    const firstSitelinkUrlParts = typeof expected.firstSitelink.url === "string" ? compareUrlPathParts(expected.firstSitelink.url) : undefined;
+    if (firstSitelinkUrlParts?.urlPath) {
+      required += 1;
+      if (agent.topChoiceFirstSitelinkUrlPath === firstSitelinkUrlParts.urlPath) matched += 1;
+    } else if (agent.topChoiceFirstSitelinkUrlPath) {
+      required += 1;
+    }
+    if (firstSitelinkUrlParts?.urlQuery) {
+      required += 1;
+      if (agent.topChoiceFirstSitelinkUrlQuery === firstSitelinkUrlParts.urlQuery) matched += 1;
+    } else if (agent.topChoiceFirstSitelinkUrlQuery) {
+      required += 1;
+    }
     if (agent.topChoiceFirstSitelinkSelector === expected.firstSitelink.selector) matched += 1;
     if (agent.topChoiceFirstSitelinkCommand === expected.firstSitelink.command) matched += 1;
     if (JSON.stringify(agent.topChoiceFirstSitelinkCommandArgs) === JSON.stringify(expected.firstSitelink.commandArgs)) matched += 1;
-  } else if (agent.topChoiceFirstSitelinkTitle || agent.topChoiceFirstSitelinkUrl || agent.topChoiceFirstSitelinkSelector || agent.topChoiceFirstSitelinkCommand || agent.topChoiceFirstSitelinkCommandArgs) {
+  } else if (agent.topChoiceFirstSitelinkTitle || agent.topChoiceFirstSitelinkUrl || agent.topChoiceFirstSitelinkUrlPath || agent.topChoiceFirstSitelinkUrlQuery || agent.topChoiceFirstSitelinkSelector || agent.topChoiceFirstSitelinkCommand || agent.topChoiceFirstSitelinkCommandArgs) {
     required += 1;
   }
   if (typeof expected.openResult !== "undefined") {
@@ -4921,6 +4944,8 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
   topResultChoiceSitelinkCount?: number;
   topResultChoiceFirstSitelinkTitle?: string;
   topResultChoiceFirstSitelinkUrl?: string;
+  topResultChoiceFirstSitelinkUrlPath?: string;
+  topResultChoiceFirstSitelinkUrlQuery?: string;
   topResultChoiceFirstSitelinkSelector?: string;
   topResultChoiceFirstSitelinkCommand?: string;
   topResultChoiceFirstSitelinkCommandArgs?: unknown[];
@@ -4951,6 +4976,8 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
       || typeof agent?.topResultChoiceSitelinkCount === "number"
       || agent?.topResultChoiceFirstSitelinkTitle
       || agent?.topResultChoiceFirstSitelinkUrl
+      || agent?.topResultChoiceFirstSitelinkUrlPath
+      || agent?.topResultChoiceFirstSitelinkUrlQuery
       || agent?.topResultChoiceFirstSitelinkSelector
       || agent?.topResultChoiceFirstSitelinkCommand
       || agent?.topResultChoiceFirstSitelinkCommandArgs
@@ -5077,10 +5104,23 @@ function scoreAgentTopResultChoiceShortcuts(agent: {
     if (agent?.topResultChoiceSitelinkCount === top.sitelinks.length) matched += 1;
     if (agent?.topResultChoiceFirstSitelinkTitle === top.sitelinks[0]?.title) matched += 1;
     if (agent?.topResultChoiceFirstSitelinkUrl === top.sitelinks[0]?.url) matched += 1;
+    const firstSitelinkUrlParts = typeof top.sitelinks[0]?.url === "string" ? compareUrlPathParts(top.sitelinks[0].url) : undefined;
+    if (firstSitelinkUrlParts?.urlPath) {
+      required += 1;
+      if (agent?.topResultChoiceFirstSitelinkUrlPath === firstSitelinkUrlParts.urlPath) matched += 1;
+    } else if (agent?.topResultChoiceFirstSitelinkUrlPath) {
+      required += 1;
+    }
+    if (firstSitelinkUrlParts?.urlQuery) {
+      required += 1;
+      if (agent?.topResultChoiceFirstSitelinkUrlQuery === firstSitelinkUrlParts.urlQuery) matched += 1;
+    } else if (agent?.topResultChoiceFirstSitelinkUrlQuery) {
+      required += 1;
+    }
     if (agent?.topResultChoiceFirstSitelinkSelector === top.sitelinks[0]?.selector) matched += 1;
     if (agent?.topResultChoiceFirstSitelinkCommand === directAgentCommand(top.sitelinks[0]?.url)) matched += 1;
     if (JSON.stringify(agent?.topResultChoiceFirstSitelinkCommandArgs) === JSON.stringify(directAgentCommandArgs(top.sitelinks[0]?.url))) matched += 1;
-  } else if (typeof agent?.topResultChoiceSitelinkCount === "number" || agent?.topResultChoiceFirstSitelinkTitle || agent?.topResultChoiceFirstSitelinkUrl || agent?.topResultChoiceFirstSitelinkSelector || agent?.topResultChoiceFirstSitelinkCommand || agent?.topResultChoiceFirstSitelinkCommandArgs) {
+  } else if (typeof agent?.topResultChoiceSitelinkCount === "number" || agent?.topResultChoiceFirstSitelinkTitle || agent?.topResultChoiceFirstSitelinkUrl || agent?.topResultChoiceFirstSitelinkUrlPath || agent?.topResultChoiceFirstSitelinkUrlQuery || agent?.topResultChoiceFirstSitelinkSelector || agent?.topResultChoiceFirstSitelinkCommand || agent?.topResultChoiceFirstSitelinkCommandArgs) {
     required += 1;
   }
   if (top.selectionReason) {
@@ -6585,6 +6625,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchSelectedSitelinkCount?: number;
   sourceSearchSelectedFirstSitelinkTitle?: string;
   sourceSearchSelectedFirstSitelinkUrl?: string;
+  sourceSearchSelectedFirstSitelinkUrlPath?: string;
+  sourceSearchSelectedFirstSitelinkUrlQuery?: string;
   sourceSearchSelectedFirstSitelinkSelector?: string;
   sourceSearchSelectedFirstSitelinkCommand?: string;
   sourceSearchSelectedFirstSitelinkCommandArgs?: unknown[];
@@ -6628,6 +6670,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
   sourceSearchAlternateSitelinkCount?: number;
   sourceSearchAlternateFirstSitelinkTitle?: string;
   sourceSearchAlternateFirstSitelinkUrl?: string;
+  sourceSearchAlternateFirstSitelinkUrlPath?: string;
+  sourceSearchAlternateFirstSitelinkUrlQuery?: string;
   sourceSearchAlternateFirstSitelinkSelector?: string;
   sourceSearchAlternateFirstSitelinkCommand?: string;
   sourceSearchAlternateFirstSitelinkCommandArgs?: unknown[];
@@ -6682,6 +6726,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchSelectedSitelinkCount === "undefined"
       && typeof agent?.sourceSearchSelectedFirstSitelinkTitle === "undefined"
       && typeof agent?.sourceSearchSelectedFirstSitelinkUrl === "undefined"
+      && typeof agent?.sourceSearchSelectedFirstSitelinkUrlPath === "undefined"
+      && typeof agent?.sourceSearchSelectedFirstSitelinkUrlQuery === "undefined"
       && typeof agent?.sourceSearchSelectedFirstSitelinkSelector === "undefined"
       && typeof agent?.sourceSearchSelectedFirstSitelinkCommand === "undefined"
       && typeof agent?.sourceSearchSelectedFirstSitelinkCommandArgs === "undefined"
@@ -6724,6 +6770,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
       && typeof agent?.sourceSearchAlternateSitelinkCount === "undefined"
       && typeof agent?.sourceSearchAlternateFirstSitelinkTitle === "undefined"
       && typeof agent?.sourceSearchAlternateFirstSitelinkUrl === "undefined"
+      && typeof agent?.sourceSearchAlternateFirstSitelinkUrlPath === "undefined"
+      && typeof agent?.sourceSearchAlternateFirstSitelinkUrlQuery === "undefined"
       && typeof agent?.sourceSearchAlternateFirstSitelinkSelector === "undefined"
       && typeof agent?.sourceSearchAlternateFirstSitelinkCommand === "undefined"
       && typeof agent?.sourceSearchAlternateFirstSitelinkCommandArgs === "undefined"
@@ -6875,10 +6923,23 @@ function scoreAgentSourceSearchShortcuts(agent: {
       if (agent?.sourceSearchSelectedSitelinkCount === selected.sitelinks.length) matched += 1;
       if (agent?.sourceSearchSelectedFirstSitelinkTitle === selected.sitelinks[0]?.title) matched += 1;
       if (agent?.sourceSearchSelectedFirstSitelinkUrl === selected.sitelinks[0]?.url) matched += 1;
+      const firstSitelinkUrlParts = typeof selected.sitelinks[0]?.url === "string" ? compareUrlPathParts(selected.sitelinks[0].url) : undefined;
+      if (firstSitelinkUrlParts?.urlPath) {
+        required += 1;
+        if (agent?.sourceSearchSelectedFirstSitelinkUrlPath === firstSitelinkUrlParts.urlPath) matched += 1;
+      } else if (agent?.sourceSearchSelectedFirstSitelinkUrlPath) {
+        required += 1;
+      }
+      if (firstSitelinkUrlParts?.urlQuery) {
+        required += 1;
+        if (agent?.sourceSearchSelectedFirstSitelinkUrlQuery === firstSitelinkUrlParts.urlQuery) matched += 1;
+      } else if (agent?.sourceSearchSelectedFirstSitelinkUrlQuery) {
+        required += 1;
+      }
       if (agent?.sourceSearchSelectedFirstSitelinkSelector === selected.sitelinks[0]?.selector) matched += 1;
       if (agent?.sourceSearchSelectedFirstSitelinkCommand === directAgentCommand(selected.sitelinks[0]?.url)) matched += 1;
       if (JSON.stringify(agent?.sourceSearchSelectedFirstSitelinkCommandArgs) === JSON.stringify(directAgentCommandArgs(selected.sitelinks[0]?.url))) matched += 1;
-    } else if (typeof agent?.sourceSearchSelectedSitelinkCount === "number" || agent?.sourceSearchSelectedFirstSitelinkTitle || agent?.sourceSearchSelectedFirstSitelinkUrl || agent?.sourceSearchSelectedFirstSitelinkSelector || agent?.sourceSearchSelectedFirstSitelinkCommand || agent?.sourceSearchSelectedFirstSitelinkCommandArgs) {
+    } else if (typeof agent?.sourceSearchSelectedSitelinkCount === "number" || agent?.sourceSearchSelectedFirstSitelinkTitle || agent?.sourceSearchSelectedFirstSitelinkUrl || agent?.sourceSearchSelectedFirstSitelinkUrlPath || agent?.sourceSearchSelectedFirstSitelinkUrlQuery || agent?.sourceSearchSelectedFirstSitelinkSelector || agent?.sourceSearchSelectedFirstSitelinkCommand || agent?.sourceSearchSelectedFirstSitelinkCommandArgs) {
       required += 1;
     }
   } else if (
@@ -6896,6 +6957,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
     || typeof agent?.sourceSearchSelectedSitelinkCount === "number"
     || agent?.sourceSearchSelectedFirstSitelinkTitle
     || agent?.sourceSearchSelectedFirstSitelinkUrl
+    || agent?.sourceSearchSelectedFirstSitelinkUrlPath
+    || agent?.sourceSearchSelectedFirstSitelinkUrlQuery
     || agent?.sourceSearchSelectedFirstSitelinkSelector
     || agent?.sourceSearchSelectedFirstSitelinkCommand
     || agent?.sourceSearchSelectedFirstSitelinkCommandArgs
@@ -6987,10 +7050,23 @@ function scoreAgentSourceSearchShortcuts(agent: {
       if (agent?.sourceSearchAlternateSitelinkCount === alternate.sitelinks.length) matched += 1;
       if (agent?.sourceSearchAlternateFirstSitelinkTitle === alternate.sitelinks[0]?.title) matched += 1;
       if (agent?.sourceSearchAlternateFirstSitelinkUrl === alternate.sitelinks[0]?.url) matched += 1;
+      const firstSitelinkUrlParts = typeof alternate.sitelinks[0]?.url === "string" ? compareUrlPathParts(alternate.sitelinks[0].url) : undefined;
+      if (firstSitelinkUrlParts?.urlPath) {
+        required += 1;
+        if (agent?.sourceSearchAlternateFirstSitelinkUrlPath === firstSitelinkUrlParts.urlPath) matched += 1;
+      } else if (agent?.sourceSearchAlternateFirstSitelinkUrlPath) {
+        required += 1;
+      }
+      if (firstSitelinkUrlParts?.urlQuery) {
+        required += 1;
+        if (agent?.sourceSearchAlternateFirstSitelinkUrlQuery === firstSitelinkUrlParts.urlQuery) matched += 1;
+      } else if (agent?.sourceSearchAlternateFirstSitelinkUrlQuery) {
+        required += 1;
+      }
       if (agent?.sourceSearchAlternateFirstSitelinkSelector === alternate.sitelinks[0]?.selector) matched += 1;
       if (agent?.sourceSearchAlternateFirstSitelinkCommand === directAgentCommand(alternate.sitelinks[0]?.url)) matched += 1;
       if (JSON.stringify(agent?.sourceSearchAlternateFirstSitelinkCommandArgs) === JSON.stringify(directAgentCommandArgs(alternate.sitelinks[0]?.url))) matched += 1;
-    } else if (typeof agent?.sourceSearchAlternateSitelinkCount === "number" || agent?.sourceSearchAlternateFirstSitelinkTitle || agent?.sourceSearchAlternateFirstSitelinkUrl || agent?.sourceSearchAlternateFirstSitelinkSelector || agent?.sourceSearchAlternateFirstSitelinkCommand || agent?.sourceSearchAlternateFirstSitelinkCommandArgs) {
+    } else if (typeof agent?.sourceSearchAlternateSitelinkCount === "number" || agent?.sourceSearchAlternateFirstSitelinkTitle || agent?.sourceSearchAlternateFirstSitelinkUrl || agent?.sourceSearchAlternateFirstSitelinkUrlPath || agent?.sourceSearchAlternateFirstSitelinkUrlQuery || agent?.sourceSearchAlternateFirstSitelinkSelector || agent?.sourceSearchAlternateFirstSitelinkCommand || agent?.sourceSearchAlternateFirstSitelinkCommandArgs) {
       required += 1;
     }
   } else if (
@@ -7013,6 +7089,8 @@ function scoreAgentSourceSearchShortcuts(agent: {
     || typeof agent?.sourceSearchAlternateSitelinkCount === "number"
     || agent?.sourceSearchAlternateFirstSitelinkTitle
     || agent?.sourceSearchAlternateFirstSitelinkUrl
+    || agent?.sourceSearchAlternateFirstSitelinkUrlPath
+    || agent?.sourceSearchAlternateFirstSitelinkUrlQuery
     || agent?.sourceSearchAlternateFirstSitelinkSelector
     || agent?.sourceSearchAlternateFirstSitelinkCommand
     || agent?.sourceSearchAlternateFirstSitelinkCommandArgs

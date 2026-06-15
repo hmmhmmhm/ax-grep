@@ -1663,6 +1663,8 @@ type AgentSummary = {
   topResultChoiceSitelinkCount?: number;
   topResultChoiceFirstSitelinkTitle?: string;
   topResultChoiceFirstSitelinkUrl?: string;
+  topResultChoiceFirstSitelinkUrlPath?: string;
+  topResultChoiceFirstSitelinkUrlQuery?: string;
   topResultChoiceFirstSitelinkSelector?: string;
   topResultChoiceFirstSitelinkCommand?: string;
   topResultChoiceFirstSitelinkCommandArgs?: string[];
@@ -2172,6 +2174,8 @@ type AgentSummary = {
   topChoiceCommandArgs?: string[];
   topChoiceFirstSitelinkTitle?: string;
   topChoiceFirstSitelinkUrl?: string;
+  topChoiceFirstSitelinkUrlPath?: string;
+  topChoiceFirstSitelinkUrlQuery?: string;
   topChoiceFirstSitelinkSelector?: string;
   topChoiceFirstSitelinkCommand?: string;
   topChoiceFirstSitelinkCommandArgs?: string[];
@@ -2227,6 +2231,8 @@ type AgentSummary = {
   sourceSearchSelectedSitelinkCount?: number;
   sourceSearchSelectedFirstSitelinkTitle?: string;
   sourceSearchSelectedFirstSitelinkUrl?: string;
+  sourceSearchSelectedFirstSitelinkUrlPath?: string;
+  sourceSearchSelectedFirstSitelinkUrlQuery?: string;
   sourceSearchSelectedFirstSitelinkSelector?: string;
   sourceSearchSelectedFirstSitelinkCommand?: string;
   sourceSearchSelectedFirstSitelinkCommandArgs?: string[];
@@ -2272,6 +2278,8 @@ type AgentSummary = {
   sourceSearchAlternateSitelinkCount?: number;
   sourceSearchAlternateFirstSitelinkTitle?: string;
   sourceSearchAlternateFirstSitelinkUrl?: string;
+  sourceSearchAlternateFirstSitelinkUrlPath?: string;
+  sourceSearchAlternateFirstSitelinkUrlQuery?: string;
   sourceSearchAlternateFirstSitelinkSelector?: string;
   sourceSearchAlternateFirstSitelinkCommand?: string;
   sourceSearchAlternateFirstSitelinkCommandArgs?: string[];
@@ -4542,6 +4550,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topResultChoiceSitelinkCount === "number" ? [`  topResultChoiceSitelinkCount: ${agent.topResultChoiceSitelinkCount}`] : []),
     ...(agent.topResultChoiceFirstSitelinkTitle ? [`  topResultChoiceFirstSitelinkTitle: ${agent.topResultChoiceFirstSitelinkTitle}`] : []),
     ...(agent.topResultChoiceFirstSitelinkUrl ? [`  topResultChoiceFirstSitelinkUrl: ${agent.topResultChoiceFirstSitelinkUrl}`] : []),
+    ...(agent.topResultChoiceFirstSitelinkUrlPath ? [`  topResultChoiceFirstSitelinkUrlPath: ${agent.topResultChoiceFirstSitelinkUrlPath}`] : []),
+    ...(agent.topResultChoiceFirstSitelinkUrlQuery ? [`  topResultChoiceFirstSitelinkUrlQuery: ${agent.topResultChoiceFirstSitelinkUrlQuery}`] : []),
     ...(agent.topResultChoiceFirstSitelinkSelector ? [`  topResultChoiceFirstSitelinkSelector: ${agent.topResultChoiceFirstSitelinkSelector}`] : []),
     ...(agent.topResultChoiceFirstSitelinkCommand ? [`  topResultChoiceFirstSitelinkCommand: ${agent.topResultChoiceFirstSitelinkCommand}`] : []),
     ...(agent.topResultChoiceFirstSitelinkCommandArgs ? [`  topResultChoiceFirstSitelinkCommandArgs: ${JSON.stringify(agent.topResultChoiceFirstSitelinkCommandArgs)}`] : []),
@@ -4888,6 +4898,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topChoiceFirstSitelinkTitle || agent.topChoiceFirstSitelinkUrl ? [`  topChoiceFirstSitelink: ${agent.topChoiceFirstSitelinkTitle ?? "first sitelink"}${agent.topChoiceFirstSitelinkUrl ? ` <${agent.topChoiceFirstSitelinkUrl}>` : ""}${agent.topChoiceFirstSitelinkSelector ? ` selector=${agent.topChoiceFirstSitelinkSelector}` : ""}${agent.topChoiceFirstSitelinkCommand ? ` command=${agent.topChoiceFirstSitelinkCommand}` : ""}`] : []),
     ...(agent.topChoiceFirstSitelinkTitle ? [`  topChoiceFirstSitelinkTitle: ${agent.topChoiceFirstSitelinkTitle}`] : []),
     ...(agent.topChoiceFirstSitelinkUrl ? [`  topChoiceFirstSitelinkUrl: ${agent.topChoiceFirstSitelinkUrl}`] : []),
+    ...(agent.topChoiceFirstSitelinkUrlPath ? [`  topChoiceFirstSitelinkUrlPath: ${agent.topChoiceFirstSitelinkUrlPath}`] : []),
+    ...(agent.topChoiceFirstSitelinkUrlQuery ? [`  topChoiceFirstSitelinkUrlQuery: ${agent.topChoiceFirstSitelinkUrlQuery}`] : []),
     ...(agent.topChoiceFirstSitelinkSelector ? [`  topChoiceFirstSitelinkSelector: ${agent.topChoiceFirstSitelinkSelector}`] : []),
     ...(agent.topChoiceFirstSitelinkCommand ? [`  topChoiceFirstSitelinkCommand: ${agent.topChoiceFirstSitelinkCommand}`] : []),
     ...(agent.topChoiceFirstSitelinkCommandArgs ? [`  topChoiceFirstSitelinkCommandArgs: ${formatCommandArgsText(agent.topChoiceFirstSitelinkCommandArgs)}`] : []),
@@ -4920,6 +4932,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.sourceSearchSelectedSitelinkCount === "number" ? [`  sourceSearchSelectedSitelinkCount: ${agent.sourceSearchSelectedSitelinkCount}`] : []),
     ...(agent.sourceSearchSelectedFirstSitelinkTitle ? [`  sourceSearchSelectedFirstSitelinkTitle: ${agent.sourceSearchSelectedFirstSitelinkTitle}`] : []),
     ...(agent.sourceSearchSelectedFirstSitelinkUrl ? [`  sourceSearchSelectedFirstSitelinkUrl: ${agent.sourceSearchSelectedFirstSitelinkUrl}`] : []),
+    ...(agent.sourceSearchSelectedFirstSitelinkUrlPath ? [`  sourceSearchSelectedFirstSitelinkUrlPath: ${agent.sourceSearchSelectedFirstSitelinkUrlPath}`] : []),
+    ...(agent.sourceSearchSelectedFirstSitelinkUrlQuery ? [`  sourceSearchSelectedFirstSitelinkUrlQuery: ${agent.sourceSearchSelectedFirstSitelinkUrlQuery}`] : []),
     ...(agent.sourceSearchSelectedFirstSitelinkSelector ? [`  sourceSearchSelectedFirstSitelinkSelector: ${agent.sourceSearchSelectedFirstSitelinkSelector}`] : []),
     ...(agent.sourceSearchSelectedFirstSitelinkCommand ? [`  sourceSearchSelectedFirstSitelinkCommand: ${agent.sourceSearchSelectedFirstSitelinkCommand}`] : []),
     ...(agent.sourceSearchSelectedFirstSitelinkCommandArgs ? [`  sourceSearchSelectedFirstSitelinkCommandArgs: ${JSON.stringify(agent.sourceSearchSelectedFirstSitelinkCommandArgs)}`] : []),
@@ -4968,6 +4982,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.sourceSearchAlternateSitelinkCount === "number" ? [`  sourceSearchAlternateSitelinkCount: ${agent.sourceSearchAlternateSitelinkCount}`] : []),
     ...(agent.sourceSearchAlternateFirstSitelinkTitle ? [`  sourceSearchAlternateFirstSitelinkTitle: ${agent.sourceSearchAlternateFirstSitelinkTitle}`] : []),
     ...(agent.sourceSearchAlternateFirstSitelinkUrl ? [`  sourceSearchAlternateFirstSitelinkUrl: ${agent.sourceSearchAlternateFirstSitelinkUrl}`] : []),
+    ...(agent.sourceSearchAlternateFirstSitelinkUrlPath ? [`  sourceSearchAlternateFirstSitelinkUrlPath: ${agent.sourceSearchAlternateFirstSitelinkUrlPath}`] : []),
+    ...(agent.sourceSearchAlternateFirstSitelinkUrlQuery ? [`  sourceSearchAlternateFirstSitelinkUrlQuery: ${agent.sourceSearchAlternateFirstSitelinkUrlQuery}`] : []),
     ...(agent.sourceSearchAlternateFirstSitelinkSelector ? [`  sourceSearchAlternateFirstSitelinkSelector: ${agent.sourceSearchAlternateFirstSitelinkSelector}`] : []),
     ...(agent.sourceSearchAlternateFirstSitelinkCommand ? [`  sourceSearchAlternateFirstSitelinkCommand: ${agent.sourceSearchAlternateFirstSitelinkCommand}`] : []),
     ...(agent.sourceSearchAlternateFirstSitelinkCommandArgs ? [`  sourceSearchAlternateFirstSitelinkCommandArgs: ${JSON.stringify(agent.sourceSearchAlternateFirstSitelinkCommandArgs)}`] : []),
@@ -13357,6 +13373,7 @@ function summarizeAgent(
   const topActionTargetChoiceUrlTemplateParts = actionTargetChoices[0]?.urlTemplate ? urlPathParts(actionTargetChoices[0].urlTemplate) : undefined;
   const topChoice = summarizeAgentTopChoice(resultChoices, sourceChoices, formChoices, actionTargetChoices);
   const topChoiceUrlParts = topChoice?.url ? urlPathParts(topChoice.url) : undefined;
+  const topChoiceFirstSitelinkUrlParts = topChoice?.firstSitelinkUrl ? urlPathParts(topChoice.firstSitelinkUrl) : undefined;
   const topBarrier = primaryBlockingBarrier(pageCheck.barriers) ?? pageCheck.barriers[0];
   const rawNext = summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch, semanticSummary));
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
@@ -13387,9 +13404,12 @@ function summarizeAgent(
   const sourceSearchAlternateResult = sourceSearchAgent?.alternateResults?.[0];
   const sourceSearchAlternateChoices = sourceSearchAgent?.alternateResults ?? [];
   const topResultChoiceFirstSitelinkCommand = firstSitelinkCommandSpec(resultChoices[0]?.sitelinks?.[0], agentMode, findQueries, timeoutMs, userAgent);
+  const topResultChoiceFirstSitelinkUrlParts = resultChoices[0]?.sitelinks?.[0]?.url ? urlPathParts(resultChoices[0].sitelinks[0].url) : undefined;
   const sourceSearchFindQueries = sourceSearch?.findQueries ?? findQueries;
   const sourceSearchSelectedUrlParts = sourceSearch?.selectedUrl ? urlPathParts(sourceSearch.selectedUrl) : undefined;
   const sourceSearchAlternateUrlParts = sourceSearchAlternateResult?.url ? urlPathParts(sourceSearchAlternateResult.url) : undefined;
+  const sourceSearchSelectedFirstSitelinkUrlParts = sourceSearchSelectedResult?.sitelinks?.[0]?.url ? urlPathParts(sourceSearchSelectedResult.sitelinks[0].url) : undefined;
+  const sourceSearchAlternateFirstSitelinkUrlParts = sourceSearchAlternateResult?.sitelinks?.[0]?.url ? urlPathParts(sourceSearchAlternateResult.sitelinks[0].url) : undefined;
   const sourceSearchSelectedFirstSitelinkCommand = firstSitelinkCommandSpec(sourceSearchSelectedResult?.sitelinks?.[0], true, sourceSearchFindQueries, sourceSearch?.timeoutMs ?? timeoutMs, sourceSearch?.userAgent ?? userAgent);
   const sourceSearchAlternateFirstSitelinkCommand = firstSitelinkCommandSpec(sourceSearchAlternateResult?.sitelinks?.[0], true, sourceSearchFindQueries, sourceSearch?.timeoutMs ?? timeoutMs, sourceSearch?.userAgent ?? userAgent);
   const sourceSearchAlternateDifferentHost = sourceSearchSelectedResult?.host && sourceSearchAlternateResult?.host
@@ -14203,6 +14223,8 @@ function summarizeAgent(
     ...(resultChoices[0]?.sitelinks?.length ? { topResultChoiceSitelinkCount: resultChoices[0].sitelinks.length } : {}),
     ...(resultChoices[0]?.sitelinks?.[0]?.title ? { topResultChoiceFirstSitelinkTitle: resultChoices[0].sitelinks[0].title } : {}),
     ...(resultChoices[0]?.sitelinks?.[0]?.url ? { topResultChoiceFirstSitelinkUrl: resultChoices[0].sitelinks[0].url } : {}),
+    ...(topResultChoiceFirstSitelinkUrlParts?.urlPath ? { topResultChoiceFirstSitelinkUrlPath: topResultChoiceFirstSitelinkUrlParts.urlPath } : {}),
+    ...(topResultChoiceFirstSitelinkUrlParts?.urlQuery ? { topResultChoiceFirstSitelinkUrlQuery: topResultChoiceFirstSitelinkUrlParts.urlQuery } : {}),
     ...(resultChoices[0]?.sitelinks?.[0]?.selector ? { topResultChoiceFirstSitelinkSelector: resultChoices[0].sitelinks[0].selector } : {}),
     ...(topResultChoiceFirstSitelinkCommand ? { topResultChoiceFirstSitelinkCommand: topResultChoiceFirstSitelinkCommand.command } : {}),
     ...(topResultChoiceFirstSitelinkCommand ? { topResultChoiceFirstSitelinkCommandArgs: topResultChoiceFirstSitelinkCommand.commandArgs } : {}),
@@ -14712,6 +14734,8 @@ function summarizeAgent(
     ...(topChoice?.commandArgs ? { topChoiceCommandArgs: topChoice.commandArgs } : {}),
     ...(topChoice?.firstSitelinkTitle ? { topChoiceFirstSitelinkTitle: topChoice.firstSitelinkTitle } : {}),
     ...(topChoice?.firstSitelinkUrl ? { topChoiceFirstSitelinkUrl: topChoice.firstSitelinkUrl } : {}),
+    ...(topChoiceFirstSitelinkUrlParts?.urlPath ? { topChoiceFirstSitelinkUrlPath: topChoiceFirstSitelinkUrlParts.urlPath } : {}),
+    ...(topChoiceFirstSitelinkUrlParts?.urlQuery ? { topChoiceFirstSitelinkUrlQuery: topChoiceFirstSitelinkUrlParts.urlQuery } : {}),
     ...(topChoice?.firstSitelinkSelector ? { topChoiceFirstSitelinkSelector: topChoice.firstSitelinkSelector } : {}),
     ...(topChoice?.firstSitelinkCommand ? { topChoiceFirstSitelinkCommand: topChoice.firstSitelinkCommand } : {}),
     ...(topChoice?.firstSitelinkCommandArgs ? { topChoiceFirstSitelinkCommandArgs: topChoice.firstSitelinkCommandArgs } : {}),
@@ -14767,6 +14791,8 @@ function summarizeAgent(
     ...(sourceSearchSelectedResult?.sitelinks?.length ? { sourceSearchSelectedSitelinkCount: sourceSearchSelectedResult.sitelinks.length } : {}),
     ...(sourceSearchSelectedResult?.sitelinks?.[0]?.title ? { sourceSearchSelectedFirstSitelinkTitle: sourceSearchSelectedResult.sitelinks[0].title } : {}),
     ...(sourceSearchSelectedResult?.sitelinks?.[0]?.url ? { sourceSearchSelectedFirstSitelinkUrl: sourceSearchSelectedResult.sitelinks[0].url } : {}),
+    ...(sourceSearchSelectedFirstSitelinkUrlParts?.urlPath ? { sourceSearchSelectedFirstSitelinkUrlPath: sourceSearchSelectedFirstSitelinkUrlParts.urlPath } : {}),
+    ...(sourceSearchSelectedFirstSitelinkUrlParts?.urlQuery ? { sourceSearchSelectedFirstSitelinkUrlQuery: sourceSearchSelectedFirstSitelinkUrlParts.urlQuery } : {}),
     ...(sourceSearchSelectedResult?.sitelinks?.[0]?.selector ? { sourceSearchSelectedFirstSitelinkSelector: sourceSearchSelectedResult.sitelinks[0].selector } : {}),
     ...(sourceSearchSelectedFirstSitelinkCommand ? { sourceSearchSelectedFirstSitelinkCommand: sourceSearchSelectedFirstSitelinkCommand.command } : {}),
     ...(sourceSearchSelectedFirstSitelinkCommand ? { sourceSearchSelectedFirstSitelinkCommandArgs: sourceSearchSelectedFirstSitelinkCommand.commandArgs } : {}),
@@ -14799,6 +14825,8 @@ function summarizeAgent(
     ...(sourceSearchAlternateResult?.sitelinks?.length ? { sourceSearchAlternateSitelinkCount: sourceSearchAlternateResult.sitelinks.length } : {}),
     ...(sourceSearchAlternateResult?.sitelinks?.[0]?.title ? { sourceSearchAlternateFirstSitelinkTitle: sourceSearchAlternateResult.sitelinks[0].title } : {}),
     ...(sourceSearchAlternateResult?.sitelinks?.[0]?.url ? { sourceSearchAlternateFirstSitelinkUrl: sourceSearchAlternateResult.sitelinks[0].url } : {}),
+    ...(sourceSearchAlternateFirstSitelinkUrlParts?.urlPath ? { sourceSearchAlternateFirstSitelinkUrlPath: sourceSearchAlternateFirstSitelinkUrlParts.urlPath } : {}),
+    ...(sourceSearchAlternateFirstSitelinkUrlParts?.urlQuery ? { sourceSearchAlternateFirstSitelinkUrlQuery: sourceSearchAlternateFirstSitelinkUrlParts.urlQuery } : {}),
     ...(sourceSearchAlternateResult?.sitelinks?.[0]?.selector ? { sourceSearchAlternateFirstSitelinkSelector: sourceSearchAlternateResult.sitelinks[0].selector } : {}),
     ...(sourceSearchAlternateFirstSitelinkCommand ? { sourceSearchAlternateFirstSitelinkCommand: sourceSearchAlternateFirstSitelinkCommand.command } : {}),
     ...(sourceSearchAlternateFirstSitelinkCommand ? { sourceSearchAlternateFirstSitelinkCommandArgs: sourceSearchAlternateFirstSitelinkCommand.commandArgs } : {}),
@@ -18076,6 +18104,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const sourceSearchFindQueries = sourceSearch?.findQueries ?? findQueries;
   const sourceSearchSelectedUrlParts = sourceSearch?.selectedUrl ? urlPathParts(sourceSearch.selectedUrl) : undefined;
   const sourceSearchAlternateUrlParts = sourceSearchAlternateResult?.url ? urlPathParts(sourceSearchAlternateResult.url) : undefined;
+  const sourceSearchSelectedFirstSitelinkUrlParts = sourceSearchSelectedResult?.sitelinks?.[0]?.url ? urlPathParts(sourceSearchSelectedResult.sitelinks[0].url) : undefined;
+  const sourceSearchAlternateFirstSitelinkUrlParts = sourceSearchAlternateResult?.sitelinks?.[0]?.url ? urlPathParts(sourceSearchAlternateResult.sitelinks[0].url) : undefined;
   const sourceSearchSelectedFirstSitelinkCommand = firstSitelinkCommandSpec(sourceSearchSelectedResult?.sitelinks?.[0], agentMode, sourceSearchFindQueries, sourceSearch?.timeoutMs ?? timeoutMs, sourceSearch?.userAgent ?? userAgent);
   const sourceSearchAlternateFirstSitelinkCommand = firstSitelinkCommandSpec(sourceSearchAlternateResult?.sitelinks?.[0], agentMode, sourceSearchFindQueries, sourceSearch?.timeoutMs ?? timeoutMs, sourceSearch?.userAgent ?? userAgent);
   const sourceSearchFailureHost = sourceSearch ? sourceFromUrl(sourceSearch.selectedUrl) : "";
@@ -18284,6 +18314,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(sourceSearchSelectedResult?.sitelinks?.length ? { sourceSearchSelectedSitelinkCount: sourceSearchSelectedResult.sitelinks.length } : {}),
     ...(sourceSearchSelectedResult?.sitelinks?.[0]?.title ? { sourceSearchSelectedFirstSitelinkTitle: sourceSearchSelectedResult.sitelinks[0].title } : {}),
     ...(sourceSearchSelectedResult?.sitelinks?.[0]?.url ? { sourceSearchSelectedFirstSitelinkUrl: sourceSearchSelectedResult.sitelinks[0].url } : {}),
+    ...(sourceSearchSelectedFirstSitelinkUrlParts?.urlPath ? { sourceSearchSelectedFirstSitelinkUrlPath: sourceSearchSelectedFirstSitelinkUrlParts.urlPath } : {}),
+    ...(sourceSearchSelectedFirstSitelinkUrlParts?.urlQuery ? { sourceSearchSelectedFirstSitelinkUrlQuery: sourceSearchSelectedFirstSitelinkUrlParts.urlQuery } : {}),
     ...(sourceSearchSelectedResult?.sitelinks?.[0]?.selector ? { sourceSearchSelectedFirstSitelinkSelector: sourceSearchSelectedResult.sitelinks[0].selector } : {}),
     ...(sourceSearchSelectedFirstSitelinkCommand ? { sourceSearchSelectedFirstSitelinkCommand: sourceSearchSelectedFirstSitelinkCommand.command } : {}),
     ...(sourceSearchSelectedFirstSitelinkCommand ? { sourceSearchSelectedFirstSitelinkCommandArgs: sourceSearchSelectedFirstSitelinkCommand.commandArgs } : {}),
@@ -18328,6 +18360,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(sourceSearchAlternateResult?.sitelinks?.length ? { sourceSearchAlternateSitelinkCount: sourceSearchAlternateResult.sitelinks.length } : {}),
     ...(sourceSearchAlternateResult?.sitelinks?.[0]?.title ? { sourceSearchAlternateFirstSitelinkTitle: sourceSearchAlternateResult.sitelinks[0].title } : {}),
     ...(sourceSearchAlternateResult?.sitelinks?.[0]?.url ? { sourceSearchAlternateFirstSitelinkUrl: sourceSearchAlternateResult.sitelinks[0].url } : {}),
+    ...(sourceSearchAlternateFirstSitelinkUrlParts?.urlPath ? { sourceSearchAlternateFirstSitelinkUrlPath: sourceSearchAlternateFirstSitelinkUrlParts.urlPath } : {}),
+    ...(sourceSearchAlternateFirstSitelinkUrlParts?.urlQuery ? { sourceSearchAlternateFirstSitelinkUrlQuery: sourceSearchAlternateFirstSitelinkUrlParts.urlQuery } : {}),
     ...(sourceSearchAlternateResult?.sitelinks?.[0]?.selector ? { sourceSearchAlternateFirstSitelinkSelector: sourceSearchAlternateResult.sitelinks[0].selector } : {}),
     ...(sourceSearchAlternateFirstSitelinkCommand ? { sourceSearchAlternateFirstSitelinkCommand: sourceSearchAlternateFirstSitelinkCommand.command } : {}),
     ...(sourceSearchAlternateFirstSitelinkCommand ? { sourceSearchAlternateFirstSitelinkCommandArgs: sourceSearchAlternateFirstSitelinkCommand.commandArgs } : {}),
@@ -19816,6 +19850,8 @@ function compactAgentTopChoice(agent: AgentSummary, searchCommandContext?: Searc
     ...(commandArgs ? { topChoiceCommandArgs: commandArgs } : {}),
     ...(agent.topChoiceFirstSitelinkTitle ? { topChoiceFirstSitelinkTitle: agent.topChoiceFirstSitelinkTitle } : {}),
     ...(agent.topChoiceFirstSitelinkUrl ? { topChoiceFirstSitelinkUrl: agent.topChoiceFirstSitelinkUrl } : {}),
+    ...(agent.topChoiceFirstSitelinkUrlPath ? { topChoiceFirstSitelinkUrlPath: agent.topChoiceFirstSitelinkUrlPath } : {}),
+    ...(agent.topChoiceFirstSitelinkUrlQuery ? { topChoiceFirstSitelinkUrlQuery: agent.topChoiceFirstSitelinkUrlQuery } : {}),
     ...(agent.topChoiceFirstSitelinkSelector ? { topChoiceFirstSitelinkSelector: agent.topChoiceFirstSitelinkSelector } : {}),
     ...(agent.topChoiceFirstSitelinkCommand ? { topChoiceFirstSitelinkCommand: agent.topChoiceFirstSitelinkCommand } : {}),
     ...(agent.topChoiceFirstSitelinkCommandArgs ? { topChoiceFirstSitelinkCommandArgs: agent.topChoiceFirstSitelinkCommandArgs } : {}),
@@ -20535,6 +20571,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.topResultChoiceSitelinkCount === "number" ? { topResultChoiceSitelinkCount: agent.topResultChoiceSitelinkCount } : {}),
     ...(agent.topResultChoiceFirstSitelinkTitle ? { topResultChoiceFirstSitelinkTitle: agent.topResultChoiceFirstSitelinkTitle } : {}),
     ...(agent.topResultChoiceFirstSitelinkUrl ? { topResultChoiceFirstSitelinkUrl: agent.topResultChoiceFirstSitelinkUrl } : {}),
+    ...(agent.topResultChoiceFirstSitelinkUrlPath ? { topResultChoiceFirstSitelinkUrlPath: agent.topResultChoiceFirstSitelinkUrlPath } : {}),
+    ...(agent.topResultChoiceFirstSitelinkUrlQuery ? { topResultChoiceFirstSitelinkUrlQuery: agent.topResultChoiceFirstSitelinkUrlQuery } : {}),
     ...(agent.topResultChoiceFirstSitelinkSelector ? { topResultChoiceFirstSitelinkSelector: agent.topResultChoiceFirstSitelinkSelector } : {}),
     ...(agent.topResultChoiceFirstSitelinkCommand ? { topResultChoiceFirstSitelinkCommand: agent.topResultChoiceFirstSitelinkCommand } : {}),
     ...(agent.topResultChoiceFirstSitelinkCommandArgs ? { topResultChoiceFirstSitelinkCommandArgs: agent.topResultChoiceFirstSitelinkCommandArgs } : {}),
@@ -21048,6 +21086,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.sourceSearchSelectedSitelinkCount === "number" ? { sourceSearchSelectedSitelinkCount: agent.sourceSearchSelectedSitelinkCount } : {}),
     ...(agent.sourceSearchSelectedFirstSitelinkTitle ? { sourceSearchSelectedFirstSitelinkTitle: agent.sourceSearchSelectedFirstSitelinkTitle } : {}),
     ...(agent.sourceSearchSelectedFirstSitelinkUrl ? { sourceSearchSelectedFirstSitelinkUrl: agent.sourceSearchSelectedFirstSitelinkUrl } : {}),
+    ...(agent.sourceSearchSelectedFirstSitelinkUrlPath ? { sourceSearchSelectedFirstSitelinkUrlPath: agent.sourceSearchSelectedFirstSitelinkUrlPath } : {}),
+    ...(agent.sourceSearchSelectedFirstSitelinkUrlQuery ? { sourceSearchSelectedFirstSitelinkUrlQuery: agent.sourceSearchSelectedFirstSitelinkUrlQuery } : {}),
     ...(agent.sourceSearchSelectedFirstSitelinkSelector ? { sourceSearchSelectedFirstSitelinkSelector: agent.sourceSearchSelectedFirstSitelinkSelector } : {}),
     ...(agent.sourceSearchSelectedFirstSitelinkCommand ? { sourceSearchSelectedFirstSitelinkCommand: agent.sourceSearchSelectedFirstSitelinkCommand } : {}),
     ...(agent.sourceSearchSelectedFirstSitelinkCommandArgs ? { sourceSearchSelectedFirstSitelinkCommandArgs: agent.sourceSearchSelectedFirstSitelinkCommandArgs } : {}),
@@ -21093,6 +21133,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.sourceSearchAlternateSitelinkCount === "number" ? { sourceSearchAlternateSitelinkCount: agent.sourceSearchAlternateSitelinkCount } : {}),
     ...(agent.sourceSearchAlternateFirstSitelinkTitle ? { sourceSearchAlternateFirstSitelinkTitle: agent.sourceSearchAlternateFirstSitelinkTitle } : {}),
     ...(agent.sourceSearchAlternateFirstSitelinkUrl ? { sourceSearchAlternateFirstSitelinkUrl: agent.sourceSearchAlternateFirstSitelinkUrl } : {}),
+    ...(agent.sourceSearchAlternateFirstSitelinkUrlPath ? { sourceSearchAlternateFirstSitelinkUrlPath: agent.sourceSearchAlternateFirstSitelinkUrlPath } : {}),
+    ...(agent.sourceSearchAlternateFirstSitelinkUrlQuery ? { sourceSearchAlternateFirstSitelinkUrlQuery: agent.sourceSearchAlternateFirstSitelinkUrlQuery } : {}),
     ...(agent.sourceSearchAlternateFirstSitelinkSelector ? { sourceSearchAlternateFirstSitelinkSelector: agent.sourceSearchAlternateFirstSitelinkSelector } : {}),
     ...(agent.sourceSearchAlternateFirstSitelinkCommand ? { sourceSearchAlternateFirstSitelinkCommand: agent.sourceSearchAlternateFirstSitelinkCommand } : {}),
     ...(agent.sourceSearchAlternateFirstSitelinkCommandArgs ? { sourceSearchAlternateFirstSitelinkCommandArgs: agent.sourceSearchAlternateFirstSitelinkCommandArgs } : {}),
@@ -22045,6 +22087,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.topResultChoiceSitelinkCount === "number" ? { topResultChoiceSitelinkCount: agent.topResultChoiceSitelinkCount } : {}),
     ...(agent.topResultChoiceFirstSitelinkTitle ? { topResultChoiceFirstSitelinkTitle: agent.topResultChoiceFirstSitelinkTitle } : {}),
     ...(agent.topResultChoiceFirstSitelinkUrl ? { topResultChoiceFirstSitelinkUrl: agent.topResultChoiceFirstSitelinkUrl } : {}),
+    ...(agent.topResultChoiceFirstSitelinkUrlPath ? { topResultChoiceFirstSitelinkUrlPath: agent.topResultChoiceFirstSitelinkUrlPath } : {}),
+    ...(agent.topResultChoiceFirstSitelinkUrlQuery ? { topResultChoiceFirstSitelinkUrlQuery: agent.topResultChoiceFirstSitelinkUrlQuery } : {}),
     ...(agent.topResultChoiceFirstSitelinkSelector ? { topResultChoiceFirstSitelinkSelector: agent.topResultChoiceFirstSitelinkSelector } : {}),
     ...(agent.topResultChoiceFirstSitelinkCommand ? { topResultChoiceFirstSitelinkCommand: agent.topResultChoiceFirstSitelinkCommand } : {}),
     ...(agent.topResultChoiceFirstSitelinkCommandArgs ? { topResultChoiceFirstSitelinkCommandArgs: agent.topResultChoiceFirstSitelinkCommandArgs } : {}),
@@ -22555,6 +22599,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.sourceSearchSelectedSitelinkCount === "number" ? { sourceSearchSelectedSitelinkCount: agent.sourceSearchSelectedSitelinkCount } : {}),
     ...(agent.sourceSearchSelectedFirstSitelinkTitle ? { sourceSearchSelectedFirstSitelinkTitle: agent.sourceSearchSelectedFirstSitelinkTitle } : {}),
     ...(agent.sourceSearchSelectedFirstSitelinkUrl ? { sourceSearchSelectedFirstSitelinkUrl: agent.sourceSearchSelectedFirstSitelinkUrl } : {}),
+    ...(agent.sourceSearchSelectedFirstSitelinkUrlPath ? { sourceSearchSelectedFirstSitelinkUrlPath: agent.sourceSearchSelectedFirstSitelinkUrlPath } : {}),
+    ...(agent.sourceSearchSelectedFirstSitelinkUrlQuery ? { sourceSearchSelectedFirstSitelinkUrlQuery: agent.sourceSearchSelectedFirstSitelinkUrlQuery } : {}),
     ...(agent.sourceSearchSelectedFirstSitelinkSelector ? { sourceSearchSelectedFirstSitelinkSelector: agent.sourceSearchSelectedFirstSitelinkSelector } : {}),
     ...(agent.sourceSearchSelectedFirstSitelinkCommand ? { sourceSearchSelectedFirstSitelinkCommand: agent.sourceSearchSelectedFirstSitelinkCommand } : {}),
     ...(agent.sourceSearchSelectedFirstSitelinkCommandArgs ? { sourceSearchSelectedFirstSitelinkCommandArgs: agent.sourceSearchSelectedFirstSitelinkCommandArgs } : {}),
@@ -22600,6 +22646,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.sourceSearchAlternateSitelinkCount === "number" ? { sourceSearchAlternateSitelinkCount: agent.sourceSearchAlternateSitelinkCount } : {}),
     ...(agent.sourceSearchAlternateFirstSitelinkTitle ? { sourceSearchAlternateFirstSitelinkTitle: agent.sourceSearchAlternateFirstSitelinkTitle } : {}),
     ...(agent.sourceSearchAlternateFirstSitelinkUrl ? { sourceSearchAlternateFirstSitelinkUrl: agent.sourceSearchAlternateFirstSitelinkUrl } : {}),
+    ...(agent.sourceSearchAlternateFirstSitelinkUrlPath ? { sourceSearchAlternateFirstSitelinkUrlPath: agent.sourceSearchAlternateFirstSitelinkUrlPath } : {}),
+    ...(agent.sourceSearchAlternateFirstSitelinkUrlQuery ? { sourceSearchAlternateFirstSitelinkUrlQuery: agent.sourceSearchAlternateFirstSitelinkUrlQuery } : {}),
     ...(agent.sourceSearchAlternateFirstSitelinkSelector ? { sourceSearchAlternateFirstSitelinkSelector: agent.sourceSearchAlternateFirstSitelinkSelector } : {}),
     ...(agent.sourceSearchAlternateFirstSitelinkCommand ? { sourceSearchAlternateFirstSitelinkCommand: agent.sourceSearchAlternateFirstSitelinkCommand } : {}),
     ...(agent.sourceSearchAlternateFirstSitelinkCommandArgs ? { sourceSearchAlternateFirstSitelinkCommandArgs: agent.sourceSearchAlternateFirstSitelinkCommandArgs } : {}),

@@ -1624,12 +1624,22 @@ describe("cli", () => {
         if (typeof topResultChoice.rank === "number") expect(envelope.agent.topResultChoiceRank).toBe(topResultChoice.rank);
         if (topResultChoice.sourceHints?.length) expect(envelope.agent.topResultChoiceSourceHints).toEqual(topResultChoice.sourceHints);
         if (topResultChoice.sitelinks?.[0]?.title) expect(envelope.agent.topChoiceFirstSitelinkTitle).toBe(topResultChoice.sitelinks[0].title);
-        if (topResultChoice.sitelinks?.[0]?.url) expect(envelope.agent.topChoiceFirstSitelinkUrl).toBe(topResultChoice.sitelinks[0].url);
+        if (topResultChoice.sitelinks?.[0]?.url) {
+          const firstSitelinkUrl = new URL(topResultChoice.sitelinks[0].url);
+          expect(envelope.agent.topChoiceFirstSitelinkUrl).toBe(topResultChoice.sitelinks[0].url);
+          expect(envelope.agent.topChoiceFirstSitelinkUrlPath).toBe(firstSitelinkUrl.pathname);
+          if (firstSitelinkUrl.search) expect(envelope.agent.topChoiceFirstSitelinkUrlQuery).toBe(firstSitelinkUrl.search);
+        }
         if (topResultChoice.sitelinks?.[0]?.selector) expect(envelope.agent.topChoiceFirstSitelinkSelector).toBe(topResultChoice.sitelinks[0].selector);
         if (topResultChoice.sitelinks?.[0]?.command) expect(envelope.agent.topChoiceFirstSitelinkCommand).toBe(topResultChoice.sitelinks[0].command);
         if (topResultChoice.sitelinks?.[0]?.commandArgs) expect(envelope.agent.topChoiceFirstSitelinkCommandArgs).toEqual(topResultChoice.sitelinks[0].commandArgs);
         if (topResultChoice.sitelinks?.[0]?.title) expect(envelope.agent.topResultChoiceFirstSitelinkTitle).toBe(topResultChoice.sitelinks[0].title);
-        if (topResultChoice.sitelinks?.[0]?.url) expect(envelope.agent.topResultChoiceFirstSitelinkUrl).toBe(topResultChoice.sitelinks[0].url);
+        if (topResultChoice.sitelinks?.[0]?.url) {
+          const firstSitelinkUrl = new URL(topResultChoice.sitelinks[0].url);
+          expect(envelope.agent.topResultChoiceFirstSitelinkUrl).toBe(topResultChoice.sitelinks[0].url);
+          expect(envelope.agent.topResultChoiceFirstSitelinkUrlPath).toBe(firstSitelinkUrl.pathname);
+          if (firstSitelinkUrl.search) expect(envelope.agent.topResultChoiceFirstSitelinkUrlQuery).toBe(firstSitelinkUrl.search);
+        }
         if (topResultChoice.sitelinks?.[0]?.selector) expect(envelope.agent.topResultChoiceFirstSitelinkSelector).toBe(topResultChoice.sitelinks[0].selector);
         if (topResultChoice.sitelinks?.[0]?.url) {
           const agentFlag = envelope.agent.topResultChoiceFirstSitelinkCommandArgs?.includes("--agent-brief") ? "--agent-brief" : "--agent";
@@ -2905,6 +2915,8 @@ describe("cli", () => {
       topResultChoiceSitelinkCount: 2,
       topResultChoiceFirstSitelinkTitle: "Readme",
       topResultChoiceFirstSitelinkUrl: "https://www.npmjs.com/package/ax-grep?activeTab=readme",
+      topResultChoiceFirstSitelinkUrlPath: "/package/ax-grep",
+      topResultChoiceFirstSitelinkUrlQuery: "?activeTab=readme",
       topResultChoiceFirstSitelinkSelector: "a",
       topResultChoiceFirstSitelinkCommand: "ax-grep 'https://www.npmjs.com/package/ax-grep?activeTab=readme' --json --summary",
       topResultChoiceFirstSitelinkCommandArgs: ["ax-grep", "https://www.npmjs.com/package/ax-grep?activeTab=readme", "--json", "--summary"],
@@ -3110,6 +3122,7 @@ describe("cli", () => {
       topResultChoiceSitelinkCount: 1,
       topResultChoiceFirstSitelinkTitle: "API reference",
       topResultChoiceFirstSitelinkUrl: "https://docs.example/agent-browser/api",
+      topResultChoiceFirstSitelinkUrlPath: "/agent-browser/api",
       topResultChoiceFirstSitelinkSelector: "a",
       topResultChoiceFirstSitelinkCommand: "ax-grep 'https://docs.example/agent-browser/api' --find 'API reference' --agent",
       topResultChoiceFirstSitelinkCommandArgs: ["ax-grep", "https://docs.example/agent-browser/api", "--find", "API reference", "--agent"],
@@ -4328,10 +4341,12 @@ describe("cli", () => {
     expect(status).toBe(12);
     expect(envelope.agent.sourceSearchSelectedFirstSitelinkTitle).toBe("Missing docs");
     expect(envelope.agent.sourceSearchSelectedFirstSitelinkUrl).toBe("https://missing.example/article/docs");
+    expect(envelope.agent.sourceSearchSelectedFirstSitelinkUrlPath).toBe("/article/docs");
     expect(envelope.agent.sourceSearchSelectedFirstSitelinkSelector).toEqual(expect.any(String));
     expect(envelope.agent.sourceSearchAlternateCount).toBe(2);
     expect(envelope.agent.sourceSearchAlternateFirstSitelinkTitle).toBe("Alternate docs");
     expect(envelope.agent.sourceSearchAlternateFirstSitelinkUrl).toBe("https://alternate.example/article/docs");
+    expect(envelope.agent.sourceSearchAlternateFirstSitelinkUrlPath).toBe("/article/docs");
     expect(envelope.agent.sourceSearchAlternateFirstSitelinkSelector).toEqual(expect.any(String));
     expect(envelope.agent.sourceSearchAlternateChoices).toEqual([
       expect.objectContaining({
@@ -4587,6 +4602,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  sourceSearchSelectedDateSource: snippet");
     expect(stdout.output).toContain("  sourceSearchSelectedFirstSitelinkTitle: Selected docs");
     expect(stdout.output).toContain("  sourceSearchSelectedFirstSitelinkUrl: https://first.example/article/docs");
+    expect(stdout.output).toContain("  sourceSearchSelectedFirstSitelinkUrlPath: /article/docs");
     expect(stdout.output).toContain("  sourceSearchSelectedFirstSitelinkCommand: ax-grep 'https://first.example/article/docs' --find 'target claim' --agent");
     expect(stdout.output).toContain("  sourceSearchSelectedCommand: ax-grep --search 'agent browser' --engine duckduckgo --find 'target claim' --open-result 1 --agent");
     expect(stdout.output).toContain("  sourceSearchSelectedCommandArgs: [\"ax-grep\",\"--search\",\"agent browser\",\"--engine\",\"duckduckgo\",\"--find\",\"target claim\",\"--open-result\",\"1\",\"--agent\"]");
@@ -4602,6 +4618,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  sourceSearchAlternateDateSource: snippet");
     expect(stdout.output).toContain("  sourceSearchAlternateFirstSitelinkTitle: Alternate docs");
     expect(stdout.output).toContain("  sourceSearchAlternateFirstSitelinkUrl: https://alternate.example/article/docs");
+    expect(stdout.output).toContain("  sourceSearchAlternateFirstSitelinkUrlPath: /article/docs");
     expect(stdout.output).toContain("  sourceSearchAlternateFirstSitelinkCommand: ax-grep 'https://alternate.example/article/docs' --find 'target claim' --agent");
     expect(stdout.output).toContain("  sourceSearchAlternateCommand: ax-grep --search 'agent browser' --engine duckduckgo --find 'target claim' --open-result 2 --agent");
     expect(stdout.output).toContain("  sourceSearchAlternateCommandArgs: [\"ax-grep\",\"--search\",\"agent browser\",\"--engine\",\"duckduckgo\",\"--find\",\"target claim\",\"--open-result\",\"2\",\"--agent\"]");
@@ -13092,10 +13109,12 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topChoiceFirstSitelink: Docs sitelink <https://result.example/article/docs> selector=a:nth-of-type(2) command=ax-grep 'https://result.example/article/docs' --json --summary");
     expect(stdout.output).toContain("  topChoiceFirstSitelinkTitle: Docs sitelink");
     expect(stdout.output).toContain("  topChoiceFirstSitelinkUrl: https://result.example/article/docs");
+    expect(stdout.output).toContain("  topChoiceFirstSitelinkUrlPath: /article/docs");
     expect(stdout.output).toContain("  topChoiceFirstSitelinkSelector: a:nth-of-type(2)");
     expect(stdout.output).toContain("  topChoiceFirstSitelinkCommand: ax-grep 'https://result.example/article/docs' --json --summary");
     expect(stdout.output).toContain("  topChoiceFirstSitelinkCommandArgs: [\"ax-grep\",\"https://result.example/article/docs\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  topResultChoiceFirstSitelinkCommand: ax-grep 'https://result.example/article/docs' --json --summary");
+    expect(stdout.output).toContain("  topResultChoiceFirstSitelinkUrlPath: /article/docs");
     expect(stdout.output).toContain("  topResultChoiceFirstSitelinkCommandArgs: [\"ax-grep\",\"https://result.example/article/docs\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("resultChoice: id=r1 path=searchResults[0] rank=1 recommended primary via=recommendedResult source=result.example sitelinks=1 firstSitelinkSelector=a:nth-of-type(2)");
     expect(stdout.output).toContain("  resultChoiceSitelinkCount: 1");
