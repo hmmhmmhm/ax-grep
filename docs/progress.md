@@ -1024,6 +1024,9 @@ When research expands:
   full URLs.
 - Added top author and provenance URL path/query shortcuts so byline/profile
   and DOI/source follow-up targets can be compared without parsing full URLs.
+- Added top dataset, distribution, and license URL path/query shortcuts so data
+  source, download, and license follow-up targets can be compared without
+  parsing full URLs.
 
 ## In Progress
 

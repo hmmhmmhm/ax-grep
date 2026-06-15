@@ -1875,12 +1875,18 @@ type AgentSummary = {
   topDatasetKind?: PageDatasetSummary["kind"];
   topDatasetName?: string;
   topDatasetUrl?: string;
+  topDatasetUrlPath?: string;
+  topDatasetUrlQuery?: string;
   topDatasetCommand?: string;
   topDatasetCommandArgs?: string[];
   topDatasetDistributionUrl?: string;
+  topDatasetDistributionUrlPath?: string;
+  topDatasetDistributionUrlQuery?: string;
   topDatasetDistributionCommand?: string;
   topDatasetDistributionCommandArgs?: string[];
   topDatasetLicenseUrl?: string;
+  topDatasetLicenseUrlPath?: string;
+  topDatasetLicenseUrlQuery?: string;
   topDatasetLicenseCommand?: string;
   topDatasetLicenseCommandArgs?: string[];
   topDatasetEncodingFormat?: string;
@@ -4609,7 +4615,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topOfferPriceAmount === "number" ? [`  topOfferPriceAmount: ${agent.topOfferPriceAmount}`] : []),
     ...(agent.topOfferCommand ? [`  topOfferCommand: ${agent.topOfferCommand}`] : []),
     ...(agent.topOfferCommandArgs ? [`  topOfferCommandArgs: ${formatCommandArgsText(agent.topOfferCommandArgs)}`] : []),
-    ...(agent.topDatasetName ? [`  topDataset: path=${agent.topDatasetPath ?? ""}${agent.topDatasetKind ? ` kind=${agent.topDatasetKind}` : ""} name="${agent.topDatasetName}"${agent.topDatasetEncodingFormat ? ` format=${agent.topDatasetEncodingFormat}` : ""}${agent.topDatasetTemporalCoverage ? ` temporal=${agent.topDatasetTemporalCoverage}` : ""}${agent.topDatasetSpatialCoverage ? ` spatial=${agent.topDatasetSpatialCoverage}` : ""}${agent.topDatasetCreator ? ` creator="${agent.topDatasetCreator}"` : ""}${agent.topDatasetSelector ? ` selector=${agent.topDatasetSelector}` : ""}${agent.topDatasetDistributionUrl ? ` distribution=<${agent.topDatasetDistributionUrl}>` : ""}${agent.topDatasetLicenseUrl ? ` license=<${agent.topDatasetLicenseUrl}>` : ""}${agent.topDatasetUrl ? ` url=<${agent.topDatasetUrl}>` : ""}`] : []),
+    ...(agent.topDatasetName ? [`  topDataset: path=${agent.topDatasetPath ?? ""}${agent.topDatasetKind ? ` kind=${agent.topDatasetKind}` : ""} name="${agent.topDatasetName}"${agent.topDatasetEncodingFormat ? ` format=${agent.topDatasetEncodingFormat}` : ""}${agent.topDatasetTemporalCoverage ? ` temporal=${agent.topDatasetTemporalCoverage}` : ""}${agent.topDatasetSpatialCoverage ? ` spatial=${agent.topDatasetSpatialCoverage}` : ""}${agent.topDatasetCreator ? ` creator="${agent.topDatasetCreator}"` : ""}${agent.topDatasetSelector ? ` selector=${agent.topDatasetSelector}` : ""}${agent.topDatasetDistributionUrl ? ` distribution=<${agent.topDatasetDistributionUrl}>` : ""}${agent.topDatasetDistributionUrlPath ? ` distributionPath=${agent.topDatasetDistributionUrlPath}` : ""}${agent.topDatasetDistributionUrlQuery ? ` distributionQuery=${agent.topDatasetDistributionUrlQuery}` : ""}${agent.topDatasetLicenseUrl ? ` license=<${agent.topDatasetLicenseUrl}>` : ""}${agent.topDatasetLicenseUrlPath ? ` licensePath=${agent.topDatasetLicenseUrlPath}` : ""}${agent.topDatasetLicenseUrlQuery ? ` licenseQuery=${agent.topDatasetLicenseUrlQuery}` : ""}${agent.topDatasetUrl ? ` url=<${agent.topDatasetUrl}>` : ""}${agent.topDatasetUrlPath ? ` urlPath=${agent.topDatasetUrlPath}` : ""}${agent.topDatasetUrlQuery ? ` urlQuery=${agent.topDatasetUrlQuery}` : ""}`] : []),
     ...(agent.topDatasetCommand ? [`  topDatasetCommand: ${agent.topDatasetCommand}`] : []),
     ...(agent.topDatasetCommandArgs ? [`  topDatasetCommandArgs: ${formatCommandArgsText(agent.topDatasetCommandArgs)}`] : []),
     ...(agent.topDatasetDistributionCommand ? [`  topDatasetDistributionCommand: ${agent.topDatasetDistributionCommand}`] : []),
@@ -13187,12 +13193,15 @@ function summarizeAgent(
   const topDatasetCommand = pageCheck.datasets[0]?.url && /^https?:\/\//i.test(pageCheck.datasets[0].url)
     ? pageCommandSpec(pageCheck.datasets[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topDatasetUrlParts = pageCheck.datasets[0]?.url ? urlPathParts(pageCheck.datasets[0].url) : undefined;
   const topDatasetDistributionCommand = pageCheck.datasets[0]?.distributionUrls?.[0] && /^https?:\/\//i.test(pageCheck.datasets[0].distributionUrls[0])
     ? pageCommandSpec(pageCheck.datasets[0].distributionUrls[0], agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topDatasetDistributionUrlParts = pageCheck.datasets[0]?.distributionUrls?.[0] ? urlPathParts(pageCheck.datasets[0].distributionUrls[0]) : undefined;
   const topDatasetLicenseCommand = pageCheck.datasets[0]?.licenseUrl && /^https?:\/\//i.test(pageCheck.datasets[0].licenseUrl)
     ? pageCommandSpec(pageCheck.datasets[0].licenseUrl, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topDatasetLicenseUrlParts = pageCheck.datasets[0]?.licenseUrl ? urlPathParts(pageCheck.datasets[0].licenseUrl) : undefined;
   const topOfferCommand = pageCheck.offers[0]?.url && /^https?:\/\//i.test(pageCheck.offers[0].url)
     ? pageCommandSpec(pageCheck.offers[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -14217,12 +14226,18 @@ function summarizeAgent(
     ...(pageCheck.datasets[0] ? { topDatasetKind: pageCheck.datasets[0].kind } : {}),
     ...(pageCheck.datasets[0]?.name ? { topDatasetName: pageCheck.datasets[0].name } : {}),
     ...(pageCheck.datasets[0]?.url ? { topDatasetUrl: pageCheck.datasets[0].url } : {}),
+    ...(topDatasetUrlParts?.urlPath ? { topDatasetUrlPath: topDatasetUrlParts.urlPath } : {}),
+    ...(topDatasetUrlParts?.urlQuery ? { topDatasetUrlQuery: topDatasetUrlParts.urlQuery } : {}),
     ...(topDatasetCommand ? { topDatasetCommand: topDatasetCommand.command } : {}),
     ...(topDatasetCommand ? { topDatasetCommandArgs: topDatasetCommand.commandArgs } : {}),
     ...(pageCheck.datasets[0]?.distributionUrls?.[0] ? { topDatasetDistributionUrl: pageCheck.datasets[0].distributionUrls[0] } : {}),
+    ...(topDatasetDistributionUrlParts?.urlPath ? { topDatasetDistributionUrlPath: topDatasetDistributionUrlParts.urlPath } : {}),
+    ...(topDatasetDistributionUrlParts?.urlQuery ? { topDatasetDistributionUrlQuery: topDatasetDistributionUrlParts.urlQuery } : {}),
     ...(topDatasetDistributionCommand ? { topDatasetDistributionCommand: topDatasetDistributionCommand.command } : {}),
     ...(topDatasetDistributionCommand ? { topDatasetDistributionCommandArgs: topDatasetDistributionCommand.commandArgs } : {}),
     ...(pageCheck.datasets[0]?.licenseUrl ? { topDatasetLicenseUrl: pageCheck.datasets[0].licenseUrl } : {}),
+    ...(topDatasetLicenseUrlParts?.urlPath ? { topDatasetLicenseUrlPath: topDatasetLicenseUrlParts.urlPath } : {}),
+    ...(topDatasetLicenseUrlParts?.urlQuery ? { topDatasetLicenseUrlQuery: topDatasetLicenseUrlParts.urlQuery } : {}),
     ...(topDatasetLicenseCommand ? { topDatasetLicenseCommand: topDatasetLicenseCommand.command } : {}),
     ...(topDatasetLicenseCommand ? { topDatasetLicenseCommandArgs: topDatasetLicenseCommand.commandArgs } : {}),
     ...(pageCheck.datasets[0]?.encodingFormat ? { topDatasetEncodingFormat: pageCheck.datasets[0].encodingFormat } : {}),
@@ -20503,12 +20518,18 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topDatasetKind ? { topDatasetKind: agent.topDatasetKind } : {}),
     ...(agent.topDatasetName ? { topDatasetName: agent.topDatasetName } : {}),
     ...(agent.topDatasetUrl ? { topDatasetUrl: agent.topDatasetUrl } : {}),
+    ...(agent.topDatasetUrlPath ? { topDatasetUrlPath: agent.topDatasetUrlPath } : {}),
+    ...(agent.topDatasetUrlQuery ? { topDatasetUrlQuery: agent.topDatasetUrlQuery } : {}),
     ...(agent.topDatasetCommand ? { topDatasetCommand: agent.topDatasetCommand } : {}),
     ...(agent.topDatasetCommandArgs ? { topDatasetCommandArgs: agent.topDatasetCommandArgs } : {}),
     ...(agent.topDatasetDistributionUrl ? { topDatasetDistributionUrl: agent.topDatasetDistributionUrl } : {}),
+    ...(agent.topDatasetDistributionUrlPath ? { topDatasetDistributionUrlPath: agent.topDatasetDistributionUrlPath } : {}),
+    ...(agent.topDatasetDistributionUrlQuery ? { topDatasetDistributionUrlQuery: agent.topDatasetDistributionUrlQuery } : {}),
     ...(agent.topDatasetDistributionCommand ? { topDatasetDistributionCommand: agent.topDatasetDistributionCommand } : {}),
     ...(agent.topDatasetDistributionCommandArgs ? { topDatasetDistributionCommandArgs: agent.topDatasetDistributionCommandArgs } : {}),
     ...(agent.topDatasetLicenseUrl ? { topDatasetLicenseUrl: agent.topDatasetLicenseUrl } : {}),
+    ...(agent.topDatasetLicenseUrlPath ? { topDatasetLicenseUrlPath: agent.topDatasetLicenseUrlPath } : {}),
+    ...(agent.topDatasetLicenseUrlQuery ? { topDatasetLicenseUrlQuery: agent.topDatasetLicenseUrlQuery } : {}),
     ...(agent.topDatasetLicenseCommand ? { topDatasetLicenseCommand: agent.topDatasetLicenseCommand } : {}),
     ...(agent.topDatasetLicenseCommandArgs ? { topDatasetLicenseCommandArgs: agent.topDatasetLicenseCommandArgs } : {}),
     ...(agent.topDatasetEncodingFormat ? { topDatasetEncodingFormat: agent.topDatasetEncodingFormat } : {}),
@@ -21975,12 +21996,18 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topDatasetKind ? { topDatasetKind: agent.topDatasetKind } : {}),
     ...(agent.topDatasetName ? { topDatasetName: agent.topDatasetName } : {}),
     ...(agent.topDatasetUrl ? { topDatasetUrl: agent.topDatasetUrl } : {}),
+    ...(agent.topDatasetUrlPath ? { topDatasetUrlPath: agent.topDatasetUrlPath } : {}),
+    ...(agent.topDatasetUrlQuery ? { topDatasetUrlQuery: agent.topDatasetUrlQuery } : {}),
     ...(agent.topDatasetCommand ? { topDatasetCommand: agent.topDatasetCommand } : {}),
     ...(agent.topDatasetCommandArgs ? { topDatasetCommandArgs: agent.topDatasetCommandArgs } : {}),
     ...(agent.topDatasetDistributionUrl ? { topDatasetDistributionUrl: agent.topDatasetDistributionUrl } : {}),
+    ...(agent.topDatasetDistributionUrlPath ? { topDatasetDistributionUrlPath: agent.topDatasetDistributionUrlPath } : {}),
+    ...(agent.topDatasetDistributionUrlQuery ? { topDatasetDistributionUrlQuery: agent.topDatasetDistributionUrlQuery } : {}),
     ...(agent.topDatasetDistributionCommand ? { topDatasetDistributionCommand: agent.topDatasetDistributionCommand } : {}),
     ...(agent.topDatasetDistributionCommandArgs ? { topDatasetDistributionCommandArgs: agent.topDatasetDistributionCommandArgs } : {}),
     ...(agent.topDatasetLicenseUrl ? { topDatasetLicenseUrl: agent.topDatasetLicenseUrl } : {}),
+    ...(agent.topDatasetLicenseUrlPath ? { topDatasetLicenseUrlPath: agent.topDatasetLicenseUrlPath } : {}),
+    ...(agent.topDatasetLicenseUrlQuery ? { topDatasetLicenseUrlQuery: agent.topDatasetLicenseUrlQuery } : {}),
     ...(agent.topDatasetLicenseCommand ? { topDatasetLicenseCommand: agent.topDatasetLicenseCommand } : {}),
     ...(agent.topDatasetLicenseCommandArgs ? { topDatasetLicenseCommandArgs: agent.topDatasetLicenseCommandArgs } : {}),
     ...(agent.topDatasetEncodingFormat ? { topDatasetEncodingFormat: agent.topDatasetEncodingFormat } : {}),

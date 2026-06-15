@@ -1724,12 +1724,18 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topDatasetKind?: string;
       topDatasetName?: string;
       topDatasetUrl?: string;
+      topDatasetUrlPath?: string;
+      topDatasetUrlQuery?: string;
       topDatasetCommand?: string;
       topDatasetCommandArgs?: string[];
       topDatasetDistributionUrl?: string;
+      topDatasetDistributionUrlPath?: string;
+      topDatasetDistributionUrlQuery?: string;
       topDatasetDistributionCommand?: string;
       topDatasetDistributionCommandArgs?: string[];
       topDatasetLicenseUrl?: string;
+      topDatasetLicenseUrlPath?: string;
+      topDatasetLicenseUrlQuery?: string;
       topDatasetLicenseCommand?: string;
       topDatasetLicenseCommandArgs?: string[];
       topDatasetEncodingFormat?: string;
@@ -9229,12 +9235,18 @@ function scoreAgentStructuredShortcuts(agent: {
   topDatasetKind?: string;
   topDatasetName?: string;
   topDatasetUrl?: string;
+  topDatasetUrlPath?: string;
+  topDatasetUrlQuery?: string;
   topDatasetCommand?: string;
   topDatasetCommandArgs?: string[];
   topDatasetDistributionUrl?: string;
+  topDatasetDistributionUrlPath?: string;
+  topDatasetDistributionUrlQuery?: string;
   topDatasetDistributionCommand?: string;
   topDatasetDistributionCommandArgs?: string[];
   topDatasetLicenseUrl?: string;
+  topDatasetLicenseUrlPath?: string;
+  topDatasetLicenseUrlQuery?: string;
   topDatasetLicenseCommand?: string;
   topDatasetLicenseCommandArgs?: string[];
   topDatasetEncodingFormat?: string;
@@ -9701,8 +9713,53 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topDatasetKind === topDataset.kind) matched += 1;
     if (agent.topDatasetName === topDataset.name) matched += 1;
     if (agent.topDatasetUrl === topDataset.url) matched += 1;
+    if (topDataset.url) {
+      const topDatasetUrlParts = compareUrlPathParts(topDataset.url);
+      if (topDatasetUrlParts?.urlPath) {
+        required += 1;
+        if (agent.topDatasetUrlPath === topDatasetUrlParts.urlPath) matched += 1;
+      } else if (agent.topDatasetUrlPath) {
+        required += 1;
+      }
+      if (topDatasetUrlParts?.urlQuery) {
+        required += 1;
+        if (agent.topDatasetUrlQuery === topDatasetUrlParts.urlQuery) matched += 1;
+      } else if (agent.topDatasetUrlQuery) {
+        required += 1;
+      }
+    }
     if (agent.topDatasetDistributionUrl === topDataset.distributionUrls?.[0]) matched += 1;
+    if (topDataset.distributionUrls?.[0]) {
+      const topDatasetDistributionUrlParts = compareUrlPathParts(topDataset.distributionUrls[0]);
+      if (topDatasetDistributionUrlParts?.urlPath) {
+        required += 1;
+        if (agent.topDatasetDistributionUrlPath === topDatasetDistributionUrlParts.urlPath) matched += 1;
+      } else if (agent.topDatasetDistributionUrlPath) {
+        required += 1;
+      }
+      if (topDatasetDistributionUrlParts?.urlQuery) {
+        required += 1;
+        if (agent.topDatasetDistributionUrlQuery === topDatasetDistributionUrlParts.urlQuery) matched += 1;
+      } else if (agent.topDatasetDistributionUrlQuery) {
+        required += 1;
+      }
+    }
     if (agent.topDatasetLicenseUrl === topDataset.licenseUrl) matched += 1;
+    if (topDataset.licenseUrl) {
+      const topDatasetLicenseUrlParts = compareUrlPathParts(topDataset.licenseUrl);
+      if (topDatasetLicenseUrlParts?.urlPath) {
+        required += 1;
+        if (agent.topDatasetLicenseUrlPath === topDatasetLicenseUrlParts.urlPath) matched += 1;
+      } else if (agent.topDatasetLicenseUrlPath) {
+        required += 1;
+      }
+      if (topDatasetLicenseUrlParts?.urlQuery) {
+        required += 1;
+        if (agent.topDatasetLicenseUrlQuery === topDatasetLicenseUrlParts.urlQuery) matched += 1;
+      } else if (agent.topDatasetLicenseUrlQuery) {
+        required += 1;
+      }
+    }
     if (agent.topDatasetEncodingFormat === topDataset.encodingFormat) matched += 1;
     if (agent.topDatasetTemporalCoverage === topDataset.temporalCoverage) matched += 1;
     if (agent.topDatasetSpatialCoverage === topDataset.spatialCoverage) matched += 1;
@@ -9723,7 +9780,7 @@ function scoreAgentStructuredShortcuts(agent: {
       if (typeof agent.topDatasetLicenseCommand === "string" && agent.topDatasetLicenseCommand.includes(topDataset.licenseUrl)) matched += 1;
       if (Array.isArray(agent.topDatasetLicenseCommandArgs) && agent.topDatasetLicenseCommandArgs.includes(topDataset.licenseUrl)) matched += 1;
     }
-  } else if (agent.topDatasetPath || agent.topDatasetKind || agent.topDatasetName || agent.topDatasetUrl || agent.topDatasetCommand || agent.topDatasetCommandArgs || agent.topDatasetDistributionUrl || agent.topDatasetDistributionCommand || agent.topDatasetDistributionCommandArgs || agent.topDatasetLicenseUrl || agent.topDatasetLicenseCommand || agent.topDatasetLicenseCommandArgs || agent.topDatasetEncodingFormat || agent.topDatasetTemporalCoverage || agent.topDatasetSpatialCoverage || agent.topDatasetCreator || agent.topDatasetSelector) {
+  } else if (agent.topDatasetPath || agent.topDatasetKind || agent.topDatasetName || agent.topDatasetUrl || agent.topDatasetUrlPath || agent.topDatasetUrlQuery || agent.topDatasetCommand || agent.topDatasetCommandArgs || agent.topDatasetDistributionUrl || agent.topDatasetDistributionUrlPath || agent.topDatasetDistributionUrlQuery || agent.topDatasetDistributionCommand || agent.topDatasetDistributionCommandArgs || agent.topDatasetLicenseUrl || agent.topDatasetLicenseUrlPath || agent.topDatasetLicenseUrlQuery || agent.topDatasetLicenseCommand || agent.topDatasetLicenseCommandArgs || agent.topDatasetEncodingFormat || agent.topDatasetTemporalCoverage || agent.topDatasetSpatialCoverage || agent.topDatasetCreator || agent.topDatasetSelector) {
     required += 1;
   }
 

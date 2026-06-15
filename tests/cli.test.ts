@@ -10126,12 +10126,15 @@ describe("cli", () => {
       topDatasetKind: "dataset",
       topDatasetName: "Example emissions dataset",
       topDatasetUrl: "https://example.test/datasets/emissions",
+      topDatasetUrlPath: "/datasets/emissions",
       topDatasetCommand: "ax-grep 'https://example.test/datasets/emissions' --find 'creativecommons.org/licenses/by/4.0' --agent",
       topDatasetCommandArgs: ["ax-grep", "https://example.test/datasets/emissions", "--find", "creativecommons.org/licenses/by/4.0", "--agent"],
       topDatasetDistributionUrl: "https://example.test/downloads/emissions.csv",
+      topDatasetDistributionUrlPath: "/downloads/emissions.csv",
       topDatasetDistributionCommand: "ax-grep 'https://example.test/downloads/emissions.csv' --find 'creativecommons.org/licenses/by/4.0' --agent",
       topDatasetDistributionCommandArgs: ["ax-grep", "https://example.test/downloads/emissions.csv", "--find", "creativecommons.org/licenses/by/4.0", "--agent"],
       topDatasetLicenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+      topDatasetLicenseUrlPath: "/licenses/by/4.0/",
       topDatasetLicenseCommand: "ax-grep 'https://creativecommons.org/licenses/by/4.0/' --find 'creativecommons.org/licenses/by/4.0' --agent",
       topDatasetLicenseCommandArgs: ["ax-grep", "https://creativecommons.org/licenses/by/4.0/", "--find", "creativecommons.org/licenses/by/4.0", "--agent"],
       topDatasetEncodingFormat: "text/csv",
@@ -10195,12 +10198,15 @@ describe("cli", () => {
       topDatasetKind: "dataset",
       topDatasetName: "Example emissions dataset",
       topDatasetUrl: "https://example.test/datasets/emissions",
+      topDatasetUrlPath: "/datasets/emissions",
       topDatasetCommand: "ax-grep 'https://example.test/datasets/emissions' --agent-brief",
       topDatasetCommandArgs: ["ax-grep", "https://example.test/datasets/emissions", "--agent-brief"],
       topDatasetDistributionUrl: "https://example.test/downloads/emissions.csv",
+      topDatasetDistributionUrlPath: "/downloads/emissions.csv",
       topDatasetDistributionCommand: "ax-grep 'https://example.test/downloads/emissions.csv' --agent-brief",
       topDatasetDistributionCommandArgs: ["ax-grep", "https://example.test/downloads/emissions.csv", "--agent-brief"],
       topDatasetLicenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+      topDatasetLicenseUrlPath: "/licenses/by/4.0/",
       topDatasetLicenseCommand: "ax-grep 'https://creativecommons.org/licenses/by/4.0/' --agent-brief",
       topDatasetLicenseCommandArgs: ["ax-grep", "https://creativecommons.org/licenses/by/4.0/", "--agent-brief"],
       topDatasetEncodingFormat: "text/csv",
@@ -10241,7 +10247,7 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain("  topDataset: path=pageCheck.datasets[0] kind=dataset name=\"Example emissions dataset\" format=text/csv temporal=2020/2025 spatial=United States creator=\"Example Lab\" selector=script[type=\"application/ld+json\"]:nth-of-type(1) distribution=<https://example.test/downloads/emissions.csv> license=<https://creativecommons.org/licenses/by/4.0/> url=<https://example.test/datasets/emissions>");
+    expect(stdout.output).toContain("  topDataset: path=pageCheck.datasets[0] kind=dataset name=\"Example emissions dataset\" format=text/csv temporal=2020/2025 spatial=United States creator=\"Example Lab\" selector=script[type=\"application/ld+json\"]:nth-of-type(1) distribution=<https://example.test/downloads/emissions.csv> distributionPath=/downloads/emissions.csv license=<https://creativecommons.org/licenses/by/4.0/> licensePath=/licenses/by/4.0/ url=<https://example.test/datasets/emissions> urlPath=/datasets/emissions");
     expect(stdout.output).toContain("  topDatasetDistributionCommand: ax-grep 'https://example.test/downloads/emissions.csv'");
     expect(stdout.output).toContain("  topDatasetLicenseCommand: ax-grep 'https://creativecommons.org/licenses/by/4.0/'");
     expect(stdout.output).toContain("  dataset: id=ds1 path=pageCheck.datasets[0] kind=dataset source=json-ld name=\"Example emissions dataset\" format=text/csv temporal=2020/2025 spatial=United States creator=\"Example Lab\" distribution=https://example.test/downloads/emissions.csv license=https://creativecommons.org/licenses/by/4.0/ selector=script[type=\"application/ld+json\"]:nth-of-type(1) url=<https://example.test/datasets/emissions>");

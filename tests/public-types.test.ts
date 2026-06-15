@@ -561,12 +561,18 @@ describe("public agent types", () => {
       | "topDatasetKind"
       | "topDatasetName"
       | "topDatasetUrl"
+      | "topDatasetUrlPath"
+      | "topDatasetUrlQuery"
       | "topDatasetCommand"
       | "topDatasetCommandArgs"
       | "topDatasetDistributionUrl"
+      | "topDatasetDistributionUrlPath"
+      | "topDatasetDistributionUrlQuery"
       | "topDatasetDistributionCommand"
       | "topDatasetDistributionCommandArgs"
       | "topDatasetLicenseUrl"
+      | "topDatasetLicenseUrlPath"
+      | "topDatasetLicenseUrlQuery"
       | "topDatasetLicenseCommand"
       | "topDatasetLicenseCommandArgs"
       | "topDatasetEncodingFormat"
@@ -2043,12 +2049,15 @@ describe("public agent types", () => {
       topDatasetKind: "dataset",
       topDatasetName: "Example dataset",
       topDatasetUrl: "https://example.test/datasets/example",
+      topDatasetUrlPath: "/datasets/example",
       topDatasetCommand: "ax-grep 'https://example.test/datasets/example' --agent",
       topDatasetCommandArgs: ["ax-grep", "https://example.test/datasets/example", "--agent"],
       topDatasetDistributionUrl: "https://example.test/downloads/example.csv",
+      topDatasetDistributionUrlPath: "/downloads/example.csv",
       topDatasetDistributionCommand: "ax-grep 'https://example.test/downloads/example.csv' --agent",
       topDatasetDistributionCommandArgs: ["ax-grep", "https://example.test/downloads/example.csv", "--agent"],
       topDatasetLicenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+      topDatasetLicenseUrlPath: "/licenses/by/4.0/",
       topDatasetLicenseCommand: "ax-grep 'https://creativecommons.org/licenses/by/4.0/' --agent",
       topDatasetLicenseCommandArgs: ["ax-grep", "https://creativecommons.org/licenses/by/4.0/", "--agent"],
       topDatasetEncodingFormat: "text/csv",
@@ -3390,7 +3399,10 @@ describe("public agent types", () => {
     expect(summary.topAuthorLinkCommandArgs?.[1]).toBe("https://example.test/author");
     expect(summary.topProvenanceUrlPath).toBe("/10.5555/example.2026");
     expect(summary.topOfferCommandArgs?.[1]).toBe("https://example.test/buy");
+    expect(summary.topDatasetUrlPath).toBe("/datasets/example");
+    expect(summary.topDatasetDistributionUrlPath).toBe("/downloads/example.csv");
     expect(summary.topDatasetDistributionCommandArgs?.[1]).toBe("https://example.test/downloads/example.csv");
+    expect(summary.topDatasetLicenseUrlPath).toBe("/licenses/by/4.0/");
     expect(summary.topDatasetLicenseCommandArgs?.[1]).toBe("https://creativecommons.org/licenses/by/4.0/");
     expect(summary.topIdentitySameAsCommandArgs?.[1]).toBe("https://github.com/example");
     expect(summary.topContactPointCommandArgs?.[1]).toBe("https://example.test/contact/press");
