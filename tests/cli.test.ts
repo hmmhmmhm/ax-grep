@@ -60,7 +60,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("controlsTargetRole=region");
     expect(stdout.output).toContain("controlsTargetName=Archive panel");
     expect(stdout.output).toContain("controlsTargetSelector=#archive-panel");
-    expect(stdout.output).toContain("semanticTopButton: agent.semanticSummary.buttons[0] Archive");
+    expect(stdout.output).toContain("semanticTopButton: agent.semanticSummary.buttons[0] name=\"Archive\"");
     expect(stdout.output).toContain("controlsTargetSelector=#archive-panel");
   });
 
