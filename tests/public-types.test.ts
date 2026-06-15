@@ -407,6 +407,9 @@ describe("public agent types", () => {
       | "topResourceKind"
       | "topResourceUrl"
       | "topResourceTitle"
+      | "topResourceRel"
+      | "topResourceType"
+      | "topResourceHreflang"
       | "topResourceSelector"
       | "topResourceCommand"
       | "topResourceCommandArgs"
@@ -417,6 +420,11 @@ describe("public agent types", () => {
       | "topMediaCommand"
       | "topMediaCommandArgs"
       | "topMediaText"
+      | "topMediaAlt"
+      | "topMediaCaption"
+      | "topMediaTitle"
+      | "topMediaWidth"
+      | "topMediaHeight"
       | "topSectionPath"
       | "topSectionHeading"
       | "topSectionLevel"
@@ -1787,6 +1795,9 @@ describe("public agent types", () => {
       topResourceKind: "download",
       topResourceUrl: "https://example.test/guide.pdf",
       topResourceTitle: "Guide PDF",
+      topResourceRel: "alternate",
+      topResourceType: "application/pdf",
+      topResourceHreflang: "en",
       topResourceSelector: "a[href=\"/guide.pdf\"]",
       topResourceCommand: "ax-grep 'https://example.test/guide.pdf' --agent",
       topResourceCommandArgs: ["ax-grep", "https://example.test/guide.pdf", "--agent"],
@@ -1797,6 +1808,11 @@ describe("public agent types", () => {
       topMediaCommand: "ax-grep 'https://example.test/diagram.png' --agent",
       topMediaCommandArgs: ["ax-grep", "https://example.test/diagram.png", "--agent"],
       topMediaText: "Architecture diagram",
+      topMediaAlt: "Architecture diagram",
+      topMediaCaption: "System architecture overview",
+      topMediaTitle: "Architecture",
+      topMediaWidth: 1200,
+      topMediaHeight: 800,
       topSectionPath: "pageCheck.sections[0]",
       topSectionHeading: "Install",
       topSectionLevel: 2,

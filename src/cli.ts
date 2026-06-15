@@ -1692,6 +1692,9 @@ type AgentSummary = {
   topResourceKind?: PageResourceSummary["kind"];
   topResourceUrl?: string;
   topResourceTitle?: string;
+  topResourceRel?: string;
+  topResourceType?: string;
+  topResourceHreflang?: string;
   topResourceSelector?: string;
   topResourceCommand?: string;
   topResourceCommandArgs?: string[];
@@ -1702,6 +1705,11 @@ type AgentSummary = {
   topMediaCommand?: string;
   topMediaCommandArgs?: string[];
   topMediaText?: string;
+  topMediaAlt?: string;
+  topMediaCaption?: string;
+  topMediaTitle?: string;
+  topMediaWidth?: number;
+  topMediaHeight?: number;
   topSectionPath?: string;
   topSectionHeading?: string;
   topSectionLevel?: number;
@@ -4229,10 +4237,10 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topFaqQuestion ? [`  topFaq: ${agent.topFaqPath ?? ""}${agent.topFaqSelector ? ` selector=${agent.topFaqSelector}` : ""} - ${agent.topFaqQuestion}`] : []),
     ...(agent.topFaqAnswer ? [`  topFaqAnswer: ${agent.topFaqAnswer}`] : []),
     ...(agent.topCodeBlockText ? [`  topCodeBlock: ${agent.topCodeBlockPath ?? ""}${agent.topCodeBlockLanguage ? ` lang=${agent.topCodeBlockLanguage}` : ""}${typeof agent.topCodeBlockLineCount === "number" ? ` lines=${agent.topCodeBlockLineCount}` : ""}${agent.topCodeBlockSelector ? ` selector=${agent.topCodeBlockSelector}` : ""} - ${agent.topCodeBlockText}`] : []),
-    ...(agent.topResourceUrl ? [`  topResource: ${agent.topResourcePath ?? ""} ${agent.topResourceKind ?? ""}${agent.topResourceTitle ? ` \"${agent.topResourceTitle}\"` : ""}${agent.topResourceSelector ? ` selector=${agent.topResourceSelector}` : ""} <${agent.topResourceUrl}>`] : []),
+    ...(agent.topResourceUrl ? [`  topResource: ${agent.topResourcePath ?? ""} ${agent.topResourceKind ?? ""}${agent.topResourceTitle ? ` \"${agent.topResourceTitle}\"` : ""}${agent.topResourceRel ? ` rel=${agent.topResourceRel}` : ""}${agent.topResourceType ? ` type=${agent.topResourceType}` : ""}${agent.topResourceHreflang ? ` hreflang=${agent.topResourceHreflang}` : ""}${agent.topResourceSelector ? ` selector=${agent.topResourceSelector}` : ""} <${agent.topResourceUrl}>`] : []),
     ...(agent.topResourceCommand ? [`  topResourceCommand: ${agent.topResourceCommand}`] : []),
     ...(agent.topResourceCommandArgs ? [`  topResourceCommandArgs: ${formatCommandArgsText(agent.topResourceCommandArgs)}`] : []),
-    ...(agent.topMediaUrl ? [`  topMedia: ${agent.topMediaPath ?? ""} ${agent.topMediaKind ?? ""}${agent.topMediaSelector ? ` selector=${agent.topMediaSelector}` : ""} <${agent.topMediaUrl}>${agent.topMediaText ? ` - ${agent.topMediaText}` : ""}`] : []),
+    ...(agent.topMediaUrl ? [`  topMedia: ${agent.topMediaPath ?? ""} ${agent.topMediaKind ?? ""}${agent.topMediaAlt ? ` alt="${agent.topMediaAlt}"` : ""}${agent.topMediaCaption ? ` caption="${agent.topMediaCaption}"` : ""}${agent.topMediaTitle ? ` title="${agent.topMediaTitle}"` : ""}${typeof agent.topMediaWidth === "number" ? ` width=${agent.topMediaWidth}` : ""}${typeof agent.topMediaHeight === "number" ? ` height=${agent.topMediaHeight}` : ""}${agent.topMediaSelector ? ` selector=${agent.topMediaSelector}` : ""} <${agent.topMediaUrl}>${agent.topMediaText ? ` - ${agent.topMediaText}` : ""}`] : []),
     ...(agent.topMediaCommand ? [`  topMediaCommand: ${agent.topMediaCommand}`] : []),
     ...(agent.topMediaCommandArgs ? [`  topMediaCommandArgs: ${formatCommandArgsText(agent.topMediaCommandArgs)}`] : []),
     ...(agent.topSectionPath ? [`  topSection: ${agent.topSectionPath}${typeof agent.topSectionLevel === "number" ? ` h${agent.topSectionLevel}` : ""}${agent.topSectionSelector ? ` selector=${agent.topSectionSelector}` : ""}${agent.topSectionHeading ? ` "${agent.topSectionHeading}"` : ""}${agent.topSectionText ? ` - ${agent.topSectionText}` : ""}`] : []),
@@ -13328,6 +13336,9 @@ function summarizeAgent(
     ...(pageCheck.resources[0] ? { topResourceKind: pageCheck.resources[0].kind } : {}),
     ...(pageCheck.resources[0]?.url ? { topResourceUrl: pageCheck.resources[0].url } : {}),
     ...(pageCheck.resources[0]?.title ? { topResourceTitle: pageCheck.resources[0].title } : {}),
+    ...(pageCheck.resources[0]?.rel ? { topResourceRel: pageCheck.resources[0].rel } : {}),
+    ...(pageCheck.resources[0]?.type ? { topResourceType: pageCheck.resources[0].type } : {}),
+    ...(pageCheck.resources[0]?.hreflang ? { topResourceHreflang: pageCheck.resources[0].hreflang } : {}),
     ...(pageCheck.resources[0]?.selector ? { topResourceSelector: pageCheck.resources[0].selector } : {}),
     ...(topResourceCommand ? { topResourceCommand: topResourceCommand.command } : {}),
     ...(topResourceCommand ? { topResourceCommandArgs: topResourceCommand.commandArgs } : {}),
@@ -13338,6 +13349,11 @@ function summarizeAgent(
     ...(topMediaCommand ? { topMediaCommand: topMediaCommand.command } : {}),
     ...(topMediaCommand ? { topMediaCommandArgs: topMediaCommand.commandArgs } : {}),
     ...(pageCheck.media[0]?.text ? { topMediaText: pageCheck.media[0].text } : {}),
+    ...(pageCheck.media[0]?.alt ? { topMediaAlt: pageCheck.media[0].alt } : {}),
+    ...(pageCheck.media[0]?.caption ? { topMediaCaption: pageCheck.media[0].caption } : {}),
+    ...(pageCheck.media[0]?.title ? { topMediaTitle: pageCheck.media[0].title } : {}),
+    ...(typeof pageCheck.media[0]?.width === "number" ? { topMediaWidth: pageCheck.media[0].width } : {}),
+    ...(typeof pageCheck.media[0]?.height === "number" ? { topMediaHeight: pageCheck.media[0].height } : {}),
     ...(pageCheck.sections[0] ? { topSectionPath: pageCheck.sections[0].path } : {}),
     ...(pageCheck.sections[0]?.heading ? { topSectionHeading: pageCheck.sections[0].heading } : {}),
     ...(pageCheck.sections[0] ? { topSectionLevel: pageCheck.sections[0].level } : {}),
@@ -19446,6 +19462,9 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topResourceKind ? { topResourceKind: agent.topResourceKind } : {}),
     ...(agent.topResourceUrl ? { topResourceUrl: agent.topResourceUrl } : {}),
     ...(agent.topResourceTitle ? { topResourceTitle: agent.topResourceTitle } : {}),
+    ...(agent.topResourceRel ? { topResourceRel: agent.topResourceRel } : {}),
+    ...(agent.topResourceType ? { topResourceType: agent.topResourceType } : {}),
+    ...(agent.topResourceHreflang ? { topResourceHreflang: agent.topResourceHreflang } : {}),
     ...(agent.topResourceSelector ? { topResourceSelector: agent.topResourceSelector } : {}),
     ...(agent.topResourceCommand ? { topResourceCommand: agent.topResourceCommand } : {}),
     ...(agent.topResourceCommandArgs ? { topResourceCommandArgs: agent.topResourceCommandArgs } : {}),
@@ -19456,6 +19475,11 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topMediaCommand ? { topMediaCommand: agent.topMediaCommand } : {}),
     ...(agent.topMediaCommandArgs ? { topMediaCommandArgs: agent.topMediaCommandArgs } : {}),
     ...(agent.topMediaText ? { topMediaText: agent.topMediaText } : {}),
+    ...(agent.topMediaAlt ? { topMediaAlt: agent.topMediaAlt } : {}),
+    ...(agent.topMediaCaption ? { topMediaCaption: agent.topMediaCaption } : {}),
+    ...(agent.topMediaTitle ? { topMediaTitle: agent.topMediaTitle } : {}),
+    ...(typeof agent.topMediaWidth === "number" ? { topMediaWidth: agent.topMediaWidth } : {}),
+    ...(typeof agent.topMediaHeight === "number" ? { topMediaHeight: agent.topMediaHeight } : {}),
     ...(agent.topSectionPath ? { topSectionPath: agent.topSectionPath } : {}),
     ...(agent.topSectionHeading ? { topSectionHeading: agent.topSectionHeading } : {}),
     ...(typeof agent.topSectionLevel === "number" ? { topSectionLevel: agent.topSectionLevel } : {}),
@@ -20816,6 +20840,9 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topResourceKind ? { topResourceKind: agent.topResourceKind } : {}),
     ...(agent.topResourceUrl ? { topResourceUrl: agent.topResourceUrl } : {}),
     ...(agent.topResourceTitle ? { topResourceTitle: agent.topResourceTitle } : {}),
+    ...(agent.topResourceRel ? { topResourceRel: agent.topResourceRel } : {}),
+    ...(agent.topResourceType ? { topResourceType: agent.topResourceType } : {}),
+    ...(agent.topResourceHreflang ? { topResourceHreflang: agent.topResourceHreflang } : {}),
     ...(agent.topResourceSelector ? { topResourceSelector: agent.topResourceSelector } : {}),
     ...(agent.topResourceCommand ? { topResourceCommand: agent.topResourceCommand } : {}),
     ...(agent.topResourceCommandArgs ? { topResourceCommandArgs: agent.topResourceCommandArgs } : {}),
@@ -20826,6 +20853,11 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topMediaCommand ? { topMediaCommand: agent.topMediaCommand } : {}),
     ...(agent.topMediaCommandArgs ? { topMediaCommandArgs: agent.topMediaCommandArgs } : {}),
     ...(agent.topMediaText ? { topMediaText: agent.topMediaText } : {}),
+    ...(agent.topMediaAlt ? { topMediaAlt: agent.topMediaAlt } : {}),
+    ...(agent.topMediaCaption ? { topMediaCaption: agent.topMediaCaption } : {}),
+    ...(agent.topMediaTitle ? { topMediaTitle: agent.topMediaTitle } : {}),
+    ...(typeof agent.topMediaWidth === "number" ? { topMediaWidth: agent.topMediaWidth } : {}),
+    ...(typeof agent.topMediaHeight === "number" ? { topMediaHeight: agent.topMediaHeight } : {}),
     ...(agent.topSectionPath ? { topSectionPath: agent.topSectionPath } : {}),
     ...(agent.topSectionHeading ? { topSectionHeading: agent.topSectionHeading } : {}),
     ...(typeof agent.topSectionLevel === "number" ? { topSectionLevel: agent.topSectionLevel } : {}),

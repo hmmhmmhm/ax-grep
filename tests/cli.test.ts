@@ -11169,6 +11169,7 @@ npx ax-grep https://example.test --agent</code></pre>
       topMediaCommand: "ax-grep 'https://example.test/share.png' --agent",
       topMediaCommandArgs: ["ax-grep", "https://example.test/share.png", "--agent"],
       topMediaText: "Share preview chart - https://example.test/share.png",
+      topMediaAlt: "Share preview chart",
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
@@ -11222,6 +11223,7 @@ npx ax-grep https://example.test --agent</code></pre>
       topMediaCommand: "ax-grep 'https://example.test/share.png' --agent-brief",
       topMediaCommandArgs: ["ax-grep", "https://example.test/share.png", "--agent-brief"],
       topMediaText: "Share preview chart - https://example.test/share.png",
+      topMediaAlt: "Share preview chart",
     });
   });
 
@@ -11243,8 +11245,8 @@ npx ax-grep https://example.test --agent</code></pre>
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain("  topResource: pageCheck.resources[0] feed \"Example feed\" selector=link[rel=\"alternate\"] <https://example.test/feed.xml>");
-    expect(stdout.output).toContain("  topMedia: pageCheck.media[0] open-graph selector=meta[property=\"og:image\"] <https://example.test/share.png> - Share preview chart - https://example.test/share.png");
+    expect(stdout.output).toContain("  topResource: pageCheck.resources[0] feed \"Example feed\" rel=alternate type=application/rss+xml selector=link[rel=\"alternate\"] <https://example.test/feed.xml>");
+    expect(stdout.output).toContain("  topMedia: pageCheck.media[0] open-graph alt=\"Share preview chart\" selector=meta[property=\"og:image\"] <https://example.test/share.png> - Share preview chart - https://example.test/share.png");
   });
 
   it("checks requested text against page media summaries", async () => {
@@ -11350,6 +11352,8 @@ npx ax-grep https://example.test --agent</code></pre>
       topResourceKind: "feed",
       topResourceUrl: "https://example.test/feed.xml",
       topResourceTitle: "Example feed",
+      topResourceRel: "alternate",
+      topResourceType: "application/rss+xml",
       topResourceSelector: "link[rel=\"alternate\"]",
       topResourceCommand: "ax-grep 'https://example.test/feed.xml' --agent",
       topResourceCommandArgs: ["ax-grep", "https://example.test/feed.xml", "--agent"],
@@ -11401,6 +11405,8 @@ npx ax-grep https://example.test --agent</code></pre>
       topResourceKind: "feed",
       topResourceUrl: "https://example.test/feed.xml",
       topResourceTitle: "Example feed",
+      topResourceRel: "alternate",
+      topResourceType: "application/rss+xml",
       topResourceSelector: "link[rel=\"alternate\"]",
       topResourceCommand: "ax-grep 'https://example.test/feed.xml' --agent-brief",
       topResourceCommandArgs: ["ax-grep", "https://example.test/feed.xml", "--agent-brief"],
