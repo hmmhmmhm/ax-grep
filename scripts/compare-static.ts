@@ -2477,6 +2477,15 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopListItemCount?: number;
       semanticTopListItems?: string[];
       semanticTopListItemRefs?: Array<{ text?: string; role?: string; level?: number; posInSet?: number; setSize?: number; selected?: boolean; current?: boolean | string; expanded?: boolean; selector?: string }>;
+      semanticTopListFirstItemText?: string;
+      semanticTopListFirstItemRole?: string;
+      semanticTopListFirstItemLevel?: number;
+      semanticTopListFirstItemPosInSet?: number;
+      semanticTopListFirstItemSetSize?: number;
+      semanticTopListFirstItemSelected?: boolean;
+      semanticTopListFirstItemCurrent?: boolean | string;
+      semanticTopListFirstItemExpanded?: boolean;
+      semanticTopListFirstItemSelector?: string;
       semanticTopListSecondItemText?: string;
       semanticTopListSecondItemRole?: string;
       semanticTopListSecondItemLevel?: number;
@@ -8182,6 +8191,40 @@ function scoreSelectedListItemShortcuts(agentRecord: Record<string, unknown>, it
   return { matched: 0, required: 0 };
 }
 
+function scoreFirstListItemShortcuts(agentRecord: Record<string, unknown>, itemRefs: unknown): { matched: number; required: number } {
+  if (!Array.isArray(itemRefs)) return { matched: 0, required: 0 };
+  const firstListItemRef = (itemRefs as Array<{ text?: unknown; role?: unknown; level?: unknown; posInSet?: unknown; setSize?: unknown; selected?: unknown; current?: unknown; expanded?: unknown; selector?: unknown }>)[0];
+  if (firstListItemRef) {
+    let matched = 0;
+    const required = 10;
+    if (agentRecord.semanticTopListFirstItemText === firstListItemRef.text) matched += 1;
+    if (agentRecord.semanticTopListFirstItemRole === firstListItemRef.role) matched += 1;
+    if (agentRecord.semanticTopListFirstItemLevel === firstListItemRef.level) matched += 1;
+    if (agentRecord.semanticTopListFirstItemPosInSet === firstListItemRef.posInSet) matched += 1;
+    if (agentRecord.semanticTopListFirstItemSetSize === firstListItemRef.setSize) matched += 1;
+    if (agentRecord.semanticTopListFirstItemSelected === firstListItemRef.selected) matched += 1;
+    if (agentRecord.semanticTopListFirstItemCurrent === firstListItemRef.current) matched += 1;
+    if (agentRecord.semanticTopListFirstItemExpanded === firstListItemRef.expanded) matched += 1;
+    if (agentRecord.semanticTopListFirstItemSelector === firstListItemRef.selector) matched += 1;
+    if (typeof agentRecord.semanticTopListFirstItemText === "string" && agentRecord.semanticTopListFirstItemText.length > 0) matched += 1;
+    return { matched, required };
+  }
+  if (
+    agentRecord.semanticTopListFirstItemText
+    || agentRecord.semanticTopListFirstItemRole
+    || typeof agentRecord.semanticTopListFirstItemLevel === "number"
+    || typeof agentRecord.semanticTopListFirstItemPosInSet === "number"
+    || typeof agentRecord.semanticTopListFirstItemSetSize === "number"
+    || typeof agentRecord.semanticTopListFirstItemSelected === "boolean"
+    || typeof agentRecord.semanticTopListFirstItemCurrent !== "undefined"
+    || typeof agentRecord.semanticTopListFirstItemExpanded === "boolean"
+    || agentRecord.semanticTopListFirstItemSelector
+  ) {
+    return { matched: 0, required: 1 };
+  }
+  return { matched: 0, required: 0 };
+}
+
 function scoreSecondListItemShortcuts(agentRecord: Record<string, unknown>, itemRefs: unknown): { matched: number; required: number } {
   if (!Array.isArray(itemRefs)) return { matched: 0, required: 0 };
   const secondListItemRef = (itemRefs as Array<{ text?: unknown; role?: unknown; level?: unknown; posInSet?: unknown; setSize?: unknown; selected?: unknown; current?: unknown; expanded?: unknown; selector?: unknown }>)[1];
@@ -9064,6 +9107,9 @@ function scoreAgentSemanticSummary(agent: Record<string, any> | undefined): numb
   if (list && Array.isArray(list.itemRefs)) {
     required += 1;
     if (JSON.stringify(agent?.semanticTopListItemRefs) === JSON.stringify(list.itemRefs)) matched += 1;
+    const firstListItemScore = scoreFirstListItemShortcuts(agentRecord, list.itemRefs);
+    matched += firstListItemScore.matched;
+    required += firstListItemScore.required;
     const secondListItemScore = scoreSecondListItemShortcuts(agentRecord, list.itemRefs);
     matched += secondListItemScore.matched;
     required += secondListItemScore.required;

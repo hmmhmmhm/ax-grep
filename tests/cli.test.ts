@@ -6972,6 +6972,12 @@ describe("cli", () => {
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  semanticTopList: agent.semanticSummary.listItems[0] role=list name=\"Release actions\"");
     expect(stdout.output).toContain("itemRefs=text=\"Download report\" role=listitem pos=1 size=2 selector=li, text=\"Read notes\" role=listitem pos=2 size=2 selected=true current=page expanded=false selector=li:nth-of-type(2)");
+    expect(stdout.output).toContain("  semanticTopListFirstItem: text=\"Download report\" role=listitem pos=1 size=2 selector=li");
+    expect(stdout.output).toContain("  semanticTopListFirstItemText: Download report");
+    expect(stdout.output).toContain("  semanticTopListFirstItemRole: listitem");
+    expect(stdout.output).toContain("  semanticTopListFirstItemPosInSet: 1");
+    expect(stdout.output).toContain("  semanticTopListFirstItemSetSize: 2");
+    expect(stdout.output).toContain("  semanticTopListFirstItemSelector: li");
     expect(stdout.output).toContain("  semanticTopListSecondItem: text=\"Read notes\" role=listitem pos=2 size=2 selected=true current=page expanded=false selector=li:nth-of-type(2)");
     expect(stdout.output).toContain("  semanticTopListSecondItemText: Read notes");
     expect(stdout.output).toContain("  semanticTopListSecondItemRole: listitem");

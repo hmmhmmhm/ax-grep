@@ -1130,6 +1130,9 @@ When research expands:
 - Added second semantic list-item shortcuts in full, brief, text, public type,
   readiness, and static scoring paths, so agents can compare representative
   list/menu/tree entries without parsing `semanticTopListItemRefs[1]`.
+- Added individual text rows plus static/readiness scoring for first semantic
+  list-item shortcuts, closing the remaining text-only gap for
+  `semanticTopListItemRefs[0]`.
 
 ## In Progress
 
