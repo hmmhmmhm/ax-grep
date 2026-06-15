@@ -11662,6 +11662,23 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  authorLink: au1 pageCheck.authorLinks[0] source=link name=\"Jane Doe\" rel=author selector=link[rel=\"author\"]:nth-of-type(1) <https://example.test/authors/jane> - Jane Doe source=link https://example.test/authors/jane");
   });
 
+  it("prints unavailable semantic target details as named fields in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/dashboard"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <iframe title="Interactive revenue dashboard" src="/embed/dashboard"></iframe>
+          <p>Readable dashboard summary.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticTopUnavailable: agent.semanticSummary.unavailableItems[0] tag=iframe reason=iframe content unavailable in static HTML");
+  });
+
   it("keeps unavailable semantic target details in agent brief output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/dashboard", "--agent-brief"], {
