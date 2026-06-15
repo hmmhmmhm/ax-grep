@@ -51,22 +51,35 @@ describe("agent readiness audit", () => {
   });
 
   it("rejects args-only command shortcut readiness coverage", () => {
-    const root = makeMinimalProject();
-    mkdirSync(join(root, "src"), { recursive: true });
-    writeFileSync(join(root, "src", "cli.ts"), "const fooCommand = 'ax-grep https://example.test --agent';\n");
-    writeFileSync(join(root, "scripts", "check-agent-readiness.ts"), [
-      "checkCommandShortcutSymmetry(root, failures)",
-      "shortcutArgsFields(readiness, \"CommandArgs\")",
-      "shortcutArgsFields(readiness, \"AfterInteractionCommandArgs\")",
-      "is guarded without matching",
-      "\"fooCommandArgs\"",
-    ].join("\n"));
+    const root = makeProjectWithReadinessCommandShortcut("fooCommand", "fooCommandArgs");
 
     const failures = checkAgentReadinessProject(root).map((failure) => failure.message);
 
     expect(failures).toContain("fooCommandArgs is guarded without matching fooCommand");
   });
+
+  it("rejects args-only after-interaction command shortcut readiness coverage", () => {
+    const root = makeProjectWithReadinessCommandShortcut("fooAfterInteractionCommand", "fooAfterInteractionCommandArgs");
+
+    const failures = checkAgentReadinessProject(root).map((failure) => failure.message);
+
+    expect(failures).toContain("fooAfterInteractionCommandArgs is guarded without matching fooAfterInteractionCommand");
+  });
 });
+
+function makeProjectWithReadinessCommandShortcut(commandField: string, argsField: string): string {
+  const root = makeMinimalProject();
+  mkdirSync(join(root, "src"), { recursive: true });
+  writeFileSync(join(root, "src", "cli.ts"), `const ${commandField} = 'ax-grep https://example.test --agent';\n`);
+  writeFileSync(join(root, "scripts", "check-agent-readiness.ts"), [
+    "checkCommandShortcutSymmetry(root, failures)",
+    "shortcutArgsFields(readiness, \"CommandArgs\")",
+    "shortcutArgsFields(readiness, \"AfterInteractionCommandArgs\")",
+    "is guarded without matching",
+    `"${argsField}"`,
+  ].join("\n"));
+  return root;
+}
 
 function makeMinimalProject(): string {
   const root = join(tmpdir(), `ax-grep-readiness-${process.pid}-${Date.now()}`);
