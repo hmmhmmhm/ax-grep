@@ -711,6 +711,8 @@ describe("public agent types", () => {
       | "topChoicePath"
       | "topChoiceLabel"
       | "topChoiceUrl"
+      | "topChoiceUrlPath"
+      | "topChoiceUrlQuery"
       | "topChoiceActionUrl"
       | "topChoiceTargetUrl"
       | "topChoiceUrlTemplate"
@@ -2137,7 +2139,9 @@ describe("public agent types", () => {
       topChoiceKind: "source",
       topChoicePath: "pageCheck.sourceLinks[0]",
       topChoiceLabel: "Source",
-      topChoiceUrl: "https://source.example/report",
+      topChoiceUrl: "https://source.example/report?ref=docs",
+      topChoiceUrlPath: "/report",
+      topChoiceUrlQuery: "?ref=docs",
       topChoiceHost: "source.example",
       topChoiceSnippet: "Source summary",
       topChoiceDateText: "2026-05-31",
@@ -2145,8 +2149,8 @@ describe("public agent types", () => {
       topChoiceDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
       topChoiceDatePrecision: "day",
       topChoiceDateSource: "snippet",
-      topChoiceCommand: "ax-grep https://source.example/report --agent",
-      topChoiceCommandArgs: ["ax-grep", "https://source.example/report", "--agent"],
+      topChoiceCommand: "ax-grep https://source.example/report?ref=docs --agent",
+      topChoiceCommandArgs: ["ax-grep", "https://source.example/report?ref=docs", "--agent"],
       topChoiceRank: 1,
       topChoicePrimary: true,
       topChoiceSource: "source.example",
@@ -3298,6 +3302,8 @@ describe("public agent types", () => {
     expect(summary.topActionTargetChoiceCommandArgs?.[1]).toBe("https://example.test/search?q=docs");
     expect(summary.topChoiceKind).toBe("source");
     expect(summary.topChoiceHost).toBe("source.example");
+    expect(summary.topChoiceUrlPath).toBe("/report");
+    expect(summary.topChoiceUrlQuery).toBe("?ref=docs");
     expect(summary.topChoiceSnippet).toBe("Source summary");
     expect(summary.topChoiceSelector).toBe("a:nth-of-type(1)");
     expect(summary.topChoiceReason).toBe("High-quality source link.");

@@ -1997,6 +1997,8 @@ type AgentSummary = {
   topChoicePath?: string;
   topChoiceLabel?: string;
   topChoiceUrl?: string;
+  topChoiceUrlPath?: string;
+  topChoiceUrlQuery?: string;
   topChoiceActionUrl?: string;
   topChoiceTargetUrl?: string;
   topChoiceUrlTemplate?: string;
@@ -4636,6 +4638,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topChoicePath ? [`  topChoicePath: ${agent.topChoicePath}`] : []),
     ...(agent.topChoiceLabel ? [`  topChoiceLabel: ${agent.topChoiceLabel}`] : []),
     ...(agent.topChoiceUrl ? [`  topChoiceUrl: ${agent.topChoiceUrl}`] : []),
+    ...(agent.topChoiceUrlPath ? [`  topChoiceUrlPath: ${agent.topChoiceUrlPath}`] : []),
+    ...(agent.topChoiceUrlQuery ? [`  topChoiceUrlQuery: ${agent.topChoiceUrlQuery}`] : []),
     ...(agent.topChoiceHost ? [`  topChoiceHost: ${agent.topChoiceHost}`] : []),
     ...(typeof agent.topChoiceRank === "number" ? [`  topChoiceRank: ${agent.topChoiceRank}`] : []),
     ...(agent.topChoiceOpenResult ? [`  topChoiceOpenResult: ${agent.topChoiceOpenResult}`] : []),
@@ -12993,6 +12997,7 @@ function summarizeAgent(
   const topFormChoiceFirstHiddenField = topFormChoice?.hiddenFields[0];
   const actionTargetChoices = summarizeAgentActionTargetChoices(pageCheck.actionTargets, findQueries, agentMode, timeoutMs, userAgent);
   const topChoice = summarizeAgentTopChoice(resultChoices, sourceChoices, formChoices, actionTargetChoices);
+  const topChoiceUrlParts = topChoice?.url ? urlPathParts(topChoice.url) : undefined;
   const topBarrier = primaryBlockingBarrier(pageCheck.barriers) ?? pageCheck.barriers[0];
   const rawNext = summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch, semanticSummary));
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
@@ -14208,6 +14213,8 @@ function summarizeAgent(
     ...(topChoice ? { topChoicePath: topChoice.path } : {}),
     ...(topChoice?.label ? { topChoiceLabel: topChoice.label } : {}),
     ...(topChoice?.url ? { topChoiceUrl: topChoice.url } : {}),
+    ...(topChoiceUrlParts?.urlPath ? { topChoiceUrlPath: topChoiceUrlParts.urlPath } : {}),
+    ...(topChoiceUrlParts?.urlQuery ? { topChoiceUrlQuery: topChoiceUrlParts.urlQuery } : {}),
     ...(topChoice?.actionUrl ? { topChoiceActionUrl: topChoice.actionUrl } : {}),
     ...(topChoice?.targetUrl ? { topChoiceTargetUrl: topChoice.targetUrl } : {}),
     ...(topChoice?.urlTemplate ? { topChoiceUrlTemplate: topChoice.urlTemplate } : {}),
@@ -19252,6 +19259,8 @@ function compactAgentTopChoice(agent: AgentSummary, searchCommandContext?: Searc
     topChoicePath: agent.topChoicePath,
     ...(agent.topChoiceLabel ? { topChoiceLabel: agent.topChoiceLabel } : {}),
     ...(agent.topChoiceUrl ? { topChoiceUrl: agent.topChoiceUrl } : {}),
+    ...(agent.topChoiceUrlPath ? { topChoiceUrlPath: agent.topChoiceUrlPath } : {}),
+    ...(agent.topChoiceUrlQuery ? { topChoiceUrlQuery: agent.topChoiceUrlQuery } : {}),
     ...(agent.topChoiceActionUrl ? { topChoiceActionUrl: agent.topChoiceActionUrl } : {}),
     ...(agent.topChoiceTargetUrl ? { topChoiceTargetUrl: agent.topChoiceTargetUrl } : {}),
     ...(agent.topChoiceUrlTemplate ? { topChoiceUrlTemplate: agent.topChoiceUrlTemplate } : {}),

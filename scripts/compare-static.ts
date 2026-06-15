@@ -1805,6 +1805,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topChoicePath?: string;
       topChoiceLabel?: string;
       topChoiceUrl?: string;
+      topChoiceUrlPath?: string;
+      topChoiceUrlQuery?: string;
       topChoiceActionUrl?: string;
       topChoiceTargetUrl?: string;
       topChoiceUrlTemplate?: string;
@@ -4456,6 +4458,8 @@ function scoreAgentTopChoiceShortcuts(agent: {
   topChoicePath?: string;
   topChoiceLabel?: string;
   topChoiceUrl?: string;
+  topChoiceUrlPath?: string;
+  topChoiceUrlQuery?: string;
   topChoiceActionUrl?: string;
   topChoiceTargetUrl?: string;
   topChoiceUrlTemplate?: string;
@@ -4516,7 +4520,7 @@ function scoreAgentTopChoiceShortcuts(agent: {
           ? { kind: "action-target" as const, path: actionTarget.path, label: actionTarget.name || actionTarget.text, url: actionTarget.targetUrl ?? actionTarget.urlTemplate, targetUrl: actionTarget.targetUrl, urlTemplate: actionTarget.urlTemplate, queryInput: actionTarget.queryInput, command: actionTarget.command, commandArgs: actionTarget.commandArgs, encodingType: actionTarget.encodingType, disabled: actionTarget.disabled, pressed: actionTarget.pressed, expanded: actionTarget.expanded, haspopup: actionTarget.haspopup, controls: actionTarget.controls }
           : undefined;
   if (!expected) {
-    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceActionUrl && !agent.topChoiceTargetUrl && !agent.topChoiceUrlTemplate && !agent.topChoiceQueryField && !agent.topChoiceQueryInput && !agent.topChoiceRequiredFieldName && !agent.topChoiceRequiredFieldSelector && !agent.topChoiceInvalidFieldName && typeof agent.topChoiceInvalidFieldInvalid === "undefined" && !agent.topChoiceInvalidFieldSelector && !agent.topChoiceHost && !agent.topChoiceSnippet && !agent.topChoiceDateText && !agent.topChoiceDateIso && typeof agent.topChoiceDateUnixMs !== "number" && !agent.topChoiceDatePrecision && !agent.topChoiceDateSource && !agent.topChoiceCommand && !agent.topChoiceCommandArgs && !agent.topChoiceFirstSitelinkTitle && !agent.topChoiceFirstSitelinkUrl && !agent.topChoiceFirstSitelinkSelector && !agent.topChoiceFirstSitelinkCommand && !agent.topChoiceFirstSitelinkCommandArgs && !agent.topChoiceOpenResult && typeof agent.topChoiceRecommended !== "boolean" && typeof agent.topChoicePrimary !== "boolean" && !agent.topChoiceSourceType && typeof agent.topChoiceSourceScore !== "number" && !agent.topChoiceSourceHints?.length && !agent.topChoiceRelevance && !agent.topChoiceMatchedTerm && !agent.topChoiceFindMatch && typeof agent.topChoiceSitelinkCount !== "number" && typeof agent.topChoiceLikelyOfficial !== "boolean" && !agent.topChoiceEncodingType && typeof agent.topChoiceSubmitDisabled !== "boolean" && typeof agent.topChoiceDisabled !== "boolean" && typeof agent.topChoicePressed === "undefined" && typeof agent.topChoiceExpanded !== "boolean" && typeof agent.topChoiceHaspopup === "undefined" && !agent.topChoiceControls ? 1 : 0;
+    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceUrlPath && !agent.topChoiceUrlQuery && !agent.topChoiceActionUrl && !agent.topChoiceTargetUrl && !agent.topChoiceUrlTemplate && !agent.topChoiceQueryField && !agent.topChoiceQueryInput && !agent.topChoiceRequiredFieldName && !agent.topChoiceRequiredFieldSelector && !agent.topChoiceInvalidFieldName && typeof agent.topChoiceInvalidFieldInvalid === "undefined" && !agent.topChoiceInvalidFieldSelector && !agent.topChoiceHost && !agent.topChoiceSnippet && !agent.topChoiceDateText && !agent.topChoiceDateIso && typeof agent.topChoiceDateUnixMs !== "number" && !agent.topChoiceDatePrecision && !agent.topChoiceDateSource && !agent.topChoiceCommand && !agent.topChoiceCommandArgs && !agent.topChoiceFirstSitelinkTitle && !agent.topChoiceFirstSitelinkUrl && !agent.topChoiceFirstSitelinkSelector && !agent.topChoiceFirstSitelinkCommand && !agent.topChoiceFirstSitelinkCommandArgs && !agent.topChoiceOpenResult && typeof agent.topChoiceRecommended !== "boolean" && typeof agent.topChoicePrimary !== "boolean" && !agent.topChoiceSourceType && typeof agent.topChoiceSourceScore !== "number" && !agent.topChoiceSourceHints?.length && !agent.topChoiceRelevance && !agent.topChoiceMatchedTerm && !agent.topChoiceFindMatch && typeof agent.topChoiceSitelinkCount !== "number" && typeof agent.topChoiceLikelyOfficial !== "boolean" && !agent.topChoiceEncodingType && typeof agent.topChoiceSubmitDisabled !== "boolean" && typeof agent.topChoiceDisabled !== "boolean" && typeof agent.topChoicePressed === "undefined" && typeof agent.topChoiceExpanded !== "boolean" && typeof agent.topChoiceHaspopup === "undefined" && !agent.topChoiceControls ? 1 : 0;
   }
   let required = 2;
   let matched = 0;
@@ -4531,7 +4535,18 @@ function scoreAgentTopChoiceShortcuts(agent: {
   if (expected.url) {
     required += 1;
     if (agent.topChoiceUrl === expected.url) matched += 1;
+    const topUrlParts = typeof expected.url === "string" ? compareUrlPathParts(expected.url) : undefined;
+    if (topUrlParts?.urlPath) {
+      required += 1;
+      if (agent.topChoiceUrlPath === topUrlParts.urlPath) matched += 1;
+    }
+    if (topUrlParts?.urlQuery) {
+      required += 1;
+      if (agent.topChoiceUrlQuery === topUrlParts.urlQuery) matched += 1;
+    }
   } else if (agent.topChoiceUrl) {
+    required += 1;
+  } else if (agent.topChoiceUrlPath || agent.topChoiceUrlQuery) {
     required += 1;
   }
   for (const [agentKey, expectedValue] of [

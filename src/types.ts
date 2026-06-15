@@ -2365,6 +2365,8 @@ export type AgentSummary = {
   topChoicePath?: string;
   topChoiceLabel?: string;
   topChoiceUrl?: string;
+  topChoiceUrlPath?: string;
+  topChoiceUrlQuery?: string;
   topChoiceActionUrl?: string;
   topChoiceTargetUrl?: string;
   topChoiceUrlTemplate?: string;

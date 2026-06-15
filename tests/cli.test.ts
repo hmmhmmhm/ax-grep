@@ -1736,7 +1736,7 @@ describe("cli", () => {
         <main>
           <h1>Example</h1>
           <p>Thin page.</p>
-          <a href="https://source.example/report">2026-05-31 Source report</a>
+          <a href="https://source.example/report?ref=docs">2026-05-31 Source report</a>
         </main>
       `, { headers: { "content-type": "text/html" } }),
     });
@@ -1750,7 +1750,9 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topChoice: kind=source path=pageCheck.sourceLinks[0]");
     expect(stdout.output).toContain("  topChoiceKind: source");
     expect(stdout.output).toContain("  topChoicePath: pageCheck.sourceLinks[0]");
-    expect(stdout.output).toContain("  topChoiceUrl: https://source.example/report");
+    expect(stdout.output).toContain("  topChoiceUrl: https://source.example/report?ref=docs");
+    expect(stdout.output).toContain("  topChoiceUrlPath: /report");
+    expect(stdout.output).toContain("  topChoiceUrlQuery: ?ref=docs");
     expect(stdout.output).toContain("  topChoiceHost: source.example");
     expect(stdout.output).toContain("  topChoiceRank: 1");
     expect(stdout.output).toContain("  topChoicePrimary: true");
@@ -1764,7 +1766,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topChoiceDateSource: title");
     expect(stdout.output).toContain("  topChoiceSelector: a");
     expect(stdout.output).toContain("  topChoiceReason: External link from source.example.");
-    expect(stdout.output).toContain("  topChoiceCommand: ax-grep 'https://source.example/report' --find 'missing claim' --json --summary");
+    expect(stdout.output).toContain("  topChoiceCommand: ax-grep 'https://source.example/report?ref=docs' --find 'missing claim' --json --summary");
     expect(stdout.output).toContain("dateText=2026-05-31 dateIso=2026-05-31T00:00:00.000Z dateUnixMs=1780185600000 datePrecision=day dateSource=title");
     expect(stdout.output).toContain("sourceChoice: id=s1 path=pageCheck.sourceLinks[0]");
     expect(stdout.output).toContain("sourceChoiceDateText: 2026-05-31");
