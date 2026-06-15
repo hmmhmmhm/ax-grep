@@ -266,6 +266,8 @@ export type AgentPageMedia = {
   rank: number;
   kind: "open-graph" | "figure" | "image";
   url: string;
+  urlPath?: string;
+  urlQuery?: string;
   text?: string;
   alt?: string;
   caption?: string;
@@ -281,6 +283,8 @@ export type AgentPageResource = {
   rank: number;
   kind: "feed" | "alternate" | "amp" | "license" | "manifest" | "sitemap" | "search" | "document" | "download";
   url: string;
+  urlPath?: string;
+  urlQuery?: string;
   text?: string;
   title?: string;
   rel?: string;
@@ -298,12 +302,16 @@ export type AgentPageCitation = {
   quote?: string;
   title?: string;
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   selector?: string;
 };
 
 export type AgentPageBreadcrumbItem = {
   label: string;
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   position?: number;
 };
 
@@ -337,6 +345,8 @@ export type AgentPagePagination = {
   text?: string;
   source: "link" | "html";
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   current?: boolean;
   selector?: string;
 };
@@ -344,6 +354,8 @@ export type AgentPagePagination = {
 export type AgentPageTocItem = {
   label: string;
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   level?: number;
 };
 
@@ -362,6 +374,8 @@ export type AgentPageAuthorLink = {
   path: string;
   rank: number;
   url: string;
+  urlPath?: string;
+  urlQuery?: string;
   text?: string;
   source: "json-ld" | "link" | "html";
   name?: string;
@@ -379,6 +393,8 @@ export type AgentPageOffer = {
   currency?: string;
   availability?: string;
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   brand?: string;
   sku?: string;
   rating?: string;
@@ -397,8 +413,14 @@ export type AgentPageIdentity = {
   text?: string;
   source: "json-ld" | "meta";
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   logoUrl?: string;
+  logoUrlPath?: string;
+  logoUrlQuery?: string;
   sameAs?: string[];
+  sameAsUrlPaths?: string[];
+  sameAsUrlQueries?: string[];
   selector?: string;
 };
 
@@ -411,9 +433,15 @@ export type AgentPageDataset = {
   text?: string;
   source: "json-ld" | "link";
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   distributionUrls?: string[];
+  distributionUrlPaths?: string[];
+  distributionUrlQueries?: string[];
   encodingFormat?: string;
   licenseUrl?: string;
+  licenseUrlPath?: string;
+  licenseUrlQuery?: string;
   temporalCoverage?: string;
   spatialCoverage?: string;
   creator?: string;
@@ -444,6 +472,8 @@ export type AgentPageContactPoint = {
   text?: string;
   source: "json-ld" | "html" | "link";
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   selector?: string;
 };
 
@@ -470,6 +500,8 @@ export type AgentPageHydration = {
   route?: string;
   buildId?: string;
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   selector?: string;
 };
 
@@ -480,6 +512,8 @@ export type AgentPageApiEndpoint = {
   kind: "fetch" | "axios" | "xhr" | "graphql" | "event-stream";
   method?: string;
   url: string;
+  urlPath?: string;
+  urlQuery?: string;
   text?: string;
   source: "script";
   selector?: string;
@@ -503,6 +537,8 @@ export type AgentPageRuntime = {
   rank: number;
   kind: "service-worker" | "web-worker" | "shared-worker" | "worklet" | "dynamic-import" | "module-preload";
   url: string;
+  urlPath?: string;
+  urlQuery?: string;
   text?: string;
   source: "script" | "link";
   selector?: string;
@@ -554,6 +590,8 @@ export type AgentPageMetaFact = {
   text?: string;
   source: "meta" | "link";
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   selector?: string;
 };
 
@@ -567,6 +605,8 @@ export type AgentPageProvenance = {
   text?: string;
   source: "meta" | "link" | "json-ld";
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   selector?: string;
 };
 
@@ -607,6 +647,8 @@ export type AgentPageAppHint = {
   text?: string;
   source: "link" | "meta";
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   sizes?: string;
   media?: string;
   selector?: string;
@@ -623,6 +665,8 @@ export type AgentPageMobileHint = {
   source: "meta" | "link";
   platform?: string;
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   selector?: string;
 };
 
@@ -632,6 +676,8 @@ export type AgentPageEmbed = {
   rank: number;
   kind: "iframe" | "video" | "audio" | "embed" | "object";
   url: string;
+  urlPath?: string;
+  urlQuery?: string;
   text?: string;
   title?: string;
   type?: string;
@@ -649,6 +695,8 @@ export type AgentPageTranscript = {
   rank: number;
   kind: "captions" | "subtitles" | "descriptions" | "chapters" | "metadata" | "transcript";
   url: string;
+  urlPath?: string;
+  urlQuery?: string;
   text?: string;
   mediaKind?: "video" | "audio";
   label?: string;

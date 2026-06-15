@@ -3846,6 +3846,7 @@ describe("public agent types", () => {
           source: "reference",
           title: "Reference",
           url: "https://source.example/report",
+          urlPath: "/report",
         }],
         media: [{
           id: "m1",
@@ -3853,6 +3854,7 @@ describe("public agent types", () => {
           rank: 1,
           kind: "image",
           url: "https://example.test/hero.png",
+          urlPath: "/hero.png",
           alt: "Hero",
         }],
         resources: [{
@@ -3861,6 +3863,7 @@ describe("public agent types", () => {
           rank: 1,
           kind: "document",
           url: "https://example.test/report.pdf",
+          urlPath: "/report.pdf",
           title: "Report",
           type: "application/pdf",
         }],
@@ -3869,7 +3872,7 @@ describe("public agent types", () => {
           path: "pageCheck.breadcrumbs[0]",
           rank: 1,
           source: "html",
-          items: [{ label: "Home", url: "https://example.test", position: 1 }],
+          items: [{ label: "Home", url: "https://example.test", urlPath: "/", position: 1 }],
         }],
         sections: [{
           id: "sec1",
@@ -3887,12 +3890,13 @@ describe("public agent types", () => {
           label: "Next",
           source: "link",
           url: "https://example.test/page/2",
+          urlPath: "/page/2",
         }],
         toc: [{
           id: "toc1",
           path: "pageCheck.toc[0]",
           rank: 1,
-          items: [{ label: "Overview", url: "#overview", level: 2 }],
+          items: [{ label: "Overview", url: "https://example.test/docs#overview", urlPath: "/docs", level: 2 }],
           title: "Contents",
         }],
         authorLinks: [{
@@ -3900,6 +3904,7 @@ describe("public agent types", () => {
           path: "pageCheck.authorLinks[0]",
           rank: 1,
           url: "https://example.test/authors/ada",
+          urlPath: "/authors/ada",
           source: "link",
           name: "Ada",
           rel: "author",
@@ -3912,6 +3917,8 @@ describe("public agent types", () => {
           label: "Support",
           value: "support@example.test",
           source: "html",
+          url: "https://example.test/support",
+          urlPath: "/support",
         }],
         offers: [{
           id: "offer1",
@@ -3921,6 +3928,8 @@ describe("public agent types", () => {
           price: "19",
           priceAmount: 19,
           currency: "USD",
+          url: "https://example.test/buy",
+          urlPath: "/buy",
           source: "json-ld",
         }],
         identities: [{
@@ -3931,6 +3940,11 @@ describe("public agent types", () => {
           name: "Example",
           source: "json-ld",
           url: "https://example.test",
+          urlPath: "/",
+          logoUrl: "https://example.test/logo.png",
+          logoUrlPath: "/logo.png",
+          sameAs: ["https://social.example/example"],
+          sameAsUrlPaths: ["/example"],
         }],
         datasets: [{
           id: "dataset1",
@@ -3940,6 +3954,11 @@ describe("public agent types", () => {
           name: "Example dataset",
           source: "json-ld",
           url: "https://example.test/data",
+          urlPath: "/data",
+          distributionUrls: ["https://example.test/data.csv"],
+          distributionUrlPaths: ["/data.csv"],
+          licenseUrl: "https://example.test/license",
+          licenseUrlPath: "/license",
           temporalCoverage: "2020/2025",
           spatialCoverage: "United States",
           creator: "Example Lab",
@@ -3970,6 +3989,8 @@ describe("public agent types", () => {
           source: "script",
           framework: "next",
           route: "/docs",
+          url: "https://example.test/_next/data/build/docs.json",
+          urlPath: "/_next/data/build/docs.json",
         }],
         apiEndpoints: [{
           id: "api1",
@@ -3978,6 +3999,7 @@ describe("public agent types", () => {
           kind: "graphql",
           method: "POST",
           url: "https://example.test/graphql",
+          urlPath: "/graphql",
           source: "script",
         }],
         clientState: [{
@@ -3995,6 +4017,7 @@ describe("public agent types", () => {
           rank: 1,
           kind: "service-worker",
           url: "https://example.test/sw.js",
+          urlPath: "/sw.js",
           source: "script",
         }],
         config: [{
@@ -4031,6 +4054,8 @@ describe("public agent types", () => {
           label: "Generator",
           value: "ax-grep",
           source: "meta",
+          url: "https://example.test/generator",
+          urlPath: "/generator",
         }],
         provenance: [{
           id: "prov1",
@@ -4040,6 +4065,8 @@ describe("public agent types", () => {
           label: "DOI",
           value: "10.1000/example",
           source: "meta",
+          url: "https://doi.org/10.1000/example",
+          urlPath: "/10.1000/example",
         }],
         httpPolicies: [{
           id: "policy1",
@@ -4066,6 +4093,7 @@ describe("public agent types", () => {
           value: "/manifest.webmanifest",
           source: "link",
           url: "https://example.test/manifest.webmanifest",
+          urlPath: "/manifest.webmanifest",
         }],
         mobileHints: [{
           id: "mobile1",
@@ -4075,6 +4103,8 @@ describe("public agent types", () => {
           label: "Viewport",
           value: "width=device-width",
           source: "meta",
+          url: "https://example.test/app",
+          urlPath: "/app",
         }],
         embeds: [{
           id: "embed1",
@@ -4082,6 +4112,7 @@ describe("public agent types", () => {
           rank: 1,
           kind: "iframe",
           url: "https://player.example/embed",
+          urlPath: "/embed",
           title: "Player",
           loading: "lazy",
         }],
@@ -4091,6 +4122,7 @@ describe("public agent types", () => {
           rank: 1,
           kind: "captions",
           url: "https://example.test/captions.vtt",
+          urlPath: "/captions.vtt",
           mediaKind: "video",
           language: "en",
         }],
