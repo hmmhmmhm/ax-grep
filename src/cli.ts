@@ -1900,12 +1900,18 @@ type AgentSummary = {
   topIdentityKind?: PageIdentitySummary["kind"];
   topIdentityName?: string;
   topIdentityUrl?: string;
+  topIdentityUrlPath?: string;
+  topIdentityUrlQuery?: string;
   topIdentityCommand?: string;
   topIdentityCommandArgs?: string[];
   topIdentityLogoUrl?: string;
+  topIdentityLogoUrlPath?: string;
+  topIdentityLogoUrlQuery?: string;
   topIdentityLogoCommand?: string;
   topIdentityLogoCommandArgs?: string[];
   topIdentitySameAsUrl?: string;
+  topIdentitySameAsUrlPath?: string;
+  topIdentitySameAsUrlQuery?: string;
   topIdentitySameAsCommand?: string;
   topIdentitySameAsCommandArgs?: string[];
   topIdentitySource?: PageIdentitySummary["source"];
@@ -1923,6 +1929,8 @@ type AgentSummary = {
   topContactPointLabel?: string;
   topContactPointValue?: string;
   topContactPointUrl?: string;
+  topContactPointUrlPath?: string;
+  topContactPointUrlQuery?: string;
   topContactPointCommand?: string;
   topContactPointCommandArgs?: string[];
   topContactPointSource?: PageContactPointSummary["source"];
@@ -4631,7 +4639,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topDatasetTemporalCoverage ? [`  topDatasetTemporalCoverage: ${agent.topDatasetTemporalCoverage}`] : []),
     ...(agent.topDatasetSpatialCoverage ? [`  topDatasetSpatialCoverage: ${agent.topDatasetSpatialCoverage}`] : []),
     ...(agent.topDatasetCreator ? [`  topDatasetCreator: ${agent.topDatasetCreator}`] : []),
-    ...(agent.topIdentityName ? [`  topIdentity: path=${agent.topIdentityPath ?? ""}${agent.topIdentityKind ? ` kind=${agent.topIdentityKind}` : ""} name="${agent.topIdentityName}"${agent.topIdentitySource ? ` source=${agent.topIdentitySource}` : ""}${agent.topIdentitySelector ? ` selector=${agent.topIdentitySelector}` : ""}${agent.topIdentityLogoUrl ? ` logo=<${agent.topIdentityLogoUrl}>` : ""}${agent.topIdentitySameAsUrl ? ` sameAs=<${agent.topIdentitySameAsUrl}>` : ""}${agent.topIdentityUrl ? ` url=<${agent.topIdentityUrl}>` : ""}`] : []),
+    ...(agent.topIdentityName ? [`  topIdentity: path=${agent.topIdentityPath ?? ""}${agent.topIdentityKind ? ` kind=${agent.topIdentityKind}` : ""} name="${agent.topIdentityName}"${agent.topIdentitySource ? ` source=${agent.topIdentitySource}` : ""}${agent.topIdentitySelector ? ` selector=${agent.topIdentitySelector}` : ""}${agent.topIdentityLogoUrl ? ` logo=<${agent.topIdentityLogoUrl}>` : ""}${agent.topIdentityLogoUrlPath ? ` logoPath=${agent.topIdentityLogoUrlPath}` : ""}${agent.topIdentityLogoUrlQuery ? ` logoQuery=${agent.topIdentityLogoUrlQuery}` : ""}${agent.topIdentitySameAsUrl ? ` sameAs=<${agent.topIdentitySameAsUrl}>` : ""}${agent.topIdentitySameAsUrlPath ? ` sameAsPath=${agent.topIdentitySameAsUrlPath}` : ""}${agent.topIdentitySameAsUrlQuery ? ` sameAsQuery=${agent.topIdentitySameAsUrlQuery}` : ""}${agent.topIdentityUrl ? ` url=<${agent.topIdentityUrl}>` : ""}${agent.topIdentityUrlPath ? ` urlPath=${agent.topIdentityUrlPath}` : ""}${agent.topIdentityUrlQuery ? ` urlQuery=${agent.topIdentityUrlQuery}` : ""}`] : []),
     ...(agent.topIdentityCommand ? [`  topIdentityCommand: ${agent.topIdentityCommand}`] : []),
     ...(agent.topIdentityCommandArgs ? [`  topIdentityCommandArgs: ${formatCommandArgsText(agent.topIdentityCommandArgs)}`] : []),
     ...(agent.topIdentityLogoCommand ? [`  topIdentityLogoCommand: ${agent.topIdentityLogoCommand}`] : []),
@@ -4641,7 +4649,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topTimelineValue ? [`  topTimeline: path=${agent.topTimelinePath ?? ""}${agent.topTimelineKind ? ` kind=${agent.topTimelineKind}` : ""}${agent.topTimelineLabel ? ` label="${agent.topTimelineLabel}"` : ""} value=${agent.topTimelineValue}${agent.topTimelineIsoDate ? ` iso=${agent.topTimelineIsoDate}` : ""}${typeof agent.topTimelineUnixMs === "number" ? ` unixMs=${agent.topTimelineUnixMs}` : ""}${agent.topTimelineSource ? ` source=${agent.topTimelineSource}` : ""}${agent.topTimelineSelector ? ` selector=${agent.topTimelineSelector}` : ""}`] : []),
     ...(agent.topTimelineIsoDate ? [`  topTimelineIsoDate: ${agent.topTimelineIsoDate}`] : []),
     ...(typeof agent.topTimelineUnixMs === "number" ? [`  topTimelineUnixMs: ${agent.topTimelineUnixMs}`] : []),
-    ...(agent.topContactPointValue ? [`  topContactPoint: path=${agent.topContactPointPath ?? ""}${agent.topContactPointKind ? ` kind=${agent.topContactPointKind}` : ""}${agent.topContactPointLabel ? ` label="${agent.topContactPointLabel}"` : ""} value=${agent.topContactPointValue}${agent.topContactPointSource ? ` source=${agent.topContactPointSource}` : ""}${agent.topContactPointSelector ? ` selector=${agent.topContactPointSelector}` : ""}${agent.topContactPointUrl ? ` url=<${agent.topContactPointUrl}>` : ""}`] : []),
+    ...(agent.topContactPointValue ? [`  topContactPoint: path=${agent.topContactPointPath ?? ""}${agent.topContactPointKind ? ` kind=${agent.topContactPointKind}` : ""}${agent.topContactPointLabel ? ` label="${agent.topContactPointLabel}"` : ""} value=${agent.topContactPointValue}${agent.topContactPointSource ? ` source=${agent.topContactPointSource}` : ""}${agent.topContactPointSelector ? ` selector=${agent.topContactPointSelector}` : ""}${agent.topContactPointUrl ? ` url=<${agent.topContactPointUrl}>` : ""}${agent.topContactPointUrlPath ? ` urlPath=${agent.topContactPointUrlPath}` : ""}${agent.topContactPointUrlQuery ? ` urlQuery=${agent.topContactPointUrlQuery}` : ""}`] : []),
     ...(agent.topContactPointCommand ? [`  topContactPointCommand: ${agent.topContactPointCommand}`] : []),
     ...(agent.topContactPointCommandArgs ? [`  topContactPointCommandArgs: ${formatCommandArgsText(agent.topContactPointCommandArgs)}`] : []),
     ...(agent.topEmbedUrl ? [`  topEmbed: path=${agent.topEmbedPath ?? ""}${agent.topEmbedKind ? ` kind=${agent.topEmbedKind}` : ""}${agent.topEmbedTitle ? ` title="${agent.topEmbedTitle}"` : ""}${agent.topEmbedSelector ? ` selector=${agent.topEmbedSelector}` : ""} url=<${agent.topEmbedUrl}>${agent.topEmbedUrlPath ? ` urlPath=${agent.topEmbedUrlPath}` : ""}${agent.topEmbedUrlQuery ? ` urlQuery=${agent.topEmbedUrlQuery}` : ""}`] : []),
@@ -13219,15 +13227,19 @@ function summarizeAgent(
   const topIdentityCommand = pageCheck.identities[0]?.url && /^https?:\/\//i.test(pageCheck.identities[0].url)
     ? pageCommandSpec(pageCheck.identities[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topIdentityUrlParts = pageCheck.identities[0]?.url ? urlPathParts(pageCheck.identities[0].url) : undefined;
   const topIdentityLogoCommand = pageCheck.identities[0]?.logoUrl && /^https?:\/\//i.test(pageCheck.identities[0].logoUrl)
     ? pageCommandSpec(pageCheck.identities[0].logoUrl, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topIdentityLogoUrlParts = pageCheck.identities[0]?.logoUrl ? urlPathParts(pageCheck.identities[0].logoUrl) : undefined;
   const topIdentitySameAsCommand = pageCheck.identities[0]?.sameAs?.[0] && /^https?:\/\//i.test(pageCheck.identities[0].sameAs[0])
     ? pageCommandSpec(pageCheck.identities[0].sameAs[0], agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topIdentitySameAsUrlParts = pageCheck.identities[0]?.sameAs?.[0] ? urlPathParts(pageCheck.identities[0].sameAs[0]) : undefined;
   const topContactPointCommand = pageCheck.contactPoints[0]?.url && /^https?:\/\//i.test(pageCheck.contactPoints[0].url)
     ? pageCommandSpec(pageCheck.contactPoints[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topContactPointUrlParts = pageCheck.contactPoints[0]?.url ? urlPathParts(pageCheck.contactPoints[0].url) : undefined;
   const topCitationCommand = citations[0]?.url && /^https?:\/\//i.test(citations[0].url)
     ? pageCommandSpec(citations[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -14264,12 +14276,18 @@ function summarizeAgent(
     ...(pageCheck.identities[0] ? { topIdentityKind: pageCheck.identities[0].kind } : {}),
     ...(pageCheck.identities[0]?.name ? { topIdentityName: pageCheck.identities[0].name } : {}),
     ...(pageCheck.identities[0]?.url ? { topIdentityUrl: pageCheck.identities[0].url } : {}),
+    ...(topIdentityUrlParts?.urlPath ? { topIdentityUrlPath: topIdentityUrlParts.urlPath } : {}),
+    ...(topIdentityUrlParts?.urlQuery ? { topIdentityUrlQuery: topIdentityUrlParts.urlQuery } : {}),
     ...(topIdentityCommand ? { topIdentityCommand: topIdentityCommand.command } : {}),
     ...(topIdentityCommand ? { topIdentityCommandArgs: topIdentityCommand.commandArgs } : {}),
     ...(pageCheck.identities[0]?.logoUrl ? { topIdentityLogoUrl: pageCheck.identities[0].logoUrl } : {}),
+    ...(topIdentityLogoUrlParts?.urlPath ? { topIdentityLogoUrlPath: topIdentityLogoUrlParts.urlPath } : {}),
+    ...(topIdentityLogoUrlParts?.urlQuery ? { topIdentityLogoUrlQuery: topIdentityLogoUrlParts.urlQuery } : {}),
     ...(topIdentityLogoCommand ? { topIdentityLogoCommand: topIdentityLogoCommand.command } : {}),
     ...(topIdentityLogoCommand ? { topIdentityLogoCommandArgs: topIdentityLogoCommand.commandArgs } : {}),
     ...(pageCheck.identities[0]?.sameAs?.[0] ? { topIdentitySameAsUrl: pageCheck.identities[0].sameAs[0] } : {}),
+    ...(topIdentitySameAsUrlParts?.urlPath ? { topIdentitySameAsUrlPath: topIdentitySameAsUrlParts.urlPath } : {}),
+    ...(topIdentitySameAsUrlParts?.urlQuery ? { topIdentitySameAsUrlQuery: topIdentitySameAsUrlParts.urlQuery } : {}),
     ...(topIdentitySameAsCommand ? { topIdentitySameAsCommand: topIdentitySameAsCommand.command } : {}),
     ...(topIdentitySameAsCommand ? { topIdentitySameAsCommandArgs: topIdentitySameAsCommand.commandArgs } : {}),
     ...(pageCheck.identities[0] ? { topIdentitySource: pageCheck.identities[0].source } : {}),
@@ -14287,6 +14305,8 @@ function summarizeAgent(
     ...(pageCheck.contactPoints[0]?.label ? { topContactPointLabel: pageCheck.contactPoints[0].label } : {}),
     ...(pageCheck.contactPoints[0]?.value ? { topContactPointValue: pageCheck.contactPoints[0].value } : {}),
     ...(pageCheck.contactPoints[0]?.url ? { topContactPointUrl: pageCheck.contactPoints[0].url } : {}),
+    ...(topContactPointUrlParts?.urlPath ? { topContactPointUrlPath: topContactPointUrlParts.urlPath } : {}),
+    ...(topContactPointUrlParts?.urlQuery ? { topContactPointUrlQuery: topContactPointUrlParts.urlQuery } : {}),
     ...(topContactPointCommand ? { topContactPointCommand: topContactPointCommand.command } : {}),
     ...(topContactPointCommand ? { topContactPointCommandArgs: topContactPointCommand.commandArgs } : {}),
     ...(pageCheck.contactPoints[0] ? { topContactPointSource: pageCheck.contactPoints[0].source } : {}),
@@ -20562,12 +20582,18 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topIdentityKind ? { topIdentityKind: agent.topIdentityKind } : {}),
     ...(agent.topIdentityName ? { topIdentityName: agent.topIdentityName } : {}),
     ...(agent.topIdentityUrl ? { topIdentityUrl: agent.topIdentityUrl } : {}),
+    ...(agent.topIdentityUrlPath ? { topIdentityUrlPath: agent.topIdentityUrlPath } : {}),
+    ...(agent.topIdentityUrlQuery ? { topIdentityUrlQuery: agent.topIdentityUrlQuery } : {}),
     ...(agent.topIdentityCommand ? { topIdentityCommand: agent.topIdentityCommand } : {}),
     ...(agent.topIdentityCommandArgs ? { topIdentityCommandArgs: agent.topIdentityCommandArgs } : {}),
     ...(agent.topIdentityLogoUrl ? { topIdentityLogoUrl: agent.topIdentityLogoUrl } : {}),
+    ...(agent.topIdentityLogoUrlPath ? { topIdentityLogoUrlPath: agent.topIdentityLogoUrlPath } : {}),
+    ...(agent.topIdentityLogoUrlQuery ? { topIdentityLogoUrlQuery: agent.topIdentityLogoUrlQuery } : {}),
     ...(agent.topIdentityLogoCommand ? { topIdentityLogoCommand: agent.topIdentityLogoCommand } : {}),
     ...(agent.topIdentityLogoCommandArgs ? { topIdentityLogoCommandArgs: agent.topIdentityLogoCommandArgs } : {}),
     ...(agent.topIdentitySameAsUrl ? { topIdentitySameAsUrl: agent.topIdentitySameAsUrl } : {}),
+    ...(agent.topIdentitySameAsUrlPath ? { topIdentitySameAsUrlPath: agent.topIdentitySameAsUrlPath } : {}),
+    ...(agent.topIdentitySameAsUrlQuery ? { topIdentitySameAsUrlQuery: agent.topIdentitySameAsUrlQuery } : {}),
     ...(agent.topIdentitySameAsCommand ? { topIdentitySameAsCommand: agent.topIdentitySameAsCommand } : {}),
     ...(agent.topIdentitySameAsCommandArgs ? { topIdentitySameAsCommandArgs: agent.topIdentitySameAsCommandArgs } : {}),
     ...(agent.topIdentitySource ? { topIdentitySource: agent.topIdentitySource } : {}),
@@ -20585,6 +20611,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topContactPointLabel ? { topContactPointLabel: agent.topContactPointLabel } : {}),
     ...(agent.topContactPointValue ? { topContactPointValue: agent.topContactPointValue } : {}),
     ...(agent.topContactPointUrl ? { topContactPointUrl: agent.topContactPointUrl } : {}),
+    ...(agent.topContactPointUrlPath ? { topContactPointUrlPath: agent.topContactPointUrlPath } : {}),
+    ...(agent.topContactPointUrlQuery ? { topContactPointUrlQuery: agent.topContactPointUrlQuery } : {}),
     ...(agent.topContactPointCommand ? { topContactPointCommand: agent.topContactPointCommand } : {}),
     ...(agent.topContactPointCommandArgs ? { topContactPointCommandArgs: agent.topContactPointCommandArgs } : {}),
     ...(agent.topContactPointSource ? { topContactPointSource: agent.topContactPointSource } : {}),
@@ -22046,12 +22074,18 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topIdentityKind ? { topIdentityKind: agent.topIdentityKind } : {}),
     ...(agent.topIdentityName ? { topIdentityName: agent.topIdentityName } : {}),
     ...(agent.topIdentityUrl ? { topIdentityUrl: agent.topIdentityUrl } : {}),
+    ...(agent.topIdentityUrlPath ? { topIdentityUrlPath: agent.topIdentityUrlPath } : {}),
+    ...(agent.topIdentityUrlQuery ? { topIdentityUrlQuery: agent.topIdentityUrlQuery } : {}),
     ...(agent.topIdentityCommand ? { topIdentityCommand: agent.topIdentityCommand } : {}),
     ...(agent.topIdentityCommandArgs ? { topIdentityCommandArgs: agent.topIdentityCommandArgs } : {}),
     ...(agent.topIdentityLogoUrl ? { topIdentityLogoUrl: agent.topIdentityLogoUrl } : {}),
+    ...(agent.topIdentityLogoUrlPath ? { topIdentityLogoUrlPath: agent.topIdentityLogoUrlPath } : {}),
+    ...(agent.topIdentityLogoUrlQuery ? { topIdentityLogoUrlQuery: agent.topIdentityLogoUrlQuery } : {}),
     ...(agent.topIdentityLogoCommand ? { topIdentityLogoCommand: agent.topIdentityLogoCommand } : {}),
     ...(agent.topIdentityLogoCommandArgs ? { topIdentityLogoCommandArgs: agent.topIdentityLogoCommandArgs } : {}),
     ...(agent.topIdentitySameAsUrl ? { topIdentitySameAsUrl: agent.topIdentitySameAsUrl } : {}),
+    ...(agent.topIdentitySameAsUrlPath ? { topIdentitySameAsUrlPath: agent.topIdentitySameAsUrlPath } : {}),
+    ...(agent.topIdentitySameAsUrlQuery ? { topIdentitySameAsUrlQuery: agent.topIdentitySameAsUrlQuery } : {}),
     ...(agent.topIdentitySameAsCommand ? { topIdentitySameAsCommand: agent.topIdentitySameAsCommand } : {}),
     ...(agent.topIdentitySameAsCommandArgs ? { topIdentitySameAsCommandArgs: agent.topIdentitySameAsCommandArgs } : {}),
     ...(agent.topIdentitySource ? { topIdentitySource: agent.topIdentitySource } : {}),
@@ -22069,6 +22103,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topContactPointLabel ? { topContactPointLabel: agent.topContactPointLabel } : {}),
     ...(agent.topContactPointValue ? { topContactPointValue: agent.topContactPointValue } : {}),
     ...(agent.topContactPointUrl ? { topContactPointUrl: agent.topContactPointUrl } : {}),
+    ...(agent.topContactPointUrlPath ? { topContactPointUrlPath: agent.topContactPointUrlPath } : {}),
+    ...(agent.topContactPointUrlQuery ? { topContactPointUrlQuery: agent.topContactPointUrlQuery } : {}),
     ...(agent.topContactPointCommand ? { topContactPointCommand: agent.topContactPointCommand } : {}),
     ...(agent.topContactPointCommandArgs ? { topContactPointCommandArgs: agent.topContactPointCommandArgs } : {}),
     ...(agent.topContactPointSource ? { topContactPointSource: agent.topContactPointSource } : {}),

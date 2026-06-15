@@ -2272,12 +2272,18 @@ export type AgentSummary = {
   topIdentityKind?: string;
   topIdentityName?: string;
   topIdentityUrl?: string;
+  topIdentityUrlPath?: string;
+  topIdentityUrlQuery?: string;
   topIdentityCommand?: string;
   topIdentityCommandArgs?: string[];
   topIdentityLogoUrl?: string;
+  topIdentityLogoUrlPath?: string;
+  topIdentityLogoUrlQuery?: string;
   topIdentityLogoCommand?: string;
   topIdentityLogoCommandArgs?: string[];
   topIdentitySameAsUrl?: string;
+  topIdentitySameAsUrlPath?: string;
+  topIdentitySameAsUrlQuery?: string;
   topIdentitySameAsCommand?: string;
   topIdentitySameAsCommandArgs?: string[];
   topIdentitySource?: string;
@@ -2295,6 +2301,8 @@ export type AgentSummary = {
   topContactPointLabel?: string;
   topContactPointValue?: string;
   topContactPointUrl?: string;
+  topContactPointUrlPath?: string;
+  topContactPointUrlQuery?: string;
   topContactPointCommand?: string;
   topContactPointCommandArgs?: string[];
   topContactPointSource?: string;

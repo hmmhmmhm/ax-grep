@@ -10013,12 +10013,15 @@ describe("cli", () => {
       topIdentityKind: "organization",
       topIdentityName: "Example Labs",
       topIdentityUrl: "https://example.test/",
+      topIdentityUrlPath: "/",
       topIdentityCommand: "ax-grep 'https://example.test/' --agent-brief",
       topIdentityCommandArgs: ["ax-grep", "https://example.test/", "--agent-brief"],
       topIdentityLogoUrl: "https://example.test/logo.png",
+      topIdentityLogoUrlPath: "/logo.png",
       topIdentityLogoCommand: "ax-grep 'https://example.test/logo.png' --agent-brief",
       topIdentityLogoCommandArgs: ["ax-grep", "https://example.test/logo.png", "--agent-brief"],
       topIdentitySameAsUrl: "https://github.com/example",
+      topIdentitySameAsUrlPath: "/example",
       topIdentitySameAsCommand: "ax-grep 'https://github.com/example' --agent-brief",
       topIdentitySameAsCommandArgs: ["ax-grep", "https://github.com/example", "--agent-brief"],
       topIdentitySource: "json-ld",
@@ -10047,7 +10050,7 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain("  topIdentity: path=pageCheck.identities[0] kind=organization name=\"Example Labs\" source=json-ld selector=script[type=\"application/ld+json\"]:nth-of-type(1) logo=<https://example.test/logo.png> sameAs=<https://github.com/example> url=<https://example.test/>");
+    expect(stdout.output).toContain("  topIdentity: path=pageCheck.identities[0] kind=organization name=\"Example Labs\" source=json-ld selector=script[type=\"application/ld+json\"]:nth-of-type(1) logo=<https://example.test/logo.png> logoPath=/logo.png sameAs=<https://github.com/example> sameAsPath=/example url=<https://example.test/> urlPath=/");
     expect(stdout.output).toContain("  topIdentityLogoCommand: ax-grep 'https://example.test/logo.png'");
     expect(stdout.output).toContain("  topIdentitySameAsCommand: ax-grep 'https://github.com/example'");
     expect(stdout.output).toContain("  identity: id=id1 path=pageCheck.identities[0] kind=organization source=json-ld name=\"Example Labs\" logo=https://example.test/logo.png sameAs=https://github.com/example selector=script[type=\"application/ld+json\"]:nth-of-type(1) url=<https://example.test/>");
@@ -10645,6 +10648,7 @@ describe("cli", () => {
       topContactPointLabel: "Contact support",
       topContactPointValue: "Contact support",
       topContactPointUrl: "https://example.test/support/contact",
+      topContactPointUrlPath: "/support/contact",
       topContactPointCommand: "ax-grep 'https://example.test/support/contact' --agent",
       topContactPointCommandArgs: ["ax-grep", "https://example.test/support/contact", "--agent"],
     });

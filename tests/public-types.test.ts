@@ -586,12 +586,18 @@ describe("public agent types", () => {
       | "topIdentityKind"
       | "topIdentityName"
       | "topIdentityUrl"
+      | "topIdentityUrlPath"
+      | "topIdentityUrlQuery"
       | "topIdentityCommand"
       | "topIdentityCommandArgs"
       | "topIdentityLogoUrl"
+      | "topIdentityLogoUrlPath"
+      | "topIdentityLogoUrlQuery"
       | "topIdentityLogoCommand"
       | "topIdentityLogoCommandArgs"
       | "topIdentitySameAsUrl"
+      | "topIdentitySameAsUrlPath"
+      | "topIdentitySameAsUrlQuery"
       | "topIdentitySameAsCommand"
       | "topIdentitySameAsCommandArgs"
       | "topIdentitySource"
@@ -609,6 +615,8 @@ describe("public agent types", () => {
       | "topContactPointLabel"
       | "topContactPointValue"
       | "topContactPointUrl"
+      | "topContactPointUrlPath"
+      | "topContactPointUrlQuery"
       | "topContactPointCommand"
       | "topContactPointCommandArgs"
       | "topContactPointSource"
@@ -2076,12 +2084,15 @@ describe("public agent types", () => {
       topIdentityKind: "organization",
       topIdentityName: "Example Labs",
       topIdentityUrl: "https://example.test",
+      topIdentityUrlPath: "/",
       topIdentityCommand: "ax-grep 'https://example.test' --agent",
       topIdentityCommandArgs: ["ax-grep", "https://example.test", "--agent"],
       topIdentityLogoUrl: "https://example.test/logo.png",
+      topIdentityLogoUrlPath: "/logo.png",
       topIdentityLogoCommand: "ax-grep 'https://example.test/logo.png' --agent",
       topIdentityLogoCommandArgs: ["ax-grep", "https://example.test/logo.png", "--agent"],
       topIdentitySameAsUrl: "https://github.com/example",
+      topIdentitySameAsUrlPath: "/example",
       topIdentitySameAsCommand: "ax-grep 'https://github.com/example' --agent",
       topIdentitySameAsCommandArgs: ["ax-grep", "https://github.com/example", "--agent"],
       topIdentitySource: "json-ld",
@@ -2099,6 +2110,7 @@ describe("public agent types", () => {
       topContactPointLabel: "Press",
       topContactPointValue: "Press",
       topContactPointUrl: "https://example.test/contact/press",
+      topContactPointUrlPath: "/contact/press",
       topContactPointCommand: "ax-grep 'https://example.test/contact/press' --agent",
       topContactPointCommandArgs: ["ax-grep", "https://example.test/contact/press", "--agent"],
       topContactPointSource: "html",
@@ -3414,7 +3426,11 @@ describe("public agent types", () => {
     expect(summary.topDatasetDistributionCommandArgs?.[1]).toBe("https://example.test/downloads/example.csv");
     expect(summary.topDatasetLicenseUrlPath).toBe("/licenses/by/4.0/");
     expect(summary.topDatasetLicenseCommandArgs?.[1]).toBe("https://creativecommons.org/licenses/by/4.0/");
+    expect(summary.topIdentityUrlPath).toBe("/");
+    expect(summary.topIdentityLogoUrlPath).toBe("/logo.png");
+    expect(summary.topIdentitySameAsUrlPath).toBe("/example");
     expect(summary.topIdentitySameAsCommandArgs?.[1]).toBe("https://github.com/example");
+    expect(summary.topContactPointUrlPath).toBe("/contact/press");
     expect(summary.topContactPointCommandArgs?.[1]).toBe("https://example.test/contact/press");
     expect(summary.bestStructuredReadTarget).toBe("pageCheck.dataTables");
     expect(summary.bestStructuredReadTargetPrimary).toBe(true);

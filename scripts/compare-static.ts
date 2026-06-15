@@ -1749,12 +1749,18 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topIdentityKind?: string;
       topIdentityName?: string;
       topIdentityUrl?: string;
+      topIdentityUrlPath?: string;
+      topIdentityUrlQuery?: string;
       topIdentityCommand?: string;
       topIdentityCommandArgs?: string[];
       topIdentityLogoUrl?: string;
+      topIdentityLogoUrlPath?: string;
+      topIdentityLogoUrlQuery?: string;
       topIdentityLogoCommand?: string;
       topIdentityLogoCommandArgs?: string[];
       topIdentitySameAsUrl?: string;
+      topIdentitySameAsUrlPath?: string;
+      topIdentitySameAsUrlQuery?: string;
       topIdentitySameAsCommand?: string;
       topIdentitySameAsCommandArgs?: string[];
       topIdentitySource?: string;
@@ -1772,6 +1778,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topContactPointLabel?: string;
       topContactPointValue?: string;
       topContactPointUrl?: string;
+      topContactPointUrlPath?: string;
+      topContactPointUrlQuery?: string;
       topContactPointCommand?: string;
       topContactPointCommandArgs?: string[];
       topContactPointSource?: string;
@@ -9266,12 +9274,18 @@ function scoreAgentStructuredShortcuts(agent: {
   topIdentityKind?: string;
   topIdentityName?: string;
   topIdentityUrl?: string;
+  topIdentityUrlPath?: string;
+  topIdentityUrlQuery?: string;
   topIdentityCommand?: string;
   topIdentityCommandArgs?: string[];
   topIdentityLogoUrl?: string;
+  topIdentityLogoUrlPath?: string;
+  topIdentityLogoUrlQuery?: string;
   topIdentityLogoCommand?: string;
   topIdentityLogoCommandArgs?: string[];
   topIdentitySameAsUrl?: string;
+  topIdentitySameAsUrlPath?: string;
+  topIdentitySameAsUrlQuery?: string;
   topIdentitySameAsCommand?: string;
   topIdentitySameAsCommandArgs?: string[];
   topIdentitySource?: string;
@@ -9289,6 +9303,8 @@ function scoreAgentStructuredShortcuts(agent: {
   topContactPointLabel?: string;
   topContactPointValue?: string;
   topContactPointUrl?: string;
+  topContactPointUrlPath?: string;
+  topContactPointUrlQuery?: string;
   topContactPointCommand?: string;
   topContactPointCommandArgs?: string[];
   topContactPointSource?: string;
@@ -9814,8 +9830,53 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topIdentityKind === topIdentity.kind) matched += 1;
     if (agent.topIdentityName === topIdentity.name) matched += 1;
     if (agent.topIdentityUrl === topIdentity.url) matched += 1;
+    if (topIdentity.url) {
+      const topIdentityUrlParts = compareUrlPathParts(topIdentity.url);
+      if (topIdentityUrlParts?.urlPath) {
+        required += 1;
+        if (agent.topIdentityUrlPath === topIdentityUrlParts.urlPath) matched += 1;
+      } else if (agent.topIdentityUrlPath) {
+        required += 1;
+      }
+      if (topIdentityUrlParts?.urlQuery) {
+        required += 1;
+        if (agent.topIdentityUrlQuery === topIdentityUrlParts.urlQuery) matched += 1;
+      } else if (agent.topIdentityUrlQuery) {
+        required += 1;
+      }
+    }
     if (agent.topIdentityLogoUrl === topIdentity.logoUrl) matched += 1;
+    if (topIdentity.logoUrl) {
+      const topIdentityLogoUrlParts = compareUrlPathParts(topIdentity.logoUrl);
+      if (topIdentityLogoUrlParts?.urlPath) {
+        required += 1;
+        if (agent.topIdentityLogoUrlPath === topIdentityLogoUrlParts.urlPath) matched += 1;
+      } else if (agent.topIdentityLogoUrlPath) {
+        required += 1;
+      }
+      if (topIdentityLogoUrlParts?.urlQuery) {
+        required += 1;
+        if (agent.topIdentityLogoUrlQuery === topIdentityLogoUrlParts.urlQuery) matched += 1;
+      } else if (agent.topIdentityLogoUrlQuery) {
+        required += 1;
+      }
+    }
     if (agent.topIdentitySameAsUrl === topIdentity.sameAs?.[0]) matched += 1;
+    if (topIdentity.sameAs?.[0]) {
+      const topIdentitySameAsUrlParts = compareUrlPathParts(topIdentity.sameAs[0]);
+      if (topIdentitySameAsUrlParts?.urlPath) {
+        required += 1;
+        if (agent.topIdentitySameAsUrlPath === topIdentitySameAsUrlParts.urlPath) matched += 1;
+      } else if (agent.topIdentitySameAsUrlPath) {
+        required += 1;
+      }
+      if (topIdentitySameAsUrlParts?.urlQuery) {
+        required += 1;
+        if (agent.topIdentitySameAsUrlQuery === topIdentitySameAsUrlParts.urlQuery) matched += 1;
+      } else if (agent.topIdentitySameAsUrlQuery) {
+        required += 1;
+      }
+    }
     if (agent.topIdentitySource === topIdentity.source) matched += 1;
     if (agent.topIdentitySelector === topIdentity.selector) matched += 1;
     if (topIdentity.url && /^https?:\/\//i.test(topIdentity.url)) {
@@ -9833,7 +9894,7 @@ function scoreAgentStructuredShortcuts(agent: {
       if (typeof agent.topIdentitySameAsCommand === "string" && agent.topIdentitySameAsCommand.includes(topIdentity.sameAs[0])) matched += 1;
       if (Array.isArray(agent.topIdentitySameAsCommandArgs) && agent.topIdentitySameAsCommandArgs.includes(topIdentity.sameAs[0])) matched += 1;
     }
-  } else if (agent.topIdentityPath || agent.topIdentityKind || agent.topIdentityName || agent.topIdentityUrl || agent.topIdentityCommand || agent.topIdentityCommandArgs || agent.topIdentityLogoUrl || agent.topIdentityLogoCommand || agent.topIdentityLogoCommandArgs || agent.topIdentitySameAsUrl || agent.topIdentitySameAsCommand || agent.topIdentitySameAsCommandArgs || agent.topIdentitySource || agent.topIdentitySelector) {
+  } else if (agent.topIdentityPath || agent.topIdentityKind || agent.topIdentityName || agent.topIdentityUrl || agent.topIdentityUrlPath || agent.topIdentityUrlQuery || agent.topIdentityCommand || agent.topIdentityCommandArgs || agent.topIdentityLogoUrl || agent.topIdentityLogoUrlPath || agent.topIdentityLogoUrlQuery || agent.topIdentityLogoCommand || agent.topIdentityLogoCommandArgs || agent.topIdentitySameAsUrl || agent.topIdentitySameAsUrlPath || agent.topIdentitySameAsUrlQuery || agent.topIdentitySameAsCommand || agent.topIdentitySameAsCommandArgs || agent.topIdentitySource || agent.topIdentitySelector) {
     required += 1;
   }
 
@@ -9866,6 +9927,21 @@ function scoreAgentStructuredShortcuts(agent: {
     if (agent.topContactPointLabel === topContactPoint.label) matched += 1;
     if (agent.topContactPointValue === topContactPoint.value) matched += 1;
     if (agent.topContactPointUrl === topContactPoint.url) matched += 1;
+    if (topContactPoint.url) {
+      const topContactPointUrlParts = compareUrlPathParts(topContactPoint.url);
+      if (topContactPointUrlParts?.urlPath) {
+        required += 1;
+        if (agent.topContactPointUrlPath === topContactPointUrlParts.urlPath) matched += 1;
+      } else if (agent.topContactPointUrlPath) {
+        required += 1;
+      }
+      if (topContactPointUrlParts?.urlQuery) {
+        required += 1;
+        if (agent.topContactPointUrlQuery === topContactPointUrlParts.urlQuery) matched += 1;
+      } else if (agent.topContactPointUrlQuery) {
+        required += 1;
+      }
+    }
     if (agent.topContactPointSource === topContactPoint.source) matched += 1;
     if (agent.topContactPointSelector === topContactPoint.selector) matched += 1;
     if (topContactPoint.url && /^https?:\/\//i.test(topContactPoint.url)) {
@@ -9873,7 +9949,7 @@ function scoreAgentStructuredShortcuts(agent: {
       if (agent.topContactPointCommand?.includes(topContactPoint.url)) matched += 1;
       if (Array.isArray(agent.topContactPointCommandArgs) && agent.topContactPointCommandArgs.includes(topContactPoint.url)) matched += 1;
     }
-  } else if (agent.topContactPointPath || agent.topContactPointKind || agent.topContactPointLabel || agent.topContactPointValue || agent.topContactPointUrl || agent.topContactPointCommand || agent.topContactPointCommandArgs || agent.topContactPointSource || agent.topContactPointSelector) {
+  } else if (agent.topContactPointPath || agent.topContactPointKind || agent.topContactPointLabel || agent.topContactPointValue || agent.topContactPointUrl || agent.topContactPointUrlPath || agent.topContactPointUrlQuery || agent.topContactPointCommand || agent.topContactPointCommandArgs || agent.topContactPointSource || agent.topContactPointSelector) {
     required += 1;
   }
 
