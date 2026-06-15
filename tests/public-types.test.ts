@@ -1744,6 +1744,8 @@ describe("public agent types", () => {
       | "primaryReadTargetReason"
       | "primaryBrowserHtmlReason"
       | "primaryBrowserHtmlReasonCode"
+      | "primaryAfterInteractionCommand"
+      | "primaryAfterInteractionCommandArgs"
       | "primarySourceLinkRef"
       | "primaryTargetUrl"
       | "primaryTargetPath"
@@ -3376,6 +3378,8 @@ describe("public agent types", () => {
       primaryReadTargetReason: "Top evidence.",
       primaryBrowserHtmlReason: "Browser-captured HTML or browser inspection is needed.",
       primaryBrowserHtmlReasonCode: "challenge",
+      primaryAfterInteractionCommand: "ax-grep https://example.test --html-file captured.html --agent",
+      primaryAfterInteractionCommandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--agent"],
       primarySourceLinkRef: "pageCheck.sourceLinks[0]",
       primaryTargetUrl: "https://example.test",
       primaryTargetPath: "pageCheck.links[0]",
@@ -3755,6 +3759,8 @@ describe("public agent types", () => {
     expect(summary.primaryActionName).toBe("read-content");
     expect(summary.primaryExpectedOutcome).toBe("read-evidence");
     expect(summary.primaryBrowserHtmlReasonCode).toBe("challenge");
+    expect(summary.primaryAfterInteractionCommand).toBe("ax-grep https://example.test --html-file captured.html --agent");
+    expect(summary.primaryAfterInteractionCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.topActionBrowserHtmlReasonCode).toBe("challenge");
     expect(summary.primarySourceLinkRef).toBe("pageCheck.sourceLinks[0]");
     expect(summary.primaryTargetTitle).toBe("Example target");
