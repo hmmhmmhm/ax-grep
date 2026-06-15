@@ -5280,8 +5280,13 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   }
   for (const citation of pageCheck.citations) {
     const url = citation.url ? ` <${citation.url}>` : "";
-    const selector = citation.selector ? ` (${citation.selector})` : "";
-    lines.push(`  citation: ${citation.id} ${citation.path} ${citation.source}${selector}${url} - ${citation.text}`);
+    const details = [
+      `source=${citation.source}`,
+      citation.title ? `title="${citation.title}"` : "",
+      citation.quote ? `quote="${citation.quote}"` : "",
+      citation.selector ? `selector=${citation.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  citation: ${citation.id} ${citation.path} ${details}${url} - ${citation.text}`);
   }
   for (const media of pageCheck.media) {
     const dimensions = media.width && media.height ? ` ${media.width}x${media.height}` : "";

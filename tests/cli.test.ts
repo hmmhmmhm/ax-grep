@@ -11130,6 +11130,26 @@ npx ax-grep https://example.test --agent</code></pre>
     });
   });
 
+  it("prints citation details in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/article"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <cite><a href="/papers/audit">Audit Report 2026</a></cite>
+          <ol class="references">
+            <li id="ref-1">Journal of Tests, 2026. Independent verification of the audited result.</li>
+          </ol>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  citation: ct1 pageCheck.citations[0] source=cite title=\"Audit Report 2026\" selector=cite:nth-of-type(1) <https://example.test/papers/audit> - Citation: Audit Report 2026 - https://example.test/papers/audit");
+    expect(stdout.output).toContain("  citation: ct2 pageCheck.citations[1] source=reference quote=\"Journal of Tests, 2026. Independent verification of the audited result.\" selector=li:nth-of-type(1) - Reference: Journal of Tests, 2026. Independent verification of the audited result.");
+  });
+
   it("summarizes page media with resolved image urls and captions for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/gallery", "--agent"], {
