@@ -896,6 +896,8 @@ describe("public agent types", () => {
       | "searchDecisionRecommendedPath"
       | "searchDecisionRecommendedTitle"
       | "searchDecisionRecommendedUrl"
+      | "searchDecisionRecommendedUrlPath"
+      | "searchDecisionRecommendedUrlQuery"
       | "searchDecisionRecommendedSource"
       | "searchDecisionRecommendedSourceScore"
       | "searchDecisionRecommendedSourceType"
@@ -1676,6 +1678,8 @@ describe("public agent types", () => {
       | "alternativeActionBrowserHtmlReason"
       | "alternativeActionBrowserHtmlReasonCode"
       | "recommendedUrl"
+      | "recommendedUrlPath"
+      | "recommendedUrlQuery"
       | "recommendedPath"
       | "recommendedTitle"
       | "recommendedRank"
@@ -2337,6 +2341,7 @@ describe("public agent types", () => {
         recommendedPath: "recommendedResult",
         recommendedTitle: "Example result",
         recommendedUrl: "https://example.test",
+        recommendedUrlPath: "/",
         recommendedSource: "example.test",
         recommendedSourceScore: 0.92,
         recommendedSourceType: "official",
@@ -2380,6 +2385,7 @@ describe("public agent types", () => {
       searchDecisionRecommendedPath: "recommendedResult",
       searchDecisionRecommendedTitle: "Example result",
       searchDecisionRecommendedUrl: "https://example.test",
+      searchDecisionRecommendedUrlPath: "/",
       searchDecisionRecommendedSource: "example.test",
       searchDecisionRecommendedSourceScore: 0.92,
       searchDecisionRecommendedSourceType: "official",
@@ -3231,6 +3237,7 @@ describe("public agent types", () => {
       alternativeActionBrowserHtmlReason: "Browser interaction may expose additional content or controls.",
       alternativeActionBrowserHtmlReasonCode: "interaction-required",
       recommendedUrl: "https://example.test",
+      recommendedUrlPath: "/",
       recommendedPath: "recommendedResult",
       recommendedTitle: "Example result",
       recommendedRank: 1,

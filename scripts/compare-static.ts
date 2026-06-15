@@ -605,6 +605,8 @@ type CliAgentSearchDecisionShape = {
   recommendedPath?: string;
   recommendedTitle?: string;
   recommendedUrl?: string;
+  recommendedUrlPath?: string;
+  recommendedUrlQuery?: string;
   recommendedSource?: string;
   recommendedSourceScore?: number;
   recommendedSourceType?: CliSearchResultShape["sourceType"];
@@ -1294,6 +1296,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       searchDecisionRecommendedPath?: string;
       searchDecisionRecommendedTitle?: string;
       searchDecisionRecommendedUrl?: string;
+      searchDecisionRecommendedUrlPath?: string;
+      searchDecisionRecommendedUrlQuery?: string;
       searchDecisionRecommendedSource?: string;
       searchDecisionRecommendedSourceScore?: number;
       searchDecisionRecommendedRelevance?: CliSearchResultShape["relevance"];
@@ -1413,6 +1417,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       readabilityReasons?: unknown[];
       recommendedRank?: number;
       recommendedUrl?: string;
+      recommendedUrlPath?: string;
+      recommendedUrlQuery?: string;
       recommendedPath?: string;
       recommendedTitle?: string;
       recommendedSource?: string;
@@ -7055,6 +7061,8 @@ function scoreAgentSearchDecision(
     searchDecisionRecommendedPath?: string;
     searchDecisionRecommendedTitle?: string;
     searchDecisionRecommendedUrl?: string;
+    searchDecisionRecommendedUrlPath?: string;
+    searchDecisionRecommendedUrlQuery?: string;
     searchDecisionRecommendedSource?: string;
     searchDecisionRecommendedSourceScore?: number;
     searchDecisionRecommendedSourceType?: CliSearchResultShape["sourceType"];
@@ -7103,9 +7111,12 @@ function scoreAgentSearchDecision(
     && typeof decision.officialCount === "number"
     && typeof decision.findMatchCount === "number") matched += 1;
   if (recommendedResult) {
-    required += 2;
+    required += 4;
+    const recommendedUrlParts = typeof recommendedResult.url === "string" ? compareUrlPathParts(recommendedResult.url) : undefined;
     if (decision.recommendedRank === recommendedResult.rank) matched += 1;
     if (decision.recommendedUrl === recommendedResult.url) matched += 1;
+    if (decision.recommendedUrlPath === recommendedUrlParts?.urlPath) matched += 1;
+    if (decision.recommendedUrlQuery === recommendedUrlParts?.urlQuery) matched += 1;
   }
   if (primaryAction?.command) {
     required += 2;
@@ -7146,6 +7157,18 @@ function scoreAgentSearchDecision(
     required += 1;
     if (agent?.searchDecisionRecommendedUrl === decision.recommendedUrl) matched += 1;
   } else if (agent?.searchDecisionRecommendedUrl) {
+    required += 1;
+  }
+  if (decision.recommendedUrlPath) {
+    required += 1;
+    if (agent?.searchDecisionRecommendedUrlPath === decision.recommendedUrlPath) matched += 1;
+  } else if (agent?.searchDecisionRecommendedUrlPath) {
+    required += 1;
+  }
+  if (decision.recommendedUrlQuery) {
+    required += 1;
+    if (agent?.searchDecisionRecommendedUrlQuery === decision.recommendedUrlQuery) matched += 1;
+  } else if (agent?.searchDecisionRecommendedUrlQuery) {
     required += 1;
   }
   if (decision.recommendedSource) {
@@ -11024,6 +11047,8 @@ function scoreAgentRecommendedMetadata(
   agent: {
     recommendedRank?: number;
     recommendedUrl?: string;
+    recommendedUrlPath?: string;
+    recommendedUrlQuery?: string;
     recommendedPath?: string;
     recommendedTitle?: string;
     recommendedSource?: string;
@@ -11048,8 +11073,11 @@ function scoreAgentRecommendedMetadata(
     if (agent?.recommendedRank === recommendedResult.rank) matched += 1;
   }
   if (recommendedResult.url) {
-    required += 1;
+    required += 3;
+    const recommendedUrlParts = compareUrlPathParts(recommendedResult.url);
     if (agent?.recommendedUrl === recommendedResult.url) matched += 1;
+    if (agent?.recommendedUrlPath === recommendedUrlParts?.urlPath) matched += 1;
+    if (agent?.recommendedUrlQuery === recommendedUrlParts?.urlQuery) matched += 1;
   }
   if (recommendedResult.path) {
     required += 1;

@@ -2032,6 +2032,7 @@ describe("cli", () => {
         recommendedPath: "recommendedResult",
         recommendedTitle: "Agent browser result",
         recommendedUrl: "https://result.example/",
+        recommendedUrlPath: "/",
         recommendedSource: "result.example",
         recommendedRelevance: "high",
         recommendedLikelyOfficial: false,
@@ -2050,6 +2051,7 @@ describe("cli", () => {
       searchDecisionRecommendedPath: "recommendedResult",
       searchDecisionRecommendedTitle: "Agent browser result",
       searchDecisionRecommendedUrl: "https://result.example/",
+      searchDecisionRecommendedUrlPath: "/",
       searchDecisionRecommendedSource: "result.example",
       searchDecisionRecommendedSourceScore: expect.any(Number),
       searchDecisionRecommendedRelevance: "high",
@@ -2406,6 +2408,7 @@ describe("cli", () => {
       topChoiceOpenResult: 1,
       topChoiceRecommended: true,
       recommendedUrl: "https://result.example/article",
+      recommendedUrlPath: "/article",
       recommendedPath: "recommendedResult",
       recommendedTitle: "Agent browser guide",
       recommendedRank: 1,
@@ -12599,6 +12602,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  primaryPriorityReason: Readable content evidence is available in the current payload.");
     expect(stdout.output).toContain("  readabilityReason: 1 content evidence item");
     expect(stdout.output).toContain("  recommendedUrl: https://example.test/article");
+    expect(stdout.output).toContain("  recommendedUrlPath: /article");
     expect(stdout.output).toContain("pageCheck\n  confidence: medium");
     expect(stdout.output).toContain("  readability: medium");
     expect(stdout.output).toContain("page\n  title: Article title");
@@ -12825,6 +12829,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("agent\n  status: choose-result");
     expect(stdout.output).toContain("  canContinue: true");
     expect(stdout.output).toContain("  recommendedUrl: https://result.example/article");
+    expect(stdout.output).toContain("  recommendedUrlPath: /article");
     expect(stdout.output).toContain("  recommendedTitle: Result Title");
     expect(stdout.output).toContain("  recommendedRank: 1");
     expect(stdout.output).toContain("  recommendedSource: result.example");

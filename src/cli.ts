@@ -135,6 +135,8 @@ type AgentSearchDecision = {
   recommendedPath?: string;
   recommendedTitle?: string;
   recommendedUrl?: string;
+  recommendedUrlPath?: string;
+  recommendedUrlQuery?: string;
   recommendedSource?: string;
   recommendedSourceScore?: number;
   recommendedSourceType?: ResultSummary["sourceType"];
@@ -1043,6 +1045,8 @@ type AgentSummary = {
   searchDecisionRecommendedPath?: string;
   searchDecisionRecommendedTitle?: string;
   searchDecisionRecommendedUrl?: string;
+  searchDecisionRecommendedUrlPath?: string;
+  searchDecisionRecommendedUrlQuery?: string;
   searchDecisionRecommendedSource?: string;
   searchDecisionRecommendedSourceScore?: number;
   searchDecisionRecommendedSourceType?: ResultSummary["sourceType"];
@@ -2425,6 +2429,8 @@ type AgentSummary = {
   alternativeActionBrowserHtmlReason?: string;
   alternativeActionBrowserHtmlReasonCode?: AgentBrowserHtmlReasonCode;
   recommendedUrl?: string;
+  recommendedUrlPath?: string;
+  recommendedUrlQuery?: string;
   recommendedPath?: string;
   recommendedTitle?: string;
   recommendedRank?: number;
@@ -4255,6 +4261,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.searchDecisionRecommendedPath ? [`  searchDecisionRecommendedPath: ${agent.searchDecisionRecommendedPath}`] : []),
     ...(agent.searchDecisionRecommendedTitle ? [`  searchDecisionRecommendedTitle: ${agent.searchDecisionRecommendedTitle}`] : []),
     ...(agent.searchDecisionRecommendedUrl ? [`  searchDecisionRecommendedUrl: ${agent.searchDecisionRecommendedUrl}`] : []),
+    ...(agent.searchDecisionRecommendedUrlPath ? [`  searchDecisionRecommendedUrlPath: ${agent.searchDecisionRecommendedUrlPath}`] : []),
+    ...(agent.searchDecisionRecommendedUrlQuery ? [`  searchDecisionRecommendedUrlQuery: ${agent.searchDecisionRecommendedUrlQuery}`] : []),
     ...(agent.searchDecisionRecommendedSource ? [`  searchDecisionRecommendedSource: ${agent.searchDecisionRecommendedSource}`] : []),
     ...(typeof agent.searchDecisionRecommendedSourceScore === "number" ? [`  searchDecisionRecommendedSourceScore: ${agent.searchDecisionRecommendedSourceScore}`] : []),
     ...(agent.searchDecisionRecommendedSourceType ? [`  searchDecisionRecommendedSourceType: ${agent.searchDecisionRecommendedSourceType}`] : []),
@@ -5239,6 +5247,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.primaryTargetSelector) lines.push(`  primaryTargetSelector: ${agent.primaryTargetSelector}`);
   if (agent.primaryTargetText) lines.push(`  primaryTargetText: ${agent.primaryTargetText}`);
   if (agent.recommendedUrl) lines.push(`  recommendedUrl: ${agent.recommendedUrl}`);
+  if (agent.recommendedUrlPath) lines.push(`  recommendedUrlPath: ${agent.recommendedUrlPath}`);
+  if (agent.recommendedUrlQuery) lines.push(`  recommendedUrlQuery: ${agent.recommendedUrlQuery}`);
   if (agent.recommendedPath) lines.push(`  recommendedPath: ${agent.recommendedPath}`);
   if (agent.recommendedTitle) lines.push(`  recommendedTitle: ${agent.recommendedTitle}`);
   if (agent.recommendedRank) lines.push(`  recommendedRank: ${agent.recommendedRank}`);
@@ -13292,6 +13302,8 @@ function summarizeAgent(
     ...(searchDecision?.recommendedPath ? { searchDecisionRecommendedPath: searchDecision.recommendedPath } : {}),
     ...(searchDecision?.recommendedTitle ? { searchDecisionRecommendedTitle: searchDecision.recommendedTitle } : {}),
     ...(searchDecision?.recommendedUrl ? { searchDecisionRecommendedUrl: searchDecision.recommendedUrl } : {}),
+    ...(searchDecision?.recommendedUrlPath ? { searchDecisionRecommendedUrlPath: searchDecision.recommendedUrlPath } : {}),
+    ...(searchDecision?.recommendedUrlQuery ? { searchDecisionRecommendedUrlQuery: searchDecision.recommendedUrlQuery } : {}),
     ...(searchDecision?.recommendedSource ? { searchDecisionRecommendedSource: searchDecision.recommendedSource } : {}),
     ...(typeof searchDecision?.recommendedSourceScore === "number" ? { searchDecisionRecommendedSourceScore: searchDecision.recommendedSourceScore } : {}),
     ...(searchDecision?.recommendedSourceType ? { searchDecisionRecommendedSourceType: searchDecision.recommendedSourceType } : {}),
@@ -14665,7 +14677,10 @@ function summarizeAgent(
     agent.primaryAction = withActionExecution(primaryAction);
   }
   if (recommendedResult) {
+    const recommendedUrlParts = urlPathParts(recommendedResult.url);
     agent.recommendedUrl = recommendedResult.url;
+    if (recommendedUrlParts?.urlPath) agent.recommendedUrlPath = recommendedUrlParts.urlPath;
+    if (recommendedUrlParts?.urlQuery) agent.recommendedUrlQuery = recommendedUrlParts.urlQuery;
     agent.recommendedPath = "recommendedResult";
     agent.recommendedTitle = recommendedResult.title;
     agent.recommendedRank = recommendedResult.rank;
@@ -14684,7 +14699,10 @@ function summarizeAgent(
     if (primaryAction?.command) agent.recommendedCommand = primaryAction.command;
     if (primaryAction?.commandArgs) agent.recommendedCommandArgs = primaryAction.commandArgs;
   } else if (primaryAction?.url) {
+    const recommendedUrlParts = urlPathParts(primaryAction.url);
     agent.recommendedUrl = primaryAction.url;
+    if (recommendedUrlParts?.urlPath) agent.recommendedUrlPath = recommendedUrlParts.urlPath;
+    if (recommendedUrlParts?.urlQuery) agent.recommendedUrlQuery = recommendedUrlParts.urlQuery;
     if (primaryAction.command) agent.recommendedCommand = primaryAction.command;
     if (primaryAction.commandArgs) agent.recommendedCommandArgs = primaryAction.commandArgs;
   }
@@ -15075,6 +15093,7 @@ function summarizeAgentSearchDecision(
     ...(firstOfficialCommand ? { firstOfficialCommand: firstOfficialCommand.command, firstOfficialCommandArgs: firstOfficialCommand.commandArgs } : {}),
   } satisfies Partial<AgentSearchDecision> : {};
   if (recommendedResult && primaryAction?.action === "open-result") {
+    const recommendedUrlParts = urlPathParts(recommendedResult.url);
     return {
       decision: "open-result",
       confidence: searchDecisionConfidence(recommendedResult),
@@ -15090,6 +15109,8 @@ function summarizeAgentSearchDecision(
       recommendedPath: "recommendedResult",
       recommendedTitle: recommendedResult.title,
       recommendedUrl: recommendedResult.url,
+      ...(recommendedUrlParts?.urlPath ? { recommendedUrlPath: recommendedUrlParts.urlPath } : {}),
+      ...(recommendedUrlParts?.urlQuery ? { recommendedUrlQuery: recommendedUrlParts.urlQuery } : {}),
       recommendedSource: recommendedResult.source,
       ...(typeof recommendedResult.sourceScore === "number" ? { recommendedSourceScore: recommendedResult.sourceScore } : {}),
       ...(recommendedResult.sourceType ? { recommendedSourceType: recommendedResult.sourceType } : {}),
@@ -19386,6 +19407,8 @@ function compactAgentRecommended(agent: AgentSummary, searchCommandContext?: Sea
   const commandArgs = compactChoice?.commandArgs ?? agent.recommendedCommandArgs;
   return {
     ...(agent.recommendedUrl ? { recommendedUrl: agent.recommendedUrl } : {}),
+    ...(agent.recommendedUrlPath ? { recommendedUrlPath: agent.recommendedUrlPath } : {}),
+    ...(agent.recommendedUrlQuery ? { recommendedUrlQuery: agent.recommendedUrlQuery } : {}),
     ...(agent.recommendedPath ? { recommendedPath: agent.recommendedPath } : {}),
     ...(agent.recommendedTitle ? { recommendedTitle: agent.recommendedTitle } : {}),
     ...(agent.recommendedRank ? { recommendedRank: agent.recommendedRank } : {}),
@@ -19503,6 +19526,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.searchDecisionRecommendedPath ? { searchDecisionRecommendedPath: agent.searchDecisionRecommendedPath } : {}),
     ...(agent.searchDecisionRecommendedTitle ? { searchDecisionRecommendedTitle: agent.searchDecisionRecommendedTitle } : {}),
     ...(agent.searchDecisionRecommendedUrl ? { searchDecisionRecommendedUrl: agent.searchDecisionRecommendedUrl } : {}),
+    ...(agent.searchDecisionRecommendedUrlPath ? { searchDecisionRecommendedUrlPath: agent.searchDecisionRecommendedUrlPath } : {}),
+    ...(agent.searchDecisionRecommendedUrlQuery ? { searchDecisionRecommendedUrlQuery: agent.searchDecisionRecommendedUrlQuery } : {}),
     ...(agent.searchDecisionRecommendedSource ? { searchDecisionRecommendedSource: agent.searchDecisionRecommendedSource } : {}),
     ...(typeof agent.searchDecisionRecommendedSourceScore === "number" ? { searchDecisionRecommendedSourceScore: agent.searchDecisionRecommendedSourceScore } : {}),
     ...(agent.searchDecisionRecommendedSourceType ? { searchDecisionRecommendedSourceType: agent.searchDecisionRecommendedSourceType } : {}),
@@ -20929,6 +20954,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.searchDecisionRecommendedPath ? { searchDecisionRecommendedPath: agent.searchDecisionRecommendedPath } : {}),
     ...(agent.searchDecisionRecommendedTitle ? { searchDecisionRecommendedTitle: agent.searchDecisionRecommendedTitle } : {}),
     ...(agent.searchDecisionRecommendedUrl ? { searchDecisionRecommendedUrl: agent.searchDecisionRecommendedUrl } : {}),
+    ...(agent.searchDecisionRecommendedUrlPath ? { searchDecisionRecommendedUrlPath: agent.searchDecisionRecommendedUrlPath } : {}),
+    ...(agent.searchDecisionRecommendedUrlQuery ? { searchDecisionRecommendedUrlQuery: agent.searchDecisionRecommendedUrlQuery } : {}),
     ...(agent.searchDecisionRecommendedSource ? { searchDecisionRecommendedSource: agent.searchDecisionRecommendedSource } : {}),
     ...(typeof agent.searchDecisionRecommendedSourceScore === "number" ? { searchDecisionRecommendedSourceScore: agent.searchDecisionRecommendedSourceScore } : {}),
     ...(agent.searchDecisionRecommendedSourceType ? { searchDecisionRecommendedSourceType: agent.searchDecisionRecommendedSourceType } : {}),

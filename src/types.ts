@@ -735,6 +735,8 @@ export type AgentSearchDecision = {
   recommendedPath?: string;
   recommendedTitle?: string;
   recommendedUrl?: string;
+  recommendedUrlPath?: string;
+  recommendedUrlQuery?: string;
   recommendedSource?: string;
   recommendedSourceScore?: number;
   recommendedSourceType?: AgentTarget["sourceType"];
@@ -1415,6 +1417,8 @@ export type AgentSummary = {
   searchDecisionRecommendedPath?: string;
   searchDecisionRecommendedTitle?: string;
   searchDecisionRecommendedUrl?: string;
+  searchDecisionRecommendedUrlPath?: string;
+  searchDecisionRecommendedUrlQuery?: string;
   searchDecisionRecommendedSource?: string;
   searchDecisionRecommendedSourceScore?: number;
   searchDecisionRecommendedSourceType?: AgentTarget["sourceType"];
@@ -2794,6 +2798,8 @@ export type AgentSummary = {
   alternativeActionBrowserHtmlReason?: string;
   alternativeActionBrowserHtmlReasonCode?: AgentBrowserHtmlReasonCode;
   recommendedUrl?: string;
+  recommendedUrlPath?: string;
+  recommendedUrlQuery?: string;
   recommendedPath?: string;
   recommendedTitle?: string;
   recommendedRank?: number;
