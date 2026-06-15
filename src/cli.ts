@@ -3871,6 +3871,12 @@ function formatAgentResultChoiceText(choice: AgentResultChoice, prefix = "result
   if (choice.dateSource) lines.push(`  ${prefix}DateSource: ${choice.dateSource}`);
   if (choice.matchedTerms?.[0]) lines.push(`  ${prefix}MatchedTerm: ${choice.matchedTerms[0]}`);
   if (choice.findMatches?.[0]) lines.push(`  ${prefix}FindMatch: ${choice.findMatches[0]}`);
+  if (choice.sitelinks?.length) lines.push(`  ${prefix}SitelinkCount: ${choice.sitelinks.length}`);
+  if (choice.sitelinks?.[0]?.title) lines.push(`  ${prefix}FirstSitelinkTitle: ${choice.sitelinks[0].title}`);
+  if (choice.sitelinks?.[0]?.url) lines.push(`  ${prefix}FirstSitelinkUrl: ${choice.sitelinks[0].url}`);
+  if (choice.sitelinks?.[0]?.selector) lines.push(`  ${prefix}FirstSitelinkSelector: ${choice.sitelinks[0].selector}`);
+  if (choice.sitelinks?.[0]?.command) lines.push(`  ${prefix}FirstSitelinkCommand: ${choice.sitelinks[0].command}`);
+  if (choice.sitelinks?.[0]?.commandArgs) lines.push(`  ${prefix}FirstSitelinkCommandArgs: ${formatCommandArgsText(choice.sitelinks[0].commandArgs)}`);
   if (choice.selectionReason) lines.push(`  ${prefix}Reason: ${choice.selectionReason}`);
   if (choice.command) lines.push(`  ${prefix}Command: ${choice.command}`);
   if (choice.commandArgs) lines.push(`  ${prefix}CommandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
@@ -4020,6 +4026,12 @@ function formatAgentSourceSearchResultText(result: AgentSourceSearchResult, pref
   const lines = [`  ${prefix}: ${result.id} ${result.path}${rank}${openResult}${score}${relevance}${date}${dateText}${dateIso}${dateUnixMs}${datePrecision}${dateSource}${source}${host}${sourceType}${official}${snippet}${matchedTerms}${findMatches}${sitelinks}${firstSitelink}${firstSitelinkUrl}${firstSitelinkSelector}${target}${reason}${title}`];
   if (result.command) lines.push(`    command: ${result.command}`);
   if (result.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(result.commandArgs)}`);
+  if (result.sitelinks?.length) lines.push(`  ${prefix}SitelinkCount: ${result.sitelinks.length}`);
+  if (result.sitelinks?.[0]?.title) lines.push(`  ${prefix}FirstSitelinkTitle: ${result.sitelinks[0].title}`);
+  if (result.sitelinks?.[0]?.url) lines.push(`  ${prefix}FirstSitelinkUrl: ${result.sitelinks[0].url}`);
+  if (result.sitelinks?.[0]?.selector) lines.push(`  ${prefix}FirstSitelinkSelector: ${result.sitelinks[0].selector}`);
+  if (result.sitelinks?.[0]?.command) lines.push(`  ${prefix}FirstSitelinkCommand: ${result.sitelinks[0].command}`);
+  if (result.sitelinks?.[0]?.commandArgs) lines.push(`  ${prefix}FirstSitelinkCommandArgs: ${formatCommandArgsText(result.sitelinks[0].commandArgs)}`);
   if (result.command) lines.push(`  ${prefix}Command: ${result.command}`);
   if (result.commandArgs) lines.push(`  ${prefix}CommandArgs: ${formatCommandArgsText(result.commandArgs)}`);
   return lines;
