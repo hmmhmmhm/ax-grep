@@ -14,6 +14,7 @@ describe("agent readiness audit", () => {
     expect(checks.map((check) => check.id)).toEqual([
       "resource-safety",
       "browser-session-cleanup",
+      "risky-script-inventory",
       "fixture-loop-coverage",
       "real-page-smoke",
       "declarative-shadow-static",

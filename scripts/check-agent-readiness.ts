@@ -20,6 +20,30 @@ type PackageJson = {
   scripts?: Record<string, string>;
 };
 
+const allowedRiskyScripts = [
+  "compare",
+  "compare:browser:fixture",
+  "compare:gate",
+  "compare:korea",
+  "compare:sample",
+  "compare:static",
+  "compare:static:agent",
+  "compare:static:china-japan",
+  "compare:static:diverse",
+  "compare:static:fixtures",
+  "compare:static:fixtures:gate",
+  "compare:static:korea-social",
+  "compare:tokens",
+  "compare:tokens:china-japan",
+  "compare:tokens:diverse",
+  "compare:tokens:korea-social",
+  "readiness:agent-browser-smoke",
+  "readiness:agent-browser-text-heavy-smoke",
+  "test",
+  "test:coverage",
+  "test:watch",
+];
+
 export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailure[] {
   const failures: ReadinessFailure[] = [];
   const packageJson = readJson<PackageJson>(root, "package.json", failures);
@@ -97,6 +121,7 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
     "agent-browser",
     "pnpm compare:static:fixtures:gate",
   ]);
+  checkRiskyScriptInventory(failures, scripts);
 
   checkReadmeSplit(root, failures);
   for (const evidence of collectAgentReadinessEvidence(root)) {
@@ -148,6 +173,16 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "finally",
           "\"close\"",
         ]);
+      },
+    ),
+    evidenceCheck(
+      root,
+      "risky-script-inventory",
+      "New test, comparison, or browser-backed npm scripts must be reviewed before they can bypass the sequential-process rules.",
+      "The readiness audit keeps an explicit inventory of risky npm scripts, so adding a broad runner requires updating the safety review.",
+      (failures) => {
+        const packageJson = readJson<PackageJson>(root, "package.json", failures);
+        checkRiskyScriptInventory(failures, packageJson?.scripts ?? {});
       },
     ),
     evidenceCheck(
@@ -2182,6 +2217,20 @@ function requireFileIncludes(
       message: `missing required text ${JSON.stringify(requiredText)}`,
     });
   }
+}
+
+function checkRiskyScriptInventory(failures: ReadinessFailure[], scripts: Record<string, string>): void {
+  const actual = Object.keys(scripts)
+    .filter((name) => name === "test" || name.startsWith("test:") || name === "compare" || name.startsWith("compare:") || name.startsWith("readiness:agent-browser"))
+    .sort();
+  const expected = [...allowedRiskyScripts].sort();
+
+  if (JSON.stringify(actual) === JSON.stringify(expected)) return;
+
+  failures.push({
+    file: "package.json",
+    message: `risky npm scripts changed; update allowedRiskyScripts after reviewing sequential/process safety. expected ${expected.join(", ")} got ${actual.join(", ")}`,
+  });
 }
 
 function checkReadmeSplit(root: string, failures: ReadinessFailure[]): void {
