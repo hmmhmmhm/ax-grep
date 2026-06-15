@@ -4990,8 +4990,16 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`  evidence: ${evidence.id} ${evidence.path} ${details} - ${evidence.qualityReason} ${evidence.text}`);
   }
   for (const table of pageCheck.dataTables) {
-    const caption = table.caption ? ` caption="${table.caption}"` : "";
-    lines.push(`  dataTable: ${table.id} ${table.path} ${table.rowCount}x${table.columnCount}${caption} - ${table.text}`);
+    const details = [
+      `rank=${table.rank}`,
+      `rows=${table.rowCount}`,
+      `columns=${table.columnCount}`,
+      table.headers.length ? `headers=${table.headers.join("|")}` : "",
+      table.caption ? `caption="${table.caption}"` : "",
+      table.sampleRows[0]?.length ? `firstRow="${table.sampleRows[0].join(" | ")}"` : "",
+      table.selector ? `selector=${table.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  dataTable: ${table.id} ${table.path} ${details} - ${table.text}`);
   }
   for (const barrier of pageCheck.barriers) {
     const details = [

@@ -6096,6 +6096,7 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topDataTable: pageCheck.dataTables[0] \"Plan comparison\" 1x3 headers=3 selector=table:nth-of-type(1)");
+    expect(stdout.output).toContain("  dataTable: t1 pageCheck.dataTables[0] rank=1 rows=1 columns=3 headers=Plan|Monthly price|Storage caption=\"Plan comparison\" firstRow=\"Starter | $19.99 | 10 GB\" selector=table:nth-of-type(1) - Plan comparison; Headers: Plan | Monthly price | Storage; Starter | $19.99 | 10 GB");
   });
 
   it("prints second table sample cell in text agent output", async () => {
