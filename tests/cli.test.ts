@@ -12637,6 +12637,9 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topFormChoiceSelector: form:nth-of-type(1)");
     expect(stdout.output).toContain("  topFormChoiceCommand: ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
     expect(stdout.output).toContain("  topFormChoiceCommandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  topFormChoiceSubmitText: Search");
+    expect(stdout.output).toContain("  topFormChoiceSubmitType: submit");
+    expect(stdout.output).toContain("  topFormChoiceSubmitSelector: button:nth-of-type(1)");
     expect(stdout.output).toContain("  topFormChoiceFirstHiddenFieldName: csrf");
     expect(stdout.output).toContain("  topFormChoiceFirstHiddenFieldValue: token");
     expect(stdout.output).toContain("  topFormChoiceFirstHiddenFieldSelector: input[name=\"csrf\"]");
