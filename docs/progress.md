@@ -1124,6 +1124,9 @@ When research expands:
 - Added individual text rows for semantic top heading, landmark, named-role,
   interactive, and focusable targets, so text-only agents can route primary
   accessibility targets without parsing aggregate target rows.
+- Added individual text rows for semantic keyboard shortcuts and ARIA key
+  shortcuts, so text-only agents can target keyboard commands without parsing
+  aggregate keyboard rows.
 
 ## In Progress
 

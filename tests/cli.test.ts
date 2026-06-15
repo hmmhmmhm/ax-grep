@@ -6065,6 +6065,39 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopFocusableSelector: button");
   });
 
+  it("prints top semantic keyboard shortcuts in text agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/keys"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <a href="/reports" accesskey="r">Reports</a>
+          <button aria-label="Filters" aria-keyshortcuts="Alt+F" tabindex="0">Filters</button>
+          <p>Readable keyboard shortcut content.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticKeyboardShortcutCount: 2");
+    expect(stdout.output).toContain("  semanticTopKeyboardShortcut: agent.semanticSummary.keyboardItems[0] role=link name=\"Reports\" accessKey=r");
+    expect(stdout.output).toContain("  semanticTopKeyboardShortcutPath: agent.semanticSummary.keyboardItems[0]");
+    expect(stdout.output).toContain("  semanticTopKeyboardShortcutRole: link");
+    expect(stdout.output).toContain("  semanticTopKeyboardShortcutName: Reports");
+    expect(stdout.output).toContain("  semanticTopKeyboardShortcutAccessKey: r");
+    expect(stdout.output).toContain("  semanticTopKeyboardShortcutFocusable: true");
+    expect(stdout.output).toContain("  semanticTopKeyboardShortcutSelector: a");
+    expect(stdout.output).toContain("  semanticTopAriaKeyShortcut: agent.semanticSummary.keyboardItems[1] role=button name=\"Filters\" keys=Alt+F tabIndex=0 focusable=true selector=button");
+    expect(stdout.output).toContain("  semanticTopAriaKeyShortcutPath: agent.semanticSummary.keyboardItems[1]");
+    expect(stdout.output).toContain("  semanticTopAriaKeyShortcutRole: button");
+    expect(stdout.output).toContain("  semanticTopAriaKeyShortcutName: Filters");
+    expect(stdout.output).toContain("  semanticTopAriaKeyShortcutKeys: Alt+F");
+    expect(stdout.output).toContain("  semanticTopAriaKeyShortcutTabIndex: 0");
+    expect(stdout.output).toContain("  semanticTopAriaKeyShortcutFocusable: true");
+    expect(stdout.output).toContain("  semanticTopAriaKeyShortcutSelector: button");
+  });
+
   it("prints top semantic relation and value shortcuts in text agent output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/control"], {
