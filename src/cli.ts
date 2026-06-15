@@ -5013,6 +5013,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   }
   for (const form of pageCheck.forms) {
     const details = [
+      `method=${form.method}`,
       `fields=${form.fieldCount}`,
       `hidden=${form.hiddenFieldCount}`,
       form.actionUrl ? `actionUrl=${form.actionUrl}` : "",
@@ -5024,7 +5025,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       typeof form.formNoValidate === "boolean" ? `novalidate=${form.formNoValidate}` : "",
       form.selector ? `selector=${form.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  form: ${form.id} ${form.path} ${form.method.toUpperCase()} ${details} - ${form.text}`);
+    lines.push(`  form: ${form.id} ${form.path} ${details} - ${form.text}`);
   }
   for (const target of pageCheck.actionTargets) {
     const url = target.targetUrl ? ` <${target.targetUrl}>` : "";
