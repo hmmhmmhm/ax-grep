@@ -341,6 +341,28 @@ describe("public agent types", () => {
       | "topFormChoiceFirstFieldReadonly"
       | "topFormChoiceFirstFieldInvalid"
       | "topFormChoiceFirstFieldSelector"
+      | "topFormChoiceRequiredFieldName"
+      | "topFormChoiceRequiredFieldType"
+      | "topFormChoiceRequiredFieldLabel"
+      | "topFormChoiceRequiredFieldPlaceholder"
+      | "topFormChoiceRequiredFieldValue"
+      | "topFormChoiceRequiredFieldOptions"
+      | "topFormChoiceRequiredFieldSelectedOption"
+      | "topFormChoiceRequiredFieldSelectedValue"
+      | "topFormChoiceRequiredFieldAutocomplete"
+      | "topFormChoiceRequiredFieldInputMode"
+      | "topFormChoiceRequiredFieldPattern"
+      | "topFormChoiceRequiredFieldMin"
+      | "topFormChoiceRequiredFieldMax"
+      | "topFormChoiceRequiredFieldStep"
+      | "topFormChoiceRequiredFieldMinLength"
+      | "topFormChoiceRequiredFieldMaxLength"
+      | "topFormChoiceRequiredFieldRequired"
+      | "topFormChoiceRequiredFieldChecked"
+      | "topFormChoiceRequiredFieldDisabled"
+      | "topFormChoiceRequiredFieldReadonly"
+      | "topFormChoiceRequiredFieldInvalid"
+      | "topFormChoiceRequiredFieldSelector"
       | "actionTargetCount"
       | "actionTargetChoiceCount"
       | "actionTargetChoices"
@@ -1736,6 +1758,28 @@ describe("public agent types", () => {
       topFormChoiceFirstFieldReadonly: true,
       topFormChoiceFirstFieldInvalid: "spelling",
       topFormChoiceFirstFieldSelector: "input[name=\"q\"]",
+      topFormChoiceRequiredFieldName: "q",
+      topFormChoiceRequiredFieldType: "search",
+      topFormChoiceRequiredFieldLabel: "Search",
+      topFormChoiceRequiredFieldPlaceholder: "Search docs",
+      topFormChoiceRequiredFieldValue: "initial",
+      topFormChoiceRequiredFieldOptions: ["All", "Docs"],
+      topFormChoiceRequiredFieldSelectedOption: "Docs",
+      topFormChoiceRequiredFieldSelectedValue: "docs",
+      topFormChoiceRequiredFieldAutocomplete: "off",
+      topFormChoiceRequiredFieldInputMode: "search",
+      topFormChoiceRequiredFieldPattern: "[A-Za-z ]+",
+      topFormChoiceRequiredFieldMin: "1",
+      topFormChoiceRequiredFieldMax: "99",
+      topFormChoiceRequiredFieldStep: "1",
+      topFormChoiceRequiredFieldMinLength: 2,
+      topFormChoiceRequiredFieldMaxLength: 80,
+      topFormChoiceRequiredFieldRequired: true,
+      topFormChoiceRequiredFieldChecked: true,
+      topFormChoiceRequiredFieldDisabled: true,
+      topFormChoiceRequiredFieldReadonly: true,
+      topFormChoiceRequiredFieldInvalid: "spelling",
+      topFormChoiceRequiredFieldSelector: "input[name=\"q\"]",
       actionTargetCount: 2,
       actionTargetChoiceCount: 1,
       actionTargetChoices: [actionTargetChoice],
@@ -3221,6 +3265,9 @@ describe("public agent types", () => {
     expect(summary.topFormChoiceFirstFieldLabel).toBe("Search");
     expect(summary.topFormChoiceFirstFieldPlaceholder).toBe("Search docs");
     expect(summary.topFormChoiceFirstFieldInvalid).toBe("spelling");
+    expect(summary.topFormChoiceRequiredFieldLabel).toBe("Search");
+    expect(summary.topFormChoiceRequiredFieldPlaceholder).toBe("Search docs");
+    expect(summary.topFormChoiceRequiredFieldInvalid).toBe("spelling");
     expect(summary.topActionTargetChoiceName).toBe("Search docs");
     expect(summary.topActionTargetChoiceKind).toBe("search");
     expect(summary.topActionTargetChoiceSource).toBe("json-ld");
