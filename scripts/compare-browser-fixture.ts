@@ -13,6 +13,7 @@ import { runCli } from "../src/cli";
 
 type Check = {
   id: string;
+  ledgerId: string;
   browserEvidence: string;
   agentEvidence: string;
   decision: "covered" | "implement" | "browser-only" | "defer";
@@ -549,6 +550,7 @@ function buildCoreChecks(namedRoles: string[], nodes: SemanticNode[], agent: Age
   return [
     {
       id: "heading-link-button-field-image-parity",
+      ledgerId: "G27",
       browserEvidence: evidence(namedRoles, ["heading:Agent report", "link:Docs", "button:Search", "textbox:Report query", "img:Release chart"]),
       agentEvidence: evidence([
         agent.semanticTopHeading ?? "",
@@ -567,6 +569,7 @@ function buildCoreChecks(namedRoles: string[], nodes: SemanticNode[], agent: Age
     },
     {
       id: "table-header-cell-context",
+      ledgerId: "G27",
       browserEvidence: evidence(namedRoles, ["table:Release metrics", "columnheader:Version", "rowheader:2026.06", "cell:Stable"]),
       agentEvidence: JSON.stringify({
         table: agent.semanticTopTableName,
@@ -588,6 +591,7 @@ function buildCoreChecks(namedRoles: string[], nodes: SemanticNode[], agent: Age
     },
     {
       id: "form-relation-state-context",
+      ledgerId: "G27",
       browserEvidence: evidence(namedRoles, ["form:Search reports", "textbox:Report query", "button:Search"]),
       agentEvidence: JSON.stringify({
         field: agent.semanticTopFieldName,
@@ -608,6 +612,7 @@ function buildCoreChecks(namedRoles: string[], nodes: SemanticNode[], agent: Age
     },
     {
       id: "list-keyboard-target-context",
+      ledgerId: "G26",
       browserEvidence: evidence(namedRoles, ["list:Release actions", "link:Download report", "button:Save report"]),
       agentEvidence: JSON.stringify({
         list: agent.semanticTopListName,
@@ -637,6 +642,7 @@ function buildStatefulOverlayChecks(namedRoles: string[], nodes: SemanticNode[],
   return [
     {
       id: "expanded-popup-controls-parity",
+      ledgerId: "G28",
       browserEvidence: JSON.stringify({
         namedRoles: evidence(namedRoles, ["button:Settings", "dialog:Settings panel"]),
         expanded: button?.state?.expanded,
@@ -661,6 +667,7 @@ function buildStatefulOverlayChecks(namedRoles: string[], nodes: SemanticNode[],
     },
     {
       id: "current-link-modal-live-state-parity",
+      ledgerId: "G28",
       browserEvidence: JSON.stringify({
         namedRoles: evidence(namedRoles, ["link:Current page", "dialog:Settings panel"]),
         current: link?.state?.current,
@@ -703,6 +710,7 @@ function buildComboboxActiveDescendantChecks(namedRoles: string[], nodes: Semant
   return [
     {
       id: "combobox-state-relation-parity",
+      ledgerId: "G29",
       browserEvidence: JSON.stringify({
         namedRoles: evidence(namedRoles, ["combobox:Report search", "listbox:Report destinations", "option:Quarterly reports"]),
         expanded: combobox?.state?.expanded,
@@ -733,6 +741,7 @@ function buildComboboxActiveDescendantChecks(namedRoles: string[], nodes: Semant
     },
     {
       id: "selected-current-option-parity",
+      ledgerId: "G29",
       browserEvidence: JSON.stringify({
         selected: selectedOption?.state?.selected,
         current: selectedOption?.state?.current,
@@ -774,6 +783,7 @@ function buildTablistSelectedPanelChecks(namedRoles: string[], nodes: SemanticNo
   return [
     {
       id: "selected-tab-panel-parity",
+      ledgerId: "G30",
       browserEvidence: JSON.stringify({
         namedRoles: evidence(namedRoles, ["tablist:Report sections", "tab:Details", "tabpanel:Details"]),
         selected: selectedTab?.state?.selected,
@@ -810,6 +820,7 @@ function buildGridSelectedCellChecks(namedRoles: string[], nodes: SemanticNode[]
   return [
     {
       id: "selected-gridcell-parity",
+      ledgerId: "G31",
       browserEvidence: JSON.stringify({
         namedRoles: evidence(namedRoles, ["grid:Issue board", "columnheader:Status", "rowheader:BUG-1"]),
         selected: selectedCell?.state?.selected,
@@ -844,6 +855,7 @@ function buildRangeValueStateChecks(namedRoles: string[], nodes: SemanticNode[],
   return [
     {
       id: "range-value-state-parity",
+      ledgerId: "G38",
       browserEvidence: JSON.stringify({
         namedRoles: evidence(namedRoles, ["slider:Release progress"]),
         orientation: slider?.state?.orientation,
@@ -906,6 +918,7 @@ function buildBusyStatusStateChecks(namedRoles: string[], nodes: SemanticNode[],
   return [
     {
       id: "busy-status-state-parity",
+      ledgerId: "G39",
       browserEvidence: JSON.stringify({
         namedRoles: evidence(namedRoles, ["status:Indexing status"]),
         busy: status?.state?.busy,
@@ -944,6 +957,7 @@ function buildInvalidFieldStateChecks(namedRoles: string[], nodes: SemanticNode[
   return [
     {
       id: "invalid-field-state-parity",
+      ledgerId: "G40",
       browserEvidence: JSON.stringify({
         namedRoles: evidence(namedRoles, ["textbox:Report code"]),
         invalid: textbox?.state?.invalid,
@@ -982,6 +996,7 @@ function buildSortedHeaderStateChecks(namedRoles: string[], nodes: SemanticNode[
   return [
     {
       id: "sorted-header-state-parity",
+      ledgerId: "G41",
       browserEvidence: JSON.stringify({
         namedRoles: evidence(namedRoles, ["table:Quarterly reports", "columnheader:Quarter"]),
         sort: header?.state?.sort,
@@ -1019,6 +1034,7 @@ function buildMultiselectListboxStateChecks(namedRoles: string[], nodes: Semanti
   return [
     {
       id: "multiselect-listbox-state-parity",
+      ledgerId: "G42",
       browserEvidence: JSON.stringify({
         namedRoles: evidence(namedRoles, ["listbox:Report filters", "option:Open reports", "option:Closed reports"]),
         multiselectable: listbox?.state?.multiselectable,
@@ -1061,6 +1077,7 @@ function buildDragDropStateChecks(namedRoles: string[], nodes: SemanticNode[], a
   return [
     {
       id: "drag-drop-state-parity",
+      ledgerId: "G43",
       browserEvidence: JSON.stringify({
         namedRoles: evidence(namedRoles, ["button:Move report"]),
         grabbed: button?.state?.grabbed,
@@ -1093,6 +1110,7 @@ function buildDisabledReadonlyFieldStateChecks(namedRoles: string[], nodes: Sema
   return [
     {
       id: "disabled-readonly-field-state-parity",
+      ledgerId: "G44",
       browserEvidence: JSON.stringify({
         namedRoles: evidence(namedRoles, ["textbox:Archive code"]),
         disabled: textbox?.state?.disabled,
@@ -1135,6 +1153,7 @@ function buildMixedCheckboxStateChecks(namedRoles: string[], nodes: SemanticNode
   return [
     {
       id: "mixed-checkbox-state-parity",
+      ledgerId: "G45",
       browserEvidence: JSON.stringify({
         namedRoles: evidence(namedRoles, ["checkbox:Include archived reports"]),
         checked: checkbox?.state?.checked,
@@ -1168,6 +1187,7 @@ function buildFieldDetailsRelationChecks(namedRoles: string[], nodes: SemanticNo
   return [
     {
       id: "field-details-relation-parity",
+      ledgerId: "G46",
       browserEvidence: JSON.stringify({
         namedRoles: evidence(namedRoles, ["searchbox:Archive filter"]),
         detailsId: field?.attributes?.["aria-details"],
