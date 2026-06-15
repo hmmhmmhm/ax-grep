@@ -10527,6 +10527,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topBreadcrumb: pageCheck.breadcrumbs[0] html selector=nav:nth-of-type(1) - Docs > API > Responses");
+    expect(stdout.output).toContain("  breadcrumb: bc1 pageCheck.breadcrumbs[0] source=html items=3 first=\"Docs\" last=\"Responses\" urls=https://example.test/docs,https://example.test/docs/api selector=nav:nth-of-type(1) - Docs > API > Responses");
   });
 
   it("checks requested text against breadcrumb summaries", async () => {

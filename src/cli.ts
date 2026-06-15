@@ -5219,8 +5219,18 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`  faq: ${faq.id} ${faq.path} ${details} - ${faq.text}`);
   }
   for (const breadcrumb of pageCheck.breadcrumbs) {
-    const selector = breadcrumb.selector ? ` (${breadcrumb.selector})` : "";
-    lines.push(`  breadcrumb: ${breadcrumb.id} ${breadcrumb.path} ${breadcrumb.source}${selector} - ${breadcrumb.text}`);
+    const first = breadcrumb.items[0]?.label;
+    const last = breadcrumb.items[breadcrumb.items.length - 1]?.label;
+    const urls = breadcrumb.items.map((item) => item.url).filter((url): url is string => Boolean(url));
+    const details = [
+      `source=${breadcrumb.source}`,
+      `items=${breadcrumb.items.length}`,
+      first ? `first="${first}"` : "",
+      last ? `last="${last}"` : "",
+      urls.length ? `urls=${urls.join(",")}` : "",
+      breadcrumb.selector ? `selector=${breadcrumb.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  breadcrumb: ${breadcrumb.id} ${breadcrumb.path} ${details} - ${breadcrumb.text}`);
   }
   for (const section of pageCheck.sections) {
     const selector = section.selector ? ` (${section.selector})` : "";
