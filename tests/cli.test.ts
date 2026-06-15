@@ -10097,6 +10097,22 @@ describe("cli", () => {
     expect(envelope.agent.topContactPointCommandArgs).toBeUndefined();
   });
 
+  it("prints top contact labels and selectors in text output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/contact"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <a href="mailto:press@example.test">Press team</a>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  topContactPoint: pageCheck.contactPoints[0] email label=\"Press team\":press@example.test source=link selector=a:nth-of-type(1) <mailto:press@example.test>");
+  });
+
   it("exposes fetchable top contact point commands for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/contact", "--agent"], {
