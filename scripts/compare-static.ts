@@ -2477,6 +2477,15 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       semanticTopListItemCount?: number;
       semanticTopListItems?: string[];
       semanticTopListItemRefs?: Array<{ text?: string; role?: string; level?: number; posInSet?: number; setSize?: number; selected?: boolean; current?: boolean | string; expanded?: boolean; selector?: string }>;
+      semanticTopListSecondItemText?: string;
+      semanticTopListSecondItemRole?: string;
+      semanticTopListSecondItemLevel?: number;
+      semanticTopListSecondItemPosInSet?: number;
+      semanticTopListSecondItemSetSize?: number;
+      semanticTopListSecondItemSelected?: boolean;
+      semanticTopListSecondItemCurrent?: boolean | string;
+      semanticTopListSecondItemExpanded?: boolean;
+      semanticTopListSecondItemSelector?: string;
       semanticTopSelectedListItemText?: string;
       semanticTopSelectedListItemRole?: string;
       semanticTopSelectedListItemLevel?: number;
@@ -8173,6 +8182,40 @@ function scoreSelectedListItemShortcuts(agentRecord: Record<string, unknown>, it
   return { matched: 0, required: 0 };
 }
 
+function scoreSecondListItemShortcuts(agentRecord: Record<string, unknown>, itemRefs: unknown): { matched: number; required: number } {
+  if (!Array.isArray(itemRefs)) return { matched: 0, required: 0 };
+  const secondListItemRef = (itemRefs as Array<{ text?: unknown; role?: unknown; level?: unknown; posInSet?: unknown; setSize?: unknown; selected?: unknown; current?: unknown; expanded?: unknown; selector?: unknown }>)[1];
+  if (secondListItemRef) {
+    let matched = 0;
+    const required = 10;
+    if (agentRecord.semanticTopListSecondItemText === secondListItemRef.text) matched += 1;
+    if (agentRecord.semanticTopListSecondItemRole === secondListItemRef.role) matched += 1;
+    if (agentRecord.semanticTopListSecondItemLevel === secondListItemRef.level) matched += 1;
+    if (agentRecord.semanticTopListSecondItemPosInSet === secondListItemRef.posInSet) matched += 1;
+    if (agentRecord.semanticTopListSecondItemSetSize === secondListItemRef.setSize) matched += 1;
+    if (agentRecord.semanticTopListSecondItemSelected === secondListItemRef.selected) matched += 1;
+    if (agentRecord.semanticTopListSecondItemCurrent === secondListItemRef.current) matched += 1;
+    if (agentRecord.semanticTopListSecondItemExpanded === secondListItemRef.expanded) matched += 1;
+    if (agentRecord.semanticTopListSecondItemSelector === secondListItemRef.selector) matched += 1;
+    if (typeof agentRecord.semanticTopListSecondItemText === "string" && agentRecord.semanticTopListSecondItemText.length > 0) matched += 1;
+    return { matched, required };
+  }
+  if (
+    agentRecord.semanticTopListSecondItemText
+    || agentRecord.semanticTopListSecondItemRole
+    || typeof agentRecord.semanticTopListSecondItemLevel === "number"
+    || typeof agentRecord.semanticTopListSecondItemPosInSet === "number"
+    || typeof agentRecord.semanticTopListSecondItemSetSize === "number"
+    || typeof agentRecord.semanticTopListSecondItemSelected === "boolean"
+    || typeof agentRecord.semanticTopListSecondItemCurrent !== "undefined"
+    || typeof agentRecord.semanticTopListSecondItemExpanded === "boolean"
+    || agentRecord.semanticTopListSecondItemSelector
+  ) {
+    return { matched: 0, required: 1 };
+  }
+  return { matched: 0, required: 0 };
+}
+
 function scoreCurrentLinkShortcuts(agentRecord: Record<string, unknown>, links: unknown): { matched: number; required: number } {
   if (!Array.isArray(links)) return { matched: 0, required: 0 };
   const currentLink = (links as Array<{ path?: unknown; name?: unknown; url?: unknown; target?: unknown; rel?: unknown; type?: unknown; hreflang?: unknown; state?: unknown; current?: unknown; download?: unknown; selector?: unknown }>).find((link) => typeof link?.current !== "undefined");
@@ -9021,6 +9064,9 @@ function scoreAgentSemanticSummary(agent: Record<string, any> | undefined): numb
   if (list && Array.isArray(list.itemRefs)) {
     required += 1;
     if (JSON.stringify(agent?.semanticTopListItemRefs) === JSON.stringify(list.itemRefs)) matched += 1;
+    const secondListItemScore = scoreSecondListItemShortcuts(agentRecord, list.itemRefs);
+    matched += secondListItemScore.matched;
+    required += secondListItemScore.required;
     const selectedListItemScore = scoreSelectedListItemShortcuts(agentRecord, list.itemRefs);
     matched += selectedListItemScore.matched;
     required += selectedListItemScore.required;

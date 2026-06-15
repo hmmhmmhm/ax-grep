@@ -1417,6 +1417,15 @@ type AgentSummary = {
   semanticTopListFirstItemCurrent?: SemanticNodeState["current"];
   semanticTopListFirstItemExpanded?: boolean;
   semanticTopListFirstItemSelector?: string;
+  semanticTopListSecondItemText?: string;
+  semanticTopListSecondItemRole?: string;
+  semanticTopListSecondItemLevel?: number;
+  semanticTopListSecondItemPosInSet?: number;
+  semanticTopListSecondItemSetSize?: number;
+  semanticTopListSecondItemSelected?: boolean;
+  semanticTopListSecondItemCurrent?: SemanticNodeState["current"];
+  semanticTopListSecondItemExpanded?: boolean;
+  semanticTopListSecondItemSelector?: string;
   semanticTopSelectedListItemText?: string;
   semanticTopSelectedListItemRole?: string;
   semanticTopSelectedListItemLevel?: number;
@@ -5529,6 +5538,16 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.semanticTopSelectedTableCellSelector) lines.push(`  semanticTopSelectedTableCellSelector: ${agent.semanticTopSelectedTableCellSelector}`);
   if (agent.semanticTopSelectedTableCellOwnedTarget) lines.push(`  semanticTopSelectedTableCellOwnedTarget: ${agent.semanticTopSelectedTableCellOwnedTarget}`);
   if (agent.semanticTopListRole) lines.push(`  semanticTopList: ${agent.semanticTopListPath ?? ""} role=${agent.semanticTopListRole}${agent.semanticTopListName ? ` name="${agent.semanticTopListName}"` : ""} items=${agent.semanticTopListItemCount ?? 0}${agent.semanticTopListItems?.length ? ` samples=${agent.semanticTopListItems.join(", ")}` : ""}${agent.semanticTopListItemRefs?.length ? ` itemRefs=${agent.semanticTopListItemRefs.map((item) => `text="${item.text}"${item.role ? ` role=${item.role}` : ""}${typeof item.level === "number" ? ` level=${item.level}` : ""}${typeof item.posInSet === "number" ? ` pos=${item.posInSet}` : ""}${typeof item.setSize === "number" ? ` size=${item.setSize}` : ""}${typeof item.selected === "boolean" ? ` selected=${item.selected}` : ""}${typeof item.current !== "undefined" ? ` current=${item.current}` : ""}${typeof item.expanded === "boolean" ? ` expanded=${item.expanded}` : ""}${item.selector ? ` selector=${item.selector}` : ""}`).join(", ")}` : ""}${agent.semanticTopListFirstItemText ? ` firstItemText="${agent.semanticTopListFirstItemText}"${agent.semanticTopListFirstItemRole ? ` firstItemRole=${agent.semanticTopListFirstItemRole}` : ""}${typeof agent.semanticTopListFirstItemLevel === "number" ? ` firstItemLevel=${agent.semanticTopListFirstItemLevel}` : ""}${typeof agent.semanticTopListFirstItemPosInSet === "number" ? ` firstItemPos=${agent.semanticTopListFirstItemPosInSet}` : ""}${typeof agent.semanticTopListFirstItemSetSize === "number" ? ` firstItemSize=${agent.semanticTopListFirstItemSetSize}` : ""}${typeof agent.semanticTopListFirstItemSelected === "boolean" ? ` firstItemSelected=${agent.semanticTopListFirstItemSelected}` : ""}${typeof agent.semanticTopListFirstItemCurrent !== "undefined" ? ` firstItemCurrent=${agent.semanticTopListFirstItemCurrent}` : ""}${typeof agent.semanticTopListFirstItemExpanded === "boolean" ? ` firstItemExpanded=${agent.semanticTopListFirstItemExpanded}` : ""}${agent.semanticTopListFirstItemSelector ? ` firstItemSelector=${agent.semanticTopListFirstItemSelector}` : ""}` : ""}${agent.semanticTopListSelector ? ` selector=${agent.semanticTopListSelector}` : ""}`);
+  if (agent.semanticTopListSecondItemText) lines.push(`  semanticTopListSecondItem: text="${agent.semanticTopListSecondItemText}"${agent.semanticTopListSecondItemRole ? ` role=${agent.semanticTopListSecondItemRole}` : ""}${typeof agent.semanticTopListSecondItemLevel === "number" ? ` level=${agent.semanticTopListSecondItemLevel}` : ""}${typeof agent.semanticTopListSecondItemPosInSet === "number" ? ` pos=${agent.semanticTopListSecondItemPosInSet}` : ""}${typeof agent.semanticTopListSecondItemSetSize === "number" ? ` size=${agent.semanticTopListSecondItemSetSize}` : ""}${typeof agent.semanticTopListSecondItemSelected === "boolean" ? ` selected=${agent.semanticTopListSecondItemSelected}` : ""}${typeof agent.semanticTopListSecondItemCurrent !== "undefined" ? ` current=${agent.semanticTopListSecondItemCurrent}` : ""}${typeof agent.semanticTopListSecondItemExpanded === "boolean" ? ` expanded=${agent.semanticTopListSecondItemExpanded}` : ""}${agent.semanticTopListSecondItemSelector ? ` selector=${agent.semanticTopListSecondItemSelector}` : ""}`);
+  if (agent.semanticTopListSecondItemText) lines.push(`  semanticTopListSecondItemText: ${agent.semanticTopListSecondItemText}`);
+  if (agent.semanticTopListSecondItemRole) lines.push(`  semanticTopListSecondItemRole: ${agent.semanticTopListSecondItemRole}`);
+  if (typeof agent.semanticTopListSecondItemLevel === "number") lines.push(`  semanticTopListSecondItemLevel: ${agent.semanticTopListSecondItemLevel}`);
+  if (typeof agent.semanticTopListSecondItemPosInSet === "number") lines.push(`  semanticTopListSecondItemPosInSet: ${agent.semanticTopListSecondItemPosInSet}`);
+  if (typeof agent.semanticTopListSecondItemSetSize === "number") lines.push(`  semanticTopListSecondItemSetSize: ${agent.semanticTopListSecondItemSetSize}`);
+  if (typeof agent.semanticTopListSecondItemSelected === "boolean") lines.push(`  semanticTopListSecondItemSelected: ${agent.semanticTopListSecondItemSelected}`);
+  if (typeof agent.semanticTopListSecondItemCurrent !== "undefined") lines.push(`  semanticTopListSecondItemCurrent: ${agent.semanticTopListSecondItemCurrent}`);
+  if (typeof agent.semanticTopListSecondItemExpanded === "boolean") lines.push(`  semanticTopListSecondItemExpanded: ${agent.semanticTopListSecondItemExpanded}`);
+  if (agent.semanticTopListSecondItemSelector) lines.push(`  semanticTopListSecondItemSelector: ${agent.semanticTopListSecondItemSelector}`);
   if (agent.semanticTopSelectedListItemText) lines.push(`  semanticTopSelectedListItem: text="${agent.semanticTopSelectedListItemText}"${agent.semanticTopSelectedListItemRole ? ` role=${agent.semanticTopSelectedListItemRole}` : ""}${typeof agent.semanticTopSelectedListItemLevel === "number" ? ` level=${agent.semanticTopSelectedListItemLevel}` : ""}${typeof agent.semanticTopSelectedListItemPosInSet === "number" ? ` pos=${agent.semanticTopSelectedListItemPosInSet}` : ""}${typeof agent.semanticTopSelectedListItemSetSize === "number" ? ` size=${agent.semanticTopSelectedListItemSetSize}` : ""}${typeof agent.semanticTopSelectedListItemSelected === "boolean" ? ` selected=${agent.semanticTopSelectedListItemSelected}` : ""}${typeof agent.semanticTopSelectedListItemCurrent !== "undefined" ? ` current=${agent.semanticTopSelectedListItemCurrent}` : ""}${typeof agent.semanticTopSelectedListItemExpanded === "boolean" ? ` expanded=${agent.semanticTopSelectedListItemExpanded}` : ""}${agent.semanticTopSelectedListItemSelector ? ` selector=${agent.semanticTopSelectedListItemSelector}` : ""}`);
   if (agent.semanticTopSelectedListItemText) lines.push(`  semanticTopSelectedListItemText: ${agent.semanticTopSelectedListItemText}`);
   if (agent.semanticTopSelectedListItemRole) lines.push(`  semanticTopSelectedListItemRole: ${agent.semanticTopSelectedListItemRole}`);
@@ -13786,6 +13805,7 @@ function summarizeAgent(
     ?? topSemanticTable?.sampleCellRefs?.find((item) => typeof item.current !== "undefined");
   const topSemanticList = semanticSummary?.listItems[0];
   const topSemanticListFirstItemRef = topSemanticList?.itemRefs?.[0];
+  const topSemanticListSecondItemRef = topSemanticList?.itemRefs?.[1];
   const topSemanticSelectedListItemRef = topSemanticList?.itemRefs?.find((item) => item.selected === true)
     ?? topSemanticList?.itemRefs?.find((item) => typeof item.current !== "undefined");
   const topSemanticField = semanticSummary?.fieldItems[0];
@@ -14245,6 +14265,15 @@ function summarizeAgent(
     ...(typeof topSemanticListFirstItemRef?.current !== "undefined" ? { semanticTopListFirstItemCurrent: topSemanticListFirstItemRef.current } : {}),
     ...(typeof topSemanticListFirstItemRef?.expanded === "boolean" ? { semanticTopListFirstItemExpanded: topSemanticListFirstItemRef.expanded } : {}),
     ...(topSemanticListFirstItemRef?.selector ? { semanticTopListFirstItemSelector: topSemanticListFirstItemRef.selector } : {}),
+    ...(topSemanticListSecondItemRef?.text ? { semanticTopListSecondItemText: topSemanticListSecondItemRef.text } : {}),
+    ...(topSemanticListSecondItemRef?.role ? { semanticTopListSecondItemRole: topSemanticListSecondItemRef.role } : {}),
+    ...(typeof topSemanticListSecondItemRef?.level === "number" ? { semanticTopListSecondItemLevel: topSemanticListSecondItemRef.level } : {}),
+    ...(typeof topSemanticListSecondItemRef?.posInSet === "number" ? { semanticTopListSecondItemPosInSet: topSemanticListSecondItemRef.posInSet } : {}),
+    ...(typeof topSemanticListSecondItemRef?.setSize === "number" ? { semanticTopListSecondItemSetSize: topSemanticListSecondItemRef.setSize } : {}),
+    ...(typeof topSemanticListSecondItemRef?.selected === "boolean" ? { semanticTopListSecondItemSelected: topSemanticListSecondItemRef.selected } : {}),
+    ...(typeof topSemanticListSecondItemRef?.current !== "undefined" ? { semanticTopListSecondItemCurrent: topSemanticListSecondItemRef.current } : {}),
+    ...(typeof topSemanticListSecondItemRef?.expanded === "boolean" ? { semanticTopListSecondItemExpanded: topSemanticListSecondItemRef.expanded } : {}),
+    ...(topSemanticListSecondItemRef?.selector ? { semanticTopListSecondItemSelector: topSemanticListSecondItemRef.selector } : {}),
     ...(topSemanticSelectedListItemRef?.text ? { semanticTopSelectedListItemText: topSemanticSelectedListItemRef.text } : {}),
     ...(topSemanticSelectedListItemRef?.role ? { semanticTopSelectedListItemRole: topSemanticSelectedListItemRef.role } : {}),
     ...(typeof topSemanticSelectedListItemRef?.level === "number" ? { semanticTopSelectedListItemLevel: topSemanticSelectedListItemRef.level } : {}),
@@ -20593,6 +20622,15 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.semanticTopListFirstItemCurrent !== "undefined" ? { semanticTopListFirstItemCurrent: agent.semanticTopListFirstItemCurrent } : {}),
     ...(typeof agent.semanticTopListFirstItemExpanded === "boolean" ? { semanticTopListFirstItemExpanded: agent.semanticTopListFirstItemExpanded } : {}),
     ...(agent.semanticTopListFirstItemSelector ? { semanticTopListFirstItemSelector: agent.semanticTopListFirstItemSelector } : {}),
+    ...(agent.semanticTopListSecondItemText ? { semanticTopListSecondItemText: agent.semanticTopListSecondItemText } : {}),
+    ...(agent.semanticTopListSecondItemRole ? { semanticTopListSecondItemRole: agent.semanticTopListSecondItemRole } : {}),
+    ...(typeof agent.semanticTopListSecondItemLevel === "number" ? { semanticTopListSecondItemLevel: agent.semanticTopListSecondItemLevel } : {}),
+    ...(typeof agent.semanticTopListSecondItemPosInSet === "number" ? { semanticTopListSecondItemPosInSet: agent.semanticTopListSecondItemPosInSet } : {}),
+    ...(typeof agent.semanticTopListSecondItemSetSize === "number" ? { semanticTopListSecondItemSetSize: agent.semanticTopListSecondItemSetSize } : {}),
+    ...(typeof agent.semanticTopListSecondItemSelected === "boolean" ? { semanticTopListSecondItemSelected: agent.semanticTopListSecondItemSelected } : {}),
+    ...(typeof agent.semanticTopListSecondItemCurrent !== "undefined" ? { semanticTopListSecondItemCurrent: agent.semanticTopListSecondItemCurrent } : {}),
+    ...(typeof agent.semanticTopListSecondItemExpanded === "boolean" ? { semanticTopListSecondItemExpanded: agent.semanticTopListSecondItemExpanded } : {}),
+    ...(agent.semanticTopListSecondItemSelector ? { semanticTopListSecondItemSelector: agent.semanticTopListSecondItemSelector } : {}),
     ...(agent.semanticTopSelectedListItemText ? { semanticTopSelectedListItemText: agent.semanticTopSelectedListItemText } : {}),
     ...(agent.semanticTopSelectedListItemRole ? { semanticTopSelectedListItemRole: agent.semanticTopSelectedListItemRole } : {}),
     ...(typeof agent.semanticTopSelectedListItemLevel === "number" ? { semanticTopSelectedListItemLevel: agent.semanticTopSelectedListItemLevel } : {}),
@@ -22111,6 +22149,15 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.semanticTopListFirstItemCurrent !== "undefined" ? { semanticTopListFirstItemCurrent: agent.semanticTopListFirstItemCurrent } : {}),
     ...(typeof agent.semanticTopListFirstItemExpanded === "boolean" ? { semanticTopListFirstItemExpanded: agent.semanticTopListFirstItemExpanded } : {}),
     ...(agent.semanticTopListFirstItemSelector ? { semanticTopListFirstItemSelector: agent.semanticTopListFirstItemSelector } : {}),
+    ...(agent.semanticTopListSecondItemText ? { semanticTopListSecondItemText: agent.semanticTopListSecondItemText } : {}),
+    ...(agent.semanticTopListSecondItemRole ? { semanticTopListSecondItemRole: agent.semanticTopListSecondItemRole } : {}),
+    ...(typeof agent.semanticTopListSecondItemLevel === "number" ? { semanticTopListSecondItemLevel: agent.semanticTopListSecondItemLevel } : {}),
+    ...(typeof agent.semanticTopListSecondItemPosInSet === "number" ? { semanticTopListSecondItemPosInSet: agent.semanticTopListSecondItemPosInSet } : {}),
+    ...(typeof agent.semanticTopListSecondItemSetSize === "number" ? { semanticTopListSecondItemSetSize: agent.semanticTopListSecondItemSetSize } : {}),
+    ...(typeof agent.semanticTopListSecondItemSelected === "boolean" ? { semanticTopListSecondItemSelected: agent.semanticTopListSecondItemSelected } : {}),
+    ...(typeof agent.semanticTopListSecondItemCurrent !== "undefined" ? { semanticTopListSecondItemCurrent: agent.semanticTopListSecondItemCurrent } : {}),
+    ...(typeof agent.semanticTopListSecondItemExpanded === "boolean" ? { semanticTopListSecondItemExpanded: agent.semanticTopListSecondItemExpanded } : {}),
+    ...(agent.semanticTopListSecondItemSelector ? { semanticTopListSecondItemSelector: agent.semanticTopListSecondItemSelector } : {}),
     ...(agent.semanticTopSelectedListItemText ? { semanticTopSelectedListItemText: agent.semanticTopSelectedListItemText } : {}),
     ...(agent.semanticTopSelectedListItemRole ? { semanticTopSelectedListItemRole: agent.semanticTopSelectedListItemRole } : {}),
     ...(typeof agent.semanticTopSelectedListItemLevel === "number" ? { semanticTopSelectedListItemLevel: agent.semanticTopSelectedListItemLevel } : {}),

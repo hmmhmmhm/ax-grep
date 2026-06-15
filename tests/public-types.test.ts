@@ -1273,6 +1273,15 @@ describe("public agent types", () => {
       | "semanticTopListFirstItemCurrent"
       | "semanticTopListFirstItemExpanded"
       | "semanticTopListFirstItemSelector"
+      | "semanticTopListSecondItemText"
+      | "semanticTopListSecondItemRole"
+      | "semanticTopListSecondItemLevel"
+      | "semanticTopListSecondItemPosInSet"
+      | "semanticTopListSecondItemSetSize"
+      | "semanticTopListSecondItemSelected"
+      | "semanticTopListSecondItemCurrent"
+      | "semanticTopListSecondItemExpanded"
+      | "semanticTopListSecondItemSelector"
       | "semanticTopSelectedListItemText"
       | "semanticTopSelectedListItemRole"
       | "semanticTopSelectedListItemLevel"
@@ -2890,6 +2899,14 @@ describe("public agent types", () => {
       semanticTopListFirstItemSetSize: 2,
       semanticTopListFirstItemCurrent: "page",
       semanticTopListFirstItemSelector: "li:nth-of-type(1)",
+      semanticTopListSecondItemText: "Clear output",
+      semanticTopListSecondItemRole: "listitem",
+      semanticTopListSecondItemPosInSet: 2,
+      semanticTopListSecondItemSetSize: 2,
+      semanticTopListSecondItemSelected: true,
+      semanticTopListSecondItemCurrent: "page",
+      semanticTopListSecondItemExpanded: false,
+      semanticTopListSecondItemSelector: "li:nth-of-type(2)",
       semanticTopSelectedListItemText: "Clear output",
       semanticTopSelectedListItemRole: "listitem",
       semanticTopSelectedListItemPosInSet: 2,

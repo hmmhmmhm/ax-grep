@@ -1127,6 +1127,9 @@ When research expands:
 - Added individual text rows for semantic keyboard shortcuts and ARIA key
   shortcuts, so text-only agents can target keyboard commands without parsing
   aggregate keyboard rows.
+- Added second semantic list-item shortcuts in full, brief, text, public type,
+  readiness, and static scoring paths, so agents can compare representative
+  list/menu/tree entries without parsing `semanticTopListItemRefs[1]`.
 
 ## In Progress
 

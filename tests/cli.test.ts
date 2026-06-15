@@ -6750,6 +6750,14 @@ describe("cli", () => {
       semanticTopListFirstItemPosInSet: 1,
       semanticTopListFirstItemSetSize: 2,
       semanticTopListFirstItemSelector: "li",
+      semanticTopListSecondItemText: "Renewals improved",
+      semanticTopListSecondItemRole: "listitem",
+      semanticTopListSecondItemPosInSet: 2,
+      semanticTopListSecondItemSetSize: 2,
+      semanticTopListSecondItemSelected: true,
+      semanticTopListSecondItemCurrent: "page",
+      semanticTopListSecondItemExpanded: false,
+      semanticTopListSecondItemSelector: "li:nth-of-type(2)",
       semanticTopSelectedListItemText: "Renewals improved",
       semanticTopSelectedListItemRole: "listitem",
       semanticTopSelectedListItemPosInSet: 2,
@@ -6798,6 +6806,11 @@ describe("cli", () => {
       semanticTopListPath: "agent.semanticSummary.listItems[0]",
       semanticTopListName: "Highlights",
       semanticTopListFirstItemSelector: "li",
+      semanticTopListSecondItemText: "Renewals improved",
+      semanticTopListSecondItemRole: "listitem",
+      semanticTopListSecondItemPosInSet: 2,
+      semanticTopListSecondItemSetSize: 2,
+      semanticTopListSecondItemSelector: "li:nth-of-type(2)",
       semanticTopListSelector: "ul",
     });
   });
@@ -6959,6 +6972,15 @@ describe("cli", () => {
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  semanticTopList: agent.semanticSummary.listItems[0] role=list name=\"Release actions\"");
     expect(stdout.output).toContain("itemRefs=text=\"Download report\" role=listitem pos=1 size=2 selector=li, text=\"Read notes\" role=listitem pos=2 size=2 selected=true current=page expanded=false selector=li:nth-of-type(2)");
+    expect(stdout.output).toContain("  semanticTopListSecondItem: text=\"Read notes\" role=listitem pos=2 size=2 selected=true current=page expanded=false selector=li:nth-of-type(2)");
+    expect(stdout.output).toContain("  semanticTopListSecondItemText: Read notes");
+    expect(stdout.output).toContain("  semanticTopListSecondItemRole: listitem");
+    expect(stdout.output).toContain("  semanticTopListSecondItemPosInSet: 2");
+    expect(stdout.output).toContain("  semanticTopListSecondItemSetSize: 2");
+    expect(stdout.output).toContain("  semanticTopListSecondItemSelected: true");
+    expect(stdout.output).toContain("  semanticTopListSecondItemCurrent: page");
+    expect(stdout.output).toContain("  semanticTopListSecondItemExpanded: false");
+    expect(stdout.output).toContain("  semanticTopListSecondItemSelector: li:nth-of-type(2)");
     expect(stdout.output).toContain("  semanticTopSelectedListItem: text=\"Read notes\" role=listitem pos=2 size=2 selected=true current=page expanded=false selector=li:nth-of-type(2)");
     expect(stdout.output).toContain("  semanticTopSelectedListItemText: Read notes");
     expect(stdout.output).toContain("  semanticTopSelectedListItemRole: listitem");
