@@ -6174,7 +6174,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("headerRefs=Metric:columnheader selector=#metric");
     expect(stdout.output).toContain("ownedRefs=owned-rows:rowgroup:Virtual rows selector=#owned-rows");
     expect(stdout.output).toContain("Queued@r50c4 headers=Value columnHeaders=Value selected=true selector=span:nth-of-type(2) ownedTarget=owned-rows");
-    expect(stdout.output).toContain("  semanticTopTableFirstOwned: owned-rows role=rowgroup name=Virtual rows selector=#owned-rows");
+    expect(stdout.output).toContain("  semanticTopTableFirstOwned: target=owned-rows role=rowgroup name=\"Virtual rows\" selector=#owned-rows");
     expect(stdout.output).toContain("ownedTarget=owned-rows");
     expect(stdout.output).toContain("  semanticTopTableFirstOwnedSampleCell:");
     expect(stdout.output).toContain("Queued");
@@ -6226,7 +6226,7 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  semanticTopList: agent.semanticSummary.listItems[0] role=list name=\"Release actions\"");
-    expect(stdout.output).toContain("itemRefs=Download report role=listitem pos=1 size=2 current=page selector=li, Read notes role=listitem pos=2 size=2 expanded=false selector=li:nth-of-type(2)");
+    expect(stdout.output).toContain("itemRefs=text=\"Download report\" role=listitem pos=1 size=2 current=page selector=li, text=\"Read notes\" role=listitem pos=2 size=2 expanded=false selector=li:nth-of-type(2)");
   });
 
   it("summarizes forms with action fields and query URL templates for agents", async () => {
