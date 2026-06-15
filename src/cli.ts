@@ -5084,22 +5084,39 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   }
   for (const hint of pageCheck.mobileHints) {
     const url = hint.url ? ` <${hint.url}>` : "";
-    const platform = hint.platform ? ` ${hint.platform}` : "";
-    const selector = hint.selector ? ` (${hint.selector})` : "";
-    lines.push(`  mobileHint: ${hint.id} ${hint.path} ${hint.kind}${platform}${selector}${url} - ${hint.text}`);
+    const details = [
+      `source=${hint.source}`,
+      `label="${hint.label}"`,
+      hint.platform ? `platform=${hint.platform}` : "",
+      hint.selector ? `selector=${hint.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  mobileHint: ${hint.id} ${hint.path} ${hint.kind} ${details}${url} - ${hint.text}`);
   }
   for (const topic of pageCheck.topics) {
-    const selector = topic.selector ? ` (${topic.selector})` : "";
-    lines.push(`  topic: ${topic.id} ${topic.path} ${topic.kind}${selector} - ${topic.text}`);
+    const details = [
+      `source=${topic.source}`,
+      `label="${topic.label}"`,
+      topic.selector ? `selector=${topic.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  topic: ${topic.id} ${topic.path} ${topic.kind} ${details} - ${topic.text}`);
   }
   for (const fact of pageCheck.keyValues) {
-    const datetime = fact.datetime ? ` datetime=${fact.datetime}` : "";
-    lines.push(`  keyValue: ${fact.id} ${fact.path} ${fact.source}${datetime} - ${fact.text}`);
+    const details = [
+      `source=${fact.source}`,
+      `label="${fact.label}"`,
+      fact.datetime ? `datetime=${fact.datetime}` : "",
+      fact.selector ? `selector=${fact.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  keyValue: ${fact.id} ${fact.path} ${details} - ${fact.text}`);
   }
   for (const fact of pageCheck.metaFacts) {
     const url = fact.url ? ` <${fact.url}>` : "";
-    const selector = fact.selector ? ` (${fact.selector})` : "";
-    lines.push(`  metaFact: ${fact.id} ${fact.path} ${fact.source}${selector}${url} - ${fact.text}`);
+    const details = [
+      `source=${fact.source}`,
+      `label="${fact.label}"`,
+      fact.selector ? `selector=${fact.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  metaFact: ${fact.id} ${fact.path} ${details}${url} - ${fact.text}`);
   }
   for (const fact of pageCheck.provenance) {
     const url = fact.url ? ` <${fact.url}>` : "";
@@ -5107,11 +5124,21 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`  provenance: ${fact.id} ${fact.path} ${fact.kind}${selector}${url} - ${fact.text}`);
   }
   for (const policy of pageCheck.httpPolicies) {
-    const selector = policy.selector ? ` (${policy.selector})` : "";
-    lines.push(`  httpPolicy: ${policy.id} ${policy.path} ${policy.source}${selector} - ${policy.text}`);
+    const details = [
+      `source=${policy.source}`,
+      `name="${policy.name}"`,
+      policy.selector ? `selector=${policy.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  httpPolicy: ${policy.id} ${policy.path} ${details} - ${policy.text}`);
   }
   for (const fact of pageCheck.schemaFacts) {
-    lines.push(`  schemaFact: ${fact.id} ${fact.path} ${fact.types.join(",") || "unknown"} - ${fact.text}`);
+    const details = [
+      `source=${fact.source}`,
+      `types=${fact.types.join(",") || "unknown"}`,
+      `facts=${fact.facts.length}`,
+      fact.selector ? `selector=${fact.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  schemaFact: ${fact.id} ${fact.path} ${details} - ${fact.text}`);
   }
   for (const offer of pageCheck.offers) {
     const url = offer.url ? ` <${offer.url}>` : "";
