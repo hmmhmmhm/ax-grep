@@ -5048,47 +5048,52 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   for (const item of pageCheck.hydration) {
     const url = item.url ? ` <${item.url}>` : "";
     const details = [
+      `kind=${item.kind}`,
       `source=${item.source}`,
       item.framework ? `framework=${item.framework}` : "",
       item.route ? `route=${item.route}` : "",
       item.buildId ? `buildId=${item.buildId}` : "",
       item.selector ? `selector=${item.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  hydration: ${item.id} ${item.path} ${item.kind} ${details}${url} - ${item.text}`);
+    lines.push(`  hydration: ${item.id} ${item.path} ${details}${url} - ${item.text}`);
   }
   for (const endpoint of pageCheck.apiEndpoints) {
     const details = [
+      `kind=${endpoint.kind}`,
       `source=${endpoint.source}`,
       endpoint.method ? `method=${endpoint.method}` : "",
       endpoint.selector ? `selector=${endpoint.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  apiEndpoint: ${endpoint.id} ${endpoint.path} ${endpoint.kind} ${details} <${endpoint.url}> - ${endpoint.text}`);
+    lines.push(`  apiEndpoint: ${endpoint.id} ${endpoint.path} ${details} <${endpoint.url}> - ${endpoint.text}`);
   }
   for (const state of pageCheck.clientState) {
     const details = [
+      `kind=${state.kind}`,
       `source=${state.source}`,
       `operation=${state.operation}`,
       `key=${state.key}`,
       state.selector ? `selector=${state.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  clientState: ${state.id} ${state.path} ${state.kind} ${details} - ${state.text}`);
+    lines.push(`  clientState: ${state.id} ${state.path} ${details} - ${state.text}`);
   }
   for (const runtime of pageCheck.runtime) {
     const details = [
+      `kind=${runtime.kind}`,
       `source=${runtime.source}`,
       runtime.selector ? `selector=${runtime.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  runtime: ${runtime.id} ${runtime.path} ${runtime.kind} ${details} <${runtime.url}> - ${runtime.text}`);
+    lines.push(`  runtime: ${runtime.id} ${runtime.path} ${details} <${runtime.url}> - ${runtime.text}`);
   }
   for (const config of pageCheck.config) {
     const details = [
+      `kind=${config.kind}`,
       `source=${config.source}`,
       `name=${config.name}`,
       `keys=${config.keyCount}`,
       config.keys.length ? `keyNames=${config.keys.join(",")}` : "",
       config.selector ? `selector=${config.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  config: ${config.id} ${config.path} ${config.kind} ${details} - ${config.text}`);
+    lines.push(`  config: ${config.id} ${config.path} ${details} - ${config.text}`);
   }
   for (const hint of pageCheck.appHints) {
     const url = hint.url ? ` <${hint.url}>` : "";

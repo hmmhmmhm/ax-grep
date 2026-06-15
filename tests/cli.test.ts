@@ -10235,11 +10235,11 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topHttpPolicy: pageCheck.httpPolicies[0] name=\"Referrer-Policy\" source=meta selector=meta[http-equiv=\"referrer-policy\"]:nth-of-type(3) - strict-origin");
     expect(stdout.output).toContain("  topSchemaFact: pageCheck.schemaFacts[0] types=SoftwareApplication facts=1 selector=script[type=\"application/ld+json\"]:nth-of-type(1) Name=Agent Shell");
     expect(stdout.output).toContain("  topHiddenSignal: hydration pageCheck.hydration[0] next-data source=script selector=script#__NEXT_DATA__:nth-of-type(1) <https://example.test/_next/data/build-123/app.json> - Next.js data:");
-    expect(stdout.output).toContain("  hydration: hd1 pageCheck.hydration[0] next-data source=script framework=next route=/app buildId=build-123 selector=script#__NEXT_DATA__:nth-of-type(1) <https://example.test/_next/data/build-123/app.json>");
-    expect(stdout.output).toContain("  apiEndpoint: api1 pageCheck.apiEndpoints[0] fetch source=script method=POST selector=script:nth-of-type(3) <https://example.test/api/search?q=agent>");
-    expect(stdout.output).toContain("  clientState: cs1 pageCheck.clientState[0] local-storage source=script operation=read key=session selector=script:nth-of-type(3)");
-    expect(stdout.output).toContain("  runtime: rt1 pageCheck.runtime[0] service-worker source=script selector=script:nth-of-type(3) <https://example.test/sw.js>");
-    expect(stdout.output).toContain("  config: cfg1 pageCheck.config[0] env source=script name=__APP_CONFIG__ keys=2 keyNames=apiBase,featureFlags selector=script:nth-of-type(3)");
+    expect(stdout.output).toContain("  hydration: hd1 pageCheck.hydration[0] kind=next-data source=script framework=next route=/app buildId=build-123 selector=script#__NEXT_DATA__:nth-of-type(1) <https://example.test/_next/data/build-123/app.json>");
+    expect(stdout.output).toContain("  apiEndpoint: api1 pageCheck.apiEndpoints[0] kind=fetch source=script method=POST selector=script:nth-of-type(3) <https://example.test/api/search?q=agent>");
+    expect(stdout.output).toContain("  clientState: cs1 pageCheck.clientState[0] kind=local-storage source=script operation=read key=session selector=script:nth-of-type(3)");
+    expect(stdout.output).toContain("  runtime: rt1 pageCheck.runtime[0] kind=service-worker source=script selector=script:nth-of-type(3) <https://example.test/sw.js>");
+    expect(stdout.output).toContain("  config: cfg1 pageCheck.config[0] kind=env source=script name=__APP_CONFIG__ keys=2 keyNames=apiBase,featureFlags selector=script:nth-of-type(3)");
     expect(stdout.output).toContain("  appHint: ah1 pageCheck.appHints[0] manifest source=link label=\"Web app manifest\" selector=link[rel=\"manifest\"]:nth-of-type(1) <https://example.test/site.webmanifest>");
     expect(stdout.output).toContain("  mobileHint: mh1 pageCheck.mobileHints[0] viewport source=meta label=\"Viewport\" selector=meta[name=\"viewport\"]:nth-of-type(1)");
     expect(stdout.output).toContain("  topic: tp1 pageCheck.topics[0] keyword source=meta label=\"Keyword\" selector=meta[name=\"keywords\"]:nth-of-type(2)");
