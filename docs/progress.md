@@ -1022,6 +1022,8 @@ When research expands:
 - Added top embed and transcript URL path/query shortcuts so iframe, media,
   caption, and transcript follow-up targets can be compared without parsing
   full URLs.
+- Added top author and provenance URL path/query shortcuts so byline/profile
+  and DOI/source follow-up targets can be compared without parsing full URLs.
 
 ## In Progress
 

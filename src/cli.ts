@@ -1844,6 +1844,8 @@ type AgentSummary = {
   topAuthorLinkPath?: string;
   topAuthorLinkName?: string;
   topAuthorLinkUrl?: string;
+  topAuthorLinkUrlPath?: string;
+  topAuthorLinkUrlQuery?: string;
   topAuthorLinkSource?: PageAuthorLinkSummary["source"];
   topAuthorLinkSelector?: string;
   topAuthorLinkCommand?: string;
@@ -1853,6 +1855,8 @@ type AgentSummary = {
   topProvenanceLabel?: string;
   topProvenanceValue?: string;
   topProvenanceUrl?: string;
+  topProvenanceUrlPath?: string;
+  topProvenanceUrlQuery?: string;
   topProvenanceSource?: PageProvenanceSummary["source"];
   topProvenanceSelector?: string;
   topProvenanceCommand?: string;
@@ -4598,7 +4602,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topTocPath ? [`  topToc: path=${agent.topTocPath}${agent.topTocTitle ? ` title="${agent.topTocTitle}"` : ""}${typeof agent.topTocItemCount === "number" ? ` items=${agent.topTocItemCount}` : ""}${agent.topTocSelector ? ` selector=${agent.topTocSelector}` : ""}${agent.topTocFirstItemLabel ? ` first="${agent.topTocFirstItemLabel}"` : ""}${agent.topTocFirstItemUrl ? ` firstUrl=<${agent.topTocFirstItemUrl}>` : ""}${agent.topTocFirstItemUrlPath ? ` firstUrlPath=${agent.topTocFirstItemUrlPath}` : ""}${agent.topTocFirstItemUrlQuery ? ` firstUrlQuery=${agent.topTocFirstItemUrlQuery}` : ""}${agent.topTocText ? ` - ${agent.topTocText}` : ""}`] : []),
     ...(agent.topTocFirstItemCommand ? [`  topTocFirstItemCommand: ${agent.topTocFirstItemCommand}`] : []),
     ...(agent.topTocFirstItemCommandArgs ? [`  topTocFirstItemCommandArgs: ${formatCommandArgsText(agent.topTocFirstItemCommandArgs)}`] : []),
-    ...(agent.topProvenanceValue ? [`  topProvenance: path=${agent.topProvenancePath ?? ""}${agent.topProvenanceKind ? ` kind=${agent.topProvenanceKind}` : ""}${agent.topProvenanceLabel ? ` label="${agent.topProvenanceLabel}"` : ""} value=${agent.topProvenanceValue}${agent.topProvenanceSource ? ` source=${agent.topProvenanceSource}` : ""}${agent.topProvenanceSelector ? ` selector=${agent.topProvenanceSelector}` : ""}${agent.topProvenanceUrl ? ` url=<${agent.topProvenanceUrl}>` : ""}`] : []),
+    ...(agent.topProvenanceValue ? [`  topProvenance: path=${agent.topProvenancePath ?? ""}${agent.topProvenanceKind ? ` kind=${agent.topProvenanceKind}` : ""}${agent.topProvenanceLabel ? ` label="${agent.topProvenanceLabel}"` : ""} value=${agent.topProvenanceValue}${agent.topProvenanceSource ? ` source=${agent.topProvenanceSource}` : ""}${agent.topProvenanceSelector ? ` selector=${agent.topProvenanceSelector}` : ""}${agent.topProvenanceUrl ? ` url=<${agent.topProvenanceUrl}>` : ""}${agent.topProvenanceUrlPath ? ` urlPath=${agent.topProvenanceUrlPath}` : ""}${agent.topProvenanceUrlQuery ? ` urlQuery=${agent.topProvenanceUrlQuery}` : ""}`] : []),
     ...(agent.topProvenanceCommand ? [`  topProvenanceCommand: ${agent.topProvenanceCommand}`] : []),
     ...(agent.topProvenanceCommandArgs ? [`  topProvenanceCommandArgs: ${formatCommandArgsText(agent.topProvenanceCommandArgs)}`] : []),
     ...(agent.topOfferPrice ? [`  topOffer: path=${agent.topOfferPath ?? ""}${agent.topOfferName ? ` name="${agent.topOfferName}"` : ""}${agent.topOfferCurrency ? ` currency=${agent.topOfferCurrency}` : ""} price=${agent.topOfferPrice}${agent.topOfferAvailability ? ` availability=${agent.topOfferAvailability}` : ""}${agent.topOfferSelector ? ` selector=${agent.topOfferSelector}` : ""}${agent.topOfferUrl ? ` url=<${agent.topOfferUrl}>` : ""}`] : []),
@@ -4634,7 +4638,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topTranscriptUrl ? [`  topTranscript: path=${agent.topTranscriptPath ?? ""}${agent.topTranscriptKind ? ` kind=${agent.topTranscriptKind}` : ""}${agent.topTranscriptLabel ? ` label="${agent.topTranscriptLabel}"` : ""}${agent.topTranscriptLanguage ? ` lang=${agent.topTranscriptLanguage}` : ""}${agent.topTranscriptSelector ? ` selector=${agent.topTranscriptSelector}` : ""} url=<${agent.topTranscriptUrl}>${agent.topTranscriptUrlPath ? ` urlPath=${agent.topTranscriptUrlPath}` : ""}${agent.topTranscriptUrlQuery ? ` urlQuery=${agent.topTranscriptUrlQuery}` : ""}`] : []),
     ...(agent.topTranscriptCommand ? [`  topTranscriptCommand: ${agent.topTranscriptCommand}`] : []),
     ...(agent.topTranscriptCommandArgs ? [`  topTranscriptCommandArgs: ${formatCommandArgsText(agent.topTranscriptCommandArgs)}`] : []),
-    ...(agent.topAuthorLinkUrl ? [`  topAuthorLink: path=${agent.topAuthorLinkPath ?? ""}${agent.topAuthorLinkSource ? ` source=${agent.topAuthorLinkSource}` : ""}${agent.topAuthorLinkName ? ` name="${agent.topAuthorLinkName}"` : ""}${agent.topAuthorLinkSelector ? ` selector=${agent.topAuthorLinkSelector}` : ""} url=<${agent.topAuthorLinkUrl}>`] : []),
+    ...(agent.topAuthorLinkUrl ? [`  topAuthorLink: path=${agent.topAuthorLinkPath ?? ""}${agent.topAuthorLinkSource ? ` source=${agent.topAuthorLinkSource}` : ""}${agent.topAuthorLinkName ? ` name="${agent.topAuthorLinkName}"` : ""}${agent.topAuthorLinkSelector ? ` selector=${agent.topAuthorLinkSelector}` : ""} url=<${agent.topAuthorLinkUrl}>${agent.topAuthorLinkUrlPath ? ` urlPath=${agent.topAuthorLinkUrlPath}` : ""}${agent.topAuthorLinkUrlQuery ? ` urlQuery=${agent.topAuthorLinkUrlQuery}` : ""}`] : []),
     ...(agent.topAuthorLinkCommand ? [`  topAuthorLinkCommand: ${agent.topAuthorLinkCommand}`] : []),
     ...(agent.topAuthorLinkCommandArgs ? [`  topAuthorLinkCommandArgs: ${formatCommandArgsText(agent.topAuthorLinkCommandArgs)}`] : []),
     `  structuredReadTargetCount: ${agent.structuredReadTargetCount}`,
@@ -13163,9 +13167,11 @@ function summarizeAgent(
   const topProvenanceCommand = pageCheck.provenance[0]?.url
     ? pageCommandSpec(pageCheck.provenance[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topProvenanceUrlParts = pageCheck.provenance[0]?.url ? urlPathParts(pageCheck.provenance[0].url) : undefined;
   const topAuthorLinkCommand = pageCheck.authorLinks[0]?.url && /^https?:\/\//i.test(pageCheck.authorLinks[0].url)
     ? pageCommandSpec(pageCheck.authorLinks[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const topAuthorLinkUrlParts = pageCheck.authorLinks[0]?.url ? urlPathParts(pageCheck.authorLinks[0].url) : undefined;
   const topTranscriptCommand = pageCheck.transcripts[0]?.url && /^https?:\/\//i.test(pageCheck.transcripts[0].url)
     ? pageCommandSpec(pageCheck.transcripts[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -14180,6 +14186,8 @@ function summarizeAgent(
     ...(pageCheck.authorLinks[0] ? { topAuthorLinkPath: pageCheck.authorLinks[0].path } : {}),
     ...(pageCheck.authorLinks[0]?.name ? { topAuthorLinkName: pageCheck.authorLinks[0].name } : {}),
     ...(pageCheck.authorLinks[0]?.url ? { topAuthorLinkUrl: pageCheck.authorLinks[0].url } : {}),
+    ...(topAuthorLinkUrlParts?.urlPath ? { topAuthorLinkUrlPath: topAuthorLinkUrlParts.urlPath } : {}),
+    ...(topAuthorLinkUrlParts?.urlQuery ? { topAuthorLinkUrlQuery: topAuthorLinkUrlParts.urlQuery } : {}),
     ...(pageCheck.authorLinks[0] ? { topAuthorLinkSource: pageCheck.authorLinks[0].source } : {}),
     ...(pageCheck.authorLinks[0]?.selector ? { topAuthorLinkSelector: pageCheck.authorLinks[0].selector } : {}),
     ...(topAuthorLinkCommand ? { topAuthorLinkCommand: topAuthorLinkCommand.command } : {}),
@@ -14189,6 +14197,8 @@ function summarizeAgent(
     ...(pageCheck.provenance[0]?.label ? { topProvenanceLabel: pageCheck.provenance[0].label } : {}),
     ...(pageCheck.provenance[0]?.value ? { topProvenanceValue: pageCheck.provenance[0].value } : {}),
     ...(pageCheck.provenance[0]?.url ? { topProvenanceUrl: pageCheck.provenance[0].url } : {}),
+    ...(topProvenanceUrlParts?.urlPath ? { topProvenanceUrlPath: topProvenanceUrlParts.urlPath } : {}),
+    ...(topProvenanceUrlParts?.urlQuery ? { topProvenanceUrlQuery: topProvenanceUrlParts.urlQuery } : {}),
     ...(pageCheck.provenance[0] ? { topProvenanceSource: pageCheck.provenance[0].source } : {}),
     ...(pageCheck.provenance[0]?.selector ? { topProvenanceSelector: pageCheck.provenance[0].selector } : {}),
     ...(topProvenanceCommand ? { topProvenanceCommand: topProvenanceCommand.command } : {}),
@@ -20462,6 +20472,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topAuthorLinkPath ? { topAuthorLinkPath: agent.topAuthorLinkPath } : {}),
     ...(agent.topAuthorLinkName ? { topAuthorLinkName: agent.topAuthorLinkName } : {}),
     ...(agent.topAuthorLinkUrl ? { topAuthorLinkUrl: agent.topAuthorLinkUrl } : {}),
+    ...(agent.topAuthorLinkUrlPath ? { topAuthorLinkUrlPath: agent.topAuthorLinkUrlPath } : {}),
+    ...(agent.topAuthorLinkUrlQuery ? { topAuthorLinkUrlQuery: agent.topAuthorLinkUrlQuery } : {}),
     ...(agent.topAuthorLinkSource ? { topAuthorLinkSource: agent.topAuthorLinkSource } : {}),
     ...(agent.topAuthorLinkSelector ? { topAuthorLinkSelector: agent.topAuthorLinkSelector } : {}),
     ...(agent.topAuthorLinkCommand ? { topAuthorLinkCommand: agent.topAuthorLinkCommand } : {}),
@@ -20471,6 +20483,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topProvenanceLabel ? { topProvenanceLabel: agent.topProvenanceLabel } : {}),
     ...(agent.topProvenanceValue ? { topProvenanceValue: agent.topProvenanceValue } : {}),
     ...(agent.topProvenanceUrl ? { topProvenanceUrl: agent.topProvenanceUrl } : {}),
+    ...(agent.topProvenanceUrlPath ? { topProvenanceUrlPath: agent.topProvenanceUrlPath } : {}),
+    ...(agent.topProvenanceUrlQuery ? { topProvenanceUrlQuery: agent.topProvenanceUrlQuery } : {}),
     ...(agent.topProvenanceSource ? { topProvenanceSource: agent.topProvenanceSource } : {}),
     ...(agent.topProvenanceSelector ? { topProvenanceSelector: agent.topProvenanceSelector } : {}),
     ...(agent.topProvenanceCommand ? { topProvenanceCommand: agent.topProvenanceCommand } : {}),
@@ -21930,6 +21944,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topAuthorLinkPath ? { topAuthorLinkPath: agent.topAuthorLinkPath } : {}),
     ...(agent.topAuthorLinkName ? { topAuthorLinkName: agent.topAuthorLinkName } : {}),
     ...(agent.topAuthorLinkUrl ? { topAuthorLinkUrl: agent.topAuthorLinkUrl } : {}),
+    ...(agent.topAuthorLinkUrlPath ? { topAuthorLinkUrlPath: agent.topAuthorLinkUrlPath } : {}),
+    ...(agent.topAuthorLinkUrlQuery ? { topAuthorLinkUrlQuery: agent.topAuthorLinkUrlQuery } : {}),
     ...(agent.topAuthorLinkSource ? { topAuthorLinkSource: agent.topAuthorLinkSource } : {}),
     ...(agent.topAuthorLinkSelector ? { topAuthorLinkSelector: agent.topAuthorLinkSelector } : {}),
     ...(agent.topAuthorLinkCommand ? { topAuthorLinkCommand: agent.topAuthorLinkCommand } : {}),
@@ -21939,6 +21955,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topProvenanceLabel ? { topProvenanceLabel: agent.topProvenanceLabel } : {}),
     ...(agent.topProvenanceValue ? { topProvenanceValue: agent.topProvenanceValue } : {}),
     ...(agent.topProvenanceUrl ? { topProvenanceUrl: agent.topProvenanceUrl } : {}),
+    ...(agent.topProvenanceUrlPath ? { topProvenanceUrlPath: agent.topProvenanceUrlPath } : {}),
+    ...(agent.topProvenanceUrlQuery ? { topProvenanceUrlQuery: agent.topProvenanceUrlQuery } : {}),
     ...(agent.topProvenanceSource ? { topProvenanceSource: agent.topProvenanceSource } : {}),
     ...(agent.topProvenanceSelector ? { topProvenanceSelector: agent.topProvenanceSelector } : {}),
     ...(agent.topProvenanceCommand ? { topProvenanceCommand: agent.topProvenanceCommand } : {}),

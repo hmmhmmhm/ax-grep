@@ -530,6 +530,8 @@ describe("public agent types", () => {
       | "topAuthorLinkPath"
       | "topAuthorLinkName"
       | "topAuthorLinkUrl"
+      | "topAuthorLinkUrlPath"
+      | "topAuthorLinkUrlQuery"
       | "topAuthorLinkSource"
       | "topAuthorLinkSelector"
       | "topAuthorLinkCommand"
@@ -539,6 +541,8 @@ describe("public agent types", () => {
       | "topProvenanceLabel"
       | "topProvenanceValue"
       | "topProvenanceUrl"
+      | "topProvenanceUrlPath"
+      | "topProvenanceUrlQuery"
       | "topProvenanceSource"
       | "topProvenanceSelector"
       | "topProvenanceCommand"
@@ -2010,6 +2014,7 @@ describe("public agent types", () => {
       topAuthorLinkPath: "pageCheck.authorLinks[0]",
       topAuthorLinkName: "Example Author",
       topAuthorLinkUrl: "https://example.test/author",
+      topAuthorLinkUrlPath: "/author",
       topAuthorLinkSource: "html",
       topAuthorLinkSelector: "a[rel=\"author\"]",
       topAuthorLinkCommand: "ax-grep 'https://example.test/author' --agent",
@@ -2019,6 +2024,7 @@ describe("public agent types", () => {
       topProvenanceLabel: "DOI",
       topProvenanceValue: "10.5555/example.2026",
       topProvenanceUrl: "https://doi.org/10.5555/example.2026",
+      topProvenanceUrlPath: "/10.5555/example.2026",
       topProvenanceSource: "meta",
       topProvenanceSelector: "meta:nth-of-type(1)",
       topProvenanceCommand: "ax-grep 'https://doi.org/10.5555/example.2026' --agent",
@@ -3379,8 +3385,10 @@ describe("public agent types", () => {
     expect(summary.topTranscriptSelector).toBe("a[href=\"/transcript.txt\"]");
     expect(summary.topTranscriptCommandArgs?.[1]).toBe("https://example.test/transcript.txt");
     expect(summary.topAuthorLinkPath).toBe("pageCheck.authorLinks[0]");
+    expect(summary.topAuthorLinkUrlPath).toBe("/author");
     expect(summary.topAuthorLinkSelector).toBe("a[rel=\"author\"]");
     expect(summary.topAuthorLinkCommandArgs?.[1]).toBe("https://example.test/author");
+    expect(summary.topProvenanceUrlPath).toBe("/10.5555/example.2026");
     expect(summary.topOfferCommandArgs?.[1]).toBe("https://example.test/buy");
     expect(summary.topDatasetDistributionCommandArgs?.[1]).toBe("https://example.test/downloads/example.csv");
     expect(summary.topDatasetLicenseCommandArgs?.[1]).toBe("https://creativecommons.org/licenses/by/4.0/");

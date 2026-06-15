@@ -8034,6 +8034,7 @@ describe("cli", () => {
       topAuthorLinkPath: "pageCheck.authorLinks[0]",
       topAuthorLinkName: "Jane Doe",
       topAuthorLinkUrl: "https://example.test/authors/jane",
+      topAuthorLinkUrlPath: "/authors/jane",
       topAuthorLinkSource: "link",
       topAuthorLinkSelector: "link[rel=\"author\"]:nth-of-type(1)",
       topAuthorLinkCommand: "ax-grep 'https://example.test/authors/jane' --agent-brief",
@@ -9366,6 +9367,7 @@ describe("cli", () => {
       topProvenanceLabel: "DOI",
       topProvenanceValue: "10.5555/example.2026",
       topProvenanceUrl: "https://doi.org/10.5555/example.2026",
+      topProvenanceUrlPath: "/10.5555/example.2026",
       topProvenanceSource: "meta",
       topProvenanceSelector: "meta:nth-of-type(1)",
     });
@@ -9441,6 +9443,7 @@ describe("cli", () => {
       topProvenanceLabel: "DOI",
       topProvenanceValue: "10.5555/example.2026",
       topProvenanceUrl: "https://doi.org/10.5555/example.2026",
+      topProvenanceUrlPath: "/10.5555/example.2026",
       topProvenanceSource: "meta",
       topProvenanceSelector: "meta:nth-of-type(1)",
       topProvenanceCommand: "ax-grep 'https://doi.org/10.5555/example.2026' --agent-brief",
@@ -9460,7 +9463,7 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain("  topProvenance: path=pageCheck.provenance[0] kind=doi label=\"DOI\" value=10.5555/example.2026 source=meta selector=meta:nth-of-type(1) url=<https://doi.org/10.5555/example.2026>");
+    expect(stdout.output).toContain("  topProvenance: path=pageCheck.provenance[0] kind=doi label=\"DOI\" value=10.5555/example.2026 source=meta selector=meta:nth-of-type(1) url=<https://doi.org/10.5555/example.2026> urlPath=/10.5555/example.2026");
     expect(stdout.output).toContain("  topProvenanceCommand: ax-grep 'https://doi.org/10.5555/example.2026'");
     expect(stdout.output).toContain("  provenance: id=pv1 path=pageCheck.provenance[0] kind=doi source=meta label=\"DOI\" value=10.5555/example.2026 selector=meta:nth-of-type(1) url=<https://doi.org/10.5555/example.2026>");
   });
@@ -11997,7 +12000,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  embed: id=em1 path=pageCheck.embeds[0] kind=iframe title=\"Interactive dashboard\" selector=iframe:nth-of-type(1) url=<https://example.test/embed/dashboard> - iframe: Interactive dashboard https://example.test/embed/dashboard");
     expect(stdout.output).toContain("  topTranscript: path=pageCheck.transcripts[0] kind=captions label=\"English captions\" lang=en selector=track:nth-of-type(1) url=<https://example.test/media/walkthrough.en.vtt> urlPath=/media/walkthrough.en.vtt");
     expect(stdout.output).toContain("  transcript: id=tr1 path=pageCheck.transcripts[0] kind=captions media=video language=en label=\"English captions\" selector=track:nth-of-type(1) url=<https://example.test/media/walkthrough.en.vtt> - captions: English captions lang=en media=video https://example.test/media/walkthrough.en.vtt");
-    expect(stdout.output).toContain("  topAuthorLink: path=pageCheck.authorLinks[0] source=link name=\"Jane Doe\" selector=link[rel=\"author\"]:nth-of-type(1) url=<https://example.test/authors/jane>");
+    expect(stdout.output).toContain("  topAuthorLink: path=pageCheck.authorLinks[0] source=link name=\"Jane Doe\" selector=link[rel=\"author\"]:nth-of-type(1) url=<https://example.test/authors/jane> urlPath=/authors/jane");
     expect(stdout.output).toContain("  authorLink: id=au1 path=pageCheck.authorLinks[0] source=link name=\"Jane Doe\" rel=author selector=link[rel=\"author\"]:nth-of-type(1) url=<https://example.test/authors/jane> - Jane Doe source=link https://example.test/authors/jane");
   });
 
