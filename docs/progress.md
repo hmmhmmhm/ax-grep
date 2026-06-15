@@ -1109,6 +1109,9 @@ When research expands:
 - Added individual text rows for semantic top fields, so text-only agents can
   route input labels, descriptions, errors, state, and selectors without parsing
   aggregate field rows.
+- Added individual text rows for semantic top choices and selected choices, so
+  text-only agents can route active options, tabs, current state, and controlled
+  panels without parsing aggregate choice rows.
 
 ## In Progress
 

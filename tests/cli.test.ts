@@ -6001,6 +6001,49 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopFieldSelector: #q");
   });
 
+  it("prints top semantic choice shortcuts in text agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/tabs"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <div role="tablist" aria-label="Report sections">
+            <button id="tab-overview" role="tab" aria-selected="false" aria-controls="panel-overview" aria-posinset="1" aria-setsize="2">Overview</button>
+            <button id="tab-details" role="tab" aria-selected="true" aria-current="page" aria-controls="panel-details" aria-posinset="2" aria-setsize="2">Details</button>
+          </div>
+          <section id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" hidden>Overview content</section>
+          <section id="panel-details" role="tabpanel" aria-labelledby="tab-details">Detailed report content</section>
+          <p>Readable report tab content for selected choice routing.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticTopChoice: agent.semanticSummary.choiceItems[0] role=tab name=\"Overview\"");
+    expect(stdout.output).toContain("  semanticTopChoiceRole: tab");
+    expect(stdout.output).toContain("  semanticTopChoicePath: agent.semanticSummary.choiceItems[0]");
+    expect(stdout.output).toContain("  semanticTopChoiceName: Overview");
+    expect(stdout.output).toContain("  semanticTopChoiceState: controls=panel-overview");
+    expect(stdout.output).toContain("  semanticTopChoicePosInSet: 1");
+    expect(stdout.output).toContain("  semanticTopChoiceSetSize: 2");
+    expect(stdout.output).toContain("  semanticTopChoiceSelector: #tab-overview");
+    expect(stdout.output).toContain("  semanticTopSelectedChoice: agent.semanticSummary.choiceItems[1] role=tab name=\"Details\"");
+    expect(stdout.output).toContain("  semanticTopSelectedChoiceRole: tab");
+    expect(stdout.output).toContain("  semanticTopSelectedChoicePath: agent.semanticSummary.choiceItems[1]");
+    expect(stdout.output).toContain("  semanticTopSelectedChoiceName: Details");
+    expect(stdout.output).toContain("  semanticTopSelectedChoiceState: selected=true current=page controls=panel-details");
+    expect(stdout.output).toContain("  semanticTopSelectedChoiceSelected: true");
+    expect(stdout.output).toContain("  semanticTopSelectedChoiceCurrent: page");
+    expect(stdout.output).toContain("  semanticTopSelectedChoicePosInSet: 2");
+    expect(stdout.output).toContain("  semanticTopSelectedChoiceSetSize: 2");
+    expect(stdout.output).toContain("  semanticTopSelectedChoiceControls: panel-details");
+    expect(stdout.output).toContain("  semanticTopSelectedChoiceControlsTargetRole: tabpanel");
+    expect(stdout.output).toContain("  semanticTopSelectedChoiceControlsTargetName: Details");
+    expect(stdout.output).toContain("  semanticTopSelectedChoiceControlsTargetSelector: #panel-details");
+    expect(stdout.output).toContain("  semanticTopSelectedChoiceSelector: #tab-details");
+  });
+
   it("keeps selected grid cell state in agent brief output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/grid", "--agent-brief"], {
