@@ -13287,6 +13287,12 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain(" interactive=");
     expect(stdout.output).toContain("  semanticTopRoles:");
     expect(stdout.output).toContain("  semanticOutline: agent.semanticSummary.semanticOutline[0] kind=landmark text=\"main\" role=main");
+    expect(stdout.output).toContain("  semanticTopOutlinePath: agent.semanticSummary.semanticOutline[0]");
+    expect(stdout.output).toContain("  semanticTopOutlineKind: landmark");
+    expect(stdout.output).toContain("  semanticTopOutlineRole: main");
+    expect(stdout.output).toContain("  semanticTopOutlineText: main");
+    expect(stdout.output).toContain("  semanticTopOutlineDepth: 0");
+    expect(stdout.output).toContain("  semanticTopOutlineSelector: main");
     expect(stdout.output).toContain("  semanticHeading: agent.semanticSummary.headingItems[0] text=\"Article heading\"");
     expect(stdout.output).toContain("  semanticLandmark: agent.semanticSummary.landmarkItems[0] role=main");
     expect(stdout.output).toContain("  semanticInteractive: agent.semanticSummary.interactiveRoles[1] role=button name=\"Subscribe\"");

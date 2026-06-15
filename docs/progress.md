@@ -1158,6 +1158,9 @@ When research expands:
 - Added individual text rows for semantic top list summary metadata, so
   text-only agents can choose list containers by role, name, item count,
   samples, and selector without parsing aggregate list rows.
+- Added individual text rows for semantic top outline metadata, so text-only
+  agents can jump to the first landmark/heading by path, kind, role, depth,
+  parent, and selector without parsing aggregate outline rows.
 
 ## In Progress
 
