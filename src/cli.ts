@@ -373,6 +373,8 @@ type AnalysisSummary = {
 
 type PageLinkSummary = ResultSummary & {
   kind: "internal" | "external";
+  urlPath?: string;
+  urlQuery?: string;
 };
 
 type PageEvidenceSummary = {
@@ -841,6 +843,8 @@ type PageMediaSummary = {
   rank: number;
   kind: "open-graph" | "figure" | "image";
   url: string;
+  urlPath?: string;
+  urlQuery?: string;
   text: string;
   alt?: string;
   caption?: string;
@@ -856,6 +860,8 @@ type PageResourceSummary = {
   rank: number;
   kind: "feed" | "alternate" | "amp" | "license" | "manifest" | "sitemap" | "search" | "document" | "download";
   url: string;
+  urlPath?: string;
+  urlQuery?: string;
   text: string;
   title?: string;
   rel?: string;
@@ -5804,6 +5810,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       media.title ? `title="${media.title}"` : "",
       dimensions ? `dimensions=${dimensions}` : "",
       media.selector ? `selector=${media.selector}` : "",
+      media.urlPath ? `urlPath=${media.urlPath}` : "",
+      media.urlQuery ? `urlQuery=${media.urlQuery}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  media: id=${media.id} path=${media.path} ${details} url=<${media.url}> - ${media.text}`);
   }
@@ -5815,6 +5823,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       resource.type ? `type=${resource.type}` : "",
       resource.hreflang ? `hreflang=${resource.hreflang}` : "",
       resource.selector ? `selector=${resource.selector}` : "",
+      resource.urlPath ? `urlPath=${resource.urlPath}` : "",
+      resource.urlQuery ? `urlQuery=${resource.urlQuery}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  resource: id=${resource.id} path=${resource.path} ${details} url=<${resource.url}> - ${resource.text}`);
   }
@@ -5917,6 +5927,8 @@ function formatPageCheckLinkText(link: PageLinkSummary, prefix: "link" | "source
     link.sourceHints?.length ? `hints=${link.sourceHints.join(",")}` : "",
     typeof link.isLikelyOfficial === "boolean" ? `official=${link.isLikelyOfficial}` : "",
     link.selector ? `selector=${link.selector}` : "",
+    link.urlPath ? `urlPath=${link.urlPath}` : "",
+    link.urlQuery ? `urlQuery=${link.urlQuery}` : "",
   ].filter(Boolean).join(" ");
   return `  ${prefix}: ${details} <${link.url}> - ${link.selectionReason ?? sourceLinkSelectionReason(link)}`;
 }
@@ -7160,7 +7172,12 @@ function summarizeSourcePageLinks(primaryLinks: PageLinkSummary[]): PageLinkSumm
     .filter((link) => link.kind === "external")
     .sort((left, right) => sourceLinkPriority(right) - sourceLinkPriority(left) || left.rank - right.rank)
     .slice(0, 4)
-    .map((link, index) => ({ ...link, path: `pageCheck.sourceLinks[${index}]`, rank: index + 1 }));
+    .map((link, index) => ({
+      ...link,
+      ...urlPathParts(link.url),
+      path: `pageCheck.sourceLinks[${index}]`,
+      rank: index + 1,
+    }));
 }
 
 function sourceLinkPriority(link: PageLinkSummary): number {
@@ -11445,6 +11462,7 @@ function summarizeMedia(html: string, baseUrl: string): PageMediaSummary[] {
       id: `m${rank}`,
       path: `pageCheck.media[${rank - 1}]`,
       rank,
+      ...urlPathParts(item.url),
       ...item,
     });
   };
@@ -11576,6 +11594,7 @@ function summarizeResources(html: string, baseUrl: string): PageResourceSummary[
       id: `rs${rank}`,
       path: `pageCheck.resources[${rank - 1}]`,
       rank,
+      ...urlPathParts(item.url),
       ...item,
     });
   };

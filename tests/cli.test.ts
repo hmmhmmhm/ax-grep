@@ -4954,6 +4954,7 @@ describe("cli", () => {
       expect.objectContaining({
         title: "Original source report",
         url: "https://source.example/report",
+        urlPath: "/report",
         kind: "external",
         sourceType: "unknown",
         sourceScore: 0.35,
@@ -5059,6 +5060,7 @@ describe("cli", () => {
     });
     expect(envelope.pageCheck.sourceLinks[0]).toMatchObject({
       url: "https://openai.com/research",
+      urlPath: "/research",
       isLikelyOfficial: true,
     });
   });
@@ -11582,6 +11584,7 @@ npx ax-grep https://example.test --agent</code></pre>
         rank: 1,
         kind: "open-graph",
         url: "https://example.test/share.png",
+        urlPath: "/share.png",
         alt: "Share preview chart",
         text: "Share preview chart - https://example.test/share.png",
         selector: "meta[property=\"og:image\"]",
@@ -11592,6 +11595,7 @@ npx ax-grep https://example.test --agent</code></pre>
         rank: 2,
         kind: "figure",
         url: "https://example.test/chart.png",
+        urlPath: "/chart.png",
         alt: "Revenue chart",
         caption: "Revenue grew 42 percent in 2026.",
         width: 640,
@@ -11689,9 +11693,9 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topResource: path=pageCheck.resources[0] kind=feed title=\"Example feed\" rel=alternate type=application/rss+xml selector=link[rel=\"alternate\"] url=<https://example.test/feed.xml> urlPath=/feed.xml");
-    expect(stdout.output).toContain("  resource: id=rs1 path=pageCheck.resources[0] kind=feed title=\"Example feed\" rel=alternate type=application/rss+xml selector=link[rel=\"alternate\"] url=<https://example.test/feed.xml> - feed: Example feed rel=alternate type=application/rss+xml https://example.test/feed.xml");
+    expect(stdout.output).toContain("  resource: id=rs1 path=pageCheck.resources[0] kind=feed title=\"Example feed\" rel=alternate type=application/rss+xml selector=link[rel=\"alternate\"] urlPath=/feed.xml url=<https://example.test/feed.xml> - feed: Example feed rel=alternate type=application/rss+xml https://example.test/feed.xml");
     expect(stdout.output).toContain("  topMedia: path=pageCheck.media[0] kind=open-graph alt=\"Share preview chart\" selector=meta[property=\"og:image\"] url=<https://example.test/share.png> urlPath=/share.png - Share preview chart - https://example.test/share.png");
-    expect(stdout.output).toContain("  media: id=m1 path=pageCheck.media[0] kind=open-graph alt=\"Share preview chart\" selector=meta[property=\"og:image\"] url=<https://example.test/share.png> - Share preview chart - https://example.test/share.png");
+    expect(stdout.output).toContain("  media: id=m1 path=pageCheck.media[0] kind=open-graph alt=\"Share preview chart\" selector=meta[property=\"og:image\"] urlPath=/share.png url=<https://example.test/share.png> - Share preview chart - https://example.test/share.png");
   });
 
   it("checks requested text against page media summaries", async () => {
@@ -12730,7 +12734,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  excerpt: This article paragraph is long enough to appear in the page checking summary for agents.");
     expect(stdout.output).toContain("  evidence: id=e1 path=pageCheck.contentEvidence[0] rank=1 role=p source=semantic quality=high score=0.84 selector=p - high evidence from semantic extraction, 88 chars, p content, selector available. This article paragraph is long enough to appear in the page checking summary for agents.");
     expect(stdout.output).toContain("  link: kind=external title=\"Source report\" source=source.example rank=1 type=news score=0.58 hints=news-like selector=a <https://source.example/report> - Possible source candidate: news-like.");
-    expect(stdout.output).toContain("  sourceLink: title=\"Source report\" source=source.example rank=1 type=news score=0.58 hints=news-like selector=a <https://source.example/report> - Possible source candidate: news-like.");
+    expect(stdout.output).toContain("  sourceLink: title=\"Source report\" source=source.example rank=1 type=news score=0.58 hints=news-like selector=a urlPath=/report <https://source.example/report> - Possible source candidate: news-like.");
     expect(stdout.output).toContain("  action: type=button selector=button text=\"Subscribe\"");
     expect(stdout.output).toContain("  next: read-content [terminal] - The page has enough structured evidence for source checking.");
     expect(stdout.output).toContain("  execution: read-current");
@@ -12962,7 +12966,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("finds\n  found: source report");
     expect(stdout.output).toContain("sourceLink source=semantic score=0.58 quality=medium");
     expect(stdout.output).toContain("reason=Possible source candidate: news-like.");
-    expect(stdout.output).toContain("sourceLink: title=\"Source report\" source=source.example rank=1 type=news score=0.58 hints=news-like selector=a <https://source.example/report>");
+    expect(stdout.output).toContain("sourceLink: title=\"Source report\" source=source.example rank=1 type=news score=0.58 hints=news-like selector=a urlPath=/report <https://source.example/report>");
   });
 
   it("prints ranked result details in text output", async () => {

@@ -3,7 +3,7 @@
 Status: about 99.2% fit for the goal of making `ax-grep --agent` a useful
 first-pass page/search checker before `agent-browser`.
 
-Last updated: 2026-06-14.
+Last updated: 2026-06-16.
 
 This is a research track, so the target can expand when comparison work finds a
 new class of browser accessibility-tree signal that static HTML can expose
@@ -1048,6 +1048,10 @@ When research expands:
 - Added hidden technical URL path/query shortcuts so hydration, API, runtime,
   manifest, mobile, and selected hidden-signal targets can be compared without
   parsing full URLs.
+- Added `urlPath`/`urlQuery` directly to original `pageCheck.sourceLinks`,
+  `pageCheck.resources`, and `pageCheck.media` entries, with a static gate, so
+  agents reading the source arrays do not need to parse full URLs before routing
+  follow-up checks.
 
 ## In Progress
 
