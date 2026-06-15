@@ -122,6 +122,39 @@ describe("cli", () => {
     expect(missingTextLabels).toEqual([]);
   });
 
+  it("keeps diagnostic and quality-gate shortcuts labelled in text agent output", async () => {
+    const source = await readFile(join(process.cwd(), "src/cli.ts"), "utf8");
+    const formatStart = source.indexOf("function formatAgentText");
+    const formatEnd = source.indexOf("function formatPageCheckText", formatStart);
+
+    expect(formatStart).toBeGreaterThanOrEqual(0);
+    expect(formatEnd).toBeGreaterThan(formatStart);
+
+    const formatAgentTextSource = source.slice(formatStart, formatEnd);
+    const diagnosticFields = [
+      "topSignalKind",
+      "topSignalSeverity",
+      "topSignalMessage",
+      "topQualityGateKind",
+      "topQualityGatePass",
+      "topQualityGateSeverity",
+      "topQualityGateMessage",
+      "topQualityGatePath",
+      "topQualityGateScore",
+      "problemSignalKind",
+      "problemSignalSeverity",
+      "problemSignalMessage",
+      "failingQualityGateKind",
+      "failingQualityGateSeverity",
+      "failingQualityGateMessage",
+      "failingQualityGatePath",
+      "failingQualityGateScore",
+    ];
+    const missingTextLabels = diagnosticFields.filter((field) => !formatAgentTextSource.includes(`${field}:`));
+
+    expect(missingTextLabels).toEqual([]);
+  });
+
   it("documents agent handoff routing in help output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["--help"], { stdout });
@@ -13429,7 +13462,19 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  signalErrors: 0");
     expect(stdout.output).toContain("  qualityGateCount: 6");
     expect(stdout.output).toContain("  qualityGateFailures: 0");
+    expect(stdout.output).toContain("  topSignalKind: content");
+    expect(stdout.output).toContain("  topSignalSeverity: info");
+    expect(stdout.output).toContain("  topSignalMessage:");
+    expect(stdout.output).toContain("  topQualityGateKind: fetch");
+    expect(stdout.output).toContain("  topQualityGatePass: true");
+    expect(stdout.output).toContain("  topQualityGateSeverity: info");
+    expect(stdout.output).toContain("  topQualityGateMessage: Fetched response was converted into an agent payload.");
+    expect(stdout.output).toContain("  topQualityGatePath: agent.responseStatus");
+    expect(stdout.output).toContain("  topQualityGateScore: 1");
     expect(stdout.output).toContain("  problemSignal: warning/diagnostic - ");
+    expect(stdout.output).toContain("  problemSignalKind: diagnostic");
+    expect(stdout.output).toContain("  problemSignalSeverity: warning");
+    expect(stdout.output).toContain("  problemSignalMessage:");
     expect(stdout.output).toContain("  canContinue: true");
     expect(stdout.output).toContain("  responseStatus: 200");
     expect(stdout.output).toContain("  responseOk: true");
