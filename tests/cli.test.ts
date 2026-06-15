@@ -10774,6 +10774,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topPagination: pageCheck.pagination[0] prev \"Previous\" selector=nav:nth-of-type(1) a <https://example.test/blog?page=1>");
+    expect(stdout.output).toContain("  pagination: pg1 pageCheck.pagination[0] prev source=html label=\"Previous\" selector=nav:nth-of-type(1) a <https://example.test/blog?page=1> - prev Previous https://example.test/blog?page=1");
   });
 
   it("summarizes table-of-contents navigation as pageCheck read targets for agents", async () => {

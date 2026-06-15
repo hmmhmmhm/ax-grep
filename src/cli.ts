@@ -5243,10 +5243,14 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`  section: ${section.id} ${section.path} ${details} - ${section.text}`);
   }
   for (const pagination of pageCheck.pagination) {
-    const current = pagination.current ? " current" : "";
     const url = pagination.url ? ` <${pagination.url}>` : "";
-    const selector = pagination.selector ? ` (${pagination.selector})` : "";
-    lines.push(`  pagination: ${pagination.id} ${pagination.path} ${pagination.kind}${current}${selector}${url} - ${pagination.text}`);
+    const details = [
+      `source=${pagination.source}`,
+      `label="${pagination.label}"`,
+      pagination.current ? "current=true" : "",
+      pagination.selector ? `selector=${pagination.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  pagination: ${pagination.id} ${pagination.path} ${pagination.kind} ${details}${url} - ${pagination.text}`);
   }
   for (const toc of pageCheck.toc) {
     const title = toc.title ? ` title="${toc.title}"` : "";
