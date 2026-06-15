@@ -130,6 +130,7 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
     "agent-browser",
     "pnpm compare:static:fixtures:gate",
   ]);
+  checkCommandShortcutSymmetry(root, failures);
   checkRiskyScriptInventory(failures, scripts);
 
   checkReadmeSplit(root, failures);
@@ -2424,6 +2425,26 @@ function checkRiskyScriptInventory(failures: ReadinessFailure[], scripts: Record
   });
 }
 
+function checkCommandShortcutSymmetry(root: string, failures: ReadinessFailure[]): void {
+  const readiness = readText(root, "scripts/check-agent-readiness.ts", failures);
+  const source = readText(root, "src/cli.ts", failures);
+  if (typeof readiness !== "string" || typeof source !== "string") return;
+
+  const commandArgsFields = [...readiness.matchAll(/"([A-Za-z0-9]+CommandArgs)"/g)]
+    .flatMap((match) => typeof match[1] === "string" ? [match[1]] : [])
+    .filter((field, index, fields) => fields.indexOf(field) === index);
+
+  for (const commandArgsField of commandArgsFields) {
+    const commandField = commandArgsField.replace(/Args$/, "");
+    if (!new RegExp(`\\b${escapeRegExp(commandField)}\\b`).test(source)) continue;
+    if (readiness.includes(`"${commandField}"`)) continue;
+    failures.push({
+      file: "scripts/check-agent-readiness.ts",
+      message: `${commandArgsField} is guarded without matching ${commandField}`,
+    });
+  }
+}
+
 function checkReadmeSplit(root: string, failures: ReadinessFailure[]): void {
   const readme = readText(root, "README.md", failures);
   if (typeof readme !== "string") return;
@@ -2443,6 +2464,10 @@ function checkReadmeSplit(root: string, failures: ReadinessFailure[]): void {
     "./benchmarks.md",
     "./comparison-baseline.md",
   ]);
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function isMainModule(): boolean {
