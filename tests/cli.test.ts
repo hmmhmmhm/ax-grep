@@ -15351,6 +15351,34 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(JSON.stringify(envelope)).not.toContain("retry-with-browser-html");
   });
 
+  it("prints pageCheck browser-capture rerun commands for challenge HTML", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://captured.example/challenge", "--stdin"], {
+      stdout,
+      stdin: Readable.from([`
+        <html>
+          <head><title>Just a moment</title></head>
+          <body><main><h1>Verify you are human</h1><p>Please wait for verification.</p></main></body>
+        </html>
+      `]) as NodeJS.ReadStream,
+      fetch: async () => {
+        throw new Error("fetch should not run for --stdin");
+      },
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("pageCheck");
+    expect(stdout.output).toContain("  next: retry-with-browser-html - The page is not reliably readable from fetched HTML.");
+    expect(stdout.output).toContain("  execution: run-command");
+    expect(stdout.output).toContain("  command: ax-grep 'https://captured.example/challenge' --html-file captured.html --json --summary");
+    expect(stdout.output).toContain("  commandArgs: [\"ax-grep\",\"https://captured.example/challenge\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  pageCheckCommand: ax-grep 'https://captured.example/challenge' --html-file captured.html --json --summary");
+    expect(stdout.output).toContain("  pageCheckCommandArgs: [\"ax-grep\",\"https://captured.example/challenge\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  pageCheckStepCommand: ax-grep 'https://captured.example/challenge' --html-file captured.html --json --summary");
+    expect(stdout.output).toContain("  pageCheckStepCommandArgs: [\"ax-grep\",\"https://captured.example/challenge\",\"--html-file\",\"captured.html\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  browserHtmlCommand: ax-grep 'https://captured.example/challenge' --html-file captured.html --json --summary");
+  });
+
   it("does not classify ordinary content pages as search results only because they have q params", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://docs.example/install?q=ax-grep", "--stdin", "--agent"], {
