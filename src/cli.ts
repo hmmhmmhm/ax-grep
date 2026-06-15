@@ -5277,12 +5277,13 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   for (const pagination of pageCheck.pagination) {
     const url = pagination.url ? ` <${pagination.url}>` : "";
     const details = [
+      `kind=${pagination.kind}`,
       `source=${pagination.source}`,
       `label="${pagination.label}"`,
       pagination.current ? "current=true" : "",
       pagination.selector ? `selector=${pagination.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  pagination: ${pagination.id} ${pagination.path} ${pagination.kind} ${details}${url} - ${pagination.text}`);
+    lines.push(`  pagination: ${pagination.id} ${pagination.path} ${details}${url} - ${pagination.text}`);
   }
   for (const toc of pageCheck.toc) {
     const first = toc.items[0];
