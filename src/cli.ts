@@ -16664,6 +16664,22 @@ function summarizeAgentReadTargets(
       ...(primaryReadFrom === "agent.semanticSummary" ? { primary: true } : {}),
     });
   }
+  if (sourceSearch?.selectedResult) {
+    add({
+      path: "sourceSearch.selectedResult",
+      reason: "Original SERP metadata for the result that produced the current page.",
+      count: 1,
+      ...(typeof sourceSearch.selectedResult.sourceScore === "number" ? { score: sourceSearch.selectedResult.sourceScore } : {}),
+    });
+  }
+  if (sourceSearch?.alternateResults?.length) {
+    add({
+      path: "sourceSearch.alternateResults",
+      reason: "Original SERP candidates available for recovery after the selected result fails, does not verify, or needs comparison.",
+      count: sourceSearch.alternateResults.length,
+      score: averageResultSourceScore(sourceSearch.alternateResults),
+    });
+  }
   if (pageCheck.dataTables.length > 0) {
     add({
       path: "pageCheck.dataTables",
@@ -19716,7 +19732,7 @@ function agentJsonEnvelope(envelope: {
     searchQuery: envelope.searchQuery,
     searchEngine: envelope.searchEngine,
     selectedSearchEngine: envelope.selectedSearchEngine,
-    ...(!envelope.sourceSearch ? compactAgentSearchEngines(envelope.searchEngines) : {}),
+    ...compactAgentSearchEngines(envelope.searchEngines),
     searchLang: envelope.searchLang,
     searchRegion: envelope.searchRegion,
     sourceSearch: compactAgentSourceSearch(envelope.sourceSearch),
@@ -19776,6 +19792,7 @@ function agentBriefJsonEnvelope(envelope: {
     searchQuery: envelope.searchQuery,
     searchEngine: envelope.searchEngine,
     selectedSearchEngine: envelope.selectedSearchEngine,
+    ...compactAgentSearchEngines(envelope.searchEngines),
     searchLang: envelope.searchLang,
     searchRegion: envelope.searchRegion,
     ...(envelope.warnings.length > 0 ? { warnings: envelope.warnings } : {}),
@@ -19893,7 +19910,7 @@ function agentJsonErrorEnvelope(envelope: {
     searchQuery: envelope.searchQuery,
     searchEngine: envelope.searchEngine,
     selectedSearchEngine: envelope.selectedSearchEngine,
-    ...(!envelope.sourceSearch ? compactAgentSearchEngines(envelope.searchEngines) : {}),
+    ...compactAgentSearchEngines(envelope.searchEngines),
     searchLang: envelope.searchLang,
     searchRegion: envelope.searchRegion,
     sourceSearch: compactAgentSourceSearch(envelope.sourceSearch),
@@ -19921,6 +19938,7 @@ function agentBriefJsonErrorEnvelope(envelope: {
   searchQuery: string | undefined;
   searchEngine: SearchEngineOption | undefined;
   selectedSearchEngine: SearchEngine | undefined;
+  searchEngines: SearchAttemptSummary[] | undefined;
   searchLang: string | undefined;
   searchRegion: string | undefined;
   fetchedAt: string;
@@ -19944,6 +19962,7 @@ function agentBriefJsonErrorEnvelope(envelope: {
     searchQuery: envelope.searchQuery,
     searchEngine: envelope.searchEngine,
     selectedSearchEngine: envelope.selectedSearchEngine,
+    ...compactAgentSearchEngines(envelope.searchEngines),
     searchLang: envelope.searchLang,
     searchRegion: envelope.searchRegion,
     fetchedAt: envelope.fetchedAt,

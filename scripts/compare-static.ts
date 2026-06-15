@@ -852,7 +852,7 @@ export async function runStaticComparisons(targets: BenchmarkTarget[], options: 
     const namedRoleTotal = Math.max(staticNormalized.namedRoles.length, agentBrowser?.normalized.namedRoles.length ?? 0);
 
     const agentReadiness = scoreAgentReadiness(staticNormalized, agentBrowser?.normalized ?? emptyNormalizedSummary());
-    const cliAgentSummary = await summarizeCliAgentOutput(target.url, html, source, status, warnings, target.findQueries ?? []);
+    const cliAgentSummary = await summarizeCliAgentOutput(target.url, html, source, status, warnings, target.findQueries ?? [], target.cliArgs, target.cliBriefArgs, target.cliFetchMocks);
     const agentBrowserAdvantageScore = scoreAgentBrowserAdvantage(cliAgentSummary);
     const comparison: StaticComparison = {
       category: target.category,
@@ -1152,6 +1152,17 @@ function scoreAgentReadiness(candidate: NormalizedSummary, reference: Normalized
   };
 }
 
+function briefArgsFromAgentArgs(args: string[] | undefined): string[] | undefined {
+  if (!args) return undefined;
+  const brief = [...args];
+  const agentIndex = brief.indexOf("--agent");
+  if (agentIndex >= 0) {
+    brief[agentIndex] = "--agent-brief";
+    return brief;
+  }
+  return brief.includes("--agent-brief") ? brief : [...brief, "--agent-brief"];
+}
+
 async function summarizeCliAgentOutput(
   url: string,
   html: string,
@@ -1159,17 +1170,27 @@ async function summarizeCliAgentOutput(
   status: number,
   warnings: string[],
   findQueries: string[] = [],
+  cliArgs?: string[],
+  cliBriefArgs?: string[],
+  cliFetchMocks?: BenchmarkTarget["cliFetchMocks"],
 ): Promise<CliAgentSummary> {
   const stdout = createMemoryWriter();
   const stderr = createMemoryWriter();
-  const args = source === "agent-browser-rendered" ? [url, "--stdin", "--agent"] : [url, "--agent"];
+  const args = cliArgs ? [...cliArgs] : source === "agent-browser-rendered" ? [url, "--stdin", "--agent"] : [url, "--agent"];
   for (const query of findQueries) args.push("--find", query);
   const cliStatus = await runCli(args, {
     stdout,
     stderr,
-    ...(source === "agent-browser-rendered" ? { stdin: Readable.from([html]) as NodeJS.ReadStream } : {}),
-    fetch: async () => {
+    ...(source === "agent-browser-rendered" && !cliArgs ? { stdin: Readable.from([html]) as NodeJS.ReadStream } : {}),
+    fetch: async (input) => {
       if (source === "agent-browser-rendered") throw new Error("compare-static should pass rendered HTML through stdin");
+      const mock = cliFetchMocks?.find((candidate) => String(input).includes(candidate.match));
+      if (mock) {
+        return new Response(mock.html, {
+          status: mock.status || 200,
+          headers: { "content-type": mock.contentType ?? "text/html" },
+        });
+      }
       return new Response(html, {
         status: status || 200,
         headers: { "content-type": "text/html" },
@@ -1179,7 +1200,7 @@ async function summarizeCliAgentOutput(
   if (cliStatus !== 0) warnings.push(`ax-grep CLI summary exited ${cliStatus}: ${trimError(stderr.output || stdout.output)}`);
   try {
     const summary = summarizeCliEnvelope(JSON.parse(stdout.output));
-    summary.agentBriefExecutorStepScore = await summarizeCliBriefExecutorScore(url, html, source, status, warnings, findQueries);
+    summary.agentBriefExecutorStepScore = await summarizeCliBriefExecutorScore(url, html, source, status, warnings, findQueries, cliBriefArgs ?? briefArgsFromAgentArgs(cliArgs), cliFetchMocks);
     summary.agentExecutorScore = scoreAgentExecutorSummary(summary);
     summary.score = scoreCliAgentSummary(summary);
     return summary;
@@ -1196,17 +1217,26 @@ async function summarizeCliBriefExecutorScore(
   status: number,
   warnings: string[],
   findQueries: string[] = [],
+  cliArgs?: string[],
+  cliFetchMocks?: BenchmarkTarget["cliFetchMocks"],
 ): Promise<number> {
   const stdout = createMemoryWriter();
   const stderr = createMemoryWriter();
-  const args = source === "agent-browser-rendered" ? [url, "--stdin", "--agent-brief"] : [url, "--agent-brief"];
+  const args = cliArgs ? [...cliArgs] : source === "agent-browser-rendered" ? [url, "--stdin", "--agent-brief"] : [url, "--agent-brief"];
   for (const query of findQueries) args.push("--find", query);
   const cliStatus = await runCli(args, {
     stdout,
     stderr,
-    ...(source === "agent-browser-rendered" ? { stdin: Readable.from([html]) as NodeJS.ReadStream } : {}),
-    fetch: async () => {
+    ...(source === "agent-browser-rendered" && !cliArgs ? { stdin: Readable.from([html]) as NodeJS.ReadStream } : {}),
+    fetch: async (input) => {
       if (source === "agent-browser-rendered") throw new Error("compare-static should pass rendered HTML through stdin");
+      const mock = cliFetchMocks?.find((candidate) => String(input).includes(candidate.match));
+      if (mock) {
+        return new Response(mock.html, {
+          status: mock.status || 200,
+          headers: { "content-type": mock.contentType ?? "text/html" },
+        });
+      }
       return new Response(html, {
         status: status || 200,
         headers: { "content-type": "text/html" },

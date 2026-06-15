@@ -4,6 +4,14 @@ export type BenchmarkTarget = {
   html?: string;
   status?: number;
   findQueries?: string[];
+  cliArgs?: string[];
+  cliBriefArgs?: string[];
+  cliFetchMocks?: Array<{
+    match: string;
+    html: string;
+    status?: number;
+    contentType?: string;
+  }>;
   gate?: boolean;
   gateReason?: string;
   excludeLikelyBoilerplate?: boolean;
@@ -24,6 +32,45 @@ const syntheticSearchHtml = `
       </li>
     </ol>
   </main>
+`;
+
+const syntheticSourceSearchBingHtml = `
+  <main>
+    <ol>
+      <li class="b_algo">
+        <h2><a href="https://first.example/guide">First source</a></h2>
+        <p>General background for the agent browser topic.</p>
+      </li>
+      <li class="b_algo">
+        <h2><a href="https://target.example/article">Target source</a></h2>
+        <p>Practical source for agent browser search recovery.</p>
+      </li>
+    </ol>
+  </main>
+`;
+
+const syntheticSourceSearchStartpageHtml = `
+  <main>
+    <div class="w-gl__result">
+      <a class="w-gl__result-title" href="https://fallback.example/article">Fallback source</a>
+      <p>Fallback source for the same query.</p>
+    </div>
+  </main>
+`;
+
+const syntheticSourceSearchTargetHtml = `
+  <html>
+    <head><title>Target source</title></head>
+    <body>
+      <main>
+        <article>
+          <h1>Target source</h1>
+          <p>This opened search result provides enough static content for an agent to continue without browser inspection.</p>
+          <p>The fixture keeps source-search engine attempts available for recovery scoring.</p>
+        </article>
+      </main>
+    </body>
+  </html>
 `;
 
 const syntheticSearchRefineHtml = `
@@ -278,6 +325,33 @@ export const agentFixtureTargets: BenchmarkTarget[] = [
     category: "Synthetic search open gate",
     url: "https://www.bing.com/search?q=ax-grep",
     html: syntheticSearchHtml,
+  },
+  {
+    category: "Synthetic source search engine gate",
+    url: "https://target.example/article",
+    html: syntheticSourceSearchTargetHtml,
+    cliArgs: ["--search", "agent browser", "--engine", "auto", "--open-result", "2", "--agent"],
+    cliBriefArgs: ["--search", "agent browser", "--engine", "auto", "--open-result", "2", "--agent-brief"],
+    cliFetchMocks: [
+      {
+        match: "duckduckgo.com",
+        html: "blocked",
+        status: 403,
+        contentType: "text/plain",
+      },
+      {
+        match: "bing.com",
+        html: syntheticSourceSearchBingHtml,
+      },
+      {
+        match: "startpage.com",
+        html: syntheticSourceSearchStartpageHtml,
+      },
+      {
+        match: "target.example/article",
+        html: syntheticSourceSearchTargetHtml,
+      },
+    ],
   },
   {
     category: "Synthetic search refine gate",
