@@ -4979,8 +4979,15 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   if (pageCheck.structuredDataTypes?.length) lines.push(`  schemaTypes: ${pageCheck.structuredDataTypes.join(", ")}`);
   for (const excerpt of pageCheck.contentPreview) lines.push(`  excerpt: ${excerpt}`);
   for (const evidence of pageCheck.contentEvidence) {
-    const selector = evidence.selector ? ` (${evidence.selector})` : "";
-    lines.push(`  evidence: ${evidence.id} ${evidence.path} ${evidence.rank}. ${evidence.role}${selector} ${evidence.quality} - ${evidence.qualityReason} ${evidence.text}`);
+    const details = [
+      `rank=${evidence.rank}`,
+      `role=${evidence.role}`,
+      `source=${evidence.source}`,
+      `quality=${evidence.quality}`,
+      `score=${evidence.score}`,
+      evidence.selector ? `selector=${evidence.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  evidence: ${evidence.id} ${evidence.path} ${details} - ${evidence.qualityReason} ${evidence.text}`);
   }
   for (const table of pageCheck.dataTables) {
     const caption = table.caption ? ` caption="${table.caption}"` : "";
