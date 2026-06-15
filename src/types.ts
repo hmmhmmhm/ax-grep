@@ -2043,6 +2043,7 @@ export type AgentSummary = {
   topDataTableRowCount?: number;
   topDataTableColumnCount?: number;
   topDataTableHeaderCount?: number;
+  topDataTableHeaders?: string[];
   topDataTableFirstHeader?: string;
   topDataTableFirstRow?: string[];
   topDataTableFirstCell?: string;

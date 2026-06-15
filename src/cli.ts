@@ -1675,6 +1675,7 @@ type AgentSummary = {
   topDataTableRowCount?: number;
   topDataTableColumnCount?: number;
   topDataTableHeaderCount?: number;
+  topDataTableHeaders?: string[];
   topDataTableFirstHeader?: string;
   topDataTableFirstRow?: string[];
   topDataTableFirstCell?: string;
@@ -4395,6 +4396,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topBarrierDiagnosticCode ? [`  topBarrierDiagnosticCode: ${agent.topBarrierDiagnosticCode}`] : []),
     `  dataTableCount: ${agent.dataTableCount}`,
     ...(agent.topDataTablePath ? [`  topDataTable: path=${agent.topDataTablePath}${agent.topDataTableCaption ? ` caption="${agent.topDataTableCaption}"` : ""} rows=${agent.topDataTableRowCount ?? 0} columns=${agent.topDataTableColumnCount ?? 0}${typeof agent.topDataTableHeaderCount === "number" ? ` headers=${agent.topDataTableHeaderCount}` : ""}${agent.topDataTableSelector ? ` selector=${agent.topDataTableSelector}` : ""}`] : []),
+    ...(agent.topDataTableHeaders?.length ? [`  topDataTableHeaders: ${agent.topDataTableHeaders.join(" | ")}`] : []),
     ...(agent.topDataTableFirstHeader ? [`  topDataTableFirstHeader: ${agent.topDataTableFirstHeader}`] : []),
     ...(agent.topDataTableFirstRow?.length ? [`  topDataTableFirstRow: ${agent.topDataTableFirstRow.join(" | ")}`] : []),
     ...(agent.topDataTableFirstCell ? [`  topDataTableFirstCell: ${agent.topDataTableFirstCell}`] : []),
@@ -13790,6 +13792,7 @@ function summarizeAgent(
     ...(pageCheck.dataTables[0] ? { topDataTableRowCount: pageCheck.dataTables[0].rowCount } : {}),
     ...(pageCheck.dataTables[0] ? { topDataTableColumnCount: pageCheck.dataTables[0].columnCount } : {}),
     ...(pageCheck.dataTables[0] ? { topDataTableHeaderCount: pageCheck.dataTables[0].headers.length } : {}),
+    ...(pageCheck.dataTables[0]?.headers.length ? { topDataTableHeaders: pageCheck.dataTables[0].headers } : {}),
     ...(pageCheck.dataTables[0]?.headers[0] ? { topDataTableFirstHeader: pageCheck.dataTables[0].headers[0] } : {}),
     ...(pageCheck.dataTables[0]?.sampleRows[0] ? { topDataTableFirstRow: pageCheck.dataTables[0].sampleRows[0] } : {}),
     ...(pageCheck.dataTables[0]?.sampleRows[0]?.[0] ? { topDataTableFirstCell: pageCheck.dataTables[0].sampleRows[0][0] } : {}),
@@ -19916,6 +19919,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.topDataTableRowCount === "number" ? { topDataTableRowCount: agent.topDataTableRowCount } : {}),
     ...(typeof agent.topDataTableColumnCount === "number" ? { topDataTableColumnCount: agent.topDataTableColumnCount } : {}),
     ...(typeof agent.topDataTableHeaderCount === "number" ? { topDataTableHeaderCount: agent.topDataTableHeaderCount } : {}),
+    ...(agent.topDataTableHeaders?.length ? { topDataTableHeaders: agent.topDataTableHeaders } : {}),
     ...(agent.topDataTableFirstHeader ? { topDataTableFirstHeader: agent.topDataTableFirstHeader } : {}),
     ...(agent.topDataTableFirstRow?.length ? { topDataTableFirstRow: agent.topDataTableFirstRow } : {}),
     ...(agent.topDataTableFirstCell ? { topDataTableFirstCell: agent.topDataTableFirstCell } : {}),
@@ -21294,6 +21298,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.topDataTableRowCount === "number" ? { topDataTableRowCount: agent.topDataTableRowCount } : {}),
     ...(typeof agent.topDataTableColumnCount === "number" ? { topDataTableColumnCount: agent.topDataTableColumnCount } : {}),
     ...(typeof agent.topDataTableHeaderCount === "number" ? { topDataTableHeaderCount: agent.topDataTableHeaderCount } : {}),
+    ...(agent.topDataTableHeaders?.length ? { topDataTableHeaders: agent.topDataTableHeaders } : {}),
     ...(agent.topDataTableFirstHeader ? { topDataTableFirstHeader: agent.topDataTableFirstHeader } : {}),
     ...(agent.topDataTableFirstRow?.length ? { topDataTableFirstRow: agent.topDataTableFirstRow } : {}),
     ...(agent.topDataTableFirstCell ? { topDataTableFirstCell: agent.topDataTableFirstCell } : {}),

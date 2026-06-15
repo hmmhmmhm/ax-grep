@@ -5303,6 +5303,7 @@ describe("cli", () => {
       topDataTableRowCount: 2,
       topDataTableColumnCount: 3,
       topDataTableHeaderCount: 3,
+      topDataTableHeaders: ["Plan", "Monthly price", "Storage"],
       topDataTableFirstHeader: "Plan",
       topDataTableFirstRow: ["Starter", "$19.99", "10 GB"],
       topDataTableFirstCell: "Starter",
@@ -5408,6 +5409,7 @@ describe("cli", () => {
       dataTableCount: 1,
       topDataTablePath: "pageCheck.dataTables[0]",
       topDataTableCaption: "Plan comparison",
+      topDataTableHeaders: ["Plan", "Monthly price"],
       topDataTableFirstHeader: "Plan",
       topDataTableFirstCell: "Team",
       topDataTableSelector: "table:nth-of-type(1)",
@@ -6282,6 +6284,7 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topDataTable: path=pageCheck.dataTables[0] caption=\"Plan comparison\" rows=1 columns=3 headers=3 selector=table:nth-of-type(1)");
+    expect(stdout.output).toContain("  topDataTableHeaders: Plan | Monthly price | Storage");
     expect(stdout.output).toContain("  dataTable: id=t1 path=pageCheck.dataTables[0] rank=1 rows=1 columns=3 headers=Plan|Monthly price|Storage caption=\"Plan comparison\" firstRow=\"Starter | $19.99 | 10 GB\" selector=table:nth-of-type(1) - Plan comparison; Headers: Plan | Monthly price | Storage; Starter | $19.99 | 10 GB");
   });
 

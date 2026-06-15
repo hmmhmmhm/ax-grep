@@ -1552,6 +1552,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topDataTableRowCount?: number;
       topDataTableColumnCount?: number;
       topDataTableHeaderCount?: number;
+      topDataTableHeaders?: string[];
       topDataTableFirstHeader?: string;
       topDataTableFirstRow?: string[];
       topDataTableFirstCell?: string;
@@ -8573,6 +8574,7 @@ function scoreAgentStructuredShortcuts(agent: {
   topDataTableRowCount?: number;
   topDataTableColumnCount?: number;
   topDataTableHeaderCount?: number;
+  topDataTableHeaders?: string[];
   topDataTableFirstHeader?: string;
   topDataTableFirstRow?: string[];
   topDataTableFirstCell?: string;
@@ -8785,17 +8787,18 @@ function scoreAgentStructuredShortcuts(agent: {
 
   const topDataTable = dataTables[0];
   if (topDataTable) {
-    required += 9;
+    required += 10;
     if (agent.topDataTablePath === topDataTable.path) matched += 1;
     if (agent.topDataTableCaption === topDataTable.caption) matched += 1;
     if (agent.topDataTableRowCount === topDataTable.rowCount) matched += 1;
     if (agent.topDataTableColumnCount === topDataTable.columnCount) matched += 1;
     if (agent.topDataTableHeaderCount === (topDataTable.headers?.length ?? 0)) matched += 1;
+    if (arraysEqual(agent.topDataTableHeaders, topDataTable.headers)) matched += 1;
     if (agent.topDataTableFirstHeader === topDataTable.headers?.[0]) matched += 1;
     if (arraysEqual(agent.topDataTableFirstRow, topDataTable.sampleRows?.[0])) matched += 1;
     if (agent.topDataTableFirstCell === topDataTable.sampleRows?.[0]?.[0]) matched += 1;
     if (agent.topDataTableSelector === topDataTable.selector) matched += 1;
-  } else if (agent.topDataTablePath || agent.topDataTableCaption || typeof agent.topDataTableRowCount === "number" || typeof agent.topDataTableColumnCount === "number" || typeof agent.topDataTableHeaderCount === "number" || agent.topDataTableFirstHeader || agent.topDataTableFirstRow || agent.topDataTableFirstCell || agent.topDataTableSelector) {
+  } else if (agent.topDataTablePath || agent.topDataTableCaption || typeof agent.topDataTableRowCount === "number" || typeof agent.topDataTableColumnCount === "number" || typeof agent.topDataTableHeaderCount === "number" || agent.topDataTableHeaders || agent.topDataTableFirstHeader || agent.topDataTableFirstRow || agent.topDataTableFirstCell || agent.topDataTableSelector) {
     required += 1;
   }
 

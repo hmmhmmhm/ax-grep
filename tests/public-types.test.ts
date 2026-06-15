@@ -390,6 +390,7 @@ describe("public agent types", () => {
       | "topDataTableRowCount"
       | "topDataTableColumnCount"
       | "topDataTableHeaderCount"
+      | "topDataTableHeaders"
       | "topDataTableFirstHeader"
       | "topDataTableFirstRow"
       | "topDataTableFirstCell"
@@ -1778,6 +1779,7 @@ describe("public agent types", () => {
       topDataTableRowCount: 2,
       topDataTableColumnCount: 3,
       topDataTableHeaderCount: 3,
+      topDataTableHeaders: ["Plan", "Monthly price", "Storage"],
       topDataTableFirstHeader: "Plan",
       topDataTableFirstRow: ["Starter", "$19.99", "10 GB"],
       topDataTableFirstCell: "Starter",
