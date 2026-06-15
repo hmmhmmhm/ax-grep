@@ -6210,6 +6210,40 @@ describe("cli", () => {
     });
   });
 
+  it("prints current semantic link shortcuts in text agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/nav"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <nav aria-label="Primary">
+            <a href="/home">Home</a>
+            <a href="/reports?year=2026" target="_self" rel="bookmark" type="text/html" hreflang="en" aria-current="page" download="reports.html">Reports</a>
+          </nav>
+          <h1>Reports</h1>
+          <p>Readable report content for routing.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticTopCurrentLink: agent.semanticSummary.links[1] name=\"Reports\" <https://example.test/reports?year=2026> urlPath=/reports urlQuery=?year=2026");
+    expect(stdout.output).toContain("  semanticTopCurrentLinkName: Reports");
+    expect(stdout.output).toContain("  semanticTopCurrentLinkPath: agent.semanticSummary.links[1]");
+    expect(stdout.output).toContain("  semanticTopCurrentLinkUrl: https://example.test/reports?year=2026");
+    expect(stdout.output).toContain("  semanticTopCurrentLinkUrlPath: /reports");
+    expect(stdout.output).toContain("  semanticTopCurrentLinkUrlQuery: ?year=2026");
+    expect(stdout.output).toContain("  semanticTopCurrentLinkTarget: _self");
+    expect(stdout.output).toContain("  semanticTopCurrentLinkRel: bookmark");
+    expect(stdout.output).toContain("  semanticTopCurrentLinkType: text/html");
+    expect(stdout.output).toContain("  semanticTopCurrentLinkHreflang: en");
+    expect(stdout.output).toContain("  semanticTopCurrentLinkState: current=page");
+    expect(stdout.output).toContain("  semanticTopCurrentLinkCurrent: page");
+    expect(stdout.output).toContain("  semanticTopCurrentLinkDownload: reports.html");
+    expect(stdout.output).toContain("  semanticTopCurrentLinkSelector: a:nth-of-type(2)");
+  });
+
   it("exposes semantic table and list shortcuts for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/report", "--agent"], {
