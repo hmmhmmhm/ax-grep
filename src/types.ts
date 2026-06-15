@@ -2370,6 +2370,11 @@ export type AgentSummary = {
   topChoiceUrlTemplate?: string;
   topChoiceQueryField?: string;
   topChoiceQueryInput?: string;
+  topChoiceRequiredFieldName?: string;
+  topChoiceRequiredFieldSelector?: string;
+  topChoiceInvalidFieldName?: string;
+  topChoiceInvalidFieldInvalid?: SemanticNodeState["invalid"];
+  topChoiceInvalidFieldSelector?: string;
   topChoiceHost?: string;
   topChoiceSnippet?: string;
   topChoiceDateText?: string;

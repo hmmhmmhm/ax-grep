@@ -12881,6 +12881,11 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain(" command=ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
     expect(stdout.output).toContain("  answerPlanUrl: https://example.test/find?query=quarterly%20report");
     expect(stdout.output).toContain("  topChoiceCommandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  topChoiceRequiredFieldName: query");
+    expect(stdout.output).toContain("  topChoiceRequiredFieldSelector: input[name=\"query\"]");
+    expect(stdout.output).toContain("  topChoiceInvalidFieldName: query");
+    expect(stdout.output).toContain("  topChoiceInvalidFieldInvalid: spelling");
+    expect(stdout.output).toContain("  topChoiceInvalidFieldSelector: input[name=\"query\"]");
     expect(stdout.output).toContain("  pageDecisionCommandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  primaryExecution: run-command");
     expect(stdout.output).toContain("  primaryCommand: ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");

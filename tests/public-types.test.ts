@@ -716,6 +716,11 @@ describe("public agent types", () => {
       | "topChoiceUrlTemplate"
       | "topChoiceQueryField"
       | "topChoiceQueryInput"
+      | "topChoiceRequiredFieldName"
+      | "topChoiceRequiredFieldSelector"
+      | "topChoiceInvalidFieldName"
+      | "topChoiceInvalidFieldInvalid"
+      | "topChoiceInvalidFieldSelector"
       | "topChoiceHost"
       | "topChoiceSnippet"
       | "topChoiceDateText"
@@ -2150,6 +2155,11 @@ describe("public agent types", () => {
       topChoiceRelevance: "high",
       topChoiceLikelyOfficial: true,
       topChoiceMethod: "GET",
+      topChoiceRequiredFieldName: "q",
+      topChoiceRequiredFieldSelector: "input[name=\"q\"]",
+      topChoiceInvalidFieldName: "q",
+      topChoiceInvalidFieldInvalid: "spelling",
+      topChoiceInvalidFieldSelector: "input[name=\"q\"]",
       topChoiceSelector: "a:nth-of-type(1)",
       topChoiceReason: "High-quality source link.",
       sourceSearchQuery: "ax-grep docs",
@@ -3292,6 +3302,8 @@ describe("public agent types", () => {
     expect(summary.topChoiceSelector).toBe("a:nth-of-type(1)");
     expect(summary.topChoiceReason).toBe("High-quality source link.");
     expect(summary.topChoiceCommand).toContain("source.example/report");
+    expect(summary.topChoiceRequiredFieldName).toBe("q");
+    expect(summary.topChoiceInvalidFieldInvalid).toBe("spelling");
     expect(summary.topChoicePrimary).toBe(true);
     expect(summary.topChoiceSourceScore).toBe(0.91);
     expect(summary.topChoiceRelevance).toBe("high");

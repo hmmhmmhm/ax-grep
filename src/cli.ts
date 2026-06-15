@@ -2002,6 +2002,11 @@ type AgentSummary = {
   topChoiceUrlTemplate?: string;
   topChoiceQueryField?: string;
   topChoiceQueryInput?: string;
+  topChoiceRequiredFieldName?: string;
+  topChoiceRequiredFieldSelector?: string;
+  topChoiceInvalidFieldName?: string;
+  topChoiceInvalidFieldInvalid?: SemanticNodeState["invalid"];
+  topChoiceInvalidFieldSelector?: string;
   topChoiceHost?: string;
   topChoiceSnippet?: string;
   topChoiceDateText?: string;
@@ -4626,7 +4631,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topSourceChoicePrimary === "boolean" ? [`  topSourceChoicePrimary: ${agent.topSourceChoicePrimary}`] : []),
     ...(agent.topSourceChoiceSelector ? [`  topSourceChoiceSelector: ${agent.topSourceChoiceSelector}`] : []),
     ...(agent.topSourceChoiceReason ? [`  topSourceChoiceReason: ${agent.topSourceChoiceReason}`] : []),
-    ...(agent.topChoiceKind ? [`  topChoice: kind=${agent.topChoiceKind} path=${agent.topChoicePath}${typeof agent.topChoiceRank === "number" ? ` rank=${agent.topChoiceRank}` : ""}${agent.topChoiceOpenResult ? ` openResult=${agent.topChoiceOpenResult}` : ""}${typeof agent.topChoiceRecommended === "boolean" ? ` recommended=${agent.topChoiceRecommended}` : ""}${typeof agent.topChoicePrimary === "boolean" ? ` primary=${agent.topChoicePrimary}` : ""}${agent.topChoiceHost ? ` host=${agent.topChoiceHost}` : ""}${agent.topChoiceSource ? ` source=${agent.topChoiceSource}` : ""}${agent.topChoiceSourceType ? ` sourceType=${agent.topChoiceSourceType}` : ""}${typeof agent.topChoiceSourceScore === "number" ? ` score=${agent.topChoiceSourceScore}` : ""}${agent.topChoiceSourceHints?.length ? ` hints=${agent.topChoiceSourceHints.join(",")}` : ""}${agent.topChoiceMatchedTerm ? ` matched=${agent.topChoiceMatchedTerm}` : ""}${agent.topChoiceFindMatch ? ` find=${agent.topChoiceFindMatch}` : ""}${typeof agent.topChoiceSitelinkCount === "number" ? ` sitelinks=${agent.topChoiceSitelinkCount}` : ""}${agent.topChoiceDateText ? ` dateText=${agent.topChoiceDateText}` : ""}${agent.topChoiceDateIso ? ` dateIso=${agent.topChoiceDateIso}` : ""}${typeof agent.topChoiceDateUnixMs === "number" ? ` dateUnixMs=${agent.topChoiceDateUnixMs}` : ""}${agent.topChoiceDatePrecision ? ` datePrecision=${agent.topChoiceDatePrecision}` : ""}${agent.topChoiceDateSource ? ` dateSource=${agent.topChoiceDateSource}` : ""}${agent.topChoiceRelevance ? ` relevance=${agent.topChoiceRelevance}` : ""}${typeof agent.topChoiceLikelyOfficial === "boolean" ? ` official=${agent.topChoiceLikelyOfficial}` : ""}${agent.topChoiceMethod ? ` method=${agent.topChoiceMethod}` : ""}${agent.topChoiceEncodingType ? ` encoding=${agent.topChoiceEncodingType}` : ""}${agent.topChoiceActionUrl ? ` actionUrl=${agent.topChoiceActionUrl}` : ""}${agent.topChoiceTargetUrl ? ` targetUrl=${agent.topChoiceTargetUrl}` : ""}${agent.topChoiceUrlTemplate ? ` template=${agent.topChoiceUrlTemplate}` : ""}${agent.topChoiceQueryField ? ` queryField=${agent.topChoiceQueryField}` : ""}${agent.topChoiceQueryInput ? ` queryInput=${agent.topChoiceQueryInput}` : ""}${typeof agent.topChoiceSubmitDisabled === "boolean" ? ` submitDisabled=${agent.topChoiceSubmitDisabled}` : ""}${typeof agent.topChoiceDisabled === "boolean" ? ` disabled=${agent.topChoiceDisabled}` : ""}${typeof agent.topChoicePressed !== "undefined" ? ` pressed=${agent.topChoicePressed}` : ""}${typeof agent.topChoiceExpanded === "boolean" ? ` expanded=${agent.topChoiceExpanded}` : ""}${typeof agent.topChoiceHaspopup !== "undefined" ? ` haspopup=${agent.topChoiceHaspopup}` : ""}${agent.topChoiceControls ? ` controls=${agent.topChoiceControls}` : ""}${agent.topChoiceSelector ? ` selector=${agent.topChoiceSelector}` : ""}${agent.topChoiceUrl ? ` url=<${agent.topChoiceUrl}>` : ""}${agent.topChoiceCommand ? ` command=${agent.topChoiceCommand}` : ""}${agent.topChoiceReason ? ` reason=${agent.topChoiceReason}` : ""}${agent.topChoiceSnippet ? ` snippet=${agent.topChoiceSnippet}` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
+    ...(agent.topChoiceKind ? [`  topChoice: kind=${agent.topChoiceKind} path=${agent.topChoicePath}${typeof agent.topChoiceRank === "number" ? ` rank=${agent.topChoiceRank}` : ""}${agent.topChoiceOpenResult ? ` openResult=${agent.topChoiceOpenResult}` : ""}${typeof agent.topChoiceRecommended === "boolean" ? ` recommended=${agent.topChoiceRecommended}` : ""}${typeof agent.topChoicePrimary === "boolean" ? ` primary=${agent.topChoicePrimary}` : ""}${agent.topChoiceHost ? ` host=${agent.topChoiceHost}` : ""}${agent.topChoiceSource ? ` source=${agent.topChoiceSource}` : ""}${agent.topChoiceSourceType ? ` sourceType=${agent.topChoiceSourceType}` : ""}${typeof agent.topChoiceSourceScore === "number" ? ` score=${agent.topChoiceSourceScore}` : ""}${agent.topChoiceSourceHints?.length ? ` hints=${agent.topChoiceSourceHints.join(",")}` : ""}${agent.topChoiceMatchedTerm ? ` matched=${agent.topChoiceMatchedTerm}` : ""}${agent.topChoiceFindMatch ? ` find=${agent.topChoiceFindMatch}` : ""}${typeof agent.topChoiceSitelinkCount === "number" ? ` sitelinks=${agent.topChoiceSitelinkCount}` : ""}${agent.topChoiceDateText ? ` dateText=${agent.topChoiceDateText}` : ""}${agent.topChoiceDateIso ? ` dateIso=${agent.topChoiceDateIso}` : ""}${typeof agent.topChoiceDateUnixMs === "number" ? ` dateUnixMs=${agent.topChoiceDateUnixMs}` : ""}${agent.topChoiceDatePrecision ? ` datePrecision=${agent.topChoiceDatePrecision}` : ""}${agent.topChoiceDateSource ? ` dateSource=${agent.topChoiceDateSource}` : ""}${agent.topChoiceRelevance ? ` relevance=${agent.topChoiceRelevance}` : ""}${typeof agent.topChoiceLikelyOfficial === "boolean" ? ` official=${agent.topChoiceLikelyOfficial}` : ""}${agent.topChoiceMethod ? ` method=${agent.topChoiceMethod}` : ""}${agent.topChoiceEncodingType ? ` encoding=${agent.topChoiceEncodingType}` : ""}${agent.topChoiceActionUrl ? ` actionUrl=${agent.topChoiceActionUrl}` : ""}${agent.topChoiceTargetUrl ? ` targetUrl=${agent.topChoiceTargetUrl}` : ""}${agent.topChoiceUrlTemplate ? ` template=${agent.topChoiceUrlTemplate}` : ""}${agent.topChoiceQueryField ? ` queryField=${agent.topChoiceQueryField}` : ""}${agent.topChoiceQueryInput ? ` queryInput=${agent.topChoiceQueryInput}` : ""}${agent.topChoiceRequiredFieldName ? ` requiredField=${agent.topChoiceRequiredFieldName}` : ""}${agent.topChoiceInvalidFieldName ? ` invalidField=${agent.topChoiceInvalidFieldName}` : ""}${typeof agent.topChoiceInvalidFieldInvalid !== "undefined" ? ` invalid=${agent.topChoiceInvalidFieldInvalid}` : ""}${typeof agent.topChoiceSubmitDisabled === "boolean" ? ` submitDisabled=${agent.topChoiceSubmitDisabled}` : ""}${typeof agent.topChoiceDisabled === "boolean" ? ` disabled=${agent.topChoiceDisabled}` : ""}${typeof agent.topChoicePressed !== "undefined" ? ` pressed=${agent.topChoicePressed}` : ""}${typeof agent.topChoiceExpanded === "boolean" ? ` expanded=${agent.topChoiceExpanded}` : ""}${typeof agent.topChoiceHaspopup !== "undefined" ? ` haspopup=${agent.topChoiceHaspopup}` : ""}${agent.topChoiceControls ? ` controls=${agent.topChoiceControls}` : ""}${agent.topChoiceSelector ? ` selector=${agent.topChoiceSelector}` : ""}${agent.topChoiceUrl ? ` url=<${agent.topChoiceUrl}>` : ""}${agent.topChoiceCommand ? ` command=${agent.topChoiceCommand}` : ""}${agent.topChoiceReason ? ` reason=${agent.topChoiceReason}` : ""}${agent.topChoiceSnippet ? ` snippet=${agent.topChoiceSnippet}` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
     ...(agent.topChoiceKind ? [`  topChoiceKind: ${agent.topChoiceKind}`] : []),
     ...(agent.topChoicePath ? [`  topChoicePath: ${agent.topChoicePath}`] : []),
     ...(agent.topChoiceLabel ? [`  topChoiceLabel: ${agent.topChoiceLabel}`] : []),
@@ -4657,6 +4662,11 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topChoiceUrlTemplate ? [`  topChoiceUrlTemplate: ${agent.topChoiceUrlTemplate}`] : []),
     ...(agent.topChoiceQueryField ? [`  topChoiceQueryField: ${agent.topChoiceQueryField}`] : []),
     ...(agent.topChoiceQueryInput ? [`  topChoiceQueryInput: ${agent.topChoiceQueryInput}`] : []),
+    ...(agent.topChoiceRequiredFieldName ? [`  topChoiceRequiredFieldName: ${agent.topChoiceRequiredFieldName}`] : []),
+    ...(agent.topChoiceRequiredFieldSelector ? [`  topChoiceRequiredFieldSelector: ${agent.topChoiceRequiredFieldSelector}`] : []),
+    ...(agent.topChoiceInvalidFieldName ? [`  topChoiceInvalidFieldName: ${agent.topChoiceInvalidFieldName}`] : []),
+    ...(typeof agent.topChoiceInvalidFieldInvalid !== "undefined" ? [`  topChoiceInvalidFieldInvalid: ${agent.topChoiceInvalidFieldInvalid}`] : []),
+    ...(agent.topChoiceInvalidFieldSelector ? [`  topChoiceInvalidFieldSelector: ${agent.topChoiceInvalidFieldSelector}`] : []),
     ...(typeof agent.topChoiceSubmitDisabled === "boolean" ? [`  topChoiceSubmitDisabled: ${agent.topChoiceSubmitDisabled}`] : []),
     ...(typeof agent.topChoiceDisabled === "boolean" ? [`  topChoiceDisabled: ${agent.topChoiceDisabled}`] : []),
     ...(typeof agent.topChoicePressed !== "undefined" ? [`  topChoicePressed: ${agent.topChoicePressed}`] : []),
@@ -14203,6 +14213,11 @@ function summarizeAgent(
     ...(topChoice?.urlTemplate ? { topChoiceUrlTemplate: topChoice.urlTemplate } : {}),
     ...(topChoice?.queryField ? { topChoiceQueryField: topChoice.queryField } : {}),
     ...(topChoice?.queryInput ? { topChoiceQueryInput: topChoice.queryInput } : {}),
+    ...(topChoice?.requiredFieldName ? { topChoiceRequiredFieldName: topChoice.requiredFieldName } : {}),
+    ...(topChoice?.requiredFieldSelector ? { topChoiceRequiredFieldSelector: topChoice.requiredFieldSelector } : {}),
+    ...(topChoice?.invalidFieldName ? { topChoiceInvalidFieldName: topChoice.invalidFieldName } : {}),
+    ...(typeof topChoice?.invalidFieldInvalid !== "undefined" ? { topChoiceInvalidFieldInvalid: topChoice.invalidFieldInvalid } : {}),
+    ...(topChoice?.invalidFieldSelector ? { topChoiceInvalidFieldSelector: topChoice.invalidFieldSelector } : {}),
     ...(topChoice?.host ? { topChoiceHost: topChoice.host } : {}),
     ...(topChoice?.snippet ? { topChoiceSnippet: topChoice.snippet } : {}),
     ...(topChoice?.dateText ? { topChoiceDateText: topChoice.dateText } : {}),
@@ -16638,6 +16653,11 @@ function summarizeAgentTopChoice(
   haspopup?: SemanticNodeState["haspopup"];
   controls?: string;
   selector?: string;
+  requiredFieldName?: string;
+  requiredFieldSelector?: string;
+  invalidFieldName?: string;
+  invalidFieldInvalid?: SemanticNodeState["invalid"];
+  invalidFieldSelector?: string;
   reason?: string;
 } | undefined {
   const result = resultChoices[0];
@@ -16709,6 +16729,8 @@ function summarizeAgentTopChoice(
   }
   const form = formChoices[0];
   if (form) {
+    const requiredField = form.fields.find((field) => field.required === true);
+    const invalidField = form.fields.find((field) => typeof field.invalid !== "undefined");
     return {
       kind: "form",
       path: form.path,
@@ -16717,6 +16739,11 @@ function summarizeAgentTopChoice(
       ...(form.actionUrl ? { actionUrl: form.actionUrl } : {}),
       ...(form.urlTemplate ? { urlTemplate: form.urlTemplate } : {}),
       ...(form.queryField ? { queryField: form.queryField } : {}),
+      ...(requiredField?.name ? { requiredFieldName: requiredField.name } : {}),
+      ...(requiredField?.selector ? { requiredFieldSelector: requiredField.selector } : {}),
+      ...(invalidField?.name ? { invalidFieldName: invalidField.name } : {}),
+      ...(typeof invalidField?.invalid !== "undefined" ? { invalidFieldInvalid: invalidField.invalid } : {}),
+      ...(invalidField?.selector ? { invalidFieldSelector: invalidField.selector } : {}),
       ...(form.command ? { command: form.command } : {}),
       ...(form.commandArgs ? { commandArgs: form.commandArgs } : {}),
       rank: form.rank,
@@ -19230,6 +19257,11 @@ function compactAgentTopChoice(agent: AgentSummary, searchCommandContext?: Searc
     ...(agent.topChoiceUrlTemplate ? { topChoiceUrlTemplate: agent.topChoiceUrlTemplate } : {}),
     ...(agent.topChoiceQueryField ? { topChoiceQueryField: agent.topChoiceQueryField } : {}),
     ...(agent.topChoiceQueryInput ? { topChoiceQueryInput: agent.topChoiceQueryInput } : {}),
+    ...(agent.topChoiceRequiredFieldName ? { topChoiceRequiredFieldName: agent.topChoiceRequiredFieldName } : {}),
+    ...(agent.topChoiceRequiredFieldSelector ? { topChoiceRequiredFieldSelector: agent.topChoiceRequiredFieldSelector } : {}),
+    ...(agent.topChoiceInvalidFieldName ? { topChoiceInvalidFieldName: agent.topChoiceInvalidFieldName } : {}),
+    ...(typeof agent.topChoiceInvalidFieldInvalid !== "undefined" ? { topChoiceInvalidFieldInvalid: agent.topChoiceInvalidFieldInvalid } : {}),
+    ...(agent.topChoiceInvalidFieldSelector ? { topChoiceInvalidFieldSelector: agent.topChoiceInvalidFieldSelector } : {}),
     ...(agent.topChoiceHost ? { topChoiceHost: agent.topChoiceHost } : {}),
     ...(agent.topChoiceSnippet ? { topChoiceSnippet: agent.topChoiceSnippet } : {}),
     ...(agent.topChoiceDateText ? { topChoiceDateText: agent.topChoiceDateText } : {}),

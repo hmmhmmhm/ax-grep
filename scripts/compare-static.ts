@@ -1805,6 +1805,16 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topChoicePath?: string;
       topChoiceLabel?: string;
       topChoiceUrl?: string;
+      topChoiceActionUrl?: string;
+      topChoiceTargetUrl?: string;
+      topChoiceUrlTemplate?: string;
+      topChoiceQueryField?: string;
+      topChoiceQueryInput?: string;
+      topChoiceRequiredFieldName?: string;
+      topChoiceRequiredFieldSelector?: string;
+      topChoiceInvalidFieldName?: string;
+      topChoiceInvalidFieldInvalid?: boolean | string;
+      topChoiceInvalidFieldSelector?: string;
       topChoiceHost?: string;
       topChoiceSnippet?: string;
       topChoiceCommand?: string;
@@ -4451,6 +4461,11 @@ function scoreAgentTopChoiceShortcuts(agent: {
   topChoiceUrlTemplate?: string;
   topChoiceQueryField?: string;
   topChoiceQueryInput?: string;
+  topChoiceRequiredFieldName?: string;
+  topChoiceRequiredFieldSelector?: string;
+  topChoiceInvalidFieldName?: string;
+  topChoiceInvalidFieldInvalid?: boolean | string;
+  topChoiceInvalidFieldSelector?: string;
   topChoiceHost?: string;
   topChoiceSnippet?: string;
   topChoiceDateText?: string;
@@ -4489,17 +4504,19 @@ function scoreAgentTopChoiceShortcuts(agent: {
   const source = agent.sourceChoices?.[0];
   const form = agent.formChoices?.[0];
   const actionTarget = agent.actionTargetChoices?.[0];
+  const formRequiredField = Array.isArray(form?.fields) ? form.fields.find((field) => Boolean(field) && typeof field === "object" && (field as { required?: unknown }).required === true) as { name?: unknown; selector?: unknown } | undefined : undefined;
+  const formInvalidField = Array.isArray(form?.fields) ? form.fields.find((field) => Boolean(field) && typeof field === "object" && typeof (field as { invalid?: unknown }).invalid !== "undefined") as { name?: unknown; invalid?: unknown; selector?: unknown } | undefined : undefined;
   const expected = result
     ? { kind: "result" as const, path: result.path, label: result.title, url: result.url, host: result.host, snippet: result.snippet, dateText: result.dateText, dateIso: result.dateIso, dateUnixMs: result.dateUnixMs, datePrecision: result.datePrecision, dateSource: result.dateSource, command: result.command, commandArgs: result.commandArgs, firstSitelink: result.sitelinks?.[0], openResult: result.openResult, recommended: result.recommended, primary: result.primary, sourceType: result.sourceType, sourceScore: result.sourceScore, sourceHints: result.sourceHints, relevance: result.relevance, matchedTerm: result.matchedTerms?.[0], findMatch: result.findMatches?.[0], sitelinkCount: result.sitelinks?.length, isLikelyOfficial: result.isLikelyOfficial }
     : source
       ? { kind: "source" as const, path: source.path, label: source.title || source.text, url: source.url, host: source.host, snippet: source.snippet, dateText: source.dateText, dateIso: source.dateIso, dateUnixMs: source.dateUnixMs, datePrecision: source.datePrecision, dateSource: source.dateSource, command: source.command, commandArgs: source.commandArgs, primary: source.primary, sourceType: source.sourceType, sourceScore: source.sourceScore, sourceHints: source.sourceHints, relevance: source.relevance, matchedTerm: source.matchedTerms?.[0], findMatch: source.findMatches?.[0], isLikelyOfficial: source.isLikelyOfficial }
       : form
-        ? { kind: "form" as const, path: form.path, label: form.text, url: form.actionUrl ?? form.urlTemplate, actionUrl: form.actionUrl, urlTemplate: form.urlTemplate, queryField: form.queryField, command: form.command, commandArgs: form.commandArgs, submitDisabled: form.submitDisabled }
+        ? { kind: "form" as const, path: form.path, label: form.text, url: form.actionUrl ?? form.urlTemplate, actionUrl: form.actionUrl, urlTemplate: form.urlTemplate, queryField: form.queryField, requiredFieldName: formRequiredField?.name, requiredFieldSelector: formRequiredField?.selector, invalidFieldName: formInvalidField?.name, invalidFieldInvalid: formInvalidField?.invalid, invalidFieldSelector: formInvalidField?.selector, command: form.command, commandArgs: form.commandArgs, submitDisabled: form.submitDisabled }
         : actionTarget
           ? { kind: "action-target" as const, path: actionTarget.path, label: actionTarget.name || actionTarget.text, url: actionTarget.targetUrl ?? actionTarget.urlTemplate, targetUrl: actionTarget.targetUrl, urlTemplate: actionTarget.urlTemplate, queryInput: actionTarget.queryInput, command: actionTarget.command, commandArgs: actionTarget.commandArgs, encodingType: actionTarget.encodingType, disabled: actionTarget.disabled, pressed: actionTarget.pressed, expanded: actionTarget.expanded, haspopup: actionTarget.haspopup, controls: actionTarget.controls }
           : undefined;
   if (!expected) {
-    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceActionUrl && !agent.topChoiceTargetUrl && !agent.topChoiceUrlTemplate && !agent.topChoiceQueryField && !agent.topChoiceQueryInput && !agent.topChoiceHost && !agent.topChoiceSnippet && !agent.topChoiceDateText && !agent.topChoiceDateIso && typeof agent.topChoiceDateUnixMs !== "number" && !agent.topChoiceDatePrecision && !agent.topChoiceDateSource && !agent.topChoiceCommand && !agent.topChoiceCommandArgs && !agent.topChoiceFirstSitelinkTitle && !agent.topChoiceFirstSitelinkUrl && !agent.topChoiceFirstSitelinkSelector && !agent.topChoiceFirstSitelinkCommand && !agent.topChoiceFirstSitelinkCommandArgs && !agent.topChoiceOpenResult && typeof agent.topChoiceRecommended !== "boolean" && typeof agent.topChoicePrimary !== "boolean" && !agent.topChoiceSourceType && typeof agent.topChoiceSourceScore !== "number" && !agent.topChoiceSourceHints?.length && !agent.topChoiceRelevance && !agent.topChoiceMatchedTerm && !agent.topChoiceFindMatch && typeof agent.topChoiceSitelinkCount !== "number" && typeof agent.topChoiceLikelyOfficial !== "boolean" && !agent.topChoiceEncodingType && typeof agent.topChoiceSubmitDisabled !== "boolean" && typeof agent.topChoiceDisabled !== "boolean" && typeof agent.topChoicePressed === "undefined" && typeof agent.topChoiceExpanded !== "boolean" && typeof agent.topChoiceHaspopup === "undefined" && !agent.topChoiceControls ? 1 : 0;
+    return !agent.topChoiceKind && !agent.topChoicePath && !agent.topChoiceLabel && !agent.topChoiceUrl && !agent.topChoiceActionUrl && !agent.topChoiceTargetUrl && !agent.topChoiceUrlTemplate && !agent.topChoiceQueryField && !agent.topChoiceQueryInput && !agent.topChoiceRequiredFieldName && !agent.topChoiceRequiredFieldSelector && !agent.topChoiceInvalidFieldName && typeof agent.topChoiceInvalidFieldInvalid === "undefined" && !agent.topChoiceInvalidFieldSelector && !agent.topChoiceHost && !agent.topChoiceSnippet && !agent.topChoiceDateText && !agent.topChoiceDateIso && typeof agent.topChoiceDateUnixMs !== "number" && !agent.topChoiceDatePrecision && !agent.topChoiceDateSource && !agent.topChoiceCommand && !agent.topChoiceCommandArgs && !agent.topChoiceFirstSitelinkTitle && !agent.topChoiceFirstSitelinkUrl && !agent.topChoiceFirstSitelinkSelector && !agent.topChoiceFirstSitelinkCommand && !agent.topChoiceFirstSitelinkCommandArgs && !agent.topChoiceOpenResult && typeof agent.topChoiceRecommended !== "boolean" && typeof agent.topChoicePrimary !== "boolean" && !agent.topChoiceSourceType && typeof agent.topChoiceSourceScore !== "number" && !agent.topChoiceSourceHints?.length && !agent.topChoiceRelevance && !agent.topChoiceMatchedTerm && !agent.topChoiceFindMatch && typeof agent.topChoiceSitelinkCount !== "number" && typeof agent.topChoiceLikelyOfficial !== "boolean" && !agent.topChoiceEncodingType && typeof agent.topChoiceSubmitDisabled !== "boolean" && typeof agent.topChoiceDisabled !== "boolean" && typeof agent.topChoicePressed === "undefined" && typeof agent.topChoiceExpanded !== "boolean" && typeof agent.topChoiceHaspopup === "undefined" && !agent.topChoiceControls ? 1 : 0;
   }
   let required = 2;
   let matched = 0;
@@ -4523,11 +4540,16 @@ function scoreAgentTopChoiceShortcuts(agent: {
     ["topChoiceUrlTemplate", expected.urlTemplate],
     ["topChoiceQueryField", expected.queryField],
     ["topChoiceQueryInput", expected.queryInput],
+    ["topChoiceRequiredFieldName", expected.requiredFieldName],
+    ["topChoiceRequiredFieldSelector", expected.requiredFieldSelector],
+    ["topChoiceInvalidFieldName", expected.invalidFieldName],
+    ["topChoiceInvalidFieldInvalid", expected.invalidFieldInvalid],
+    ["topChoiceInvalidFieldSelector", expected.invalidFieldSelector],
   ] as const) {
-    if (expectedValue) {
+    if (typeof expectedValue !== "undefined") {
       required += 1;
       if (agent[agentKey] === expectedValue) matched += 1;
-    } else if (agent[agentKey]) {
+    } else if (typeof agent[agentKey] !== "undefined" && agent[agentKey] !== "") {
       required += 1;
     }
   }
