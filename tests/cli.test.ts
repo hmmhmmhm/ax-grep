@@ -6914,6 +6914,14 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  semanticTopTable: agent.semanticSummary.tableItems[0] role=table name=\"Revenue by quarter\"");
+    expect(stdout.output).toContain("  semanticTopTableRole: table");
+    expect(stdout.output).toContain("  semanticTopTablePath: agent.semanticSummary.tableItems[0]");
+    expect(stdout.output).toContain("  semanticTopTableName: Revenue by quarter");
+    expect(stdout.output).toContain("  semanticTopTableRowCount: 2");
+    expect(stdout.output).toContain("  semanticTopTableCellCount: 4");
+    expect(stdout.output).toContain("  semanticTopTableHeaders: Quarter | Revenue");
+    expect(stdout.output).toContain("  semanticTopTableSampleCells: Q1 | Q2 review");
+    expect(stdout.output).toContain("  semanticTopTableSelector: table");
     expect(stdout.output).toContain("  semanticTopTableSecondHeader: agent.semanticSummary.tableItems[0].headerRefs[1] text=\"Revenue\" role=columnheader sort=descending selector=#revenue");
     expect(stdout.output).toContain("  semanticTopTableSecondHeaderPath: agent.semanticSummary.tableItems[0].headerRefs[1]");
     expect(stdout.output).toContain("  semanticTopTableSecondHeaderText: Revenue");

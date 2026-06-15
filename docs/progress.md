@@ -1152,6 +1152,9 @@ When research expands:
   text-only agents can inspect form names, placeholders, autocomplete,
   constraints, control targets, and value state without parsing aggregate field
   rows.
+- Added individual text rows for semantic top table summary metadata, so
+  text-only agents can choose tables by role, name, dimensions, headers,
+  samples, and selector without parsing aggregate table rows.
 
 ## In Progress
 
