@@ -5253,9 +5253,20 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`  pagination: ${pagination.id} ${pagination.path} ${pagination.kind} ${details}${url} - ${pagination.text}`);
   }
   for (const toc of pageCheck.toc) {
-    const title = toc.title ? ` title="${toc.title}"` : "";
-    const selector = toc.selector ? ` (${toc.selector})` : "";
-    lines.push(`  toc: ${toc.id} ${toc.path}${title} items=${toc.items.length}${selector} - ${toc.text}`);
+    const first = toc.items[0];
+    const last = toc.items[toc.items.length - 1];
+    const urls = toc.items.map((item) => item.url).filter((url): url is string => Boolean(url));
+    const details = [
+      toc.title ? `title="${toc.title}"` : "",
+      `items=${toc.items.length}`,
+      first ? `first="${first.label}"` : "",
+      typeof first?.level === "number" ? `firstLevel=${first.level}` : "",
+      last ? `last="${last.label}"` : "",
+      typeof last?.level === "number" ? `lastLevel=${last.level}` : "",
+      urls.length ? `urls=${urls.join(",")}` : "",
+      toc.selector ? `selector=${toc.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  toc: ${toc.id} ${toc.path} ${details} - ${toc.text}`);
   }
   for (const codeBlock of pageCheck.codeBlocks) {
     const language = codeBlock.language ? ` language=${codeBlock.language}` : "";

@@ -10869,6 +10869,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topToc: pageCheck.toc[0] title=\"On this page\" items=3 selector=nav:nth-of-type(1) first=\"Installation\" <https://example.test/docs/guide#install> - Installation; Configuration; API reference");
+    expect(stdout.output).toContain("  toc: toc1 pageCheck.toc[0] title=\"On this page\" items=3 first=\"Installation\" firstLevel=2 last=\"API reference\" lastLevel=3 urls=https://example.test/docs/guide#install,https://example.test/docs/guide#config,https://example.test/docs/guide#api selector=nav:nth-of-type(1) - Installation; Configuration; API reference");
     expect(stdout.output).toContain("  topTocFirstItemCommand: ax-grep 'https://example.test/docs/guide#install'");
   });
 
