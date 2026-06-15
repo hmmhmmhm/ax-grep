@@ -2628,6 +2628,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       datasets?: Array<{ path?: string; kind?: string; name?: string; url?: string; distributionUrls?: string[]; licenseUrl?: string; selector?: string }>;
       identities?: Array<{ path?: string; kind?: string; name?: string; url?: string; logoUrl?: string; sameAs?: string[]; source?: string; selector?: string }>;
       contactPoints?: Array<{ path?: string; kind?: string; label?: string; value?: string; url?: string; source?: string; selector?: string }>;
+      breadcrumbs?: Array<{ path?: string; text?: string; source?: string; items?: Array<{ label?: string; url?: string; urlPath?: string; urlQuery?: string }>; selector?: string }>;
+      toc?: Array<{ path?: string; title?: string; items?: Array<{ label?: string; url?: string; urlPath?: string; urlQuery?: string }>; text?: string; selector?: string }>;
       sections?: Array<{ heading?: string; text?: string }>;
       forms?: unknown[];
       actionTargets?: unknown[];
@@ -2742,6 +2744,8 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       item.pageCheck?.datasets ?? [],
       item.pageCheck?.identities ?? [],
       item.pageCheck?.contactPoints ?? [],
+      item.pageCheck?.breadcrumbs ?? [],
+      item.pageCheck?.toc ?? [],
     ),
     pageCheckFormUrlPathScore: scorePageCheckFormUrlPaths(item.pageCheck?.forms ?? []),
     pageCheckActionTargetUrlPathScore: scorePageCheckActionTargetUrlPaths(item.pageCheck?.actionTargets ?? []),
@@ -5310,6 +5314,9 @@ function scorePageCheckUrlItemPaths(...groups: unknown[][]): number {
     const sameAs = scorePageCheckUrlListPaths(record, "sameAs", "sameAsUrlPaths", "sameAsUrlQueries");
     required += sameAs.required;
     matched += sameAs.matched;
+    const nestedItems = scorePageCheckNestedUrlItems(record, "items");
+    required += nestedItems.required;
+    matched += nestedItems.matched;
   }
   return required === 0 ? 1 : roundScore(matched / required);
 }
@@ -5337,6 +5344,19 @@ function scorePageCheckUrlListPaths(record: Record<string, unknown>, urlsKey: st
     if (paths[index] === urlParts?.urlPath) matched += 1;
     const actualQuery = queries[index] === "" ? undefined : queries[index];
     if (optionalFieldMatches(actualQuery, urlParts?.urlQuery)) matched += 1;
+  }
+  return { matched, required };
+}
+
+function scorePageCheckNestedUrlItems(record: Record<string, unknown>, itemsKey: string): { matched: number; required: number } {
+  if (!Array.isArray(record[itemsKey])) return { matched: 0, required: 0 };
+  let matched = 0;
+  let required = 0;
+  for (const item of record[itemsKey]) {
+    if (!item || typeof item !== "object") continue;
+    const nested = scorePageCheckSingleUrlPath(item as Record<string, unknown>, "url", "urlPath", "urlQuery");
+    required += nested.required;
+    matched += nested.matched;
   }
   return { matched, required };
 }

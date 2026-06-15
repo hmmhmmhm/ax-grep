@@ -1061,6 +1061,9 @@ When research expands:
   for `pageCheck.offers`, `pageCheck.datasets`, `pageCheck.identities`, and
   `pageCheck.contactPoints`, including dataset distribution/license URLs and
   identity logo/sameAs URLs, under the same static gate.
+- Added URL path/query evidence to nested `pageCheck.breadcrumbs[].items[]`
+  and `pageCheck.toc[].items[]`, so agents can inspect navigation trails and
+  in-page outlines without parsing item URLs or relying only on top shortcuts.
 
 ## In Progress
 

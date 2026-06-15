@@ -10883,9 +10883,9 @@ npx ax-grep https://example.test --agent</code></pre>
         source: "json-ld",
         selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
         items: [
-          { label: "Docs", url: "https://example.test/docs", position: 1 },
-          { label: "API", url: "https://example.test/docs/api", position: 2 },
-          { label: "Responses", url: "https://example.test/docs/api/responses", position: 3 },
+          { label: "Docs", url: "https://example.test/docs", urlPath: "/docs", position: 1 },
+          { label: "API", url: "https://example.test/docs/api", urlPath: "/docs/api", position: 2 },
+          { label: "Responses", url: "https://example.test/docs/api/responses", urlPath: "/docs/api/responses", position: 3 },
         ],
         text: "Docs > API > Responses",
       },
@@ -10943,7 +10943,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topBreadcrumb: path=pageCheck.breadcrumbs[0] source=html selector=nav:nth-of-type(1) - Docs > API > Responses");
-    expect(stdout.output).toContain("  breadcrumb: id=bc1 path=pageCheck.breadcrumbs[0] source=html items=3 first=\"Docs\" last=\"Responses\" urls=https://example.test/docs,https://example.test/docs/api selector=nav:nth-of-type(1) - Docs > API > Responses");
+    expect(stdout.output).toContain("  breadcrumb: id=bc1 path=pageCheck.breadcrumbs[0] source=html items=3 first=\"Docs\" last=\"Responses\" urls=https://example.test/docs,https://example.test/docs/api urlPaths=/docs,/docs/api selector=nav:nth-of-type(1) - Docs > API > Responses");
   });
 
   it("checks requested text against breadcrumb summaries", async () => {
@@ -11229,9 +11229,9 @@ npx ax-grep https://example.test --agent</code></pre>
         title: "On this page",
         selector: "nav:nth-of-type(1)",
         items: [
-          { label: "Installation", url: "https://example.test/docs/guide#install", level: 2 },
-          { label: "Configuration", url: "https://example.test/docs/guide#config", level: 2 },
-          { label: "API reference", url: "https://example.test/docs/guide#api", level: 3 },
+          { label: "Installation", url: "https://example.test/docs/guide#install", urlPath: "/docs/guide", level: 2 },
+          { label: "Configuration", url: "https://example.test/docs/guide#config", urlPath: "/docs/guide", level: 2 },
+          { label: "API reference", url: "https://example.test/docs/guide#api", urlPath: "/docs/guide", level: 3 },
         ],
         text: "Installation; Configuration; API reference",
       },
@@ -11293,7 +11293,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topToc: path=pageCheck.toc[0] title=\"On this page\" items=3 selector=nav:nth-of-type(1) first=\"Installation\" firstUrl=<https://example.test/docs/guide#install> firstUrlPath=/docs/guide - Installation; Configuration; API reference");
-    expect(stdout.output).toContain("  toc: id=toc1 path=pageCheck.toc[0] title=\"On this page\" items=3 first=\"Installation\" firstLevel=2 last=\"API reference\" lastLevel=3 urls=https://example.test/docs/guide#install,https://example.test/docs/guide#config,https://example.test/docs/guide#api selector=nav:nth-of-type(1) - Installation; Configuration; API reference");
+    expect(stdout.output).toContain("  toc: id=toc1 path=pageCheck.toc[0] title=\"On this page\" items=3 first=\"Installation\" firstLevel=2 last=\"API reference\" lastLevel=3 urls=https://example.test/docs/guide#install,https://example.test/docs/guide#config,https://example.test/docs/guide#api urlPaths=/docs/guide,/docs/guide,/docs/guide selector=nav:nth-of-type(1) - Installation; Configuration; API reference");
     expect(stdout.output).toContain("  topTocFirstItemCommand: ax-grep 'https://example.test/docs/guide#install'");
   });
 

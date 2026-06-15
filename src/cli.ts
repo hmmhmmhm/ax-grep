@@ -790,6 +790,8 @@ type PageFaqSummary = {
 type PageBreadcrumbItem = {
   label: string;
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   position?: number;
 };
 
@@ -832,6 +834,8 @@ type PagePaginationSummary = {
 type PageTocItem = {
   label: string;
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   level?: number;
 };
 
@@ -5780,12 +5784,16 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const first = breadcrumb.items[0]?.label;
     const last = breadcrumb.items[breadcrumb.items.length - 1]?.label;
     const urls = breadcrumb.items.map((item) => item.url).filter((url): url is string => Boolean(url));
+    const urlPaths = breadcrumb.items.map((item) => item.urlPath).filter((path): path is string => Boolean(path));
+    const urlQueries = breadcrumb.items.map((item) => item.urlQuery ?? "");
     const details = [
       `source=${breadcrumb.source}`,
       `items=${breadcrumb.items.length}`,
       first ? `first="${first}"` : "",
       last ? `last="${last}"` : "",
       urls.length ? `urls=${urls.join(",")}` : "",
+      urlPaths.length ? `urlPaths=${urlPaths.join(",")}` : "",
+      urlQueries.some(Boolean) ? `urlQueries=${urlQueries.join(",")}` : "",
       breadcrumb.selector ? `selector=${breadcrumb.selector}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  breadcrumb: id=${breadcrumb.id} path=${breadcrumb.path} ${details} - ${breadcrumb.text}`);
@@ -5817,6 +5825,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     const first = toc.items[0];
     const last = toc.items[toc.items.length - 1];
     const urls = toc.items.map((item) => item.url).filter((url): url is string => Boolean(url));
+    const urlPaths = toc.items.map((item) => item.urlPath).filter((path): path is string => Boolean(path));
+    const urlQueries = toc.items.map((item) => item.urlQuery ?? "");
     const details = [
       toc.title ? `title="${toc.title}"` : "",
       `items=${toc.items.length}`,
@@ -5825,6 +5835,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       last ? `last="${last.label}"` : "",
       typeof last?.level === "number" ? `lastLevel=${last.level}` : "",
       urls.length ? `urls=${urls.join(",")}` : "",
+      urlPaths.length ? `urlPaths=${urlPaths.join(",")}` : "",
+      urlQueries.some(Boolean) ? `urlQueries=${urlQueries.join(",")}` : "",
       toc.selector ? `selector=${toc.selector}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  toc: id=${toc.id} path=${toc.path} ${details} - ${toc.text}`);
@@ -10976,6 +10988,7 @@ function breadcrumbItemsFromJsonLd(value: unknown, baseUrl: string): PageBreadcr
       return {
         label,
         ...(url ? { url } : {}),
+        ...(url ? urlPathParts(url) : {}),
         ...(Number.isFinite(position) ? { position } : { position: index + 1 }),
       };
     })
@@ -11009,6 +11022,7 @@ function breadcrumbItemsFromHtml(element: Element, baseUrl: string): PageBreadcr
     breadcrumbs.push({
       label,
       ...(url ? { url } : {}),
+      ...(url ? urlPathParts(url) : {}),
       position: index + 1,
     });
   }
@@ -11298,6 +11312,7 @@ function tocItemsFromContainer(element: Element, baseUrl: string): PageTocItem[]
     items.push({
       label,
       ...(url ? { url } : {}),
+      ...(url ? urlPathParts(url) : {}),
       ...(level ? { level } : {}),
     });
   }
