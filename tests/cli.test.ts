@@ -9101,7 +9101,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topProvenance: pageCheck.provenance[0] doi label=\"DOI\"=10.5555/example.2026 source=meta selector=meta:nth-of-type(1) <https://doi.org/10.5555/example.2026>");
     expect(stdout.output).toContain("  topProvenanceCommand: ax-grep 'https://doi.org/10.5555/example.2026'");
-    expect(stdout.output).toContain("  provenance: pv1 pageCheck.provenance[0] doi source=meta label=\"DOI\" value=10.5555/example.2026 selector=meta:nth-of-type(1) <https://doi.org/10.5555/example.2026>");
+    expect(stdout.output).toContain("  provenance: pv1 pageCheck.provenance[0] kind=doi source=meta label=\"DOI\" value=10.5555/example.2026 selector=meta:nth-of-type(1) <https://doi.org/10.5555/example.2026>");
   });
 
   it("summarizes HTTP policy headers and meta directives as pageCheck read targets for agents", async () => {
