@@ -1164,6 +1164,8 @@ When research expands:
 - Added direct text rows for remaining semantic top role/ref fields, so
   text-only agents can read top role counts and shallow table/list ref arrays
   without parsing aggregate table/list/role rows.
+- Added a static CLI regression test that fails when a `semanticTop*` shortcut
+  exists in the agent contract but lacks a labelled text-output row.
 
 ## In Progress
 

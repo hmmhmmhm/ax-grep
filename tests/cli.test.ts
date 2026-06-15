@@ -1,11 +1,28 @@
 import { describe, expect, it } from "vitest";
-import { mkdtemp, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Readable } from "node:stream";
 import { runCli } from "../src/cli";
 
 describe("cli", () => {
+  it("keeps semantic top shortcuts labelled in text agent output", async () => {
+    const source = await readFile(join(process.cwd(), "src/cli.ts"), "utf8");
+    const semanticTopFields = Array.from(
+      new Set(Array.from(source.matchAll(/^\s*(semanticTop[A-Za-z0-9]+)\??:/gm), (match) => match[1])),
+    );
+    const formatStart = source.indexOf("function formatAgentText");
+    const formatEnd = source.indexOf("function formatPageCheckText");
+
+    expect(formatStart).toBeGreaterThanOrEqual(0);
+    expect(formatEnd).toBeGreaterThan(formatStart);
+
+    const formatAgentTextSource = source.slice(formatStart, formatEnd);
+    const missingTextLabels = semanticTopFields.filter((field) => !formatAgentTextSource.includes(`${field}:`));
+
+    expect(missingTextLabels).toEqual([]);
+  });
+
   it("documents agent handoff routing in help output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["--help"], { stdout });
