@@ -10674,6 +10674,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topSection: pageCheck.sections[0] h2 selector=h2:nth-of-type(1) \"Latency budgets\" - Latency budgets; Production agents should compare timeout ceilings before retrying a browser capture.");
+    expect(stdout.output).toContain("  section: sec1 pageCheck.sections[0] level=2 heading=\"Latency budgets\" excerpts=1 firstExcerpt=\"Production agents should compare timeout ceilings before retrying a browser capture.\" selector=h2:nth-of-type(1) - Latency budgets; Production agents should compare timeout ceilings before retrying a browser capture.");
   });
 
   it("summarizes pagination navigation as pageCheck read targets for agents", async () => {

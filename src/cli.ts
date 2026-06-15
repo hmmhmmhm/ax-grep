@@ -5233,8 +5233,14 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`  breadcrumb: ${breadcrumb.id} ${breadcrumb.path} ${details} - ${breadcrumb.text}`);
   }
   for (const section of pageCheck.sections) {
-    const selector = section.selector ? ` (${section.selector})` : "";
-    lines.push(`  section: ${section.id} ${section.path} h${section.level}${selector} - ${section.text}`);
+    const details = [
+      `level=${section.level}`,
+      `heading="${section.heading}"`,
+      `excerpts=${section.excerpts.length}`,
+      section.excerpts[0] ? `firstExcerpt="${section.excerpts[0]}"` : "",
+      section.selector ? `selector=${section.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  section: ${section.id} ${section.path} ${details} - ${section.text}`);
   }
   for (const pagination of pageCheck.pagination) {
     const current = pagination.current ? " current" : "";
