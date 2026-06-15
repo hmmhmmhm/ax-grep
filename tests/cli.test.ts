@@ -1747,10 +1747,10 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topSourceChoiceDateUnixMs: 1780185600000");
     expect(stdout.output).toContain("  topSourceChoiceDatePrecision: day");
     expect(stdout.output).toContain("  topSourceChoiceDateSource: title");
-    expect(stdout.output).toContain("  topChoice: source pageCheck.sourceLinks[0]");
+    expect(stdout.output).toContain("  topChoice: kind=source path=pageCheck.sourceLinks[0]");
     expect(stdout.output).toContain("dateText=2026-05-31 dateIso=2026-05-31T00:00:00.000Z dateUnixMs=1780185600000 datePrecision=day dateSource=title");
-    expect(stdout.output).toContain("sourceChoice: s1 pageCheck.sourceLinks[0]");
-    expect(stdout.output).toContain("handoffSourceChoice: s1 pageCheck.sourceLinks[0]");
+    expect(stdout.output).toContain("sourceChoice: id=s1 path=pageCheck.sourceLinks[0]");
+    expect(stdout.output).toContain("handoffSourceChoice: id=s1 path=pageCheck.sourceLinks[0]");
   });
 
   it("checks requested text against author and profile links", async () => {
@@ -2107,12 +2107,12 @@ describe("cli", () => {
     expect(stdout.output).toContain("  executor: execute/execute-command/medium action=open-result status=needs-more - Run ax-grep 'https://result.example/' --json --summary and continue with its output.");
     expect(stdout.output).toContain("  executorCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  handoffCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
-    expect(stdout.output).toContain("  handoffResultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult");
+    expect(stdout.output).toContain("  handoffResultChoice: id=r1 path=searchResults[0] rank=1 recommended primary via=recommendedResult");
     expect(stdout.output).toContain("    snippet: agent browser comparison details");
     expect(stdout.output).toContain("  handoffResultChoiceCommand: ax-grep 'https://result.example/' --json --summary");
     expect(stdout.output).toContain("  handoffResultChoiceCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  topResultChoiceSnippet: agent browser comparison details");
-    expect(stdout.output).toContain("  resultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult");
+    expect(stdout.output).toContain("  resultChoice: id=r1 path=searchResults[0] rank=1 recommended primary via=recommendedResult");
     expect(stdout.output).toContain("  resultChoiceCommand: ax-grep 'https://result.example/' --json --summary");
     expect(stdout.output).toContain("  resultChoiceCommandArgs: [\"ax-grep\",\"https://result.example/\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("source=result.example <https://result.example/> - Ranked result 1 from result.example. Agent browser result");
@@ -2976,9 +2976,9 @@ describe("cli", () => {
     expect(stdout.output).toContain("  primaryTargetDateUnixMs: 1780185600000");
     expect(stdout.output).toContain("  primaryTargetDatePrecision: day");
     expect(stdout.output).toContain("  primaryTargetDateSource: snippet");
-    expect(stdout.output).toContain("  topChoice: result searchResults[0]");
+    expect(stdout.output).toContain("  topChoice: kind=result path=searchResults[0]");
     expect(stdout.output).toContain("dateText=2026-05-31 dateIso=2026-05-31T00:00:00.000Z dateUnixMs=1780185600000 datePrecision=day dateSource=snippet");
-    expect(stdout.output).toContain("  resultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult");
+    expect(stdout.output).toContain("  resultChoice: id=r1 path=searchResults[0] rank=1 recommended primary via=recommendedResult");
     expect(stdout.output).toContain("dateText=2026-05-31 dateIso=2026-05-31T00:00:00.000Z dateUnixMs=1780185600000 datePrecision=day dateSource=snippet");
   });
 
@@ -12220,7 +12220,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain(" - This article paragraph is long enough to appear in the page checking summary for agents.");
     expect(stdout.output).toContain("  handoffReadTarget: pageCheck.contentEvidence kind=evidence count=1");
     expect(stdout.output).toContain("  handoffEvidence: e1 pageCheck.contentEvidence[0] content high score=");
-    expect(stdout.output).toContain("  handoffSourceChoice: s1 pageCheck.sourceLinks[0] rank=1");
+    expect(stdout.output).toContain("  handoffSourceChoice: id=s1 path=pageCheck.sourceLinks[0] rank=1");
     expect(stdout.output).toContain("  handoffSourceChoiceCommand: ax-grep 'https://source.example/report' --json --summary");
     expect(stdout.output).toContain("  handoffSourceChoiceCommandArgs: [\"ax-grep\",\"https://source.example/report\",\"--json\",\"--summary\"]");
     const sourceChoiceCommandArgs =
@@ -12311,7 +12311,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("This article paragraph is long enough to appear in the page checking summary for agents.");
     expect(stdout.output).toContain("  citation: s1 pageCheck.sourceLinks[0] source-link medium score=");
     expect(stdout.output).toContain("Possible source candidate: news-like.");
-    expect(stdout.output).toContain("  sourceChoice: s1 pageCheck.sourceLinks[0] rank=1");
+    expect(stdout.output).toContain("  sourceChoice: id=s1 path=pageCheck.sourceLinks[0] rank=1");
     expect(stdout.output).toContain("source=source.example type=news kind=external selector=a <https://source.example/report> - Possible source candidate: news-like. Source report");
     expect(stdout.output).toContain("    command: ax-grep 'https://source.example/report' --json --summary");
     expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://source.example/report\",\"--json\",\"--summary\"]");
@@ -12583,12 +12583,12 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("     reason: Ranked result 1 from result.example.");
     expect(stdout.output).toContain("     snippet: Snippet text explains why this result is useful for the current investigation.");
     expect(stdout.output).toContain("     sitelink: Docs sitelink <https://result.example/article/docs> selector=a:nth-of-type(2)");
-    expect(stdout.output).toContain("  topChoice: result searchResults[0] rank=1 openResult=1 recommended=true primary=true host=result.example source=result.example sitelinks=1");
+    expect(stdout.output).toContain("  topChoice: kind=result path=searchResults[0] rank=1 openResult=1 recommended=true primary=true host=result.example source=result.example sitelinks=1");
     expect(stdout.output).toContain("  topChoiceFirstSitelink: Docs sitelink <https://result.example/article/docs> selector=a:nth-of-type(2) command=ax-grep 'https://result.example/article/docs' --json --summary");
     expect(stdout.output).toContain("  topChoiceFirstSitelinkCommandArgs: [\"ax-grep\",\"https://result.example/article/docs\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  topResultChoiceFirstSitelinkCommand: ax-grep 'https://result.example/article/docs' --json --summary");
     expect(stdout.output).toContain("  topResultChoiceFirstSitelinkCommandArgs: [\"ax-grep\",\"https://result.example/article/docs\",\"--json\",\"--summary\"]");
-    expect(stdout.output).toContain("resultChoice: r1 searchResults[0] rank=1 recommended primary via=recommendedResult source=result.example sitelinks=1 firstSitelinkSelector=a:nth-of-type(2)");
+    expect(stdout.output).toContain("resultChoice: id=r1 path=searchResults[0] rank=1 recommended primary via=recommendedResult source=result.example sitelinks=1 firstSitelinkSelector=a:nth-of-type(2)");
     expect(stdout.output).toContain("Result Title <https://result.example/article> role=link selector=a");
     expect(stdout.output).toContain("snippet: Snippet text explains why this result is useful for the current investigation.");
   });
@@ -12610,7 +12610,7 @@ npx ax-grep https://example.test --agent</code></pre>
     });
 
     expect(status).toBe(0);
-    expect(stdout.output).toContain("  topChoice: form pageCheck.forms[0] rank=1 method=get");
+    expect(stdout.output).toContain("  topChoice: kind=form path=pageCheck.forms[0] rank=1 method=get");
     expect(stdout.output).toContain("actionUrl=https://example.test/find template=https://example.test/find?query=%7Bquery%7D queryField=query");
     expect(stdout.output).toContain(" command=ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
     expect(stdout.output).toContain("  answerPlanUrl: https://example.test/find?query=quarterly%20report");
@@ -12638,7 +12638,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topFormChoiceCommand: ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
     expect(stdout.output).toContain("  topFormChoiceCommandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  form: id=f1 path=pageCheck.forms[0] method=get fields=1 hidden=1 actionUrl=https://example.test/find query=query template=https://example.test/find?query=%7Bquery%7D target=_blank enctype=multipart/form-data acceptCharset=UTF-8 novalidate=true selector=form:nth-of-type(1)");
-    expect(stdout.output).toContain("  formChoice: f1 pageCheck.forms[0] rank=1 method=get fields=1 hidden=1 firstHidden=csrf query=query template=https://example.test/find?query=%7Bquery%7D target=_blank enctype=multipart/form-data selector=form:nth-of-type(1)");
+    expect(stdout.output).toContain("  formChoice: id=f1 path=pageCheck.forms[0] rank=1 method=get fields=1 hidden=1 firstHidden=csrf query=query template=https://example.test/find?query=%7Bquery%7D target=_blank enctype=multipart/form-data selector=form:nth-of-type(1)");
     expect(stdout.output).toContain("    command: ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
     expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  formChoiceCommand: ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
@@ -12667,7 +12667,7 @@ npx ax-grep https://example.test --agent</code></pre>
     });
 
     expect(status).toBe(0);
-    expect(stdout.output).toContain("  topChoice: action-target pageCheck.actionTargets[0] rank=1 source=json-ld template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string");
+    expect(stdout.output).toContain("  topChoice: kind=action-target path=pageCheck.actionTargets[0] rank=1 source=json-ld template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string");
     expect(stdout.output).toContain("  topActionTargetChoicePath: pageCheck.actionTargets[0]");
     expect(stdout.output).toContain("  topActionTargetChoiceKind: search");
     expect(stdout.output).toContain("  topActionTargetChoiceName: Example Docs");
@@ -12678,7 +12678,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topActionTargetChoiceCommand: ax-grep 'https://example.test/search?q=search_term_string' --find 'search_term_string' --json --summary");
     expect(stdout.output).toContain("  topActionTargetChoiceCommandArgs: [\"ax-grep\",\"https://example.test/search?q=search_term_string\",\"--find\",\"search_term_string\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  actionTarget: id=at1 path=pageCheck.actionTargets[0] kind=search source=json-ld template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string selector=script[type=\"application/ld+json\"]:nth-of-type(1) - search: Example Docs");
-    expect(stdout.output).toContain("  actionTargetChoice: at1 pageCheck.actionTargets[0] rank=1 kind=search source=json-ld template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string selector=script[type=\"application/ld+json\"]:nth-of-type(1)");
+    expect(stdout.output).toContain("  actionTargetChoice: id=at1 path=pageCheck.actionTargets[0] rank=1 kind=search source=json-ld template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string selector=script[type=\"application/ld+json\"]:nth-of-type(1)");
     expect(stdout.output).toContain("    command: ax-grep 'https://example.test/search?q=search_term_string' --find 'search_term_string' --json --summary");
     expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://example.test/search?q=search_term_string\",\"--find\",\"search_term_string\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  actionTargetChoiceCommand: ax-grep 'https://example.test/search?q=search_term_string' --find 'search_term_string' --json --summary");
@@ -12698,7 +12698,7 @@ npx ax-grep https://example.test --agent</code></pre>
     });
 
     expect(status).toBe(0);
-    expect(stdout.output).toContain("  topChoice: action-target pageCheck.actionTargets[0] rank=1 source=link encoding=application/opensearchdescription+xml targetUrl=https://example.test/opensearch.xml disabled=true expanded=false haspopup=dialog controls=docs-search-panel");
+    expect(stdout.output).toContain("  topChoice: kind=action-target path=pageCheck.actionTargets[0] rank=1 source=link encoding=application/opensearchdescription+xml targetUrl=https://example.test/opensearch.xml disabled=true expanded=false haspopup=dialog controls=docs-search-panel");
     expect(stdout.output).toContain("  topActionTargetChoicePath: pageCheck.actionTargets[0]");
     expect(stdout.output).toContain("  topActionTargetChoiceKind: search");
     expect(stdout.output).toContain("  topActionTargetChoiceName: Docs OpenSearch");
@@ -12711,7 +12711,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topActionTargetChoiceControls: docs-search-panel");
     expect(stdout.output).toContain("  topActionTargetChoiceSelector: link[rel=\"search\"]:nth-of-type(1)");
     expect(stdout.output).toContain("  actionTarget: id=at1 path=pageCheck.actionTargets[0] kind=search source=link encoding=application/opensearchdescription+xml disabled=true expanded=false haspopup=dialog controls=docs-search-panel selector=link[rel=\"search\"]:nth-of-type(1) url=<https://example.test/opensearch.xml> - search: Docs OpenSearch");
-    expect(stdout.output).toContain("  actionTargetChoice: at1 pageCheck.actionTargets[0] rank=1 kind=search source=link disabled=true expanded=false haspopup=dialog controls=docs-search-panel selector=link[rel=\"search\"]:nth-of-type(1) <https://example.test/opensearch.xml> - Docs OpenSearch");
+    expect(stdout.output).toContain("  actionTargetChoice: id=at1 path=pageCheck.actionTargets[0] rank=1 kind=search source=link disabled=true expanded=false haspopup=dialog controls=docs-search-panel selector=link[rel=\"search\"]:nth-of-type(1) targetUrl=<https://example.test/opensearch.xml> - Docs OpenSearch");
   });
 
   it("returns a structured warning when the page has no inspectable content", async () => {
