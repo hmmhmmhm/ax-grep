@@ -4314,31 +4314,31 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  hiddenMetaFactCount: ${agent.hiddenMetaFactCount}`,
     `  hiddenHttpPolicyCount: ${agent.hiddenHttpPolicyCount}`,
     `  hiddenSchemaFactCount: ${agent.hiddenSchemaFactCount}`,
-    ...(agent.topHydrationPath ? [`  topHydration: ${agent.topHydrationPath} ${agent.topHydrationKind ?? ""}${agent.topHydrationLabel ? ` label="${agent.topHydrationLabel}"` : ""}${agent.topHydrationSelector ? ` selector=${agent.topHydrationSelector}` : ""}${agent.topHydrationUrl ? ` <${agent.topHydrationUrl}>` : ""}`] : []),
+    ...(agent.topHydrationPath ? [`  topHydration: path=${agent.topHydrationPath}${agent.topHydrationKind ? ` kind=${agent.topHydrationKind}` : ""}${agent.topHydrationLabel ? ` label="${agent.topHydrationLabel}"` : ""}${agent.topHydrationSelector ? ` selector=${agent.topHydrationSelector}` : ""}${agent.topHydrationUrl ? ` url=<${agent.topHydrationUrl}>` : ""}`] : []),
     ...(agent.topHydrationCommand ? [`  topHydrationCommand: ${agent.topHydrationCommand}`] : []),
     ...(agent.topHydrationCommandArgs ? [`  topHydrationCommandArgs: ${formatCommandArgsText(agent.topHydrationCommandArgs)}`] : []),
     ...(agent.topHydrationSelector ? [`  topHydrationSelector: ${agent.topHydrationSelector}`] : []),
-    ...(agent.topApiEndpointPath ? [`  topApiEndpoint: ${agent.topApiEndpointPath} ${agent.topApiEndpointKind ?? ""}${agent.topApiEndpointMethod ? ` ${agent.topApiEndpointMethod}` : ""}${agent.topApiEndpointSelector ? ` selector=${agent.topApiEndpointSelector}` : ""}${agent.topApiEndpointUrl ? ` <${agent.topApiEndpointUrl}>` : ""}`] : []),
+    ...(agent.topApiEndpointPath ? [`  topApiEndpoint: path=${agent.topApiEndpointPath}${agent.topApiEndpointKind ? ` kind=${agent.topApiEndpointKind}` : ""}${agent.topApiEndpointMethod ? ` method=${agent.topApiEndpointMethod}` : ""}${agent.topApiEndpointSelector ? ` selector=${agent.topApiEndpointSelector}` : ""}${agent.topApiEndpointUrl ? ` url=<${agent.topApiEndpointUrl}>` : ""}`] : []),
     ...(agent.topApiEndpointCommand ? [`  topApiEndpointCommand: ${agent.topApiEndpointCommand}`] : []),
     ...(agent.topApiEndpointCommandArgs ? [`  topApiEndpointCommandArgs: ${formatCommandArgsText(agent.topApiEndpointCommandArgs)}`] : []),
     ...(agent.topApiEndpointSelector ? [`  topApiEndpointSelector: ${agent.topApiEndpointSelector}`] : []),
-    ...(agent.topClientStatePath ? [`  topClientState: ${agent.topClientStatePath} ${agent.topClientStateKind ?? ""}${agent.topClientStateOperation ? ` ${agent.topClientStateOperation}` : ""}${agent.topClientStateKey ? ` key=${agent.topClientStateKey}` : ""}${agent.topClientStateSelector ? ` selector=${agent.topClientStateSelector}` : ""}`] : []),
+    ...(agent.topClientStatePath ? [`  topClientState: path=${agent.topClientStatePath}${agent.topClientStateKind ? ` kind=${agent.topClientStateKind}` : ""}${agent.topClientStateOperation ? ` operation=${agent.topClientStateOperation}` : ""}${agent.topClientStateKey ? ` key=${agent.topClientStateKey}` : ""}${agent.topClientStateSelector ? ` selector=${agent.topClientStateSelector}` : ""}`] : []),
     ...(agent.topClientStateSelector ? [`  topClientStateSelector: ${agent.topClientStateSelector}`] : []),
-    ...(agent.topRuntimePath ? [`  topRuntime: ${agent.topRuntimePath} ${agent.topRuntimeKind ?? ""}${agent.topRuntimeSelector ? ` selector=${agent.topRuntimeSelector}` : ""}${agent.topRuntimeUrl ? ` <${agent.topRuntimeUrl}>` : ""}`] : []),
+    ...(agent.topRuntimePath ? [`  topRuntime: path=${agent.topRuntimePath}${agent.topRuntimeKind ? ` kind=${agent.topRuntimeKind}` : ""}${agent.topRuntimeSelector ? ` selector=${agent.topRuntimeSelector}` : ""}${agent.topRuntimeUrl ? ` url=<${agent.topRuntimeUrl}>` : ""}`] : []),
     ...(agent.topRuntimeCommand ? [`  topRuntimeCommand: ${agent.topRuntimeCommand}`] : []),
     ...(agent.topRuntimeCommandArgs ? [`  topRuntimeCommandArgs: ${formatCommandArgsText(agent.topRuntimeCommandArgs)}`] : []),
-    ...(agent.topConfigPath ? [`  topConfig: ${agent.topConfigPath} ${agent.topConfigKind ?? ""}${agent.topConfigName ? ` name=${agent.topConfigName}` : ""}${typeof agent.topConfigKeyCount === "number" ? ` keys=${agent.topConfigKeyCount}` : ""}${agent.topConfigKeys?.length ? ` keyNames=${agent.topConfigKeys.join(",")}` : ""}${agent.topConfigSelector ? ` selector=${agent.topConfigSelector}` : ""}`] : []),
-    ...(agent.topAppHintPath ? [`  topAppHint: ${agent.topAppHintPath} ${agent.topAppHintKind ?? ""}${agent.topAppHintLabel ? ` label="${agent.topAppHintLabel}"` : ""}${agent.topAppHintSelector ? ` selector=${agent.topAppHintSelector}` : ""}${agent.topAppHintUrl ? ` <${agent.topAppHintUrl}>` : ""}`] : []),
+    ...(agent.topConfigPath ? [`  topConfig: path=${agent.topConfigPath}${agent.topConfigKind ? ` kind=${agent.topConfigKind}` : ""}${agent.topConfigName ? ` name=${agent.topConfigName}` : ""}${typeof agent.topConfigKeyCount === "number" ? ` keys=${agent.topConfigKeyCount}` : ""}${agent.topConfigKeys?.length ? ` keyNames=${agent.topConfigKeys.join(",")}` : ""}${agent.topConfigSelector ? ` selector=${agent.topConfigSelector}` : ""}`] : []),
+    ...(agent.topAppHintPath ? [`  topAppHint: path=${agent.topAppHintPath}${agent.topAppHintKind ? ` kind=${agent.topAppHintKind}` : ""}${agent.topAppHintLabel ? ` label="${agent.topAppHintLabel}"` : ""}${agent.topAppHintSelector ? ` selector=${agent.topAppHintSelector}` : ""}${agent.topAppHintUrl ? ` url=<${agent.topAppHintUrl}>` : ""}`] : []),
     ...(agent.topAppHintCommand ? [`  topAppHintCommand: ${agent.topAppHintCommand}`] : []),
     ...(agent.topAppHintCommandArgs ? [`  topAppHintCommandArgs: ${formatCommandArgsText(agent.topAppHintCommandArgs)}`] : []),
     ...(agent.topAppHintSelector ? [`  topAppHintSelector: ${agent.topAppHintSelector}`] : []),
-    ...(agent.topMobileHintPath ? [`  topMobileHint: ${agent.topMobileHintPath} ${agent.topMobileHintKind ?? ""}${agent.topMobileHintLabel ? ` label="${agent.topMobileHintLabel}"` : ""}${agent.topMobileHintPlatform ? ` platform=${agent.topMobileHintPlatform}` : ""}${agent.topMobileHintSelector ? ` selector=${agent.topMobileHintSelector}` : ""}${agent.topMobileHintUrl ? ` <${agent.topMobileHintUrl}>` : ""}${agent.topMobileHintValue ? ` - ${agent.topMobileHintValue}` : ""}`] : []),
-    ...(agent.topTopicPath ? [`  topTopic: ${agent.topTopicPath} ${agent.topTopicKind ?? ""}${agent.topTopicLabel ? ` label="${agent.topTopicLabel}"` : ""}${agent.topTopicSource ? ` source=${agent.topTopicSource}` : ""}${agent.topTopicSelector ? ` selector=${agent.topTopicSelector}` : ""}${agent.topTopicValue ? ` - ${agent.topTopicValue}` : ""}`] : []),
-    ...(agent.topKeyValuePath ? [`  topKeyValue: ${agent.topKeyValuePath}${agent.topKeyValueLabel ? ` label="${agent.topKeyValueLabel}"` : ""}${agent.topKeyValueSource ? ` source=${agent.topKeyValueSource}` : ""}${agent.topKeyValueDatetime ? ` datetime=${agent.topKeyValueDatetime}` : ""}${agent.topKeyValueSelector ? ` selector=${agent.topKeyValueSelector}` : ""}${agent.topKeyValueValue ? ` - ${agent.topKeyValueValue}` : ""}`] : []),
-    ...(agent.topMetaFactPath ? [`  topMetaFact: ${agent.topMetaFactPath}${agent.topMetaFactLabel ? ` label="${agent.topMetaFactLabel}"` : ""}${agent.topMetaFactSource ? ` source=${agent.topMetaFactSource}` : ""}${agent.topMetaFactSelector ? ` selector=${agent.topMetaFactSelector}` : ""}${agent.topMetaFactUrl ? ` <${agent.topMetaFactUrl}>` : ""}${agent.topMetaFactValue ? ` - ${agent.topMetaFactValue}` : ""}`] : []),
-    ...(agent.topHttpPolicyPath ? [`  topHttpPolicy: ${agent.topHttpPolicyPath}${agent.topHttpPolicyName ? ` name="${agent.topHttpPolicyName}"` : ""}${agent.topHttpPolicySource ? ` source=${agent.topHttpPolicySource}` : ""}${agent.topHttpPolicySelector ? ` selector=${agent.topHttpPolicySelector}` : ""}${agent.topHttpPolicyValue ? ` - ${agent.topHttpPolicyValue}` : ""}`] : []),
-    ...(agent.topSchemaFactPath ? [`  topSchemaFact: ${agent.topSchemaFactPath}${agent.topSchemaFactTypes?.length ? ` types=${agent.topSchemaFactTypes.join(",")}` : ""}${typeof agent.topSchemaFactFactCount === "number" ? ` facts=${agent.topSchemaFactFactCount}` : ""}${agent.topSchemaFactSelector ? ` selector=${agent.topSchemaFactSelector}` : ""}${agent.topSchemaFactFirstLabel ? ` ${agent.topSchemaFactFirstLabel}=${agent.topSchemaFactFirstValue ?? ""}` : ""}`] : []),
-    ...(agent.topHiddenSignalPath ? [`  topHiddenSignal: ${agent.topHiddenSignalGroup ? `${agent.topHiddenSignalGroup} ` : ""}${agent.topHiddenSignalPath} ${agent.topHiddenSignalKind ?? ""}${agent.topHiddenSignalSource ? ` source=${agent.topHiddenSignalSource}` : ""}${agent.topHiddenSignalSelector ? ` selector=${agent.topHiddenSignalSelector}` : ""}${agent.topHiddenSignalUrl ? ` <${agent.topHiddenSignalUrl}>` : ""}${agent.topHiddenSignalText ? ` - ${agent.topHiddenSignalText}` : ""}`] : []),
+    ...(agent.topMobileHintPath ? [`  topMobileHint: path=${agent.topMobileHintPath}${agent.topMobileHintKind ? ` kind=${agent.topMobileHintKind}` : ""}${agent.topMobileHintLabel ? ` label="${agent.topMobileHintLabel}"` : ""}${agent.topMobileHintPlatform ? ` platform=${agent.topMobileHintPlatform}` : ""}${agent.topMobileHintSelector ? ` selector=${agent.topMobileHintSelector}` : ""}${agent.topMobileHintUrl ? ` url=<${agent.topMobileHintUrl}>` : ""}${agent.topMobileHintValue ? ` - ${agent.topMobileHintValue}` : ""}`] : []),
+    ...(agent.topTopicPath ? [`  topTopic: path=${agent.topTopicPath}${agent.topTopicKind ? ` kind=${agent.topTopicKind}` : ""}${agent.topTopicLabel ? ` label="${agent.topTopicLabel}"` : ""}${agent.topTopicSource ? ` source=${agent.topTopicSource}` : ""}${agent.topTopicSelector ? ` selector=${agent.topTopicSelector}` : ""}${agent.topTopicValue ? ` - ${agent.topTopicValue}` : ""}`] : []),
+    ...(agent.topKeyValuePath ? [`  topKeyValue: path=${agent.topKeyValuePath}${agent.topKeyValueLabel ? ` label="${agent.topKeyValueLabel}"` : ""}${agent.topKeyValueSource ? ` source=${agent.topKeyValueSource}` : ""}${agent.topKeyValueDatetime ? ` datetime=${agent.topKeyValueDatetime}` : ""}${agent.topKeyValueSelector ? ` selector=${agent.topKeyValueSelector}` : ""}${agent.topKeyValueValue ? ` - ${agent.topKeyValueValue}` : ""}`] : []),
+    ...(agent.topMetaFactPath ? [`  topMetaFact: path=${agent.topMetaFactPath}${agent.topMetaFactLabel ? ` label="${agent.topMetaFactLabel}"` : ""}${agent.topMetaFactSource ? ` source=${agent.topMetaFactSource}` : ""}${agent.topMetaFactSelector ? ` selector=${agent.topMetaFactSelector}` : ""}${agent.topMetaFactUrl ? ` url=<${agent.topMetaFactUrl}>` : ""}${agent.topMetaFactValue ? ` - ${agent.topMetaFactValue}` : ""}`] : []),
+    ...(agent.topHttpPolicyPath ? [`  topHttpPolicy: path=${agent.topHttpPolicyPath}${agent.topHttpPolicyName ? ` name="${agent.topHttpPolicyName}"` : ""}${agent.topHttpPolicySource ? ` source=${agent.topHttpPolicySource}` : ""}${agent.topHttpPolicySelector ? ` selector=${agent.topHttpPolicySelector}` : ""}${agent.topHttpPolicyValue ? ` - ${agent.topHttpPolicyValue}` : ""}`] : []),
+    ...(agent.topSchemaFactPath ? [`  topSchemaFact: path=${agent.topSchemaFactPath}${agent.topSchemaFactTypes?.length ? ` types=${agent.topSchemaFactTypes.join(",")}` : ""}${typeof agent.topSchemaFactFactCount === "number" ? ` facts=${agent.topSchemaFactFactCount}` : ""}${agent.topSchemaFactSelector ? ` selector=${agent.topSchemaFactSelector}` : ""}${agent.topSchemaFactFirstLabel ? ` ${agent.topSchemaFactFirstLabel}=${agent.topSchemaFactFirstValue ?? ""}` : ""}`] : []),
+    ...(agent.topHiddenSignalPath ? [`  topHiddenSignal: ${agent.topHiddenSignalGroup ? `group=${agent.topHiddenSignalGroup} ` : ""}path=${agent.topHiddenSignalPath}${agent.topHiddenSignalKind ? ` kind=${agent.topHiddenSignalKind}` : ""}${agent.topHiddenSignalSource ? ` source=${agent.topHiddenSignalSource}` : ""}${agent.topHiddenSignalSelector ? ` selector=${agent.topHiddenSignalSelector}` : ""}${agent.topHiddenSignalUrl ? ` url=<${agent.topHiddenSignalUrl}>` : ""}${agent.topHiddenSignalText ? ` - ${agent.topHiddenSignalText}` : ""}`] : []),
     ...(agent.topHiddenSignalGroup ? [`  topHiddenSignalGroup: ${agent.topHiddenSignalGroup}`] : []),
     ...(agent.topHiddenSignalPath ? [`  topHiddenSignalPath: ${agent.topHiddenSignalPath}`] : []),
     ...(agent.topHiddenSignalKind ? [`  topHiddenSignalKind: ${agent.topHiddenSignalKind}`] : []),
@@ -5046,7 +5046,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`  actionTarget: ${target.id} ${target.path} ${details}${url} - ${target.text}`);
   }
   for (const item of pageCheck.hydration) {
-    const url = item.url ? ` <${item.url}>` : "";
+    const url = item.url ? ` url=<${item.url}>` : "";
     const details = [
       `kind=${item.kind}`,
       `source=${item.source}`,
@@ -5055,7 +5055,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       item.buildId ? `buildId=${item.buildId}` : "",
       item.selector ? `selector=${item.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  hydration: ${item.id} ${item.path} ${details}${url} - ${item.text}`);
+    lines.push(`  hydration: id=${item.id} path=${item.path} ${details}${url} - ${item.text}`);
   }
   for (const endpoint of pageCheck.apiEndpoints) {
     const details = [
@@ -5064,7 +5064,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       endpoint.method ? `method=${endpoint.method}` : "",
       endpoint.selector ? `selector=${endpoint.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  apiEndpoint: ${endpoint.id} ${endpoint.path} ${details} <${endpoint.url}> - ${endpoint.text}`);
+    lines.push(`  apiEndpoint: id=${endpoint.id} path=${endpoint.path} ${details} url=<${endpoint.url}> - ${endpoint.text}`);
   }
   for (const state of pageCheck.clientState) {
     const details = [
@@ -5074,7 +5074,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       `key=${state.key}`,
       state.selector ? `selector=${state.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  clientState: ${state.id} ${state.path} ${details} - ${state.text}`);
+    lines.push(`  clientState: id=${state.id} path=${state.path} ${details} - ${state.text}`);
   }
   for (const runtime of pageCheck.runtime) {
     const details = [
@@ -5082,7 +5082,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       `source=${runtime.source}`,
       runtime.selector ? `selector=${runtime.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  runtime: ${runtime.id} ${runtime.path} ${details} <${runtime.url}> - ${runtime.text}`);
+    lines.push(`  runtime: id=${runtime.id} path=${runtime.path} ${details} url=<${runtime.url}> - ${runtime.text}`);
   }
   for (const config of pageCheck.config) {
     const details = [
@@ -5093,10 +5093,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       config.keys.length ? `keyNames=${config.keys.join(",")}` : "",
       config.selector ? `selector=${config.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  config: ${config.id} ${config.path} ${details} - ${config.text}`);
+    lines.push(`  config: id=${config.id} path=${config.path} ${details} - ${config.text}`);
   }
   for (const hint of pageCheck.appHints) {
-    const url = hint.url ? ` <${hint.url}>` : "";
+    const url = hint.url ? ` url=<${hint.url}>` : "";
     const details = [
       `kind=${hint.kind}`,
       `source=${hint.source}`,
@@ -5105,10 +5105,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       hint.media ? `media=${hint.media}` : "",
       hint.selector ? `selector=${hint.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  appHint: ${hint.id} ${hint.path} ${details}${url} - ${hint.text}`);
+    lines.push(`  appHint: id=${hint.id} path=${hint.path} ${details}${url} - ${hint.text}`);
   }
   for (const hint of pageCheck.mobileHints) {
-    const url = hint.url ? ` <${hint.url}>` : "";
+    const url = hint.url ? ` url=<${hint.url}>` : "";
     const details = [
       `kind=${hint.kind}`,
       `source=${hint.source}`,
@@ -5116,7 +5116,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       hint.platform ? `platform=${hint.platform}` : "",
       hint.selector ? `selector=${hint.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  mobileHint: ${hint.id} ${hint.path} ${details}${url} - ${hint.text}`);
+    lines.push(`  mobileHint: id=${hint.id} path=${hint.path} ${details}${url} - ${hint.text}`);
   }
   for (const topic of pageCheck.topics) {
     const details = [
@@ -5125,7 +5125,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       `label="${topic.label}"`,
       topic.selector ? `selector=${topic.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  topic: ${topic.id} ${topic.path} ${details} - ${topic.text}`);
+    lines.push(`  topic: id=${topic.id} path=${topic.path} ${details} - ${topic.text}`);
   }
   for (const fact of pageCheck.keyValues) {
     const details = [
@@ -5134,16 +5134,16 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       fact.datetime ? `datetime=${fact.datetime}` : "",
       fact.selector ? `selector=${fact.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  keyValue: ${fact.id} ${fact.path} ${details} - ${fact.text}`);
+    lines.push(`  keyValue: id=${fact.id} path=${fact.path} ${details} - ${fact.text}`);
   }
   for (const fact of pageCheck.metaFacts) {
-    const url = fact.url ? ` <${fact.url}>` : "";
+    const url = fact.url ? ` url=<${fact.url}>` : "";
     const details = [
       `source=${fact.source}`,
       `label="${fact.label}"`,
       fact.selector ? `selector=${fact.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  metaFact: ${fact.id} ${fact.path} ${details}${url} - ${fact.text}`);
+    lines.push(`  metaFact: id=${fact.id} path=${fact.path} ${details}${url} - ${fact.text}`);
   }
   for (const fact of pageCheck.provenance) {
     const url = fact.url ? ` <${fact.url}>` : "";
@@ -5162,7 +5162,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       `name="${policy.name}"`,
       policy.selector ? `selector=${policy.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  httpPolicy: ${policy.id} ${policy.path} ${details} - ${policy.text}`);
+    lines.push(`  httpPolicy: id=${policy.id} path=${policy.path} ${details} - ${policy.text}`);
   }
   for (const fact of pageCheck.schemaFacts) {
     const details = [
@@ -5171,7 +5171,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       `facts=${fact.facts.length}`,
       fact.selector ? `selector=${fact.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  schemaFact: ${fact.id} ${fact.path} ${details} - ${fact.text}`);
+    lines.push(`  schemaFact: id=${fact.id} path=${fact.path} ${details} - ${fact.text}`);
   }
   for (const offer of pageCheck.offers) {
     const url = offer.url ? ` <${offer.url}>` : "";
