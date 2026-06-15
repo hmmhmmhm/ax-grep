@@ -5300,9 +5300,14 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`  media: ${media.id} ${media.path} ${media.kind} ${details} <${media.url}> - ${media.text}`);
   }
   for (const resource of pageCheck.resources) {
-    const rel = resource.rel ? ` rel=${resource.rel}` : "";
-    const type = resource.type ? ` type=${resource.type}` : "";
-    lines.push(`  resource: ${resource.id} ${resource.path} ${resource.kind}${rel}${type} <${resource.url}> - ${resource.text}`);
+    const details = [
+      resource.title ? `title="${resource.title}"` : "",
+      resource.rel ? `rel=${resource.rel}` : "",
+      resource.type ? `type=${resource.type}` : "",
+      resource.hreflang ? `hreflang=${resource.hreflang}` : "",
+      resource.selector ? `selector=${resource.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  resource: ${resource.id} ${resource.path} ${resource.kind} ${details} <${resource.url}> - ${resource.text}`);
   }
   for (const embed of pageCheck.embeds) {
     const type = embed.type ? ` type=${embed.type}` : "";
