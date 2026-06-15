@@ -65,6 +65,7 @@ describe("compare-static fixture comparisons", () => {
 
     expect(summaryFor(report, "Synthetic search open gate")?.agentPrimaryAction).toBe("open-result");
     expect(summaryFor(report, "Synthetic source search engine gate")?.agentSourceSearchShortcutScore).toBe(1);
+    expect(summaryFor(report, "Synthetic source search engine gate")?.agentSourceSearchProvenanceScore).toBe(1);
     expect(summaryFor(report, "Synthetic search refine gate")?.agentPrimaryAction).toBe("refine-search");
     expect(summaryFor(report, "Synthetic site search recovery gate")?.agentPrimaryAction).toBe("open-site-search");
     expect(summaryFor(report, "Synthetic browser HTML retry gate")?.agentPrimaryAction).toBe("retry-with-browser-html");
