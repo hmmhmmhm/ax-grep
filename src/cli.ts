@@ -3954,6 +3954,15 @@ function agentReadValueReferencePath(readValue: AgentReadValue | undefined): str
   return readValue && !("value" in readValue) ? readValue.valuePath : undefined;
 }
 
+function compactAgentReadValueReferencePath(readValue: AgentReadValue | undefined, forceReference = false): string | undefined {
+  if (!readValue) return undefined;
+  const compacted = compactAgentReadValue(readValue, forceReference) as { valuePath?: unknown };
+  if (typeof compacted.valuePath === "string") return compacted.valuePath;
+  if (!("value" in readValue)) return readValue.valuePath;
+  if (Array.isArray(readValue.value) || (readValue.value && typeof readValue.value === "object")) return readValue.path;
+  return undefined;
+}
+
 function formatAgentReadValueItemText(value: unknown, fallbackPath: string): string {
   if (!value || typeof value !== "object") return `${fallbackPath} - ${String(value)}`;
   const item = value as Record<string, unknown>;
@@ -19742,7 +19751,7 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.nextReadValuePath ? { nextReadValuePath: agent.nextReadValuePath } : {}),
     ...(agent.nextReadValueType ? { nextReadValueType: agent.nextReadValueType } : {}),
     ...(typeof agent.nextReadValueCount === "number" ? { nextReadValueCount: agent.nextReadValueCount } : {}),
-    ...(agent.nextReadValueReferencePath ? { nextReadValueReferencePath: agent.nextReadValueReferencePath } : {}),
+    ...(compactAgentReadValueReferencePath(agent.next.readValue) ? { nextReadValueReferencePath: compactAgentReadValueReferencePath(agent.next.readValue) } : {}),
     ...(agent.nextUrl ? { nextUrl: agent.nextUrl } : {}),
     executor: compactAgentExecutor(agent.executor, agent.primaryUrl),
     handoff: compactAgentHandoff(agent.handoff, agent.primaryUrl, searchCommandContext, pageLinkContext),
@@ -21261,7 +21270,7 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.nextReadValuePath ? { nextReadValuePath: agent.nextReadValuePath } : {}),
     ...(agent.nextReadValueType ? { nextReadValueType: agent.nextReadValueType } : {}),
     ...(typeof agent.nextReadValueCount === "number" ? { nextReadValueCount: agent.nextReadValueCount } : {}),
-    ...(agent.nextReadValueReferencePath ? { nextReadValueReferencePath: agent.nextReadValueReferencePath } : {}),
+    ...(compactAgentReadValueReferencePath(agent.next.readValue) ? { nextReadValueReferencePath: compactAgentReadValueReferencePath(agent.next.readValue) } : {}),
     ...(agent.nextUrl ? { nextUrl: agent.nextUrl } : {}),
     executor: compactAgentExecutor(agent.executor, agent.primaryUrl),
     handoff: compactAgentBriefHandoff(agent.handoff, agent.primaryUrl, searchCommandContext, pageLinkContext),

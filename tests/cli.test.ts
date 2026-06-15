@@ -12739,6 +12739,41 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  2. p (p) - This article paragraph is long enough to appear in the page checking summary for agents.");
   });
 
+  it("preserves compact next read-value reference-path shortcuts in brief output", async () => {
+    const stdout = new MemoryWriter();
+    const rows = Array.from({ length: 80 }, (_, index) =>
+      `<tr><td>Plan ${index + 1}</td><td>$${index + 10}.99</td><td>Large table feature ${index + 1}</td></tr>`,
+    ).join("");
+    const status = await runCli(["https://example.test/pricing", "--agent-brief"], {
+      stdout,
+      fetch: async () => new Response(`
+        <html>
+          <body>
+            <main>
+              <h1>Pricing</h1>
+              <table>
+                <caption>Pricing table</caption>
+                <thead><tr><th>Plan</th><th>Price</th><th>Feature</th></tr></thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </main>
+          </body>
+        </html>
+      `),
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope.agent).toMatchObject({
+      nextReadValuePath: "pageCheck.dataTables",
+      nextReadValueType: "array",
+      nextReadValueCount: 1,
+      nextReadValueReferencePath: "pageCheck.dataTables",
+    });
+    expect(envelope.agent.next).toBeUndefined();
+  });
+
   it("checks requested text against page summaries", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli([
