@@ -2997,6 +2997,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("dateText=2026-05-31 dateIso=2026-05-31T00:00:00.000Z dateUnixMs=1780185600000 datePrecision=day dateSource=snippet");
     expect(stdout.output).toContain("  resultChoice: id=r1 path=searchResults[0] rank=1 recommended primary via=recommendedResult");
     expect(stdout.output).toContain("dateText=2026-05-31 dateIso=2026-05-31T00:00:00.000Z dateUnixMs=1780185600000 datePrecision=day dateSource=snippet");
+    expect(stdout.output).toContain("  resultChoiceSourceHints: package-registry");
   });
 
   it("prefers freshness-matching search results for dated queries", async () => {
@@ -12350,6 +12351,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("Possible source candidate: news-like.");
     expect(stdout.output).toContain("  sourceChoice: id=s1 path=pageCheck.sourceLinks[0] rank=1");
     expect(stdout.output).toContain("source=source.example type=news kind=external selector=a <https://source.example/report> - Possible source candidate: news-like. Source report");
+    expect(stdout.output).toContain("  sourceChoiceSourceHints: news-like");
     expect(stdout.output).toContain("    command: ax-grep 'https://source.example/report' --json --summary");
     expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://source.example/report\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  actionCandidate: pageCheck.nextSteps open-source-link <https://source.example/report>");

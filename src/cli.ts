@@ -3863,6 +3863,7 @@ function formatAgentResultChoiceText(choice: AgentResultChoice, prefix = "result
   if (choice.relevance) lines.push(`  ${prefix}Relevance: ${choice.relevance}`);
   if (choice.source) lines.push(`  ${prefix}Source: ${choice.source}`);
   if (choice.sourceType) lines.push(`  ${prefix}SourceType: ${choice.sourceType}`);
+  if (choice.sourceHints?.length) lines.push(`  ${prefix}SourceHints: ${choice.sourceHints.join(",")}`);
   if (typeof choice.isLikelyOfficial === "boolean") lines.push(`  ${prefix}LikelyOfficial: ${choice.isLikelyOfficial}`);
   if (choice.dateText) lines.push(`  ${prefix}DateText: ${choice.dateText}`);
   if (choice.dateIso) lines.push(`  ${prefix}DateIso: ${choice.dateIso}`);
@@ -3914,6 +3915,7 @@ function formatAgentSourceChoiceText(choice: AgentSourceChoice, prefix = "source
   if (typeof choice.sourceScore === "number") lines.push(`  ${prefix}SourceScore: ${choice.sourceScore}`);
   if (choice.source) lines.push(`  ${prefix}Source: ${choice.source}`);
   if (choice.sourceType) lines.push(`  ${prefix}SourceType: ${choice.sourceType}`);
+  if (choice.sourceHints?.length) lines.push(`  ${prefix}SourceHints: ${choice.sourceHints.join(",")}`);
   if (choice.sourceHints?.[0]) lines.push(`  ${prefix}SourceHint: ${choice.sourceHints[0]}`);
   if (choice.relevance) lines.push(`  ${prefix}Relevance: ${choice.relevance}`);
   if (typeof choice.isLikelyOfficial === "boolean") lines.push(`  ${prefix}LikelyOfficial: ${choice.isLikelyOfficial}`);
