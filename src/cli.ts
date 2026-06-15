@@ -5289,9 +5289,15 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`  citation: ${citation.id} ${citation.path} ${details}${url} - ${citation.text}`);
   }
   for (const media of pageCheck.media) {
-    const dimensions = media.width && media.height ? ` ${media.width}x${media.height}` : "";
-    const selector = media.selector ? ` (${media.selector})` : "";
-    lines.push(`  media: ${media.id} ${media.path} ${media.kind}${dimensions}${selector} <${media.url}> - ${media.text}`);
+    const dimensions = media.width && media.height ? `${media.width}x${media.height}` : "";
+    const details = [
+      media.alt ? `alt="${media.alt}"` : "",
+      media.caption ? `caption="${media.caption}"` : "",
+      media.title ? `title="${media.title}"` : "",
+      dimensions ? `dimensions=${dimensions}` : "",
+      media.selector ? `selector=${media.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  media: ${media.id} ${media.path} ${media.kind} ${details} <${media.url}> - ${media.text}`);
   }
   for (const resource of pageCheck.resources) {
     const rel = resource.rel ? ` rel=${resource.rel}` : "";
