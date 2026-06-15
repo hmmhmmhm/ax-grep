@@ -7402,6 +7402,8 @@ describe("cli", () => {
       topActionTargetChoiceName: "Search docs",
       topActionTargetChoiceSource: "json-ld",
       topActionTargetChoiceUrlTemplate: "https://example.test/search?q={search_term_string}",
+      topActionTargetChoiceUrlTemplatePath: "/search",
+      topActionTargetChoiceUrlTemplateQuery: "?q={search_term_string}",
       topActionTargetChoiceQueryInput: "required name=search_term_string",
       topActionTargetChoiceMethod: "GET",
       topActionTargetChoiceEncodingType: "application/x-www-form-urlencoded",
@@ -7415,6 +7417,8 @@ describe("cli", () => {
         name: "Search docs",
         source: "json-ld",
         urlTemplate: "https://example.test/search?q={search_term_string}",
+        urlTemplatePath: "/search",
+        urlTemplateQuery: "?q={search_term_string}",
         queryInput: "required name=search_term_string",
         method: "GET",
       }),
@@ -7499,6 +7503,8 @@ describe("cli", () => {
         name: "Search docs",
         source: "json-ld",
         urlTemplate: "https://example.test/search?q={search_term_string}",
+        urlTemplatePath: "/search",
+        urlTemplateQuery: "?q={search_term_string}",
         queryInput: "required name=search_term_string",
         method: "GET",
         encodingType: "application/x-www-form-urlencoded",
@@ -7517,6 +7523,8 @@ describe("cli", () => {
       topActionTargetChoiceKind: "search",
       topActionTargetChoiceSource: "json-ld",
       topActionTargetChoiceUrlTemplate: "https://example.test/search?q={search_term_string}",
+      topActionTargetChoiceUrlTemplatePath: "/search",
+      topActionTargetChoiceUrlTemplateQuery: "?q={search_term_string}",
       topActionTargetChoiceQueryInput: "required name=search_term_string",
       topActionTargetChoiceMethod: "GET",
       topActionTargetChoiceEncodingType: "application/x-www-form-urlencoded",
@@ -13027,6 +13035,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topActionTargetChoiceName: Example Docs");
     expect(stdout.output).toContain("  topActionTargetChoiceSource: json-ld");
     expect(stdout.output).toContain("  topActionTargetChoiceUrlTemplate: https://example.test/search?q={search_term_string}");
+    expect(stdout.output).toContain("  topActionTargetChoiceUrlTemplatePath: /search");
+    expect(stdout.output).toContain("  topActionTargetChoiceUrlTemplateQuery: ?q={search_term_string}");
     expect(stdout.output).toContain("  topActionTargetChoiceQueryInput: required name=search_term_string");
     expect(stdout.output).toContain("  topActionTargetChoiceSelector: script[type=\"application/ld+json\"]:nth-of-type(1)");
     expect(stdout.output).toContain("  topActionTargetChoiceCommand: ax-grep 'https://example.test/search?q=search_term_string' --find 'search_term_string' --json --summary");
@@ -13038,6 +13048,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  actionTargetChoiceSource: json-ld");
     expect(stdout.output).toContain("  actionTargetChoiceRank: 1");
     expect(stdout.output).toContain("  actionTargetChoiceUrlTemplate: https://example.test/search?q={search_term_string}");
+    expect(stdout.output).toContain("  actionTargetChoiceUrlTemplatePath: /search");
+    expect(stdout.output).toContain("  actionTargetChoiceUrlTemplateQuery: ?q={search_term_string}");
     expect(stdout.output).toContain("  actionTargetChoiceQueryInput: required name=search_term_string");
     expect(stdout.output).toContain("  actionTargetChoiceSelector: script[type=\"application/ld+json\"]:nth-of-type(1)");
     expect(stdout.output).toContain("    command: ax-grep 'https://example.test/search?q=search_term_string' --find 'search_term_string' --json --summary");

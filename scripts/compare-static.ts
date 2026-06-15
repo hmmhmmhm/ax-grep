@@ -428,7 +428,11 @@ type CliAgentActionTargetChoiceShape = {
   text?: string;
   source?: string;
   targetUrl?: string;
+  targetUrlPath?: string;
+  targetUrlQuery?: string;
   urlTemplate?: string;
+  urlTemplatePath?: string;
+  urlTemplateQuery?: string;
   queryInput?: string;
   method?: string;
   encodingType?: string;
@@ -1538,7 +1542,11 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       topActionTargetChoiceName?: string;
       topActionTargetChoiceSource?: string;
       topActionTargetChoiceTargetUrl?: string;
+      topActionTargetChoiceTargetUrlPath?: string;
+      topActionTargetChoiceTargetUrlQuery?: string;
       topActionTargetChoiceUrlTemplate?: string;
+      topActionTargetChoiceUrlTemplatePath?: string;
+      topActionTargetChoiceUrlTemplateQuery?: string;
       topActionTargetChoiceQueryInput?: string;
       topActionTargetChoiceMethod?: string;
       topActionTargetChoiceEncodingType?: string;
@@ -5196,6 +5204,17 @@ function scoreAgentActionTargetChoices(choices: CliAgentActionTargetChoiceShape[
       if (!target) return false;
       return choice.urlTemplate === target.urlTemplate && choice.targetUrl === target.targetUrl;
     })) matched += 1;
+    required += 1;
+    if (choices.every((choice, index) => {
+      const target = expected[index];
+      if (!target) return false;
+      const targetUrlParts = typeof target.targetUrl === "string" ? compareUrlPathParts(target.targetUrl) : undefined;
+      const urlTemplateParts = typeof target.urlTemplate === "string" ? compareUrlPathParts(target.urlTemplate) : undefined;
+      return optionalFieldMatches(choice.targetUrlPath, targetUrlParts?.urlPath)
+        && optionalFieldMatches(choice.targetUrlQuery, targetUrlParts?.urlQuery)
+        && optionalFieldMatches(choice.urlTemplatePath, urlTemplateParts?.urlPath)
+        && optionalFieldMatches(choice.urlTemplateQuery, urlTemplateParts?.urlQuery);
+    })) matched += 1;
   }
   if (choices.some(hasExecutableCommand)) {
     required += 1;
@@ -5312,7 +5331,11 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   topActionTargetChoiceName?: string;
   topActionTargetChoiceSource?: string;
   topActionTargetChoiceTargetUrl?: string;
+  topActionTargetChoiceTargetUrlPath?: string;
+  topActionTargetChoiceTargetUrlQuery?: string;
   topActionTargetChoiceUrlTemplate?: string;
+  topActionTargetChoiceUrlTemplatePath?: string;
+  topActionTargetChoiceUrlTemplateQuery?: string;
   topActionTargetChoiceQueryInput?: string;
   topActionTargetChoiceMethod?: string;
   topActionTargetChoiceEncodingType?: string;
@@ -5503,12 +5526,16 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
   }
   if (actionTarget) {
     if (agent?.topActionTargetChoicePath === actionTarget.path) matched += 1;
-    required += 16;
+    required += 20;
     if (agent?.topActionTargetChoiceKind === actionTarget.kind) matched += 1;
     if (agent?.topActionTargetChoiceName === actionTarget.name) matched += 1;
     if (agent?.topActionTargetChoiceSource === actionTarget.source) matched += 1;
     if (agent?.topActionTargetChoiceTargetUrl === actionTarget.targetUrl) matched += 1;
+    if (agent?.topActionTargetChoiceTargetUrlPath === actionTarget.targetUrlPath) matched += 1;
+    if (agent?.topActionTargetChoiceTargetUrlQuery === actionTarget.targetUrlQuery) matched += 1;
     if (agent?.topActionTargetChoiceUrlTemplate === actionTarget.urlTemplate) matched += 1;
+    if (agent?.topActionTargetChoiceUrlTemplatePath === actionTarget.urlTemplatePath) matched += 1;
+    if (agent?.topActionTargetChoiceUrlTemplateQuery === actionTarget.urlTemplateQuery) matched += 1;
     if (agent?.topActionTargetChoiceQueryInput === actionTarget.queryInput) matched += 1;
     if (agent?.topActionTargetChoiceMethod === actionTarget.method) matched += 1;
     if (agent?.topActionTargetChoiceEncodingType === actionTarget.encodingType) matched += 1;
@@ -5526,7 +5553,11 @@ function scoreAgentTopFormActionChoiceShortcuts(agent: {
     || agent?.topActionTargetChoiceName
     || agent?.topActionTargetChoiceSource
     || agent?.topActionTargetChoiceTargetUrl
+    || agent?.topActionTargetChoiceTargetUrlPath
+    || agent?.topActionTargetChoiceTargetUrlQuery
     || agent?.topActionTargetChoiceUrlTemplate
+    || agent?.topActionTargetChoiceUrlTemplatePath
+    || agent?.topActionTargetChoiceUrlTemplateQuery
     || agent?.topActionTargetChoiceQueryInput
     || agent?.topActionTargetChoiceMethod
     || agent?.topActionTargetChoiceEncodingType

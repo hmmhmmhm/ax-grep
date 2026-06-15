@@ -1274,7 +1274,11 @@ export type AgentActionTargetChoice = {
   text: string;
   source: "json-ld" | "link";
   targetUrl?: string;
+  targetUrlPath?: string;
+  targetUrlQuery?: string;
   urlTemplate?: string;
+  urlTemplatePath?: string;
+  urlTemplateQuery?: string;
   queryInput?: string;
   method?: string;
   encodingType?: string;
@@ -2029,7 +2033,11 @@ export type AgentSummary = {
   topActionTargetChoiceName?: string;
   topActionTargetChoiceSource?: string;
   topActionTargetChoiceTargetUrl?: string;
+  topActionTargetChoiceTargetUrlPath?: string;
+  topActionTargetChoiceTargetUrlQuery?: string;
   topActionTargetChoiceUrlTemplate?: string;
+  topActionTargetChoiceUrlTemplatePath?: string;
+  topActionTargetChoiceUrlTemplateQuery?: string;
   topActionTargetChoiceQueryInput?: string;
   topActionTargetChoiceMethod?: string;
   topActionTargetChoiceEncodingType?: string;

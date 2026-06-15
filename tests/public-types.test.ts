@@ -234,7 +234,10 @@ describe("public agent types", () => {
       text: "search: Search docs template=https://example.test/search?q={query}",
       source: "json-ld",
       targetUrl: "https://example.test/search",
+      targetUrlPath: "/search",
       urlTemplate: "https://example.test/search?q={query}",
+      urlTemplatePath: "/search",
+      urlTemplateQuery: "?q={query}",
       queryInput: "required name=query",
       method: "GET",
       encodingType: "application/x-www-form-urlencoded",
@@ -376,7 +379,11 @@ describe("public agent types", () => {
       | "topActionTargetChoiceName"
       | "topActionTargetChoiceSource"
       | "topActionTargetChoiceTargetUrl"
+      | "topActionTargetChoiceTargetUrlPath"
+      | "topActionTargetChoiceTargetUrlQuery"
       | "topActionTargetChoiceUrlTemplate"
+      | "topActionTargetChoiceUrlTemplatePath"
+      | "topActionTargetChoiceUrlTemplateQuery"
       | "topActionTargetChoiceQueryInput"
       | "topActionTargetChoiceMethod"
       | "topActionTargetChoiceEncodingType"
@@ -1807,7 +1814,10 @@ describe("public agent types", () => {
       topActionTargetChoiceName: "Search docs",
       topActionTargetChoiceSource: "json-ld",
       topActionTargetChoiceTargetUrl: "https://example.test/search",
+      topActionTargetChoiceTargetUrlPath: "/search",
       topActionTargetChoiceUrlTemplate: "https://example.test/search?q={query}",
+      topActionTargetChoiceUrlTemplatePath: "/search",
+      topActionTargetChoiceUrlTemplateQuery: "?q={query}",
       topActionTargetChoiceQueryInput: "required name=query",
       topActionTargetChoiceMethod: "GET",
       topActionTargetChoiceEncodingType: "application/x-www-form-urlencoded",
@@ -3303,6 +3313,8 @@ describe("public agent types", () => {
     expect(summary.topActionTargetChoiceKind).toBe("search");
     expect(summary.topActionTargetChoiceSource).toBe("json-ld");
     expect(summary.topActionTargetChoiceUrlTemplate).toBe("https://example.test/search?q={query}");
+    expect(summary.topActionTargetChoiceUrlTemplatePath).toBe("/search");
+    expect(summary.topActionTargetChoiceUrlTemplateQuery).toBe("?q={query}");
     expect(summary.topActionTargetChoiceCommandArgs?.[1]).toBe("https://example.test/search?q=docs");
     expect(summary.topChoiceKind).toBe("source");
     expect(summary.topChoiceHost).toBe("source.example");

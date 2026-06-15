@@ -486,7 +486,11 @@ type PageActionTargetSummary = {
   text: string;
   source: "json-ld" | "link";
   targetUrl?: string;
+  targetUrlPath?: string;
+  targetUrlQuery?: string;
   urlTemplate?: string;
+  urlTemplatePath?: string;
+  urlTemplateQuery?: string;
   queryInput?: string;
   method?: string;
   encodingType?: string;
@@ -1661,7 +1665,11 @@ type AgentSummary = {
   topActionTargetChoiceName?: string;
   topActionTargetChoiceSource?: string;
   topActionTargetChoiceTargetUrl?: string;
+  topActionTargetChoiceTargetUrlPath?: string;
+  topActionTargetChoiceTargetUrlQuery?: string;
   topActionTargetChoiceUrlTemplate?: string;
+  topActionTargetChoiceUrlTemplatePath?: string;
+  topActionTargetChoiceUrlTemplateQuery?: string;
   topActionTargetChoiceQueryInput?: string;
   topActionTargetChoiceMethod?: string;
   topActionTargetChoiceEncodingType?: string;
@@ -4061,7 +4069,11 @@ function formatAgentActionTargetChoiceText(choice: AgentActionTargetChoice, pref
   lines.push(`  ${prefix}Source: ${choice.source}`);
   lines.push(`  ${prefix}Rank: ${choice.rank}`);
   if (choice.targetUrl) lines.push(`  ${prefix}TargetUrl: ${choice.targetUrl}`);
+  if (choice.targetUrlPath) lines.push(`  ${prefix}TargetUrlPath: ${choice.targetUrlPath}`);
+  if (choice.targetUrlQuery) lines.push(`  ${prefix}TargetUrlQuery: ${choice.targetUrlQuery}`);
   if (choice.urlTemplate) lines.push(`  ${prefix}UrlTemplate: ${choice.urlTemplate}`);
+  if (choice.urlTemplatePath) lines.push(`  ${prefix}UrlTemplatePath: ${choice.urlTemplatePath}`);
+  if (choice.urlTemplateQuery) lines.push(`  ${prefix}UrlTemplateQuery: ${choice.urlTemplateQuery}`);
   if (choice.queryInput) lines.push(`  ${prefix}QueryInput: ${choice.queryInput}`);
   if (choice.method) lines.push(`  ${prefix}Method: ${choice.method}`);
   if (choice.encodingType) lines.push(`  ${prefix}EncodingType: ${choice.encodingType}`);
@@ -4450,7 +4462,11 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topActionTargetChoiceName ? [`  topActionTargetChoiceName: ${agent.topActionTargetChoiceName}`] : []),
     ...(agent.topActionTargetChoiceSource ? [`  topActionTargetChoiceSource: ${agent.topActionTargetChoiceSource}`] : []),
     ...(agent.topActionTargetChoiceTargetUrl ? [`  topActionTargetChoiceTargetUrl: ${agent.topActionTargetChoiceTargetUrl}`] : []),
+    ...(agent.topActionTargetChoiceTargetUrlPath ? [`  topActionTargetChoiceTargetUrlPath: ${agent.topActionTargetChoiceTargetUrlPath}`] : []),
+    ...(agent.topActionTargetChoiceTargetUrlQuery ? [`  topActionTargetChoiceTargetUrlQuery: ${agent.topActionTargetChoiceTargetUrlQuery}`] : []),
     ...(agent.topActionTargetChoiceUrlTemplate ? [`  topActionTargetChoiceUrlTemplate: ${agent.topActionTargetChoiceUrlTemplate}`] : []),
+    ...(agent.topActionTargetChoiceUrlTemplatePath ? [`  topActionTargetChoiceUrlTemplatePath: ${agent.topActionTargetChoiceUrlTemplatePath}`] : []),
+    ...(agent.topActionTargetChoiceUrlTemplateQuery ? [`  topActionTargetChoiceUrlTemplateQuery: ${agent.topActionTargetChoiceUrlTemplateQuery}`] : []),
     ...(agent.topActionTargetChoiceQueryInput ? [`  topActionTargetChoiceQueryInput: ${agent.topActionTargetChoiceQueryInput}`] : []),
     ...(agent.topActionTargetChoiceMethod ? [`  topActionTargetChoiceMethod: ${agent.topActionTargetChoiceMethod}`] : []),
     ...(agent.topActionTargetChoiceEncodingType ? [`  topActionTargetChoiceEncodingType: ${agent.topActionTargetChoiceEncodingType}`] : []),
@@ -13000,6 +13016,8 @@ function summarizeAgent(
   const topFormChoiceInvalidField = topFormChoice?.fields.find((field) => typeof field.invalid !== "undefined");
   const topFormChoiceFirstHiddenField = topFormChoice?.hiddenFields[0];
   const actionTargetChoices = summarizeAgentActionTargetChoices(pageCheck.actionTargets, findQueries, agentMode, timeoutMs, userAgent);
+  const topActionTargetChoiceTargetUrlParts = actionTargetChoices[0]?.targetUrl ? urlPathParts(actionTargetChoices[0].targetUrl) : undefined;
+  const topActionTargetChoiceUrlTemplateParts = actionTargetChoices[0]?.urlTemplate ? urlPathParts(actionTargetChoices[0].urlTemplate) : undefined;
   const topChoice = summarizeAgentTopChoice(resultChoices, sourceChoices, formChoices, actionTargetChoices);
   const topChoiceUrlParts = topChoice?.url ? urlPathParts(topChoice.url) : undefined;
   const topBarrier = primaryBlockingBarrier(pageCheck.barriers) ?? pageCheck.barriers[0];
@@ -13882,7 +13900,11 @@ function summarizeAgent(
     ...(actionTargetChoices[0]?.name ? { topActionTargetChoiceName: actionTargetChoices[0].name } : {}),
     ...(actionTargetChoices[0]?.source ? { topActionTargetChoiceSource: actionTargetChoices[0].source } : {}),
     ...(actionTargetChoices[0]?.targetUrl ? { topActionTargetChoiceTargetUrl: actionTargetChoices[0].targetUrl } : {}),
+    ...(topActionTargetChoiceTargetUrlParts?.urlPath ? { topActionTargetChoiceTargetUrlPath: topActionTargetChoiceTargetUrlParts.urlPath } : {}),
+    ...(topActionTargetChoiceTargetUrlParts?.urlQuery ? { topActionTargetChoiceTargetUrlQuery: topActionTargetChoiceTargetUrlParts.urlQuery } : {}),
     ...(actionTargetChoices[0]?.urlTemplate ? { topActionTargetChoiceUrlTemplate: actionTargetChoices[0].urlTemplate } : {}),
+    ...(topActionTargetChoiceUrlTemplateParts?.urlPath ? { topActionTargetChoiceUrlTemplatePath: topActionTargetChoiceUrlTemplateParts.urlPath } : {}),
+    ...(topActionTargetChoiceUrlTemplateParts?.urlQuery ? { topActionTargetChoiceUrlTemplateQuery: topActionTargetChoiceUrlTemplateParts.urlQuery } : {}),
     ...(actionTargetChoices[0]?.queryInput ? { topActionTargetChoiceQueryInput: actionTargetChoices[0].queryInput } : {}),
     ...(actionTargetChoices[0]?.method ? { topActionTargetChoiceMethod: actionTargetChoices[0].method } : {}),
     ...(actionTargetChoices[0]?.encodingType ? { topActionTargetChoiceEncodingType: actionTargetChoices[0].encodingType } : {}),
@@ -16592,6 +16614,8 @@ function summarizeAgentFormChoices(forms: PageFormSummary[], findQueries: string
 function summarizeAgentActionTargetChoices(targets: PageActionTargetSummary[], findQueries: string[] = [], agentMode = false, timeoutMs?: number, userAgent?: string): AgentActionTargetChoice[] {
   return targets.map((target) => {
     const command = actionTargetCommandSpec(target, findQueries, agentMode, timeoutMs, userAgent);
+    const targetUrlParts = target.targetUrl ? urlPathParts(target.targetUrl) : undefined;
+    const urlTemplateParts = target.urlTemplate ? urlPathParts(target.urlTemplate) : undefined;
     return {
     id: target.id,
     path: target.path,
@@ -16601,7 +16625,11 @@ function summarizeAgentActionTargetChoices(targets: PageActionTargetSummary[], f
     text: target.text,
     source: target.source,
     ...(target.targetUrl ? { targetUrl: target.targetUrl } : {}),
+    ...(targetUrlParts?.urlPath ? { targetUrlPath: targetUrlParts.urlPath } : {}),
+    ...(targetUrlParts?.urlQuery ? { targetUrlQuery: targetUrlParts.urlQuery } : {}),
     ...(target.urlTemplate ? { urlTemplate: target.urlTemplate } : {}),
+    ...(urlTemplateParts?.urlPath ? { urlTemplatePath: urlTemplateParts.urlPath } : {}),
+    ...(urlTemplateParts?.urlQuery ? { urlTemplateQuery: urlTemplateParts.urlQuery } : {}),
     ...(target.queryInput ? { queryInput: target.queryInput } : {}),
     ...(target.method ? { method: target.method } : {}),
     ...(target.encodingType ? { encodingType: target.encodingType } : {}),
@@ -20073,7 +20101,11 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topActionTargetChoiceName ? { topActionTargetChoiceName: agent.topActionTargetChoiceName } : {}),
     ...(agent.topActionTargetChoiceSource ? { topActionTargetChoiceSource: agent.topActionTargetChoiceSource } : {}),
     ...(agent.topActionTargetChoiceTargetUrl ? { topActionTargetChoiceTargetUrl: agent.topActionTargetChoiceTargetUrl } : {}),
+    ...(agent.topActionTargetChoiceTargetUrlPath ? { topActionTargetChoiceTargetUrlPath: agent.topActionTargetChoiceTargetUrlPath } : {}),
+    ...(agent.topActionTargetChoiceTargetUrlQuery ? { topActionTargetChoiceTargetUrlQuery: agent.topActionTargetChoiceTargetUrlQuery } : {}),
     ...(agent.topActionTargetChoiceUrlTemplate ? { topActionTargetChoiceUrlTemplate: agent.topActionTargetChoiceUrlTemplate } : {}),
+    ...(agent.topActionTargetChoiceUrlTemplatePath ? { topActionTargetChoiceUrlTemplatePath: agent.topActionTargetChoiceUrlTemplatePath } : {}),
+    ...(agent.topActionTargetChoiceUrlTemplateQuery ? { topActionTargetChoiceUrlTemplateQuery: agent.topActionTargetChoiceUrlTemplateQuery } : {}),
     ...(agent.topActionTargetChoiceQueryInput ? { topActionTargetChoiceQueryInput: agent.topActionTargetChoiceQueryInput } : {}),
     ...(agent.topActionTargetChoiceMethod ? { topActionTargetChoiceMethod: agent.topActionTargetChoiceMethod } : {}),
     ...(agent.topActionTargetChoiceEncodingType ? { topActionTargetChoiceEncodingType: agent.topActionTargetChoiceEncodingType } : {}),
@@ -21487,7 +21519,11 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topActionTargetChoiceName ? { topActionTargetChoiceName: agent.topActionTargetChoiceName } : {}),
     ...(agent.topActionTargetChoiceSource ? { topActionTargetChoiceSource: agent.topActionTargetChoiceSource } : {}),
     ...(agent.topActionTargetChoiceTargetUrl ? { topActionTargetChoiceTargetUrl: agent.topActionTargetChoiceTargetUrl } : {}),
+    ...(agent.topActionTargetChoiceTargetUrlPath ? { topActionTargetChoiceTargetUrlPath: agent.topActionTargetChoiceTargetUrlPath } : {}),
+    ...(agent.topActionTargetChoiceTargetUrlQuery ? { topActionTargetChoiceTargetUrlQuery: agent.topActionTargetChoiceTargetUrlQuery } : {}),
     ...(agent.topActionTargetChoiceUrlTemplate ? { topActionTargetChoiceUrlTemplate: agent.topActionTargetChoiceUrlTemplate } : {}),
+    ...(agent.topActionTargetChoiceUrlTemplatePath ? { topActionTargetChoiceUrlTemplatePath: agent.topActionTargetChoiceUrlTemplatePath } : {}),
+    ...(agent.topActionTargetChoiceUrlTemplateQuery ? { topActionTargetChoiceUrlTemplateQuery: agent.topActionTargetChoiceUrlTemplateQuery } : {}),
     ...(agent.topActionTargetChoiceQueryInput ? { topActionTargetChoiceQueryInput: agent.topActionTargetChoiceQueryInput } : {}),
     ...(agent.topActionTargetChoiceMethod ? { topActionTargetChoiceMethod: agent.topActionTargetChoiceMethod } : {}),
     ...(agent.topActionTargetChoiceEncodingType ? { topActionTargetChoiceEncodingType: agent.topActionTargetChoiceEncodingType } : {}),
@@ -22720,7 +22756,14 @@ function compactAgentFormExecutionRefs(forms: Array<PageFormSummary & { command?
   }));
 }
 
-function compactAgentActionTargetExecutionRefs(targets: Array<PageActionTargetSummary & { command?: string; commandArgs?: string[] }>): object[] {
+function compactAgentActionTargetExecutionRefs(targets: Array<PageActionTargetSummary & {
+  command?: string;
+  commandArgs?: string[];
+  targetUrlPath?: string;
+  targetUrlQuery?: string;
+  urlTemplatePath?: string;
+  urlTemplateQuery?: string;
+}>): object[] {
   return targets.slice(0, 5).map((target) => ({
     id: target.id,
     path: target.path,
@@ -22730,7 +22773,11 @@ function compactAgentActionTargetExecutionRefs(targets: Array<PageActionTargetSu
     text: target.text,
     source: target.source,
     ...(target.targetUrl ? { targetUrl: target.targetUrl } : {}),
+    ...(target.targetUrlPath ? { targetUrlPath: target.targetUrlPath } : {}),
+    ...(target.targetUrlQuery ? { targetUrlQuery: target.targetUrlQuery } : {}),
     ...(target.urlTemplate ? { urlTemplate: target.urlTemplate } : {}),
+    ...(target.urlTemplatePath ? { urlTemplatePath: target.urlTemplatePath } : {}),
+    ...(target.urlTemplateQuery ? { urlTemplateQuery: target.urlTemplateQuery } : {}),
     ...(target.queryInput ? { queryInput: target.queryInput } : {}),
     ...(target.method ? { method: target.method } : {}),
     ...(target.encodingType ? { encodingType: target.encodingType } : {}),
