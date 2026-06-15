@@ -49,6 +49,23 @@ describe("agent readiness audit", () => {
 
     expect(failures).toContain("script readiness:audit must include \"scripts/check-agent-readiness.ts\"");
   });
+
+  it("rejects args-only command shortcut readiness coverage", () => {
+    const root = makeMinimalProject();
+    mkdirSync(join(root, "src"), { recursive: true });
+    writeFileSync(join(root, "src", "cli.ts"), "const fooCommand = 'ax-grep https://example.test --agent';\n");
+    writeFileSync(join(root, "scripts", "check-agent-readiness.ts"), [
+      "checkCommandShortcutSymmetry(root, failures)",
+      "shortcutArgsFields(readiness, \"CommandArgs\")",
+      "shortcutArgsFields(readiness, \"AfterInteractionCommandArgs\")",
+      "is guarded without matching",
+      "\"fooCommandArgs\"",
+    ].join("\n"));
+
+    const failures = checkAgentReadinessProject(root).map((failure) => failure.message);
+
+    expect(failures).toContain("fooCommandArgs is guarded without matching fooCommand");
+  });
 });
 
 function makeMinimalProject(): string {
