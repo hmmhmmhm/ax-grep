@@ -104,6 +104,7 @@ type CliAgentSummary = {
   agentTopResultChoiceShortcutScore: number;
   agentSourceLinkCountScore: number;
   pageCheckFormUrlPathScore: number;
+  pageCheckActionTargetUrlPathScore: number;
   agentFormActionCountScore: number;
   agentFormActionChoiceScore: number;
   agentTopFormActionChoiceShortcutScore: number;
@@ -711,6 +712,7 @@ export type GateSummary = {
   averageAgentTopResultChoiceShortcutScore: number;
   averageAgentSourceLinkCountScore: number;
   averagePageCheckFormUrlPathScore: number;
+  averagePageCheckActionTargetUrlPathScore: number;
   averageAgentFormActionCountScore: number;
   averageAgentFormActionChoiceScore: number;
   averageAgentTopFormActionChoiceShortcutScore: number;
@@ -2715,6 +2717,7 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentTopResultChoiceShortcutScore: scoreAgentTopResultChoiceShortcuts(item.agent),
     agentSourceLinkCountScore: scoreAgentSourceLinkCount(item.kind ?? "unknown", item.agent?.sourceLinkCount, item.pageCheck?.sourceLinks ?? []),
     pageCheckFormUrlPathScore: scorePageCheckFormUrlPaths(item.pageCheck?.forms ?? []),
+    pageCheckActionTargetUrlPathScore: scorePageCheckActionTargetUrlPaths(item.pageCheck?.actionTargets ?? []),
     agentFormActionCountScore: scoreAgentFormActionCounts(item.agent?.formCount, item.agent?.actionTargetCount, item.pageCheck?.forms ?? [], item.pageCheck?.actionTargets ?? []),
     agentFormActionChoiceScore: scoreAgentFormActionChoices(item.agent?.formChoices ?? [], item.agent?.actionTargetChoices ?? [], item.pageCheck?.forms ?? [], item.pageCheck?.actionTargets ?? []),
     agentTopFormActionChoiceShortcutScore: scoreAgentTopFormActionChoiceShortcuts(item.agent),
@@ -2811,6 +2814,7 @@ function emptyCliAgentSummary(): CliAgentSummary {
     agentTopResultChoiceShortcutScore: 0,
     agentSourceLinkCountScore: 0,
     pageCheckFormUrlPathScore: 0,
+    pageCheckActionTargetUrlPathScore: 0,
     agentFormActionCountScore: 0,
     agentFormActionChoiceScore: 0,
     agentTopFormActionChoiceShortcutScore: 0,
@@ -5272,6 +5276,28 @@ function scorePageCheckFormUrlPaths(forms: unknown[]): number {
       const urlTemplateParts = compareUrlPathParts(form.urlTemplate);
       if (optionalFieldMatches(form.urlTemplatePath, urlTemplateParts?.urlPath)) matched += 1;
       if (optionalFieldMatches(form.urlTemplateQuery, urlTemplateParts?.urlQuery)) matched += 1;
+    }
+  }
+  return required === 0 ? 1 : roundScore(matched / required);
+}
+
+function scorePageCheckActionTargetUrlPaths(targets: unknown[]): number {
+  const targetRecords = targets.filter((target): target is Record<string, unknown> => Boolean(target) && typeof target === "object");
+  if (targetRecords.length === 0) return 1;
+  let required = 0;
+  let matched = 0;
+  for (const target of targetRecords) {
+    if (typeof target.targetUrl === "string") {
+      required += 2;
+      const targetUrlParts = compareUrlPathParts(target.targetUrl);
+      if (optionalFieldMatches(target.targetUrlPath, targetUrlParts?.urlPath)) matched += 1;
+      if (optionalFieldMatches(target.targetUrlQuery, targetUrlParts?.urlQuery)) matched += 1;
+    }
+    if (typeof target.urlTemplate === "string") {
+      required += 2;
+      const urlTemplateParts = compareUrlPathParts(target.urlTemplate);
+      if (optionalFieldMatches(target.urlTemplatePath, urlTemplateParts?.urlPath)) matched += 1;
+      if (optionalFieldMatches(target.urlTemplateQuery, urlTemplateParts?.urlQuery)) matched += 1;
     }
   }
   return required === 0 ? 1 : roundScore(matched / required);
@@ -11949,6 +11975,7 @@ function scoreCliAgentSummary(summary: CliAgentSummary): number {
     + summary.agentTopSourceChoiceShortcutScore * 0.005
     + summary.agentSourceSearchShortcutScore * 0.005
     + summary.pageCheckFormUrlPathScore * 0.005
+    + summary.pageCheckActionTargetUrlPathScore * 0.005
     + summary.agentFormActionChoiceScore * 0.005
     + summary.agentTopFormActionChoiceShortcutScore * 0.005
     + summary.agentBrowserNeedScore * 0.005
@@ -12029,6 +12056,7 @@ function scoreAgentExecutorSummary(summary: CliAgentSummary): number {
     summary.agentTopResultChoiceShortcutScore,
     summary.agentChoiceCountScore,
     summary.pageCheckFormUrlPathScore,
+    summary.pageCheckActionTargetUrlPathScore,
     summary.agentFormActionCountScore,
     summary.agentFormActionChoiceScore,
     summary.agentTopFormActionChoiceShortcutScore,
@@ -12149,6 +12177,7 @@ function summarizeGate(comparisons: StaticComparison[]): GateSummary {
     averageAgentTopResultChoiceShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentTopResultChoiceShortcutScore)),
     averageAgentSourceLinkCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentSourceLinkCountScore)),
     averagePageCheckFormUrlPathScore: average(included.map((comparison) => comparison.cliAgentSummary.pageCheckFormUrlPathScore)),
+    averagePageCheckActionTargetUrlPathScore: average(included.map((comparison) => comparison.cliAgentSummary.pageCheckActionTargetUrlPathScore)),
     averageAgentFormActionCountScore: average(included.map((comparison) => comparison.cliAgentSummary.agentFormActionCountScore)),
     averageAgentFormActionChoiceScore: average(included.map((comparison) => comparison.cliAgentSummary.agentFormActionChoiceScore)),
     averageAgentTopFormActionChoiceShortcutScore: average(included.map((comparison) => comparison.cliAgentSummary.agentTopFormActionChoiceShortcutScore)),

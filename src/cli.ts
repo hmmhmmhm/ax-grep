@@ -8242,6 +8242,8 @@ function summarizeActionTargets(html: string, baseUrl: string): PageActionTarget
     const name = cleanContentText(item.name).slice(0, 140);
     const targetUrl = item.targetUrl ? normalizeActionTargetUrl(item.targetUrl, baseUrl) : "";
     const urlTemplate = item.urlTemplate ? normalizeActionTargetUrl(item.urlTemplate, baseUrl) : "";
+    const targetUrlParts = targetUrl ? urlPathParts(targetUrl) : undefined;
+    const urlTemplateParts = urlTemplate ? urlPathParts(urlTemplate) : undefined;
     const queryInput = cleanContentText(item.queryInput ?? "").slice(0, 160);
     const method = cleanLinkText(item.method ?? "").toUpperCase().slice(0, 24);
     const encodingType = cleanLinkText(item.encodingType ?? "").slice(0, 80);
@@ -8257,7 +8259,11 @@ function summarizeActionTargets(html: string, baseUrl: string): PageActionTarget
       name,
       source: item.source,
       ...(targetUrl ? { targetUrl } : {}),
+      ...(targetUrlParts?.urlPath ? { targetUrlPath: targetUrlParts.urlPath } : {}),
+      ...(targetUrlParts?.urlQuery ? { targetUrlQuery: targetUrlParts.urlQuery } : {}),
       ...(urlTemplate ? { urlTemplate } : {}),
+      ...(urlTemplateParts?.urlPath ? { urlTemplatePath: urlTemplateParts.urlPath } : {}),
+      ...(urlTemplateParts?.urlQuery ? { urlTemplateQuery: urlTemplateParts.urlQuery } : {}),
       ...(queryInput ? { queryInput } : {}),
       ...(method ? { method } : {}),
       ...(encodingType ? { encodingType } : {}),
