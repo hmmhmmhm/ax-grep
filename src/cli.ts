@@ -4028,7 +4028,13 @@ function formatAgentSourceSearchResultText(result: AgentSourceSearchResult, pref
   const lines = [`  ${prefix}: ${result.id} ${result.path}${rank}${openResult}${score}${relevance}${date}${dateText}${dateIso}${dateUnixMs}${datePrecision}${dateSource}${source}${host}${sourceType}${official}${snippet}${matchedTerms}${findMatches}${sitelinks}${firstSitelink}${firstSitelinkUrl}${firstSitelinkSelector}${target}${reason}${title}`];
   if (result.command) lines.push(`    command: ${result.command}`);
   if (result.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(result.commandArgs)}`);
+  if (result.host) lines.push(`  ${prefix}Host: ${result.host}`);
+  if (result.source) lines.push(`  ${prefix}Source: ${result.source}`);
+  if (result.sourceType) lines.push(`  ${prefix}SourceType: ${result.sourceType}`);
   if (result.sourceHints?.length) lines.push(`  ${prefix}SourceHints: ${result.sourceHints.join(",")}`);
+  if (typeof result.sourceScore === "number") lines.push(`  ${prefix}SourceScore: ${result.sourceScore}`);
+  if (result.relevance) lines.push(`  ${prefix}Relevance: ${result.relevance}`);
+  if (typeof result.isLikelyOfficial === "boolean") lines.push(`  ${prefix}LikelyOfficial: ${result.isLikelyOfficial}`);
   if (result.sitelinks?.length) lines.push(`  ${prefix}SitelinkCount: ${result.sitelinks.length}`);
   if (result.sitelinks?.[0]?.title) lines.push(`  ${prefix}FirstSitelinkTitle: ${result.sitelinks[0].title}`);
   if (result.sitelinks?.[0]?.url) lines.push(`  ${prefix}FirstSitelinkUrl: ${result.sitelinks[0].url}`);
