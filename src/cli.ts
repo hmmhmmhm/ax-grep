@@ -4013,6 +4013,10 @@ function formatAgentActionTargetChoiceText(choice: AgentActionTargetChoice, pref
   const lines = [`  ${prefix}: id=${choice.id} path=${choice.path} rank=${choice.rank} kind=${choice.kind} source=${choice.source}${template}${query}${method}${disabled}${pressed}${expanded}${haspopup}${controls}${selector}${target} - ${choice.name}`];
   if (choice.command) lines.push(`    command: ${choice.command}`);
   if (choice.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(choice.commandArgs)}`);
+  lines.push(`  ${prefix}Name: ${choice.name}`);
+  lines.push(`  ${prefix}Kind: ${choice.kind}`);
+  lines.push(`  ${prefix}Source: ${choice.source}`);
+  lines.push(`  ${prefix}Rank: ${choice.rank}`);
   if (choice.targetUrl) lines.push(`  ${prefix}TargetUrl: ${choice.targetUrl}`);
   if (choice.urlTemplate) lines.push(`  ${prefix}UrlTemplate: ${choice.urlTemplate}`);
   if (choice.queryInput) lines.push(`  ${prefix}QueryInput: ${choice.queryInput}`);

@@ -12936,6 +12936,10 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topActionTargetChoiceCommandArgs: [\"ax-grep\",\"https://example.test/search?q=search_term_string\",\"--find\",\"search_term_string\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  actionTarget: id=at1 path=pageCheck.actionTargets[0] kind=search source=json-ld template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string selector=script[type=\"application/ld+json\"]:nth-of-type(1) - search: Example Docs");
     expect(stdout.output).toContain("  actionTargetChoice: id=at1 path=pageCheck.actionTargets[0] rank=1 kind=search source=json-ld template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string selector=script[type=\"application/ld+json\"]:nth-of-type(1)");
+    expect(stdout.output).toContain("  actionTargetChoiceName: Example Docs");
+    expect(stdout.output).toContain("  actionTargetChoiceKind: search");
+    expect(stdout.output).toContain("  actionTargetChoiceSource: json-ld");
+    expect(stdout.output).toContain("  actionTargetChoiceRank: 1");
     expect(stdout.output).toContain("  actionTargetChoiceUrlTemplate: https://example.test/search?q={search_term_string}");
     expect(stdout.output).toContain("  actionTargetChoiceQueryInput: required name=search_term_string");
     expect(stdout.output).toContain("  actionTargetChoiceSelector: script[type=\"application/ld+json\"]:nth-of-type(1)");
@@ -12972,6 +12976,10 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topActionTargetChoiceSelector: link[rel=\"search\"]:nth-of-type(1)");
     expect(stdout.output).toContain("  actionTarget: id=at1 path=pageCheck.actionTargets[0] kind=search source=link encoding=application/opensearchdescription+xml disabled=true expanded=false haspopup=dialog controls=docs-search-panel selector=link[rel=\"search\"]:nth-of-type(1) url=<https://example.test/opensearch.xml> - search: Docs OpenSearch");
     expect(stdout.output).toContain("  actionTargetChoice: id=at1 path=pageCheck.actionTargets[0] rank=1 kind=search source=link disabled=true expanded=false haspopup=dialog controls=docs-search-panel selector=link[rel=\"search\"]:nth-of-type(1) targetUrl=<https://example.test/opensearch.xml> - Docs OpenSearch");
+    expect(stdout.output).toContain("  actionTargetChoiceName: Docs OpenSearch");
+    expect(stdout.output).toContain("  actionTargetChoiceKind: search");
+    expect(stdout.output).toContain("  actionTargetChoiceSource: link");
+    expect(stdout.output).toContain("  actionTargetChoiceRank: 1");
     expect(stdout.output).toContain("  actionTargetChoiceTargetUrl: https://example.test/opensearch.xml");
     expect(stdout.output).toContain("  actionTargetChoiceEncodingType: application/opensearchdescription+xml");
     expect(stdout.output).toContain("  actionTargetChoiceDisabled: true");
