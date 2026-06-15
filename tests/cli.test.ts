@@ -12299,7 +12299,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  evidence: e1 pageCheck.contentEvidence[0] 1. p (p) high - high evidence from semantic extraction, 88 chars, p content, selector available. This article paragraph is long enough to appear in the page checking summary for agents.");
     expect(stdout.output).toContain("  link: external Source report type=news score=0.58 hints=news-like <https://source.example/report> - Possible source candidate: news-like.");
     expect(stdout.output).toContain("  sourceLink: Source report type=news score=0.58 hints=news-like <https://source.example/report> - Possible source candidate: news-like.");
-    expect(stdout.output).toContain("  action: button (button) Subscribe");
+    expect(stdout.output).toContain("  action: type=button selector=button text=\"Subscribe\"");
     expect(stdout.output).toContain("  next: read-content [terminal] - The page has enough structured evidence for source checking.");
     expect(stdout.output).toContain("  execution: read-current");
     expect(stdout.output).toContain("  readFrom: pageCheck.contentEvidence");

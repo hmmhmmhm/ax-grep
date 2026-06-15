@@ -5343,8 +5343,12 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   for (const link of pageCheck.primaryLinks) lines.push(formatPageCheckLinkText(link, "link"));
   for (const link of pageCheck.sourceLinks) lines.push(formatPageCheckLinkText(link, "sourceLink"));
   for (const action of pageCheck.actions) {
-    const selector = action.selector ? ` (${action.selector})` : "";
-    lines.push(`  action: ${action.type}${selector} ${action.text}`);
+    const details = [
+      `type=${action.type}`,
+      action.selector ? `selector=${action.selector}` : "",
+      `text="${action.text}"`,
+    ].filter(Boolean).join(" ");
+    lines.push(`  action: ${details}`);
   }
   lines.push(`  next: ${formatActionLabel(pageCheck.recommendedAction)} - ${pageCheck.recommendedAction.reason}`);
   lines.push(`  execution: ${actionExecution(pageCheck.recommendedAction)}`);
