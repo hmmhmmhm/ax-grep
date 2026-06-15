@@ -4995,8 +4995,19 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`  barrier: ${barrier.id} ${barrier.path} ${barrier.kind} ${barrier.severity} ${details} - ${barrier.text}`);
   }
   for (const form of pageCheck.forms) {
-    const template = form.urlTemplate ? ` template=${form.urlTemplate}` : "";
-    lines.push(`  form: ${form.id} ${form.path} ${form.method.toUpperCase()} fields=${form.fieldCount}${template} - ${form.text}`);
+    const details = [
+      `fields=${form.fieldCount}`,
+      `hidden=${form.hiddenFieldCount}`,
+      form.actionUrl ? `actionUrl=${form.actionUrl}` : "",
+      form.queryField ? `query=${form.queryField}` : "",
+      form.urlTemplate ? `template=${form.urlTemplate}` : "",
+      form.formTarget ? `target=${form.formTarget}` : "",
+      form.formEncType ? `enctype=${form.formEncType}` : "",
+      form.formAcceptCharset ? `acceptCharset=${form.formAcceptCharset}` : "",
+      typeof form.formNoValidate === "boolean" ? `novalidate=${form.formNoValidate}` : "",
+      form.selector ? `selector=${form.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  form: ${form.id} ${form.path} ${form.method.toUpperCase()} ${details} - ${form.text}`);
   }
   for (const target of pageCheck.actionTargets) {
     const url = target.targetUrl ? ` <${target.targetUrl}>` : "";

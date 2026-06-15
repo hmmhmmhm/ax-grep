@@ -12537,6 +12537,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topFormChoiceSelector: form:nth-of-type(1)");
     expect(stdout.output).toContain("  topFormChoiceCommand: ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
     expect(stdout.output).toContain("  topFormChoiceCommandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
+    expect(stdout.output).toContain("  form: f1 pageCheck.forms[0] GET fields=1 hidden=1 actionUrl=https://example.test/find query=query template=https://example.test/find?query=%7Bquery%7D target=_blank enctype=multipart/form-data acceptCharset=UTF-8 novalidate=true selector=form:nth-of-type(1)");
     expect(stdout.output).toContain("  formChoice: f1 pageCheck.forms[0] rank=1 method=get fields=1 hidden=1 firstHidden=csrf query=query template=https://example.test/find?query=%7Bquery%7D target=_blank enctype=multipart/form-data selector=form:nth-of-type(1)");
     expect(stdout.output).toContain("    command: ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
     expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
