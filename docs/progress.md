@@ -1145,6 +1145,9 @@ When research expands:
 - Added individual text rows for second semantic table sample cells, so
   text-only agents can inspect the second representative cell without parsing
   aggregate sample-cell rows.
+- Added individual text rows for first owned semantic table sample cells, so
+  text-only agents can inspect virtualized/`aria-owns` cells without parsing
+  aggregate owned sample-cell rows.
 
 ## In Progress
 
