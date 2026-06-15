@@ -9156,6 +9156,12 @@ describe("cli", () => {
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("3 HTTP policies");
+    expect(envelope.agent).toMatchObject({
+      topHttpPolicyPath: "pageCheck.httpPolicies[0]",
+      topHttpPolicyName: "Content-Security-Policy",
+      topHttpPolicyValue: "default-src 'self'; frame-ancestors 'none'",
+      topHttpPolicySource: "header",
+    });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -9269,6 +9275,14 @@ describe("cli", () => {
       },
     ]);
     expect(envelope.pageCheck.readability.reasons).toContain("1 schema fact group");
+    expect(envelope.agent).toMatchObject({
+      topSchemaFactPath: "pageCheck.schemaFacts[0]",
+      topSchemaFactTypes: ["Product"],
+      topSchemaFactFirstLabel: "Name",
+      topSchemaFactFirstValue: "Agent Browser Pro",
+      topSchemaFactFactCount: 8,
+      topSchemaFactSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+    });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -10174,8 +10188,12 @@ describe("cli", () => {
             <link rel="canonical" href="/app/canonical">
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <meta name="keywords" content="agent shell">
+            <meta http-equiv="referrer-policy" content="strict-origin">
             <script id="__NEXT_DATA__" type="application/json">
               {"buildId":"build-123","page":"/app","props":{"pageProps":{"title":"Agent app"}}}
+            </script>
+            <script type="application/ld+json">
+              {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Agent Shell","applicationCategory":"DeveloperApplication"}
             </script>
             <script>
               fetch("/api/search?q=agent", { method: "POST" });
@@ -10197,16 +10215,18 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topHydration: pageCheck.hydration[0] next-data label=\"Next.js data\" selector=script#__NEXT_DATA__:nth-of-type(1) <https://example.test/_next/data/build-123/app.json>");
-    expect(stdout.output).toContain("  topApiEndpoint: pageCheck.apiEndpoints[0] fetch POST selector=script:nth-of-type(2) <https://example.test/api/search?q=agent>");
-    expect(stdout.output).toContain("  topClientState: pageCheck.clientState[0] local-storage read key=session selector=script:nth-of-type(2)");
-    expect(stdout.output).toContain("  topRuntime: pageCheck.runtime[0] service-worker selector=script:nth-of-type(2) <https://example.test/sw.js>");
+    expect(stdout.output).toContain("  topApiEndpoint: pageCheck.apiEndpoints[0] fetch POST selector=script:nth-of-type(3) <https://example.test/api/search?q=agent>");
+    expect(stdout.output).toContain("  topClientState: pageCheck.clientState[0] local-storage read key=session selector=script:nth-of-type(3)");
+    expect(stdout.output).toContain("  topRuntime: pageCheck.runtime[0] service-worker selector=script:nth-of-type(3) <https://example.test/sw.js>");
     expect(stdout.output).toContain("  topRuntimeCommand: ax-grep 'https://example.test/sw.js'");
-    expect(stdout.output).toContain("  topConfig: pageCheck.config[0] env name=__APP_CONFIG__ keys=2 keyNames=apiBase,featureFlags selector=script:nth-of-type(2)");
+    expect(stdout.output).toContain("  topConfig: pageCheck.config[0] env name=__APP_CONFIG__ keys=2 keyNames=apiBase,featureFlags selector=script:nth-of-type(3)");
     expect(stdout.output).toContain("  topAppHint: pageCheck.appHints[0] manifest label=\"Web app manifest\" selector=link[rel=\"manifest\"]:nth-of-type(1) <https://example.test/site.webmanifest>");
     expect(stdout.output).toContain("  topMobileHint: pageCheck.mobileHints[0] viewport label=\"Viewport\" selector=meta[name=\"viewport\"]:nth-of-type(1) - width=device-width, initial-scale=1");
     expect(stdout.output).toContain("  topTopic: pageCheck.topics[0] keyword label=\"Keyword\" source=meta selector=meta[name=\"keywords\"]:nth-of-type(2) - agent shell");
     expect(stdout.output).toContain("  topKeyValue: pageCheck.keyValues[0] label=\"Version\" source=definition-list selector=dl:nth-of-type(1) - 2.4.1");
     expect(stdout.output).toContain("  topMetaFact: pageCheck.metaFacts[0] label=\"Canonical URL\" source=link selector=link[rel=\"canonical\"]:nth-of-type(2) <https://example.test/app/canonical> - https://example.test/app/canonical");
+    expect(stdout.output).toContain("  topHttpPolicy: pageCheck.httpPolicies[0] name=\"Referrer-Policy\" source=meta selector=meta[http-equiv=\"referrer-policy\"]:nth-of-type(3) - strict-origin");
+    expect(stdout.output).toContain("  topSchemaFact: pageCheck.schemaFacts[0] types=SoftwareApplication facts=1 selector=script[type=\"application/ld+json\"]:nth-of-type(1) Name=Agent Shell");
     expect(stdout.output).toContain("  topHiddenSignal: hydration pageCheck.hydration[0] next-data source=script selector=script#__NEXT_DATA__:nth-of-type(1) <https://example.test/_next/data/build-123/app.json> - Next.js data:");
   });
 

@@ -2267,6 +2267,17 @@ export type AgentSummary = {
   topMetaFactUrl?: string;
   topMetaFactSource?: string;
   topMetaFactSelector?: string;
+  topHttpPolicyPath?: string;
+  topHttpPolicyName?: string;
+  topHttpPolicyValue?: string;
+  topHttpPolicySource?: string;
+  topHttpPolicySelector?: string;
+  topSchemaFactPath?: string;
+  topSchemaFactTypes?: string[];
+  topSchemaFactFirstLabel?: string;
+  topSchemaFactFirstValue?: string;
+  topSchemaFactFactCount?: number;
+  topSchemaFactSelector?: string;
   topHiddenSignalGroup?: string;
   topHiddenSignalPath?: string;
   topHiddenSignalKind?: string;

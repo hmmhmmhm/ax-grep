@@ -614,6 +614,17 @@ describe("public agent types", () => {
       | "topMetaFactUrl"
       | "topMetaFactSource"
       | "topMetaFactSelector"
+      | "topHttpPolicyPath"
+      | "topHttpPolicyName"
+      | "topHttpPolicyValue"
+      | "topHttpPolicySource"
+      | "topHttpPolicySelector"
+      | "topSchemaFactPath"
+      | "topSchemaFactTypes"
+      | "topSchemaFactFirstLabel"
+      | "topSchemaFactFirstValue"
+      | "topSchemaFactFactCount"
+      | "topSchemaFactSelector"
       | "hiddenReadTargetCount"
       | "topHiddenSignalGroup"
       | "topHiddenSignalPath"
@@ -1918,8 +1929,8 @@ describe("public agent types", () => {
       hiddenTopicCount: 1,
       hiddenKeyValueCount: 1,
       hiddenMetaFactCount: 1,
-      hiddenHttpPolicyCount: 0,
-      hiddenSchemaFactCount: 0,
+      hiddenHttpPolicyCount: 1,
+      hiddenSchemaFactCount: 1,
       topHydrationPath: "pageCheck.hydration[0]",
       topHydrationKind: "next-data",
       topHydrationLabel: "Next.js data",
@@ -1983,6 +1994,17 @@ describe("public agent types", () => {
       topMetaFactUrl: "https://example.test/generator",
       topMetaFactSource: "meta",
       topMetaFactSelector: "meta[name=\"generator\"]",
+      topHttpPolicyPath: "pageCheck.httpPolicies[0]",
+      topHttpPolicyName: "Content-Security-Policy",
+      topHttpPolicyValue: "default-src 'self'",
+      topHttpPolicySource: "header",
+      topHttpPolicySelector: "meta[http-equiv=\"content-security-policy\"]",
+      topSchemaFactPath: "pageCheck.schemaFacts[0]",
+      topSchemaFactTypes: ["Product"],
+      topSchemaFactFirstLabel: "Name",
+      topSchemaFactFirstValue: "Agent Browser Pro",
+      topSchemaFactFactCount: 2,
+      topSchemaFactSelector: "script[type=\"application/ld+json\"]",
       hiddenReadTargetCount: 2,
       topHiddenSignalGroup: "apiEndpoints",
       topHiddenSignalPath: "pageCheck.apiEndpoints[0]",
