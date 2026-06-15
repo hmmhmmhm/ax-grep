@@ -5193,17 +5193,19 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   for (const identity of pageCheck.identities) {
     const url = identity.url ? ` <${identity.url}>` : "";
     const details = [
+      `kind=${identity.kind}`,
       `source=${identity.source}`,
       `name="${identity.name}"`,
       identity.logoUrl ? `logo=${identity.logoUrl}` : "",
       identity.sameAs?.length ? `sameAs=${identity.sameAs.join(",")}` : "",
       identity.selector ? `selector=${identity.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  identity: ${identity.id} ${identity.path} ${identity.kind} ${details}${url} - ${identity.text}`);
+    lines.push(`  identity: ${identity.id} ${identity.path} ${details}${url} - ${identity.text}`);
   }
   for (const dataset of pageCheck.datasets) {
     const url = dataset.url ? ` <${dataset.url}>` : "";
     const details = [
+      `kind=${dataset.kind}`,
       `source=${dataset.source}`,
       `name="${dataset.name}"`,
       dataset.encodingFormat ? `format=${dataset.encodingFormat}` : "",
@@ -5214,7 +5216,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       dataset.licenseUrl ? `license=${dataset.licenseUrl}` : "",
       dataset.selector ? `selector=${dataset.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  dataset: ${dataset.id} ${dataset.path} ${dataset.kind} ${details}${url} - ${dataset.text}`);
+    lines.push(`  dataset: ${dataset.id} ${dataset.path} ${details}${url} - ${dataset.text}`);
   }
   for (const item of pageCheck.timeline) {
     const details = [

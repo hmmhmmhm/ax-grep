@@ -9680,7 +9680,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topIdentity: pageCheck.identities[0] organization:Example Labs source=json-ld selector=script[type=\"application/ld+json\"]:nth-of-type(1) logo=<https://example.test/logo.png> sameAs=<https://github.com/example> <https://example.test/>");
     expect(stdout.output).toContain("  topIdentityLogoCommand: ax-grep 'https://example.test/logo.png'");
     expect(stdout.output).toContain("  topIdentitySameAsCommand: ax-grep 'https://github.com/example'");
-    expect(stdout.output).toContain("  identity: id1 pageCheck.identities[0] organization source=json-ld name=\"Example Labs\" logo=https://example.test/logo.png sameAs=https://github.com/example selector=script[type=\"application/ld+json\"]:nth-of-type(1) <https://example.test/>");
+    expect(stdout.output).toContain("  identity: id1 pageCheck.identities[0] kind=organization source=json-ld name=\"Example Labs\" logo=https://example.test/logo.png sameAs=https://github.com/example selector=script[type=\"application/ld+json\"]:nth-of-type(1) <https://example.test/>");
   });
 
   it("summarizes dataset and data download provenance as pageCheck read targets for agents", async () => {
@@ -9880,7 +9880,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topDataset: pageCheck.datasets[0] dataset:Example emissions dataset format=text/csv temporal=2020/2025 spatial=United States creator=\"Example Lab\" selector=script[type=\"application/ld+json\"]:nth-of-type(1) distribution=<https://example.test/downloads/emissions.csv> license=<https://creativecommons.org/licenses/by/4.0/> <https://example.test/datasets/emissions>");
     expect(stdout.output).toContain("  topDatasetDistributionCommand: ax-grep 'https://example.test/downloads/emissions.csv'");
     expect(stdout.output).toContain("  topDatasetLicenseCommand: ax-grep 'https://creativecommons.org/licenses/by/4.0/'");
-    expect(stdout.output).toContain("  dataset: ds1 pageCheck.datasets[0] dataset source=json-ld name=\"Example emissions dataset\" format=text/csv temporal=2020/2025 spatial=United States creator=\"Example Lab\" distribution=https://example.test/downloads/emissions.csv license=https://creativecommons.org/licenses/by/4.0/ selector=script[type=\"application/ld+json\"]:nth-of-type(1) <https://example.test/datasets/emissions>");
+    expect(stdout.output).toContain("  dataset: ds1 pageCheck.datasets[0] kind=dataset source=json-ld name=\"Example emissions dataset\" format=text/csv temporal=2020/2025 spatial=United States creator=\"Example Lab\" distribution=https://example.test/downloads/emissions.csv license=https://creativecommons.org/licenses/by/4.0/ selector=script[type=\"application/ld+json\"]:nth-of-type(1) <https://example.test/datasets/emissions>");
   });
 
   it("summarizes publication and update dates as pageCheck timeline read targets for agents", async () => {
