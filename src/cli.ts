@@ -5597,6 +5597,12 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.semanticTopLiveStateLive) lines.push(`  semanticTopLiveStateLive: ${agent.semanticTopLiveStateLive}`);
   if (agent.semanticTopLiveStateSelector) lines.push(`  semanticTopLiveStateSelector: ${agent.semanticTopLiveStateSelector}`);
   if (agent.semanticTopUnavailableReason) lines.push(`  semanticTopUnavailable: ${agent.semanticTopUnavailablePath ?? ""}${agent.semanticTopUnavailableTag ? ` tag=${agent.semanticTopUnavailableTag}` : ""}${agent.semanticTopUnavailableRole ? ` role=${agent.semanticTopUnavailableRole}` : ""}${agent.semanticTopUnavailableName ? ` name="${agent.semanticTopUnavailableName}"` : ""} reason=${agent.semanticTopUnavailableReason}${agent.semanticTopUnavailableSelector ? ` selector=${agent.semanticTopUnavailableSelector}` : ""}`);
+  if (agent.semanticTopUnavailablePath) lines.push(`  semanticTopUnavailablePath: ${agent.semanticTopUnavailablePath}`);
+  if (agent.semanticTopUnavailableTag) lines.push(`  semanticTopUnavailableTag: ${agent.semanticTopUnavailableTag}`);
+  if (agent.semanticTopUnavailableRole) lines.push(`  semanticTopUnavailableRole: ${agent.semanticTopUnavailableRole}`);
+  if (agent.semanticTopUnavailableName) lines.push(`  semanticTopUnavailableName: ${agent.semanticTopUnavailableName}`);
+  if (agent.semanticTopUnavailableReason) lines.push(`  semanticTopUnavailableReason: ${agent.semanticTopUnavailableReason}`);
+  if (agent.semanticTopUnavailableSelector) lines.push(`  semanticTopUnavailableSelector: ${agent.semanticTopUnavailableSelector}`);
   for (const reason of agent.readabilityReasons) lines.push(`  readabilityReason: ${reason}`);
   for (const gate of agent.qualityGates) lines.push(formatAgentQualityGateText(gate));
   for (const citation of agent.citations) lines.push(formatAgentCitationText(citation));

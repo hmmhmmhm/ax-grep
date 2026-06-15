@@ -1118,6 +1118,9 @@ When research expands:
 - Added individual text rows for semantic top descriptions, values, and
   relations, so text-only agents can route descriptions, valuetext, and target
   references without parsing aggregate relation rows.
+- Added individual text rows for semantic unavailable targets, so text-only
+  agents can identify iframe/static-HTML gaps without parsing aggregate
+  unavailable rows.
 
 ## In Progress
 

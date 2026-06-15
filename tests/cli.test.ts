@@ -12512,6 +12512,9 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  semanticTopUnavailable: agent.semanticSummary.unavailableItems[0] tag=iframe reason=iframe content unavailable in static HTML");
+    expect(stdout.output).toContain("  semanticTopUnavailablePath: agent.semanticSummary.unavailableItems[0]");
+    expect(stdout.output).toContain("  semanticTopUnavailableTag: iframe");
+    expect(stdout.output).toContain("  semanticTopUnavailableReason: iframe content unavailable in static HTML");
   });
 
   it("keeps unavailable semantic target details in agent brief output", async () => {
