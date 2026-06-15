@@ -5332,10 +5332,13 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`  transcript: ${transcript.id} ${transcript.path} ${transcript.kind} ${details} <${transcript.url}> - ${transcript.text}`);
   }
   for (const authorLink of pageCheck.authorLinks) {
-    const name = authorLink.name ? ` ${authorLink.name}` : "";
-    const rel = authorLink.rel ? ` rel=${authorLink.rel}` : "";
-    const selector = authorLink.selector ? ` (${authorLink.selector})` : "";
-    lines.push(`  authorLink: ${authorLink.id} ${authorLink.path} ${authorLink.source}${rel}${selector}${name} <${authorLink.url}> - ${authorLink.text}`);
+    const details = [
+      `source=${authorLink.source}`,
+      authorLink.name ? `name="${authorLink.name}"` : "",
+      authorLink.rel ? `rel=${authorLink.rel}` : "",
+      authorLink.selector ? `selector=${authorLink.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  authorLink: ${authorLink.id} ${authorLink.path} ${details} <${authorLink.url}> - ${authorLink.text}`);
   }
   for (const link of pageCheck.primaryLinks) lines.push(formatPageCheckLinkText(link, "link"));
   for (const link of pageCheck.sourceLinks) lines.push(formatPageCheckLinkText(link, "sourceLink"));
