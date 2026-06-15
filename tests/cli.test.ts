@@ -9503,6 +9503,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topOffer: pageCheck.offers[0] \"Agent Browser Pro\" USD 19.99 availability=InStock selector=script[type=\"application/ld+json\"]:nth-of-type(1) <https://example.test/buy>");
     expect(stdout.output).toContain("  topOfferCommand: ax-grep 'https://example.test/buy'");
+    expect(stdout.output).toContain("  offer: of1 pageCheck.offers[0] source=json-ld name=\"Agent Browser Pro\" currency=USD price=19.99 priceAmount=19.99 availability=InStock selector=script[type=\"application/ld+json\"]:nth-of-type(1) <https://example.test/buy>");
   });
 
   it("summarizes JSON-LD identities and sameAs links as pageCheck read targets for agents", async () => {

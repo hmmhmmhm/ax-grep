@@ -5147,8 +5147,20 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   }
   for (const offer of pageCheck.offers) {
     const url = offer.url ? ` <${offer.url}>` : "";
-    const selector = offer.selector ? ` (${offer.selector})` : "";
-    lines.push(`  offer: ${offer.id} ${offer.path}${selector}${url} - ${offer.text}`);
+    const details = [
+      `source=${offer.source}`,
+      offer.name ? `name="${offer.name}"` : "",
+      offer.currency ? `currency=${offer.currency}` : "",
+      offer.price ? `price=${offer.price}` : "",
+      typeof offer.priceAmount === "number" ? `priceAmount=${offer.priceAmount}` : "",
+      offer.availability ? `availability=${offer.availability}` : "",
+      offer.brand ? `brand="${offer.brand}"` : "",
+      offer.sku ? `sku=${offer.sku}` : "",
+      offer.rating ? `rating=${offer.rating}` : "",
+      offer.reviewCount ? `reviews=${offer.reviewCount}` : "",
+      offer.selector ? `selector=${offer.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  offer: ${offer.id} ${offer.path} ${details}${url} - ${offer.text}`);
   }
   for (const identity of pageCheck.identities) {
     const url = identity.url ? ` <${identity.url}>` : "";
