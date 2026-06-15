@@ -5175,8 +5175,18 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   }
   for (const dataset of pageCheck.datasets) {
     const url = dataset.url ? ` <${dataset.url}>` : "";
-    const selector = dataset.selector ? ` (${dataset.selector})` : "";
-    lines.push(`  dataset: ${dataset.id} ${dataset.path} ${dataset.kind}${selector}${url} - ${dataset.text}`);
+    const details = [
+      `source=${dataset.source}`,
+      `name="${dataset.name}"`,
+      dataset.encodingFormat ? `format=${dataset.encodingFormat}` : "",
+      dataset.temporalCoverage ? `temporal=${dataset.temporalCoverage}` : "",
+      dataset.spatialCoverage ? `spatial=${dataset.spatialCoverage}` : "",
+      dataset.creator ? `creator="${dataset.creator}"` : "",
+      dataset.distributionUrls?.length ? `distribution=${dataset.distributionUrls[0]}` : "",
+      dataset.licenseUrl ? `license=${dataset.licenseUrl}` : "",
+      dataset.selector ? `selector=${dataset.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  dataset: ${dataset.id} ${dataset.path} ${dataset.kind} ${details}${url} - ${dataset.text}`);
   }
   for (const item of pageCheck.timeline) {
     const selector = item.selector ? ` (${item.selector})` : "";
