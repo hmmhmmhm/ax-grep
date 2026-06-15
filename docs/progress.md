@@ -1112,6 +1112,9 @@ When research expands:
 - Added individual text rows for semantic top choices and selected choices, so
   text-only agents can route active options, tabs, current state, and controlled
   panels without parsing aggregate choice rows.
+- Added individual text rows for semantic top state, modal state, and live
+  state, so text-only agents can route control state and announcements without
+  parsing aggregate state rows.
 
 ## In Progress
 

@@ -6044,6 +6044,61 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopSelectedChoiceSelector: #tab-details");
   });
 
+  it("prints top semantic state shortcuts in text agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/state"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <input
+            id="q"
+            type="search"
+            aria-label="Archive search"
+            aria-required="true"
+            aria-readonly="true"
+            aria-invalid="spelling"
+            aria-expanded="false"
+            aria-haspopup="listbox"
+            aria-controls="category"
+          >
+          <div id="category" role="listbox" aria-label="Categories">
+            <div role="option" aria-selected="true">Reports</div>
+          </div>
+          <dialog id="filters" open aria-label="Filter reports" aria-modal="true">Filters</dialog>
+          <div role="status" aria-live="polite">Saved</div>
+          <p>Readable state content for shortcut routing.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticTopState: agent.semanticSummary.stateItems[0] role=searchbox name=\"Archive search\"");
+    expect(stdout.output).toContain("  semanticTopStateRole: searchbox");
+    expect(stdout.output).toContain("  semanticTopStatePath: agent.semanticSummary.stateItems[0]");
+    expect(stdout.output).toContain("  semanticTopStateName: Archive search");
+    expect(stdout.output).toContain("  semanticTopStateValue: required=true readonly=true expanded=false invalid=spelling haspopup=listbox controls=category");
+    expect(stdout.output).toContain("  semanticTopStateRequired: true");
+    expect(stdout.output).toContain("  semanticTopStateHaspopup: listbox");
+    expect(stdout.output).toContain("  semanticTopStateControls: category");
+    expect(stdout.output).toContain("  semanticTopStateExpanded: false");
+    expect(stdout.output).toContain("  semanticTopStateInvalid: spelling");
+    expect(stdout.output).toContain("  semanticTopStateReadonly: true");
+    expect(stdout.output).toContain("  semanticTopStateSelector: #q");
+    expect(stdout.output).toContain("  semanticTopModalState: agent.semanticSummary.stateItems[1] role=dialog name=\"Filter reports\" state=modal=true");
+    expect(stdout.output).toContain("  semanticTopModalStateRole: dialog");
+    expect(stdout.output).toContain("  semanticTopModalStatePath: agent.semanticSummary.stateItems[1]");
+    expect(stdout.output).toContain("  semanticTopModalStateName: Filter reports");
+    expect(stdout.output).toContain("  semanticTopModalStateValue: modal=true");
+    expect(stdout.output).toContain("  semanticTopModalStateSelector: #filters");
+    expect(stdout.output).toContain("  semanticTopLiveState: agent.semanticSummary.stateItems[2] role=status state=live=polite");
+    expect(stdout.output).toContain("  semanticTopLiveStateRole: status");
+    expect(stdout.output).toContain("  semanticTopLiveStatePath: agent.semanticSummary.stateItems[2]");
+    expect(stdout.output).toContain("  semanticTopLiveStateValue: live=polite");
+    expect(stdout.output).toContain("  semanticTopLiveStateLive: polite");
+    expect(stdout.output).toContain("  semanticTopLiveStateSelector: div:nth-of-type(2)");
+  });
+
   it("keeps selected grid cell state in agent brief output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/grid", "--agent-brief"], {
