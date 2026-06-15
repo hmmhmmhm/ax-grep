@@ -5959,6 +5959,15 @@ describe("cli", () => {
           <input
             id="q"
             type="search"
+            name="query"
+            placeholder="Search reports"
+            aria-placeholder="Report keyword"
+            autocomplete="off"
+            aria-autocomplete="list"
+            inputmode="search"
+            pattern="[A-Za-z0-9 ]+"
+            minlength="2"
+            maxlength="80"
             aria-label="Archive search"
             aria-labelledby="q-label"
             aria-describedby="q-help"
@@ -5967,7 +5976,11 @@ describe("cli", () => {
             aria-required="true"
             aria-readonly="true"
             aria-invalid="spelling"
+            aria-expanded="true"
+            aria-haspopup="listbox"
+            aria-controls="category"
           >
+          <select id="category" aria-label="Categories"><option>All</option></select>
           <p id="q-help">Use report names or dates.</p>
           <p id="q-details">Search across public and private archive records.</p>
           <p id="q-error">Use at least two letters.</p>
@@ -5982,6 +5995,17 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopFieldRole: searchbox");
     expect(stdout.output).toContain("  semanticTopFieldPath: agent.semanticSummary.fieldItems[0]");
     expect(stdout.output).toContain("  semanticTopFieldName: Archive search");
+    expect(stdout.output).toContain("  semanticTopFieldDescription: Use report names or dates.");
+    expect(stdout.output).toContain("  semanticTopFieldHtmlName: query");
+    expect(stdout.output).toContain("  semanticTopFieldHtmlType: search");
+    expect(stdout.output).toContain("  semanticTopFieldPlaceholder: Search reports");
+    expect(stdout.output).toContain("  semanticTopFieldAriaPlaceholder: Report keyword");
+    expect(stdout.output).toContain("  semanticTopFieldAutocomplete: off");
+    expect(stdout.output).toContain("  semanticTopFieldAriaAutocomplete: list");
+    expect(stdout.output).toContain("  semanticTopFieldInputMode: search");
+    expect(stdout.output).toContain("  semanticTopFieldPattern: [A-Za-z0-9 ]+");
+    expect(stdout.output).toContain("  semanticTopFieldMinLength: 2");
+    expect(stdout.output).toContain("  semanticTopFieldMaxLength: 80");
     expect(stdout.output).toContain("  semanticTopFieldLabelledBy: q-label");
     expect(stdout.output).toContain("  semanticTopFieldLabelledByText: Archive search");
     expect(stdout.output).toContain("  semanticTopFieldLabelledBySelector: #q-label");
@@ -5994,10 +6018,16 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopFieldErrorMessage: q-error");
     expect(stdout.output).toContain("  semanticTopFieldErrorMessageText: Use at least two letters.");
     expect(stdout.output).toContain("  semanticTopFieldErrorMessageSelector: #q-error");
-    expect(stdout.output).toContain("  semanticTopFieldState: required=true readonly=true invalid=spelling");
+    expect(stdout.output).toContain("  semanticTopFieldState: required=true readonly=true expanded=true invalid=spelling haspopup=listbox controls=category");
     expect(stdout.output).toContain("  semanticTopFieldRequired: true");
     expect(stdout.output).toContain("  semanticTopFieldReadonly: true");
     expect(stdout.output).toContain("  semanticTopFieldInvalid: spelling");
+    expect(stdout.output).toContain("  semanticTopFieldExpanded: true");
+    expect(stdout.output).toContain("  semanticTopFieldHaspopup: listbox");
+    expect(stdout.output).toContain("  semanticTopFieldControls: category");
+    expect(stdout.output).toContain("  semanticTopFieldControlsTargetRole: combobox");
+    expect(stdout.output).toContain("  semanticTopFieldControlsTargetName: Categories");
+    expect(stdout.output).toContain("  semanticTopFieldControlsTargetSelector: #category");
     expect(stdout.output).toContain("  semanticTopFieldSelector: #q");
   });
 

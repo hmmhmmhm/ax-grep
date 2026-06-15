@@ -1148,6 +1148,10 @@ When research expands:
 - Added individual text rows for first owned semantic table sample cells, so
   text-only agents can inspect virtualized/`aria-owns` cells without parsing
   aggregate owned sample-cell rows.
+- Added individual text rows for semantic top field metadata and state, so
+  text-only agents can inspect form names, placeholders, autocomplete,
+  constraints, control targets, and value state without parsing aggregate field
+  rows.
 
 ## In Progress
 
