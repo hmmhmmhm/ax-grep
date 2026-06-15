@@ -590,6 +590,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "topActionTargetUrlQuery",
           "topChoiceRequiredFieldName",
           "topChoiceInvalidFieldInvalid",
+          "recommendedCommand",
           "recommendedCommandArgs",
           "barrierCount",
           "topBarrierKind",
@@ -1097,6 +1098,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "bestReadTargetPrimary",
           "recommendedUrl",
           "recommendedUrlPath",
+          "recommendedCommand",
           "recommendedCommandArgs",
           "primaryAfterInteractionCommand",
           "primaryAfterInteractionCommandArgs",
@@ -1514,6 +1516,7 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "bestReadTargetPrimary",
           "recommendedUrl",
           "recommendedUrlPath",
+          "recommendedCommand",
           "recommendedCommandArgs",
         ]);
       },
