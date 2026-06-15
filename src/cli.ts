@@ -5120,8 +5120,13 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
   }
   for (const fact of pageCheck.provenance) {
     const url = fact.url ? ` <${fact.url}>` : "";
-    const selector = fact.selector ? ` (${fact.selector})` : "";
-    lines.push(`  provenance: ${fact.id} ${fact.path} ${fact.kind}${selector}${url} - ${fact.text}`);
+    const details = [
+      `source=${fact.source}`,
+      `label="${fact.label}"`,
+      `value=${fact.value}`,
+      fact.selector ? `selector=${fact.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  provenance: ${fact.id} ${fact.path} ${fact.kind} ${details}${url} - ${fact.text}`);
   }
   for (const policy of pageCheck.httpPolicies) {
     const details = [
