@@ -96,6 +96,32 @@ describe("cli", () => {
     expect(missingTextLabels).toEqual([]);
   });
 
+  it("keeps citation and answer evidence shortcuts labelled in text agent output", async () => {
+    const source = await readFile(join(process.cwd(), "src/cli.ts"), "utf8");
+    const formatStart = source.indexOf("function formatAgentText");
+    const formatEnd = source.indexOf("function formatPageCheckText", formatStart);
+
+    expect(formatStart).toBeGreaterThanOrEqual(0);
+    expect(formatEnd).toBeGreaterThan(formatStart);
+
+    const formatAgentTextSource = source.slice(formatStart, formatEnd);
+    const evidenceFields = [
+      "topCitationId",
+      "topCitationPath",
+      "topCitationKind",
+      "topCitationText",
+      "topCitationScore",
+      "topAnswerEvidenceId",
+      "topAnswerEvidencePath",
+      "topAnswerEvidenceKind",
+      "topAnswerEvidenceText",
+      "topAnswerEvidenceScore",
+    ];
+    const missingTextLabels = evidenceFields.filter((field) => !formatAgentTextSource.includes(`${field}:`));
+
+    expect(missingTextLabels).toEqual([]);
+  });
+
   it("documents agent handoff routing in help output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["--help"], { stdout });
@@ -13453,6 +13479,11 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  verification: 0/0 found, 0 missing");
     expect(stdout.output).toContain("  readability: medium");
     expect(stdout.output).toContain("  citation: e1 pageCheck.contentEvidence[0] content high score=");
+    expect(stdout.output).toContain("  topCitationId: e1");
+    expect(stdout.output).toContain("  topCitationText: This article paragraph is long enough to appear in the page checking summary for agents.");
+    expect(stdout.output).toContain("  topAnswerEvidenceId: e1");
+    expect(stdout.output).toContain("  topAnswerEvidenceText: This article paragraph is long enough to appear in the page checking summary for agents.");
+    expect(stdout.output).toContain("  topAnswerEvidenceScore:");
     expect(stdout.output).toContain("high evidence from semantic extraction");
     expect(stdout.output).toContain("This article paragraph is long enough to appear in the page checking summary for agents.");
     expect(stdout.output).toContain("  citation: s1 pageCheck.sourceLinks[0] source-link medium score=");
@@ -13719,10 +13750,14 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  verificationFoundQueries: source report");
     expect(stdout.output).toContain("  topVerificationFoundQuery: source report");
     expect(stdout.output).toContain("  next: use-evidence - All requested text was found in the page summaries.");
+    expect(stdout.output).toContain("  topCitationId: v1");
     expect(stdout.output).toContain("  topCitationPath: verification.bestEvidence");
     expect(stdout.output).toContain("  topCitationKind: verification");
+    expect(stdout.output).toContain("  topCitationText: Source report");
+    expect(stdout.output).toContain("  topAnswerEvidenceId: v1");
     expect(stdout.output).toContain("  topAnswerEvidencePath: verification.bestEvidence");
     expect(stdout.output).toContain("  topAnswerEvidenceKind: verification");
+    expect(stdout.output).toContain("  topAnswerEvidenceText: Source report");
     expect(stdout.output).toContain("  topAnswerEvidenceUrl: https://source.example/report");
     expect(stdout.output).toContain("  topAnswerEvidenceUrlPath: /report");
     expect(stdout.output).toContain("  topAnswerEvidenceCommandArgs: [\"ax-grep\",\"https://source.example/report\",\"--find\",\"source report\",\"--json\",\"--summary\"]");
