@@ -6353,6 +6353,43 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopButtonSelector: button");
   });
 
+  it("prints top semantic image shortcuts in text agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/gallery"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <h1>Gallery</h1>
+          <img
+            src="/hero.png"
+            alt="Hero chart"
+            width="720"
+            height="360"
+            loading="lazy"
+            decoding="async"
+            srcset="/hero.png 1x, /hero@2x.png 2x"
+            sizes="(min-width: 800px) 720px, 100vw"
+          >
+          <p>Readable visual evidence for routing.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticTopImage: agent.semanticSummary.imageItems[0] name=\"Hero chart\" <https://example.test/hero.png> width=720 height=360 loading=lazy decoding=async");
+    expect(stdout.output).toContain("  semanticTopImagePath: agent.semanticSummary.imageItems[0]");
+    expect(stdout.output).toContain("  semanticTopImageName: Hero chart");
+    expect(stdout.output).toContain("  semanticTopImageUrl: https://example.test/hero.png");
+    expect(stdout.output).toContain("  semanticTopImageWidth: 720");
+    expect(stdout.output).toContain("  semanticTopImageHeight: 360");
+    expect(stdout.output).toContain("  semanticTopImageLoading: lazy");
+    expect(stdout.output).toContain("  semanticTopImageDecoding: async");
+    expect(stdout.output).toContain("  semanticTopImageSrcset: /hero.png 1x, /hero@2x.png 2x");
+    expect(stdout.output).toContain("  semanticTopImageSizes: (min-width: 800px) 720px, 100vw");
+    expect(stdout.output).toContain("  semanticTopImageSelector: img");
+  });
+
   it("exposes semantic table and list shortcuts for agents", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/report", "--agent"], {
