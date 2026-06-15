@@ -2616,6 +2616,12 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
       dataTables?: Array<{ path?: string; caption?: string; rowCount?: number; columnCount?: number }>;
       faqs?: Array<{ question?: string; answer?: string }>;
       codeBlocks?: Array<{ language?: string; lineCount?: number; text?: string }>;
+      hydration?: Array<{ path?: string; kind?: string; label?: string; url?: string; urlPath?: string; urlQuery?: string; selector?: string }>;
+      apiEndpoints?: Array<{ path?: string; kind?: string; method?: string; url?: string; urlPath?: string; urlQuery?: string; selector?: string }>;
+      runtime?: Array<{ path?: string; kind?: string; url?: string; urlPath?: string; urlQuery?: string; selector?: string }>;
+      appHints?: Array<{ path?: string; kind?: string; label?: string; url?: string; urlPath?: string; urlQuery?: string; selector?: string }>;
+      mobileHints?: Array<{ path?: string; kind?: string; label?: string; value?: string; platform?: string; url?: string; urlPath?: string; urlQuery?: string; selector?: string }>;
+      metaFacts?: Array<{ path?: string; label?: string; value?: string; url?: string; urlPath?: string; urlQuery?: string; selector?: string }>;
       resources?: Array<{ kind?: string; url?: string; title?: string }>;
       media?: Array<{ kind?: string; url?: string; text?: string }>;
       pagination?: Array<{ path?: string; kind?: string; label?: string; url?: string; current?: boolean; selector?: string }>;
@@ -2732,6 +2738,12 @@ function summarizeCliEnvelope(envelope: unknown): CliAgentSummary {
     agentSourceLinkCountScore: scoreAgentSourceLinkCount(item.kind ?? "unknown", item.agent?.sourceLinkCount, item.pageCheck?.sourceLinks ?? []),
     pageCheckUrlItemPathScore: scorePageCheckUrlItemPaths(
       item.pageCheck?.sourceLinks ?? [],
+      item.pageCheck?.hydration ?? [],
+      item.pageCheck?.apiEndpoints ?? [],
+      item.pageCheck?.runtime ?? [],
+      item.pageCheck?.appHints ?? [],
+      item.pageCheck?.mobileHints ?? [],
+      item.pageCheck?.metaFacts ?? [],
       item.pageCheck?.resources ?? [],
       item.pageCheck?.media ?? [],
       item.pageCheck?.pagination ?? [],

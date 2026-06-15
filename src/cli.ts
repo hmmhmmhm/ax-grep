@@ -524,6 +524,8 @@ type PageHydrationSummary = {
   route?: string;
   buildId?: string;
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   selector?: string;
 };
 
@@ -534,6 +536,8 @@ type PageApiEndpointSummary = {
   kind: "fetch" | "axios" | "xhr" | "graphql" | "event-stream";
   method?: string;
   url: string;
+  urlPath?: string;
+  urlQuery?: string;
   text: string;
   source: "script";
   selector?: string;
@@ -557,6 +561,8 @@ type PageRuntimeSummary = {
   rank: number;
   kind: "service-worker" | "web-worker" | "shared-worker" | "worklet" | "dynamic-import" | "module-preload";
   url: string;
+  urlPath?: string;
+  urlQuery?: string;
   text: string;
   source: "script" | "link";
   selector?: string;
@@ -585,6 +591,8 @@ type PageAppHintSummary = {
   text: string;
   source: "link" | "meta";
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   sizes?: string;
   media?: string;
   selector?: string;
@@ -601,6 +609,8 @@ type PageMobileHintSummary = {
   source: "meta" | "link";
   platform?: string;
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   selector?: string;
 };
 
@@ -637,6 +647,8 @@ type PageMetaFactSummary = {
   text: string;
   source: "meta" | "link";
   url?: string;
+  urlPath?: string;
+  urlQuery?: string;
   selector?: string;
 };
 
@@ -5566,6 +5578,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       item.route ? `route=${item.route}` : "",
       item.buildId ? `buildId=${item.buildId}` : "",
       item.selector ? `selector=${item.selector}` : "",
+      item.urlPath ? `urlPath=${item.urlPath}` : "",
+      item.urlQuery ? `urlQuery=${item.urlQuery}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  hydration: id=${item.id} path=${item.path} ${details}${url} - ${item.text}`);
   }
@@ -5575,6 +5589,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       `source=${endpoint.source}`,
       endpoint.method ? `method=${endpoint.method}` : "",
       endpoint.selector ? `selector=${endpoint.selector}` : "",
+      endpoint.urlPath ? `urlPath=${endpoint.urlPath}` : "",
+      endpoint.urlQuery ? `urlQuery=${endpoint.urlQuery}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  apiEndpoint: id=${endpoint.id} path=${endpoint.path} ${details} url=<${endpoint.url}> - ${endpoint.text}`);
   }
@@ -5593,6 +5609,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       `kind=${runtime.kind}`,
       `source=${runtime.source}`,
       runtime.selector ? `selector=${runtime.selector}` : "",
+      runtime.urlPath ? `urlPath=${runtime.urlPath}` : "",
+      runtime.urlQuery ? `urlQuery=${runtime.urlQuery}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  runtime: id=${runtime.id} path=${runtime.path} ${details} url=<${runtime.url}> - ${runtime.text}`);
   }
@@ -5616,6 +5634,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       hint.sizes ? `sizes=${hint.sizes}` : "",
       hint.media ? `media=${hint.media}` : "",
       hint.selector ? `selector=${hint.selector}` : "",
+      hint.urlPath ? `urlPath=${hint.urlPath}` : "",
+      hint.urlQuery ? `urlQuery=${hint.urlQuery}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  appHint: id=${hint.id} path=${hint.path} ${details}${url} - ${hint.text}`);
   }
@@ -5627,6 +5647,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       `label="${hint.label}"`,
       hint.platform ? `platform=${hint.platform}` : "",
       hint.selector ? `selector=${hint.selector}` : "",
+      hint.urlPath ? `urlPath=${hint.urlPath}` : "",
+      hint.urlQuery ? `urlQuery=${hint.urlQuery}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  mobileHint: id=${hint.id} path=${hint.path} ${details}${url} - ${hint.text}`);
   }
@@ -5654,6 +5676,8 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       `source=${fact.source}`,
       `label="${fact.label}"`,
       fact.selector ? `selector=${fact.selector}` : "",
+      fact.urlPath ? `urlPath=${fact.urlPath}` : "",
+      fact.urlQuery ? `urlQuery=${fact.urlQuery}` : "",
     ].filter(Boolean).join(" ");
     lines.push(`  metaFact: id=${fact.id} path=${fact.path} ${details}${url} - ${fact.text}`);
   }
@@ -8556,6 +8580,7 @@ function summarizeHydration(html: string, baseUrl: string): PageHydrationSummary
       ...(route ? { route } : {}),
       ...(buildId ? { buildId } : {}),
       ...(url ? { url } : {}),
+      ...(url ? urlPathParts(url) : {}),
       ...(item.selector ? { selector: item.selector } : {}),
       text: hydrationText(item.kind, label, framework, route, buildId, url, item.source),
     });
@@ -8698,6 +8723,7 @@ function summarizeApiEndpoints(html: string, baseUrl: string): PageApiEndpointSu
       rank,
       kind: item.kind,
       url,
+      ...urlPathParts(url),
       source: item.source,
       ...(method ? { method } : {}),
       ...(item.selector ? { selector: item.selector } : {}),
@@ -8876,6 +8902,7 @@ function summarizeRuntime(html: string, baseUrl: string): PageRuntimeSummary[] {
       rank,
       kind: item.kind,
       url,
+      ...urlPathParts(url),
       text: runtimeText(item.kind, url),
       source: item.source,
       ...(item.selector ? { selector: item.selector } : {}),
@@ -9125,6 +9152,7 @@ function summarizeAppHints(html: string, baseUrl: string): PageAppHintSummary[] 
       value,
       source: item.source,
       ...(url ? { url } : {}),
+      ...(url ? urlPathParts(url) : {}),
       ...(sizes ? { sizes } : {}),
       ...(media ? { media } : {}),
       ...(item.selector ? { selector: item.selector } : {}),
@@ -9257,6 +9285,7 @@ function summarizeMobileHints(html: string, baseUrl: string): PageMobileHintSumm
       source: item.source,
       ...(platform ? { platform } : {}),
       ...(url ? { url } : {}),
+      ...(url ? urlPathParts(url) : {}),
       ...(item.selector ? { selector: item.selector } : {}),
       text: mobileHintText(item.kind, label, value, platform, url, item.source),
     });
@@ -9768,6 +9797,7 @@ function summarizeMetaFacts(html: string, baseUrl: string): PageMetaFactSummary[
       rank,
       ...item,
       value,
+      ...(item.url ? urlPathParts(item.url) : {}),
       text: `${item.label}: ${value}`,
     });
   };
