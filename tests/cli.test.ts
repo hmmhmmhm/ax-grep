@@ -3940,7 +3940,7 @@ describe("cli", () => {
         const url = String(input);
         requestedUrls.push(url);
         if (url.includes("duckduckgo.com")) {
-          return new Response(`<main><p>No results here.</p></main>`, { headers: { "content-type": "text/html" } });
+          return new Response("blocked", { status: 403, statusText: "Forbidden" });
         }
         if (url.includes("bing.com")) {
           return new Response(`
@@ -3983,6 +3983,17 @@ describe("cli", () => {
         selectedRank: 2,
         selectedTitle: "Target",
         selectedUrl: "https://target.example/article",
+      },
+      agent: {
+        sourceSearchSelectedEngine: "bing",
+        sourceSearchEngineAttemptCount: 3,
+        sourceSearchEngineSuccessCount: 2,
+        sourceSearchEngineFailureCount: 1,
+        sourceSearchFirstOkEngine: "bing",
+        sourceSearchFirstOkResultCount: 2,
+        sourceSearchFirstFailedEngine: "duckduckgo",
+        sourceSearchFirstFailureCode: "HTTP_ERROR",
+        sourceSearchFirstFailureStatus: 403,
       },
     });
   });

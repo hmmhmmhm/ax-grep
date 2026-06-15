@@ -2214,6 +2214,14 @@ type AgentSummary = {
   sourceSearchQuery?: string;
   sourceSearchEngine?: string;
   sourceSearchSelectedEngine?: string;
+  sourceSearchEngineAttemptCount?: number;
+  sourceSearchEngineSuccessCount?: number;
+  sourceSearchEngineFailureCount?: number;
+  sourceSearchFirstOkEngine?: string;
+  sourceSearchFirstOkResultCount?: number;
+  sourceSearchFirstFailedEngine?: string;
+  sourceSearchFirstFailureCode?: string;
+  sourceSearchFirstFailureStatus?: number;
   sourceSearchSearchUrl?: string;
   sourceSearchLang?: string;
   sourceSearchRegion?: string;
@@ -3820,7 +3828,7 @@ class CliError extends Error {
 function formatCliText(
   node: SemanticNode,
   fetched: FetchResult,
-  options: Pick<CliOptions, "linksOnly" | "maxTreeLines" | "sourceSearch" | "findQueries" | "searchQuery" | "searchEngine" | "selectedSearchEngine" | "searchLang" | "searchRegion" | "agentMode" | "timeoutMs" | "userAgent">,
+  options: Pick<CliOptions, "linksOnly" | "maxTreeLines" | "sourceSearch" | "findQueries" | "searchQuery" | "searchEngine" | "selectedSearchEngine" | "searchAttempts" | "searchLang" | "searchRegion" | "agentMode" | "timeoutMs" | "userAgent">,
 ): string {
   const baseUrl = fetched.finalUrl;
   const links = summarizeLinks(node, baseUrl);
@@ -3853,6 +3861,7 @@ function formatCliText(
     options.timeoutMs,
     options.userAgent,
     summarizeAgentSemanticSummary(node, fetched.finalUrl),
+    options.searchAttempts,
   );
   appendSection(lines, formatAgentText(agent));
   appendSection(lines, formatAnalysisText(analysis));
@@ -4937,6 +4946,14 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.sourceSearchQuery ? [`  sourceSearchQuery: ${agent.sourceSearchQuery}`] : []),
     ...(agent.sourceSearchEngine ? [`  sourceSearchEngine: ${agent.sourceSearchEngine}`] : []),
     ...(agent.sourceSearchSelectedEngine ? [`  sourceSearchSelectedEngine: ${agent.sourceSearchSelectedEngine}`] : []),
+    ...(typeof agent.sourceSearchEngineAttemptCount === "number" ? [`  sourceSearchEngineAttemptCount: ${agent.sourceSearchEngineAttemptCount}`] : []),
+    ...(typeof agent.sourceSearchEngineSuccessCount === "number" ? [`  sourceSearchEngineSuccessCount: ${agent.sourceSearchEngineSuccessCount}`] : []),
+    ...(typeof agent.sourceSearchEngineFailureCount === "number" ? [`  sourceSearchEngineFailureCount: ${agent.sourceSearchEngineFailureCount}`] : []),
+    ...(agent.sourceSearchFirstOkEngine ? [`  sourceSearchFirstOkEngine: ${agent.sourceSearchFirstOkEngine}`] : []),
+    ...(typeof agent.sourceSearchFirstOkResultCount === "number" ? [`  sourceSearchFirstOkResultCount: ${agent.sourceSearchFirstOkResultCount}`] : []),
+    ...(agent.sourceSearchFirstFailedEngine ? [`  sourceSearchFirstFailedEngine: ${agent.sourceSearchFirstFailedEngine}`] : []),
+    ...(agent.sourceSearchFirstFailureCode ? [`  sourceSearchFirstFailureCode: ${agent.sourceSearchFirstFailureCode}`] : []),
+    ...(typeof agent.sourceSearchFirstFailureStatus === "number" ? [`  sourceSearchFirstFailureStatus: ${agent.sourceSearchFirstFailureStatus}`] : []),
     ...(agent.sourceSearchSearchUrl ? [`  sourceSearchSearchUrl: ${agent.sourceSearchSearchUrl}`] : []),
     ...(agent.sourceSearchLang ? [`  sourceSearchLang: ${agent.sourceSearchLang}`] : []),
     ...(agent.sourceSearchRegion ? [`  sourceSearchRegion: ${agent.sourceSearchRegion}`] : []),
@@ -13720,6 +13737,7 @@ function summarizeAgent(
   timeoutMs?: number,
   userAgent?: string,
   semanticSummary?: AgentSemanticSummary,
+  searchAttempts?: SearchAttemptSummary[],
 ): AgentSummary {
   const diagnosticCodes = analysis.diagnostics.map((diagnostic) => diagnostic.code);
   const primaryAction = primaryAgentAction(analysis, pageCheck, verification, semanticSummary);
@@ -15209,6 +15227,7 @@ function summarizeAgent(
     ...(sourceSearch ? { sourceSearchQuery: sourceSearch.query } : {}),
     ...(sourceSearch ? { sourceSearchEngine: sourceSearch.engine } : {}),
     ...(sourceSearch?.selectedEngine ? { sourceSearchSelectedEngine: sourceSearch.selectedEngine } : {}),
+    ...sourceSearchEngineAttemptShortcuts(sourceSearch, searchAttempts),
     ...(sourceSearch ? { sourceSearchSearchUrl: sourceSearch.searchUrl } : {}),
     ...(sourceSearch?.lang ? { sourceSearchLang: sourceSearch.lang } : {}),
     ...(sourceSearch?.region ? { sourceSearchRegion: sourceSearch.region } : {}),
@@ -18501,7 +18520,7 @@ function emptyVerification(): VerificationSummary {
   };
 }
 
-function errorAgent(error: CliError, url?: string, agentMode = false, findQueries: string[] = [], sourceSearch?: SourceSearchSummary, timeoutMs?: number, userAgent?: string): AgentSummary {
+function errorAgent(error: CliError, url?: string, agentMode = false, findQueries: string[] = [], sourceSearch?: SourceSearchSummary, timeoutMs?: number, userAgent?: string, searchAttempts?: SearchAttemptSummary[]): AgentSummary {
   const summary = error.code === "USAGE" ? error.message.split("\n")[0] || error.message : error.message;
   const primaryAction = errorAction(error, url, agentMode, findQueries, sourceSearch, timeoutMs, userAgent);
   const readTargets = summarizeErrorAgentReadTargets(primaryAction, sourceSearch);
@@ -18732,6 +18751,7 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(sourceSearch ? { sourceSearchQuery: sourceSearch.query } : {}),
     ...(sourceSearch ? { sourceSearchEngine: sourceSearch.engine } : {}),
     ...(sourceSearch?.selectedEngine ? { sourceSearchSelectedEngine: sourceSearch.selectedEngine } : {}),
+    ...sourceSearchEngineAttemptShortcuts(sourceSearch, searchAttempts),
     ...(sourceSearch ? { sourceSearchSearchUrl: sourceSearch.searchUrl } : {}),
     ...(sourceSearch?.lang ? { sourceSearchLang: sourceSearch.lang } : {}),
     ...(sourceSearch?.region ? { sourceSearchRegion: sourceSearch.region } : {}),
@@ -19597,6 +19617,7 @@ function jsonEnvelope(
     options.timeoutMs,
     options.userAgent,
     summarizeAgentSemanticSummary(tree, fetched.finalUrl),
+    options.searchAttempts,
   );
   const outputAnalysis = {
     ...analysis,
@@ -19778,7 +19799,7 @@ function jsonErrorEnvelope(
   const action = errorAction(error, metadata.url, metadata.agentMode ?? false, metadata.findQueries ?? [], metadata.sourceSearch, metadata.timeoutMs, metadata.userAgent);
   const outputAction = action ? withActionExecution(action) : undefined;
   const pageCheck = errorPageCheck(outputAction);
-  const agent = withAgentActionExecution(errorAgent(error, metadata.url, metadata.agentMode ?? false, metadata.findQueries ?? [], metadata.sourceSearch, metadata.timeoutMs, metadata.userAgent));
+  const agent = withAgentActionExecution(errorAgent(error, metadata.url, metadata.agentMode ?? false, metadata.findQueries ?? [], metadata.sourceSearch, metadata.timeoutMs, metadata.userAgent, metadata.searchAttempts));
   const envelope = {
     schemaVersion: 1,
     tool: "ax-grep",
@@ -21513,6 +21534,14 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.sourceSearchQuery ? { sourceSearchQuery: agent.sourceSearchQuery } : {}),
     ...(agent.sourceSearchEngine ? { sourceSearchEngine: agent.sourceSearchEngine } : {}),
     ...(agent.sourceSearchSelectedEngine ? { sourceSearchSelectedEngine: agent.sourceSearchSelectedEngine } : {}),
+    ...(typeof agent.sourceSearchEngineAttemptCount === "number" ? { sourceSearchEngineAttemptCount: agent.sourceSearchEngineAttemptCount } : {}),
+    ...(typeof agent.sourceSearchEngineSuccessCount === "number" ? { sourceSearchEngineSuccessCount: agent.sourceSearchEngineSuccessCount } : {}),
+    ...(typeof agent.sourceSearchEngineFailureCount === "number" ? { sourceSearchEngineFailureCount: agent.sourceSearchEngineFailureCount } : {}),
+    ...(agent.sourceSearchFirstOkEngine ? { sourceSearchFirstOkEngine: agent.sourceSearchFirstOkEngine } : {}),
+    ...(typeof agent.sourceSearchFirstOkResultCount === "number" ? { sourceSearchFirstOkResultCount: agent.sourceSearchFirstOkResultCount } : {}),
+    ...(agent.sourceSearchFirstFailedEngine ? { sourceSearchFirstFailedEngine: agent.sourceSearchFirstFailedEngine } : {}),
+    ...(agent.sourceSearchFirstFailureCode ? { sourceSearchFirstFailureCode: agent.sourceSearchFirstFailureCode } : {}),
+    ...(typeof agent.sourceSearchFirstFailureStatus === "number" ? { sourceSearchFirstFailureStatus: agent.sourceSearchFirstFailureStatus } : {}),
     ...(agent.sourceSearchSearchUrl ? { sourceSearchSearchUrl: agent.sourceSearchSearchUrl } : {}),
     ...(agent.sourceSearchLang ? { sourceSearchLang: agent.sourceSearchLang } : {}),
     ...(agent.sourceSearchRegion ? { sourceSearchRegion: agent.sourceSearchRegion } : {}),
@@ -23035,6 +23064,14 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.sourceSearchQuery ? { sourceSearchQuery: agent.sourceSearchQuery } : {}),
     ...(agent.sourceSearchEngine ? { sourceSearchEngine: agent.sourceSearchEngine } : {}),
     ...(agent.sourceSearchSelectedEngine ? { sourceSearchSelectedEngine: agent.sourceSearchSelectedEngine } : {}),
+    ...(typeof agent.sourceSearchEngineAttemptCount === "number" ? { sourceSearchEngineAttemptCount: agent.sourceSearchEngineAttemptCount } : {}),
+    ...(typeof agent.sourceSearchEngineSuccessCount === "number" ? { sourceSearchEngineSuccessCount: agent.sourceSearchEngineSuccessCount } : {}),
+    ...(typeof agent.sourceSearchEngineFailureCount === "number" ? { sourceSearchEngineFailureCount: agent.sourceSearchEngineFailureCount } : {}),
+    ...(agent.sourceSearchFirstOkEngine ? { sourceSearchFirstOkEngine: agent.sourceSearchFirstOkEngine } : {}),
+    ...(typeof agent.sourceSearchFirstOkResultCount === "number" ? { sourceSearchFirstOkResultCount: agent.sourceSearchFirstOkResultCount } : {}),
+    ...(agent.sourceSearchFirstFailedEngine ? { sourceSearchFirstFailedEngine: agent.sourceSearchFirstFailedEngine } : {}),
+    ...(agent.sourceSearchFirstFailureCode ? { sourceSearchFirstFailureCode: agent.sourceSearchFirstFailureCode } : {}),
+    ...(typeof agent.sourceSearchFirstFailureStatus === "number" ? { sourceSearchFirstFailureStatus: agent.sourceSearchFirstFailureStatus } : {}),
     ...(agent.sourceSearchSearchUrl ? { sourceSearchSearchUrl: agent.sourceSearchSearchUrl } : {}),
     ...(agent.sourceSearchLang ? { sourceSearchLang: agent.sourceSearchLang } : {}),
     ...(agent.sourceSearchRegion ? { sourceSearchRegion: agent.sourceSearchRegion } : {}),
@@ -24047,6 +24084,24 @@ function compactAgentSearchEngines(attempts: SearchAttemptSummary[] | undefined)
       ...(attempt.topResult ? { topResult: compactAttemptTopResult(attempt.topResult) } : {}),
       ...(attempt.error ? { error: { code: attempt.error.code, ...(attempt.error.status ? { status: attempt.error.status } : {}) } } : {}),
     })),
+  };
+}
+
+function sourceSearchEngineAttemptShortcuts(sourceSearch: SourceSearchSummary | undefined, attempts: SearchAttemptSummary[] | undefined): Partial<AgentSummary> {
+  if (!sourceSearch || !attempts || attempts.length === 0) return {};
+  const okAttempts = attempts.filter((attempt) => attempt.ok);
+  const failedAttempts = attempts.filter((attempt) => !attempt.ok);
+  const firstOk = okAttempts[0];
+  const firstFailed = failedAttempts[0];
+  return {
+    sourceSearchEngineAttemptCount: attempts.length,
+    sourceSearchEngineSuccessCount: okAttempts.length,
+    sourceSearchEngineFailureCount: failedAttempts.length,
+    ...(firstOk ? { sourceSearchFirstOkEngine: firstOk.engine } : {}),
+    ...(firstOk ? { sourceSearchFirstOkResultCount: firstOk.resultCount } : {}),
+    ...(firstFailed ? { sourceSearchFirstFailedEngine: firstFailed.engine } : {}),
+    ...(firstFailed?.error ? { sourceSearchFirstFailureCode: firstFailed.error.code } : {}),
+    ...(typeof firstFailed?.error?.status === "number" ? { sourceSearchFirstFailureStatus: firstFailed.error.status } : {}),
   };
 }
 

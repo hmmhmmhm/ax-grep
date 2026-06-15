@@ -841,6 +841,14 @@ describe("public agent types", () => {
       | "sourceSearchQuery"
       | "sourceSearchEngine"
       | "sourceSearchSelectedEngine"
+      | "sourceSearchEngineAttemptCount"
+      | "sourceSearchEngineSuccessCount"
+      | "sourceSearchEngineFailureCount"
+      | "sourceSearchFirstOkEngine"
+      | "sourceSearchFirstOkResultCount"
+      | "sourceSearchFirstFailedEngine"
+      | "sourceSearchFirstFailureCode"
+      | "sourceSearchFirstFailureStatus"
       | "sourceSearchSearchUrl"
       | "sourceSearchLang"
       | "sourceSearchRegion"
@@ -2336,6 +2344,14 @@ describe("public agent types", () => {
       sourceSearchQuery: "ax-grep docs",
       sourceSearchEngine: "auto",
       sourceSearchSelectedEngine: "duckduckgo",
+      sourceSearchEngineAttemptCount: 3,
+      sourceSearchEngineSuccessCount: 1,
+      sourceSearchEngineFailureCount: 2,
+      sourceSearchFirstOkEngine: "duckduckgo",
+      sourceSearchFirstOkResultCount: 2,
+      sourceSearchFirstFailedEngine: "bing",
+      sourceSearchFirstFailureCode: "HTTP_ERROR",
+      sourceSearchFirstFailureStatus: 403,
       sourceSearchSearchUrl: "https://duckduckgo.com/html/?q=ax-grep%20docs",
       sourceSearchLang: "en",
       sourceSearchRegion: "us",

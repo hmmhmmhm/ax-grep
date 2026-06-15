@@ -2580,6 +2580,14 @@ export type AgentSummary = {
   sourceSearchQuery?: string;
   sourceSearchEngine?: string;
   sourceSearchSelectedEngine?: string;
+  sourceSearchEngineAttemptCount?: number;
+  sourceSearchEngineSuccessCount?: number;
+  sourceSearchEngineFailureCount?: number;
+  sourceSearchFirstOkEngine?: string;
+  sourceSearchFirstOkResultCount?: number;
+  sourceSearchFirstFailedEngine?: string;
+  sourceSearchFirstFailureCode?: string;
+  sourceSearchFirstFailureStatus?: number;
   sourceSearchSearchUrl?: string;
   sourceSearchLang?: string;
   sourceSearchRegion?: string;
