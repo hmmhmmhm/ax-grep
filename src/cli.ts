@@ -4212,12 +4212,12 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topActionTargetChoiceControls ? [`  topActionTargetChoiceControls: ${agent.topActionTargetChoiceControls}`] : []),
     ...(agent.topActionTargetChoiceSelector ? [`  topActionTargetChoiceSelector: ${agent.topActionTargetChoiceSelector}`] : []),
     `  barrierCount: ${agent.barrierCount}`,
-    ...(agent.topBarrierKind ? [`  topBarrier: ${agent.topBarrierSeverity}/${agent.topBarrierKind} ${agent.topBarrierPath}${topBarrierDetails ? ` ${topBarrierDetails}` : ""} - ${agent.topBarrierText}`] : []),
+    ...(agent.topBarrierKind ? [`  topBarrier: severity=${agent.topBarrierSeverity} kind=${agent.topBarrierKind} path=${agent.topBarrierPath}${topBarrierDetails ? ` ${topBarrierDetails}` : ""} - ${agent.topBarrierText}`] : []),
     ...(agent.topBarrierSource ? [`  topBarrierSource: ${agent.topBarrierSource}`] : []),
     ...(agent.topBarrierSelector ? [`  topBarrierSelector: ${agent.topBarrierSelector}`] : []),
     ...(agent.topBarrierDiagnosticCode ? [`  topBarrierDiagnosticCode: ${agent.topBarrierDiagnosticCode}`] : []),
     `  dataTableCount: ${agent.dataTableCount}`,
-    ...(agent.topDataTablePath ? [`  topDataTable: ${agent.topDataTablePath}${agent.topDataTableCaption ? ` "${agent.topDataTableCaption}"` : ""} ${agent.topDataTableRowCount ?? 0}x${agent.topDataTableColumnCount ?? 0}${typeof agent.topDataTableHeaderCount === "number" ? ` headers=${agent.topDataTableHeaderCount}` : ""}${agent.topDataTableSelector ? ` selector=${agent.topDataTableSelector}` : ""}`] : []),
+    ...(agent.topDataTablePath ? [`  topDataTable: path=${agent.topDataTablePath}${agent.topDataTableCaption ? ` caption="${agent.topDataTableCaption}"` : ""} rows=${agent.topDataTableRowCount ?? 0} columns=${agent.topDataTableColumnCount ?? 0}${typeof agent.topDataTableHeaderCount === "number" ? ` headers=${agent.topDataTableHeaderCount}` : ""}${agent.topDataTableSelector ? ` selector=${agent.topDataTableSelector}` : ""}`] : []),
     ...(agent.topDataTableFirstHeader ? [`  topDataTableFirstHeader: ${agent.topDataTableFirstHeader}`] : []),
     ...(agent.topDataTableFirstRow?.length ? [`  topDataTableFirstRow: ${agent.topDataTableFirstRow.join(" | ")}`] : []),
     ...(agent.topDataTableFirstCell ? [`  topDataTableFirstCell: ${agent.topDataTableFirstCell}`] : []),
@@ -4987,7 +4987,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       `score=${evidence.score}`,
       evidence.selector ? `selector=${evidence.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  evidence: ${evidence.id} ${evidence.path} ${details} - ${evidence.qualityReason} ${evidence.text}`);
+    lines.push(`  evidence: id=${evidence.id} path=${evidence.path} ${details} - ${evidence.qualityReason} ${evidence.text}`);
   }
   for (const table of pageCheck.dataTables) {
     const details = [
@@ -4999,7 +4999,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       table.sampleRows[0]?.length ? `firstRow="${table.sampleRows[0].join(" | ")}"` : "",
       table.selector ? `selector=${table.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  dataTable: ${table.id} ${table.path} ${details} - ${table.text}`);
+    lines.push(`  dataTable: id=${table.id} path=${table.path} ${details} - ${table.text}`);
   }
   for (const barrier of pageCheck.barriers) {
     const details = [
@@ -5009,7 +5009,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       barrier.diagnosticCode ? `diagnostic=${barrier.diagnosticCode}` : "",
       barrier.selector ? `selector=${barrier.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  barrier: ${barrier.id} ${barrier.path} ${details} - ${barrier.text}`);
+    lines.push(`  barrier: id=${barrier.id} path=${barrier.path} ${details} - ${barrier.text}`);
   }
   for (const form of pageCheck.forms) {
     const details = [
@@ -5025,10 +5025,10 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       typeof form.formNoValidate === "boolean" ? `novalidate=${form.formNoValidate}` : "",
       form.selector ? `selector=${form.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  form: ${form.id} ${form.path} ${details} - ${form.text}`);
+    lines.push(`  form: id=${form.id} path=${form.path} ${details} - ${form.text}`);
   }
   for (const target of pageCheck.actionTargets) {
-    const url = target.targetUrl ? ` <${target.targetUrl}>` : "";
+    const url = target.targetUrl ? ` url=<${target.targetUrl}>` : "";
     const details = [
       `kind=${target.kind}`,
       `source=${target.source}`,
@@ -5043,7 +5043,7 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
       target.controls ? `controls=${target.controls}` : "",
       target.selector ? `selector=${target.selector}` : "",
     ].filter(Boolean).join(" ");
-    lines.push(`  actionTarget: ${target.id} ${target.path} ${details}${url} - ${target.text}`);
+    lines.push(`  actionTarget: id=${target.id} path=${target.path} ${details}${url} - ${target.text}`);
   }
   for (const item of pageCheck.hydration) {
     const url = item.url ? ` url=<${item.url}>` : "";

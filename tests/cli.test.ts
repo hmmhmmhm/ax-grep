@@ -6125,8 +6125,8 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain("  topDataTable: pageCheck.dataTables[0] \"Plan comparison\" 1x3 headers=3 selector=table:nth-of-type(1)");
-    expect(stdout.output).toContain("  dataTable: t1 pageCheck.dataTables[0] rank=1 rows=1 columns=3 headers=Plan|Monthly price|Storage caption=\"Plan comparison\" firstRow=\"Starter | $19.99 | 10 GB\" selector=table:nth-of-type(1) - Plan comparison; Headers: Plan | Monthly price | Storage; Starter | $19.99 | 10 GB");
+    expect(stdout.output).toContain("  topDataTable: path=pageCheck.dataTables[0] caption=\"Plan comparison\" rows=1 columns=3 headers=3 selector=table:nth-of-type(1)");
+    expect(stdout.output).toContain("  dataTable: id=t1 path=pageCheck.dataTables[0] rank=1 rows=1 columns=3 headers=Plan|Monthly price|Storage caption=\"Plan comparison\" firstRow=\"Starter | $19.99 | 10 GB\" selector=table:nth-of-type(1) - Plan comparison; Headers: Plan | Monthly price | Storage; Starter | $19.99 | 10 GB");
   });
 
   it("prints second table sample cell in text agent output", async () => {
@@ -12347,7 +12347,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  schemaTypes: NewsArticle, ReportageNewsArticle");
     expect(stdout.output).toContain("  mainHeading: Article heading");
     expect(stdout.output).toContain("  excerpt: This article paragraph is long enough to appear in the page checking summary for agents.");
-    expect(stdout.output).toContain("  evidence: e1 pageCheck.contentEvidence[0] rank=1 role=p source=semantic quality=high score=0.84 selector=p - high evidence from semantic extraction, 88 chars, p content, selector available. This article paragraph is long enough to appear in the page checking summary for agents.");
+    expect(stdout.output).toContain("  evidence: id=e1 path=pageCheck.contentEvidence[0] rank=1 role=p source=semantic quality=high score=0.84 selector=p - high evidence from semantic extraction, 88 chars, p content, selector available. This article paragraph is long enough to appear in the page checking summary for agents.");
     expect(stdout.output).toContain("  link: kind=external title=\"Source report\" source=source.example rank=1 type=news score=0.58 hints=news-like selector=a <https://source.example/report> - Possible source candidate: news-like.");
     expect(stdout.output).toContain("  sourceLink: title=\"Source report\" source=source.example rank=1 type=news score=0.58 hints=news-like selector=a <https://source.example/report> - Possible source candidate: news-like.");
     expect(stdout.output).toContain("  action: type=button selector=button text=\"Subscribe\"");
@@ -12637,7 +12637,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topFormChoiceSelector: form:nth-of-type(1)");
     expect(stdout.output).toContain("  topFormChoiceCommand: ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
     expect(stdout.output).toContain("  topFormChoiceCommandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
-    expect(stdout.output).toContain("  form: f1 pageCheck.forms[0] method=get fields=1 hidden=1 actionUrl=https://example.test/find query=query template=https://example.test/find?query=%7Bquery%7D target=_blank enctype=multipart/form-data acceptCharset=UTF-8 novalidate=true selector=form:nth-of-type(1)");
+    expect(stdout.output).toContain("  form: id=f1 path=pageCheck.forms[0] method=get fields=1 hidden=1 actionUrl=https://example.test/find query=query template=https://example.test/find?query=%7Bquery%7D target=_blank enctype=multipart/form-data acceptCharset=UTF-8 novalidate=true selector=form:nth-of-type(1)");
     expect(stdout.output).toContain("  formChoice: f1 pageCheck.forms[0] rank=1 method=get fields=1 hidden=1 firstHidden=csrf query=query template=https://example.test/find?query=%7Bquery%7D target=_blank enctype=multipart/form-data selector=form:nth-of-type(1)");
     expect(stdout.output).toContain("    command: ax-grep 'https://example.test/find?query=quarterly%20report' --find 'quarterly report' --json --summary");
     expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://example.test/find?query=quarterly%20report\",\"--find\",\"quarterly report\",\"--json\",\"--summary\"]");
@@ -12677,7 +12677,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topActionTargetChoiceSelector: script[type=\"application/ld+json\"]:nth-of-type(1)");
     expect(stdout.output).toContain("  topActionTargetChoiceCommand: ax-grep 'https://example.test/search?q=search_term_string' --find 'search_term_string' --json --summary");
     expect(stdout.output).toContain("  topActionTargetChoiceCommandArgs: [\"ax-grep\",\"https://example.test/search?q=search_term_string\",\"--find\",\"search_term_string\",\"--json\",\"--summary\"]");
-    expect(stdout.output).toContain("  actionTarget: at1 pageCheck.actionTargets[0] kind=search source=json-ld template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string selector=script[type=\"application/ld+json\"]:nth-of-type(1) - search: Example Docs");
+    expect(stdout.output).toContain("  actionTarget: id=at1 path=pageCheck.actionTargets[0] kind=search source=json-ld template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string selector=script[type=\"application/ld+json\"]:nth-of-type(1) - search: Example Docs");
     expect(stdout.output).toContain("  actionTargetChoice: at1 pageCheck.actionTargets[0] rank=1 kind=search source=json-ld template=https://example.test/search?q={search_term_string} queryInput=required name=search_term_string selector=script[type=\"application/ld+json\"]:nth-of-type(1)");
     expect(stdout.output).toContain("    command: ax-grep 'https://example.test/search?q=search_term_string' --find 'search_term_string' --json --summary");
     expect(stdout.output).toContain("    commandArgs: [\"ax-grep\",\"https://example.test/search?q=search_term_string\",\"--find\",\"search_term_string\",\"--json\",\"--summary\"]");
@@ -12710,7 +12710,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topActionTargetChoiceHaspopup: dialog");
     expect(stdout.output).toContain("  topActionTargetChoiceControls: docs-search-panel");
     expect(stdout.output).toContain("  topActionTargetChoiceSelector: link[rel=\"search\"]:nth-of-type(1)");
-    expect(stdout.output).toContain("  actionTarget: at1 pageCheck.actionTargets[0] kind=search source=link encoding=application/opensearchdescription+xml disabled=true expanded=false haspopup=dialog controls=docs-search-panel selector=link[rel=\"search\"]:nth-of-type(1) <https://example.test/opensearch.xml> - search: Docs OpenSearch");
+    expect(stdout.output).toContain("  actionTarget: id=at1 path=pageCheck.actionTargets[0] kind=search source=link encoding=application/opensearchdescription+xml disabled=true expanded=false haspopup=dialog controls=docs-search-panel selector=link[rel=\"search\"]:nth-of-type(1) url=<https://example.test/opensearch.xml> - search: Docs OpenSearch");
     expect(stdout.output).toContain("  actionTargetChoice: at1 pageCheck.actionTargets[0] rank=1 kind=search source=link disabled=true expanded=false haspopup=dialog controls=docs-search-panel selector=link[rel=\"search\"]:nth-of-type(1) <https://example.test/opensearch.xml> - Docs OpenSearch");
   });
 
@@ -13078,10 +13078,10 @@ npx ax-grep https://example.test --agent</code></pre>
     });
 
     expect(status).toBe(0);
-    expect(stdout.output).toContain("  topBarrier: warning/login pageCheck.barriers[0] source=diagnostic diagnostic=LOGIN_REQUIRED - Login: The page appears to require login or account access.");
+    expect(stdout.output).toContain("  topBarrier: severity=warning kind=login path=pageCheck.barriers[0] source=diagnostic diagnostic=LOGIN_REQUIRED - Login: The page appears to require login or account access.");
     expect(stdout.output).toContain("  topBarrierSource: diagnostic");
     expect(stdout.output).toContain("  topBarrierDiagnosticCode: LOGIN_REQUIRED");
-    expect(stdout.output).toContain("  barrier: br1 pageCheck.barriers[0] kind=login severity=warning source=diagnostic diagnostic=LOGIN_REQUIRED - Login: The page appears to require login or account access.");
+    expect(stdout.output).toContain("  barrier: id=br1 path=pageCheck.barriers[0] kind=login severity=warning source=diagnostic diagnostic=LOGIN_REQUIRED - Login: The page appears to require login or account access.");
   });
 
   it("summarizes consent actions as non-blocking page barriers", async () => {
