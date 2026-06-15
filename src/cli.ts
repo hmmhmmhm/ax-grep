@@ -5189,8 +5189,15 @@ function formatPageCheckText(pageCheck: PageCheckSummary): string[] {
     lines.push(`  dataset: ${dataset.id} ${dataset.path} ${dataset.kind} ${details}${url} - ${dataset.text}`);
   }
   for (const item of pageCheck.timeline) {
-    const selector = item.selector ? ` (${item.selector})` : "";
-    lines.push(`  timeline: ${item.id} ${item.path} ${item.kind} ${item.source}${selector} - ${item.text}`);
+    const details = [
+      `source=${item.source}`,
+      `label="${item.label}"`,
+      `value=${item.value}`,
+      item.isoDate ? `iso=${item.isoDate}` : "",
+      typeof item.unixMs === "number" ? `unixMs=${item.unixMs}` : "",
+      item.selector ? `selector=${item.selector}` : "",
+    ].filter(Boolean).join(" ");
+    lines.push(`  timeline: ${item.id} ${item.path} ${item.kind} ${details} - ${item.text}`);
   }
   for (const contact of pageCheck.contactPoints) {
     const url = contact.url ? ` <${contact.url}>` : "";
