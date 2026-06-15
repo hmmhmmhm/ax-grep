@@ -58,6 +58,7 @@ describe("compare-static fixture comparisons", () => {
     expect(report.gateSummary.averageAgentVerificationQueryScore).toBe(1);
     expect(report.gateSummary.averageAgentTopSourceChoiceShortcutScore).toBe(1);
     expect(report.gateSummary.averageAgentSourceSearchShortcutScore).toBe(1);
+    expect(report.gateSummary.averageAgentSourceSearchProvenanceScore).toBe(1);
     expect(report.gateSummary.averageAgentHiddenSignalScore).toBe(1);
     expect(report.gateSummary.averageAgentStructuredShortcutScore).toBe(1);
     expect(report.gateSummary.averageAgentPageMetadataShortcutScore).toBe(1);
