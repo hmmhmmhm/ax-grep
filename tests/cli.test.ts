@@ -77,6 +77,7 @@ describe("cli", () => {
     });
 
     expect(status).toBe(0);
+    expect(stdout.output).toContain("semanticTopField: agent.semanticSummary.fieldItems[0] role=searchbox name=\"Archive search\"");
     expect(stdout.output).toContain("semanticTopState: agent.semanticSummary.stateItems[0] searchbox:Archive search");
     expect(stdout.output).toContain("disabled=true");
     expect(stdout.output).toContain("required=true");
@@ -6116,6 +6117,7 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticTopTable: agent.semanticSummary.tableItems[0] role=table name=\"Revenue by quarter\"");
     expect(stdout.output).toContain("  semanticTopTableSecondHeader: agent.semanticSummary.tableItems[0].headerRefs[1] Revenue role=columnheader sort=descending selector=#revenue");
     expect(stdout.output).toContain("  semanticTopTableSecondSampleCell: agent.semanticSummary.tableItems[0].sampleCellRefs[1] Q2 review");
   });
@@ -6194,6 +6196,7 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticTopList: agent.semanticSummary.listItems[0] role=list name=\"Release actions\"");
     expect(stdout.output).toContain("itemRefs=Download report role=listitem pos=1 size=2 current=page selector=li, Read notes role=listitem pos=2 size=2 expanded=false selector=li:nth-of-type(2)");
   });
 

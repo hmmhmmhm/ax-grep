@@ -698,6 +698,7 @@ any earlier non-browser item can still reduce uncertainty.
 | 97 | Done | Preserve first sample-cell spans and first-owned sample cells in text output so text handoff matches JSON shortcut coverage. | Typecheck, focused text CLI tests, static fixture gate, readiness audit, README test, diff check, process check. | No headline increase; closes text-output parity gaps. |
 | 98 | Done | Preserve selected owned table-cell `ownedTarget` in full, brief, text, public types, readiness audit, and static scoring. | Typecheck, focused CLI/public type tests, static fixture gate, readiness audit, README test, diff check, process check. | No headline increase; strengthens virtualized table/grid handoff. |
 | 99 | Done | Preserve first sample-cell `ownedTarget` in text output when the first sample comes from an `aria-owns` rowgroup. | Typecheck, focused text CLI test, static fixture gate, readiness audit, README test, diff check, process check. | No headline increase; closes text-output parity gap. |
+| 100 | Done | Make text `semanticTopTable`, `semanticTopList`, and `semanticTopField` print role and name as named fields instead of positional `role:name` tokens. | Focused text CLI tests, public type test, typecheck, static fixture gate, readiness audit, README test, diff check, process check. | No headline increase; improves text-output readability for table/list/form handoff. |
 
 When research expands:
 
