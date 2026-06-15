@@ -6171,9 +6171,9 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  semanticTopTableFirstSampleCell:");
-    expect(stdout.output).toContain("headerRefs=Metric:columnheader selector=#metric");
-    expect(stdout.output).toContain("ownedRefs=owned-rows:rowgroup:Virtual rows selector=#owned-rows");
-    expect(stdout.output).toContain("Queued@r50c4 headers=Value columnHeaders=Value selected=true selector=span:nth-of-type(2) ownedTarget=owned-rows");
+    expect(stdout.output).toContain("headerRefs=text=\"Metric\" role=columnheader selector=#metric");
+    expect(stdout.output).toContain("ownedRefs=target=owned-rows role=rowgroup name=\"Virtual rows\" selector=#owned-rows");
+    expect(stdout.output).toContain("text=\"Queued\" row=50 column=4 headers=Value columnHeaders=Value selected=true selector=span:nth-of-type(2) ownedTarget=owned-rows");
     expect(stdout.output).toContain("  semanticTopTableFirstOwned: target=owned-rows role=rowgroup name=\"Virtual rows\" selector=#owned-rows");
     expect(stdout.output).toContain("ownedTarget=owned-rows");
     expect(stdout.output).toContain("  semanticTopTableFirstOwnedSampleCell:");
