@@ -19,6 +19,8 @@ import type {
 describe("public agent types", () => {
   it("exposes browser fallback shortcut contract feature markers", () => {
     const features: AgentContractFeature[] = [
+      "readValue.shortcuts",
+      "readValue.referencePaths",
       "browserHtml.shortcuts",
       "browserHtml.reasonCodes",
       "executor.browserHtml.shortcuts",
@@ -26,6 +28,7 @@ describe("public agent types", () => {
     ];
 
     expect(features).toContain("browserHtml.reasonCodes");
+    expect(features).toContain("readValue.referencePaths");
   });
 
   it("exports detailed handoff choice and evidence shapes", () => {

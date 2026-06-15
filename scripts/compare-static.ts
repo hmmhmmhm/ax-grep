@@ -3002,6 +3002,8 @@ function scoreAgentContract(contract: { version?: number; features?: unknown[]; 
     "handoff.sourceSearch",
     "handoff.quality",
     "executionPlan",
+    "readValue.shortcuts",
+    "readValue.referencePaths",
     "citations",
     "answerPlan",
     "answerEvidence",

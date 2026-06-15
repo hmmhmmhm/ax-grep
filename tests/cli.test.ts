@@ -6510,6 +6510,8 @@ describe("cli", () => {
         submitSelector: "button[name=\"submit-search\"]",
         queryField: "query",
         urlTemplate: "https://example.test/find?query=%7Bquery%7D",
+        urlTemplatePath: "/find",
+        urlTemplateQuery: "?query=%7Bquery%7D",
         selector: "form:nth-of-type(1)",
         text: "GET https://example.test/find; query field: query; hidden fields: 1; submit: Search; query:search required Archive search; category:select options=All|Reports selected=All",
         hiddenFields: [

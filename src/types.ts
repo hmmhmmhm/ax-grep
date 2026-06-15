@@ -2912,6 +2912,8 @@ export type AgentContractFeature =
   | "next.readTarget"
   | "next.readValue"
   | "next.target"
+  | "readValue.shortcuts"
+  | "readValue.referencePaths"
   | "runbook"
   | "runbook.shortcuts"
   | "executor"

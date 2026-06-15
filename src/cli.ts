@@ -456,6 +456,8 @@ type PageFormSummary = {
   hiddenFields: PageFormHiddenFieldSummary[];
   text: string;
   actionUrl?: string;
+  actionUrlPath?: string;
+  actionUrlQuery?: string;
   formId?: string;
   formName?: string;
   formTarget?: string;
@@ -478,6 +480,8 @@ type PageFormSummary = {
   submitFormId?: string;
   queryField?: string;
   urlTemplate?: string;
+  urlTemplatePath?: string;
+  urlTemplateQuery?: string;
   selector?: string;
 };
 
@@ -2545,6 +2549,8 @@ const agentContract: AgentContract = {
     "next.readTarget",
     "next.readValue",
     "next.target",
+    "readValue.shortcuts",
+    "readValue.referencePaths",
     "runbook",
     "runbook.shortcuts",
     "executor",
@@ -7946,9 +7952,11 @@ function summarizeForm(form: Element, index: number, baseUrl: string, rootNodes:
   const submit = summarizeFormSubmit(form, baseUrl);
   const method = submit?.formMethod ?? formMethod;
   const actionUrl = submit?.formActionUrl ?? formActionUrl;
+  const actionUrlParts = urlPathParts(actionUrl);
   const submitText = submit?.text ?? "";
   const queryField = formQueryField(fields);
   const urlTemplate = method === "get" && queryField ? formUrlTemplate(actionUrl, queryField) : "";
+  const urlTemplateParts = urlTemplate ? urlPathParts(urlTemplate) : undefined;
   const textParts = [
     `${method.toUpperCase()} ${actionUrl}`,
     queryField ? `query field: ${queryField}` : "",
@@ -7962,6 +7970,8 @@ function summarizeForm(form: Element, index: number, baseUrl: string, rootNodes:
     rank: index + 1,
     method,
     actionUrl,
+    ...(actionUrlParts?.urlPath ? { actionUrlPath: actionUrlParts.urlPath } : {}),
+    ...(actionUrlParts?.urlQuery ? { actionUrlQuery: actionUrlParts.urlQuery } : {}),
     fieldCount: fields.length,
     hiddenFieldCount: hiddenFields.length,
     fields: fields.slice(0, 6),
@@ -7994,6 +8004,8 @@ function summarizeForm(form: Element, index: number, baseUrl: string, rootNodes:
   if (submit?.formId) summary.submitFormId = submit.formId;
   if (queryField) summary.queryField = queryField;
   if (urlTemplate) summary.urlTemplate = urlTemplate;
+  if (urlTemplateParts?.urlPath) summary.urlTemplatePath = urlTemplateParts.urlPath;
+  if (urlTemplateParts?.urlQuery) summary.urlTemplateQuery = urlTemplateParts.urlQuery;
   return summary;
 }
 
