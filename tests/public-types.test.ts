@@ -743,6 +743,17 @@ describe("public agent types", () => {
       | "topContactPointCommandArgs"
       | "topContactPointSource"
       | "topContactPointSelector"
+      | "secondContactPointPath"
+      | "secondContactPointKind"
+      | "secondContactPointLabel"
+      | "secondContactPointValue"
+      | "secondContactPointUrl"
+      | "secondContactPointUrlPath"
+      | "secondContactPointUrlQuery"
+      | "secondContactPointCommand"
+      | "secondContactPointCommandArgs"
+      | "secondContactPointSource"
+      | "secondContactPointSelector"
       | "structuredReadTargetCount"
       | "bestStructuredReadTarget"
       | "bestStructuredReadTargetCount"
@@ -2496,6 +2507,16 @@ describe("public agent types", () => {
       topContactPointCommandArgs: ["ax-grep", "https://example.test/contact/press", "--agent"],
       topContactPointSource: "html",
       topContactPointSelector: "a[href=\"/contact/press\"]",
+      secondContactPointPath: "pageCheck.contactPoints[1]",
+      secondContactPointKind: "contact-url",
+      secondContactPointLabel: "Support",
+      secondContactPointValue: "Support",
+      secondContactPointUrl: "https://example.test/support",
+      secondContactPointUrlPath: "/support",
+      secondContactPointCommand: "ax-grep 'https://example.test/support' --agent",
+      secondContactPointCommandArgs: ["ax-grep", "https://example.test/support", "--agent"],
+      secondContactPointSource: "json-ld",
+      secondContactPointSelector: "script[type=\"application/ld+json\"]:nth-of-type(5)",
       structuredReadTargetCount: 2,
       bestStructuredReadTarget: "pageCheck.dataTables",
       bestStructuredReadTargetCount: 1,
@@ -3995,6 +4016,8 @@ describe("public agent types", () => {
     expect(summary.secondIdentitySameAsCommandArgs?.[1]).toBe("https://github.com/example/docs");
     expect(summary.topContactPointUrlPath).toBe("/contact/press");
     expect(summary.topContactPointCommandArgs?.[1]).toBe("https://example.test/contact/press");
+    expect(summary.secondContactPointUrlPath).toBe("/support");
+    expect(summary.secondContactPointCommandArgs?.[1]).toBe("https://example.test/support");
     expect(summary.bestStructuredReadTarget).toBe("pageCheck.dataTables");
     expect(summary.bestStructuredReadTargetPrimary).toBe(true);
     expect(summary.formChoices?.[0]?.queryField).toBe("q");

@@ -2188,6 +2188,17 @@ type AgentSummary = {
   topContactPointCommandArgs?: string[];
   topContactPointSource?: PageContactPointSummary["source"];
   topContactPointSelector?: string;
+  secondContactPointPath?: string;
+  secondContactPointKind?: PageContactPointSummary["kind"];
+  secondContactPointLabel?: string;
+  secondContactPointValue?: string;
+  secondContactPointUrl?: string;
+  secondContactPointUrlPath?: string;
+  secondContactPointUrlQuery?: string;
+  secondContactPointCommand?: string;
+  secondContactPointCommandArgs?: string[];
+  secondContactPointSource?: PageContactPointSummary["source"];
+  secondContactPointSelector?: string;
   structuredReadTargetCount: number;
   bestStructuredReadTarget?: string;
   bestStructuredReadTargetCount?: number;
@@ -5036,6 +5047,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topContactPointValue ? [`  topContactPoint: path=${agent.topContactPointPath ?? ""}${agent.topContactPointKind ? ` kind=${agent.topContactPointKind}` : ""}${agent.topContactPointLabel ? ` label="${agent.topContactPointLabel}"` : ""} value=${agent.topContactPointValue}${agent.topContactPointSource ? ` source=${agent.topContactPointSource}` : ""}${agent.topContactPointSelector ? ` selector=${agent.topContactPointSelector}` : ""}${agent.topContactPointUrl ? ` url=<${agent.topContactPointUrl}>` : ""}${agent.topContactPointUrlPath ? ` urlPath=${agent.topContactPointUrlPath}` : ""}${agent.topContactPointUrlQuery ? ` urlQuery=${agent.topContactPointUrlQuery}` : ""}`] : []),
     ...(agent.topContactPointCommand ? [`  topContactPointCommand: ${agent.topContactPointCommand}`] : []),
     ...(agent.topContactPointCommandArgs ? [`  topContactPointCommandArgs: ${formatCommandArgsText(agent.topContactPointCommandArgs)}`] : []),
+    ...(agent.secondContactPointValue ? [`  secondContactPoint: path=${agent.secondContactPointPath ?? ""}${agent.secondContactPointKind ? ` kind=${agent.secondContactPointKind}` : ""}${agent.secondContactPointLabel ? ` label="${agent.secondContactPointLabel}"` : ""} value=${agent.secondContactPointValue}${agent.secondContactPointSource ? ` source=${agent.secondContactPointSource}` : ""}${agent.secondContactPointSelector ? ` selector=${agent.secondContactPointSelector}` : ""}${agent.secondContactPointUrl ? ` url=<${agent.secondContactPointUrl}>` : ""}${agent.secondContactPointUrlPath ? ` urlPath=${agent.secondContactPointUrlPath}` : ""}${agent.secondContactPointUrlQuery ? ` urlQuery=${agent.secondContactPointUrlQuery}` : ""}`] : []),
+    ...(agent.secondContactPointCommand ? [`  secondContactPointCommand: ${agent.secondContactPointCommand}`] : []),
+    ...(agent.secondContactPointCommandArgs ? [`  secondContactPointCommandArgs: ${formatCommandArgsText(agent.secondContactPointCommandArgs)}`] : []),
     ...(agent.topEmbedUrl ? [`  topEmbed: path=${agent.topEmbedPath ?? ""}${agent.topEmbedKind ? ` kind=${agent.topEmbedKind}` : ""}${agent.topEmbedTitle ? ` title="${agent.topEmbedTitle}"` : ""}${agent.topEmbedSelector ? ` selector=${agent.topEmbedSelector}` : ""} url=<${agent.topEmbedUrl}>${agent.topEmbedUrlPath ? ` urlPath=${agent.topEmbedUrlPath}` : ""}${agent.topEmbedUrlQuery ? ` urlQuery=${agent.topEmbedUrlQuery}` : ""}`] : []),
     ...(agent.topEmbedCommand ? [`  topEmbedCommand: ${agent.topEmbedCommand}`] : []),
     ...(agent.topEmbedCommandArgs ? [`  topEmbedCommandArgs: ${formatCommandArgsText(agent.topEmbedCommandArgs)}`] : []),
@@ -14373,7 +14387,11 @@ function summarizeAgent(
   const topContactPointCommand = pageCheck.contactPoints[0]?.url && /^https?:\/\//i.test(pageCheck.contactPoints[0].url)
     ? pageCommandSpec(pageCheck.contactPoints[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const secondContactPointCommand = pageCheck.contactPoints[1]?.url && /^https?:\/\//i.test(pageCheck.contactPoints[1].url)
+    ? pageCommandSpec(pageCheck.contactPoints[1].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topContactPointUrlParts = pageCheck.contactPoints[0]?.url ? urlPathParts(pageCheck.contactPoints[0].url) : undefined;
+  const secondContactPointUrlParts = pageCheck.contactPoints[1]?.url ? urlPathParts(pageCheck.contactPoints[1].url) : undefined;
   const topCitationCommand = citations[0]?.url && /^https?:\/\//i.test(citations[0].url)
     ? pageCommandSpec(citations[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -15657,6 +15675,17 @@ function summarizeAgent(
     ...(topContactPointCommand ? { topContactPointCommandArgs: topContactPointCommand.commandArgs } : {}),
     ...(pageCheck.contactPoints[0] ? { topContactPointSource: pageCheck.contactPoints[0].source } : {}),
     ...(pageCheck.contactPoints[0]?.selector ? { topContactPointSelector: pageCheck.contactPoints[0].selector } : {}),
+    ...(pageCheck.contactPoints[1] ? { secondContactPointPath: pageCheck.contactPoints[1].path } : {}),
+    ...(pageCheck.contactPoints[1] ? { secondContactPointKind: pageCheck.contactPoints[1].kind } : {}),
+    ...(pageCheck.contactPoints[1]?.label ? { secondContactPointLabel: pageCheck.contactPoints[1].label } : {}),
+    ...(pageCheck.contactPoints[1]?.value ? { secondContactPointValue: pageCheck.contactPoints[1].value } : {}),
+    ...(pageCheck.contactPoints[1]?.url ? { secondContactPointUrl: pageCheck.contactPoints[1].url } : {}),
+    ...(secondContactPointUrlParts?.urlPath ? { secondContactPointUrlPath: secondContactPointUrlParts.urlPath } : {}),
+    ...(secondContactPointUrlParts?.urlQuery ? { secondContactPointUrlQuery: secondContactPointUrlParts.urlQuery } : {}),
+    ...(secondContactPointCommand ? { secondContactPointCommand: secondContactPointCommand.command } : {}),
+    ...(secondContactPointCommand ? { secondContactPointCommandArgs: secondContactPointCommand.commandArgs } : {}),
+    ...(pageCheck.contactPoints[1] ? { secondContactPointSource: pageCheck.contactPoints[1].source } : {}),
+    ...(pageCheck.contactPoints[1]?.selector ? { secondContactPointSelector: pageCheck.contactPoints[1].selector } : {}),
     structuredReadTargetCount,
     ...(bestStructuredReadTarget ? { bestStructuredReadTarget: bestStructuredReadTarget.path } : {}),
     ...(typeof bestStructuredReadTarget?.count === "number" ? { bestStructuredReadTargetCount: bestStructuredReadTarget.count } : {}),
@@ -22307,6 +22336,17 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topContactPointCommandArgs ? { topContactPointCommandArgs: agent.topContactPointCommandArgs } : {}),
     ...(agent.topContactPointSource ? { topContactPointSource: agent.topContactPointSource } : {}),
     ...(agent.topContactPointSelector ? { topContactPointSelector: agent.topContactPointSelector } : {}),
+    ...(agent.secondContactPointPath ? { secondContactPointPath: agent.secondContactPointPath } : {}),
+    ...(agent.secondContactPointKind ? { secondContactPointKind: agent.secondContactPointKind } : {}),
+    ...(agent.secondContactPointLabel ? { secondContactPointLabel: agent.secondContactPointLabel } : {}),
+    ...(agent.secondContactPointValue ? { secondContactPointValue: agent.secondContactPointValue } : {}),
+    ...(agent.secondContactPointUrl ? { secondContactPointUrl: agent.secondContactPointUrl } : {}),
+    ...(agent.secondContactPointUrlPath ? { secondContactPointUrlPath: agent.secondContactPointUrlPath } : {}),
+    ...(agent.secondContactPointUrlQuery ? { secondContactPointUrlQuery: agent.secondContactPointUrlQuery } : {}),
+    ...(agent.secondContactPointCommand ? { secondContactPointCommand: agent.secondContactPointCommand } : {}),
+    ...(agent.secondContactPointCommandArgs ? { secondContactPointCommandArgs: agent.secondContactPointCommandArgs } : {}),
+    ...(agent.secondContactPointSource ? { secondContactPointSource: agent.secondContactPointSource } : {}),
+    ...(agent.secondContactPointSelector ? { secondContactPointSelector: agent.secondContactPointSelector } : {}),
     structuredReadTargetCount: agent.structuredReadTargetCount,
     ...(agent.bestStructuredReadTarget ? { bestStructuredReadTarget: agent.bestStructuredReadTarget } : {}),
     ...(typeof agent.bestStructuredReadTargetCount === "number" ? { bestStructuredReadTargetCount: agent.bestStructuredReadTargetCount } : {}),
@@ -24058,6 +24098,17 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topContactPointCommandArgs ? { topContactPointCommandArgs: agent.topContactPointCommandArgs } : {}),
     ...(agent.topContactPointSource ? { topContactPointSource: agent.topContactPointSource } : {}),
     ...(agent.topContactPointSelector ? { topContactPointSelector: agent.topContactPointSelector } : {}),
+    ...(agent.secondContactPointPath ? { secondContactPointPath: agent.secondContactPointPath } : {}),
+    ...(agent.secondContactPointKind ? { secondContactPointKind: agent.secondContactPointKind } : {}),
+    ...(agent.secondContactPointLabel ? { secondContactPointLabel: agent.secondContactPointLabel } : {}),
+    ...(agent.secondContactPointValue ? { secondContactPointValue: agent.secondContactPointValue } : {}),
+    ...(agent.secondContactPointUrl ? { secondContactPointUrl: agent.secondContactPointUrl } : {}),
+    ...(agent.secondContactPointUrlPath ? { secondContactPointUrlPath: agent.secondContactPointUrlPath } : {}),
+    ...(agent.secondContactPointUrlQuery ? { secondContactPointUrlQuery: agent.secondContactPointUrlQuery } : {}),
+    ...(agent.secondContactPointCommand ? { secondContactPointCommand: agent.secondContactPointCommand } : {}),
+    ...(agent.secondContactPointCommandArgs ? { secondContactPointCommandArgs: agent.secondContactPointCommandArgs } : {}),
+    ...(agent.secondContactPointSource ? { secondContactPointSource: agent.secondContactPointSource } : {}),
+    ...(agent.secondContactPointSelector ? { secondContactPointSelector: agent.secondContactPointSelector } : {}),
     structuredReadTargetCount: agent.structuredReadTargetCount,
     ...(agent.bestStructuredReadTarget ? { bestStructuredReadTarget: agent.bestStructuredReadTarget } : {}),
     ...(typeof agent.bestStructuredReadTargetCount === "number" ? { bestStructuredReadTargetCount: agent.bestStructuredReadTargetCount } : {}),

@@ -2556,6 +2556,17 @@ export type AgentSummary = {
   topContactPointCommandArgs?: string[];
   topContactPointSource?: string;
   topContactPointSelector?: string;
+  secondContactPointPath?: string;
+  secondContactPointKind?: string;
+  secondContactPointLabel?: string;
+  secondContactPointValue?: string;
+  secondContactPointUrl?: string;
+  secondContactPointUrlPath?: string;
+  secondContactPointUrlQuery?: string;
+  secondContactPointCommand?: string;
+  secondContactPointCommandArgs?: string[];
+  secondContactPointSource?: string;
+  secondContactPointSelector?: string;
   structuredReadTargetCount?: number;
   bestStructuredReadTarget?: string;
   bestStructuredReadTargetCount?: number;

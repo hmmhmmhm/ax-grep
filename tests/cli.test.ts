@@ -11665,6 +11665,16 @@ describe("cli", () => {
       topContactPointValue: "+1-555-0100",
       topContactPointSource: "json-ld",
       topContactPointSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      secondContactPointPath: "pageCheck.contactPoints[1]",
+      secondContactPointKind: "contact-url",
+      secondContactPointLabel: "Support",
+      secondContactPointValue: "https://example.test/support",
+      secondContactPointUrl: "https://example.test/support",
+      secondContactPointUrlPath: "/support",
+      secondContactPointCommand: "ax-grep 'https://example.test/support' --find 'press@example.test' --agent",
+      secondContactPointCommandArgs: ["ax-grep", "https://example.test/support", "--find", "press@example.test", "--agent"],
+      secondContactPointSource: "json-ld",
+      secondContactPointSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.contactPoints",
@@ -11691,6 +11701,7 @@ describe("cli", () => {
       fetch: async () => new Response(`
         <main>
           <a href="mailto:press@example.test">Press team</a>
+          <a href="/support">Support center</a>
         </main>
       `, { headers: { "content-type": "text/html" } }),
     });
@@ -11700,7 +11711,7 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(envelope.agent).toMatchObject({
       contract: { profile: "brief" },
-      contactPointCount: 1,
+      contactPointCount: 2,
       topContactPointPath: "pageCheck.contactPoints[0]",
       topContactPointKind: "email",
       topContactPointLabel: "Press team",
@@ -11708,6 +11719,16 @@ describe("cli", () => {
       topContactPointUrl: "mailto:press@example.test",
       topContactPointSource: "link",
       topContactPointSelector: "a:nth-of-type(1)",
+      secondContactPointPath: "pageCheck.contactPoints[1]",
+      secondContactPointKind: "contact-url",
+      secondContactPointLabel: "Support center",
+      secondContactPointValue: "Support center",
+      secondContactPointUrl: "https://example.test/support",
+      secondContactPointUrlPath: "/support",
+      secondContactPointCommand: "ax-grep 'https://example.test/support' --agent-brief",
+      secondContactPointCommandArgs: ["ax-grep", "https://example.test/support", "--agent-brief"],
+      secondContactPointSource: "html",
+      secondContactPointSelector: "a:nth-of-type(2)",
     });
     expect(envelope.agent.topContactPointCommand).toBeUndefined();
     expect(envelope.agent.topContactPointCommandArgs).toBeUndefined();
@@ -11720,6 +11741,7 @@ describe("cli", () => {
       fetch: async () => new Response(`
         <main>
           <a href="mailto:press@example.test">Press team</a>
+          <a href="/support">Support center</a>
         </main>
       `, { headers: { "content-type": "text/html" } }),
     });
@@ -11727,6 +11749,8 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topContactPoint: path=pageCheck.contactPoints[0] kind=email label=\"Press team\" value=press@example.test source=link selector=a:nth-of-type(1) url=<mailto:press@example.test>");
+    expect(stdout.output).toContain("  secondContactPoint: path=pageCheck.contactPoints[1] kind=contact-url label=\"Support center\" value=Support center source=html selector=a:nth-of-type(2) url=<https://example.test/support> urlPath=/support");
+    expect(stdout.output).toContain("  secondContactPointCommand: ax-grep 'https://example.test/support'");
     expect(stdout.output).toContain("  contactPoint: id=cp1 path=pageCheck.contactPoints[0] kind=email source=link label=\"Press team\" value=press@example.test selector=a:nth-of-type(1) urlPath=press@example.test url=<mailto:press@example.test> - Press team: email press@example.test mailto:press@example.test source=link");
   });
 
