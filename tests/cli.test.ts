@@ -6390,7 +6390,9 @@ describe("cli", () => {
             aria-details="extra-details"
             aria-errormessage="details-error"
             aria-describedby="toggle-help"
+            aria-labelledby="toggle-label"
           >Details</button>
+          <span id="toggle-label" role="note" aria-label="Toggle details">Toggle details</span>
           <section id="details-panel" role="region" aria-label="Details panel">
             Detailed report content.
           </section>
@@ -6473,6 +6475,15 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopDescribedByRelationTargetName: Toggle help");
     expect(stdout.output).toContain("  semanticTopDescribedByRelationTargetSelector: #toggle-help");
     expect(stdout.output).toContain("  semanticTopDescribedByRelationSelector: button");
+    expect(stdout.output).toContain("  semanticTopLabelledByRelation: agent.semanticSummary.relationItems[6] role=button name=\"Toggle details\" target=toggle-label targetRole=note targetName=Toggle details targetSelector=#toggle-label selector=button");
+    expect(stdout.output).toContain("  semanticTopLabelledByRelationRole: button");
+    expect(stdout.output).toContain("  semanticTopLabelledByRelationPath: agent.semanticSummary.relationItems[6]");
+    expect(stdout.output).toContain("  semanticTopLabelledByRelationName: Toggle details");
+    expect(stdout.output).toContain("  semanticTopLabelledByRelationTarget: toggle-label");
+    expect(stdout.output).toContain("  semanticTopLabelledByRelationTargetRole: note");
+    expect(stdout.output).toContain("  semanticTopLabelledByRelationTargetName: Toggle details");
+    expect(stdout.output).toContain("  semanticTopLabelledByRelationTargetSelector: #toggle-label");
+    expect(stdout.output).toContain("  semanticTopLabelledByRelationSelector: button");
   });
 
   it("prints top semantic choice shortcuts in text agent output", async () => {
