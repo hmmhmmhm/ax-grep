@@ -9048,6 +9048,7 @@ describe("cli", () => {
           <head>
             <title>App shell</title>
             <link rel="author" href="/authors/jane" title="Jane Doe">
+            <link rel="author" href="/authors/sam" title="Sam Lee">
             <script>
               fetch("/api/search?q=agent", { method: "POST" });
               fetch("/graphql", { method: "POST" });
@@ -9063,7 +9064,7 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(envelope.agent).toMatchObject({
       contract: { profile: "brief" },
-      authorLinkCount: 1,
+      authorLinkCount: 2,
       topAuthorLinkPath: "pageCheck.authorLinks[0]",
       topAuthorLinkName: "Jane Doe",
       topAuthorLinkUrl: "https://example.test/authors/jane",
@@ -9072,6 +9073,14 @@ describe("cli", () => {
       topAuthorLinkSelector: "link[rel=\"author\"]:nth-of-type(1)",
       topAuthorLinkCommand: "ax-grep 'https://example.test/authors/jane' --agent-brief",
       topAuthorLinkCommandArgs: ["ax-grep", "https://example.test/authors/jane", "--agent-brief"],
+      secondAuthorLinkPath: "pageCheck.authorLinks[1]",
+      secondAuthorLinkName: "Sam Lee",
+      secondAuthorLinkUrl: "https://example.test/authors/sam",
+      secondAuthorLinkUrlPath: "/authors/sam",
+      secondAuthorLinkSource: "link",
+      secondAuthorLinkSelector: "link[rel=\"author\"]:nth-of-type(2)",
+      secondAuthorLinkCommand: "ax-grep 'https://example.test/authors/sam' --agent-brief",
+      secondAuthorLinkCommandArgs: ["ax-grep", "https://example.test/authors/sam", "--agent-brief"],
       bestHiddenReadTarget: "pageCheck.apiEndpoints",
       bestHiddenReadTargetCount: 2,
       bestHiddenReadTargetPrimary: true,

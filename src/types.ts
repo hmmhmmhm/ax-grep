@@ -2419,6 +2419,15 @@ export type AgentSummary = {
   topAuthorLinkSelector?: string;
   topAuthorLinkCommand?: string;
   topAuthorLinkCommandArgs?: string[];
+  secondAuthorLinkPath?: string;
+  secondAuthorLinkName?: string;
+  secondAuthorLinkUrl?: string;
+  secondAuthorLinkUrlPath?: string;
+  secondAuthorLinkUrlQuery?: string;
+  secondAuthorLinkSource?: string;
+  secondAuthorLinkSelector?: string;
+  secondAuthorLinkCommand?: string;
+  secondAuthorLinkCommandArgs?: string[];
   topProvenancePath?: string;
   topProvenanceKind?: string;
   topProvenanceLabel?: string;

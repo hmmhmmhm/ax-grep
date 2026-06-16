@@ -606,6 +606,15 @@ describe("public agent types", () => {
       | "topAuthorLinkSelector"
       | "topAuthorLinkCommand"
       | "topAuthorLinkCommandArgs"
+      | "secondAuthorLinkPath"
+      | "secondAuthorLinkName"
+      | "secondAuthorLinkUrl"
+      | "secondAuthorLinkUrlPath"
+      | "secondAuthorLinkUrlQuery"
+      | "secondAuthorLinkSource"
+      | "secondAuthorLinkSelector"
+      | "secondAuthorLinkCommand"
+      | "secondAuthorLinkCommandArgs"
       | "topProvenancePath"
       | "topProvenanceKind"
       | "topProvenanceLabel"
@@ -2330,6 +2339,15 @@ describe("public agent types", () => {
       topAuthorLinkSelector: "a[rel=\"author\"]",
       topAuthorLinkCommand: "ax-grep 'https://example.test/author' --agent",
       topAuthorLinkCommandArgs: ["ax-grep", "https://example.test/author", "--agent"],
+      secondAuthorLinkPath: "pageCheck.authorLinks[1]",
+      secondAuthorLinkName: "Second Author",
+      secondAuthorLinkUrl: "https://example.test/second-author?profile=1",
+      secondAuthorLinkUrlPath: "/second-author",
+      secondAuthorLinkUrlQuery: "?profile=1",
+      secondAuthorLinkSource: "html",
+      secondAuthorLinkSelector: "a[rel=\"author\"]:nth-of-type(2)",
+      secondAuthorLinkCommand: "ax-grep 'https://example.test/second-author?profile=1' --agent",
+      secondAuthorLinkCommandArgs: ["ax-grep", "https://example.test/second-author?profile=1", "--agent"],
       topProvenancePath: "pageCheck.provenance[0]",
       topProvenanceKind: "doi",
       topProvenanceLabel: "DOI",
@@ -3888,6 +3906,9 @@ describe("public agent types", () => {
     expect(summary.topAuthorLinkUrlPath).toBe("/author");
     expect(summary.topAuthorLinkSelector).toBe("a[rel=\"author\"]");
     expect(summary.topAuthorLinkCommandArgs?.[1]).toBe("https://example.test/author");
+    expect(summary.secondAuthorLinkPath).toBe("pageCheck.authorLinks[1]");
+    expect(summary.secondAuthorLinkUrlPath).toBe("/second-author");
+    expect(summary.secondAuthorLinkCommandArgs?.[1]).toBe("https://example.test/second-author?profile=1");
     expect(summary.topProvenanceUrlPath).toBe("/10.5555/example.2026");
     expect(summary.secondProvenancePath).toBe("pageCheck.provenance[1]");
     expect(summary.secondProvenanceUrlPath).toBe("/12345678/");

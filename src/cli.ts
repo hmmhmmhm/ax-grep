@@ -2051,6 +2051,15 @@ type AgentSummary = {
   topAuthorLinkSelector?: string;
   topAuthorLinkCommand?: string;
   topAuthorLinkCommandArgs?: string[];
+  secondAuthorLinkPath?: string;
+  secondAuthorLinkName?: string;
+  secondAuthorLinkUrl?: string;
+  secondAuthorLinkUrlPath?: string;
+  secondAuthorLinkUrlQuery?: string;
+  secondAuthorLinkSource?: PageAuthorLinkSummary["source"];
+  secondAuthorLinkSelector?: string;
+  secondAuthorLinkCommand?: string;
+  secondAuthorLinkCommandArgs?: string[];
   topProvenancePath?: string;
   topProvenanceKind?: PageProvenanceSummary["kind"];
   topProvenanceLabel?: string;
@@ -4999,6 +5008,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topAuthorLinkUrl ? [`  topAuthorLink: path=${agent.topAuthorLinkPath ?? ""}${agent.topAuthorLinkSource ? ` source=${agent.topAuthorLinkSource}` : ""}${agent.topAuthorLinkName ? ` name="${agent.topAuthorLinkName}"` : ""}${agent.topAuthorLinkSelector ? ` selector=${agent.topAuthorLinkSelector}` : ""} url=<${agent.topAuthorLinkUrl}>${agent.topAuthorLinkUrlPath ? ` urlPath=${agent.topAuthorLinkUrlPath}` : ""}${agent.topAuthorLinkUrlQuery ? ` urlQuery=${agent.topAuthorLinkUrlQuery}` : ""}`] : []),
     ...(agent.topAuthorLinkCommand ? [`  topAuthorLinkCommand: ${agent.topAuthorLinkCommand}`] : []),
     ...(agent.topAuthorLinkCommandArgs ? [`  topAuthorLinkCommandArgs: ${formatCommandArgsText(agent.topAuthorLinkCommandArgs)}`] : []),
+    ...(agent.secondAuthorLinkUrl ? [`  secondAuthorLink: path=${agent.secondAuthorLinkPath ?? ""}${agent.secondAuthorLinkSource ? ` source=${agent.secondAuthorLinkSource}` : ""}${agent.secondAuthorLinkName ? ` name="${agent.secondAuthorLinkName}"` : ""}${agent.secondAuthorLinkSelector ? ` selector=${agent.secondAuthorLinkSelector}` : ""} url=<${agent.secondAuthorLinkUrl}>${agent.secondAuthorLinkUrlPath ? ` urlPath=${agent.secondAuthorLinkUrlPath}` : ""}${agent.secondAuthorLinkUrlQuery ? ` urlQuery=${agent.secondAuthorLinkUrlQuery}` : ""}`] : []),
+    ...(agent.secondAuthorLinkCommand ? [`  secondAuthorLinkCommand: ${agent.secondAuthorLinkCommand}`] : []),
+    ...(agent.secondAuthorLinkCommandArgs ? [`  secondAuthorLinkCommandArgs: ${formatCommandArgsText(agent.secondAuthorLinkCommandArgs)}`] : []),
     `  structuredReadTargetCount: ${agent.structuredReadTargetCount}`,
     ...(agent.bestStructuredReadTarget ? [`  bestStructuredReadTarget: ${agent.bestStructuredReadTarget}`] : []),
     ...(typeof agent.bestStructuredReadTargetCount === "number" ? [`  bestStructuredReadTargetCount: ${agent.bestStructuredReadTargetCount}`] : []),
@@ -14242,7 +14254,11 @@ function summarizeAgent(
   const topAuthorLinkCommand = pageCheck.authorLinks[0]?.url && /^https?:\/\//i.test(pageCheck.authorLinks[0].url)
     ? pageCommandSpec(pageCheck.authorLinks[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const secondAuthorLinkCommand = pageCheck.authorLinks[1]?.url && /^https?:\/\//i.test(pageCheck.authorLinks[1].url)
+    ? pageCommandSpec(pageCheck.authorLinks[1].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topAuthorLinkUrlParts = pageCheck.authorLinks[0]?.url ? urlPathParts(pageCheck.authorLinks[0].url) : undefined;
+  const secondAuthorLinkUrlParts = pageCheck.authorLinks[1]?.url ? urlPathParts(pageCheck.authorLinks[1].url) : undefined;
   const topTranscriptCommand = pageCheck.transcripts[0]?.url && /^https?:\/\//i.test(pageCheck.transcripts[0].url)
     ? pageCommandSpec(pageCheck.transcripts[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -15445,6 +15461,15 @@ function summarizeAgent(
     ...(pageCheck.authorLinks[0]?.selector ? { topAuthorLinkSelector: pageCheck.authorLinks[0].selector } : {}),
     ...(topAuthorLinkCommand ? { topAuthorLinkCommand: topAuthorLinkCommand.command } : {}),
     ...(topAuthorLinkCommand ? { topAuthorLinkCommandArgs: topAuthorLinkCommand.commandArgs } : {}),
+    ...(pageCheck.authorLinks[1] ? { secondAuthorLinkPath: pageCheck.authorLinks[1].path } : {}),
+    ...(pageCheck.authorLinks[1]?.name ? { secondAuthorLinkName: pageCheck.authorLinks[1].name } : {}),
+    ...(pageCheck.authorLinks[1]?.url ? { secondAuthorLinkUrl: pageCheck.authorLinks[1].url } : {}),
+    ...(secondAuthorLinkUrlParts?.urlPath ? { secondAuthorLinkUrlPath: secondAuthorLinkUrlParts.urlPath } : {}),
+    ...(secondAuthorLinkUrlParts?.urlQuery ? { secondAuthorLinkUrlQuery: secondAuthorLinkUrlParts.urlQuery } : {}),
+    ...(pageCheck.authorLinks[1] ? { secondAuthorLinkSource: pageCheck.authorLinks[1].source } : {}),
+    ...(pageCheck.authorLinks[1]?.selector ? { secondAuthorLinkSelector: pageCheck.authorLinks[1].selector } : {}),
+    ...(secondAuthorLinkCommand ? { secondAuthorLinkCommand: secondAuthorLinkCommand.command } : {}),
+    ...(secondAuthorLinkCommand ? { secondAuthorLinkCommandArgs: secondAuthorLinkCommand.commandArgs } : {}),
     ...(pageCheck.provenance[0] ? { topProvenancePath: pageCheck.provenance[0].path } : {}),
     ...(pageCheck.provenance[0] ? { topProvenanceKind: pageCheck.provenance[0].kind } : {}),
     ...(pageCheck.provenance[0]?.label ? { topProvenanceLabel: pageCheck.provenance[0].label } : {}),
@@ -22054,6 +22079,15 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topAuthorLinkSelector ? { topAuthorLinkSelector: agent.topAuthorLinkSelector } : {}),
     ...(agent.topAuthorLinkCommand ? { topAuthorLinkCommand: agent.topAuthorLinkCommand } : {}),
     ...(agent.topAuthorLinkCommandArgs ? { topAuthorLinkCommandArgs: agent.topAuthorLinkCommandArgs } : {}),
+    ...(agent.secondAuthorLinkPath ? { secondAuthorLinkPath: agent.secondAuthorLinkPath } : {}),
+    ...(agent.secondAuthorLinkName ? { secondAuthorLinkName: agent.secondAuthorLinkName } : {}),
+    ...(agent.secondAuthorLinkUrl ? { secondAuthorLinkUrl: agent.secondAuthorLinkUrl } : {}),
+    ...(agent.secondAuthorLinkUrlPath ? { secondAuthorLinkUrlPath: agent.secondAuthorLinkUrlPath } : {}),
+    ...(agent.secondAuthorLinkUrlQuery ? { secondAuthorLinkUrlQuery: agent.secondAuthorLinkUrlQuery } : {}),
+    ...(agent.secondAuthorLinkSource ? { secondAuthorLinkSource: agent.secondAuthorLinkSource } : {}),
+    ...(agent.secondAuthorLinkSelector ? { secondAuthorLinkSelector: agent.secondAuthorLinkSelector } : {}),
+    ...(agent.secondAuthorLinkCommand ? { secondAuthorLinkCommand: agent.secondAuthorLinkCommand } : {}),
+    ...(agent.secondAuthorLinkCommandArgs ? { secondAuthorLinkCommandArgs: agent.secondAuthorLinkCommandArgs } : {}),
     ...(agent.topProvenancePath ? { topProvenancePath: agent.topProvenancePath } : {}),
     ...(agent.topProvenanceKind ? { topProvenanceKind: agent.topProvenanceKind } : {}),
     ...(agent.topProvenanceLabel ? { topProvenanceLabel: agent.topProvenanceLabel } : {}),
@@ -23764,6 +23798,15 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topAuthorLinkSelector ? { topAuthorLinkSelector: agent.topAuthorLinkSelector } : {}),
     ...(agent.topAuthorLinkCommand ? { topAuthorLinkCommand: agent.topAuthorLinkCommand } : {}),
     ...(agent.topAuthorLinkCommandArgs ? { topAuthorLinkCommandArgs: agent.topAuthorLinkCommandArgs } : {}),
+    ...(agent.secondAuthorLinkPath ? { secondAuthorLinkPath: agent.secondAuthorLinkPath } : {}),
+    ...(agent.secondAuthorLinkName ? { secondAuthorLinkName: agent.secondAuthorLinkName } : {}),
+    ...(agent.secondAuthorLinkUrl ? { secondAuthorLinkUrl: agent.secondAuthorLinkUrl } : {}),
+    ...(agent.secondAuthorLinkUrlPath ? { secondAuthorLinkUrlPath: agent.secondAuthorLinkUrlPath } : {}),
+    ...(agent.secondAuthorLinkUrlQuery ? { secondAuthorLinkUrlQuery: agent.secondAuthorLinkUrlQuery } : {}),
+    ...(agent.secondAuthorLinkSource ? { secondAuthorLinkSource: agent.secondAuthorLinkSource } : {}),
+    ...(agent.secondAuthorLinkSelector ? { secondAuthorLinkSelector: agent.secondAuthorLinkSelector } : {}),
+    ...(agent.secondAuthorLinkCommand ? { secondAuthorLinkCommand: agent.secondAuthorLinkCommand } : {}),
+    ...(agent.secondAuthorLinkCommandArgs ? { secondAuthorLinkCommandArgs: agent.secondAuthorLinkCommandArgs } : {}),
     ...(agent.topProvenancePath ? { topProvenancePath: agent.topProvenancePath } : {}),
     ...(agent.topProvenanceKind ? { topProvenanceKind: agent.topProvenanceKind } : {}),
     ...(agent.topProvenanceLabel ? { topProvenanceLabel: agent.topProvenanceLabel } : {}),
