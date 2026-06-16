@@ -306,6 +306,40 @@ describe("public agent types", () => {
       | "topResultChoiceFirstSitelinkCommand"
       | "topResultChoiceFirstSitelinkCommandArgs"
       | "topResultChoiceReason"
+      | "secondResultChoicePath"
+      | "secondResultChoiceTitle"
+      | "secondResultChoiceUrl"
+      | "secondResultChoiceHost"
+      | "secondResultChoiceUrlPath"
+      | "secondResultChoiceUrlQuery"
+      | "secondResultChoiceSnippet"
+      | "secondResultChoiceCommand"
+      | "secondResultChoiceCommandArgs"
+      | "secondResultChoiceRank"
+      | "secondResultChoiceOpenResult"
+      | "secondResultChoiceRecommended"
+      | "secondResultChoicePrimary"
+      | "secondResultChoiceSourceType"
+      | "secondResultChoiceSourceScore"
+      | "secondResultChoiceSourceHints"
+      | "secondResultChoiceDateText"
+      | "secondResultChoiceDateIso"
+      | "secondResultChoiceDateUnixMs"
+      | "secondResultChoiceDatePrecision"
+      | "secondResultChoiceDateSource"
+      | "secondResultChoiceRelevance"
+      | "secondResultChoiceMatchedTerm"
+      | "secondResultChoiceFindMatch"
+      | "secondResultChoiceLikelyOfficial"
+      | "secondResultChoiceSitelinkCount"
+      | "secondResultChoiceFirstSitelinkTitle"
+      | "secondResultChoiceFirstSitelinkUrl"
+      | "secondResultChoiceFirstSitelinkUrlPath"
+      | "secondResultChoiceFirstSitelinkUrlQuery"
+      | "secondResultChoiceFirstSitelinkSelector"
+      | "secondResultChoiceFirstSitelinkCommand"
+      | "secondResultChoiceFirstSitelinkCommandArgs"
+      | "secondResultChoiceReason"
       | "evidenceCount"
       | "formCount"
       | "formChoiceCount"
@@ -2200,6 +2234,39 @@ describe("public agent types", () => {
       topResultChoiceFirstSitelinkCommand: "ax-grep 'https://example.test/result#readme' --agent",
       topResultChoiceFirstSitelinkCommandArgs: ["ax-grep", "https://example.test/result#readme", "--agent"],
       topResultChoiceReason: "High relevance.",
+      secondResultChoicePath: "searchResults[1]",
+      secondResultChoiceTitle: "Backup result",
+      secondResultChoiceUrl: "https://backup.example/result?tab=docs",
+      secondResultChoiceHost: "backup.example",
+      secondResultChoiceUrlPath: "/result",
+      secondResultChoiceUrlQuery: "?tab=docs",
+      secondResultChoiceSnippet: "Backup result summary",
+      secondResultChoiceCommand: "ax-grep --search example --open-result 2 --agent-brief",
+      secondResultChoiceCommandArgs: ["ax-grep", "--search", "example", "--open-result", "2", "--agent-brief"],
+      secondResultChoiceRank: 2,
+      secondResultChoiceOpenResult: 2,
+      secondResultChoiceRecommended: false,
+      secondResultChoicePrimary: false,
+      secondResultChoiceSourceType: "docs",
+      secondResultChoiceSourceScore: 0.8,
+      secondResultChoiceSourceHints: ["documentation"],
+      secondResultChoiceDateText: "2026-06-01",
+      secondResultChoiceDateIso: "2026-06-01T00:00:00.000Z",
+      secondResultChoiceDateUnixMs: Date.parse("2026-06-01T00:00:00.000Z"),
+      secondResultChoiceDatePrecision: "day",
+      secondResultChoiceDateSource: "title",
+      secondResultChoiceRelevance: "medium",
+      secondResultChoiceMatchedTerm: "backup",
+      secondResultChoiceFindMatch: "Backup result",
+      secondResultChoiceLikelyOfficial: false,
+      secondResultChoiceSitelinkCount: 1,
+      secondResultChoiceFirstSitelinkTitle: "Docs",
+      secondResultChoiceFirstSitelinkUrl: "https://backup.example/result#docs",
+      secondResultChoiceFirstSitelinkUrlPath: "/result",
+      secondResultChoiceFirstSitelinkSelector: "a.backup",
+      secondResultChoiceFirstSitelinkCommand: "ax-grep 'https://backup.example/result#docs' --agent",
+      secondResultChoiceFirstSitelinkCommandArgs: ["ax-grep", "https://backup.example/result#docs", "--agent"],
+      secondResultChoiceReason: "Backup relevance.",
       evidenceCount: 1,
       formCount: 1,
       formChoiceCount: 1,
@@ -4297,6 +4364,32 @@ describe("public agent types", () => {
     expect(summary.topResultChoiceSnippet).toBe("Result summary");
     expect(summary.topResultChoiceCommand).toContain("--open-result 1");
     expect(summary.topResultChoiceCommandArgs?.[0]).toBe("ax-grep");
+    expect(summary.secondResultChoicePath).toBe("searchResults[1]");
+    expect(summary.secondResultChoiceUrlPath).toBe("/result");
+    expect(summary.secondResultChoiceUrlQuery).toBe("?tab=docs");
+    expect(summary.secondResultChoiceSnippet).toBe("Backup result summary");
+    expect(summary.secondResultChoiceCommand).toContain("--open-result 2");
+    expect(summary.secondResultChoiceCommandArgs?.[0]).toBe("ax-grep");
+    expect(summary.secondResultChoiceRank).toBe(2);
+    expect(summary.secondResultChoiceOpenResult).toBe(2);
+    expect(summary.secondResultChoiceRecommended).toBe(false);
+    expect(summary.secondResultChoicePrimary).toBe(false);
+    expect(summary.secondResultChoiceSourceType).toBe("docs");
+    expect(summary.secondResultChoiceSourceScore).toBe(0.8);
+    expect(summary.secondResultChoiceSourceHints).toEqual(["documentation"]);
+    expect(summary.secondResultChoiceDateText).toBe("2026-06-01");
+    expect(summary.secondResultChoiceDateIso).toBe("2026-06-01T00:00:00.000Z");
+    expect(summary.secondResultChoiceDateUnixMs).toBe(Date.parse("2026-06-01T00:00:00.000Z"));
+    expect(summary.secondResultChoiceDatePrecision).toBe("day");
+    expect(summary.secondResultChoiceDateSource).toBe("title");
+    expect(summary.secondResultChoiceRelevance).toBe("medium");
+    expect(summary.secondResultChoiceMatchedTerm).toBe("backup");
+    expect(summary.secondResultChoiceFindMatch).toBe("Backup result");
+    expect(summary.secondResultChoiceLikelyOfficial).toBe(false);
+    expect(summary.secondResultChoiceSitelinkCount).toBe(1);
+    expect(summary.secondResultChoiceFirstSitelinkTitle).toBe("Docs");
+    expect(summary.secondResultChoiceFirstSitelinkUrlPath).toBe("/result");
+    expect(summary.secondResultChoiceFirstSitelinkCommand).toContain("backup.example/result#docs");
     expect(summary.topSourceChoicePath).toBe("pageCheck.sourceLinks[0]");
     expect(summary.topSourceChoiceUrlPath).toBe("/report");
     expect(summary.topSourceChoiceUrlQuery).toBe("?ref=docs");

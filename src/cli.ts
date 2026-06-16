@@ -1751,6 +1751,40 @@ type AgentSummary = {
   topResultChoiceFirstSitelinkCommand?: string;
   topResultChoiceFirstSitelinkCommandArgs?: string[];
   topResultChoiceReason?: string;
+  secondResultChoicePath?: string;
+  secondResultChoiceTitle?: string;
+  secondResultChoiceUrl?: string;
+  secondResultChoiceHost?: string;
+  secondResultChoiceUrlPath?: string;
+  secondResultChoiceUrlQuery?: string;
+  secondResultChoiceSnippet?: string;
+  secondResultChoiceCommand?: string;
+  secondResultChoiceCommandArgs?: string[];
+  secondResultChoiceRank?: number;
+  secondResultChoiceOpenResult?: AgentResultChoice["openResult"];
+  secondResultChoiceRecommended?: boolean;
+  secondResultChoicePrimary?: boolean;
+  secondResultChoiceSourceType?: string;
+  secondResultChoiceSourceScore?: number;
+  secondResultChoiceSourceHints?: string[];
+  secondResultChoiceDateText?: string;
+  secondResultChoiceDateIso?: string;
+  secondResultChoiceDateUnixMs?: number;
+  secondResultChoiceDatePrecision?: AgentResultChoice["datePrecision"];
+  secondResultChoiceDateSource?: AgentResultChoice["dateSource"];
+  secondResultChoiceRelevance?: AgentResultChoice["relevance"];
+  secondResultChoiceMatchedTerm?: string;
+  secondResultChoiceFindMatch?: string;
+  secondResultChoiceLikelyOfficial?: boolean;
+  secondResultChoiceSitelinkCount?: number;
+  secondResultChoiceFirstSitelinkTitle?: string;
+  secondResultChoiceFirstSitelinkUrl?: string;
+  secondResultChoiceFirstSitelinkUrlPath?: string;
+  secondResultChoiceFirstSitelinkUrlQuery?: string;
+  secondResultChoiceFirstSitelinkSelector?: string;
+  secondResultChoiceFirstSitelinkCommand?: string;
+  secondResultChoiceFirstSitelinkCommandArgs?: string[];
+  secondResultChoiceReason?: string;
   evidenceCount: number;
   formCount: number;
   formChoiceCount: number;
@@ -4937,6 +4971,40 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topResultChoiceFirstSitelinkCommand ? [`  topResultChoiceFirstSitelinkCommand: ${agent.topResultChoiceFirstSitelinkCommand}`] : []),
     ...(agent.topResultChoiceFirstSitelinkCommandArgs ? [`  topResultChoiceFirstSitelinkCommandArgs: ${JSON.stringify(agent.topResultChoiceFirstSitelinkCommandArgs)}`] : []),
     ...(agent.topResultChoiceReason ? [`  topResultChoiceReason: ${agent.topResultChoiceReason}`] : []),
+    ...(agent.secondResultChoicePath ? [`  secondResultChoicePath: ${agent.secondResultChoicePath}`] : []),
+    ...(agent.secondResultChoiceUrl ? [`  secondResultChoiceUrl: ${agent.secondResultChoiceUrl}`] : []),
+    ...(agent.secondResultChoiceHost ? [`  secondResultChoiceHost: ${agent.secondResultChoiceHost}`] : []),
+    ...(agent.secondResultChoiceUrlPath ? [`  secondResultChoiceUrlPath: ${agent.secondResultChoiceUrlPath}`] : []),
+    ...(agent.secondResultChoiceUrlQuery ? [`  secondResultChoiceUrlQuery: ${agent.secondResultChoiceUrlQuery}`] : []),
+    ...(agent.secondResultChoiceTitle ? [`  secondResultChoiceTitle: ${agent.secondResultChoiceTitle}`] : []),
+    ...(agent.secondResultChoiceSnippet ? [`  secondResultChoiceSnippet: ${agent.secondResultChoiceSnippet}`] : []),
+    ...(agent.secondResultChoiceCommand ? [`  secondResultChoiceCommand: ${agent.secondResultChoiceCommand}`] : []),
+    ...(agent.secondResultChoiceCommandArgs ? [`  secondResultChoiceCommandArgs: ${JSON.stringify(agent.secondResultChoiceCommandArgs)}`] : []),
+    ...(typeof agent.secondResultChoiceRank === "number" ? [`  secondResultChoiceRank: ${agent.secondResultChoiceRank}`] : []),
+    ...(agent.secondResultChoiceOpenResult ? [`  secondResultChoiceOpenResult: ${agent.secondResultChoiceOpenResult}`] : []),
+    ...(typeof agent.secondResultChoiceRecommended === "boolean" ? [`  secondResultChoiceRecommended: ${agent.secondResultChoiceRecommended}`] : []),
+    ...(typeof agent.secondResultChoicePrimary === "boolean" ? [`  secondResultChoicePrimary: ${agent.secondResultChoicePrimary}`] : []),
+    ...(agent.secondResultChoiceSourceType ? [`  secondResultChoiceSourceType: ${agent.secondResultChoiceSourceType}`] : []),
+    ...(typeof agent.secondResultChoiceSourceScore === "number" ? [`  secondResultChoiceSourceScore: ${agent.secondResultChoiceSourceScore}`] : []),
+    ...(agent.secondResultChoiceSourceHints?.length ? [`  secondResultChoiceSourceHints: ${agent.secondResultChoiceSourceHints.join(",")}`] : []),
+    ...(agent.secondResultChoiceDateText ? [`  secondResultChoiceDateText: ${agent.secondResultChoiceDateText}`] : []),
+    ...(agent.secondResultChoiceDateIso ? [`  secondResultChoiceDateIso: ${agent.secondResultChoiceDateIso}`] : []),
+    ...(typeof agent.secondResultChoiceDateUnixMs === "number" ? [`  secondResultChoiceDateUnixMs: ${agent.secondResultChoiceDateUnixMs}`] : []),
+    ...(agent.secondResultChoiceDatePrecision ? [`  secondResultChoiceDatePrecision: ${agent.secondResultChoiceDatePrecision}`] : []),
+    ...(agent.secondResultChoiceDateSource ? [`  secondResultChoiceDateSource: ${agent.secondResultChoiceDateSource}`] : []),
+    ...(agent.secondResultChoiceRelevance ? [`  secondResultChoiceRelevance: ${agent.secondResultChoiceRelevance}`] : []),
+    ...(agent.secondResultChoiceMatchedTerm ? [`  secondResultChoiceMatchedTerm: ${agent.secondResultChoiceMatchedTerm}`] : []),
+    ...(agent.secondResultChoiceFindMatch ? [`  secondResultChoiceFindMatch: ${agent.secondResultChoiceFindMatch}`] : []),
+    ...(typeof agent.secondResultChoiceLikelyOfficial === "boolean" ? [`  secondResultChoiceLikelyOfficial: ${agent.secondResultChoiceLikelyOfficial}`] : []),
+    ...(typeof agent.secondResultChoiceSitelinkCount === "number" ? [`  secondResultChoiceSitelinkCount: ${agent.secondResultChoiceSitelinkCount}`] : []),
+    ...(agent.secondResultChoiceFirstSitelinkTitle ? [`  secondResultChoiceFirstSitelinkTitle: ${agent.secondResultChoiceFirstSitelinkTitle}`] : []),
+    ...(agent.secondResultChoiceFirstSitelinkUrl ? [`  secondResultChoiceFirstSitelinkUrl: ${agent.secondResultChoiceFirstSitelinkUrl}`] : []),
+    ...(agent.secondResultChoiceFirstSitelinkUrlPath ? [`  secondResultChoiceFirstSitelinkUrlPath: ${agent.secondResultChoiceFirstSitelinkUrlPath}`] : []),
+    ...(agent.secondResultChoiceFirstSitelinkUrlQuery ? [`  secondResultChoiceFirstSitelinkUrlQuery: ${agent.secondResultChoiceFirstSitelinkUrlQuery}`] : []),
+    ...(agent.secondResultChoiceFirstSitelinkSelector ? [`  secondResultChoiceFirstSitelinkSelector: ${agent.secondResultChoiceFirstSitelinkSelector}`] : []),
+    ...(agent.secondResultChoiceFirstSitelinkCommand ? [`  secondResultChoiceFirstSitelinkCommand: ${agent.secondResultChoiceFirstSitelinkCommand}`] : []),
+    ...(agent.secondResultChoiceFirstSitelinkCommandArgs ? [`  secondResultChoiceFirstSitelinkCommandArgs: ${JSON.stringify(agent.secondResultChoiceFirstSitelinkCommandArgs)}`] : []),
+    ...(agent.secondResultChoiceReason ? [`  secondResultChoiceReason: ${agent.secondResultChoiceReason}`] : []),
     `  evidenceCount: ${agent.evidenceCount}`,
     `  formCount: ${agent.formCount}`,
     `  formChoiceCount: ${agent.formChoiceCount}`,
@@ -14410,6 +14478,7 @@ function summarizeAgent(
   const pageDecision = summarizeAgentPageDecision(analysis, pageCheck, primaryAction);
   const resultChoices = summarizeAgentResultChoices(hasUsableSearchResults ? results : [], recommendedResult, primaryAction, sourceSearch, agentMode, findQueries, timeoutMs, userAgent);
   const topResultChoiceUrlParts = resultChoices[0]?.url ? urlPathParts(resultChoices[0].url) : undefined;
+  const secondResultChoiceUrlParts = resultChoices[1]?.url ? urlPathParts(resultChoices[1].url) : undefined;
   const sourceChoices = summarizeAgentSourceChoices(analysis.kind, pageCheck.sourceLinks, primaryAction, agentMode, findQueries, timeoutMs, userAgent);
   const topSourceChoiceUrlParts = sourceChoices[0]?.url ? urlPathParts(sourceChoices[0].url) : undefined;
   const secondSourceChoiceUrlParts = sourceChoices[1]?.url ? urlPathParts(sourceChoices[1].url) : undefined;
@@ -14460,6 +14529,8 @@ function summarizeAgent(
   const sourceSearchAlternateChoices = sourceSearchAgent?.alternateResults ?? [];
   const topResultChoiceFirstSitelinkCommand = firstSitelinkCommandSpec(resultChoices[0]?.sitelinks?.[0], agentMode, findQueries, timeoutMs, userAgent);
   const topResultChoiceFirstSitelinkUrlParts = resultChoices[0]?.sitelinks?.[0]?.url ? urlPathParts(resultChoices[0].sitelinks[0].url) : undefined;
+  const secondResultChoiceFirstSitelinkCommand = firstSitelinkCommandSpec(resultChoices[1]?.sitelinks?.[0], agentMode, findQueries, timeoutMs, userAgent);
+  const secondResultChoiceFirstSitelinkUrlParts = resultChoices[1]?.sitelinks?.[0]?.url ? urlPathParts(resultChoices[1].sitelinks[0].url) : undefined;
   const sourceSearchFindQueries = sourceSearch?.findQueries ?? findQueries;
   const sourceSearchSelectedUrlParts = sourceSearch?.selectedUrl ? urlPathParts(sourceSearch.selectedUrl) : undefined;
   const sourceSearchAlternateUrlParts = sourceSearchAlternateResult?.url ? urlPathParts(sourceSearchAlternateResult.url) : undefined;
@@ -15454,6 +15525,40 @@ function summarizeAgent(
     ...(topResultChoiceFirstSitelinkCommand ? { topResultChoiceFirstSitelinkCommand: topResultChoiceFirstSitelinkCommand.command } : {}),
     ...(topResultChoiceFirstSitelinkCommand ? { topResultChoiceFirstSitelinkCommandArgs: topResultChoiceFirstSitelinkCommand.commandArgs } : {}),
     ...(resultChoices[0]?.selectionReason ? { topResultChoiceReason: resultChoices[0].selectionReason } : {}),
+    ...(resultChoices[1] ? { secondResultChoicePath: resultChoices[1].path } : {}),
+    ...(resultChoices[1]?.title ? { secondResultChoiceTitle: resultChoices[1].title } : {}),
+    ...(resultChoices[1]?.url ? { secondResultChoiceUrl: resultChoices[1].url } : {}),
+    ...(resultChoices[1]?.host ? { secondResultChoiceHost: resultChoices[1].host } : {}),
+    ...(secondResultChoiceUrlParts?.urlPath ? { secondResultChoiceUrlPath: secondResultChoiceUrlParts.urlPath } : {}),
+    ...(secondResultChoiceUrlParts?.urlQuery ? { secondResultChoiceUrlQuery: secondResultChoiceUrlParts.urlQuery } : {}),
+    ...(resultChoices[1]?.snippet ? { secondResultChoiceSnippet: resultChoices[1].snippet } : {}),
+    ...(resultChoices[1]?.command ? { secondResultChoiceCommand: resultChoices[1].command } : {}),
+    ...(resultChoices[1]?.commandArgs ? { secondResultChoiceCommandArgs: resultChoices[1].commandArgs } : {}),
+    ...(typeof resultChoices[1]?.rank === "number" ? { secondResultChoiceRank: resultChoices[1].rank } : {}),
+    ...(resultChoices[1]?.openResult ? { secondResultChoiceOpenResult: resultChoices[1].openResult } : {}),
+    ...(typeof resultChoices[1]?.recommended === "boolean" ? { secondResultChoiceRecommended: resultChoices[1].recommended } : {}),
+    ...(resultChoices[1] ? { secondResultChoicePrimary: resultChoices[1].primary === true } : {}),
+    ...(resultChoices[1]?.sourceType ? { secondResultChoiceSourceType: resultChoices[1].sourceType } : {}),
+    ...(typeof resultChoices[1]?.sourceScore === "number" ? { secondResultChoiceSourceScore: resultChoices[1].sourceScore } : {}),
+    ...(resultChoices[1]?.sourceHints?.length ? { secondResultChoiceSourceHints: resultChoices[1].sourceHints } : {}),
+    ...(resultChoices[1]?.dateText ? { secondResultChoiceDateText: resultChoices[1].dateText } : {}),
+    ...(resultChoices[1]?.dateIso ? { secondResultChoiceDateIso: resultChoices[1].dateIso } : {}),
+    ...(typeof resultChoices[1]?.dateUnixMs === "number" ? { secondResultChoiceDateUnixMs: resultChoices[1].dateUnixMs } : {}),
+    ...(resultChoices[1]?.datePrecision ? { secondResultChoiceDatePrecision: resultChoices[1].datePrecision } : {}),
+    ...(resultChoices[1]?.dateSource ? { secondResultChoiceDateSource: resultChoices[1].dateSource } : {}),
+    ...(resultChoices[1]?.relevance ? { secondResultChoiceRelevance: resultChoices[1].relevance } : {}),
+    ...(resultChoices[1]?.matchedTerms?.[0] ? { secondResultChoiceMatchedTerm: resultChoices[1].matchedTerms[0] } : {}),
+    ...(resultChoices[1]?.findMatches?.[0] ? { secondResultChoiceFindMatch: resultChoices[1].findMatches[0] } : {}),
+    ...(typeof resultChoices[1]?.isLikelyOfficial === "boolean" ? { secondResultChoiceLikelyOfficial: resultChoices[1].isLikelyOfficial } : {}),
+    ...(resultChoices[1]?.sitelinks?.length ? { secondResultChoiceSitelinkCount: resultChoices[1].sitelinks.length } : {}),
+    ...(resultChoices[1]?.sitelinks?.[0]?.title ? { secondResultChoiceFirstSitelinkTitle: resultChoices[1].sitelinks[0].title } : {}),
+    ...(resultChoices[1]?.sitelinks?.[0]?.url ? { secondResultChoiceFirstSitelinkUrl: resultChoices[1].sitelinks[0].url } : {}),
+    ...(secondResultChoiceFirstSitelinkUrlParts?.urlPath ? { secondResultChoiceFirstSitelinkUrlPath: secondResultChoiceFirstSitelinkUrlParts.urlPath } : {}),
+    ...(secondResultChoiceFirstSitelinkUrlParts?.urlQuery ? { secondResultChoiceFirstSitelinkUrlQuery: secondResultChoiceFirstSitelinkUrlParts.urlQuery } : {}),
+    ...(resultChoices[1]?.sitelinks?.[0]?.selector ? { secondResultChoiceFirstSitelinkSelector: resultChoices[1].sitelinks[0].selector } : {}),
+    ...(secondResultChoiceFirstSitelinkCommand ? { secondResultChoiceFirstSitelinkCommand: secondResultChoiceFirstSitelinkCommand.command } : {}),
+    ...(secondResultChoiceFirstSitelinkCommand ? { secondResultChoiceFirstSitelinkCommandArgs: secondResultChoiceFirstSitelinkCommand.commandArgs } : {}),
+    ...(resultChoices[1]?.selectionReason ? { secondResultChoiceReason: resultChoices[1].selectionReason } : {}),
     evidenceCount: pageCheck.contentEvidence.length,
     formCount: pageCheck.forms.length,
     formChoices,
@@ -22228,6 +22333,40 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topResultChoiceFirstSitelinkCommand ? { topResultChoiceFirstSitelinkCommand: agent.topResultChoiceFirstSitelinkCommand } : {}),
     ...(agent.topResultChoiceFirstSitelinkCommandArgs ? { topResultChoiceFirstSitelinkCommandArgs: agent.topResultChoiceFirstSitelinkCommandArgs } : {}),
     ...(agent.topResultChoiceReason ? { topResultChoiceReason: agent.topResultChoiceReason } : {}),
+    ...(agent.secondResultChoicePath ? { secondResultChoicePath: agent.secondResultChoicePath } : {}),
+    ...(agent.secondResultChoiceTitle ? { secondResultChoiceTitle: agent.secondResultChoiceTitle } : {}),
+    ...(agent.secondResultChoiceUrl ? { secondResultChoiceUrl: agent.secondResultChoiceUrl } : {}),
+    ...(agent.secondResultChoiceHost ? { secondResultChoiceHost: agent.secondResultChoiceHost } : {}),
+    ...(agent.secondResultChoiceUrlPath ? { secondResultChoiceUrlPath: agent.secondResultChoiceUrlPath } : {}),
+    ...(agent.secondResultChoiceUrlQuery ? { secondResultChoiceUrlQuery: agent.secondResultChoiceUrlQuery } : {}),
+    ...(agent.secondResultChoiceSnippet ? { secondResultChoiceSnippet: agent.secondResultChoiceSnippet } : {}),
+    ...(agent.secondResultChoiceCommand ? { secondResultChoiceCommand: agent.secondResultChoiceCommand } : agent.resultChoices[1] ? { secondResultChoiceCommand: compactAgentResultChoice(agent.resultChoices[1], searchCommandContext, pageLinkContext).command } : {}),
+    ...(agent.secondResultChoiceCommandArgs ? { secondResultChoiceCommandArgs: agent.secondResultChoiceCommandArgs } : agent.resultChoices[1] ? { secondResultChoiceCommandArgs: compactAgentResultChoice(agent.resultChoices[1], searchCommandContext, pageLinkContext).commandArgs } : {}),
+    ...(typeof agent.secondResultChoiceRank === "number" ? { secondResultChoiceRank: agent.secondResultChoiceRank } : {}),
+    ...(agent.secondResultChoiceOpenResult ? { secondResultChoiceOpenResult: agent.secondResultChoiceOpenResult } : agent.resultChoices[1] ? { secondResultChoiceOpenResult: compactAgentResultChoice(agent.resultChoices[1], searchCommandContext, pageLinkContext).openResult } : {}),
+    ...(typeof agent.secondResultChoiceRecommended === "boolean" ? { secondResultChoiceRecommended: agent.secondResultChoiceRecommended } : {}),
+    ...(typeof agent.secondResultChoicePrimary === "boolean" ? { secondResultChoicePrimary: agent.secondResultChoicePrimary } : {}),
+    ...(agent.secondResultChoiceSourceType ? { secondResultChoiceSourceType: agent.secondResultChoiceSourceType } : {}),
+    ...(typeof agent.secondResultChoiceSourceScore === "number" ? { secondResultChoiceSourceScore: agent.secondResultChoiceSourceScore } : {}),
+    ...(agent.secondResultChoiceSourceHints?.length ? { secondResultChoiceSourceHints: agent.secondResultChoiceSourceHints } : {}),
+    ...(agent.secondResultChoiceDateText ? { secondResultChoiceDateText: agent.secondResultChoiceDateText } : {}),
+    ...(agent.secondResultChoiceDateIso ? { secondResultChoiceDateIso: agent.secondResultChoiceDateIso } : {}),
+    ...(typeof agent.secondResultChoiceDateUnixMs === "number" ? { secondResultChoiceDateUnixMs: agent.secondResultChoiceDateUnixMs } : {}),
+    ...(agent.secondResultChoiceDatePrecision ? { secondResultChoiceDatePrecision: agent.secondResultChoiceDatePrecision } : {}),
+    ...(agent.secondResultChoiceDateSource ? { secondResultChoiceDateSource: agent.secondResultChoiceDateSource } : {}),
+    ...(agent.secondResultChoiceRelevance ? { secondResultChoiceRelevance: agent.secondResultChoiceRelevance } : {}),
+    ...(agent.secondResultChoiceMatchedTerm ? { secondResultChoiceMatchedTerm: agent.secondResultChoiceMatchedTerm } : {}),
+    ...(agent.secondResultChoiceFindMatch ? { secondResultChoiceFindMatch: agent.secondResultChoiceFindMatch } : {}),
+    ...(typeof agent.secondResultChoiceLikelyOfficial === "boolean" ? { secondResultChoiceLikelyOfficial: agent.secondResultChoiceLikelyOfficial } : {}),
+    ...(typeof agent.secondResultChoiceSitelinkCount === "number" ? { secondResultChoiceSitelinkCount: agent.secondResultChoiceSitelinkCount } : {}),
+    ...(agent.secondResultChoiceFirstSitelinkTitle ? { secondResultChoiceFirstSitelinkTitle: agent.secondResultChoiceFirstSitelinkTitle } : {}),
+    ...(agent.secondResultChoiceFirstSitelinkUrl ? { secondResultChoiceFirstSitelinkUrl: agent.secondResultChoiceFirstSitelinkUrl } : {}),
+    ...(agent.secondResultChoiceFirstSitelinkUrlPath ? { secondResultChoiceFirstSitelinkUrlPath: agent.secondResultChoiceFirstSitelinkUrlPath } : {}),
+    ...(agent.secondResultChoiceFirstSitelinkUrlQuery ? { secondResultChoiceFirstSitelinkUrlQuery: agent.secondResultChoiceFirstSitelinkUrlQuery } : {}),
+    ...(agent.secondResultChoiceFirstSitelinkSelector ? { secondResultChoiceFirstSitelinkSelector: agent.secondResultChoiceFirstSitelinkSelector } : {}),
+    ...(agent.secondResultChoiceFirstSitelinkCommand ? { secondResultChoiceFirstSitelinkCommand: agent.secondResultChoiceFirstSitelinkCommand } : {}),
+    ...(agent.secondResultChoiceFirstSitelinkCommandArgs ? { secondResultChoiceFirstSitelinkCommandArgs: agent.secondResultChoiceFirstSitelinkCommandArgs } : {}),
+    ...(agent.secondResultChoiceReason ? { secondResultChoiceReason: agent.secondResultChoiceReason } : {}),
     evidenceCount: agent.evidenceCount,
     formCount: agent.formCount,
     formChoiceCount: agent.formChoiceCount,
@@ -24099,6 +24238,40 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topResultChoiceFirstSitelinkCommand ? { topResultChoiceFirstSitelinkCommand: agent.topResultChoiceFirstSitelinkCommand } : {}),
     ...(agent.topResultChoiceFirstSitelinkCommandArgs ? { topResultChoiceFirstSitelinkCommandArgs: agent.topResultChoiceFirstSitelinkCommandArgs } : {}),
     ...(agent.topResultChoiceReason ? { topResultChoiceReason: agent.topResultChoiceReason } : {}),
+    ...(agent.secondResultChoicePath ? { secondResultChoicePath: agent.secondResultChoicePath } : {}),
+    ...(agent.secondResultChoiceTitle ? { secondResultChoiceTitle: agent.secondResultChoiceTitle } : {}),
+    ...(agent.secondResultChoiceUrl ? { secondResultChoiceUrl: agent.secondResultChoiceUrl } : {}),
+    ...(agent.secondResultChoiceHost ? { secondResultChoiceHost: agent.secondResultChoiceHost } : {}),
+    ...(agent.secondResultChoiceUrlPath ? { secondResultChoiceUrlPath: agent.secondResultChoiceUrlPath } : {}),
+    ...(agent.secondResultChoiceUrlQuery ? { secondResultChoiceUrlQuery: agent.secondResultChoiceUrlQuery } : {}),
+    ...(agent.secondResultChoiceSnippet ? { secondResultChoiceSnippet: agent.secondResultChoiceSnippet } : {}),
+    ...(agent.secondResultChoiceCommand ? { secondResultChoiceCommand: agent.secondResultChoiceCommand } : agent.resultChoices[1] ? { secondResultChoiceCommand: compactAgentResultChoice(agent.resultChoices[1], searchCommandContext, pageLinkContext).command } : {}),
+    ...(agent.secondResultChoiceCommandArgs ? { secondResultChoiceCommandArgs: agent.secondResultChoiceCommandArgs } : agent.resultChoices[1] ? { secondResultChoiceCommandArgs: compactAgentResultChoice(agent.resultChoices[1], searchCommandContext, pageLinkContext).commandArgs } : {}),
+    ...(typeof agent.secondResultChoiceRank === "number" ? { secondResultChoiceRank: agent.secondResultChoiceRank } : {}),
+    ...(agent.secondResultChoiceOpenResult ? { secondResultChoiceOpenResult: agent.secondResultChoiceOpenResult } : agent.resultChoices[1] ? { secondResultChoiceOpenResult: compactAgentResultChoice(agent.resultChoices[1], searchCommandContext, pageLinkContext).openResult } : {}),
+    ...(typeof agent.secondResultChoiceRecommended === "boolean" ? { secondResultChoiceRecommended: agent.secondResultChoiceRecommended } : {}),
+    ...(typeof agent.secondResultChoicePrimary === "boolean" ? { secondResultChoicePrimary: agent.secondResultChoicePrimary } : {}),
+    ...(agent.secondResultChoiceSourceType ? { secondResultChoiceSourceType: agent.secondResultChoiceSourceType } : {}),
+    ...(typeof agent.secondResultChoiceSourceScore === "number" ? { secondResultChoiceSourceScore: agent.secondResultChoiceSourceScore } : {}),
+    ...(agent.secondResultChoiceSourceHints?.length ? { secondResultChoiceSourceHints: agent.secondResultChoiceSourceHints } : {}),
+    ...(agent.secondResultChoiceDateText ? { secondResultChoiceDateText: agent.secondResultChoiceDateText } : {}),
+    ...(agent.secondResultChoiceDateIso ? { secondResultChoiceDateIso: agent.secondResultChoiceDateIso } : {}),
+    ...(typeof agent.secondResultChoiceDateUnixMs === "number" ? { secondResultChoiceDateUnixMs: agent.secondResultChoiceDateUnixMs } : {}),
+    ...(agent.secondResultChoiceDatePrecision ? { secondResultChoiceDatePrecision: agent.secondResultChoiceDatePrecision } : {}),
+    ...(agent.secondResultChoiceDateSource ? { secondResultChoiceDateSource: agent.secondResultChoiceDateSource } : {}),
+    ...(agent.secondResultChoiceRelevance ? { secondResultChoiceRelevance: agent.secondResultChoiceRelevance } : {}),
+    ...(agent.secondResultChoiceMatchedTerm ? { secondResultChoiceMatchedTerm: agent.secondResultChoiceMatchedTerm } : {}),
+    ...(agent.secondResultChoiceFindMatch ? { secondResultChoiceFindMatch: agent.secondResultChoiceFindMatch } : {}),
+    ...(typeof agent.secondResultChoiceLikelyOfficial === "boolean" ? { secondResultChoiceLikelyOfficial: agent.secondResultChoiceLikelyOfficial } : {}),
+    ...(typeof agent.secondResultChoiceSitelinkCount === "number" ? { secondResultChoiceSitelinkCount: agent.secondResultChoiceSitelinkCount } : {}),
+    ...(agent.secondResultChoiceFirstSitelinkTitle ? { secondResultChoiceFirstSitelinkTitle: agent.secondResultChoiceFirstSitelinkTitle } : {}),
+    ...(agent.secondResultChoiceFirstSitelinkUrl ? { secondResultChoiceFirstSitelinkUrl: agent.secondResultChoiceFirstSitelinkUrl } : {}),
+    ...(agent.secondResultChoiceFirstSitelinkUrlPath ? { secondResultChoiceFirstSitelinkUrlPath: agent.secondResultChoiceFirstSitelinkUrlPath } : {}),
+    ...(agent.secondResultChoiceFirstSitelinkUrlQuery ? { secondResultChoiceFirstSitelinkUrlQuery: agent.secondResultChoiceFirstSitelinkUrlQuery } : {}),
+    ...(agent.secondResultChoiceFirstSitelinkSelector ? { secondResultChoiceFirstSitelinkSelector: agent.secondResultChoiceFirstSitelinkSelector } : {}),
+    ...(agent.secondResultChoiceFirstSitelinkCommand ? { secondResultChoiceFirstSitelinkCommand: agent.secondResultChoiceFirstSitelinkCommand } : {}),
+    ...(agent.secondResultChoiceFirstSitelinkCommandArgs ? { secondResultChoiceFirstSitelinkCommandArgs: agent.secondResultChoiceFirstSitelinkCommandArgs } : {}),
+    ...(agent.secondResultChoiceReason ? { secondResultChoiceReason: agent.secondResultChoiceReason } : {}),
     evidenceCount: agent.evidenceCount,
     formCount: agent.formCount,
     formChoiceCount: agent.formChoiceCount,

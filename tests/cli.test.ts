@@ -1484,6 +1484,11 @@ describe("cli", () => {
                 <p>agent browser comparison details</p>
                 <a href="https://result.example/docs">Docs sitelink</a>
               </li>
+              <li class="b_algo">
+                <h2><a href="https://backup.example/">Backup agent browser result</a></h2>
+                <p>backup agent browser comparison details</p>
+                <a href="https://backup.example/docs">Backup docs sitelink</a>
+              </li>
             </ol>
           </main>
         `,
@@ -1793,6 +1798,7 @@ describe("cli", () => {
         if (alternativeAction?.target?.text) expect(envelope.agent.alternativeActionTargetText).toBe(alternativeAction.target.text);
       }
       const topResultChoice = envelope.agent.resultChoices?.[0] ?? handoff.resultChoices?.[0];
+      const secondResultChoice = envelope.agent.resultChoices?.[1] ?? handoff.resultChoices?.[1];
       const topSourceChoice = envelope.agent.sourceChoices?.[0] ?? handoff.sourceChoices?.[0];
       const secondSourceChoice = envelope.agent.sourceChoices?.[1] ?? handoff.sourceChoices?.[1];
       const topFormChoice = envelope.agent.formChoices?.[0];
@@ -1851,6 +1857,36 @@ describe("cli", () => {
           expect(envelope.agent.topResultChoiceFirstSitelinkCommandArgs[0]).toBe("ax-grep");
           expect(envelope.agent.topResultChoiceFirstSitelinkCommandArgs[1]).toBe(topResultChoice.sitelinks[0].url);
           expect(envelope.agent.topResultChoiceFirstSitelinkCommandArgs).toContain(agentFlag);
+        }
+        if (secondResultChoice) {
+          expect(envelope.agent.secondResultChoicePath).toBe(secondResultChoice.path);
+          expect(envelope.agent.secondResultChoiceUrl).toBe(secondResultChoice.url);
+          if (secondResultChoice.url?.startsWith("http")) {
+            const secondResultUrl = new URL(secondResultChoice.url);
+            expect(envelope.agent.secondResultChoiceUrlPath).toBe(secondResultUrl.pathname || "/");
+            if (secondResultUrl.search) expect(envelope.agent.secondResultChoiceUrlQuery).toBe(secondResultUrl.search);
+          }
+          if (secondResultChoice.command) expect(envelope.agent.secondResultChoiceCommand).toBe(secondResultChoice.command);
+          if (secondResultChoice.commandArgs) expect(envelope.agent.secondResultChoiceCommandArgs).toEqual(secondResultChoice.commandArgs);
+          if (secondResultChoice.title) expect(envelope.agent.secondResultChoiceTitle).toBe(secondResultChoice.title);
+          if (secondResultChoice.host) expect(envelope.agent.secondResultChoiceHost).toBe(secondResultChoice.host);
+          if (secondResultChoice.snippet) expect(envelope.agent.secondResultChoiceSnippet).toBe(secondResultChoice.snippet);
+          if (typeof secondResultChoice.rank === "number") expect(envelope.agent.secondResultChoiceRank).toBe(secondResultChoice.rank);
+          if (secondResultChoice.openResult) expect(envelope.agent.secondResultChoiceOpenResult).toBe(secondResultChoice.openResult);
+          if (secondResultChoice.sourceType) expect(envelope.agent.secondResultChoiceSourceType).toBe(secondResultChoice.sourceType);
+          if (typeof secondResultChoice.sourceScore === "number") expect(envelope.agent.secondResultChoiceSourceScore).toBe(secondResultChoice.sourceScore);
+          if (secondResultChoice.sourceHints) expect(envelope.agent.secondResultChoiceSourceHints).toEqual(secondResultChoice.sourceHints);
+          if (secondResultChoice.relevance) expect(envelope.agent.secondResultChoiceRelevance).toBe(secondResultChoice.relevance);
+          if (secondResultChoice.selectionReason) expect(envelope.agent.secondResultChoiceReason).toBe(secondResultChoice.selectionReason);
+          expect(envelope.agent.secondResultChoicePrimary).toBe(secondResultChoice.primary === true);
+          if (secondResultChoice.sitelinks?.[0]?.title) expect(envelope.agent.secondResultChoiceFirstSitelinkTitle).toBe(secondResultChoice.sitelinks[0].title);
+          if (secondResultChoice.sitelinks?.[0]?.url) {
+            const secondSitelinkUrl = new URL(secondResultChoice.sitelinks[0].url);
+            expect(envelope.agent.secondResultChoiceFirstSitelinkUrl).toBe(secondResultChoice.sitelinks[0].url);
+            expect(envelope.agent.secondResultChoiceFirstSitelinkUrlPath).toBe(secondSitelinkUrl.pathname);
+            if (secondResultChoice.sitelinks[0].command) expect(envelope.agent.secondResultChoiceFirstSitelinkCommand).toBe(secondResultChoice.sitelinks[0].command);
+            if (secondResultChoice.sitelinks[0].commandArgs) expect(envelope.agent.secondResultChoiceFirstSitelinkCommandArgs).toEqual(secondResultChoice.sitelinks[0].commandArgs);
+          }
         }
       } else if (topSourceChoice) {
         expect(envelope.agent.topChoiceKind).toBe("source");
@@ -1937,6 +1973,12 @@ describe("cli", () => {
             snippet: expect.stringContaining("agent browser comparison details"),
             primary: true,
             commandArgs: ["ax-grep", "https://result.example/", "--agent-brief"],
+          }),
+          expect.objectContaining({
+            path: "searchResults[1]",
+            url: "https://backup.example/",
+            snippet: expect.stringContaining("backup agent browser comparison details"),
+            commandArgs: ["ax-grep", "https://backup.example/", "--agent-brief"],
           }),
         ]);
       }
