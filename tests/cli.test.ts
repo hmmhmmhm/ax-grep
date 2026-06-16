@@ -13064,6 +13064,14 @@ npx ax-grep https://example.test --agent</code></pre>
       topEmbedSelector: "iframe:nth-of-type(1)",
       topEmbedCommand: "ax-grep 'https://example.test/embed/dashboard?region=us' --agent",
       topEmbedCommandArgs: ["ax-grep", "https://example.test/embed/dashboard?region=us", "--agent"],
+      secondEmbedPath: "pageCheck.embeds[1]",
+      secondEmbedKind: "video",
+      secondEmbedUrl: "https://example.test/media/walkthrough.mp4",
+      secondEmbedUrlPath: "/media/walkthrough.mp4",
+      secondEmbedTitle: "Product walkthrough",
+      secondEmbedSelector: "video:nth-of-type(2)",
+      secondEmbedCommand: "ax-grep 'https://example.test/media/walkthrough.mp4' --agent",
+      secondEmbedCommandArgs: ["ax-grep", "https://example.test/media/walkthrough.mp4", "--agent"],
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",

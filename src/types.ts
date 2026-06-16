@@ -2371,6 +2371,15 @@ export type AgentSummary = {
   topEmbedSelector?: string;
   topEmbedCommand?: string;
   topEmbedCommandArgs?: string[];
+  secondEmbedPath?: string;
+  secondEmbedKind?: string;
+  secondEmbedUrl?: string;
+  secondEmbedUrlPath?: string;
+  secondEmbedUrlQuery?: string;
+  secondEmbedTitle?: string;
+  secondEmbedSelector?: string;
+  secondEmbedCommand?: string;
+  secondEmbedCommandArgs?: string[];
   topTranscriptPath?: string;
   topTranscriptKind?: string;
   topTranscriptUrl?: string;

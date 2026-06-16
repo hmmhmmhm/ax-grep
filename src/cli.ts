@@ -2003,6 +2003,15 @@ type AgentSummary = {
   topEmbedSelector?: string;
   topEmbedCommand?: string;
   topEmbedCommandArgs?: string[];
+  secondEmbedPath?: string;
+  secondEmbedKind?: PageEmbedSummary["kind"];
+  secondEmbedUrl?: string;
+  secondEmbedUrlPath?: string;
+  secondEmbedUrlQuery?: string;
+  secondEmbedTitle?: string;
+  secondEmbedSelector?: string;
+  secondEmbedCommand?: string;
+  secondEmbedCommandArgs?: string[];
   topTranscriptPath?: string;
   topTranscriptKind?: PageTranscriptSummary["kind"];
   topTranscriptUrl?: string;
@@ -4941,6 +4950,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topEmbedUrl ? [`  topEmbed: path=${agent.topEmbedPath ?? ""}${agent.topEmbedKind ? ` kind=${agent.topEmbedKind}` : ""}${agent.topEmbedTitle ? ` title="${agent.topEmbedTitle}"` : ""}${agent.topEmbedSelector ? ` selector=${agent.topEmbedSelector}` : ""} url=<${agent.topEmbedUrl}>${agent.topEmbedUrlPath ? ` urlPath=${agent.topEmbedUrlPath}` : ""}${agent.topEmbedUrlQuery ? ` urlQuery=${agent.topEmbedUrlQuery}` : ""}`] : []),
     ...(agent.topEmbedCommand ? [`  topEmbedCommand: ${agent.topEmbedCommand}`] : []),
     ...(agent.topEmbedCommandArgs ? [`  topEmbedCommandArgs: ${formatCommandArgsText(agent.topEmbedCommandArgs)}`] : []),
+    ...(agent.secondEmbedUrl ? [`  secondEmbed: path=${agent.secondEmbedPath ?? ""}${agent.secondEmbedKind ? ` kind=${agent.secondEmbedKind}` : ""}${agent.secondEmbedTitle ? ` title="${agent.secondEmbedTitle}"` : ""}${agent.secondEmbedSelector ? ` selector=${agent.secondEmbedSelector}` : ""} url=<${agent.secondEmbedUrl}>${agent.secondEmbedUrlPath ? ` urlPath=${agent.secondEmbedUrlPath}` : ""}${agent.secondEmbedUrlQuery ? ` urlQuery=${agent.secondEmbedUrlQuery}` : ""}`] : []),
+    ...(agent.secondEmbedCommand ? [`  secondEmbedCommand: ${agent.secondEmbedCommand}`] : []),
+    ...(agent.secondEmbedCommandArgs ? [`  secondEmbedCommandArgs: ${formatCommandArgsText(agent.secondEmbedCommandArgs)}`] : []),
     ...(agent.topTranscriptUrl ? [`  topTranscript: path=${agent.topTranscriptPath ?? ""}${agent.topTranscriptKind ? ` kind=${agent.topTranscriptKind}` : ""}${agent.topTranscriptLabel ? ` label="${agent.topTranscriptLabel}"` : ""}${agent.topTranscriptLanguage ? ` lang=${agent.topTranscriptLanguage}` : ""}${agent.topTranscriptSelector ? ` selector=${agent.topTranscriptSelector}` : ""} url=<${agent.topTranscriptUrl}>${agent.topTranscriptUrlPath ? ` urlPath=${agent.topTranscriptUrlPath}` : ""}${agent.topTranscriptUrlQuery ? ` urlQuery=${agent.topTranscriptUrlQuery}` : ""}`] : []),
     ...(agent.topTranscriptCommand ? [`  topTranscriptCommand: ${agent.topTranscriptCommand}`] : []),
     ...(agent.topTranscriptCommandArgs ? [`  topTranscriptCommandArgs: ${formatCommandArgsText(agent.topTranscriptCommandArgs)}`] : []),
@@ -14198,7 +14210,11 @@ function summarizeAgent(
   const topEmbedCommand = pageCheck.embeds[0]?.url && /^https?:\/\//i.test(pageCheck.embeds[0].url)
     ? pageCommandSpec(pageCheck.embeds[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const secondEmbedCommand = pageCheck.embeds[1]?.url && /^https?:\/\//i.test(pageCheck.embeds[1].url)
+    ? pageCommandSpec(pageCheck.embeds[1].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topEmbedUrlParts = pageCheck.embeds[0]?.url ? urlPathParts(pageCheck.embeds[0].url) : undefined;
+  const secondEmbedUrlParts = pageCheck.embeds[1]?.url ? urlPathParts(pageCheck.embeds[1].url) : undefined;
   const topDatasetCommand = pageCheck.datasets[0]?.url && /^https?:\/\//i.test(pageCheck.datasets[0].url)
     ? pageCommandSpec(pageCheck.datasets[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -15329,6 +15345,15 @@ function summarizeAgent(
     ...(pageCheck.embeds[0]?.selector ? { topEmbedSelector: pageCheck.embeds[0].selector } : {}),
     ...(topEmbedCommand ? { topEmbedCommand: topEmbedCommand.command } : {}),
     ...(topEmbedCommand ? { topEmbedCommandArgs: topEmbedCommand.commandArgs } : {}),
+    ...(pageCheck.embeds[1] ? { secondEmbedPath: pageCheck.embeds[1].path } : {}),
+    ...(pageCheck.embeds[1] ? { secondEmbedKind: pageCheck.embeds[1].kind } : {}),
+    ...(pageCheck.embeds[1]?.url ? { secondEmbedUrl: pageCheck.embeds[1].url } : {}),
+    ...(secondEmbedUrlParts?.urlPath ? { secondEmbedUrlPath: secondEmbedUrlParts.urlPath } : {}),
+    ...(secondEmbedUrlParts?.urlQuery ? { secondEmbedUrlQuery: secondEmbedUrlParts.urlQuery } : {}),
+    ...(pageCheck.embeds[1]?.title ? { secondEmbedTitle: pageCheck.embeds[1].title } : {}),
+    ...(pageCheck.embeds[1]?.selector ? { secondEmbedSelector: pageCheck.embeds[1].selector } : {}),
+    ...(secondEmbedCommand ? { secondEmbedCommand: secondEmbedCommand.command } : {}),
+    ...(secondEmbedCommand ? { secondEmbedCommandArgs: secondEmbedCommand.commandArgs } : {}),
     ...(pageCheck.transcripts[0] ? { topTranscriptPath: pageCheck.transcripts[0].path } : {}),
     ...(pageCheck.transcripts[0] ? { topTranscriptKind: pageCheck.transcripts[0].kind } : {}),
     ...(pageCheck.transcripts[0]?.url ? { topTranscriptUrl: pageCheck.transcripts[0].url } : {}),
@@ -21898,6 +21923,15 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topEmbedSelector ? { topEmbedSelector: agent.topEmbedSelector } : {}),
     ...(agent.topEmbedCommand ? { topEmbedCommand: agent.topEmbedCommand } : {}),
     ...(agent.topEmbedCommandArgs ? { topEmbedCommandArgs: agent.topEmbedCommandArgs } : {}),
+    ...(agent.secondEmbedPath ? { secondEmbedPath: agent.secondEmbedPath } : {}),
+    ...(agent.secondEmbedKind ? { secondEmbedKind: agent.secondEmbedKind } : {}),
+    ...(agent.secondEmbedUrl ? { secondEmbedUrl: agent.secondEmbedUrl } : {}),
+    ...(agent.secondEmbedUrlPath ? { secondEmbedUrlPath: agent.secondEmbedUrlPath } : {}),
+    ...(agent.secondEmbedUrlQuery ? { secondEmbedUrlQuery: agent.secondEmbedUrlQuery } : {}),
+    ...(agent.secondEmbedTitle ? { secondEmbedTitle: agent.secondEmbedTitle } : {}),
+    ...(agent.secondEmbedSelector ? { secondEmbedSelector: agent.secondEmbedSelector } : {}),
+    ...(agent.secondEmbedCommand ? { secondEmbedCommand: agent.secondEmbedCommand } : {}),
+    ...(agent.secondEmbedCommandArgs ? { secondEmbedCommandArgs: agent.secondEmbedCommandArgs } : {}),
     ...(agent.topTranscriptPath ? { topTranscriptPath: agent.topTranscriptPath } : {}),
     ...(agent.topTranscriptKind ? { topTranscriptKind: agent.topTranscriptKind } : {}),
     ...(agent.topTranscriptUrl ? { topTranscriptUrl: agent.topTranscriptUrl } : {}),
@@ -23568,6 +23602,15 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topEmbedSelector ? { topEmbedSelector: agent.topEmbedSelector } : {}),
     ...(agent.topEmbedCommand ? { topEmbedCommand: agent.topEmbedCommand } : {}),
     ...(agent.topEmbedCommandArgs ? { topEmbedCommandArgs: agent.topEmbedCommandArgs } : {}),
+    ...(agent.secondEmbedPath ? { secondEmbedPath: agent.secondEmbedPath } : {}),
+    ...(agent.secondEmbedKind ? { secondEmbedKind: agent.secondEmbedKind } : {}),
+    ...(agent.secondEmbedUrl ? { secondEmbedUrl: agent.secondEmbedUrl } : {}),
+    ...(agent.secondEmbedUrlPath ? { secondEmbedUrlPath: agent.secondEmbedUrlPath } : {}),
+    ...(agent.secondEmbedUrlQuery ? { secondEmbedUrlQuery: agent.secondEmbedUrlQuery } : {}),
+    ...(agent.secondEmbedTitle ? { secondEmbedTitle: agent.secondEmbedTitle } : {}),
+    ...(agent.secondEmbedSelector ? { secondEmbedSelector: agent.secondEmbedSelector } : {}),
+    ...(agent.secondEmbedCommand ? { secondEmbedCommand: agent.secondEmbedCommand } : {}),
+    ...(agent.secondEmbedCommandArgs ? { secondEmbedCommandArgs: agent.secondEmbedCommandArgs } : {}),
     ...(agent.topTranscriptPath ? { topTranscriptPath: agent.topTranscriptPath } : {}),
     ...(agent.topTranscriptKind ? { topTranscriptKind: agent.topTranscriptKind } : {}),
     ...(agent.topTranscriptUrl ? { topTranscriptUrl: agent.topTranscriptUrl } : {}),

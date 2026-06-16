@@ -558,6 +558,15 @@ describe("public agent types", () => {
       | "topEmbedSelector"
       | "topEmbedCommand"
       | "topEmbedCommandArgs"
+      | "secondEmbedPath"
+      | "secondEmbedKind"
+      | "secondEmbedUrl"
+      | "secondEmbedUrlPath"
+      | "secondEmbedUrlQuery"
+      | "secondEmbedTitle"
+      | "secondEmbedSelector"
+      | "secondEmbedCommand"
+      | "secondEmbedCommandArgs"
       | "topTranscriptPath"
       | "topTranscriptKind"
       | "topTranscriptUrl"
@@ -2244,6 +2253,15 @@ describe("public agent types", () => {
       topEmbedSelector: "iframe:nth-of-type(1)",
       topEmbedCommand: "ax-grep 'https://example.test/embed' --agent",
       topEmbedCommandArgs: ["ax-grep", "https://example.test/embed", "--agent"],
+      secondEmbedPath: "pageCheck.embeds[1]",
+      secondEmbedKind: "video",
+      secondEmbedUrl: "https://example.test/media/walkthrough.mp4?download=1",
+      secondEmbedUrlPath: "/media/walkthrough.mp4",
+      secondEmbedUrlQuery: "?download=1",
+      secondEmbedTitle: "Product walkthrough",
+      secondEmbedSelector: "video:nth-of-type(2)",
+      secondEmbedCommand: "ax-grep 'https://example.test/media/walkthrough.mp4?download=1' --agent",
+      secondEmbedCommandArgs: ["ax-grep", "https://example.test/media/walkthrough.mp4?download=1", "--agent"],
       topTranscriptPath: "pageCheck.transcripts[0]",
       topTranscriptKind: "transcript",
       topTranscriptUrl: "https://example.test/transcript.txt",
@@ -3791,6 +3809,9 @@ describe("public agent types", () => {
     expect(summary.topEmbedUrlPath).toBe("/embed");
     expect(summary.topEmbedSelector).toBe("iframe:nth-of-type(1)");
     expect(summary.topEmbedCommandArgs?.[1]).toBe("https://example.test/embed");
+    expect(summary.secondEmbedPath).toBe("pageCheck.embeds[1]");
+    expect(summary.secondEmbedUrlPath).toBe("/media/walkthrough.mp4");
+    expect(summary.secondEmbedCommandArgs?.[1]).toBe("https://example.test/media/walkthrough.mp4?download=1");
     expect(summary.topTranscriptPath).toBe("pageCheck.transcripts[0]");
     expect(summary.topTranscriptUrlPath).toBe("/transcript.txt");
     expect(summary.topTranscriptSelector).toBe("a[href=\"/transcript.txt\"]");
