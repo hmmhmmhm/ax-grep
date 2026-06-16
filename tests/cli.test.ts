@@ -1512,6 +1512,10 @@ describe("cli", () => {
               <input name="query" type="search" aria-label="Archive search">
               <button>Search</button>
             </form>
+            <form method="POST" action="/advanced?scope=docs">
+              <input name="term" type="search" aria-label="Advanced search" placeholder="Advanced docs" required aria-invalid="spelling">
+              <button type="submit" name="advanced" value="1">Advanced</button>
+            </form>
           </main>
         `,
       },
@@ -1802,6 +1806,7 @@ describe("cli", () => {
       const topSourceChoice = envelope.agent.sourceChoices?.[0] ?? handoff.sourceChoices?.[0];
       const secondSourceChoice = envelope.agent.sourceChoices?.[1] ?? handoff.sourceChoices?.[1];
       const topFormChoice = envelope.agent.formChoices?.[0];
+      const secondFormChoice = envelope.agent.formChoices?.[1];
       const topActionTargetChoice = envelope.agent.actionTargetChoices?.[0];
       if (topResultChoice) {
         expect(envelope.agent.topChoiceKind).toBe("result");
@@ -1927,6 +1932,42 @@ describe("cli", () => {
         if (topFormChoice.queryField) expect(envelope.agent.topChoiceQueryField).toBe(topFormChoice.queryField);
         if (typeof topFormChoice.submitDisabled === "boolean") expect(envelope.agent.topChoiceSubmitDisabled).toBe(topFormChoice.submitDisabled);
         if (topFormChoice.selector) expect(envelope.agent.topChoiceSelector).toBe(topFormChoice.selector);
+        if (secondFormChoice) {
+          expect(envelope.agent.secondFormChoicePath).toBe(secondFormChoice.path);
+          expect(envelope.agent.secondFormChoiceMethod).toBe(secondFormChoice.method);
+          if (secondFormChoice.actionUrl) {
+            expect(envelope.agent.secondFormChoiceActionUrl).toBe(secondFormChoice.actionUrl);
+            const secondFormActionUrl = new URL(secondFormChoice.actionUrl);
+            expect(envelope.agent.secondFormChoiceActionUrlPath).toBe(secondFormActionUrl.pathname || "/");
+            if (secondFormActionUrl.search) expect(envelope.agent.secondFormChoiceActionUrlQuery).toBe(secondFormActionUrl.search);
+          }
+          if (secondFormChoice.urlTemplate) {
+            expect(envelope.agent.secondFormChoiceUrlTemplate).toBe(secondFormChoice.urlTemplate);
+            const secondFormUrlTemplate = new URL(secondFormChoice.urlTemplate);
+            expect(envelope.agent.secondFormChoiceUrlTemplatePath).toBe(secondFormUrlTemplate.pathname || "/");
+            if (secondFormUrlTemplate.search) expect(envelope.agent.secondFormChoiceUrlTemplateQuery).toBe(secondFormUrlTemplate.search);
+          }
+          if (secondFormChoice.queryField) expect(envelope.agent.secondFormChoiceQueryField).toBe(secondFormChoice.queryField);
+          if (secondFormChoice.command) expect(envelope.agent.secondFormChoiceCommand).toBe(secondFormChoice.command);
+          if (secondFormChoice.commandArgs) expect(envelope.agent.secondFormChoiceCommandArgs).toEqual(secondFormChoice.commandArgs);
+          if (typeof secondFormChoice.fieldCount === "number") expect(envelope.agent.secondFormChoiceFieldCount).toBe(secondFormChoice.fieldCount);
+          if (typeof secondFormChoice.hiddenFieldCount === "number") expect(envelope.agent.secondFormChoiceHiddenFieldCount).toBe(secondFormChoice.hiddenFieldCount);
+          if (secondFormChoice.selector) expect(envelope.agent.secondFormChoiceSelector).toBe(secondFormChoice.selector);
+          if (secondFormChoice.submitText) expect(envelope.agent.secondFormChoiceSubmitText).toBe(secondFormChoice.submitText);
+          if (secondFormChoice.submitType) expect(envelope.agent.secondFormChoiceSubmitType).toBe(secondFormChoice.submitType);
+          if (secondFormChoice.submitName) expect(envelope.agent.secondFormChoiceSubmitName).toBe(secondFormChoice.submitName);
+          if (secondFormChoice.submitValue) expect(envelope.agent.secondFormChoiceSubmitValue).toBe(secondFormChoice.submitValue);
+          if (typeof secondFormChoice.submitDisabled === "boolean") expect(envelope.agent.secondFormChoiceSubmitDisabled).toBe(secondFormChoice.submitDisabled);
+          if (secondFormChoice.submitSelector) expect(envelope.agent.secondFormChoiceSubmitSelector).toBe(secondFormChoice.submitSelector);
+          const secondField = secondFormChoice.fields?.[0];
+          if (secondField?.name) expect(envelope.agent.secondFormChoiceFirstFieldName).toBe(secondField.name);
+          if (secondField?.type) expect(envelope.agent.secondFormChoiceFirstFieldType).toBe(secondField.type);
+          if (secondField?.label) expect(envelope.agent.secondFormChoiceFirstFieldLabel).toBe(secondField.label);
+          if (secondField?.placeholder) expect(envelope.agent.secondFormChoiceFirstFieldPlaceholder).toBe(secondField.placeholder);
+          if (typeof secondField?.required === "boolean") expect(envelope.agent.secondFormChoiceFirstFieldRequired).toBe(secondField.required);
+          if (typeof secondField?.invalid !== "undefined") expect(envelope.agent.secondFormChoiceFirstFieldInvalid).toBe(secondField.invalid);
+          if (secondField?.selector) expect(envelope.agent.secondFormChoiceFirstFieldSelector).toBe(secondField.selector);
+        }
       } else if (topActionTargetChoice) {
         expect(envelope.agent.topChoiceKind).toBe("action-target");
         expect(envelope.agent.topChoicePath).toBe(topActionTargetChoice.path);

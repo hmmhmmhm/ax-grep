@@ -1875,6 +1875,33 @@ type AgentSummary = {
   topFormChoiceInvalidFieldLabel?: string;
   topFormChoiceInvalidFieldInvalid?: SemanticNodeState["invalid"];
   topFormChoiceInvalidFieldSelector?: string;
+  secondFormChoicePath?: string;
+  secondFormChoiceMethod?: string;
+  secondFormChoiceActionUrl?: string;
+  secondFormChoiceActionUrlPath?: string;
+  secondFormChoiceActionUrlQuery?: string;
+  secondFormChoiceUrlTemplate?: string;
+  secondFormChoiceUrlTemplatePath?: string;
+  secondFormChoiceUrlTemplateQuery?: string;
+  secondFormChoiceQueryField?: string;
+  secondFormChoiceCommand?: string;
+  secondFormChoiceCommandArgs?: string[];
+  secondFormChoiceFieldCount?: number;
+  secondFormChoiceHiddenFieldCount?: number;
+  secondFormChoiceSelector?: string;
+  secondFormChoiceSubmitText?: string;
+  secondFormChoiceSubmitType?: string;
+  secondFormChoiceSubmitName?: string;
+  secondFormChoiceSubmitValue?: string;
+  secondFormChoiceSubmitDisabled?: boolean;
+  secondFormChoiceSubmitSelector?: string;
+  secondFormChoiceFirstFieldName?: string;
+  secondFormChoiceFirstFieldType?: string;
+  secondFormChoiceFirstFieldLabel?: string;
+  secondFormChoiceFirstFieldPlaceholder?: string;
+  secondFormChoiceFirstFieldRequired?: boolean;
+  secondFormChoiceFirstFieldInvalid?: SemanticNodeState["invalid"];
+  secondFormChoiceFirstFieldSelector?: string;
   actionTargetCount: number;
   actionTargetChoiceCount: number;
   actionTargetChoices: AgentActionTargetChoice[];
@@ -5101,6 +5128,33 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topFormChoiceInvalidFieldLabel ? [`  topFormChoiceInvalidFieldLabel: ${agent.topFormChoiceInvalidFieldLabel}`] : []),
     ...(typeof agent.topFormChoiceInvalidFieldInvalid !== "undefined" ? [`  topFormChoiceInvalidFieldInvalid: ${agent.topFormChoiceInvalidFieldInvalid}`] : []),
     ...(agent.topFormChoiceInvalidFieldSelector ? [`  topFormChoiceInvalidFieldSelector: ${agent.topFormChoiceInvalidFieldSelector}`] : []),
+    ...(agent.secondFormChoicePath ? [`  secondFormChoicePath: ${agent.secondFormChoicePath}`] : []),
+    ...(agent.secondFormChoiceMethod ? [`  secondFormChoiceMethod: ${agent.secondFormChoiceMethod}`] : []),
+    ...(agent.secondFormChoiceActionUrl ? [`  secondFormChoiceActionUrl: ${agent.secondFormChoiceActionUrl}`] : []),
+    ...(agent.secondFormChoiceActionUrlPath ? [`  secondFormChoiceActionUrlPath: ${agent.secondFormChoiceActionUrlPath}`] : []),
+    ...(agent.secondFormChoiceActionUrlQuery ? [`  secondFormChoiceActionUrlQuery: ${agent.secondFormChoiceActionUrlQuery}`] : []),
+    ...(agent.secondFormChoiceUrlTemplate ? [`  secondFormChoiceUrlTemplate: ${agent.secondFormChoiceUrlTemplate}`] : []),
+    ...(agent.secondFormChoiceUrlTemplatePath ? [`  secondFormChoiceUrlTemplatePath: ${agent.secondFormChoiceUrlTemplatePath}`] : []),
+    ...(agent.secondFormChoiceUrlTemplateQuery ? [`  secondFormChoiceUrlTemplateQuery: ${agent.secondFormChoiceUrlTemplateQuery}`] : []),
+    ...(agent.secondFormChoiceQueryField ? [`  secondFormChoiceQueryField: ${agent.secondFormChoiceQueryField}`] : []),
+    ...(agent.secondFormChoiceCommand ? [`  secondFormChoiceCommand: ${agent.secondFormChoiceCommand}`] : []),
+    ...(agent.secondFormChoiceCommandArgs ? [`  secondFormChoiceCommandArgs: ${formatCommandArgsText(agent.secondFormChoiceCommandArgs)}`] : []),
+    ...(typeof agent.secondFormChoiceFieldCount === "number" ? [`  secondFormChoiceFieldCount: ${agent.secondFormChoiceFieldCount}`] : []),
+    ...(typeof agent.secondFormChoiceHiddenFieldCount === "number" ? [`  secondFormChoiceHiddenFieldCount: ${agent.secondFormChoiceHiddenFieldCount}`] : []),
+    ...(agent.secondFormChoiceSelector ? [`  secondFormChoiceSelector: ${agent.secondFormChoiceSelector}`] : []),
+    ...(agent.secondFormChoiceSubmitText ? [`  secondFormChoiceSubmitText: ${agent.secondFormChoiceSubmitText}`] : []),
+    ...(agent.secondFormChoiceSubmitType ? [`  secondFormChoiceSubmitType: ${agent.secondFormChoiceSubmitType}`] : []),
+    ...(agent.secondFormChoiceSubmitName ? [`  secondFormChoiceSubmitName: ${agent.secondFormChoiceSubmitName}`] : []),
+    ...(agent.secondFormChoiceSubmitValue ? [`  secondFormChoiceSubmitValue: ${agent.secondFormChoiceSubmitValue}`] : []),
+    ...(typeof agent.secondFormChoiceSubmitDisabled === "boolean" ? [`  secondFormChoiceSubmitDisabled: ${agent.secondFormChoiceSubmitDisabled}`] : []),
+    ...(agent.secondFormChoiceSubmitSelector ? [`  secondFormChoiceSubmitSelector: ${agent.secondFormChoiceSubmitSelector}`] : []),
+    ...(agent.secondFormChoiceFirstFieldName ? [`  secondFormChoiceFirstFieldName: ${agent.secondFormChoiceFirstFieldName}`] : []),
+    ...(agent.secondFormChoiceFirstFieldType ? [`  secondFormChoiceFirstFieldType: ${agent.secondFormChoiceFirstFieldType}`] : []),
+    ...(agent.secondFormChoiceFirstFieldLabel ? [`  secondFormChoiceFirstFieldLabel: ${agent.secondFormChoiceFirstFieldLabel}`] : []),
+    ...(agent.secondFormChoiceFirstFieldPlaceholder ? [`  secondFormChoiceFirstFieldPlaceholder: ${agent.secondFormChoiceFirstFieldPlaceholder}`] : []),
+    ...(typeof agent.secondFormChoiceFirstFieldRequired === "boolean" ? [`  secondFormChoiceFirstFieldRequired: ${agent.secondFormChoiceFirstFieldRequired}`] : []),
+    ...(typeof agent.secondFormChoiceFirstFieldInvalid !== "undefined" ? [`  secondFormChoiceFirstFieldInvalid: ${agent.secondFormChoiceFirstFieldInvalid}`] : []),
+    ...(agent.secondFormChoiceFirstFieldSelector ? [`  secondFormChoiceFirstFieldSelector: ${agent.secondFormChoiceFirstFieldSelector}`] : []),
     ...(agent.topActionTargetChoicePath ? [`  topActionTargetChoicePath: ${agent.topActionTargetChoicePath}`] : []),
     ...(agent.topActionTargetChoiceKind ? [`  topActionTargetChoiceKind: ${agent.topActionTargetChoiceKind}`] : []),
     ...(agent.topActionTargetChoiceName ? [`  topActionTargetChoiceName: ${agent.topActionTargetChoiceName}`] : []),
@@ -14484,10 +14538,14 @@ function summarizeAgent(
   const secondSourceChoiceUrlParts = sourceChoices[1]?.url ? urlPathParts(sourceChoices[1].url) : undefined;
   const formChoices = summarizeAgentFormChoices(pageCheck.forms, findQueries, agentMode, timeoutMs, userAgent);
   const topFormChoice = formChoices[0];
+  const secondFormChoice = formChoices[1];
   const topFormChoiceActionUrlParts = topFormChoice?.actionUrl ? urlPathParts(topFormChoice.actionUrl) : undefined;
   const topFormChoiceSubmitFormActionUrlParts = topFormChoice?.submitFormActionUrl ? urlPathParts(topFormChoice.submitFormActionUrl) : undefined;
   const topFormChoiceUrlTemplateParts = topFormChoice?.urlTemplate ? urlPathParts(topFormChoice.urlTemplate) : undefined;
+  const secondFormChoiceActionUrlParts = secondFormChoice?.actionUrl ? urlPathParts(secondFormChoice.actionUrl) : undefined;
+  const secondFormChoiceUrlTemplateParts = secondFormChoice?.urlTemplate ? urlPathParts(secondFormChoice.urlTemplate) : undefined;
   const topFormChoiceFirstField = topFormChoice?.fields[0];
+  const secondFormChoiceFirstField = secondFormChoice?.fields[0];
   const topFormChoiceRequiredField = topFormChoice?.fields.find((field) => field.required === true);
   const topFormChoiceInvalidField = topFormChoice?.fields.find((field) => typeof field.invalid !== "undefined");
   const topFormChoiceFirstHiddenField = topFormChoice?.hiddenFields[0];
@@ -15652,6 +15710,33 @@ function summarizeAgent(
     ...(topFormChoiceInvalidField?.label ? { topFormChoiceInvalidFieldLabel: topFormChoiceInvalidField.label } : {}),
     ...(typeof topFormChoiceInvalidField?.invalid !== "undefined" ? { topFormChoiceInvalidFieldInvalid: topFormChoiceInvalidField.invalid } : {}),
     ...(topFormChoiceInvalidField?.selector ? { topFormChoiceInvalidFieldSelector: topFormChoiceInvalidField.selector } : {}),
+    ...(secondFormChoice ? { secondFormChoicePath: secondFormChoice.path } : {}),
+    ...(secondFormChoice?.method ? { secondFormChoiceMethod: secondFormChoice.method } : {}),
+    ...(secondFormChoice?.actionUrl ? { secondFormChoiceActionUrl: secondFormChoice.actionUrl } : {}),
+    ...(secondFormChoiceActionUrlParts?.urlPath ? { secondFormChoiceActionUrlPath: secondFormChoiceActionUrlParts.urlPath } : {}),
+    ...(secondFormChoiceActionUrlParts?.urlQuery ? { secondFormChoiceActionUrlQuery: secondFormChoiceActionUrlParts.urlQuery } : {}),
+    ...(secondFormChoice?.urlTemplate ? { secondFormChoiceUrlTemplate: secondFormChoice.urlTemplate } : {}),
+    ...(secondFormChoiceUrlTemplateParts?.urlPath ? { secondFormChoiceUrlTemplatePath: secondFormChoiceUrlTemplateParts.urlPath } : {}),
+    ...(secondFormChoiceUrlTemplateParts?.urlQuery ? { secondFormChoiceUrlTemplateQuery: secondFormChoiceUrlTemplateParts.urlQuery } : {}),
+    ...(secondFormChoice?.queryField ? { secondFormChoiceQueryField: secondFormChoice.queryField } : {}),
+    ...(secondFormChoice?.command ? { secondFormChoiceCommand: secondFormChoice.command } : {}),
+    ...(secondFormChoice?.commandArgs ? { secondFormChoiceCommandArgs: secondFormChoice.commandArgs } : {}),
+    ...(typeof secondFormChoice?.fieldCount === "number" ? { secondFormChoiceFieldCount: secondFormChoice.fieldCount } : {}),
+    ...(typeof secondFormChoice?.hiddenFieldCount === "number" ? { secondFormChoiceHiddenFieldCount: secondFormChoice.hiddenFieldCount } : {}),
+    ...(secondFormChoice?.selector ? { secondFormChoiceSelector: secondFormChoice.selector } : {}),
+    ...(secondFormChoice?.submitText ? { secondFormChoiceSubmitText: secondFormChoice.submitText } : {}),
+    ...(secondFormChoice?.submitType ? { secondFormChoiceSubmitType: secondFormChoice.submitType } : {}),
+    ...(secondFormChoice?.submitName ? { secondFormChoiceSubmitName: secondFormChoice.submitName } : {}),
+    ...(secondFormChoice?.submitValue ? { secondFormChoiceSubmitValue: secondFormChoice.submitValue } : {}),
+    ...(typeof secondFormChoice?.submitDisabled === "boolean" ? { secondFormChoiceSubmitDisabled: secondFormChoice.submitDisabled } : {}),
+    ...(secondFormChoice?.submitSelector ? { secondFormChoiceSubmitSelector: secondFormChoice.submitSelector } : {}),
+    ...(secondFormChoiceFirstField?.name ? { secondFormChoiceFirstFieldName: secondFormChoiceFirstField.name } : {}),
+    ...(secondFormChoiceFirstField?.type ? { secondFormChoiceFirstFieldType: secondFormChoiceFirstField.type } : {}),
+    ...(secondFormChoiceFirstField?.label ? { secondFormChoiceFirstFieldLabel: secondFormChoiceFirstField.label } : {}),
+    ...(secondFormChoiceFirstField?.placeholder ? { secondFormChoiceFirstFieldPlaceholder: secondFormChoiceFirstField.placeholder } : {}),
+    ...(typeof secondFormChoiceFirstField?.required === "boolean" ? { secondFormChoiceFirstFieldRequired: secondFormChoiceFirstField.required } : {}),
+    ...(typeof secondFormChoiceFirstField?.invalid !== "undefined" ? { secondFormChoiceFirstFieldInvalid: secondFormChoiceFirstField.invalid } : {}),
+    ...(secondFormChoiceFirstField?.selector ? { secondFormChoiceFirstFieldSelector: secondFormChoiceFirstField.selector } : {}),
     ...(actionTargetChoices[0] ? { topActionTargetChoicePath: actionTargetChoices[0].path } : {}),
     ...(actionTargetChoices[0]?.kind ? { topActionTargetChoiceKind: actionTargetChoices[0].kind } : {}),
     ...(actionTargetChoices[0]?.name ? { topActionTargetChoiceName: actionTargetChoices[0].name } : {}),
@@ -22460,6 +22545,33 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topFormChoiceInvalidFieldLabel ? { topFormChoiceInvalidFieldLabel: agent.topFormChoiceInvalidFieldLabel } : {}),
     ...(typeof agent.topFormChoiceInvalidFieldInvalid !== "undefined" ? { topFormChoiceInvalidFieldInvalid: agent.topFormChoiceInvalidFieldInvalid } : {}),
     ...(agent.topFormChoiceInvalidFieldSelector ? { topFormChoiceInvalidFieldSelector: agent.topFormChoiceInvalidFieldSelector } : {}),
+    ...(agent.secondFormChoicePath ? { secondFormChoicePath: agent.secondFormChoicePath } : {}),
+    ...(agent.secondFormChoiceMethod ? { secondFormChoiceMethod: agent.secondFormChoiceMethod } : {}),
+    ...(agent.secondFormChoiceActionUrl ? { secondFormChoiceActionUrl: agent.secondFormChoiceActionUrl } : {}),
+    ...(agent.secondFormChoiceActionUrlPath ? { secondFormChoiceActionUrlPath: agent.secondFormChoiceActionUrlPath } : {}),
+    ...(agent.secondFormChoiceActionUrlQuery ? { secondFormChoiceActionUrlQuery: agent.secondFormChoiceActionUrlQuery } : {}),
+    ...(agent.secondFormChoiceUrlTemplate ? { secondFormChoiceUrlTemplate: agent.secondFormChoiceUrlTemplate } : {}),
+    ...(agent.secondFormChoiceUrlTemplatePath ? { secondFormChoiceUrlTemplatePath: agent.secondFormChoiceUrlTemplatePath } : {}),
+    ...(agent.secondFormChoiceUrlTemplateQuery ? { secondFormChoiceUrlTemplateQuery: agent.secondFormChoiceUrlTemplateQuery } : {}),
+    ...(agent.secondFormChoiceQueryField ? { secondFormChoiceQueryField: agent.secondFormChoiceQueryField } : {}),
+    ...(agent.secondFormChoiceCommand ? { secondFormChoiceCommand: agent.secondFormChoiceCommand } : {}),
+    ...(agent.secondFormChoiceCommandArgs ? { secondFormChoiceCommandArgs: agent.secondFormChoiceCommandArgs } : {}),
+    ...(typeof agent.secondFormChoiceFieldCount === "number" ? { secondFormChoiceFieldCount: agent.secondFormChoiceFieldCount } : {}),
+    ...(typeof agent.secondFormChoiceHiddenFieldCount === "number" ? { secondFormChoiceHiddenFieldCount: agent.secondFormChoiceHiddenFieldCount } : {}),
+    ...(agent.secondFormChoiceSelector ? { secondFormChoiceSelector: agent.secondFormChoiceSelector } : {}),
+    ...(agent.secondFormChoiceSubmitText ? { secondFormChoiceSubmitText: agent.secondFormChoiceSubmitText } : {}),
+    ...(agent.secondFormChoiceSubmitType ? { secondFormChoiceSubmitType: agent.secondFormChoiceSubmitType } : {}),
+    ...(agent.secondFormChoiceSubmitName ? { secondFormChoiceSubmitName: agent.secondFormChoiceSubmitName } : {}),
+    ...(agent.secondFormChoiceSubmitValue ? { secondFormChoiceSubmitValue: agent.secondFormChoiceSubmitValue } : {}),
+    ...(typeof agent.secondFormChoiceSubmitDisabled === "boolean" ? { secondFormChoiceSubmitDisabled: agent.secondFormChoiceSubmitDisabled } : {}),
+    ...(agent.secondFormChoiceSubmitSelector ? { secondFormChoiceSubmitSelector: agent.secondFormChoiceSubmitSelector } : {}),
+    ...(agent.secondFormChoiceFirstFieldName ? { secondFormChoiceFirstFieldName: agent.secondFormChoiceFirstFieldName } : {}),
+    ...(agent.secondFormChoiceFirstFieldType ? { secondFormChoiceFirstFieldType: agent.secondFormChoiceFirstFieldType } : {}),
+    ...(agent.secondFormChoiceFirstFieldLabel ? { secondFormChoiceFirstFieldLabel: agent.secondFormChoiceFirstFieldLabel } : {}),
+    ...(agent.secondFormChoiceFirstFieldPlaceholder ? { secondFormChoiceFirstFieldPlaceholder: agent.secondFormChoiceFirstFieldPlaceholder } : {}),
+    ...(typeof agent.secondFormChoiceFirstFieldRequired === "boolean" ? { secondFormChoiceFirstFieldRequired: agent.secondFormChoiceFirstFieldRequired } : {}),
+    ...(typeof agent.secondFormChoiceFirstFieldInvalid !== "undefined" ? { secondFormChoiceFirstFieldInvalid: agent.secondFormChoiceFirstFieldInvalid } : {}),
+    ...(agent.secondFormChoiceFirstFieldSelector ? { secondFormChoiceFirstFieldSelector: agent.secondFormChoiceFirstFieldSelector } : {}),
     ...(agent.topActionTargetChoicePath ? { topActionTargetChoicePath: agent.topActionTargetChoicePath } : {}),
     ...(agent.topActionTargetChoiceKind ? { topActionTargetChoiceKind: agent.topActionTargetChoiceKind } : {}),
     ...(agent.topActionTargetChoiceName ? { topActionTargetChoiceName: agent.topActionTargetChoiceName } : {}),
@@ -24365,6 +24477,33 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topFormChoiceInvalidFieldLabel ? { topFormChoiceInvalidFieldLabel: agent.topFormChoiceInvalidFieldLabel } : {}),
     ...(typeof agent.topFormChoiceInvalidFieldInvalid !== "undefined" ? { topFormChoiceInvalidFieldInvalid: agent.topFormChoiceInvalidFieldInvalid } : {}),
     ...(agent.topFormChoiceInvalidFieldSelector ? { topFormChoiceInvalidFieldSelector: agent.topFormChoiceInvalidFieldSelector } : {}),
+    ...(agent.secondFormChoicePath ? { secondFormChoicePath: agent.secondFormChoicePath } : {}),
+    ...(agent.secondFormChoiceMethod ? { secondFormChoiceMethod: agent.secondFormChoiceMethod } : {}),
+    ...(agent.secondFormChoiceActionUrl ? { secondFormChoiceActionUrl: agent.secondFormChoiceActionUrl } : {}),
+    ...(agent.secondFormChoiceActionUrlPath ? { secondFormChoiceActionUrlPath: agent.secondFormChoiceActionUrlPath } : {}),
+    ...(agent.secondFormChoiceActionUrlQuery ? { secondFormChoiceActionUrlQuery: agent.secondFormChoiceActionUrlQuery } : {}),
+    ...(agent.secondFormChoiceUrlTemplate ? { secondFormChoiceUrlTemplate: agent.secondFormChoiceUrlTemplate } : {}),
+    ...(agent.secondFormChoiceUrlTemplatePath ? { secondFormChoiceUrlTemplatePath: agent.secondFormChoiceUrlTemplatePath } : {}),
+    ...(agent.secondFormChoiceUrlTemplateQuery ? { secondFormChoiceUrlTemplateQuery: agent.secondFormChoiceUrlTemplateQuery } : {}),
+    ...(agent.secondFormChoiceQueryField ? { secondFormChoiceQueryField: agent.secondFormChoiceQueryField } : {}),
+    ...(agent.secondFormChoiceCommand ? { secondFormChoiceCommand: agent.secondFormChoiceCommand } : {}),
+    ...(agent.secondFormChoiceCommandArgs ? { secondFormChoiceCommandArgs: agent.secondFormChoiceCommandArgs } : {}),
+    ...(typeof agent.secondFormChoiceFieldCount === "number" ? { secondFormChoiceFieldCount: agent.secondFormChoiceFieldCount } : {}),
+    ...(typeof agent.secondFormChoiceHiddenFieldCount === "number" ? { secondFormChoiceHiddenFieldCount: agent.secondFormChoiceHiddenFieldCount } : {}),
+    ...(agent.secondFormChoiceSelector ? { secondFormChoiceSelector: agent.secondFormChoiceSelector } : {}),
+    ...(agent.secondFormChoiceSubmitText ? { secondFormChoiceSubmitText: agent.secondFormChoiceSubmitText } : {}),
+    ...(agent.secondFormChoiceSubmitType ? { secondFormChoiceSubmitType: agent.secondFormChoiceSubmitType } : {}),
+    ...(agent.secondFormChoiceSubmitName ? { secondFormChoiceSubmitName: agent.secondFormChoiceSubmitName } : {}),
+    ...(agent.secondFormChoiceSubmitValue ? { secondFormChoiceSubmitValue: agent.secondFormChoiceSubmitValue } : {}),
+    ...(typeof agent.secondFormChoiceSubmitDisabled === "boolean" ? { secondFormChoiceSubmitDisabled: agent.secondFormChoiceSubmitDisabled } : {}),
+    ...(agent.secondFormChoiceSubmitSelector ? { secondFormChoiceSubmitSelector: agent.secondFormChoiceSubmitSelector } : {}),
+    ...(agent.secondFormChoiceFirstFieldName ? { secondFormChoiceFirstFieldName: agent.secondFormChoiceFirstFieldName } : {}),
+    ...(agent.secondFormChoiceFirstFieldType ? { secondFormChoiceFirstFieldType: agent.secondFormChoiceFirstFieldType } : {}),
+    ...(agent.secondFormChoiceFirstFieldLabel ? { secondFormChoiceFirstFieldLabel: agent.secondFormChoiceFirstFieldLabel } : {}),
+    ...(agent.secondFormChoiceFirstFieldPlaceholder ? { secondFormChoiceFirstFieldPlaceholder: agent.secondFormChoiceFirstFieldPlaceholder } : {}),
+    ...(typeof agent.secondFormChoiceFirstFieldRequired === "boolean" ? { secondFormChoiceFirstFieldRequired: agent.secondFormChoiceFirstFieldRequired } : {}),
+    ...(typeof agent.secondFormChoiceFirstFieldInvalid !== "undefined" ? { secondFormChoiceFirstFieldInvalid: agent.secondFormChoiceFirstFieldInvalid } : {}),
+    ...(agent.secondFormChoiceFirstFieldSelector ? { secondFormChoiceFirstFieldSelector: agent.secondFormChoiceFirstFieldSelector } : {}),
     ...(agent.topActionTargetChoicePath ? { topActionTargetChoicePath: agent.topActionTargetChoicePath } : {}),
     ...(agent.topActionTargetChoiceKind ? { topActionTargetChoiceKind: agent.topActionTargetChoiceKind } : {}),
     ...(agent.topActionTargetChoiceName ? { topActionTargetChoiceName: agent.topActionTargetChoiceName } : {}),

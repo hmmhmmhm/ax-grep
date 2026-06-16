@@ -242,6 +242,33 @@ describe("public agent types", () => {
       hiddenFields: [{ name: "csrf", value: "secret", selector: "input[name=\"csrf\"]" }],
       fields: [{ name: "q", type: "search", label: "Search", placeholder: "Search docs", value: "initial", autocomplete: "off", inputMode: "search", pattern: "[A-Za-z ]+", min: "1", max: "99", step: "1", minLength: 2, maxLength: 80, required: true, checked: true, disabled: true, readonly: true, invalid: "spelling", selector: "input[name=\"q\"]", options: ["All", "Docs"], selectedOption: "Docs", selectedValue: "docs" }],
     };
+    const secondFormChoice: AgentFormChoice = {
+      id: "f2",
+      path: "pageCheck.forms[1]",
+      rank: 2,
+      method: "post",
+      fieldCount: 1,
+      hiddenFieldCount: 0,
+      text: "POST https://example.test/advanced; query field: term",
+      actionUrl: "https://example.test/advanced?scope=docs",
+      actionUrlPath: "/advanced",
+      actionUrlQuery: "?scope=docs",
+      submitText: "Advanced",
+      submitType: "submit",
+      submitName: "advanced",
+      submitValue: "1",
+      submitDisabled: false,
+      submitSelector: "button[name=\"advanced\"]",
+      queryField: "term",
+      urlTemplate: "https://example.test/advanced?scope=docs&term={query}",
+      urlTemplatePath: "/advanced",
+      urlTemplateQuery: "?scope=docs&term={query}",
+      command: "ax-grep 'https://example.test/advanced?scope=docs&term=docs' --find docs --agent",
+      commandArgs: ["ax-grep", "https://example.test/advanced?scope=docs&term=docs", "--find", "docs", "--agent"],
+      selector: "form:nth-of-type(2)",
+      hiddenFields: [],
+      fields: [{ name: "term", type: "search", label: "Advanced search", placeholder: "Advanced docs", required: true, invalid: "spelling", selector: "input[name=\"term\"]" }],
+    };
     const actionTargetChoice: AgentActionTargetChoice = {
       id: "at1",
       path: "pageCheck.actionTargets[0]",
@@ -430,6 +457,33 @@ describe("public agent types", () => {
       | "topFormChoiceInvalidFieldLabel"
       | "topFormChoiceInvalidFieldInvalid"
       | "topFormChoiceInvalidFieldSelector"
+      | "secondFormChoicePath"
+      | "secondFormChoiceMethod"
+      | "secondFormChoiceActionUrl"
+      | "secondFormChoiceActionUrlPath"
+      | "secondFormChoiceActionUrlQuery"
+      | "secondFormChoiceUrlTemplate"
+      | "secondFormChoiceUrlTemplatePath"
+      | "secondFormChoiceUrlTemplateQuery"
+      | "secondFormChoiceQueryField"
+      | "secondFormChoiceCommand"
+      | "secondFormChoiceCommandArgs"
+      | "secondFormChoiceFieldCount"
+      | "secondFormChoiceHiddenFieldCount"
+      | "secondFormChoiceSelector"
+      | "secondFormChoiceSubmitText"
+      | "secondFormChoiceSubmitType"
+      | "secondFormChoiceSubmitName"
+      | "secondFormChoiceSubmitValue"
+      | "secondFormChoiceSubmitDisabled"
+      | "secondFormChoiceSubmitSelector"
+      | "secondFormChoiceFirstFieldName"
+      | "secondFormChoiceFirstFieldType"
+      | "secondFormChoiceFirstFieldLabel"
+      | "secondFormChoiceFirstFieldPlaceholder"
+      | "secondFormChoiceFirstFieldRequired"
+      | "secondFormChoiceFirstFieldInvalid"
+      | "secondFormChoiceFirstFieldSelector"
       | "actionTargetCount"
       | "actionTargetChoiceCount"
       | "actionTargetChoices"
@@ -2268,9 +2322,9 @@ describe("public agent types", () => {
       secondResultChoiceFirstSitelinkCommandArgs: ["ax-grep", "https://backup.example/result#docs", "--agent"],
       secondResultChoiceReason: "Backup relevance.",
       evidenceCount: 1,
-      formCount: 1,
-      formChoiceCount: 1,
-      formChoices: [formChoice],
+      formCount: 2,
+      formChoiceCount: 2,
+      formChoices: [formChoice, secondFormChoice],
       topFormChoicePath: "pageCheck.forms[0]",
       topFormChoiceMethod: "get",
       topFormChoiceActionUrl: "https://example.test/find",
@@ -2355,6 +2409,33 @@ describe("public agent types", () => {
       topFormChoiceInvalidFieldLabel: "Search",
       topFormChoiceInvalidFieldInvalid: "spelling",
       topFormChoiceInvalidFieldSelector: "input[name=\"q\"]",
+      secondFormChoicePath: "pageCheck.forms[1]",
+      secondFormChoiceMethod: "post",
+      secondFormChoiceActionUrl: "https://example.test/advanced?scope=docs",
+      secondFormChoiceActionUrlPath: "/advanced",
+      secondFormChoiceActionUrlQuery: "?scope=docs",
+      secondFormChoiceUrlTemplate: "https://example.test/advanced?scope=docs&term={query}",
+      secondFormChoiceUrlTemplatePath: "/advanced",
+      secondFormChoiceUrlTemplateQuery: "?scope=docs&term={query}",
+      secondFormChoiceQueryField: "term",
+      secondFormChoiceCommand: "ax-grep 'https://example.test/advanced?scope=docs&term=docs' --find docs --agent",
+      secondFormChoiceCommandArgs: ["ax-grep", "https://example.test/advanced?scope=docs&term=docs", "--find", "docs", "--agent"],
+      secondFormChoiceFieldCount: 1,
+      secondFormChoiceHiddenFieldCount: 0,
+      secondFormChoiceSelector: "form:nth-of-type(2)",
+      secondFormChoiceSubmitText: "Advanced",
+      secondFormChoiceSubmitType: "submit",
+      secondFormChoiceSubmitName: "advanced",
+      secondFormChoiceSubmitValue: "1",
+      secondFormChoiceSubmitDisabled: false,
+      secondFormChoiceSubmitSelector: "button[name=\"advanced\"]",
+      secondFormChoiceFirstFieldName: "term",
+      secondFormChoiceFirstFieldType: "search",
+      secondFormChoiceFirstFieldLabel: "Advanced search",
+      secondFormChoiceFirstFieldPlaceholder: "Advanced docs",
+      secondFormChoiceFirstFieldRequired: true,
+      secondFormChoiceFirstFieldInvalid: "spelling",
+      secondFormChoiceFirstFieldSelector: "input[name=\"term\"]",
       actionTargetCount: 2,
       actionTargetChoiceCount: 1,
       actionTargetChoices: [actionTargetChoice],
@@ -4318,6 +4399,8 @@ describe("public agent types", () => {
     expect(summary.formChoices?.[0]?.fields[0]?.label).toBe("Search");
     expect(summary.formChoices?.[0]?.fields[0]?.placeholder).toBe("Search docs");
     expect(summary.formChoices?.[0]?.fields[0]?.invalid).toBe("spelling");
+    expect(summary.formChoices?.[1]?.queryField).toBe("term");
+    expect(summary.formChoices?.[1]?.command).toContain("advanced?scope=docs");
     expect(summary.actionTargetChoices?.[0]?.kind).toBe("search");
     expect(summary.actionTargetChoices?.[0]?.name).toBe("Search docs");
     expect(summary.actionTargetChoices?.[0]?.source).toBe("json-ld");
@@ -4337,6 +4420,26 @@ describe("public agent types", () => {
     expect(summary.topFormChoiceInvalidFieldLabel).toBe("Search");
     expect(summary.topFormChoiceInvalidFieldInvalid).toBe("spelling");
     expect(summary.topFormChoiceInvalidFieldSelector).toBe("input[name=\"q\"]");
+    expect(summary.secondFormChoicePath).toBe("pageCheck.forms[1]");
+    expect(summary.secondFormChoiceActionUrlPath).toBe("/advanced");
+    expect(summary.secondFormChoiceActionUrlQuery).toBe("?scope=docs");
+    expect(summary.secondFormChoiceUrlTemplateQuery).toBe("?scope=docs&term={query}");
+    expect(summary.secondFormChoiceQueryField).toBe("term");
+    expect(summary.secondFormChoiceCommandArgs?.[1]).toBe("https://example.test/advanced?scope=docs&term=docs");
+    expect(summary.secondFormChoiceFieldCount).toBe(1);
+    expect(summary.secondFormChoiceHiddenFieldCount).toBe(0);
+    expect(summary.secondFormChoiceSelector).toBe("form:nth-of-type(2)");
+    expect(summary.secondFormChoiceSubmitText).toBe("Advanced");
+    expect(summary.secondFormChoiceSubmitName).toBe("advanced");
+    expect(summary.secondFormChoiceSubmitValue).toBe("1");
+    expect(summary.secondFormChoiceSubmitDisabled).toBe(false);
+    expect(summary.secondFormChoiceSubmitSelector).toBe("button[name=\"advanced\"]");
+    expect(summary.secondFormChoiceFirstFieldName).toBe("term");
+    expect(summary.secondFormChoiceFirstFieldLabel).toBe("Advanced search");
+    expect(summary.secondFormChoiceFirstFieldPlaceholder).toBe("Advanced docs");
+    expect(summary.secondFormChoiceFirstFieldRequired).toBe(true);
+    expect(summary.secondFormChoiceFirstFieldInvalid).toBe("spelling");
+    expect(summary.secondFormChoiceFirstFieldSelector).toBe("input[name=\"term\"]");
     expect(summary.topActionTargetChoiceName).toBe("Search docs");
     expect(summary.topActionTargetChoiceKind).toBe("search");
     expect(summary.topActionTargetChoiceSource).toBe("json-ld");
