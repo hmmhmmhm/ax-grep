@@ -1115,6 +1115,12 @@ describe("public agent types", () => {
       | "topKeyValueDatetime"
       | "topKeyValueSource"
       | "topKeyValueSelector"
+      | "secondKeyValuePath"
+      | "secondKeyValueLabel"
+      | "secondKeyValueValue"
+      | "secondKeyValueDatetime"
+      | "secondKeyValueSource"
+      | "secondKeyValueSelector"
       | "topMetaFactPath"
       | "topMetaFactLabel"
       | "topMetaFactValue"
@@ -3141,6 +3147,12 @@ describe("public agent types", () => {
       topKeyValueDatetime: "2026-06-01",
       topKeyValueSource: "definition-list",
       topKeyValueSelector: "dl:nth-of-type(1)",
+      secondKeyValuePath: "pageCheck.keyValues[1]",
+      secondKeyValueLabel: "License",
+      secondKeyValueValue: "MIT",
+      secondKeyValueDatetime: "2026-06-02",
+      secondKeyValueSource: "definition-list",
+      secondKeyValueSelector: "dl:nth-of-type(1)",
       topMetaFactPath: "pageCheck.metaFacts[0]",
       topMetaFactLabel: "generator",
       topMetaFactValue: "ax-grep",

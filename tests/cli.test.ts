@@ -10556,6 +10556,11 @@ describe("cli", () => {
       topKeyValueValue: "2.4.1",
       topKeyValueSource: "definition-list",
       topKeyValueSelector: "dl:nth-of-type(1)",
+      secondKeyValuePath: "pageCheck.keyValues[1]",
+      secondKeyValueLabel: "License",
+      secondKeyValueValue: "MIT",
+      secondKeyValueSource: "definition-list",
+      secondKeyValueSelector: "dl:nth-of-type(1)",
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.keyValues",

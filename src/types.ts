@@ -2875,6 +2875,12 @@ export type AgentSummary = {
   topKeyValueDatetime?: string;
   topKeyValueSource?: string;
   topKeyValueSelector?: string;
+  secondKeyValuePath?: string;
+  secondKeyValueLabel?: string;
+  secondKeyValueValue?: string;
+  secondKeyValueDatetime?: string;
+  secondKeyValueSource?: string;
+  secondKeyValueSelector?: string;
   topMetaFactPath?: string;
   topMetaFactLabel?: string;
   topMetaFactValue?: string;

@@ -1258,6 +1258,10 @@ When research expands:
 - Added `secondTopic*` agent shortcuts for the second detected topic, including
   kind, label, value, source, and selector, so agents can compare alternate
   relevance terms for search refinement without parsing the full topic array.
+- Added `secondKeyValue*` agent shortcuts for the second detected key-value
+  fact, including label, value, datetime, source, and selector, so agents can
+  compare adjacent definition-list/time facts without parsing the full
+  key-value array.
 
 ## In Progress
 

@@ -2507,6 +2507,12 @@ type AgentSummary = {
   topKeyValueDatetime?: string;
   topKeyValueSource?: string;
   topKeyValueSelector?: string;
+  secondKeyValuePath?: string;
+  secondKeyValueLabel?: string;
+  secondKeyValueValue?: string;
+  secondKeyValueDatetime?: string;
+  secondKeyValueSource?: string;
+  secondKeyValueSelector?: string;
   topMetaFactPath?: string;
   topMetaFactLabel?: string;
   topMetaFactValue?: string;
@@ -5533,6 +5539,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topTopicPath ? [`  topTopic: path=${agent.topTopicPath}${agent.topTopicKind ? ` kind=${agent.topTopicKind}` : ""}${agent.topTopicLabel ? ` label="${agent.topTopicLabel}"` : ""}${agent.topTopicSource ? ` source=${agent.topTopicSource}` : ""}${agent.topTopicSelector ? ` selector=${agent.topTopicSelector}` : ""}${agent.topTopicValue ? ` - ${agent.topTopicValue}` : ""}`] : []),
     ...(agent.secondTopicPath ? [`  secondTopic: path=${agent.secondTopicPath}${agent.secondTopicKind ? ` kind=${agent.secondTopicKind}` : ""}${agent.secondTopicLabel ? ` label="${agent.secondTopicLabel}"` : ""}${agent.secondTopicSource ? ` source=${agent.secondTopicSource}` : ""}${agent.secondTopicSelector ? ` selector=${agent.secondTopicSelector}` : ""}${agent.secondTopicValue ? ` - ${agent.secondTopicValue}` : ""}`] : []),
     ...(agent.topKeyValuePath ? [`  topKeyValue: path=${agent.topKeyValuePath}${agent.topKeyValueLabel ? ` label="${agent.topKeyValueLabel}"` : ""}${agent.topKeyValueSource ? ` source=${agent.topKeyValueSource}` : ""}${agent.topKeyValueDatetime ? ` datetime=${agent.topKeyValueDatetime}` : ""}${agent.topKeyValueSelector ? ` selector=${agent.topKeyValueSelector}` : ""}${agent.topKeyValueValue ? ` - ${agent.topKeyValueValue}` : ""}`] : []),
+    ...(agent.secondKeyValuePath ? [`  secondKeyValue: path=${agent.secondKeyValuePath}${agent.secondKeyValueLabel ? ` label="${agent.secondKeyValueLabel}"` : ""}${agent.secondKeyValueSource ? ` source=${agent.secondKeyValueSource}` : ""}${agent.secondKeyValueDatetime ? ` datetime=${agent.secondKeyValueDatetime}` : ""}${agent.secondKeyValueSelector ? ` selector=${agent.secondKeyValueSelector}` : ""}${agent.secondKeyValueValue ? ` - ${agent.secondKeyValueValue}` : ""}`] : []),
     ...(agent.topMetaFactPath ? [`  topMetaFact: path=${agent.topMetaFactPath}${agent.topMetaFactLabel ? ` label="${agent.topMetaFactLabel}"` : ""}${agent.topMetaFactSource ? ` source=${agent.topMetaFactSource}` : ""}${agent.topMetaFactSelector ? ` selector=${agent.topMetaFactSelector}` : ""}${agent.topMetaFactUrl ? ` url=<${agent.topMetaFactUrl}>` : ""}${agent.topMetaFactValue ? ` - ${agent.topMetaFactValue}` : ""}`] : []),
     ...(agent.topHttpPolicyPath ? [`  topHttpPolicy: path=${agent.topHttpPolicyPath}${agent.topHttpPolicyName ? ` name="${agent.topHttpPolicyName}"` : ""}${agent.topHttpPolicySource ? ` source=${agent.topHttpPolicySource}` : ""}${agent.topHttpPolicySelector ? ` selector=${agent.topHttpPolicySelector}` : ""}${agent.topHttpPolicyValue ? ` - ${agent.topHttpPolicyValue}` : ""}`] : []),
     ...(agent.topSchemaFactPath ? [`  topSchemaFact: path=${agent.topSchemaFactPath}${agent.topSchemaFactTypes?.length ? ` types=${agent.topSchemaFactTypes.join(",")}` : ""}${typeof agent.topSchemaFactFactCount === "number" ? ` facts=${agent.topSchemaFactFactCount}` : ""}${agent.topSchemaFactSelector ? ` selector=${agent.topSchemaFactSelector}` : ""}${agent.topSchemaFactFirstLabel ? ` ${agent.topSchemaFactFirstLabel}=${agent.topSchemaFactFirstValue ?? ""}` : ""}`] : []),
@@ -14723,6 +14730,7 @@ function summarizeAgent(
   const topTopic = pageCheck.topics[0];
   const secondTopic = pageCheck.topics[1];
   const topKeyValue = pageCheck.keyValues[0];
+  const secondKeyValue = pageCheck.keyValues[1];
   const topMetaFact = pageCheck.metaFacts[0];
   const topHttpPolicy = pageCheck.httpPolicies[0];
   const topSchemaFact = pageCheck.schemaFacts[0];
@@ -16550,6 +16558,12 @@ function summarizeAgent(
     ...(topKeyValue?.datetime ? { topKeyValueDatetime: topKeyValue.datetime } : {}),
     ...(topKeyValue?.source ? { topKeyValueSource: topKeyValue.source } : {}),
     ...(topKeyValue?.selector ? { topKeyValueSelector: topKeyValue.selector } : {}),
+    ...(secondKeyValue ? { secondKeyValuePath: secondKeyValue.path } : {}),
+    ...(secondKeyValue?.label ? { secondKeyValueLabel: secondKeyValue.label } : {}),
+    ...(secondKeyValue?.value ? { secondKeyValueValue: secondKeyValue.value } : {}),
+    ...(secondKeyValue?.datetime ? { secondKeyValueDatetime: secondKeyValue.datetime } : {}),
+    ...(secondKeyValue?.source ? { secondKeyValueSource: secondKeyValue.source } : {}),
+    ...(secondKeyValue?.selector ? { secondKeyValueSelector: secondKeyValue.selector } : {}),
     ...(topMetaFact ? { topMetaFactPath: topMetaFact.path } : {}),
     ...(topMetaFact?.label ? { topMetaFactLabel: topMetaFact.label } : {}),
     ...(topMetaFact?.value ? { topMetaFactValue: topMetaFact.value } : {}),
@@ -23497,6 +23511,12 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topKeyValueDatetime ? { topKeyValueDatetime: agent.topKeyValueDatetime } : {}),
     ...(agent.topKeyValueSource ? { topKeyValueSource: agent.topKeyValueSource } : {}),
     ...(agent.topKeyValueSelector ? { topKeyValueSelector: agent.topKeyValueSelector } : {}),
+    ...(agent.secondKeyValuePath ? { secondKeyValuePath: agent.secondKeyValuePath } : {}),
+    ...(agent.secondKeyValueLabel ? { secondKeyValueLabel: agent.secondKeyValueLabel } : {}),
+    ...(agent.secondKeyValueValue ? { secondKeyValueValue: agent.secondKeyValueValue } : {}),
+    ...(agent.secondKeyValueDatetime ? { secondKeyValueDatetime: agent.secondKeyValueDatetime } : {}),
+    ...(agent.secondKeyValueSource ? { secondKeyValueSource: agent.secondKeyValueSource } : {}),
+    ...(agent.secondKeyValueSelector ? { secondKeyValueSelector: agent.secondKeyValueSelector } : {}),
     ...(agent.topMetaFactPath ? { topMetaFactPath: agent.topMetaFactPath } : {}),
     ...(agent.topMetaFactLabel ? { topMetaFactLabel: agent.topMetaFactLabel } : {}),
     ...(agent.topMetaFactValue ? { topMetaFactValue: agent.topMetaFactValue } : {}),
@@ -25541,6 +25561,12 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topKeyValueDatetime ? { topKeyValueDatetime: agent.topKeyValueDatetime } : {}),
     ...(agent.topKeyValueSource ? { topKeyValueSource: agent.topKeyValueSource } : {}),
     ...(agent.topKeyValueSelector ? { topKeyValueSelector: agent.topKeyValueSelector } : {}),
+    ...(agent.secondKeyValuePath ? { secondKeyValuePath: agent.secondKeyValuePath } : {}),
+    ...(agent.secondKeyValueLabel ? { secondKeyValueLabel: agent.secondKeyValueLabel } : {}),
+    ...(agent.secondKeyValueValue ? { secondKeyValueValue: agent.secondKeyValueValue } : {}),
+    ...(agent.secondKeyValueDatetime ? { secondKeyValueDatetime: agent.secondKeyValueDatetime } : {}),
+    ...(agent.secondKeyValueSource ? { secondKeyValueSource: agent.secondKeyValueSource } : {}),
+    ...(agent.secondKeyValueSelector ? { secondKeyValueSelector: agent.secondKeyValueSelector } : {}),
     ...(agent.topMetaFactPath ? { topMetaFactPath: agent.topMetaFactPath } : {}),
     ...(agent.topMetaFactLabel ? { topMetaFactLabel: agent.topMetaFactLabel } : {}),
     ...(agent.topMetaFactValue ? { topMetaFactValue: agent.topMetaFactValue } : {}),
