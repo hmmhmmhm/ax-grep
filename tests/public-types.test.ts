@@ -704,6 +704,26 @@ describe("public agent types", () => {
       | "topIdentitySameAsCommandArgs"
       | "topIdentitySource"
       | "topIdentitySelector"
+      | "secondIdentityPath"
+      | "secondIdentityKind"
+      | "secondIdentityName"
+      | "secondIdentityUrl"
+      | "secondIdentityUrlPath"
+      | "secondIdentityUrlQuery"
+      | "secondIdentityCommand"
+      | "secondIdentityCommandArgs"
+      | "secondIdentityLogoUrl"
+      | "secondIdentityLogoUrlPath"
+      | "secondIdentityLogoUrlQuery"
+      | "secondIdentityLogoCommand"
+      | "secondIdentityLogoCommandArgs"
+      | "secondIdentitySameAsUrl"
+      | "secondIdentitySameAsUrlPath"
+      | "secondIdentitySameAsUrlQuery"
+      | "secondIdentitySameAsCommand"
+      | "secondIdentitySameAsCommandArgs"
+      | "secondIdentitySource"
+      | "secondIdentitySelector"
       | "topTimelinePath"
       | "topTimelineKind"
       | "topTimelineLabel"
@@ -2441,6 +2461,23 @@ describe("public agent types", () => {
       topIdentitySameAsCommandArgs: ["ax-grep", "https://github.com/example", "--agent"],
       topIdentitySource: "json-ld",
       topIdentitySelector: "script[type=\"application/ld+json\"]:nth-of-type(3)",
+      secondIdentityPath: "pageCheck.identities[1]",
+      secondIdentityKind: "website",
+      secondIdentityName: "Example Docs",
+      secondIdentityUrl: "https://example.test/docs",
+      secondIdentityUrlPath: "/docs",
+      secondIdentityCommand: "ax-grep 'https://example.test/docs' --agent",
+      secondIdentityCommandArgs: ["ax-grep", "https://example.test/docs", "--agent"],
+      secondIdentityLogoUrl: "https://example.test/docs-logo.png",
+      secondIdentityLogoUrlPath: "/docs-logo.png",
+      secondIdentityLogoCommand: "ax-grep 'https://example.test/docs-logo.png' --agent",
+      secondIdentityLogoCommandArgs: ["ax-grep", "https://example.test/docs-logo.png", "--agent"],
+      secondIdentitySameAsUrl: "https://github.com/example/docs",
+      secondIdentitySameAsUrlPath: "/example/docs",
+      secondIdentitySameAsCommand: "ax-grep 'https://github.com/example/docs' --agent",
+      secondIdentitySameAsCommandArgs: ["ax-grep", "https://github.com/example/docs", "--agent"],
+      secondIdentitySource: "json-ld",
+      secondIdentitySelector: "script[type=\"application/ld+json\"]:nth-of-type(4)",
       topTimelinePath: "pageCheck.timeline[0]",
       topTimelineKind: "published",
       topTimelineLabel: "Published",
@@ -3951,6 +3988,11 @@ describe("public agent types", () => {
     expect(summary.topIdentityLogoUrlPath).toBe("/logo.png");
     expect(summary.topIdentitySameAsUrlPath).toBe("/example");
     expect(summary.topIdentitySameAsCommandArgs?.[1]).toBe("https://github.com/example");
+    expect(summary.secondIdentityPath).toBe("pageCheck.identities[1]");
+    expect(summary.secondIdentityUrlPath).toBe("/docs");
+    expect(summary.secondIdentityLogoUrlPath).toBe("/docs-logo.png");
+    expect(summary.secondIdentitySameAsUrlPath).toBe("/example/docs");
+    expect(summary.secondIdentitySameAsCommandArgs?.[1]).toBe("https://github.com/example/docs");
     expect(summary.topContactPointUrlPath).toBe("/contact/press");
     expect(summary.topContactPointCommandArgs?.[1]).toBe("https://example.test/contact/press");
     expect(summary.bestStructuredReadTarget).toBe("pageCheck.dataTables");

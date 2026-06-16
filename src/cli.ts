@@ -2149,6 +2149,26 @@ type AgentSummary = {
   topIdentitySameAsCommandArgs?: string[];
   topIdentitySource?: PageIdentitySummary["source"];
   topIdentitySelector?: string;
+  secondIdentityPath?: string;
+  secondIdentityKind?: PageIdentitySummary["kind"];
+  secondIdentityName?: string;
+  secondIdentityUrl?: string;
+  secondIdentityUrlPath?: string;
+  secondIdentityUrlQuery?: string;
+  secondIdentityCommand?: string;
+  secondIdentityCommandArgs?: string[];
+  secondIdentityLogoUrl?: string;
+  secondIdentityLogoUrlPath?: string;
+  secondIdentityLogoUrlQuery?: string;
+  secondIdentityLogoCommand?: string;
+  secondIdentityLogoCommandArgs?: string[];
+  secondIdentitySameAsUrl?: string;
+  secondIdentitySameAsUrlPath?: string;
+  secondIdentitySameAsUrlQuery?: string;
+  secondIdentitySameAsCommand?: string;
+  secondIdentitySameAsCommandArgs?: string[];
+  secondIdentitySource?: PageIdentitySummary["source"];
+  secondIdentitySelector?: string;
   topTimelinePath?: string;
   topTimelineKind?: PageTimelineSummary["kind"];
   topTimelineLabel?: string;
@@ -5003,6 +5023,13 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topIdentityLogoCommandArgs ? [`  topIdentityLogoCommandArgs: ${formatCommandArgsText(agent.topIdentityLogoCommandArgs)}`] : []),
     ...(agent.topIdentitySameAsCommand ? [`  topIdentitySameAsCommand: ${agent.topIdentitySameAsCommand}`] : []),
     ...(agent.topIdentitySameAsCommandArgs ? [`  topIdentitySameAsCommandArgs: ${formatCommandArgsText(agent.topIdentitySameAsCommandArgs)}`] : []),
+    ...(agent.secondIdentityName ? [`  secondIdentity: path=${agent.secondIdentityPath ?? ""}${agent.secondIdentityKind ? ` kind=${agent.secondIdentityKind}` : ""} name="${agent.secondIdentityName}"${agent.secondIdentitySource ? ` source=${agent.secondIdentitySource}` : ""}${agent.secondIdentitySelector ? ` selector=${agent.secondIdentitySelector}` : ""}${agent.secondIdentityLogoUrl ? ` logo=<${agent.secondIdentityLogoUrl}>` : ""}${agent.secondIdentityLogoUrlPath ? ` logoPath=${agent.secondIdentityLogoUrlPath}` : ""}${agent.secondIdentityLogoUrlQuery ? ` logoQuery=${agent.secondIdentityLogoUrlQuery}` : ""}${agent.secondIdentitySameAsUrl ? ` sameAs=<${agent.secondIdentitySameAsUrl}>` : ""}${agent.secondIdentitySameAsUrlPath ? ` sameAsPath=${agent.secondIdentitySameAsUrlPath}` : ""}${agent.secondIdentitySameAsUrlQuery ? ` sameAsQuery=${agent.secondIdentitySameAsUrlQuery}` : ""}${agent.secondIdentityUrl ? ` url=<${agent.secondIdentityUrl}>` : ""}${agent.secondIdentityUrlPath ? ` urlPath=${agent.secondIdentityUrlPath}` : ""}${agent.secondIdentityUrlQuery ? ` urlQuery=${agent.secondIdentityUrlQuery}` : ""}`] : []),
+    ...(agent.secondIdentityCommand ? [`  secondIdentityCommand: ${agent.secondIdentityCommand}`] : []),
+    ...(agent.secondIdentityCommandArgs ? [`  secondIdentityCommandArgs: ${formatCommandArgsText(agent.secondIdentityCommandArgs)}`] : []),
+    ...(agent.secondIdentityLogoCommand ? [`  secondIdentityLogoCommand: ${agent.secondIdentityLogoCommand}`] : []),
+    ...(agent.secondIdentityLogoCommandArgs ? [`  secondIdentityLogoCommandArgs: ${formatCommandArgsText(agent.secondIdentityLogoCommandArgs)}`] : []),
+    ...(agent.secondIdentitySameAsCommand ? [`  secondIdentitySameAsCommand: ${agent.secondIdentitySameAsCommand}`] : []),
+    ...(agent.secondIdentitySameAsCommandArgs ? [`  secondIdentitySameAsCommandArgs: ${formatCommandArgsText(agent.secondIdentitySameAsCommandArgs)}`] : []),
     ...(agent.topTimelineValue ? [`  topTimeline: path=${agent.topTimelinePath ?? ""}${agent.topTimelineKind ? ` kind=${agent.topTimelineKind}` : ""}${agent.topTimelineLabel ? ` label="${agent.topTimelineLabel}"` : ""} value=${agent.topTimelineValue}${agent.topTimelineIsoDate ? ` iso=${agent.topTimelineIsoDate}` : ""}${typeof agent.topTimelineUnixMs === "number" ? ` unixMs=${agent.topTimelineUnixMs}` : ""}${agent.topTimelineSource ? ` source=${agent.topTimelineSource}` : ""}${agent.topTimelineSelector ? ` selector=${agent.topTimelineSelector}` : ""}`] : []),
     ...(agent.topTimelineIsoDate ? [`  topTimelineIsoDate: ${agent.topTimelineIsoDate}`] : []),
     ...(typeof agent.topTimelineUnixMs === "number" ? [`  topTimelineUnixMs: ${agent.topTimelineUnixMs}`] : []),
@@ -14322,15 +14349,27 @@ function summarizeAgent(
   const topIdentityCommand = pageCheck.identities[0]?.url && /^https?:\/\//i.test(pageCheck.identities[0].url)
     ? pageCommandSpec(pageCheck.identities[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const secondIdentityCommand = pageCheck.identities[1]?.url && /^https?:\/\//i.test(pageCheck.identities[1].url)
+    ? pageCommandSpec(pageCheck.identities[1].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topIdentityUrlParts = pageCheck.identities[0]?.url ? urlPathParts(pageCheck.identities[0].url) : undefined;
+  const secondIdentityUrlParts = pageCheck.identities[1]?.url ? urlPathParts(pageCheck.identities[1].url) : undefined;
   const topIdentityLogoCommand = pageCheck.identities[0]?.logoUrl && /^https?:\/\//i.test(pageCheck.identities[0].logoUrl)
     ? pageCommandSpec(pageCheck.identities[0].logoUrl, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const secondIdentityLogoCommand = pageCheck.identities[1]?.logoUrl && /^https?:\/\//i.test(pageCheck.identities[1].logoUrl)
+    ? pageCommandSpec(pageCheck.identities[1].logoUrl, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topIdentityLogoUrlParts = pageCheck.identities[0]?.logoUrl ? urlPathParts(pageCheck.identities[0].logoUrl) : undefined;
+  const secondIdentityLogoUrlParts = pageCheck.identities[1]?.logoUrl ? urlPathParts(pageCheck.identities[1].logoUrl) : undefined;
   const topIdentitySameAsCommand = pageCheck.identities[0]?.sameAs?.[0] && /^https?:\/\//i.test(pageCheck.identities[0].sameAs[0])
     ? pageCommandSpec(pageCheck.identities[0].sameAs[0], agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const secondIdentitySameAsCommand = pageCheck.identities[1]?.sameAs?.[0] && /^https?:\/\//i.test(pageCheck.identities[1].sameAs[0])
+    ? pageCommandSpec(pageCheck.identities[1].sameAs[0], agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topIdentitySameAsUrlParts = pageCheck.identities[0]?.sameAs?.[0] ? urlPathParts(pageCheck.identities[0].sameAs[0]) : undefined;
+  const secondIdentitySameAsUrlParts = pageCheck.identities[1]?.sameAs?.[0] ? urlPathParts(pageCheck.identities[1].sameAs[0]) : undefined;
   const topContactPointCommand = pageCheck.contactPoints[0]?.url && /^https?:\/\//i.test(pageCheck.contactPoints[0].url)
     ? pageCommandSpec(pageCheck.contactPoints[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -15579,6 +15618,26 @@ function summarizeAgent(
     ...(topIdentitySameAsCommand ? { topIdentitySameAsCommandArgs: topIdentitySameAsCommand.commandArgs } : {}),
     ...(pageCheck.identities[0] ? { topIdentitySource: pageCheck.identities[0].source } : {}),
     ...(pageCheck.identities[0]?.selector ? { topIdentitySelector: pageCheck.identities[0].selector } : {}),
+    ...(pageCheck.identities[1] ? { secondIdentityPath: pageCheck.identities[1].path } : {}),
+    ...(pageCheck.identities[1] ? { secondIdentityKind: pageCheck.identities[1].kind } : {}),
+    ...(pageCheck.identities[1]?.name ? { secondIdentityName: pageCheck.identities[1].name } : {}),
+    ...(pageCheck.identities[1]?.url ? { secondIdentityUrl: pageCheck.identities[1].url } : {}),
+    ...(secondIdentityUrlParts?.urlPath ? { secondIdentityUrlPath: secondIdentityUrlParts.urlPath } : {}),
+    ...(secondIdentityUrlParts?.urlQuery ? { secondIdentityUrlQuery: secondIdentityUrlParts.urlQuery } : {}),
+    ...(secondIdentityCommand ? { secondIdentityCommand: secondIdentityCommand.command } : {}),
+    ...(secondIdentityCommand ? { secondIdentityCommandArgs: secondIdentityCommand.commandArgs } : {}),
+    ...(pageCheck.identities[1]?.logoUrl ? { secondIdentityLogoUrl: pageCheck.identities[1].logoUrl } : {}),
+    ...(secondIdentityLogoUrlParts?.urlPath ? { secondIdentityLogoUrlPath: secondIdentityLogoUrlParts.urlPath } : {}),
+    ...(secondIdentityLogoUrlParts?.urlQuery ? { secondIdentityLogoUrlQuery: secondIdentityLogoUrlParts.urlQuery } : {}),
+    ...(secondIdentityLogoCommand ? { secondIdentityLogoCommand: secondIdentityLogoCommand.command } : {}),
+    ...(secondIdentityLogoCommand ? { secondIdentityLogoCommandArgs: secondIdentityLogoCommand.commandArgs } : {}),
+    ...(pageCheck.identities[1]?.sameAs?.[0] ? { secondIdentitySameAsUrl: pageCheck.identities[1].sameAs[0] } : {}),
+    ...(secondIdentitySameAsUrlParts?.urlPath ? { secondIdentitySameAsUrlPath: secondIdentitySameAsUrlParts.urlPath } : {}),
+    ...(secondIdentitySameAsUrlParts?.urlQuery ? { secondIdentitySameAsUrlQuery: secondIdentitySameAsUrlParts.urlQuery } : {}),
+    ...(secondIdentitySameAsCommand ? { secondIdentitySameAsCommand: secondIdentitySameAsCommand.command } : {}),
+    ...(secondIdentitySameAsCommand ? { secondIdentitySameAsCommandArgs: secondIdentitySameAsCommand.commandArgs } : {}),
+    ...(pageCheck.identities[1] ? { secondIdentitySource: pageCheck.identities[1].source } : {}),
+    ...(pageCheck.identities[1]?.selector ? { secondIdentitySelector: pageCheck.identities[1].selector } : {}),
     ...(pageCheck.timeline[0] ? { topTimelinePath: pageCheck.timeline[0].path } : {}),
     ...(pageCheck.timeline[0] ? { topTimelineKind: pageCheck.timeline[0].kind } : {}),
     ...(pageCheck.timeline[0]?.label ? { topTimelineLabel: pageCheck.timeline[0].label } : {}),
@@ -22209,6 +22268,26 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topIdentitySameAsCommandArgs ? { topIdentitySameAsCommandArgs: agent.topIdentitySameAsCommandArgs } : {}),
     ...(agent.topIdentitySource ? { topIdentitySource: agent.topIdentitySource } : {}),
     ...(agent.topIdentitySelector ? { topIdentitySelector: agent.topIdentitySelector } : {}),
+    ...(agent.secondIdentityPath ? { secondIdentityPath: agent.secondIdentityPath } : {}),
+    ...(agent.secondIdentityKind ? { secondIdentityKind: agent.secondIdentityKind } : {}),
+    ...(agent.secondIdentityName ? { secondIdentityName: agent.secondIdentityName } : {}),
+    ...(agent.secondIdentityUrl ? { secondIdentityUrl: agent.secondIdentityUrl } : {}),
+    ...(agent.secondIdentityUrlPath ? { secondIdentityUrlPath: agent.secondIdentityUrlPath } : {}),
+    ...(agent.secondIdentityUrlQuery ? { secondIdentityUrlQuery: agent.secondIdentityUrlQuery } : {}),
+    ...(agent.secondIdentityCommand ? { secondIdentityCommand: agent.secondIdentityCommand } : {}),
+    ...(agent.secondIdentityCommandArgs ? { secondIdentityCommandArgs: agent.secondIdentityCommandArgs } : {}),
+    ...(agent.secondIdentityLogoUrl ? { secondIdentityLogoUrl: agent.secondIdentityLogoUrl } : {}),
+    ...(agent.secondIdentityLogoUrlPath ? { secondIdentityLogoUrlPath: agent.secondIdentityLogoUrlPath } : {}),
+    ...(agent.secondIdentityLogoUrlQuery ? { secondIdentityLogoUrlQuery: agent.secondIdentityLogoUrlQuery } : {}),
+    ...(agent.secondIdentityLogoCommand ? { secondIdentityLogoCommand: agent.secondIdentityLogoCommand } : {}),
+    ...(agent.secondIdentityLogoCommandArgs ? { secondIdentityLogoCommandArgs: agent.secondIdentityLogoCommandArgs } : {}),
+    ...(agent.secondIdentitySameAsUrl ? { secondIdentitySameAsUrl: agent.secondIdentitySameAsUrl } : {}),
+    ...(agent.secondIdentitySameAsUrlPath ? { secondIdentitySameAsUrlPath: agent.secondIdentitySameAsUrlPath } : {}),
+    ...(agent.secondIdentitySameAsUrlQuery ? { secondIdentitySameAsUrlQuery: agent.secondIdentitySameAsUrlQuery } : {}),
+    ...(agent.secondIdentitySameAsCommand ? { secondIdentitySameAsCommand: agent.secondIdentitySameAsCommand } : {}),
+    ...(agent.secondIdentitySameAsCommandArgs ? { secondIdentitySameAsCommandArgs: agent.secondIdentitySameAsCommandArgs } : {}),
+    ...(agent.secondIdentitySource ? { secondIdentitySource: agent.secondIdentitySource } : {}),
+    ...(agent.secondIdentitySelector ? { secondIdentitySelector: agent.secondIdentitySelector } : {}),
     ...(agent.topTimelinePath ? { topTimelinePath: agent.topTimelinePath } : {}),
     ...(agent.topTimelineKind ? { topTimelineKind: agent.topTimelineKind } : {}),
     ...(agent.topTimelineLabel ? { topTimelineLabel: agent.topTimelineLabel } : {}),
@@ -23940,6 +24019,26 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topIdentitySameAsCommandArgs ? { topIdentitySameAsCommandArgs: agent.topIdentitySameAsCommandArgs } : {}),
     ...(agent.topIdentitySource ? { topIdentitySource: agent.topIdentitySource } : {}),
     ...(agent.topIdentitySelector ? { topIdentitySelector: agent.topIdentitySelector } : {}),
+    ...(agent.secondIdentityPath ? { secondIdentityPath: agent.secondIdentityPath } : {}),
+    ...(agent.secondIdentityKind ? { secondIdentityKind: agent.secondIdentityKind } : {}),
+    ...(agent.secondIdentityName ? { secondIdentityName: agent.secondIdentityName } : {}),
+    ...(agent.secondIdentityUrl ? { secondIdentityUrl: agent.secondIdentityUrl } : {}),
+    ...(agent.secondIdentityUrlPath ? { secondIdentityUrlPath: agent.secondIdentityUrlPath } : {}),
+    ...(agent.secondIdentityUrlQuery ? { secondIdentityUrlQuery: agent.secondIdentityUrlQuery } : {}),
+    ...(agent.secondIdentityCommand ? { secondIdentityCommand: agent.secondIdentityCommand } : {}),
+    ...(agent.secondIdentityCommandArgs ? { secondIdentityCommandArgs: agent.secondIdentityCommandArgs } : {}),
+    ...(agent.secondIdentityLogoUrl ? { secondIdentityLogoUrl: agent.secondIdentityLogoUrl } : {}),
+    ...(agent.secondIdentityLogoUrlPath ? { secondIdentityLogoUrlPath: agent.secondIdentityLogoUrlPath } : {}),
+    ...(agent.secondIdentityLogoUrlQuery ? { secondIdentityLogoUrlQuery: agent.secondIdentityLogoUrlQuery } : {}),
+    ...(agent.secondIdentityLogoCommand ? { secondIdentityLogoCommand: agent.secondIdentityLogoCommand } : {}),
+    ...(agent.secondIdentityLogoCommandArgs ? { secondIdentityLogoCommandArgs: agent.secondIdentityLogoCommandArgs } : {}),
+    ...(agent.secondIdentitySameAsUrl ? { secondIdentitySameAsUrl: agent.secondIdentitySameAsUrl } : {}),
+    ...(agent.secondIdentitySameAsUrlPath ? { secondIdentitySameAsUrlPath: agent.secondIdentitySameAsUrlPath } : {}),
+    ...(agent.secondIdentitySameAsUrlQuery ? { secondIdentitySameAsUrlQuery: agent.secondIdentitySameAsUrlQuery } : {}),
+    ...(agent.secondIdentitySameAsCommand ? { secondIdentitySameAsCommand: agent.secondIdentitySameAsCommand } : {}),
+    ...(agent.secondIdentitySameAsCommandArgs ? { secondIdentitySameAsCommandArgs: agent.secondIdentitySameAsCommandArgs } : {}),
+    ...(agent.secondIdentitySource ? { secondIdentitySource: agent.secondIdentitySource } : {}),
+    ...(agent.secondIdentitySelector ? { secondIdentitySelector: agent.secondIdentitySelector } : {}),
     ...(agent.topTimelinePath ? { topTimelinePath: agent.topTimelinePath } : {}),
     ...(agent.topTimelineKind ? { topTimelineKind: agent.topTimelineKind } : {}),
     ...(agent.topTimelineLabel ? { topTimelineLabel: agent.topTimelineLabel } : {}),

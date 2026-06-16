@@ -11082,6 +11082,23 @@ describe("cli", () => {
       topIdentityCommandArgs: ["ax-grep", "https://example.test/about", "--find", "github.com/example", "--agent"],
       topIdentitySource: "meta",
       topIdentitySelector: "meta[property=\"og:site_name\"], meta[name=\"application-name\"]",
+      secondIdentityPath: "pageCheck.identities[1]",
+      secondIdentityKind: "organization",
+      secondIdentityName: "Example Labs",
+      secondIdentityUrl: "https://example.test/",
+      secondIdentityUrlPath: "/",
+      secondIdentityCommand: "ax-grep 'https://example.test/' --find 'github.com/example' --agent",
+      secondIdentityCommandArgs: ["ax-grep", "https://example.test/", "--find", "github.com/example", "--agent"],
+      secondIdentityLogoUrl: "https://example.test/logo.png",
+      secondIdentityLogoUrlPath: "/logo.png",
+      secondIdentityLogoCommand: "ax-grep 'https://example.test/logo.png' --find 'github.com/example' --agent",
+      secondIdentityLogoCommandArgs: ["ax-grep", "https://example.test/logo.png", "--find", "github.com/example", "--agent"],
+      secondIdentitySameAsUrl: "https://github.com/example",
+      secondIdentitySameAsUrlPath: "/example",
+      secondIdentitySameAsCommand: "ax-grep 'https://github.com/example' --find 'github.com/example' --agent",
+      secondIdentitySameAsCommandArgs: ["ax-grep", "https://github.com/example", "--find", "github.com/example", "--agent"],
+      secondIdentitySource: "json-ld",
+      secondIdentitySelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.identities",
@@ -11107,14 +11124,22 @@ describe("cli", () => {
       stdout,
       fetch: async () => new Response(`
         <script type="application/ld+json">
-          {
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            "name": "Example Labs",
-            "url": "https://example.test",
-            "logo": "/logo.png",
-            "sameAs": "https://github.com/example"
-          }
+          [
+            {
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "Example Labs",
+              "url": "https://example.test",
+              "logo": "/logo.png",
+              "sameAs": "https://github.com/example"
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "Example Docs",
+              "url": "/docs"
+            }
+          ]
         </script>
       `, { headers: { "content-type": "text/html" } }),
     });
@@ -11124,7 +11149,7 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(envelope.agent).toMatchObject({
       contract: { profile: "brief" },
-      identityCount: 1,
+      identityCount: 2,
       topIdentityPath: "pageCheck.identities[0]",
       topIdentityKind: "organization",
       topIdentityName: "Example Labs",
@@ -11142,6 +11167,15 @@ describe("cli", () => {
       topIdentitySameAsCommandArgs: ["ax-grep", "https://github.com/example", "--agent-brief"],
       topIdentitySource: "json-ld",
       topIdentitySelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      secondIdentityPath: "pageCheck.identities[1]",
+      secondIdentityKind: "website",
+      secondIdentityName: "Example Docs",
+      secondIdentityUrl: "https://example.test/docs",
+      secondIdentityUrlPath: "/docs",
+      secondIdentityCommand: "ax-grep 'https://example.test/docs' --agent-brief",
+      secondIdentityCommandArgs: ["ax-grep", "https://example.test/docs", "--agent-brief"],
+      secondIdentitySource: "json-ld",
+      secondIdentitySelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
     });
   });
 
@@ -11151,14 +11185,22 @@ describe("cli", () => {
       stdout,
       fetch: async () => new Response(`
         <script type="application/ld+json">
-          {
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            "name": "Example Labs",
-            "url": "https://example.test",
-            "logo": "/logo.png",
-            "sameAs": "https://github.com/example"
-          }
+          [
+            {
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "Example Labs",
+              "url": "https://example.test",
+              "logo": "/logo.png",
+              "sameAs": "https://github.com/example"
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "Example Docs",
+              "url": "/docs"
+            }
+          ]
         </script>
         <main><h1>About</h1></main>
       `, { headers: { "content-type": "text/html" } }),
@@ -11169,6 +11211,8 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topIdentity: path=pageCheck.identities[0] kind=organization name=\"Example Labs\" source=json-ld selector=script[type=\"application/ld+json\"]:nth-of-type(1) logo=<https://example.test/logo.png> logoPath=/logo.png sameAs=<https://github.com/example> sameAsPath=/example url=<https://example.test/> urlPath=/");
     expect(stdout.output).toContain("  topIdentityLogoCommand: ax-grep 'https://example.test/logo.png'");
     expect(stdout.output).toContain("  topIdentitySameAsCommand: ax-grep 'https://github.com/example'");
+    expect(stdout.output).toContain("  secondIdentity: path=pageCheck.identities[1] kind=website name=\"Example Docs\" source=json-ld selector=script[type=\"application/ld+json\"]:nth-of-type(1) url=<https://example.test/docs> urlPath=/docs");
+    expect(stdout.output).toContain("  secondIdentityCommand: ax-grep 'https://example.test/docs'");
     expect(stdout.output).toContain("  identity: id=id1 path=pageCheck.identities[0] kind=organization source=json-ld name=\"Example Labs\" logo=https://example.test/logo.png logoPath=/logo.png sameAs=https://github.com/example sameAsPaths=/example selector=script[type=\"application/ld+json\"]:nth-of-type(1) urlPath=/ url=<https://example.test/>");
   });
 
