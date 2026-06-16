@@ -25,6 +25,8 @@ describe("README", () => {
       expect(readme).not.toContain(fragment);
     }
 
+    expect(readme).toContain('<div align="center">');
+    expect(readme).toContain("coverage-100%25-brightgreen.svg");
     expect(readme).toContain("[Agent handoff loop](./docs/agent-handoff.md)");
     expect(readme).not.toContain("## Compact JSON Example");
   });

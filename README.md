@@ -1,10 +1,15 @@
+<div align="center">
+
 # ax-grep
 
 [![npm version](https://img.shields.io/npm/v/ax-grep.svg)](https://www.npmjs.com/package/ax-grep)
+[![coverage: 100%](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](./tests)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
-`ax-grep` turns HTML or a live DOM into a compact semantic tree for agents,
-automation code, browser extensions, WebViews, and Workers.
+Compact semantic trees and agent-ready page checks from HTML, URLs, WebViews,
+and live browser pages.
+
+</div>
 
 Core features:
 
