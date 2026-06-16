@@ -15296,6 +15296,12 @@ npx ax-grep https://example.test --agent</code></pre>
       topBarrierPath: "pageCheck.barriers[0]",
       topBarrierText: "Login: The page appears to require login or account access.",
       topBarrierDiagnosticCode: "LOGIN_REQUIRED",
+      secondBarrierKind: "paywall",
+      secondBarrierSeverity: "warning",
+      secondBarrierSource: "diagnostic",
+      secondBarrierPath: "pageCheck.barriers[1]",
+      secondBarrierText: "Paywall: The page appears to be paywalled or subscription-gated.",
+      secondBarrierDiagnosticCode: "PAYWALL_LIKELY",
       needsBrowserHtml: true,
       staticReadinessReasonCode: "browser-required",
       browserHtmlReasonCode: "login-required",
@@ -15371,6 +15377,9 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  topBarrier: severity=warning kind=login path=pageCheck.barriers[0] source=diagnostic diagnostic=LOGIN_REQUIRED - Login: The page appears to require login or account access.");
     expect(stdout.output).toContain("  topBarrierSource: diagnostic");
     expect(stdout.output).toContain("  topBarrierDiagnosticCode: LOGIN_REQUIRED");
+    expect(stdout.output).toContain("  secondBarrier: severity=warning kind=paywall path=pageCheck.barriers[1] source=diagnostic diagnostic=PAYWALL_LIKELY - Paywall: The page appears to be paywalled or subscription-gated.");
+    expect(stdout.output).toContain("  secondBarrierKind: paywall");
+    expect(stdout.output).toContain("  secondBarrierDiagnosticCode: PAYWALL_LIKELY");
     expect(stdout.output).toContain("  barrier: id=br1 path=pageCheck.barriers[0] kind=login severity=warning source=diagnostic diagnostic=LOGIN_REQUIRED - Login: The page appears to require login or account access.");
   });
 

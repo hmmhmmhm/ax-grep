@@ -1955,6 +1955,13 @@ type AgentSummary = {
   topBarrierText?: string;
   topBarrierSelector?: string;
   topBarrierDiagnosticCode?: string;
+  secondBarrierKind?: PageBarrierSummary["kind"];
+  secondBarrierSeverity?: PageBarrierSummary["severity"];
+  secondBarrierSource?: PageBarrierSummary["source"];
+  secondBarrierPath?: string;
+  secondBarrierText?: string;
+  secondBarrierSelector?: string;
+  secondBarrierDiagnosticCode?: string;
   dataTableCount: number;
   faqCount: number;
   codeBlockCount: number;
@@ -4780,6 +4787,11 @@ function formatAgentText(agent: AgentSummary): string[] {
     agent.topBarrierDiagnosticCode ? `diagnostic=${agent.topBarrierDiagnosticCode}` : "",
     agent.topBarrierSelector ? `selector=${agent.topBarrierSelector}` : "",
   ].filter(Boolean).join(" ");
+  const secondBarrierDetails = [
+    agent.secondBarrierSource ? `source=${agent.secondBarrierSource}` : "",
+    agent.secondBarrierDiagnosticCode ? `diagnostic=${agent.secondBarrierDiagnosticCode}` : "",
+    agent.secondBarrierSelector ? `selector=${agent.secondBarrierSelector}` : "",
+  ].filter(Boolean).join(" ");
   const runbookReadValueReferencePath = compactAgentReadValueReferencePath(agent.runbook.readValue, true);
   const nextReadValueReferencePath = compactAgentReadValueReferencePath(agent.next.readValue);
   const executorReadValueReferencePath = compactAgentReadValueReferencePath(agent.executor.readValue);
@@ -5223,6 +5235,14 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topBarrierSource ? [`  topBarrierSource: ${agent.topBarrierSource}`] : []),
     ...(agent.topBarrierSelector ? [`  topBarrierSelector: ${agent.topBarrierSelector}`] : []),
     ...(agent.topBarrierDiagnosticCode ? [`  topBarrierDiagnosticCode: ${agent.topBarrierDiagnosticCode}`] : []),
+    ...(agent.secondBarrierKind ? [`  secondBarrier: severity=${agent.secondBarrierSeverity} kind=${agent.secondBarrierKind} path=${agent.secondBarrierPath}${secondBarrierDetails ? ` ${secondBarrierDetails}` : ""} - ${agent.secondBarrierText}`] : []),
+    ...(agent.secondBarrierKind ? [`  secondBarrierKind: ${agent.secondBarrierKind}`] : []),
+    ...(agent.secondBarrierSeverity ? [`  secondBarrierSeverity: ${agent.secondBarrierSeverity}`] : []),
+    ...(agent.secondBarrierSource ? [`  secondBarrierSource: ${agent.secondBarrierSource}`] : []),
+    ...(agent.secondBarrierPath ? [`  secondBarrierPath: ${agent.secondBarrierPath}`] : []),
+    ...(agent.secondBarrierText ? [`  secondBarrierText: ${agent.secondBarrierText}`] : []),
+    ...(agent.secondBarrierSelector ? [`  secondBarrierSelector: ${agent.secondBarrierSelector}`] : []),
+    ...(agent.secondBarrierDiagnosticCode ? [`  secondBarrierDiagnosticCode: ${agent.secondBarrierDiagnosticCode}`] : []),
     `  dataTableCount: ${agent.dataTableCount}`,
     ...(agent.topDataTablePath ? [`  topDataTable: path=${agent.topDataTablePath}${agent.topDataTableCaption ? ` caption="${agent.topDataTableCaption}"` : ""} rows=${agent.topDataTableRowCount ?? 0} columns=${agent.topDataTableColumnCount ?? 0}${typeof agent.topDataTableHeaderCount === "number" ? ` headers=${agent.topDataTableHeaderCount}` : ""}${agent.topDataTableSelector ? ` selector=${agent.topDataTableSelector}` : ""}`] : []),
     ...(agent.topDataTableHeaders?.length ? [`  topDataTableHeaders: ${agent.topDataTableHeaders.join(" | ")}`] : []),
@@ -14600,6 +14620,7 @@ function summarizeAgent(
   const topChoiceUrlParts = topChoice?.url ? urlPathParts(topChoice.url) : undefined;
   const topChoiceFirstSitelinkUrlParts = topChoice?.firstSitelinkUrl ? urlPathParts(topChoice.firstSitelinkUrl) : undefined;
   const topBarrier = primaryBlockingBarrier(pageCheck.barriers) ?? pageCheck.barriers[0];
+  const secondBarrier = pageCheck.barriers[1];
   const rawNext = summarizeAgentNext(primaryAction, readTargets, agentReadValue(primaryAction, pageCheck, verification, results, sourceSearch, semanticSummary));
   const expectedOutcome = summarizeAgentExpectedOutcome(primaryAction);
   const answerPlan = summarizeAgentAnswerPlan(status, primaryAction, pageCheck, verification, citations, needsBrowserHtml, error);
@@ -15831,6 +15852,13 @@ function summarizeAgent(
     ...(topBarrier ? { topBarrierText: topBarrier.text } : {}),
     ...(topBarrier?.selector ? { topBarrierSelector: topBarrier.selector } : {}),
     ...(topBarrier?.diagnosticCode ? { topBarrierDiagnosticCode: topBarrier.diagnosticCode } : {}),
+    ...(secondBarrier ? { secondBarrierKind: secondBarrier.kind } : {}),
+    ...(secondBarrier ? { secondBarrierSeverity: secondBarrier.severity } : {}),
+    ...(secondBarrier ? { secondBarrierSource: secondBarrier.source } : {}),
+    ...(secondBarrier ? { secondBarrierPath: secondBarrier.path } : {}),
+    ...(secondBarrier ? { secondBarrierText: secondBarrier.text } : {}),
+    ...(secondBarrier?.selector ? { secondBarrierSelector: secondBarrier.selector } : {}),
+    ...(secondBarrier?.diagnosticCode ? { secondBarrierDiagnosticCode: secondBarrier.diagnosticCode } : {}),
     dataTableCount: pageCheck.dataTables.length,
     faqCount: pageCheck.faqs.length,
     codeBlockCount: pageCheck.codeBlocks.length,
@@ -22687,6 +22715,13 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topBarrierText ? { topBarrierText: agent.topBarrierText } : {}),
     ...(agent.topBarrierSelector ? { topBarrierSelector: agent.topBarrierSelector } : {}),
     ...(agent.topBarrierDiagnosticCode ? { topBarrierDiagnosticCode: agent.topBarrierDiagnosticCode } : {}),
+    ...(agent.secondBarrierKind ? { secondBarrierKind: agent.secondBarrierKind } : {}),
+    ...(agent.secondBarrierSeverity ? { secondBarrierSeverity: agent.secondBarrierSeverity } : {}),
+    ...(agent.secondBarrierSource ? { secondBarrierSource: agent.secondBarrierSource } : {}),
+    ...(agent.secondBarrierPath ? { secondBarrierPath: agent.secondBarrierPath } : {}),
+    ...(agent.secondBarrierText ? { secondBarrierText: agent.secondBarrierText } : {}),
+    ...(agent.secondBarrierSelector ? { secondBarrierSelector: agent.secondBarrierSelector } : {}),
+    ...(agent.secondBarrierDiagnosticCode ? { secondBarrierDiagnosticCode: agent.secondBarrierDiagnosticCode } : {}),
     dataTableCount: agent.dataTableCount,
     faqCount: agent.faqCount,
     codeBlockCount: agent.codeBlockCount,
@@ -24640,6 +24675,13 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topBarrierText ? { topBarrierText: agent.topBarrierText } : {}),
     ...(agent.topBarrierSelector ? { topBarrierSelector: agent.topBarrierSelector } : {}),
     ...(agent.topBarrierDiagnosticCode ? { topBarrierDiagnosticCode: agent.topBarrierDiagnosticCode } : {}),
+    ...(agent.secondBarrierKind ? { secondBarrierKind: agent.secondBarrierKind } : {}),
+    ...(agent.secondBarrierSeverity ? { secondBarrierSeverity: agent.secondBarrierSeverity } : {}),
+    ...(agent.secondBarrierSource ? { secondBarrierSource: agent.secondBarrierSource } : {}),
+    ...(agent.secondBarrierPath ? { secondBarrierPath: agent.secondBarrierPath } : {}),
+    ...(agent.secondBarrierText ? { secondBarrierText: agent.secondBarrierText } : {}),
+    ...(agent.secondBarrierSelector ? { secondBarrierSelector: agent.secondBarrierSelector } : {}),
+    ...(agent.secondBarrierDiagnosticCode ? { secondBarrierDiagnosticCode: agent.secondBarrierDiagnosticCode } : {}),
     dataTableCount: agent.dataTableCount,
     faqCount: agent.faqCount,
     codeBlockCount: agent.codeBlockCount,

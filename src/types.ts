@@ -2323,6 +2323,13 @@ export type AgentSummary = {
   topBarrierText?: string;
   topBarrierSelector?: string;
   topBarrierDiagnosticCode?: string;
+  secondBarrierKind?: string;
+  secondBarrierSeverity?: "info" | "warning" | "error";
+  secondBarrierSource?: string;
+  secondBarrierPath?: string;
+  secondBarrierText?: string;
+  secondBarrierSelector?: string;
+  secondBarrierDiagnosticCode?: string;
   dataTableCount?: number;
   faqCount?: number;
   codeBlockCount?: number;

@@ -563,6 +563,13 @@ describe("public agent types", () => {
       | "topBarrierText"
       | "topBarrierSelector"
       | "topBarrierDiagnosticCode"
+      | "secondBarrierKind"
+      | "secondBarrierSeverity"
+      | "secondBarrierSource"
+      | "secondBarrierPath"
+      | "secondBarrierText"
+      | "secondBarrierSelector"
+      | "secondBarrierDiagnosticCode"
       | "dataTableCount"
       | "faqCount"
       | "codeBlockCount"
@@ -2535,6 +2542,13 @@ describe("public agent types", () => {
       topBarrierText: "Challenge: verify you are human",
       topBarrierSelector: "main > h1",
       topBarrierDiagnosticCode: "CHALLENGE_LIKELY",
+      secondBarrierKind: "paywall",
+      secondBarrierSeverity: "warning",
+      secondBarrierSource: "diagnostic",
+      secondBarrierPath: "pageCheck.barriers[1]",
+      secondBarrierText: "Paywall: subscription required",
+      secondBarrierSelector: "main > p",
+      secondBarrierDiagnosticCode: "PAYWALL_LIKELY",
       dataTableCount: 1,
       faqCount: 1,
       codeBlockCount: 1,
@@ -4361,6 +4375,11 @@ describe("public agent types", () => {
     expect(summary.actionTargetChoiceCount).toBe(2);
     expect(summary.topBarrierKind).toBe("challenge");
     expect(summary.topBarrierPath).toBe("pageCheck.barriers[0]");
+    expect(summary.secondBarrierKind).toBe("paywall");
+    expect(summary.secondBarrierPath).toBe("pageCheck.barriers[1]");
+    expect(summary.secondBarrierText).toBe("Paywall: subscription required");
+    expect(summary.secondBarrierSelector).toBe("main > p");
+    expect(summary.secondBarrierDiagnosticCode).toBe("PAYWALL_LIKELY");
     expect(summary.dataTableCount).toBe(1);
     expect(summary.topDataTableFirstCell).toBe("Starter");
     expect(summary.topDataTableFirstRow?.[1]).toBe("$19.99");
