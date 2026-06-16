@@ -10003,6 +10003,16 @@ describe("cli", () => {
     });
     expect(envelope.agent.topAppHintUrlPath).toBe("/site.webmanifest");
     expect(envelope.agent.topAppHintCommandArgs).toEqual(["ax-grep", "https://example.test/site.webmanifest", "--agent"]);
+    expect(envelope.agent).toMatchObject({
+      secondAppHintPath: "pageCheck.appHints[1]",
+      secondAppHintKind: "icon",
+      secondAppHintLabel: "Apple touch icon",
+      secondAppHintUrl: "https://example.test/icons/apple.png",
+      secondAppHintUrlPath: "/icons/apple.png",
+      secondAppHintCommand: "ax-grep 'https://example.test/icons/apple.png' --agent",
+      secondAppHintCommandArgs: ["ax-grep", "https://example.test/icons/apple.png", "--agent"],
+      secondAppHintSelector: "link[rel=\"apple-touch-icon\"]:nth-of-type(2)",
+    });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.appHints",
       count: 5,

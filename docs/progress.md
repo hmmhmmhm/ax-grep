@@ -1247,6 +1247,10 @@ When research expands:
   including path, kind, name, key count, key names, and selector. This keeps
   common app-shell config handoff shallow while the full `pageCheck.config`
   array remains the detailed source of truth.
+- Added `secondAppHint*` agent shortcuts for the second detected app hint,
+  including URL path/query and fetch command args when the hint is fetchable,
+  so agents can inspect secondary icons/install metadata without parsing the
+  full app-hint array first.
 
 ## In Progress
 

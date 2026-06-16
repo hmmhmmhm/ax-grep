@@ -1070,6 +1070,15 @@ describe("public agent types", () => {
       | "topAppHintCommand"
       | "topAppHintCommandArgs"
       | "topAppHintSelector"
+      | "secondAppHintPath"
+      | "secondAppHintKind"
+      | "secondAppHintLabel"
+      | "secondAppHintUrl"
+      | "secondAppHintUrlPath"
+      | "secondAppHintUrlQuery"
+      | "secondAppHintCommand"
+      | "secondAppHintCommandArgs"
+      | "secondAppHintSelector"
       | "topMobileHintPath"
       | "topMobileHintKind"
       | "topMobileHintLabel"
@@ -3075,6 +3084,14 @@ describe("public agent types", () => {
       topAppHintCommand: "ax-grep 'https://example.test/manifest.json' --agent",
       topAppHintCommandArgs: ["ax-grep", "https://example.test/manifest.json", "--agent"],
       topAppHintSelector: "link[rel=\"manifest\"]",
+      secondAppHintPath: "pageCheck.appHints[1]",
+      secondAppHintKind: "icon",
+      secondAppHintLabel: "Apple touch icon",
+      secondAppHintUrl: "https://example.test/icons/apple.png",
+      secondAppHintUrlPath: "/icons/apple.png",
+      secondAppHintCommand: "ax-grep 'https://example.test/icons/apple.png' --agent",
+      secondAppHintCommandArgs: ["ax-grep", "https://example.test/icons/apple.png", "--agent"],
+      secondAppHintSelector: "link[rel=\"apple-touch-icon\"]",
       topMobileHintPath: "pageCheck.mobileHints[0]",
       topMobileHintKind: "viewport",
       topMobileHintLabel: "viewport",

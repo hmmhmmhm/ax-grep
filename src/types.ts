@@ -2830,6 +2830,15 @@ export type AgentSummary = {
   topAppHintCommand?: string;
   topAppHintCommandArgs?: string[];
   topAppHintSelector?: string;
+  secondAppHintPath?: string;
+  secondAppHintKind?: string;
+  secondAppHintLabel?: string;
+  secondAppHintUrl?: string;
+  secondAppHintUrlPath?: string;
+  secondAppHintUrlQuery?: string;
+  secondAppHintCommand?: string;
+  secondAppHintCommandArgs?: string[];
+  secondAppHintSelector?: string;
   topMobileHintPath?: string;
   topMobileHintKind?: string;
   topMobileHintLabel?: string;

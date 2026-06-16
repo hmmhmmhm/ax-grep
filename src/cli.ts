@@ -2462,6 +2462,15 @@ type AgentSummary = {
   topAppHintCommand?: string;
   topAppHintCommandArgs?: string[];
   topAppHintSelector?: string;
+  secondAppHintPath?: string;
+  secondAppHintKind?: string;
+  secondAppHintLabel?: string;
+  secondAppHintUrl?: string;
+  secondAppHintUrlPath?: string;
+  secondAppHintUrlQuery?: string;
+  secondAppHintCommand?: string;
+  secondAppHintCommandArgs?: string[];
+  secondAppHintSelector?: string;
   topMobileHintPath?: string;
   topMobileHintKind?: string;
   topMobileHintLabel?: string;
@@ -5500,6 +5509,10 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topAppHintCommand ? [`  topAppHintCommand: ${agent.topAppHintCommand}`] : []),
     ...(agent.topAppHintCommandArgs ? [`  topAppHintCommandArgs: ${formatCommandArgsText(agent.topAppHintCommandArgs)}`] : []),
     ...(agent.topAppHintSelector ? [`  topAppHintSelector: ${agent.topAppHintSelector}`] : []),
+    ...(agent.secondAppHintPath ? [`  secondAppHint: path=${agent.secondAppHintPath}${agent.secondAppHintKind ? ` kind=${agent.secondAppHintKind}` : ""}${agent.secondAppHintLabel ? ` label="${agent.secondAppHintLabel}"` : ""}${agent.secondAppHintSelector ? ` selector=${agent.secondAppHintSelector}` : ""}${agent.secondAppHintUrl ? ` url=<${agent.secondAppHintUrl}>` : ""}${agent.secondAppHintUrlPath ? ` urlPath=${agent.secondAppHintUrlPath}` : ""}${agent.secondAppHintUrlQuery ? ` urlQuery=${agent.secondAppHintUrlQuery}` : ""}`] : []),
+    ...(agent.secondAppHintCommand ? [`  secondAppHintCommand: ${agent.secondAppHintCommand}`] : []),
+    ...(agent.secondAppHintCommandArgs ? [`  secondAppHintCommandArgs: ${formatCommandArgsText(agent.secondAppHintCommandArgs)}`] : []),
+    ...(agent.secondAppHintSelector ? [`  secondAppHintSelector: ${agent.secondAppHintSelector}`] : []),
     ...(agent.topMobileHintPath ? [`  topMobileHint: path=${agent.topMobileHintPath}${agent.topMobileHintKind ? ` kind=${agent.topMobileHintKind}` : ""}${agent.topMobileHintLabel ? ` label="${agent.topMobileHintLabel}"` : ""}${agent.topMobileHintPlatform ? ` platform=${agent.topMobileHintPlatform}` : ""}${agent.topMobileHintSelector ? ` selector=${agent.topMobileHintSelector}` : ""}${agent.topMobileHintUrl ? ` url=<${agent.topMobileHintUrl}>` : ""}${agent.topMobileHintUrlPath ? ` urlPath=${agent.topMobileHintUrlPath}` : ""}${agent.topMobileHintUrlQuery ? ` urlQuery=${agent.topMobileHintUrlQuery}` : ""}${agent.topMobileHintValue ? ` - ${agent.topMobileHintValue}` : ""}`] : []),
     ...(agent.topTopicPath ? [`  topTopic: path=${agent.topTopicPath}${agent.topTopicKind ? ` kind=${agent.topTopicKind}` : ""}${agent.topTopicLabel ? ` label="${agent.topTopicLabel}"` : ""}${agent.topTopicSource ? ` source=${agent.topTopicSource}` : ""}${agent.topTopicSelector ? ` selector=${agent.topTopicSelector}` : ""}${agent.topTopicValue ? ` - ${agent.topTopicValue}` : ""}`] : []),
     ...(agent.topKeyValuePath ? [`  topKeyValue: path=${agent.topKeyValuePath}${agent.topKeyValueLabel ? ` label="${agent.topKeyValueLabel}"` : ""}${agent.topKeyValueSource ? ` source=${agent.topKeyValueSource}` : ""}${agent.topKeyValueDatetime ? ` datetime=${agent.topKeyValueDatetime}` : ""}${agent.topKeyValueSelector ? ` selector=${agent.topKeyValueSelector}` : ""}${agent.topKeyValueValue ? ` - ${agent.topKeyValueValue}` : ""}`] : []),
@@ -14681,6 +14694,11 @@ function summarizeAgent(
     ? pageCommandSpec(topAppHint.url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
   const topAppHintUrlParts = topAppHint?.url ? urlPathParts(topAppHint.url) : undefined;
+  const secondAppHint = pageCheck.appHints[1];
+  const secondAppHintCommand = secondAppHint?.url && /^https?:\/\//i.test(secondAppHint.url)
+    ? pageCommandSpec(secondAppHint.url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
+  const secondAppHintUrlParts = secondAppHint?.url ? urlPathParts(secondAppHint.url) : undefined;
   const topMobileHint = pageCheck.mobileHints[0];
   const topMobileHintUrlParts = topMobileHint?.url ? urlPathParts(topMobileHint.url) : undefined;
   const topTopic = pageCheck.topics[0];
@@ -16467,6 +16485,15 @@ function summarizeAgent(
     ...(topAppHintCommand ? { topAppHintCommand: topAppHintCommand.command } : {}),
     ...(topAppHintCommand ? { topAppHintCommandArgs: topAppHintCommand.commandArgs } : {}),
     ...(topAppHint?.selector ? { topAppHintSelector: topAppHint.selector } : {}),
+    ...(secondAppHint ? { secondAppHintPath: secondAppHint.path } : {}),
+    ...(secondAppHint ? { secondAppHintKind: secondAppHint.kind } : {}),
+    ...(secondAppHint?.label ? { secondAppHintLabel: secondAppHint.label } : {}),
+    ...(secondAppHint?.url ? { secondAppHintUrl: secondAppHint.url } : {}),
+    ...(secondAppHintUrlParts?.urlPath ? { secondAppHintUrlPath: secondAppHintUrlParts.urlPath } : {}),
+    ...(secondAppHintUrlParts?.urlQuery ? { secondAppHintUrlQuery: secondAppHintUrlParts.urlQuery } : {}),
+    ...(secondAppHintCommand ? { secondAppHintCommand: secondAppHintCommand.command } : {}),
+    ...(secondAppHintCommand ? { secondAppHintCommandArgs: secondAppHintCommand.commandArgs } : {}),
+    ...(secondAppHint?.selector ? { secondAppHintSelector: secondAppHint.selector } : {}),
     ...(topMobileHint ? { topMobileHintPath: topMobileHint.path } : {}),
     ...(topMobileHint ? { topMobileHintKind: topMobileHint.kind } : {}),
     ...(topMobileHint?.label ? { topMobileHintLabel: topMobileHint.label } : {}),
@@ -23390,6 +23417,15 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topAppHintCommand ? { topAppHintCommand: agent.topAppHintCommand } : {}),
     ...(agent.topAppHintCommandArgs ? { topAppHintCommandArgs: agent.topAppHintCommandArgs } : {}),
     ...(agent.topAppHintSelector ? { topAppHintSelector: agent.topAppHintSelector } : {}),
+    ...(agent.secondAppHintPath ? { secondAppHintPath: agent.secondAppHintPath } : {}),
+    ...(agent.secondAppHintKind ? { secondAppHintKind: agent.secondAppHintKind } : {}),
+    ...(agent.secondAppHintLabel ? { secondAppHintLabel: agent.secondAppHintLabel } : {}),
+    ...(agent.secondAppHintUrl ? { secondAppHintUrl: agent.secondAppHintUrl } : {}),
+    ...(agent.secondAppHintUrlPath ? { secondAppHintUrlPath: agent.secondAppHintUrlPath } : {}),
+    ...(agent.secondAppHintUrlQuery ? { secondAppHintUrlQuery: agent.secondAppHintUrlQuery } : {}),
+    ...(agent.secondAppHintCommand ? { secondAppHintCommand: agent.secondAppHintCommand } : {}),
+    ...(agent.secondAppHintCommandArgs ? { secondAppHintCommandArgs: agent.secondAppHintCommandArgs } : {}),
+    ...(agent.secondAppHintSelector ? { secondAppHintSelector: agent.secondAppHintSelector } : {}),
     ...(agent.topMobileHintPath ? { topMobileHintPath: agent.topMobileHintPath } : {}),
     ...(agent.topMobileHintKind ? { topMobileHintKind: agent.topMobileHintKind } : {}),
     ...(agent.topMobileHintLabel ? { topMobileHintLabel: agent.topMobileHintLabel } : {}),
@@ -25410,6 +25446,15 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topAppHintCommand ? { topAppHintCommand: agent.topAppHintCommand } : {}),
     ...(agent.topAppHintCommandArgs ? { topAppHintCommandArgs: agent.topAppHintCommandArgs } : {}),
     ...(agent.topAppHintSelector ? { topAppHintSelector: agent.topAppHintSelector } : {}),
+    ...(agent.secondAppHintPath ? { secondAppHintPath: agent.secondAppHintPath } : {}),
+    ...(agent.secondAppHintKind ? { secondAppHintKind: agent.secondAppHintKind } : {}),
+    ...(agent.secondAppHintLabel ? { secondAppHintLabel: agent.secondAppHintLabel } : {}),
+    ...(agent.secondAppHintUrl ? { secondAppHintUrl: agent.secondAppHintUrl } : {}),
+    ...(agent.secondAppHintUrlPath ? { secondAppHintUrlPath: agent.secondAppHintUrlPath } : {}),
+    ...(agent.secondAppHintUrlQuery ? { secondAppHintUrlQuery: agent.secondAppHintUrlQuery } : {}),
+    ...(agent.secondAppHintCommand ? { secondAppHintCommand: agent.secondAppHintCommand } : {}),
+    ...(agent.secondAppHintCommandArgs ? { secondAppHintCommandArgs: agent.secondAppHintCommandArgs } : {}),
+    ...(agent.secondAppHintSelector ? { secondAppHintSelector: agent.secondAppHintSelector } : {}),
     ...(agent.topMobileHintPath ? { topMobileHintPath: agent.topMobileHintPath } : {}),
     ...(agent.topMobileHintKind ? { topMobileHintKind: agent.topMobileHintKind } : {}),
     ...(agent.topMobileHintLabel ? { topMobileHintLabel: agent.topMobileHintLabel } : {}),
