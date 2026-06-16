@@ -4397,7 +4397,7 @@ describe("cli", () => {
               <ol>
                 <li><a class="result__a" href="https://missing.example/article">Missing Result</a><p>Missing result snippet.</p></li>
                 <li><a class="result__a" href="https://alternate.example/article">Alternate Result</a><p>Alternate result snippet.</p></li>
-                <li><a class="result__a" href="https://backup.example/article">Backup Result</a><p>Backup result snippet.</p></li>
+                <li><a class="result__a" href="https://backup.example/article">Backup Result</a><p>May 31, 2026 - Backup result snippet.</p></li>
               </ol>
             </main>
           `, { headers: { "content-type": "text/html" } });
@@ -4495,6 +4495,12 @@ describe("cli", () => {
       sourceSearchSecondAlternateHost: "backup.example",
       sourceSearchSecondAlternateSource: envelope.sourceSearch.alternateResults[1].source,
       sourceSearchSecondAlternateRank: 3,
+      sourceSearchSecondAlternateSnippet: "May 31, 2026 - Backup result snippet.",
+      sourceSearchSecondAlternateDateText: "May 31, 2026",
+      sourceSearchSecondAlternateDateIso: "2026-05-31T00:00:00.000Z",
+      sourceSearchSecondAlternateDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
+      sourceSearchSecondAlternateDatePrecision: "day",
+      sourceSearchSecondAlternateDateSource: "snippet",
       sourceSearchSecondAlternateOpenResult: 3,
       sourceSearchSecondAlternateCommand: envelope.sourceSearch.alternateResults[1].command,
       sourceSearchSecondAlternateCommandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--open-result", "3", "--agent"],
@@ -4525,6 +4531,12 @@ describe("cli", () => {
           host: "backup.example",
           source: "backup.example",
           rank: 3,
+          snippet: "May 31, 2026 - Backup result snippet.",
+          dateText: "May 31, 2026",
+          dateIso: "2026-05-31T00:00:00.000Z",
+          dateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
+          datePrecision: "day",
+          dateSource: "snippet",
           openResult: 3,
           command: "ax-grep --search 'agent browser' --engine duckduckgo --open-result 3 --agent",
           commandArgs: ["ax-grep", "--search", "agent browser", "--engine", "duckduckgo", "--open-result", "3", "--agent"],

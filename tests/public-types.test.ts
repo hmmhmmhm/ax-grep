@@ -946,6 +946,13 @@ describe("public agent types", () => {
       | "sourceSearchSecondAlternateSourceHints"
       | "sourceSearchSecondAlternateRank"
       | "sourceSearchSecondAlternateSnippet"
+      | "sourceSearchSecondAlternateDateText"
+      | "sourceSearchSecondAlternateDateIso"
+      | "sourceSearchSecondAlternateDateUnixMs"
+      | "sourceSearchSecondAlternateDatePrecision"
+      | "sourceSearchSecondAlternateDateSource"
+      | "sourceSearchSecondAlternateMatchedTerm"
+      | "sourceSearchSecondAlternateFindMatch"
       | "sourceSearchSecondAlternateOpenResult"
       | "sourceSearchSecondAlternateCommand"
       | "sourceSearchSecondAlternateCommandArgs"
@@ -2545,6 +2552,13 @@ describe("public agent types", () => {
       sourceSearchSecondAlternateSourceHints: ["backup"],
       sourceSearchSecondAlternateRank: 4,
       sourceSearchSecondAlternateSnippet: "Second alternate source summary",
+      sourceSearchSecondAlternateDateText: "2026-05-31",
+      sourceSearchSecondAlternateDateIso: "2026-05-31T00:00:00.000Z",
+      sourceSearchSecondAlternateDateUnixMs: Date.parse("2026-05-31T00:00:00.000Z"),
+      sourceSearchSecondAlternateDatePrecision: "day",
+      sourceSearchSecondAlternateDateSource: "snippet",
+      sourceSearchSecondAlternateMatchedTerm: "docs",
+      sourceSearchSecondAlternateFindMatch: "backup",
       sourceSearchSecondAlternateOpenResult: 4,
       sourceSearchSecondAlternateCommand: "ax-grep --search 'ax-grep docs' --open-result 4 --agent",
       sourceSearchSecondAlternateCommandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "4", "--agent"],
@@ -3833,6 +3847,9 @@ describe("public agent types", () => {
     expect(summary.sourceSearchAlternateLikelyOfficial).toBe(false);
     expect(summary.sourceSearchAlternateDifferentHost).toBe(true);
     expect(summary.sourceSearchSecondAlternatePath).toBe("sourceSearch.alternateResults[1]");
+    expect(summary.sourceSearchSecondAlternateDatePrecision).toBe("day");
+    expect(summary.sourceSearchSecondAlternateMatchedTerm).toBe("docs");
+    expect(summary.sourceSearchSecondAlternateFindMatch).toBe("backup");
     expect(summary.sourceSearchSecondAlternateCommand).toContain("--open-result 4");
     expect(summary.sourceSearchSecondAlternateSourceScore).toBe(0.52);
     expect(summary.sourceSearchSecondAlternateDifferentHost).toBe(true);

@@ -2392,6 +2392,13 @@ type AgentSummary = {
   sourceSearchSecondAlternateSourceHints?: string[];
   sourceSearchSecondAlternateRank?: number;
   sourceSearchSecondAlternateSnippet?: string;
+  sourceSearchSecondAlternateDateText?: string;
+  sourceSearchSecondAlternateDateIso?: string;
+  sourceSearchSecondAlternateDateUnixMs?: number;
+  sourceSearchSecondAlternateDatePrecision?: AgentSourceSearchResult["datePrecision"];
+  sourceSearchSecondAlternateDateSource?: AgentSourceSearchResult["dateSource"];
+  sourceSearchSecondAlternateMatchedTerm?: string;
+  sourceSearchSecondAlternateFindMatch?: string;
   sourceSearchSecondAlternateOpenResult?: AgentSourceSearchResult["openResult"];
   sourceSearchSecondAlternateCommand?: string;
   sourceSearchSecondAlternateCommandArgs?: string[];
@@ -5155,6 +5162,13 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.sourceSearchSecondAlternateCommand ? [`  sourceSearchSecondAlternateCommand: ${agent.sourceSearchSecondAlternateCommand}`] : []),
     ...(agent.sourceSearchSecondAlternateCommandArgs ? [`  sourceSearchSecondAlternateCommandArgs: ${JSON.stringify(agent.sourceSearchSecondAlternateCommandArgs)}`] : []),
     ...(agent.sourceSearchSecondAlternateSnippet ? [`  sourceSearchSecondAlternateSnippet: ${agent.sourceSearchSecondAlternateSnippet}`] : []),
+    ...(agent.sourceSearchSecondAlternateDateText ? [`  sourceSearchSecondAlternateDateText: ${agent.sourceSearchSecondAlternateDateText}`] : []),
+    ...(agent.sourceSearchSecondAlternateDateIso ? [`  sourceSearchSecondAlternateDateIso: ${agent.sourceSearchSecondAlternateDateIso}`] : []),
+    ...(typeof agent.sourceSearchSecondAlternateDateUnixMs === "number" ? [`  sourceSearchSecondAlternateDateUnixMs: ${agent.sourceSearchSecondAlternateDateUnixMs}`] : []),
+    ...(agent.sourceSearchSecondAlternateDatePrecision ? [`  sourceSearchSecondAlternateDatePrecision: ${agent.sourceSearchSecondAlternateDatePrecision}`] : []),
+    ...(agent.sourceSearchSecondAlternateDateSource ? [`  sourceSearchSecondAlternateDateSource: ${agent.sourceSearchSecondAlternateDateSource}`] : []),
+    ...(agent.sourceSearchSecondAlternateMatchedTerm ? [`  sourceSearchSecondAlternateMatchedTerm: ${agent.sourceSearchSecondAlternateMatchedTerm}`] : []),
+    ...(agent.sourceSearchSecondAlternateFindMatch ? [`  sourceSearchSecondAlternateFindMatch: ${agent.sourceSearchSecondAlternateFindMatch}`] : []),
     ...(typeof agent.sourceSearchSecondAlternateSourceScore === "number" ? [`  sourceSearchSecondAlternateSourceScore: ${agent.sourceSearchSecondAlternateSourceScore}`] : []),
     ...(agent.sourceSearchSecondAlternateRelevance ? [`  sourceSearchSecondAlternateRelevance: ${agent.sourceSearchSecondAlternateRelevance}`] : []),
     ...(typeof agent.sourceSearchSecondAlternateLikelyOfficial === "boolean" ? [`  sourceSearchSecondAlternateLikelyOfficial: ${agent.sourceSearchSecondAlternateLikelyOfficial}`] : []),
@@ -15626,6 +15640,13 @@ function summarizeAgent(
     ...(sourceSearchSecondAlternateResult?.sourceHints?.length ? { sourceSearchSecondAlternateSourceHints: sourceSearchSecondAlternateResult.sourceHints } : {}),
     ...(typeof sourceSearchSecondAlternateResult?.rank === "number" ? { sourceSearchSecondAlternateRank: sourceSearchSecondAlternateResult.rank } : {}),
     ...(sourceSearchSecondAlternateResult?.snippet ? { sourceSearchSecondAlternateSnippet: sourceSearchSecondAlternateResult.snippet } : {}),
+    ...(sourceSearchSecondAlternateResult?.dateText ? { sourceSearchSecondAlternateDateText: sourceSearchSecondAlternateResult.dateText } : {}),
+    ...(sourceSearchSecondAlternateResult?.dateIso ? { sourceSearchSecondAlternateDateIso: sourceSearchSecondAlternateResult.dateIso } : {}),
+    ...(typeof sourceSearchSecondAlternateResult?.dateUnixMs === "number" ? { sourceSearchSecondAlternateDateUnixMs: sourceSearchSecondAlternateResult.dateUnixMs } : {}),
+    ...(sourceSearchSecondAlternateResult?.datePrecision ? { sourceSearchSecondAlternateDatePrecision: sourceSearchSecondAlternateResult.datePrecision } : {}),
+    ...(sourceSearchSecondAlternateResult?.dateSource ? { sourceSearchSecondAlternateDateSource: sourceSearchSecondAlternateResult.dateSource } : {}),
+    ...(sourceSearchSecondAlternateResult?.matchedTerms?.[0] ? { sourceSearchSecondAlternateMatchedTerm: sourceSearchSecondAlternateResult.matchedTerms[0] } : {}),
+    ...(sourceSearchSecondAlternateResult?.findMatches?.[0] ? { sourceSearchSecondAlternateFindMatch: sourceSearchSecondAlternateResult.findMatches[0] } : {}),
     ...(sourceSearchSecondAlternateResult?.openResult ? { sourceSearchSecondAlternateOpenResult: sourceSearchSecondAlternateResult.openResult } : {}),
     ...(sourceSearchSecondAlternateResult?.command ? { sourceSearchSecondAlternateCommand: sourceSearchSecondAlternateResult.command } : {}),
     ...(sourceSearchSecondAlternateResult?.commandArgs ? { sourceSearchSecondAlternateCommandArgs: sourceSearchSecondAlternateResult.commandArgs } : {}),
@@ -19211,6 +19232,13 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(sourceSearchSecondAlternateResult?.sourceHints?.length ? { sourceSearchSecondAlternateSourceHints: sourceSearchSecondAlternateResult.sourceHints } : {}),
     ...(typeof sourceSearchSecondAlternateResult?.rank === "number" ? { sourceSearchSecondAlternateRank: sourceSearchSecondAlternateResult.rank } : {}),
     ...(sourceSearchSecondAlternateResult?.snippet ? { sourceSearchSecondAlternateSnippet: sourceSearchSecondAlternateResult.snippet } : {}),
+    ...(sourceSearchSecondAlternateResult?.dateText ? { sourceSearchSecondAlternateDateText: sourceSearchSecondAlternateResult.dateText } : {}),
+    ...(sourceSearchSecondAlternateResult?.dateIso ? { sourceSearchSecondAlternateDateIso: sourceSearchSecondAlternateResult.dateIso } : {}),
+    ...(typeof sourceSearchSecondAlternateResult?.dateUnixMs === "number" ? { sourceSearchSecondAlternateDateUnixMs: sourceSearchSecondAlternateResult.dateUnixMs } : {}),
+    ...(sourceSearchSecondAlternateResult?.datePrecision ? { sourceSearchSecondAlternateDatePrecision: sourceSearchSecondAlternateResult.datePrecision } : {}),
+    ...(sourceSearchSecondAlternateResult?.dateSource ? { sourceSearchSecondAlternateDateSource: sourceSearchSecondAlternateResult.dateSource } : {}),
+    ...(sourceSearchSecondAlternateResult?.matchedTerms?.[0] ? { sourceSearchSecondAlternateMatchedTerm: sourceSearchSecondAlternateResult.matchedTerms[0] } : {}),
+    ...(sourceSearchSecondAlternateResult?.findMatches?.[0] ? { sourceSearchSecondAlternateFindMatch: sourceSearchSecondAlternateResult.findMatches[0] } : {}),
     ...(sourceSearchSecondAlternateResult?.openResult ? { sourceSearchSecondAlternateOpenResult: sourceSearchSecondAlternateResult.openResult } : {}),
     ...(sourceSearchSecondAlternateResult?.command ? { sourceSearchSecondAlternateCommand: sourceSearchSecondAlternateResult.command } : {}),
     ...(sourceSearchSecondAlternateResult?.commandArgs ? { sourceSearchSecondAlternateCommandArgs: sourceSearchSecondAlternateResult.commandArgs } : {}),
@@ -22103,6 +22131,13 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.sourceSearchSecondAlternateSourceHints?.length ? { sourceSearchSecondAlternateSourceHints: agent.sourceSearchSecondAlternateSourceHints } : {}),
     ...(typeof agent.sourceSearchSecondAlternateRank === "number" ? { sourceSearchSecondAlternateRank: agent.sourceSearchSecondAlternateRank } : {}),
     ...(agent.sourceSearchSecondAlternateSnippet ? { sourceSearchSecondAlternateSnippet: agent.sourceSearchSecondAlternateSnippet } : {}),
+    ...(agent.sourceSearchSecondAlternateDateText ? { sourceSearchSecondAlternateDateText: agent.sourceSearchSecondAlternateDateText } : {}),
+    ...(agent.sourceSearchSecondAlternateDateIso ? { sourceSearchSecondAlternateDateIso: agent.sourceSearchSecondAlternateDateIso } : {}),
+    ...(typeof agent.sourceSearchSecondAlternateDateUnixMs === "number" ? { sourceSearchSecondAlternateDateUnixMs: agent.sourceSearchSecondAlternateDateUnixMs } : {}),
+    ...(agent.sourceSearchSecondAlternateDatePrecision ? { sourceSearchSecondAlternateDatePrecision: agent.sourceSearchSecondAlternateDatePrecision } : {}),
+    ...(agent.sourceSearchSecondAlternateDateSource ? { sourceSearchSecondAlternateDateSource: agent.sourceSearchSecondAlternateDateSource } : {}),
+    ...(agent.sourceSearchSecondAlternateMatchedTerm ? { sourceSearchSecondAlternateMatchedTerm: agent.sourceSearchSecondAlternateMatchedTerm } : {}),
+    ...(agent.sourceSearchSecondAlternateFindMatch ? { sourceSearchSecondAlternateFindMatch: agent.sourceSearchSecondAlternateFindMatch } : {}),
     ...(agent.sourceSearchSecondAlternateOpenResult ? { sourceSearchSecondAlternateOpenResult: agent.sourceSearchSecondAlternateOpenResult } : {}),
     ...(agent.sourceSearchSecondAlternateCommand ? { sourceSearchSecondAlternateCommand: agent.sourceSearchSecondAlternateCommand } : {}),
     ...(agent.sourceSearchSecondAlternateCommandArgs ? { sourceSearchSecondAlternateCommandArgs: agent.sourceSearchSecondAlternateCommandArgs } : {}),
@@ -23731,6 +23766,13 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.sourceSearchSecondAlternateSourceHints?.length ? { sourceSearchSecondAlternateSourceHints: agent.sourceSearchSecondAlternateSourceHints } : {}),
     ...(typeof agent.sourceSearchSecondAlternateRank === "number" ? { sourceSearchSecondAlternateRank: agent.sourceSearchSecondAlternateRank } : {}),
     ...(agent.sourceSearchSecondAlternateSnippet ? { sourceSearchSecondAlternateSnippet: agent.sourceSearchSecondAlternateSnippet } : {}),
+    ...(agent.sourceSearchSecondAlternateDateText ? { sourceSearchSecondAlternateDateText: agent.sourceSearchSecondAlternateDateText } : {}),
+    ...(agent.sourceSearchSecondAlternateDateIso ? { sourceSearchSecondAlternateDateIso: agent.sourceSearchSecondAlternateDateIso } : {}),
+    ...(typeof agent.sourceSearchSecondAlternateDateUnixMs === "number" ? { sourceSearchSecondAlternateDateUnixMs: agent.sourceSearchSecondAlternateDateUnixMs } : {}),
+    ...(agent.sourceSearchSecondAlternateDatePrecision ? { sourceSearchSecondAlternateDatePrecision: agent.sourceSearchSecondAlternateDatePrecision } : {}),
+    ...(agent.sourceSearchSecondAlternateDateSource ? { sourceSearchSecondAlternateDateSource: agent.sourceSearchSecondAlternateDateSource } : {}),
+    ...(agent.sourceSearchSecondAlternateMatchedTerm ? { sourceSearchSecondAlternateMatchedTerm: agent.sourceSearchSecondAlternateMatchedTerm } : {}),
+    ...(agent.sourceSearchSecondAlternateFindMatch ? { sourceSearchSecondAlternateFindMatch: agent.sourceSearchSecondAlternateFindMatch } : {}),
     ...(agent.sourceSearchSecondAlternateOpenResult ? { sourceSearchSecondAlternateOpenResult: agent.sourceSearchSecondAlternateOpenResult } : {}),
     ...(agent.sourceSearchSecondAlternateCommand ? { sourceSearchSecondAlternateCommand: agent.sourceSearchSecondAlternateCommand } : {}),
     ...(agent.sourceSearchSecondAlternateCommandArgs ? { sourceSearchSecondAlternateCommandArgs: agent.sourceSearchSecondAlternateCommandArgs } : {}),

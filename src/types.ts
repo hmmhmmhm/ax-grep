@@ -2760,6 +2760,13 @@ export type AgentSummary = {
   sourceSearchSecondAlternateSourceHints?: string[];
   sourceSearchSecondAlternateRank?: number;
   sourceSearchSecondAlternateSnippet?: string;
+  sourceSearchSecondAlternateDateText?: string;
+  sourceSearchSecondAlternateDateIso?: string;
+  sourceSearchSecondAlternateDateUnixMs?: number;
+  sourceSearchSecondAlternateDatePrecision?: AgentSourceSearchResult["datePrecision"];
+  sourceSearchSecondAlternateDateSource?: AgentSourceSearchResult["dateSource"];
+  sourceSearchSecondAlternateMatchedTerm?: string;
+  sourceSearchSecondAlternateFindMatch?: string;
   sourceSearchSecondAlternateOpenResult?: number | "best";
   sourceSearchSecondAlternateCommand?: string;
   sourceSearchSecondAlternateCommandArgs?: string[];
