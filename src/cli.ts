@@ -1388,6 +1388,19 @@ type AgentSummary = {
   semanticTopTableFirstOwnedSampleCellCurrent?: SemanticNodeState["current"];
   semanticTopTableFirstOwnedSampleCellSelector?: string;
   semanticTopTableFirstOwnedSampleCellOwnedTarget?: string;
+  semanticTopTableSecondOwnedSampleCellPath?: string;
+  semanticTopTableSecondOwnedSampleCellText?: string;
+  semanticTopTableSecondOwnedSampleCellRowIndex?: number;
+  semanticTopTableSecondOwnedSampleCellColumnIndex?: number;
+  semanticTopTableSecondOwnedSampleCellRowSpan?: number;
+  semanticTopTableSecondOwnedSampleCellColumnSpan?: number;
+  semanticTopTableSecondOwnedSampleCellHeaders?: string[];
+  semanticTopTableSecondOwnedSampleCellRowHeaders?: string[];
+  semanticTopTableSecondOwnedSampleCellColumnHeaders?: string[];
+  semanticTopTableSecondOwnedSampleCellSelected?: boolean;
+  semanticTopTableSecondOwnedSampleCellCurrent?: SemanticNodeState["current"];
+  semanticTopTableSecondOwnedSampleCellSelector?: string;
+  semanticTopTableSecondOwnedSampleCellOwnedTarget?: string;
   semanticTopSelectedTableCellPath?: string;
   semanticTopSelectedTableCellText?: string;
   semanticTopSelectedTableCellRowIndex?: number;
@@ -5720,6 +5733,20 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (typeof agent.semanticTopTableFirstOwnedSampleCellCurrent !== "undefined") lines.push(`  semanticTopTableFirstOwnedSampleCellCurrent: ${agent.semanticTopTableFirstOwnedSampleCellCurrent}`);
   if (agent.semanticTopTableFirstOwnedSampleCellSelector) lines.push(`  semanticTopTableFirstOwnedSampleCellSelector: ${agent.semanticTopTableFirstOwnedSampleCellSelector}`);
   if (agent.semanticTopTableFirstOwnedSampleCellOwnedTarget) lines.push(`  semanticTopTableFirstOwnedSampleCellOwnedTarget: ${agent.semanticTopTableFirstOwnedSampleCellOwnedTarget}`);
+  if (agent.semanticTopTableSecondOwnedSampleCellText) lines.push(`  semanticTopTableSecondOwnedSampleCell: ${agent.semanticTopTableSecondOwnedSampleCellPath ?? ""} text="${agent.semanticTopTableSecondOwnedSampleCellText}"${typeof agent.semanticTopTableSecondOwnedSampleCellRowIndex === "number" ? ` row=${agent.semanticTopTableSecondOwnedSampleCellRowIndex}` : ""}${typeof agent.semanticTopTableSecondOwnedSampleCellColumnIndex === "number" ? ` column=${agent.semanticTopTableSecondOwnedSampleCellColumnIndex}` : ""}${typeof agent.semanticTopTableSecondOwnedSampleCellRowSpan === "number" ? ` rowSpan=${agent.semanticTopTableSecondOwnedSampleCellRowSpan}` : ""}${typeof agent.semanticTopTableSecondOwnedSampleCellColumnSpan === "number" ? ` columnSpan=${agent.semanticTopTableSecondOwnedSampleCellColumnSpan}` : ""}${agent.semanticTopTableSecondOwnedSampleCellHeaders?.length ? ` headers=${agent.semanticTopTableSecondOwnedSampleCellHeaders.join("|")}` : ""}${agent.semanticTopTableSecondOwnedSampleCellRowHeaders?.length ? ` rowHeaders=${agent.semanticTopTableSecondOwnedSampleCellRowHeaders.join("|")}` : ""}${agent.semanticTopTableSecondOwnedSampleCellColumnHeaders?.length ? ` columnHeaders=${agent.semanticTopTableSecondOwnedSampleCellColumnHeaders.join("|")}` : ""}${typeof agent.semanticTopTableSecondOwnedSampleCellSelected === "boolean" ? ` selected=${agent.semanticTopTableSecondOwnedSampleCellSelected}` : ""}${typeof agent.semanticTopTableSecondOwnedSampleCellCurrent !== "undefined" ? ` current=${agent.semanticTopTableSecondOwnedSampleCellCurrent}` : ""}${agent.semanticTopTableSecondOwnedSampleCellSelector ? ` selector=${agent.semanticTopTableSecondOwnedSampleCellSelector}` : ""}${agent.semanticTopTableSecondOwnedSampleCellOwnedTarget ? ` ownedTarget=${agent.semanticTopTableSecondOwnedSampleCellOwnedTarget}` : ""}`);
+  if (agent.semanticTopTableSecondOwnedSampleCellPath) lines.push(`  semanticTopTableSecondOwnedSampleCellPath: ${agent.semanticTopTableSecondOwnedSampleCellPath}`);
+  if (agent.semanticTopTableSecondOwnedSampleCellText) lines.push(`  semanticTopTableSecondOwnedSampleCellText: ${agent.semanticTopTableSecondOwnedSampleCellText}`);
+  if (typeof agent.semanticTopTableSecondOwnedSampleCellRowIndex === "number") lines.push(`  semanticTopTableSecondOwnedSampleCellRowIndex: ${agent.semanticTopTableSecondOwnedSampleCellRowIndex}`);
+  if (typeof agent.semanticTopTableSecondOwnedSampleCellColumnIndex === "number") lines.push(`  semanticTopTableSecondOwnedSampleCellColumnIndex: ${agent.semanticTopTableSecondOwnedSampleCellColumnIndex}`);
+  if (typeof agent.semanticTopTableSecondOwnedSampleCellRowSpan === "number") lines.push(`  semanticTopTableSecondOwnedSampleCellRowSpan: ${agent.semanticTopTableSecondOwnedSampleCellRowSpan}`);
+  if (typeof agent.semanticTopTableSecondOwnedSampleCellColumnSpan === "number") lines.push(`  semanticTopTableSecondOwnedSampleCellColumnSpan: ${agent.semanticTopTableSecondOwnedSampleCellColumnSpan}`);
+  if (agent.semanticTopTableSecondOwnedSampleCellHeaders?.length) lines.push(`  semanticTopTableSecondOwnedSampleCellHeaders: ${agent.semanticTopTableSecondOwnedSampleCellHeaders.join(" | ")}`);
+  if (agent.semanticTopTableSecondOwnedSampleCellRowHeaders?.length) lines.push(`  semanticTopTableSecondOwnedSampleCellRowHeaders: ${agent.semanticTopTableSecondOwnedSampleCellRowHeaders.join(" | ")}`);
+  if (agent.semanticTopTableSecondOwnedSampleCellColumnHeaders?.length) lines.push(`  semanticTopTableSecondOwnedSampleCellColumnHeaders: ${agent.semanticTopTableSecondOwnedSampleCellColumnHeaders.join(" | ")}`);
+  if (typeof agent.semanticTopTableSecondOwnedSampleCellSelected === "boolean") lines.push(`  semanticTopTableSecondOwnedSampleCellSelected: ${agent.semanticTopTableSecondOwnedSampleCellSelected}`);
+  if (typeof agent.semanticTopTableSecondOwnedSampleCellCurrent !== "undefined") lines.push(`  semanticTopTableSecondOwnedSampleCellCurrent: ${agent.semanticTopTableSecondOwnedSampleCellCurrent}`);
+  if (agent.semanticTopTableSecondOwnedSampleCellSelector) lines.push(`  semanticTopTableSecondOwnedSampleCellSelector: ${agent.semanticTopTableSecondOwnedSampleCellSelector}`);
+  if (agent.semanticTopTableSecondOwnedSampleCellOwnedTarget) lines.push(`  semanticTopTableSecondOwnedSampleCellOwnedTarget: ${agent.semanticTopTableSecondOwnedSampleCellOwnedTarget}`);
   if (agent.semanticTopSelectedTableCellText) lines.push(`  semanticTopSelectedTableCell: ${agent.semanticTopSelectedTableCellPath ?? ""} text="${agent.semanticTopSelectedTableCellText}"${typeof agent.semanticTopSelectedTableCellRowIndex === "number" ? ` row=${agent.semanticTopSelectedTableCellRowIndex}` : ""}${typeof agent.semanticTopSelectedTableCellColumnIndex === "number" ? ` column=${agent.semanticTopSelectedTableCellColumnIndex}` : ""}${typeof agent.semanticTopSelectedTableCellRowSpan === "number" ? ` rowSpan=${agent.semanticTopSelectedTableCellRowSpan}` : ""}${typeof agent.semanticTopSelectedTableCellColumnSpan === "number" ? ` columnSpan=${agent.semanticTopSelectedTableCellColumnSpan}` : ""}${agent.semanticTopSelectedTableCellHeaders?.length ? ` headers=${agent.semanticTopSelectedTableCellHeaders.join("|")}` : ""}${agent.semanticTopSelectedTableCellRowHeaders?.length ? ` rowHeaders=${agent.semanticTopSelectedTableCellRowHeaders.join("|")}` : ""}${agent.semanticTopSelectedTableCellColumnHeaders?.length ? ` columnHeaders=${agent.semanticTopSelectedTableCellColumnHeaders.join("|")}` : ""}${typeof agent.semanticTopSelectedTableCellSelected === "boolean" ? ` selected=${agent.semanticTopSelectedTableCellSelected}` : ""}${typeof agent.semanticTopSelectedTableCellCurrent !== "undefined" ? ` current=${agent.semanticTopSelectedTableCellCurrent}` : ""}${agent.semanticTopSelectedTableCellSelector ? ` selector=${agent.semanticTopSelectedTableCellSelector}` : ""}${agent.semanticTopSelectedTableCellOwnedTarget ? ` ownedTarget=${agent.semanticTopSelectedTableCellOwnedTarget}` : ""}`);
   if (agent.semanticTopSelectedTableCellPath) lines.push(`  semanticTopSelectedTableCellPath: ${agent.semanticTopSelectedTableCellPath}`);
   if (agent.semanticTopSelectedTableCellText) lines.push(`  semanticTopSelectedTableCellText: ${agent.semanticTopSelectedTableCellText}`);
@@ -14126,7 +14153,9 @@ function summarizeAgent(
   const topSemanticTableFirstOwnedRef = topSemanticTable?.ownedRefs?.[0];
   const topSemanticTableFirstSampleCellRef = topSemanticTable?.sampleCellRefs?.[0];
   const topSemanticTableSecondSampleCellRef = topSemanticTable?.sampleCellRefs?.[1];
-  const topSemanticTableFirstOwnedSampleCellRef = topSemanticTable?.sampleCellRefs?.find((item) => typeof item.ownedTarget === "string" && item.ownedTarget.length > 0);
+  const topSemanticTableOwnedSampleCellRefs = topSemanticTable?.sampleCellRefs?.filter((item) => typeof item.ownedTarget === "string" && item.ownedTarget.length > 0) ?? [];
+  const topSemanticTableFirstOwnedSampleCellRef = topSemanticTableOwnedSampleCellRefs[0];
+  const topSemanticTableSecondOwnedSampleCellRef = topSemanticTableOwnedSampleCellRefs[1];
   const topSemanticSelectedTableCellRef = topSemanticTable?.sampleCellRefs?.find((item) => item.selected === true)
     ?? topSemanticTable?.sampleCellRefs?.find((item) => typeof item.current !== "undefined");
   const topSemanticList = semanticSummary?.listItems[0];
@@ -14570,6 +14599,19 @@ function summarizeAgent(
     ...(typeof topSemanticTableFirstOwnedSampleCellRef?.current !== "undefined" ? { semanticTopTableFirstOwnedSampleCellCurrent: topSemanticTableFirstOwnedSampleCellRef.current } : {}),
     ...(topSemanticTableFirstOwnedSampleCellRef?.selector ? { semanticTopTableFirstOwnedSampleCellSelector: topSemanticTableFirstOwnedSampleCellRef.selector } : {}),
     ...(topSemanticTableFirstOwnedSampleCellRef?.ownedTarget ? { semanticTopTableFirstOwnedSampleCellOwnedTarget: topSemanticTableFirstOwnedSampleCellRef.ownedTarget } : {}),
+    ...(topSemanticTableSecondOwnedSampleCellRef?.path ? { semanticTopTableSecondOwnedSampleCellPath: topSemanticTableSecondOwnedSampleCellRef.path } : {}),
+    ...(topSemanticTableSecondOwnedSampleCellRef?.text ? { semanticTopTableSecondOwnedSampleCellText: topSemanticTableSecondOwnedSampleCellRef.text } : {}),
+    ...(typeof topSemanticTableSecondOwnedSampleCellRef?.rowIndex === "number" ? { semanticTopTableSecondOwnedSampleCellRowIndex: topSemanticTableSecondOwnedSampleCellRef.rowIndex } : {}),
+    ...(typeof topSemanticTableSecondOwnedSampleCellRef?.columnIndex === "number" ? { semanticTopTableSecondOwnedSampleCellColumnIndex: topSemanticTableSecondOwnedSampleCellRef.columnIndex } : {}),
+    ...(typeof topSemanticTableSecondOwnedSampleCellRef?.rowSpan === "number" ? { semanticTopTableSecondOwnedSampleCellRowSpan: topSemanticTableSecondOwnedSampleCellRef.rowSpan } : {}),
+    ...(typeof topSemanticTableSecondOwnedSampleCellRef?.columnSpan === "number" ? { semanticTopTableSecondOwnedSampleCellColumnSpan: topSemanticTableSecondOwnedSampleCellRef.columnSpan } : {}),
+    ...(topSemanticTableSecondOwnedSampleCellRef?.headers?.length ? { semanticTopTableSecondOwnedSampleCellHeaders: topSemanticTableSecondOwnedSampleCellRef.headers } : {}),
+    ...(topSemanticTableSecondOwnedSampleCellRef?.rowHeaders?.length ? { semanticTopTableSecondOwnedSampleCellRowHeaders: topSemanticTableSecondOwnedSampleCellRef.rowHeaders } : {}),
+    ...(topSemanticTableSecondOwnedSampleCellRef?.columnHeaders?.length ? { semanticTopTableSecondOwnedSampleCellColumnHeaders: topSemanticTableSecondOwnedSampleCellRef.columnHeaders } : {}),
+    ...(typeof topSemanticTableSecondOwnedSampleCellRef?.selected === "boolean" ? { semanticTopTableSecondOwnedSampleCellSelected: topSemanticTableSecondOwnedSampleCellRef.selected } : {}),
+    ...(typeof topSemanticTableSecondOwnedSampleCellRef?.current !== "undefined" ? { semanticTopTableSecondOwnedSampleCellCurrent: topSemanticTableSecondOwnedSampleCellRef.current } : {}),
+    ...(topSemanticTableSecondOwnedSampleCellRef?.selector ? { semanticTopTableSecondOwnedSampleCellSelector: topSemanticTableSecondOwnedSampleCellRef.selector } : {}),
+    ...(topSemanticTableSecondOwnedSampleCellRef?.ownedTarget ? { semanticTopTableSecondOwnedSampleCellOwnedTarget: topSemanticTableSecondOwnedSampleCellRef.ownedTarget } : {}),
     ...(topSemanticSelectedTableCellRef?.path ? { semanticTopSelectedTableCellPath: topSemanticSelectedTableCellRef.path } : {}),
     ...(topSemanticSelectedTableCellRef?.text ? { semanticTopSelectedTableCellText: topSemanticSelectedTableCellRef.text } : {}),
     ...(typeof topSemanticSelectedTableCellRef?.rowIndex === "number" ? { semanticTopSelectedTableCellRowIndex: topSemanticSelectedTableCellRef.rowIndex } : {}),
@@ -21024,6 +21066,19 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.semanticTopTableFirstOwnedSampleCellCurrent !== "undefined" ? { semanticTopTableFirstOwnedSampleCellCurrent: agent.semanticTopTableFirstOwnedSampleCellCurrent } : {}),
     ...(agent.semanticTopTableFirstOwnedSampleCellSelector ? { semanticTopTableFirstOwnedSampleCellSelector: agent.semanticTopTableFirstOwnedSampleCellSelector } : {}),
     ...(agent.semanticTopTableFirstOwnedSampleCellOwnedTarget ? { semanticTopTableFirstOwnedSampleCellOwnedTarget: agent.semanticTopTableFirstOwnedSampleCellOwnedTarget } : {}),
+    ...(agent.semanticTopTableSecondOwnedSampleCellPath ? { semanticTopTableSecondOwnedSampleCellPath: agent.semanticTopTableSecondOwnedSampleCellPath } : {}),
+    ...(agent.semanticTopTableSecondOwnedSampleCellText ? { semanticTopTableSecondOwnedSampleCellText: agent.semanticTopTableSecondOwnedSampleCellText } : {}),
+    ...(typeof agent.semanticTopTableSecondOwnedSampleCellRowIndex === "number" ? { semanticTopTableSecondOwnedSampleCellRowIndex: agent.semanticTopTableSecondOwnedSampleCellRowIndex } : {}),
+    ...(typeof agent.semanticTopTableSecondOwnedSampleCellColumnIndex === "number" ? { semanticTopTableSecondOwnedSampleCellColumnIndex: agent.semanticTopTableSecondOwnedSampleCellColumnIndex } : {}),
+    ...(typeof agent.semanticTopTableSecondOwnedSampleCellRowSpan === "number" ? { semanticTopTableSecondOwnedSampleCellRowSpan: agent.semanticTopTableSecondOwnedSampleCellRowSpan } : {}),
+    ...(typeof agent.semanticTopTableSecondOwnedSampleCellColumnSpan === "number" ? { semanticTopTableSecondOwnedSampleCellColumnSpan: agent.semanticTopTableSecondOwnedSampleCellColumnSpan } : {}),
+    ...(agent.semanticTopTableSecondOwnedSampleCellHeaders?.length ? { semanticTopTableSecondOwnedSampleCellHeaders: agent.semanticTopTableSecondOwnedSampleCellHeaders } : {}),
+    ...(agent.semanticTopTableSecondOwnedSampleCellRowHeaders?.length ? { semanticTopTableSecondOwnedSampleCellRowHeaders: agent.semanticTopTableSecondOwnedSampleCellRowHeaders } : {}),
+    ...(agent.semanticTopTableSecondOwnedSampleCellColumnHeaders?.length ? { semanticTopTableSecondOwnedSampleCellColumnHeaders: agent.semanticTopTableSecondOwnedSampleCellColumnHeaders } : {}),
+    ...(typeof agent.semanticTopTableSecondOwnedSampleCellSelected === "boolean" ? { semanticTopTableSecondOwnedSampleCellSelected: agent.semanticTopTableSecondOwnedSampleCellSelected } : {}),
+    ...(typeof agent.semanticTopTableSecondOwnedSampleCellCurrent !== "undefined" ? { semanticTopTableSecondOwnedSampleCellCurrent: agent.semanticTopTableSecondOwnedSampleCellCurrent } : {}),
+    ...(agent.semanticTopTableSecondOwnedSampleCellSelector ? { semanticTopTableSecondOwnedSampleCellSelector: agent.semanticTopTableSecondOwnedSampleCellSelector } : {}),
+    ...(agent.semanticTopTableSecondOwnedSampleCellOwnedTarget ? { semanticTopTableSecondOwnedSampleCellOwnedTarget: agent.semanticTopTableSecondOwnedSampleCellOwnedTarget } : {}),
     ...(agent.semanticTopSelectedTableCellPath ? { semanticTopSelectedTableCellPath: agent.semanticTopSelectedTableCellPath } : {}),
     ...(agent.semanticTopSelectedTableCellText ? { semanticTopSelectedTableCellText: agent.semanticTopSelectedTableCellText } : {}),
     ...(typeof agent.semanticTopSelectedTableCellRowIndex === "number" ? { semanticTopSelectedTableCellRowIndex: agent.semanticTopSelectedTableCellRowIndex } : {}),
@@ -22625,6 +22680,19 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.semanticTopTableFirstOwnedSampleCellCurrent !== "undefined" ? { semanticTopTableFirstOwnedSampleCellCurrent: agent.semanticTopTableFirstOwnedSampleCellCurrent } : {}),
     ...(agent.semanticTopTableFirstOwnedSampleCellSelector ? { semanticTopTableFirstOwnedSampleCellSelector: agent.semanticTopTableFirstOwnedSampleCellSelector } : {}),
     ...(agent.semanticTopTableFirstOwnedSampleCellOwnedTarget ? { semanticTopTableFirstOwnedSampleCellOwnedTarget: agent.semanticTopTableFirstOwnedSampleCellOwnedTarget } : {}),
+    ...(agent.semanticTopTableSecondOwnedSampleCellPath ? { semanticTopTableSecondOwnedSampleCellPath: agent.semanticTopTableSecondOwnedSampleCellPath } : {}),
+    ...(agent.semanticTopTableSecondOwnedSampleCellText ? { semanticTopTableSecondOwnedSampleCellText: agent.semanticTopTableSecondOwnedSampleCellText } : {}),
+    ...(typeof agent.semanticTopTableSecondOwnedSampleCellRowIndex === "number" ? { semanticTopTableSecondOwnedSampleCellRowIndex: agent.semanticTopTableSecondOwnedSampleCellRowIndex } : {}),
+    ...(typeof agent.semanticTopTableSecondOwnedSampleCellColumnIndex === "number" ? { semanticTopTableSecondOwnedSampleCellColumnIndex: agent.semanticTopTableSecondOwnedSampleCellColumnIndex } : {}),
+    ...(typeof agent.semanticTopTableSecondOwnedSampleCellRowSpan === "number" ? { semanticTopTableSecondOwnedSampleCellRowSpan: agent.semanticTopTableSecondOwnedSampleCellRowSpan } : {}),
+    ...(typeof agent.semanticTopTableSecondOwnedSampleCellColumnSpan === "number" ? { semanticTopTableSecondOwnedSampleCellColumnSpan: agent.semanticTopTableSecondOwnedSampleCellColumnSpan } : {}),
+    ...(agent.semanticTopTableSecondOwnedSampleCellHeaders?.length ? { semanticTopTableSecondOwnedSampleCellHeaders: agent.semanticTopTableSecondOwnedSampleCellHeaders } : {}),
+    ...(agent.semanticTopTableSecondOwnedSampleCellRowHeaders?.length ? { semanticTopTableSecondOwnedSampleCellRowHeaders: agent.semanticTopTableSecondOwnedSampleCellRowHeaders } : {}),
+    ...(agent.semanticTopTableSecondOwnedSampleCellColumnHeaders?.length ? { semanticTopTableSecondOwnedSampleCellColumnHeaders: agent.semanticTopTableSecondOwnedSampleCellColumnHeaders } : {}),
+    ...(typeof agent.semanticTopTableSecondOwnedSampleCellSelected === "boolean" ? { semanticTopTableSecondOwnedSampleCellSelected: agent.semanticTopTableSecondOwnedSampleCellSelected } : {}),
+    ...(typeof agent.semanticTopTableSecondOwnedSampleCellCurrent !== "undefined" ? { semanticTopTableSecondOwnedSampleCellCurrent: agent.semanticTopTableSecondOwnedSampleCellCurrent } : {}),
+    ...(agent.semanticTopTableSecondOwnedSampleCellSelector ? { semanticTopTableSecondOwnedSampleCellSelector: agent.semanticTopTableSecondOwnedSampleCellSelector } : {}),
+    ...(agent.semanticTopTableSecondOwnedSampleCellOwnedTarget ? { semanticTopTableSecondOwnedSampleCellOwnedTarget: agent.semanticTopTableSecondOwnedSampleCellOwnedTarget } : {}),
     ...(agent.semanticTopSelectedTableCellPath ? { semanticTopSelectedTableCellPath: agent.semanticTopSelectedTableCellPath } : {}),
     ...(agent.semanticTopSelectedTableCellText ? { semanticTopSelectedTableCellText: agent.semanticTopSelectedTableCellText } : {}),
     ...(typeof agent.semanticTopSelectedTableCellRowIndex === "number" ? { semanticTopSelectedTableCellRowIndex: agent.semanticTopSelectedTableCellRowIndex } : {}),

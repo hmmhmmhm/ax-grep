@@ -7306,7 +7306,7 @@ describe("cli", () => {
             <tr><th id="metric">Metric</th><th id="value">Value</th></tr>
           </table>
           <div id="owned-rows" role="rowgroup" aria-label="Virtual rows">
-            <div role="row" aria-rowindex="50"><span role="rowheader" aria-colindex="1">Virtual metric</span><span role="gridcell" aria-colindex="4" headers="value" aria-selected="true">Queued</span></div>
+            <div role="row" aria-rowindex="50"><span role="rowheader" aria-colindex="1">Virtual metric</span><span role="gridcell" aria-colindex="4" headers="value" aria-selected="true">Queued</span><span role="gridcell" aria-colindex="5" headers="value" aria-selected="false">Delayed</span></div>
           </div>
         </main>
       `, { headers: { "content-type": "text/html" } }),
@@ -7341,6 +7341,16 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopTableFirstOwnedSampleCellSelected: true");
     expect(stdout.output).toContain("  semanticTopTableFirstOwnedSampleCellSelector: span:nth-of-type(2)");
     expect(stdout.output).toContain("  semanticTopTableFirstOwnedSampleCellOwnedTarget: owned-rows");
+    expect(stdout.output).toContain("  semanticTopTableSecondOwnedSampleCell:");
+    expect(stdout.output).toContain("Delayed");
+    expect(stdout.output).toContain("  semanticTopTableSecondOwnedSampleCellPath: agent.semanticSummary.tableItems[0].sampleCellRefs[1]");
+    expect(stdout.output).toContain("  semanticTopTableSecondOwnedSampleCellText: Delayed");
+    expect(stdout.output).toContain("  semanticTopTableSecondOwnedSampleCellRowIndex: 50");
+    expect(stdout.output).toContain("  semanticTopTableSecondOwnedSampleCellColumnIndex: 5");
+    expect(stdout.output).toContain("  semanticTopTableSecondOwnedSampleCellHeaders: Value");
+    expect(stdout.output).toContain("  semanticTopTableSecondOwnedSampleCellColumnHeaders: Value");
+    expect(stdout.output).toContain("  semanticTopTableSecondOwnedSampleCellSelector: span:nth-of-type(3)");
+    expect(stdout.output).toContain("  semanticTopTableSecondOwnedSampleCellOwnedTarget: owned-rows");
     expect(stdout.output).toContain("  semanticTopSelectedTableCell:");
     expect(stdout.output).toContain("  semanticTopSelectedTableCellText: Queued");
     expect(stdout.output).toContain("  semanticTopSelectedTableCellRowIndex: 50");

@@ -1262,6 +1262,19 @@ describe("public agent types", () => {
       | "semanticTopTableFirstOwnedSampleCellCurrent"
       | "semanticTopTableFirstOwnedSampleCellSelector"
       | "semanticTopTableFirstOwnedSampleCellOwnedTarget"
+      | "semanticTopTableSecondOwnedSampleCellPath"
+      | "semanticTopTableSecondOwnedSampleCellText"
+      | "semanticTopTableSecondOwnedSampleCellRowIndex"
+      | "semanticTopTableSecondOwnedSampleCellColumnIndex"
+      | "semanticTopTableSecondOwnedSampleCellRowSpan"
+      | "semanticTopTableSecondOwnedSampleCellColumnSpan"
+      | "semanticTopTableSecondOwnedSampleCellHeaders"
+      | "semanticTopTableSecondOwnedSampleCellRowHeaders"
+      | "semanticTopTableSecondOwnedSampleCellColumnHeaders"
+      | "semanticTopTableSecondOwnedSampleCellSelected"
+      | "semanticTopTableSecondOwnedSampleCellCurrent"
+      | "semanticTopTableSecondOwnedSampleCellSelector"
+      | "semanticTopTableSecondOwnedSampleCellOwnedTarget"
       | "semanticTopSelectedTableCellPath"
       | "semanticTopSelectedTableCellText"
       | "semanticTopSelectedTableCellRowIndex"
@@ -2970,6 +2983,19 @@ describe("public agent types", () => {
       semanticTopTableFirstOwnedSampleCellCurrent: "page",
       semanticTopTableFirstOwnedSampleCellSelector: "td:nth-of-type(1)",
       semanticTopTableFirstOwnedSampleCellOwnedTarget: "virtual-rows",
+      semanticTopTableSecondOwnedSampleCellPath: "agent.semanticSummary.tableItems[0].sampleCellRefs[1]",
+      semanticTopTableSecondOwnedSampleCellText: "$20",
+      semanticTopTableSecondOwnedSampleCellRowIndex: 2,
+      semanticTopTableSecondOwnedSampleCellColumnIndex: 2,
+      semanticTopTableSecondOwnedSampleCellRowSpan: 1,
+      semanticTopTableSecondOwnedSampleCellColumnSpan: 1,
+      semanticTopTableSecondOwnedSampleCellHeaders: ["Price"],
+      semanticTopTableSecondOwnedSampleCellRowHeaders: ["Pro"],
+      semanticTopTableSecondOwnedSampleCellColumnHeaders: ["Price"],
+      semanticTopTableSecondOwnedSampleCellSelected: false,
+      semanticTopTableSecondOwnedSampleCellCurrent: "false",
+      semanticTopTableSecondOwnedSampleCellSelector: "td:nth-of-type(2)",
+      semanticTopTableSecondOwnedSampleCellOwnedTarget: "virtual-rows",
       semanticTopSelectedTableCellPath: "agent.semanticSummary.tableItems[0].sampleCellRefs[0]",
       semanticTopSelectedTableCellText: "Pro",
       semanticTopSelectedTableCellRowIndex: 2,
