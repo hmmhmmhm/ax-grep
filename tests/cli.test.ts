@@ -10793,13 +10793,23 @@ describe("cli", () => {
                 "name": "Agent Browser Pro",
                 "sku": "ABP-2026",
                 "brand": { "@type": "Brand", "name": "Example Labs" },
-                "offers": {
-                  "@type": "Offer",
-                  "price": "19.99",
-                  "priceCurrency": "USD",
-                  "availability": "https://schema.org/InStock",
-                  "url": "/buy"
-                },
+                "offers": [
+                  {
+                    "@type": "Offer",
+                    "price": "19.99",
+                    "priceCurrency": "USD",
+                    "availability": "https://schema.org/InStock",
+                    "url": "/buy"
+                  },
+                  {
+                    "@type": "Offer",
+                    "name": "Agent Browser Team",
+                    "price": "49.99",
+                    "priceCurrency": "USD",
+                    "availability": "https://schema.org/PreOrder",
+                    "url": "/team?plan=annual"
+                  }
+                ],
                 "aggregateRating": {
                   "@type": "AggregateRating",
                   "ratingValue": "4.8",
@@ -10837,10 +10847,30 @@ describe("cli", () => {
         source: "json-ld",
         selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
       },
+      {
+        id: "of2",
+        path: "pageCheck.offers[1]",
+        rank: 2,
+        name: "Agent Browser Team",
+        price: "49.99",
+        priceAmount: 49.99,
+        currency: "USD",
+        availability: "PreOrder",
+        url: "https://example.test/team?plan=annual",
+        urlPath: "/team",
+        urlQuery: "?plan=annual",
+        brand: "Example Labs",
+        sku: "ABP-2026",
+        rating: "4.8 / 5",
+        reviewCount: "128",
+        text: "Name: Agent Browser Team; Price: USD 49.99; Price amount: 49.99; Availability: PreOrder; Brand: Example Labs; SKU: ABP-2026; Rating: 4.8 / 5; Review count: 128; URL: https://example.test/team?plan=annual; source=json-ld",
+        source: "json-ld",
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      },
     ]);
-    expect(envelope.pageCheck.readability.reasons).toContain("1 offer");
+    expect(envelope.pageCheck.readability.reasons).toContain("2 offers");
     expect(envelope.agent).toMatchObject({
-      offerCount: 1,
+      offerCount: 2,
       topOfferPath: "pageCheck.offers[0]",
       topOfferName: "Agent Browser Pro",
       topOfferPrice: "19.99",
@@ -10852,10 +10882,22 @@ describe("cli", () => {
       topOfferCommand: "ax-grep 'https://example.test/buy' --find 'source=json-ld' --agent",
       topOfferCommandArgs: ["ax-grep", "https://example.test/buy", "--find", "source=json-ld", "--agent"],
       topOfferSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      secondOfferPath: "pageCheck.offers[1]",
+      secondOfferName: "Agent Browser Team",
+      secondOfferPrice: "49.99",
+      secondOfferPriceAmount: 49.99,
+      secondOfferCurrency: "USD",
+      secondOfferAvailability: "PreOrder",
+      secondOfferUrl: "https://example.test/team?plan=annual",
+      secondOfferUrlPath: "/team",
+      secondOfferUrlQuery: "?plan=annual",
+      secondOfferCommand: "ax-grep 'https://example.test/team?plan=annual' --find 'source=json-ld' --agent",
+      secondOfferCommandArgs: ["ax-grep", "https://example.test/team?plan=annual", "--find", "source=json-ld", "--agent"],
+      secondOfferSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.offers",
-      count: 1,
+      count: 2,
       reason: "Structured price, availability, rating, and offer URLs extracted from JSON-LD.",
     }));
     expect(envelope.verification.bestEvidence).toMatchObject({

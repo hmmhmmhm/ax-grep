@@ -2094,6 +2094,18 @@ type AgentSummary = {
   topOfferCommand?: string;
   topOfferCommandArgs?: string[];
   topOfferSelector?: string;
+  secondOfferPath?: string;
+  secondOfferName?: string;
+  secondOfferPrice?: string;
+  secondOfferPriceAmount?: number;
+  secondOfferCurrency?: string;
+  secondOfferAvailability?: string;
+  secondOfferUrl?: string;
+  secondOfferUrlPath?: string;
+  secondOfferUrlQuery?: string;
+  secondOfferCommand?: string;
+  secondOfferCommandArgs?: string[];
+  secondOfferSelector?: string;
   topDatasetPath?: string;
   topDatasetKind?: PageDatasetSummary["kind"];
   topDatasetName?: string;
@@ -4970,6 +4982,10 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topOfferPriceAmount === "number" ? [`  topOfferPriceAmount: ${agent.topOfferPriceAmount}`] : []),
     ...(agent.topOfferCommand ? [`  topOfferCommand: ${agent.topOfferCommand}`] : []),
     ...(agent.topOfferCommandArgs ? [`  topOfferCommandArgs: ${formatCommandArgsText(agent.topOfferCommandArgs)}`] : []),
+    ...(agent.secondOfferPrice ? [`  secondOffer: path=${agent.secondOfferPath ?? ""}${agent.secondOfferName ? ` name="${agent.secondOfferName}"` : ""}${agent.secondOfferCurrency ? ` currency=${agent.secondOfferCurrency}` : ""} price=${agent.secondOfferPrice}${agent.secondOfferAvailability ? ` availability=${agent.secondOfferAvailability}` : ""}${agent.secondOfferSelector ? ` selector=${agent.secondOfferSelector}` : ""}${agent.secondOfferUrl ? ` url=<${agent.secondOfferUrl}>` : ""}${agent.secondOfferUrlPath ? ` urlPath=${agent.secondOfferUrlPath}` : ""}${agent.secondOfferUrlQuery ? ` urlQuery=${agent.secondOfferUrlQuery}` : ""}`] : []),
+    ...(typeof agent.secondOfferPriceAmount === "number" ? [`  secondOfferPriceAmount: ${agent.secondOfferPriceAmount}`] : []),
+    ...(agent.secondOfferCommand ? [`  secondOfferCommand: ${agent.secondOfferCommand}`] : []),
+    ...(agent.secondOfferCommandArgs ? [`  secondOfferCommandArgs: ${formatCommandArgsText(agent.secondOfferCommandArgs)}`] : []),
     ...(agent.topDatasetName ? [`  topDataset: path=${agent.topDatasetPath ?? ""}${agent.topDatasetKind ? ` kind=${agent.topDatasetKind}` : ""} name="${agent.topDatasetName}"${agent.topDatasetEncodingFormat ? ` format=${agent.topDatasetEncodingFormat}` : ""}${agent.topDatasetTemporalCoverage ? ` temporal=${agent.topDatasetTemporalCoverage}` : ""}${agent.topDatasetSpatialCoverage ? ` spatial=${agent.topDatasetSpatialCoverage}` : ""}${agent.topDatasetCreator ? ` creator="${agent.topDatasetCreator}"` : ""}${agent.topDatasetSelector ? ` selector=${agent.topDatasetSelector}` : ""}${agent.topDatasetDistributionUrl ? ` distribution=<${agent.topDatasetDistributionUrl}>` : ""}${agent.topDatasetDistributionUrlPath ? ` distributionPath=${agent.topDatasetDistributionUrlPath}` : ""}${agent.topDatasetDistributionUrlQuery ? ` distributionQuery=${agent.topDatasetDistributionUrlQuery}` : ""}${agent.topDatasetLicenseUrl ? ` license=<${agent.topDatasetLicenseUrl}>` : ""}${agent.topDatasetLicenseUrlPath ? ` licensePath=${agent.topDatasetLicenseUrlPath}` : ""}${agent.topDatasetLicenseUrlQuery ? ` licenseQuery=${agent.topDatasetLicenseUrlQuery}` : ""}${agent.topDatasetUrl ? ` url=<${agent.topDatasetUrl}>` : ""}${agent.topDatasetUrlPath ? ` urlPath=${agent.topDatasetUrlPath}` : ""}${agent.topDatasetUrlQuery ? ` urlQuery=${agent.topDatasetUrlQuery}` : ""}`] : []),
     ...(agent.topDatasetCommand ? [`  topDatasetCommand: ${agent.topDatasetCommand}`] : []),
     ...(agent.topDatasetCommandArgs ? [`  topDatasetCommandArgs: ${formatCommandArgsText(agent.topDatasetCommandArgs)}`] : []),
@@ -14298,7 +14314,11 @@ function summarizeAgent(
   const topOfferCommand = pageCheck.offers[0]?.url && /^https?:\/\//i.test(pageCheck.offers[0].url)
     ? pageCommandSpec(pageCheck.offers[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const secondOfferCommand = pageCheck.offers[1]?.url && /^https?:\/\//i.test(pageCheck.offers[1].url)
+    ? pageCommandSpec(pageCheck.offers[1].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topOfferUrlParts = pageCheck.offers[0]?.url ? urlPathParts(pageCheck.offers[0].url) : undefined;
+  const secondOfferUrlParts = pageCheck.offers[1]?.url ? urlPathParts(pageCheck.offers[1].url) : undefined;
   const topIdentityCommand = pageCheck.identities[0]?.url && /^https?:\/\//i.test(pageCheck.identities[0].url)
     ? pageCommandSpec(pageCheck.identities[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -15504,6 +15524,18 @@ function summarizeAgent(
     ...(topOfferCommand ? { topOfferCommand: topOfferCommand.command } : {}),
     ...(topOfferCommand ? { topOfferCommandArgs: topOfferCommand.commandArgs } : {}),
     ...(pageCheck.offers[0]?.selector ? { topOfferSelector: pageCheck.offers[0].selector } : {}),
+    ...(pageCheck.offers[1] ? { secondOfferPath: pageCheck.offers[1].path } : {}),
+    ...(pageCheck.offers[1]?.name ? { secondOfferName: pageCheck.offers[1].name } : {}),
+    ...(pageCheck.offers[1]?.price ? { secondOfferPrice: pageCheck.offers[1].price } : {}),
+    ...(typeof pageCheck.offers[1]?.priceAmount === "number" ? { secondOfferPriceAmount: pageCheck.offers[1].priceAmount } : {}),
+    ...(pageCheck.offers[1]?.currency ? { secondOfferCurrency: pageCheck.offers[1].currency } : {}),
+    ...(pageCheck.offers[1]?.availability ? { secondOfferAvailability: pageCheck.offers[1].availability } : {}),
+    ...(pageCheck.offers[1]?.url ? { secondOfferUrl: pageCheck.offers[1].url } : {}),
+    ...(secondOfferUrlParts?.urlPath ? { secondOfferUrlPath: secondOfferUrlParts.urlPath } : {}),
+    ...(secondOfferUrlParts?.urlQuery ? { secondOfferUrlQuery: secondOfferUrlParts.urlQuery } : {}),
+    ...(secondOfferCommand ? { secondOfferCommand: secondOfferCommand.command } : {}),
+    ...(secondOfferCommand ? { secondOfferCommandArgs: secondOfferCommand.commandArgs } : {}),
+    ...(pageCheck.offers[1]?.selector ? { secondOfferSelector: pageCheck.offers[1].selector } : {}),
     ...(pageCheck.datasets[0] ? { topDatasetPath: pageCheck.datasets[0].path } : {}),
     ...(pageCheck.datasets[0] ? { topDatasetKind: pageCheck.datasets[0].kind } : {}),
     ...(pageCheck.datasets[0]?.name ? { topDatasetName: pageCheck.datasets[0].name } : {}),
@@ -22122,6 +22154,18 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topOfferCommand ? { topOfferCommand: agent.topOfferCommand } : {}),
     ...(agent.topOfferCommandArgs ? { topOfferCommandArgs: agent.topOfferCommandArgs } : {}),
     ...(agent.topOfferSelector ? { topOfferSelector: agent.topOfferSelector } : {}),
+    ...(agent.secondOfferPath ? { secondOfferPath: agent.secondOfferPath } : {}),
+    ...(agent.secondOfferName ? { secondOfferName: agent.secondOfferName } : {}),
+    ...(agent.secondOfferPrice ? { secondOfferPrice: agent.secondOfferPrice } : {}),
+    ...(typeof agent.secondOfferPriceAmount === "number" ? { secondOfferPriceAmount: agent.secondOfferPriceAmount } : {}),
+    ...(agent.secondOfferCurrency ? { secondOfferCurrency: agent.secondOfferCurrency } : {}),
+    ...(agent.secondOfferAvailability ? { secondOfferAvailability: agent.secondOfferAvailability } : {}),
+    ...(agent.secondOfferUrl ? { secondOfferUrl: agent.secondOfferUrl } : {}),
+    ...(agent.secondOfferUrlPath ? { secondOfferUrlPath: agent.secondOfferUrlPath } : {}),
+    ...(agent.secondOfferUrlQuery ? { secondOfferUrlQuery: agent.secondOfferUrlQuery } : {}),
+    ...(agent.secondOfferCommand ? { secondOfferCommand: agent.secondOfferCommand } : {}),
+    ...(agent.secondOfferCommandArgs ? { secondOfferCommandArgs: agent.secondOfferCommandArgs } : {}),
+    ...(agent.secondOfferSelector ? { secondOfferSelector: agent.secondOfferSelector } : {}),
     ...(agent.topDatasetPath ? { topDatasetPath: agent.topDatasetPath } : {}),
     ...(agent.topDatasetKind ? { topDatasetKind: agent.topDatasetKind } : {}),
     ...(agent.topDatasetName ? { topDatasetName: agent.topDatasetName } : {}),
@@ -23841,6 +23885,18 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topOfferCommand ? { topOfferCommand: agent.topOfferCommand } : {}),
     ...(agent.topOfferCommandArgs ? { topOfferCommandArgs: agent.topOfferCommandArgs } : {}),
     ...(agent.topOfferSelector ? { topOfferSelector: agent.topOfferSelector } : {}),
+    ...(agent.secondOfferPath ? { secondOfferPath: agent.secondOfferPath } : {}),
+    ...(agent.secondOfferName ? { secondOfferName: agent.secondOfferName } : {}),
+    ...(agent.secondOfferPrice ? { secondOfferPrice: agent.secondOfferPrice } : {}),
+    ...(typeof agent.secondOfferPriceAmount === "number" ? { secondOfferPriceAmount: agent.secondOfferPriceAmount } : {}),
+    ...(agent.secondOfferCurrency ? { secondOfferCurrency: agent.secondOfferCurrency } : {}),
+    ...(agent.secondOfferAvailability ? { secondOfferAvailability: agent.secondOfferAvailability } : {}),
+    ...(agent.secondOfferUrl ? { secondOfferUrl: agent.secondOfferUrl } : {}),
+    ...(agent.secondOfferUrlPath ? { secondOfferUrlPath: agent.secondOfferUrlPath } : {}),
+    ...(agent.secondOfferUrlQuery ? { secondOfferUrlQuery: agent.secondOfferUrlQuery } : {}),
+    ...(agent.secondOfferCommand ? { secondOfferCommand: agent.secondOfferCommand } : {}),
+    ...(agent.secondOfferCommandArgs ? { secondOfferCommandArgs: agent.secondOfferCommandArgs } : {}),
+    ...(agent.secondOfferSelector ? { secondOfferSelector: agent.secondOfferSelector } : {}),
     ...(agent.topDatasetPath ? { topDatasetPath: agent.topDatasetPath } : {}),
     ...(agent.topDatasetKind ? { topDatasetKind: agent.topDatasetKind } : {}),
     ...(agent.topDatasetName ? { topDatasetName: agent.topDatasetName } : {}),

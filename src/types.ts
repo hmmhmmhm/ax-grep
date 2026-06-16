@@ -2462,6 +2462,18 @@ export type AgentSummary = {
   topOfferCommand?: string;
   topOfferCommandArgs?: string[];
   topOfferSelector?: string;
+  secondOfferPath?: string;
+  secondOfferName?: string;
+  secondOfferPrice?: string;
+  secondOfferPriceAmount?: number;
+  secondOfferCurrency?: string;
+  secondOfferAvailability?: string;
+  secondOfferUrl?: string;
+  secondOfferUrlPath?: string;
+  secondOfferUrlQuery?: string;
+  secondOfferCommand?: string;
+  secondOfferCommandArgs?: string[];
+  secondOfferSelector?: string;
   topDatasetPath?: string;
   topDatasetKind?: string;
   topDatasetName?: string;

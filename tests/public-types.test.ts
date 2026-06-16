@@ -649,6 +649,18 @@ describe("public agent types", () => {
       | "topOfferCommand"
       | "topOfferCommandArgs"
       | "topOfferSelector"
+      | "secondOfferPath"
+      | "secondOfferName"
+      | "secondOfferPrice"
+      | "secondOfferPriceAmount"
+      | "secondOfferCurrency"
+      | "secondOfferAvailability"
+      | "secondOfferUrl"
+      | "secondOfferUrlPath"
+      | "secondOfferUrlQuery"
+      | "secondOfferCommand"
+      | "secondOfferCommandArgs"
+      | "secondOfferSelector"
       | "topDatasetPath"
       | "topDatasetKind"
       | "topDatasetName"
@@ -2380,6 +2392,18 @@ describe("public agent types", () => {
       topOfferCommand: "ax-grep 'https://example.test/buy' --agent",
       topOfferCommandArgs: ["ax-grep", "https://example.test/buy", "--agent"],
       topOfferSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      secondOfferPath: "pageCheck.offers[1]",
+      secondOfferName: "Agent Browser Team",
+      secondOfferPrice: "49.99",
+      secondOfferPriceAmount: 49.99,
+      secondOfferCurrency: "USD",
+      secondOfferAvailability: "PreOrder",
+      secondOfferUrl: "https://example.test/team?plan=annual",
+      secondOfferUrlPath: "/team",
+      secondOfferUrlQuery: "?plan=annual",
+      secondOfferCommand: "ax-grep 'https://example.test/team?plan=annual' --agent",
+      secondOfferCommandArgs: ["ax-grep", "https://example.test/team?plan=annual", "--agent"],
+      secondOfferSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
       topDatasetPath: "pageCheck.datasets[0]",
       topDatasetKind: "dataset",
       topDatasetName: "Example dataset",
@@ -3915,6 +3939,9 @@ describe("public agent types", () => {
     expect(summary.secondProvenanceCommandArgs?.[1]).toBe("https://pubmed.ncbi.nlm.nih.gov/12345678/?format=pubmed");
     expect(summary.topOfferUrlPath).toBe("/buy");
     expect(summary.topOfferCommandArgs?.[1]).toBe("https://example.test/buy");
+    expect(summary.secondOfferPath).toBe("pageCheck.offers[1]");
+    expect(summary.secondOfferUrlPath).toBe("/team");
+    expect(summary.secondOfferCommandArgs?.[1]).toBe("https://example.test/team?plan=annual");
     expect(summary.topDatasetUrlPath).toBe("/datasets/example");
     expect(summary.topDatasetDistributionUrlPath).toBe("/downloads/example.csv");
     expect(summary.topDatasetDistributionCommandArgs?.[1]).toBe("https://example.test/downloads/example.csv");
