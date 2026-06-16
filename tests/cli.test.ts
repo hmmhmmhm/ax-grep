@@ -10971,6 +10971,10 @@ describe("cli", () => {
       topHttpPolicyName: "Content-Security-Policy",
       topHttpPolicyValue: "default-src 'self'; frame-ancestors 'none'",
       topHttpPolicySource: "header",
+      secondHttpPolicyPath: "pageCheck.httpPolicies[1]",
+      secondHttpPolicyName: "X-Robots-Tag",
+      secondHttpPolicyValue: "noindex, noarchive",
+      secondHttpPolicySource: "header",
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",

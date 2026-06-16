@@ -1138,6 +1138,11 @@ describe("public agent types", () => {
       | "topHttpPolicyValue"
       | "topHttpPolicySource"
       | "topHttpPolicySelector"
+      | "secondHttpPolicyPath"
+      | "secondHttpPolicyName"
+      | "secondHttpPolicyValue"
+      | "secondHttpPolicySource"
+      | "secondHttpPolicySelector"
       | "topSchemaFactPath"
       | "topSchemaFactTypes"
       | "topSchemaFactFirstLabel"
@@ -3176,6 +3181,11 @@ describe("public agent types", () => {
       topHttpPolicyValue: "default-src 'self'",
       topHttpPolicySource: "header",
       topHttpPolicySelector: "meta[http-equiv=\"content-security-policy\"]",
+      secondHttpPolicyPath: "pageCheck.httpPolicies[1]",
+      secondHttpPolicyName: "X-Robots-Tag",
+      secondHttpPolicyValue: "noindex, noarchive",
+      secondHttpPolicySource: "header",
+      secondHttpPolicySelector: "meta[http-equiv=\"x-robots-tag\"]",
       topSchemaFactPath: "pageCheck.schemaFacts[0]",
       topSchemaFactTypes: ["Product"],
       topSchemaFactFirstLabel: "Name",

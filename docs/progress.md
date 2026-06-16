@@ -1266,6 +1266,10 @@ When research expands:
   fact, including label, value, URL, source, and selector, so agents can inspect
   robots/Open Graph/canonical-adjacent facts without parsing the full metadata
   array.
+- Added `secondHttpPolicy*` agent shortcuts for the second detected HTTP policy,
+  including name, value, source, and selector, so agents can inspect CSP,
+  X-Robots-Tag, and referrer policy combinations without parsing the full
+  policy array.
 
 ## In Progress
 

@@ -2898,6 +2898,11 @@ export type AgentSummary = {
   topHttpPolicyValue?: string;
   topHttpPolicySource?: string;
   topHttpPolicySelector?: string;
+  secondHttpPolicyPath?: string;
+  secondHttpPolicyName?: string;
+  secondHttpPolicyValue?: string;
+  secondHttpPolicySource?: string;
+  secondHttpPolicySelector?: string;
   topSchemaFactPath?: string;
   topSchemaFactTypes?: string[];
   topSchemaFactFirstLabel?: string;
