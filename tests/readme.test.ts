@@ -29,6 +29,29 @@ describe("README", () => {
     expect(readme).not.toContain("## Compact JSON Example");
   });
 
+  it("puts skill install before library and WebView usage", async () => {
+    const readme = await readFile(join(process.cwd(), "README.md"), "utf8");
+    const packageJson = JSON.parse(await readFile(join(process.cwd(), "package.json"), "utf8")) as {
+      files?: string[];
+    };
+    const skill = await readFile(join(process.cwd(), "skills", "ax-grep-cli", "SKILL.md"), "utf8");
+    const installer = await readFile(join(process.cwd(), "skills.sh"), "utf8");
+
+    const skillIndex = readme.indexOf("## 1. Install The CLI Skill");
+    const serverIndex = readme.indexOf("## 2. Use From A Server");
+    const webviewIndex = readme.indexOf("## 3. Use In WebViews Or Pages");
+
+    expect(skillIndex).toBeGreaterThan(-1);
+    expect(serverIndex).toBeGreaterThan(skillIndex);
+    expect(webviewIndex).toBeGreaterThan(serverIndex);
+    expect(readme).toContain("curl -fsSL https://raw.githubusercontent.com/hmmhmmhm/ax-grep/main/skills.sh | sh");
+    expect(readme).toContain("[CLI skill prompt](./skills/ax-grep-cli/SKILL.md)");
+    expect(skill).toContain("Use `ax-grep` before browser automation");
+    expect(skill).toContain("agent.executor");
+    expect(installer).toContain("ax-grep-cli");
+    expect(packageJson.files).toEqual(expect.arrayContaining(["skills", "skills.sh"]));
+  });
+
   it("keeps the agent continuation contract in docs", async () => {
     const handoff = await readFile(join(process.cwd(), "docs", "agent-handoff.md"), "utf8");
 
