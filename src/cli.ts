@@ -1907,6 +1907,10 @@ type AgentSummary = {
   topFaqQuestion?: string;
   topFaqAnswer?: string;
   topFaqSelector?: string;
+  secondFaqPath?: string;
+  secondFaqQuestion?: string;
+  secondFaqAnswer?: string;
+  secondFaqSelector?: string;
   topCodeBlockPath?: string;
   topCodeBlockLanguage?: string;
   topCodeBlockLineCount?: number;
@@ -5010,6 +5014,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     `  contactPointCount: ${agent.contactPointCount}`,
     ...(agent.topFaqQuestion ? [`  topFaq: path=${agent.topFaqPath ?? ""}${agent.topFaqSelector ? ` selector=${agent.topFaqSelector}` : ""} - ${agent.topFaqQuestion}`] : []),
     ...(agent.topFaqAnswer ? [`  topFaqAnswer: ${agent.topFaqAnswer}`] : []),
+    ...(agent.secondFaqQuestion ? [`  secondFaq: path=${agent.secondFaqPath ?? ""}${agent.secondFaqSelector ? ` selector=${agent.secondFaqSelector}` : ""} - ${agent.secondFaqQuestion}`] : []),
+    ...(agent.secondFaqAnswer ? [`  secondFaqAnswer: ${agent.secondFaqAnswer}`] : []),
     ...(agent.topCodeBlockText ? [`  topCodeBlock: path=${agent.topCodeBlockPath ?? ""}${agent.topCodeBlockLanguage ? ` lang=${agent.topCodeBlockLanguage}` : ""}${typeof agent.topCodeBlockLineCount === "number" ? ` lines=${agent.topCodeBlockLineCount}` : ""}${agent.topCodeBlockSelector ? ` selector=${agent.topCodeBlockSelector}` : ""} - ${agent.topCodeBlockText}`] : []),
     ...(agent.topResourceUrl ? [`  topResource: path=${agent.topResourcePath ?? ""}${agent.topResourceKind ? ` kind=${agent.topResourceKind}` : ""}${agent.topResourceTitle ? ` title="${agent.topResourceTitle}"` : ""}${agent.topResourceRel ? ` rel=${agent.topResourceRel}` : ""}${agent.topResourceType ? ` type=${agent.topResourceType}` : ""}${agent.topResourceHreflang ? ` hreflang=${agent.topResourceHreflang}` : ""}${agent.topResourceSelector ? ` selector=${agent.topResourceSelector}` : ""} url=<${agent.topResourceUrl}>${agent.topResourceUrlPath ? ` urlPath=${agent.topResourceUrlPath}` : ""}${agent.topResourceUrlQuery ? ` urlQuery=${agent.topResourceUrlQuery}` : ""}`] : []),
     ...(agent.topResourceCommand ? [`  topResourceCommand: ${agent.topResourceCommand}`] : []),
@@ -15450,6 +15456,10 @@ function summarizeAgent(
     ...(pageCheck.faqs[0]?.question ? { topFaqQuestion: pageCheck.faqs[0].question } : {}),
     ...(pageCheck.faqs[0]?.answer ? { topFaqAnswer: pageCheck.faqs[0].answer } : {}),
     ...(pageCheck.faqs[0]?.selector ? { topFaqSelector: pageCheck.faqs[0].selector } : {}),
+    ...(pageCheck.faqs[1] ? { secondFaqPath: pageCheck.faqs[1].path } : {}),
+    ...(pageCheck.faqs[1]?.question ? { secondFaqQuestion: pageCheck.faqs[1].question } : {}),
+    ...(pageCheck.faqs[1]?.answer ? { secondFaqAnswer: pageCheck.faqs[1].answer } : {}),
+    ...(pageCheck.faqs[1]?.selector ? { secondFaqSelector: pageCheck.faqs[1].selector } : {}),
     ...(pageCheck.codeBlocks[0] ? { topCodeBlockPath: pageCheck.codeBlocks[0].path } : {}),
     ...(pageCheck.codeBlocks[0]?.language ? { topCodeBlockLanguage: pageCheck.codeBlocks[0].language } : {}),
     ...(pageCheck.codeBlocks[0] ? { topCodeBlockLineCount: pageCheck.codeBlocks[0].lineCount } : {}),
@@ -22141,6 +22151,10 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topFaqQuestion ? { topFaqQuestion: agent.topFaqQuestion } : {}),
     ...(agent.topFaqAnswer ? { topFaqAnswer: agent.topFaqAnswer } : {}),
     ...(agent.topFaqSelector ? { topFaqSelector: agent.topFaqSelector } : {}),
+    ...(agent.secondFaqPath ? { secondFaqPath: agent.secondFaqPath } : {}),
+    ...(agent.secondFaqQuestion ? { secondFaqQuestion: agent.secondFaqQuestion } : {}),
+    ...(agent.secondFaqAnswer ? { secondFaqAnswer: agent.secondFaqAnswer } : {}),
+    ...(agent.secondFaqSelector ? { secondFaqSelector: agent.secondFaqSelector } : {}),
     ...(agent.topCodeBlockPath ? { topCodeBlockPath: agent.topCodeBlockPath } : {}),
     ...(agent.topCodeBlockLanguage ? { topCodeBlockLanguage: agent.topCodeBlockLanguage } : {}),
     ...(typeof agent.topCodeBlockLineCount === "number" ? { topCodeBlockLineCount: agent.topCodeBlockLineCount } : {}),
@@ -23936,6 +23950,10 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topFaqQuestion ? { topFaqQuestion: agent.topFaqQuestion } : {}),
     ...(agent.topFaqAnswer ? { topFaqAnswer: agent.topFaqAnswer } : {}),
     ...(agent.topFaqSelector ? { topFaqSelector: agent.topFaqSelector } : {}),
+    ...(agent.secondFaqPath ? { secondFaqPath: agent.secondFaqPath } : {}),
+    ...(agent.secondFaqQuestion ? { secondFaqQuestion: agent.secondFaqQuestion } : {}),
+    ...(agent.secondFaqAnswer ? { secondFaqAnswer: agent.secondFaqAnswer } : {}),
+    ...(agent.secondFaqSelector ? { secondFaqSelector: agent.secondFaqSelector } : {}),
     ...(agent.topCodeBlockPath ? { topCodeBlockPath: agent.topCodeBlockPath } : {}),
     ...(agent.topCodeBlockLanguage ? { topCodeBlockLanguage: agent.topCodeBlockLanguage } : {}),
     ...(typeof agent.topCodeBlockLineCount === "number" ? { topCodeBlockLineCount: agent.topCodeBlockLineCount } : {}),

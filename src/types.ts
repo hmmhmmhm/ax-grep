@@ -2275,6 +2275,10 @@ export type AgentSummary = {
   topFaqQuestion?: string;
   topFaqAnswer?: string;
   topFaqSelector?: string;
+  secondFaqPath?: string;
+  secondFaqQuestion?: string;
+  secondFaqAnswer?: string;
+  secondFaqSelector?: string;
   topCodeBlockPath?: string;
   topCodeBlockLanguage?: string;
   topCodeBlockLineCount?: number;

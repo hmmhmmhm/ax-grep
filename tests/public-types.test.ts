@@ -462,6 +462,10 @@ describe("public agent types", () => {
       | "topFaqQuestion"
       | "topFaqAnswer"
       | "topFaqSelector"
+      | "secondFaqPath"
+      | "secondFaqQuestion"
+      | "secondFaqAnswer"
+      | "secondFaqSelector"
       | "topCodeBlockPath"
       | "topCodeBlockLanguage"
       | "topCodeBlockLineCount"
@@ -2276,6 +2280,10 @@ describe("public agent types", () => {
       topFaqQuestion: "How do I install it?",
       topFaqAnswer: "Run pnpm install.",
       topFaqSelector: "details:nth-of-type(1)",
+      secondFaqPath: "pageCheck.faqs[1]",
+      secondFaqQuestion: "Can I use it in CI?",
+      secondFaqAnswer: "Yes, use --agent-brief.",
+      secondFaqSelector: "details:nth-of-type(2)",
       topCodeBlockPath: "pageCheck.codeBlocks[0]",
       topCodeBlockLanguage: "bash",
       topCodeBlockLineCount: 1,
@@ -3999,6 +4007,9 @@ describe("public agent types", () => {
     expect(summary.topFaqPath).toBe("pageCheck.faqs[0]");
     expect(summary.topFaqQuestion).toBe("How do I install it?");
     expect(summary.topFaqSelector).toBe("details:nth-of-type(1)");
+    expect(summary.secondFaqPath).toBe("pageCheck.faqs[1]");
+    expect(summary.secondFaqQuestion).toBe("Can I use it in CI?");
+    expect(summary.secondFaqSelector).toBe("details:nth-of-type(2)");
     expect(summary.topCodeBlockPath).toBe("pageCheck.codeBlocks[0]");
     expect(summary.topCodeBlockSelector).toBe("pre:nth-of-type(1)");
     expect(summary.topResourcePath).toBe("pageCheck.resources[0]");

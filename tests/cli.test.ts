@@ -11908,6 +11908,10 @@ describe("cli", () => {
                 <summary>How do I install ax-grep?</summary>
                 <p>Run pnpm add ax-grep and then call the CLI with --agent.</p>
               </details>
+              <details>
+                <summary>Can I use ax-grep in CI?</summary>
+                <p>Yes. Run ax-grep with --agent-brief in CI jobs.</p>
+              </details>
             </main>
           </body>
         </html>
@@ -11928,14 +11932,28 @@ describe("cli", () => {
         source: "details",
         selector: "details:nth-of-type(1)",
       },
+      {
+        id: "faq2",
+        path: "pageCheck.faqs[1]",
+        rank: 2,
+        question: "Can I use ax-grep in CI?",
+        answer: "Yes. Run ax-grep with --agent-brief in CI jobs.",
+        text: "Q: Can I use ax-grep in CI? A: Yes. Run ax-grep with --agent-brief in CI jobs.",
+        source: "details",
+        selector: "details:nth-of-type(2)",
+      },
     ]);
-    expect(envelope.pageCheck.readability.reasons).toContain("1 FAQ item");
+    expect(envelope.pageCheck.readability.reasons).toContain("2 FAQ items");
     expect(envelope.agent).toMatchObject({
-      faqCount: 1,
+      faqCount: 2,
       topFaqPath: "pageCheck.faqs[0]",
       topFaqQuestion: "How do I install ax-grep?",
       topFaqAnswer: "Run pnpm add ax-grep and then call the CLI with --agent.",
       topFaqSelector: "details:nth-of-type(1)",
+      secondFaqPath: "pageCheck.faqs[1]",
+      secondFaqQuestion: "Can I use ax-grep in CI?",
+      secondFaqAnswer: "Yes. Run ax-grep with --agent-brief in CI jobs.",
+      secondFaqSelector: "details:nth-of-type(2)",
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
@@ -11944,7 +11962,7 @@ describe("cli", () => {
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.faqs",
-      count: 1,
+      count: 2,
       primary: true,
       reason: "FAQ question-answer pairs extracted from details, accordion, and FAQ HTML.",
     }));
@@ -11953,6 +11971,10 @@ describe("cli", () => {
       value: [
         expect.objectContaining({
           id: "faq1",
+          source: "details",
+        }),
+        expect.objectContaining({
+          id: "faq2",
           source: "details",
         }),
       ],
@@ -11969,6 +11991,10 @@ describe("cli", () => {
             <summary>How do I install ax-grep?</summary>
             <p>Run pnpm add ax-grep and then call the CLI with --agent.</p>
           </details>
+          <details>
+            <summary>Can I use ax-grep in CI?</summary>
+            <p>Yes. Run ax-grep with --agent-brief in CI jobs.</p>
+          </details>
         </main>
       `, { headers: { "content-type": "text/html" } }),
     });
@@ -11978,11 +12004,15 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(envelope.agent).toMatchObject({
       contract: { profile: "brief" },
-      faqCount: 1,
+      faqCount: 2,
       topFaqPath: "pageCheck.faqs[0]",
       topFaqQuestion: "How do I install ax-grep?",
       topFaqAnswer: "Run pnpm add ax-grep and then call the CLI with --agent.",
       topFaqSelector: "details:nth-of-type(1)",
+      secondFaqPath: "pageCheck.faqs[1]",
+      secondFaqQuestion: "Can I use ax-grep in CI?",
+      secondFaqAnswer: "Yes. Run ax-grep with --agent-brief in CI jobs.",
+      secondFaqSelector: "details:nth-of-type(2)",
       bestStructuredReadTarget: "pageCheck.faqs",
     });
   });
@@ -11997,6 +12027,10 @@ describe("cli", () => {
             <summary>How do I install ax-grep?</summary>
             <p>Run pnpm add ax-grep and then call the CLI with --agent.</p>
           </details>
+          <details>
+            <summary>Can I use ax-grep in CI?</summary>
+            <p>Yes. Run ax-grep with --agent-brief in CI jobs.</p>
+          </details>
           <pre><code class="language-bash">pnpm add ax-grep
 npx ax-grep https://example.test --agent</code></pre>
         </main>
@@ -12006,6 +12040,8 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topFaq: path=pageCheck.faqs[0] selector=details:nth-of-type(1) - How do I install ax-grep?");
+    expect(stdout.output).toContain("  secondFaq: path=pageCheck.faqs[1] selector=details:nth-of-type(2) - Can I use ax-grep in CI?");
+    expect(stdout.output).toContain("  secondFaqAnswer: Yes. Run ax-grep with --agent-brief in CI jobs.");
     expect(stdout.output).toContain("  faq: id=faq1 path=pageCheck.faqs[0] source=details question=\"How do I install ax-grep?\" answer=\"Run pnpm add ax-grep and then call the CLI with --agent.\" selector=details:nth-of-type(1) - Q: How do I install ax-grep? A: Run pnpm add ax-grep and then call the CLI with --agent.");
     expect(stdout.output).toContain("  topCodeBlock: path=pageCheck.codeBlocks[0] lang=bash lines=2 selector=pre:nth-of-type(1) - pnpm add ax-grep");
     expect(stdout.output).toContain("  codeBlock: id=cb1 path=pageCheck.codeBlocks[0] source=pre language=bash commandLike=true lines=2 selector=pre:nth-of-type(1) - pnpm add ax-grep");
