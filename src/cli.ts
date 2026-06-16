@@ -4321,6 +4321,8 @@ function formatAgentSourceSearchResultText(result: AgentSourceSearchResult, pref
   if (result.command) lines.push(`    command: ${result.command}`);
   if (result.commandArgs) lines.push(`    commandArgs: ${formatCommandArgsText(result.commandArgs)}`);
   if (result.url) lines.push(`  ${prefix}Url: ${result.url}`);
+  if (result.urlPath) lines.push(`  ${prefix}UrlPath: ${result.urlPath}`);
+  if (result.urlQuery) lines.push(`  ${prefix}UrlQuery: ${result.urlQuery}`);
   if (result.title) lines.push(`  ${prefix}Title: ${result.title}`);
   if (typeof result.rank === "number") lines.push(`  ${prefix}Rank: ${result.rank}`);
   if (result.openResult) lines.push(`  ${prefix}OpenResult: ${result.openResult}`);
@@ -24301,10 +24303,13 @@ function compactAgentSearchResult(
       ? pageCommandSpec(result.url, fallbackCommandContext.agentMode, false, fallbackCommandContext.findQueries, fallbackCommandContext.timeoutMs, fallbackCommandContext.userAgent)
       : undefined;
   const host = result.host ?? sourceFromUrl(result.url);
-  const compact: ResultSummary = {
+  const resultUrlParts = urlPathParts(result.url);
+  const compact: ResultSummary & Pick<AgentTarget, "urlPath" | "urlQuery"> = {
     ...(reference ? { id: reference.id, path: reference.path } : {}),
     title: result.title,
     url: result.url,
+    ...(resultUrlParts?.urlPath ? { urlPath: resultUrlParts.urlPath } : {}),
+    ...(resultUrlParts?.urlQuery ? { urlQuery: resultUrlParts.urlQuery } : {}),
     ...(host ? { host } : {}),
     source: result.source,
     rank: result.rank,

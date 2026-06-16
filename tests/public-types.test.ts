@@ -2405,8 +2405,9 @@ describe("public agent types", () => {
       sourceSearchAlternateCount: 1,
       sourceSearchAlternatePath: "sourceSearch.alternateResults[0]",
       sourceSearchAlternateTitle: "ax-grep mirror",
-      sourceSearchAlternateUrl: "https://mirror.example/result",
+      sourceSearchAlternateUrl: "https://mirror.example/result?ref=mirror",
       sourceSearchAlternateUrlPath: "/result",
+      sourceSearchAlternateUrlQuery: "?ref=mirror",
       sourceSearchAlternateHost: "mirror.example",
       sourceSearchAlternateSource: "mirror.example",
       sourceSearchAlternateSourceType: "community",
@@ -2439,7 +2440,9 @@ describe("public agent types", () => {
         id: "a3",
         path: "sourceSearch.alternateResults[0]",
         title: "ax-grep mirror",
-        url: "https://mirror.example/result",
+        url: "https://mirror.example/result?ref=mirror",
+        urlPath: "/result",
+        urlQuery: "?ref=mirror",
         host: "mirror.example",
         source: "mirror.example",
         rank: 3,
@@ -3634,6 +3637,8 @@ describe("public agent types", () => {
     expect(summary.sourceSearchAlternateLikelyOfficial).toBe(false);
     expect(summary.sourceSearchAlternateDifferentHost).toBe(true);
     expect(summary.sourceSearchAlternateChoices?.[0]?.path).toBe("sourceSearch.alternateResults[0]");
+    expect(summary.sourceSearchAlternateChoices?.[0]?.urlPath).toBe("/result");
+    expect(summary.sourceSearchAlternateChoices?.[0]?.urlQuery).toBe("?ref=mirror");
     expect(summary.sourceSearchAlternateChoices?.[0]?.command).toContain("--open-result 3");
     expect(summary.sourceSearchAlternateChoices?.[0]?.sourceScore).toBe(0.64);
     expect(summary.sourceSearchAlternateChoices?.[0]?.snippet).toBe("Alternate source summary");

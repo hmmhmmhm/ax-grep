@@ -1200,6 +1200,8 @@ export type AgentAnswerPlan = {
 export type AgentTarget = {
   title?: string;
   url: string;
+  urlPath?: string;
+  urlQuery?: string;
   host?: string;
   path?: string;
   text?: string;

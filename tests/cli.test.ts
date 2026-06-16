@@ -4544,7 +4544,7 @@ describe("cli", () => {
               <ol>
                 <li class="b_algo"><h2><a href="https://missing.example/article">Missing Result</a></h2><p>Missing result snippet.</p><a href="https://missing.example/article/docs">Missing docs</a></li>
                 <li class="b_algo"><h2><a href="https://alternate.example/article">Alternate Result</a></h2><p>Alternate result snippet.</p><a href="https://alternate.example/article/docs">Alternate docs</a></li>
-                <li class="b_algo"><h2><a href="https://backup.example/article">Backup Result</a></h2><p>Backup result snippet.</p></li>
+                <li class="b_algo"><h2><a href="https://backup.example/article?ref=cache">Backup Result</a></h2><p>Backup result snippet.</p></li>
               </ol>
             </main>
           `, { headers: { "content-type": "text/html" } });
@@ -4570,6 +4570,7 @@ describe("cli", () => {
         path: "sourceSearch.alternateResults[0]",
         title: "Alternate Result",
         url: "https://alternate.example/article",
+        urlPath: "/article",
         host: "alternate.example",
         source: "alternate.example",
         snippet: expect.stringContaining("Alternate result snippet."),
@@ -4583,7 +4584,9 @@ describe("cli", () => {
       expect.objectContaining({
         path: "sourceSearch.alternateResults[1]",
         title: "Backup Result",
-        url: "https://backup.example/article",
+        url: "https://backup.example/article?ref=cache",
+        urlPath: "/article",
+        urlQuery: "?ref=cache",
         host: "backup.example",
         source: "backup.example",
         openResult: 3,
@@ -4825,6 +4828,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  sourceSearchSelectedCommandArgs: [\"ax-grep\",\"--search\",\"agent browser\",\"--engine\",\"duckduckgo\",\"--find\",\"target claim\",\"--open-result\",\"1\",\"--agent\"]");
     expect(stdout.output).toContain("  sourceSearchAlternateCount: 1");
     expect(stdout.output).toContain("  sourceSearchAlternatePath: sourceSearch.alternateResults[0]");
+    expect(stdout.output).toContain("  sourceSearchAlternateUrlPath: /article");
     expect(stdout.output).toContain("  sourceSearchAlternateHost: alternate.example");
     expect(stdout.output).toContain("  sourceSearchAlternateSource: alternate.example");
     expect(stdout.output).toContain("  sourceSearchAlternateSnippet: 2026-05 update: This result contains the target claim for verification.");
@@ -4842,6 +4846,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  sourceSearchAlternateChoices: 1 choices first=sourceSearch.alternateResults[0]");
     expect(stdout.output).toContain("  sourceSearchAlternateChoice: a2 sourceSearch.alternateResults[0] rank=2 openResult=2");
     expect(stdout.output).toContain("  sourceSearchAlternateChoiceUrl: https://alternate.example/article");
+    expect(stdout.output).toContain("  sourceSearchAlternateChoiceUrlPath: /article");
     expect(stdout.output).toContain("  sourceSearchAlternateChoiceTitle: Independent source");
     expect(stdout.output).toContain("  sourceSearchAlternateChoiceRank: 2");
     expect(stdout.output).toContain("  sourceSearchAlternateChoiceOpenResult: 2");
