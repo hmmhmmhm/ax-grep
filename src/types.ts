@@ -2819,6 +2819,8 @@ export type AgentSummary = {
   executorReadValueReferencePath?: string;
   executorUrl?: string;
   executorTargetUrl?: string;
+  executorTargetUrlPath?: string;
+  executorTargetUrlQuery?: string;
   executorTargetPath?: string;
   executorTargetTitle?: string;
   executorTargetHost?: string;
@@ -2864,6 +2866,8 @@ export type AgentSummary = {
   handoffReadValueReferencePath?: string;
   handoffUrl?: string;
   handoffTargetUrl?: string;
+  handoffTargetUrlPath?: string;
+  handoffTargetUrlQuery?: string;
   handoffTargetPath?: string;
   handoffTargetTitle?: string;
   handoffTargetHost?: string;
@@ -2906,6 +2910,8 @@ export type AgentSummary = {
   primaryRank?: number;
   primaryOpenResult?: number | "best";
   primaryTargetUrl?: string;
+  primaryTargetUrlPath?: string;
+  primaryTargetUrlQuery?: string;
   primaryTargetPath?: string;
   primaryTargetTitle?: string;
   primaryTargetHost?: string;

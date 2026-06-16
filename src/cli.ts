@@ -2451,6 +2451,8 @@ type AgentSummary = {
   executorReadValueReferencePath?: string;
   executorUrl?: string;
   executorTargetUrl?: string;
+  executorTargetUrlPath?: string;
+  executorTargetUrlQuery?: string;
   executorTargetPath?: string;
   executorTargetTitle?: string;
   executorTargetHost?: string;
@@ -2496,6 +2498,8 @@ type AgentSummary = {
   handoffReadValueReferencePath?: string;
   handoffUrl?: string;
   handoffTargetUrl?: string;
+  handoffTargetUrlPath?: string;
+  handoffTargetUrlQuery?: string;
   handoffTargetPath?: string;
   handoffTargetTitle?: string;
   handoffTargetHost?: string;
@@ -2538,6 +2542,8 @@ type AgentSummary = {
   primaryRank?: number;
   primaryOpenResult?: number | "best";
   primaryTargetUrl?: string;
+  primaryTargetUrlPath?: string;
+  primaryTargetUrlQuery?: string;
   primaryTargetPath?: string;
   primaryTargetTitle?: string;
   primaryTargetHost?: string;
@@ -5210,6 +5216,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.executorBrowserHtmlReason) lines.push(`  executorBrowserHtmlReason: ${agent.executorBrowserHtmlReason}`);
   if (agent.executorBrowserHtmlReasonCode) lines.push(`  executorBrowserHtmlReasonCode: ${agent.executorBrowserHtmlReasonCode}`);
   if (agent.executorTargetUrl) lines.push(`  executorTargetUrl: ${agent.executorTargetUrl}`);
+  if (agent.executorTargetUrlPath) lines.push(`  executorTargetUrlPath: ${agent.executorTargetUrlPath}`);
+  if (agent.executorTargetUrlQuery) lines.push(`  executorTargetUrlQuery: ${agent.executorTargetUrlQuery}`);
   if (agent.executorTargetPath) lines.push(`  executorTargetPath: ${agent.executorTargetPath}`);
   if (agent.executorTargetTitle) lines.push(`  executorTargetTitle: ${agent.executorTargetTitle}`);
   if (agent.executorTargetHost) lines.push(`  executorTargetHost: ${agent.executorTargetHost}`);
@@ -5240,6 +5248,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.handoffBrowserHtmlReason) lines.push(`  handoffBrowserHtmlReason: ${agent.handoffBrowserHtmlReason}`);
   if (agent.handoffBrowserHtmlReasonCode) lines.push(`  handoffBrowserHtmlReasonCode: ${agent.handoffBrowserHtmlReasonCode}`);
   if (agent.handoffTargetUrl) lines.push(`  handoffTargetUrl: ${agent.handoffTargetUrl}`);
+  if (agent.handoffTargetUrlPath) lines.push(`  handoffTargetUrlPath: ${agent.handoffTargetUrlPath}`);
+  if (agent.handoffTargetUrlQuery) lines.push(`  handoffTargetUrlQuery: ${agent.handoffTargetUrlQuery}`);
   if (agent.handoffTargetPath) lines.push(`  handoffTargetPath: ${agent.handoffTargetPath}`);
   if (agent.handoffTargetTitle) lines.push(`  handoffTargetTitle: ${agent.handoffTargetTitle}`);
   if (agent.handoffTargetHost) lines.push(`  handoffTargetHost: ${agent.handoffTargetHost}`);
@@ -5291,6 +5301,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.executor.afterInteractionCommandArgs) lines.push(`  executorAfterInteractionCommandArgs: ${formatCommandArgsText(agent.executor.afterInteractionCommandArgs)}`);
   if (agent.executor.url) lines.push(`  executorUrl: ${agent.executor.url}`);
   if (agent.executorTargetUrl) lines.push(`  executorTargetUrl: ${agent.executorTargetUrl}`);
+  if (agent.executorTargetUrlPath) lines.push(`  executorTargetUrlPath: ${agent.executorTargetUrlPath}`);
+  if (agent.executorTargetUrlQuery) lines.push(`  executorTargetUrlQuery: ${agent.executorTargetUrlQuery}`);
   if (agent.executorTargetPath) lines.push(`  executorTargetPath: ${agent.executorTargetPath}`);
   if (agent.executorTargetTitle) lines.push(`  executorTargetTitle: ${agent.executorTargetTitle}`);
   if (agent.executorTargetHost) lines.push(`  executorTargetHost: ${agent.executorTargetHost}`);
@@ -5338,6 +5350,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.handoff.afterInteractionCommandArgs) lines.push(`  handoffAfterInteractionCommandArgs: ${formatCommandArgsText(agent.handoff.afterInteractionCommandArgs)}`);
   if (agent.handoff.url) lines.push(`  handoffUrl: ${agent.handoff.url}`);
   if (agent.handoffTargetUrl) lines.push(`  handoffTargetUrl: ${agent.handoffTargetUrl}`);
+  if (agent.handoffTargetUrlPath) lines.push(`  handoffTargetUrlPath: ${agent.handoffTargetUrlPath}`);
+  if (agent.handoffTargetUrlQuery) lines.push(`  handoffTargetUrlQuery: ${agent.handoffTargetUrlQuery}`);
   if (agent.handoffTargetPath) lines.push(`  handoffTargetPath: ${agent.handoffTargetPath}`);
   if (agent.handoffTargetTitle) lines.push(`  handoffTargetTitle: ${agent.handoffTargetTitle}`);
   if (agent.handoffTargetHost) lines.push(`  handoffTargetHost: ${agent.handoffTargetHost}`);
@@ -5881,6 +5895,8 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (typeof agent.primaryRank === "number") lines.push(`  primaryRank: ${agent.primaryRank}`);
   if (agent.primaryOpenResult) lines.push(`  primaryOpenResult: ${agent.primaryOpenResult}`);
   if (agent.primaryTargetUrl) lines.push(`  primaryTargetUrl: ${agent.primaryTargetUrl}`);
+  if (agent.primaryTargetUrlPath) lines.push(`  primaryTargetUrlPath: ${agent.primaryTargetUrlPath}`);
+  if (agent.primaryTargetUrlQuery) lines.push(`  primaryTargetUrlQuery: ${agent.primaryTargetUrlQuery}`);
   if (agent.primaryTargetPath) lines.push(`  primaryTargetPath: ${agent.primaryTargetPath}`);
   if (agent.primaryTargetTitle) lines.push(`  primaryTargetTitle: ${agent.primaryTargetTitle}`);
   if (agent.primaryTargetHost) lines.push(`  primaryTargetHost: ${agent.primaryTargetHost}`);
@@ -13943,6 +13959,9 @@ function summarizeAgent(
   const topAnswerEvidenceUrlParts = answerEvidence[0]?.url ? urlPathParts(answerEvidence[0].url) : undefined;
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, sourceSearchAgent, signals, qualityGates, verification.foundQueries, verification.missingQueries);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
+  const executorTargetUrlParts = executor.target?.url ? urlPathParts(executor.target.url) : undefined;
+  const handoffTargetUrlParts = handoff.target?.url ? urlPathParts(handoff.target.url) : undefined;
+  const primaryTargetUrlParts = primaryAction?.target?.url ? urlPathParts(primaryAction.target.url) : undefined;
   const topSemanticHeading = semanticSummary?.headingItems[0];
   const topSemanticLandmark = semanticSummary?.landmarkItems[0];
   const topSemanticOutline = semanticSummary?.semanticOutline[0];
@@ -15481,6 +15500,8 @@ function summarizeAgent(
     ...(executorReadValueReferencePath ? { executorReadValueReferencePath } : {}),
     ...(executor.url ? { executorUrl: executor.url } : {}),
     ...(executor.target?.url ? { executorTargetUrl: executor.target.url } : {}),
+    ...(executorTargetUrlParts?.urlPath ? { executorTargetUrlPath: executorTargetUrlParts.urlPath } : {}),
+    ...(executorTargetUrlParts?.urlQuery ? { executorTargetUrlQuery: executorTargetUrlParts.urlQuery } : {}),
     ...(executor.target?.path ? { executorTargetPath: executor.target.path } : {}),
     ...(executor.target?.title ? { executorTargetTitle: executor.target.title } : {}),
     ...(executor.target?.host ? { executorTargetHost: executor.target.host } : {}),
@@ -15526,6 +15547,8 @@ function summarizeAgent(
     ...(handoffReadValueReferencePath ? { handoffReadValueReferencePath } : {}),
     ...(handoff.url ? { handoffUrl: handoff.url } : {}),
     ...(handoff.target?.url ? { handoffTargetUrl: handoff.target.url } : {}),
+    ...(handoffTargetUrlParts?.urlPath ? { handoffTargetUrlPath: handoffTargetUrlParts.urlPath } : {}),
+    ...(handoffTargetUrlParts?.urlQuery ? { handoffTargetUrlQuery: handoffTargetUrlParts.urlQuery } : {}),
     ...(handoff.target?.path ? { handoffTargetPath: handoff.target.path } : {}),
     ...(handoff.target?.title ? { handoffTargetTitle: handoff.target.title } : {}),
     ...(handoff.target?.host ? { handoffTargetHost: handoff.target.host } : {}),
@@ -15578,6 +15601,8 @@ function summarizeAgent(
     if (primaryAction.rank) agent.primaryRank = primaryAction.rank;
     if (primaryAction.openResult) agent.primaryOpenResult = primaryAction.openResult;
     if (primaryAction.target?.url) agent.primaryTargetUrl = primaryAction.target.url;
+    if (primaryTargetUrlParts?.urlPath) agent.primaryTargetUrlPath = primaryTargetUrlParts.urlPath;
+    if (primaryTargetUrlParts?.urlQuery) agent.primaryTargetUrlQuery = primaryTargetUrlParts.urlQuery;
     if (primaryAction.target?.path) agent.primaryTargetPath = primaryAction.target.path;
     if (primaryAction.target?.title) agent.primaryTargetTitle = primaryAction.target.title;
     if (primaryAction.target?.host) agent.primaryTargetHost = primaryAction.target.host;
@@ -18609,6 +18634,9 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const runbookReadValueCount = agentReadValueCount(runbook.readValue);
   const runbookReadValueReferencePath = agentReadValueReferencePath(runbook.readValue);
   const topActionTargetUrlParts = primaryAction?.target?.url ? urlPathParts(primaryAction.target.url) : undefined;
+  const executorTargetUrlParts = executor.target?.url ? urlPathParts(executor.target.url) : undefined;
+  const handoffTargetUrlParts = handoff.target?.url ? urlPathParts(handoff.target.url) : undefined;
+  const primaryTargetUrlParts = primaryAction?.target?.url ? urlPathParts(primaryAction.target.url) : undefined;
   return {
     contract: agentContract,
     status: "error",
@@ -18943,6 +18971,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(typeof executorReadValueCount === "number" ? { executorReadValueCount } : {}),
     ...(executorReadValueReferencePath ? { executorReadValueReferencePath } : {}),
     ...(executor.target?.url ? { executorTargetUrl: executor.target.url } : {}),
+    ...(executorTargetUrlParts?.urlPath ? { executorTargetUrlPath: executorTargetUrlParts.urlPath } : {}),
+    ...(executorTargetUrlParts?.urlQuery ? { executorTargetUrlQuery: executorTargetUrlParts.urlQuery } : {}),
     ...(executor.target?.path ? { executorTargetPath: executor.target.path } : {}),
     ...(executor.target?.title ? { executorTargetTitle: executor.target.title } : {}),
     ...(executor.target?.host ? { executorTargetHost: executor.target.host } : {}),
@@ -18974,6 +19004,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(typeof handoffReadValueCount === "number" ? { handoffReadValueCount } : {}),
     ...(handoffReadValueReferencePath ? { handoffReadValueReferencePath } : {}),
     ...(handoff.target?.url ? { handoffTargetUrl: handoff.target.url } : {}),
+    ...(handoffTargetUrlParts?.urlPath ? { handoffTargetUrlPath: handoffTargetUrlParts.urlPath } : {}),
+    ...(handoffTargetUrlParts?.urlQuery ? { handoffTargetUrlQuery: handoffTargetUrlParts.urlQuery } : {}),
     ...(handoff.target?.path ? { handoffTargetPath: handoff.target.path } : {}),
     ...(handoff.target?.title ? { handoffTargetTitle: handoff.target.title } : {}),
     ...(handoff.target?.host ? { handoffTargetHost: handoff.target.host } : {}),
@@ -19007,6 +19039,8 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(primaryAction?.rank ? { primaryRank: primaryAction.rank } : {}),
     ...(primaryAction?.openResult ? { primaryOpenResult: primaryAction.openResult } : {}),
     ...(primaryAction?.target?.url ? { primaryTargetUrl: primaryAction.target.url } : {}),
+    ...(primaryTargetUrlParts?.urlPath ? { primaryTargetUrlPath: primaryTargetUrlParts.urlPath } : {}),
+    ...(primaryTargetUrlParts?.urlQuery ? { primaryTargetUrlQuery: primaryTargetUrlParts.urlQuery } : {}),
     ...(primaryAction?.target?.path ? { primaryTargetPath: primaryAction.target.path } : {}),
     ...(primaryAction?.target?.title ? { primaryTargetTitle: primaryAction.target.title } : {}),
     ...(primaryAction?.target?.host ? { primaryTargetHost: primaryAction.target.host } : {}),
@@ -21832,6 +21866,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(compactAgentReadValueReferencePath(agent.executor.readValue) ? { executorReadValueReferencePath: compactAgentReadValueReferencePath(agent.executor.readValue) } : {}),
     ...(agent.executorUrl ? { executorUrl: agent.executorUrl } : {}),
     ...(agent.executorTargetUrl ? { executorTargetUrl: agent.executorTargetUrl } : {}),
+    ...(agent.executorTargetUrlPath ? { executorTargetUrlPath: agent.executorTargetUrlPath } : {}),
+    ...(agent.executorTargetUrlQuery ? { executorTargetUrlQuery: agent.executorTargetUrlQuery } : {}),
     ...(agent.executorTargetPath ? { executorTargetPath: agent.executorTargetPath } : {}),
     ...(agent.executorTargetTitle ? { executorTargetTitle: agent.executorTargetTitle } : {}),
     ...(agent.executorTargetHost ? { executorTargetHost: agent.executorTargetHost } : {}),
@@ -21877,6 +21913,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(compactAgentReadValueReferencePath(agent.handoff.readValue, true) ? { handoffReadValueReferencePath: compactAgentReadValueReferencePath(agent.handoff.readValue, true) } : {}),
     ...(agent.handoffUrl ? { handoffUrl: agent.handoffUrl } : {}),
     ...(agent.handoffTargetUrl ? { handoffTargetUrl: agent.handoffTargetUrl } : {}),
+    ...(agent.handoffTargetUrlPath ? { handoffTargetUrlPath: agent.handoffTargetUrlPath } : {}),
+    ...(agent.handoffTargetUrlQuery ? { handoffTargetUrlQuery: agent.handoffTargetUrlQuery } : {}),
     ...(agent.handoffTargetPath ? { handoffTargetPath: agent.handoffTargetPath } : {}),
     ...(agent.handoffTargetTitle ? { handoffTargetTitle: agent.handoffTargetTitle } : {}),
     ...(agent.handoffTargetHost ? { handoffTargetHost: agent.handoffTargetHost } : {}),
@@ -21919,6 +21957,8 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.primaryRank ? { primaryRank: agent.primaryRank } : {}),
     ...(agent.primaryOpenResult ? { primaryOpenResult: agent.primaryOpenResult } : {}),
     ...(agent.primaryTargetUrl ? { primaryTargetUrl: agent.primaryTargetUrl } : {}),
+    ...(agent.primaryTargetUrlPath ? { primaryTargetUrlPath: agent.primaryTargetUrlPath } : {}),
+    ...(agent.primaryTargetUrlQuery ? { primaryTargetUrlQuery: agent.primaryTargetUrlQuery } : {}),
     ...(agent.primaryTargetPath ? { primaryTargetPath: agent.primaryTargetPath } : {}),
     ...(agent.primaryTargetTitle ? { primaryTargetTitle: agent.primaryTargetTitle } : {}),
     ...(agent.primaryTargetHost ? { primaryTargetHost: agent.primaryTargetHost } : {}),
@@ -23365,6 +23405,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(compactAgentReadValueReferencePath(agent.executor.readValue) ? { executorReadValueReferencePath: compactAgentReadValueReferencePath(agent.executor.readValue) } : {}),
     ...(agent.executorUrl ? { executorUrl: agent.executorUrl } : {}),
     ...(agent.executorTargetUrl ? { executorTargetUrl: agent.executorTargetUrl } : {}),
+    ...(agent.executorTargetUrlPath ? { executorTargetUrlPath: agent.executorTargetUrlPath } : {}),
+    ...(agent.executorTargetUrlQuery ? { executorTargetUrlQuery: agent.executorTargetUrlQuery } : {}),
     ...(agent.executorTargetPath ? { executorTargetPath: agent.executorTargetPath } : {}),
     ...(agent.executorTargetTitle ? { executorTargetTitle: agent.executorTargetTitle } : {}),
     ...(agent.executorTargetHost ? { executorTargetHost: agent.executorTargetHost } : {}),
@@ -23410,6 +23452,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(compactAgentReadValueReferencePath(agent.handoff.readValue, true) ? { handoffReadValueReferencePath: compactAgentReadValueReferencePath(agent.handoff.readValue, true) } : {}),
     ...(agent.handoffUrl ? { handoffUrl: agent.handoffUrl } : {}),
     ...(agent.handoffTargetUrl ? { handoffTargetUrl: agent.handoffTargetUrl } : {}),
+    ...(agent.handoffTargetUrlPath ? { handoffTargetUrlPath: agent.handoffTargetUrlPath } : {}),
+    ...(agent.handoffTargetUrlQuery ? { handoffTargetUrlQuery: agent.handoffTargetUrlQuery } : {}),
     ...(agent.handoffTargetPath ? { handoffTargetPath: agent.handoffTargetPath } : {}),
     ...(agent.handoffTargetTitle ? { handoffTargetTitle: agent.handoffTargetTitle } : {}),
     ...(agent.handoffTargetHost ? { handoffTargetHost: agent.handoffTargetHost } : {}),
@@ -23452,6 +23496,8 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.primaryRank ? { primaryRank: agent.primaryRank } : {}),
     ...(agent.primaryOpenResult ? { primaryOpenResult: agent.primaryOpenResult } : {}),
     ...(agent.primaryTargetUrl ? { primaryTargetUrl: agent.primaryTargetUrl } : {}),
+    ...(agent.primaryTargetUrlPath ? { primaryTargetUrlPath: agent.primaryTargetUrlPath } : {}),
+    ...(agent.primaryTargetUrlQuery ? { primaryTargetUrlQuery: agent.primaryTargetUrlQuery } : {}),
     ...(agent.primaryTargetPath ? { primaryTargetPath: agent.primaryTargetPath } : {}),
     ...(agent.primaryTargetTitle ? { primaryTargetTitle: agent.primaryTargetTitle } : {}),
     ...(agent.primaryTargetHost ? { primaryTargetHost: agent.primaryTargetHost } : {}),

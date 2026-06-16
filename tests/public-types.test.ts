@@ -1667,6 +1667,8 @@ describe("public agent types", () => {
       | "executorReadValueReferencePath"
       | "executorUrl"
       | "executorTargetUrl"
+      | "executorTargetUrlPath"
+      | "executorTargetUrlQuery"
       | "executorTargetPath"
       | "executorTargetTitle"
       | "executorTargetHost"
@@ -1712,6 +1714,8 @@ describe("public agent types", () => {
       | "handoffReadValueReferencePath"
       | "handoffUrl"
       | "handoffTargetUrl"
+      | "handoffTargetUrlPath"
+      | "handoffTargetUrlQuery"
       | "handoffTargetPath"
       | "handoffTargetTitle"
       | "handoffTargetHost"
@@ -1748,6 +1752,8 @@ describe("public agent types", () => {
       | "primaryAfterInteractionCommandArgs"
       | "primarySourceLinkRef"
       | "primaryTargetUrl"
+      | "primaryTargetUrlPath"
+      | "primaryTargetUrlQuery"
       | "primaryTargetPath"
       | "primaryTargetTitle"
       | "primaryTargetHost"
@@ -3303,7 +3309,9 @@ describe("public agent types", () => {
       executorReadValueCount: 1,
       executorReadValueReferencePath: "pageCheck.contentEvidence",
       executorUrl: "https://example.test",
-      executorTargetUrl: "https://example.test",
+      executorTargetUrl: "https://example.test/docs?ref=executor",
+      executorTargetUrlPath: "/docs",
+      executorTargetUrlQuery: "?ref=executor",
       executorTargetPath: "pageCheck.links[0]",
       executorTargetTitle: "Example target",
       executorTargetHost: "example.test",
@@ -3348,7 +3356,9 @@ describe("public agent types", () => {
       handoffReadValueCount: 1,
       handoffReadValueReferencePath: "pageCheck.contentEvidence",
       handoffUrl: "https://example.test",
-      handoffTargetUrl: "https://example.test",
+      handoffTargetUrl: "https://example.test/docs?ref=handoff",
+      handoffTargetUrlPath: "/docs",
+      handoffTargetUrlQuery: "?ref=handoff",
       handoffTargetPath: "pageCheck.links[0]",
       handoffTargetTitle: "Example target",
       handoffTargetHost: "example.test",
@@ -3384,7 +3394,9 @@ describe("public agent types", () => {
       primaryAfterInteractionCommand: "ax-grep https://example.test --html-file captured.html --agent",
       primaryAfterInteractionCommandArgs: ["ax-grep", "https://example.test", "--html-file", "captured.html", "--agent"],
       primarySourceLinkRef: "pageCheck.sourceLinks[0]",
-      primaryTargetUrl: "https://example.test",
+      primaryTargetUrl: "https://example.test/docs?ref=primary",
+      primaryTargetUrlPath: "/docs",
+      primaryTargetUrlQuery: "?ref=primary",
       primaryTargetPath: "pageCheck.links[0]",
       primaryTargetTitle: "Example target",
       primaryTargetHost: "example.test",

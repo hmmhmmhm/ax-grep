@@ -1606,7 +1606,12 @@ describe("cli", () => {
       if (executor.readTarget?.reason) expect(envelope.agent.executorReadTargetReason).toBe(executor.readTarget.reason);
       if (executor.url) expect(envelope.agent.executorUrl).toBe(executor.url);
       if (item.args[0] === "--search") expect(envelope.agent.searchDecisionReason).toEqual(expect.any(String));
-      if (envelope.agent.primaryAction?.target?.url) expect(envelope.agent.primaryTargetUrl).toBe(envelope.agent.primaryAction.target.url);
+      if (envelope.agent.primaryAction?.target?.url) {
+        const primaryTargetUrl = new URL(envelope.agent.primaryAction.target.url);
+        expect(envelope.agent.primaryTargetUrl).toBe(envelope.agent.primaryAction.target.url);
+        expect(envelope.agent.primaryTargetUrlPath).toBe(primaryTargetUrl.pathname);
+        if (primaryTargetUrl.search) expect(envelope.agent.primaryTargetUrlQuery).toBe(primaryTargetUrl.search);
+      }
       if (envelope.agent.primaryAction?.target?.path) expect(envelope.agent.primaryTargetPath).toBe(envelope.agent.primaryAction.target.path);
       if (envelope.agent.primaryAction?.target?.title) expect(envelope.agent.primaryTargetTitle).toBe(envelope.agent.primaryAction.target.title);
       if (envelope.agent.primaryAction?.target?.host) expect(envelope.agent.primaryTargetHost).toBe(envelope.agent.primaryAction.target.host);
@@ -1617,7 +1622,12 @@ describe("cli", () => {
       if (typeof envelope.agent.primaryAction?.target?.isLikelyOfficial === "boolean") expect(envelope.agent.primaryTargetLikelyOfficial).toBe(envelope.agent.primaryAction.target.isLikelyOfficial);
       if (envelope.agent.primaryAction?.target?.selector) expect(envelope.agent.primaryTargetSelector).toBe(envelope.agent.primaryAction.target.selector);
       if (envelope.agent.primaryAction?.target?.text) expect(envelope.agent.primaryTargetText).toBe(envelope.agent.primaryAction.target.text);
-      if (executor.target?.url) expect(envelope.agent.executorTargetUrl).toBe(executor.target.url);
+      if (executor.target?.url) {
+        const executorTargetUrl = new URL(executor.target.url);
+        expect(envelope.agent.executorTargetUrl).toBe(executor.target.url);
+        expect(envelope.agent.executorTargetUrlPath).toBe(executorTargetUrl.pathname);
+        if (executorTargetUrl.search) expect(envelope.agent.executorTargetUrlQuery).toBe(executorTargetUrl.search);
+      }
       if (executor.target?.path) expect(envelope.agent.executorTargetPath).toBe(executor.target.path);
       if (executor.target?.title) expect(envelope.agent.executorTargetTitle).toBe(executor.target.title);
       if (executor.target?.host) expect(envelope.agent.executorTargetHost).toBe(executor.target.host);
@@ -1651,7 +1661,12 @@ describe("cli", () => {
       if (typeof handoff.readTarget?.primary === "boolean") expect(envelope.agent.handoffReadTargetPrimary).toBe(handoff.readTarget.primary);
       if (handoff.readTarget?.reason) expect(envelope.agent.handoffReadTargetReason).toBe(handoff.readTarget.reason);
       if (handoff.url) expect(envelope.agent.handoffUrl).toBe(handoff.url);
-      if (handoff.target?.url) expect(envelope.agent.handoffTargetUrl).toBe(handoff.target.url);
+      if (handoff.target?.url) {
+        const handoffTargetUrl = new URL(handoff.target.url);
+        expect(envelope.agent.handoffTargetUrl).toBe(handoff.target.url);
+        expect(envelope.agent.handoffTargetUrlPath).toBe(handoffTargetUrl.pathname);
+        if (handoffTargetUrl.search) expect(envelope.agent.handoffTargetUrlQuery).toBe(handoffTargetUrl.search);
+      }
       if (handoff.target?.path) expect(envelope.agent.handoffTargetPath).toBe(handoff.target.path);
       if (handoff.target?.title) expect(envelope.agent.handoffTargetTitle).toBe(handoff.target.title);
       if (handoff.target?.host) expect(envelope.agent.handoffTargetHost).toBe(handoff.target.host);
@@ -13920,10 +13935,12 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  execution: run-command");
     expect(stdout.output).toContain("  url: https://result.example/article");
     expect(stdout.output).toContain("  executorTargetUrl: https://result.example/article");
+    expect(stdout.output).toContain("  executorTargetUrlPath: /article");
     expect(stdout.output).toContain("  executorTargetTitle: Result Title");
     expect(stdout.output).toContain("  executorTargetHost: result.example");
     expect(stdout.output).toContain("  executorTargetRank: 1");
     expect(stdout.output).toContain("  handoffTargetUrl: https://result.example/article");
+    expect(stdout.output).toContain("  handoffTargetUrlPath: /article");
     expect(stdout.output).toContain("  handoffTargetTitle: Result Title");
     expect(stdout.output).toContain("  handoffTargetHost: result.example");
     expect(stdout.output).toContain("  handoffTargetRank: 1");
