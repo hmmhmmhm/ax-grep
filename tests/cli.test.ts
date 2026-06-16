@@ -10429,6 +10429,12 @@ describe("cli", () => {
       topTopicValue: "retrieval",
       topTopicSource: "meta",
       topTopicSelector: "meta[name=\"keywords\"]:nth-of-type(1)",
+      secondTopicPath: "pageCheck.topics[1]",
+      secondTopicKind: "keyword",
+      secondTopicLabel: "Keyword",
+      secondTopicValue: "agent search",
+      secondTopicSource: "meta",
+      secondTopicSelector: "meta[name=\"keywords\"]:nth-of-type(1)",
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",

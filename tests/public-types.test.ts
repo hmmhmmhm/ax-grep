@@ -1103,6 +1103,12 @@ describe("public agent types", () => {
       | "topTopicValue"
       | "topTopicSource"
       | "topTopicSelector"
+      | "secondTopicPath"
+      | "secondTopicKind"
+      | "secondTopicLabel"
+      | "secondTopicValue"
+      | "secondTopicSource"
+      | "secondTopicSelector"
       | "topKeyValuePath"
       | "topKeyValueLabel"
       | "topKeyValueValue"
@@ -3123,6 +3129,12 @@ describe("public agent types", () => {
       topTopicValue: "agent",
       topTopicSource: "meta",
       topTopicSelector: "meta[name=\"keywords\"]",
+      secondTopicPath: "pageCheck.topics[1]",
+      secondTopicKind: "tag",
+      secondTopicLabel: "Article tag",
+      secondTopicValue: "static extraction",
+      secondTopicSource: "json-ld",
+      secondTopicSelector: "script[type=\"application/ld+json\"]",
       topKeyValuePath: "pageCheck.keyValues[0]",
       topKeyValueLabel: "Version",
       topKeyValueValue: "1.2.3",

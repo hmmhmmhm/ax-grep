@@ -2863,6 +2863,12 @@ export type AgentSummary = {
   topTopicValue?: string;
   topTopicSource?: string;
   topTopicSelector?: string;
+  secondTopicPath?: string;
+  secondTopicKind?: string;
+  secondTopicLabel?: string;
+  secondTopicValue?: string;
+  secondTopicSource?: string;
+  secondTopicSelector?: string;
   topKeyValuePath?: string;
   topKeyValueLabel?: string;
   topKeyValueValue?: string;

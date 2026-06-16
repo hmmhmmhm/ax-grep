@@ -1255,6 +1255,9 @@ When research expands:
   hint, including value, platform, URL path/query, and selector, so agents can
   inspect viewport-adjacent mobile rendering and app-link signals without
   parsing the full mobile-hint array first.
+- Added `secondTopic*` agent shortcuts for the second detected topic, including
+  kind, label, value, source, and selector, so agents can compare alternate
+  relevance terms for search refinement without parsing the full topic array.
 
 ## In Progress
 
