@@ -1977,6 +1977,10 @@ type AgentSummary = {
   topBreadcrumbText?: string;
   topBreadcrumbSource?: PageBreadcrumbSummary["source"];
   topBreadcrumbSelector?: string;
+  secondBreadcrumbPath?: string;
+  secondBreadcrumbText?: string;
+  secondBreadcrumbSource?: PageBreadcrumbSummary["source"];
+  secondBreadcrumbSelector?: string;
   topPaginationPath?: string;
   topPaginationKind?: PagePaginationSummary["kind"];
   topPaginationLabel?: string;
@@ -5031,6 +5035,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.secondMediaCommandArgs ? [`  secondMediaCommandArgs: ${formatCommandArgsText(agent.secondMediaCommandArgs)}`] : []),
     ...(agent.topSectionPath ? [`  topSection: path=${agent.topSectionPath}${typeof agent.topSectionLevel === "number" ? ` level=${agent.topSectionLevel}` : ""}${agent.topSectionSelector ? ` selector=${agent.topSectionSelector}` : ""}${agent.topSectionHeading ? ` heading="${agent.topSectionHeading}"` : ""}${agent.topSectionText ? ` - ${agent.topSectionText}` : ""}`] : []),
     ...(agent.topBreadcrumbText ? [`  topBreadcrumb: path=${agent.topBreadcrumbPath ?? ""}${agent.topBreadcrumbSource ? ` source=${agent.topBreadcrumbSource}` : ""}${agent.topBreadcrumbSelector ? ` selector=${agent.topBreadcrumbSelector}` : ""} - ${agent.topBreadcrumbText}`] : []),
+    ...(agent.secondBreadcrumbText ? [`  secondBreadcrumb: path=${agent.secondBreadcrumbPath ?? ""}${agent.secondBreadcrumbSource ? ` source=${agent.secondBreadcrumbSource}` : ""}${agent.secondBreadcrumbSelector ? ` selector=${agent.secondBreadcrumbSelector}` : ""} - ${agent.secondBreadcrumbText}`] : []),
     ...(agent.topPaginationPath ? [`  topPagination: path=${agent.topPaginationPath}${agent.topPaginationKind ? ` kind=${agent.topPaginationKind}` : ""}${agent.topPaginationLabel ? ` label="${agent.topPaginationLabel}"` : ""}${typeof agent.topPaginationCurrent === "boolean" ? ` current=${agent.topPaginationCurrent}` : ""}${agent.topPaginationSelector ? ` selector=${agent.topPaginationSelector}` : ""}${agent.topPaginationUrl ? ` url=<${agent.topPaginationUrl}>` : ""}${agent.topPaginationUrlPath ? ` urlPath=${agent.topPaginationUrlPath}` : ""}${agent.topPaginationUrlQuery ? ` urlQuery=${agent.topPaginationUrlQuery}` : ""}`] : []),
     ...(agent.topPaginationCommand ? [`  topPaginationCommand: ${agent.topPaginationCommand}`] : []),
     ...(agent.topPaginationCommandArgs ? [`  topPaginationCommandArgs: ${formatCommandArgsText(agent.topPaginationCommandArgs)}`] : []),
@@ -15526,6 +15531,10 @@ function summarizeAgent(
     ...(pageCheck.breadcrumbs[0]?.text ? { topBreadcrumbText: pageCheck.breadcrumbs[0].text } : {}),
     ...(pageCheck.breadcrumbs[0] ? { topBreadcrumbSource: pageCheck.breadcrumbs[0].source } : {}),
     ...(pageCheck.breadcrumbs[0]?.selector ? { topBreadcrumbSelector: pageCheck.breadcrumbs[0].selector } : {}),
+    ...(pageCheck.breadcrumbs[1] ? { secondBreadcrumbPath: pageCheck.breadcrumbs[1].path } : {}),
+    ...(pageCheck.breadcrumbs[1]?.text ? { secondBreadcrumbText: pageCheck.breadcrumbs[1].text } : {}),
+    ...(pageCheck.breadcrumbs[1] ? { secondBreadcrumbSource: pageCheck.breadcrumbs[1].source } : {}),
+    ...(pageCheck.breadcrumbs[1]?.selector ? { secondBreadcrumbSelector: pageCheck.breadcrumbs[1].selector } : {}),
     ...(pageCheck.pagination[0] ? { topPaginationPath: pageCheck.pagination[0].path } : {}),
     ...(pageCheck.pagination[0] ? { topPaginationKind: pageCheck.pagination[0].kind } : {}),
     ...(pageCheck.pagination[0]?.label ? { topPaginationLabel: pageCheck.pagination[0].label } : {}),
@@ -22221,7 +22230,10 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topBreadcrumbText ? { topBreadcrumbText: agent.topBreadcrumbText } : {}),
     ...(agent.topBreadcrumbSource ? { topBreadcrumbSource: agent.topBreadcrumbSource } : {}),
     ...(agent.topBreadcrumbSelector ? { topBreadcrumbSelector: agent.topBreadcrumbSelector } : {}),
-    ...(agent.topBreadcrumbSelector ? { topBreadcrumbSelector: agent.topBreadcrumbSelector } : {}),
+    ...(agent.secondBreadcrumbPath ? { secondBreadcrumbPath: agent.secondBreadcrumbPath } : {}),
+    ...(agent.secondBreadcrumbText ? { secondBreadcrumbText: agent.secondBreadcrumbText } : {}),
+    ...(agent.secondBreadcrumbSource ? { secondBreadcrumbSource: agent.secondBreadcrumbSource } : {}),
+    ...(agent.secondBreadcrumbSelector ? { secondBreadcrumbSelector: agent.secondBreadcrumbSelector } : {}),
     ...(agent.topPaginationPath ? { topPaginationPath: agent.topPaginationPath } : {}),
     ...(agent.topPaginationKind ? { topPaginationKind: agent.topPaginationKind } : {}),
     ...(agent.topPaginationLabel ? { topPaginationLabel: agent.topPaginationLabel } : {}),
@@ -24019,6 +24031,11 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topBreadcrumbPath ? { topBreadcrumbPath: agent.topBreadcrumbPath } : {}),
     ...(agent.topBreadcrumbText ? { topBreadcrumbText: agent.topBreadcrumbText } : {}),
     ...(agent.topBreadcrumbSource ? { topBreadcrumbSource: agent.topBreadcrumbSource } : {}),
+    ...(agent.topBreadcrumbSelector ? { topBreadcrumbSelector: agent.topBreadcrumbSelector } : {}),
+    ...(agent.secondBreadcrumbPath ? { secondBreadcrumbPath: agent.secondBreadcrumbPath } : {}),
+    ...(agent.secondBreadcrumbText ? { secondBreadcrumbText: agent.secondBreadcrumbText } : {}),
+    ...(agent.secondBreadcrumbSource ? { secondBreadcrumbSource: agent.secondBreadcrumbSource } : {}),
+    ...(agent.secondBreadcrumbSelector ? { secondBreadcrumbSelector: agent.secondBreadcrumbSelector } : {}),
     ...(agent.topPaginationPath ? { topPaginationPath: agent.topPaginationPath } : {}),
     ...(agent.topPaginationKind ? { topPaginationKind: agent.topPaginationKind } : {}),
     ...(agent.topPaginationLabel ? { topPaginationLabel: agent.topPaginationLabel } : {}),

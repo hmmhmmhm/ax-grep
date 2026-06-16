@@ -2345,6 +2345,10 @@ export type AgentSummary = {
   topBreadcrumbText?: string;
   topBreadcrumbSource?: string;
   topBreadcrumbSelector?: string;
+  secondBreadcrumbPath?: string;
+  secondBreadcrumbText?: string;
+  secondBreadcrumbSource?: string;
+  secondBreadcrumbSelector?: string;
   topPaginationPath?: string;
   topPaginationKind?: string;
   topPaginationLabel?: string;

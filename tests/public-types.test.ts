@@ -532,6 +532,10 @@ describe("public agent types", () => {
       | "topBreadcrumbText"
       | "topBreadcrumbSource"
       | "topBreadcrumbSelector"
+      | "secondBreadcrumbPath"
+      | "secondBreadcrumbText"
+      | "secondBreadcrumbSource"
+      | "secondBreadcrumbSelector"
       | "topPaginationPath"
       | "topPaginationKind"
       | "topPaginationLabel"
@@ -2348,6 +2352,10 @@ describe("public agent types", () => {
       topBreadcrumbText: "Docs > Install",
       topBreadcrumbSource: "html",
       topBreadcrumbSelector: "nav:nth-of-type(1)",
+      secondBreadcrumbPath: "pageCheck.breadcrumbs[1]",
+      secondBreadcrumbText: "Reference > Install",
+      secondBreadcrumbSource: "html",
+      secondBreadcrumbSelector: "nav:nth-of-type(2)",
       topPaginationPath: "pageCheck.pagination[0]",
       topPaginationKind: "next",
       topPaginationLabel: "Next",
@@ -4010,6 +4018,10 @@ describe("public agent types", () => {
     expect(summary.secondFaqPath).toBe("pageCheck.faqs[1]");
     expect(summary.secondFaqQuestion).toBe("Can I use it in CI?");
     expect(summary.secondFaqSelector).toBe("details:nth-of-type(2)");
+    expect(summary.topBreadcrumbPath).toBe("pageCheck.breadcrumbs[0]");
+    expect(summary.secondBreadcrumbPath).toBe("pageCheck.breadcrumbs[1]");
+    expect(summary.secondBreadcrumbText).toBe("Reference > Install");
+    expect(summary.secondBreadcrumbSelector).toBe("nav:nth-of-type(2)");
     expect(summary.topCodeBlockPath).toBe("pageCheck.codeBlocks[0]");
     expect(summary.topCodeBlockSelector).toBe("pre:nth-of-type(1)");
     expect(summary.topResourcePath).toBe("pageCheck.resources[0]");

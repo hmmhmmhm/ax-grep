@@ -12106,7 +12106,7 @@ npx ax-grep https://example.test --agent</code></pre>
             <nav aria-label="Breadcrumb">
               <ol>
                 <li><a href="/docs">Docs</a></li>
-                <li><a href="/docs/api">API</a></li>
+                <li><a href="/docs/guides">Guides</a></li>
                 <li>Responses</li>
               </ol>
             </nav>
@@ -12133,14 +12133,31 @@ npx ax-grep https://example.test --agent</code></pre>
         ],
         text: "Docs > API > Responses",
       },
+      {
+        id: "bc2",
+        path: "pageCheck.breadcrumbs[1]",
+        rank: 2,
+        source: "html",
+        selector: "nav:nth-of-type(1)",
+        items: [
+          { label: "Docs", url: "https://example.test/docs", urlPath: "/docs", position: 1 },
+          { label: "Guides", url: "https://example.test/docs/guides", urlPath: "/docs/guides", position: 2 },
+          { label: "Responses", position: 3 },
+        ],
+        text: "Docs > Guides > Responses",
+      },
     ]);
-    expect(envelope.pageCheck.readability.reasons).toContain("1 breadcrumb trail");
+    expect(envelope.pageCheck.readability.reasons).toContain("2 breadcrumb trails");
     expect(envelope.agent).toMatchObject({
-      breadcrumbCount: 1,
+      breadcrumbCount: 2,
       topBreadcrumbPath: "pageCheck.breadcrumbs[0]",
       topBreadcrumbText: "Docs > API > Responses",
       topBreadcrumbSource: "json-ld",
       topBreadcrumbSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      secondBreadcrumbPath: "pageCheck.breadcrumbs[1]",
+      secondBreadcrumbText: "Docs > Guides > Responses",
+      secondBreadcrumbSource: "html",
+      secondBreadcrumbSelector: "nav:nth-of-type(1)",
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
@@ -12149,7 +12166,7 @@ npx ax-grep https://example.test --agent</code></pre>
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.breadcrumbs",
-      count: 1,
+      count: 2,
       primary: true,
       reason: "Structured breadcrumb trails extracted from JSON-LD and breadcrumb navigation.",
     }));
@@ -12159,6 +12176,10 @@ npx ax-grep https://example.test --agent</code></pre>
         expect.objectContaining({
           id: "bc1",
           text: "Docs > API > Responses",
+        }),
+        expect.objectContaining({
+          id: "bc2",
+          text: "Docs > Guides > Responses",
         }),
       ]),
     });
@@ -12178,6 +12199,13 @@ npx ax-grep https://example.test --agent</code></pre>
                 <li>Responses</li>
               </ol>
             </nav>
+            <nav aria-label="Secondary breadcrumb">
+              <ol>
+                <li><a href="/reference">Reference</a></li>
+                <li><a href="/reference/http">HTTP</a></li>
+                <li>Responses</li>
+              </ol>
+            </nav>
             <main></main>
           </body>
         </html>
@@ -12187,6 +12215,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topBreadcrumb: path=pageCheck.breadcrumbs[0] source=html selector=nav:nth-of-type(1) - Docs > API > Responses");
+    expect(stdout.output).toContain("  secondBreadcrumb: path=pageCheck.breadcrumbs[1] source=html selector=nav:nth-of-type(2) - Reference > HTTP > Responses");
     expect(stdout.output).toContain("  breadcrumb: id=bc1 path=pageCheck.breadcrumbs[0] source=html items=3 first=\"Docs\" last=\"Responses\" urls=https://example.test/docs,https://example.test/docs/api urlPaths=/docs,/docs/api selector=nav:nth-of-type(1) - Docs > API > Responses");
   });
 
