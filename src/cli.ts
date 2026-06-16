@@ -2420,6 +2420,11 @@ type AgentSummary = {
   topClientStateOperation?: string;
   topClientStateKey?: string;
   topClientStateSelector?: string;
+  secondClientStatePath?: string;
+  secondClientStateKind?: string;
+  secondClientStateOperation?: string;
+  secondClientStateKey?: string;
+  secondClientStateSelector?: string;
   topRuntimePath?: string;
   topRuntimeKind?: string;
   topRuntimeUrl?: string;
@@ -5467,6 +5472,8 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.secondApiEndpointSelector ? [`  secondApiEndpointSelector: ${agent.secondApiEndpointSelector}`] : []),
     ...(agent.topClientStatePath ? [`  topClientState: path=${agent.topClientStatePath}${agent.topClientStateKind ? ` kind=${agent.topClientStateKind}` : ""}${agent.topClientStateOperation ? ` operation=${agent.topClientStateOperation}` : ""}${agent.topClientStateKey ? ` key=${agent.topClientStateKey}` : ""}${agent.topClientStateSelector ? ` selector=${agent.topClientStateSelector}` : ""}`] : []),
     ...(agent.topClientStateSelector ? [`  topClientStateSelector: ${agent.topClientStateSelector}`] : []),
+    ...(agent.secondClientStatePath ? [`  secondClientState: path=${agent.secondClientStatePath}${agent.secondClientStateKind ? ` kind=${agent.secondClientStateKind}` : ""}${agent.secondClientStateOperation ? ` operation=${agent.secondClientStateOperation}` : ""}${agent.secondClientStateKey ? ` key=${agent.secondClientStateKey}` : ""}${agent.secondClientStateSelector ? ` selector=${agent.secondClientStateSelector}` : ""}`] : []),
+    ...(agent.secondClientStateSelector ? [`  secondClientStateSelector: ${agent.secondClientStateSelector}`] : []),
     ...(agent.topRuntimePath ? [`  topRuntime: path=${agent.topRuntimePath}${agent.topRuntimeKind ? ` kind=${agent.topRuntimeKind}` : ""}${agent.topRuntimeSelector ? ` selector=${agent.topRuntimeSelector}` : ""}${agent.topRuntimeUrl ? ` url=<${agent.topRuntimeUrl}>` : ""}${agent.topRuntimeUrlPath ? ` urlPath=${agent.topRuntimeUrlPath}` : ""}${agent.topRuntimeUrlQuery ? ` urlQuery=${agent.topRuntimeUrlQuery}` : ""}`] : []),
     ...(agent.topRuntimeCommand ? [`  topRuntimeCommand: ${agent.topRuntimeCommand}`] : []),
     ...(agent.topRuntimeCommandArgs ? [`  topRuntimeCommandArgs: ${formatCommandArgsText(agent.topRuntimeCommandArgs)}`] : []),
@@ -14638,6 +14645,7 @@ function summarizeAgent(
     : undefined;
   const secondApiEndpointUrlParts = secondApiEndpoint?.url ? urlPathParts(secondApiEndpoint.url) : undefined;
   const topClientState = pageCheck.clientState[0];
+  const secondClientState = pageCheck.clientState[1];
   const topRuntime = pageCheck.runtime[0];
   const topRuntimeCommand = topRuntime?.url && /^https?:\/\//i.test(topRuntime.url)
     ? pageCommandSpec(topRuntime.url, agentMode, false, findQueries, timeoutMs, userAgent)
@@ -16393,6 +16401,11 @@ function summarizeAgent(
     ...(topClientState ? { topClientStateOperation: topClientState.operation } : {}),
     ...(topClientState?.key ? { topClientStateKey: topClientState.key } : {}),
     ...(topClientState?.selector ? { topClientStateSelector: topClientState.selector } : {}),
+    ...(secondClientState ? { secondClientStatePath: secondClientState.path } : {}),
+    ...(secondClientState ? { secondClientStateKind: secondClientState.kind } : {}),
+    ...(secondClientState ? { secondClientStateOperation: secondClientState.operation } : {}),
+    ...(secondClientState?.key ? { secondClientStateKey: secondClientState.key } : {}),
+    ...(secondClientState?.selector ? { secondClientStateSelector: secondClientState.selector } : {}),
     ...(topRuntime ? { topRuntimePath: topRuntime.path } : {}),
     ...(topRuntime ? { topRuntimeKind: topRuntime.kind } : {}),
     ...(topRuntime?.url ? { topRuntimeUrl: topRuntime.url } : {}),
@@ -23297,6 +23310,11 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topClientStateOperation ? { topClientStateOperation: agent.topClientStateOperation } : {}),
     ...(agent.topClientStateKey ? { topClientStateKey: agent.topClientStateKey } : {}),
     ...(agent.topClientStateSelector ? { topClientStateSelector: agent.topClientStateSelector } : {}),
+    ...(agent.secondClientStatePath ? { secondClientStatePath: agent.secondClientStatePath } : {}),
+    ...(agent.secondClientStateKind ? { secondClientStateKind: agent.secondClientStateKind } : {}),
+    ...(agent.secondClientStateOperation ? { secondClientStateOperation: agent.secondClientStateOperation } : {}),
+    ...(agent.secondClientStateKey ? { secondClientStateKey: agent.secondClientStateKey } : {}),
+    ...(agent.secondClientStateSelector ? { secondClientStateSelector: agent.secondClientStateSelector } : {}),
     ...(agent.topRuntimePath ? { topRuntimePath: agent.topRuntimePath } : {}),
     ...(agent.topRuntimeKind ? { topRuntimeKind: agent.topRuntimeKind } : {}),
     ...(agent.topRuntimeUrl ? { topRuntimeUrl: agent.topRuntimeUrl } : {}),
@@ -25298,6 +25316,11 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topClientStateOperation ? { topClientStateOperation: agent.topClientStateOperation } : {}),
     ...(agent.topClientStateKey ? { topClientStateKey: agent.topClientStateKey } : {}),
     ...(agent.topClientStateSelector ? { topClientStateSelector: agent.topClientStateSelector } : {}),
+    ...(agent.secondClientStatePath ? { secondClientStatePath: agent.secondClientStatePath } : {}),
+    ...(agent.secondClientStateKind ? { secondClientStateKind: agent.secondClientStateKind } : {}),
+    ...(agent.secondClientStateOperation ? { secondClientStateOperation: agent.secondClientStateOperation } : {}),
+    ...(agent.secondClientStateKey ? { secondClientStateKey: agent.secondClientStateKey } : {}),
+    ...(agent.secondClientStateSelector ? { secondClientStateSelector: agent.secondClientStateSelector } : {}),
     ...(agent.topRuntimePath ? { topRuntimePath: agent.topRuntimePath } : {}),
     ...(agent.topRuntimeKind ? { topRuntimeKind: agent.topRuntimeKind } : {}),
     ...(agent.topRuntimeUrl ? { topRuntimeUrl: agent.topRuntimeUrl } : {}),

@@ -9548,6 +9548,18 @@ describe("cli", () => {
       execution: "read-current",
       readFrom: "pageCheck.clientState",
     });
+    expect(envelope.agent).toMatchObject({
+      topClientStatePath: "pageCheck.clientState[0]",
+      topClientStateKind: "local-storage",
+      topClientStateOperation: "write",
+      topClientStateKey: "feature:beta",
+      topClientStateSelector: "script:nth-of-type(1)",
+      secondClientStatePath: "pageCheck.clientState[1]",
+      secondClientStateKind: "session-storage",
+      secondClientStateOperation: "read",
+      secondClientStateKey: "returnTo",
+      secondClientStateSelector: "script:nth-of-type(1)",
+    });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.clientState",
       count: 7,
@@ -12147,6 +12159,7 @@ describe("cli", () => {
               fetch("/api/search?q=agent", { method: "POST" });
               fetch("/api/status?format=json");
               window.localStorage.getItem("session");
+              window.sessionStorage.setItem("returnTo", "/app");
               navigator.serviceWorker.register("/sw.js");
               window.__APP_CONFIG__ = { apiBase: "/api", featureFlags: { betaSearch: true } };
             </script>
@@ -12170,6 +12183,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  secondApiEndpoint: path=pageCheck.apiEndpoints[1] kind=fetch selector=script:nth-of-type(3) url=<https://example.test/api/status?format=json> urlPath=/api/status urlQuery=?format=json");
     expect(stdout.output).toContain("  secondApiEndpointCommand: ax-grep 'https://example.test/api/status?format=json'");
     expect(stdout.output).toContain("  topClientState: path=pageCheck.clientState[0] kind=local-storage operation=read key=session selector=script:nth-of-type(3)");
+    expect(stdout.output).toContain("  secondClientState: path=pageCheck.clientState[1] kind=session-storage operation=write key=returnTo selector=script:nth-of-type(3)");
     expect(stdout.output).toContain("  topRuntime: path=pageCheck.runtime[0] kind=service-worker selector=script:nth-of-type(3) url=<https://example.test/sw.js> urlPath=/sw.js");
     expect(stdout.output).toContain("  topRuntimeCommand: ax-grep 'https://example.test/sw.js'");
     expect(stdout.output).toContain("  topConfig: path=pageCheck.config[0] kind=env name=__APP_CONFIG__ keys=2 keyNames=apiBase,featureFlags selector=script:nth-of-type(3)");
@@ -12185,6 +12199,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  apiEndpoint: id=api1 path=pageCheck.apiEndpoints[0] kind=fetch source=script method=POST selector=script:nth-of-type(3) urlPath=/api/search urlQuery=?q=agent url=<https://example.test/api/search?q=agent>");
     expect(stdout.output).toContain("  apiEndpoint: id=api2 path=pageCheck.apiEndpoints[1] kind=fetch source=script selector=script:nth-of-type(3) urlPath=/api/status urlQuery=?format=json url=<https://example.test/api/status?format=json>");
     expect(stdout.output).toContain("  clientState: id=cs1 path=pageCheck.clientState[0] kind=local-storage source=script operation=read key=session selector=script:nth-of-type(3)");
+    expect(stdout.output).toContain("  clientState: id=cs2 path=pageCheck.clientState[1] kind=session-storage source=script operation=write key=returnTo selector=script:nth-of-type(3)");
     expect(stdout.output).toContain("  runtime: id=rt1 path=pageCheck.runtime[0] kind=service-worker source=script selector=script:nth-of-type(3) urlPath=/sw.js url=<https://example.test/sw.js>");
     expect(stdout.output).toContain("  config: id=cfg1 path=pageCheck.config[0] kind=env source=script name=__APP_CONFIG__ keys=2 keyNames=apiBase,featureFlags selector=script:nth-of-type(3)");
     expect(stdout.output).toContain("  appHint: id=ah1 path=pageCheck.appHints[0] kind=manifest source=link label=\"Web app manifest\" selector=link[rel=\"manifest\"]:nth-of-type(1) urlPath=/site.webmanifest url=<https://example.test/site.webmanifest>");

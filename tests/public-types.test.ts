@@ -1028,6 +1028,11 @@ describe("public agent types", () => {
       | "topClientStateOperation"
       | "topClientStateKey"
       | "topClientStateSelector"
+      | "secondClientStatePath"
+      | "secondClientStateKind"
+      | "secondClientStateOperation"
+      | "secondClientStateKey"
+      | "secondClientStateSelector"
       | "topRuntimePath"
       | "topRuntimeKind"
       | "topRuntimeUrl"
@@ -3016,6 +3021,11 @@ describe("public agent types", () => {
       topClientStateOperation: "read",
       topClientStateKey: "session",
       topClientStateSelector: "script:nth-of-type(2)",
+      secondClientStatePath: "pageCheck.clientState[1]",
+      secondClientStateKind: "session-storage",
+      secondClientStateOperation: "write",
+      secondClientStateKey: "returnTo",
+      secondClientStateSelector: "script:nth-of-type(2)",
       topRuntimePath: "pageCheck.runtime[0]",
       topRuntimeKind: "service-worker",
       topRuntimeUrl: "https://example.test/sw.js",
@@ -4460,6 +4470,11 @@ describe("public agent types", () => {
     expect(summary.topAppHintCommandArgs?.[1]).toBe("https://example.test/manifest.json");
     expect(summary.topMobileHintUrlPath).toBe("/app");
     expect(summary.topClientStateKey).toBe("session");
+    expect(summary.secondClientStatePath).toBe("pageCheck.clientState[1]");
+    expect(summary.secondClientStateKind).toBe("session-storage");
+    expect(summary.secondClientStateOperation).toBe("write");
+    expect(summary.secondClientStateKey).toBe("returnTo");
+    expect(summary.secondClientStateSelector).toBe("script:nth-of-type(2)");
     expect(summary.topHiddenSignalPath).toBe("pageCheck.apiEndpoints[0]");
     expect(summary.topHiddenSignalUrlPath).toBe("/graphql");
     expect(summary.bestHiddenReadTarget).toBe("pageCheck.apiEndpoints");

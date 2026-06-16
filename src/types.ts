@@ -2788,6 +2788,11 @@ export type AgentSummary = {
   topClientStateOperation?: string;
   topClientStateKey?: string;
   topClientStateSelector?: string;
+  secondClientStatePath?: string;
+  secondClientStateKind?: string;
+  secondClientStateOperation?: string;
+  secondClientStateKey?: string;
+  secondClientStateSelector?: string;
   topRuntimePath?: string;
   topRuntimeKind?: string;
   topRuntimeUrl?: string;
