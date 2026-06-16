@@ -20,6 +20,7 @@ describe("browser fixture ledger tracking", () => {
       "selected-current-option-parity",
       "selected-tab-panel-parity",
       "selected-gridcell-parity",
+      "owned-grid-rowgroup-parity",
       "range-value-state-parity",
       "busy-status-state-parity",
       "invalid-field-state-parity",

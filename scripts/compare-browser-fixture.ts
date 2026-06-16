@@ -188,6 +188,33 @@ const fixtures: Fixture[] = [
 </html>`,
   },
   {
+    id: "owned-grid-rowgroup",
+    url: "https://fixture.local/browser-parity/owned-grid-rowgroup",
+    checks: buildOwnedGridRowgroupChecks,
+    html: `<!doctype html>
+<html lang="en">
+  <head>
+    <title>Owned grid rowgroup fixture</title>
+  </head>
+  <body>
+    <main>
+      <div role="grid" aria-label="Virtual metrics" aria-rowcount="50" aria-colcount="4" aria-owns="virtual-rows">
+        <div role="row" aria-rowindex="1">
+          <span role="columnheader" aria-colindex="1">Metric</span>
+          <span role="columnheader" aria-colindex="4">Value</span>
+        </div>
+      </div>
+      <div id="virtual-rows" role="rowgroup" aria-label="Virtual rows">
+        <div role="row" aria-rowindex="50">
+          <span role="rowheader" aria-colindex="1">Queue</span>
+          <span role="gridcell" aria-colindex="4">Queued</span>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>`,
+  },
+  {
     id: "range-value-state",
     url: "https://fixture.local/browser-parity/range-value-state",
     checks: buildRangeValueStateChecks,
@@ -846,6 +873,46 @@ function buildGridSelectedCellChecks(namedRoles: string[], nodes: SemanticNode[]
         && agent.semanticTopSelectedTableCellRowIndex === 2
         && agent.semanticTopSelectedTableCellColumnIndex === 2
         && agent.semanticTopSelectedTableCellSelector === "span:nth-of-type(2)",
+    },
+  ];
+}
+
+function buildOwnedGridRowgroupChecks(namedRoles: string[], nodes: SemanticNode[], agent: AgentSummary): Check[] {
+  const ownedRow = nodes.find((node) => node.role === "row" && node.attributes?.["aria-rowindex"] === "50");
+  const ownedCell = nodes.find((node) => node.role === "gridcell" && node.text === "Queued");
+  return [
+    {
+      id: "owned-grid-rowgroup-parity",
+      ledgerId: "G80",
+      browserEvidence: JSON.stringify({
+        namedRoles: evidence(namedRoles, ["grid:Virtual metrics", "rowgroup:Virtual rows", "rowheader:Queue"]),
+        rowIndex: ownedRow?.attributes?.["aria-rowindex"],
+        columnIndex: ownedCell?.attributes?.["aria-colindex"],
+        text: ownedCell?.text,
+      }),
+      agentEvidence: JSON.stringify({
+        table: agent.semanticTopTableName,
+        ownedTarget: agent.semanticTopTableFirstOwnedTarget,
+        ownedRole: agent.semanticTopTableFirstOwnedRole,
+        ownedName: agent.semanticTopTableFirstOwnedName,
+        cellText: agent.semanticTopTableFirstOwnedSampleCellText,
+        rowIndex: agent.semanticTopTableFirstOwnedSampleCellRowIndex,
+        columnIndex: agent.semanticTopTableFirstOwnedSampleCellColumnIndex,
+        cellOwnedTarget: agent.semanticTopTableFirstOwnedSampleCellOwnedTarget,
+      }),
+      decision: "covered",
+      pass: includesAll(namedRoles, ["grid:Virtual metrics", "rowgroup:Virtual rows", "rowheader:Queue"])
+        && ownedRow?.attributes?.["aria-rowindex"] === "50"
+        && ownedCell?.attributes?.["aria-colindex"] === "4"
+        && ownedCell?.text === "Queued"
+        && agent.semanticTopTableName === "Virtual metrics"
+        && agent.semanticTopTableFirstOwnedTarget === "virtual-rows"
+        && agent.semanticTopTableFirstOwnedRole === "rowgroup"
+        && agent.semanticTopTableFirstOwnedName === "Virtual rows"
+        && agent.semanticTopTableFirstOwnedSampleCellText === "Queued"
+        && agent.semanticTopTableFirstOwnedSampleCellRowIndex === 50
+        && agent.semanticTopTableFirstOwnedSampleCellColumnIndex === 4
+        && agent.semanticTopTableFirstOwnedSampleCellOwnedTarget === "virtual-rows",
     },
   ];
 }
