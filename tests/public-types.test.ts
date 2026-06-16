@@ -1005,6 +1005,15 @@ describe("public agent types", () => {
       | "topApiEndpointCommand"
       | "topApiEndpointCommandArgs"
       | "topApiEndpointSelector"
+      | "secondApiEndpointPath"
+      | "secondApiEndpointKind"
+      | "secondApiEndpointMethod"
+      | "secondApiEndpointUrl"
+      | "secondApiEndpointUrlPath"
+      | "secondApiEndpointUrlQuery"
+      | "secondApiEndpointCommand"
+      | "secondApiEndpointCommandArgs"
+      | "secondApiEndpointSelector"
       | "topClientStatePath"
       | "topClientStateKind"
       | "topClientStateOperation"
@@ -2975,6 +2984,15 @@ describe("public agent types", () => {
       topApiEndpointCommand: "ax-grep 'https://example.test/graphql' --agent",
       topApiEndpointCommandArgs: ["ax-grep", "https://example.test/graphql", "--agent"],
       topApiEndpointSelector: "script:nth-of-type(1)",
+      secondApiEndpointPath: "pageCheck.apiEndpoints[1]",
+      secondApiEndpointKind: "fetch",
+      secondApiEndpointMethod: "GET",
+      secondApiEndpointUrl: "https://example.test/api/status?format=json",
+      secondApiEndpointUrlPath: "/api/status",
+      secondApiEndpointUrlQuery: "?format=json",
+      secondApiEndpointCommand: "ax-grep 'https://example.test/api/status?format=json' --agent",
+      secondApiEndpointCommandArgs: ["ax-grep", "https://example.test/api/status?format=json", "--agent"],
+      secondApiEndpointSelector: "script:nth-of-type(2)",
       topClientStatePath: "pageCheck.clientState[0]",
       topClientStateKind: "local-storage",
       topClientStateOperation: "read",
@@ -4409,6 +4427,11 @@ describe("public agent types", () => {
     expect(summary.topApiEndpointUrl).toBe("https://example.test/graphql");
     expect(summary.topApiEndpointUrlPath).toBe("/graphql");
     expect(summary.topApiEndpointCommandArgs?.[1]).toBe("https://example.test/graphql");
+    expect(summary.secondApiEndpointPath).toBe("pageCheck.apiEndpoints[1]");
+    expect(summary.secondApiEndpointUrlPath).toBe("/api/status");
+    expect(summary.secondApiEndpointUrlQuery).toBe("?format=json");
+    expect(summary.secondApiEndpointCommandArgs?.[1]).toBe("https://example.test/api/status?format=json");
+    expect(summary.secondApiEndpointSelector).toBe("script:nth-of-type(2)");
     expect(summary.topRuntimeUrlPath).toBe("/sw.js");
     expect(summary.topAppHintUrlPath).toBe("/manifest.json");
     expect(summary.topAppHintCommandArgs?.[1]).toBe("https://example.test/manifest.json");

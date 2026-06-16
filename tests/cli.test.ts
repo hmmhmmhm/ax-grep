@@ -9280,6 +9280,12 @@ describe("cli", () => {
       topApiEndpointUrlPath: "/api/search",
       topApiEndpointUrlQuery: "?q=agent",
       topApiEndpointSelector: "script:nth-of-type(1)",
+      secondApiEndpointPath: "pageCheck.apiEndpoints[1]",
+      secondApiEndpointKind: "graphql",
+      secondApiEndpointMethod: "POST",
+      secondApiEndpointUrl: "https://example.test/graphql",
+      secondApiEndpointUrlPath: "/graphql",
+      secondApiEndpointSelector: "script:nth-of-type(1)",
       bestHiddenReadTarget: "pageCheck.apiEndpoints",
       bestHiddenReadTargetCount: 5,
       bestHiddenReadTargetPrimary: true,
@@ -9287,6 +9293,8 @@ describe("cli", () => {
     });
     expect(envelope.agent.topApiEndpointCommand).toBeUndefined();
     expect(envelope.agent.topApiEndpointCommandArgs).toBeUndefined();
+    expect(envelope.agent.secondApiEndpointCommand).toBeUndefined();
+    expect(envelope.agent.secondApiEndpointCommandArgs).toBeUndefined();
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -12128,6 +12136,7 @@ describe("cli", () => {
             </script>
             <script>
               fetch("/api/search?q=agent", { method: "POST" });
+              fetch("/api/status?format=json");
               window.localStorage.getItem("session");
               navigator.serviceWorker.register("/sw.js");
               window.__APP_CONFIG__ = { apiBase: "/api", featureFlags: { betaSearch: true } };
@@ -12147,6 +12156,8 @@ describe("cli", () => {
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topHydration: path=pageCheck.hydration[0] kind=next-data label=\"Next.js data\" selector=script#__NEXT_DATA__:nth-of-type(1) url=<https://example.test/_next/data/build-123/app.json> urlPath=/_next/data/build-123/app.json");
     expect(stdout.output).toContain("  topApiEndpoint: path=pageCheck.apiEndpoints[0] kind=fetch method=POST selector=script:nth-of-type(3) url=<https://example.test/api/search?q=agent> urlPath=/api/search urlQuery=?q=agent");
+    expect(stdout.output).toContain("  secondApiEndpoint: path=pageCheck.apiEndpoints[1] kind=fetch selector=script:nth-of-type(3) url=<https://example.test/api/status?format=json> urlPath=/api/status urlQuery=?format=json");
+    expect(stdout.output).toContain("  secondApiEndpointCommand: ax-grep 'https://example.test/api/status?format=json'");
     expect(stdout.output).toContain("  topClientState: path=pageCheck.clientState[0] kind=local-storage operation=read key=session selector=script:nth-of-type(3)");
     expect(stdout.output).toContain("  topRuntime: path=pageCheck.runtime[0] kind=service-worker selector=script:nth-of-type(3) url=<https://example.test/sw.js> urlPath=/sw.js");
     expect(stdout.output).toContain("  topRuntimeCommand: ax-grep 'https://example.test/sw.js'");
@@ -12159,16 +12170,17 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topHttpPolicy: path=pageCheck.httpPolicies[0] name=\"Referrer-Policy\" source=meta selector=meta[http-equiv=\"referrer-policy\"]:nth-of-type(3) - strict-origin");
     expect(stdout.output).toContain("  topSchemaFact: path=pageCheck.schemaFacts[0] types=SoftwareApplication facts=1 selector=script[type=\"application/ld+json\"]:nth-of-type(1) Name=Agent Shell");
     expect(stdout.output).toContain("  topHiddenSignal: group=hydration path=pageCheck.hydration[0] kind=next-data source=script selector=script#__NEXT_DATA__:nth-of-type(1) url=<https://example.test/_next/data/build-123/app.json> urlPath=/_next/data/build-123/app.json - Next.js data:");
-    expect(stdout.output).toContain("  hydration: id=hd1 path=pageCheck.hydration[0] kind=next-data source=script framework=next route=/app buildId=build-123 selector=script#__NEXT_DATA__:nth-of-type(1) url=<https://example.test/_next/data/build-123/app.json>");
-    expect(stdout.output).toContain("  apiEndpoint: id=api1 path=pageCheck.apiEndpoints[0] kind=fetch source=script method=POST selector=script:nth-of-type(3) url=<https://example.test/api/search?q=agent>");
+    expect(stdout.output).toContain("  hydration: id=hd1 path=pageCheck.hydration[0] kind=next-data source=script framework=next route=/app buildId=build-123 selector=script#__NEXT_DATA__:nth-of-type(1) urlPath=/_next/data/build-123/app.json url=<https://example.test/_next/data/build-123/app.json>");
+    expect(stdout.output).toContain("  apiEndpoint: id=api1 path=pageCheck.apiEndpoints[0] kind=fetch source=script method=POST selector=script:nth-of-type(3) urlPath=/api/search urlQuery=?q=agent url=<https://example.test/api/search?q=agent>");
+    expect(stdout.output).toContain("  apiEndpoint: id=api2 path=pageCheck.apiEndpoints[1] kind=fetch source=script selector=script:nth-of-type(3) urlPath=/api/status urlQuery=?format=json url=<https://example.test/api/status?format=json>");
     expect(stdout.output).toContain("  clientState: id=cs1 path=pageCheck.clientState[0] kind=local-storage source=script operation=read key=session selector=script:nth-of-type(3)");
-    expect(stdout.output).toContain("  runtime: id=rt1 path=pageCheck.runtime[0] kind=service-worker source=script selector=script:nth-of-type(3) url=<https://example.test/sw.js>");
+    expect(stdout.output).toContain("  runtime: id=rt1 path=pageCheck.runtime[0] kind=service-worker source=script selector=script:nth-of-type(3) urlPath=/sw.js url=<https://example.test/sw.js>");
     expect(stdout.output).toContain("  config: id=cfg1 path=pageCheck.config[0] kind=env source=script name=__APP_CONFIG__ keys=2 keyNames=apiBase,featureFlags selector=script:nth-of-type(3)");
-    expect(stdout.output).toContain("  appHint: id=ah1 path=pageCheck.appHints[0] kind=manifest source=link label=\"Web app manifest\" selector=link[rel=\"manifest\"]:nth-of-type(1) url=<https://example.test/site.webmanifest>");
+    expect(stdout.output).toContain("  appHint: id=ah1 path=pageCheck.appHints[0] kind=manifest source=link label=\"Web app manifest\" selector=link[rel=\"manifest\"]:nth-of-type(1) urlPath=/site.webmanifest url=<https://example.test/site.webmanifest>");
     expect(stdout.output).toContain("  mobileHint: id=mh1 path=pageCheck.mobileHints[0] kind=viewport source=meta label=\"Viewport\" selector=meta[name=\"viewport\"]:nth-of-type(1)");
     expect(stdout.output).toContain("  topic: id=tp1 path=pageCheck.topics[0] kind=keyword source=meta label=\"Keyword\" selector=meta[name=\"keywords\"]:nth-of-type(2)");
     expect(stdout.output).toContain("  keyValue: id=kv1 path=pageCheck.keyValues[0] source=definition-list label=\"Version\" selector=dl:nth-of-type(1)");
-    expect(stdout.output).toContain("  metaFact: id=mf1 path=pageCheck.metaFacts[0] source=link label=\"Canonical URL\" selector=link[rel=\"canonical\"]:nth-of-type(2) url=<https://example.test/app/canonical>");
+    expect(stdout.output).toContain("  metaFact: id=mf1 path=pageCheck.metaFacts[0] source=link label=\"Canonical URL\" selector=link[rel=\"canonical\"]:nth-of-type(2) urlPath=/app/canonical url=<https://example.test/app/canonical>");
     expect(stdout.output).toContain("  httpPolicy: id=hp1 path=pageCheck.httpPolicies[0] source=meta name=\"Referrer-Policy\" selector=meta[http-equiv=\"referrer-policy\"]:nth-of-type(3)");
     expect(stdout.output).toContain("  schemaFact: id=sf1 path=pageCheck.schemaFacts[0] source=json-ld types=SoftwareApplication facts=1 selector=script[type=\"application/ld+json\"]:nth-of-type(1)");
   });

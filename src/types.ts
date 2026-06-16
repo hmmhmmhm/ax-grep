@@ -2765,6 +2765,15 @@ export type AgentSummary = {
   topApiEndpointCommand?: string;
   topApiEndpointCommandArgs?: string[];
   topApiEndpointSelector?: string;
+  secondApiEndpointPath?: string;
+  secondApiEndpointKind?: string;
+  secondApiEndpointMethod?: string;
+  secondApiEndpointUrl?: string;
+  secondApiEndpointUrlPath?: string;
+  secondApiEndpointUrlQuery?: string;
+  secondApiEndpointCommand?: string;
+  secondApiEndpointCommandArgs?: string[];
+  secondApiEndpointSelector?: string;
   topClientStatePath?: string;
   topClientStateKind?: string;
   topClientStateOperation?: string;

@@ -2397,6 +2397,15 @@ type AgentSummary = {
   topApiEndpointCommand?: string;
   topApiEndpointCommandArgs?: string[];
   topApiEndpointSelector?: string;
+  secondApiEndpointPath?: string;
+  secondApiEndpointKind?: string;
+  secondApiEndpointMethod?: string;
+  secondApiEndpointUrl?: string;
+  secondApiEndpointUrlPath?: string;
+  secondApiEndpointUrlQuery?: string;
+  secondApiEndpointCommand?: string;
+  secondApiEndpointCommandArgs?: string[];
+  secondApiEndpointSelector?: string;
   topClientStatePath?: string;
   topClientStateKind?: string;
   topClientStateOperation?: string;
@@ -5439,6 +5448,10 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topApiEndpointCommand ? [`  topApiEndpointCommand: ${agent.topApiEndpointCommand}`] : []),
     ...(agent.topApiEndpointCommandArgs ? [`  topApiEndpointCommandArgs: ${formatCommandArgsText(agent.topApiEndpointCommandArgs)}`] : []),
     ...(agent.topApiEndpointSelector ? [`  topApiEndpointSelector: ${agent.topApiEndpointSelector}`] : []),
+    ...(agent.secondApiEndpointPath ? [`  secondApiEndpoint: path=${agent.secondApiEndpointPath}${agent.secondApiEndpointKind ? ` kind=${agent.secondApiEndpointKind}` : ""}${agent.secondApiEndpointMethod ? ` method=${agent.secondApiEndpointMethod}` : ""}${agent.secondApiEndpointSelector ? ` selector=${agent.secondApiEndpointSelector}` : ""}${agent.secondApiEndpointUrl ? ` url=<${agent.secondApiEndpointUrl}>` : ""}${agent.secondApiEndpointUrlPath ? ` urlPath=${agent.secondApiEndpointUrlPath}` : ""}${agent.secondApiEndpointUrlQuery ? ` urlQuery=${agent.secondApiEndpointUrlQuery}` : ""}`] : []),
+    ...(agent.secondApiEndpointCommand ? [`  secondApiEndpointCommand: ${agent.secondApiEndpointCommand}`] : []),
+    ...(agent.secondApiEndpointCommandArgs ? [`  secondApiEndpointCommandArgs: ${formatCommandArgsText(agent.secondApiEndpointCommandArgs)}`] : []),
+    ...(agent.secondApiEndpointSelector ? [`  secondApiEndpointSelector: ${agent.secondApiEndpointSelector}`] : []),
     ...(agent.topClientStatePath ? [`  topClientState: path=${agent.topClientStatePath}${agent.topClientStateKind ? ` kind=${agent.topClientStateKind}` : ""}${agent.topClientStateOperation ? ` operation=${agent.topClientStateOperation}` : ""}${agent.topClientStateKey ? ` key=${agent.topClientStateKey}` : ""}${agent.topClientStateSelector ? ` selector=${agent.topClientStateSelector}` : ""}`] : []),
     ...(agent.topClientStateSelector ? [`  topClientStateSelector: ${agent.topClientStateSelector}`] : []),
     ...(agent.topRuntimePath ? [`  topRuntime: path=${agent.topRuntimePath}${agent.topRuntimeKind ? ` kind=${agent.topRuntimeKind}` : ""}${agent.topRuntimeSelector ? ` selector=${agent.topRuntimeSelector}` : ""}${agent.topRuntimeUrl ? ` url=<${agent.topRuntimeUrl}>` : ""}${agent.topRuntimeUrlPath ? ` urlPath=${agent.topRuntimeUrlPath}` : ""}${agent.topRuntimeUrlQuery ? ` urlQuery=${agent.topRuntimeUrlQuery}` : ""}`] : []),
@@ -14599,6 +14612,13 @@ function summarizeAgent(
     ? pageCommandSpec(topApiEndpoint.url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
   const topApiEndpointUrlParts = topApiEndpoint?.url ? urlPathParts(topApiEndpoint.url) : undefined;
+  const secondApiEndpoint = pageCheck.apiEndpoints[1];
+  const secondApiEndpointCommand = secondApiEndpoint?.url
+    && /^https?:\/\//i.test(secondApiEndpoint.url)
+    && (!secondApiEndpoint.method || secondApiEndpoint.method.toUpperCase() === "GET")
+    ? pageCommandSpec(secondApiEndpoint.url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
+  const secondApiEndpointUrlParts = secondApiEndpoint?.url ? urlPathParts(secondApiEndpoint.url) : undefined;
   const topClientState = pageCheck.clientState[0];
   const topRuntime = pageCheck.runtime[0];
   const topRuntimeCommand = topRuntime?.url && /^https?:\/\//i.test(topRuntime.url)
@@ -16332,6 +16352,15 @@ function summarizeAgent(
     ...(topApiEndpointCommand ? { topApiEndpointCommand: topApiEndpointCommand.command } : {}),
     ...(topApiEndpointCommand ? { topApiEndpointCommandArgs: topApiEndpointCommand.commandArgs } : {}),
     ...(topApiEndpoint?.selector ? { topApiEndpointSelector: topApiEndpoint.selector } : {}),
+    ...(secondApiEndpoint ? { secondApiEndpointPath: secondApiEndpoint.path } : {}),
+    ...(secondApiEndpoint ? { secondApiEndpointKind: secondApiEndpoint.kind } : {}),
+    ...(secondApiEndpoint?.method ? { secondApiEndpointMethod: secondApiEndpoint.method } : {}),
+    ...(secondApiEndpoint?.url ? { secondApiEndpointUrl: secondApiEndpoint.url } : {}),
+    ...(secondApiEndpointUrlParts?.urlPath ? { secondApiEndpointUrlPath: secondApiEndpointUrlParts.urlPath } : {}),
+    ...(secondApiEndpointUrlParts?.urlQuery ? { secondApiEndpointUrlQuery: secondApiEndpointUrlParts.urlQuery } : {}),
+    ...(secondApiEndpointCommand ? { secondApiEndpointCommand: secondApiEndpointCommand.command } : {}),
+    ...(secondApiEndpointCommand ? { secondApiEndpointCommandArgs: secondApiEndpointCommand.commandArgs } : {}),
+    ...(secondApiEndpoint?.selector ? { secondApiEndpointSelector: secondApiEndpoint.selector } : {}),
     ...(topClientState ? { topClientStatePath: topClientState.path } : {}),
     ...(topClientState ? { topClientStateKind: topClientState.kind } : {}),
     ...(topClientState ? { topClientStateOperation: topClientState.operation } : {}),
@@ -23218,6 +23247,15 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topApiEndpointCommand ? { topApiEndpointCommand: agent.topApiEndpointCommand } : {}),
     ...(agent.topApiEndpointCommandArgs ? { topApiEndpointCommandArgs: agent.topApiEndpointCommandArgs } : {}),
     ...(agent.topApiEndpointSelector ? { topApiEndpointSelector: agent.topApiEndpointSelector } : {}),
+    ...(agent.secondApiEndpointPath ? { secondApiEndpointPath: agent.secondApiEndpointPath } : {}),
+    ...(agent.secondApiEndpointKind ? { secondApiEndpointKind: agent.secondApiEndpointKind } : {}),
+    ...(agent.secondApiEndpointMethod ? { secondApiEndpointMethod: agent.secondApiEndpointMethod } : {}),
+    ...(agent.secondApiEndpointUrl ? { secondApiEndpointUrl: agent.secondApiEndpointUrl } : {}),
+    ...(agent.secondApiEndpointUrlPath ? { secondApiEndpointUrlPath: agent.secondApiEndpointUrlPath } : {}),
+    ...(agent.secondApiEndpointUrlQuery ? { secondApiEndpointUrlQuery: agent.secondApiEndpointUrlQuery } : {}),
+    ...(agent.secondApiEndpointCommand ? { secondApiEndpointCommand: agent.secondApiEndpointCommand } : {}),
+    ...(agent.secondApiEndpointCommandArgs ? { secondApiEndpointCommandArgs: agent.secondApiEndpointCommandArgs } : {}),
+    ...(agent.secondApiEndpointSelector ? { secondApiEndpointSelector: agent.secondApiEndpointSelector } : {}),
     ...(agent.topClientStatePath ? { topClientStatePath: agent.topClientStatePath } : {}),
     ...(agent.topClientStateKind ? { topClientStateKind: agent.topClientStateKind } : {}),
     ...(agent.topClientStateOperation ? { topClientStateOperation: agent.topClientStateOperation } : {}),
@@ -25201,6 +25239,15 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topApiEndpointCommand ? { topApiEndpointCommand: agent.topApiEndpointCommand } : {}),
     ...(agent.topApiEndpointCommandArgs ? { topApiEndpointCommandArgs: agent.topApiEndpointCommandArgs } : {}),
     ...(agent.topApiEndpointSelector ? { topApiEndpointSelector: agent.topApiEndpointSelector } : {}),
+    ...(agent.secondApiEndpointPath ? { secondApiEndpointPath: agent.secondApiEndpointPath } : {}),
+    ...(agent.secondApiEndpointKind ? { secondApiEndpointKind: agent.secondApiEndpointKind } : {}),
+    ...(agent.secondApiEndpointMethod ? { secondApiEndpointMethod: agent.secondApiEndpointMethod } : {}),
+    ...(agent.secondApiEndpointUrl ? { secondApiEndpointUrl: agent.secondApiEndpointUrl } : {}),
+    ...(agent.secondApiEndpointUrlPath ? { secondApiEndpointUrlPath: agent.secondApiEndpointUrlPath } : {}),
+    ...(agent.secondApiEndpointUrlQuery ? { secondApiEndpointUrlQuery: agent.secondApiEndpointUrlQuery } : {}),
+    ...(agent.secondApiEndpointCommand ? { secondApiEndpointCommand: agent.secondApiEndpointCommand } : {}),
+    ...(agent.secondApiEndpointCommandArgs ? { secondApiEndpointCommandArgs: agent.secondApiEndpointCommandArgs } : {}),
+    ...(agent.secondApiEndpointSelector ? { secondApiEndpointSelector: agent.secondApiEndpointSelector } : {}),
     ...(agent.topClientStatePath ? { topClientStatePath: agent.topClientStatePath } : {}),
     ...(agent.topClientStateKind ? { topClientStateKind: agent.topClientStateKind } : {}),
     ...(agent.topClientStateOperation ? { topClientStateOperation: agent.topClientStateOperation } : {}),
