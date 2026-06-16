@@ -1522,6 +1522,14 @@ type AgentSummary = {
   semanticTopFlowToTargetName?: string;
   semanticTopFlowToTargetSelector?: string;
   semanticTopFlowToSelector?: string;
+  semanticTopActiveDescendantRelationRole?: string;
+  semanticTopActiveDescendantRelationPath?: string;
+  semanticTopActiveDescendantRelationName?: string;
+  semanticTopActiveDescendantRelationTarget?: string;
+  semanticTopActiveDescendantRelationTargetRole?: string;
+  semanticTopActiveDescendantRelationTargetName?: string;
+  semanticTopActiveDescendantRelationTargetSelector?: string;
+  semanticTopActiveDescendantRelationSelector?: string;
   semanticTopDetailsRelationRole?: string;
   semanticTopDetailsRelationPath?: string;
   semanticTopDetailsRelationName?: string;
@@ -5856,6 +5864,15 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.semanticTopFlowToTargetName) lines.push(`  semanticTopFlowToTargetName: ${agent.semanticTopFlowToTargetName}`);
   if (agent.semanticTopFlowToTargetSelector) lines.push(`  semanticTopFlowToTargetSelector: ${agent.semanticTopFlowToTargetSelector}`);
   if (agent.semanticTopFlowToSelector) lines.push(`  semanticTopFlowToSelector: ${agent.semanticTopFlowToSelector}`);
+  if (agent.semanticTopActiveDescendantRelationTarget) lines.push(`  semanticTopActiveDescendantRelation: ${agent.semanticTopActiveDescendantRelationPath ?? ""}${agent.semanticTopActiveDescendantRelationRole ? ` role=${agent.semanticTopActiveDescendantRelationRole}` : ""}${agent.semanticTopActiveDescendantRelationName ? ` name="${agent.semanticTopActiveDescendantRelationName}"` : ""} target=${agent.semanticTopActiveDescendantRelationTarget}${agent.semanticTopActiveDescendantRelationTargetRole ? ` targetRole=${agent.semanticTopActiveDescendantRelationTargetRole}` : ""}${agent.semanticTopActiveDescendantRelationTargetName ? ` targetName=${agent.semanticTopActiveDescendantRelationTargetName}` : ""}${agent.semanticTopActiveDescendantRelationTargetSelector ? ` targetSelector=${agent.semanticTopActiveDescendantRelationTargetSelector}` : ""}${agent.semanticTopActiveDescendantRelationSelector ? ` selector=${agent.semanticTopActiveDescendantRelationSelector}` : ""}`);
+  if (agent.semanticTopActiveDescendantRelationRole) lines.push(`  semanticTopActiveDescendantRelationRole: ${agent.semanticTopActiveDescendantRelationRole}`);
+  if (agent.semanticTopActiveDescendantRelationPath) lines.push(`  semanticTopActiveDescendantRelationPath: ${agent.semanticTopActiveDescendantRelationPath}`);
+  if (agent.semanticTopActiveDescendantRelationName) lines.push(`  semanticTopActiveDescendantRelationName: ${agent.semanticTopActiveDescendantRelationName}`);
+  if (agent.semanticTopActiveDescendantRelationTarget) lines.push(`  semanticTopActiveDescendantRelationTarget: ${agent.semanticTopActiveDescendantRelationTarget}`);
+  if (agent.semanticTopActiveDescendantRelationTargetRole) lines.push(`  semanticTopActiveDescendantRelationTargetRole: ${agent.semanticTopActiveDescendantRelationTargetRole}`);
+  if (agent.semanticTopActiveDescendantRelationTargetName) lines.push(`  semanticTopActiveDescendantRelationTargetName: ${agent.semanticTopActiveDescendantRelationTargetName}`);
+  if (agent.semanticTopActiveDescendantRelationTargetSelector) lines.push(`  semanticTopActiveDescendantRelationTargetSelector: ${agent.semanticTopActiveDescendantRelationTargetSelector}`);
+  if (agent.semanticTopActiveDescendantRelationSelector) lines.push(`  semanticTopActiveDescendantRelationSelector: ${agent.semanticTopActiveDescendantRelationSelector}`);
   if (agent.semanticTopDetailsRelationTarget) lines.push(`  semanticTopDetailsRelation: ${agent.semanticTopDetailsRelationPath ?? ""}${agent.semanticTopDetailsRelationRole ? ` role=${agent.semanticTopDetailsRelationRole}` : ""}${agent.semanticTopDetailsRelationName ? ` name="${agent.semanticTopDetailsRelationName}"` : ""} target=${agent.semanticTopDetailsRelationTarget}${agent.semanticTopDetailsRelationTargetRole ? ` targetRole=${agent.semanticTopDetailsRelationTargetRole}` : ""}${agent.semanticTopDetailsRelationTargetName ? ` targetName=${agent.semanticTopDetailsRelationTargetName}` : ""}${agent.semanticTopDetailsRelationTargetSelector ? ` targetSelector=${agent.semanticTopDetailsRelationTargetSelector}` : ""}${agent.semanticTopDetailsRelationSelector ? ` selector=${agent.semanticTopDetailsRelationSelector}` : ""}`);
   if (agent.semanticTopDetailsRelationRole) lines.push(`  semanticTopDetailsRelationRole: ${agent.semanticTopDetailsRelationRole}`);
   if (agent.semanticTopDetailsRelationPath) lines.push(`  semanticTopDetailsRelationPath: ${agent.semanticTopDetailsRelationPath}`);
@@ -14129,6 +14146,7 @@ function summarizeAgent(
   const topSemanticRelation = semanticSummary?.relationItems[0];
   const topSemanticOwnsRelation = semanticSummary?.relationItems.find((item) => item.relation === "owns");
   const topSemanticFlowToRelation = semanticSummary?.relationItems.find((item) => item.relation === "flowto");
+  const topSemanticActiveDescendantRelation = semanticSummary?.relationItems.find((item) => item.relation === "activeDescendant");
   const topSemanticDetailsRelation = semanticSummary?.relationItems.find((item) => item.relation === "details");
   const topSemanticErrorMessageRelation = semanticSummary?.relationItems.find((item) => item.relation === "errorMessage");
   const topSemanticDescribedByRelation = semanticSummary?.relationItems.find((item) => item.relation === "describedBy");
@@ -14686,6 +14704,14 @@ function summarizeAgent(
     ...(topSemanticFlowToRelation?.targetName ? { semanticTopFlowToTargetName: topSemanticFlowToRelation.targetName } : {}),
     ...(topSemanticFlowToRelation?.targetSelector ? { semanticTopFlowToTargetSelector: topSemanticFlowToRelation.targetSelector } : {}),
     ...(topSemanticFlowToRelation?.selector ? { semanticTopFlowToSelector: topSemanticFlowToRelation.selector } : {}),
+    ...(topSemanticActiveDescendantRelation ? { semanticTopActiveDescendantRelationRole: topSemanticActiveDescendantRelation.role } : {}),
+    ...(topSemanticActiveDescendantRelation ? { semanticTopActiveDescendantRelationPath: topSemanticActiveDescendantRelation.path } : {}),
+    ...(topSemanticActiveDescendantRelation?.name ? { semanticTopActiveDescendantRelationName: topSemanticActiveDescendantRelation.name } : {}),
+    ...(topSemanticActiveDescendantRelation ? { semanticTopActiveDescendantRelationTarget: topSemanticActiveDescendantRelation.target } : {}),
+    ...(topSemanticActiveDescendantRelation?.targetRole ? { semanticTopActiveDescendantRelationTargetRole: topSemanticActiveDescendantRelation.targetRole } : {}),
+    ...(topSemanticActiveDescendantRelation?.targetName ? { semanticTopActiveDescendantRelationTargetName: topSemanticActiveDescendantRelation.targetName } : {}),
+    ...(topSemanticActiveDescendantRelation?.targetSelector ? { semanticTopActiveDescendantRelationTargetSelector: topSemanticActiveDescendantRelation.targetSelector } : {}),
+    ...(topSemanticActiveDescendantRelation?.selector ? { semanticTopActiveDescendantRelationSelector: topSemanticActiveDescendantRelation.selector } : {}),
     ...(topSemanticDetailsRelation ? { semanticTopDetailsRelationRole: topSemanticDetailsRelation.role } : {}),
     ...(topSemanticDetailsRelation ? { semanticTopDetailsRelationPath: topSemanticDetailsRelation.path } : {}),
     ...(topSemanticDetailsRelation?.name ? { semanticTopDetailsRelationName: topSemanticDetailsRelation.name } : {}),
@@ -21132,6 +21158,14 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.semanticTopFlowToTargetName ? { semanticTopFlowToTargetName: agent.semanticTopFlowToTargetName } : {}),
     ...(agent.semanticTopFlowToTargetSelector ? { semanticTopFlowToTargetSelector: agent.semanticTopFlowToTargetSelector } : {}),
     ...(agent.semanticTopFlowToSelector ? { semanticTopFlowToSelector: agent.semanticTopFlowToSelector } : {}),
+    ...(agent.semanticTopActiveDescendantRelationRole ? { semanticTopActiveDescendantRelationRole: agent.semanticTopActiveDescendantRelationRole } : {}),
+    ...(agent.semanticTopActiveDescendantRelationPath ? { semanticTopActiveDescendantRelationPath: agent.semanticTopActiveDescendantRelationPath } : {}),
+    ...(agent.semanticTopActiveDescendantRelationName ? { semanticTopActiveDescendantRelationName: agent.semanticTopActiveDescendantRelationName } : {}),
+    ...(agent.semanticTopActiveDescendantRelationTarget ? { semanticTopActiveDescendantRelationTarget: agent.semanticTopActiveDescendantRelationTarget } : {}),
+    ...(agent.semanticTopActiveDescendantRelationTargetRole ? { semanticTopActiveDescendantRelationTargetRole: agent.semanticTopActiveDescendantRelationTargetRole } : {}),
+    ...(agent.semanticTopActiveDescendantRelationTargetName ? { semanticTopActiveDescendantRelationTargetName: agent.semanticTopActiveDescendantRelationTargetName } : {}),
+    ...(agent.semanticTopActiveDescendantRelationTargetSelector ? { semanticTopActiveDescendantRelationTargetSelector: agent.semanticTopActiveDescendantRelationTargetSelector } : {}),
+    ...(agent.semanticTopActiveDescendantRelationSelector ? { semanticTopActiveDescendantRelationSelector: agent.semanticTopActiveDescendantRelationSelector } : {}),
     ...(agent.semanticTopDetailsRelationRole ? { semanticTopDetailsRelationRole: agent.semanticTopDetailsRelationRole } : {}),
     ...(agent.semanticTopDetailsRelationPath ? { semanticTopDetailsRelationPath: agent.semanticTopDetailsRelationPath } : {}),
     ...(agent.semanticTopDetailsRelationName ? { semanticTopDetailsRelationName: agent.semanticTopDetailsRelationName } : {}),
@@ -22725,6 +22759,14 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.semanticTopFlowToTargetName ? { semanticTopFlowToTargetName: agent.semanticTopFlowToTargetName } : {}),
     ...(agent.semanticTopFlowToTargetSelector ? { semanticTopFlowToTargetSelector: agent.semanticTopFlowToTargetSelector } : {}),
     ...(agent.semanticTopFlowToSelector ? { semanticTopFlowToSelector: agent.semanticTopFlowToSelector } : {}),
+    ...(agent.semanticTopActiveDescendantRelationRole ? { semanticTopActiveDescendantRelationRole: agent.semanticTopActiveDescendantRelationRole } : {}),
+    ...(agent.semanticTopActiveDescendantRelationPath ? { semanticTopActiveDescendantRelationPath: agent.semanticTopActiveDescendantRelationPath } : {}),
+    ...(agent.semanticTopActiveDescendantRelationName ? { semanticTopActiveDescendantRelationName: agent.semanticTopActiveDescendantRelationName } : {}),
+    ...(agent.semanticTopActiveDescendantRelationTarget ? { semanticTopActiveDescendantRelationTarget: agent.semanticTopActiveDescendantRelationTarget } : {}),
+    ...(agent.semanticTopActiveDescendantRelationTargetRole ? { semanticTopActiveDescendantRelationTargetRole: agent.semanticTopActiveDescendantRelationTargetRole } : {}),
+    ...(agent.semanticTopActiveDescendantRelationTargetName ? { semanticTopActiveDescendantRelationTargetName: agent.semanticTopActiveDescendantRelationTargetName } : {}),
+    ...(agent.semanticTopActiveDescendantRelationTargetSelector ? { semanticTopActiveDescendantRelationTargetSelector: agent.semanticTopActiveDescendantRelationTargetSelector } : {}),
+    ...(agent.semanticTopActiveDescendantRelationSelector ? { semanticTopActiveDescendantRelationSelector: agent.semanticTopActiveDescendantRelationSelector } : {}),
     ...(agent.semanticTopDetailsRelationRole ? { semanticTopDetailsRelationRole: agent.semanticTopDetailsRelationRole } : {}),
     ...(agent.semanticTopDetailsRelationPath ? { semanticTopDetailsRelationPath: agent.semanticTopDetailsRelationPath } : {}),
     ...(agent.semanticTopDetailsRelationName ? { semanticTopDetailsRelationName: agent.semanticTopDetailsRelationName } : {}),

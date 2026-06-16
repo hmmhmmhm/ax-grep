@@ -6486,6 +6486,46 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopLabelledByRelationSelector: button");
   });
 
+  it("prints top semantic active-descendant relation shortcuts in text agent output", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["https://example.test/grid"], {
+      stdout,
+      fetch: async () => new Response(`
+        <main>
+          <div
+            id="result-grid"
+            role="grid"
+            aria-label="Result grid"
+            aria-controls="grid-panel"
+            aria-activedescendant="active-cell"
+            tabindex="0"
+          >
+            <div role="row">
+              <div id="active-cell" role="gridcell" aria-label="Active cell">Active cell</div>
+            </div>
+          </div>
+          <section id="grid-panel" role="region" aria-label="Grid panel">
+            Grid panel content.
+          </section>
+          <p>Readable grid content for active descendant relation routing.</p>
+        </main>
+      `, { headers: { "content-type": "text/html" } }),
+    });
+
+    expect(status).toBe(0);
+    expect(stdout.output).toContain("agent\n");
+    expect(stdout.output).toContain("  semanticTopRelation: agent.semanticSummary.relationItems[0] role=grid name=\"Result grid\" relation=controls target=grid-panel targetRole=region targetName=Grid panel targetSelector=#grid-panel selector=#result-grid");
+    expect(stdout.output).toContain("  semanticTopActiveDescendantRelation: agent.semanticSummary.relationItems[1] role=grid name=\"Result grid\" target=active-cell targetRole=gridcell targetName=Active cell targetSelector=#active-cell selector=#result-grid");
+    expect(stdout.output).toContain("  semanticTopActiveDescendantRelationRole: grid");
+    expect(stdout.output).toContain("  semanticTopActiveDescendantRelationPath: agent.semanticSummary.relationItems[1]");
+    expect(stdout.output).toContain("  semanticTopActiveDescendantRelationName: Result grid");
+    expect(stdout.output).toContain("  semanticTopActiveDescendantRelationTarget: active-cell");
+    expect(stdout.output).toContain("  semanticTopActiveDescendantRelationTargetRole: gridcell");
+    expect(stdout.output).toContain("  semanticTopActiveDescendantRelationTargetName: Active cell");
+    expect(stdout.output).toContain("  semanticTopActiveDescendantRelationTargetSelector: #active-cell");
+    expect(stdout.output).toContain("  semanticTopActiveDescendantRelationSelector: #result-grid");
+  });
+
   it("prints top semantic choice shortcuts in text agent output", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://example.test/tabs"], {

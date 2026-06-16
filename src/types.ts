@@ -1890,6 +1890,14 @@ export type AgentSummary = {
   semanticTopFlowToTargetName?: string;
   semanticTopFlowToTargetSelector?: string;
   semanticTopFlowToSelector?: string;
+  semanticTopActiveDescendantRelationRole?: string;
+  semanticTopActiveDescendantRelationPath?: string;
+  semanticTopActiveDescendantRelationName?: string;
+  semanticTopActiveDescendantRelationTarget?: string;
+  semanticTopActiveDescendantRelationTargetRole?: string;
+  semanticTopActiveDescendantRelationTargetName?: string;
+  semanticTopActiveDescendantRelationTargetSelector?: string;
+  semanticTopActiveDescendantRelationSelector?: string;
   semanticTopDetailsRelationRole?: string;
   semanticTopDetailsRelationPath?: string;
   semanticTopDetailsRelationName?: string;
