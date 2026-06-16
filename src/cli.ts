@@ -2062,6 +2062,17 @@ type AgentSummary = {
   topProvenanceSelector?: string;
   topProvenanceCommand?: string;
   topProvenanceCommandArgs?: string[];
+  secondProvenancePath?: string;
+  secondProvenanceKind?: PageProvenanceSummary["kind"];
+  secondProvenanceLabel?: string;
+  secondProvenanceValue?: string;
+  secondProvenanceUrl?: string;
+  secondProvenanceUrlPath?: string;
+  secondProvenanceUrlQuery?: string;
+  secondProvenanceSource?: PageProvenanceSummary["source"];
+  secondProvenanceSelector?: string;
+  secondProvenanceCommand?: string;
+  secondProvenanceCommandArgs?: string[];
   topOfferPath?: string;
   topOfferName?: string;
   topOfferPrice?: string;
@@ -4943,6 +4954,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topProvenanceValue ? [`  topProvenance: path=${agent.topProvenancePath ?? ""}${agent.topProvenanceKind ? ` kind=${agent.topProvenanceKind}` : ""}${agent.topProvenanceLabel ? ` label="${agent.topProvenanceLabel}"` : ""} value=${agent.topProvenanceValue}${agent.topProvenanceSource ? ` source=${agent.topProvenanceSource}` : ""}${agent.topProvenanceSelector ? ` selector=${agent.topProvenanceSelector}` : ""}${agent.topProvenanceUrl ? ` url=<${agent.topProvenanceUrl}>` : ""}${agent.topProvenanceUrlPath ? ` urlPath=${agent.topProvenanceUrlPath}` : ""}${agent.topProvenanceUrlQuery ? ` urlQuery=${agent.topProvenanceUrlQuery}` : ""}`] : []),
     ...(agent.topProvenanceCommand ? [`  topProvenanceCommand: ${agent.topProvenanceCommand}`] : []),
     ...(agent.topProvenanceCommandArgs ? [`  topProvenanceCommandArgs: ${formatCommandArgsText(agent.topProvenanceCommandArgs)}`] : []),
+    ...(agent.secondProvenanceValue ? [`  secondProvenance: path=${agent.secondProvenancePath ?? ""}${agent.secondProvenanceKind ? ` kind=${agent.secondProvenanceKind}` : ""}${agent.secondProvenanceLabel ? ` label="${agent.secondProvenanceLabel}"` : ""} value=${agent.secondProvenanceValue}${agent.secondProvenanceSource ? ` source=${agent.secondProvenanceSource}` : ""}${agent.secondProvenanceSelector ? ` selector=${agent.secondProvenanceSelector}` : ""}${agent.secondProvenanceUrl ? ` url=<${agent.secondProvenanceUrl}>` : ""}${agent.secondProvenanceUrlPath ? ` urlPath=${agent.secondProvenanceUrlPath}` : ""}${agent.secondProvenanceUrlQuery ? ` urlQuery=${agent.secondProvenanceUrlQuery}` : ""}`] : []),
+    ...(agent.secondProvenanceCommand ? [`  secondProvenanceCommand: ${agent.secondProvenanceCommand}`] : []),
+    ...(agent.secondProvenanceCommandArgs ? [`  secondProvenanceCommandArgs: ${formatCommandArgsText(agent.secondProvenanceCommandArgs)}`] : []),
     ...(agent.topOfferPrice ? [`  topOffer: path=${agent.topOfferPath ?? ""}${agent.topOfferName ? ` name="${agent.topOfferName}"` : ""}${agent.topOfferCurrency ? ` currency=${agent.topOfferCurrency}` : ""} price=${agent.topOfferPrice}${agent.topOfferAvailability ? ` availability=${agent.topOfferAvailability}` : ""}${agent.topOfferSelector ? ` selector=${agent.topOfferSelector}` : ""}${agent.topOfferUrl ? ` url=<${agent.topOfferUrl}>` : ""}${agent.topOfferUrlPath ? ` urlPath=${agent.topOfferUrlPath}` : ""}${agent.topOfferUrlQuery ? ` urlQuery=${agent.topOfferUrlQuery}` : ""}`] : []),
     ...(typeof agent.topOfferPriceAmount === "number" ? [`  topOfferPriceAmount: ${agent.topOfferPriceAmount}`] : []),
     ...(agent.topOfferCommand ? [`  topOfferCommand: ${agent.topOfferCommand}`] : []),
@@ -14220,7 +14234,11 @@ function summarizeAgent(
   const topProvenanceCommand = pageCheck.provenance[0]?.url
     ? pageCommandSpec(pageCheck.provenance[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const secondProvenanceCommand = pageCheck.provenance[1]?.url
+    ? pageCommandSpec(pageCheck.provenance[1].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topProvenanceUrlParts = pageCheck.provenance[0]?.url ? urlPathParts(pageCheck.provenance[0].url) : undefined;
+  const secondProvenanceUrlParts = pageCheck.provenance[1]?.url ? urlPathParts(pageCheck.provenance[1].url) : undefined;
   const topAuthorLinkCommand = pageCheck.authorLinks[0]?.url && /^https?:\/\//i.test(pageCheck.authorLinks[0].url)
     ? pageCommandSpec(pageCheck.authorLinks[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -15438,6 +15456,17 @@ function summarizeAgent(
     ...(pageCheck.provenance[0]?.selector ? { topProvenanceSelector: pageCheck.provenance[0].selector } : {}),
     ...(topProvenanceCommand ? { topProvenanceCommand: topProvenanceCommand.command } : {}),
     ...(topProvenanceCommand ? { topProvenanceCommandArgs: topProvenanceCommand.commandArgs } : {}),
+    ...(pageCheck.provenance[1] ? { secondProvenancePath: pageCheck.provenance[1].path } : {}),
+    ...(pageCheck.provenance[1] ? { secondProvenanceKind: pageCheck.provenance[1].kind } : {}),
+    ...(pageCheck.provenance[1]?.label ? { secondProvenanceLabel: pageCheck.provenance[1].label } : {}),
+    ...(pageCheck.provenance[1]?.value ? { secondProvenanceValue: pageCheck.provenance[1].value } : {}),
+    ...(pageCheck.provenance[1]?.url ? { secondProvenanceUrl: pageCheck.provenance[1].url } : {}),
+    ...(secondProvenanceUrlParts?.urlPath ? { secondProvenanceUrlPath: secondProvenanceUrlParts.urlPath } : {}),
+    ...(secondProvenanceUrlParts?.urlQuery ? { secondProvenanceUrlQuery: secondProvenanceUrlParts.urlQuery } : {}),
+    ...(pageCheck.provenance[1] ? { secondProvenanceSource: pageCheck.provenance[1].source } : {}),
+    ...(pageCheck.provenance[1]?.selector ? { secondProvenanceSelector: pageCheck.provenance[1].selector } : {}),
+    ...(secondProvenanceCommand ? { secondProvenanceCommand: secondProvenanceCommand.command } : {}),
+    ...(secondProvenanceCommand ? { secondProvenanceCommandArgs: secondProvenanceCommand.commandArgs } : {}),
     ...(pageCheck.offers[0] ? { topOfferPath: pageCheck.offers[0].path } : {}),
     ...(pageCheck.offers[0]?.name ? { topOfferName: pageCheck.offers[0].name } : {}),
     ...(pageCheck.offers[0]?.price ? { topOfferPrice: pageCheck.offers[0].price } : {}),
@@ -22036,6 +22065,17 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topProvenanceSelector ? { topProvenanceSelector: agent.topProvenanceSelector } : {}),
     ...(agent.topProvenanceCommand ? { topProvenanceCommand: agent.topProvenanceCommand } : {}),
     ...(agent.topProvenanceCommandArgs ? { topProvenanceCommandArgs: agent.topProvenanceCommandArgs } : {}),
+    ...(agent.secondProvenancePath ? { secondProvenancePath: agent.secondProvenancePath } : {}),
+    ...(agent.secondProvenanceKind ? { secondProvenanceKind: agent.secondProvenanceKind } : {}),
+    ...(agent.secondProvenanceLabel ? { secondProvenanceLabel: agent.secondProvenanceLabel } : {}),
+    ...(agent.secondProvenanceValue ? { secondProvenanceValue: agent.secondProvenanceValue } : {}),
+    ...(agent.secondProvenanceUrl ? { secondProvenanceUrl: agent.secondProvenanceUrl } : {}),
+    ...(agent.secondProvenanceUrlPath ? { secondProvenanceUrlPath: agent.secondProvenanceUrlPath } : {}),
+    ...(agent.secondProvenanceUrlQuery ? { secondProvenanceUrlQuery: agent.secondProvenanceUrlQuery } : {}),
+    ...(agent.secondProvenanceSource ? { secondProvenanceSource: agent.secondProvenanceSource } : {}),
+    ...(agent.secondProvenanceSelector ? { secondProvenanceSelector: agent.secondProvenanceSelector } : {}),
+    ...(agent.secondProvenanceCommand ? { secondProvenanceCommand: agent.secondProvenanceCommand } : {}),
+    ...(agent.secondProvenanceCommandArgs ? { secondProvenanceCommandArgs: agent.secondProvenanceCommandArgs } : {}),
     ...(agent.topOfferPath ? { topOfferPath: agent.topOfferPath } : {}),
     ...(agent.topOfferName ? { topOfferName: agent.topOfferName } : {}),
     ...(agent.topOfferPrice ? { topOfferPrice: agent.topOfferPrice } : {}),
@@ -23735,6 +23775,17 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topProvenanceSelector ? { topProvenanceSelector: agent.topProvenanceSelector } : {}),
     ...(agent.topProvenanceCommand ? { topProvenanceCommand: agent.topProvenanceCommand } : {}),
     ...(agent.topProvenanceCommandArgs ? { topProvenanceCommandArgs: agent.topProvenanceCommandArgs } : {}),
+    ...(agent.secondProvenancePath ? { secondProvenancePath: agent.secondProvenancePath } : {}),
+    ...(agent.secondProvenanceKind ? { secondProvenanceKind: agent.secondProvenanceKind } : {}),
+    ...(agent.secondProvenanceLabel ? { secondProvenanceLabel: agent.secondProvenanceLabel } : {}),
+    ...(agent.secondProvenanceValue ? { secondProvenanceValue: agent.secondProvenanceValue } : {}),
+    ...(agent.secondProvenanceUrl ? { secondProvenanceUrl: agent.secondProvenanceUrl } : {}),
+    ...(agent.secondProvenanceUrlPath ? { secondProvenanceUrlPath: agent.secondProvenanceUrlPath } : {}),
+    ...(agent.secondProvenanceUrlQuery ? { secondProvenanceUrlQuery: agent.secondProvenanceUrlQuery } : {}),
+    ...(agent.secondProvenanceSource ? { secondProvenanceSource: agent.secondProvenanceSource } : {}),
+    ...(agent.secondProvenanceSelector ? { secondProvenanceSelector: agent.secondProvenanceSelector } : {}),
+    ...(agent.secondProvenanceCommand ? { secondProvenanceCommand: agent.secondProvenanceCommand } : {}),
+    ...(agent.secondProvenanceCommandArgs ? { secondProvenanceCommandArgs: agent.secondProvenanceCommandArgs } : {}),
     ...(agent.topOfferPath ? { topOfferPath: agent.topOfferPath } : {}),
     ...(agent.topOfferName ? { topOfferName: agent.topOfferName } : {}),
     ...(agent.topOfferPrice ? { topOfferPrice: agent.topOfferPrice } : {}),

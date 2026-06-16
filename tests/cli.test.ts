@@ -10420,6 +10420,16 @@ describe("cli", () => {
       topProvenanceUrlPath: "/10.5555/example.2026",
       topProvenanceSource: "meta",
       topProvenanceSelector: "meta:nth-of-type(1)",
+      secondProvenancePath: "pageCheck.provenance[1]",
+      secondProvenanceKind: "pmid",
+      secondProvenanceLabel: "PMID",
+      secondProvenanceValue: "12345678",
+      secondProvenanceUrl: "https://pubmed.ncbi.nlm.nih.gov/12345678/",
+      secondProvenanceUrlPath: "/12345678/",
+      secondProvenanceSource: "meta",
+      secondProvenanceSelector: "meta:nth-of-type(2)",
+      secondProvenanceCommand: "ax-grep 'https://pubmed.ncbi.nlm.nih.gov/12345678/' --agent",
+      secondProvenanceCommandArgs: ["ax-grep", "https://pubmed.ncbi.nlm.nih.gov/12345678/", "--agent"],
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",

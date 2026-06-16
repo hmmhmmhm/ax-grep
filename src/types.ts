@@ -2430,6 +2430,17 @@ export type AgentSummary = {
   topProvenanceSelector?: string;
   topProvenanceCommand?: string;
   topProvenanceCommandArgs?: string[];
+  secondProvenancePath?: string;
+  secondProvenanceKind?: string;
+  secondProvenanceLabel?: string;
+  secondProvenanceValue?: string;
+  secondProvenanceUrl?: string;
+  secondProvenanceUrlPath?: string;
+  secondProvenanceUrlQuery?: string;
+  secondProvenanceSource?: string;
+  secondProvenanceSelector?: string;
+  secondProvenanceCommand?: string;
+  secondProvenanceCommandArgs?: string[];
   topOfferPath?: string;
   topOfferName?: string;
   topOfferPrice?: string;

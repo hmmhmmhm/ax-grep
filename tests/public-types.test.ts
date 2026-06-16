@@ -617,6 +617,17 @@ describe("public agent types", () => {
       | "topProvenanceSelector"
       | "topProvenanceCommand"
       | "topProvenanceCommandArgs"
+      | "secondProvenancePath"
+      | "secondProvenanceKind"
+      | "secondProvenanceLabel"
+      | "secondProvenanceValue"
+      | "secondProvenanceUrl"
+      | "secondProvenanceUrlPath"
+      | "secondProvenanceUrlQuery"
+      | "secondProvenanceSource"
+      | "secondProvenanceSelector"
+      | "secondProvenanceCommand"
+      | "secondProvenanceCommandArgs"
       | "topOfferPath"
       | "topOfferName"
       | "topOfferPrice"
@@ -2329,6 +2340,17 @@ describe("public agent types", () => {
       topProvenanceSelector: "meta:nth-of-type(1)",
       topProvenanceCommand: "ax-grep 'https://doi.org/10.5555/example.2026' --agent",
       topProvenanceCommandArgs: ["ax-grep", "https://doi.org/10.5555/example.2026", "--agent"],
+      secondProvenancePath: "pageCheck.provenance[1]",
+      secondProvenanceKind: "pmid",
+      secondProvenanceLabel: "PMID",
+      secondProvenanceValue: "12345678",
+      secondProvenanceUrl: "https://pubmed.ncbi.nlm.nih.gov/12345678/?format=pubmed",
+      secondProvenanceUrlPath: "/12345678/",
+      secondProvenanceUrlQuery: "?format=pubmed",
+      secondProvenanceSource: "meta",
+      secondProvenanceSelector: "meta:nth-of-type(2)",
+      secondProvenanceCommand: "ax-grep 'https://pubmed.ncbi.nlm.nih.gov/12345678/?format=pubmed' --agent",
+      secondProvenanceCommandArgs: ["ax-grep", "https://pubmed.ncbi.nlm.nih.gov/12345678/?format=pubmed", "--agent"],
       topOfferPath: "pageCheck.offers[0]",
       topOfferName: "Agent Browser Pro",
       topOfferPrice: "19.99",
@@ -3867,6 +3889,9 @@ describe("public agent types", () => {
     expect(summary.topAuthorLinkSelector).toBe("a[rel=\"author\"]");
     expect(summary.topAuthorLinkCommandArgs?.[1]).toBe("https://example.test/author");
     expect(summary.topProvenanceUrlPath).toBe("/10.5555/example.2026");
+    expect(summary.secondProvenancePath).toBe("pageCheck.provenance[1]");
+    expect(summary.secondProvenanceUrlPath).toBe("/12345678/");
+    expect(summary.secondProvenanceCommandArgs?.[1]).toBe("https://pubmed.ncbi.nlm.nih.gov/12345678/?format=pubmed");
     expect(summary.topOfferUrlPath).toBe("/buy");
     expect(summary.topOfferCommandArgs?.[1]).toBe("https://example.test/buy");
     expect(summary.topDatasetUrlPath).toBe("/datasets/example");
