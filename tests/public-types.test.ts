@@ -1155,6 +1155,19 @@ describe("public agent types", () => {
       | "topCitationConfidence"
       | "topCitationReason"
       | "topCitationScore"
+      | "secondCitationId"
+      | "secondCitationPath"
+      | "secondCitationKind"
+      | "secondCitationText"
+      | "secondCitationTitle"
+      | "secondCitationUrl"
+      | "secondCitationUrlPath"
+      | "secondCitationUrlQuery"
+      | "secondCitationCommand"
+      | "secondCitationCommandArgs"
+      | "secondCitationConfidence"
+      | "secondCitationReason"
+      | "secondCitationScore"
       | "answerEvidenceCount"
       | "topAnswerEvidenceId"
       | "topAnswerEvidencePath"
@@ -2950,6 +2963,19 @@ describe("public agent types", () => {
       topCitationConfidence: "high",
       topCitationReason: "Primary citation.",
       topCitationScore: 0.9,
+      secondCitationId: "s1",
+      secondCitationPath: "pageCheck.sourceLinks[0]",
+      secondCitationKind: "source-link",
+      secondCitationText: "Source report",
+      secondCitationTitle: "Report",
+      secondCitationUrl: "https://source.example/report?ref=agent",
+      secondCitationUrlPath: "/report",
+      secondCitationUrlQuery: "?ref=agent",
+      secondCitationCommand: "ax-grep https://source.example/report?ref=agent --agent",
+      secondCitationCommandArgs: ["ax-grep", "https://source.example/report?ref=agent", "--agent"],
+      secondCitationConfidence: "medium",
+      secondCitationReason: "Source citation.",
+      secondCitationScore: 0.58,
       answerEvidenceCount: 1,
       topAnswerEvidenceId: "e1",
       topAnswerEvidencePath: "pageCheck.contentEvidence[0]",
@@ -4311,6 +4337,10 @@ describe("public agent types", () => {
     expect(summary.topCitationPath).toBe("pageCheck.contentEvidence[0]");
     expect(summary.topCitationUrlPath).toBe("/");
     expect(summary.topCitationCommandArgs?.[1]).toBe("https://example.test");
+    expect(summary.secondCitationPath).toBe("pageCheck.sourceLinks[0]");
+    expect(summary.secondCitationUrlPath).toBe("/report");
+    expect(summary.secondCitationUrlQuery).toBe("?ref=agent");
+    expect(summary.secondCitationCommandArgs?.[1]).toBe("https://source.example/report?ref=agent");
     expect(summary.topAnswerEvidencePath).toBe("pageCheck.contentEvidence[0]");
     expect(summary.topAnswerEvidenceUrlPath).toBe("/");
     expect(summary.topAnswerEvidenceCommandArgs?.[1]).toBe("https://example.test");

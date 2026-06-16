@@ -14136,6 +14136,13 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  citation: e1 pageCheck.contentEvidence[0] content high score=");
     expect(stdout.output).toContain("  topCitationId: e1");
     expect(stdout.output).toContain("  topCitationText: This article paragraph is long enough to appear in the page checking summary for agents.");
+    expect(stdout.output).toContain("  secondCitationId: s1");
+    expect(stdout.output).toContain("  secondCitationPath: pageCheck.sourceLinks[0]");
+    expect(stdout.output).toContain("  secondCitationKind: source-link");
+    expect(stdout.output).toContain("  secondCitationText: Source report");
+    expect(stdout.output).toContain("  secondCitationUrl: https://source.example/report");
+    expect(stdout.output).toContain("  secondCitationUrlPath: /report");
+    expect(stdout.output).toContain("  secondCitationCommandArgs: [\"ax-grep\",\"https://source.example/report\",\"--json\",\"--summary\"]");
     expect(stdout.output).toContain("  topAnswerEvidenceId: e1");
     expect(stdout.output).toContain("  topAnswerEvidenceText: This article paragraph is long enough to appear in the page checking summary for agents.");
     expect(stdout.output).toContain("  topAnswerEvidenceScore:");

@@ -2608,6 +2608,19 @@ type AgentSummary = {
   topCitationConfidence?: AgentCitation["confidence"];
   topCitationReason?: string;
   topCitationScore?: number;
+  secondCitationId?: string;
+  secondCitationPath?: string;
+  secondCitationKind?: AgentCitation["kind"];
+  secondCitationText?: string;
+  secondCitationTitle?: string;
+  secondCitationUrl?: string;
+  secondCitationUrlPath?: string;
+  secondCitationUrlQuery?: string;
+  secondCitationCommand?: string;
+  secondCitationCommandArgs?: string[];
+  secondCitationConfidence?: AgentCitation["confidence"];
+  secondCitationReason?: string;
+  secondCitationScore?: number;
   answerEvidenceCount: number;
   answerEvidence: AgentCitation[];
   topAnswerEvidenceId?: string;
@@ -5475,6 +5488,20 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topCitationConfidence ? [`  topCitationConfidence: ${agent.topCitationConfidence}`] : []),
     ...(typeof agent.topCitationScore === "number" ? [`  topCitationScore: ${agent.topCitationScore}`] : []),
     ...(agent.topCitationReason ? [`  topCitationReason: ${agent.topCitationReason}`] : []),
+    ...(agent.secondCitationId ? [`  secondCitation: id=${agent.secondCitationId} path=${agent.secondCitationPath} kind=${agent.secondCitationKind}${agent.secondCitationConfidence ? ` confidence=${agent.secondCitationConfidence}` : ""}${typeof agent.secondCitationScore === "number" ? ` score=${agent.secondCitationScore}` : ""}${agent.secondCitationText ? ` - ${agent.secondCitationText}` : ""}`] : []),
+    ...(agent.secondCitationId ? [`  secondCitationId: ${agent.secondCitationId}`] : []),
+    ...(agent.secondCitationPath ? [`  secondCitationPath: ${agent.secondCitationPath}`] : []),
+    ...(agent.secondCitationKind ? [`  secondCitationKind: ${agent.secondCitationKind}`] : []),
+    ...(agent.secondCitationText ? [`  secondCitationText: ${agent.secondCitationText}`] : []),
+    ...(agent.secondCitationTitle ? [`  secondCitationTitle: ${agent.secondCitationTitle}`] : []),
+    ...(agent.secondCitationUrl ? [`  secondCitationUrl: ${agent.secondCitationUrl}`] : []),
+    ...(agent.secondCitationUrlPath ? [`  secondCitationUrlPath: ${agent.secondCitationUrlPath}`] : []),
+    ...(agent.secondCitationUrlQuery ? [`  secondCitationUrlQuery: ${agent.secondCitationUrlQuery}`] : []),
+    ...(agent.secondCitationCommand ? [`  secondCitationCommand: ${agent.secondCitationCommand}`] : []),
+    ...(agent.secondCitationCommandArgs ? [`  secondCitationCommandArgs: ${formatCommandArgsText(agent.secondCitationCommandArgs)}`] : []),
+    ...(agent.secondCitationConfidence ? [`  secondCitationConfidence: ${agent.secondCitationConfidence}`] : []),
+    ...(typeof agent.secondCitationScore === "number" ? [`  secondCitationScore: ${agent.secondCitationScore}`] : []),
+    ...(agent.secondCitationReason ? [`  secondCitationReason: ${agent.secondCitationReason}`] : []),
     `  answerEvidenceCount: ${agent.answerEvidenceCount}`,
     ...(agent.topAnswerEvidenceId ? [`  topAnswerEvidence: id=${agent.topAnswerEvidenceId} path=${agent.topAnswerEvidencePath}${typeof agent.topAnswerEvidenceScore === "number" ? ` score=${agent.topAnswerEvidenceScore}` : ""}${agent.topAnswerEvidenceText ? ` - ${agent.topAnswerEvidenceText}` : ""}`] : []),
     ...(agent.topAnswerEvidenceId ? [`  topAnswerEvidenceId: ${agent.topAnswerEvidenceId}`] : []),
@@ -14482,7 +14509,11 @@ function summarizeAgent(
   const topCitationCommand = citations[0]?.url && /^https?:\/\//i.test(citations[0].url)
     ? pageCommandSpec(citations[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const secondCitationCommand = citations[1]?.url && /^https?:\/\//i.test(citations[1].url)
+    ? pageCommandSpec(citations[1].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topCitationUrlParts = citations[0]?.url ? urlPathParts(citations[0].url) : undefined;
+  const secondCitationUrlParts = citations[1]?.url ? urlPathParts(citations[1].url) : undefined;
   const topAnswerEvidenceCommand = answerEvidence[0]?.url && /^https?:\/\//i.test(answerEvidence[0].url)
     ? pageCommandSpec(answerEvidence[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -16162,6 +16193,19 @@ function summarizeAgent(
     ...(citations[0]?.confidence ? { topCitationConfidence: citations[0].confidence } : {}),
     ...(citations[0]?.reason ? { topCitationReason: citations[0].reason } : {}),
     ...(typeof citations[0]?.score === "number" ? { topCitationScore: citations[0].score } : {}),
+    ...(citations[1] ? { secondCitationId: citations[1].id } : {}),
+    ...(citations[1] ? { secondCitationPath: citations[1].path } : {}),
+    ...(citations[1] ? { secondCitationKind: citations[1].kind } : {}),
+    ...(citations[1]?.text || citations[1]?.title ? { secondCitationText: citations[1].text ?? citations[1].title } : {}),
+    ...(citations[1]?.title ? { secondCitationTitle: citations[1].title } : {}),
+    ...(citations[1]?.url ? { secondCitationUrl: citations[1].url } : {}),
+    ...(secondCitationUrlParts?.urlPath ? { secondCitationUrlPath: secondCitationUrlParts.urlPath } : {}),
+    ...(secondCitationUrlParts?.urlQuery ? { secondCitationUrlQuery: secondCitationUrlParts.urlQuery } : {}),
+    ...(secondCitationCommand ? { secondCitationCommand: secondCitationCommand.command } : {}),
+    ...(secondCitationCommand ? { secondCitationCommandArgs: secondCitationCommand.commandArgs } : {}),
+    ...(citations[1]?.confidence ? { secondCitationConfidence: citations[1].confidence } : {}),
+    ...(citations[1]?.reason ? { secondCitationReason: citations[1].reason } : {}),
+    ...(typeof citations[1]?.score === "number" ? { secondCitationScore: citations[1].score } : {}),
     answerEvidenceCount: answerEvidence.length,
     answerEvidence,
     ...(answerEvidence[0] ? { topAnswerEvidenceId: answerEvidence[0].id } : {}),
@@ -22837,6 +22881,19 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topCitationConfidence ? { topCitationConfidence: agent.topCitationConfidence } : {}),
     ...(agent.topCitationReason ? { topCitationReason: agent.topCitationReason } : {}),
     ...(typeof agent.topCitationScore === "number" ? { topCitationScore: agent.topCitationScore } : {}),
+    ...(agent.secondCitationId ? { secondCitationId: agent.secondCitationId } : {}),
+    ...(agent.secondCitationPath ? { secondCitationPath: agent.secondCitationPath } : {}),
+    ...(agent.secondCitationKind ? { secondCitationKind: agent.secondCitationKind } : {}),
+    ...(agent.secondCitationText ? { secondCitationText: agent.secondCitationText } : {}),
+    ...(agent.secondCitationTitle ? { secondCitationTitle: agent.secondCitationTitle } : {}),
+    ...(agent.secondCitationUrl ? { secondCitationUrl: agent.secondCitationUrl } : {}),
+    ...(agent.secondCitationUrlPath ? { secondCitationUrlPath: agent.secondCitationUrlPath } : {}),
+    ...(agent.secondCitationUrlQuery ? { secondCitationUrlQuery: agent.secondCitationUrlQuery } : {}),
+    ...(agent.secondCitationCommand ? { secondCitationCommand: agent.secondCitationCommand } : {}),
+    ...(agent.secondCitationCommandArgs ? { secondCitationCommandArgs: agent.secondCitationCommandArgs } : {}),
+    ...(agent.secondCitationConfidence ? { secondCitationConfidence: agent.secondCitationConfidence } : {}),
+    ...(agent.secondCitationReason ? { secondCitationReason: agent.secondCitationReason } : {}),
+    ...(typeof agent.secondCitationScore === "number" ? { secondCitationScore: agent.secondCitationScore } : {}),
     answerEvidenceCount: agent.answerEvidenceCount,
     ...(agent.answerEvidence.length > 0 ? { answerEvidence: compactAgentCitationList(agent.answerEvidence, 650) } : {}),
     ...(agent.topAnswerEvidenceId ? { topAnswerEvidenceId: agent.topAnswerEvidenceId } : {}),
@@ -24651,6 +24708,19 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topCitationConfidence ? { topCitationConfidence: agent.topCitationConfidence } : {}),
     ...(agent.topCitationReason ? { topCitationReason: agent.topCitationReason } : {}),
     ...(typeof agent.topCitationScore === "number" ? { topCitationScore: agent.topCitationScore } : {}),
+    ...(agent.secondCitationId ? { secondCitationId: agent.secondCitationId } : {}),
+    ...(agent.secondCitationPath ? { secondCitationPath: agent.secondCitationPath } : {}),
+    ...(agent.secondCitationKind ? { secondCitationKind: agent.secondCitationKind } : {}),
+    ...(agent.secondCitationText ? { secondCitationText: agent.secondCitationText } : {}),
+    ...(agent.secondCitationTitle ? { secondCitationTitle: agent.secondCitationTitle } : {}),
+    ...(agent.secondCitationUrl ? { secondCitationUrl: agent.secondCitationUrl } : {}),
+    ...(agent.secondCitationUrlPath ? { secondCitationUrlPath: agent.secondCitationUrlPath } : {}),
+    ...(agent.secondCitationUrlQuery ? { secondCitationUrlQuery: agent.secondCitationUrlQuery } : {}),
+    ...(agent.secondCitationCommand ? { secondCitationCommand: agent.secondCitationCommand } : {}),
+    ...(agent.secondCitationCommandArgs ? { secondCitationCommandArgs: agent.secondCitationCommandArgs } : {}),
+    ...(agent.secondCitationConfidence ? { secondCitationConfidence: agent.secondCitationConfidence } : {}),
+    ...(agent.secondCitationReason ? { secondCitationReason: agent.secondCitationReason } : {}),
+    ...(typeof agent.secondCitationScore === "number" ? { secondCitationScore: agent.secondCitationScore } : {}),
     answerEvidenceCount: agent.answerEvidenceCount,
     ...(agent.topAnswerEvidenceId ? { topAnswerEvidenceId: agent.topAnswerEvidenceId } : {}),
     ...(agent.topAnswerEvidencePath ? { topAnswerEvidencePath: agent.topAnswerEvidencePath } : {}),
