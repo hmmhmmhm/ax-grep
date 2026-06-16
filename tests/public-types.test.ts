@@ -528,6 +528,11 @@ describe("public agent types", () => {
       | "topSectionLevel"
       | "topSectionText"
       | "topSectionSelector"
+      | "secondSectionPath"
+      | "secondSectionHeading"
+      | "secondSectionLevel"
+      | "secondSectionText"
+      | "secondSectionSelector"
       | "topBreadcrumbPath"
       | "topBreadcrumbText"
       | "topBreadcrumbSource"
@@ -2347,7 +2352,12 @@ describe("public agent types", () => {
       topSectionHeading: "Install",
       topSectionLevel: 2,
       topSectionText: "Install the package.",
-      topSectionSelector: "h2:nth-of-type(1)",
+      topSectionSelector: "section:nth-of-type(1) > h2:nth-of-type(1)",
+      secondSectionPath: "pageCheck.sections[1]",
+      secondSectionHeading: "Configure",
+      secondSectionLevel: 2,
+      secondSectionText: "Configure the package.",
+      secondSectionSelector: "section:nth-of-type(2) > h2:nth-of-type(1)",
       topBreadcrumbPath: "pageCheck.breadcrumbs[0]",
       topBreadcrumbText: "Docs > Install",
       topBreadcrumbSource: "html",
@@ -4018,6 +4028,10 @@ describe("public agent types", () => {
     expect(summary.secondFaqPath).toBe("pageCheck.faqs[1]");
     expect(summary.secondFaqQuestion).toBe("Can I use it in CI?");
     expect(summary.secondFaqSelector).toBe("details:nth-of-type(2)");
+    expect(summary.topSectionPath).toBe("pageCheck.sections[0]");
+    expect(summary.secondSectionPath).toBe("pageCheck.sections[1]");
+    expect(summary.secondSectionHeading).toBe("Configure");
+    expect(summary.secondSectionSelector).toBe("section:nth-of-type(2) > h2:nth-of-type(1)");
     expect(summary.topBreadcrumbPath).toBe("pageCheck.breadcrumbs[0]");
     expect(summary.secondBreadcrumbPath).toBe("pageCheck.breadcrumbs[1]");
     expect(summary.secondBreadcrumbText).toBe("Reference > Install");

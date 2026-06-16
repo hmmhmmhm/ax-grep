@@ -1973,6 +1973,11 @@ type AgentSummary = {
   topSectionLevel?: number;
   topSectionText?: string;
   topSectionSelector?: string;
+  secondSectionPath?: string;
+  secondSectionHeading?: string;
+  secondSectionLevel?: number;
+  secondSectionText?: string;
+  secondSectionSelector?: string;
   topBreadcrumbPath?: string;
   topBreadcrumbText?: string;
   topBreadcrumbSource?: PageBreadcrumbSummary["source"];
@@ -5034,6 +5039,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.secondMediaCommand ? [`  secondMediaCommand: ${agent.secondMediaCommand}`] : []),
     ...(agent.secondMediaCommandArgs ? [`  secondMediaCommandArgs: ${formatCommandArgsText(agent.secondMediaCommandArgs)}`] : []),
     ...(agent.topSectionPath ? [`  topSection: path=${agent.topSectionPath}${typeof agent.topSectionLevel === "number" ? ` level=${agent.topSectionLevel}` : ""}${agent.topSectionSelector ? ` selector=${agent.topSectionSelector}` : ""}${agent.topSectionHeading ? ` heading="${agent.topSectionHeading}"` : ""}${agent.topSectionText ? ` - ${agent.topSectionText}` : ""}`] : []),
+    ...(agent.secondSectionPath ? [`  secondSection: path=${agent.secondSectionPath}${typeof agent.secondSectionLevel === "number" ? ` level=${agent.secondSectionLevel}` : ""}${agent.secondSectionSelector ? ` selector=${agent.secondSectionSelector}` : ""}${agent.secondSectionHeading ? ` heading="${agent.secondSectionHeading}"` : ""}${agent.secondSectionText ? ` - ${agent.secondSectionText}` : ""}`] : []),
     ...(agent.topBreadcrumbText ? [`  topBreadcrumb: path=${agent.topBreadcrumbPath ?? ""}${agent.topBreadcrumbSource ? ` source=${agent.topBreadcrumbSource}` : ""}${agent.topBreadcrumbSelector ? ` selector=${agent.topBreadcrumbSelector}` : ""} - ${agent.topBreadcrumbText}`] : []),
     ...(agent.secondBreadcrumbText ? [`  secondBreadcrumb: path=${agent.secondBreadcrumbPath ?? ""}${agent.secondBreadcrumbSource ? ` source=${agent.secondBreadcrumbSource}` : ""}${agent.secondBreadcrumbSelector ? ` selector=${agent.secondBreadcrumbSelector}` : ""} - ${agent.secondBreadcrumbText}`] : []),
     ...(agent.topPaginationPath ? [`  topPagination: path=${agent.topPaginationPath}${agent.topPaginationKind ? ` kind=${agent.topPaginationKind}` : ""}${agent.topPaginationLabel ? ` label="${agent.topPaginationLabel}"` : ""}${typeof agent.topPaginationCurrent === "boolean" ? ` current=${agent.topPaginationCurrent}` : ""}${agent.topPaginationSelector ? ` selector=${agent.topPaginationSelector}` : ""}${agent.topPaginationUrl ? ` url=<${agent.topPaginationUrl}>` : ""}${agent.topPaginationUrlPath ? ` urlPath=${agent.topPaginationUrlPath}` : ""}${agent.topPaginationUrlQuery ? ` urlQuery=${agent.topPaginationUrlQuery}` : ""}`] : []),
@@ -12016,7 +12022,7 @@ function summarizeSections(html: string): PageSectionSummary[] {
       level,
       text,
       excerpts,
-      selector: `${heading.name}:nth-of-type(${elementNthOfType(heading)})`,
+      selector: sectionHeadingSelector(heading),
     });
     if (items.length >= 6) break;
   }
@@ -12075,6 +12081,14 @@ function elementNthOfType(element: Element): number {
   return directElementChildren(parent)
     .filter((child) => child.name === element.name)
     .indexOf(element) + 1;
+}
+
+function sectionHeadingSelector(heading: Element): string {
+  const parent = heading.parent instanceof DomElement ? heading.parent : undefined;
+  if (parent && ["article", "section", "main"].includes(parent.name)) {
+    return `${parent.name}:nth-of-type(${elementNthOfType(parent)}) > ${heading.name}:nth-of-type(${elementNthOfType(heading)})`;
+  }
+  return `${heading.name}:nth-of-type(${elementNthOfType(heading)})`;
 }
 
 function isUsefulSectionSummary(heading: string, excerpts: string[], text: string): boolean {
@@ -15527,6 +15541,11 @@ function summarizeAgent(
     ...(pageCheck.sections[0] ? { topSectionLevel: pageCheck.sections[0].level } : {}),
     ...(pageCheck.sections[0]?.text ? { topSectionText: pageCheck.sections[0].text } : {}),
     ...(pageCheck.sections[0]?.selector ? { topSectionSelector: pageCheck.sections[0].selector } : {}),
+    ...(pageCheck.sections[1] ? { secondSectionPath: pageCheck.sections[1].path } : {}),
+    ...(pageCheck.sections[1]?.heading ? { secondSectionHeading: pageCheck.sections[1].heading } : {}),
+    ...(pageCheck.sections[1] ? { secondSectionLevel: pageCheck.sections[1].level } : {}),
+    ...(pageCheck.sections[1]?.text ? { secondSectionText: pageCheck.sections[1].text } : {}),
+    ...(pageCheck.sections[1]?.selector ? { secondSectionSelector: pageCheck.sections[1].selector } : {}),
     ...(pageCheck.breadcrumbs[0] ? { topBreadcrumbPath: pageCheck.breadcrumbs[0].path } : {}),
     ...(pageCheck.breadcrumbs[0]?.text ? { topBreadcrumbText: pageCheck.breadcrumbs[0].text } : {}),
     ...(pageCheck.breadcrumbs[0] ? { topBreadcrumbSource: pageCheck.breadcrumbs[0].source } : {}),
@@ -22226,6 +22245,11 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.topSectionLevel === "number" ? { topSectionLevel: agent.topSectionLevel } : {}),
     ...(agent.topSectionText ? { topSectionText: agent.topSectionText } : {}),
     ...(agent.topSectionSelector ? { topSectionSelector: agent.topSectionSelector } : {}),
+    ...(agent.secondSectionPath ? { secondSectionPath: agent.secondSectionPath } : {}),
+    ...(agent.secondSectionHeading ? { secondSectionHeading: agent.secondSectionHeading } : {}),
+    ...(typeof agent.secondSectionLevel === "number" ? { secondSectionLevel: agent.secondSectionLevel } : {}),
+    ...(agent.secondSectionText ? { secondSectionText: agent.secondSectionText } : {}),
+    ...(agent.secondSectionSelector ? { secondSectionSelector: agent.secondSectionSelector } : {}),
     ...(agent.topBreadcrumbPath ? { topBreadcrumbPath: agent.topBreadcrumbPath } : {}),
     ...(agent.topBreadcrumbText ? { topBreadcrumbText: agent.topBreadcrumbText } : {}),
     ...(agent.topBreadcrumbSource ? { topBreadcrumbSource: agent.topBreadcrumbSource } : {}),
@@ -24028,6 +24052,11 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.topSectionLevel === "number" ? { topSectionLevel: agent.topSectionLevel } : {}),
     ...(agent.topSectionText ? { topSectionText: agent.topSectionText } : {}),
     ...(agent.topSectionSelector ? { topSectionSelector: agent.topSectionSelector } : {}),
+    ...(agent.secondSectionPath ? { secondSectionPath: agent.secondSectionPath } : {}),
+    ...(agent.secondSectionHeading ? { secondSectionHeading: agent.secondSectionHeading } : {}),
+    ...(typeof agent.secondSectionLevel === "number" ? { secondSectionLevel: agent.secondSectionLevel } : {}),
+    ...(agent.secondSectionText ? { secondSectionText: agent.secondSectionText } : {}),
+    ...(agent.secondSectionSelector ? { secondSectionSelector: agent.secondSectionSelector } : {}),
     ...(agent.topBreadcrumbPath ? { topBreadcrumbPath: agent.topBreadcrumbPath } : {}),
     ...(agent.topBreadcrumbText ? { topBreadcrumbText: agent.topBreadcrumbText } : {}),
     ...(agent.topBreadcrumbSource ? { topBreadcrumbSource: agent.topBreadcrumbSource } : {}),

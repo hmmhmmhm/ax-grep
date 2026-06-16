@@ -2341,6 +2341,11 @@ export type AgentSummary = {
   topSectionLevel?: number;
   topSectionText?: string;
   topSectionSelector?: string;
+  secondSectionPath?: string;
+  secondSectionHeading?: string;
+  secondSectionLevel?: number;
+  secondSectionText?: string;
+  secondSectionSelector?: string;
   topBreadcrumbPath?: string;
   topBreadcrumbText?: string;
   topBreadcrumbSource?: string;

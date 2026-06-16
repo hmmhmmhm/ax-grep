@@ -12271,6 +12271,10 @@ npx ax-grep https://example.test --agent</code></pre>
                 <p>Production agents should compare timeout ceilings before retrying a browser capture.</p>
                 <p>Keep follow-up checks short when the current payload already has enough evidence.</p>
               </section>
+              <section>
+                <h2>Recovery paths</h2>
+                <p>Agents should prefer static evidence before opening a live browser.</p>
+              </section>
             </main>
           </body>
         </html>
@@ -12293,18 +12297,33 @@ npx ax-grep https://example.test --agent</code></pre>
         ],
         text: "Latency budgets; Production agents should compare timeout ceilings before retrying a browser capture.; Keep follow-up checks short when the current payload already has enough evidence.",
       }),
+      expect.objectContaining({
+        id: "sec2",
+        path: "pageCheck.sections[1]",
+        rank: 2,
+        heading: "Recovery paths",
+        level: 2,
+        excerpts: [
+          "Agents should prefer static evidence before opening a live browser.",
+        ],
+        text: "Recovery paths; Agents should prefer static evidence before opening a live browser.",
+      }),
     ]);
-    expect(envelope.pageCheck.readability.reasons).toContain("1 content section");
+    expect(envelope.pageCheck.readability.reasons).toContain("2 content sections");
     expect(envelope.agent).toMatchObject({
-      sectionCount: 1,
+      sectionCount: 2,
       topSectionPath: "pageCheck.sections[0]",
       topSectionHeading: "Latency budgets",
       topSectionLevel: 2,
       topSectionText: "Latency budgets; Production agents should compare timeout ceilings before retrying a browser capture.; Keep follow-up checks short when the current payload already has enough evidence.",
+      secondSectionPath: "pageCheck.sections[1]",
+      secondSectionHeading: "Recovery paths",
+      secondSectionLevel: 2,
+      secondSectionText: "Recovery paths; Agents should prefer static evidence before opening a live browser.",
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.sections",
-      count: 1,
+      count: 2,
       reason: "Heading-grouped section summaries extracted from nearby page text.",
     }));
     expect(envelope.verification.bestEvidence).toMatchObject({
@@ -12328,6 +12347,10 @@ npx ax-grep https://example.test --agent</code></pre>
             <h2>Latency budgets</h2>
             <p>Production agents should compare timeout ceilings before retrying a browser capture.</p>
           </section>
+          <section>
+            <h2>Recovery paths</h2>
+            <p>Agents should prefer static evidence before opening a live browser.</p>
+          </section>
         </main>
       `, { headers: { "content-type": "text/html" } }),
     });
@@ -12337,12 +12360,17 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(0);
     expect(envelope.agent).toMatchObject({
       contract: { profile: "brief" },
-      sectionCount: 1,
+      sectionCount: 2,
       topSectionPath: "pageCheck.sections[0]",
       topSectionHeading: "Latency budgets",
       topSectionLevel: 2,
       topSectionText: "Latency budgets; Production agents should compare timeout ceilings before retrying a browser capture.",
-      topSectionSelector: "h2:nth-of-type(1)",
+      topSectionSelector: "section:nth-of-type(1) > h2:nth-of-type(1)",
+      secondSectionPath: "pageCheck.sections[1]",
+      secondSectionHeading: "Recovery paths",
+      secondSectionLevel: 2,
+      secondSectionText: "Recovery paths; Agents should prefer static evidence before opening a live browser.",
+      secondSectionSelector: "section:nth-of-type(2) > h2:nth-of-type(1)",
     });
   });
 
@@ -12356,14 +12384,19 @@ npx ax-grep https://example.test --agent</code></pre>
             <h2>Latency budgets</h2>
             <p>Production agents should compare timeout ceilings before retrying a browser capture.</p>
           </section>
+          <section>
+            <h2>Recovery paths</h2>
+            <p>Agents should prefer static evidence before opening a live browser.</p>
+          </section>
         </main>
       `, { headers: { "content-type": "text/html" } }),
     });
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain("  topSection: path=pageCheck.sections[0] level=2 selector=h2:nth-of-type(1) heading=\"Latency budgets\" - Latency budgets; Production agents should compare timeout ceilings before retrying a browser capture.");
-    expect(stdout.output).toContain("  section: id=sec1 path=pageCheck.sections[0] level=2 heading=\"Latency budgets\" excerpts=1 firstExcerpt=\"Production agents should compare timeout ceilings before retrying a browser capture.\" selector=h2:nth-of-type(1) - Latency budgets; Production agents should compare timeout ceilings before retrying a browser capture.");
+    expect(stdout.output).toContain("  topSection: path=pageCheck.sections[0] level=2 selector=section:nth-of-type(1) > h2:nth-of-type(1) heading=\"Latency budgets\" - Latency budgets; Production agents should compare timeout ceilings before retrying a browser capture.");
+    expect(stdout.output).toContain("  secondSection: path=pageCheck.sections[1] level=2 selector=section:nth-of-type(2) > h2:nth-of-type(1) heading=\"Recovery paths\" - Recovery paths; Agents should prefer static evidence before opening a live browser.");
+    expect(stdout.output).toContain("  section: id=sec1 path=pageCheck.sections[0] level=2 heading=\"Latency budgets\" excerpts=1 firstExcerpt=\"Production agents should compare timeout ceilings before retrying a browser capture.\" selector=section:nth-of-type(1) > h2:nth-of-type(1) - Latency budgets; Production agents should compare timeout ceilings before retrying a browser capture.");
   });
 
   it("summarizes pagination navigation as pageCheck read targets for agents", async () => {
