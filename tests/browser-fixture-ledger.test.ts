@@ -33,7 +33,26 @@ describe("browser fixture ledger tracking", () => {
 
     for (const [, checkId, ledgerId] of checkMatches) {
       expect(checkId).toMatch(/-parity$|-context$/);
-      expect(progress).toContain(`| ${ledgerId} |`);
+      const record = observedGapRecord(progress, ledgerId!);
+      expect(record).toBeDefined();
+      expect(record?.status).toBe("Landed.");
+      expect(record?.validation).toMatch(/Typecheck|compare:browser:fixture|static fixture gate|readiness audit/);
     }
   });
 });
+
+function observedGapRecord(progress: string, ledgerId: string): { status: string; validation: string } | undefined {
+  const record = progress
+    .split(/\r?\n/)
+    .find((line) => line.startsWith(`| ${ledgerId} |`));
+  if (!record) return undefined;
+
+  const cells = record
+    .slice(1, -1)
+    .split("|")
+    .map((cell) => cell.trim());
+  return {
+    status: cells[5] ?? "",
+    validation: cells[6] ?? "",
+  };
+}

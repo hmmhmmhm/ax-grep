@@ -283,6 +283,27 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
     ),
     evidenceCheck(
       root,
+      "browser-fixture-ledger",
+      "Every local browser parity check must point to a landed observed-gap record before it can support progress claims.",
+      "tests/browser-fixture-ledger.test.ts links compare-browser fixture check IDs to documented G-rows with landed status and validation evidence.",
+      (failures) => {
+        requireFileIncludes(root, failures, "tests/browser-fixture-ledger.test.ts", [
+          "links every browser parity check to a documented gap record",
+          "observedGapRecord",
+          "status",
+          "validation",
+          "Landed.",
+          "compare:browser:fixture",
+        ]);
+        requireFileIncludes(root, failures, "docs/progress.md", [
+          "| A2 | Static-vs-browser gap ledger |",
+          "every local browser parity check now carries a `ledgerId` tied back to a documented G-row",
+          "Each new gap has source, priority, decision, status, next command",
+        ]);
+      },
+    ),
+    evidenceCheck(
+      root,
       "agent-browser-smoke",
       "At least one bounded `agent-browser` comparison must prove static named-role parity before the goal can move beyond local and fetched-page smoke evidence.",
       "readiness:agent-browser-smoke runs pnpm compare on https://example.com, https://books.toscrape.com/, https://news.ycombinator.com, and https://www.gov.uk/foreign-travel-advice with per-target floors.",
