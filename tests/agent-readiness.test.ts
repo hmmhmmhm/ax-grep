@@ -65,6 +65,14 @@ describe("agent readiness audit", () => {
 
     expect(failures).toContain("fooAfterInteractionCommandArgs is guarded without matching fooAfterInteractionCommand");
   });
+
+  it("rejects implemented command shortcut fields without readiness coverage", () => {
+    const root = makeProjectWithImplementedCommandShortcut("fooCommand", "fooCommandArgs");
+
+    const failures = checkAgentReadinessProject(root).map((failure) => failure.message);
+
+    expect(failures).toContain("fooCommandArgs is implemented without readiness coverage");
+  });
 });
 
 function makeProjectWithReadinessCommandShortcut(commandField: string, argsField: string): string {
@@ -77,6 +85,27 @@ function makeProjectWithReadinessCommandShortcut(commandField: string, argsField
     "shortcutArgsFields(readiness, \"AfterInteractionCommandArgs\")",
     "is guarded without matching",
     `"${argsField}"`,
+  ].join("\n"));
+  return root;
+}
+
+function makeProjectWithImplementedCommandShortcut(commandField: string, argsField: string): string {
+  const root = makeMinimalProject();
+  mkdirSync(join(root, "src"), { recursive: true });
+  writeFileSync(join(root, "src", "cli.ts"), [
+    "type AgentSummary = {",
+    `  ${commandField}?: string;`,
+    `  ${argsField}?: string[];`,
+    "};",
+  ].join("\n"));
+  writeFileSync(join(root, "scripts", "check-agent-readiness.ts"), [
+    "checkCommandShortcutSymmetry(root, failures)",
+    "publicCommandArgsFields(source)",
+    "shortcutArgsFields(readiness, \"CommandArgs\")",
+    "shortcutArgsFields(readiness, \"AfterInteractionCommandArgs\")",
+    "is implemented without readiness coverage",
+    "is guarded without matching",
+    `"${commandField}"`,
   ].join("\n"));
   return root;
 }

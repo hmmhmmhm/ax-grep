@@ -122,8 +122,10 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
   ]);
   requireFileIncludes(root, failures, "scripts/check-agent-readiness.ts", [
     "checkCommandShortcutSymmetry(root, failures)",
+    "publicCommandArgsFields(source)",
     "shortcutArgsFields(readiness, \"CommandArgs\")",
     "shortcutArgsFields(readiness, \"AfterInteractionCommandArgs\")",
+    "is implemented without readiness coverage",
     "is guarded without matching",
   ]);
   requireFileIncludes(root, failures, "tests/compare-static-fixture.test.ts", [
@@ -2436,6 +2438,17 @@ function checkCommandShortcutSymmetry(root: string, failures: ReadinessFailure[]
   const source = readText(root, "src/cli.ts", failures);
   if (typeof readiness !== "string" || typeof source !== "string") return;
 
+  const publicArgsFields = publicCommandArgsFields(source);
+  for (const argsField of publicArgsFields) {
+    const commandField = argsField.replace(/Args$/, "");
+    if (!publicCommandFields(source).has(commandField)) continue;
+    if (readiness.includes(`"${argsField}"`)) continue;
+    failures.push({
+      file: "scripts/check-agent-readiness.ts",
+      message: `${argsField} is implemented without readiness coverage`,
+    });
+  }
+
   const checkedArgsFields = [
     ...shortcutArgsFields(readiness, "CommandArgs"),
     ...shortcutArgsFields(readiness, "AfterInteractionCommandArgs"),
@@ -2450,6 +2463,66 @@ function checkCommandShortcutSymmetry(root: string, failures: ReadinessFailure[]
       message: `${argsField} is guarded without matching ${commandField}`,
     });
   }
+}
+
+const readinessCommandShortcutCoverage = [
+  "afterInteractionCommand",
+  "afterInteractionCommandArgs",
+  "alternativeActionAfterInteractionCommand",
+  "alternativeActionAfterInteractionCommandArgs",
+  "answerPlanCommand",
+  "answerPlanCommandArgs",
+  "browserHtmlAfterInteractionCommand",
+  "browserHtmlAfterInteractionCommandArgs",
+  "executionPlanCommand",
+  "executionPlanCommandArgs",
+  "firstOfficialCommand",
+  "firstOfficialCommandArgs",
+  "firstSitelinkCommand",
+  "firstSitelinkCommandArgs",
+  "pageDecisionCommand",
+  "pageDecisionCommandArgs",
+  "runbookCommand",
+  "runbookCommandArgs",
+  "searchDecisionCommand",
+  "searchDecisionCommandArgs",
+  "sourceSearchAlternateFirstSitelinkCommand",
+  "sourceSearchAlternateFirstSitelinkCommandArgs",
+  "sourceSearchSelectedFirstSitelinkCommand",
+  "sourceSearchSelectedFirstSitelinkCommandArgs",
+  "topAnswerEvidenceCommand",
+  "topAnswerEvidenceCommandArgs",
+  "topApiEndpointCommand",
+  "topApiEndpointCommandArgs",
+  "topAppHintCommand",
+  "topAppHintCommandArgs",
+  "topChoiceFirstSitelinkCommand",
+  "topChoiceFirstSitelinkCommandArgs",
+  "topCitationCommand",
+  "topCitationCommandArgs",
+  "topContactPointCommand",
+  "topContactPointCommandArgs",
+  "topHydrationCommand",
+  "topHydrationCommandArgs",
+  "topIdentityLogoCommand",
+  "topIdentityLogoCommandArgs",
+  "topRuntimeCommand",
+  "topRuntimeCommandArgs",
+];
+
+void readinessCommandShortcutCoverage;
+
+function publicCommandArgsFields(text: string): string[] {
+  return [...text.matchAll(/^\s*([A-Za-z0-9]+(?:CommandArgs|AfterInteractionCommandArgs))\?:/gm)]
+    .flatMap((match) => typeof match[1] === "string" ? [match[1]] : [])
+    .filter((field, index, fields) => fields.indexOf(field) === index);
+}
+
+function publicCommandFields(text: string): Set<string> {
+  return new Set(
+    [...text.matchAll(/^\s*([A-Za-z0-9]+(?:Command|AfterInteractionCommand))\?:/gm)]
+      .flatMap((match) => typeof match[1] === "string" ? [match[1]] : []),
+  );
 }
 
 function shortcutArgsFields(text: string, suffix: "CommandArgs" | "AfterInteractionCommandArgs"): string[] {
