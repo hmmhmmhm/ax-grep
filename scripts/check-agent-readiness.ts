@@ -921,6 +921,9 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "secondApiEndpointCommandArgs",
           "secondClientStateKey",
           "topRuntimeUrlPath",
+          "secondRuntimeUrlPath",
+          "secondRuntimeCommand",
+          "secondRuntimeCommandArgs",
           "topAppHintUrlPath",
           "topHiddenSignalUrlPath",
           "structuredReadTargetCount",
@@ -2409,6 +2412,9 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "secondApiEndpointCommandArgs",
           "secondClientStateKey",
           "topRuntimeUrlPath",
+          "secondRuntimeUrlPath",
+          "secondRuntimeCommand",
+          "secondRuntimeCommandArgs",
           "topAppHintUrlPath",
           "topHiddenSignalUrlPath",
           "structuredReadTargetCount",
@@ -3248,6 +3254,8 @@ const readinessCommandShortcutCoverage = [
   "topIdentityLogoCommandArgs",
   "topRuntimeCommand",
   "topRuntimeCommandArgs",
+  "secondRuntimeCommand",
+  "secondRuntimeCommandArgs",
 ];
 
 void readinessCommandShortcutCoverage;

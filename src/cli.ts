@@ -2433,6 +2433,14 @@ type AgentSummary = {
   topRuntimeCommand?: string;
   topRuntimeCommandArgs?: string[];
   topRuntimeSelector?: string;
+  secondRuntimePath?: string;
+  secondRuntimeKind?: string;
+  secondRuntimeUrl?: string;
+  secondRuntimeUrlPath?: string;
+  secondRuntimeUrlQuery?: string;
+  secondRuntimeCommand?: string;
+  secondRuntimeCommandArgs?: string[];
+  secondRuntimeSelector?: string;
   topConfigPath?: string;
   topConfigKind?: string;
   topConfigName?: string;
@@ -5477,6 +5485,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topRuntimePath ? [`  topRuntime: path=${agent.topRuntimePath}${agent.topRuntimeKind ? ` kind=${agent.topRuntimeKind}` : ""}${agent.topRuntimeSelector ? ` selector=${agent.topRuntimeSelector}` : ""}${agent.topRuntimeUrl ? ` url=<${agent.topRuntimeUrl}>` : ""}${agent.topRuntimeUrlPath ? ` urlPath=${agent.topRuntimeUrlPath}` : ""}${agent.topRuntimeUrlQuery ? ` urlQuery=${agent.topRuntimeUrlQuery}` : ""}`] : []),
     ...(agent.topRuntimeCommand ? [`  topRuntimeCommand: ${agent.topRuntimeCommand}`] : []),
     ...(agent.topRuntimeCommandArgs ? [`  topRuntimeCommandArgs: ${formatCommandArgsText(agent.topRuntimeCommandArgs)}`] : []),
+    ...(agent.secondRuntimePath ? [`  secondRuntime: path=${agent.secondRuntimePath}${agent.secondRuntimeKind ? ` kind=${agent.secondRuntimeKind}` : ""}${agent.secondRuntimeSelector ? ` selector=${agent.secondRuntimeSelector}` : ""}${agent.secondRuntimeUrl ? ` url=<${agent.secondRuntimeUrl}>` : ""}${agent.secondRuntimeUrlPath ? ` urlPath=${agent.secondRuntimeUrlPath}` : ""}${agent.secondRuntimeUrlQuery ? ` urlQuery=${agent.secondRuntimeUrlQuery}` : ""}`] : []),
+    ...(agent.secondRuntimeCommand ? [`  secondRuntimeCommand: ${agent.secondRuntimeCommand}`] : []),
+    ...(agent.secondRuntimeCommandArgs ? [`  secondRuntimeCommandArgs: ${formatCommandArgsText(agent.secondRuntimeCommandArgs)}`] : []),
     ...(agent.topConfigPath ? [`  topConfig: path=${agent.topConfigPath}${agent.topConfigKind ? ` kind=${agent.topConfigKind}` : ""}${agent.topConfigName ? ` name=${agent.topConfigName}` : ""}${typeof agent.topConfigKeyCount === "number" ? ` keys=${agent.topConfigKeyCount}` : ""}${agent.topConfigKeys?.length ? ` keyNames=${agent.topConfigKeys.join(",")}` : ""}${agent.topConfigSelector ? ` selector=${agent.topConfigSelector}` : ""}`] : []),
     ...(agent.topAppHintPath ? [`  topAppHint: path=${agent.topAppHintPath}${agent.topAppHintKind ? ` kind=${agent.topAppHintKind}` : ""}${agent.topAppHintLabel ? ` label="${agent.topAppHintLabel}"` : ""}${agent.topAppHintSelector ? ` selector=${agent.topAppHintSelector}` : ""}${agent.topAppHintUrl ? ` url=<${agent.topAppHintUrl}>` : ""}${agent.topAppHintUrlPath ? ` urlPath=${agent.topAppHintUrlPath}` : ""}${agent.topAppHintUrlQuery ? ` urlQuery=${agent.topAppHintUrlQuery}` : ""}`] : []),
     ...(agent.topAppHintCommand ? [`  topAppHintCommand: ${agent.topAppHintCommand}`] : []),
@@ -14651,6 +14662,11 @@ function summarizeAgent(
     ? pageCommandSpec(topRuntime.url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
   const topRuntimeUrlParts = topRuntime?.url ? urlPathParts(topRuntime.url) : undefined;
+  const secondRuntime = pageCheck.runtime[1];
+  const secondRuntimeCommand = secondRuntime?.url && /^https?:\/\//i.test(secondRuntime.url)
+    ? pageCommandSpec(secondRuntime.url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
+  const secondRuntimeUrlParts = secondRuntime?.url ? urlPathParts(secondRuntime.url) : undefined;
   const topConfig = pageCheck.config[0];
   const topAppHint = pageCheck.appHints[0];
   const topAppHintCommand = topAppHint?.url && /^https?:\/\//i.test(topAppHint.url)
@@ -16414,6 +16430,14 @@ function summarizeAgent(
     ...(topRuntimeCommand ? { topRuntimeCommand: topRuntimeCommand.command } : {}),
     ...(topRuntimeCommand ? { topRuntimeCommandArgs: topRuntimeCommand.commandArgs } : {}),
     ...(topRuntime?.selector ? { topRuntimeSelector: topRuntime.selector } : {}),
+    ...(secondRuntime ? { secondRuntimePath: secondRuntime.path } : {}),
+    ...(secondRuntime ? { secondRuntimeKind: secondRuntime.kind } : {}),
+    ...(secondRuntime?.url ? { secondRuntimeUrl: secondRuntime.url } : {}),
+    ...(secondRuntimeUrlParts?.urlPath ? { secondRuntimeUrlPath: secondRuntimeUrlParts.urlPath } : {}),
+    ...(secondRuntimeUrlParts?.urlQuery ? { secondRuntimeUrlQuery: secondRuntimeUrlParts.urlQuery } : {}),
+    ...(secondRuntimeCommand ? { secondRuntimeCommand: secondRuntimeCommand.command } : {}),
+    ...(secondRuntimeCommand ? { secondRuntimeCommandArgs: secondRuntimeCommand.commandArgs } : {}),
+    ...(secondRuntime?.selector ? { secondRuntimeSelector: secondRuntime.selector } : {}),
     ...(topConfig ? { topConfigPath: topConfig.path } : {}),
     ...(topConfig ? { topConfigKind: topConfig.kind } : {}),
     ...(topConfig?.name ? { topConfigName: topConfig.name } : {}),
@@ -23323,6 +23347,14 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topRuntimeCommand ? { topRuntimeCommand: agent.topRuntimeCommand } : {}),
     ...(agent.topRuntimeCommandArgs ? { topRuntimeCommandArgs: agent.topRuntimeCommandArgs } : {}),
     ...(agent.topRuntimeSelector ? { topRuntimeSelector: agent.topRuntimeSelector } : {}),
+    ...(agent.secondRuntimePath ? { secondRuntimePath: agent.secondRuntimePath } : {}),
+    ...(agent.secondRuntimeKind ? { secondRuntimeKind: agent.secondRuntimeKind } : {}),
+    ...(agent.secondRuntimeUrl ? { secondRuntimeUrl: agent.secondRuntimeUrl } : {}),
+    ...(agent.secondRuntimeUrlPath ? { secondRuntimeUrlPath: agent.secondRuntimeUrlPath } : {}),
+    ...(agent.secondRuntimeUrlQuery ? { secondRuntimeUrlQuery: agent.secondRuntimeUrlQuery } : {}),
+    ...(agent.secondRuntimeCommand ? { secondRuntimeCommand: agent.secondRuntimeCommand } : {}),
+    ...(agent.secondRuntimeCommandArgs ? { secondRuntimeCommandArgs: agent.secondRuntimeCommandArgs } : {}),
+    ...(agent.secondRuntimeSelector ? { secondRuntimeSelector: agent.secondRuntimeSelector } : {}),
     ...(agent.topConfigPath ? { topConfigPath: agent.topConfigPath } : {}),
     ...(agent.topConfigKind ? { topConfigKind: agent.topConfigKind } : {}),
     ...(agent.topConfigName ? { topConfigName: agent.topConfigName } : {}),
@@ -25329,6 +25361,14 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topRuntimeCommand ? { topRuntimeCommand: agent.topRuntimeCommand } : {}),
     ...(agent.topRuntimeCommandArgs ? { topRuntimeCommandArgs: agent.topRuntimeCommandArgs } : {}),
     ...(agent.topRuntimeSelector ? { topRuntimeSelector: agent.topRuntimeSelector } : {}),
+    ...(agent.secondRuntimePath ? { secondRuntimePath: agent.secondRuntimePath } : {}),
+    ...(agent.secondRuntimeKind ? { secondRuntimeKind: agent.secondRuntimeKind } : {}),
+    ...(agent.secondRuntimeUrl ? { secondRuntimeUrl: agent.secondRuntimeUrl } : {}),
+    ...(agent.secondRuntimeUrlPath ? { secondRuntimeUrlPath: agent.secondRuntimeUrlPath } : {}),
+    ...(agent.secondRuntimeUrlQuery ? { secondRuntimeUrlQuery: agent.secondRuntimeUrlQuery } : {}),
+    ...(agent.secondRuntimeCommand ? { secondRuntimeCommand: agent.secondRuntimeCommand } : {}),
+    ...(agent.secondRuntimeCommandArgs ? { secondRuntimeCommandArgs: agent.secondRuntimeCommandArgs } : {}),
+    ...(agent.secondRuntimeSelector ? { secondRuntimeSelector: agent.secondRuntimeSelector } : {}),
     ...(agent.topConfigPath ? { topConfigPath: agent.topConfigPath } : {}),
     ...(agent.topConfigKind ? { topConfigKind: agent.topConfigKind } : {}),
     ...(agent.topConfigName ? { topConfigName: agent.topConfigName } : {}),

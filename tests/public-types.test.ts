@@ -1041,6 +1041,14 @@ describe("public agent types", () => {
       | "topRuntimeCommand"
       | "topRuntimeCommandArgs"
       | "topRuntimeSelector"
+      | "secondRuntimePath"
+      | "secondRuntimeKind"
+      | "secondRuntimeUrl"
+      | "secondRuntimeUrlPath"
+      | "secondRuntimeUrlQuery"
+      | "secondRuntimeCommand"
+      | "secondRuntimeCommandArgs"
+      | "secondRuntimeSelector"
       | "topConfigPath"
       | "topConfigKind"
       | "topConfigName"
@@ -3033,6 +3041,14 @@ describe("public agent types", () => {
       topRuntimeCommand: "ax-grep 'https://example.test/sw.js' --agent",
       topRuntimeCommandArgs: ["ax-grep", "https://example.test/sw.js", "--agent"],
       topRuntimeSelector: "script:nth-of-type(3)",
+      secondRuntimePath: "pageCheck.runtime[1]",
+      secondRuntimeKind: "web-worker",
+      secondRuntimeUrl: "https://example.test/workers/search.js?version=2",
+      secondRuntimeUrlPath: "/workers/search.js",
+      secondRuntimeUrlQuery: "?version=2",
+      secondRuntimeCommand: "ax-grep 'https://example.test/workers/search.js?version=2' --agent",
+      secondRuntimeCommandArgs: ["ax-grep", "https://example.test/workers/search.js?version=2", "--agent"],
+      secondRuntimeSelector: "script:nth-of-type(3)",
       topConfigPath: "pageCheck.config[0]",
       topConfigKind: "env",
       topConfigName: "__APP_CONFIG__",
@@ -4466,6 +4482,11 @@ describe("public agent types", () => {
     expect(summary.secondApiEndpointCommandArgs?.[1]).toBe("https://example.test/api/status?format=json");
     expect(summary.secondApiEndpointSelector).toBe("script:nth-of-type(2)");
     expect(summary.topRuntimeUrlPath).toBe("/sw.js");
+    expect(summary.secondRuntimePath).toBe("pageCheck.runtime[1]");
+    expect(summary.secondRuntimeUrlPath).toBe("/workers/search.js");
+    expect(summary.secondRuntimeUrlQuery).toBe("?version=2");
+    expect(summary.secondRuntimeCommandArgs?.[1]).toBe("https://example.test/workers/search.js?version=2");
+    expect(summary.secondRuntimeSelector).toBe("script:nth-of-type(3)");
     expect(summary.topAppHintUrlPath).toBe("/manifest.json");
     expect(summary.topAppHintCommandArgs?.[1]).toBe("https://example.test/manifest.json");
     expect(summary.topMobileHintUrlPath).toBe("/app");

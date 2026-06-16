@@ -2801,6 +2801,14 @@ export type AgentSummary = {
   topRuntimeCommand?: string;
   topRuntimeCommandArgs?: string[];
   topRuntimeSelector?: string;
+  secondRuntimePath?: string;
+  secondRuntimeKind?: string;
+  secondRuntimeUrl?: string;
+  secondRuntimeUrlPath?: string;
+  secondRuntimeUrlQuery?: string;
+  secondRuntimeCommand?: string;
+  secondRuntimeCommandArgs?: string[];
+  secondRuntimeSelector?: string;
   topConfigPath?: string;
   topConfigKind?: string;
   topConfigName?: string;

@@ -9710,6 +9710,13 @@ describe("cli", () => {
       topRuntimeCommand: "ax-grep 'https://example.test/sw.js' --agent",
       topRuntimeCommandArgs: ["ax-grep", "https://example.test/sw.js", "--agent"],
       topRuntimeSelector: "script:nth-of-type(1)",
+      secondRuntimePath: "pageCheck.runtime[1]",
+      secondRuntimeKind: "web-worker",
+      secondRuntimeUrl: "https://example.test/workers/search.js",
+      secondRuntimeUrlPath: "/workers/search.js",
+      secondRuntimeCommand: "ax-grep 'https://example.test/workers/search.js' --agent",
+      secondRuntimeCommandArgs: ["ax-grep", "https://example.test/workers/search.js", "--agent"],
+      secondRuntimeSelector: "script:nth-of-type(1)",
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
@@ -12161,6 +12168,7 @@ describe("cli", () => {
               window.localStorage.getItem("session");
               window.sessionStorage.setItem("returnTo", "/app");
               navigator.serviceWorker.register("/sw.js");
+              new Worker("/workers/search.js");
               window.__APP_CONFIG__ = { apiBase: "/api", featureFlags: { betaSearch: true } };
             </script>
           </head>
@@ -12186,6 +12194,8 @@ describe("cli", () => {
     expect(stdout.output).toContain("  secondClientState: path=pageCheck.clientState[1] kind=session-storage operation=write key=returnTo selector=script:nth-of-type(3)");
     expect(stdout.output).toContain("  topRuntime: path=pageCheck.runtime[0] kind=service-worker selector=script:nth-of-type(3) url=<https://example.test/sw.js> urlPath=/sw.js");
     expect(stdout.output).toContain("  topRuntimeCommand: ax-grep 'https://example.test/sw.js'");
+    expect(stdout.output).toContain("  secondRuntime: path=pageCheck.runtime[1] kind=web-worker selector=script:nth-of-type(3) url=<https://example.test/workers/search.js> urlPath=/workers/search.js");
+    expect(stdout.output).toContain("  secondRuntimeCommand: ax-grep 'https://example.test/workers/search.js'");
     expect(stdout.output).toContain("  topConfig: path=pageCheck.config[0] kind=env name=__APP_CONFIG__ keys=2 keyNames=apiBase,featureFlags selector=script:nth-of-type(3)");
     expect(stdout.output).toContain("  topAppHint: path=pageCheck.appHints[0] kind=manifest label=\"Web app manifest\" selector=link[rel=\"manifest\"]:nth-of-type(1) url=<https://example.test/site.webmanifest> urlPath=/site.webmanifest");
     expect(stdout.output).toContain("  topMobileHint: path=pageCheck.mobileHints[0] kind=viewport label=\"Viewport\" selector=meta[name=\"viewport\"]:nth-of-type(1) - width=device-width, initial-scale=1");
@@ -12201,6 +12211,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  clientState: id=cs1 path=pageCheck.clientState[0] kind=local-storage source=script operation=read key=session selector=script:nth-of-type(3)");
     expect(stdout.output).toContain("  clientState: id=cs2 path=pageCheck.clientState[1] kind=session-storage source=script operation=write key=returnTo selector=script:nth-of-type(3)");
     expect(stdout.output).toContain("  runtime: id=rt1 path=pageCheck.runtime[0] kind=service-worker source=script selector=script:nth-of-type(3) urlPath=/sw.js url=<https://example.test/sw.js>");
+    expect(stdout.output).toContain("  runtime: id=rt2 path=pageCheck.runtime[1] kind=web-worker source=script selector=script:nth-of-type(3) urlPath=/workers/search.js url=<https://example.test/workers/search.js>");
     expect(stdout.output).toContain("  config: id=cfg1 path=pageCheck.config[0] kind=env source=script name=__APP_CONFIG__ keys=2 keyNames=apiBase,featureFlags selector=script:nth-of-type(3)");
     expect(stdout.output).toContain("  appHint: id=ah1 path=pageCheck.appHints[0] kind=manifest source=link label=\"Web app manifest\" selector=link[rel=\"manifest\"]:nth-of-type(1) urlPath=/site.webmanifest url=<https://example.test/site.webmanifest>");
     expect(stdout.output).toContain("  mobileHint: id=mh1 path=pageCheck.mobileHints[0] kind=viewport source=meta label=\"Viewport\" selector=meta[name=\"viewport\"]:nth-of-type(1)");
