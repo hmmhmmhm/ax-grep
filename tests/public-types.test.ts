@@ -1055,6 +1055,12 @@ describe("public agent types", () => {
       | "topConfigKeys"
       | "topConfigKeyCount"
       | "topConfigSelector"
+      | "secondConfigPath"
+      | "secondConfigKind"
+      | "secondConfigName"
+      | "secondConfigKeys"
+      | "secondConfigKeyCount"
+      | "secondConfigSelector"
       | "topAppHintPath"
       | "topAppHintKind"
       | "topAppHintLabel"
@@ -3055,6 +3061,12 @@ describe("public agent types", () => {
       topConfigKeys: ["apiBase", "featureFlags"],
       topConfigKeyCount: 2,
       topConfigSelector: "script:nth-of-type(4)",
+      secondConfigPath: "pageCheck.config[1]",
+      secondConfigKind: "feature-flags",
+      secondConfigName: "__INITIAL_STATE__",
+      secondConfigKeys: ["user", "route"],
+      secondConfigKeyCount: 2,
+      secondConfigSelector: "script:nth-of-type(4)",
       topAppHintPath: "pageCheck.appHints[0]",
       topAppHintKind: "manifest",
       topAppHintLabel: "manifest",

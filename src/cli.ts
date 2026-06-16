@@ -2447,6 +2447,12 @@ type AgentSummary = {
   topConfigKeys?: string[];
   topConfigKeyCount?: number;
   topConfigSelector?: string;
+  secondConfigPath?: string;
+  secondConfigKind?: string;
+  secondConfigName?: string;
+  secondConfigKeys?: string[];
+  secondConfigKeyCount?: number;
+  secondConfigSelector?: string;
   topAppHintPath?: string;
   topAppHintKind?: string;
   topAppHintLabel?: string;
@@ -5489,6 +5495,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.secondRuntimeCommand ? [`  secondRuntimeCommand: ${agent.secondRuntimeCommand}`] : []),
     ...(agent.secondRuntimeCommandArgs ? [`  secondRuntimeCommandArgs: ${formatCommandArgsText(agent.secondRuntimeCommandArgs)}`] : []),
     ...(agent.topConfigPath ? [`  topConfig: path=${agent.topConfigPath}${agent.topConfigKind ? ` kind=${agent.topConfigKind}` : ""}${agent.topConfigName ? ` name=${agent.topConfigName}` : ""}${typeof agent.topConfigKeyCount === "number" ? ` keys=${agent.topConfigKeyCount}` : ""}${agent.topConfigKeys?.length ? ` keyNames=${agent.topConfigKeys.join(",")}` : ""}${agent.topConfigSelector ? ` selector=${agent.topConfigSelector}` : ""}`] : []),
+    ...(agent.secondConfigPath ? [`  secondConfig: path=${agent.secondConfigPath}${agent.secondConfigKind ? ` kind=${agent.secondConfigKind}` : ""}${agent.secondConfigName ? ` name=${agent.secondConfigName}` : ""}${typeof agent.secondConfigKeyCount === "number" ? ` keys=${agent.secondConfigKeyCount}` : ""}${agent.secondConfigKeys?.length ? ` keyNames=${agent.secondConfigKeys.join(",")}` : ""}${agent.secondConfigSelector ? ` selector=${agent.secondConfigSelector}` : ""}`] : []),
     ...(agent.topAppHintPath ? [`  topAppHint: path=${agent.topAppHintPath}${agent.topAppHintKind ? ` kind=${agent.topAppHintKind}` : ""}${agent.topAppHintLabel ? ` label="${agent.topAppHintLabel}"` : ""}${agent.topAppHintSelector ? ` selector=${agent.topAppHintSelector}` : ""}${agent.topAppHintUrl ? ` url=<${agent.topAppHintUrl}>` : ""}${agent.topAppHintUrlPath ? ` urlPath=${agent.topAppHintUrlPath}` : ""}${agent.topAppHintUrlQuery ? ` urlQuery=${agent.topAppHintUrlQuery}` : ""}`] : []),
     ...(agent.topAppHintCommand ? [`  topAppHintCommand: ${agent.topAppHintCommand}`] : []),
     ...(agent.topAppHintCommandArgs ? [`  topAppHintCommandArgs: ${formatCommandArgsText(agent.topAppHintCommandArgs)}`] : []),
@@ -14668,6 +14675,7 @@ function summarizeAgent(
     : undefined;
   const secondRuntimeUrlParts = secondRuntime?.url ? urlPathParts(secondRuntime.url) : undefined;
   const topConfig = pageCheck.config[0];
+  const secondConfig = pageCheck.config[1];
   const topAppHint = pageCheck.appHints[0];
   const topAppHintCommand = topAppHint?.url && /^https?:\/\//i.test(topAppHint.url)
     ? pageCommandSpec(topAppHint.url, agentMode, false, findQueries, timeoutMs, userAgent)
@@ -16444,6 +16452,12 @@ function summarizeAgent(
     ...(topConfig ? { topConfigKeyCount: topConfig.keyCount } : {}),
     ...(topConfig?.keys.length ? { topConfigKeys: topConfig.keys } : {}),
     ...(topConfig?.selector ? { topConfigSelector: topConfig.selector } : {}),
+    ...(secondConfig ? { secondConfigPath: secondConfig.path } : {}),
+    ...(secondConfig ? { secondConfigKind: secondConfig.kind } : {}),
+    ...(secondConfig?.name ? { secondConfigName: secondConfig.name } : {}),
+    ...(secondConfig ? { secondConfigKeyCount: secondConfig.keyCount } : {}),
+    ...(secondConfig?.keys.length ? { secondConfigKeys: secondConfig.keys } : {}),
+    ...(secondConfig?.selector ? { secondConfigSelector: secondConfig.selector } : {}),
     ...(topAppHint ? { topAppHintPath: topAppHint.path } : {}),
     ...(topAppHint ? { topAppHintKind: topAppHint.kind } : {}),
     ...(topAppHint?.label ? { topAppHintLabel: topAppHint.label } : {}),
@@ -23361,6 +23375,12 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topConfigKeys ? { topConfigKeys: agent.topConfigKeys } : {}),
     ...(typeof agent.topConfigKeyCount === "number" ? { topConfigKeyCount: agent.topConfigKeyCount } : {}),
     ...(agent.topConfigSelector ? { topConfigSelector: agent.topConfigSelector } : {}),
+    ...(agent.secondConfigPath ? { secondConfigPath: agent.secondConfigPath } : {}),
+    ...(agent.secondConfigKind ? { secondConfigKind: agent.secondConfigKind } : {}),
+    ...(agent.secondConfigName ? { secondConfigName: agent.secondConfigName } : {}),
+    ...(agent.secondConfigKeys ? { secondConfigKeys: agent.secondConfigKeys } : {}),
+    ...(typeof agent.secondConfigKeyCount === "number" ? { secondConfigKeyCount: agent.secondConfigKeyCount } : {}),
+    ...(agent.secondConfigSelector ? { secondConfigSelector: agent.secondConfigSelector } : {}),
     ...(agent.topAppHintPath ? { topAppHintPath: agent.topAppHintPath } : {}),
     ...(agent.topAppHintKind ? { topAppHintKind: agent.topAppHintKind } : {}),
     ...(agent.topAppHintLabel ? { topAppHintLabel: agent.topAppHintLabel } : {}),
@@ -25375,6 +25395,12 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topConfigKeys ? { topConfigKeys: agent.topConfigKeys } : {}),
     ...(typeof agent.topConfigKeyCount === "number" ? { topConfigKeyCount: agent.topConfigKeyCount } : {}),
     ...(agent.topConfigSelector ? { topConfigSelector: agent.topConfigSelector } : {}),
+    ...(agent.secondConfigPath ? { secondConfigPath: agent.secondConfigPath } : {}),
+    ...(agent.secondConfigKind ? { secondConfigKind: agent.secondConfigKind } : {}),
+    ...(agent.secondConfigName ? { secondConfigName: agent.secondConfigName } : {}),
+    ...(agent.secondConfigKeys ? { secondConfigKeys: agent.secondConfigKeys } : {}),
+    ...(typeof agent.secondConfigKeyCount === "number" ? { secondConfigKeyCount: agent.secondConfigKeyCount } : {}),
+    ...(agent.secondConfigSelector ? { secondConfigSelector: agent.secondConfigSelector } : {}),
     ...(agent.topAppHintPath ? { topAppHintPath: agent.topAppHintPath } : {}),
     ...(agent.topAppHintKind ? { topAppHintKind: agent.topAppHintKind } : {}),
     ...(agent.topAppHintLabel ? { topAppHintLabel: agent.topAppHintLabel } : {}),

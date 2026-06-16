@@ -9853,6 +9853,12 @@ describe("cli", () => {
       topConfigKeys: ["apiBase", "locale", "featureFlags", "release"],
       topConfigKeyCount: 4,
       topConfigSelector: "script:nth-of-type(1)",
+      secondConfigPath: "pageCheck.config[1]",
+      secondConfigKind: "feature-flags",
+      secondConfigName: "__INITIAL_STATE__",
+      secondConfigKeys: ["user", "route", "experiments"],
+      secondConfigKeyCount: 3,
+      secondConfigSelector: "script:nth-of-type(1)",
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
@@ -12170,6 +12176,7 @@ describe("cli", () => {
               navigator.serviceWorker.register("/sw.js");
               new Worker("/workers/search.js");
               window.__APP_CONFIG__ = { apiBase: "/api", featureFlags: { betaSearch: true } };
+              window.__INITIAL_STATE__ = { user: null, route: "/app", experiments: ["search-v2"] };
             </script>
           </head>
           <body>
@@ -12197,6 +12204,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  secondRuntime: path=pageCheck.runtime[1] kind=web-worker selector=script:nth-of-type(3) url=<https://example.test/workers/search.js> urlPath=/workers/search.js");
     expect(stdout.output).toContain("  secondRuntimeCommand: ax-grep 'https://example.test/workers/search.js'");
     expect(stdout.output).toContain("  topConfig: path=pageCheck.config[0] kind=env name=__APP_CONFIG__ keys=2 keyNames=apiBase,featureFlags selector=script:nth-of-type(3)");
+    expect(stdout.output).toContain("  secondConfig: path=pageCheck.config[1] kind=feature-flags name=__INITIAL_STATE__ keys=3 keyNames=user,route,experiments selector=script:nth-of-type(3)");
     expect(stdout.output).toContain("  topAppHint: path=pageCheck.appHints[0] kind=manifest label=\"Web app manifest\" selector=link[rel=\"manifest\"]:nth-of-type(1) url=<https://example.test/site.webmanifest> urlPath=/site.webmanifest");
     expect(stdout.output).toContain("  topMobileHint: path=pageCheck.mobileHints[0] kind=viewport label=\"Viewport\" selector=meta[name=\"viewport\"]:nth-of-type(1) - width=device-width, initial-scale=1");
     expect(stdout.output).toContain("  topTopic: path=pageCheck.topics[0] kind=keyword label=\"Keyword\" source=meta selector=meta[name=\"keywords\"]:nth-of-type(2) - agent shell");
@@ -12213,6 +12221,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  runtime: id=rt1 path=pageCheck.runtime[0] kind=service-worker source=script selector=script:nth-of-type(3) urlPath=/sw.js url=<https://example.test/sw.js>");
     expect(stdout.output).toContain("  runtime: id=rt2 path=pageCheck.runtime[1] kind=web-worker source=script selector=script:nth-of-type(3) urlPath=/workers/search.js url=<https://example.test/workers/search.js>");
     expect(stdout.output).toContain("  config: id=cfg1 path=pageCheck.config[0] kind=env source=script name=__APP_CONFIG__ keys=2 keyNames=apiBase,featureFlags selector=script:nth-of-type(3)");
+    expect(stdout.output).toContain("  config: id=cfg2 path=pageCheck.config[1] kind=feature-flags source=script name=__INITIAL_STATE__ keys=3 keyNames=user,route,experiments selector=script:nth-of-type(3)");
     expect(stdout.output).toContain("  appHint: id=ah1 path=pageCheck.appHints[0] kind=manifest source=link label=\"Web app manifest\" selector=link[rel=\"manifest\"]:nth-of-type(1) urlPath=/site.webmanifest url=<https://example.test/site.webmanifest>");
     expect(stdout.output).toContain("  mobileHint: id=mh1 path=pageCheck.mobileHints[0] kind=viewport source=meta label=\"Viewport\" selector=meta[name=\"viewport\"]:nth-of-type(1)");
     expect(stdout.output).toContain("  topic: id=tp1 path=pageCheck.topics[0] kind=keyword source=meta label=\"Keyword\" selector=meta[name=\"keywords\"]:nth-of-type(2)");

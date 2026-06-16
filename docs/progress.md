@@ -1243,6 +1243,10 @@ When research expands:
   without parsing aggregate table/list/role rows.
 - Added a static CLI regression test that fails when a `semanticTop*` shortcut
   exists in the agent contract but lacks a labelled text-output row.
+- Added `secondConfig*` agent shortcuts for the second detected app config,
+  including path, kind, name, key count, key names, and selector. This keeps
+  common app-shell config handoff shallow while the full `pageCheck.config`
+  array remains the detailed source of truth.
 
 ## In Progress
 

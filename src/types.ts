@@ -2815,6 +2815,12 @@ export type AgentSummary = {
   topConfigKeys?: string[];
   topConfigKeyCount?: number;
   topConfigSelector?: string;
+  secondConfigPath?: string;
+  secondConfigKind?: string;
+  secondConfigName?: string;
+  secondConfigKeys?: string[];
+  secondConfigKeyCount?: number;
+  secondConfigSelector?: string;
   topAppHintPath?: string;
   topAppHintKind?: string;
   topAppHintLabel?: string;
