@@ -1149,6 +1149,12 @@ describe("public agent types", () => {
       | "topSchemaFactFirstValue"
       | "topSchemaFactFactCount"
       | "topSchemaFactSelector"
+      | "secondSchemaFactPath"
+      | "secondSchemaFactTypes"
+      | "secondSchemaFactFirstLabel"
+      | "secondSchemaFactFirstValue"
+      | "secondSchemaFactFactCount"
+      | "secondSchemaFactSelector"
       | "hiddenReadTargetCount"
       | "topHiddenSignalGroup"
       | "topHiddenSignalPath"
@@ -3192,6 +3198,12 @@ describe("public agent types", () => {
       topSchemaFactFirstValue: "Agent Browser Pro",
       topSchemaFactFactCount: 2,
       topSchemaFactSelector: "script[type=\"application/ld+json\"]",
+      secondSchemaFactPath: "pageCheck.schemaFacts[1]",
+      secondSchemaFactTypes: ["Article"],
+      secondSchemaFactFirstLabel: "Name",
+      secondSchemaFactFirstValue: "Static extraction wins",
+      secondSchemaFactFactCount: 3,
+      secondSchemaFactSelector: "script[type=\"application/ld+json\"]:nth-of-type(2)",
       hiddenReadTargetCount: 2,
       topHiddenSignalGroup: "apiEndpoints",
       topHiddenSignalPath: "pageCheck.apiEndpoints[0]",

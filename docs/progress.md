@@ -1270,6 +1270,10 @@ When research expands:
   including name, value, source, and selector, so agents can inspect CSP,
   X-Robots-Tag, and referrer policy combinations without parsing the full
   policy array.
+- Added `secondSchemaFact*` agent shortcuts for the second detected JSON-LD
+  schema fact group, including types, first fact, fact count, and selector, so
+  agents can compare alternate structured entities without parsing the full
+  schema-fact array.
 
 ## In Progress
 

@@ -2909,6 +2909,12 @@ export type AgentSummary = {
   topSchemaFactFirstValue?: string;
   topSchemaFactFactCount?: number;
   topSchemaFactSelector?: string;
+  secondSchemaFactPath?: string;
+  secondSchemaFactTypes?: string[];
+  secondSchemaFactFirstLabel?: string;
+  secondSchemaFactFirstValue?: string;
+  secondSchemaFactFactCount?: number;
+  secondSchemaFactSelector?: string;
   topHiddenSignalGroup?: string;
   topHiddenSignalPath?: string;
   topHiddenSignalKind?: string;

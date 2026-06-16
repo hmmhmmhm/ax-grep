@@ -2541,6 +2541,12 @@ type AgentSummary = {
   topSchemaFactFirstValue?: string;
   topSchemaFactFactCount?: number;
   topSchemaFactSelector?: string;
+  secondSchemaFactPath?: string;
+  secondSchemaFactTypes?: string[];
+  secondSchemaFactFirstLabel?: string;
+  secondSchemaFactFirstValue?: string;
+  secondSchemaFactFactCount?: number;
+  secondSchemaFactSelector?: string;
   topHiddenSignalGroup?: string;
   topHiddenSignalPath?: string;
   topHiddenSignalKind?: string;
@@ -5556,6 +5562,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topHttpPolicyPath ? [`  topHttpPolicy: path=${agent.topHttpPolicyPath}${agent.topHttpPolicyName ? ` name="${agent.topHttpPolicyName}"` : ""}${agent.topHttpPolicySource ? ` source=${agent.topHttpPolicySource}` : ""}${agent.topHttpPolicySelector ? ` selector=${agent.topHttpPolicySelector}` : ""}${agent.topHttpPolicyValue ? ` - ${agent.topHttpPolicyValue}` : ""}`] : []),
     ...(agent.secondHttpPolicyPath ? [`  secondHttpPolicy: path=${agent.secondHttpPolicyPath}${agent.secondHttpPolicyName ? ` name="${agent.secondHttpPolicyName}"` : ""}${agent.secondHttpPolicySource ? ` source=${agent.secondHttpPolicySource}` : ""}${agent.secondHttpPolicySelector ? ` selector=${agent.secondHttpPolicySelector}` : ""}${agent.secondHttpPolicyValue ? ` - ${agent.secondHttpPolicyValue}` : ""}`] : []),
     ...(agent.topSchemaFactPath ? [`  topSchemaFact: path=${agent.topSchemaFactPath}${agent.topSchemaFactTypes?.length ? ` types=${agent.topSchemaFactTypes.join(",")}` : ""}${typeof agent.topSchemaFactFactCount === "number" ? ` facts=${agent.topSchemaFactFactCount}` : ""}${agent.topSchemaFactSelector ? ` selector=${agent.topSchemaFactSelector}` : ""}${agent.topSchemaFactFirstLabel ? ` ${agent.topSchemaFactFirstLabel}=${agent.topSchemaFactFirstValue ?? ""}` : ""}`] : []),
+    ...(agent.secondSchemaFactPath ? [`  secondSchemaFact: path=${agent.secondSchemaFactPath}${agent.secondSchemaFactTypes?.length ? ` types=${agent.secondSchemaFactTypes.join(",")}` : ""}${typeof agent.secondSchemaFactFactCount === "number" ? ` facts=${agent.secondSchemaFactFactCount}` : ""}${agent.secondSchemaFactSelector ? ` selector=${agent.secondSchemaFactSelector}` : ""}${agent.secondSchemaFactFirstLabel ? ` ${agent.secondSchemaFactFirstLabel}=${agent.secondSchemaFactFirstValue ?? ""}` : ""}`] : []),
     ...(agent.topHiddenSignalPath ? [`  topHiddenSignal: ${agent.topHiddenSignalGroup ? `group=${agent.topHiddenSignalGroup} ` : ""}path=${agent.topHiddenSignalPath}${agent.topHiddenSignalKind ? ` kind=${agent.topHiddenSignalKind}` : ""}${agent.topHiddenSignalSource ? ` source=${agent.topHiddenSignalSource}` : ""}${agent.topHiddenSignalSelector ? ` selector=${agent.topHiddenSignalSelector}` : ""}${agent.topHiddenSignalUrl ? ` url=<${agent.topHiddenSignalUrl}>` : ""}${agent.topHiddenSignalUrlPath ? ` urlPath=${agent.topHiddenSignalUrlPath}` : ""}${agent.topHiddenSignalUrlQuery ? ` urlQuery=${agent.topHiddenSignalUrlQuery}` : ""}${agent.topHiddenSignalText ? ` - ${agent.topHiddenSignalText}` : ""}`] : []),
     ...(agent.topHiddenSignalGroup ? [`  topHiddenSignalGroup: ${agent.topHiddenSignalGroup}`] : []),
     ...(agent.topHiddenSignalPath ? [`  topHiddenSignalPath: ${agent.topHiddenSignalPath}`] : []),
@@ -14750,6 +14757,8 @@ function summarizeAgent(
   const secondHttpPolicy = pageCheck.httpPolicies[1];
   const topSchemaFact = pageCheck.schemaFacts[0];
   const topSchemaFactFirstFact = topSchemaFact?.facts[0];
+  const secondSchemaFact = pageCheck.schemaFacts[1];
+  const secondSchemaFactFirstFact = secondSchemaFact?.facts[0];
   const topHiddenSignal = selectTopHiddenAgentPageCheckSignal(pageCheck);
   const topHiddenSignalUrlParts = topHiddenSignal?.url ? urlPathParts(topHiddenSignal.url) : undefined;
   const structuredReadTargetCount = countStructuredAgentReadTargets(readTargets);
@@ -16607,6 +16616,12 @@ function summarizeAgent(
     ...(topSchemaFactFirstFact?.value ? { topSchemaFactFirstValue: topSchemaFactFirstFact.value } : {}),
     ...(topSchemaFact ? { topSchemaFactFactCount: topSchemaFact.facts.length } : {}),
     ...(topSchemaFact?.selector ? { topSchemaFactSelector: topSchemaFact.selector } : {}),
+    ...(secondSchemaFact ? { secondSchemaFactPath: secondSchemaFact.path } : {}),
+    ...(secondSchemaFact?.types.length ? { secondSchemaFactTypes: secondSchemaFact.types } : {}),
+    ...(secondSchemaFactFirstFact?.label ? { secondSchemaFactFirstLabel: secondSchemaFactFirstFact.label } : {}),
+    ...(secondSchemaFactFirstFact?.value ? { secondSchemaFactFirstValue: secondSchemaFactFirstFact.value } : {}),
+    ...(secondSchemaFact ? { secondSchemaFactFactCount: secondSchemaFact.facts.length } : {}),
+    ...(secondSchemaFact?.selector ? { secondSchemaFactSelector: secondSchemaFact.selector } : {}),
     ...(topHiddenSignal ? { topHiddenSignalGroup: topHiddenSignal.group } : {}),
     ...(topHiddenSignal ? { topHiddenSignalPath: topHiddenSignal.path } : {}),
     ...(topHiddenSignal?.kind ? { topHiddenSignalKind: topHiddenSignal.kind } : {}),
@@ -23571,6 +23586,12 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topSchemaFactFirstValue ? { topSchemaFactFirstValue: agent.topSchemaFactFirstValue } : {}),
     ...(typeof agent.topSchemaFactFactCount === "number" ? { topSchemaFactFactCount: agent.topSchemaFactFactCount } : {}),
     ...(agent.topSchemaFactSelector ? { topSchemaFactSelector: agent.topSchemaFactSelector } : {}),
+    ...(agent.secondSchemaFactPath ? { secondSchemaFactPath: agent.secondSchemaFactPath } : {}),
+    ...(agent.secondSchemaFactTypes ? { secondSchemaFactTypes: agent.secondSchemaFactTypes } : {}),
+    ...(agent.secondSchemaFactFirstLabel ? { secondSchemaFactFirstLabel: agent.secondSchemaFactFirstLabel } : {}),
+    ...(agent.secondSchemaFactFirstValue ? { secondSchemaFactFirstValue: agent.secondSchemaFactFirstValue } : {}),
+    ...(typeof agent.secondSchemaFactFactCount === "number" ? { secondSchemaFactFactCount: agent.secondSchemaFactFactCount } : {}),
+    ...(agent.secondSchemaFactSelector ? { secondSchemaFactSelector: agent.secondSchemaFactSelector } : {}),
     ...(agent.topHiddenSignalGroup ? { topHiddenSignalGroup: agent.topHiddenSignalGroup } : {}),
     ...(agent.topHiddenSignalPath ? { topHiddenSignalPath: agent.topHiddenSignalPath } : {}),
     ...(agent.topHiddenSignalKind ? { topHiddenSignalKind: agent.topHiddenSignalKind } : {}),
@@ -25632,6 +25653,12 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topSchemaFactFirstValue ? { topSchemaFactFirstValue: agent.topSchemaFactFirstValue } : {}),
     ...(typeof agent.topSchemaFactFactCount === "number" ? { topSchemaFactFactCount: agent.topSchemaFactFactCount } : {}),
     ...(agent.topSchemaFactSelector ? { topSchemaFactSelector: agent.topSchemaFactSelector } : {}),
+    ...(agent.secondSchemaFactPath ? { secondSchemaFactPath: agent.secondSchemaFactPath } : {}),
+    ...(agent.secondSchemaFactTypes ? { secondSchemaFactTypes: agent.secondSchemaFactTypes } : {}),
+    ...(agent.secondSchemaFactFirstLabel ? { secondSchemaFactFirstLabel: agent.secondSchemaFactFirstLabel } : {}),
+    ...(agent.secondSchemaFactFirstValue ? { secondSchemaFactFirstValue: agent.secondSchemaFactFirstValue } : {}),
+    ...(typeof agent.secondSchemaFactFactCount === "number" ? { secondSchemaFactFactCount: agent.secondSchemaFactFactCount } : {}),
+    ...(agent.secondSchemaFactSelector ? { secondSchemaFactSelector: agent.secondSchemaFactSelector } : {}),
     ...(agent.topHiddenSignalGroup ? { topHiddenSignalGroup: agent.topHiddenSignalGroup } : {}),
     ...(agent.topHiddenSignalPath ? { topHiddenSignalPath: agent.topHiddenSignalPath } : {}),
     ...(agent.topHiddenSignalKind ? { topHiddenSignalKind: agent.topHiddenSignalKind } : {}),

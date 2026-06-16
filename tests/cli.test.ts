@@ -11058,6 +11058,15 @@ describe("cli", () => {
                 }
               }
             </script>
+            <script type="application/ld+json">
+              {
+                "@context": "https://schema.org",
+                "@type": "Article",
+                "headline": "Static extraction wins",
+                "description": "Agents can compare structured facts without opening a browser.",
+                "datePublished": "2026-06-15"
+              }
+            </script>
           </head>
           <body><main></main></body>
         </html>
@@ -11087,8 +11096,22 @@ describe("cli", () => {
         ],
         text: "Types: Product; Name: Agent Browser Pro; SKU: ABP-2026; Brand: Example Labs; Offer price: USD 19.99; Offer availability: InStock; Offer URL: https://example.test/product; Rating: 4.8; Review count: 128",
       },
+      {
+        id: "sf2",
+        path: "pageCheck.schemaFacts[1]",
+        rank: 2,
+        types: ["Article"],
+        source: "json-ld",
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(2)",
+        facts: [
+          { label: "Name", value: "Static extraction wins" },
+          { label: "Description", value: "Agents can compare structured facts without opening a browser." },
+          { label: "Published", value: "2026-06-15" },
+        ],
+        text: "Types: Article; Name: Static extraction wins; Description: Agents can compare structured facts without opening a browser.; Published: 2026-06-15",
+      },
     ]);
-    expect(envelope.pageCheck.readability.reasons).toContain("1 schema fact group");
+    expect(envelope.pageCheck.readability.reasons).toContain("2 schema fact groups");
     expect(envelope.agent).toMatchObject({
       topSchemaFactPath: "pageCheck.schemaFacts[0]",
       topSchemaFactTypes: ["Product"],
@@ -11096,6 +11119,12 @@ describe("cli", () => {
       topSchemaFactFirstValue: "Agent Browser Pro",
       topSchemaFactFactCount: 8,
       topSchemaFactSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      secondSchemaFactPath: "pageCheck.schemaFacts[1]",
+      secondSchemaFactTypes: ["Article"],
+      secondSchemaFactFirstLabel: "Name",
+      secondSchemaFactFirstValue: "Static extraction wins",
+      secondSchemaFactFactCount: 3,
+      secondSchemaFactSelector: "script[type=\"application/ld+json\"]:nth-of-type(2)",
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
@@ -11104,7 +11133,7 @@ describe("cli", () => {
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.schemaFacts",
-      count: 1,
+      count: 2,
       primary: true,
       reason: "Compact JSON-LD schema.org facts extracted from hidden structured data.",
     }));
@@ -11114,6 +11143,10 @@ describe("cli", () => {
         expect.objectContaining({
           id: "sf1",
           types: ["Product"],
+        }),
+        expect.objectContaining({
+          id: "sf2",
+          types: ["Article"],
         }),
       ]),
     });
