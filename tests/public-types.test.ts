@@ -684,6 +684,29 @@ describe("public agent types", () => {
       | "topDatasetSpatialCoverage"
       | "topDatasetCreator"
       | "topDatasetSelector"
+      | "secondDatasetPath"
+      | "secondDatasetKind"
+      | "secondDatasetName"
+      | "secondDatasetUrl"
+      | "secondDatasetUrlPath"
+      | "secondDatasetUrlQuery"
+      | "secondDatasetCommand"
+      | "secondDatasetCommandArgs"
+      | "secondDatasetDistributionUrl"
+      | "secondDatasetDistributionUrlPath"
+      | "secondDatasetDistributionUrlQuery"
+      | "secondDatasetDistributionCommand"
+      | "secondDatasetDistributionCommandArgs"
+      | "secondDatasetLicenseUrl"
+      | "secondDatasetLicenseUrlPath"
+      | "secondDatasetLicenseUrlQuery"
+      | "secondDatasetLicenseCommand"
+      | "secondDatasetLicenseCommandArgs"
+      | "secondDatasetEncodingFormat"
+      | "secondDatasetTemporalCoverage"
+      | "secondDatasetSpatialCoverage"
+      | "secondDatasetCreator"
+      | "secondDatasetSelector"
       | "topIdentityPath"
       | "topIdentityKind"
       | "topIdentityName"
@@ -2463,6 +2486,19 @@ describe("public agent types", () => {
       topDatasetSpatialCoverage: "United States",
       topDatasetCreator: "Example Lab",
       topDatasetSelector: "script[type=\"application/ld+json\"]:nth-of-type(2)",
+      secondDatasetPath: "pageCheck.datasets[1]",
+      secondDatasetKind: "dataDownload",
+      secondDatasetName: "Population parquet data",
+      secondDatasetUrl: "https://example.test/downloads/population.parquet",
+      secondDatasetUrlPath: "/downloads/population.parquet",
+      secondDatasetCommand: "ax-grep 'https://example.test/downloads/population.parquet' --agent",
+      secondDatasetCommandArgs: ["ax-grep", "https://example.test/downloads/population.parquet", "--agent"],
+      secondDatasetDistributionUrl: "https://example.test/downloads/population.parquet",
+      secondDatasetDistributionUrlPath: "/downloads/population.parquet",
+      secondDatasetDistributionCommand: "ax-grep 'https://example.test/downloads/population.parquet' --agent",
+      secondDatasetDistributionCommandArgs: ["ax-grep", "https://example.test/downloads/population.parquet", "--agent"],
+      secondDatasetEncodingFormat: "application/vnd.apache.parquet",
+      secondDatasetSelector: "a[href=\"/downloads/population.parquet\"]",
       topIdentityPath: "pageCheck.identities[0]",
       topIdentityKind: "organization",
       topIdentityName: "Example Labs",
@@ -4021,6 +4057,9 @@ describe("public agent types", () => {
     expect(summary.topDatasetDistributionCommandArgs?.[1]).toBe("https://example.test/downloads/example.csv");
     expect(summary.topDatasetLicenseUrlPath).toBe("/licenses/by/4.0/");
     expect(summary.topDatasetLicenseCommandArgs?.[1]).toBe("https://creativecommons.org/licenses/by/4.0/");
+    expect(summary.secondDatasetPath).toBe("pageCheck.datasets[1]");
+    expect(summary.secondDatasetDistributionUrlPath).toBe("/downloads/population.parquet");
+    expect(summary.secondDatasetDistributionCommandArgs?.[1]).toBe("https://example.test/downloads/population.parquet");
     expect(summary.topIdentityUrlPath).toBe("/");
     expect(summary.topIdentityLogoUrlPath).toBe("/logo.png");
     expect(summary.topIdentitySameAsUrlPath).toBe("/example");

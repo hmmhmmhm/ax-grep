@@ -10932,6 +10932,7 @@ describe("cli", () => {
             }
           }
         </script>
+        <main><a href="/downloads/population.parquet">Population parquet data</a></main>
       `, { headers: { "content-type": "text/html" } }),
     });
 
@@ -11316,6 +11317,19 @@ describe("cli", () => {
       topDatasetSpatialCoverage: "United States",
       topDatasetCreator: "Example Lab",
       topDatasetSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      secondDatasetPath: "pageCheck.datasets[1]",
+      secondDatasetKind: "dataDownload",
+      secondDatasetName: "Population parquet data",
+      secondDatasetUrl: "https://example.test/downloads/population.parquet",
+      secondDatasetUrlPath: "/downloads/population.parquet",
+      secondDatasetCommand: "ax-grep 'https://example.test/downloads/population.parquet' --find 'creativecommons.org/licenses/by/4.0' --agent",
+      secondDatasetCommandArgs: ["ax-grep", "https://example.test/downloads/population.parquet", "--find", "creativecommons.org/licenses/by/4.0", "--agent"],
+      secondDatasetDistributionUrl: "https://example.test/downloads/population.parquet",
+      secondDatasetDistributionUrlPath: "/downloads/population.parquet",
+      secondDatasetDistributionCommand: "ax-grep 'https://example.test/downloads/population.parquet' --find 'creativecommons.org/licenses/by/4.0' --agent",
+      secondDatasetDistributionCommandArgs: ["ax-grep", "https://example.test/downloads/population.parquet", "--find", "creativecommons.org/licenses/by/4.0", "--agent"],
+      secondDatasetEncodingFormat: "application/vnd.apache.parquet",
+      secondDatasetSelector: "a:nth-of-type(1)",
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.datasets",
@@ -11359,6 +11373,7 @@ describe("cli", () => {
             ]
           }
         </script>
+        <main><a href="/downloads/population.parquet">Population parquet data</a></main>
       `, { headers: { "content-type": "text/html" } }),
     });
 
@@ -11367,7 +11382,7 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(envelope.agent).toMatchObject({
       contract: { profile: "brief" },
-      datasetCount: 1,
+      datasetCount: 2,
       topDatasetPath: "pageCheck.datasets[0]",
       topDatasetKind: "dataset",
       topDatasetName: "Example emissions dataset",
@@ -11388,6 +11403,19 @@ describe("cli", () => {
       topDatasetSpatialCoverage: "United States",
       topDatasetCreator: "Example Lab",
       topDatasetSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      secondDatasetPath: "pageCheck.datasets[1]",
+      secondDatasetKind: "dataDownload",
+      secondDatasetName: "Population parquet data",
+      secondDatasetUrl: "https://example.test/downloads/population.parquet",
+      secondDatasetUrlPath: "/downloads/population.parquet",
+      secondDatasetCommand: "ax-grep 'https://example.test/downloads/population.parquet' --agent-brief",
+      secondDatasetCommandArgs: ["ax-grep", "https://example.test/downloads/population.parquet", "--agent-brief"],
+      secondDatasetDistributionUrl: "https://example.test/downloads/population.parquet",
+      secondDatasetDistributionUrlPath: "/downloads/population.parquet",
+      secondDatasetDistributionCommand: "ax-grep 'https://example.test/downloads/population.parquet' --agent-brief",
+      secondDatasetDistributionCommandArgs: ["ax-grep", "https://example.test/downloads/population.parquet", "--agent-brief"],
+      secondDatasetEncodingFormat: "application/vnd.apache.parquet",
+      secondDatasetSelector: "a:nth-of-type(1)",
     });
   });
 
@@ -11415,7 +11443,10 @@ describe("cli", () => {
             ]
           }
         </script>
-        <main><h1>Data</h1></main>
+        <main>
+          <h1>Data</h1>
+          <a href="/downloads/population.parquet">Population parquet data</a>
+        </main>
       `, { headers: { "content-type": "text/html" } }),
     });
 
@@ -11424,6 +11455,8 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topDataset: path=pageCheck.datasets[0] kind=dataset name=\"Example emissions dataset\" format=text/csv temporal=2020/2025 spatial=United States creator=\"Example Lab\" selector=script[type=\"application/ld+json\"]:nth-of-type(1) distribution=<https://example.test/downloads/emissions.csv> distributionPath=/downloads/emissions.csv license=<https://creativecommons.org/licenses/by/4.0/> licensePath=/licenses/by/4.0/ url=<https://example.test/datasets/emissions> urlPath=/datasets/emissions");
     expect(stdout.output).toContain("  topDatasetDistributionCommand: ax-grep 'https://example.test/downloads/emissions.csv'");
     expect(stdout.output).toContain("  topDatasetLicenseCommand: ax-grep 'https://creativecommons.org/licenses/by/4.0/'");
+    expect(stdout.output).toContain("  secondDataset: path=pageCheck.datasets[1] kind=dataDownload name=\"Population parquet data\" format=application/vnd.apache.parquet selector=a:nth-of-type(1) distribution=<https://example.test/downloads/population.parquet> distributionPath=/downloads/population.parquet url=<https://example.test/downloads/population.parquet> urlPath=/downloads/population.parquet");
+    expect(stdout.output).toContain("  secondDatasetDistributionCommand: ax-grep 'https://example.test/downloads/population.parquet'");
     expect(stdout.output).toContain("  dataset: id=ds1 path=pageCheck.datasets[0] kind=dataset source=json-ld name=\"Example emissions dataset\" format=text/csv temporal=2020/2025 spatial=United States creator=\"Example Lab\" distribution=https://example.test/downloads/emissions.csv distributionPaths=/downloads/emissions.csv license=https://creativecommons.org/licenses/by/4.0/ licensePath=/licenses/by/4.0/ selector=script[type=\"application/ld+json\"]:nth-of-type(1) urlPath=/datasets/emissions url=<https://example.test/datasets/emissions>");
   });
 

@@ -2129,6 +2129,29 @@ type AgentSummary = {
   topDatasetSpatialCoverage?: string;
   topDatasetCreator?: string;
   topDatasetSelector?: string;
+  secondDatasetPath?: string;
+  secondDatasetKind?: PageDatasetSummary["kind"];
+  secondDatasetName?: string;
+  secondDatasetUrl?: string;
+  secondDatasetUrlPath?: string;
+  secondDatasetUrlQuery?: string;
+  secondDatasetCommand?: string;
+  secondDatasetCommandArgs?: string[];
+  secondDatasetDistributionUrl?: string;
+  secondDatasetDistributionUrlPath?: string;
+  secondDatasetDistributionUrlQuery?: string;
+  secondDatasetDistributionCommand?: string;
+  secondDatasetDistributionCommandArgs?: string[];
+  secondDatasetLicenseUrl?: string;
+  secondDatasetLicenseUrlPath?: string;
+  secondDatasetLicenseUrlQuery?: string;
+  secondDatasetLicenseCommand?: string;
+  secondDatasetLicenseCommandArgs?: string[];
+  secondDatasetEncodingFormat?: string;
+  secondDatasetTemporalCoverage?: string;
+  secondDatasetSpatialCoverage?: string;
+  secondDatasetCreator?: string;
+  secondDatasetSelector?: string;
   topIdentityPath?: string;
   topIdentityKind?: PageIdentitySummary["kind"];
   topIdentityName?: string;
@@ -5035,6 +5058,16 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topDatasetTemporalCoverage ? [`  topDatasetTemporalCoverage: ${agent.topDatasetTemporalCoverage}`] : []),
     ...(agent.topDatasetSpatialCoverage ? [`  topDatasetSpatialCoverage: ${agent.topDatasetSpatialCoverage}`] : []),
     ...(agent.topDatasetCreator ? [`  topDatasetCreator: ${agent.topDatasetCreator}`] : []),
+    ...(agent.secondDatasetName ? [`  secondDataset: path=${agent.secondDatasetPath ?? ""}${agent.secondDatasetKind ? ` kind=${agent.secondDatasetKind}` : ""} name="${agent.secondDatasetName}"${agent.secondDatasetEncodingFormat ? ` format=${agent.secondDatasetEncodingFormat}` : ""}${agent.secondDatasetTemporalCoverage ? ` temporal=${agent.secondDatasetTemporalCoverage}` : ""}${agent.secondDatasetSpatialCoverage ? ` spatial=${agent.secondDatasetSpatialCoverage}` : ""}${agent.secondDatasetCreator ? ` creator="${agent.secondDatasetCreator}"` : ""}${agent.secondDatasetSelector ? ` selector=${agent.secondDatasetSelector}` : ""}${agent.secondDatasetDistributionUrl ? ` distribution=<${agent.secondDatasetDistributionUrl}>` : ""}${agent.secondDatasetDistributionUrlPath ? ` distributionPath=${agent.secondDatasetDistributionUrlPath}` : ""}${agent.secondDatasetDistributionUrlQuery ? ` distributionQuery=${agent.secondDatasetDistributionUrlQuery}` : ""}${agent.secondDatasetLicenseUrl ? ` license=<${agent.secondDatasetLicenseUrl}>` : ""}${agent.secondDatasetLicenseUrlPath ? ` licensePath=${agent.secondDatasetLicenseUrlPath}` : ""}${agent.secondDatasetLicenseUrlQuery ? ` licenseQuery=${agent.secondDatasetLicenseUrlQuery}` : ""}${agent.secondDatasetUrl ? ` url=<${agent.secondDatasetUrl}>` : ""}${agent.secondDatasetUrlPath ? ` urlPath=${agent.secondDatasetUrlPath}` : ""}${agent.secondDatasetUrlQuery ? ` urlQuery=${agent.secondDatasetUrlQuery}` : ""}`] : []),
+    ...(agent.secondDatasetCommand ? [`  secondDatasetCommand: ${agent.secondDatasetCommand}`] : []),
+    ...(agent.secondDatasetCommandArgs ? [`  secondDatasetCommandArgs: ${formatCommandArgsText(agent.secondDatasetCommandArgs)}`] : []),
+    ...(agent.secondDatasetDistributionCommand ? [`  secondDatasetDistributionCommand: ${agent.secondDatasetDistributionCommand}`] : []),
+    ...(agent.secondDatasetDistributionCommandArgs ? [`  secondDatasetDistributionCommandArgs: ${formatCommandArgsText(agent.secondDatasetDistributionCommandArgs)}`] : []),
+    ...(agent.secondDatasetLicenseCommand ? [`  secondDatasetLicenseCommand: ${agent.secondDatasetLicenseCommand}`] : []),
+    ...(agent.secondDatasetLicenseCommandArgs ? [`  secondDatasetLicenseCommandArgs: ${formatCommandArgsText(agent.secondDatasetLicenseCommandArgs)}`] : []),
+    ...(agent.secondDatasetTemporalCoverage ? [`  secondDatasetTemporalCoverage: ${agent.secondDatasetTemporalCoverage}`] : []),
+    ...(agent.secondDatasetSpatialCoverage ? [`  secondDatasetSpatialCoverage: ${agent.secondDatasetSpatialCoverage}`] : []),
+    ...(agent.secondDatasetCreator ? [`  secondDatasetCreator: ${agent.secondDatasetCreator}`] : []),
     ...(agent.topIdentityName ? [`  topIdentity: path=${agent.topIdentityPath ?? ""}${agent.topIdentityKind ? ` kind=${agent.topIdentityKind}` : ""} name="${agent.topIdentityName}"${agent.topIdentitySource ? ` source=${agent.topIdentitySource}` : ""}${agent.topIdentitySelector ? ` selector=${agent.topIdentitySelector}` : ""}${agent.topIdentityLogoUrl ? ` logo=<${agent.topIdentityLogoUrl}>` : ""}${agent.topIdentityLogoUrlPath ? ` logoPath=${agent.topIdentityLogoUrlPath}` : ""}${agent.topIdentityLogoUrlQuery ? ` logoQuery=${agent.topIdentityLogoUrlQuery}` : ""}${agent.topIdentitySameAsUrl ? ` sameAs=<${agent.topIdentitySameAsUrl}>` : ""}${agent.topIdentitySameAsUrlPath ? ` sameAsPath=${agent.topIdentitySameAsUrlPath}` : ""}${agent.topIdentitySameAsUrlQuery ? ` sameAsQuery=${agent.topIdentitySameAsUrlQuery}` : ""}${agent.topIdentityUrl ? ` url=<${agent.topIdentityUrl}>` : ""}${agent.topIdentityUrlPath ? ` urlPath=${agent.topIdentityUrlPath}` : ""}${agent.topIdentityUrlQuery ? ` urlQuery=${agent.topIdentityUrlQuery}` : ""}`] : []),
     ...(agent.topIdentityCommand ? [`  topIdentityCommand: ${agent.topIdentityCommand}`] : []),
     ...(agent.topIdentityCommandArgs ? [`  topIdentityCommandArgs: ${formatCommandArgsText(agent.topIdentityCommandArgs)}`] : []),
@@ -14354,15 +14387,27 @@ function summarizeAgent(
   const topDatasetCommand = pageCheck.datasets[0]?.url && /^https?:\/\//i.test(pageCheck.datasets[0].url)
     ? pageCommandSpec(pageCheck.datasets[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const secondDatasetCommand = pageCheck.datasets[1]?.url && /^https?:\/\//i.test(pageCheck.datasets[1].url)
+    ? pageCommandSpec(pageCheck.datasets[1].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topDatasetUrlParts = pageCheck.datasets[0]?.url ? urlPathParts(pageCheck.datasets[0].url) : undefined;
+  const secondDatasetUrlParts = pageCheck.datasets[1]?.url ? urlPathParts(pageCheck.datasets[1].url) : undefined;
   const topDatasetDistributionCommand = pageCheck.datasets[0]?.distributionUrls?.[0] && /^https?:\/\//i.test(pageCheck.datasets[0].distributionUrls[0])
     ? pageCommandSpec(pageCheck.datasets[0].distributionUrls[0], agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const secondDatasetDistributionCommand = pageCheck.datasets[1]?.distributionUrls?.[0] && /^https?:\/\//i.test(pageCheck.datasets[1].distributionUrls[0])
+    ? pageCommandSpec(pageCheck.datasets[1].distributionUrls[0], agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topDatasetDistributionUrlParts = pageCheck.datasets[0]?.distributionUrls?.[0] ? urlPathParts(pageCheck.datasets[0].distributionUrls[0]) : undefined;
+  const secondDatasetDistributionUrlParts = pageCheck.datasets[1]?.distributionUrls?.[0] ? urlPathParts(pageCheck.datasets[1].distributionUrls[0]) : undefined;
   const topDatasetLicenseCommand = pageCheck.datasets[0]?.licenseUrl && /^https?:\/\//i.test(pageCheck.datasets[0].licenseUrl)
     ? pageCommandSpec(pageCheck.datasets[0].licenseUrl, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const secondDatasetLicenseCommand = pageCheck.datasets[1]?.licenseUrl && /^https?:\/\//i.test(pageCheck.datasets[1].licenseUrl)
+    ? pageCommandSpec(pageCheck.datasets[1].licenseUrl, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topDatasetLicenseUrlParts = pageCheck.datasets[0]?.licenseUrl ? urlPathParts(pageCheck.datasets[0].licenseUrl) : undefined;
+  const secondDatasetLicenseUrlParts = pageCheck.datasets[1]?.licenseUrl ? urlPathParts(pageCheck.datasets[1].licenseUrl) : undefined;
   const topOfferCommand = pageCheck.offers[0]?.url && /^https?:\/\//i.test(pageCheck.offers[0].url)
     ? pageCommandSpec(pageCheck.offers[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -15627,6 +15672,29 @@ function summarizeAgent(
     ...(pageCheck.datasets[0]?.spatialCoverage ? { topDatasetSpatialCoverage: pageCheck.datasets[0].spatialCoverage } : {}),
     ...(pageCheck.datasets[0]?.creator ? { topDatasetCreator: pageCheck.datasets[0].creator } : {}),
     ...(pageCheck.datasets[0]?.selector ? { topDatasetSelector: pageCheck.datasets[0].selector } : {}),
+    ...(pageCheck.datasets[1] ? { secondDatasetPath: pageCheck.datasets[1].path } : {}),
+    ...(pageCheck.datasets[1] ? { secondDatasetKind: pageCheck.datasets[1].kind } : {}),
+    ...(pageCheck.datasets[1]?.name ? { secondDatasetName: pageCheck.datasets[1].name } : {}),
+    ...(pageCheck.datasets[1]?.url ? { secondDatasetUrl: pageCheck.datasets[1].url } : {}),
+    ...(secondDatasetUrlParts?.urlPath ? { secondDatasetUrlPath: secondDatasetUrlParts.urlPath } : {}),
+    ...(secondDatasetUrlParts?.urlQuery ? { secondDatasetUrlQuery: secondDatasetUrlParts.urlQuery } : {}),
+    ...(secondDatasetCommand ? { secondDatasetCommand: secondDatasetCommand.command } : {}),
+    ...(secondDatasetCommand ? { secondDatasetCommandArgs: secondDatasetCommand.commandArgs } : {}),
+    ...(pageCheck.datasets[1]?.distributionUrls?.[0] ? { secondDatasetDistributionUrl: pageCheck.datasets[1].distributionUrls[0] } : {}),
+    ...(secondDatasetDistributionUrlParts?.urlPath ? { secondDatasetDistributionUrlPath: secondDatasetDistributionUrlParts.urlPath } : {}),
+    ...(secondDatasetDistributionUrlParts?.urlQuery ? { secondDatasetDistributionUrlQuery: secondDatasetDistributionUrlParts.urlQuery } : {}),
+    ...(secondDatasetDistributionCommand ? { secondDatasetDistributionCommand: secondDatasetDistributionCommand.command } : {}),
+    ...(secondDatasetDistributionCommand ? { secondDatasetDistributionCommandArgs: secondDatasetDistributionCommand.commandArgs } : {}),
+    ...(pageCheck.datasets[1]?.licenseUrl ? { secondDatasetLicenseUrl: pageCheck.datasets[1].licenseUrl } : {}),
+    ...(secondDatasetLicenseUrlParts?.urlPath ? { secondDatasetLicenseUrlPath: secondDatasetLicenseUrlParts.urlPath } : {}),
+    ...(secondDatasetLicenseUrlParts?.urlQuery ? { secondDatasetLicenseUrlQuery: secondDatasetLicenseUrlParts.urlQuery } : {}),
+    ...(secondDatasetLicenseCommand ? { secondDatasetLicenseCommand: secondDatasetLicenseCommand.command } : {}),
+    ...(secondDatasetLicenseCommand ? { secondDatasetLicenseCommandArgs: secondDatasetLicenseCommand.commandArgs } : {}),
+    ...(pageCheck.datasets[1]?.encodingFormat ? { secondDatasetEncodingFormat: pageCheck.datasets[1].encodingFormat } : {}),
+    ...(pageCheck.datasets[1]?.temporalCoverage ? { secondDatasetTemporalCoverage: pageCheck.datasets[1].temporalCoverage } : {}),
+    ...(pageCheck.datasets[1]?.spatialCoverage ? { secondDatasetSpatialCoverage: pageCheck.datasets[1].spatialCoverage } : {}),
+    ...(pageCheck.datasets[1]?.creator ? { secondDatasetCreator: pageCheck.datasets[1].creator } : {}),
+    ...(pageCheck.datasets[1]?.selector ? { secondDatasetSelector: pageCheck.datasets[1].selector } : {}),
     ...(pageCheck.identities[0] ? { topIdentityPath: pageCheck.identities[0].path } : {}),
     ...(pageCheck.identities[0] ? { topIdentityKind: pageCheck.identities[0].kind } : {}),
     ...(pageCheck.identities[0]?.name ? { topIdentityName: pageCheck.identities[0].name } : {}),
@@ -22296,6 +22364,29 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topDatasetSpatialCoverage ? { topDatasetSpatialCoverage: agent.topDatasetSpatialCoverage } : {}),
     ...(agent.topDatasetCreator ? { topDatasetCreator: agent.topDatasetCreator } : {}),
     ...(agent.topDatasetSelector ? { topDatasetSelector: agent.topDatasetSelector } : {}),
+    ...(agent.secondDatasetPath ? { secondDatasetPath: agent.secondDatasetPath } : {}),
+    ...(agent.secondDatasetKind ? { secondDatasetKind: agent.secondDatasetKind } : {}),
+    ...(agent.secondDatasetName ? { secondDatasetName: agent.secondDatasetName } : {}),
+    ...(agent.secondDatasetUrl ? { secondDatasetUrl: agent.secondDatasetUrl } : {}),
+    ...(agent.secondDatasetUrlPath ? { secondDatasetUrlPath: agent.secondDatasetUrlPath } : {}),
+    ...(agent.secondDatasetUrlQuery ? { secondDatasetUrlQuery: agent.secondDatasetUrlQuery } : {}),
+    ...(agent.secondDatasetCommand ? { secondDatasetCommand: agent.secondDatasetCommand } : {}),
+    ...(agent.secondDatasetCommandArgs ? { secondDatasetCommandArgs: agent.secondDatasetCommandArgs } : {}),
+    ...(agent.secondDatasetDistributionUrl ? { secondDatasetDistributionUrl: agent.secondDatasetDistributionUrl } : {}),
+    ...(agent.secondDatasetDistributionUrlPath ? { secondDatasetDistributionUrlPath: agent.secondDatasetDistributionUrlPath } : {}),
+    ...(agent.secondDatasetDistributionUrlQuery ? { secondDatasetDistributionUrlQuery: agent.secondDatasetDistributionUrlQuery } : {}),
+    ...(agent.secondDatasetDistributionCommand ? { secondDatasetDistributionCommand: agent.secondDatasetDistributionCommand } : {}),
+    ...(agent.secondDatasetDistributionCommandArgs ? { secondDatasetDistributionCommandArgs: agent.secondDatasetDistributionCommandArgs } : {}),
+    ...(agent.secondDatasetLicenseUrl ? { secondDatasetLicenseUrl: agent.secondDatasetLicenseUrl } : {}),
+    ...(agent.secondDatasetLicenseUrlPath ? { secondDatasetLicenseUrlPath: agent.secondDatasetLicenseUrlPath } : {}),
+    ...(agent.secondDatasetLicenseUrlQuery ? { secondDatasetLicenseUrlQuery: agent.secondDatasetLicenseUrlQuery } : {}),
+    ...(agent.secondDatasetLicenseCommand ? { secondDatasetLicenseCommand: agent.secondDatasetLicenseCommand } : {}),
+    ...(agent.secondDatasetLicenseCommandArgs ? { secondDatasetLicenseCommandArgs: agent.secondDatasetLicenseCommandArgs } : {}),
+    ...(agent.secondDatasetEncodingFormat ? { secondDatasetEncodingFormat: agent.secondDatasetEncodingFormat } : {}),
+    ...(agent.secondDatasetTemporalCoverage ? { secondDatasetTemporalCoverage: agent.secondDatasetTemporalCoverage } : {}),
+    ...(agent.secondDatasetSpatialCoverage ? { secondDatasetSpatialCoverage: agent.secondDatasetSpatialCoverage } : {}),
+    ...(agent.secondDatasetCreator ? { secondDatasetCreator: agent.secondDatasetCreator } : {}),
+    ...(agent.secondDatasetSelector ? { secondDatasetSelector: agent.secondDatasetSelector } : {}),
     ...(agent.topIdentityPath ? { topIdentityPath: agent.topIdentityPath } : {}),
     ...(agent.topIdentityKind ? { topIdentityKind: agent.topIdentityKind } : {}),
     ...(agent.topIdentityName ? { topIdentityName: agent.topIdentityName } : {}),
@@ -24066,6 +24157,29 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topDatasetSpatialCoverage ? { topDatasetSpatialCoverage: agent.topDatasetSpatialCoverage } : {}),
     ...(agent.topDatasetCreator ? { topDatasetCreator: agent.topDatasetCreator } : {}),
     ...(agent.topDatasetSelector ? { topDatasetSelector: agent.topDatasetSelector } : {}),
+    ...(agent.secondDatasetPath ? { secondDatasetPath: agent.secondDatasetPath } : {}),
+    ...(agent.secondDatasetKind ? { secondDatasetKind: agent.secondDatasetKind } : {}),
+    ...(agent.secondDatasetName ? { secondDatasetName: agent.secondDatasetName } : {}),
+    ...(agent.secondDatasetUrl ? { secondDatasetUrl: agent.secondDatasetUrl } : {}),
+    ...(agent.secondDatasetUrlPath ? { secondDatasetUrlPath: agent.secondDatasetUrlPath } : {}),
+    ...(agent.secondDatasetUrlQuery ? { secondDatasetUrlQuery: agent.secondDatasetUrlQuery } : {}),
+    ...(agent.secondDatasetCommand ? { secondDatasetCommand: agent.secondDatasetCommand } : {}),
+    ...(agent.secondDatasetCommandArgs ? { secondDatasetCommandArgs: agent.secondDatasetCommandArgs } : {}),
+    ...(agent.secondDatasetDistributionUrl ? { secondDatasetDistributionUrl: agent.secondDatasetDistributionUrl } : {}),
+    ...(agent.secondDatasetDistributionUrlPath ? { secondDatasetDistributionUrlPath: agent.secondDatasetDistributionUrlPath } : {}),
+    ...(agent.secondDatasetDistributionUrlQuery ? { secondDatasetDistributionUrlQuery: agent.secondDatasetDistributionUrlQuery } : {}),
+    ...(agent.secondDatasetDistributionCommand ? { secondDatasetDistributionCommand: agent.secondDatasetDistributionCommand } : {}),
+    ...(agent.secondDatasetDistributionCommandArgs ? { secondDatasetDistributionCommandArgs: agent.secondDatasetDistributionCommandArgs } : {}),
+    ...(agent.secondDatasetLicenseUrl ? { secondDatasetLicenseUrl: agent.secondDatasetLicenseUrl } : {}),
+    ...(agent.secondDatasetLicenseUrlPath ? { secondDatasetLicenseUrlPath: agent.secondDatasetLicenseUrlPath } : {}),
+    ...(agent.secondDatasetLicenseUrlQuery ? { secondDatasetLicenseUrlQuery: agent.secondDatasetLicenseUrlQuery } : {}),
+    ...(agent.secondDatasetLicenseCommand ? { secondDatasetLicenseCommand: agent.secondDatasetLicenseCommand } : {}),
+    ...(agent.secondDatasetLicenseCommandArgs ? { secondDatasetLicenseCommandArgs: agent.secondDatasetLicenseCommandArgs } : {}),
+    ...(agent.secondDatasetEncodingFormat ? { secondDatasetEncodingFormat: agent.secondDatasetEncodingFormat } : {}),
+    ...(agent.secondDatasetTemporalCoverage ? { secondDatasetTemporalCoverage: agent.secondDatasetTemporalCoverage } : {}),
+    ...(agent.secondDatasetSpatialCoverage ? { secondDatasetSpatialCoverage: agent.secondDatasetSpatialCoverage } : {}),
+    ...(agent.secondDatasetCreator ? { secondDatasetCreator: agent.secondDatasetCreator } : {}),
+    ...(agent.secondDatasetSelector ? { secondDatasetSelector: agent.secondDatasetSelector } : {}),
     ...(agent.topIdentityPath ? { topIdentityPath: agent.topIdentityPath } : {}),
     ...(agent.topIdentityKind ? { topIdentityKind: agent.topIdentityKind } : {}),
     ...(agent.topIdentityName ? { topIdentityName: agent.topIdentityName } : {}),
