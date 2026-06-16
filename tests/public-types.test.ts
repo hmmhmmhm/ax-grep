@@ -1848,6 +1848,12 @@ describe("public agent types", () => {
       | "topReadTargetScore"
       | "topReadTargetPrimary"
       | "topReadTargetReason"
+      | "secondReadTarget"
+      | "secondReadTargetKind"
+      | "secondReadTargetCount"
+      | "secondReadTargetScore"
+      | "secondReadTargetPrimary"
+      | "secondReadTargetReason"
       | "topActionName"
       | "topActionSource"
       | "topActionExecution"
@@ -3777,6 +3783,12 @@ describe("public agent types", () => {
       topReadTargetScore: 0.9,
       topReadTargetPrimary: true,
       topReadTargetReason: "Top evidence.",
+      secondReadTarget: "agent.semanticSummary",
+      secondReadTargetKind: "semantic",
+      secondReadTargetCount: 3,
+      secondReadTargetScore: 0.7,
+      secondReadTargetPrimary: false,
+      secondReadTargetReason: "Semantic fallback.",
       topActionName: "read-content",
       topActionSource: "agent.primaryAction",
       topActionExecution: "read-current",
@@ -4346,6 +4358,10 @@ describe("public agent types", () => {
     expect(summary.readTargetCount).toBe(3);
     expect(summary.topReadTarget).toBe("pageCheck.contentEvidence");
     expect(summary.topReadTargetKind).toBe("evidence");
+    expect(summary.secondReadTarget).toBe("agent.semanticSummary");
+    expect(summary.secondReadTargetKind).toBe("semantic");
+    expect(summary.secondReadTargetCount).toBe(3);
+    expect(summary.secondReadTargetPrimary).toBe(false);
     expect(summary.bestReadTargetCount).toBe(1);
     expect(summary.bestReadTargetKind).toBe("evidence");
     expect(summary.bestReadTargetPrimary).toBe(true);

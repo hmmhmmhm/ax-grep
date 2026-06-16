@@ -14153,6 +14153,14 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  citationCount: 2");
     expect(stdout.output).toContain("  answerEvidenceCount: 1");
     expect(stdout.output).toContain("  readTargetCount: 5");
+    expect(stdout.output).toContain("  topReadTarget: pageCheck.contentEvidence");
+    expect(stdout.output).toContain("  topReadTargetKind: evidence");
+    expect(stdout.output).toContain("  topReadTargetCount: 1");
+    expect(stdout.output).toContain("  topReadTargetPrimary: true");
+    expect(stdout.output).toContain("  secondReadTarget: agent.semanticSummary");
+    expect(stdout.output).toContain("  secondReadTargetKind: semantic");
+    expect(stdout.output).toContain("  secondReadTargetCount:");
+    expect(stdout.output).toContain("  secondReadTargetPrimary: false");
     expect(stdout.output).toContain("  actionCount: 3");
     expect(stdout.output).toContain("  verification: 0/0 found, 0 missing");
     expect(stdout.output).toContain("  readability: medium");

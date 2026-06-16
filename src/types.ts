@@ -3044,6 +3044,12 @@ export type AgentSummary = {
   topReadTargetScore?: number;
   topReadTargetPrimary?: boolean;
   topReadTargetReason?: string;
+  secondReadTarget?: string;
+  secondReadTargetKind?: AgentReadTarget["kind"];
+  secondReadTargetCount?: number;
+  secondReadTargetScore?: number;
+  secondReadTargetPrimary?: boolean;
+  secondReadTargetReason?: string;
   actionCount?: number;
   actions?: AgentAction[];
   topActionName?: string;

@@ -2676,6 +2676,12 @@ type AgentSummary = {
   topReadTargetScore?: number;
   topReadTargetPrimary?: boolean;
   topReadTargetReason?: string;
+  secondReadTarget?: string;
+  secondReadTargetKind?: AgentReadTarget["kind"];
+  secondReadTargetCount?: number;
+  secondReadTargetScore?: number;
+  secondReadTargetPrimary?: boolean;
+  secondReadTargetReason?: string;
   actionCount: number;
   actions: AgentActionSummary[];
   topActionName?: string;
@@ -5551,6 +5557,12 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topReadTargetScore === "number" ? [`  topReadTargetScore: ${agent.topReadTargetScore}`] : []),
     ...(typeof agent.topReadTargetPrimary === "boolean" ? [`  topReadTargetPrimary: ${agent.topReadTargetPrimary}`] : []),
     ...(agent.topReadTargetReason ? [`  topReadTargetReason: ${agent.topReadTargetReason}`] : []),
+    ...(agent.secondReadTarget ? [`  secondReadTarget: ${agent.secondReadTarget}`] : []),
+    ...(agent.secondReadTargetKind ? [`  secondReadTargetKind: ${agent.secondReadTargetKind}`] : []),
+    ...(typeof agent.secondReadTargetCount === "number" ? [`  secondReadTargetCount: ${agent.secondReadTargetCount}`] : []),
+    ...(typeof agent.secondReadTargetScore === "number" ? [`  secondReadTargetScore: ${agent.secondReadTargetScore}`] : []),
+    ...(typeof agent.secondReadTargetPrimary === "boolean" ? [`  secondReadTargetPrimary: ${agent.secondReadTargetPrimary}`] : []),
+    ...(agent.secondReadTargetReason ? [`  secondReadTargetReason: ${agent.secondReadTargetReason}`] : []),
     `  actionCount: ${agent.actionCount}`,
     ...(agent.topActionName ? [`  topActionName: ${agent.topActionName}`] : []),
     ...(agent.topActionSource ? [`  topActionSource: ${agent.topActionSource}`] : []),
@@ -16292,6 +16304,12 @@ function summarizeAgent(
     ...(typeof readTargets[0]?.score === "number" ? { topReadTargetScore: readTargets[0].score } : {}),
     ...(typeof readTargets[0]?.primary === "boolean" ? { topReadTargetPrimary: readTargets[0].primary } : {}),
     ...(readTargets[0]?.reason ? { topReadTargetReason: readTargets[0].reason } : {}),
+    ...(readTargets[1] ? { secondReadTarget: readTargets[1].path } : {}),
+    ...(readTargets[1]?.kind ? { secondReadTargetKind: readTargets[1].kind } : {}),
+    ...(typeof readTargets[1]?.count === "number" ? { secondReadTargetCount: readTargets[1].count } : {}),
+    ...(typeof readTargets[1]?.score === "number" ? { secondReadTargetScore: readTargets[1].score } : {}),
+    ...(readTargets[1] ? { secondReadTargetPrimary: readTargets[1].primary === true } : {}),
+    ...(readTargets[1]?.reason ? { secondReadTargetReason: readTargets[1].reason } : {}),
     actionCount: actions.length,
     actions,
     ...(actions[0]?.action ? { topActionName: actions[0].action } : {}),
@@ -19849,6 +19867,12 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(typeof readTargets[0]?.score === "number" ? { topReadTargetScore: readTargets[0].score } : {}),
     ...(typeof readTargets[0]?.primary === "boolean" ? { topReadTargetPrimary: readTargets[0].primary } : {}),
     ...(readTargets[0]?.reason ? { topReadTargetReason: readTargets[0].reason } : {}),
+    ...(readTargets[1] ? { secondReadTarget: readTargets[1].path } : {}),
+    ...(readTargets[1]?.kind ? { secondReadTargetKind: readTargets[1].kind } : {}),
+    ...(typeof readTargets[1]?.count === "number" ? { secondReadTargetCount: readTargets[1].count } : {}),
+    ...(typeof readTargets[1]?.score === "number" ? { secondReadTargetScore: readTargets[1].score } : {}),
+    ...(readTargets[1] ? { secondReadTargetPrimary: readTargets[1].primary === true } : {}),
+    ...(readTargets[1]?.reason ? { secondReadTargetReason: readTargets[1].reason } : {}),
     actionCount: primaryAction ? 1 : 0,
     actions: primaryAction ? [{
       ...withActionExecution(primaryAction),
@@ -22993,6 +23017,12 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.topReadTargetScore === "number" ? { topReadTargetScore: agent.topReadTargetScore } : {}),
     ...(typeof agent.topReadTargetPrimary === "boolean" ? { topReadTargetPrimary: agent.topReadTargetPrimary } : {}),
     ...(agent.topReadTargetReason ? { topReadTargetReason: agent.topReadTargetReason } : {}),
+    ...(agent.secondReadTarget ? { secondReadTarget: agent.secondReadTarget } : {}),
+    ...(agent.secondReadTargetKind ? { secondReadTargetKind: agent.secondReadTargetKind } : {}),
+    ...(typeof agent.secondReadTargetCount === "number" ? { secondReadTargetCount: agent.secondReadTargetCount } : {}),
+    ...(typeof agent.secondReadTargetScore === "number" ? { secondReadTargetScore: agent.secondReadTargetScore } : {}),
+    ...(typeof agent.secondReadTargetPrimary === "boolean" ? { secondReadTargetPrimary: agent.secondReadTargetPrimary } : {}),
+    ...(agent.secondReadTargetReason ? { secondReadTargetReason: agent.secondReadTargetReason } : {}),
     actionCount: agent.actionCount,
     ...(agent.topActionName ? { topActionName: agent.topActionName } : {}),
     ...(agent.topActionSource ? { topActionSource: agent.topActionSource } : {}),
@@ -24832,6 +24862,12 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.topReadTargetScore === "number" ? { topReadTargetScore: agent.topReadTargetScore } : {}),
     ...(typeof agent.topReadTargetPrimary === "boolean" ? { topReadTargetPrimary: agent.topReadTargetPrimary } : {}),
     ...(agent.topReadTargetReason ? { topReadTargetReason: agent.topReadTargetReason } : {}),
+    ...(agent.secondReadTarget ? { secondReadTarget: agent.secondReadTarget } : {}),
+    ...(agent.secondReadTargetKind ? { secondReadTargetKind: agent.secondReadTargetKind } : {}),
+    ...(typeof agent.secondReadTargetCount === "number" ? { secondReadTargetCount: agent.secondReadTargetCount } : {}),
+    ...(typeof agent.secondReadTargetScore === "number" ? { secondReadTargetScore: agent.secondReadTargetScore } : {}),
+    ...(typeof agent.secondReadTargetPrimary === "boolean" ? { secondReadTargetPrimary: agent.secondReadTargetPrimary } : {}),
+    ...(agent.secondReadTargetReason ? { secondReadTargetReason: agent.secondReadTargetReason } : {}),
     actionCount: agent.actionCount,
     alternativeActionCount: agent.alternativeActionCount,
     ...(agent.topActionName ? { topActionName: agent.topActionName } : {}),
