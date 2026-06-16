@@ -2396,6 +2396,33 @@ type AgentSummary = {
   topSourceChoicePrimary?: boolean;
   topSourceChoiceSelector?: string;
   topSourceChoiceReason?: string;
+  secondSourceChoicePath?: string;
+  secondSourceChoiceTitle?: string;
+  secondSourceChoiceUrl?: string;
+  secondSourceChoiceHost?: string;
+  secondSourceChoiceUrlPath?: string;
+  secondSourceChoiceUrlQuery?: string;
+  secondSourceChoiceKind?: AgentSourceChoice["kind"];
+  secondSourceChoiceRank?: number;
+  secondSourceChoiceText?: string;
+  secondSourceChoiceSnippet?: string;
+  secondSourceChoiceDateText?: string;
+  secondSourceChoiceDateIso?: string;
+  secondSourceChoiceDateUnixMs?: number;
+  secondSourceChoiceDatePrecision?: AgentSourceChoice["datePrecision"];
+  secondSourceChoiceDateSource?: AgentSourceChoice["dateSource"];
+  secondSourceChoiceCommand?: string;
+  secondSourceChoiceCommandArgs?: string[];
+  secondSourceChoiceSourceType?: string;
+  secondSourceChoiceSourceScore?: number;
+  secondSourceChoiceSourceHints?: string[];
+  secondSourceChoiceRelevance?: AgentSourceChoice["relevance"];
+  secondSourceChoiceMatchedTerm?: string;
+  secondSourceChoiceFindMatch?: string;
+  secondSourceChoiceLikelyOfficial?: boolean;
+  secondSourceChoicePrimary?: boolean;
+  secondSourceChoiceSelector?: string;
+  secondSourceChoiceReason?: string;
   topChoiceKind?: "result" | "source" | "form" | "action-target";
   topChoicePath?: string;
   topChoiceLabel?: string;
@@ -5253,6 +5280,33 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topSourceChoicePrimary === "boolean" ? [`  topSourceChoicePrimary: ${agent.topSourceChoicePrimary}`] : []),
     ...(agent.topSourceChoiceSelector ? [`  topSourceChoiceSelector: ${agent.topSourceChoiceSelector}`] : []),
     ...(agent.topSourceChoiceReason ? [`  topSourceChoiceReason: ${agent.topSourceChoiceReason}`] : []),
+    ...(agent.secondSourceChoicePath ? [`  secondSourceChoicePath: ${agent.secondSourceChoicePath}`] : []),
+    ...(agent.secondSourceChoiceUrl ? [`  secondSourceChoiceUrl: ${agent.secondSourceChoiceUrl}`] : []),
+    ...(agent.secondSourceChoiceHost ? [`  secondSourceChoiceHost: ${agent.secondSourceChoiceHost}`] : []),
+    ...(agent.secondSourceChoiceUrlPath ? [`  secondSourceChoiceUrlPath: ${agent.secondSourceChoiceUrlPath}`] : []),
+    ...(agent.secondSourceChoiceUrlQuery ? [`  secondSourceChoiceUrlQuery: ${agent.secondSourceChoiceUrlQuery}`] : []),
+    ...(agent.secondSourceChoiceKind ? [`  secondSourceChoiceKind: ${agent.secondSourceChoiceKind}`] : []),
+    ...(typeof agent.secondSourceChoiceRank === "number" ? [`  secondSourceChoiceRank: ${agent.secondSourceChoiceRank}`] : []),
+    ...(agent.secondSourceChoiceTitle ? [`  secondSourceChoiceTitle: ${agent.secondSourceChoiceTitle}`] : []),
+    ...(agent.secondSourceChoiceText ? [`  secondSourceChoiceText: ${agent.secondSourceChoiceText}`] : []),
+    ...(agent.secondSourceChoiceSnippet ? [`  secondSourceChoiceSnippet: ${agent.secondSourceChoiceSnippet}`] : []),
+    ...(agent.secondSourceChoiceDateText ? [`  secondSourceChoiceDateText: ${agent.secondSourceChoiceDateText}`] : []),
+    ...(agent.secondSourceChoiceDateIso ? [`  secondSourceChoiceDateIso: ${agent.secondSourceChoiceDateIso}`] : []),
+    ...(typeof agent.secondSourceChoiceDateUnixMs === "number" ? [`  secondSourceChoiceDateUnixMs: ${agent.secondSourceChoiceDateUnixMs}`] : []),
+    ...(agent.secondSourceChoiceDatePrecision ? [`  secondSourceChoiceDatePrecision: ${agent.secondSourceChoiceDatePrecision}`] : []),
+    ...(agent.secondSourceChoiceDateSource ? [`  secondSourceChoiceDateSource: ${agent.secondSourceChoiceDateSource}`] : []),
+    ...(agent.secondSourceChoiceCommand ? [`  secondSourceChoiceCommand: ${agent.secondSourceChoiceCommand}`] : []),
+    ...(agent.secondSourceChoiceCommandArgs ? [`  secondSourceChoiceCommandArgs: ${JSON.stringify(agent.secondSourceChoiceCommandArgs)}`] : []),
+    ...(agent.secondSourceChoiceSourceType ? [`  secondSourceChoiceSourceType: ${agent.secondSourceChoiceSourceType}`] : []),
+    ...(typeof agent.secondSourceChoiceSourceScore === "number" ? [`  secondSourceChoiceSourceScore: ${agent.secondSourceChoiceSourceScore}`] : []),
+    ...(agent.secondSourceChoiceSourceHints?.length ? [`  secondSourceChoiceSourceHints: ${agent.secondSourceChoiceSourceHints.join(",")}`] : []),
+    ...(agent.secondSourceChoiceRelevance ? [`  secondSourceChoiceRelevance: ${agent.secondSourceChoiceRelevance}`] : []),
+    ...(agent.secondSourceChoiceMatchedTerm ? [`  secondSourceChoiceMatchedTerm: ${agent.secondSourceChoiceMatchedTerm}`] : []),
+    ...(agent.secondSourceChoiceFindMatch ? [`  secondSourceChoiceFindMatch: ${agent.secondSourceChoiceFindMatch}`] : []),
+    ...(typeof agent.secondSourceChoiceLikelyOfficial === "boolean" ? [`  secondSourceChoiceLikelyOfficial: ${agent.secondSourceChoiceLikelyOfficial}`] : []),
+    ...(typeof agent.secondSourceChoicePrimary === "boolean" ? [`  secondSourceChoicePrimary: ${agent.secondSourceChoicePrimary}`] : []),
+    ...(agent.secondSourceChoiceSelector ? [`  secondSourceChoiceSelector: ${agent.secondSourceChoiceSelector}`] : []),
+    ...(agent.secondSourceChoiceReason ? [`  secondSourceChoiceReason: ${agent.secondSourceChoiceReason}`] : []),
     ...(agent.topChoiceKind ? [`  topChoice: kind=${agent.topChoiceKind} path=${agent.topChoicePath}${typeof agent.topChoiceRank === "number" ? ` rank=${agent.topChoiceRank}` : ""}${agent.topChoiceOpenResult ? ` openResult=${agent.topChoiceOpenResult}` : ""}${typeof agent.topChoiceRecommended === "boolean" ? ` recommended=${agent.topChoiceRecommended}` : ""}${typeof agent.topChoicePrimary === "boolean" ? ` primary=${agent.topChoicePrimary}` : ""}${agent.topChoiceHost ? ` host=${agent.topChoiceHost}` : ""}${agent.topChoiceSource ? ` source=${agent.topChoiceSource}` : ""}${agent.topChoiceSourceType ? ` sourceType=${agent.topChoiceSourceType}` : ""}${typeof agent.topChoiceSourceScore === "number" ? ` score=${agent.topChoiceSourceScore}` : ""}${agent.topChoiceSourceHints?.length ? ` hints=${agent.topChoiceSourceHints.join(",")}` : ""}${agent.topChoiceMatchedTerm ? ` matched=${agent.topChoiceMatchedTerm}` : ""}${agent.topChoiceFindMatch ? ` find=${agent.topChoiceFindMatch}` : ""}${typeof agent.topChoiceSitelinkCount === "number" ? ` sitelinks=${agent.topChoiceSitelinkCount}` : ""}${agent.topChoiceDateText ? ` dateText=${agent.topChoiceDateText}` : ""}${agent.topChoiceDateIso ? ` dateIso=${agent.topChoiceDateIso}` : ""}${typeof agent.topChoiceDateUnixMs === "number" ? ` dateUnixMs=${agent.topChoiceDateUnixMs}` : ""}${agent.topChoiceDatePrecision ? ` datePrecision=${agent.topChoiceDatePrecision}` : ""}${agent.topChoiceDateSource ? ` dateSource=${agent.topChoiceDateSource}` : ""}${agent.topChoiceRelevance ? ` relevance=${agent.topChoiceRelevance}` : ""}${typeof agent.topChoiceLikelyOfficial === "boolean" ? ` official=${agent.topChoiceLikelyOfficial}` : ""}${agent.topChoiceMethod ? ` method=${agent.topChoiceMethod}` : ""}${agent.topChoiceEncodingType ? ` encoding=${agent.topChoiceEncodingType}` : ""}${agent.topChoiceActionUrl ? ` actionUrl=${agent.topChoiceActionUrl}` : ""}${agent.topChoiceTargetUrl ? ` targetUrl=${agent.topChoiceTargetUrl}` : ""}${agent.topChoiceUrlTemplate ? ` template=${agent.topChoiceUrlTemplate}` : ""}${agent.topChoiceQueryField ? ` queryField=${agent.topChoiceQueryField}` : ""}${agent.topChoiceQueryInput ? ` queryInput=${agent.topChoiceQueryInput}` : ""}${agent.topChoiceRequiredFieldName ? ` requiredField=${agent.topChoiceRequiredFieldName}` : ""}${agent.topChoiceInvalidFieldName ? ` invalidField=${agent.topChoiceInvalidFieldName}` : ""}${typeof agent.topChoiceInvalidFieldInvalid !== "undefined" ? ` invalid=${agent.topChoiceInvalidFieldInvalid}` : ""}${typeof agent.topChoiceSubmitDisabled === "boolean" ? ` submitDisabled=${agent.topChoiceSubmitDisabled}` : ""}${typeof agent.topChoiceDisabled === "boolean" ? ` disabled=${agent.topChoiceDisabled}` : ""}${typeof agent.topChoicePressed !== "undefined" ? ` pressed=${agent.topChoicePressed}` : ""}${typeof agent.topChoiceExpanded === "boolean" ? ` expanded=${agent.topChoiceExpanded}` : ""}${typeof agent.topChoiceHaspopup !== "undefined" ? ` haspopup=${agent.topChoiceHaspopup}` : ""}${agent.topChoiceControls ? ` controls=${agent.topChoiceControls}` : ""}${agent.topChoiceSelector ? ` selector=${agent.topChoiceSelector}` : ""}${agent.topChoiceUrl ? ` url=<${agent.topChoiceUrl}>` : ""}${agent.topChoiceCommand ? ` command=${agent.topChoiceCommand}` : ""}${agent.topChoiceReason ? ` reason=${agent.topChoiceReason}` : ""}${agent.topChoiceSnippet ? ` snippet=${agent.topChoiceSnippet}` : ""}${agent.topChoiceLabel ? ` - ${agent.topChoiceLabel}` : ""}`] : []),
     ...(agent.topChoiceKind ? [`  topChoiceKind: ${agent.topChoiceKind}`] : []),
     ...(agent.topChoicePath ? [`  topChoicePath: ${agent.topChoicePath}`] : []),
@@ -14358,6 +14412,7 @@ function summarizeAgent(
   const topResultChoiceUrlParts = resultChoices[0]?.url ? urlPathParts(resultChoices[0].url) : undefined;
   const sourceChoices = summarizeAgentSourceChoices(analysis.kind, pageCheck.sourceLinks, primaryAction, agentMode, findQueries, timeoutMs, userAgent);
   const topSourceChoiceUrlParts = sourceChoices[0]?.url ? urlPathParts(sourceChoices[0].url) : undefined;
+  const secondSourceChoiceUrlParts = sourceChoices[1]?.url ? urlPathParts(sourceChoices[1].url) : undefined;
   const formChoices = summarizeAgentFormChoices(pageCheck.forms, findQueries, agentMode, timeoutMs, userAgent);
   const topFormChoice = formChoices[0];
   const topFormChoiceActionUrlParts = topFormChoice?.actionUrl ? urlPathParts(topFormChoice.actionUrl) : undefined;
@@ -16044,6 +16099,33 @@ function summarizeAgent(
     ...(typeof sourceChoices[0]?.primary === "boolean" ? { topSourceChoicePrimary: sourceChoices[0].primary } : {}),
     ...(sourceChoices[0]?.selector ? { topSourceChoiceSelector: sourceChoices[0].selector } : {}),
     ...(sourceChoices[0]?.selectionReason ? { topSourceChoiceReason: sourceChoices[0].selectionReason } : {}),
+    ...(sourceChoices[1] ? { secondSourceChoicePath: sourceChoices[1].path } : {}),
+    ...(sourceChoices[1]?.title ? { secondSourceChoiceTitle: sourceChoices[1].title } : {}),
+    ...(sourceChoices[1]?.url ? { secondSourceChoiceUrl: sourceChoices[1].url } : {}),
+    ...(sourceChoices[1]?.host ? { secondSourceChoiceHost: sourceChoices[1].host } : {}),
+    ...(secondSourceChoiceUrlParts?.urlPath ? { secondSourceChoiceUrlPath: secondSourceChoiceUrlParts.urlPath } : {}),
+    ...(secondSourceChoiceUrlParts?.urlQuery ? { secondSourceChoiceUrlQuery: secondSourceChoiceUrlParts.urlQuery } : {}),
+    ...(sourceChoices[1]?.kind ? { secondSourceChoiceKind: sourceChoices[1].kind } : {}),
+    ...(typeof sourceChoices[1]?.rank === "number" ? { secondSourceChoiceRank: sourceChoices[1].rank } : {}),
+    ...(sourceChoices[1]?.text ? { secondSourceChoiceText: sourceChoices[1].text } : {}),
+    ...(sourceChoices[1]?.snippet ? { secondSourceChoiceSnippet: sourceChoices[1].snippet } : {}),
+    ...(sourceChoices[1]?.dateText ? { secondSourceChoiceDateText: sourceChoices[1].dateText } : {}),
+    ...(sourceChoices[1]?.dateIso ? { secondSourceChoiceDateIso: sourceChoices[1].dateIso } : {}),
+    ...(typeof sourceChoices[1]?.dateUnixMs === "number" ? { secondSourceChoiceDateUnixMs: sourceChoices[1].dateUnixMs } : {}),
+    ...(sourceChoices[1]?.datePrecision ? { secondSourceChoiceDatePrecision: sourceChoices[1].datePrecision } : {}),
+    ...(sourceChoices[1]?.dateSource ? { secondSourceChoiceDateSource: sourceChoices[1].dateSource } : {}),
+    ...(sourceChoices[1]?.command ? { secondSourceChoiceCommand: sourceChoices[1].command } : {}),
+    ...(sourceChoices[1]?.commandArgs ? { secondSourceChoiceCommandArgs: sourceChoices[1].commandArgs } : {}),
+    ...(sourceChoices[1]?.sourceType ? { secondSourceChoiceSourceType: sourceChoices[1].sourceType } : {}),
+    ...(typeof sourceChoices[1]?.sourceScore === "number" ? { secondSourceChoiceSourceScore: sourceChoices[1].sourceScore } : {}),
+    ...(sourceChoices[1]?.sourceHints?.length ? { secondSourceChoiceSourceHints: sourceChoices[1].sourceHints } : {}),
+    ...(sourceChoices[1]?.relevance ? { secondSourceChoiceRelevance: sourceChoices[1].relevance } : {}),
+    ...(sourceChoices[1]?.matchedTerms?.[0] ? { secondSourceChoiceMatchedTerm: sourceChoices[1].matchedTerms[0] } : {}),
+    ...(sourceChoices[1]?.findMatches?.[0] ? { secondSourceChoiceFindMatch: sourceChoices[1].findMatches[0] } : {}),
+    ...(typeof sourceChoices[1]?.isLikelyOfficial === "boolean" ? { secondSourceChoiceLikelyOfficial: sourceChoices[1].isLikelyOfficial } : {}),
+    ...(sourceChoices[1] ? { secondSourceChoicePrimary: sourceChoices[1].primary === true } : {}),
+    ...(sourceChoices[1]?.selector ? { secondSourceChoiceSelector: sourceChoices[1].selector } : {}),
+    ...(sourceChoices[1]?.selectionReason ? { secondSourceChoiceReason: sourceChoices[1].selectionReason } : {}),
     ...(topChoice ? { topChoiceKind: topChoice.kind } : {}),
     ...(topChoice ? { topChoicePath: topChoice.path } : {}),
     ...(topChoice?.label ? { topChoiceLabel: topChoice.label } : {}),
@@ -22791,6 +22873,33 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.topSourceChoicePrimary === "boolean" ? { topSourceChoicePrimary: agent.topSourceChoicePrimary } : {}),
     ...(agent.topSourceChoiceSelector ? { topSourceChoiceSelector: agent.topSourceChoiceSelector } : {}),
     ...(agent.topSourceChoiceReason ? { topSourceChoiceReason: agent.topSourceChoiceReason } : {}),
+    ...(agent.secondSourceChoicePath ? { secondSourceChoicePath: agent.secondSourceChoicePath } : {}),
+    ...(agent.secondSourceChoiceTitle ? { secondSourceChoiceTitle: agent.secondSourceChoiceTitle } : {}),
+    ...(agent.secondSourceChoiceUrl ? { secondSourceChoiceUrl: agent.secondSourceChoiceUrl } : {}),
+    ...(agent.secondSourceChoiceHost ? { secondSourceChoiceHost: agent.secondSourceChoiceHost } : {}),
+    ...(agent.secondSourceChoiceUrlPath ? { secondSourceChoiceUrlPath: agent.secondSourceChoiceUrlPath } : {}),
+    ...(agent.secondSourceChoiceUrlQuery ? { secondSourceChoiceUrlQuery: agent.secondSourceChoiceUrlQuery } : {}),
+    ...(agent.secondSourceChoiceKind ? { secondSourceChoiceKind: agent.secondSourceChoiceKind } : {}),
+    ...(typeof agent.secondSourceChoiceRank === "number" ? { secondSourceChoiceRank: agent.secondSourceChoiceRank } : {}),
+    ...(agent.secondSourceChoiceText ? { secondSourceChoiceText: agent.secondSourceChoiceText } : {}),
+    ...(agent.secondSourceChoiceSnippet ? { secondSourceChoiceSnippet: agent.secondSourceChoiceSnippet } : {}),
+    ...(agent.secondSourceChoiceDateText ? { secondSourceChoiceDateText: agent.secondSourceChoiceDateText } : {}),
+    ...(agent.secondSourceChoiceDateIso ? { secondSourceChoiceDateIso: agent.secondSourceChoiceDateIso } : {}),
+    ...(typeof agent.secondSourceChoiceDateUnixMs === "number" ? { secondSourceChoiceDateUnixMs: agent.secondSourceChoiceDateUnixMs } : {}),
+    ...(agent.secondSourceChoiceDatePrecision ? { secondSourceChoiceDatePrecision: agent.secondSourceChoiceDatePrecision } : {}),
+    ...(agent.secondSourceChoiceDateSource ? { secondSourceChoiceDateSource: agent.secondSourceChoiceDateSource } : {}),
+    ...(agent.secondSourceChoiceCommand ? { secondSourceChoiceCommand: agent.secondSourceChoiceCommand } : {}),
+    ...(agent.secondSourceChoiceCommandArgs ? { secondSourceChoiceCommandArgs: agent.secondSourceChoiceCommandArgs } : {}),
+    ...(agent.secondSourceChoiceSourceType ? { secondSourceChoiceSourceType: agent.secondSourceChoiceSourceType } : {}),
+    ...(typeof agent.secondSourceChoiceSourceScore === "number" ? { secondSourceChoiceSourceScore: agent.secondSourceChoiceSourceScore } : {}),
+    ...(agent.secondSourceChoiceSourceHints?.length ? { secondSourceChoiceSourceHints: agent.secondSourceChoiceSourceHints } : {}),
+    ...(agent.secondSourceChoiceRelevance ? { secondSourceChoiceRelevance: agent.secondSourceChoiceRelevance } : {}),
+    ...(agent.secondSourceChoiceMatchedTerm ? { secondSourceChoiceMatchedTerm: agent.secondSourceChoiceMatchedTerm } : {}),
+    ...(agent.secondSourceChoiceFindMatch ? { secondSourceChoiceFindMatch: agent.secondSourceChoiceFindMatch } : {}),
+    ...(typeof agent.secondSourceChoiceLikelyOfficial === "boolean" ? { secondSourceChoiceLikelyOfficial: agent.secondSourceChoiceLikelyOfficial } : {}),
+    ...(typeof agent.secondSourceChoicePrimary === "boolean" ? { secondSourceChoicePrimary: agent.secondSourceChoicePrimary } : {}),
+    ...(agent.secondSourceChoiceSelector ? { secondSourceChoiceSelector: agent.secondSourceChoiceSelector } : {}),
+    ...(agent.secondSourceChoiceReason ? { secondSourceChoiceReason: agent.secondSourceChoiceReason } : {}),
     ...compactAgentTopChoice(agent, searchCommandContext, pageLinkContext),
     ...(agent.sourceSearchQuery ? { sourceSearchQuery: agent.sourceSearchQuery } : {}),
     ...(agent.sourceSearchEngine ? { sourceSearchEngine: agent.sourceSearchEngine } : {}),
@@ -24634,6 +24743,33 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.topSourceChoicePrimary === "boolean" ? { topSourceChoicePrimary: agent.topSourceChoicePrimary } : {}),
     ...(agent.topSourceChoiceSelector ? { topSourceChoiceSelector: agent.topSourceChoiceSelector } : {}),
     ...(agent.topSourceChoiceReason ? { topSourceChoiceReason: agent.topSourceChoiceReason } : {}),
+    ...(agent.secondSourceChoicePath ? { secondSourceChoicePath: agent.secondSourceChoicePath } : {}),
+    ...(agent.secondSourceChoiceTitle ? { secondSourceChoiceTitle: agent.secondSourceChoiceTitle } : {}),
+    ...(agent.secondSourceChoiceUrl ? { secondSourceChoiceUrl: agent.secondSourceChoiceUrl } : {}),
+    ...(agent.secondSourceChoiceHost ? { secondSourceChoiceHost: agent.secondSourceChoiceHost } : {}),
+    ...(agent.secondSourceChoiceUrlPath ? { secondSourceChoiceUrlPath: agent.secondSourceChoiceUrlPath } : {}),
+    ...(agent.secondSourceChoiceUrlQuery ? { secondSourceChoiceUrlQuery: agent.secondSourceChoiceUrlQuery } : {}),
+    ...(agent.secondSourceChoiceKind ? { secondSourceChoiceKind: agent.secondSourceChoiceKind } : {}),
+    ...(typeof agent.secondSourceChoiceRank === "number" ? { secondSourceChoiceRank: agent.secondSourceChoiceRank } : {}),
+    ...(agent.secondSourceChoiceText ? { secondSourceChoiceText: agent.secondSourceChoiceText } : {}),
+    ...(agent.secondSourceChoiceSnippet ? { secondSourceChoiceSnippet: agent.secondSourceChoiceSnippet } : {}),
+    ...(agent.secondSourceChoiceDateText ? { secondSourceChoiceDateText: agent.secondSourceChoiceDateText } : {}),
+    ...(agent.secondSourceChoiceDateIso ? { secondSourceChoiceDateIso: agent.secondSourceChoiceDateIso } : {}),
+    ...(typeof agent.secondSourceChoiceDateUnixMs === "number" ? { secondSourceChoiceDateUnixMs: agent.secondSourceChoiceDateUnixMs } : {}),
+    ...(agent.secondSourceChoiceDatePrecision ? { secondSourceChoiceDatePrecision: agent.secondSourceChoiceDatePrecision } : {}),
+    ...(agent.secondSourceChoiceDateSource ? { secondSourceChoiceDateSource: agent.secondSourceChoiceDateSource } : {}),
+    ...(agent.secondSourceChoiceCommand ? { secondSourceChoiceCommand: agent.secondSourceChoiceCommand } : {}),
+    ...(agent.secondSourceChoiceCommandArgs ? { secondSourceChoiceCommandArgs: agent.secondSourceChoiceCommandArgs } : {}),
+    ...(agent.secondSourceChoiceSourceType ? { secondSourceChoiceSourceType: agent.secondSourceChoiceSourceType } : {}),
+    ...(typeof agent.secondSourceChoiceSourceScore === "number" ? { secondSourceChoiceSourceScore: agent.secondSourceChoiceSourceScore } : {}),
+    ...(agent.secondSourceChoiceSourceHints?.length ? { secondSourceChoiceSourceHints: agent.secondSourceChoiceSourceHints } : {}),
+    ...(agent.secondSourceChoiceRelevance ? { secondSourceChoiceRelevance: agent.secondSourceChoiceRelevance } : {}),
+    ...(agent.secondSourceChoiceMatchedTerm ? { secondSourceChoiceMatchedTerm: agent.secondSourceChoiceMatchedTerm } : {}),
+    ...(agent.secondSourceChoiceFindMatch ? { secondSourceChoiceFindMatch: agent.secondSourceChoiceFindMatch } : {}),
+    ...(typeof agent.secondSourceChoiceLikelyOfficial === "boolean" ? { secondSourceChoiceLikelyOfficial: agent.secondSourceChoiceLikelyOfficial } : {}),
+    ...(typeof agent.secondSourceChoicePrimary === "boolean" ? { secondSourceChoicePrimary: agent.secondSourceChoicePrimary } : {}),
+    ...(agent.secondSourceChoiceSelector ? { secondSourceChoiceSelector: agent.secondSourceChoiceSelector } : {}),
+    ...(agent.secondSourceChoiceReason ? { secondSourceChoiceReason: agent.secondSourceChoiceReason } : {}),
     ...compactAgentTopChoice(agent, searchCommandContext, pageLinkContext),
     ...(agent.sourceSearchQuery ? { sourceSearchQuery: agent.sourceSearchQuery } : {}),
     ...(agent.sourceSearchEngine ? { sourceSearchEngine: agent.sourceSearchEngine } : {}),

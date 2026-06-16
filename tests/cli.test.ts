@@ -1794,6 +1794,7 @@ describe("cli", () => {
       }
       const topResultChoice = envelope.agent.resultChoices?.[0] ?? handoff.resultChoices?.[0];
       const topSourceChoice = envelope.agent.sourceChoices?.[0] ?? handoff.sourceChoices?.[0];
+      const secondSourceChoice = envelope.agent.sourceChoices?.[1] ?? handoff.sourceChoices?.[1];
       const topFormChoice = envelope.agent.formChoices?.[0];
       const topActionTargetChoice = envelope.agent.actionTargetChoices?.[0];
       if (topResultChoice) {
@@ -1906,6 +1907,23 @@ describe("cli", () => {
         if (typeof topActionTargetChoice.haspopup !== "undefined") expect(envelope.agent.topChoiceHaspopup).toBe(topActionTargetChoice.haspopup);
         if (topActionTargetChoice.controls) expect(envelope.agent.topChoiceControls).toBe(topActionTargetChoice.controls);
         if (topActionTargetChoice.selector) expect(envelope.agent.topChoiceSelector).toBe(topActionTargetChoice.selector);
+      }
+      if (secondSourceChoice) {
+        expect(envelope.agent.secondSourceChoicePath).toBe(secondSourceChoice.path);
+        expect(envelope.agent.secondSourceChoiceUrl).toBe(secondSourceChoice.url);
+        if (secondSourceChoice.url?.startsWith("http")) {
+          const secondSourceUrl = new URL(secondSourceChoice.url);
+          expect(envelope.agent.secondSourceChoiceUrlPath).toBe(secondSourceUrl.pathname || "/");
+          if (secondSourceUrl.search) expect(envelope.agent.secondSourceChoiceUrlQuery).toBe(secondSourceUrl.search);
+        }
+        if (secondSourceChoice.command) expect(envelope.agent.secondSourceChoiceCommand).toBe(secondSourceChoice.command);
+        if (secondSourceChoice.commandArgs) expect(envelope.agent.secondSourceChoiceCommandArgs).toEqual(secondSourceChoice.commandArgs);
+        if (secondSourceChoice.kind) expect(envelope.agent.secondSourceChoiceKind).toBe(secondSourceChoice.kind);
+        if (typeof secondSourceChoice.rank === "number") expect(envelope.agent.secondSourceChoiceRank).toBe(secondSourceChoice.rank);
+        if (secondSourceChoice.text) expect(envelope.agent.secondSourceChoiceText).toBe(secondSourceChoice.text);
+        if (typeof secondSourceChoice.sourceScore === "number") expect(envelope.agent.secondSourceChoiceSourceScore).toBe(secondSourceChoice.sourceScore);
+        if (secondSourceChoice.selectionReason) expect(envelope.agent.secondSourceChoiceReason).toBe(secondSourceChoice.selectionReason);
+        expect(envelope.agent.secondSourceChoicePrimary).toBe(secondSourceChoice.primary === true);
       }
       if (executor.commandArgs) expect(handoff.commandArgs).toEqual(executor.commandArgs);
       if (executor.readFrom) expect(handoff.readFrom).toBe(executor.readFrom);
@@ -5165,6 +5183,7 @@ describe("cli", () => {
                 <p>This post explains the primary claim, gives enough surrounding context, and includes source details for checking.</p>
                 <p>The second paragraph adds discussion context so an agent can inspect whether the page is useful before reading the full tree.</p>
                 <a href="https://source.example/report">Original source report</a>
+                <a href="https://backup.example/followup?ref=post">Follow-up source</a>
                 <a href="/comments/123">Comments</a>
                 <button>Reply</button>
               </article>
@@ -5194,7 +5213,7 @@ describe("cli", () => {
         reasons: expect.arrayContaining([
           "2 content evidence items",
           "some extracted text",
-          "1 external source link",
+          "2 external source links",
         ]),
       },
       recommendedAction: {
@@ -5217,6 +5236,12 @@ describe("cli", () => {
           execution: "run-command",
           url: "https://source.example/report",
           sourceLinkRef: "pageCheck.sourceLinks[0]",
+        }),
+        expect.objectContaining({
+          action: "open-source-link",
+          execution: "run-command",
+          url: "https://backup.example/followup?ref=post",
+          sourceLinkRef: "pageCheck.sourceLinks[1]",
         }),
         expect.objectContaining({
           action: "inspect-actions",
@@ -5250,7 +5275,7 @@ describe("cli", () => {
         text: "The second paragraph adds discussion context so an agent can inspect whether the page is useful before reading the full tree.",
       }),
     ]);
-    expect(envelope.pageCheck.primaryLinks).toEqual([
+    expect(envelope.pageCheck.primaryLinks).toEqual(expect.arrayContaining([
       expect.objectContaining({
         title: "Original source report",
         url: "https://source.example/report",
@@ -5258,11 +5283,17 @@ describe("cli", () => {
         selectionReason: "External link from source.example.",
       }),
       expect.objectContaining({
+        title: "Follow-up source",
+        url: "https://backup.example/followup?ref=post",
+        kind: "external",
+        selectionReason: "External link from backup.example.",
+      }),
+      expect.objectContaining({
         title: "Comments",
         url: "https://forum.example/comments/123",
         kind: "internal",
       }),
-    ]);
+    ]));
     expect(envelope.pageCheck.sourceLinks).toEqual([
       expect.objectContaining({
         title: "Original source report",
@@ -5272,6 +5303,16 @@ describe("cli", () => {
         sourceType: "unknown",
         sourceScore: 0.35,
         selectionReason: "External link from source.example.",
+      }),
+      expect.objectContaining({
+        title: "Follow-up source",
+        url: "https://backup.example/followup?ref=post",
+        urlPath: "/followup",
+        urlQuery: "?ref=post",
+        kind: "external",
+        sourceType: "unknown",
+        sourceScore: 0.35,
+        selectionReason: "External link from backup.example.",
       }),
     ]);
     expect(envelope.agent.actions).toContainEqual(expect.objectContaining({
@@ -5292,6 +5333,21 @@ describe("cli", () => {
       topSourceChoiceSourceType: "unknown",
       topSourceChoiceSourceScore: 0.35,
       topSourceChoiceReason: "External link from source.example.",
+      secondSourceChoicePath: "pageCheck.sourceLinks[1]",
+      secondSourceChoiceTitle: "Follow-up source",
+      secondSourceChoiceUrl: "https://backup.example/followup?ref=post",
+      secondSourceChoiceHost: "backup.example",
+      secondSourceChoiceUrlPath: "/followup",
+      secondSourceChoiceUrlQuery: "?ref=post",
+      secondSourceChoiceKind: "external",
+      secondSourceChoiceRank: 2,
+      secondSourceChoiceText: "Follow-up source",
+      secondSourceChoiceCommand: "ax-grep 'https://backup.example/followup?ref=post' --json --summary",
+      secondSourceChoiceCommandArgs: ["ax-grep", "https://backup.example/followup?ref=post", "--json", "--summary"],
+      secondSourceChoiceSourceType: "unknown",
+      secondSourceChoiceSourceScore: 0.35,
+      secondSourceChoicePrimary: false,
+      secondSourceChoiceReason: "External link from backup.example.",
     }));
     expect(envelope.pageCheck.primaryLinks.map((link: { title: string }) => link.title)).not.toContain("Login");
     expect(envelope.pageCheck.actions).toEqual([

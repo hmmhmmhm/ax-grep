@@ -950,6 +950,33 @@ describe("public agent types", () => {
       | "topSourceChoicePrimary"
       | "topSourceChoiceSelector"
       | "topSourceChoiceReason"
+      | "secondSourceChoicePath"
+      | "secondSourceChoiceTitle"
+      | "secondSourceChoiceUrl"
+      | "secondSourceChoiceHost"
+      | "secondSourceChoiceUrlPath"
+      | "secondSourceChoiceUrlQuery"
+      | "secondSourceChoiceKind"
+      | "secondSourceChoiceRank"
+      | "secondSourceChoiceText"
+      | "secondSourceChoiceSnippet"
+      | "secondSourceChoiceDateText"
+      | "secondSourceChoiceDateIso"
+      | "secondSourceChoiceDateUnixMs"
+      | "secondSourceChoiceDatePrecision"
+      | "secondSourceChoiceDateSource"
+      | "secondSourceChoiceCommand"
+      | "secondSourceChoiceCommandArgs"
+      | "secondSourceChoiceSourceType"
+      | "secondSourceChoiceSourceScore"
+      | "secondSourceChoiceSourceHints"
+      | "secondSourceChoiceRelevance"
+      | "secondSourceChoiceMatchedTerm"
+      | "secondSourceChoiceFindMatch"
+      | "secondSourceChoiceLikelyOfficial"
+      | "secondSourceChoicePrimary"
+      | "secondSourceChoiceSelector"
+      | "secondSourceChoiceReason"
       | "topChoiceKind"
       | "topChoicePath"
       | "topChoiceLabel"
@@ -2778,6 +2805,33 @@ describe("public agent types", () => {
       topSourceChoicePrimary: true,
       topSourceChoiceSelector: "a:nth-of-type(1)",
       topSourceChoiceReason: "High-quality source link.",
+      secondSourceChoicePath: "pageCheck.sourceLinks[1]",
+      secondSourceChoiceTitle: "Backup source",
+      secondSourceChoiceUrl: "https://backup.example/report?ref=docs",
+      secondSourceChoiceHost: "backup.example",
+      secondSourceChoiceUrlPath: "/report",
+      secondSourceChoiceUrlQuery: "?ref=docs",
+      secondSourceChoiceKind: "external",
+      secondSourceChoiceRank: 2,
+      secondSourceChoiceText: "Backup source",
+      secondSourceChoiceSnippet: "Backup source summary",
+      secondSourceChoiceDateText: "2026-06-01",
+      secondSourceChoiceDateIso: "2026-06-01T00:00:00.000Z",
+      secondSourceChoiceDateUnixMs: Date.parse("2026-06-01T00:00:00.000Z"),
+      secondSourceChoiceDatePrecision: "day",
+      secondSourceChoiceDateSource: "snippet",
+      secondSourceChoiceCommand: "ax-grep https://backup.example/report?ref=docs --agent-brief",
+      secondSourceChoiceCommandArgs: ["ax-grep", "https://backup.example/report?ref=docs", "--agent-brief"],
+      secondSourceChoiceSourceType: "report",
+      secondSourceChoiceSourceScore: 0.82,
+      secondSourceChoiceSourceHints: ["report"],
+      secondSourceChoiceRelevance: "medium",
+      secondSourceChoiceMatchedTerm: "backup",
+      secondSourceChoiceFindMatch: "Backup",
+      secondSourceChoiceLikelyOfficial: false,
+      secondSourceChoicePrimary: false,
+      secondSourceChoiceSelector: "a:nth-of-type(2)",
+      secondSourceChoiceReason: "Backup source link.",
       topChoiceKind: "source",
       topChoicePath: "pageCheck.sourceLinks[0]",
       topChoiceLabel: "Source",
@@ -4261,6 +4315,25 @@ describe("public agent types", () => {
     expect(summary.topSourceChoiceLikelyOfficial).toBe(true);
     expect(summary.topSourceChoiceCommand).toContain("source.example/report");
     expect(summary.topSourceChoiceCommandArgs?.[0]).toBe("ax-grep");
+    expect(summary.secondSourceChoicePath).toBe("pageCheck.sourceLinks[1]");
+    expect(summary.secondSourceChoiceUrlPath).toBe("/report");
+    expect(summary.secondSourceChoiceUrlQuery).toBe("?ref=docs");
+    expect(summary.secondSourceChoiceSnippet).toBe("Backup source summary");
+    expect(summary.secondSourceChoiceDateText).toBe("2026-06-01");
+    expect(summary.secondSourceChoiceDateIso).toBe("2026-06-01T00:00:00.000Z");
+    expect(summary.secondSourceChoiceDateUnixMs).toBe(Date.parse("2026-06-01T00:00:00.000Z"));
+    expect(summary.secondSourceChoiceDatePrecision).toBe("day");
+    expect(summary.secondSourceChoiceDateSource).toBe("snippet");
+    expect(summary.secondSourceChoiceRank).toBe(2);
+    expect(summary.secondSourceChoiceText).toBe("Backup source");
+    expect(summary.secondSourceChoiceSelector).toBe("a:nth-of-type(2)");
+    expect(summary.secondSourceChoiceRelevance).toBe("medium");
+    expect(summary.secondSourceChoiceMatchedTerm).toBe("backup");
+    expect(summary.secondSourceChoiceFindMatch).toBe("Backup");
+    expect(summary.secondSourceChoiceLikelyOfficial).toBe(false);
+    expect(summary.secondSourceChoicePrimary).toBe(false);
+    expect(summary.secondSourceChoiceCommand).toContain("backup.example/report");
+    expect(summary.secondSourceChoiceCommandArgs?.[0]).toBe("ax-grep");
     expect(summary.sourceSearchQuery).toBe("ax-grep docs");
     expect(summary.sourceSearchTopFindQuery).toBe("install");
     expect(summary.sourceSearchSelectedTitle).toBe("ax-grep documentation");
