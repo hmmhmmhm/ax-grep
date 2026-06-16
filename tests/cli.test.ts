@@ -12193,6 +12193,14 @@ npx ax-grep https://example.test --agent</code></pre>
       topPaginationUrlQuery: "?page=1",
       topPaginationCommand: "ax-grep 'https://example.test/blog?page=1' --find 'next Page 3' --agent",
       topPaginationCommandArgs: ["ax-grep", "https://example.test/blog?page=1", "--find", "next Page 3", "--agent"],
+      secondPaginationPath: "pageCheck.pagination[1]",
+      secondPaginationKind: "next",
+      secondPaginationLabel: "Next page",
+      secondPaginationUrl: "https://example.test/blog?page=3",
+      secondPaginationUrlPath: "/blog",
+      secondPaginationUrlQuery: "?page=3",
+      secondPaginationCommand: "ax-grep 'https://example.test/blog?page=3' --find 'next Page 3' --agent",
+      secondPaginationCommandArgs: ["ax-grep", "https://example.test/blog?page=3", "--find", "next Page 3", "--agent"],
     });
     expect(envelope.verification.bestEvidence).toMatchObject({
       field: "pagination",

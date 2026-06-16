@@ -538,6 +538,16 @@ describe("public agent types", () => {
       | "topPaginationCommandArgs"
       | "topPaginationCurrent"
       | "topPaginationSelector"
+      | "secondPaginationPath"
+      | "secondPaginationKind"
+      | "secondPaginationLabel"
+      | "secondPaginationUrl"
+      | "secondPaginationUrlPath"
+      | "secondPaginationUrlQuery"
+      | "secondPaginationCommand"
+      | "secondPaginationCommandArgs"
+      | "secondPaginationCurrent"
+      | "secondPaginationSelector"
       | "topTocPath"
       | "topTocTitle"
       | "topTocItemCount"
@@ -2245,6 +2255,16 @@ describe("public agent types", () => {
       topPaginationCommandArgs: ["ax-grep", "https://example.test/next", "--agent"],
       topPaginationCurrent: false,
       topPaginationSelector: "a[rel=\"next\"]",
+      secondPaginationPath: "pageCheck.pagination[1]",
+      secondPaginationKind: "page",
+      secondPaginationLabel: "2",
+      secondPaginationUrl: "https://example.test/page/2?sort=top",
+      secondPaginationUrlPath: "/page/2",
+      secondPaginationUrlQuery: "?sort=top",
+      secondPaginationCommand: "ax-grep 'https://example.test/page/2?sort=top' --agent",
+      secondPaginationCommandArgs: ["ax-grep", "https://example.test/page/2?sort=top", "--agent"],
+      secondPaginationCurrent: false,
+      secondPaginationSelector: "a[href=\"/page/2\"]",
       topTocPath: "pageCheck.toc[0]",
       topTocTitle: "On this page",
       topTocItemCount: 2,
@@ -3824,6 +3844,9 @@ describe("public agent types", () => {
     expect(summary.secondMediaCommandArgs?.[1]).toBe("https://example.test/chart.png?size=large");
     expect(summary.secondMediaAlt).toBe("Revenue chart");
     expect(summary.topPaginationCommandArgs?.[1]).toBe("https://example.test/next");
+    expect(summary.secondPaginationPath).toBe("pageCheck.pagination[1]");
+    expect(summary.secondPaginationUrlPath).toBe("/page/2");
+    expect(summary.secondPaginationCommandArgs?.[1]).toBe("https://example.test/page/2?sort=top");
     expect(summary.topTocFirstItemCommandArgs?.[1]).toBe("https://example.test/install#install");
     expect(summary.topEmbedPath).toBe("pageCheck.embeds[0]");
     expect(summary.topEmbedUrlPath).toBe("/embed");

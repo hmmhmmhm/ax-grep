@@ -1983,6 +1983,16 @@ type AgentSummary = {
   topPaginationCommandArgs?: string[];
   topPaginationCurrent?: boolean;
   topPaginationSelector?: string;
+  secondPaginationPath?: string;
+  secondPaginationKind?: PagePaginationSummary["kind"];
+  secondPaginationLabel?: string;
+  secondPaginationUrl?: string;
+  secondPaginationUrlPath?: string;
+  secondPaginationUrlQuery?: string;
+  secondPaginationCommand?: string;
+  secondPaginationCommandArgs?: string[];
+  secondPaginationCurrent?: boolean;
+  secondPaginationSelector?: string;
   topTocPath?: string;
   topTocTitle?: string;
   topTocItemCount?: number;
@@ -4924,6 +4934,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topPaginationPath ? [`  topPagination: path=${agent.topPaginationPath}${agent.topPaginationKind ? ` kind=${agent.topPaginationKind}` : ""}${agent.topPaginationLabel ? ` label="${agent.topPaginationLabel}"` : ""}${typeof agent.topPaginationCurrent === "boolean" ? ` current=${agent.topPaginationCurrent}` : ""}${agent.topPaginationSelector ? ` selector=${agent.topPaginationSelector}` : ""}${agent.topPaginationUrl ? ` url=<${agent.topPaginationUrl}>` : ""}${agent.topPaginationUrlPath ? ` urlPath=${agent.topPaginationUrlPath}` : ""}${agent.topPaginationUrlQuery ? ` urlQuery=${agent.topPaginationUrlQuery}` : ""}`] : []),
     ...(agent.topPaginationCommand ? [`  topPaginationCommand: ${agent.topPaginationCommand}`] : []),
     ...(agent.topPaginationCommandArgs ? [`  topPaginationCommandArgs: ${formatCommandArgsText(agent.topPaginationCommandArgs)}`] : []),
+    ...(agent.secondPaginationPath ? [`  secondPagination: path=${agent.secondPaginationPath}${agent.secondPaginationKind ? ` kind=${agent.secondPaginationKind}` : ""}${agent.secondPaginationLabel ? ` label="${agent.secondPaginationLabel}"` : ""}${typeof agent.secondPaginationCurrent === "boolean" ? ` current=${agent.secondPaginationCurrent}` : ""}${agent.secondPaginationSelector ? ` selector=${agent.secondPaginationSelector}` : ""}${agent.secondPaginationUrl ? ` url=<${agent.secondPaginationUrl}>` : ""}${agent.secondPaginationUrlPath ? ` urlPath=${agent.secondPaginationUrlPath}` : ""}${agent.secondPaginationUrlQuery ? ` urlQuery=${agent.secondPaginationUrlQuery}` : ""}`] : []),
+    ...(agent.secondPaginationCommand ? [`  secondPaginationCommand: ${agent.secondPaginationCommand}`] : []),
+    ...(agent.secondPaginationCommandArgs ? [`  secondPaginationCommandArgs: ${formatCommandArgsText(agent.secondPaginationCommandArgs)}`] : []),
     ...(agent.topTocPath ? [`  topToc: path=${agent.topTocPath}${agent.topTocTitle ? ` title="${agent.topTocTitle}"` : ""}${typeof agent.topTocItemCount === "number" ? ` items=${agent.topTocItemCount}` : ""}${agent.topTocSelector ? ` selector=${agent.topTocSelector}` : ""}${agent.topTocFirstItemLabel ? ` first="${agent.topTocFirstItemLabel}"` : ""}${agent.topTocFirstItemUrl ? ` firstUrl=<${agent.topTocFirstItemUrl}>` : ""}${agent.topTocFirstItemUrlPath ? ` firstUrlPath=${agent.topTocFirstItemUrlPath}` : ""}${agent.topTocFirstItemUrlQuery ? ` firstUrlQuery=${agent.topTocFirstItemUrlQuery}` : ""}${agent.topTocText ? ` - ${agent.topTocText}` : ""}`] : []),
     ...(agent.topTocFirstItemCommand ? [`  topTocFirstItemCommand: ${agent.topTocFirstItemCommand}`] : []),
     ...(agent.topTocFirstItemCommandArgs ? [`  topTocFirstItemCommandArgs: ${formatCommandArgsText(agent.topTocFirstItemCommandArgs)}`] : []),
@@ -14223,7 +14236,11 @@ function summarizeAgent(
   const topPaginationCommand = pageCheck.pagination[0]?.url && /^https?:\/\//i.test(pageCheck.pagination[0].url)
     ? pageCommandSpec(pageCheck.pagination[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const secondPaginationCommand = pageCheck.pagination[1]?.url && /^https?:\/\//i.test(pageCheck.pagination[1].url)
+    ? pageCommandSpec(pageCheck.pagination[1].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topPaginationUrlParts = pageCheck.pagination[0]?.url ? urlPathParts(pageCheck.pagination[0].url) : undefined;
+  const secondPaginationUrlParts = pageCheck.pagination[1]?.url ? urlPathParts(pageCheck.pagination[1].url) : undefined;
   const topEmbedCommand = pageCheck.embeds[0]?.url && /^https?:\/\//i.test(pageCheck.embeds[0].url)
     ? pageCommandSpec(pageCheck.embeds[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -15342,6 +15359,16 @@ function summarizeAgent(
     ...(topPaginationCommand ? { topPaginationCommandArgs: topPaginationCommand.commandArgs } : {}),
     ...(typeof pageCheck.pagination[0]?.current === "boolean" ? { topPaginationCurrent: pageCheck.pagination[0].current } : {}),
     ...(pageCheck.pagination[0]?.selector ? { topPaginationSelector: pageCheck.pagination[0].selector } : {}),
+    ...(pageCheck.pagination[1] ? { secondPaginationPath: pageCheck.pagination[1].path } : {}),
+    ...(pageCheck.pagination[1] ? { secondPaginationKind: pageCheck.pagination[1].kind } : {}),
+    ...(pageCheck.pagination[1]?.label ? { secondPaginationLabel: pageCheck.pagination[1].label } : {}),
+    ...(pageCheck.pagination[1]?.url ? { secondPaginationUrl: pageCheck.pagination[1].url } : {}),
+    ...(secondPaginationUrlParts?.urlPath ? { secondPaginationUrlPath: secondPaginationUrlParts.urlPath } : {}),
+    ...(secondPaginationUrlParts?.urlQuery ? { secondPaginationUrlQuery: secondPaginationUrlParts.urlQuery } : {}),
+    ...(secondPaginationCommand ? { secondPaginationCommand: secondPaginationCommand.command } : {}),
+    ...(secondPaginationCommand ? { secondPaginationCommandArgs: secondPaginationCommand.commandArgs } : {}),
+    ...(typeof pageCheck.pagination[1]?.current === "boolean" ? { secondPaginationCurrent: pageCheck.pagination[1].current } : {}),
+    ...(pageCheck.pagination[1]?.selector ? { secondPaginationSelector: pageCheck.pagination[1].selector } : {}),
     ...(pageCheck.toc[0] ? { topTocPath: pageCheck.toc[0].path } : {}),
     ...(pageCheck.toc[0]?.title ? { topTocTitle: pageCheck.toc[0].title } : {}),
     ...(pageCheck.toc[0] ? { topTocItemCount: pageCheck.toc[0].items.length } : {}),
@@ -21930,6 +21957,16 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topPaginationCommandArgs ? { topPaginationCommandArgs: agent.topPaginationCommandArgs } : {}),
     ...(typeof agent.topPaginationCurrent === "boolean" ? { topPaginationCurrent: agent.topPaginationCurrent } : {}),
     ...(agent.topPaginationSelector ? { topPaginationSelector: agent.topPaginationSelector } : {}),
+    ...(agent.secondPaginationPath ? { secondPaginationPath: agent.secondPaginationPath } : {}),
+    ...(agent.secondPaginationKind ? { secondPaginationKind: agent.secondPaginationKind } : {}),
+    ...(agent.secondPaginationLabel ? { secondPaginationLabel: agent.secondPaginationLabel } : {}),
+    ...(agent.secondPaginationUrl ? { secondPaginationUrl: agent.secondPaginationUrl } : {}),
+    ...(agent.secondPaginationUrlPath ? { secondPaginationUrlPath: agent.secondPaginationUrlPath } : {}),
+    ...(agent.secondPaginationUrlQuery ? { secondPaginationUrlQuery: agent.secondPaginationUrlQuery } : {}),
+    ...(agent.secondPaginationCommand ? { secondPaginationCommand: agent.secondPaginationCommand } : {}),
+    ...(agent.secondPaginationCommandArgs ? { secondPaginationCommandArgs: agent.secondPaginationCommandArgs } : {}),
+    ...(typeof agent.secondPaginationCurrent === "boolean" ? { secondPaginationCurrent: agent.secondPaginationCurrent } : {}),
+    ...(agent.secondPaginationSelector ? { secondPaginationSelector: agent.secondPaginationSelector } : {}),
     ...(agent.topTocPath ? { topTocPath: agent.topTocPath } : {}),
     ...(agent.topTocTitle ? { topTocTitle: agent.topTocTitle } : {}),
     ...(typeof agent.topTocItemCount === "number" ? { topTocItemCount: agent.topTocItemCount } : {}),
@@ -23619,6 +23656,16 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topPaginationCommandArgs ? { topPaginationCommandArgs: agent.topPaginationCommandArgs } : {}),
     ...(typeof agent.topPaginationCurrent === "boolean" ? { topPaginationCurrent: agent.topPaginationCurrent } : {}),
     ...(agent.topPaginationSelector ? { topPaginationSelector: agent.topPaginationSelector } : {}),
+    ...(agent.secondPaginationPath ? { secondPaginationPath: agent.secondPaginationPath } : {}),
+    ...(agent.secondPaginationKind ? { secondPaginationKind: agent.secondPaginationKind } : {}),
+    ...(agent.secondPaginationLabel ? { secondPaginationLabel: agent.secondPaginationLabel } : {}),
+    ...(agent.secondPaginationUrl ? { secondPaginationUrl: agent.secondPaginationUrl } : {}),
+    ...(agent.secondPaginationUrlPath ? { secondPaginationUrlPath: agent.secondPaginationUrlPath } : {}),
+    ...(agent.secondPaginationUrlQuery ? { secondPaginationUrlQuery: agent.secondPaginationUrlQuery } : {}),
+    ...(agent.secondPaginationCommand ? { secondPaginationCommand: agent.secondPaginationCommand } : {}),
+    ...(agent.secondPaginationCommandArgs ? { secondPaginationCommandArgs: agent.secondPaginationCommandArgs } : {}),
+    ...(typeof agent.secondPaginationCurrent === "boolean" ? { secondPaginationCurrent: agent.secondPaginationCurrent } : {}),
+    ...(agent.secondPaginationSelector ? { secondPaginationSelector: agent.secondPaginationSelector } : {}),
     ...(agent.topTocPath ? { topTocPath: agent.topTocPath } : {}),
     ...(agent.topTocTitle ? { topTocTitle: agent.topTocTitle } : {}),
     ...(typeof agent.topTocItemCount === "number" ? { topTocItemCount: agent.topTocItemCount } : {}),
