@@ -1514,6 +1514,22 @@ type AgentSummary = {
   semanticTopFlowToTargetName?: string;
   semanticTopFlowToTargetSelector?: string;
   semanticTopFlowToSelector?: string;
+  semanticTopDetailsRelationRole?: string;
+  semanticTopDetailsRelationPath?: string;
+  semanticTopDetailsRelationName?: string;
+  semanticTopDetailsRelationTarget?: string;
+  semanticTopDetailsRelationTargetRole?: string;
+  semanticTopDetailsRelationTargetName?: string;
+  semanticTopDetailsRelationTargetSelector?: string;
+  semanticTopDetailsRelationSelector?: string;
+  semanticTopErrorMessageRelationRole?: string;
+  semanticTopErrorMessageRelationPath?: string;
+  semanticTopErrorMessageRelationName?: string;
+  semanticTopErrorMessageRelationTarget?: string;
+  semanticTopErrorMessageRelationTargetRole?: string;
+  semanticTopErrorMessageRelationTargetName?: string;
+  semanticTopErrorMessageRelationTargetSelector?: string;
+  semanticTopErrorMessageRelationSelector?: string;
   semanticTopChoiceRole?: string;
   semanticTopChoicePath?: string;
   semanticTopChoiceName?: string;
@@ -5807,6 +5823,24 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.semanticTopFlowToTargetName) lines.push(`  semanticTopFlowToTargetName: ${agent.semanticTopFlowToTargetName}`);
   if (agent.semanticTopFlowToTargetSelector) lines.push(`  semanticTopFlowToTargetSelector: ${agent.semanticTopFlowToTargetSelector}`);
   if (agent.semanticTopFlowToSelector) lines.push(`  semanticTopFlowToSelector: ${agent.semanticTopFlowToSelector}`);
+  if (agent.semanticTopDetailsRelationTarget) lines.push(`  semanticTopDetailsRelation: ${agent.semanticTopDetailsRelationPath ?? ""}${agent.semanticTopDetailsRelationRole ? ` role=${agent.semanticTopDetailsRelationRole}` : ""}${agent.semanticTopDetailsRelationName ? ` name="${agent.semanticTopDetailsRelationName}"` : ""} target=${agent.semanticTopDetailsRelationTarget}${agent.semanticTopDetailsRelationTargetRole ? ` targetRole=${agent.semanticTopDetailsRelationTargetRole}` : ""}${agent.semanticTopDetailsRelationTargetName ? ` targetName=${agent.semanticTopDetailsRelationTargetName}` : ""}${agent.semanticTopDetailsRelationTargetSelector ? ` targetSelector=${agent.semanticTopDetailsRelationTargetSelector}` : ""}${agent.semanticTopDetailsRelationSelector ? ` selector=${agent.semanticTopDetailsRelationSelector}` : ""}`);
+  if (agent.semanticTopDetailsRelationRole) lines.push(`  semanticTopDetailsRelationRole: ${agent.semanticTopDetailsRelationRole}`);
+  if (agent.semanticTopDetailsRelationPath) lines.push(`  semanticTopDetailsRelationPath: ${agent.semanticTopDetailsRelationPath}`);
+  if (agent.semanticTopDetailsRelationName) lines.push(`  semanticTopDetailsRelationName: ${agent.semanticTopDetailsRelationName}`);
+  if (agent.semanticTopDetailsRelationTarget) lines.push(`  semanticTopDetailsRelationTarget: ${agent.semanticTopDetailsRelationTarget}`);
+  if (agent.semanticTopDetailsRelationTargetRole) lines.push(`  semanticTopDetailsRelationTargetRole: ${agent.semanticTopDetailsRelationTargetRole}`);
+  if (agent.semanticTopDetailsRelationTargetName) lines.push(`  semanticTopDetailsRelationTargetName: ${agent.semanticTopDetailsRelationTargetName}`);
+  if (agent.semanticTopDetailsRelationTargetSelector) lines.push(`  semanticTopDetailsRelationTargetSelector: ${agent.semanticTopDetailsRelationTargetSelector}`);
+  if (agent.semanticTopDetailsRelationSelector) lines.push(`  semanticTopDetailsRelationSelector: ${agent.semanticTopDetailsRelationSelector}`);
+  if (agent.semanticTopErrorMessageRelationTarget) lines.push(`  semanticTopErrorMessageRelation: ${agent.semanticTopErrorMessageRelationPath ?? ""}${agent.semanticTopErrorMessageRelationRole ? ` role=${agent.semanticTopErrorMessageRelationRole}` : ""}${agent.semanticTopErrorMessageRelationName ? ` name="${agent.semanticTopErrorMessageRelationName}"` : ""} target=${agent.semanticTopErrorMessageRelationTarget}${agent.semanticTopErrorMessageRelationTargetRole ? ` targetRole=${agent.semanticTopErrorMessageRelationTargetRole}` : ""}${agent.semanticTopErrorMessageRelationTargetName ? ` targetName=${agent.semanticTopErrorMessageRelationTargetName}` : ""}${agent.semanticTopErrorMessageRelationTargetSelector ? ` targetSelector=${agent.semanticTopErrorMessageRelationTargetSelector}` : ""}${agent.semanticTopErrorMessageRelationSelector ? ` selector=${agent.semanticTopErrorMessageRelationSelector}` : ""}`);
+  if (agent.semanticTopErrorMessageRelationRole) lines.push(`  semanticTopErrorMessageRelationRole: ${agent.semanticTopErrorMessageRelationRole}`);
+  if (agent.semanticTopErrorMessageRelationPath) lines.push(`  semanticTopErrorMessageRelationPath: ${agent.semanticTopErrorMessageRelationPath}`);
+  if (agent.semanticTopErrorMessageRelationName) lines.push(`  semanticTopErrorMessageRelationName: ${agent.semanticTopErrorMessageRelationName}`);
+  if (agent.semanticTopErrorMessageRelationTarget) lines.push(`  semanticTopErrorMessageRelationTarget: ${agent.semanticTopErrorMessageRelationTarget}`);
+  if (agent.semanticTopErrorMessageRelationTargetRole) lines.push(`  semanticTopErrorMessageRelationTargetRole: ${agent.semanticTopErrorMessageRelationTargetRole}`);
+  if (agent.semanticTopErrorMessageRelationTargetName) lines.push(`  semanticTopErrorMessageRelationTargetName: ${agent.semanticTopErrorMessageRelationTargetName}`);
+  if (agent.semanticTopErrorMessageRelationTargetSelector) lines.push(`  semanticTopErrorMessageRelationTargetSelector: ${agent.semanticTopErrorMessageRelationTargetSelector}`);
+  if (agent.semanticTopErrorMessageRelationSelector) lines.push(`  semanticTopErrorMessageRelationSelector: ${agent.semanticTopErrorMessageRelationSelector}`);
   if (agent.semanticTopChoiceRole) lines.push(`  semanticTopChoice: ${agent.semanticTopChoicePath ?? ""} role=${agent.semanticTopChoiceRole}${agent.semanticTopChoiceName ? ` name="${agent.semanticTopChoiceName}"` : ""}${agent.semanticTopChoiceState ? ` state=${agent.semanticTopChoiceState}` : ""}${typeof agent.semanticTopChoiceSelected === "boolean" ? ` selected=${agent.semanticTopChoiceSelected}` : ""}${typeof agent.semanticTopChoiceCurrent !== "undefined" ? ` current=${agent.semanticTopChoiceCurrent}` : ""}${typeof agent.semanticTopChoiceLevel === "number" ? ` level=${agent.semanticTopChoiceLevel}` : ""}${typeof agent.semanticTopChoicePosInSet === "number" ? ` posInSet=${agent.semanticTopChoicePosInSet}` : ""}${typeof agent.semanticTopChoiceSetSize === "number" ? ` setSize=${agent.semanticTopChoiceSetSize}` : ""}${agent.semanticTopChoiceSelector ? ` selector=${agent.semanticTopChoiceSelector}` : ""}`);
   if (agent.semanticTopChoiceRole) lines.push(`  semanticTopChoiceRole: ${agent.semanticTopChoiceRole}`);
   if (agent.semanticTopChoicePath) lines.push(`  semanticTopChoicePath: ${agent.semanticTopChoicePath}`);
@@ -14041,6 +14075,8 @@ function summarizeAgent(
   const topSemanticValue = semanticSummary?.valueItems[0];
   const topSemanticRelation = semanticSummary?.relationItems[0];
   const topSemanticFlowToRelation = semanticSummary?.relationItems.find((item) => item.relation === "flowto");
+  const topSemanticDetailsRelation = semanticSummary?.relationItems.find((item) => item.relation === "details");
+  const topSemanticErrorMessageRelation = semanticSummary?.relationItems.find((item) => item.relation === "errorMessage");
   const topSemanticChoice = semanticSummary?.choiceItems[0];
   const topSemanticChoiceState = formatSemanticState(topSemanticChoice?.state);
   const topSemanticSelectedChoice = semanticSummary?.choiceItems.find((item) => item.state?.selected === true)
@@ -14586,6 +14622,22 @@ function summarizeAgent(
     ...(topSemanticFlowToRelation?.targetName ? { semanticTopFlowToTargetName: topSemanticFlowToRelation.targetName } : {}),
     ...(topSemanticFlowToRelation?.targetSelector ? { semanticTopFlowToTargetSelector: topSemanticFlowToRelation.targetSelector } : {}),
     ...(topSemanticFlowToRelation?.selector ? { semanticTopFlowToSelector: topSemanticFlowToRelation.selector } : {}),
+    ...(topSemanticDetailsRelation ? { semanticTopDetailsRelationRole: topSemanticDetailsRelation.role } : {}),
+    ...(topSemanticDetailsRelation ? { semanticTopDetailsRelationPath: topSemanticDetailsRelation.path } : {}),
+    ...(topSemanticDetailsRelation?.name ? { semanticTopDetailsRelationName: topSemanticDetailsRelation.name } : {}),
+    ...(topSemanticDetailsRelation ? { semanticTopDetailsRelationTarget: topSemanticDetailsRelation.target } : {}),
+    ...(topSemanticDetailsRelation?.targetRole ? { semanticTopDetailsRelationTargetRole: topSemanticDetailsRelation.targetRole } : {}),
+    ...(topSemanticDetailsRelation?.targetName ? { semanticTopDetailsRelationTargetName: topSemanticDetailsRelation.targetName } : {}),
+    ...(topSemanticDetailsRelation?.targetSelector ? { semanticTopDetailsRelationTargetSelector: topSemanticDetailsRelation.targetSelector } : {}),
+    ...(topSemanticDetailsRelation?.selector ? { semanticTopDetailsRelationSelector: topSemanticDetailsRelation.selector } : {}),
+    ...(topSemanticErrorMessageRelation ? { semanticTopErrorMessageRelationRole: topSemanticErrorMessageRelation.role } : {}),
+    ...(topSemanticErrorMessageRelation ? { semanticTopErrorMessageRelationPath: topSemanticErrorMessageRelation.path } : {}),
+    ...(topSemanticErrorMessageRelation?.name ? { semanticTopErrorMessageRelationName: topSemanticErrorMessageRelation.name } : {}),
+    ...(topSemanticErrorMessageRelation ? { semanticTopErrorMessageRelationTarget: topSemanticErrorMessageRelation.target } : {}),
+    ...(topSemanticErrorMessageRelation?.targetRole ? { semanticTopErrorMessageRelationTargetRole: topSemanticErrorMessageRelation.targetRole } : {}),
+    ...(topSemanticErrorMessageRelation?.targetName ? { semanticTopErrorMessageRelationTargetName: topSemanticErrorMessageRelation.targetName } : {}),
+    ...(topSemanticErrorMessageRelation?.targetSelector ? { semanticTopErrorMessageRelationTargetSelector: topSemanticErrorMessageRelation.targetSelector } : {}),
+    ...(topSemanticErrorMessageRelation?.selector ? { semanticTopErrorMessageRelationSelector: topSemanticErrorMessageRelation.selector } : {}),
     ...(topSemanticChoice ? { semanticTopChoiceRole: topSemanticChoice.role } : {}),
     ...(topSemanticChoice ? { semanticTopChoicePath: topSemanticChoice.path } : {}),
     ...(topSemanticChoice?.name ? { semanticTopChoiceName: topSemanticChoice.name } : {}),
@@ -20992,6 +21044,22 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.semanticTopFlowToTargetName ? { semanticTopFlowToTargetName: agent.semanticTopFlowToTargetName } : {}),
     ...(agent.semanticTopFlowToTargetSelector ? { semanticTopFlowToTargetSelector: agent.semanticTopFlowToTargetSelector } : {}),
     ...(agent.semanticTopFlowToSelector ? { semanticTopFlowToSelector: agent.semanticTopFlowToSelector } : {}),
+    ...(agent.semanticTopDetailsRelationRole ? { semanticTopDetailsRelationRole: agent.semanticTopDetailsRelationRole } : {}),
+    ...(agent.semanticTopDetailsRelationPath ? { semanticTopDetailsRelationPath: agent.semanticTopDetailsRelationPath } : {}),
+    ...(agent.semanticTopDetailsRelationName ? { semanticTopDetailsRelationName: agent.semanticTopDetailsRelationName } : {}),
+    ...(agent.semanticTopDetailsRelationTarget ? { semanticTopDetailsRelationTarget: agent.semanticTopDetailsRelationTarget } : {}),
+    ...(agent.semanticTopDetailsRelationTargetRole ? { semanticTopDetailsRelationTargetRole: agent.semanticTopDetailsRelationTargetRole } : {}),
+    ...(agent.semanticTopDetailsRelationTargetName ? { semanticTopDetailsRelationTargetName: agent.semanticTopDetailsRelationTargetName } : {}),
+    ...(agent.semanticTopDetailsRelationTargetSelector ? { semanticTopDetailsRelationTargetSelector: agent.semanticTopDetailsRelationTargetSelector } : {}),
+    ...(agent.semanticTopDetailsRelationSelector ? { semanticTopDetailsRelationSelector: agent.semanticTopDetailsRelationSelector } : {}),
+    ...(agent.semanticTopErrorMessageRelationRole ? { semanticTopErrorMessageRelationRole: agent.semanticTopErrorMessageRelationRole } : {}),
+    ...(agent.semanticTopErrorMessageRelationPath ? { semanticTopErrorMessageRelationPath: agent.semanticTopErrorMessageRelationPath } : {}),
+    ...(agent.semanticTopErrorMessageRelationName ? { semanticTopErrorMessageRelationName: agent.semanticTopErrorMessageRelationName } : {}),
+    ...(agent.semanticTopErrorMessageRelationTarget ? { semanticTopErrorMessageRelationTarget: agent.semanticTopErrorMessageRelationTarget } : {}),
+    ...(agent.semanticTopErrorMessageRelationTargetRole ? { semanticTopErrorMessageRelationTargetRole: agent.semanticTopErrorMessageRelationTargetRole } : {}),
+    ...(agent.semanticTopErrorMessageRelationTargetName ? { semanticTopErrorMessageRelationTargetName: agent.semanticTopErrorMessageRelationTargetName } : {}),
+    ...(agent.semanticTopErrorMessageRelationTargetSelector ? { semanticTopErrorMessageRelationTargetSelector: agent.semanticTopErrorMessageRelationTargetSelector } : {}),
+    ...(agent.semanticTopErrorMessageRelationSelector ? { semanticTopErrorMessageRelationSelector: agent.semanticTopErrorMessageRelationSelector } : {}),
     ...(agent.semanticTopChoiceRole ? { semanticTopChoiceRole: agent.semanticTopChoiceRole } : {}),
     ...(agent.semanticTopChoicePath ? { semanticTopChoicePath: agent.semanticTopChoicePath } : {}),
     ...(agent.semanticTopChoiceName ? { semanticTopChoiceName: agent.semanticTopChoiceName } : {}),
@@ -22545,6 +22613,22 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.semanticTopFlowToTargetName ? { semanticTopFlowToTargetName: agent.semanticTopFlowToTargetName } : {}),
     ...(agent.semanticTopFlowToTargetSelector ? { semanticTopFlowToTargetSelector: agent.semanticTopFlowToTargetSelector } : {}),
     ...(agent.semanticTopFlowToSelector ? { semanticTopFlowToSelector: agent.semanticTopFlowToSelector } : {}),
+    ...(agent.semanticTopDetailsRelationRole ? { semanticTopDetailsRelationRole: agent.semanticTopDetailsRelationRole } : {}),
+    ...(agent.semanticTopDetailsRelationPath ? { semanticTopDetailsRelationPath: agent.semanticTopDetailsRelationPath } : {}),
+    ...(agent.semanticTopDetailsRelationName ? { semanticTopDetailsRelationName: agent.semanticTopDetailsRelationName } : {}),
+    ...(agent.semanticTopDetailsRelationTarget ? { semanticTopDetailsRelationTarget: agent.semanticTopDetailsRelationTarget } : {}),
+    ...(agent.semanticTopDetailsRelationTargetRole ? { semanticTopDetailsRelationTargetRole: agent.semanticTopDetailsRelationTargetRole } : {}),
+    ...(agent.semanticTopDetailsRelationTargetName ? { semanticTopDetailsRelationTargetName: agent.semanticTopDetailsRelationTargetName } : {}),
+    ...(agent.semanticTopDetailsRelationTargetSelector ? { semanticTopDetailsRelationTargetSelector: agent.semanticTopDetailsRelationTargetSelector } : {}),
+    ...(agent.semanticTopDetailsRelationSelector ? { semanticTopDetailsRelationSelector: agent.semanticTopDetailsRelationSelector } : {}),
+    ...(agent.semanticTopErrorMessageRelationRole ? { semanticTopErrorMessageRelationRole: agent.semanticTopErrorMessageRelationRole } : {}),
+    ...(agent.semanticTopErrorMessageRelationPath ? { semanticTopErrorMessageRelationPath: agent.semanticTopErrorMessageRelationPath } : {}),
+    ...(agent.semanticTopErrorMessageRelationName ? { semanticTopErrorMessageRelationName: agent.semanticTopErrorMessageRelationName } : {}),
+    ...(agent.semanticTopErrorMessageRelationTarget ? { semanticTopErrorMessageRelationTarget: agent.semanticTopErrorMessageRelationTarget } : {}),
+    ...(agent.semanticTopErrorMessageRelationTargetRole ? { semanticTopErrorMessageRelationTargetRole: agent.semanticTopErrorMessageRelationTargetRole } : {}),
+    ...(agent.semanticTopErrorMessageRelationTargetName ? { semanticTopErrorMessageRelationTargetName: agent.semanticTopErrorMessageRelationTargetName } : {}),
+    ...(agent.semanticTopErrorMessageRelationTargetSelector ? { semanticTopErrorMessageRelationTargetSelector: agent.semanticTopErrorMessageRelationTargetSelector } : {}),
+    ...(agent.semanticTopErrorMessageRelationSelector ? { semanticTopErrorMessageRelationSelector: agent.semanticTopErrorMessageRelationSelector } : {}),
     ...(agent.semanticTopChoiceRole ? { semanticTopChoiceRole: agent.semanticTopChoiceRole } : {}),
     ...(agent.semanticTopChoicePath ? { semanticTopChoicePath: agent.semanticTopChoicePath } : {}),
     ...(agent.semanticTopChoiceName ? { semanticTopChoiceName: agent.semanticTopChoiceName } : {}),

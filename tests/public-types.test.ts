@@ -1388,6 +1388,22 @@ describe("public agent types", () => {
       | "semanticTopFlowToTargetName"
       | "semanticTopFlowToTargetSelector"
       | "semanticTopFlowToSelector"
+      | "semanticTopDetailsRelationRole"
+      | "semanticTopDetailsRelationPath"
+      | "semanticTopDetailsRelationName"
+      | "semanticTopDetailsRelationTarget"
+      | "semanticTopDetailsRelationTargetRole"
+      | "semanticTopDetailsRelationTargetName"
+      | "semanticTopDetailsRelationTargetSelector"
+      | "semanticTopDetailsRelationSelector"
+      | "semanticTopErrorMessageRelationRole"
+      | "semanticTopErrorMessageRelationPath"
+      | "semanticTopErrorMessageRelationName"
+      | "semanticTopErrorMessageRelationTarget"
+      | "semanticTopErrorMessageRelationTargetRole"
+      | "semanticTopErrorMessageRelationTargetName"
+      | "semanticTopErrorMessageRelationTargetSelector"
+      | "semanticTopErrorMessageRelationSelector"
       | "semanticTopChoiceRole"
       | "semanticTopChoicePath"
       | "semanticTopChoiceName"
@@ -3043,6 +3059,22 @@ describe("public agent types", () => {
       semanticTopFlowToTargetName: "Next step",
       semanticTopFlowToTargetSelector: "#next-step",
       semanticTopFlowToSelector: "button[aria-flowto=\"next-step\"]",
+      semanticTopDetailsRelationRole: "button",
+      semanticTopDetailsRelationPath: "agent.semanticSummary.relationItems[2]",
+      semanticTopDetailsRelationName: "More filters",
+      semanticTopDetailsRelationTarget: "filter-help",
+      semanticTopDetailsRelationTargetRole: "note",
+      semanticTopDetailsRelationTargetName: "Filter help",
+      semanticTopDetailsRelationTargetSelector: "#filter-help",
+      semanticTopDetailsRelationSelector: "button[aria-details=\"filter-help\"]",
+      semanticTopErrorMessageRelationRole: "button",
+      semanticTopErrorMessageRelationPath: "agent.semanticSummary.relationItems[3]",
+      semanticTopErrorMessageRelationName: "More filters",
+      semanticTopErrorMessageRelationTarget: "filter-error",
+      semanticTopErrorMessageRelationTargetRole: "alert",
+      semanticTopErrorMessageRelationTargetName: "Filter error",
+      semanticTopErrorMessageRelationTargetSelector: "#filter-error",
+      semanticTopErrorMessageRelationSelector: "button[aria-errormessage=\"filter-error\"]",
       semanticTopChoiceRole: "option",
       semanticTopChoicePath: "agent.semanticSummary.choiceItems[0]",
       semanticTopChoiceName: "Reports",
