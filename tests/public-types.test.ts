@@ -1412,6 +1412,14 @@ describe("public agent types", () => {
       | "semanticTopErrorMessageRelationTargetName"
       | "semanticTopErrorMessageRelationTargetSelector"
       | "semanticTopErrorMessageRelationSelector"
+      | "semanticTopDescribedByRelationRole"
+      | "semanticTopDescribedByRelationPath"
+      | "semanticTopDescribedByRelationName"
+      | "semanticTopDescribedByRelationTarget"
+      | "semanticTopDescribedByRelationTargetRole"
+      | "semanticTopDescribedByRelationTargetName"
+      | "semanticTopDescribedByRelationTargetSelector"
+      | "semanticTopDescribedByRelationSelector"
       | "semanticTopChoiceRole"
       | "semanticTopChoicePath"
       | "semanticTopChoiceName"
@@ -3091,6 +3099,14 @@ describe("public agent types", () => {
       semanticTopErrorMessageRelationTargetName: "Filter error",
       semanticTopErrorMessageRelationTargetSelector: "#filter-error",
       semanticTopErrorMessageRelationSelector: "button[aria-errormessage=\"filter-error\"]",
+      semanticTopDescribedByRelationRole: "button",
+      semanticTopDescribedByRelationPath: "agent.semanticSummary.relationItems[5]",
+      semanticTopDescribedByRelationName: "More filters",
+      semanticTopDescribedByRelationTarget: "filter-help",
+      semanticTopDescribedByRelationTargetRole: "note",
+      semanticTopDescribedByRelationTargetName: "Filter help",
+      semanticTopDescribedByRelationTargetSelector: "#filter-help",
+      semanticTopDescribedByRelationSelector: "button[aria-describedby=\"filter-help\"]",
       semanticTopChoiceRole: "option",
       semanticTopChoicePath: "agent.semanticSummary.choiceItems[0]",
       semanticTopChoiceName: "Reports",

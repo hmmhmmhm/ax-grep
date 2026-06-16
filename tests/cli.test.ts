@@ -6389,6 +6389,7 @@ describe("cli", () => {
             aria-flowto="next-step"
             aria-details="extra-details"
             aria-errormessage="details-error"
+            aria-describedby="toggle-help"
           >Details</button>
           <section id="details-panel" role="region" aria-label="Details panel">
             Detailed report content.
@@ -6403,6 +6404,7 @@ describe("cli", () => {
             Extra details for this control.
           </aside>
           <p id="details-error" role="alert" aria-label="Details error">Details are currently unavailable.</p>
+          <p id="toggle-help" role="note" aria-label="Toggle help">Use this control to show details.</p>
           <p>Readable page content for relation, value, and description routing.</p>
         </main>
       `, { headers: { "content-type": "text/html" } }),
@@ -6462,6 +6464,15 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopErrorMessageRelationTargetName: Details error");
     expect(stdout.output).toContain("  semanticTopErrorMessageRelationTargetSelector: #details-error");
     expect(stdout.output).toContain("  semanticTopErrorMessageRelationSelector: button");
+    expect(stdout.output).toContain("  semanticTopDescribedByRelation: agent.semanticSummary.relationItems[5] role=button name=\"Toggle details\" target=toggle-help targetRole=note targetName=Toggle help targetSelector=#toggle-help selector=button");
+    expect(stdout.output).toContain("  semanticTopDescribedByRelationRole: button");
+    expect(stdout.output).toContain("  semanticTopDescribedByRelationPath: agent.semanticSummary.relationItems[5]");
+    expect(stdout.output).toContain("  semanticTopDescribedByRelationName: Toggle details");
+    expect(stdout.output).toContain("  semanticTopDescribedByRelationTarget: toggle-help");
+    expect(stdout.output).toContain("  semanticTopDescribedByRelationTargetRole: note");
+    expect(stdout.output).toContain("  semanticTopDescribedByRelationTargetName: Toggle help");
+    expect(stdout.output).toContain("  semanticTopDescribedByRelationTargetSelector: #toggle-help");
+    expect(stdout.output).toContain("  semanticTopDescribedByRelationSelector: button");
   });
 
   it("prints top semantic choice shortcuts in text agent output", async () => {

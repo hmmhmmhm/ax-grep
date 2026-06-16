@@ -224,7 +224,7 @@ type AgentSemanticSummary = {
   fieldItems: Array<{ path: string; role: string; name?: string; description?: string; value?: string; htmlName?: string; htmlType?: string; placeholder?: string; ariaPlaceholder?: string; autocomplete?: string; ariaAutocomplete?: string; inputMode?: string; pattern?: string; min?: string; max?: string; step?: string; minLength?: number; maxLength?: number; labelledBy?: string; labelledByText?: string; labelledBySelector?: string; describedBy?: string; describedByText?: string; describedBySelector?: string; details?: string; detailsText?: string; detailsSelector?: string; errorMessage?: string; errorMessageText?: string; errorMessageSelector?: string; selector?: string; state?: SemanticNodeState }>;
   descriptionItems: Array<{ path: string; role: string; name?: string; description: string; selector?: string }>;
   valueItems: Array<{ path: string; role: string; name?: string; value: string; selector?: string }>;
-  relationItems: Array<{ path: string; role: string; name?: string; relation: "controls" | "owns" | "flowto" | "activeDescendant" | "details" | "errorMessage"; target: string; targetRole?: string; targetName?: string; targetSelector?: string; selector?: string }>;
+  relationItems: Array<{ path: string; role: string; name?: string; relation: "controls" | "owns" | "flowto" | "activeDescendant" | "details" | "errorMessage" | "describedBy"; target: string; targetRole?: string; targetName?: string; targetSelector?: string; selector?: string }>;
   choiceItems: Array<{ path: string; role: string; name: string; level?: number; posInSet?: number; setSize?: number; selected?: boolean; current?: SemanticNodeState["current"]; selector?: string; state?: SemanticNodeState }>;
   stateItems: Array<{ path: string; role: string; name?: string; state: string; stateRaw?: SemanticNodeState; selector?: string }>;
   unavailableItems: Array<{ path: string; tag: string; role?: string; name?: string; reason: string; selector?: string }>;
@@ -1538,6 +1538,14 @@ type AgentSummary = {
   semanticTopErrorMessageRelationTargetName?: string;
   semanticTopErrorMessageRelationTargetSelector?: string;
   semanticTopErrorMessageRelationSelector?: string;
+  semanticTopDescribedByRelationRole?: string;
+  semanticTopDescribedByRelationPath?: string;
+  semanticTopDescribedByRelationName?: string;
+  semanticTopDescribedByRelationTarget?: string;
+  semanticTopDescribedByRelationTargetRole?: string;
+  semanticTopDescribedByRelationTargetName?: string;
+  semanticTopDescribedByRelationTargetSelector?: string;
+  semanticTopDescribedByRelationSelector?: string;
   semanticTopChoiceRole?: string;
   semanticTopChoicePath?: string;
   semanticTopChoiceName?: string;
@@ -5858,6 +5866,15 @@ function formatAgentText(agent: AgentSummary): string[] {
   if (agent.semanticTopErrorMessageRelationTargetName) lines.push(`  semanticTopErrorMessageRelationTargetName: ${agent.semanticTopErrorMessageRelationTargetName}`);
   if (agent.semanticTopErrorMessageRelationTargetSelector) lines.push(`  semanticTopErrorMessageRelationTargetSelector: ${agent.semanticTopErrorMessageRelationTargetSelector}`);
   if (agent.semanticTopErrorMessageRelationSelector) lines.push(`  semanticTopErrorMessageRelationSelector: ${agent.semanticTopErrorMessageRelationSelector}`);
+  if (agent.semanticTopDescribedByRelationTarget) lines.push(`  semanticTopDescribedByRelation: ${agent.semanticTopDescribedByRelationPath ?? ""}${agent.semanticTopDescribedByRelationRole ? ` role=${agent.semanticTopDescribedByRelationRole}` : ""}${agent.semanticTopDescribedByRelationName ? ` name="${agent.semanticTopDescribedByRelationName}"` : ""} target=${agent.semanticTopDescribedByRelationTarget}${agent.semanticTopDescribedByRelationTargetRole ? ` targetRole=${agent.semanticTopDescribedByRelationTargetRole}` : ""}${agent.semanticTopDescribedByRelationTargetName ? ` targetName=${agent.semanticTopDescribedByRelationTargetName}` : ""}${agent.semanticTopDescribedByRelationTargetSelector ? ` targetSelector=${agent.semanticTopDescribedByRelationTargetSelector}` : ""}${agent.semanticTopDescribedByRelationSelector ? ` selector=${agent.semanticTopDescribedByRelationSelector}` : ""}`);
+  if (agent.semanticTopDescribedByRelationRole) lines.push(`  semanticTopDescribedByRelationRole: ${agent.semanticTopDescribedByRelationRole}`);
+  if (agent.semanticTopDescribedByRelationPath) lines.push(`  semanticTopDescribedByRelationPath: ${agent.semanticTopDescribedByRelationPath}`);
+  if (agent.semanticTopDescribedByRelationName) lines.push(`  semanticTopDescribedByRelationName: ${agent.semanticTopDescribedByRelationName}`);
+  if (agent.semanticTopDescribedByRelationTarget) lines.push(`  semanticTopDescribedByRelationTarget: ${agent.semanticTopDescribedByRelationTarget}`);
+  if (agent.semanticTopDescribedByRelationTargetRole) lines.push(`  semanticTopDescribedByRelationTargetRole: ${agent.semanticTopDescribedByRelationTargetRole}`);
+  if (agent.semanticTopDescribedByRelationTargetName) lines.push(`  semanticTopDescribedByRelationTargetName: ${agent.semanticTopDescribedByRelationTargetName}`);
+  if (agent.semanticTopDescribedByRelationTargetSelector) lines.push(`  semanticTopDescribedByRelationTargetSelector: ${agent.semanticTopDescribedByRelationTargetSelector}`);
+  if (agent.semanticTopDescribedByRelationSelector) lines.push(`  semanticTopDescribedByRelationSelector: ${agent.semanticTopDescribedByRelationSelector}`);
   if (agent.semanticTopChoiceRole) lines.push(`  semanticTopChoice: ${agent.semanticTopChoicePath ?? ""} role=${agent.semanticTopChoiceRole}${agent.semanticTopChoiceName ? ` name="${agent.semanticTopChoiceName}"` : ""}${agent.semanticTopChoiceState ? ` state=${agent.semanticTopChoiceState}` : ""}${typeof agent.semanticTopChoiceSelected === "boolean" ? ` selected=${agent.semanticTopChoiceSelected}` : ""}${typeof agent.semanticTopChoiceCurrent !== "undefined" ? ` current=${agent.semanticTopChoiceCurrent}` : ""}${typeof agent.semanticTopChoiceLevel === "number" ? ` level=${agent.semanticTopChoiceLevel}` : ""}${typeof agent.semanticTopChoicePosInSet === "number" ? ` posInSet=${agent.semanticTopChoicePosInSet}` : ""}${typeof agent.semanticTopChoiceSetSize === "number" ? ` setSize=${agent.semanticTopChoiceSetSize}` : ""}${agent.semanticTopChoiceSelector ? ` selector=${agent.semanticTopChoiceSelector}` : ""}`);
   if (agent.semanticTopChoiceRole) lines.push(`  semanticTopChoiceRole: ${agent.semanticTopChoiceRole}`);
   if (agent.semanticTopChoicePath) lines.push(`  semanticTopChoicePath: ${agent.semanticTopChoicePath}`);
@@ -13078,6 +13095,7 @@ function summarizeAgentSemanticSummary(tree: SemanticNode, baseUrl?: string): Ag
       { relation: "activeDescendant" as const, target: node.attributes?.["aria-activedescendant"] },
       { relation: "details" as const, target: node.attributes?.["aria-details"] },
       { relation: "errorMessage" as const, target: node.attributes?.["aria-errormessage"] },
+      { relation: "describedBy" as const, target: node.attributes?.["aria-describedby"] },
     ];
     for (const item of semanticRelations) {
       const targets = semanticRelationTargets(item.target);
@@ -14095,6 +14113,7 @@ function summarizeAgent(
   const topSemanticFlowToRelation = semanticSummary?.relationItems.find((item) => item.relation === "flowto");
   const topSemanticDetailsRelation = semanticSummary?.relationItems.find((item) => item.relation === "details");
   const topSemanticErrorMessageRelation = semanticSummary?.relationItems.find((item) => item.relation === "errorMessage");
+  const topSemanticDescribedByRelation = semanticSummary?.relationItems.find((item) => item.relation === "describedBy");
   const topSemanticChoice = semanticSummary?.choiceItems[0];
   const topSemanticChoiceState = formatSemanticState(topSemanticChoice?.state);
   const topSemanticSelectedChoice = semanticSummary?.choiceItems.find((item) => item.state?.selected === true)
@@ -14664,6 +14683,14 @@ function summarizeAgent(
     ...(topSemanticErrorMessageRelation?.targetName ? { semanticTopErrorMessageRelationTargetName: topSemanticErrorMessageRelation.targetName } : {}),
     ...(topSemanticErrorMessageRelation?.targetSelector ? { semanticTopErrorMessageRelationTargetSelector: topSemanticErrorMessageRelation.targetSelector } : {}),
     ...(topSemanticErrorMessageRelation?.selector ? { semanticTopErrorMessageRelationSelector: topSemanticErrorMessageRelation.selector } : {}),
+    ...(topSemanticDescribedByRelation ? { semanticTopDescribedByRelationRole: topSemanticDescribedByRelation.role } : {}),
+    ...(topSemanticDescribedByRelation ? { semanticTopDescribedByRelationPath: topSemanticDescribedByRelation.path } : {}),
+    ...(topSemanticDescribedByRelation?.name ? { semanticTopDescribedByRelationName: topSemanticDescribedByRelation.name } : {}),
+    ...(topSemanticDescribedByRelation ? { semanticTopDescribedByRelationTarget: topSemanticDescribedByRelation.target } : {}),
+    ...(topSemanticDescribedByRelation?.targetRole ? { semanticTopDescribedByRelationTargetRole: topSemanticDescribedByRelation.targetRole } : {}),
+    ...(topSemanticDescribedByRelation?.targetName ? { semanticTopDescribedByRelationTargetName: topSemanticDescribedByRelation.targetName } : {}),
+    ...(topSemanticDescribedByRelation?.targetSelector ? { semanticTopDescribedByRelationTargetSelector: topSemanticDescribedByRelation.targetSelector } : {}),
+    ...(topSemanticDescribedByRelation?.selector ? { semanticTopDescribedByRelationSelector: topSemanticDescribedByRelation.selector } : {}),
     ...(topSemanticChoice ? { semanticTopChoiceRole: topSemanticChoice.role } : {}),
     ...(topSemanticChoice ? { semanticTopChoicePath: topSemanticChoice.path } : {}),
     ...(topSemanticChoice?.name ? { semanticTopChoiceName: topSemanticChoice.name } : {}),
@@ -21094,6 +21121,14 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.semanticTopErrorMessageRelationTargetName ? { semanticTopErrorMessageRelationTargetName: agent.semanticTopErrorMessageRelationTargetName } : {}),
     ...(agent.semanticTopErrorMessageRelationTargetSelector ? { semanticTopErrorMessageRelationTargetSelector: agent.semanticTopErrorMessageRelationTargetSelector } : {}),
     ...(agent.semanticTopErrorMessageRelationSelector ? { semanticTopErrorMessageRelationSelector: agent.semanticTopErrorMessageRelationSelector } : {}),
+    ...(agent.semanticTopDescribedByRelationRole ? { semanticTopDescribedByRelationRole: agent.semanticTopDescribedByRelationRole } : {}),
+    ...(agent.semanticTopDescribedByRelationPath ? { semanticTopDescribedByRelationPath: agent.semanticTopDescribedByRelationPath } : {}),
+    ...(agent.semanticTopDescribedByRelationName ? { semanticTopDescribedByRelationName: agent.semanticTopDescribedByRelationName } : {}),
+    ...(agent.semanticTopDescribedByRelationTarget ? { semanticTopDescribedByRelationTarget: agent.semanticTopDescribedByRelationTarget } : {}),
+    ...(agent.semanticTopDescribedByRelationTargetRole ? { semanticTopDescribedByRelationTargetRole: agent.semanticTopDescribedByRelationTargetRole } : {}),
+    ...(agent.semanticTopDescribedByRelationTargetName ? { semanticTopDescribedByRelationTargetName: agent.semanticTopDescribedByRelationTargetName } : {}),
+    ...(agent.semanticTopDescribedByRelationTargetSelector ? { semanticTopDescribedByRelationTargetSelector: agent.semanticTopDescribedByRelationTargetSelector } : {}),
+    ...(agent.semanticTopDescribedByRelationSelector ? { semanticTopDescribedByRelationSelector: agent.semanticTopDescribedByRelationSelector } : {}),
     ...(agent.semanticTopChoiceRole ? { semanticTopChoiceRole: agent.semanticTopChoiceRole } : {}),
     ...(agent.semanticTopChoicePath ? { semanticTopChoicePath: agent.semanticTopChoicePath } : {}),
     ...(agent.semanticTopChoiceName ? { semanticTopChoiceName: agent.semanticTopChoiceName } : {}),
@@ -22671,6 +22706,14 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.semanticTopErrorMessageRelationTargetName ? { semanticTopErrorMessageRelationTargetName: agent.semanticTopErrorMessageRelationTargetName } : {}),
     ...(agent.semanticTopErrorMessageRelationTargetSelector ? { semanticTopErrorMessageRelationTargetSelector: agent.semanticTopErrorMessageRelationTargetSelector } : {}),
     ...(agent.semanticTopErrorMessageRelationSelector ? { semanticTopErrorMessageRelationSelector: agent.semanticTopErrorMessageRelationSelector } : {}),
+    ...(agent.semanticTopDescribedByRelationRole ? { semanticTopDescribedByRelationRole: agent.semanticTopDescribedByRelationRole } : {}),
+    ...(agent.semanticTopDescribedByRelationPath ? { semanticTopDescribedByRelationPath: agent.semanticTopDescribedByRelationPath } : {}),
+    ...(agent.semanticTopDescribedByRelationName ? { semanticTopDescribedByRelationName: agent.semanticTopDescribedByRelationName } : {}),
+    ...(agent.semanticTopDescribedByRelationTarget ? { semanticTopDescribedByRelationTarget: agent.semanticTopDescribedByRelationTarget } : {}),
+    ...(agent.semanticTopDescribedByRelationTargetRole ? { semanticTopDescribedByRelationTargetRole: agent.semanticTopDescribedByRelationTargetRole } : {}),
+    ...(agent.semanticTopDescribedByRelationTargetName ? { semanticTopDescribedByRelationTargetName: agent.semanticTopDescribedByRelationTargetName } : {}),
+    ...(agent.semanticTopDescribedByRelationTargetSelector ? { semanticTopDescribedByRelationTargetSelector: agent.semanticTopDescribedByRelationTargetSelector } : {}),
+    ...(agent.semanticTopDescribedByRelationSelector ? { semanticTopDescribedByRelationSelector: agent.semanticTopDescribedByRelationSelector } : {}),
     ...(agent.semanticTopChoiceRole ? { semanticTopChoiceRole: agent.semanticTopChoiceRole } : {}),
     ...(agent.semanticTopChoicePath ? { semanticTopChoicePath: agent.semanticTopChoicePath } : {}),
     ...(agent.semanticTopChoiceName ? { semanticTopChoiceName: agent.semanticTopChoiceName } : {}),
