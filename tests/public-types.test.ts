@@ -1352,6 +1352,10 @@ describe("public agent types", () => {
       | "semanticTopFieldControlsTargetRole"
       | "semanticTopFieldControlsTargetName"
       | "semanticTopFieldControlsTargetSelector"
+      | "semanticTopFieldActiveDescendantTarget"
+      | "semanticTopFieldActiveDescendantTargetRole"
+      | "semanticTopFieldActiveDescendantTargetName"
+      | "semanticTopFieldActiveDescendantTargetSelector"
       | "semanticTopFieldValueMin"
       | "semanticTopFieldValueMax"
       | "semanticTopFieldValueNow"
@@ -2995,6 +2999,10 @@ describe("public agent types", () => {
       semanticTopFieldControlsTargetRole: "listbox",
       semanticTopFieldControlsTargetName: "Email suggestions",
       semanticTopFieldControlsTargetSelector: "#email-suggestions",
+      semanticTopFieldActiveDescendantTarget: "email-option-1",
+      semanticTopFieldActiveDescendantTargetRole: "option",
+      semanticTopFieldActiveDescendantTargetName: "ada@example.test",
+      semanticTopFieldActiveDescendantTargetSelector: "#email-option-1",
       semanticTopFieldValueMin: 0,
       semanticTopFieldValueMax: 100,
       semanticTopFieldValueNow: 40,

@@ -1846,6 +1846,10 @@ export type AgentSummary = {
   semanticTopFieldControlsTargetRole?: string;
   semanticTopFieldControlsTargetName?: string;
   semanticTopFieldControlsTargetSelector?: string;
+  semanticTopFieldActiveDescendantTarget?: string;
+  semanticTopFieldActiveDescendantTargetRole?: string;
+  semanticTopFieldActiveDescendantTargetName?: string;
+  semanticTopFieldActiveDescendantTargetSelector?: string;
   semanticTopFieldValueMin?: number;
   semanticTopFieldValueMax?: number;
   semanticTopFieldValueNow?: number;

@@ -6159,6 +6159,10 @@ describe("cli", () => {
       semanticTopFieldErrorMessage: "q-error",
       semanticTopFieldErrorMessageText: "Use at least two letters.",
       semanticTopFieldErrorMessageSelector: "#q-error",
+      semanticTopFieldActiveDescendantTarget: "suggestion-1",
+      semanticTopFieldActiveDescendantTargetRole: "option",
+      semanticTopFieldActiveDescendantTargetName: "Quarterly reports",
+      semanticTopFieldActiveDescendantTargetSelector: "#suggestion-1",
       semanticTopChoiceRole: "option",
       semanticTopChoicePath: "agent.semanticSummary.choiceItems[0]",
       semanticTopChoiceName: "Quarterly reports",
@@ -6217,8 +6221,9 @@ describe("cli", () => {
             aria-expanded="true"
             aria-haspopup="listbox"
             aria-controls="category"
+            aria-activedescendant="category-all"
           >
-          <select id="category" aria-label="Categories"><option>All</option></select>
+          <select id="category" aria-label="Categories"><option id="category-all">All</option></select>
           <p id="q-help">Use report names or dates.</p>
           <p id="q-details">Search across public and private archive records.</p>
           <p id="q-error">Use at least two letters.</p>
@@ -6266,6 +6271,10 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopFieldControlsTargetRole: combobox");
     expect(stdout.output).toContain("  semanticTopFieldControlsTargetName: Categories");
     expect(stdout.output).toContain("  semanticTopFieldControlsTargetSelector: #category");
+    expect(stdout.output).toContain("  semanticTopFieldActiveDescendantTarget: category-all");
+    expect(stdout.output).toContain("  semanticTopFieldActiveDescendantTargetRole: option");
+    expect(stdout.output).toContain("  semanticTopFieldActiveDescendantTargetName: All");
+    expect(stdout.output).toContain("  semanticTopFieldActiveDescendantTargetSelector: #category-all");
     expect(stdout.output).toContain("  semanticTopFieldSelector: #q");
   });
 
