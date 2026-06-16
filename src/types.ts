@@ -2545,6 +2545,14 @@ export type AgentSummary = {
   topTimelineUnixMs?: number;
   topTimelineSource?: string;
   topTimelineSelector?: string;
+  secondTimelinePath?: string;
+  secondTimelineKind?: string;
+  secondTimelineLabel?: string;
+  secondTimelineValue?: string;
+  secondTimelineIsoDate?: string;
+  secondTimelineUnixMs?: number;
+  secondTimelineSource?: string;
+  secondTimelineSelector?: string;
   topContactPointPath?: string;
   topContactPointKind?: string;
   topContactPointLabel?: string;

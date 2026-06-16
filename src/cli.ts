@@ -2177,6 +2177,14 @@ type AgentSummary = {
   topTimelineUnixMs?: number;
   topTimelineSource?: PageTimelineSummary["source"];
   topTimelineSelector?: string;
+  secondTimelinePath?: string;
+  secondTimelineKind?: PageTimelineSummary["kind"];
+  secondTimelineLabel?: string;
+  secondTimelineValue?: string;
+  secondTimelineIsoDate?: string;
+  secondTimelineUnixMs?: number;
+  secondTimelineSource?: PageTimelineSummary["source"];
+  secondTimelineSelector?: string;
   topContactPointPath?: string;
   topContactPointKind?: PageContactPointSummary["kind"];
   topContactPointLabel?: string;
@@ -5044,6 +5052,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topTimelineValue ? [`  topTimeline: path=${agent.topTimelinePath ?? ""}${agent.topTimelineKind ? ` kind=${agent.topTimelineKind}` : ""}${agent.topTimelineLabel ? ` label="${agent.topTimelineLabel}"` : ""} value=${agent.topTimelineValue}${agent.topTimelineIsoDate ? ` iso=${agent.topTimelineIsoDate}` : ""}${typeof agent.topTimelineUnixMs === "number" ? ` unixMs=${agent.topTimelineUnixMs}` : ""}${agent.topTimelineSource ? ` source=${agent.topTimelineSource}` : ""}${agent.topTimelineSelector ? ` selector=${agent.topTimelineSelector}` : ""}`] : []),
     ...(agent.topTimelineIsoDate ? [`  topTimelineIsoDate: ${agent.topTimelineIsoDate}`] : []),
     ...(typeof agent.topTimelineUnixMs === "number" ? [`  topTimelineUnixMs: ${agent.topTimelineUnixMs}`] : []),
+    ...(agent.secondTimelineValue ? [`  secondTimeline: path=${agent.secondTimelinePath ?? ""}${agent.secondTimelineKind ? ` kind=${agent.secondTimelineKind}` : ""}${agent.secondTimelineLabel ? ` label="${agent.secondTimelineLabel}"` : ""} value=${agent.secondTimelineValue}${agent.secondTimelineIsoDate ? ` iso=${agent.secondTimelineIsoDate}` : ""}${typeof agent.secondTimelineUnixMs === "number" ? ` unixMs=${agent.secondTimelineUnixMs}` : ""}${agent.secondTimelineSource ? ` source=${agent.secondTimelineSource}` : ""}${agent.secondTimelineSelector ? ` selector=${agent.secondTimelineSelector}` : ""}`] : []),
+    ...(agent.secondTimelineIsoDate ? [`  secondTimelineIsoDate: ${agent.secondTimelineIsoDate}`] : []),
+    ...(typeof agent.secondTimelineUnixMs === "number" ? [`  secondTimelineUnixMs: ${agent.secondTimelineUnixMs}`] : []),
     ...(agent.topContactPointValue ? [`  topContactPoint: path=${agent.topContactPointPath ?? ""}${agent.topContactPointKind ? ` kind=${agent.topContactPointKind}` : ""}${agent.topContactPointLabel ? ` label="${agent.topContactPointLabel}"` : ""} value=${agent.topContactPointValue}${agent.topContactPointSource ? ` source=${agent.topContactPointSource}` : ""}${agent.topContactPointSelector ? ` selector=${agent.topContactPointSelector}` : ""}${agent.topContactPointUrl ? ` url=<${agent.topContactPointUrl}>` : ""}${agent.topContactPointUrlPath ? ` urlPath=${agent.topContactPointUrlPath}` : ""}${agent.topContactPointUrlQuery ? ` urlQuery=${agent.topContactPointUrlQuery}` : ""}`] : []),
     ...(agent.topContactPointCommand ? [`  topContactPointCommand: ${agent.topContactPointCommand}`] : []),
     ...(agent.topContactPointCommandArgs ? [`  topContactPointCommandArgs: ${formatCommandArgsText(agent.topContactPointCommandArgs)}`] : []),
@@ -15664,6 +15675,14 @@ function summarizeAgent(
     ...(typeof pageCheck.timeline[0]?.unixMs === "number" ? { topTimelineUnixMs: pageCheck.timeline[0].unixMs } : {}),
     ...(pageCheck.timeline[0] ? { topTimelineSource: pageCheck.timeline[0].source } : {}),
     ...(pageCheck.timeline[0]?.selector ? { topTimelineSelector: pageCheck.timeline[0].selector } : {}),
+    ...(pageCheck.timeline[1] ? { secondTimelinePath: pageCheck.timeline[1].path } : {}),
+    ...(pageCheck.timeline[1] ? { secondTimelineKind: pageCheck.timeline[1].kind } : {}),
+    ...(pageCheck.timeline[1]?.label ? { secondTimelineLabel: pageCheck.timeline[1].label } : {}),
+    ...(pageCheck.timeline[1]?.value ? { secondTimelineValue: pageCheck.timeline[1].value } : {}),
+    ...(pageCheck.timeline[1]?.isoDate ? { secondTimelineIsoDate: pageCheck.timeline[1].isoDate } : {}),
+    ...(typeof pageCheck.timeline[1]?.unixMs === "number" ? { secondTimelineUnixMs: pageCheck.timeline[1].unixMs } : {}),
+    ...(pageCheck.timeline[1] ? { secondTimelineSource: pageCheck.timeline[1].source } : {}),
+    ...(pageCheck.timeline[1]?.selector ? { secondTimelineSelector: pageCheck.timeline[1].selector } : {}),
     ...(pageCheck.contactPoints[0] ? { topContactPointPath: pageCheck.contactPoints[0].path } : {}),
     ...(pageCheck.contactPoints[0] ? { topContactPointKind: pageCheck.contactPoints[0].kind } : {}),
     ...(pageCheck.contactPoints[0]?.label ? { topContactPointLabel: pageCheck.contactPoints[0].label } : {}),
@@ -22325,6 +22344,14 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.topTimelineUnixMs === "number" ? { topTimelineUnixMs: agent.topTimelineUnixMs } : {}),
     ...(agent.topTimelineSource ? { topTimelineSource: agent.topTimelineSource } : {}),
     ...(agent.topTimelineSelector ? { topTimelineSelector: agent.topTimelineSelector } : {}),
+    ...(agent.secondTimelinePath ? { secondTimelinePath: agent.secondTimelinePath } : {}),
+    ...(agent.secondTimelineKind ? { secondTimelineKind: agent.secondTimelineKind } : {}),
+    ...(agent.secondTimelineLabel ? { secondTimelineLabel: agent.secondTimelineLabel } : {}),
+    ...(agent.secondTimelineValue ? { secondTimelineValue: agent.secondTimelineValue } : {}),
+    ...(agent.secondTimelineIsoDate ? { secondTimelineIsoDate: agent.secondTimelineIsoDate } : {}),
+    ...(typeof agent.secondTimelineUnixMs === "number" ? { secondTimelineUnixMs: agent.secondTimelineUnixMs } : {}),
+    ...(agent.secondTimelineSource ? { secondTimelineSource: agent.secondTimelineSource } : {}),
+    ...(agent.secondTimelineSelector ? { secondTimelineSelector: agent.secondTimelineSelector } : {}),
     ...(agent.topContactPointPath ? { topContactPointPath: agent.topContactPointPath } : {}),
     ...(agent.topContactPointKind ? { topContactPointKind: agent.topContactPointKind } : {}),
     ...(agent.topContactPointLabel ? { topContactPointLabel: agent.topContactPointLabel } : {}),
@@ -24087,6 +24114,14 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.topTimelineUnixMs === "number" ? { topTimelineUnixMs: agent.topTimelineUnixMs } : {}),
     ...(agent.topTimelineSource ? { topTimelineSource: agent.topTimelineSource } : {}),
     ...(agent.topTimelineSelector ? { topTimelineSelector: agent.topTimelineSelector } : {}),
+    ...(agent.secondTimelinePath ? { secondTimelinePath: agent.secondTimelinePath } : {}),
+    ...(agent.secondTimelineKind ? { secondTimelineKind: agent.secondTimelineKind } : {}),
+    ...(agent.secondTimelineLabel ? { secondTimelineLabel: agent.secondTimelineLabel } : {}),
+    ...(agent.secondTimelineValue ? { secondTimelineValue: agent.secondTimelineValue } : {}),
+    ...(agent.secondTimelineIsoDate ? { secondTimelineIsoDate: agent.secondTimelineIsoDate } : {}),
+    ...(typeof agent.secondTimelineUnixMs === "number" ? { secondTimelineUnixMs: agent.secondTimelineUnixMs } : {}),
+    ...(agent.secondTimelineSource ? { secondTimelineSource: agent.secondTimelineSource } : {}),
+    ...(agent.secondTimelineSelector ? { secondTimelineSelector: agent.secondTimelineSelector } : {}),
     ...(agent.topContactPointPath ? { topContactPointPath: agent.topContactPointPath } : {}),
     ...(agent.topContactPointKind ? { topContactPointKind: agent.topContactPointKind } : {}),
     ...(agent.topContactPointLabel ? { topContactPointLabel: agent.topContactPointLabel } : {}),

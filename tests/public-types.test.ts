@@ -732,6 +732,14 @@ describe("public agent types", () => {
       | "topTimelineUnixMs"
       | "topTimelineSource"
       | "topTimelineSelector"
+      | "secondTimelinePath"
+      | "secondTimelineKind"
+      | "secondTimelineLabel"
+      | "secondTimelineValue"
+      | "secondTimelineIsoDate"
+      | "secondTimelineUnixMs"
+      | "secondTimelineSource"
+      | "secondTimelineSelector"
       | "topContactPointPath"
       | "topContactPointKind"
       | "topContactPointLabel"
@@ -2497,6 +2505,14 @@ describe("public agent types", () => {
       topTimelineUnixMs: Date.parse("2026-06-01T09:00:00Z"),
       topTimelineSource: "meta",
       topTimelineSelector: "meta[property=\"article:published_time\"]",
+      secondTimelinePath: "pageCheck.timeline[1]",
+      secondTimelineKind: "modified",
+      secondTimelineLabel: "Modified",
+      secondTimelineValue: "2026-06-08T10:30:00Z",
+      secondTimelineIsoDate: "2026-06-08T10:30:00.000Z",
+      secondTimelineUnixMs: Date.parse("2026-06-08T10:30:00Z"),
+      secondTimelineSource: "json-ld",
+      secondTimelineSelector: "script[type=\"application/ld+json\"]:nth-of-type(4)",
       topContactPointPath: "pageCheck.contactPoints[0]",
       topContactPointKind: "contact-url",
       topContactPointLabel: "Press",
@@ -4014,6 +4030,9 @@ describe("public agent types", () => {
     expect(summary.secondIdentityLogoUrlPath).toBe("/docs-logo.png");
     expect(summary.secondIdentitySameAsUrlPath).toBe("/example/docs");
     expect(summary.secondIdentitySameAsCommandArgs?.[1]).toBe("https://github.com/example/docs");
+    expect(summary.secondTimelinePath).toBe("pageCheck.timeline[1]");
+    expect(summary.secondTimelineIsoDate).toBe("2026-06-08T10:30:00.000Z");
+    expect(summary.secondTimelineUnixMs).toBe(Date.parse("2026-06-08T10:30:00Z"));
     expect(summary.topContactPointUrlPath).toBe("/contact/press");
     expect(summary.topContactPointCommandArgs?.[1]).toBe("https://example.test/contact/press");
     expect(summary.secondContactPointUrlPath).toBe("/support");

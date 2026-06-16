@@ -11507,6 +11507,13 @@ describe("cli", () => {
       topTimelineIsoDate: "2026-06-01T09:00:00.000Z",
       topTimelineUnixMs: Date.parse("2026-06-01T09:00:00Z"),
       topTimelineSource: "page",
+      secondTimelinePath: "pageCheck.timeline[1]",
+      secondTimelineKind: "modified",
+      secondTimelineLabel: "Modified",
+      secondTimelineValue: "2026-06-08T10:30:00Z",
+      secondTimelineIsoDate: "2026-06-08T10:30:00.000Z",
+      secondTimelineUnixMs: Date.parse("2026-06-08T10:30:00Z"),
+      secondTimelineSource: "page",
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.timeline",
@@ -11531,6 +11538,7 @@ describe("cli", () => {
       stdout,
       fetch: async () => new Response(`
         <main>
+          <time class="published" datetime="2026-06-01">Published June 1 2026</time>
           <time class="updated" datetime="2026-06-08">Updated June 8 2026</time>
         </main>
       `, { headers: { "content-type": "text/html" } }),
@@ -11541,15 +11549,23 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(envelope.agent).toMatchObject({
       contract: { profile: "brief" },
-      timelineCount: 1,
+      timelineCount: 2,
       topTimelinePath: "pageCheck.timeline[0]",
-      topTimelineKind: "modified",
-      topTimelineLabel: "updated",
-      topTimelineValue: "2026-06-08",
-      topTimelineIsoDate: "2026-06-08T00:00:00.000Z",
-      topTimelineUnixMs: Date.parse("2026-06-08"),
+      topTimelineKind: "published",
+      topTimelineLabel: "published",
+      topTimelineValue: "2026-06-01",
+      topTimelineIsoDate: "2026-06-01T00:00:00.000Z",
+      topTimelineUnixMs: Date.parse("2026-06-01"),
       topTimelineSource: "time",
       topTimelineSelector: "time:nth-of-type(1)",
+      secondTimelinePath: "pageCheck.timeline[1]",
+      secondTimelineKind: "modified",
+      secondTimelineLabel: "updated",
+      secondTimelineValue: "2026-06-08",
+      secondTimelineIsoDate: "2026-06-08T00:00:00.000Z",
+      secondTimelineUnixMs: Date.parse("2026-06-08"),
+      secondTimelineSource: "time",
+      secondTimelineSelector: "time:nth-of-type(2)",
     });
   });
 
@@ -11559,6 +11575,7 @@ describe("cli", () => {
       stdout,
       fetch: async () => new Response(`
         <main>
+          <time class="published" datetime="2026-06-01">Published June 1 2026</time>
           <time class="updated" datetime="2026-06-08">Updated June 8 2026</time>
         </main>
       `, { headers: { "content-type": "text/html" } }),
@@ -11566,8 +11583,9 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
-    expect(stdout.output).toContain(`  topTimeline: path=pageCheck.timeline[0] kind=modified label="updated" value=2026-06-08 iso=2026-06-08T00:00:00.000Z unixMs=${Date.parse("2026-06-08")} source=time selector=time:nth-of-type(1)`);
-    expect(stdout.output).toContain(`  timeline: id=tl1 path=pageCheck.timeline[0] kind=modified source=time label="updated" value=2026-06-08 iso=2026-06-08T00:00:00.000Z unixMs=${Date.parse("2026-06-08")} selector=time:nth-of-type(1)`);
+    expect(stdout.output).toContain(`  topTimeline: path=pageCheck.timeline[0] kind=published label="published" value=2026-06-01 iso=2026-06-01T00:00:00.000Z unixMs=${Date.parse("2026-06-01")} source=time selector=time:nth-of-type(1)`);
+    expect(stdout.output).toContain(`  secondTimeline: path=pageCheck.timeline[1] kind=modified label="updated" value=2026-06-08 iso=2026-06-08T00:00:00.000Z unixMs=${Date.parse("2026-06-08")} source=time selector=time:nth-of-type(2)`);
+    expect(stdout.output).toContain(`  timeline: id=tl1 path=pageCheck.timeline[0] kind=published source=time label="published" value=2026-06-01 iso=2026-06-01T00:00:00.000Z unixMs=${Date.parse("2026-06-01")} selector=time:nth-of-type(1)`);
   });
 
   it("summarizes contact points as pageCheck read targets for agents", async () => {
