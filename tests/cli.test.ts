@@ -566,7 +566,7 @@ describe("cli", () => {
           listCount: 1,
           descriptionCount: 1,
           valueCount: 1,
-          relationCount: 2,
+          relationCount: 3,
           topRoles: expect.arrayContaining([
             expect.objectContaining({ role: "p", count: 3 }),
             expect.objectContaining({ role: "link", count: 3 }),
@@ -757,6 +757,16 @@ describe("cli", () => {
             }),
             expect.objectContaining({
               path: "agent.semanticSummary.relationItems[1]",
+              role: "button",
+              name: "Toggle details",
+              relation: "describedBy",
+              target: "toggle-desc",
+              targetRole: "p",
+              targetSelector: "#toggle-desc",
+              selector: "button",
+            }),
+            expect.objectContaining({
+              path: "agent.semanticSummary.relationItems[2]",
               role: "table",
               name: "Metrics",
               relation: "owns",
@@ -802,7 +812,7 @@ describe("cli", () => {
         semanticListCount: 1,
         semanticDescriptionCount: 1,
         semanticValueCount: 1,
-        semanticRelationCount: 2,
+        semanticRelationCount: 3,
         semanticTopRole: "link",
         semanticTopRoleCount: 3,
         semanticOutlineCount: 3,
@@ -1735,6 +1745,19 @@ describe("cli", () => {
           expect(envelope.agent.topAnswerEvidenceCommandArgs?.[1]).toBe(topAnswerEvidence.url);
         }
         if (typeof topAnswerEvidence.score === "number") expect(envelope.agent.topAnswerEvidenceScore).toBe(topAnswerEvidence.score);
+      }
+      const secondAnswerEvidence = envelope.agent.answerEvidence?.[1] ?? handoff.answerEvidence?.[1];
+      if (secondAnswerEvidence) {
+        expect(envelope.agent.secondAnswerEvidenceId).toBe(secondAnswerEvidence.id);
+        expect(envelope.agent.secondAnswerEvidencePath).toBe(secondAnswerEvidence.path);
+        expect(envelope.agent.secondAnswerEvidenceKind).toBe(secondAnswerEvidence.kind);
+        if (secondAnswerEvidence.text || secondAnswerEvidence.title) expect(envelope.agent.secondAnswerEvidenceText).toBe(secondAnswerEvidence.text ?? secondAnswerEvidence.title);
+        if (secondAnswerEvidence.url) expect(envelope.agent.secondAnswerEvidenceUrl).toBe(secondAnswerEvidence.url);
+        if (secondAnswerEvidence.url?.startsWith("http")) {
+          expect(envelope.agent.secondAnswerEvidenceUrlPath).toBe(new URL(secondAnswerEvidence.url).pathname || "/");
+          expect(envelope.agent.secondAnswerEvidenceCommandArgs?.[1]).toBe(secondAnswerEvidence.url);
+        }
+        if (typeof secondAnswerEvidence.score === "number") expect(envelope.agent.secondAnswerEvidenceScore).toBe(secondAnswerEvidence.score);
       }
       if (handoff.useCitationIds?.length) expect(envelope.agent.answerUseCitationIds).toEqual(handoff.useCitationIds);
       if (handoff.readFrom) expect(envelope.agent.answerPlanReadFrom).toBe(handoff.readFrom);

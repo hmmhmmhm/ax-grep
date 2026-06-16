@@ -1182,6 +1182,19 @@ describe("public agent types", () => {
       | "topAnswerEvidenceConfidence"
       | "topAnswerEvidenceReason"
       | "topAnswerEvidenceScore"
+      | "secondAnswerEvidenceId"
+      | "secondAnswerEvidencePath"
+      | "secondAnswerEvidenceKind"
+      | "secondAnswerEvidenceText"
+      | "secondAnswerEvidenceTitle"
+      | "secondAnswerEvidenceUrl"
+      | "secondAnswerEvidenceUrlPath"
+      | "secondAnswerEvidenceUrlQuery"
+      | "secondAnswerEvidenceCommand"
+      | "secondAnswerEvidenceCommandArgs"
+      | "secondAnswerEvidenceConfidence"
+      | "secondAnswerEvidenceReason"
+      | "secondAnswerEvidenceScore"
       | "searchDecision"
       | "searchDecisionName"
       | "searchDecisionConfidence"
@@ -2976,7 +2989,7 @@ describe("public agent types", () => {
       secondCitationConfidence: "medium",
       secondCitationReason: "Source citation.",
       secondCitationScore: 0.58,
-      answerEvidenceCount: 1,
+      answerEvidenceCount: 2,
       topAnswerEvidenceId: "e1",
       topAnswerEvidencePath: "pageCheck.contentEvidence[0]",
       topAnswerEvidenceKind: "content",
@@ -2989,6 +3002,19 @@ describe("public agent types", () => {
       topAnswerEvidenceConfidence: "high",
       topAnswerEvidenceReason: "Primary answer evidence.",
       topAnswerEvidenceScore: 0.9,
+      secondAnswerEvidenceId: "e2",
+      secondAnswerEvidencePath: "pageCheck.contentEvidence[1]",
+      secondAnswerEvidenceKind: "content",
+      secondAnswerEvidenceText: "Additional evidence",
+      secondAnswerEvidenceTitle: "Additional evidence title",
+      secondAnswerEvidenceUrl: "https://example.test/evidence?ref=2",
+      secondAnswerEvidenceUrlPath: "/evidence",
+      secondAnswerEvidenceUrlQuery: "?ref=2",
+      secondAnswerEvidenceCommand: "ax-grep https://example.test/evidence?ref=2 --agent",
+      secondAnswerEvidenceCommandArgs: ["ax-grep", "https://example.test/evidence?ref=2", "--agent"],
+      secondAnswerEvidenceConfidence: "medium",
+      secondAnswerEvidenceReason: "Secondary answer evidence.",
+      secondAnswerEvidenceScore: 0.72,
       searchDecision: {
         decision: "open-result",
         confidence: "high",
@@ -4345,6 +4371,11 @@ describe("public agent types", () => {
     expect(summary.topAnswerEvidenceUrlPath).toBe("/");
     expect(summary.topAnswerEvidenceCommandArgs?.[1]).toBe("https://example.test");
     expect(summary.topAnswerEvidenceScore).toBe(0.9);
+    expect(summary.secondAnswerEvidencePath).toBe("pageCheck.contentEvidence[1]");
+    expect(summary.secondAnswerEvidenceUrlPath).toBe("/evidence");
+    expect(summary.secondAnswerEvidenceUrlQuery).toBe("?ref=2");
+    expect(summary.secondAnswerEvidenceCommandArgs?.[1]).toBe("https://example.test/evidence?ref=2");
+    expect(summary.secondAnswerEvidenceScore).toBe(0.72);
     expect(summary.answerPlanStatus).toBe("ready");
     expect(summary.answerPlanNextAction).toBe("read-content");
     expect(summary.answerPlanReadTargetKind).toBe("evidence");

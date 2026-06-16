@@ -2636,6 +2636,19 @@ type AgentSummary = {
   topAnswerEvidenceConfidence?: AgentCitation["confidence"];
   topAnswerEvidenceReason?: string;
   topAnswerEvidenceScore?: number;
+  secondAnswerEvidenceId?: string;
+  secondAnswerEvidencePath?: string;
+  secondAnswerEvidenceKind?: AgentCitation["kind"];
+  secondAnswerEvidenceText?: string;
+  secondAnswerEvidenceTitle?: string;
+  secondAnswerEvidenceUrl?: string;
+  secondAnswerEvidenceUrlPath?: string;
+  secondAnswerEvidenceUrlQuery?: string;
+  secondAnswerEvidenceCommand?: string;
+  secondAnswerEvidenceCommandArgs?: string[];
+  secondAnswerEvidenceConfidence?: AgentCitation["confidence"];
+  secondAnswerEvidenceReason?: string;
+  secondAnswerEvidenceScore?: number;
   answerPlanStatus?: AgentAnswerPlan["status"];
   answerPlanConfidence?: AgentAnswerPlan["confidence"];
   answerPlanReason?: string;
@@ -5517,6 +5530,20 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topAnswerEvidenceConfidence ? [`  topAnswerEvidenceConfidence: ${agent.topAnswerEvidenceConfidence}`] : []),
     ...(agent.topAnswerEvidenceReason ? [`  topAnswerEvidenceReason: ${agent.topAnswerEvidenceReason}`] : []),
     ...(typeof agent.topAnswerEvidenceScore === "number" ? [`  topAnswerEvidenceScore: ${agent.topAnswerEvidenceScore}`] : []),
+    ...(agent.secondAnswerEvidenceId ? [`  secondAnswerEvidence: id=${agent.secondAnswerEvidenceId} path=${agent.secondAnswerEvidencePath}${typeof agent.secondAnswerEvidenceScore === "number" ? ` score=${agent.secondAnswerEvidenceScore}` : ""}${agent.secondAnswerEvidenceText ? ` - ${agent.secondAnswerEvidenceText}` : ""}`] : []),
+    ...(agent.secondAnswerEvidenceId ? [`  secondAnswerEvidenceId: ${agent.secondAnswerEvidenceId}`] : []),
+    ...(agent.secondAnswerEvidencePath ? [`  secondAnswerEvidencePath: ${agent.secondAnswerEvidencePath}`] : []),
+    ...(agent.secondAnswerEvidenceKind ? [`  secondAnswerEvidenceKind: ${agent.secondAnswerEvidenceKind}`] : []),
+    ...(agent.secondAnswerEvidenceText ? [`  secondAnswerEvidenceText: ${agent.secondAnswerEvidenceText}`] : []),
+    ...(agent.secondAnswerEvidenceTitle ? [`  secondAnswerEvidenceTitle: ${agent.secondAnswerEvidenceTitle}`] : []),
+    ...(agent.secondAnswerEvidenceUrl ? [`  secondAnswerEvidenceUrl: ${agent.secondAnswerEvidenceUrl}`] : []),
+    ...(agent.secondAnswerEvidenceUrlPath ? [`  secondAnswerEvidenceUrlPath: ${agent.secondAnswerEvidenceUrlPath}`] : []),
+    ...(agent.secondAnswerEvidenceUrlQuery ? [`  secondAnswerEvidenceUrlQuery: ${agent.secondAnswerEvidenceUrlQuery}`] : []),
+    ...(agent.secondAnswerEvidenceCommand ? [`  secondAnswerEvidenceCommand: ${agent.secondAnswerEvidenceCommand}`] : []),
+    ...(agent.secondAnswerEvidenceCommandArgs ? [`  secondAnswerEvidenceCommandArgs: ${formatCommandArgsText(agent.secondAnswerEvidenceCommandArgs)}`] : []),
+    ...(agent.secondAnswerEvidenceConfidence ? [`  secondAnswerEvidenceConfidence: ${agent.secondAnswerEvidenceConfidence}`] : []),
+    ...(agent.secondAnswerEvidenceReason ? [`  secondAnswerEvidenceReason: ${agent.secondAnswerEvidenceReason}`] : []),
+    ...(typeof agent.secondAnswerEvidenceScore === "number" ? [`  secondAnswerEvidenceScore: ${agent.secondAnswerEvidenceScore}`] : []),
     `  readTargetCount: ${agent.readTargetCount}`,
     ...(agent.topReadTarget ? [`  topReadTarget: ${agent.topReadTarget}`] : []),
     ...(agent.topReadTargetKind ? [`  topReadTargetKind: ${agent.topReadTargetKind}`] : []),
@@ -14517,7 +14544,11 @@ function summarizeAgent(
   const topAnswerEvidenceCommand = answerEvidence[0]?.url && /^https?:\/\//i.test(answerEvidence[0].url)
     ? pageCommandSpec(answerEvidence[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const secondAnswerEvidenceCommand = answerEvidence[1]?.url && /^https?:\/\//i.test(answerEvidence[1].url)
+    ? pageCommandSpec(answerEvidence[1].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topAnswerEvidenceUrlParts = answerEvidence[0]?.url ? urlPathParts(answerEvidence[0].url) : undefined;
+  const secondAnswerEvidenceUrlParts = answerEvidence[1]?.url ? urlPathParts(answerEvidence[1].url) : undefined;
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, answerEvidence, resultChoices, sourceChoices, sourceSearchAgent, signals, qualityGates, verification.foundQueries, verification.missingQueries);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
   const executorTargetUrlParts = executor.target?.url ? urlPathParts(executor.target.url) : undefined;
@@ -16221,6 +16252,19 @@ function summarizeAgent(
     ...(answerEvidence[0]?.confidence ? { topAnswerEvidenceConfidence: answerEvidence[0].confidence } : {}),
     ...(answerEvidence[0]?.reason ? { topAnswerEvidenceReason: answerEvidence[0].reason } : {}),
     ...(typeof answerEvidence[0]?.score === "number" ? { topAnswerEvidenceScore: answerEvidence[0].score } : {}),
+    ...(answerEvidence[1] ? { secondAnswerEvidenceId: answerEvidence[1].id } : {}),
+    ...(answerEvidence[1] ? { secondAnswerEvidencePath: answerEvidence[1].path } : {}),
+    ...(answerEvidence[1] ? { secondAnswerEvidenceKind: answerEvidence[1].kind } : {}),
+    ...(answerEvidence[1]?.text || answerEvidence[1]?.title ? { secondAnswerEvidenceText: answerEvidence[1].text ?? answerEvidence[1].title } : {}),
+    ...(answerEvidence[1]?.title ? { secondAnswerEvidenceTitle: answerEvidence[1].title } : {}),
+    ...(answerEvidence[1]?.url ? { secondAnswerEvidenceUrl: answerEvidence[1].url } : {}),
+    ...(secondAnswerEvidenceUrlParts?.urlPath ? { secondAnswerEvidenceUrlPath: secondAnswerEvidenceUrlParts.urlPath } : {}),
+    ...(secondAnswerEvidenceUrlParts?.urlQuery ? { secondAnswerEvidenceUrlQuery: secondAnswerEvidenceUrlParts.urlQuery } : {}),
+    ...(secondAnswerEvidenceCommand ? { secondAnswerEvidenceCommand: secondAnswerEvidenceCommand.command } : {}),
+    ...(secondAnswerEvidenceCommand ? { secondAnswerEvidenceCommandArgs: secondAnswerEvidenceCommand.commandArgs } : {}),
+    ...(answerEvidence[1]?.confidence ? { secondAnswerEvidenceConfidence: answerEvidence[1].confidence } : {}),
+    ...(answerEvidence[1]?.reason ? { secondAnswerEvidenceReason: answerEvidence[1].reason } : {}),
+    ...(typeof answerEvidence[1]?.score === "number" ? { secondAnswerEvidenceScore: answerEvidence[1].score } : {}),
     answerPlanStatus: answerPlan.status,
     answerPlanConfidence: answerPlan.confidence,
     answerPlanReason: answerPlan.reason,
@@ -22909,6 +22953,19 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topAnswerEvidenceConfidence ? { topAnswerEvidenceConfidence: agent.topAnswerEvidenceConfidence } : {}),
     ...(agent.topAnswerEvidenceReason ? { topAnswerEvidenceReason: agent.topAnswerEvidenceReason } : {}),
     ...(typeof agent.topAnswerEvidenceScore === "number" ? { topAnswerEvidenceScore: agent.topAnswerEvidenceScore } : {}),
+    ...(agent.secondAnswerEvidenceId ? { secondAnswerEvidenceId: agent.secondAnswerEvidenceId } : {}),
+    ...(agent.secondAnswerEvidencePath ? { secondAnswerEvidencePath: agent.secondAnswerEvidencePath } : {}),
+    ...(agent.secondAnswerEvidenceKind ? { secondAnswerEvidenceKind: agent.secondAnswerEvidenceKind } : {}),
+    ...(agent.secondAnswerEvidenceText ? { secondAnswerEvidenceText: agent.secondAnswerEvidenceText } : {}),
+    ...(agent.secondAnswerEvidenceTitle ? { secondAnswerEvidenceTitle: agent.secondAnswerEvidenceTitle } : {}),
+    ...(agent.secondAnswerEvidenceUrl ? { secondAnswerEvidenceUrl: agent.secondAnswerEvidenceUrl } : {}),
+    ...(agent.secondAnswerEvidenceUrlPath ? { secondAnswerEvidenceUrlPath: agent.secondAnswerEvidenceUrlPath } : {}),
+    ...(agent.secondAnswerEvidenceUrlQuery ? { secondAnswerEvidenceUrlQuery: agent.secondAnswerEvidenceUrlQuery } : {}),
+    ...(agent.secondAnswerEvidenceCommand ? { secondAnswerEvidenceCommand: agent.secondAnswerEvidenceCommand } : {}),
+    ...(agent.secondAnswerEvidenceCommandArgs ? { secondAnswerEvidenceCommandArgs: agent.secondAnswerEvidenceCommandArgs } : {}),
+    ...(agent.secondAnswerEvidenceConfidence ? { secondAnswerEvidenceConfidence: agent.secondAnswerEvidenceConfidence } : {}),
+    ...(agent.secondAnswerEvidenceReason ? { secondAnswerEvidenceReason: agent.secondAnswerEvidenceReason } : {}),
+    ...(typeof agent.secondAnswerEvidenceScore === "number" ? { secondAnswerEvidenceScore: agent.secondAnswerEvidenceScore } : {}),
     ...(agent.answerPlanStatus ? { answerPlanStatus: agent.answerPlanStatus } : {}),
     ...(agent.answerPlanConfidence ? { answerPlanConfidence: agent.answerPlanConfidence } : {}),
     ...(agent.answerPlanReason ? { answerPlanReason: agent.answerPlanReason } : {}),
@@ -24735,6 +24792,19 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topAnswerEvidenceConfidence ? { topAnswerEvidenceConfidence: agent.topAnswerEvidenceConfidence } : {}),
     ...(agent.topAnswerEvidenceReason ? { topAnswerEvidenceReason: agent.topAnswerEvidenceReason } : {}),
     ...(typeof agent.topAnswerEvidenceScore === "number" ? { topAnswerEvidenceScore: agent.topAnswerEvidenceScore } : {}),
+    ...(agent.secondAnswerEvidenceId ? { secondAnswerEvidenceId: agent.secondAnswerEvidenceId } : {}),
+    ...(agent.secondAnswerEvidencePath ? { secondAnswerEvidencePath: agent.secondAnswerEvidencePath } : {}),
+    ...(agent.secondAnswerEvidenceKind ? { secondAnswerEvidenceKind: agent.secondAnswerEvidenceKind } : {}),
+    ...(agent.secondAnswerEvidenceText ? { secondAnswerEvidenceText: agent.secondAnswerEvidenceText } : {}),
+    ...(agent.secondAnswerEvidenceTitle ? { secondAnswerEvidenceTitle: agent.secondAnswerEvidenceTitle } : {}),
+    ...(agent.secondAnswerEvidenceUrl ? { secondAnswerEvidenceUrl: agent.secondAnswerEvidenceUrl } : {}),
+    ...(agent.secondAnswerEvidenceUrlPath ? { secondAnswerEvidenceUrlPath: agent.secondAnswerEvidenceUrlPath } : {}),
+    ...(agent.secondAnswerEvidenceUrlQuery ? { secondAnswerEvidenceUrlQuery: agent.secondAnswerEvidenceUrlQuery } : {}),
+    ...(agent.secondAnswerEvidenceCommand ? { secondAnswerEvidenceCommand: agent.secondAnswerEvidenceCommand } : {}),
+    ...(agent.secondAnswerEvidenceCommandArgs ? { secondAnswerEvidenceCommandArgs: agent.secondAnswerEvidenceCommandArgs } : {}),
+    ...(agent.secondAnswerEvidenceConfidence ? { secondAnswerEvidenceConfidence: agent.secondAnswerEvidenceConfidence } : {}),
+    ...(agent.secondAnswerEvidenceReason ? { secondAnswerEvidenceReason: agent.secondAnswerEvidenceReason } : {}),
+    ...(typeof agent.secondAnswerEvidenceScore === "number" ? { secondAnswerEvidenceScore: agent.secondAnswerEvidenceScore } : {}),
     ...(agent.answerPlanStatus ? { answerPlanStatus: agent.answerPlanStatus } : {}),
     ...(agent.answerPlanConfidence ? { answerPlanConfidence: agent.answerPlanConfidence } : {}),
     ...(agent.answerPlanReason ? { answerPlanReason: agent.answerPlanReason } : {}),
