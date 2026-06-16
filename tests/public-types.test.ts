@@ -996,6 +996,15 @@ describe("public agent types", () => {
       | "topHydrationCommand"
       | "topHydrationCommandArgs"
       | "topHydrationSelector"
+      | "secondHydrationPath"
+      | "secondHydrationKind"
+      | "secondHydrationLabel"
+      | "secondHydrationUrl"
+      | "secondHydrationUrlPath"
+      | "secondHydrationUrlQuery"
+      | "secondHydrationCommand"
+      | "secondHydrationCommandArgs"
+      | "secondHydrationSelector"
       | "topApiEndpointPath"
       | "topApiEndpointKind"
       | "topApiEndpointMethod"
@@ -2976,6 +2985,15 @@ describe("public agent types", () => {
       topHydrationCommand: "ax-grep 'https://example.test/_next/data/build/index.json' --agent",
       topHydrationCommandArgs: ["ax-grep", "https://example.test/_next/data/build/index.json", "--agent"],
       topHydrationSelector: "script#__NEXT_DATA__",
+      secondHydrationPath: "pageCheck.hydration[1]",
+      secondHydrationKind: "fetch-preload",
+      secondHydrationLabel: "Fetch preload",
+      secondHydrationUrl: "https://example.test/api/bootstrap.json?locale=en",
+      secondHydrationUrlPath: "/api/bootstrap.json",
+      secondHydrationUrlQuery: "?locale=en",
+      secondHydrationCommand: "ax-grep 'https://example.test/api/bootstrap.json?locale=en' --agent",
+      secondHydrationCommandArgs: ["ax-grep", "https://example.test/api/bootstrap.json?locale=en", "--agent"],
+      secondHydrationSelector: "link[rel=\"preload\"]",
       topApiEndpointPath: "pageCheck.apiEndpoints[0]",
       topApiEndpointKind: "graphql",
       topApiEndpointMethod: "GET",
@@ -4423,6 +4441,11 @@ describe("public agent types", () => {
     expect(summary.hiddenSignalCount).toBe(4);
     expect(summary.topHydrationUrlPath).toBe("/_next/data/build/index.json");
     expect(summary.topHydrationCommandArgs?.[1]).toBe("https://example.test/_next/data/build/index.json");
+    expect(summary.secondHydrationPath).toBe("pageCheck.hydration[1]");
+    expect(summary.secondHydrationUrlPath).toBe("/api/bootstrap.json");
+    expect(summary.secondHydrationUrlQuery).toBe("?locale=en");
+    expect(summary.secondHydrationCommandArgs?.[1]).toBe("https://example.test/api/bootstrap.json?locale=en");
+    expect(summary.secondHydrationSelector).toBe("link[rel=\"preload\"]");
     expect(summary.hiddenApiEndpointCount).toBe(2);
     expect(summary.topApiEndpointUrl).toBe("https://example.test/graphql");
     expect(summary.topApiEndpointUrlPath).toBe("/graphql");

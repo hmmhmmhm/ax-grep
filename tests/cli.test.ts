@@ -9090,6 +9090,14 @@ describe("cli", () => {
       staticReadinessReason: expect.stringContaining("hidden app data"),
       topHydrationUrlPath: "/_next/data/build-123/docs.json",
       topHydrationCommandArgs: ["ax-grep", "https://example.test/_next/data/build-123/docs.json", "--agent"],
+      secondHydrationPath: "pageCheck.hydration[1]",
+      secondHydrationKind: "fetch-preload",
+      secondHydrationLabel: "Fetch preload",
+      secondHydrationUrl: "https://example.test/api/bootstrap.json",
+      secondHydrationUrlPath: "/api/bootstrap.json",
+      secondHydrationCommand: "ax-grep 'https://example.test/api/bootstrap.json' --agent",
+      secondHydrationCommandArgs: ["ax-grep", "https://example.test/api/bootstrap.json", "--agent"],
+      secondHydrationSelector: "link[rel=\"preload\"]:nth-of-type(1)",
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.hydration",
@@ -12125,6 +12133,7 @@ describe("cli", () => {
           <head>
             <link rel="manifest" href="/site.webmanifest">
             <link rel="canonical" href="/app/canonical">
+            <link rel="preload" as="fetch" href="/api/bootstrap.json" type="application/json">
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <meta name="keywords" content="agent shell">
             <meta http-equiv="referrer-policy" content="strict-origin">
@@ -12155,6 +12164,8 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topHydration: path=pageCheck.hydration[0] kind=next-data label=\"Next.js data\" selector=script#__NEXT_DATA__:nth-of-type(1) url=<https://example.test/_next/data/build-123/app.json> urlPath=/_next/data/build-123/app.json");
+    expect(stdout.output).toContain("  secondHydration: path=pageCheck.hydration[1] kind=fetch-preload label=\"Fetch preload\" selector=link[rel=\"preload\"]:nth-of-type(3) url=<https://example.test/api/bootstrap.json> urlPath=/api/bootstrap.json");
+    expect(stdout.output).toContain("  secondHydrationCommand: ax-grep 'https://example.test/api/bootstrap.json'");
     expect(stdout.output).toContain("  topApiEndpoint: path=pageCheck.apiEndpoints[0] kind=fetch method=POST selector=script:nth-of-type(3) url=<https://example.test/api/search?q=agent> urlPath=/api/search urlQuery=?q=agent");
     expect(stdout.output).toContain("  secondApiEndpoint: path=pageCheck.apiEndpoints[1] kind=fetch selector=script:nth-of-type(3) url=<https://example.test/api/status?format=json> urlPath=/api/status urlQuery=?format=json");
     expect(stdout.output).toContain("  secondApiEndpointCommand: ax-grep 'https://example.test/api/status?format=json'");

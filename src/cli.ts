@@ -2388,6 +2388,15 @@ type AgentSummary = {
   topHydrationCommand?: string;
   topHydrationCommandArgs?: string[];
   topHydrationSelector?: string;
+  secondHydrationPath?: string;
+  secondHydrationKind?: string;
+  secondHydrationLabel?: string;
+  secondHydrationUrl?: string;
+  secondHydrationUrlPath?: string;
+  secondHydrationUrlQuery?: string;
+  secondHydrationCommand?: string;
+  secondHydrationCommandArgs?: string[];
+  secondHydrationSelector?: string;
   topApiEndpointPath?: string;
   topApiEndpointKind?: string;
   topApiEndpointMethod?: string;
@@ -5444,6 +5453,10 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topHydrationCommand ? [`  topHydrationCommand: ${agent.topHydrationCommand}`] : []),
     ...(agent.topHydrationCommandArgs ? [`  topHydrationCommandArgs: ${formatCommandArgsText(agent.topHydrationCommandArgs)}`] : []),
     ...(agent.topHydrationSelector ? [`  topHydrationSelector: ${agent.topHydrationSelector}`] : []),
+    ...(agent.secondHydrationPath ? [`  secondHydration: path=${agent.secondHydrationPath}${agent.secondHydrationKind ? ` kind=${agent.secondHydrationKind}` : ""}${agent.secondHydrationLabel ? ` label="${agent.secondHydrationLabel}"` : ""}${agent.secondHydrationSelector ? ` selector=${agent.secondHydrationSelector}` : ""}${agent.secondHydrationUrl ? ` url=<${agent.secondHydrationUrl}>` : ""}${agent.secondHydrationUrlPath ? ` urlPath=${agent.secondHydrationUrlPath}` : ""}${agent.secondHydrationUrlQuery ? ` urlQuery=${agent.secondHydrationUrlQuery}` : ""}`] : []),
+    ...(agent.secondHydrationCommand ? [`  secondHydrationCommand: ${agent.secondHydrationCommand}`] : []),
+    ...(agent.secondHydrationCommandArgs ? [`  secondHydrationCommandArgs: ${formatCommandArgsText(agent.secondHydrationCommandArgs)}`] : []),
+    ...(agent.secondHydrationSelector ? [`  secondHydrationSelector: ${agent.secondHydrationSelector}`] : []),
     ...(agent.topApiEndpointPath ? [`  topApiEndpoint: path=${agent.topApiEndpointPath}${agent.topApiEndpointKind ? ` kind=${agent.topApiEndpointKind}` : ""}${agent.topApiEndpointMethod ? ` method=${agent.topApiEndpointMethod}` : ""}${agent.topApiEndpointSelector ? ` selector=${agent.topApiEndpointSelector}` : ""}${agent.topApiEndpointUrl ? ` url=<${agent.topApiEndpointUrl}>` : ""}${agent.topApiEndpointUrlPath ? ` urlPath=${agent.topApiEndpointUrlPath}` : ""}${agent.topApiEndpointUrlQuery ? ` urlQuery=${agent.topApiEndpointUrlQuery}` : ""}`] : []),
     ...(agent.topApiEndpointCommand ? [`  topApiEndpointCommand: ${agent.topApiEndpointCommand}`] : []),
     ...(agent.topApiEndpointCommandArgs ? [`  topApiEndpointCommandArgs: ${formatCommandArgsText(agent.topApiEndpointCommandArgs)}`] : []),
@@ -14605,6 +14618,11 @@ function summarizeAgent(
     ? pageCommandSpec(topHydration.url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
   const topHydrationUrlParts = topHydration?.url ? urlPathParts(topHydration.url) : undefined;
+  const secondHydration = pageCheck.hydration[1];
+  const secondHydrationCommand = secondHydration?.url && /^https?:\/\//i.test(secondHydration.url)
+    ? pageCommandSpec(secondHydration.url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
+  const secondHydrationUrlParts = secondHydration?.url ? urlPathParts(secondHydration.url) : undefined;
   const topApiEndpoint = pageCheck.apiEndpoints[0];
   const topApiEndpointCommand = topApiEndpoint?.url
     && /^https?:\/\//i.test(topApiEndpoint.url)
@@ -16343,6 +16361,15 @@ function summarizeAgent(
     ...(topHydrationCommand ? { topHydrationCommand: topHydrationCommand.command } : {}),
     ...(topHydrationCommand ? { topHydrationCommandArgs: topHydrationCommand.commandArgs } : {}),
     ...(topHydration?.selector ? { topHydrationSelector: topHydration.selector } : {}),
+    ...(secondHydration ? { secondHydrationPath: secondHydration.path } : {}),
+    ...(secondHydration ? { secondHydrationKind: secondHydration.kind } : {}),
+    ...(secondHydration?.label ? { secondHydrationLabel: secondHydration.label } : {}),
+    ...(secondHydration?.url ? { secondHydrationUrl: secondHydration.url } : {}),
+    ...(secondHydrationUrlParts?.urlPath ? { secondHydrationUrlPath: secondHydrationUrlParts.urlPath } : {}),
+    ...(secondHydrationUrlParts?.urlQuery ? { secondHydrationUrlQuery: secondHydrationUrlParts.urlQuery } : {}),
+    ...(secondHydrationCommand ? { secondHydrationCommand: secondHydrationCommand.command } : {}),
+    ...(secondHydrationCommand ? { secondHydrationCommandArgs: secondHydrationCommand.commandArgs } : {}),
+    ...(secondHydration?.selector ? { secondHydrationSelector: secondHydration.selector } : {}),
     ...(topApiEndpoint ? { topApiEndpointPath: topApiEndpoint.path } : {}),
     ...(topApiEndpoint ? { topApiEndpointKind: topApiEndpoint.kind } : {}),
     ...(topApiEndpoint?.method ? { topApiEndpointMethod: topApiEndpoint.method } : {}),
@@ -23238,6 +23265,15 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topHydrationCommand ? { topHydrationCommand: agent.topHydrationCommand } : {}),
     ...(agent.topHydrationCommandArgs ? { topHydrationCommandArgs: agent.topHydrationCommandArgs } : {}),
     ...(agent.topHydrationSelector ? { topHydrationSelector: agent.topHydrationSelector } : {}),
+    ...(agent.secondHydrationPath ? { secondHydrationPath: agent.secondHydrationPath } : {}),
+    ...(agent.secondHydrationKind ? { secondHydrationKind: agent.secondHydrationKind } : {}),
+    ...(agent.secondHydrationLabel ? { secondHydrationLabel: agent.secondHydrationLabel } : {}),
+    ...(agent.secondHydrationUrl ? { secondHydrationUrl: agent.secondHydrationUrl } : {}),
+    ...(agent.secondHydrationUrlPath ? { secondHydrationUrlPath: agent.secondHydrationUrlPath } : {}),
+    ...(agent.secondHydrationUrlQuery ? { secondHydrationUrlQuery: agent.secondHydrationUrlQuery } : {}),
+    ...(agent.secondHydrationCommand ? { secondHydrationCommand: agent.secondHydrationCommand } : {}),
+    ...(agent.secondHydrationCommandArgs ? { secondHydrationCommandArgs: agent.secondHydrationCommandArgs } : {}),
+    ...(agent.secondHydrationSelector ? { secondHydrationSelector: agent.secondHydrationSelector } : {}),
     ...(agent.topApiEndpointPath ? { topApiEndpointPath: agent.topApiEndpointPath } : {}),
     ...(agent.topApiEndpointKind ? { topApiEndpointKind: agent.topApiEndpointKind } : {}),
     ...(agent.topApiEndpointMethod ? { topApiEndpointMethod: agent.topApiEndpointMethod } : {}),
@@ -25230,6 +25266,15 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topHydrationCommand ? { topHydrationCommand: agent.topHydrationCommand } : {}),
     ...(agent.topHydrationCommandArgs ? { topHydrationCommandArgs: agent.topHydrationCommandArgs } : {}),
     ...(agent.topHydrationSelector ? { topHydrationSelector: agent.topHydrationSelector } : {}),
+    ...(agent.secondHydrationPath ? { secondHydrationPath: agent.secondHydrationPath } : {}),
+    ...(agent.secondHydrationKind ? { secondHydrationKind: agent.secondHydrationKind } : {}),
+    ...(agent.secondHydrationLabel ? { secondHydrationLabel: agent.secondHydrationLabel } : {}),
+    ...(agent.secondHydrationUrl ? { secondHydrationUrl: agent.secondHydrationUrl } : {}),
+    ...(agent.secondHydrationUrlPath ? { secondHydrationUrlPath: agent.secondHydrationUrlPath } : {}),
+    ...(agent.secondHydrationUrlQuery ? { secondHydrationUrlQuery: agent.secondHydrationUrlQuery } : {}),
+    ...(agent.secondHydrationCommand ? { secondHydrationCommand: agent.secondHydrationCommand } : {}),
+    ...(agent.secondHydrationCommandArgs ? { secondHydrationCommandArgs: agent.secondHydrationCommandArgs } : {}),
+    ...(agent.secondHydrationSelector ? { secondHydrationSelector: agent.secondHydrationSelector } : {}),
     ...(agent.topApiEndpointPath ? { topApiEndpointPath: agent.topApiEndpointPath } : {}),
     ...(agent.topApiEndpointKind ? { topApiEndpointKind: agent.topApiEndpointKind } : {}),
     ...(agent.topApiEndpointMethod ? { topApiEndpointMethod: agent.topApiEndpointMethod } : {}),

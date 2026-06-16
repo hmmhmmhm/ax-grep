@@ -2756,6 +2756,15 @@ export type AgentSummary = {
   topHydrationCommand?: string;
   topHydrationCommandArgs?: string[];
   topHydrationSelector?: string;
+  secondHydrationPath?: string;
+  secondHydrationKind?: string;
+  secondHydrationLabel?: string;
+  secondHydrationUrl?: string;
+  secondHydrationUrlPath?: string;
+  secondHydrationUrlQuery?: string;
+  secondHydrationCommand?: string;
+  secondHydrationCommandArgs?: string[];
+  secondHydrationSelector?: string;
   topApiEndpointPath?: string;
   topApiEndpointKind?: string;
   topApiEndpointMethod?: string;
