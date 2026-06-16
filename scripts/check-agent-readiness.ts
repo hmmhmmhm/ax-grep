@@ -2350,6 +2350,16 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "A141",
           "A142",
         ]);
+        requireFileExcludes(root, failures, "docs/progress.md", [
+          "| M5: Browser parity gaps are tracked as research scope, not hidden churn. | +5-10% browser parity research. | Planned. |",
+          "keep investigating virtualized row sampling only if fixtures show it matters. | In progress. |",
+          "Added result/source choice host shortcuts and selected-result failure shortcuts so agents can compare provenance and understand failed opens without parsing URLs plus error payloads. | In progress. |",
+        ]);
+        requireFileIncludes(root, failures, "docs/progress.md", [
+          "| M5: Browser parity gaps are tracked as research scope, not hidden churn. | +5-10% browser parity research. | Watch. |",
+          "local browser parity for an owned virtual rowgroup",
+          "engine-attempt, retryability, retry-after, and alternate-choice shortcuts",
+        ]);
       },
     ),
   ];
@@ -2436,6 +2446,24 @@ function requireFileIncludes(
     failures.push({
       file: relativePath,
       message: `missing required text ${JSON.stringify(requiredText)}`,
+    });
+  }
+}
+
+function requireFileExcludes(
+  root: string,
+  failures: ReadinessFailure[],
+  relativePath: string,
+  forbiddenTexts: string[],
+): void {
+  const text = readText(root, relativePath, failures);
+  if (typeof text !== "string") return;
+
+  for (const forbiddenText of forbiddenTexts) {
+    if (!text.includes(forbiddenText)) continue;
+    failures.push({
+      file: relativePath,
+      message: `forbidden stale text ${JSON.stringify(forbiddenText)}`,
     });
   }
 }
