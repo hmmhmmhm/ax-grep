@@ -1088,6 +1088,15 @@ describe("public agent types", () => {
       | "topMobileHintUrlPath"
       | "topMobileHintUrlQuery"
       | "topMobileHintSelector"
+      | "secondMobileHintPath"
+      | "secondMobileHintKind"
+      | "secondMobileHintLabel"
+      | "secondMobileHintValue"
+      | "secondMobileHintPlatform"
+      | "secondMobileHintUrl"
+      | "secondMobileHintUrlPath"
+      | "secondMobileHintUrlQuery"
+      | "secondMobileHintSelector"
       | "topTopicPath"
       | "topTopicKind"
       | "topTopicLabel"
@@ -3100,6 +3109,14 @@ describe("public agent types", () => {
       topMobileHintUrl: "https://example.test/app",
       topMobileHintUrlPath: "/app",
       topMobileHintSelector: "meta[name=\"viewport\"]",
+      secondMobileHintPath: "pageCheck.mobileHints[1]",
+      secondMobileHintKind: "format-detection",
+      secondMobileHintLabel: "Format detection",
+      secondMobileHintValue: "telephone=no",
+      secondMobileHintPlatform: "ios",
+      secondMobileHintUrl: "https://example.test/open",
+      secondMobileHintUrlPath: "/open",
+      secondMobileHintSelector: "meta[name=\"format-detection\"]",
       topTopicPath: "pageCheck.topics[0]",
       topTopicKind: "keyword",
       topTopicLabel: "keywords",

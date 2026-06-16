@@ -2848,6 +2848,15 @@ export type AgentSummary = {
   topMobileHintUrlPath?: string;
   topMobileHintUrlQuery?: string;
   topMobileHintSelector?: string;
+  secondMobileHintPath?: string;
+  secondMobileHintKind?: string;
+  secondMobileHintLabel?: string;
+  secondMobileHintValue?: string;
+  secondMobileHintPlatform?: string;
+  secondMobileHintUrl?: string;
+  secondMobileHintUrlPath?: string;
+  secondMobileHintUrlQuery?: string;
+  secondMobileHintSelector?: string;
   topTopicPath?: string;
   topTopicKind?: string;
   topTopicLabel?: string;

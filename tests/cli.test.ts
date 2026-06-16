@@ -10274,6 +10274,11 @@ describe("cli", () => {
       topMobileHintLabel: "Viewport",
       topMobileHintValue: "width=device-width, initial-scale=1, viewport-fit=cover",
       topMobileHintSelector: "meta[name=\"viewport\"]:nth-of-type(1)",
+      secondMobileHintPath: "pageCheck.mobileHints[1]",
+      secondMobileHintKind: "format-detection",
+      secondMobileHintLabel: "Format detection",
+      secondMobileHintValue: "telephone=no",
+      secondMobileHintSelector: "meta[name=\"format-detection\"]:nth-of-type(2)",
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",

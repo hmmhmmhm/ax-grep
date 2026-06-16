@@ -1251,6 +1251,10 @@ When research expands:
   including URL path/query and fetch command args when the hint is fetchable,
   so agents can inspect secondary icons/install metadata without parsing the
   full app-hint array first.
+- Added `secondMobileHint*` agent shortcuts for the second detected mobile
+  hint, including value, platform, URL path/query, and selector, so agents can
+  inspect viewport-adjacent mobile rendering and app-link signals without
+  parsing the full mobile-hint array first.
 
 ## In Progress
 

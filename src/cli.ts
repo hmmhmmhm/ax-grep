@@ -2480,6 +2480,15 @@ type AgentSummary = {
   topMobileHintUrlPath?: string;
   topMobileHintUrlQuery?: string;
   topMobileHintSelector?: string;
+  secondMobileHintPath?: string;
+  secondMobileHintKind?: string;
+  secondMobileHintLabel?: string;
+  secondMobileHintValue?: string;
+  secondMobileHintPlatform?: string;
+  secondMobileHintUrl?: string;
+  secondMobileHintUrlPath?: string;
+  secondMobileHintUrlQuery?: string;
+  secondMobileHintSelector?: string;
   topTopicPath?: string;
   topTopicKind?: string;
   topTopicLabel?: string;
@@ -5514,6 +5523,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.secondAppHintCommandArgs ? [`  secondAppHintCommandArgs: ${formatCommandArgsText(agent.secondAppHintCommandArgs)}`] : []),
     ...(agent.secondAppHintSelector ? [`  secondAppHintSelector: ${agent.secondAppHintSelector}`] : []),
     ...(agent.topMobileHintPath ? [`  topMobileHint: path=${agent.topMobileHintPath}${agent.topMobileHintKind ? ` kind=${agent.topMobileHintKind}` : ""}${agent.topMobileHintLabel ? ` label="${agent.topMobileHintLabel}"` : ""}${agent.topMobileHintPlatform ? ` platform=${agent.topMobileHintPlatform}` : ""}${agent.topMobileHintSelector ? ` selector=${agent.topMobileHintSelector}` : ""}${agent.topMobileHintUrl ? ` url=<${agent.topMobileHintUrl}>` : ""}${agent.topMobileHintUrlPath ? ` urlPath=${agent.topMobileHintUrlPath}` : ""}${agent.topMobileHintUrlQuery ? ` urlQuery=${agent.topMobileHintUrlQuery}` : ""}${agent.topMobileHintValue ? ` - ${agent.topMobileHintValue}` : ""}`] : []),
+    ...(agent.secondMobileHintPath ? [`  secondMobileHint: path=${agent.secondMobileHintPath}${agent.secondMobileHintKind ? ` kind=${agent.secondMobileHintKind}` : ""}${agent.secondMobileHintLabel ? ` label="${agent.secondMobileHintLabel}"` : ""}${agent.secondMobileHintPlatform ? ` platform=${agent.secondMobileHintPlatform}` : ""}${agent.secondMobileHintSelector ? ` selector=${agent.secondMobileHintSelector}` : ""}${agent.secondMobileHintUrl ? ` url=<${agent.secondMobileHintUrl}>` : ""}${agent.secondMobileHintUrlPath ? ` urlPath=${agent.secondMobileHintUrlPath}` : ""}${agent.secondMobileHintUrlQuery ? ` urlQuery=${agent.secondMobileHintUrlQuery}` : ""}${agent.secondMobileHintValue ? ` - ${agent.secondMobileHintValue}` : ""}`] : []),
     ...(agent.topTopicPath ? [`  topTopic: path=${agent.topTopicPath}${agent.topTopicKind ? ` kind=${agent.topTopicKind}` : ""}${agent.topTopicLabel ? ` label="${agent.topTopicLabel}"` : ""}${agent.topTopicSource ? ` source=${agent.topTopicSource}` : ""}${agent.topTopicSelector ? ` selector=${agent.topTopicSelector}` : ""}${agent.topTopicValue ? ` - ${agent.topTopicValue}` : ""}`] : []),
     ...(agent.topKeyValuePath ? [`  topKeyValue: path=${agent.topKeyValuePath}${agent.topKeyValueLabel ? ` label="${agent.topKeyValueLabel}"` : ""}${agent.topKeyValueSource ? ` source=${agent.topKeyValueSource}` : ""}${agent.topKeyValueDatetime ? ` datetime=${agent.topKeyValueDatetime}` : ""}${agent.topKeyValueSelector ? ` selector=${agent.topKeyValueSelector}` : ""}${agent.topKeyValueValue ? ` - ${agent.topKeyValueValue}` : ""}`] : []),
     ...(agent.topMetaFactPath ? [`  topMetaFact: path=${agent.topMetaFactPath}${agent.topMetaFactLabel ? ` label="${agent.topMetaFactLabel}"` : ""}${agent.topMetaFactSource ? ` source=${agent.topMetaFactSource}` : ""}${agent.topMetaFactSelector ? ` selector=${agent.topMetaFactSelector}` : ""}${agent.topMetaFactUrl ? ` url=<${agent.topMetaFactUrl}>` : ""}${agent.topMetaFactValue ? ` - ${agent.topMetaFactValue}` : ""}`] : []),
@@ -14701,6 +14711,8 @@ function summarizeAgent(
   const secondAppHintUrlParts = secondAppHint?.url ? urlPathParts(secondAppHint.url) : undefined;
   const topMobileHint = pageCheck.mobileHints[0];
   const topMobileHintUrlParts = topMobileHint?.url ? urlPathParts(topMobileHint.url) : undefined;
+  const secondMobileHint = pageCheck.mobileHints[1];
+  const secondMobileHintUrlParts = secondMobileHint?.url ? urlPathParts(secondMobileHint.url) : undefined;
   const topTopic = pageCheck.topics[0];
   const topKeyValue = pageCheck.keyValues[0];
   const topMetaFact = pageCheck.metaFacts[0];
@@ -16503,6 +16515,15 @@ function summarizeAgent(
     ...(topMobileHintUrlParts?.urlPath ? { topMobileHintUrlPath: topMobileHintUrlParts.urlPath } : {}),
     ...(topMobileHintUrlParts?.urlQuery ? { topMobileHintUrlQuery: topMobileHintUrlParts.urlQuery } : {}),
     ...(topMobileHint?.selector ? { topMobileHintSelector: topMobileHint.selector } : {}),
+    ...(secondMobileHint ? { secondMobileHintPath: secondMobileHint.path } : {}),
+    ...(secondMobileHint ? { secondMobileHintKind: secondMobileHint.kind } : {}),
+    ...(secondMobileHint?.label ? { secondMobileHintLabel: secondMobileHint.label } : {}),
+    ...(secondMobileHint?.value ? { secondMobileHintValue: secondMobileHint.value } : {}),
+    ...(secondMobileHint?.platform ? { secondMobileHintPlatform: secondMobileHint.platform } : {}),
+    ...(secondMobileHint?.url ? { secondMobileHintUrl: secondMobileHint.url } : {}),
+    ...(secondMobileHintUrlParts?.urlPath ? { secondMobileHintUrlPath: secondMobileHintUrlParts.urlPath } : {}),
+    ...(secondMobileHintUrlParts?.urlQuery ? { secondMobileHintUrlQuery: secondMobileHintUrlParts.urlQuery } : {}),
+    ...(secondMobileHint?.selector ? { secondMobileHintSelector: secondMobileHint.selector } : {}),
     ...(topTopic ? { topTopicPath: topTopic.path } : {}),
     ...(topTopic ? { topTopicKind: topTopic.kind } : {}),
     ...(topTopic?.label ? { topTopicLabel: topTopic.label } : {}),
@@ -23435,6 +23456,15 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topMobileHintUrlPath ? { topMobileHintUrlPath: agent.topMobileHintUrlPath } : {}),
     ...(agent.topMobileHintUrlQuery ? { topMobileHintUrlQuery: agent.topMobileHintUrlQuery } : {}),
     ...(agent.topMobileHintSelector ? { topMobileHintSelector: agent.topMobileHintSelector } : {}),
+    ...(agent.secondMobileHintPath ? { secondMobileHintPath: agent.secondMobileHintPath } : {}),
+    ...(agent.secondMobileHintKind ? { secondMobileHintKind: agent.secondMobileHintKind } : {}),
+    ...(agent.secondMobileHintLabel ? { secondMobileHintLabel: agent.secondMobileHintLabel } : {}),
+    ...(agent.secondMobileHintValue ? { secondMobileHintValue: agent.secondMobileHintValue } : {}),
+    ...(agent.secondMobileHintPlatform ? { secondMobileHintPlatform: agent.secondMobileHintPlatform } : {}),
+    ...(agent.secondMobileHintUrl ? { secondMobileHintUrl: agent.secondMobileHintUrl } : {}),
+    ...(agent.secondMobileHintUrlPath ? { secondMobileHintUrlPath: agent.secondMobileHintUrlPath } : {}),
+    ...(agent.secondMobileHintUrlQuery ? { secondMobileHintUrlQuery: agent.secondMobileHintUrlQuery } : {}),
+    ...(agent.secondMobileHintSelector ? { secondMobileHintSelector: agent.secondMobileHintSelector } : {}),
     ...(agent.topTopicPath ? { topTopicPath: agent.topTopicPath } : {}),
     ...(agent.topTopicKind ? { topTopicKind: agent.topTopicKind } : {}),
     ...(agent.topTopicLabel ? { topTopicLabel: agent.topTopicLabel } : {}),
@@ -25464,6 +25494,15 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topMobileHintUrlPath ? { topMobileHintUrlPath: agent.topMobileHintUrlPath } : {}),
     ...(agent.topMobileHintUrlQuery ? { topMobileHintUrlQuery: agent.topMobileHintUrlQuery } : {}),
     ...(agent.topMobileHintSelector ? { topMobileHintSelector: agent.topMobileHintSelector } : {}),
+    ...(agent.secondMobileHintPath ? { secondMobileHintPath: agent.secondMobileHintPath } : {}),
+    ...(agent.secondMobileHintKind ? { secondMobileHintKind: agent.secondMobileHintKind } : {}),
+    ...(agent.secondMobileHintLabel ? { secondMobileHintLabel: agent.secondMobileHintLabel } : {}),
+    ...(agent.secondMobileHintValue ? { secondMobileHintValue: agent.secondMobileHintValue } : {}),
+    ...(agent.secondMobileHintPlatform ? { secondMobileHintPlatform: agent.secondMobileHintPlatform } : {}),
+    ...(agent.secondMobileHintUrl ? { secondMobileHintUrl: agent.secondMobileHintUrl } : {}),
+    ...(agent.secondMobileHintUrlPath ? { secondMobileHintUrlPath: agent.secondMobileHintUrlPath } : {}),
+    ...(agent.secondMobileHintUrlQuery ? { secondMobileHintUrlQuery: agent.secondMobileHintUrlQuery } : {}),
+    ...(agent.secondMobileHintSelector ? { secondMobileHintSelector: agent.secondMobileHintSelector } : {}),
     ...(agent.topTopicPath ? { topTopicPath: agent.topTopicPath } : {}),
     ...(agent.topTopicKind ? { topTopicKind: agent.topTopicKind } : {}),
     ...(agent.topTopicLabel ? { topTopicLabel: agent.topTopicLabel } : {}),
