@@ -479,6 +479,18 @@ describe("public agent types", () => {
       | "topResourceSelector"
       | "topResourceCommand"
       | "topResourceCommandArgs"
+      | "secondResourcePath"
+      | "secondResourceKind"
+      | "secondResourceUrl"
+      | "secondResourceUrlPath"
+      | "secondResourceUrlQuery"
+      | "secondResourceTitle"
+      | "secondResourceRel"
+      | "secondResourceType"
+      | "secondResourceHreflang"
+      | "secondResourceSelector"
+      | "secondResourceCommand"
+      | "secondResourceCommandArgs"
       | "topMediaPath"
       | "topMediaKind"
       | "topMediaUrl"
@@ -2143,6 +2155,18 @@ describe("public agent types", () => {
       topResourceSelector: "a[href=\"/guide.pdf\"]",
       topResourceCommand: "ax-grep 'https://example.test/guide.pdf' --agent",
       topResourceCommandArgs: ["ax-grep", "https://example.test/guide.pdf", "--agent"],
+      secondResourcePath: "pageCheck.resources[1]",
+      secondResourceKind: "feed",
+      secondResourceUrl: "https://example.test/feed.xml?lang=en",
+      secondResourceUrlPath: "/feed.xml",
+      secondResourceUrlQuery: "?lang=en",
+      secondResourceTitle: "Feed",
+      secondResourceRel: "alternate",
+      secondResourceType: "application/rss+xml",
+      secondResourceHreflang: "en",
+      secondResourceSelector: "link[rel=\"alternate\"]",
+      secondResourceCommand: "ax-grep 'https://example.test/feed.xml?lang=en' --agent",
+      secondResourceCommandArgs: ["ax-grep", "https://example.test/feed.xml?lang=en", "--agent"],
       topMediaPath: "pageCheck.media[0]",
       topMediaKind: "image",
       topMediaUrl: "https://example.test/diagram.png",
@@ -3722,6 +3746,9 @@ describe("public agent types", () => {
     expect(summary.topResourceUrlPath).toBe("/guide.pdf");
     expect(summary.topResourceSelector).toBe("a[href=\"/guide.pdf\"]");
     expect(summary.topResourceCommandArgs?.[1]).toBe("https://example.test/guide.pdf");
+    expect(summary.secondResourcePath).toBe("pageCheck.resources[1]");
+    expect(summary.secondResourceUrlPath).toBe("/feed.xml");
+    expect(summary.secondResourceCommandArgs?.[1]).toBe("https://example.test/feed.xml?lang=en");
     expect(summary.topMediaPath).toBe("pageCheck.media[0]");
     expect(summary.topMediaUrlPath).toBe("/diagram.png");
     expect(summary.topMediaSelector).toBe("img:nth-of-type(1)");

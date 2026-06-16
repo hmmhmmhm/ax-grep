@@ -1924,6 +1924,18 @@ type AgentSummary = {
   topResourceSelector?: string;
   topResourceCommand?: string;
   topResourceCommandArgs?: string[];
+  secondResourcePath?: string;
+  secondResourceKind?: PageResourceSummary["kind"];
+  secondResourceUrl?: string;
+  secondResourceUrlPath?: string;
+  secondResourceUrlQuery?: string;
+  secondResourceTitle?: string;
+  secondResourceRel?: string;
+  secondResourceType?: string;
+  secondResourceHreflang?: string;
+  secondResourceSelector?: string;
+  secondResourceCommand?: string;
+  secondResourceCommandArgs?: string[];
   topMediaPath?: string;
   topMediaKind?: PageMediaSummary["kind"];
   topMediaUrl?: string;
@@ -4865,6 +4877,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topResourceUrl ? [`  topResource: path=${agent.topResourcePath ?? ""}${agent.topResourceKind ? ` kind=${agent.topResourceKind}` : ""}${agent.topResourceTitle ? ` title="${agent.topResourceTitle}"` : ""}${agent.topResourceRel ? ` rel=${agent.topResourceRel}` : ""}${agent.topResourceType ? ` type=${agent.topResourceType}` : ""}${agent.topResourceHreflang ? ` hreflang=${agent.topResourceHreflang}` : ""}${agent.topResourceSelector ? ` selector=${agent.topResourceSelector}` : ""} url=<${agent.topResourceUrl}>${agent.topResourceUrlPath ? ` urlPath=${agent.topResourceUrlPath}` : ""}${agent.topResourceUrlQuery ? ` urlQuery=${agent.topResourceUrlQuery}` : ""}`] : []),
     ...(agent.topResourceCommand ? [`  topResourceCommand: ${agent.topResourceCommand}`] : []),
     ...(agent.topResourceCommandArgs ? [`  topResourceCommandArgs: ${formatCommandArgsText(agent.topResourceCommandArgs)}`] : []),
+    ...(agent.secondResourceUrl ? [`  secondResource: path=${agent.secondResourcePath ?? ""}${agent.secondResourceKind ? ` kind=${agent.secondResourceKind}` : ""}${agent.secondResourceTitle ? ` title="${agent.secondResourceTitle}"` : ""}${agent.secondResourceRel ? ` rel=${agent.secondResourceRel}` : ""}${agent.secondResourceType ? ` type=${agent.secondResourceType}` : ""}${agent.secondResourceHreflang ? ` hreflang=${agent.secondResourceHreflang}` : ""}${agent.secondResourceSelector ? ` selector=${agent.secondResourceSelector}` : ""} url=<${agent.secondResourceUrl}>${agent.secondResourceUrlPath ? ` urlPath=${agent.secondResourceUrlPath}` : ""}${agent.secondResourceUrlQuery ? ` urlQuery=${agent.secondResourceUrlQuery}` : ""}`] : []),
+    ...(agent.secondResourceCommand ? [`  secondResourceCommand: ${agent.secondResourceCommand}`] : []),
+    ...(agent.secondResourceCommandArgs ? [`  secondResourceCommandArgs: ${formatCommandArgsText(agent.secondResourceCommandArgs)}`] : []),
     ...(agent.topMediaUrl ? [`  topMedia: path=${agent.topMediaPath ?? ""}${agent.topMediaKind ? ` kind=${agent.topMediaKind}` : ""}${agent.topMediaAlt ? ` alt="${agent.topMediaAlt}"` : ""}${agent.topMediaCaption ? ` caption="${agent.topMediaCaption}"` : ""}${agent.topMediaTitle ? ` title="${agent.topMediaTitle}"` : ""}${typeof agent.topMediaWidth === "number" ? ` width=${agent.topMediaWidth}` : ""}${typeof agent.topMediaHeight === "number" ? ` height=${agent.topMediaHeight}` : ""}${agent.topMediaSelector ? ` selector=${agent.topMediaSelector}` : ""} url=<${agent.topMediaUrl}>${agent.topMediaUrlPath ? ` urlPath=${agent.topMediaUrlPath}` : ""}${agent.topMediaUrlQuery ? ` urlQuery=${agent.topMediaUrlQuery}` : ""}${agent.topMediaText ? ` - ${agent.topMediaText}` : ""}`] : []),
     ...(agent.topMediaCommand ? [`  topMediaCommand: ${agent.topMediaCommand}`] : []),
     ...(agent.topMediaCommandArgs ? [`  topMediaCommandArgs: ${formatCommandArgsText(agent.topMediaCommandArgs)}`] : []),
@@ -14130,7 +14145,11 @@ function summarizeAgent(
   const topResourceCommand = pageCheck.resources[0]?.url
     ? pageCommandSpec(pageCheck.resources[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const secondResourceCommand = pageCheck.resources[1]?.url
+    ? pageCommandSpec(pageCheck.resources[1].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topResourceUrlParts = pageCheck.resources[0]?.url ? urlPathParts(pageCheck.resources[0].url) : undefined;
+  const secondResourceUrlParts = pageCheck.resources[1]?.url ? urlPathParts(pageCheck.resources[1].url) : undefined;
   const topMediaCommand = pageCheck.media[0]?.url && /^https?:\/\//i.test(pageCheck.media[0].url)
     ? pageCommandSpec(pageCheck.media[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -15210,6 +15229,18 @@ function summarizeAgent(
     ...(pageCheck.resources[0]?.selector ? { topResourceSelector: pageCheck.resources[0].selector } : {}),
     ...(topResourceCommand ? { topResourceCommand: topResourceCommand.command } : {}),
     ...(topResourceCommand ? { topResourceCommandArgs: topResourceCommand.commandArgs } : {}),
+    ...(pageCheck.resources[1] ? { secondResourcePath: pageCheck.resources[1].path } : {}),
+    ...(pageCheck.resources[1] ? { secondResourceKind: pageCheck.resources[1].kind } : {}),
+    ...(pageCheck.resources[1]?.url ? { secondResourceUrl: pageCheck.resources[1].url } : {}),
+    ...(secondResourceUrlParts?.urlPath ? { secondResourceUrlPath: secondResourceUrlParts.urlPath } : {}),
+    ...(secondResourceUrlParts?.urlQuery ? { secondResourceUrlQuery: secondResourceUrlParts.urlQuery } : {}),
+    ...(pageCheck.resources[1]?.title ? { secondResourceTitle: pageCheck.resources[1].title } : {}),
+    ...(pageCheck.resources[1]?.rel ? { secondResourceRel: pageCheck.resources[1].rel } : {}),
+    ...(pageCheck.resources[1]?.type ? { secondResourceType: pageCheck.resources[1].type } : {}),
+    ...(pageCheck.resources[1]?.hreflang ? { secondResourceHreflang: pageCheck.resources[1].hreflang } : {}),
+    ...(pageCheck.resources[1]?.selector ? { secondResourceSelector: pageCheck.resources[1].selector } : {}),
+    ...(secondResourceCommand ? { secondResourceCommand: secondResourceCommand.command } : {}),
+    ...(secondResourceCommand ? { secondResourceCommandArgs: secondResourceCommand.commandArgs } : {}),
     ...(pageCheck.media[0] ? { topMediaPath: pageCheck.media[0].path } : {}),
     ...(pageCheck.media[0] ? { topMediaKind: pageCheck.media[0].kind } : {}),
     ...(pageCheck.media[0]?.url ? { topMediaUrl: pageCheck.media[0].url } : {}),
@@ -21752,6 +21783,18 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topResourceSelector ? { topResourceSelector: agent.topResourceSelector } : {}),
     ...(agent.topResourceCommand ? { topResourceCommand: agent.topResourceCommand } : {}),
     ...(agent.topResourceCommandArgs ? { topResourceCommandArgs: agent.topResourceCommandArgs } : {}),
+    ...(agent.secondResourcePath ? { secondResourcePath: agent.secondResourcePath } : {}),
+    ...(agent.secondResourceKind ? { secondResourceKind: agent.secondResourceKind } : {}),
+    ...(agent.secondResourceUrl ? { secondResourceUrl: agent.secondResourceUrl } : {}),
+    ...(agent.secondResourceUrlPath ? { secondResourceUrlPath: agent.secondResourceUrlPath } : {}),
+    ...(agent.secondResourceUrlQuery ? { secondResourceUrlQuery: agent.secondResourceUrlQuery } : {}),
+    ...(agent.secondResourceTitle ? { secondResourceTitle: agent.secondResourceTitle } : {}),
+    ...(agent.secondResourceRel ? { secondResourceRel: agent.secondResourceRel } : {}),
+    ...(agent.secondResourceType ? { secondResourceType: agent.secondResourceType } : {}),
+    ...(agent.secondResourceHreflang ? { secondResourceHreflang: agent.secondResourceHreflang } : {}),
+    ...(agent.secondResourceSelector ? { secondResourceSelector: agent.secondResourceSelector } : {}),
+    ...(agent.secondResourceCommand ? { secondResourceCommand: agent.secondResourceCommand } : {}),
+    ...(agent.secondResourceCommandArgs ? { secondResourceCommandArgs: agent.secondResourceCommandArgs } : {}),
     ...(agent.topMediaPath ? { topMediaPath: agent.topMediaPath } : {}),
     ...(agent.topMediaKind ? { topMediaKind: agent.topMediaKind } : {}),
     ...(agent.topMediaUrl ? { topMediaUrl: agent.topMediaUrl } : {}),
@@ -23398,6 +23441,18 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topResourceSelector ? { topResourceSelector: agent.topResourceSelector } : {}),
     ...(agent.topResourceCommand ? { topResourceCommand: agent.topResourceCommand } : {}),
     ...(agent.topResourceCommandArgs ? { topResourceCommandArgs: agent.topResourceCommandArgs } : {}),
+    ...(agent.secondResourcePath ? { secondResourcePath: agent.secondResourcePath } : {}),
+    ...(agent.secondResourceKind ? { secondResourceKind: agent.secondResourceKind } : {}),
+    ...(agent.secondResourceUrl ? { secondResourceUrl: agent.secondResourceUrl } : {}),
+    ...(agent.secondResourceUrlPath ? { secondResourceUrlPath: agent.secondResourceUrlPath } : {}),
+    ...(agent.secondResourceUrlQuery ? { secondResourceUrlQuery: agent.secondResourceUrlQuery } : {}),
+    ...(agent.secondResourceTitle ? { secondResourceTitle: agent.secondResourceTitle } : {}),
+    ...(agent.secondResourceRel ? { secondResourceRel: agent.secondResourceRel } : {}),
+    ...(agent.secondResourceType ? { secondResourceType: agent.secondResourceType } : {}),
+    ...(agent.secondResourceHreflang ? { secondResourceHreflang: agent.secondResourceHreflang } : {}),
+    ...(agent.secondResourceSelector ? { secondResourceSelector: agent.secondResourceSelector } : {}),
+    ...(agent.secondResourceCommand ? { secondResourceCommand: agent.secondResourceCommand } : {}),
+    ...(agent.secondResourceCommandArgs ? { secondResourceCommandArgs: agent.secondResourceCommandArgs } : {}),
     ...(agent.topMediaPath ? { topMediaPath: agent.topMediaPath } : {}),
     ...(agent.topMediaKind ? { topMediaKind: agent.topMediaKind } : {}),
     ...(agent.topMediaUrl ? { topMediaUrl: agent.topMediaUrl } : {}),

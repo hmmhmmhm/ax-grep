@@ -12860,6 +12860,14 @@ npx ax-grep https://example.test --agent</code></pre>
       topResourceSelector: "link[rel=\"alternate\"]",
       topResourceCommand: "ax-grep 'https://example.test/feed.xml' --agent",
       topResourceCommandArgs: ["ax-grep", "https://example.test/feed.xml", "--agent"],
+      secondResourcePath: "pageCheck.resources[1]",
+      secondResourceKind: "amp",
+      secondResourceUrl: "https://example.test/amp/article",
+      secondResourceUrlPath: "/amp/article",
+      secondResourceRel: "amphtml",
+      secondResourceSelector: "link[rel=\"amphtml\"]",
+      secondResourceCommand: "ax-grep 'https://example.test/amp/article' --agent",
+      secondResourceCommandArgs: ["ax-grep", "https://example.test/amp/article", "--agent"],
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
