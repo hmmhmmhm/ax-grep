@@ -1926,6 +1926,27 @@ type AgentSummary = {
   topActionTargetChoiceHaspopup?: SemanticNodeState["haspopup"];
   topActionTargetChoiceControls?: string;
   topActionTargetChoiceSelector?: string;
+  secondActionTargetChoicePath?: string;
+  secondActionTargetChoiceKind?: string;
+  secondActionTargetChoiceName?: string;
+  secondActionTargetChoiceSource?: string;
+  secondActionTargetChoiceTargetUrl?: string;
+  secondActionTargetChoiceTargetUrlPath?: string;
+  secondActionTargetChoiceTargetUrlQuery?: string;
+  secondActionTargetChoiceUrlTemplate?: string;
+  secondActionTargetChoiceUrlTemplatePath?: string;
+  secondActionTargetChoiceUrlTemplateQuery?: string;
+  secondActionTargetChoiceQueryInput?: string;
+  secondActionTargetChoiceMethod?: string;
+  secondActionTargetChoiceEncodingType?: string;
+  secondActionTargetChoiceCommand?: string;
+  secondActionTargetChoiceCommandArgs?: string[];
+  secondActionTargetChoiceDisabled?: boolean;
+  secondActionTargetChoicePressed?: SemanticNodeState["pressed"];
+  secondActionTargetChoiceExpanded?: boolean;
+  secondActionTargetChoiceHaspopup?: SemanticNodeState["haspopup"];
+  secondActionTargetChoiceControls?: string;
+  secondActionTargetChoiceSelector?: string;
   barrierCount: number;
   topBarrierKind?: PageBarrierSummary["kind"];
   topBarrierSeverity?: PageBarrierSummary["severity"];
@@ -5176,6 +5197,27 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.topActionTargetChoiceHaspopup !== "undefined" ? [`  topActionTargetChoiceHaspopup: ${agent.topActionTargetChoiceHaspopup}`] : []),
     ...(agent.topActionTargetChoiceControls ? [`  topActionTargetChoiceControls: ${agent.topActionTargetChoiceControls}`] : []),
     ...(agent.topActionTargetChoiceSelector ? [`  topActionTargetChoiceSelector: ${agent.topActionTargetChoiceSelector}`] : []),
+    ...(agent.secondActionTargetChoicePath ? [`  secondActionTargetChoicePath: ${agent.secondActionTargetChoicePath}`] : []),
+    ...(agent.secondActionTargetChoiceKind ? [`  secondActionTargetChoiceKind: ${agent.secondActionTargetChoiceKind}`] : []),
+    ...(agent.secondActionTargetChoiceName ? [`  secondActionTargetChoiceName: ${agent.secondActionTargetChoiceName}`] : []),
+    ...(agent.secondActionTargetChoiceSource ? [`  secondActionTargetChoiceSource: ${agent.secondActionTargetChoiceSource}`] : []),
+    ...(agent.secondActionTargetChoiceTargetUrl ? [`  secondActionTargetChoiceTargetUrl: ${agent.secondActionTargetChoiceTargetUrl}`] : []),
+    ...(agent.secondActionTargetChoiceTargetUrlPath ? [`  secondActionTargetChoiceTargetUrlPath: ${agent.secondActionTargetChoiceTargetUrlPath}`] : []),
+    ...(agent.secondActionTargetChoiceTargetUrlQuery ? [`  secondActionTargetChoiceTargetUrlQuery: ${agent.secondActionTargetChoiceTargetUrlQuery}`] : []),
+    ...(agent.secondActionTargetChoiceUrlTemplate ? [`  secondActionTargetChoiceUrlTemplate: ${agent.secondActionTargetChoiceUrlTemplate}`] : []),
+    ...(agent.secondActionTargetChoiceUrlTemplatePath ? [`  secondActionTargetChoiceUrlTemplatePath: ${agent.secondActionTargetChoiceUrlTemplatePath}`] : []),
+    ...(agent.secondActionTargetChoiceUrlTemplateQuery ? [`  secondActionTargetChoiceUrlTemplateQuery: ${agent.secondActionTargetChoiceUrlTemplateQuery}`] : []),
+    ...(agent.secondActionTargetChoiceQueryInput ? [`  secondActionTargetChoiceQueryInput: ${agent.secondActionTargetChoiceQueryInput}`] : []),
+    ...(agent.secondActionTargetChoiceMethod ? [`  secondActionTargetChoiceMethod: ${agent.secondActionTargetChoiceMethod}`] : []),
+    ...(agent.secondActionTargetChoiceEncodingType ? [`  secondActionTargetChoiceEncodingType: ${agent.secondActionTargetChoiceEncodingType}`] : []),
+    ...(agent.secondActionTargetChoiceCommand ? [`  secondActionTargetChoiceCommand: ${agent.secondActionTargetChoiceCommand}`] : []),
+    ...(agent.secondActionTargetChoiceCommandArgs ? [`  secondActionTargetChoiceCommandArgs: ${formatCommandArgsText(agent.secondActionTargetChoiceCommandArgs)}`] : []),
+    ...(typeof agent.secondActionTargetChoiceDisabled === "boolean" ? [`  secondActionTargetChoiceDisabled: ${agent.secondActionTargetChoiceDisabled}`] : []),
+    ...(typeof agent.secondActionTargetChoicePressed !== "undefined" ? [`  secondActionTargetChoicePressed: ${agent.secondActionTargetChoicePressed}`] : []),
+    ...(typeof agent.secondActionTargetChoiceExpanded === "boolean" ? [`  secondActionTargetChoiceExpanded: ${agent.secondActionTargetChoiceExpanded}`] : []),
+    ...(typeof agent.secondActionTargetChoiceHaspopup !== "undefined" ? [`  secondActionTargetChoiceHaspopup: ${agent.secondActionTargetChoiceHaspopup}`] : []),
+    ...(agent.secondActionTargetChoiceControls ? [`  secondActionTargetChoiceControls: ${agent.secondActionTargetChoiceControls}`] : []),
+    ...(agent.secondActionTargetChoiceSelector ? [`  secondActionTargetChoiceSelector: ${agent.secondActionTargetChoiceSelector}`] : []),
     `  barrierCount: ${agent.barrierCount}`,
     ...(agent.topBarrierKind ? [`  topBarrier: severity=${agent.topBarrierSeverity} kind=${agent.topBarrierKind} path=${agent.topBarrierPath}${topBarrierDetails ? ` ${topBarrierDetails}` : ""} - ${agent.topBarrierText}`] : []),
     ...(agent.topBarrierSource ? [`  topBarrierSource: ${agent.topBarrierSource}`] : []),
@@ -14552,6 +14594,8 @@ function summarizeAgent(
   const actionTargetChoices = summarizeAgentActionTargetChoices(pageCheck.actionTargets, findQueries, agentMode, timeoutMs, userAgent);
   const topActionTargetChoiceTargetUrlParts = actionTargetChoices[0]?.targetUrl ? urlPathParts(actionTargetChoices[0].targetUrl) : undefined;
   const topActionTargetChoiceUrlTemplateParts = actionTargetChoices[0]?.urlTemplate ? urlPathParts(actionTargetChoices[0].urlTemplate) : undefined;
+  const secondActionTargetChoiceTargetUrlParts = actionTargetChoices[1]?.targetUrl ? urlPathParts(actionTargetChoices[1].targetUrl) : undefined;
+  const secondActionTargetChoiceUrlTemplateParts = actionTargetChoices[1]?.urlTemplate ? urlPathParts(actionTargetChoices[1].urlTemplate) : undefined;
   const topChoice = summarizeAgentTopChoice(resultChoices, sourceChoices, formChoices, actionTargetChoices);
   const topChoiceUrlParts = topChoice?.url ? urlPathParts(topChoice.url) : undefined;
   const topChoiceFirstSitelinkUrlParts = topChoice?.firstSitelinkUrl ? urlPathParts(topChoice.firstSitelinkUrl) : undefined;
@@ -15758,6 +15802,27 @@ function summarizeAgent(
     ...(typeof actionTargetChoices[0]?.haspopup !== "undefined" ? { topActionTargetChoiceHaspopup: actionTargetChoices[0].haspopup } : {}),
     ...(actionTargetChoices[0]?.controls ? { topActionTargetChoiceControls: actionTargetChoices[0].controls } : {}),
     ...(actionTargetChoices[0]?.selector ? { topActionTargetChoiceSelector: actionTargetChoices[0].selector } : {}),
+    ...(actionTargetChoices[1] ? { secondActionTargetChoicePath: actionTargetChoices[1].path } : {}),
+    ...(actionTargetChoices[1]?.kind ? { secondActionTargetChoiceKind: actionTargetChoices[1].kind } : {}),
+    ...(actionTargetChoices[1]?.name ? { secondActionTargetChoiceName: actionTargetChoices[1].name } : {}),
+    ...(actionTargetChoices[1]?.source ? { secondActionTargetChoiceSource: actionTargetChoices[1].source } : {}),
+    ...(actionTargetChoices[1]?.targetUrl ? { secondActionTargetChoiceTargetUrl: actionTargetChoices[1].targetUrl } : {}),
+    ...(secondActionTargetChoiceTargetUrlParts?.urlPath ? { secondActionTargetChoiceTargetUrlPath: secondActionTargetChoiceTargetUrlParts.urlPath } : {}),
+    ...(secondActionTargetChoiceTargetUrlParts?.urlQuery ? { secondActionTargetChoiceTargetUrlQuery: secondActionTargetChoiceTargetUrlParts.urlQuery } : {}),
+    ...(actionTargetChoices[1]?.urlTemplate ? { secondActionTargetChoiceUrlTemplate: actionTargetChoices[1].urlTemplate } : {}),
+    ...(secondActionTargetChoiceUrlTemplateParts?.urlPath ? { secondActionTargetChoiceUrlTemplatePath: secondActionTargetChoiceUrlTemplateParts.urlPath } : {}),
+    ...(secondActionTargetChoiceUrlTemplateParts?.urlQuery ? { secondActionTargetChoiceUrlTemplateQuery: secondActionTargetChoiceUrlTemplateParts.urlQuery } : {}),
+    ...(actionTargetChoices[1]?.queryInput ? { secondActionTargetChoiceQueryInput: actionTargetChoices[1].queryInput } : {}),
+    ...(actionTargetChoices[1]?.method ? { secondActionTargetChoiceMethod: actionTargetChoices[1].method } : {}),
+    ...(actionTargetChoices[1]?.encodingType ? { secondActionTargetChoiceEncodingType: actionTargetChoices[1].encodingType } : {}),
+    ...(actionTargetChoices[1]?.command ? { secondActionTargetChoiceCommand: actionTargetChoices[1].command } : {}),
+    ...(actionTargetChoices[1]?.commandArgs ? { secondActionTargetChoiceCommandArgs: actionTargetChoices[1].commandArgs } : {}),
+    ...(typeof actionTargetChoices[1]?.disabled === "boolean" ? { secondActionTargetChoiceDisabled: actionTargetChoices[1].disabled } : {}),
+    ...(typeof actionTargetChoices[1]?.pressed !== "undefined" ? { secondActionTargetChoicePressed: actionTargetChoices[1].pressed } : {}),
+    ...(typeof actionTargetChoices[1]?.expanded === "boolean" ? { secondActionTargetChoiceExpanded: actionTargetChoices[1].expanded } : {}),
+    ...(typeof actionTargetChoices[1]?.haspopup !== "undefined" ? { secondActionTargetChoiceHaspopup: actionTargetChoices[1].haspopup } : {}),
+    ...(actionTargetChoices[1]?.controls ? { secondActionTargetChoiceControls: actionTargetChoices[1].controls } : {}),
+    ...(actionTargetChoices[1]?.selector ? { secondActionTargetChoiceSelector: actionTargetChoices[1].selector } : {}),
     barrierCount: pageCheck.barriers.length,
     ...(topBarrier ? { topBarrierKind: topBarrier.kind } : {}),
     ...(topBarrier ? { topBarrierSeverity: topBarrier.severity } : {}),
@@ -22593,6 +22658,27 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.topActionTargetChoiceHaspopup !== "undefined" ? { topActionTargetChoiceHaspopup: agent.topActionTargetChoiceHaspopup } : {}),
     ...(agent.topActionTargetChoiceControls ? { topActionTargetChoiceControls: agent.topActionTargetChoiceControls } : {}),
     ...(agent.topActionTargetChoiceSelector ? { topActionTargetChoiceSelector: agent.topActionTargetChoiceSelector } : {}),
+    ...(agent.secondActionTargetChoicePath ? { secondActionTargetChoicePath: agent.secondActionTargetChoicePath } : {}),
+    ...(agent.secondActionTargetChoiceKind ? { secondActionTargetChoiceKind: agent.secondActionTargetChoiceKind } : {}),
+    ...(agent.secondActionTargetChoiceName ? { secondActionTargetChoiceName: agent.secondActionTargetChoiceName } : {}),
+    ...(agent.secondActionTargetChoiceSource ? { secondActionTargetChoiceSource: agent.secondActionTargetChoiceSource } : {}),
+    ...(agent.secondActionTargetChoiceTargetUrl ? { secondActionTargetChoiceTargetUrl: agent.secondActionTargetChoiceTargetUrl } : {}),
+    ...(agent.secondActionTargetChoiceTargetUrlPath ? { secondActionTargetChoiceTargetUrlPath: agent.secondActionTargetChoiceTargetUrlPath } : {}),
+    ...(agent.secondActionTargetChoiceTargetUrlQuery ? { secondActionTargetChoiceTargetUrlQuery: agent.secondActionTargetChoiceTargetUrlQuery } : {}),
+    ...(agent.secondActionTargetChoiceUrlTemplate ? { secondActionTargetChoiceUrlTemplate: agent.secondActionTargetChoiceUrlTemplate } : {}),
+    ...(agent.secondActionTargetChoiceUrlTemplatePath ? { secondActionTargetChoiceUrlTemplatePath: agent.secondActionTargetChoiceUrlTemplatePath } : {}),
+    ...(agent.secondActionTargetChoiceUrlTemplateQuery ? { secondActionTargetChoiceUrlTemplateQuery: agent.secondActionTargetChoiceUrlTemplateQuery } : {}),
+    ...(agent.secondActionTargetChoiceQueryInput ? { secondActionTargetChoiceQueryInput: agent.secondActionTargetChoiceQueryInput } : {}),
+    ...(agent.secondActionTargetChoiceMethod ? { secondActionTargetChoiceMethod: agent.secondActionTargetChoiceMethod } : {}),
+    ...(agent.secondActionTargetChoiceEncodingType ? { secondActionTargetChoiceEncodingType: agent.secondActionTargetChoiceEncodingType } : {}),
+    ...(agent.secondActionTargetChoiceCommand ? { secondActionTargetChoiceCommand: agent.secondActionTargetChoiceCommand } : {}),
+    ...(agent.secondActionTargetChoiceCommandArgs ? { secondActionTargetChoiceCommandArgs: agent.secondActionTargetChoiceCommandArgs } : {}),
+    ...(typeof agent.secondActionTargetChoiceDisabled === "boolean" ? { secondActionTargetChoiceDisabled: agent.secondActionTargetChoiceDisabled } : {}),
+    ...(typeof agent.secondActionTargetChoicePressed !== "undefined" ? { secondActionTargetChoicePressed: agent.secondActionTargetChoicePressed } : {}),
+    ...(typeof agent.secondActionTargetChoiceExpanded === "boolean" ? { secondActionTargetChoiceExpanded: agent.secondActionTargetChoiceExpanded } : {}),
+    ...(typeof agent.secondActionTargetChoiceHaspopup !== "undefined" ? { secondActionTargetChoiceHaspopup: agent.secondActionTargetChoiceHaspopup } : {}),
+    ...(agent.secondActionTargetChoiceControls ? { secondActionTargetChoiceControls: agent.secondActionTargetChoiceControls } : {}),
+    ...(agent.secondActionTargetChoiceSelector ? { secondActionTargetChoiceSelector: agent.secondActionTargetChoiceSelector } : {}),
     barrierCount: agent.barrierCount,
     ...(agent.topBarrierKind ? { topBarrierKind: agent.topBarrierKind } : {}),
     ...(agent.topBarrierSeverity ? { topBarrierSeverity: agent.topBarrierSeverity } : {}),
@@ -24525,6 +24611,27 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.topActionTargetChoiceHaspopup !== "undefined" ? { topActionTargetChoiceHaspopup: agent.topActionTargetChoiceHaspopup } : {}),
     ...(agent.topActionTargetChoiceControls ? { topActionTargetChoiceControls: agent.topActionTargetChoiceControls } : {}),
     ...(agent.topActionTargetChoiceSelector ? { topActionTargetChoiceSelector: agent.topActionTargetChoiceSelector } : {}),
+    ...(agent.secondActionTargetChoicePath ? { secondActionTargetChoicePath: agent.secondActionTargetChoicePath } : {}),
+    ...(agent.secondActionTargetChoiceKind ? { secondActionTargetChoiceKind: agent.secondActionTargetChoiceKind } : {}),
+    ...(agent.secondActionTargetChoiceName ? { secondActionTargetChoiceName: agent.secondActionTargetChoiceName } : {}),
+    ...(agent.secondActionTargetChoiceSource ? { secondActionTargetChoiceSource: agent.secondActionTargetChoiceSource } : {}),
+    ...(agent.secondActionTargetChoiceTargetUrl ? { secondActionTargetChoiceTargetUrl: agent.secondActionTargetChoiceTargetUrl } : {}),
+    ...(agent.secondActionTargetChoiceTargetUrlPath ? { secondActionTargetChoiceTargetUrlPath: agent.secondActionTargetChoiceTargetUrlPath } : {}),
+    ...(agent.secondActionTargetChoiceTargetUrlQuery ? { secondActionTargetChoiceTargetUrlQuery: agent.secondActionTargetChoiceTargetUrlQuery } : {}),
+    ...(agent.secondActionTargetChoiceUrlTemplate ? { secondActionTargetChoiceUrlTemplate: agent.secondActionTargetChoiceUrlTemplate } : {}),
+    ...(agent.secondActionTargetChoiceUrlTemplatePath ? { secondActionTargetChoiceUrlTemplatePath: agent.secondActionTargetChoiceUrlTemplatePath } : {}),
+    ...(agent.secondActionTargetChoiceUrlTemplateQuery ? { secondActionTargetChoiceUrlTemplateQuery: agent.secondActionTargetChoiceUrlTemplateQuery } : {}),
+    ...(agent.secondActionTargetChoiceQueryInput ? { secondActionTargetChoiceQueryInput: agent.secondActionTargetChoiceQueryInput } : {}),
+    ...(agent.secondActionTargetChoiceMethod ? { secondActionTargetChoiceMethod: agent.secondActionTargetChoiceMethod } : {}),
+    ...(agent.secondActionTargetChoiceEncodingType ? { secondActionTargetChoiceEncodingType: agent.secondActionTargetChoiceEncodingType } : {}),
+    ...(agent.secondActionTargetChoiceCommand ? { secondActionTargetChoiceCommand: agent.secondActionTargetChoiceCommand } : {}),
+    ...(agent.secondActionTargetChoiceCommandArgs ? { secondActionTargetChoiceCommandArgs: agent.secondActionTargetChoiceCommandArgs } : {}),
+    ...(typeof agent.secondActionTargetChoiceDisabled === "boolean" ? { secondActionTargetChoiceDisabled: agent.secondActionTargetChoiceDisabled } : {}),
+    ...(typeof agent.secondActionTargetChoicePressed !== "undefined" ? { secondActionTargetChoicePressed: agent.secondActionTargetChoicePressed } : {}),
+    ...(typeof agent.secondActionTargetChoiceExpanded === "boolean" ? { secondActionTargetChoiceExpanded: agent.secondActionTargetChoiceExpanded } : {}),
+    ...(typeof agent.secondActionTargetChoiceHaspopup !== "undefined" ? { secondActionTargetChoiceHaspopup: agent.secondActionTargetChoiceHaspopup } : {}),
+    ...(agent.secondActionTargetChoiceControls ? { secondActionTargetChoiceControls: agent.secondActionTargetChoiceControls } : {}),
+    ...(agent.secondActionTargetChoiceSelector ? { secondActionTargetChoiceSelector: agent.secondActionTargetChoiceSelector } : {}),
     barrierCount: agent.barrierCount,
     ...(agent.topBarrierKind ? { topBarrierKind: agent.topBarrierKind } : {}),
     ...(agent.topBarrierSeverity ? { topBarrierSeverity: agent.topBarrierSeverity } : {}),

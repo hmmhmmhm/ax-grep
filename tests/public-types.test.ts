@@ -294,6 +294,32 @@ describe("public agent types", () => {
       controls: "search-dialog",
       selector: "script[type=\"application/ld+json\"]",
     };
+    const secondActionTargetChoice: AgentActionTargetChoice = {
+      id: "at2",
+      path: "pageCheck.actionTargets[1]",
+      rank: 2,
+      kind: "search",
+      name: "Docs OpenSearch",
+      text: "search: Docs OpenSearch target=https://example.test/opensearch.xml type=application/opensearchdescription+xml source=link",
+      source: "link",
+      targetUrl: "https://example.test/opensearch.xml?profile=docs",
+      targetUrlPath: "/opensearch.xml",
+      targetUrlQuery: "?profile=docs",
+      urlTemplate: "https://example.test/opensearch?q={query}",
+      urlTemplatePath: "/opensearch",
+      urlTemplateQuery: "?q={query}",
+      queryInput: "required name=query",
+      method: "GET",
+      encodingType: "application/opensearchdescription+xml",
+      command: "ax-grep 'https://example.test/opensearch?q=docs' --find docs --agent",
+      commandArgs: ["ax-grep", "https://example.test/opensearch?q=docs", "--find", "docs", "--agent"],
+      disabled: false,
+      pressed: "mixed",
+      expanded: false,
+      haspopup: "dialog",
+      controls: "docs-search-panel",
+      selector: "link[rel=\"search\"]",
+    };
     const summary: Pick<
       AgentSummary,
       | "resultCount"
@@ -508,6 +534,27 @@ describe("public agent types", () => {
       | "topActionTargetChoiceHaspopup"
       | "topActionTargetChoiceControls"
       | "topActionTargetChoiceSelector"
+      | "secondActionTargetChoicePath"
+      | "secondActionTargetChoiceKind"
+      | "secondActionTargetChoiceName"
+      | "secondActionTargetChoiceSource"
+      | "secondActionTargetChoiceTargetUrl"
+      | "secondActionTargetChoiceTargetUrlPath"
+      | "secondActionTargetChoiceTargetUrlQuery"
+      | "secondActionTargetChoiceUrlTemplate"
+      | "secondActionTargetChoiceUrlTemplatePath"
+      | "secondActionTargetChoiceUrlTemplateQuery"
+      | "secondActionTargetChoiceQueryInput"
+      | "secondActionTargetChoiceMethod"
+      | "secondActionTargetChoiceEncodingType"
+      | "secondActionTargetChoiceCommand"
+      | "secondActionTargetChoiceCommandArgs"
+      | "secondActionTargetChoiceDisabled"
+      | "secondActionTargetChoicePressed"
+      | "secondActionTargetChoiceExpanded"
+      | "secondActionTargetChoiceHaspopup"
+      | "secondActionTargetChoiceControls"
+      | "secondActionTargetChoiceSelector"
       | "barrierCount"
       | "topBarrierKind"
       | "topBarrierSeverity"
@@ -2437,8 +2484,8 @@ describe("public agent types", () => {
       secondFormChoiceFirstFieldInvalid: "spelling",
       secondFormChoiceFirstFieldSelector: "input[name=\"term\"]",
       actionTargetCount: 2,
-      actionTargetChoiceCount: 1,
-      actionTargetChoices: [actionTargetChoice],
+      actionTargetChoiceCount: 2,
+      actionTargetChoices: [actionTargetChoice, secondActionTargetChoice],
       topActionTargetChoicePath: "pageCheck.actionTargets[0]",
       topActionTargetChoiceKind: "search",
       topActionTargetChoiceName: "Search docs",
@@ -2459,6 +2506,27 @@ describe("public agent types", () => {
       topActionTargetChoiceHaspopup: "dialog",
       topActionTargetChoiceControls: "search-dialog",
       topActionTargetChoiceSelector: "script[type=\"application/ld+json\"]",
+      secondActionTargetChoicePath: "pageCheck.actionTargets[1]",
+      secondActionTargetChoiceKind: "search",
+      secondActionTargetChoiceName: "Docs OpenSearch",
+      secondActionTargetChoiceSource: "link",
+      secondActionTargetChoiceTargetUrl: "https://example.test/opensearch.xml?profile=docs",
+      secondActionTargetChoiceTargetUrlPath: "/opensearch.xml",
+      secondActionTargetChoiceTargetUrlQuery: "?profile=docs",
+      secondActionTargetChoiceUrlTemplate: "https://example.test/opensearch?q={query}",
+      secondActionTargetChoiceUrlTemplatePath: "/opensearch",
+      secondActionTargetChoiceUrlTemplateQuery: "?q={query}",
+      secondActionTargetChoiceQueryInput: "required name=query",
+      secondActionTargetChoiceMethod: "GET",
+      secondActionTargetChoiceEncodingType: "application/opensearchdescription+xml",
+      secondActionTargetChoiceCommand: "ax-grep 'https://example.test/opensearch?q=docs' --find docs --agent",
+      secondActionTargetChoiceCommandArgs: ["ax-grep", "https://example.test/opensearch?q=docs", "--find", "docs", "--agent"],
+      secondActionTargetChoiceDisabled: false,
+      secondActionTargetChoicePressed: "mixed",
+      secondActionTargetChoiceExpanded: false,
+      secondActionTargetChoiceHaspopup: "dialog",
+      secondActionTargetChoiceControls: "docs-search-panel",
+      secondActionTargetChoiceSelector: "link[rel=\"search\"]",
       barrierCount: 1,
       topBarrierKind: "challenge",
       topBarrierSeverity: "warning",
@@ -4290,7 +4358,7 @@ describe("public agent types", () => {
     expect(summary.topHiddenSignalUrlPath).toBe("/graphql");
     expect(summary.bestHiddenReadTarget).toBe("pageCheck.apiEndpoints");
     expect(summary.actionTargetCount).toBe(2);
-    expect(summary.actionTargetChoiceCount).toBe(1);
+    expect(summary.actionTargetChoiceCount).toBe(2);
     expect(summary.topBarrierKind).toBe("challenge");
     expect(summary.topBarrierPath).toBe("pageCheck.barriers[0]");
     expect(summary.dataTableCount).toBe(1);
@@ -4447,6 +4515,24 @@ describe("public agent types", () => {
     expect(summary.topActionTargetChoiceUrlTemplatePath).toBe("/search");
     expect(summary.topActionTargetChoiceUrlTemplateQuery).toBe("?q={query}");
     expect(summary.topActionTargetChoiceCommandArgs?.[1]).toBe("https://example.test/search?q=docs");
+    expect(summary.actionTargetChoices?.[1]?.name).toBe("Docs OpenSearch");
+    expect(summary.secondActionTargetChoicePath).toBe("pageCheck.actionTargets[1]");
+    expect(summary.secondActionTargetChoiceName).toBe("Docs OpenSearch");
+    expect(summary.secondActionTargetChoiceSource).toBe("link");
+    expect(summary.secondActionTargetChoiceTargetUrlPath).toBe("/opensearch.xml");
+    expect(summary.secondActionTargetChoiceTargetUrlQuery).toBe("?profile=docs");
+    expect(summary.secondActionTargetChoiceUrlTemplatePath).toBe("/opensearch");
+    expect(summary.secondActionTargetChoiceUrlTemplateQuery).toBe("?q={query}");
+    expect(summary.secondActionTargetChoiceQueryInput).toBe("required name=query");
+    expect(summary.secondActionTargetChoiceMethod).toBe("GET");
+    expect(summary.secondActionTargetChoiceEncodingType).toBe("application/opensearchdescription+xml");
+    expect(summary.secondActionTargetChoiceCommandArgs?.[1]).toBe("https://example.test/opensearch?q=docs");
+    expect(summary.secondActionTargetChoiceDisabled).toBe(false);
+    expect(summary.secondActionTargetChoicePressed).toBe("mixed");
+    expect(summary.secondActionTargetChoiceExpanded).toBe(false);
+    expect(summary.secondActionTargetChoiceHaspopup).toBe("dialog");
+    expect(summary.secondActionTargetChoiceControls).toBe("docs-search-panel");
+    expect(summary.secondActionTargetChoiceSelector).toBe("link[rel=\"search\"]");
     expect(summary.topChoiceKind).toBe("source");
     expect(summary.topChoiceHost).toBe("source.example");
     expect(summary.topChoiceUrlPath).toBe("/report");

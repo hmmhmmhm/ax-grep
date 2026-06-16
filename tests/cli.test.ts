@@ -3027,7 +3027,7 @@ describe("cli", () => {
         title: "A much longer second result title",
         url: "https://second.example/article",
         source: "second.example",
-        rank: 2,
+        rank: 3,
         snippet: "Second snippet explains the result.",
       },
     ]);
@@ -8605,6 +8605,24 @@ describe("cli", () => {
                 }
               }
             </script>
+            <script type="application/ld+json">
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "Backup Docs",
+                "potentialAction": {
+                  "@type": "SearchAction",
+                  "name": "Backup docs",
+                  "target": {
+                    "@type": "EntryPoint",
+                    "urlTemplate": "/backup-search?q={backup_query}",
+                    "httpMethod": "GET",
+                    "encodingType": "application/x-www-form-urlencoded"
+                  },
+                  "query-input": "required name=backup_query"
+                }
+              }
+            </script>
           </head>
           <body><main><h1>Docs</h1></main></body>
         </html>
@@ -8636,6 +8654,22 @@ describe("cli", () => {
         path: "pageCheck.actionTargets[1]",
         rank: 2,
         kind: "search",
+        name: "Backup docs",
+        text: "search: Backup docs template=https://example.test/backup-search?q={backup_query} queryInput=required name=backup_query method=GET type=application/x-www-form-urlencoded source=json-ld",
+        source: "json-ld",
+        urlTemplate: "https://example.test/backup-search?q={backup_query}",
+        urlTemplatePath: "/backup-search",
+        urlTemplateQuery: "?q={backup_query}",
+        queryInput: "required name=backup_query",
+        method: "GET",
+        encodingType: "application/x-www-form-urlencoded",
+        selector: "script[type=\"application/ld+json\"]:nth-of-type(2)",
+      },
+      {
+        id: "at3",
+        path: "pageCheck.actionTargets[2]",
+        rank: 3,
+        kind: "search",
         name: "Docs OpenSearch",
         text: "search: Docs OpenSearch target=https://example.test/opensearch.xml type=application/opensearchdescription+xml disabled=true expanded=false haspopup=dialog controls=docs-search-panel source=link",
         source: "link",
@@ -8649,9 +8683,9 @@ describe("cli", () => {
         selector: "link[rel=\"search\"]:nth-of-type(1)",
       },
     ]);
-    expect(envelope.pageCheck.readability.reasons).toContain("2 action targets");
+    expect(envelope.pageCheck.readability.reasons).toContain("3 action targets");
     expect(envelope.agent.formCount).toBe(0);
-    expect(envelope.agent.actionTargetCount).toBe(2);
+    expect(envelope.agent.actionTargetCount).toBe(3);
     expect(envelope.agent).toMatchObject({
       topActionTargetChoicePath: "pageCheck.actionTargets[0]",
       topActionTargetChoiceKind: "search",
@@ -8664,6 +8698,17 @@ describe("cli", () => {
       topActionTargetChoiceMethod: "GET",
       topActionTargetChoiceEncodingType: "application/x-www-form-urlencoded",
       topActionTargetChoiceSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      secondActionTargetChoicePath: "pageCheck.actionTargets[1]",
+      secondActionTargetChoiceKind: "search",
+      secondActionTargetChoiceName: "Backup docs",
+      secondActionTargetChoiceSource: "json-ld",
+      secondActionTargetChoiceUrlTemplate: "https://example.test/backup-search?q={backup_query}",
+      secondActionTargetChoiceUrlTemplatePath: "/backup-search",
+      secondActionTargetChoiceUrlTemplateQuery: "?q={backup_query}",
+      secondActionTargetChoiceQueryInput: "required name=backup_query",
+      secondActionTargetChoiceMethod: "GET",
+      secondActionTargetChoiceEncodingType: "application/x-www-form-urlencoded",
+      secondActionTargetChoiceSelector: "script[type=\"application/ld+json\"]:nth-of-type(2)",
     });
     expect(envelope.agent.actionTargetChoices).toEqual([
       expect.objectContaining({
@@ -8682,6 +8727,18 @@ describe("cli", () => {
         id: "at2",
         path: "pageCheck.actionTargets[1]",
         kind: "search",
+        name: "Backup docs",
+        source: "json-ld",
+        urlTemplate: "https://example.test/backup-search?q={backup_query}",
+        urlTemplatePath: "/backup-search",
+        urlTemplateQuery: "?q={backup_query}",
+        queryInput: "required name=backup_query",
+        method: "GET",
+      }),
+      expect.objectContaining({
+        id: "at3",
+        path: "pageCheck.actionTargets[2]",
+        kind: "search",
         name: "Docs OpenSearch",
         source: "link",
         targetUrl: "https://example.test/opensearch.xml",
@@ -8698,7 +8755,7 @@ describe("cli", () => {
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.actionTargets",
-      count: 2,
+      count: 3,
       primary: true,
       reason: "JSON-LD and OpenSearch action targets with URL templates, query inputs, and methods.",
     }));
@@ -8739,6 +8796,24 @@ describe("cli", () => {
                 }
               }
             </script>
+            <script type="application/ld+json">
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "Backup Docs",
+                "potentialAction": {
+                  "@type": "SearchAction",
+                  "name": "Backup docs",
+                  "target": {
+                    "@type": "EntryPoint",
+                    "urlTemplate": "/backup-search?q={backup_query}",
+                    "httpMethod": "GET",
+                    "encodingType": "application/x-www-form-urlencoded"
+                  },
+                  "query-input": "required name=backup_query"
+                }
+              }
+            </script>
           </head>
           <body><main><h1>Docs</h1></main></body>
         </html>
@@ -8750,7 +8825,7 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(envelope.agent.contract.profile).toBe("brief");
     expect(envelope.agent.formCount).toBe(0);
-    expect(envelope.agent.actionTargetCount).toBe(2);
+    expect(envelope.agent.actionTargetCount).toBe(3);
     expect(envelope.agent.actionTargetChoices).toEqual(expect.arrayContaining([
       expect.objectContaining({
         id: "at1",
@@ -8785,6 +8860,19 @@ describe("cli", () => {
       topActionTargetChoiceMethod: "GET",
       topActionTargetChoiceEncodingType: "application/x-www-form-urlencoded",
       topActionTargetChoiceSelector: "script[type=\"application/ld+json\"]:nth-of-type(1)",
+      secondActionTargetChoicePath: "pageCheck.actionTargets[1]",
+      secondActionTargetChoiceKind: "search",
+      secondActionTargetChoiceName: "Backup docs",
+      secondActionTargetChoiceSource: "json-ld",
+      secondActionTargetChoiceUrlTemplate: "https://example.test/backup-search?q={backup_query}",
+      secondActionTargetChoiceUrlTemplatePath: "/backup-search",
+      secondActionTargetChoiceUrlTemplateQuery: "?q={backup_query}",
+      secondActionTargetChoiceQueryInput: "required name=backup_query",
+      secondActionTargetChoiceMethod: "GET",
+      secondActionTargetChoiceEncodingType: "application/x-www-form-urlencoded",
+      secondActionTargetChoiceCommand: "ax-grep 'https://example.test/backup-search?q=backup_query' --find 'backup_query' --agent-brief",
+      secondActionTargetChoiceCommandArgs: ["ax-grep", "https://example.test/backup-search?q=backup_query", "--find", "backup_query", "--agent-brief"],
+      secondActionTargetChoiceSelector: "script[type=\"application/ld+json\"]:nth-of-type(2)",
     });
     expect(envelope.agent.executor).toMatchObject({
       decision: "return",
