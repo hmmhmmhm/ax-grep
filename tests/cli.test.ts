@@ -12033,6 +12033,7 @@ describe("cli", () => {
           </details>
           <pre><code class="language-bash">pnpm add ax-grep
 npx ax-grep https://example.test --agent</code></pre>
+          <pre><code class="language-bash">ax-grep https://example.test/docs --agent-brief</code></pre>
         </main>
       `, { headers: { "content-type": "text/html" } }),
     });
@@ -12044,6 +12045,7 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(stdout.output).toContain("  secondFaqAnswer: Yes. Run ax-grep with --agent-brief in CI jobs.");
     expect(stdout.output).toContain("  faq: id=faq1 path=pageCheck.faqs[0] source=details question=\"How do I install ax-grep?\" answer=\"Run pnpm add ax-grep and then call the CLI with --agent.\" selector=details:nth-of-type(1) - Q: How do I install ax-grep? A: Run pnpm add ax-grep and then call the CLI with --agent.");
     expect(stdout.output).toContain("  topCodeBlock: path=pageCheck.codeBlocks[0] lang=bash lines=2 selector=pre:nth-of-type(1) - pnpm add ax-grep");
+    expect(stdout.output).toContain("  secondCodeBlock: path=pageCheck.codeBlocks[1] lang=bash lines=1 selector=pre:nth-of-type(2) - ax-grep https://example.test/docs --agent-brief");
     expect(stdout.output).toContain("  codeBlock: id=cb1 path=pageCheck.codeBlocks[0] source=pre language=bash commandLike=true lines=2 selector=pre:nth-of-type(1) - pnpm add ax-grep");
   });
 
@@ -12657,6 +12659,7 @@ npx ax-grep https://example.test --agent</code></pre>
             <main>
               <pre><code class="language-bash">pnpm add ax-grep
 npx ax-grep https://example.test --agent</code></pre>
+              <pre><code class="language-bash">ax-grep https://example.test/docs --agent-brief</code></pre>
             </main>
           </body>
         </html>
@@ -12678,15 +12681,31 @@ npx ax-grep https://example.test --agent</code></pre>
         commandLike: true,
         selector: "pre:nth-of-type(1)",
       },
+      {
+        id: "cb2",
+        path: "pageCheck.codeBlocks[1]",
+        rank: 2,
+        text: "ax-grep https://example.test/docs --agent-brief",
+        lineCount: 1,
+        source: "pre",
+        language: "bash",
+        commandLike: true,
+        selector: "pre:nth-of-type(2)",
+      },
     ]);
-    expect(envelope.pageCheck.readability.reasons).toContain("1 code block");
+    expect(envelope.pageCheck.readability.reasons).toContain("2 code blocks");
     expect(envelope.agent).toMatchObject({
-      codeBlockCount: 1,
+      codeBlockCount: 2,
       topCodeBlockPath: "pageCheck.codeBlocks[0]",
       topCodeBlockLanguage: "bash",
       topCodeBlockLineCount: 2,
       topCodeBlockText: "pnpm add ax-grep\nnpx ax-grep https://example.test --agent",
       topCodeBlockSelector: "pre:nth-of-type(1)",
+      secondCodeBlockPath: "pageCheck.codeBlocks[1]",
+      secondCodeBlockLanguage: "bash",
+      secondCodeBlockLineCount: 1,
+      secondCodeBlockText: "ax-grep https://example.test/docs --agent-brief",
+      secondCodeBlockSelector: "pre:nth-of-type(2)",
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
@@ -12695,7 +12714,7 @@ npx ax-grep https://example.test --agent</code></pre>
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.codeBlocks",
-      count: 1,
+      count: 2,
       primary: true,
       reason: "Code examples and command snippets extracted from pre/code blocks.",
     }));
@@ -12704,6 +12723,11 @@ npx ax-grep https://example.test --agent</code></pre>
       value: [
         expect.objectContaining({
           id: "cb1",
+          language: "bash",
+          commandLike: true,
+        }),
+        expect.objectContaining({
+          id: "cb2",
           language: "bash",
           commandLike: true,
         }),
@@ -12719,6 +12743,7 @@ npx ax-grep https://example.test --agent</code></pre>
         <main>
           <pre><code class="language-bash">pnpm add ax-grep
 npx ax-grep https://example.test --agent</code></pre>
+          <pre><code class="language-bash">ax-grep https://example.test/docs --agent-brief</code></pre>
         </main>
       `, { headers: { "content-type": "text/html" } }),
     });
@@ -12728,12 +12753,17 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(0);
     expect(envelope.agent).toMatchObject({
       contract: { profile: "brief" },
-      codeBlockCount: 1,
+      codeBlockCount: 2,
       topCodeBlockPath: "pageCheck.codeBlocks[0]",
       topCodeBlockLanguage: "bash",
       topCodeBlockLineCount: 2,
       topCodeBlockText: "pnpm add ax-grep\nnpx ax-grep https://example.test --agent",
       topCodeBlockSelector: "pre:nth-of-type(1)",
+      secondCodeBlockPath: "pageCheck.codeBlocks[1]",
+      secondCodeBlockLanguage: "bash",
+      secondCodeBlockLineCount: 1,
+      secondCodeBlockText: "ax-grep https://example.test/docs --agent-brief",
+      secondCodeBlockSelector: "pre:nth-of-type(2)",
       bestStructuredReadTarget: "pageCheck.codeBlocks",
     });
   });

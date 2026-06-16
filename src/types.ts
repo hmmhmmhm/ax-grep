@@ -2284,6 +2284,11 @@ export type AgentSummary = {
   topCodeBlockLineCount?: number;
   topCodeBlockText?: string;
   topCodeBlockSelector?: string;
+  secondCodeBlockPath?: string;
+  secondCodeBlockLanguage?: string;
+  secondCodeBlockLineCount?: number;
+  secondCodeBlockText?: string;
+  secondCodeBlockSelector?: string;
   topResourcePath?: string;
   topResourceKind?: string;
   topResourceUrl?: string;

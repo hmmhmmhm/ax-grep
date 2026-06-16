@@ -471,6 +471,11 @@ describe("public agent types", () => {
       | "topCodeBlockLineCount"
       | "topCodeBlockText"
       | "topCodeBlockSelector"
+      | "secondCodeBlockPath"
+      | "secondCodeBlockLanguage"
+      | "secondCodeBlockLineCount"
+      | "secondCodeBlockText"
+      | "secondCodeBlockSelector"
       | "topResourcePath"
       | "topResourceKind"
       | "topResourceUrl"
@@ -2298,6 +2303,11 @@ describe("public agent types", () => {
       topCodeBlockLineCount: 1,
       topCodeBlockText: "pnpm install",
       topCodeBlockSelector: "pre:nth-of-type(1)",
+      secondCodeBlockPath: "pageCheck.codeBlocks[1]",
+      secondCodeBlockLanguage: "bash",
+      secondCodeBlockLineCount: 1,
+      secondCodeBlockText: "pnpm test",
+      secondCodeBlockSelector: "pre:nth-of-type(2)",
       topResourcePath: "pageCheck.resources[0]",
       topResourceKind: "download",
       topResourceUrl: "https://example.test/guide.pdf",
@@ -4038,6 +4048,9 @@ describe("public agent types", () => {
     expect(summary.secondBreadcrumbSelector).toBe("nav:nth-of-type(2)");
     expect(summary.topCodeBlockPath).toBe("pageCheck.codeBlocks[0]");
     expect(summary.topCodeBlockSelector).toBe("pre:nth-of-type(1)");
+    expect(summary.secondCodeBlockPath).toBe("pageCheck.codeBlocks[1]");
+    expect(summary.secondCodeBlockText).toBe("pnpm test");
+    expect(summary.secondCodeBlockSelector).toBe("pre:nth-of-type(2)");
     expect(summary.topResourcePath).toBe("pageCheck.resources[0]");
     expect(summary.topResourceUrl).toBe("https://example.test/guide.pdf");
     expect(summary.topResourceUrlPath).toBe("/guide.pdf");

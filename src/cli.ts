@@ -1916,6 +1916,11 @@ type AgentSummary = {
   topCodeBlockLineCount?: number;
   topCodeBlockText?: string;
   topCodeBlockSelector?: string;
+  secondCodeBlockPath?: string;
+  secondCodeBlockLanguage?: string;
+  secondCodeBlockLineCount?: number;
+  secondCodeBlockText?: string;
+  secondCodeBlockSelector?: string;
   topResourcePath?: string;
   topResourceKind?: PageResourceSummary["kind"];
   topResourceUrl?: string;
@@ -5026,6 +5031,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.secondFaqQuestion ? [`  secondFaq: path=${agent.secondFaqPath ?? ""}${agent.secondFaqSelector ? ` selector=${agent.secondFaqSelector}` : ""} - ${agent.secondFaqQuestion}`] : []),
     ...(agent.secondFaqAnswer ? [`  secondFaqAnswer: ${agent.secondFaqAnswer}`] : []),
     ...(agent.topCodeBlockText ? [`  topCodeBlock: path=${agent.topCodeBlockPath ?? ""}${agent.topCodeBlockLanguage ? ` lang=${agent.topCodeBlockLanguage}` : ""}${typeof agent.topCodeBlockLineCount === "number" ? ` lines=${agent.topCodeBlockLineCount}` : ""}${agent.topCodeBlockSelector ? ` selector=${agent.topCodeBlockSelector}` : ""} - ${agent.topCodeBlockText}`] : []),
+    ...(agent.secondCodeBlockText ? [`  secondCodeBlock: path=${agent.secondCodeBlockPath ?? ""}${agent.secondCodeBlockLanguage ? ` lang=${agent.secondCodeBlockLanguage}` : ""}${typeof agent.secondCodeBlockLineCount === "number" ? ` lines=${agent.secondCodeBlockLineCount}` : ""}${agent.secondCodeBlockSelector ? ` selector=${agent.secondCodeBlockSelector}` : ""} - ${agent.secondCodeBlockText}`] : []),
     ...(agent.topResourceUrl ? [`  topResource: path=${agent.topResourcePath ?? ""}${agent.topResourceKind ? ` kind=${agent.topResourceKind}` : ""}${agent.topResourceTitle ? ` title="${agent.topResourceTitle}"` : ""}${agent.topResourceRel ? ` rel=${agent.topResourceRel}` : ""}${agent.topResourceType ? ` type=${agent.topResourceType}` : ""}${agent.topResourceHreflang ? ` hreflang=${agent.topResourceHreflang}` : ""}${agent.topResourceSelector ? ` selector=${agent.topResourceSelector}` : ""} url=<${agent.topResourceUrl}>${agent.topResourceUrlPath ? ` urlPath=${agent.topResourceUrlPath}` : ""}${agent.topResourceUrlQuery ? ` urlQuery=${agent.topResourceUrlQuery}` : ""}`] : []),
     ...(agent.topResourceCommand ? [`  topResourceCommand: ${agent.topResourceCommand}`] : []),
     ...(agent.topResourceCommandArgs ? [`  topResourceCommandArgs: ${formatCommandArgsText(agent.topResourceCommandArgs)}`] : []),
@@ -15484,6 +15490,11 @@ function summarizeAgent(
     ...(pageCheck.codeBlocks[0] ? { topCodeBlockLineCount: pageCheck.codeBlocks[0].lineCount } : {}),
     ...(pageCheck.codeBlocks[0]?.text ? { topCodeBlockText: pageCheck.codeBlocks[0].text } : {}),
     ...(pageCheck.codeBlocks[0]?.selector ? { topCodeBlockSelector: pageCheck.codeBlocks[0].selector } : {}),
+    ...(pageCheck.codeBlocks[1] ? { secondCodeBlockPath: pageCheck.codeBlocks[1].path } : {}),
+    ...(pageCheck.codeBlocks[1]?.language ? { secondCodeBlockLanguage: pageCheck.codeBlocks[1].language } : {}),
+    ...(pageCheck.codeBlocks[1] ? { secondCodeBlockLineCount: pageCheck.codeBlocks[1].lineCount } : {}),
+    ...(pageCheck.codeBlocks[1]?.text ? { secondCodeBlockText: pageCheck.codeBlocks[1].text } : {}),
+    ...(pageCheck.codeBlocks[1]?.selector ? { secondCodeBlockSelector: pageCheck.codeBlocks[1].selector } : {}),
     ...(pageCheck.resources[0] ? { topResourcePath: pageCheck.resources[0].path } : {}),
     ...(pageCheck.resources[0] ? { topResourceKind: pageCheck.resources[0].kind } : {}),
     ...(pageCheck.resources[0]?.url ? { topResourceUrl: pageCheck.resources[0].url } : {}),
@@ -22188,6 +22199,11 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.topCodeBlockLineCount === "number" ? { topCodeBlockLineCount: agent.topCodeBlockLineCount } : {}),
     ...(agent.topCodeBlockText ? { topCodeBlockText: agent.topCodeBlockText } : {}),
     ...(agent.topCodeBlockSelector ? { topCodeBlockSelector: agent.topCodeBlockSelector } : {}),
+    ...(agent.secondCodeBlockPath ? { secondCodeBlockPath: agent.secondCodeBlockPath } : {}),
+    ...(agent.secondCodeBlockLanguage ? { secondCodeBlockLanguage: agent.secondCodeBlockLanguage } : {}),
+    ...(typeof agent.secondCodeBlockLineCount === "number" ? { secondCodeBlockLineCount: agent.secondCodeBlockLineCount } : {}),
+    ...(agent.secondCodeBlockText ? { secondCodeBlockText: agent.secondCodeBlockText } : {}),
+    ...(agent.secondCodeBlockSelector ? { secondCodeBlockSelector: agent.secondCodeBlockSelector } : {}),
     ...(agent.topResourcePath ? { topResourcePath: agent.topResourcePath } : {}),
     ...(agent.topResourceKind ? { topResourceKind: agent.topResourceKind } : {}),
     ...(agent.topResourceUrl ? { topResourceUrl: agent.topResourceUrl } : {}),
@@ -23995,6 +24011,11 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.topCodeBlockLineCount === "number" ? { topCodeBlockLineCount: agent.topCodeBlockLineCount } : {}),
     ...(agent.topCodeBlockText ? { topCodeBlockText: agent.topCodeBlockText } : {}),
     ...(agent.topCodeBlockSelector ? { topCodeBlockSelector: agent.topCodeBlockSelector } : {}),
+    ...(agent.secondCodeBlockPath ? { secondCodeBlockPath: agent.secondCodeBlockPath } : {}),
+    ...(agent.secondCodeBlockLanguage ? { secondCodeBlockLanguage: agent.secondCodeBlockLanguage } : {}),
+    ...(typeof agent.secondCodeBlockLineCount === "number" ? { secondCodeBlockLineCount: agent.secondCodeBlockLineCount } : {}),
+    ...(agent.secondCodeBlockText ? { secondCodeBlockText: agent.secondCodeBlockText } : {}),
+    ...(agent.secondCodeBlockSelector ? { secondCodeBlockSelector: agent.secondCodeBlockSelector } : {}),
     ...(agent.topResourcePath ? { topResourcePath: agent.topResourcePath } : {}),
     ...(agent.topResourceKind ? { topResourceKind: agent.topResourceKind } : {}),
     ...(agent.topResourceUrl ? { topResourceUrl: agent.topResourceUrl } : {}),
