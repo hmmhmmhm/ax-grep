@@ -1380,6 +1380,14 @@ describe("public agent types", () => {
       | "semanticTopRelationTargetName"
       | "semanticTopRelationTargetSelector"
       | "semanticTopRelationSelector"
+      | "semanticTopFlowToRole"
+      | "semanticTopFlowToPath"
+      | "semanticTopFlowToName"
+      | "semanticTopFlowToTarget"
+      | "semanticTopFlowToTargetRole"
+      | "semanticTopFlowToTargetName"
+      | "semanticTopFlowToTargetSelector"
+      | "semanticTopFlowToSelector"
       | "semanticTopChoiceRole"
       | "semanticTopChoicePath"
       | "semanticTopChoiceName"
@@ -3027,6 +3035,14 @@ describe("public agent types", () => {
       semanticTopRelationTargetName: "Filter reports",
       semanticTopRelationTargetSelector: "#filters",
       semanticTopRelationSelector: "button[aria-controls=\"filters\"]",
+      semanticTopFlowToRole: "button",
+      semanticTopFlowToPath: "agent.semanticSummary.relationItems[1]",
+      semanticTopFlowToName: "More filters",
+      semanticTopFlowToTarget: "next-step",
+      semanticTopFlowToTargetRole: "region",
+      semanticTopFlowToTargetName: "Next step",
+      semanticTopFlowToTargetSelector: "#next-step",
+      semanticTopFlowToSelector: "button[aria-flowto=\"next-step\"]",
       semanticTopChoiceRole: "option",
       semanticTopChoicePath: "agent.semanticSummary.choiceItems[0]",
       semanticTopChoiceName: "Reports",

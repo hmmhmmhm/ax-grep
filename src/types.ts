@@ -1874,6 +1874,14 @@ export type AgentSummary = {
   semanticTopRelationTargetName?: string;
   semanticTopRelationTargetSelector?: string;
   semanticTopRelationSelector?: string;
+  semanticTopFlowToRole?: string;
+  semanticTopFlowToPath?: string;
+  semanticTopFlowToName?: string;
+  semanticTopFlowToTarget?: string;
+  semanticTopFlowToTargetRole?: string;
+  semanticTopFlowToTargetName?: string;
+  semanticTopFlowToTargetSelector?: string;
+  semanticTopFlowToSelector?: string;
   semanticTopChoiceRole?: string;
   semanticTopChoicePath?: string;
   semanticTopChoiceName?: string;

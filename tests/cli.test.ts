@@ -6385,9 +6385,13 @@ describe("cli", () => {
             aria-label="Toggle details"
             aria-valuetext="details off"
             aria-controls="details-panel"
+            aria-flowto="next-step"
           >Details</button>
           <section id="details-panel" role="region" aria-label="Details panel">
             Detailed report content.
+          </section>
+          <section id="next-step" role="region" aria-label="Next step">
+            Continue with this guided step.
           </section>
           <p>Readable page content for relation, value, and description routing.</p>
         </main>
@@ -6412,6 +6416,15 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopRelationTargetName: Details panel");
     expect(stdout.output).toContain("  semanticTopRelationTargetSelector: #details-panel");
     expect(stdout.output).toContain("  semanticTopRelationSelector: button");
+    expect(stdout.output).toContain("  semanticTopFlowTo: agent.semanticSummary.relationItems[1] role=button name=\"Toggle details\" target=next-step targetRole=region targetName=Next step targetSelector=#next-step selector=button");
+    expect(stdout.output).toContain("  semanticTopFlowToRole: button");
+    expect(stdout.output).toContain("  semanticTopFlowToPath: agent.semanticSummary.relationItems[1]");
+    expect(stdout.output).toContain("  semanticTopFlowToName: Toggle details");
+    expect(stdout.output).toContain("  semanticTopFlowToTarget: next-step");
+    expect(stdout.output).toContain("  semanticTopFlowToTargetRole: region");
+    expect(stdout.output).toContain("  semanticTopFlowToTargetName: Next step");
+    expect(stdout.output).toContain("  semanticTopFlowToTargetSelector: #next-step");
+    expect(stdout.output).toContain("  semanticTopFlowToSelector: button");
   });
 
   it("prints top semantic choice shortcuts in text agent output", async () => {
