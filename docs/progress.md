@@ -1262,6 +1262,10 @@ When research expands:
   fact, including label, value, datetime, source, and selector, so agents can
   compare adjacent definition-list/time facts without parsing the full
   key-value array.
+- Added `secondMetaFact*` agent shortcuts for the second detected metadata
+  fact, including label, value, URL, source, and selector, so agents can inspect
+  robots/Open Graph/canonical-adjacent facts without parsing the full metadata
+  array.
 
 ## In Progress
 

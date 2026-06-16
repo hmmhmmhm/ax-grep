@@ -1127,6 +1127,12 @@ describe("public agent types", () => {
       | "topMetaFactUrl"
       | "topMetaFactSource"
       | "topMetaFactSelector"
+      | "secondMetaFactPath"
+      | "secondMetaFactLabel"
+      | "secondMetaFactValue"
+      | "secondMetaFactUrl"
+      | "secondMetaFactSource"
+      | "secondMetaFactSelector"
       | "topHttpPolicyPath"
       | "topHttpPolicyName"
       | "topHttpPolicyValue"
@@ -3159,6 +3165,12 @@ describe("public agent types", () => {
       topMetaFactUrl: "https://example.test/generator",
       topMetaFactSource: "meta",
       topMetaFactSelector: "meta[name=\"generator\"]",
+      secondMetaFactPath: "pageCheck.metaFacts[1]",
+      secondMetaFactLabel: "robots directives",
+      secondMetaFactValue: "noindex, noarchive",
+      secondMetaFactUrl: "https://example.test/robots",
+      secondMetaFactSource: "meta",
+      secondMetaFactSelector: "meta[name=\"robots\"]",
       topHttpPolicyPath: "pageCheck.httpPolicies[0]",
       topHttpPolicyName: "Content-Security-Policy",
       topHttpPolicyValue: "default-src 'self'",

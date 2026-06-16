@@ -10659,6 +10659,11 @@ describe("cli", () => {
       topMetaFactUrl: "https://example.test/canonical-article",
       topMetaFactSource: "link",
       topMetaFactSelector: "link[rel=\"canonical\"]:nth-of-type(1)",
+      secondMetaFactPath: "pageCheck.metaFacts[1]",
+      secondMetaFactLabel: "robots directives",
+      secondMetaFactValue: "noindex, noarchive",
+      secondMetaFactSource: "meta",
+      secondMetaFactSelector: "meta:nth-of-type(1)",
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",

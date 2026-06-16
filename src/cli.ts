@@ -2519,6 +2519,12 @@ type AgentSummary = {
   topMetaFactUrl?: string;
   topMetaFactSource?: string;
   topMetaFactSelector?: string;
+  secondMetaFactPath?: string;
+  secondMetaFactLabel?: string;
+  secondMetaFactValue?: string;
+  secondMetaFactUrl?: string;
+  secondMetaFactSource?: string;
+  secondMetaFactSelector?: string;
   topHttpPolicyPath?: string;
   topHttpPolicyName?: string;
   topHttpPolicyValue?: string;
@@ -5541,6 +5547,7 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topKeyValuePath ? [`  topKeyValue: path=${agent.topKeyValuePath}${agent.topKeyValueLabel ? ` label="${agent.topKeyValueLabel}"` : ""}${agent.topKeyValueSource ? ` source=${agent.topKeyValueSource}` : ""}${agent.topKeyValueDatetime ? ` datetime=${agent.topKeyValueDatetime}` : ""}${agent.topKeyValueSelector ? ` selector=${agent.topKeyValueSelector}` : ""}${agent.topKeyValueValue ? ` - ${agent.topKeyValueValue}` : ""}`] : []),
     ...(agent.secondKeyValuePath ? [`  secondKeyValue: path=${agent.secondKeyValuePath}${agent.secondKeyValueLabel ? ` label="${agent.secondKeyValueLabel}"` : ""}${agent.secondKeyValueSource ? ` source=${agent.secondKeyValueSource}` : ""}${agent.secondKeyValueDatetime ? ` datetime=${agent.secondKeyValueDatetime}` : ""}${agent.secondKeyValueSelector ? ` selector=${agent.secondKeyValueSelector}` : ""}${agent.secondKeyValueValue ? ` - ${agent.secondKeyValueValue}` : ""}`] : []),
     ...(agent.topMetaFactPath ? [`  topMetaFact: path=${agent.topMetaFactPath}${agent.topMetaFactLabel ? ` label="${agent.topMetaFactLabel}"` : ""}${agent.topMetaFactSource ? ` source=${agent.topMetaFactSource}` : ""}${agent.topMetaFactSelector ? ` selector=${agent.topMetaFactSelector}` : ""}${agent.topMetaFactUrl ? ` url=<${agent.topMetaFactUrl}>` : ""}${agent.topMetaFactValue ? ` - ${agent.topMetaFactValue}` : ""}`] : []),
+    ...(agent.secondMetaFactPath ? [`  secondMetaFact: path=${agent.secondMetaFactPath}${agent.secondMetaFactLabel ? ` label="${agent.secondMetaFactLabel}"` : ""}${agent.secondMetaFactSource ? ` source=${agent.secondMetaFactSource}` : ""}${agent.secondMetaFactSelector ? ` selector=${agent.secondMetaFactSelector}` : ""}${agent.secondMetaFactUrl ? ` url=<${agent.secondMetaFactUrl}>` : ""}${agent.secondMetaFactValue ? ` - ${agent.secondMetaFactValue}` : ""}`] : []),
     ...(agent.topHttpPolicyPath ? [`  topHttpPolicy: path=${agent.topHttpPolicyPath}${agent.topHttpPolicyName ? ` name="${agent.topHttpPolicyName}"` : ""}${agent.topHttpPolicySource ? ` source=${agent.topHttpPolicySource}` : ""}${agent.topHttpPolicySelector ? ` selector=${agent.topHttpPolicySelector}` : ""}${agent.topHttpPolicyValue ? ` - ${agent.topHttpPolicyValue}` : ""}`] : []),
     ...(agent.topSchemaFactPath ? [`  topSchemaFact: path=${agent.topSchemaFactPath}${agent.topSchemaFactTypes?.length ? ` types=${agent.topSchemaFactTypes.join(",")}` : ""}${typeof agent.topSchemaFactFactCount === "number" ? ` facts=${agent.topSchemaFactFactCount}` : ""}${agent.topSchemaFactSelector ? ` selector=${agent.topSchemaFactSelector}` : ""}${agent.topSchemaFactFirstLabel ? ` ${agent.topSchemaFactFirstLabel}=${agent.topSchemaFactFirstValue ?? ""}` : ""}`] : []),
     ...(agent.topHiddenSignalPath ? [`  topHiddenSignal: ${agent.topHiddenSignalGroup ? `group=${agent.topHiddenSignalGroup} ` : ""}path=${agent.topHiddenSignalPath}${agent.topHiddenSignalKind ? ` kind=${agent.topHiddenSignalKind}` : ""}${agent.topHiddenSignalSource ? ` source=${agent.topHiddenSignalSource}` : ""}${agent.topHiddenSignalSelector ? ` selector=${agent.topHiddenSignalSelector}` : ""}${agent.topHiddenSignalUrl ? ` url=<${agent.topHiddenSignalUrl}>` : ""}${agent.topHiddenSignalUrlPath ? ` urlPath=${agent.topHiddenSignalUrlPath}` : ""}${agent.topHiddenSignalUrlQuery ? ` urlQuery=${agent.topHiddenSignalUrlQuery}` : ""}${agent.topHiddenSignalText ? ` - ${agent.topHiddenSignalText}` : ""}`] : []),
@@ -14732,6 +14739,7 @@ function summarizeAgent(
   const topKeyValue = pageCheck.keyValues[0];
   const secondKeyValue = pageCheck.keyValues[1];
   const topMetaFact = pageCheck.metaFacts[0];
+  const secondMetaFact = pageCheck.metaFacts[1];
   const topHttpPolicy = pageCheck.httpPolicies[0];
   const topSchemaFact = pageCheck.schemaFacts[0];
   const topSchemaFactFirstFact = topSchemaFact?.facts[0];
@@ -16570,6 +16578,12 @@ function summarizeAgent(
     ...(topMetaFact?.url ? { topMetaFactUrl: topMetaFact.url } : {}),
     ...(topMetaFact?.source ? { topMetaFactSource: topMetaFact.source } : {}),
     ...(topMetaFact?.selector ? { topMetaFactSelector: topMetaFact.selector } : {}),
+    ...(secondMetaFact ? { secondMetaFactPath: secondMetaFact.path } : {}),
+    ...(secondMetaFact?.label ? { secondMetaFactLabel: secondMetaFact.label } : {}),
+    ...(secondMetaFact?.value ? { secondMetaFactValue: secondMetaFact.value } : {}),
+    ...(secondMetaFact?.url ? { secondMetaFactUrl: secondMetaFact.url } : {}),
+    ...(secondMetaFact?.source ? { secondMetaFactSource: secondMetaFact.source } : {}),
+    ...(secondMetaFact?.selector ? { secondMetaFactSelector: secondMetaFact.selector } : {}),
     ...(topHttpPolicy ? { topHttpPolicyPath: topHttpPolicy.path } : {}),
     ...(topHttpPolicy?.name ? { topHttpPolicyName: topHttpPolicy.name } : {}),
     ...(topHttpPolicy?.value ? { topHttpPolicyValue: topHttpPolicy.value } : {}),
@@ -23523,6 +23537,12 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topMetaFactUrl ? { topMetaFactUrl: agent.topMetaFactUrl } : {}),
     ...(agent.topMetaFactSource ? { topMetaFactSource: agent.topMetaFactSource } : {}),
     ...(agent.topMetaFactSelector ? { topMetaFactSelector: agent.topMetaFactSelector } : {}),
+    ...(agent.secondMetaFactPath ? { secondMetaFactPath: agent.secondMetaFactPath } : {}),
+    ...(agent.secondMetaFactLabel ? { secondMetaFactLabel: agent.secondMetaFactLabel } : {}),
+    ...(agent.secondMetaFactValue ? { secondMetaFactValue: agent.secondMetaFactValue } : {}),
+    ...(agent.secondMetaFactUrl ? { secondMetaFactUrl: agent.secondMetaFactUrl } : {}),
+    ...(agent.secondMetaFactSource ? { secondMetaFactSource: agent.secondMetaFactSource } : {}),
+    ...(agent.secondMetaFactSelector ? { secondMetaFactSelector: agent.secondMetaFactSelector } : {}),
     ...(agent.topHttpPolicyPath ? { topHttpPolicyPath: agent.topHttpPolicyPath } : {}),
     ...(agent.topHttpPolicyName ? { topHttpPolicyName: agent.topHttpPolicyName } : {}),
     ...(agent.topHttpPolicyValue ? { topHttpPolicyValue: agent.topHttpPolicyValue } : {}),
@@ -25573,6 +25593,12 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topMetaFactUrl ? { topMetaFactUrl: agent.topMetaFactUrl } : {}),
     ...(agent.topMetaFactSource ? { topMetaFactSource: agent.topMetaFactSource } : {}),
     ...(agent.topMetaFactSelector ? { topMetaFactSelector: agent.topMetaFactSelector } : {}),
+    ...(agent.secondMetaFactPath ? { secondMetaFactPath: agent.secondMetaFactPath } : {}),
+    ...(agent.secondMetaFactLabel ? { secondMetaFactLabel: agent.secondMetaFactLabel } : {}),
+    ...(agent.secondMetaFactValue ? { secondMetaFactValue: agent.secondMetaFactValue } : {}),
+    ...(agent.secondMetaFactUrl ? { secondMetaFactUrl: agent.secondMetaFactUrl } : {}),
+    ...(agent.secondMetaFactSource ? { secondMetaFactSource: agent.secondMetaFactSource } : {}),
+    ...(agent.secondMetaFactSelector ? { secondMetaFactSelector: agent.secondMetaFactSelector } : {}),
     ...(agent.topHttpPolicyPath ? { topHttpPolicyPath: agent.topHttpPolicyPath } : {}),
     ...(agent.topHttpPolicyName ? { topHttpPolicyName: agent.topHttpPolicyName } : {}),
     ...(agent.topHttpPolicyValue ? { topHttpPolicyValue: agent.topHttpPolicyValue } : {}),

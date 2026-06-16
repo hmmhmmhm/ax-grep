@@ -2887,6 +2887,12 @@ export type AgentSummary = {
   topMetaFactUrl?: string;
   topMetaFactSource?: string;
   topMetaFactSelector?: string;
+  secondMetaFactPath?: string;
+  secondMetaFactLabel?: string;
+  secondMetaFactValue?: string;
+  secondMetaFactUrl?: string;
+  secondMetaFactSource?: string;
+  secondMetaFactSelector?: string;
   topHttpPolicyPath?: string;
   topHttpPolicyName?: string;
   topHttpPolicyValue?: string;
