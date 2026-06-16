@@ -505,6 +505,20 @@ describe("public agent types", () => {
       | "topMediaTitle"
       | "topMediaWidth"
       | "topMediaHeight"
+      | "secondMediaPath"
+      | "secondMediaKind"
+      | "secondMediaUrl"
+      | "secondMediaUrlPath"
+      | "secondMediaUrlQuery"
+      | "secondMediaSelector"
+      | "secondMediaCommand"
+      | "secondMediaCommandArgs"
+      | "secondMediaText"
+      | "secondMediaAlt"
+      | "secondMediaCaption"
+      | "secondMediaTitle"
+      | "secondMediaWidth"
+      | "secondMediaHeight"
       | "topSectionPath"
       | "topSectionHeading"
       | "topSectionLevel"
@@ -2180,6 +2194,20 @@ describe("public agent types", () => {
       topMediaTitle: "Architecture",
       topMediaWidth: 1200,
       topMediaHeight: 800,
+      secondMediaPath: "pageCheck.media[1]",
+      secondMediaKind: "figure",
+      secondMediaUrl: "https://example.test/chart.png?size=large",
+      secondMediaUrlPath: "/chart.png",
+      secondMediaUrlQuery: "?size=large",
+      secondMediaSelector: "figure:nth-of-type(1)",
+      secondMediaCommand: "ax-grep 'https://example.test/chart.png?size=large' --agent",
+      secondMediaCommandArgs: ["ax-grep", "https://example.test/chart.png?size=large", "--agent"],
+      secondMediaText: "Chart caption - Revenue chart - https://example.test/chart.png?size=large",
+      secondMediaAlt: "Revenue chart",
+      secondMediaCaption: "Chart caption",
+      secondMediaTitle: "Revenue",
+      secondMediaWidth: 640,
+      secondMediaHeight: 480,
       topSectionPath: "pageCheck.sections[0]",
       topSectionHeading: "Install",
       topSectionLevel: 2,
@@ -3753,6 +3781,10 @@ describe("public agent types", () => {
     expect(summary.topMediaUrlPath).toBe("/diagram.png");
     expect(summary.topMediaSelector).toBe("img:nth-of-type(1)");
     expect(summary.topMediaCommandArgs?.[1]).toBe("https://example.test/diagram.png");
+    expect(summary.secondMediaPath).toBe("pageCheck.media[1]");
+    expect(summary.secondMediaUrlPath).toBe("/chart.png");
+    expect(summary.secondMediaCommandArgs?.[1]).toBe("https://example.test/chart.png?size=large");
+    expect(summary.secondMediaAlt).toBe("Revenue chart");
     expect(summary.topPaginationCommandArgs?.[1]).toBe("https://example.test/next");
     expect(summary.topTocFirstItemCommandArgs?.[1]).toBe("https://example.test/install#install");
     expect(summary.topEmbedPath).toBe("pageCheck.embeds[0]");

@@ -12669,6 +12669,18 @@ npx ax-grep https://example.test --agent</code></pre>
       topMediaCommandArgs: ["ax-grep", "https://example.test/share.png", "--agent"],
       topMediaText: "Share preview chart - https://example.test/share.png",
       topMediaAlt: "Share preview chart",
+      secondMediaPath: "pageCheck.media[1]",
+      secondMediaKind: "figure",
+      secondMediaUrl: "https://example.test/chart.png",
+      secondMediaUrlPath: "/chart.png",
+      secondMediaSelector: "figure:nth-of-type(1)",
+      secondMediaCommand: "ax-grep 'https://example.test/chart.png' --agent",
+      secondMediaCommandArgs: ["ax-grep", "https://example.test/chart.png", "--agent"],
+      secondMediaText: "Revenue grew 42 percent in 2026. - Revenue chart - https://example.test/chart.png",
+      secondMediaAlt: "Revenue chart",
+      secondMediaCaption: "Revenue grew 42 percent in 2026.",
+      secondMediaWidth: 640,
+      secondMediaHeight: 480,
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",

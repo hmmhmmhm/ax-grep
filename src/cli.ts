@@ -1950,6 +1950,20 @@ type AgentSummary = {
   topMediaTitle?: string;
   topMediaWidth?: number;
   topMediaHeight?: number;
+  secondMediaPath?: string;
+  secondMediaKind?: PageMediaSummary["kind"];
+  secondMediaUrl?: string;
+  secondMediaUrlPath?: string;
+  secondMediaUrlQuery?: string;
+  secondMediaSelector?: string;
+  secondMediaCommand?: string;
+  secondMediaCommandArgs?: string[];
+  secondMediaText?: string;
+  secondMediaAlt?: string;
+  secondMediaCaption?: string;
+  secondMediaTitle?: string;
+  secondMediaWidth?: number;
+  secondMediaHeight?: number;
   topSectionPath?: string;
   topSectionHeading?: string;
   topSectionLevel?: number;
@@ -4883,6 +4897,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topMediaUrl ? [`  topMedia: path=${agent.topMediaPath ?? ""}${agent.topMediaKind ? ` kind=${agent.topMediaKind}` : ""}${agent.topMediaAlt ? ` alt="${agent.topMediaAlt}"` : ""}${agent.topMediaCaption ? ` caption="${agent.topMediaCaption}"` : ""}${agent.topMediaTitle ? ` title="${agent.topMediaTitle}"` : ""}${typeof agent.topMediaWidth === "number" ? ` width=${agent.topMediaWidth}` : ""}${typeof agent.topMediaHeight === "number" ? ` height=${agent.topMediaHeight}` : ""}${agent.topMediaSelector ? ` selector=${agent.topMediaSelector}` : ""} url=<${agent.topMediaUrl}>${agent.topMediaUrlPath ? ` urlPath=${agent.topMediaUrlPath}` : ""}${agent.topMediaUrlQuery ? ` urlQuery=${agent.topMediaUrlQuery}` : ""}${agent.topMediaText ? ` - ${agent.topMediaText}` : ""}`] : []),
     ...(agent.topMediaCommand ? [`  topMediaCommand: ${agent.topMediaCommand}`] : []),
     ...(agent.topMediaCommandArgs ? [`  topMediaCommandArgs: ${formatCommandArgsText(agent.topMediaCommandArgs)}`] : []),
+    ...(agent.secondMediaUrl ? [`  secondMedia: path=${agent.secondMediaPath ?? ""}${agent.secondMediaKind ? ` kind=${agent.secondMediaKind}` : ""}${agent.secondMediaAlt ? ` alt="${agent.secondMediaAlt}"` : ""}${agent.secondMediaCaption ? ` caption="${agent.secondMediaCaption}"` : ""}${agent.secondMediaTitle ? ` title="${agent.secondMediaTitle}"` : ""}${typeof agent.secondMediaWidth === "number" ? ` width=${agent.secondMediaWidth}` : ""}${typeof agent.secondMediaHeight === "number" ? ` height=${agent.secondMediaHeight}` : ""}${agent.secondMediaSelector ? ` selector=${agent.secondMediaSelector}` : ""} url=<${agent.secondMediaUrl}>${agent.secondMediaUrlPath ? ` urlPath=${agent.secondMediaUrlPath}` : ""}${agent.secondMediaUrlQuery ? ` urlQuery=${agent.secondMediaUrlQuery}` : ""}${agent.secondMediaText ? ` - ${agent.secondMediaText}` : ""}`] : []),
+    ...(agent.secondMediaCommand ? [`  secondMediaCommand: ${agent.secondMediaCommand}`] : []),
+    ...(agent.secondMediaCommandArgs ? [`  secondMediaCommandArgs: ${formatCommandArgsText(agent.secondMediaCommandArgs)}`] : []),
     ...(agent.topSectionPath ? [`  topSection: path=${agent.topSectionPath}${typeof agent.topSectionLevel === "number" ? ` level=${agent.topSectionLevel}` : ""}${agent.topSectionSelector ? ` selector=${agent.topSectionSelector}` : ""}${agent.topSectionHeading ? ` heading="${agent.topSectionHeading}"` : ""}${agent.topSectionText ? ` - ${agent.topSectionText}` : ""}`] : []),
     ...(agent.topBreadcrumbText ? [`  topBreadcrumb: path=${agent.topBreadcrumbPath ?? ""}${agent.topBreadcrumbSource ? ` source=${agent.topBreadcrumbSource}` : ""}${agent.topBreadcrumbSelector ? ` selector=${agent.topBreadcrumbSelector}` : ""} - ${agent.topBreadcrumbText}`] : []),
     ...(agent.topPaginationPath ? [`  topPagination: path=${agent.topPaginationPath}${agent.topPaginationKind ? ` kind=${agent.topPaginationKind}` : ""}${agent.topPaginationLabel ? ` label="${agent.topPaginationLabel}"` : ""}${typeof agent.topPaginationCurrent === "boolean" ? ` current=${agent.topPaginationCurrent}` : ""}${agent.topPaginationSelector ? ` selector=${agent.topPaginationSelector}` : ""}${agent.topPaginationUrl ? ` url=<${agent.topPaginationUrl}>` : ""}${agent.topPaginationUrlPath ? ` urlPath=${agent.topPaginationUrlPath}` : ""}${agent.topPaginationUrlQuery ? ` urlQuery=${agent.topPaginationUrlQuery}` : ""}`] : []),
@@ -14153,7 +14170,11 @@ function summarizeAgent(
   const topMediaCommand = pageCheck.media[0]?.url && /^https?:\/\//i.test(pageCheck.media[0].url)
     ? pageCommandSpec(pageCheck.media[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const secondMediaCommand = pageCheck.media[1]?.url && /^https?:\/\//i.test(pageCheck.media[1].url)
+    ? pageCommandSpec(pageCheck.media[1].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topMediaUrlParts = pageCheck.media[0]?.url ? urlPathParts(pageCheck.media[0].url) : undefined;
+  const secondMediaUrlParts = pageCheck.media[1]?.url ? urlPathParts(pageCheck.media[1].url) : undefined;
   const topTocFirstItemCommand = pageCheck.toc[0]?.items[0]?.url && /^https?:\/\//i.test(pageCheck.toc[0].items[0].url)
     ? pageCommandSpec(pageCheck.toc[0].items[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -15255,6 +15276,20 @@ function summarizeAgent(
     ...(pageCheck.media[0]?.title ? { topMediaTitle: pageCheck.media[0].title } : {}),
     ...(typeof pageCheck.media[0]?.width === "number" ? { topMediaWidth: pageCheck.media[0].width } : {}),
     ...(typeof pageCheck.media[0]?.height === "number" ? { topMediaHeight: pageCheck.media[0].height } : {}),
+    ...(pageCheck.media[1] ? { secondMediaPath: pageCheck.media[1].path } : {}),
+    ...(pageCheck.media[1] ? { secondMediaKind: pageCheck.media[1].kind } : {}),
+    ...(pageCheck.media[1]?.url ? { secondMediaUrl: pageCheck.media[1].url } : {}),
+    ...(secondMediaUrlParts?.urlPath ? { secondMediaUrlPath: secondMediaUrlParts.urlPath } : {}),
+    ...(secondMediaUrlParts?.urlQuery ? { secondMediaUrlQuery: secondMediaUrlParts.urlQuery } : {}),
+    ...(pageCheck.media[1]?.selector ? { secondMediaSelector: pageCheck.media[1].selector } : {}),
+    ...(secondMediaCommand ? { secondMediaCommand: secondMediaCommand.command } : {}),
+    ...(secondMediaCommand ? { secondMediaCommandArgs: secondMediaCommand.commandArgs } : {}),
+    ...(pageCheck.media[1]?.text ? { secondMediaText: pageCheck.media[1].text } : {}),
+    ...(pageCheck.media[1]?.alt ? { secondMediaAlt: pageCheck.media[1].alt } : {}),
+    ...(pageCheck.media[1]?.caption ? { secondMediaCaption: pageCheck.media[1].caption } : {}),
+    ...(pageCheck.media[1]?.title ? { secondMediaTitle: pageCheck.media[1].title } : {}),
+    ...(typeof pageCheck.media[1]?.width === "number" ? { secondMediaWidth: pageCheck.media[1].width } : {}),
+    ...(typeof pageCheck.media[1]?.height === "number" ? { secondMediaHeight: pageCheck.media[1].height } : {}),
     ...(pageCheck.sections[0] ? { topSectionPath: pageCheck.sections[0].path } : {}),
     ...(pageCheck.sections[0]?.heading ? { topSectionHeading: pageCheck.sections[0].heading } : {}),
     ...(pageCheck.sections[0] ? { topSectionLevel: pageCheck.sections[0].level } : {}),
@@ -21809,6 +21844,20 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topMediaTitle ? { topMediaTitle: agent.topMediaTitle } : {}),
     ...(typeof agent.topMediaWidth === "number" ? { topMediaWidth: agent.topMediaWidth } : {}),
     ...(typeof agent.topMediaHeight === "number" ? { topMediaHeight: agent.topMediaHeight } : {}),
+    ...(agent.secondMediaPath ? { secondMediaPath: agent.secondMediaPath } : {}),
+    ...(agent.secondMediaKind ? { secondMediaKind: agent.secondMediaKind } : {}),
+    ...(agent.secondMediaUrl ? { secondMediaUrl: agent.secondMediaUrl } : {}),
+    ...(agent.secondMediaUrlPath ? { secondMediaUrlPath: agent.secondMediaUrlPath } : {}),
+    ...(agent.secondMediaUrlQuery ? { secondMediaUrlQuery: agent.secondMediaUrlQuery } : {}),
+    ...(agent.secondMediaSelector ? { secondMediaSelector: agent.secondMediaSelector } : {}),
+    ...(agent.secondMediaCommand ? { secondMediaCommand: agent.secondMediaCommand } : {}),
+    ...(agent.secondMediaCommandArgs ? { secondMediaCommandArgs: agent.secondMediaCommandArgs } : {}),
+    ...(agent.secondMediaText ? { secondMediaText: agent.secondMediaText } : {}),
+    ...(agent.secondMediaAlt ? { secondMediaAlt: agent.secondMediaAlt } : {}),
+    ...(agent.secondMediaCaption ? { secondMediaCaption: agent.secondMediaCaption } : {}),
+    ...(agent.secondMediaTitle ? { secondMediaTitle: agent.secondMediaTitle } : {}),
+    ...(typeof agent.secondMediaWidth === "number" ? { secondMediaWidth: agent.secondMediaWidth } : {}),
+    ...(typeof agent.secondMediaHeight === "number" ? { secondMediaHeight: agent.secondMediaHeight } : {}),
     ...(agent.topSectionPath ? { topSectionPath: agent.topSectionPath } : {}),
     ...(agent.topSectionHeading ? { topSectionHeading: agent.topSectionHeading } : {}),
     ...(typeof agent.topSectionLevel === "number" ? { topSectionLevel: agent.topSectionLevel } : {}),
@@ -23467,6 +23516,20 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topMediaTitle ? { topMediaTitle: agent.topMediaTitle } : {}),
     ...(typeof agent.topMediaWidth === "number" ? { topMediaWidth: agent.topMediaWidth } : {}),
     ...(typeof agent.topMediaHeight === "number" ? { topMediaHeight: agent.topMediaHeight } : {}),
+    ...(agent.secondMediaPath ? { secondMediaPath: agent.secondMediaPath } : {}),
+    ...(agent.secondMediaKind ? { secondMediaKind: agent.secondMediaKind } : {}),
+    ...(agent.secondMediaUrl ? { secondMediaUrl: agent.secondMediaUrl } : {}),
+    ...(agent.secondMediaUrlPath ? { secondMediaUrlPath: agent.secondMediaUrlPath } : {}),
+    ...(agent.secondMediaUrlQuery ? { secondMediaUrlQuery: agent.secondMediaUrlQuery } : {}),
+    ...(agent.secondMediaSelector ? { secondMediaSelector: agent.secondMediaSelector } : {}),
+    ...(agent.secondMediaCommand ? { secondMediaCommand: agent.secondMediaCommand } : {}),
+    ...(agent.secondMediaCommandArgs ? { secondMediaCommandArgs: agent.secondMediaCommandArgs } : {}),
+    ...(agent.secondMediaText ? { secondMediaText: agent.secondMediaText } : {}),
+    ...(agent.secondMediaAlt ? { secondMediaAlt: agent.secondMediaAlt } : {}),
+    ...(agent.secondMediaCaption ? { secondMediaCaption: agent.secondMediaCaption } : {}),
+    ...(agent.secondMediaTitle ? { secondMediaTitle: agent.secondMediaTitle } : {}),
+    ...(typeof agent.secondMediaWidth === "number" ? { secondMediaWidth: agent.secondMediaWidth } : {}),
+    ...(typeof agent.secondMediaHeight === "number" ? { secondMediaHeight: agent.secondMediaHeight } : {}),
     ...(agent.topSectionPath ? { topSectionPath: agent.topSectionPath } : {}),
     ...(agent.topSectionHeading ? { topSectionHeading: agent.topSectionHeading } : {}),
     ...(typeof agent.topSectionLevel === "number" ? { topSectionLevel: agent.topSectionLevel } : {}),
