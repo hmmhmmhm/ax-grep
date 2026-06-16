@@ -1992,6 +1992,18 @@ type AgentSummary = {
   topDataTableSecondRow?: string[];
   topDataTableSecondCell?: string;
   topDataTableSelector?: string;
+  secondDataTablePath?: string;
+  secondDataTableCaption?: string;
+  secondDataTableRowCount?: number;
+  secondDataTableColumnCount?: number;
+  secondDataTableHeaderCount?: number;
+  secondDataTableHeaders?: string[];
+  secondDataTableFirstHeader?: string;
+  secondDataTableFirstRow?: string[];
+  secondDataTableFirstCell?: string;
+  secondDataTableSecondRow?: string[];
+  secondDataTableSecondCell?: string;
+  secondDataTableSelector?: string;
   topFaqPath?: string;
   topFaqQuestion?: string;
   topFaqAnswer?: string;
@@ -5252,6 +5264,14 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topDataTableSecondRow?.length ? [`  topDataTableSecondRow: ${agent.topDataTableSecondRow.join(" | ")}`] : []),
     ...(agent.topDataTableSecondCell ? [`  topDataTableSecondCell: ${agent.topDataTableSecondCell}`] : []),
     ...(agent.topDataTableSelector ? [`  topDataTableSelector: ${agent.topDataTableSelector}`] : []),
+    ...(agent.secondDataTablePath ? [`  secondDataTable: path=${agent.secondDataTablePath}${agent.secondDataTableCaption ? ` caption="${agent.secondDataTableCaption}"` : ""} rows=${agent.secondDataTableRowCount ?? 0} columns=${agent.secondDataTableColumnCount ?? 0}${typeof agent.secondDataTableHeaderCount === "number" ? ` headers=${agent.secondDataTableHeaderCount}` : ""}${agent.secondDataTableSelector ? ` selector=${agent.secondDataTableSelector}` : ""}`] : []),
+    ...(agent.secondDataTableHeaders?.length ? [`  secondDataTableHeaders: ${agent.secondDataTableHeaders.join(" | ")}`] : []),
+    ...(agent.secondDataTableFirstHeader ? [`  secondDataTableFirstHeader: ${agent.secondDataTableFirstHeader}`] : []),
+    ...(agent.secondDataTableFirstRow?.length ? [`  secondDataTableFirstRow: ${agent.secondDataTableFirstRow.join(" | ")}`] : []),
+    ...(agent.secondDataTableFirstCell ? [`  secondDataTableFirstCell: ${agent.secondDataTableFirstCell}`] : []),
+    ...(agent.secondDataTableSecondRow?.length ? [`  secondDataTableSecondRow: ${agent.secondDataTableSecondRow.join(" | ")}`] : []),
+    ...(agent.secondDataTableSecondCell ? [`  secondDataTableSecondCell: ${agent.secondDataTableSecondCell}`] : []),
+    ...(agent.secondDataTableSelector ? [`  secondDataTableSelector: ${agent.secondDataTableSelector}`] : []),
     `  faqCount: ${agent.faqCount}`,
     `  codeBlockCount: ${agent.codeBlockCount}`,
     `  resourceCount: ${agent.resourceCount}`,
@@ -15889,6 +15909,18 @@ function summarizeAgent(
     ...(pageCheck.dataTables[0]?.sampleRows[1] ? { topDataTableSecondRow: pageCheck.dataTables[0].sampleRows[1] } : {}),
     ...(pageCheck.dataTables[0]?.sampleRows[1]?.[0] ? { topDataTableSecondCell: pageCheck.dataTables[0].sampleRows[1][0] } : {}),
     ...(pageCheck.dataTables[0]?.selector ? { topDataTableSelector: pageCheck.dataTables[0].selector } : {}),
+    ...(pageCheck.dataTables[1] ? { secondDataTablePath: pageCheck.dataTables[1].path } : {}),
+    ...(pageCheck.dataTables[1]?.caption ? { secondDataTableCaption: pageCheck.dataTables[1].caption } : {}),
+    ...(pageCheck.dataTables[1] ? { secondDataTableRowCount: pageCheck.dataTables[1].rowCount } : {}),
+    ...(pageCheck.dataTables[1] ? { secondDataTableColumnCount: pageCheck.dataTables[1].columnCount } : {}),
+    ...(pageCheck.dataTables[1] ? { secondDataTableHeaderCount: pageCheck.dataTables[1].headers.length } : {}),
+    ...(pageCheck.dataTables[1]?.headers.length ? { secondDataTableHeaders: pageCheck.dataTables[1].headers } : {}),
+    ...(pageCheck.dataTables[1]?.headers[0] ? { secondDataTableFirstHeader: pageCheck.dataTables[1].headers[0] } : {}),
+    ...(pageCheck.dataTables[1]?.sampleRows[0] ? { secondDataTableFirstRow: pageCheck.dataTables[1].sampleRows[0] } : {}),
+    ...(pageCheck.dataTables[1]?.sampleRows[0]?.[0] ? { secondDataTableFirstCell: pageCheck.dataTables[1].sampleRows[0][0] } : {}),
+    ...(pageCheck.dataTables[1]?.sampleRows[1] ? { secondDataTableSecondRow: pageCheck.dataTables[1].sampleRows[1] } : {}),
+    ...(pageCheck.dataTables[1]?.sampleRows[1]?.[0] ? { secondDataTableSecondCell: pageCheck.dataTables[1].sampleRows[1][0] } : {}),
+    ...(pageCheck.dataTables[1]?.selector ? { secondDataTableSelector: pageCheck.dataTables[1].selector } : {}),
     ...(pageCheck.faqs[0] ? { topFaqPath: pageCheck.faqs[0].path } : {}),
     ...(pageCheck.faqs[0]?.question ? { topFaqQuestion: pageCheck.faqs[0].question } : {}),
     ...(pageCheck.faqs[0]?.answer ? { topFaqAnswer: pageCheck.faqs[0].answer } : {}),
@@ -22752,6 +22784,18 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topDataTableSecondRow?.length ? { topDataTableSecondRow: agent.topDataTableSecondRow } : {}),
     ...(agent.topDataTableSecondCell ? { topDataTableSecondCell: agent.topDataTableSecondCell } : {}),
     ...(agent.topDataTableSelector ? { topDataTableSelector: agent.topDataTableSelector } : {}),
+    ...(agent.secondDataTablePath ? { secondDataTablePath: agent.secondDataTablePath } : {}),
+    ...(agent.secondDataTableCaption ? { secondDataTableCaption: agent.secondDataTableCaption } : {}),
+    ...(typeof agent.secondDataTableRowCount === "number" ? { secondDataTableRowCount: agent.secondDataTableRowCount } : {}),
+    ...(typeof agent.secondDataTableColumnCount === "number" ? { secondDataTableColumnCount: agent.secondDataTableColumnCount } : {}),
+    ...(typeof agent.secondDataTableHeaderCount === "number" ? { secondDataTableHeaderCount: agent.secondDataTableHeaderCount } : {}),
+    ...(agent.secondDataTableHeaders?.length ? { secondDataTableHeaders: agent.secondDataTableHeaders } : {}),
+    ...(agent.secondDataTableFirstHeader ? { secondDataTableFirstHeader: agent.secondDataTableFirstHeader } : {}),
+    ...(agent.secondDataTableFirstRow?.length ? { secondDataTableFirstRow: agent.secondDataTableFirstRow } : {}),
+    ...(agent.secondDataTableFirstCell ? { secondDataTableFirstCell: agent.secondDataTableFirstCell } : {}),
+    ...(agent.secondDataTableSecondRow?.length ? { secondDataTableSecondRow: agent.secondDataTableSecondRow } : {}),
+    ...(agent.secondDataTableSecondCell ? { secondDataTableSecondCell: agent.secondDataTableSecondCell } : {}),
+    ...(agent.secondDataTableSelector ? { secondDataTableSelector: agent.secondDataTableSelector } : {}),
     ...(agent.topFaqPath ? { topFaqPath: agent.topFaqPath } : {}),
     ...(agent.topFaqQuestion ? { topFaqQuestion: agent.topFaqQuestion } : {}),
     ...(agent.topFaqAnswer ? { topFaqAnswer: agent.topFaqAnswer } : {}),
@@ -24712,6 +24756,18 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topDataTableSecondRow?.length ? { topDataTableSecondRow: agent.topDataTableSecondRow } : {}),
     ...(agent.topDataTableSecondCell ? { topDataTableSecondCell: agent.topDataTableSecondCell } : {}),
     ...(agent.topDataTableSelector ? { topDataTableSelector: agent.topDataTableSelector } : {}),
+    ...(agent.secondDataTablePath ? { secondDataTablePath: agent.secondDataTablePath } : {}),
+    ...(agent.secondDataTableCaption ? { secondDataTableCaption: agent.secondDataTableCaption } : {}),
+    ...(typeof agent.secondDataTableRowCount === "number" ? { secondDataTableRowCount: agent.secondDataTableRowCount } : {}),
+    ...(typeof agent.secondDataTableColumnCount === "number" ? { secondDataTableColumnCount: agent.secondDataTableColumnCount } : {}),
+    ...(typeof agent.secondDataTableHeaderCount === "number" ? { secondDataTableHeaderCount: agent.secondDataTableHeaderCount } : {}),
+    ...(agent.secondDataTableHeaders?.length ? { secondDataTableHeaders: agent.secondDataTableHeaders } : {}),
+    ...(agent.secondDataTableFirstHeader ? { secondDataTableFirstHeader: agent.secondDataTableFirstHeader } : {}),
+    ...(agent.secondDataTableFirstRow?.length ? { secondDataTableFirstRow: agent.secondDataTableFirstRow } : {}),
+    ...(agent.secondDataTableFirstCell ? { secondDataTableFirstCell: agent.secondDataTableFirstCell } : {}),
+    ...(agent.secondDataTableSecondRow?.length ? { secondDataTableSecondRow: agent.secondDataTableSecondRow } : {}),
+    ...(agent.secondDataTableSecondCell ? { secondDataTableSecondCell: agent.secondDataTableSecondCell } : {}),
+    ...(agent.secondDataTableSelector ? { secondDataTableSelector: agent.secondDataTableSelector } : {}),
     ...(agent.topFaqPath ? { topFaqPath: agent.topFaqPath } : {}),
     ...(agent.topFaqQuestion ? { topFaqQuestion: agent.topFaqQuestion } : {}),
     ...(agent.topFaqAnswer ? { topFaqAnswer: agent.topFaqAnswer } : {}),

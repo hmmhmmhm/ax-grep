@@ -600,6 +600,18 @@ describe("public agent types", () => {
       | "topDataTableSecondRow"
       | "topDataTableSecondCell"
       | "topDataTableSelector"
+      | "secondDataTablePath"
+      | "secondDataTableCaption"
+      | "secondDataTableRowCount"
+      | "secondDataTableColumnCount"
+      | "secondDataTableHeaderCount"
+      | "secondDataTableHeaders"
+      | "secondDataTableFirstHeader"
+      | "secondDataTableFirstRow"
+      | "secondDataTableFirstCell"
+      | "secondDataTableSecondRow"
+      | "secondDataTableSecondCell"
+      | "secondDataTableSelector"
       | "topFaqPath"
       | "topFaqQuestion"
       | "topFaqAnswer"
@@ -2549,7 +2561,7 @@ describe("public agent types", () => {
       secondBarrierText: "Paywall: subscription required",
       secondBarrierSelector: "main > p",
       secondBarrierDiagnosticCode: "PAYWALL_LIKELY",
-      dataTableCount: 1,
+      dataTableCount: 2,
       faqCount: 1,
       codeBlockCount: 1,
       resourceCount: 2,
@@ -2579,6 +2591,18 @@ describe("public agent types", () => {
       topDataTableSecondRow: ["Team", "$49.99", "100 GB"],
       topDataTableSecondCell: "Team",
       topDataTableSelector: "table:nth-of-type(1)",
+      secondDataTablePath: "pageCheck.dataTables[1]",
+      secondDataTableCaption: "Usage limits",
+      secondDataTableRowCount: 2,
+      secondDataTableColumnCount: 2,
+      secondDataTableHeaderCount: 2,
+      secondDataTableHeaders: ["Tier", "Requests"],
+      secondDataTableFirstHeader: "Tier",
+      secondDataTableFirstRow: ["Free", "1,000"],
+      secondDataTableFirstCell: "Free",
+      secondDataTableSecondRow: ["Pro", "50,000"],
+      secondDataTableSecondCell: "Pro",
+      secondDataTableSelector: "table:nth-of-type(2)",
       topFaqPath: "pageCheck.faqs[0]",
       topFaqQuestion: "How do I install it?",
       topFaqAnswer: "Run pnpm install.",
@@ -4380,11 +4404,19 @@ describe("public agent types", () => {
     expect(summary.secondBarrierText).toBe("Paywall: subscription required");
     expect(summary.secondBarrierSelector).toBe("main > p");
     expect(summary.secondBarrierDiagnosticCode).toBe("PAYWALL_LIKELY");
-    expect(summary.dataTableCount).toBe(1);
+    expect(summary.dataTableCount).toBe(2);
     expect(summary.topDataTableFirstCell).toBe("Starter");
     expect(summary.topDataTableFirstRow?.[1]).toBe("$19.99");
     expect(summary.topDataTableSecondCell).toBe("Team");
     expect(summary.topDataTableSecondRow?.[1]).toBe("$49.99");
+    expect(summary.secondDataTablePath).toBe("pageCheck.dataTables[1]");
+    expect(summary.secondDataTableCaption).toBe("Usage limits");
+    expect(summary.secondDataTableHeaders).toEqual(["Tier", "Requests"]);
+    expect(summary.secondDataTableFirstCell).toBe("Free");
+    expect(summary.secondDataTableFirstRow?.[1]).toBe("1,000");
+    expect(summary.secondDataTableSecondCell).toBe("Pro");
+    expect(summary.secondDataTableSecondRow?.[1]).toBe("50,000");
+    expect(summary.secondDataTableSelector).toBe("table:nth-of-type(2)");
     expect(summary.topFaqPath).toBe("pageCheck.faqs[0]");
     expect(summary.topFaqQuestion).toBe("How do I install it?");
     expect(summary.topFaqSelector).toBe("details:nth-of-type(1)");

@@ -5741,6 +5741,16 @@ describe("cli", () => {
                   <tr><td>Team</td><td>$49.99</td><td>100 GB</td></tr>
                 </tbody>
               </table>
+              <table>
+                <caption>Usage limits</caption>
+                <thead>
+                  <tr><th>Tier</th><th>Requests</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Free</td><td>1,000</td></tr>
+                  <tr><td>Pro</td><td>50,000</td></tr>
+                </tbody>
+              </table>
             </main>
           </body>
         </html>
@@ -5766,10 +5776,25 @@ describe("cli", () => {
         text: "Plan comparison; Headers: Plan | Monthly price | Storage; Starter | $19.99 | 10 GB; Team | $49.99 | 100 GB",
         selector: "table:nth-of-type(1)",
       },
+      {
+        id: "t2",
+        path: "pageCheck.dataTables[1]",
+        rank: 2,
+        rowCount: 2,
+        columnCount: 2,
+        caption: "Usage limits",
+        headers: ["Tier", "Requests"],
+        sampleRows: [
+          ["Free", "1,000"],
+          ["Pro", "50,000"],
+        ],
+        text: "Usage limits; Headers: Tier | Requests; Free | 1,000; Pro | 50,000",
+        selector: "table:nth-of-type(2)",
+      },
     ]);
-    expect(envelope.pageCheck.readability.reasons).toContain("1 data table");
+    expect(envelope.pageCheck.readability.reasons).toContain("2 data tables");
     expect(envelope.agent).toMatchObject({
-      dataTableCount: 1,
+      dataTableCount: 2,
       faqCount: 0,
       codeBlockCount: 0,
       resourceCount: 0,
@@ -5787,18 +5812,30 @@ describe("cli", () => {
       topDataTableSecondRow: ["Team", "$49.99", "100 GB"],
       topDataTableSecondCell: "Team",
       topDataTableSelector: "table:nth-of-type(1)",
+      secondDataTablePath: "pageCheck.dataTables[1]",
+      secondDataTableCaption: "Usage limits",
+      secondDataTableRowCount: 2,
+      secondDataTableColumnCount: 2,
+      secondDataTableHeaderCount: 2,
+      secondDataTableHeaders: ["Tier", "Requests"],
+      secondDataTableFirstHeader: "Tier",
+      secondDataTableFirstRow: ["Free", "1,000"],
+      secondDataTableFirstCell: "Free",
+      secondDataTableSecondRow: ["Pro", "50,000"],
+      secondDataTableSecondCell: "Pro",
+      secondDataTableSelector: "table:nth-of-type(2)",
       structuredReadTargetCount: 1,
       bestStructuredReadTarget: "pageCheck.dataTables",
-      bestStructuredReadTargetCount: 1,
-      bestStructuredReadTargetScore: 0.55,
+      bestStructuredReadTargetCount: 2,
+      bestStructuredReadTargetScore: 0.65,
       bestStructuredReadTargetPrimary: true,
       bestStructuredReadTargetReason: "Structured table captions, headers, and sample rows extracted from the page HTML.",
       executorReadValuePath: "pageCheck.dataTables",
       executorReadValueType: "array",
-      executorReadValueCount: 1,
+      executorReadValueCount: 2,
       handoffReadValuePath: "pageCheck.dataTables",
       handoffReadValueType: "array",
-      handoffReadValueCount: 1,
+      handoffReadValueCount: 2,
     });
     expect(envelope.pageCheck.recommendedAction).toBeUndefined();
     expect(envelope.agent.primaryAction).toMatchObject({
@@ -5808,7 +5845,7 @@ describe("cli", () => {
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.dataTables",
-      count: 1,
+      count: 2,
       primary: true,
       reason: "Structured table captions, headers, and sample rows extracted from the page HTML.",
     }));
@@ -5819,6 +5856,11 @@ describe("cli", () => {
           id: "t1",
           path: "pageCheck.dataTables[0]",
           text: expect.stringContaining("$19.99"),
+        }),
+        expect.objectContaining({
+          id: "t2",
+          path: "pageCheck.dataTables[1]",
+          text: expect.stringContaining("50,000"),
         }),
       ],
     });
@@ -7438,6 +7480,12 @@ describe("cli", () => {
             <tr><td>Starter</td><td>$19.99</td><td>10 GB</td></tr>
             <tr><td>Team</td><td>$49.99</td><td>100 GB</td></tr>
           </table>
+          <table>
+            <caption>Usage limits</caption>
+            <tr><th>Tier</th><th>Requests</th></tr>
+            <tr><td>Free</td><td>1,000</td></tr>
+            <tr><td>Pro</td><td>50,000</td></tr>
+          </table>
         </main>
       `, { headers: { "content-type": "text/html" } }),
     });
@@ -7448,7 +7496,12 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topDataTableHeaders: Plan | Monthly price | Storage");
     expect(stdout.output).toContain("  topDataTableSecondRow: Team | $49.99 | 100 GB");
     expect(stdout.output).toContain("  topDataTableSecondCell: Team");
+    expect(stdout.output).toContain("  secondDataTable: path=pageCheck.dataTables[1] caption=\"Usage limits\" rows=2 columns=2 headers=2 selector=table:nth-of-type(2)");
+    expect(stdout.output).toContain("  secondDataTableHeaders: Tier | Requests");
+    expect(stdout.output).toContain("  secondDataTableSecondRow: Pro | 50,000");
+    expect(stdout.output).toContain("  secondDataTableSecondCell: Pro");
     expect(stdout.output).toContain("  dataTable: id=t1 path=pageCheck.dataTables[0] rank=1 rows=2 columns=3 headers=Plan|Monthly price|Storage caption=\"Plan comparison\" firstRow=\"Starter | $19.99 | 10 GB\" selector=table:nth-of-type(1) - Plan comparison; Headers: Plan | Monthly price | Storage; Starter | $19.99 | 10 GB; Team | $49.99 | 100 GB");
+    expect(stdout.output).toContain("  dataTable: id=t2 path=pageCheck.dataTables[1] rank=2 rows=2 columns=2 headers=Tier|Requests caption=\"Usage limits\" firstRow=\"Free | 1,000\" selector=table:nth-of-type(2) - Usage limits; Headers: Tier | Requests; Free | 1,000; Pro | 50,000");
   });
 
   it("prints second table sample cell in text agent output", async () => {

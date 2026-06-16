@@ -2360,6 +2360,18 @@ export type AgentSummary = {
   topDataTableSecondRow?: string[];
   topDataTableSecondCell?: string;
   topDataTableSelector?: string;
+  secondDataTablePath?: string;
+  secondDataTableCaption?: string;
+  secondDataTableRowCount?: number;
+  secondDataTableColumnCount?: number;
+  secondDataTableHeaderCount?: number;
+  secondDataTableHeaders?: string[];
+  secondDataTableFirstHeader?: string;
+  secondDataTableFirstRow?: string[];
+  secondDataTableFirstCell?: string;
+  secondDataTableSecondRow?: string[];
+  secondDataTableSecondCell?: string;
+  secondDataTableSelector?: string;
   topFaqPath?: string;
   topFaqQuestion?: string;
   topFaqAnswer?: string;
