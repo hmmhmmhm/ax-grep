@@ -2924,6 +2924,15 @@ export type AgentSummary = {
   topHiddenSignalUrlQuery?: string;
   topHiddenSignalSource?: string;
   topHiddenSignalSelector?: string;
+  secondHiddenSignalGroup?: string;
+  secondHiddenSignalPath?: string;
+  secondHiddenSignalKind?: string;
+  secondHiddenSignalText?: string;
+  secondHiddenSignalUrl?: string;
+  secondHiddenSignalUrlPath?: string;
+  secondHiddenSignalUrlQuery?: string;
+  secondHiddenSignalSource?: string;
+  secondHiddenSignalSelector?: string;
   hiddenReadTargetCount?: number;
   bestHiddenReadTarget?: string;
   bestHiddenReadTargetCount?: number;

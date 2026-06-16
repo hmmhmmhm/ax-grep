@@ -1274,6 +1274,9 @@ When research expands:
   schema fact group, including types, first fact, fact count, and selector, so
   agents can compare alternate structured entities without parsing the full
   schema-fact array.
+- Added `secondHiddenSignal*` agent shortcuts for the second static-only hidden
+  signal, so agents can compare alternate hydration/API/runtime/config hints
+  before escalating to a browser.
 
 ## In Progress
 

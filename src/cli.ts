@@ -2556,6 +2556,15 @@ type AgentSummary = {
   topHiddenSignalUrlQuery?: string;
   topHiddenSignalSource?: string;
   topHiddenSignalSelector?: string;
+  secondHiddenSignalGroup?: string;
+  secondHiddenSignalPath?: string;
+  secondHiddenSignalKind?: string;
+  secondHiddenSignalText?: string;
+  secondHiddenSignalUrl?: string;
+  secondHiddenSignalUrlPath?: string;
+  secondHiddenSignalUrlQuery?: string;
+  secondHiddenSignalSource?: string;
+  secondHiddenSignalSelector?: string;
   hiddenReadTargetCount: number;
   bestHiddenReadTarget?: string;
   bestHiddenReadTargetCount?: number;
@@ -3336,6 +3345,16 @@ const hiddenAgentPageCheckPaths: Array<keyof PageCheckSummary> = [
   "contactPoints",
   "authorLinks",
 ];
+
+type HiddenAgentPageCheckSignal = {
+  group: string;
+  path: string;
+  kind?: string;
+  text?: string;
+  url?: string;
+  source?: string;
+  selector?: string;
+};
 
 type CliIO = {
   fetch?: typeof fetch;
@@ -5571,6 +5590,14 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topHiddenSignalUrl ? [`  topHiddenSignalUrl: ${agent.topHiddenSignalUrl}`] : []),
     ...(agent.topHiddenSignalSource ? [`  topHiddenSignalSource: ${agent.topHiddenSignalSource}`] : []),
     ...(agent.topHiddenSignalSelector ? [`  topHiddenSignalSelector: ${agent.topHiddenSignalSelector}`] : []),
+    ...(agent.secondHiddenSignalPath ? [`  secondHiddenSignal: ${agent.secondHiddenSignalGroup ? `group=${agent.secondHiddenSignalGroup} ` : ""}path=${agent.secondHiddenSignalPath}${agent.secondHiddenSignalKind ? ` kind=${agent.secondHiddenSignalKind}` : ""}${agent.secondHiddenSignalSource ? ` source=${agent.secondHiddenSignalSource}` : ""}${agent.secondHiddenSignalSelector ? ` selector=${agent.secondHiddenSignalSelector}` : ""}${agent.secondHiddenSignalUrl ? ` url=<${agent.secondHiddenSignalUrl}>` : ""}${agent.secondHiddenSignalUrlPath ? ` urlPath=${agent.secondHiddenSignalUrlPath}` : ""}${agent.secondHiddenSignalUrlQuery ? ` urlQuery=${agent.secondHiddenSignalUrlQuery}` : ""}${agent.secondHiddenSignalText ? ` - ${agent.secondHiddenSignalText}` : ""}`] : []),
+    ...(agent.secondHiddenSignalGroup ? [`  secondHiddenSignalGroup: ${agent.secondHiddenSignalGroup}`] : []),
+    ...(agent.secondHiddenSignalPath ? [`  secondHiddenSignalPath: ${agent.secondHiddenSignalPath}`] : []),
+    ...(agent.secondHiddenSignalKind ? [`  secondHiddenSignalKind: ${agent.secondHiddenSignalKind}`] : []),
+    ...(agent.secondHiddenSignalText ? [`  secondHiddenSignalText: ${agent.secondHiddenSignalText}`] : []),
+    ...(agent.secondHiddenSignalUrl ? [`  secondHiddenSignalUrl: ${agent.secondHiddenSignalUrl}`] : []),
+    ...(agent.secondHiddenSignalSource ? [`  secondHiddenSignalSource: ${agent.secondHiddenSignalSource}`] : []),
+    ...(agent.secondHiddenSignalSelector ? [`  secondHiddenSignalSelector: ${agent.secondHiddenSignalSelector}`] : []),
     `  hiddenReadTargetCount: ${agent.hiddenReadTargetCount}`,
     ...(agent.bestHiddenReadTarget ? [`  bestHiddenReadTarget: ${agent.bestHiddenReadTarget}`] : []),
     ...(typeof agent.bestHiddenReadTargetCount === "number" ? [`  bestHiddenReadTargetCount: ${agent.bestHiddenReadTargetCount}`] : []),
@@ -14759,8 +14786,11 @@ function summarizeAgent(
   const topSchemaFactFirstFact = topSchemaFact?.facts[0];
   const secondSchemaFact = pageCheck.schemaFacts[1];
   const secondSchemaFactFirstFact = secondSchemaFact?.facts[0];
-  const topHiddenSignal = selectTopHiddenAgentPageCheckSignal(pageCheck);
+  const hiddenSignals = selectHiddenAgentPageCheckSignals(pageCheck);
+  const topHiddenSignal = hiddenSignals[0];
   const topHiddenSignalUrlParts = topHiddenSignal?.url ? urlPathParts(topHiddenSignal.url) : undefined;
+  const secondHiddenSignal = hiddenSignals[1];
+  const secondHiddenSignalUrlParts = secondHiddenSignal?.url ? urlPathParts(secondHiddenSignal.url) : undefined;
   const structuredReadTargetCount = countStructuredAgentReadTargets(readTargets);
   const hiddenReadTargetCount = countHiddenAgentReadTargets(readTargets);
   const citations = summarizeAgentCitations(analysis.kind, pageCheck, verification, primaryAction, recommendedResult, sourceSearch);
@@ -16631,6 +16661,15 @@ function summarizeAgent(
     ...(topHiddenSignalUrlParts?.urlQuery ? { topHiddenSignalUrlQuery: topHiddenSignalUrlParts.urlQuery } : {}),
     ...(topHiddenSignal?.source ? { topHiddenSignalSource: topHiddenSignal.source } : {}),
     ...(topHiddenSignal?.selector ? { topHiddenSignalSelector: topHiddenSignal.selector } : {}),
+    ...(secondHiddenSignal ? { secondHiddenSignalGroup: secondHiddenSignal.group } : {}),
+    ...(secondHiddenSignal ? { secondHiddenSignalPath: secondHiddenSignal.path } : {}),
+    ...(secondHiddenSignal?.kind ? { secondHiddenSignalKind: secondHiddenSignal.kind } : {}),
+    ...(secondHiddenSignal?.text ? { secondHiddenSignalText: secondHiddenSignal.text } : {}),
+    ...(secondHiddenSignal?.url ? { secondHiddenSignalUrl: secondHiddenSignal.url } : {}),
+    ...(secondHiddenSignalUrlParts?.urlPath ? { secondHiddenSignalUrlPath: secondHiddenSignalUrlParts.urlPath } : {}),
+    ...(secondHiddenSignalUrlParts?.urlQuery ? { secondHiddenSignalUrlQuery: secondHiddenSignalUrlParts.urlQuery } : {}),
+    ...(secondHiddenSignal?.source ? { secondHiddenSignalSource: secondHiddenSignal.source } : {}),
+    ...(secondHiddenSignal?.selector ? { secondHiddenSignalSelector: secondHiddenSignal.selector } : {}),
     hiddenReadTargetCount,
     ...(bestHiddenReadTarget ? { bestHiddenReadTarget: bestHiddenReadTarget.path } : {}),
     ...(typeof bestHiddenReadTarget?.count === "number" ? { bestHiddenReadTargetCount: bestHiddenReadTarget.count } : {}),
@@ -19419,24 +19458,31 @@ function countHiddenAgentPageCheckSignals(pageCheck: PageCheckSummary): number {
   }, 0);
 }
 
-function selectTopHiddenAgentPageCheckSignal(pageCheck: PageCheckSummary): { group: string; path: string; kind?: string; text?: string; url?: string; source?: string; selector?: string } | undefined {
+function selectHiddenAgentPageCheckSignals(pageCheck: PageCheckSummary, limit = 2): HiddenAgentPageCheckSignal[] {
+  const signals: HiddenAgentPageCheckSignal[] = [];
   for (const group of hiddenAgentPageCheckPaths) {
     const value = pageCheck[group];
     if (!Array.isArray(value) || value.length === 0) continue;
-    const item = value[0];
-    if (!item || typeof item !== "object") continue;
-    const record = item as Record<string, unknown>;
-    return {
-      group: String(group),
-      path: typeof record.path === "string" ? record.path : `pageCheck.${String(group)}[0]`,
-      ...(typeof record.kind === "string" ? { kind: record.kind } : {}),
-      ...(typeof record.text === "string" ? { text: record.text } : {}),
-      ...(typeof record.url === "string" ? { url: record.url } : {}),
-      ...(typeof record.source === "string" ? { source: record.source } : {}),
-      ...(typeof record.selector === "string" ? { selector: record.selector } : {}),
-    };
+    for (const [index, item] of value.entries()) {
+      if (!item || typeof item !== "object") continue;
+      const record = item as Record<string, unknown>;
+      signals.push({
+        group: String(group),
+        path: typeof record.path === "string" ? record.path : `pageCheck.${String(group)}[${index}]`,
+        ...(typeof record.kind === "string" ? { kind: record.kind } : {}),
+        ...(typeof record.text === "string" ? { text: record.text } : {}),
+        ...(typeof record.url === "string" ? { url: record.url } : {}),
+        ...(typeof record.source === "string" ? { source: record.source } : {}),
+        ...(typeof record.selector === "string" ? { selector: record.selector } : {}),
+      });
+      if (signals.length >= limit) return signals;
+    }
   }
-  return undefined;
+  return signals;
+}
+
+function selectTopHiddenAgentPageCheckSignal(pageCheck: PageCheckSummary): HiddenAgentPageCheckSignal | undefined {
+  return selectHiddenAgentPageCheckSignals(pageCheck, 1)[0];
 }
 
 function countHiddenAgentReadTargets(readTargets: AgentReadTarget[]): number {
@@ -23601,6 +23647,15 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topHiddenSignalUrlQuery ? { topHiddenSignalUrlQuery: agent.topHiddenSignalUrlQuery } : {}),
     ...(agent.topHiddenSignalSource ? { topHiddenSignalSource: agent.topHiddenSignalSource } : {}),
     ...(agent.topHiddenSignalSelector ? { topHiddenSignalSelector: agent.topHiddenSignalSelector } : {}),
+    ...(agent.secondHiddenSignalGroup ? { secondHiddenSignalGroup: agent.secondHiddenSignalGroup } : {}),
+    ...(agent.secondHiddenSignalPath ? { secondHiddenSignalPath: agent.secondHiddenSignalPath } : {}),
+    ...(agent.secondHiddenSignalKind ? { secondHiddenSignalKind: agent.secondHiddenSignalKind } : {}),
+    ...(agent.secondHiddenSignalText ? { secondHiddenSignalText: agent.secondHiddenSignalText } : {}),
+    ...(agent.secondHiddenSignalUrl ? { secondHiddenSignalUrl: agent.secondHiddenSignalUrl } : {}),
+    ...(agent.secondHiddenSignalUrlPath ? { secondHiddenSignalUrlPath: agent.secondHiddenSignalUrlPath } : {}),
+    ...(agent.secondHiddenSignalUrlQuery ? { secondHiddenSignalUrlQuery: agent.secondHiddenSignalUrlQuery } : {}),
+    ...(agent.secondHiddenSignalSource ? { secondHiddenSignalSource: agent.secondHiddenSignalSource } : {}),
+    ...(agent.secondHiddenSignalSelector ? { secondHiddenSignalSelector: agent.secondHiddenSignalSelector } : {}),
     hiddenReadTargetCount: agent.hiddenReadTargetCount,
     ...(agent.bestHiddenReadTarget ? { bestHiddenReadTarget: agent.bestHiddenReadTarget } : {}),
     ...(typeof agent.bestHiddenReadTargetCount === "number" ? { bestHiddenReadTargetCount: agent.bestHiddenReadTargetCount } : {}),
@@ -25668,6 +25723,15 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topHiddenSignalUrlQuery ? { topHiddenSignalUrlQuery: agent.topHiddenSignalUrlQuery } : {}),
     ...(agent.topHiddenSignalSource ? { topHiddenSignalSource: agent.topHiddenSignalSource } : {}),
     ...(agent.topHiddenSignalSelector ? { topHiddenSignalSelector: agent.topHiddenSignalSelector } : {}),
+    ...(agent.secondHiddenSignalGroup ? { secondHiddenSignalGroup: agent.secondHiddenSignalGroup } : {}),
+    ...(agent.secondHiddenSignalPath ? { secondHiddenSignalPath: agent.secondHiddenSignalPath } : {}),
+    ...(agent.secondHiddenSignalKind ? { secondHiddenSignalKind: agent.secondHiddenSignalKind } : {}),
+    ...(agent.secondHiddenSignalText ? { secondHiddenSignalText: agent.secondHiddenSignalText } : {}),
+    ...(agent.secondHiddenSignalUrl ? { secondHiddenSignalUrl: agent.secondHiddenSignalUrl } : {}),
+    ...(agent.secondHiddenSignalUrlPath ? { secondHiddenSignalUrlPath: agent.secondHiddenSignalUrlPath } : {}),
+    ...(agent.secondHiddenSignalUrlQuery ? { secondHiddenSignalUrlQuery: agent.secondHiddenSignalUrlQuery } : {}),
+    ...(agent.secondHiddenSignalSource ? { secondHiddenSignalSource: agent.secondHiddenSignalSource } : {}),
+    ...(agent.secondHiddenSignalSelector ? { secondHiddenSignalSelector: agent.secondHiddenSignalSelector } : {}),
     hiddenReadTargetCount: agent.hiddenReadTargetCount,
     ...(agent.bestHiddenReadTarget ? { bestHiddenReadTarget: agent.bestHiddenReadTarget } : {}),
     ...(typeof agent.bestHiddenReadTargetCount === "number" ? { bestHiddenReadTargetCount: agent.bestHiddenReadTargetCount } : {}),

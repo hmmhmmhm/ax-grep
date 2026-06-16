@@ -9281,6 +9281,14 @@ describe("cli", () => {
       topHiddenSignalUrlQuery: "?q=agent",
       topHiddenSignalSource: "script",
       topHiddenSignalSelector: "script:nth-of-type(1)",
+      secondHiddenSignalGroup: "apiEndpoints",
+      secondHiddenSignalPath: "pageCheck.apiEndpoints[1]",
+      secondHiddenSignalKind: "graphql",
+      secondHiddenSignalText: "graphql POST https://example.test/graphql",
+      secondHiddenSignalUrl: "https://example.test/graphql",
+      secondHiddenSignalUrlPath: "/graphql",
+      secondHiddenSignalSource: "script",
+      secondHiddenSignalSelector: "script:nth-of-type(1)",
       topApiEndpointPath: "pageCheck.apiEndpoints[0]",
       topApiEndpointKind: "fetch",
       topApiEndpointMethod: "POST",
@@ -12281,6 +12289,7 @@ describe("cli", () => {
     expect(stdout.output).toContain("  topHttpPolicy: path=pageCheck.httpPolicies[0] name=\"Referrer-Policy\" source=meta selector=meta[http-equiv=\"referrer-policy\"]:nth-of-type(3) - strict-origin");
     expect(stdout.output).toContain("  topSchemaFact: path=pageCheck.schemaFacts[0] types=SoftwareApplication facts=1 selector=script[type=\"application/ld+json\"]:nth-of-type(1) Name=Agent Shell");
     expect(stdout.output).toContain("  topHiddenSignal: group=hydration path=pageCheck.hydration[0] kind=next-data source=script selector=script#__NEXT_DATA__:nth-of-type(1) url=<https://example.test/_next/data/build-123/app.json> urlPath=/_next/data/build-123/app.json - Next.js data:");
+    expect(stdout.output).toContain("  secondHiddenSignal: group=hydration path=pageCheck.hydration[1] kind=fetch-preload source=link selector=link[rel=\"preload\"]:nth-of-type(3) url=<https://example.test/api/bootstrap.json> urlPath=/api/bootstrap.json - Fetch preload:");
     expect(stdout.output).toContain("  hydration: id=hd1 path=pageCheck.hydration[0] kind=next-data source=script framework=next route=/app buildId=build-123 selector=script#__NEXT_DATA__:nth-of-type(1) urlPath=/_next/data/build-123/app.json url=<https://example.test/_next/data/build-123/app.json>");
     expect(stdout.output).toContain("  apiEndpoint: id=api1 path=pageCheck.apiEndpoints[0] kind=fetch source=script method=POST selector=script:nth-of-type(3) urlPath=/api/search urlQuery=?q=agent url=<https://example.test/api/search?q=agent>");
     expect(stdout.output).toContain("  apiEndpoint: id=api2 path=pageCheck.apiEndpoints[1] kind=fetch source=script selector=script:nth-of-type(3) urlPath=/api/status urlQuery=?format=json url=<https://example.test/api/status?format=json>");

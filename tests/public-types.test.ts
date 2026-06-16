@@ -1165,6 +1165,15 @@ describe("public agent types", () => {
       | "topHiddenSignalUrlQuery"
       | "topHiddenSignalSource"
       | "topHiddenSignalSelector"
+      | "secondHiddenSignalGroup"
+      | "secondHiddenSignalPath"
+      | "secondHiddenSignalKind"
+      | "secondHiddenSignalText"
+      | "secondHiddenSignalUrl"
+      | "secondHiddenSignalUrlPath"
+      | "secondHiddenSignalUrlQuery"
+      | "secondHiddenSignalSource"
+      | "secondHiddenSignalSelector"
       | "bestHiddenReadTarget"
       | "bestHiddenReadTargetCount"
       | "bestHiddenReadTargetScore"
@@ -3213,6 +3222,15 @@ describe("public agent types", () => {
       topHiddenSignalUrlPath: "/graphql",
       topHiddenSignalSource: "script",
       topHiddenSignalSelector: "script:nth-of-type(1)",
+      secondHiddenSignalGroup: "apiEndpoints",
+      secondHiddenSignalPath: "pageCheck.apiEndpoints[1]",
+      secondHiddenSignalKind: "fetch",
+      secondHiddenSignalText: "fetch GET https://example.test/api/status?format=json",
+      secondHiddenSignalUrl: "https://example.test/api/status?format=json",
+      secondHiddenSignalUrlPath: "/api/status",
+      secondHiddenSignalUrlQuery: "?format=json",
+      secondHiddenSignalSource: "script",
+      secondHiddenSignalSelector: "script:nth-of-type(2)",
       bestHiddenReadTarget: "pageCheck.apiEndpoints",
       bestHiddenReadTargetCount: 4,
       bestHiddenReadTargetScore: 0.74,
@@ -4602,6 +4620,9 @@ describe("public agent types", () => {
     expect(summary.secondClientStateSelector).toBe("script:nth-of-type(2)");
     expect(summary.topHiddenSignalPath).toBe("pageCheck.apiEndpoints[0]");
     expect(summary.topHiddenSignalUrlPath).toBe("/graphql");
+    expect(summary.secondHiddenSignalPath).toBe("pageCheck.apiEndpoints[1]");
+    expect(summary.secondHiddenSignalUrlPath).toBe("/api/status");
+    expect(summary.secondHiddenSignalUrlQuery).toBe("?format=json");
     expect(summary.bestHiddenReadTarget).toBe("pageCheck.apiEndpoints");
     expect(summary.actionTargetCount).toBe(2);
     expect(summary.actionTargetChoiceCount).toBe(2);
