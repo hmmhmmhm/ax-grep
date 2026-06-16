@@ -2491,6 +2491,17 @@ export type AgentSummary = {
   topTocFirstItemCommand?: string;
   topTocFirstItemCommandArgs?: string[];
   topTocSelector?: string;
+  secondTocPath?: string;
+  secondTocTitle?: string;
+  secondTocItemCount?: number;
+  secondTocText?: string;
+  secondTocFirstItemLabel?: string;
+  secondTocFirstItemUrl?: string;
+  secondTocFirstItemUrlPath?: string;
+  secondTocFirstItemUrlQuery?: string;
+  secondTocFirstItemCommand?: string;
+  secondTocFirstItemCommandArgs?: string[];
+  secondTocSelector?: string;
   topEmbedPath?: string;
   topEmbedKind?: string;
   topEmbedUrl?: string;

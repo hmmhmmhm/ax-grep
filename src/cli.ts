@@ -2123,6 +2123,17 @@ type AgentSummary = {
   topTocFirstItemCommand?: string;
   topTocFirstItemCommandArgs?: string[];
   topTocSelector?: string;
+  secondTocPath?: string;
+  secondTocTitle?: string;
+  secondTocItemCount?: number;
+  secondTocText?: string;
+  secondTocFirstItemLabel?: string;
+  secondTocFirstItemUrl?: string;
+  secondTocFirstItemUrlPath?: string;
+  secondTocFirstItemUrlQuery?: string;
+  secondTocFirstItemCommand?: string;
+  secondTocFirstItemCommandArgs?: string[];
+  secondTocSelector?: string;
   topEmbedPath?: string;
   topEmbedKind?: PageEmbedSummary["kind"];
   topEmbedUrl?: string;
@@ -5320,6 +5331,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topTocPath ? [`  topToc: path=${agent.topTocPath}${agent.topTocTitle ? ` title="${agent.topTocTitle}"` : ""}${typeof agent.topTocItemCount === "number" ? ` items=${agent.topTocItemCount}` : ""}${agent.topTocSelector ? ` selector=${agent.topTocSelector}` : ""}${agent.topTocFirstItemLabel ? ` first="${agent.topTocFirstItemLabel}"` : ""}${agent.topTocFirstItemUrl ? ` firstUrl=<${agent.topTocFirstItemUrl}>` : ""}${agent.topTocFirstItemUrlPath ? ` firstUrlPath=${agent.topTocFirstItemUrlPath}` : ""}${agent.topTocFirstItemUrlQuery ? ` firstUrlQuery=${agent.topTocFirstItemUrlQuery}` : ""}${agent.topTocText ? ` - ${agent.topTocText}` : ""}`] : []),
     ...(agent.topTocFirstItemCommand ? [`  topTocFirstItemCommand: ${agent.topTocFirstItemCommand}`] : []),
     ...(agent.topTocFirstItemCommandArgs ? [`  topTocFirstItemCommandArgs: ${formatCommandArgsText(agent.topTocFirstItemCommandArgs)}`] : []),
+    ...(agent.secondTocPath ? [`  secondToc: path=${agent.secondTocPath}${agent.secondTocTitle ? ` title="${agent.secondTocTitle}"` : ""}${typeof agent.secondTocItemCount === "number" ? ` items=${agent.secondTocItemCount}` : ""}${agent.secondTocSelector ? ` selector=${agent.secondTocSelector}` : ""}${agent.secondTocFirstItemLabel ? ` first="${agent.secondTocFirstItemLabel}"` : ""}${agent.secondTocFirstItemUrl ? ` firstUrl=<${agent.secondTocFirstItemUrl}>` : ""}${agent.secondTocFirstItemUrlPath ? ` firstUrlPath=${agent.secondTocFirstItemUrlPath}` : ""}${agent.secondTocFirstItemUrlQuery ? ` firstUrlQuery=${agent.secondTocFirstItemUrlQuery}` : ""}${agent.secondTocText ? ` - ${agent.secondTocText}` : ""}`] : []),
+    ...(agent.secondTocFirstItemCommand ? [`  secondTocFirstItemCommand: ${agent.secondTocFirstItemCommand}`] : []),
+    ...(agent.secondTocFirstItemCommandArgs ? [`  secondTocFirstItemCommandArgs: ${formatCommandArgsText(agent.secondTocFirstItemCommandArgs)}`] : []),
     ...(agent.topProvenanceValue ? [`  topProvenance: path=${agent.topProvenancePath ?? ""}${agent.topProvenanceKind ? ` kind=${agent.topProvenanceKind}` : ""}${agent.topProvenanceLabel ? ` label="${agent.topProvenanceLabel}"` : ""} value=${agent.topProvenanceValue}${agent.topProvenanceSource ? ` source=${agent.topProvenanceSource}` : ""}${agent.topProvenanceSelector ? ` selector=${agent.topProvenanceSelector}` : ""}${agent.topProvenanceUrl ? ` url=<${agent.topProvenanceUrl}>` : ""}${agent.topProvenanceUrlPath ? ` urlPath=${agent.topProvenanceUrlPath}` : ""}${agent.topProvenanceUrlQuery ? ` urlQuery=${agent.topProvenanceUrlQuery}` : ""}`] : []),
     ...(agent.topProvenanceCommand ? [`  topProvenanceCommand: ${agent.topProvenanceCommand}`] : []),
     ...(agent.topProvenanceCommandArgs ? [`  topProvenanceCommandArgs: ${formatCommandArgsText(agent.topProvenanceCommandArgs)}`] : []),
@@ -14709,7 +14723,11 @@ function summarizeAgent(
   const topTocFirstItemCommand = pageCheck.toc[0]?.items[0]?.url && /^https?:\/\//i.test(pageCheck.toc[0].items[0].url)
     ? pageCommandSpec(pageCheck.toc[0].items[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const secondTocFirstItemCommand = pageCheck.toc[1]?.items[0]?.url && /^https?:\/\//i.test(pageCheck.toc[1].items[0].url)
+    ? pageCommandSpec(pageCheck.toc[1].items[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topTocFirstItemUrlParts = pageCheck.toc[0]?.items[0]?.url ? urlPathParts(pageCheck.toc[0].items[0].url) : undefined;
+  const secondTocFirstItemUrlParts = pageCheck.toc[1]?.items[0]?.url ? urlPathParts(pageCheck.toc[1].items[0].url) : undefined;
   const topProvenanceCommand = pageCheck.provenance[0]?.url
     ? pageCommandSpec(pageCheck.provenance[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -16040,6 +16058,17 @@ function summarizeAgent(
     ...(topTocFirstItemCommand ? { topTocFirstItemCommand: topTocFirstItemCommand.command } : {}),
     ...(topTocFirstItemCommand ? { topTocFirstItemCommandArgs: topTocFirstItemCommand.commandArgs } : {}),
     ...(pageCheck.toc[0]?.selector ? { topTocSelector: pageCheck.toc[0].selector } : {}),
+    ...(pageCheck.toc[1] ? { secondTocPath: pageCheck.toc[1].path } : {}),
+    ...(pageCheck.toc[1]?.title ? { secondTocTitle: pageCheck.toc[1].title } : {}),
+    ...(pageCheck.toc[1] ? { secondTocItemCount: pageCheck.toc[1].items.length } : {}),
+    ...(pageCheck.toc[1]?.text ? { secondTocText: pageCheck.toc[1].text } : {}),
+    ...(pageCheck.toc[1]?.items[0]?.label ? { secondTocFirstItemLabel: pageCheck.toc[1].items[0].label } : {}),
+    ...(pageCheck.toc[1]?.items[0]?.url ? { secondTocFirstItemUrl: pageCheck.toc[1].items[0].url } : {}),
+    ...(secondTocFirstItemUrlParts?.urlPath ? { secondTocFirstItemUrlPath: secondTocFirstItemUrlParts.urlPath } : {}),
+    ...(secondTocFirstItemUrlParts?.urlQuery ? { secondTocFirstItemUrlQuery: secondTocFirstItemUrlParts.urlQuery } : {}),
+    ...(secondTocFirstItemCommand ? { secondTocFirstItemCommand: secondTocFirstItemCommand.command } : {}),
+    ...(secondTocFirstItemCommand ? { secondTocFirstItemCommandArgs: secondTocFirstItemCommand.commandArgs } : {}),
+    ...(pageCheck.toc[1]?.selector ? { secondTocSelector: pageCheck.toc[1].selector } : {}),
     ...(pageCheck.embeds[0] ? { topEmbedPath: pageCheck.embeds[0].path } : {}),
     ...(pageCheck.embeds[0] ? { topEmbedKind: pageCheck.embeds[0].kind } : {}),
     ...(pageCheck.embeds[0]?.url ? { topEmbedUrl: pageCheck.embeds[0].url } : {}),
@@ -22915,6 +22944,17 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topTocFirstItemCommand ? { topTocFirstItemCommand: agent.topTocFirstItemCommand } : {}),
     ...(agent.topTocFirstItemCommandArgs ? { topTocFirstItemCommandArgs: agent.topTocFirstItemCommandArgs } : {}),
     ...(agent.topTocSelector ? { topTocSelector: agent.topTocSelector } : {}),
+    ...(agent.secondTocPath ? { secondTocPath: agent.secondTocPath } : {}),
+    ...(agent.secondTocTitle ? { secondTocTitle: agent.secondTocTitle } : {}),
+    ...(typeof agent.secondTocItemCount === "number" ? { secondTocItemCount: agent.secondTocItemCount } : {}),
+    ...(agent.secondTocText ? { secondTocText: agent.secondTocText } : {}),
+    ...(agent.secondTocFirstItemLabel ? { secondTocFirstItemLabel: agent.secondTocFirstItemLabel } : {}),
+    ...(agent.secondTocFirstItemUrl ? { secondTocFirstItemUrl: agent.secondTocFirstItemUrl } : {}),
+    ...(agent.secondTocFirstItemUrlPath ? { secondTocFirstItemUrlPath: agent.secondTocFirstItemUrlPath } : {}),
+    ...(agent.secondTocFirstItemUrlQuery ? { secondTocFirstItemUrlQuery: agent.secondTocFirstItemUrlQuery } : {}),
+    ...(agent.secondTocFirstItemCommand ? { secondTocFirstItemCommand: agent.secondTocFirstItemCommand } : {}),
+    ...(agent.secondTocFirstItemCommandArgs ? { secondTocFirstItemCommandArgs: agent.secondTocFirstItemCommandArgs } : {}),
+    ...(agent.secondTocSelector ? { secondTocSelector: agent.secondTocSelector } : {}),
     ...(agent.topEmbedPath ? { topEmbedPath: agent.topEmbedPath } : {}),
     ...(agent.topEmbedKind ? { topEmbedKind: agent.topEmbedKind } : {}),
     ...(agent.topEmbedUrl ? { topEmbedUrl: agent.topEmbedUrl } : {}),
@@ -24887,6 +24927,17 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topTocFirstItemCommand ? { topTocFirstItemCommand: agent.topTocFirstItemCommand } : {}),
     ...(agent.topTocFirstItemCommandArgs ? { topTocFirstItemCommandArgs: agent.topTocFirstItemCommandArgs } : {}),
     ...(agent.topTocSelector ? { topTocSelector: agent.topTocSelector } : {}),
+    ...(agent.secondTocPath ? { secondTocPath: agent.secondTocPath } : {}),
+    ...(agent.secondTocTitle ? { secondTocTitle: agent.secondTocTitle } : {}),
+    ...(typeof agent.secondTocItemCount === "number" ? { secondTocItemCount: agent.secondTocItemCount } : {}),
+    ...(agent.secondTocText ? { secondTocText: agent.secondTocText } : {}),
+    ...(agent.secondTocFirstItemLabel ? { secondTocFirstItemLabel: agent.secondTocFirstItemLabel } : {}),
+    ...(agent.secondTocFirstItemUrl ? { secondTocFirstItemUrl: agent.secondTocFirstItemUrl } : {}),
+    ...(agent.secondTocFirstItemUrlPath ? { secondTocFirstItemUrlPath: agent.secondTocFirstItemUrlPath } : {}),
+    ...(agent.secondTocFirstItemUrlQuery ? { secondTocFirstItemUrlQuery: agent.secondTocFirstItemUrlQuery } : {}),
+    ...(agent.secondTocFirstItemCommand ? { secondTocFirstItemCommand: agent.secondTocFirstItemCommand } : {}),
+    ...(agent.secondTocFirstItemCommandArgs ? { secondTocFirstItemCommandArgs: agent.secondTocFirstItemCommandArgs } : {}),
+    ...(agent.secondTocSelector ? { secondTocSelector: agent.secondTocSelector } : {}),
     ...(agent.topEmbedPath ? { topEmbedPath: agent.topEmbedPath } : {}),
     ...(agent.topEmbedKind ? { topEmbedKind: agent.topEmbedKind } : {}),
     ...(agent.topEmbedUrl ? { topEmbedUrl: agent.topEmbedUrl } : {}),

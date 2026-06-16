@@ -731,6 +731,17 @@ describe("public agent types", () => {
       | "topTocFirstItemCommand"
       | "topTocFirstItemCommandArgs"
       | "topTocSelector"
+      | "secondTocPath"
+      | "secondTocTitle"
+      | "secondTocItemCount"
+      | "secondTocText"
+      | "secondTocFirstItemLabel"
+      | "secondTocFirstItemUrl"
+      | "secondTocFirstItemUrlPath"
+      | "secondTocFirstItemUrlQuery"
+      | "secondTocFirstItemCommand"
+      | "secondTocFirstItemCommandArgs"
+      | "secondTocSelector"
       | "topEmbedPath"
       | "topEmbedKind"
       | "topEmbedUrl"
@@ -2569,7 +2580,7 @@ describe("public agent types", () => {
       sectionCount: 1,
       breadcrumbCount: 1,
       paginationCount: 1,
-      tocCount: 1,
+      tocCount: 2,
       embedCount: 1,
       transcriptCount: 1,
       authorLinkCount: 1,
@@ -2718,6 +2729,17 @@ describe("public agent types", () => {
       topTocFirstItemCommand: "ax-grep 'https://example.test/install#install' --agent",
       topTocFirstItemCommandArgs: ["ax-grep", "https://example.test/install#install", "--agent"],
       topTocSelector: "nav[aria-label=\"On this page\"]",
+      secondTocPath: "pageCheck.toc[1]",
+      secondTocTitle: "Contents",
+      secondTocItemCount: 2,
+      secondTocText: "Overview; Methods",
+      secondTocFirstItemLabel: "Overview",
+      secondTocFirstItemUrl: "https://example.test/docs/api?view=full#overview",
+      secondTocFirstItemUrlPath: "/docs/api",
+      secondTocFirstItemUrlQuery: "?view=full",
+      secondTocFirstItemCommand: "ax-grep 'https://example.test/docs/api?view=full#overview' --agent",
+      secondTocFirstItemCommandArgs: ["ax-grep", "https://example.test/docs/api?view=full#overview", "--agent"],
+      secondTocSelector: "nav[aria-label=\"Contents\"]",
       topEmbedPath: "pageCheck.embeds[0]",
       topEmbedKind: "iframe",
       topEmbedUrl: "https://example.test/embed",
@@ -4457,6 +4479,11 @@ describe("public agent types", () => {
     expect(summary.secondPaginationUrlPath).toBe("/page/2");
     expect(summary.secondPaginationCommandArgs?.[1]).toBe("https://example.test/page/2?sort=top");
     expect(summary.topTocFirstItemCommandArgs?.[1]).toBe("https://example.test/install#install");
+    expect(summary.secondTocPath).toBe("pageCheck.toc[1]");
+    expect(summary.secondTocFirstItemUrlPath).toBe("/docs/api");
+    expect(summary.secondTocFirstItemUrlQuery).toBe("?view=full");
+    expect(summary.secondTocFirstItemCommandArgs?.[1]).toBe("https://example.test/docs/api?view=full#overview");
+    expect(summary.secondTocSelector).toBe("nav[aria-label=\"Contents\"]");
     expect(summary.topEmbedPath).toBe("pageCheck.embeds[0]");
     expect(summary.topEmbedUrlPath).toBe("/embed");
     expect(summary.topEmbedSelector).toBe("iframe:nth-of-type(1)");

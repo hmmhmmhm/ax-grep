@@ -12831,6 +12831,10 @@ npx ax-grep https://example.test --agent</code></pre>
               <a class="toc-level-2" href="#config">Configuration</a>
               <a class="toc-level-3" href="#api">API reference</a>
             </nav>
+            <nav aria-label="Contents">
+              <a class="toc-level-2" href="/docs/api?view=full#overview">Overview</a>
+              <a class="toc-level-2" href="/docs/api?view=full#methods">Methods</a>
+            </nav>
             <main></main>
           </body>
         </html>
@@ -12854,8 +12858,20 @@ npx ax-grep https://example.test --agent</code></pre>
         ],
         text: "Installation; Configuration; API reference",
       },
+      {
+        id: "toc2",
+        path: "pageCheck.toc[1]",
+        rank: 2,
+        title: "Contents",
+        selector: "nav:nth-of-type(2)",
+        items: [
+          { label: "Overview", url: "https://example.test/docs/api?view=full#overview", urlPath: "/docs/api", urlQuery: "?view=full", level: 2 },
+          { label: "Methods", url: "https://example.test/docs/api?view=full#methods", urlPath: "/docs/api", urlQuery: "?view=full", level: 2 },
+        ],
+        text: "Overview; Methods",
+      },
     ]);
-    expect(envelope.pageCheck.readability.reasons).toContain("1 table of contents");
+    expect(envelope.pageCheck.readability.reasons).toContain("2 table of contents entries");
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
       execution: "read-current",
@@ -12863,12 +12879,12 @@ npx ax-grep https://example.test --agent</code></pre>
     });
     expect(envelope.agent.readTargets).toContainEqual(expect.objectContaining({
       path: "pageCheck.toc",
-      count: 1,
+      count: 2,
       primary: true,
       reason: "Table-of-contents and in-page section links extracted from document navigation.",
     }));
     expect(envelope.agent).toMatchObject({
-      tocCount: 1,
+      tocCount: 2,
       topTocPath: "pageCheck.toc[0]",
       topTocTitle: "On this page",
       topTocItemCount: 3,
@@ -12879,6 +12895,17 @@ npx ax-grep https://example.test --agent</code></pre>
       topTocFirstItemCommand: "ax-grep 'https://example.test/docs/guide#install' --agent",
       topTocFirstItemCommandArgs: ["ax-grep", "https://example.test/docs/guide#install", "--agent"],
       topTocSelector: "nav:nth-of-type(1)",
+      secondTocPath: "pageCheck.toc[1]",
+      secondTocTitle: "Contents",
+      secondTocItemCount: 2,
+      secondTocText: "Overview; Methods",
+      secondTocFirstItemLabel: "Overview",
+      secondTocFirstItemUrl: "https://example.test/docs/api?view=full#overview",
+      secondTocFirstItemUrlPath: "/docs/api",
+      secondTocFirstItemUrlQuery: "?view=full",
+      secondTocFirstItemCommand: "ax-grep 'https://example.test/docs/api?view=full#overview' --agent",
+      secondTocFirstItemCommandArgs: ["ax-grep", "https://example.test/docs/api?view=full#overview", "--agent"],
+      secondTocSelector: "nav:nth-of-type(2)",
     });
     expect(envelope.agent.next.readValue).toMatchObject({
       path: "pageCheck.toc",
@@ -12886,6 +12913,10 @@ npx ax-grep https://example.test --agent</code></pre>
         expect.objectContaining({
           id: "toc1",
           text: "Installation; Configuration; API reference",
+        }),
+        expect.objectContaining({
+          id: "toc2",
+          text: "Overview; Methods",
         }),
       ],
     });
@@ -12903,6 +12934,10 @@ npx ax-grep https://example.test --agent</code></pre>
               <a class="toc-level-2" href="#config">Configuration</a>
               <a class="toc-level-3" href="#api">API reference</a>
             </nav>
+            <nav aria-label="Contents">
+              <a class="toc-level-2" href="/docs/api?view=full#overview">Overview</a>
+              <a class="toc-level-2" href="/docs/api?view=full#methods">Methods</a>
+            </nav>
             <main></main>
           </body>
         </html>
@@ -12912,8 +12947,11 @@ npx ax-grep https://example.test --agent</code></pre>
     expect(status).toBe(0);
     expect(stdout.output).toContain("agent\n");
     expect(stdout.output).toContain("  topToc: path=pageCheck.toc[0] title=\"On this page\" items=3 selector=nav:nth-of-type(1) first=\"Installation\" firstUrl=<https://example.test/docs/guide#install> firstUrlPath=/docs/guide - Installation; Configuration; API reference");
+    expect(stdout.output).toContain("  secondToc: path=pageCheck.toc[1] title=\"Contents\" items=2 selector=nav:nth-of-type(2) first=\"Overview\" firstUrl=<https://example.test/docs/api?view=full#overview> firstUrlPath=/docs/api firstUrlQuery=?view=full - Overview; Methods");
     expect(stdout.output).toContain("  toc: id=toc1 path=pageCheck.toc[0] title=\"On this page\" items=3 first=\"Installation\" firstLevel=2 last=\"API reference\" lastLevel=3 urls=https://example.test/docs/guide#install,https://example.test/docs/guide#config,https://example.test/docs/guide#api urlPaths=/docs/guide,/docs/guide,/docs/guide selector=nav:nth-of-type(1) - Installation; Configuration; API reference");
+    expect(stdout.output).toContain("  toc: id=toc2 path=pageCheck.toc[1] title=\"Contents\" items=2 first=\"Overview\" firstLevel=2 last=\"Methods\" lastLevel=2 urls=https://example.test/docs/api?view=full#overview,https://example.test/docs/api?view=full#methods urlPaths=/docs/api,/docs/api urlQueries=?view=full,?view=full selector=nav:nth-of-type(2) - Overview; Methods");
     expect(stdout.output).toContain("  topTocFirstItemCommand: ax-grep 'https://example.test/docs/guide#install'");
+    expect(stdout.output).toContain("  secondTocFirstItemCommand: ax-grep 'https://example.test/docs/api?view=full#overview'");
   });
 
   it("checks requested text against table-of-contents summaries", async () => {
