@@ -4585,7 +4585,7 @@ describe("cli", () => {
               <ol>
                 <li class="b_algo"><h2><a href="https://missing.example/article">Missing Result</a></h2><p>Missing result snippet.</p><a href="https://missing.example/article/docs">Missing docs</a></li>
                 <li class="b_algo"><h2><a href="https://alternate.example/article">Alternate Result</a></h2><p>Alternate result snippet.</p><a href="https://alternate.example/article/docs">Alternate docs</a></li>
-                <li class="b_algo"><h2><a href="https://backup.example/article?ref=cache">Backup Result</a></h2><p>Backup result snippet.</p></li>
+                <li class="b_algo"><h2><a href="https://backup.example/article?ref=cache">Backup Result</a></h2><p>Backup result snippet.</p><a href="https://backup.example/article/docs?ref=cache">Backup docs</a></li>
               </ol>
             </main>
           `, { headers: { "content-type": "text/html" } });
@@ -4606,6 +4606,14 @@ describe("cli", () => {
     expect(envelope.agent.sourceSearchAlternateFirstSitelinkUrl).toBe("https://alternate.example/article/docs");
     expect(envelope.agent.sourceSearchAlternateFirstSitelinkUrlPath).toBe("/article/docs");
     expect(envelope.agent.sourceSearchAlternateFirstSitelinkSelector).toEqual(expect.any(String));
+    expect(envelope.agent.sourceSearchSecondAlternateSitelinkCount).toBe(1);
+    expect(envelope.agent.sourceSearchSecondAlternateFirstSitelinkTitle).toBe("Backup docs");
+    expect(envelope.agent.sourceSearchSecondAlternateFirstSitelinkUrl).toBe("https://backup.example/article/docs?ref=cache");
+    expect(envelope.agent.sourceSearchSecondAlternateFirstSitelinkUrlPath).toBe("/article/docs");
+    expect(envelope.agent.sourceSearchSecondAlternateFirstSitelinkUrlQuery).toBe("?ref=cache");
+    expect(envelope.agent.sourceSearchSecondAlternateFirstSitelinkSelector).toEqual(expect.any(String));
+    expect(envelope.agent.sourceSearchSecondAlternateFirstSitelinkCommand).toBe("ax-grep 'https://backup.example/article/docs?ref=cache' --agent-brief");
+    expect(envelope.agent.sourceSearchSecondAlternateFirstSitelinkCommandArgs).toEqual(["ax-grep", "https://backup.example/article/docs?ref=cache", "--agent-brief"]);
     expect(envelope.agent.sourceSearchAlternateChoices).toEqual([
       expect.objectContaining({
         path: "sourceSearch.alternateResults[0]",

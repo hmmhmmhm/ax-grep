@@ -953,6 +953,14 @@ describe("public agent types", () => {
       | "sourceSearchSecondAlternateDateSource"
       | "sourceSearchSecondAlternateMatchedTerm"
       | "sourceSearchSecondAlternateFindMatch"
+      | "sourceSearchSecondAlternateSitelinkCount"
+      | "sourceSearchSecondAlternateFirstSitelinkTitle"
+      | "sourceSearchSecondAlternateFirstSitelinkUrl"
+      | "sourceSearchSecondAlternateFirstSitelinkUrlPath"
+      | "sourceSearchSecondAlternateFirstSitelinkUrlQuery"
+      | "sourceSearchSecondAlternateFirstSitelinkSelector"
+      | "sourceSearchSecondAlternateFirstSitelinkCommand"
+      | "sourceSearchSecondAlternateFirstSitelinkCommandArgs"
       | "sourceSearchSecondAlternateOpenResult"
       | "sourceSearchSecondAlternateCommand"
       | "sourceSearchSecondAlternateCommandArgs"
@@ -2559,6 +2567,14 @@ describe("public agent types", () => {
       sourceSearchSecondAlternateDateSource: "snippet",
       sourceSearchSecondAlternateMatchedTerm: "docs",
       sourceSearchSecondAlternateFindMatch: "backup",
+      sourceSearchSecondAlternateSitelinkCount: 1,
+      sourceSearchSecondAlternateFirstSitelinkTitle: "Backup Docs",
+      sourceSearchSecondAlternateFirstSitelinkUrl: "https://backup.example/result/docs?ref=backup",
+      sourceSearchSecondAlternateFirstSitelinkUrlPath: "/result/docs",
+      sourceSearchSecondAlternateFirstSitelinkUrlQuery: "?ref=backup",
+      sourceSearchSecondAlternateFirstSitelinkSelector: "a",
+      sourceSearchSecondAlternateFirstSitelinkCommand: "ax-grep 'https://backup.example/result/docs?ref=backup' --agent",
+      sourceSearchSecondAlternateFirstSitelinkCommandArgs: ["ax-grep", "https://backup.example/result/docs?ref=backup", "--agent"],
       sourceSearchSecondAlternateOpenResult: 4,
       sourceSearchSecondAlternateCommand: "ax-grep --search 'ax-grep docs' --open-result 4 --agent",
       sourceSearchSecondAlternateCommandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "4", "--agent"],
@@ -3850,6 +3866,8 @@ describe("public agent types", () => {
     expect(summary.sourceSearchSecondAlternateDatePrecision).toBe("day");
     expect(summary.sourceSearchSecondAlternateMatchedTerm).toBe("docs");
     expect(summary.sourceSearchSecondAlternateFindMatch).toBe("backup");
+    expect(summary.sourceSearchSecondAlternateFirstSitelinkUrlPath).toBe("/result/docs");
+    expect(summary.sourceSearchSecondAlternateFirstSitelinkCommandArgs).toEqual(["ax-grep", "https://backup.example/result/docs?ref=backup", "--agent"]);
     expect(summary.sourceSearchSecondAlternateCommand).toContain("--open-result 4");
     expect(summary.sourceSearchSecondAlternateSourceScore).toBe(0.52);
     expect(summary.sourceSearchSecondAlternateDifferentHost).toBe(true);

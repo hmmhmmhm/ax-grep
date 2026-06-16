@@ -2767,6 +2767,14 @@ export type AgentSummary = {
   sourceSearchSecondAlternateDateSource?: AgentSourceSearchResult["dateSource"];
   sourceSearchSecondAlternateMatchedTerm?: string;
   sourceSearchSecondAlternateFindMatch?: string;
+  sourceSearchSecondAlternateSitelinkCount?: number;
+  sourceSearchSecondAlternateFirstSitelinkTitle?: string;
+  sourceSearchSecondAlternateFirstSitelinkUrl?: string;
+  sourceSearchSecondAlternateFirstSitelinkUrlPath?: string;
+  sourceSearchSecondAlternateFirstSitelinkUrlQuery?: string;
+  sourceSearchSecondAlternateFirstSitelinkSelector?: string;
+  sourceSearchSecondAlternateFirstSitelinkCommand?: string;
+  sourceSearchSecondAlternateFirstSitelinkCommandArgs?: string[];
   sourceSearchSecondAlternateOpenResult?: number | "best";
   sourceSearchSecondAlternateCommand?: string;
   sourceSearchSecondAlternateCommandArgs?: string[];
