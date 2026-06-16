@@ -2022,6 +2022,16 @@ type AgentSummary = {
   topTranscriptSelector?: string;
   topTranscriptCommand?: string;
   topTranscriptCommandArgs?: string[];
+  secondTranscriptPath?: string;
+  secondTranscriptKind?: PageTranscriptSummary["kind"];
+  secondTranscriptUrl?: string;
+  secondTranscriptUrlPath?: string;
+  secondTranscriptUrlQuery?: string;
+  secondTranscriptLabel?: string;
+  secondTranscriptLanguage?: string;
+  secondTranscriptSelector?: string;
+  secondTranscriptCommand?: string;
+  secondTranscriptCommandArgs?: string[];
   topAuthorLinkPath?: string;
   topAuthorLinkName?: string;
   topAuthorLinkUrl?: string;
@@ -4956,6 +4966,9 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(agent.topTranscriptUrl ? [`  topTranscript: path=${agent.topTranscriptPath ?? ""}${agent.topTranscriptKind ? ` kind=${agent.topTranscriptKind}` : ""}${agent.topTranscriptLabel ? ` label="${agent.topTranscriptLabel}"` : ""}${agent.topTranscriptLanguage ? ` lang=${agent.topTranscriptLanguage}` : ""}${agent.topTranscriptSelector ? ` selector=${agent.topTranscriptSelector}` : ""} url=<${agent.topTranscriptUrl}>${agent.topTranscriptUrlPath ? ` urlPath=${agent.topTranscriptUrlPath}` : ""}${agent.topTranscriptUrlQuery ? ` urlQuery=${agent.topTranscriptUrlQuery}` : ""}`] : []),
     ...(agent.topTranscriptCommand ? [`  topTranscriptCommand: ${agent.topTranscriptCommand}`] : []),
     ...(agent.topTranscriptCommandArgs ? [`  topTranscriptCommandArgs: ${formatCommandArgsText(agent.topTranscriptCommandArgs)}`] : []),
+    ...(agent.secondTranscriptUrl ? [`  secondTranscript: path=${agent.secondTranscriptPath ?? ""}${agent.secondTranscriptKind ? ` kind=${agent.secondTranscriptKind}` : ""}${agent.secondTranscriptLabel ? ` label="${agent.secondTranscriptLabel}"` : ""}${agent.secondTranscriptLanguage ? ` lang=${agent.secondTranscriptLanguage}` : ""}${agent.secondTranscriptSelector ? ` selector=${agent.secondTranscriptSelector}` : ""} url=<${agent.secondTranscriptUrl}>${agent.secondTranscriptUrlPath ? ` urlPath=${agent.secondTranscriptUrlPath}` : ""}${agent.secondTranscriptUrlQuery ? ` urlQuery=${agent.secondTranscriptUrlQuery}` : ""}`] : []),
+    ...(agent.secondTranscriptCommand ? [`  secondTranscriptCommand: ${agent.secondTranscriptCommand}`] : []),
+    ...(agent.secondTranscriptCommandArgs ? [`  secondTranscriptCommandArgs: ${formatCommandArgsText(agent.secondTranscriptCommandArgs)}`] : []),
     ...(agent.topAuthorLinkUrl ? [`  topAuthorLink: path=${agent.topAuthorLinkPath ?? ""}${agent.topAuthorLinkSource ? ` source=${agent.topAuthorLinkSource}` : ""}${agent.topAuthorLinkName ? ` name="${agent.topAuthorLinkName}"` : ""}${agent.topAuthorLinkSelector ? ` selector=${agent.topAuthorLinkSelector}` : ""} url=<${agent.topAuthorLinkUrl}>${agent.topAuthorLinkUrlPath ? ` urlPath=${agent.topAuthorLinkUrlPath}` : ""}${agent.topAuthorLinkUrlQuery ? ` urlQuery=${agent.topAuthorLinkUrlQuery}` : ""}`] : []),
     ...(agent.topAuthorLinkCommand ? [`  topAuthorLinkCommand: ${agent.topAuthorLinkCommand}`] : []),
     ...(agent.topAuthorLinkCommandArgs ? [`  topAuthorLinkCommandArgs: ${formatCommandArgsText(agent.topAuthorLinkCommandArgs)}`] : []),
@@ -14202,7 +14215,11 @@ function summarizeAgent(
   const topTranscriptCommand = pageCheck.transcripts[0]?.url && /^https?:\/\//i.test(pageCheck.transcripts[0].url)
     ? pageCommandSpec(pageCheck.transcripts[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
+  const secondTranscriptCommand = pageCheck.transcripts[1]?.url && /^https?:\/\//i.test(pageCheck.transcripts[1].url)
+    ? pageCommandSpec(pageCheck.transcripts[1].url, agentMode, false, findQueries, timeoutMs, userAgent)
+    : undefined;
   const topTranscriptUrlParts = pageCheck.transcripts[0]?.url ? urlPathParts(pageCheck.transcripts[0].url) : undefined;
+  const secondTranscriptUrlParts = pageCheck.transcripts[1]?.url ? urlPathParts(pageCheck.transcripts[1].url) : undefined;
   const topPaginationCommand = pageCheck.pagination[0]?.url && /^https?:\/\//i.test(pageCheck.pagination[0].url)
     ? pageCommandSpec(pageCheck.pagination[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
     : undefined;
@@ -15364,6 +15381,16 @@ function summarizeAgent(
     ...(pageCheck.transcripts[0]?.selector ? { topTranscriptSelector: pageCheck.transcripts[0].selector } : {}),
     ...(topTranscriptCommand ? { topTranscriptCommand: topTranscriptCommand.command } : {}),
     ...(topTranscriptCommand ? { topTranscriptCommandArgs: topTranscriptCommand.commandArgs } : {}),
+    ...(pageCheck.transcripts[1] ? { secondTranscriptPath: pageCheck.transcripts[1].path } : {}),
+    ...(pageCheck.transcripts[1] ? { secondTranscriptKind: pageCheck.transcripts[1].kind } : {}),
+    ...(pageCheck.transcripts[1]?.url ? { secondTranscriptUrl: pageCheck.transcripts[1].url } : {}),
+    ...(secondTranscriptUrlParts?.urlPath ? { secondTranscriptUrlPath: secondTranscriptUrlParts.urlPath } : {}),
+    ...(secondTranscriptUrlParts?.urlQuery ? { secondTranscriptUrlQuery: secondTranscriptUrlParts.urlQuery } : {}),
+    ...(pageCheck.transcripts[1]?.label ? { secondTranscriptLabel: pageCheck.transcripts[1].label } : {}),
+    ...(pageCheck.transcripts[1]?.language ? { secondTranscriptLanguage: pageCheck.transcripts[1].language } : {}),
+    ...(pageCheck.transcripts[1]?.selector ? { secondTranscriptSelector: pageCheck.transcripts[1].selector } : {}),
+    ...(secondTranscriptCommand ? { secondTranscriptCommand: secondTranscriptCommand.command } : {}),
+    ...(secondTranscriptCommand ? { secondTranscriptCommandArgs: secondTranscriptCommand.commandArgs } : {}),
     ...(pageCheck.authorLinks[0] ? { topAuthorLinkPath: pageCheck.authorLinks[0].path } : {}),
     ...(pageCheck.authorLinks[0]?.name ? { topAuthorLinkName: pageCheck.authorLinks[0].name } : {}),
     ...(pageCheck.authorLinks[0]?.url ? { topAuthorLinkUrl: pageCheck.authorLinks[0].url } : {}),
@@ -21942,6 +21969,16 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(agent.topTranscriptSelector ? { topTranscriptSelector: agent.topTranscriptSelector } : {}),
     ...(agent.topTranscriptCommand ? { topTranscriptCommand: agent.topTranscriptCommand } : {}),
     ...(agent.topTranscriptCommandArgs ? { topTranscriptCommandArgs: agent.topTranscriptCommandArgs } : {}),
+    ...(agent.secondTranscriptPath ? { secondTranscriptPath: agent.secondTranscriptPath } : {}),
+    ...(agent.secondTranscriptKind ? { secondTranscriptKind: agent.secondTranscriptKind } : {}),
+    ...(agent.secondTranscriptUrl ? { secondTranscriptUrl: agent.secondTranscriptUrl } : {}),
+    ...(agent.secondTranscriptUrlPath ? { secondTranscriptUrlPath: agent.secondTranscriptUrlPath } : {}),
+    ...(agent.secondTranscriptUrlQuery ? { secondTranscriptUrlQuery: agent.secondTranscriptUrlQuery } : {}),
+    ...(agent.secondTranscriptLabel ? { secondTranscriptLabel: agent.secondTranscriptLabel } : {}),
+    ...(agent.secondTranscriptLanguage ? { secondTranscriptLanguage: agent.secondTranscriptLanguage } : {}),
+    ...(agent.secondTranscriptSelector ? { secondTranscriptSelector: agent.secondTranscriptSelector } : {}),
+    ...(agent.secondTranscriptCommand ? { secondTranscriptCommand: agent.secondTranscriptCommand } : {}),
+    ...(agent.secondTranscriptCommandArgs ? { secondTranscriptCommandArgs: agent.secondTranscriptCommandArgs } : {}),
     ...(agent.topAuthorLinkPath ? { topAuthorLinkPath: agent.topAuthorLinkPath } : {}),
     ...(agent.topAuthorLinkName ? { topAuthorLinkName: agent.topAuthorLinkName } : {}),
     ...(agent.topAuthorLinkUrl ? { topAuthorLinkUrl: agent.topAuthorLinkUrl } : {}),
@@ -23621,6 +23658,16 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(agent.topTranscriptSelector ? { topTranscriptSelector: agent.topTranscriptSelector } : {}),
     ...(agent.topTranscriptCommand ? { topTranscriptCommand: agent.topTranscriptCommand } : {}),
     ...(agent.topTranscriptCommandArgs ? { topTranscriptCommandArgs: agent.topTranscriptCommandArgs } : {}),
+    ...(agent.secondTranscriptPath ? { secondTranscriptPath: agent.secondTranscriptPath } : {}),
+    ...(agent.secondTranscriptKind ? { secondTranscriptKind: agent.secondTranscriptKind } : {}),
+    ...(agent.secondTranscriptUrl ? { secondTranscriptUrl: agent.secondTranscriptUrl } : {}),
+    ...(agent.secondTranscriptUrlPath ? { secondTranscriptUrlPath: agent.secondTranscriptUrlPath } : {}),
+    ...(agent.secondTranscriptUrlQuery ? { secondTranscriptUrlQuery: agent.secondTranscriptUrlQuery } : {}),
+    ...(agent.secondTranscriptLabel ? { secondTranscriptLabel: agent.secondTranscriptLabel } : {}),
+    ...(agent.secondTranscriptLanguage ? { secondTranscriptLanguage: agent.secondTranscriptLanguage } : {}),
+    ...(agent.secondTranscriptSelector ? { secondTranscriptSelector: agent.secondTranscriptSelector } : {}),
+    ...(agent.secondTranscriptCommand ? { secondTranscriptCommand: agent.secondTranscriptCommand } : {}),
+    ...(agent.secondTranscriptCommandArgs ? { secondTranscriptCommandArgs: agent.secondTranscriptCommandArgs } : {}),
     ...(agent.topAuthorLinkPath ? { topAuthorLinkPath: agent.topAuthorLinkPath } : {}),
     ...(agent.topAuthorLinkName ? { topAuthorLinkName: agent.topAuthorLinkName } : {}),
     ...(agent.topAuthorLinkUrl ? { topAuthorLinkUrl: agent.topAuthorLinkUrl } : {}),

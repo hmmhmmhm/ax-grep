@@ -2390,6 +2390,16 @@ export type AgentSummary = {
   topTranscriptSelector?: string;
   topTranscriptCommand?: string;
   topTranscriptCommandArgs?: string[];
+  secondTranscriptPath?: string;
+  secondTranscriptKind?: string;
+  secondTranscriptUrl?: string;
+  secondTranscriptUrlPath?: string;
+  secondTranscriptUrlQuery?: string;
+  secondTranscriptLabel?: string;
+  secondTranscriptLanguage?: string;
+  secondTranscriptSelector?: string;
+  secondTranscriptCommand?: string;
+  secondTranscriptCommandArgs?: string[];
   topAuthorLinkPath?: string;
   topAuthorLinkName?: string;
   topAuthorLinkUrl?: string;

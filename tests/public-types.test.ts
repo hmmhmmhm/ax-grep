@@ -577,6 +577,16 @@ describe("public agent types", () => {
       | "topTranscriptSelector"
       | "topTranscriptCommand"
       | "topTranscriptCommandArgs"
+      | "secondTranscriptPath"
+      | "secondTranscriptKind"
+      | "secondTranscriptUrl"
+      | "secondTranscriptUrlPath"
+      | "secondTranscriptUrlQuery"
+      | "secondTranscriptLabel"
+      | "secondTranscriptLanguage"
+      | "secondTranscriptSelector"
+      | "secondTranscriptCommand"
+      | "secondTranscriptCommandArgs"
       | "topAuthorLinkPath"
       | "topAuthorLinkName"
       | "topAuthorLinkUrl"
@@ -2271,6 +2281,16 @@ describe("public agent types", () => {
       topTranscriptSelector: "a[href=\"/transcript.txt\"]",
       topTranscriptCommand: "ax-grep 'https://example.test/transcript.txt' --agent",
       topTranscriptCommandArgs: ["ax-grep", "https://example.test/transcript.txt", "--agent"],
+      secondTranscriptPath: "pageCheck.transcripts[1]",
+      secondTranscriptKind: "subtitles",
+      secondTranscriptUrl: "https://example.test/transcript.ko.vtt?download=1",
+      secondTranscriptUrlPath: "/transcript.ko.vtt",
+      secondTranscriptUrlQuery: "?download=1",
+      secondTranscriptLabel: "Korean subtitles",
+      secondTranscriptLanguage: "ko",
+      secondTranscriptSelector: "track:nth-of-type(2)",
+      secondTranscriptCommand: "ax-grep 'https://example.test/transcript.ko.vtt?download=1' --agent",
+      secondTranscriptCommandArgs: ["ax-grep", "https://example.test/transcript.ko.vtt?download=1", "--agent"],
       topAuthorLinkPath: "pageCheck.authorLinks[0]",
       topAuthorLinkName: "Example Author",
       topAuthorLinkUrl: "https://example.test/author",
@@ -3816,6 +3836,9 @@ describe("public agent types", () => {
     expect(summary.topTranscriptUrlPath).toBe("/transcript.txt");
     expect(summary.topTranscriptSelector).toBe("a[href=\"/transcript.txt\"]");
     expect(summary.topTranscriptCommandArgs?.[1]).toBe("https://example.test/transcript.txt");
+    expect(summary.secondTranscriptPath).toBe("pageCheck.transcripts[1]");
+    expect(summary.secondTranscriptUrlPath).toBe("/transcript.ko.vtt");
+    expect(summary.secondTranscriptCommandArgs?.[1]).toBe("https://example.test/transcript.ko.vtt?download=1");
     expect(summary.topAuthorLinkPath).toBe("pageCheck.authorLinks[0]");
     expect(summary.topAuthorLinkUrlPath).toBe("/author");
     expect(summary.topAuthorLinkSelector).toBe("a[rel=\"author\"]");

@@ -13271,6 +13271,15 @@ npx ax-grep https://example.test --agent</code></pre>
       topTranscriptSelector: "track:nth-of-type(1)",
       topTranscriptCommand: "ax-grep 'https://example.test/media/walkthrough.en.vtt' --agent",
       topTranscriptCommandArgs: ["ax-grep", "https://example.test/media/walkthrough.en.vtt", "--agent"],
+      secondTranscriptPath: "pageCheck.transcripts[1]",
+      secondTranscriptKind: "subtitles",
+      secondTranscriptUrl: "https://example.test/audio/interview.ko.vtt",
+      secondTranscriptUrlPath: "/audio/interview.ko.vtt",
+      secondTranscriptLabel: "Korean subtitles",
+      secondTranscriptLanguage: "ko",
+      secondTranscriptSelector: "track:nth-of-type(2)",
+      secondTranscriptCommand: "ax-grep 'https://example.test/audio/interview.ko.vtt' --agent",
+      secondTranscriptCommandArgs: ["ax-grep", "https://example.test/audio/interview.ko.vtt", "--agent"],
     });
     expect(envelope.agent.primaryAction).toMatchObject({
       action: "read-content",
