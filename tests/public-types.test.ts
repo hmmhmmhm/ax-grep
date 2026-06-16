@@ -935,6 +935,25 @@ describe("public agent types", () => {
       | "sourceSearchAlternateLikelyOfficial"
       | "sourceSearchAlternateDifferentHost"
       | "sourceSearchAlternateReason"
+      | "sourceSearchSecondAlternatePath"
+      | "sourceSearchSecondAlternateTitle"
+      | "sourceSearchSecondAlternateUrl"
+      | "sourceSearchSecondAlternateUrlPath"
+      | "sourceSearchSecondAlternateUrlQuery"
+      | "sourceSearchSecondAlternateHost"
+      | "sourceSearchSecondAlternateSource"
+      | "sourceSearchSecondAlternateSourceType"
+      | "sourceSearchSecondAlternateSourceHints"
+      | "sourceSearchSecondAlternateRank"
+      | "sourceSearchSecondAlternateSnippet"
+      | "sourceSearchSecondAlternateOpenResult"
+      | "sourceSearchSecondAlternateCommand"
+      | "sourceSearchSecondAlternateCommandArgs"
+      | "sourceSearchSecondAlternateSourceScore"
+      | "sourceSearchSecondAlternateRelevance"
+      | "sourceSearchSecondAlternateLikelyOfficial"
+      | "sourceSearchSecondAlternateDifferentHost"
+      | "sourceSearchSecondAlternateReason"
       | "sourceSearchAlternateChoices"
       | "verificationFoundQueries"
       | "verificationMissingQueries"
@@ -2515,6 +2534,25 @@ describe("public agent types", () => {
       sourceSearchAlternateLikelyOfficial: false,
       sourceSearchAlternateDifferentHost: true,
       sourceSearchAlternateReason: "Alternate source result.",
+      sourceSearchSecondAlternatePath: "sourceSearch.alternateResults[1]",
+      sourceSearchSecondAlternateTitle: "ax-grep backup mirror",
+      sourceSearchSecondAlternateUrl: "https://backup.example/result?ref=backup",
+      sourceSearchSecondAlternateUrlPath: "/result",
+      sourceSearchSecondAlternateUrlQuery: "?ref=backup",
+      sourceSearchSecondAlternateHost: "backup.example",
+      sourceSearchSecondAlternateSource: "backup.example",
+      sourceSearchSecondAlternateSourceType: "community",
+      sourceSearchSecondAlternateSourceHints: ["backup"],
+      sourceSearchSecondAlternateRank: 4,
+      sourceSearchSecondAlternateSnippet: "Second alternate source summary",
+      sourceSearchSecondAlternateOpenResult: 4,
+      sourceSearchSecondAlternateCommand: "ax-grep --search 'ax-grep docs' --open-result 4 --agent",
+      sourceSearchSecondAlternateCommandArgs: ["ax-grep", "--search", "ax-grep docs", "--open-result", "4", "--agent"],
+      sourceSearchSecondAlternateSourceScore: 0.52,
+      sourceSearchSecondAlternateRelevance: "low",
+      sourceSearchSecondAlternateLikelyOfficial: false,
+      sourceSearchSecondAlternateDifferentHost: true,
+      sourceSearchSecondAlternateReason: "Second alternate source result.",
       sourceSearchAlternateChoices: [{
         id: "a3",
         path: "sourceSearch.alternateResults[0]",
@@ -3794,6 +3832,10 @@ describe("public agent types", () => {
     expect(summary.sourceSearchAlternateRelevance).toBe("medium");
     expect(summary.sourceSearchAlternateLikelyOfficial).toBe(false);
     expect(summary.sourceSearchAlternateDifferentHost).toBe(true);
+    expect(summary.sourceSearchSecondAlternatePath).toBe("sourceSearch.alternateResults[1]");
+    expect(summary.sourceSearchSecondAlternateCommand).toContain("--open-result 4");
+    expect(summary.sourceSearchSecondAlternateSourceScore).toBe(0.52);
+    expect(summary.sourceSearchSecondAlternateDifferentHost).toBe(true);
     expect(summary.sourceSearchAlternateChoices?.[0]?.path).toBe("sourceSearch.alternateResults[0]");
     expect(summary.sourceSearchAlternateChoices?.[0]?.urlPath).toBe("/result");
     expect(summary.sourceSearchAlternateChoices?.[0]?.urlQuery).toBe("?ref=mirror");

@@ -2381,6 +2381,25 @@ type AgentSummary = {
   sourceSearchAlternateLikelyOfficial?: boolean;
   sourceSearchAlternateDifferentHost?: boolean;
   sourceSearchAlternateReason?: string;
+  sourceSearchSecondAlternatePath?: string;
+  sourceSearchSecondAlternateTitle?: string;
+  sourceSearchSecondAlternateUrl?: string;
+  sourceSearchSecondAlternateUrlPath?: string;
+  sourceSearchSecondAlternateUrlQuery?: string;
+  sourceSearchSecondAlternateHost?: string;
+  sourceSearchSecondAlternateSource?: string;
+  sourceSearchSecondAlternateSourceType?: AgentSourceSearchResult["sourceType"];
+  sourceSearchSecondAlternateSourceHints?: string[];
+  sourceSearchSecondAlternateRank?: number;
+  sourceSearchSecondAlternateSnippet?: string;
+  sourceSearchSecondAlternateOpenResult?: AgentSourceSearchResult["openResult"];
+  sourceSearchSecondAlternateCommand?: string;
+  sourceSearchSecondAlternateCommandArgs?: string[];
+  sourceSearchSecondAlternateSourceScore?: number;
+  sourceSearchSecondAlternateRelevance?: ResultSummary["relevance"];
+  sourceSearchSecondAlternateLikelyOfficial?: boolean;
+  sourceSearchSecondAlternateDifferentHost?: boolean;
+  sourceSearchSecondAlternateReason?: string;
   sourceSearchAlternateChoices: AgentSourceSearchResult[];
   evidenceQualityScore: number;
   sourceQualityScore: number;
@@ -5122,6 +5141,25 @@ function formatAgentText(agent: AgentSummary): string[] {
     ...(typeof agent.sourceSearchAlternateLikelyOfficial === "boolean" ? [`  sourceSearchAlternateLikelyOfficial: ${agent.sourceSearchAlternateLikelyOfficial}`] : []),
     ...(typeof agent.sourceSearchAlternateDifferentHost === "boolean" ? [`  sourceSearchAlternateDifferentHost: ${agent.sourceSearchAlternateDifferentHost}`] : []),
     ...(agent.sourceSearchAlternateReason ? [`  sourceSearchAlternateReason: ${agent.sourceSearchAlternateReason}`] : []),
+    ...(agent.sourceSearchSecondAlternatePath ? [`  sourceSearchSecondAlternatePath: ${agent.sourceSearchSecondAlternatePath}`] : []),
+    ...(agent.sourceSearchSecondAlternateUrl ? [`  sourceSearchSecondAlternateUrl: ${agent.sourceSearchSecondAlternateUrl}`] : []),
+    ...(agent.sourceSearchSecondAlternateUrlPath ? [`  sourceSearchSecondAlternateUrlPath: ${agent.sourceSearchSecondAlternateUrlPath}`] : []),
+    ...(agent.sourceSearchSecondAlternateUrlQuery ? [`  sourceSearchSecondAlternateUrlQuery: ${agent.sourceSearchSecondAlternateUrlQuery}`] : []),
+    ...(agent.sourceSearchSecondAlternateHost ? [`  sourceSearchSecondAlternateHost: ${agent.sourceSearchSecondAlternateHost}`] : []),
+    ...(agent.sourceSearchSecondAlternateTitle ? [`  sourceSearchSecondAlternateTitle: ${agent.sourceSearchSecondAlternateTitle}`] : []),
+    ...(typeof agent.sourceSearchSecondAlternateRank === "number" ? [`  sourceSearchSecondAlternateRank: ${agent.sourceSearchSecondAlternateRank}`] : []),
+    ...(agent.sourceSearchSecondAlternateOpenResult ? [`  sourceSearchSecondAlternateOpenResult: ${agent.sourceSearchSecondAlternateOpenResult}`] : []),
+    ...(agent.sourceSearchSecondAlternateSource ? [`  sourceSearchSecondAlternateSource: ${agent.sourceSearchSecondAlternateSource}`] : []),
+    ...(agent.sourceSearchSecondAlternateSourceType ? [`  sourceSearchSecondAlternateSourceType: ${agent.sourceSearchSecondAlternateSourceType}`] : []),
+    ...(agent.sourceSearchSecondAlternateSourceHints?.length ? [`  sourceSearchSecondAlternateSourceHints: ${agent.sourceSearchSecondAlternateSourceHints.join(",")}`] : []),
+    ...(agent.sourceSearchSecondAlternateCommand ? [`  sourceSearchSecondAlternateCommand: ${agent.sourceSearchSecondAlternateCommand}`] : []),
+    ...(agent.sourceSearchSecondAlternateCommandArgs ? [`  sourceSearchSecondAlternateCommandArgs: ${JSON.stringify(agent.sourceSearchSecondAlternateCommandArgs)}`] : []),
+    ...(agent.sourceSearchSecondAlternateSnippet ? [`  sourceSearchSecondAlternateSnippet: ${agent.sourceSearchSecondAlternateSnippet}`] : []),
+    ...(typeof agent.sourceSearchSecondAlternateSourceScore === "number" ? [`  sourceSearchSecondAlternateSourceScore: ${agent.sourceSearchSecondAlternateSourceScore}`] : []),
+    ...(agent.sourceSearchSecondAlternateRelevance ? [`  sourceSearchSecondAlternateRelevance: ${agent.sourceSearchSecondAlternateRelevance}`] : []),
+    ...(typeof agent.sourceSearchSecondAlternateLikelyOfficial === "boolean" ? [`  sourceSearchSecondAlternateLikelyOfficial: ${agent.sourceSearchSecondAlternateLikelyOfficial}`] : []),
+    ...(typeof agent.sourceSearchSecondAlternateDifferentHost === "boolean" ? [`  sourceSearchSecondAlternateDifferentHost: ${agent.sourceSearchSecondAlternateDifferentHost}`] : []),
+    ...(agent.sourceSearchSecondAlternateReason ? [`  sourceSearchSecondAlternateReason: ${agent.sourceSearchSecondAlternateReason}`] : []),
     ...agent.sourceSearchAlternateChoices.flatMap((choice) => formatAgentSourceSearchResultText(choice, "sourceSearchAlternateChoice")),
     `  alternativeActionCount: ${agent.alternativeActionCount}`,
     ...(agent.alternativeActionName ? [`  alternativeActionName: ${agent.alternativeActionName}`] : []),
@@ -14039,18 +14077,23 @@ function summarizeAgent(
   const sourceSearchAgent = compactAgentSourceSearch(sourceSearch);
   const sourceSearchSelectedResult = sourceSearchAgent?.selectedResult;
   const sourceSearchAlternateResult = sourceSearchAgent?.alternateResults?.[0];
+  const sourceSearchSecondAlternateResult = sourceSearchAgent?.alternateResults?.[1];
   const sourceSearchAlternateChoices = sourceSearchAgent?.alternateResults ?? [];
   const topResultChoiceFirstSitelinkCommand = firstSitelinkCommandSpec(resultChoices[0]?.sitelinks?.[0], agentMode, findQueries, timeoutMs, userAgent);
   const topResultChoiceFirstSitelinkUrlParts = resultChoices[0]?.sitelinks?.[0]?.url ? urlPathParts(resultChoices[0].sitelinks[0].url) : undefined;
   const sourceSearchFindQueries = sourceSearch?.findQueries ?? findQueries;
   const sourceSearchSelectedUrlParts = sourceSearch?.selectedUrl ? urlPathParts(sourceSearch.selectedUrl) : undefined;
   const sourceSearchAlternateUrlParts = sourceSearchAlternateResult?.url ? urlPathParts(sourceSearchAlternateResult.url) : undefined;
+  const sourceSearchSecondAlternateUrlParts = sourceSearchSecondAlternateResult?.url ? urlPathParts(sourceSearchSecondAlternateResult.url) : undefined;
   const sourceSearchSelectedFirstSitelinkUrlParts = sourceSearchSelectedResult?.sitelinks?.[0]?.url ? urlPathParts(sourceSearchSelectedResult.sitelinks[0].url) : undefined;
   const sourceSearchAlternateFirstSitelinkUrlParts = sourceSearchAlternateResult?.sitelinks?.[0]?.url ? urlPathParts(sourceSearchAlternateResult.sitelinks[0].url) : undefined;
   const sourceSearchSelectedFirstSitelinkCommand = firstSitelinkCommandSpec(sourceSearchSelectedResult?.sitelinks?.[0], true, sourceSearchFindQueries, sourceSearch?.timeoutMs ?? timeoutMs, sourceSearch?.userAgent ?? userAgent);
   const sourceSearchAlternateFirstSitelinkCommand = firstSitelinkCommandSpec(sourceSearchAlternateResult?.sitelinks?.[0], true, sourceSearchFindQueries, sourceSearch?.timeoutMs ?? timeoutMs, sourceSearch?.userAgent ?? userAgent);
   const sourceSearchAlternateDifferentHost = sourceSearchSelectedResult?.host && sourceSearchAlternateResult?.host
     ? sourceSearchAlternateResult.host !== sourceSearchSelectedResult.host
+    : undefined;
+  const sourceSearchSecondAlternateDifferentHost = sourceSearchSelectedResult?.host && sourceSearchSecondAlternateResult?.host
+    ? sourceSearchSecondAlternateResult.host !== sourceSearchSelectedResult.host
     : undefined;
   const topResourceCommand = pageCheck.resources[0]?.url
     ? pageCommandSpec(pageCheck.resources[0].url, agentMode, false, findQueries, timeoutMs, userAgent)
@@ -15572,6 +15615,25 @@ function summarizeAgent(
     ...(typeof sourceSearchAlternateResult?.isLikelyOfficial === "boolean" ? { sourceSearchAlternateLikelyOfficial: sourceSearchAlternateResult.isLikelyOfficial } : {}),
     ...(typeof sourceSearchAlternateDifferentHost === "boolean" ? { sourceSearchAlternateDifferentHost } : {}),
     ...(sourceSearchAlternateResult?.selectionReason ? { sourceSearchAlternateReason: sourceSearchAlternateResult.selectionReason } : {}),
+    ...(sourceSearchSecondAlternateResult ? { sourceSearchSecondAlternatePath: sourceSearchSecondAlternateResult.path } : {}),
+    ...(sourceSearchSecondAlternateResult?.title ? { sourceSearchSecondAlternateTitle: sourceSearchSecondAlternateResult.title } : {}),
+    ...(sourceSearchSecondAlternateResult?.url ? { sourceSearchSecondAlternateUrl: sourceSearchSecondAlternateResult.url } : {}),
+    ...(sourceSearchSecondAlternateUrlParts?.urlPath ? { sourceSearchSecondAlternateUrlPath: sourceSearchSecondAlternateUrlParts.urlPath } : {}),
+    ...(sourceSearchSecondAlternateUrlParts?.urlQuery ? { sourceSearchSecondAlternateUrlQuery: sourceSearchSecondAlternateUrlParts.urlQuery } : {}),
+    ...(sourceSearchSecondAlternateResult?.host ? { sourceSearchSecondAlternateHost: sourceSearchSecondAlternateResult.host } : {}),
+    ...(sourceSearchSecondAlternateResult?.source ? { sourceSearchSecondAlternateSource: sourceSearchSecondAlternateResult.source } : {}),
+    ...(sourceSearchSecondAlternateResult?.sourceType ? { sourceSearchSecondAlternateSourceType: sourceSearchSecondAlternateResult.sourceType } : {}),
+    ...(sourceSearchSecondAlternateResult?.sourceHints?.length ? { sourceSearchSecondAlternateSourceHints: sourceSearchSecondAlternateResult.sourceHints } : {}),
+    ...(typeof sourceSearchSecondAlternateResult?.rank === "number" ? { sourceSearchSecondAlternateRank: sourceSearchSecondAlternateResult.rank } : {}),
+    ...(sourceSearchSecondAlternateResult?.snippet ? { sourceSearchSecondAlternateSnippet: sourceSearchSecondAlternateResult.snippet } : {}),
+    ...(sourceSearchSecondAlternateResult?.openResult ? { sourceSearchSecondAlternateOpenResult: sourceSearchSecondAlternateResult.openResult } : {}),
+    ...(sourceSearchSecondAlternateResult?.command ? { sourceSearchSecondAlternateCommand: sourceSearchSecondAlternateResult.command } : {}),
+    ...(sourceSearchSecondAlternateResult?.commandArgs ? { sourceSearchSecondAlternateCommandArgs: sourceSearchSecondAlternateResult.commandArgs } : {}),
+    ...(typeof sourceSearchSecondAlternateResult?.sourceScore === "number" ? { sourceSearchSecondAlternateSourceScore: sourceSearchSecondAlternateResult.sourceScore } : {}),
+    ...(sourceSearchSecondAlternateResult?.relevance ? { sourceSearchSecondAlternateRelevance: sourceSearchSecondAlternateResult.relevance } : {}),
+    ...(typeof sourceSearchSecondAlternateResult?.isLikelyOfficial === "boolean" ? { sourceSearchSecondAlternateLikelyOfficial: sourceSearchSecondAlternateResult.isLikelyOfficial } : {}),
+    ...(typeof sourceSearchSecondAlternateDifferentHost === "boolean" ? { sourceSearchSecondAlternateDifferentHost } : {}),
+    ...(sourceSearchSecondAlternateResult?.selectionReason ? { sourceSearchSecondAlternateReason: sourceSearchSecondAlternateResult.selectionReason } : {}),
     sourceSearchAlternateChoices,
     evidenceQualityScore,
     sourceQualityScore,
@@ -18856,10 +18918,12 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const sourceSearchAgent = compactAgentSourceSearch(sourceSearch);
   const sourceSearchSelectedResult = sourceSearchAgent?.selectedResult;
   const sourceSearchAlternateResult = sourceSearchAgent?.alternateResults?.[0];
+  const sourceSearchSecondAlternateResult = sourceSearchAgent?.alternateResults?.[1];
   const sourceSearchAlternateChoices = sourceSearchAgent?.alternateResults ?? [];
   const sourceSearchFindQueries = sourceSearch?.findQueries ?? findQueries;
   const sourceSearchSelectedUrlParts = sourceSearch?.selectedUrl ? urlPathParts(sourceSearch.selectedUrl) : undefined;
   const sourceSearchAlternateUrlParts = sourceSearchAlternateResult?.url ? urlPathParts(sourceSearchAlternateResult.url) : undefined;
+  const sourceSearchSecondAlternateUrlParts = sourceSearchSecondAlternateResult?.url ? urlPathParts(sourceSearchSecondAlternateResult.url) : undefined;
   const sourceSearchSelectedFirstSitelinkUrlParts = sourceSearchSelectedResult?.sitelinks?.[0]?.url ? urlPathParts(sourceSearchSelectedResult.sitelinks[0].url) : undefined;
   const sourceSearchAlternateFirstSitelinkUrlParts = sourceSearchAlternateResult?.sitelinks?.[0]?.url ? urlPathParts(sourceSearchAlternateResult.sitelinks[0].url) : undefined;
   const sourceSearchSelectedFirstSitelinkCommand = firstSitelinkCommandSpec(sourceSearchSelectedResult?.sitelinks?.[0], agentMode, sourceSearchFindQueries, sourceSearch?.timeoutMs ?? timeoutMs, sourceSearch?.userAgent ?? userAgent);
@@ -18867,6 +18931,9 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
   const sourceSearchFailureHost = sourceSearch ? sourceFromUrl(sourceSearch.selectedUrl) : "";
   const sourceSearchAlternateDifferentHost = sourceSearchFailureHost && sourceSearchAlternateResult?.host
     ? sourceSearchAlternateResult.host !== sourceSearchFailureHost
+    : undefined;
+  const sourceSearchSecondAlternateDifferentHost = sourceSearchFailureHost && sourceSearchSecondAlternateResult?.host
+    ? sourceSearchSecondAlternateResult.host !== sourceSearchFailureHost
     : undefined;
   const handoff = summarizeAgentHandoff(next, executionPlan, answerPlan, [], [], [], sourceSearchAgent, signals, qualityGates);
   const executor = summarizeAgentExecutor(next, executionPlan, answerPlan, handoff);
@@ -19133,6 +19200,25 @@ function errorAgent(error: CliError, url?: string, agentMode = false, findQuerie
     ...(typeof sourceSearchAlternateResult?.isLikelyOfficial === "boolean" ? { sourceSearchAlternateLikelyOfficial: sourceSearchAlternateResult.isLikelyOfficial } : {}),
     ...(typeof sourceSearchAlternateDifferentHost === "boolean" ? { sourceSearchAlternateDifferentHost } : {}),
     ...(sourceSearchAlternateResult?.selectionReason ? { sourceSearchAlternateReason: sourceSearchAlternateResult.selectionReason } : {}),
+    ...(sourceSearchSecondAlternateResult ? { sourceSearchSecondAlternatePath: sourceSearchSecondAlternateResult.path } : {}),
+    ...(sourceSearchSecondAlternateResult?.title ? { sourceSearchSecondAlternateTitle: sourceSearchSecondAlternateResult.title } : {}),
+    ...(sourceSearchSecondAlternateResult?.url ? { sourceSearchSecondAlternateUrl: sourceSearchSecondAlternateResult.url } : {}),
+    ...(sourceSearchSecondAlternateUrlParts?.urlPath ? { sourceSearchSecondAlternateUrlPath: sourceSearchSecondAlternateUrlParts.urlPath } : {}),
+    ...(sourceSearchSecondAlternateUrlParts?.urlQuery ? { sourceSearchSecondAlternateUrlQuery: sourceSearchSecondAlternateUrlParts.urlQuery } : {}),
+    ...(sourceSearchSecondAlternateResult?.host ? { sourceSearchSecondAlternateHost: sourceSearchSecondAlternateResult.host } : {}),
+    ...(sourceSearchSecondAlternateResult?.source ? { sourceSearchSecondAlternateSource: sourceSearchSecondAlternateResult.source } : {}),
+    ...(sourceSearchSecondAlternateResult?.sourceType ? { sourceSearchSecondAlternateSourceType: sourceSearchSecondAlternateResult.sourceType } : {}),
+    ...(sourceSearchSecondAlternateResult?.sourceHints?.length ? { sourceSearchSecondAlternateSourceHints: sourceSearchSecondAlternateResult.sourceHints } : {}),
+    ...(typeof sourceSearchSecondAlternateResult?.rank === "number" ? { sourceSearchSecondAlternateRank: sourceSearchSecondAlternateResult.rank } : {}),
+    ...(sourceSearchSecondAlternateResult?.snippet ? { sourceSearchSecondAlternateSnippet: sourceSearchSecondAlternateResult.snippet } : {}),
+    ...(sourceSearchSecondAlternateResult?.openResult ? { sourceSearchSecondAlternateOpenResult: sourceSearchSecondAlternateResult.openResult } : {}),
+    ...(sourceSearchSecondAlternateResult?.command ? { sourceSearchSecondAlternateCommand: sourceSearchSecondAlternateResult.command } : {}),
+    ...(sourceSearchSecondAlternateResult?.commandArgs ? { sourceSearchSecondAlternateCommandArgs: sourceSearchSecondAlternateResult.commandArgs } : {}),
+    ...(typeof sourceSearchSecondAlternateResult?.sourceScore === "number" ? { sourceSearchSecondAlternateSourceScore: sourceSearchSecondAlternateResult.sourceScore } : {}),
+    ...(sourceSearchSecondAlternateResult?.relevance ? { sourceSearchSecondAlternateRelevance: sourceSearchSecondAlternateResult.relevance } : {}),
+    ...(typeof sourceSearchSecondAlternateResult?.isLikelyOfficial === "boolean" ? { sourceSearchSecondAlternateLikelyOfficial: sourceSearchSecondAlternateResult.isLikelyOfficial } : {}),
+    ...(typeof sourceSearchSecondAlternateDifferentHost === "boolean" ? { sourceSearchSecondAlternateDifferentHost } : {}),
+    ...(sourceSearchSecondAlternateResult?.selectionReason ? { sourceSearchSecondAlternateReason: sourceSearchSecondAlternateResult.selectionReason } : {}),
     sourceSearchAlternateChoices,
     evidenceQualityScore: 0,
     sourceQualityScore: 0,
@@ -22006,6 +22092,25 @@ function compactAgentSummary(agent: AgentSummary, searchCommandContext?: SearchR
     ...(typeof agent.sourceSearchAlternateLikelyOfficial === "boolean" ? { sourceSearchAlternateLikelyOfficial: agent.sourceSearchAlternateLikelyOfficial } : {}),
     ...(typeof agent.sourceSearchAlternateDifferentHost === "boolean" ? { sourceSearchAlternateDifferentHost: agent.sourceSearchAlternateDifferentHost } : {}),
     ...(agent.sourceSearchAlternateReason ? { sourceSearchAlternateReason: agent.sourceSearchAlternateReason } : {}),
+    ...(agent.sourceSearchSecondAlternatePath ? { sourceSearchSecondAlternatePath: agent.sourceSearchSecondAlternatePath } : {}),
+    ...(agent.sourceSearchSecondAlternateTitle ? { sourceSearchSecondAlternateTitle: agent.sourceSearchSecondAlternateTitle } : {}),
+    ...(agent.sourceSearchSecondAlternateUrl ? { sourceSearchSecondAlternateUrl: agent.sourceSearchSecondAlternateUrl } : {}),
+    ...(agent.sourceSearchSecondAlternateUrlPath ? { sourceSearchSecondAlternateUrlPath: agent.sourceSearchSecondAlternateUrlPath } : {}),
+    ...(agent.sourceSearchSecondAlternateUrlQuery ? { sourceSearchSecondAlternateUrlQuery: agent.sourceSearchSecondAlternateUrlQuery } : {}),
+    ...(agent.sourceSearchSecondAlternateHost ? { sourceSearchSecondAlternateHost: agent.sourceSearchSecondAlternateHost } : {}),
+    ...(agent.sourceSearchSecondAlternateSource ? { sourceSearchSecondAlternateSource: agent.sourceSearchSecondAlternateSource } : {}),
+    ...(agent.sourceSearchSecondAlternateSourceType ? { sourceSearchSecondAlternateSourceType: agent.sourceSearchSecondAlternateSourceType } : {}),
+    ...(agent.sourceSearchSecondAlternateSourceHints?.length ? { sourceSearchSecondAlternateSourceHints: agent.sourceSearchSecondAlternateSourceHints } : {}),
+    ...(typeof agent.sourceSearchSecondAlternateRank === "number" ? { sourceSearchSecondAlternateRank: agent.sourceSearchSecondAlternateRank } : {}),
+    ...(agent.sourceSearchSecondAlternateSnippet ? { sourceSearchSecondAlternateSnippet: agent.sourceSearchSecondAlternateSnippet } : {}),
+    ...(agent.sourceSearchSecondAlternateOpenResult ? { sourceSearchSecondAlternateOpenResult: agent.sourceSearchSecondAlternateOpenResult } : {}),
+    ...(agent.sourceSearchSecondAlternateCommand ? { sourceSearchSecondAlternateCommand: agent.sourceSearchSecondAlternateCommand } : {}),
+    ...(agent.sourceSearchSecondAlternateCommandArgs ? { sourceSearchSecondAlternateCommandArgs: agent.sourceSearchSecondAlternateCommandArgs } : {}),
+    ...(typeof agent.sourceSearchSecondAlternateSourceScore === "number" ? { sourceSearchSecondAlternateSourceScore: agent.sourceSearchSecondAlternateSourceScore } : {}),
+    ...(agent.sourceSearchSecondAlternateRelevance ? { sourceSearchSecondAlternateRelevance: agent.sourceSearchSecondAlternateRelevance } : {}),
+    ...(typeof agent.sourceSearchSecondAlternateLikelyOfficial === "boolean" ? { sourceSearchSecondAlternateLikelyOfficial: agent.sourceSearchSecondAlternateLikelyOfficial } : {}),
+    ...(typeof agent.sourceSearchSecondAlternateDifferentHost === "boolean" ? { sourceSearchSecondAlternateDifferentHost: agent.sourceSearchSecondAlternateDifferentHost } : {}),
+    ...(agent.sourceSearchSecondAlternateReason ? { sourceSearchSecondAlternateReason: agent.sourceSearchSecondAlternateReason } : {}),
     ...(agent.sourceSearchAlternateChoices.length > 0 ? { sourceSearchAlternateChoices: compactAgentSourceSearchResultList(agent.sourceSearchAlternateChoices) } : {}),
     alternativeActionCount: agent.alternativeActionCount,
     evidenceQualityScore: agent.evidenceQualityScore,
@@ -23615,6 +23720,25 @@ function compactAgentBrief(agent: AgentSummary, searchCommandContext?: SearchRes
     ...(typeof agent.sourceSearchAlternateLikelyOfficial === "boolean" ? { sourceSearchAlternateLikelyOfficial: agent.sourceSearchAlternateLikelyOfficial } : {}),
     ...(typeof agent.sourceSearchAlternateDifferentHost === "boolean" ? { sourceSearchAlternateDifferentHost: agent.sourceSearchAlternateDifferentHost } : {}),
     ...(agent.sourceSearchAlternateReason ? { sourceSearchAlternateReason: agent.sourceSearchAlternateReason } : {}),
+    ...(agent.sourceSearchSecondAlternatePath ? { sourceSearchSecondAlternatePath: agent.sourceSearchSecondAlternatePath } : {}),
+    ...(agent.sourceSearchSecondAlternateTitle ? { sourceSearchSecondAlternateTitle: agent.sourceSearchSecondAlternateTitle } : {}),
+    ...(agent.sourceSearchSecondAlternateUrl ? { sourceSearchSecondAlternateUrl: agent.sourceSearchSecondAlternateUrl } : {}),
+    ...(agent.sourceSearchSecondAlternateUrlPath ? { sourceSearchSecondAlternateUrlPath: agent.sourceSearchSecondAlternateUrlPath } : {}),
+    ...(agent.sourceSearchSecondAlternateUrlQuery ? { sourceSearchSecondAlternateUrlQuery: agent.sourceSearchSecondAlternateUrlQuery } : {}),
+    ...(agent.sourceSearchSecondAlternateHost ? { sourceSearchSecondAlternateHost: agent.sourceSearchSecondAlternateHost } : {}),
+    ...(agent.sourceSearchSecondAlternateSource ? { sourceSearchSecondAlternateSource: agent.sourceSearchSecondAlternateSource } : {}),
+    ...(agent.sourceSearchSecondAlternateSourceType ? { sourceSearchSecondAlternateSourceType: agent.sourceSearchSecondAlternateSourceType } : {}),
+    ...(agent.sourceSearchSecondAlternateSourceHints?.length ? { sourceSearchSecondAlternateSourceHints: agent.sourceSearchSecondAlternateSourceHints } : {}),
+    ...(typeof agent.sourceSearchSecondAlternateRank === "number" ? { sourceSearchSecondAlternateRank: agent.sourceSearchSecondAlternateRank } : {}),
+    ...(agent.sourceSearchSecondAlternateSnippet ? { sourceSearchSecondAlternateSnippet: agent.sourceSearchSecondAlternateSnippet } : {}),
+    ...(agent.sourceSearchSecondAlternateOpenResult ? { sourceSearchSecondAlternateOpenResult: agent.sourceSearchSecondAlternateOpenResult } : {}),
+    ...(agent.sourceSearchSecondAlternateCommand ? { sourceSearchSecondAlternateCommand: agent.sourceSearchSecondAlternateCommand } : {}),
+    ...(agent.sourceSearchSecondAlternateCommandArgs ? { sourceSearchSecondAlternateCommandArgs: agent.sourceSearchSecondAlternateCommandArgs } : {}),
+    ...(typeof agent.sourceSearchSecondAlternateSourceScore === "number" ? { sourceSearchSecondAlternateSourceScore: agent.sourceSearchSecondAlternateSourceScore } : {}),
+    ...(agent.sourceSearchSecondAlternateRelevance ? { sourceSearchSecondAlternateRelevance: agent.sourceSearchSecondAlternateRelevance } : {}),
+    ...(typeof agent.sourceSearchSecondAlternateLikelyOfficial === "boolean" ? { sourceSearchSecondAlternateLikelyOfficial: agent.sourceSearchSecondAlternateLikelyOfficial } : {}),
+    ...(typeof agent.sourceSearchSecondAlternateDifferentHost === "boolean" ? { sourceSearchSecondAlternateDifferentHost: agent.sourceSearchSecondAlternateDifferentHost } : {}),
+    ...(agent.sourceSearchSecondAlternateReason ? { sourceSearchSecondAlternateReason: agent.sourceSearchSecondAlternateReason } : {}),
     ...(agent.sourceSearchAlternateChoices.length > 0 ? { sourceSearchAlternateChoices: compactAgentSourceSearchResultList(agent.sourceSearchAlternateChoices, 900) } : {}),
     evidenceQualityScore: agent.evidenceQualityScore,
     sourceQualityScore: agent.sourceQualityScore,
