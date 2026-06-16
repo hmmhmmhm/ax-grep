@@ -6385,6 +6385,7 @@ describe("cli", () => {
             aria-label="Toggle details"
             aria-valuetext="details off"
             aria-controls="details-panel"
+            aria-owns="owned-menu"
             aria-flowto="next-step"
             aria-details="extra-details"
             aria-errormessage="details-error"
@@ -6395,6 +6396,9 @@ describe("cli", () => {
           <section id="next-step" role="region" aria-label="Next step">
             Continue with this guided step.
           </section>
+          <ul id="owned-menu" role="menu" aria-label="Owned menu">
+            <li role="menuitem">Owned action</li>
+          </ul>
           <aside id="extra-details" role="note" aria-label="Extra details">
             Extra details for this control.
           </aside>
@@ -6422,27 +6426,36 @@ describe("cli", () => {
     expect(stdout.output).toContain("  semanticTopRelationTargetName: Details panel");
     expect(stdout.output).toContain("  semanticTopRelationTargetSelector: #details-panel");
     expect(stdout.output).toContain("  semanticTopRelationSelector: button");
-    expect(stdout.output).toContain("  semanticTopFlowTo: agent.semanticSummary.relationItems[1] role=button name=\"Toggle details\" target=next-step targetRole=region targetName=Next step targetSelector=#next-step selector=button");
+    expect(stdout.output).toContain("  semanticTopOwnsRelation: agent.semanticSummary.relationItems[1] role=button name=\"Toggle details\" target=owned-menu targetRole=menu targetName=Owned menu targetSelector=#owned-menu selector=button");
+    expect(stdout.output).toContain("  semanticTopOwnsRelationRole: button");
+    expect(stdout.output).toContain("  semanticTopOwnsRelationPath: agent.semanticSummary.relationItems[1]");
+    expect(stdout.output).toContain("  semanticTopOwnsRelationName: Toggle details");
+    expect(stdout.output).toContain("  semanticTopOwnsRelationTarget: owned-menu");
+    expect(stdout.output).toContain("  semanticTopOwnsRelationTargetRole: menu");
+    expect(stdout.output).toContain("  semanticTopOwnsRelationTargetName: Owned menu");
+    expect(stdout.output).toContain("  semanticTopOwnsRelationTargetSelector: #owned-menu");
+    expect(stdout.output).toContain("  semanticTopOwnsRelationSelector: button");
+    expect(stdout.output).toContain("  semanticTopFlowTo: agent.semanticSummary.relationItems[2] role=button name=\"Toggle details\" target=next-step targetRole=region targetName=Next step targetSelector=#next-step selector=button");
     expect(stdout.output).toContain("  semanticTopFlowToRole: button");
-    expect(stdout.output).toContain("  semanticTopFlowToPath: agent.semanticSummary.relationItems[1]");
+    expect(stdout.output).toContain("  semanticTopFlowToPath: agent.semanticSummary.relationItems[2]");
     expect(stdout.output).toContain("  semanticTopFlowToName: Toggle details");
     expect(stdout.output).toContain("  semanticTopFlowToTarget: next-step");
     expect(stdout.output).toContain("  semanticTopFlowToTargetRole: region");
     expect(stdout.output).toContain("  semanticTopFlowToTargetName: Next step");
     expect(stdout.output).toContain("  semanticTopFlowToTargetSelector: #next-step");
     expect(stdout.output).toContain("  semanticTopFlowToSelector: button");
-    expect(stdout.output).toContain("  semanticTopDetailsRelation: agent.semanticSummary.relationItems[2] role=button name=\"Toggle details\" target=extra-details targetRole=note targetName=Extra details targetSelector=#extra-details selector=button");
+    expect(stdout.output).toContain("  semanticTopDetailsRelation: agent.semanticSummary.relationItems[3] role=button name=\"Toggle details\" target=extra-details targetRole=note targetName=Extra details targetSelector=#extra-details selector=button");
     expect(stdout.output).toContain("  semanticTopDetailsRelationRole: button");
-    expect(stdout.output).toContain("  semanticTopDetailsRelationPath: agent.semanticSummary.relationItems[2]");
+    expect(stdout.output).toContain("  semanticTopDetailsRelationPath: agent.semanticSummary.relationItems[3]");
     expect(stdout.output).toContain("  semanticTopDetailsRelationName: Toggle details");
     expect(stdout.output).toContain("  semanticTopDetailsRelationTarget: extra-details");
     expect(stdout.output).toContain("  semanticTopDetailsRelationTargetRole: note");
     expect(stdout.output).toContain("  semanticTopDetailsRelationTargetName: Extra details");
     expect(stdout.output).toContain("  semanticTopDetailsRelationTargetSelector: #extra-details");
     expect(stdout.output).toContain("  semanticTopDetailsRelationSelector: button");
-    expect(stdout.output).toContain("  semanticTopErrorMessageRelation: agent.semanticSummary.relationItems[3] role=button name=\"Toggle details\" target=details-error targetRole=alert targetName=Details error targetSelector=#details-error selector=button");
+    expect(stdout.output).toContain("  semanticTopErrorMessageRelation: agent.semanticSummary.relationItems[4] role=button name=\"Toggle details\" target=details-error targetRole=alert targetName=Details error targetSelector=#details-error selector=button");
     expect(stdout.output).toContain("  semanticTopErrorMessageRelationRole: button");
-    expect(stdout.output).toContain("  semanticTopErrorMessageRelationPath: agent.semanticSummary.relationItems[3]");
+    expect(stdout.output).toContain("  semanticTopErrorMessageRelationPath: agent.semanticSummary.relationItems[4]");
     expect(stdout.output).toContain("  semanticTopErrorMessageRelationName: Toggle details");
     expect(stdout.output).toContain("  semanticTopErrorMessageRelationTarget: details-error");
     expect(stdout.output).toContain("  semanticTopErrorMessageRelationTargetRole: alert");

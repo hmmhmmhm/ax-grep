@@ -1380,6 +1380,14 @@ describe("public agent types", () => {
       | "semanticTopRelationTargetName"
       | "semanticTopRelationTargetSelector"
       | "semanticTopRelationSelector"
+      | "semanticTopOwnsRelationRole"
+      | "semanticTopOwnsRelationPath"
+      | "semanticTopOwnsRelationName"
+      | "semanticTopOwnsRelationTarget"
+      | "semanticTopOwnsRelationTargetRole"
+      | "semanticTopOwnsRelationTargetName"
+      | "semanticTopOwnsRelationTargetSelector"
+      | "semanticTopOwnsRelationSelector"
       | "semanticTopFlowToRole"
       | "semanticTopFlowToPath"
       | "semanticTopFlowToName"
@@ -3051,8 +3059,16 @@ describe("public agent types", () => {
       semanticTopRelationTargetName: "Filter reports",
       semanticTopRelationTargetSelector: "#filters",
       semanticTopRelationSelector: "button[aria-controls=\"filters\"]",
+      semanticTopOwnsRelationRole: "button",
+      semanticTopOwnsRelationPath: "agent.semanticSummary.relationItems[1]",
+      semanticTopOwnsRelationName: "More filters",
+      semanticTopOwnsRelationTarget: "owned-menu",
+      semanticTopOwnsRelationTargetRole: "menu",
+      semanticTopOwnsRelationTargetName: "Owned menu",
+      semanticTopOwnsRelationTargetSelector: "#owned-menu",
+      semanticTopOwnsRelationSelector: "button[aria-owns=\"owned-menu\"]",
       semanticTopFlowToRole: "button",
-      semanticTopFlowToPath: "agent.semanticSummary.relationItems[1]",
+      semanticTopFlowToPath: "agent.semanticSummary.relationItems[2]",
       semanticTopFlowToName: "More filters",
       semanticTopFlowToTarget: "next-step",
       semanticTopFlowToTargetRole: "region",
@@ -3060,7 +3076,7 @@ describe("public agent types", () => {
       semanticTopFlowToTargetSelector: "#next-step",
       semanticTopFlowToSelector: "button[aria-flowto=\"next-step\"]",
       semanticTopDetailsRelationRole: "button",
-      semanticTopDetailsRelationPath: "agent.semanticSummary.relationItems[2]",
+      semanticTopDetailsRelationPath: "agent.semanticSummary.relationItems[3]",
       semanticTopDetailsRelationName: "More filters",
       semanticTopDetailsRelationTarget: "filter-help",
       semanticTopDetailsRelationTargetRole: "note",
@@ -3068,7 +3084,7 @@ describe("public agent types", () => {
       semanticTopDetailsRelationTargetSelector: "#filter-help",
       semanticTopDetailsRelationSelector: "button[aria-details=\"filter-help\"]",
       semanticTopErrorMessageRelationRole: "button",
-      semanticTopErrorMessageRelationPath: "agent.semanticSummary.relationItems[3]",
+      semanticTopErrorMessageRelationPath: "agent.semanticSummary.relationItems[4]",
       semanticTopErrorMessageRelationName: "More filters",
       semanticTopErrorMessageRelationTarget: "filter-error",
       semanticTopErrorMessageRelationTargetRole: "alert",
