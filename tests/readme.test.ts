@@ -26,9 +26,17 @@ describe("README", () => {
     }
 
     expect(readme).toContain('<div align="center">');
+    expect(readme).toContain('<img src="./docs/assets/ax-grep-og.png" alt="ax-grep promo image" width="920">');
     expect(readme).toContain("coverage-100%25-brightgreen.svg");
     expect(readme).toContain("[Agent handoff loop](./docs/agent-handoff.md)");
     expect(readme).not.toContain("## Compact JSON Example");
+  });
+
+  it("keeps the README promo image available for GitHub social preview", async () => {
+    const image = await readFile(join(process.cwd(), "docs", "assets", "ax-grep-og.png"));
+
+    expect(image.subarray(0, 8)).toEqual(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+    expect(image.length).toBeGreaterThan(100_000);
   });
 
   it("puts skill install before library and WebView usage", async () => {
