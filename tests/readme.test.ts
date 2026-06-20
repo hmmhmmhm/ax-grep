@@ -39,7 +39,7 @@ describe("README", () => {
     expect(image.length).toBeGreaterThan(100_000);
   });
 
-  it("puts skill install before library and WebView usage", async () => {
+  it("puts prompt trial before install, library, and WebView usage", async () => {
     const readme = await readFile(join(process.cwd(), "README.md"), "utf8");
     const packageJson = JSON.parse(await readFile(join(process.cwd(), "package.json"), "utf8")) as {
       files?: string[];
@@ -47,15 +47,20 @@ describe("README", () => {
     const skill = await readFile(join(process.cwd(), "skills", "ax-grep-cli", "SKILL.md"), "utf8");
     const installer = await readFile(join(process.cwd(), "skills.sh"), "utf8");
 
-    const skillIndex = readme.indexOf("## 1. Install The CLI Skill");
-    const tryIndex = readme.indexOf("## Try The CLI");
-    const serverIndex = readme.indexOf("## 2. Use From A Server");
-    const webviewIndex = readme.indexOf("## 3. Use In WebViews Or Pages");
+    const promptIndex = readme.indexOf("## 1. Try With A Prompt");
+    const skillIndex = readme.indexOf("## 2. Install The CLI Skill");
+    const tryIndex = readme.indexOf("## 3. Try The CLI");
+    const serverIndex = readme.indexOf("## 4. Use From A Server");
+    const webviewIndex = readme.indexOf("## 5. Use In WebViews Or Pages");
 
+    expect(promptIndex).toBeGreaterThan(-1);
     expect(skillIndex).toBeGreaterThan(-1);
+    expect(skillIndex).toBeGreaterThan(promptIndex);
     expect(tryIndex).toBeGreaterThan(skillIndex);
     expect(serverIndex).toBeGreaterThan(tryIndex);
     expect(webviewIndex).toBeGreaterThan(serverIndex);
+    expect(readme).toContain("Paste this into a Codex session or subagent prompt");
+    expect(readme).toContain("Before opening a browser, inspect pages with ax-grep when possible.");
     expect(readme).toContain("curl -fsSL https://raw.githubusercontent.com/hmmhmmhm/ax-grep/main/skills.sh | sh");
     expect(readme).toContain("npx --yes ax-grep@latest https://example.com --agent-brief");
     expect(readme).toContain("This installs the Codex skill prompt only.");

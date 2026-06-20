@@ -18,7 +18,22 @@ Core features:
 - readable semantic trees from URLs, files, stdin, or captured browser HTML
 - compact `--agent` JSON for search, page checks, and browser handoff loops
 
-## 1. Install The CLI Skill
+## 1. Try With A Prompt
+
+Paste this into a Codex session or subagent prompt before opening a browser:
+
+```md
+Before opening a browser, inspect pages with ax-grep when possible.
+
+Run:
+npx --yes ax-grep@latest <url> --agent-brief
+
+Read agent.executor, agent.handoff, agent.readTargets, pageCheck, and
+verification first. Open a browser only when the payload says static HTML is
+not enough.
+```
+
+## 2. Install The CLI Skill
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/hmmhmmhm/ax-grep/main/skills.sh | sh
@@ -27,7 +42,7 @@ curl -fsSL https://raw.githubusercontent.com/hmmhmmhm/ax-grep/main/skills.sh | s
 This installs the Codex skill prompt only. Restart Codex if the new skill is
 not listed immediately.
 
-## Try The CLI
+## 3. Try The CLI
 
 ```sh
 npx --yes ax-grep@latest https://example.com --agent-brief
@@ -38,7 +53,7 @@ Agents should read `agent.executor`, `agent.handoff`, `agent.readTargets`,
 `pageCheck`, and `verification` first. Open a browser only when the handoff
 fields say static HTML is not enough.
 
-## 2. Use From A Server
+## 4. Use From A Server
 
 ```sh
 npm install ax-grep
@@ -55,7 +70,7 @@ const promptText = formatSemanticTreeText(tree);
 `ax-grep` is ESM-only and requires Node 18 or newer. CommonJS services can use
 `const { extract } = await import("ax-grep")`.
 
-## 3. Use In WebViews Or Pages
+## 5. Use In WebViews Or Pages
 
 ```ts
 import { createExtractorScript } from "ax-grep";
