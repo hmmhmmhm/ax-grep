@@ -18,22 +18,22 @@ Core features:
 - readable semantic trees from URLs, files, stdin, or captured browser HTML
 - compact `--agent` JSON for search, page checks, and browser handoff loops
 
-## 1. Use The CLI Skill
+## 1. Install The CLI Skill
 
 ```sh
-npx --yes ax-grep@latest https://example.com --agent-brief
 curl -fsSL https://raw.githubusercontent.com/hmmhmmhm/ax-grep/main/skills.sh | sh
 ```
 
-The first command verifies the CLI. The second installs the Codex skill prompt
-so subagents know to inspect pages with `ax-grep` before opening a browser.
-Restart Codex after installing a new skill if it is not listed immediately.
+This installs the Codex skill prompt only. Restart Codex if the new skill is
+not listed immediately.
+
+## Try The CLI
 
 ```sh
-ax-grep https://example.com --agent
-npx --yes ax-grep@latest https://example.com --agent
+npx --yes ax-grep@latest https://example.com --agent-brief
 ```
 
+If you installed the binary globally, use `ax-grep` directly.
 Agents should read `agent.executor`, `agent.handoff`, `agent.readTargets`,
 `pageCheck`, and `verification` first. Open a browser only when the handoff
 fields say static HTML is not enough.
