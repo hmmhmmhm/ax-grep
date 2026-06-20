@@ -14,6 +14,12 @@ search result, URL, HTML file, or captured page.
 ax-grep "https://example.com" --agent
 ```
 
+If `ax-grep` is not on `PATH`, use the npm executable:
+
+```sh
+npx --yes ax-grep@latest "https://example.com" --agent
+```
+
 For smaller context:
 
 ```sh
@@ -26,14 +32,15 @@ ax-grep "https://example.com" --agent-brief
 ax-grep --search "official docs pricing" --agent
 ```
 
-Use the returned `agent.*CommandArgs` fields when continuing. They are already
-quoted and ordered for the next CLI call.
+Use the returned `agent.*CommandArgs` fields when continuing. They are JSON argv
+arrays in execution order. Use `agent.*Command` when you need a shell string.
 
 ## Agent Policy
 
 - Prefer `--agent` or `--agent-brief` over raw text output for subagents.
 - Read `agent.executor`, `agent.handoff`, `agent.next`, `agent.readTargets`,
-  `agent.sourceChoices`, and `agent.resultChoices` before deciding.
+  and any returned `agent.sourceChoices` or `agent.resultChoices` before
+  deciding.
 - If `agent.executor.decision` is `return`, answer from the referenced
   `readFrom` payload instead of opening a browser.
 - If a URL follow-up is needed, run the provided `commandArgs` one command at a
@@ -48,6 +55,12 @@ Inspect a result and open the best match in one step:
 
 ```sh
 ax-grep --search "site:example.com api reference" --open-result best --agent
+```
+
+If an engine rejects `best`, open the top ranked result directly:
+
+```sh
+ax-grep --search "site:example.com api reference" --open-result 1 --agent
 ```
 
 Check a page for specific terms:

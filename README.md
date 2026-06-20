@@ -18,18 +18,25 @@ Core features:
 - readable semantic trees from URLs, files, stdin, or captured browser HTML
 - compact `--agent` JSON for search, page checks, and browser handoff loops
 
-## 1. Install The CLI Skill
+## 1. Use The CLI Skill
 
 ```sh
+npx --yes ax-grep@latest https://example.com --agent-brief
 curl -fsSL https://raw.githubusercontent.com/hmmhmmhm/ax-grep/main/skills.sh | sh
 ```
 
-The skill prompt teaches subagents to call `ax-grep` before opening a browser:
+The first command verifies the CLI. The second installs the Codex skill prompt
+so subagents know to inspect pages with `ax-grep` before opening a browser.
+Restart Codex after installing a new skill if it is not listed immediately.
 
 ```sh
-npx ax-grep https://example.com
-npx ax-grep https://example.com --agent
+ax-grep https://example.com --agent
+npx --yes ax-grep@latest https://example.com --agent
 ```
+
+Agents should read `agent.executor`, `agent.handoff`, `agent.readTargets`,
+`pageCheck`, and `verification` first. Open a browser only when the handoff
+fields say static HTML is not enough.
 
 ## 2. Use From A Server
 
@@ -45,14 +52,17 @@ const tree = extract(html);
 const promptText = formatSemanticTreeText(tree);
 ```
 
+`ax-grep` is ESM-only and requires Node 18 or newer. CommonJS services can use
+`const { extract } = await import("ax-grep")`.
+
 ## 3. Use In WebViews Or Pages
 
 ```ts
 import { createExtractorScript } from "ax-grep";
 
 const script = createExtractorScript({ format: "text" });
-// Playwright/Puppeteer: await page.evaluate(script)
-// iOS/Android WebView: evaluateJavaScript(script)
+const text = await page.evaluate(script);
+// iOS/Android WebView: evaluateJavaScript(script) returns the same text value.
 ```
 
 ## Docs

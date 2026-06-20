@@ -1,8 +1,11 @@
 {
   "name": "ax-grep",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A browser-native semantic accessibility tree extractor that runs without DevTools or CDP.",
   "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
   "packageManager": "pnpm@10.33.4",
   "publishConfig": {
     "access": "public"
@@ -34,6 +37,7 @@
   },
   "files": [
     "dist",
+    "docs",
     "skills",
     "skills.sh"
   ],

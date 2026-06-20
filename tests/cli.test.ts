@@ -3027,7 +3027,7 @@ describe("cli", () => {
         title: "A much longer second result title",
         url: "https://second.example/article",
         source: "second.example",
-        rank: 3,
+        rank: 2,
         snippet: "Second snippet explains the result.",
       },
     ]);
@@ -4017,6 +4017,43 @@ describe("cli", () => {
       path: "sourceSearch.selectedResult",
       count: 1,
     }));
+  });
+
+  it("falls back to the first search result when best has no strong match", async () => {
+    const stdout = new MemoryWriter();
+    const requestedUrls: string[] = [];
+    const status = await runCli(["--search", "ax-grep npm", "--engine", "bing", "--open-result", "best", "--json"], {
+      stdout,
+      fetch: async (input) => {
+        requestedUrls.push(String(input));
+        if (requestedUrls.length === 1) {
+          return new Response(`
+            <main>
+              <ol>
+                <li class="b_algo"><h2><a href="https://first.example/">First unrelated</a></h2><p>General page.</p></li>
+                <li class="b_algo"><h2><a href="https://second.example/">Second unrelated</a></h2><p>Another page.</p></li>
+              </ol>
+            </main>
+          `, { headers: { "content-type": "text/html" } });
+        }
+        return new Response(`
+          <html>
+            <head><title>First unrelated</title></head>
+            <body><main><h1>First unrelated</h1><p>Opened by best fallback.</p></main></body>
+          </html>
+        `, { headers: { "content-type": "text/html" } });
+      },
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(requestedUrls[1]).toBe("https://first.example/");
+    expect(envelope.sourceSearch).toMatchObject({
+      selectedRank: 1,
+      selectedTitle: "First unrelated",
+      selectedUrl: "https://first.example/",
+    });
   });
 
   it("can open the best search result using --find matches", async () => {
@@ -6313,7 +6350,7 @@ describe("cli", () => {
     const envelope = JSON.parse(stdout.output);
 
     expect(status).toBe(0);
-    expect(envelope.agent.semanticSummary.relationCount).toBe(3);
+    expect(envelope.agent.semanticSummary.relationCount).toBe(5);
     expect(envelope.agent.semanticSummary.fieldItems).toEqual([
       expect.objectContaining({
         path: "agent.semanticSummary.fieldItems[0]",
@@ -6366,6 +6403,16 @@ describe("cli", () => {
         targetSelector: "#q-error",
         selector: "#q",
       }),
+      expect.objectContaining({
+        path: "agent.semanticSummary.relationItems[3]",
+        role: "searchbox",
+        name: "Archive search",
+        relation: "describedBy",
+        target: "q-help",
+        targetRole: "p",
+        targetSelector: "#q-help",
+        selector: "#q",
+      }),
     ]);
     expect(envelope.agent.semanticSummary.choiceItems).toEqual([
       expect.objectContaining({
@@ -6381,7 +6428,7 @@ describe("cli", () => {
     ]);
     expect(envelope.agent).toMatchObject({
       semanticFieldCount: 1,
-      semanticRelationCount: 3,
+      semanticRelationCount: 5,
       semanticTopFieldRole: "searchbox",
       semanticTopFieldPath: "agent.semanticSummary.fieldItems[0]",
       semanticTopFieldName: "Archive search",
@@ -8950,6 +8997,15 @@ describe("cli", () => {
         expect.objectContaining({
           id: "at2",
           path: "pageCheck.actionTargets[1]",
+          kind: "search",
+          name: "Backup docs",
+          source: "json-ld",
+          urlTemplate: "https://example.test/backup-search?q={backup_query}",
+          queryInput: "required name=backup_query",
+        }),
+        expect.objectContaining({
+          id: "at3",
+          path: "pageCheck.actionTargets[2]",
           kind: "search",
           targetUrl: "https://example.test/opensearch.xml",
           pressed: "mixed",

@@ -11,6 +11,8 @@
 
 ## Static HTML
 
+`ax-grep` is ESM-only and requires Node 18 or newer.
+
 ```ts
 import { extract } from "ax-grep";
 
@@ -28,6 +30,14 @@ import { extract } from "ax-grep/static";
 const tree = extract(html, {
   includeAttributes: false,
 });
+```
+
+CommonJS services can import it dynamically:
+
+```js
+const { extract, formatSemanticTreeText } = await import("ax-grep");
+const tree = extract(html, { includeAttributes: false });
+console.log(formatSemanticTreeText(tree));
 ```
 
 Static extraction can infer roles, names, labels, ARIA state, links, forms,
@@ -74,17 +84,25 @@ import { createExtractorScript } from "ax-grep";
 
 const script = createExtractorScript({
   mode: "interactive",
-  format: "json",
+  format: "text",
 });
 
-// Android: webView.evaluateJavascript(script, callback)
-// iOS: webView.evaluateJavaScript(script, completionHandler)
+const text = await page.evaluate(script);
+```
+
+Android and iOS WebViews return the script result through their normal
+JavaScript evaluation callbacks:
+
+```ts
+// Android: webView.evaluateJavascript(script) receives a JSON-encoded string.
+// iOS: webView.evaluateJavaScript(script) receives the text or object value.
 ```
 
 ## Direct In-Page Usage
 
 Use `ax-grep/browser` when your code is already executing in the page, such as a
-browser extension content script.
+browser extension content script. Extension content scripts usually need a
+bundler, and the result reflects the content script world that executed it.
 
 ```ts
 import { extract, formatSemanticTreeText } from "ax-grep/browser";
@@ -162,6 +180,13 @@ observer.disconnect();
 For injected-script use, `createObserverScript()` installs an observer on
 `window.__AX_LITE_OBSERVER__` and dispatches `__AX_LITE_OBSERVER__:change`
 events.
+
+```ts
+import { createObserverScript } from "ax-grep";
+
+await page.evaluate(createObserverScript({ format: "text" }));
+await page.evaluate(() => window.__AX_LITE_OBSERVER__?.disconnect());
+```
 
 ## Worker Example
 

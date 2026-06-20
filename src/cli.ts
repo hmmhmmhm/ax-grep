@@ -3941,12 +3941,17 @@ function siteSearchCommandSpec(form: PageFormSummary | undefined, findQueries: s
 
 function actionTargetCommandSpec(target: PageActionTargetSummary | undefined, findQueries: string[], agentMode: boolean, timeoutMs?: number, userAgent?: string): (CommandSpec & { url: string }) | undefined {
   if (!target) return undefined;
+  const inputName = searchTemplateInputName(target.queryInput);
+  const commandFindQueries = findQueries.length > 0 ? findQueries : inputName ? [inputName] : [];
+  const query = commandFindQueries.join(" ");
   const templatedUrl = target.urlTemplate && findQueries.length > 0
-    ? fillSearchUrlTemplate(target.urlTemplate, findQueries.join(" "))
+    ? fillSearchUrlTemplate(target.urlTemplate, query, inputName)
+    : target.urlTemplate && query
+      ? fillSearchUrlTemplate(target.urlTemplate, query, inputName)
     : undefined;
   const url = templatedUrl ?? target.targetUrl;
   if (!url) return undefined;
-  return { ...pageCommandSpec(url, agentMode, false, findQueries, timeoutMs, userAgent), url };
+  return { ...pageCommandSpec(url, agentMode, false, commandFindQueries, timeoutMs, userAgent), url };
 }
 
 function firstSitelinkCommandSpec(sitelink: { url?: string } | undefined, agentMode: boolean, findQueries: string[] = [], timeoutMs?: number, userAgent?: string): CommandSpec | undefined {
@@ -3973,20 +3978,33 @@ function pageLinkCommandContextFromSearch(commandContext: SearchResultCommandCon
   };
 }
 
-function fillSearchUrlTemplate(template: string, query: string): string | undefined {
+function fillSearchUrlTemplate(template: string, query: string, inputName?: string): string | undefined {
   if (!template || !query) return undefined;
   const encoded = encodeURIComponent(query);
-  const replaced = template
+  let replaced = template
     .replaceAll("%7Bquery%7D", encoded)
     .replaceAll("{query}", encoded)
     .replaceAll("%7Bsearch_term_string%7D", encoded)
     .replaceAll("{search_term_string}", encoded);
+  if (inputName) {
+    replaced = replaced
+      .replaceAll(`%7B${inputName}%7D`, encoded)
+      .replaceAll(`{${inputName}}`, encoded);
+  }
+  replaced = replaced
+    .replace(/%7B[A-Za-z0-9_.:-]+%7D/g, encoded)
+    .replace(/\{[A-Za-z0-9_.:-]+\}/g, encoded);
   if (replaced === template) return undefined;
   try {
     return new URL(replaced).toString();
   } catch {
     return undefined;
   }
+}
+
+function searchTemplateInputName(queryInput?: string): string | undefined {
+  const match = queryInput?.match(/\bname=([A-Za-z0-9_.:-]+)/);
+  return match?.[1];
 }
 
 function appendCommandFetchOptions(commandArgs: string[], shellArgs: string[], timeoutMs?: number, userAgent?: string): void {
@@ -4076,7 +4094,9 @@ async function openSearchResult(
   }
   const links = summarizeLinks(searchTree, searchFetched.finalUrl);
   const results = annotateResults(summarizeSearchResults(searchFetched, links), options.searchQuery, options.findQueries ?? []);
-  const selected = requested === "best" ? recommendedSearchResult(results, options.findQueries ?? []) : results[requested - 1];
+  const selected = requested === "best"
+    ? recommendedSearchResult(results, options.findQueries ?? []) ?? results[0]
+    : results[requested - 1];
   if (!selected) {
     throw new CliError("NO_RESULT", `search result ${requested} is not available; found ${results.length}`, 21);
   }
@@ -27127,10 +27147,13 @@ function compactAgentPageLink(
   reference?: { id: string; path: string },
 ): PageLinkSummary & Partial<Pick<SuggestedAction, "command" | "commandArgs">> {
   const host = link.host ?? sourceFromUrl(link.url);
+  const linkUrlParts = urlPathParts(link.url);
   const compact: PageLinkSummary = {
     ...(reference ? { id: reference.id, path: reference.path } : {}),
     title: link.title,
     url: link.url,
+    ...(linkUrlParts?.urlPath ? { urlPath: linkUrlParts.urlPath } : {}),
+    ...(linkUrlParts?.urlQuery ? { urlQuery: linkUrlParts.urlQuery } : {}),
     ...(host ? { host } : {}),
     source: link.source,
     rank: link.rank,

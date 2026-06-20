@@ -386,6 +386,48 @@ describe("static extract", () => {
     expect(namedRoles).not.toContain("searchbox:Fallback for-label");
   });
 
+  it("summarizes declarative shadow link farms", () => {
+    const links = Array.from({ length: 8 }, (_, index) => `<a href="/shadow-${index}">Shadow link ${index}</a>`).join("");
+    const tree = extract(`
+      <div class="popular-list">
+        <template shadowrootmode="open">
+          ${links}
+        </template>
+      </div>
+    `, {
+      maxLinkFarmChildren: 3,
+      summarizeLargeSubtrees: false,
+      summarizeRepeatedSubtrees: false,
+    });
+
+    const namedRoles = summarizeSemanticTree(tree).namedRoles;
+
+    expect(namedRoles).toContain("link:Shadow link 0");
+    expect(namedRoles).toContain("link:Shadow link 2");
+    expect(namedRoles).not.toContain("link:Shadow link 7");
+    expect(namedRoles.some((item) => item.startsWith("note:"))).toBe(true);
+  });
+
+  it("keeps projected slot text nodes when requested", () => {
+    const tree = extract(`
+      <x-text>
+        Projected slot text
+        <template shadowrootmode="open">
+          <p><slot>Fallback slot text</slot></p>
+        </template>
+      </x-text>
+    `, {
+      includeTextNodes: true,
+    });
+
+    const textNode = flattenSemanticTree(tree).find((node) => node.role === "text" && node.text === "Projected slot text");
+
+    expect(textNode).toMatchObject({
+      tag: "#text",
+      name: "Projected slot text",
+    });
+  });
+
   it("summarizes very large repeated static subtrees", () => {
     const items = Array.from({ length: 8 }, (_, index) => `<li><a href="/${index}">Item ${index}</a></li>`).join("");
     const summarized = extract(`<ul>${items}</ul>`, { maxChildrenPerNode: 3 });

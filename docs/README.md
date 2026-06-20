@@ -2,17 +2,18 @@
 
 Start here when README is too small for the detail you need.
 
-| Topic | File |
+| Goal | File |
 | --- | --- |
-| CLI skill prompt for subagents | [../skills/ax-grep-cli/SKILL.md](../skills/ax-grep-cli/SKILL.md) |
-| Current progress and next work | [progress.md](./progress.md) |
-| Feature overview | [features.md](./features.md) |
-| CLI flags, search, and `--agent` output | [cli-agent.md](./cli-agent.md) |
-| Minimal executor loop for agent handoff | [agent-handoff.md](./agent-handoff.md) |
-| Agent-readiness evidence and completion gate | [agent-readiness.md](./agent-readiness.md) |
-| Package entry points and browser injection | [library-api.md](./library-api.md) |
-| Benchmark and comparison commands | [benchmarks.md](./benchmarks.md) |
-| Current `agent-browser` comparison notes | [comparison-baseline.md](./comparison-baseline.md) |
+| Install the Codex skill prompt | [../skills/ax-grep-cli/SKILL.md](../skills/ax-grep-cli/SKILL.md) |
+| Use CLI search and `--agent` output | [cli-agent.md](./cli-agent.md) |
+| Build a minimal agent handoff loop | [agent-handoff.md](./agent-handoff.md) |
+| Use as a server/library package | [library-api.md](./library-api.md) |
+| Inject into WebViews or browser pages | [library-api.md](./library-api.md#browser-injection) |
+| Check readiness before promotion | [agent-readiness.md](./agent-readiness.md) |
+| Track current progress and next work | [progress.md](./progress.md) |
+| Review feature details | [features.md](./features.md) |
+| Run benchmarks and comparisons | [benchmarks.md](./benchmarks.md) |
+| Read current `agent-browser` comparison notes | [comparison-baseline.md](./comparison-baseline.md) |
 
 The root README should stay short: skill install first, server library usage
 second, WebView/browser usage third, then links.
