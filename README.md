@@ -56,6 +56,10 @@ fields say static HTML is not enough.
 
 ## 4. Use From A Server
 
+Use this inside agent services built with Codex SDK, OpenRouter, or similar
+LLM routing stacks to turn fetched HTML into compact source evidence before
+spending tokens or memory on browser automation.
+
 ```sh
 npm install ax-grep
 ```
@@ -71,6 +75,11 @@ const promptText = formatSemanticTreeText(tree);
 `ax-grep` is ESM-only and requires Node 18 or newer. CommonJS services can use `const { extract } = await import("ax-grep")`.
 
 ## 5. Use In WebViews Or Pages
+
+In mobile apps, WebViews, and in-page agents, inject the extractor to create an
+accessibility-style structure immediately from the current page. It is useful
+for local sLLM web search, local web parsing, and instant agent-ready page
+summaries without leaving the app.
 
 ```ts
 import { createExtractorScript } from "ax-grep";
