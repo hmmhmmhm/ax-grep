@@ -1,6 +1,6 @@
 {
   "name": "ax-grep",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A browser-native semantic accessibility tree extractor that runs without DevTools or CDP.",
   "type": "module",
   "engines": {
