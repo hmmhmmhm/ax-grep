@@ -14,6 +14,7 @@ Start here when README is too small for the detail you need.
 | Track current progress and next work | [progress.md](./progress.md) |
 | Review feature details | [features.md](./features.md) |
 | Run benchmarks and comparisons | [benchmarks.md](./benchmarks.md) |
+| Publish with npm trusted publishing | [release.md](./release.md) |
 | Read current `agent-browser` comparison notes | [comparison-baseline.md](./comparison-baseline.md) |
 
 The root README should stay short: skill install first, server library usage
