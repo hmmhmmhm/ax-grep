@@ -30,6 +30,7 @@ Resource safety:
 
 ```sh
 pnpm benchmark:agent-cost
+pnpm benchmark:library-cost
 pnpm compare:sample
 pnpm compare:static:fixtures
 pnpm compare:static:fixtures:gate
@@ -81,6 +82,39 @@ without launching Chromium.
 Search, social, challenge, and volatile targets may be diagnostic-only and
 excluded from gate averages. Check each run's `included` and `excluded` counts
 before treating an average as release-gating coverage.
+
+## Library Cost Benchmark
+
+`pnpm benchmark:library-cost` measures warm in-process `extract(html)` calls and
+writes `tmp/benchmarks/library-cost.json`. It does not fetch remote pages and
+does not launch a browser. This is the better metric for server integrations
+where a Node process is already running and the question is incremental RSS per
+library call, not total CLI process RSS.
+
+The report includes:
+
+- `incrementalRssKb`: RSS after extraction minus RSS before extraction.
+- `estimatedTokens`: `cl100k_base` tokens for `formatSemanticTreeText(tree)`.
+- `summary.nodeCount`: semantic tree size after compact extraction.
+
+Run it with the package script so Node exposes GC before each measured case:
+
+```sh
+pnpm benchmark:library-cost
+```
+
+Use `benchmark:agent-cost` for CLI-vs-browser release claims. Use
+`benchmark:library-cost` for server SDK sizing and memory regression checks.
+
+Latest local library-only run:
+
+| Case | HTML bytes | Incremental RSS | Output tokens | Nodes |
+| --- | ---: | ---: | ---: | ---: |
+| content-page | 737 | 0 KB | 79 | 16 |
+| challenge-page | 251 | 0 KB | 8 | 2 |
+| large-list-page | 37,390 | 896 KB | 428 | 76 |
+
+Summary: max incremental RSS was 896 KB, average incremental RSS was 299 KB.
 
 `compare:static:fixtures:gate` is the non-browser smoke gate: it uses synthetic
 HTML fixtures only, so it should not fetch remote pages or launch

@@ -33,11 +33,10 @@ describe("README", () => {
     expect(readme).toContain("Codex-skill-111111.svg");
     expect(readme).toContain("Claude-compatible-5b4b8a.svg");
     expect(readme).toContain("Gemini-ready-1a73e8.svg");
-    expect(readme).toContain("tries DuckDuckGo, Bing, and StartPage");
-    expect(readme).toContain("hCaptcha, reCAPTCHA, and Cloudflare challenge markers");
+    expect(readme).toContain("DuckDuckGo, Bing, StartPage, and Google");
+    expect(readme).toContain("major CAPTCHA and bot-challenge markers");
     expect(readme).toContain("15.4x less peak");
-    expect(readme).toContain("RAM and 3.0x fewer decision tokens");
-    expect(readme).toContain("3.0x fewer decision tokens");
+    expect(readme).toContain("fewer decision tokens");
     expect(readme).toContain("coverage-100%25-brightgreen.svg");
     expect(readme).toContain("[Agent handoff loop](./docs/agent-handoff.md)");
     expect(readme).not.toContain("## Compact JSON Example");

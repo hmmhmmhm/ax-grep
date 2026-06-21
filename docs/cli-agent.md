@@ -31,7 +31,7 @@ ax-grep --search "ax-grep npm" --engine bing --lang en --region US
 ax-grep --search "ax-grep npm" --open-result best --json
 ```
 
-- `--search` tries DuckDuckGo, Bing, and StartPage by default.
+- `--search` tries DuckDuckGo, Bing, StartPage, and Google by default.
 - `--engine <name>` forces one search engine.
 - `--open-result <n|best>` fetches a ranked result in the same command.
 - `--lang` and `--region` make locale-specific searches reproducible.

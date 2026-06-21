@@ -51,7 +51,7 @@ async function main(): Promise<void> {
     const okAttempts = attempts.filter((attempt) => attempt.ok === true && (attempt.resultCount ?? 0) > 0);
     if (envelope.kind !== "search-results") failures.push(`expected kind=search-results, got ${String(envelope.kind)}`);
     if (envelope.searchEngine !== "auto") failures.push(`expected searchEngine=auto, got ${String(envelope.searchEngine)}`);
-    if (!["duckduckgo", "bing", "startpage"].includes(envelope.selectedSearchEngine ?? "")) {
+    if (!["duckduckgo", "bing", "startpage", "google"].includes(envelope.selectedSearchEngine ?? "")) {
       failures.push(`unexpected selectedSearchEngine=${String(envelope.selectedSearchEngine)}`);
     }
     if (attempts.length < 2) failures.push(`expected multiple engine attempts, got ${attempts.length}`);

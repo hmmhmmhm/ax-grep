@@ -1,6 +1,6 @@
 {
   "name": "ax-grep",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A browser-native semantic accessibility tree extractor that runs without DevTools or CDP.",
   "type": "module",
   "engines": {
@@ -48,6 +48,7 @@
     "readiness:audit": "tsx scripts/check-agent-readiness.ts",
     "readiness:real-page-smoke": "tsx scripts/check-real-page-smoke.ts",
     "readiness:search-smoke": "tsx scripts/check-search-smoke.ts",
+    "readiness:published-smoke": "tsx scripts/check-published-package-smoke.ts",
     "readiness:agent-browser-smoke": "tsx scripts/check-agent-browser-smoke.ts",
     "readiness:agent-browser-text-heavy-smoke": "tsx scripts/check-agent-browser-text-heavy-smoke.ts",
     "test": "vitest run",
@@ -57,6 +58,7 @@
     "compare:static": "tsx scripts/compare-static.ts",
     "compare:tokens": "tsx scripts/compare-token-cost.ts",
     "benchmark:agent-cost": "tsx scripts/benchmark-agent-cost.ts",
+    "benchmark:library-cost": "node --expose-gc --import tsx scripts/benchmark-library-cost.ts",
     "compare:browser:fixture": "tsx scripts/compare-browser-fixture.ts",
     "compare:gate": "tsx scripts/check-comparison-gates.ts",
     "compare:sample": "tsx scripts/compare.ts https://example.com https://www.wikipedia.org https://developer.mozilla.org/en-US/docs/Web/Accessibility https://news.ycombinator.com https://github.com/features https://libraries.io/npm/typescript https://www.npmjs.com/package/typescript",

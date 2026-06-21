@@ -2798,6 +2798,7 @@ describe("cli", () => {
       "https://duckduckgo.com/html/?q=agent+browser",
       "https://www.bing.com/search?q=agent+browser",
       "https://www.startpage.com/sp/search?query=agent+browser",
+      "https://www.google.com/search?q=agent+browser",
     ]);
     expect(envelope).toMatchObject({
       searchEngine: "auto",
@@ -2855,6 +2856,7 @@ describe("cli", () => {
       "https://duckduckgo.com/html/?q=ax-grep+npm",
       "https://www.bing.com/search?q=ax-grep+npm",
       "https://www.startpage.com/sp/search?query=ax-grep+npm",
+      "https://www.google.com/search?q=ax-grep+npm",
     ]);
     expect(envelope.selectedSearchEngine).toBe("bing");
     expect(envelope.recommendedResult).toMatchObject({
@@ -2888,13 +2890,16 @@ describe("cli", () => {
             </main>
           `, { headers: { "content-type": "text/html" } });
         }
-        return new Response(`
+        if (url.includes("startpage.com")) {
+          return new Response(`
           <main>
             <div class="w-gl__result">
               <a class="w-gl__result-title" href="https://start.example/">StartPage result</a>
             </div>
           </main>
-        `, { headers: { "content-type": "text/html" } });
+          `, { headers: { "content-type": "text/html" } });
+        }
+        return new Response(`<main><p>No Google result cards.</p></main>`, { headers: { "content-type": "text/html" } });
       },
     });
 
@@ -2905,6 +2910,7 @@ describe("cli", () => {
       "https://duckduckgo.com/html/?q=agent+browser",
       "https://www.bing.com/search?q=agent+browser",
       "https://www.startpage.com/sp/search?query=agent+browser",
+      "https://www.google.com/search?q=agent+browser",
     ]);
     expect(envelope).toMatchObject({
       searchQuery: "agent browser",
@@ -2916,6 +2922,7 @@ describe("cli", () => {
       expect.objectContaining({ engine: "duckduckgo", ok: false, resultCount: 0 }),
       expect.objectContaining({ engine: "bing", ok: true, resultCount: 2 }),
       expect.objectContaining({ engine: "startpage", ok: true, resultCount: 1 }),
+      expect.objectContaining({ engine: "google", ok: false, resultCount: 0 }),
     ]);
     expect(envelope.searchResults).toHaveLength(2);
     expect(envelope.searchResults[0]).toMatchObject({
@@ -2990,6 +2997,7 @@ describe("cli", () => {
       { url: "https://duckduckgo.com/html/?q=agent+browser&kl=kr-ko", acceptLanguage: "ko-KR,ko;q=0.9" },
       { url: "https://www.bing.com/search?q=agent+browser&setlang=ko&cc=KR&mkt=ko-KR", acceptLanguage: "ko-KR,ko;q=0.9" },
       { url: "https://www.startpage.com/sp/search?query=agent+browser&language=ko&region=KR", acceptLanguage: "ko-KR,ko;q=0.9" },
+      { url: "https://www.google.com/search?q=agent+browser&hl=ko&gl=KR", acceptLanguage: "ko-KR,ko;q=0.9" },
     ]);
   });
 
@@ -3784,6 +3792,37 @@ describe("cli", () => {
     });
   });
 
+  it("extracts Google search result cards", async () => {
+    const stdout = new MemoryWriter();
+    const status = await runCli(["--search", "agent browser", "--engine", "google", "--lang", "en", "--region", "US", "--json", "--no-tree"], {
+      stdout,
+      fetch: async (input) => {
+        expect(String(input)).toBe("https://www.google.com/search?q=agent+browser&hl=en&gl=US");
+        return new Response(`
+          <main>
+            <div class="g">
+              <div><a href="https://example.com/agent-browser"><h3>Agent Browser Example</h3></a></div>
+              <div>agent browser search result snippet</div>
+            </div>
+          </main>
+        `, { headers: { "content-type": "text/html" } });
+      },
+    });
+
+    const envelope = JSON.parse(stdout.output);
+
+    expect(status).toBe(0);
+    expect(envelope).toMatchObject({
+      searchEngine: "google",
+      kind: "search-results",
+    });
+    expect(envelope.searchResults[0]).toMatchObject({
+      title: "Agent Browser Example",
+      url: "https://example.com/agent-browser",
+      relevance: "high",
+    });
+  });
+
   it("extracts Baidu search result cards", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://www.baidu.com/s?wd=ax-lite", "--json"], {
@@ -4134,6 +4173,9 @@ describe("cli", () => {
             <main><div class="w-gl__result"><a class="w-gl__result-title" href="https://start.example/">Start</a></div></main>
           `, { headers: { "content-type": "text/html" } });
         }
+        if (url.includes("google.com")) {
+          return new Response(`<main><p>No Google result cards.</p></main>`, { headers: { "content-type": "text/html" } });
+        }
         return new Response(`
           <html><head><title>Target</title></head><body><main><h1>Target page</h1><p>Opened from auto search.</p></main></body></html>
         `, { headers: { "content-type": "text/html" } });
@@ -4147,6 +4189,7 @@ describe("cli", () => {
       "https://duckduckgo.com/html/?q=agent+browser",
       "https://www.bing.com/search?q=agent+browser",
       "https://www.startpage.com/sp/search?query=agent+browser",
+      "https://www.google.com/search?q=agent+browser",
       "https://target.example/article",
     ]);
     expect(envelope).toMatchObject({
@@ -4163,9 +4206,9 @@ describe("cli", () => {
       },
       agent: {
         sourceSearchSelectedEngine: "bing",
-        sourceSearchEngineAttemptCount: 3,
+        sourceSearchEngineAttemptCount: 4,
         sourceSearchEngineSuccessCount: 2,
-        sourceSearchEngineFailureCount: 1,
+        sourceSearchEngineFailureCount: 2,
         sourceSearchFirstOkEngine: "bing",
         sourceSearchFirstOkResultCount: 2,
         sourceSearchFirstFailedEngine: "duckduckgo",
@@ -4199,6 +4242,9 @@ describe("cli", () => {
             <main><div class="w-gl__result"><a class="w-gl__result-title" href="https://start.example/">Start</a></div></main>
           `, { headers: { "content-type": "text/html" } });
         }
+        if (url.includes("google.com")) {
+          return new Response(`<main><p>No Google result cards.</p></main>`, { headers: { "content-type": "text/html" } });
+        }
         return new Response(`
           <html><head><title>Target</title></head><body><main><h1>Target page</h1><p>Opened from auto search.</p></main></body></html>
         `, { headers: { "content-type": "text/html" } });
@@ -4207,9 +4253,9 @@ describe("cli", () => {
 
     expect(status).toBe(0);
     expect(stdout.output).toContain("sourceSearchSelectedEngine: bing");
-    expect(stdout.output).toContain("sourceSearchEngineAttemptCount: 3");
+    expect(stdout.output).toContain("sourceSearchEngineAttemptCount: 4");
     expect(stdout.output).toContain("sourceSearchEngineSuccessCount: 2");
-    expect(stdout.output).toContain("sourceSearchEngineFailureCount: 1");
+    expect(stdout.output).toContain("sourceSearchEngineFailureCount: 2");
     expect(stdout.output).toContain("sourceSearchFirstOkEngine: bing");
     expect(stdout.output).toContain("sourceSearchFirstOkResultCount: 2");
     expect(stdout.output).toContain("sourceSearchFirstFailedEngine: duckduckgo");
@@ -4442,6 +4488,7 @@ describe("cli", () => {
       expect.objectContaining({ engine: "duckduckgo", ok: false, resultCount: 0 }),
       expect.objectContaining({ engine: "bing", ok: false, resultCount: 0, error: expect.objectContaining({ code: "HTTP_ERROR", status: 403 }) }),
       expect.objectContaining({ engine: "startpage", ok: false, resultCount: 0 }),
+      expect.objectContaining({ engine: "google", ok: false, resultCount: 0 }),
     ]);
   });
 
@@ -15548,7 +15595,7 @@ npx ax-grep https://example.test --agent</code></pre>
     });
   });
 
-  it("detects hCaptcha, reCAPTCHA, and Cloudflare challenge providers", async () => {
+  it("detects known challenge providers", async () => {
     const cases = [
       {
         url: "https://challenge.example/hcaptcha",
@@ -15584,6 +15631,50 @@ npx ax-grep https://example.test --agent</code></pre>
               <script src="/cdn-cgi/challenge-platform/h/b/orchestrate/chl_page/v1"></script>
             </head>
             <body><main><h1>Checking your browser</h1></main></body>
+          </html>
+        `,
+      },
+      {
+        url: "https://challenge.example/akamai",
+        code: "AKAMAI_CHALLENGE",
+        reasonCode: "akamai-challenge",
+        html: `
+          <html>
+            <head><title>Access denied</title><script src="/bm-verify.js"></script></head>
+            <body><main><h1>Akamai Bot Manager</h1><p>sensor_data verification required.</p></main></body>
+          </html>
+        `,
+      },
+      {
+        url: "https://challenge.example/datadome",
+        code: "DATADOME_CHALLENGE",
+        reasonCode: "datadome-challenge",
+        html: `
+          <html>
+            <head><title>Security check</title><script src="https://geo.captcha-delivery.com/captcha.js"></script></head>
+            <body><main><h1>DataDome protection</h1><p>ddcid verification required.</p></main></body>
+          </html>
+        `,
+      },
+      {
+        url: "https://challenge.example/perimeterx",
+        code: "PERIMETERX_CHALLENGE",
+        reasonCode: "perimeterx-challenge",
+        html: `
+          <html>
+            <head><title>Blocked</title></head>
+            <body><main><div id="px-captcha">PerimeterX captcha</div><script>window._px='challenge';</script></main></body>
+          </html>
+        `,
+      },
+      {
+        url: "https://challenge.example/kasada",
+        code: "KASADA_CHALLENGE",
+        reasonCode: "kasada-challenge",
+        html: `
+          <html>
+            <head><title>Verification</title><script src="/ips.js"></script></head>
+            <body><main><h1>Kasada challenge</h1><p>x-kpsdk verification required.</p></main></body>
           </html>
         `,
       },

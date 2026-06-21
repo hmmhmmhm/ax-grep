@@ -56,7 +56,9 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
   requireScript(failures, scripts, "readiness:audit", "scripts/check-agent-readiness.ts");
   requireScript(failures, scripts, "readiness:real-page-smoke", "scripts/check-real-page-smoke.ts");
   requireScript(failures, scripts, "readiness:search-smoke", "scripts/check-search-smoke.ts");
+  requireScript(failures, scripts, "readiness:published-smoke", "scripts/check-published-package-smoke.ts");
   requireScript(failures, scripts, "readiness:agent-browser-smoke", "scripts/check-agent-browser-smoke.ts");
+  requireScript(failures, scripts, "benchmark:library-cost", "scripts/benchmark-library-cost.ts");
 
   requireFileIncludes(root, failures, "vitest.config.ts", [
     "fileParallelism: false",

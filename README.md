@@ -19,9 +19,9 @@
 Compact semantic trees and agent-ready page checks from HTML, URLs, WebViews,
 and live browser pages. It approximates browser accessibility trees before
 automation, defaults to `impit` for browser-like HTTP/2/TLS fetches, detects
-hCaptcha, reCAPTCHA, and Cloudflare challenge markers, saves 15.4x less peak
-RAM and 3.0x fewer decision tokens in the local benchmark, and `--search` auto
-mode tries DuckDuckGo, Bing, and StartPage while recording every engine attempt.
+major CAPTCHA and bot-challenge markers, saves 15.4x less peak RAM and 3.0x
+fewer decision tokens in the local benchmark, and `--search` auto mode tries
+DuckDuckGo, Bing, StartPage, and Google while recording every engine attempt.
 
 </div>
 
@@ -104,3 +104,5 @@ const text = await page.evaluate(script);
 - [Agent handoff loop](./docs/agent-handoff.md)
 - [Benchmarks](./docs/benchmarks.md)
 - [Library API](./docs/library-api.md)
+- [Server agent integration](./docs/server-agent.md)
+- [WebView and in-page usage](./docs/webview.md)

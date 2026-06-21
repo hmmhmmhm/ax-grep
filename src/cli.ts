@@ -44,7 +44,7 @@ import type {
 } from "./types";
 
 type CliFormat = "text" | "json";
-type SearchEngine = "bing" | "duckduckgo" | "startpage";
+type SearchEngine = "bing" | "duckduckgo" | "startpage" | "google";
 type SearchEngineOption = SearchEngine | "auto";
 type SearchResultEngine = SearchEngine | "baidu" | "yahoo-japan" | "generic";
 type FetcherOption = "impit" | "node";
@@ -3377,7 +3377,7 @@ type CliIO = {
 const defaultTimeoutMs = 15_000;
 const defaultUserAgent = "ax-grep/0.1 (+https://github.com/hmmhmmhm/ax-grep)";
 const defaultFetcher: FetcherOption = "impit";
-const autoSearchEngines: SearchEngine[] = ["duckduckgo", "bing", "startpage"];
+const autoSearchEngines: SearchEngine[] = ["duckduckgo", "bing", "startpage", "google"];
 
 function envelopeAgentCanReadCurrentPayload(envelope: object): boolean {
   const agent = (envelope as { agent?: Partial<AgentSummary> }).agent;
@@ -4316,8 +4316,8 @@ function parseMode(value: string): NonNullable<StaticSemanticTreeOptions["mode"]
 }
 
 function parseSearchEngine(value: string): SearchEngineOption {
-  if (value === "auto" || value === "bing" || value === "duckduckgo" || value === "startpage") return value;
-  throw new UsageError(`--engine must be auto, bing, duckduckgo, or startpage`);
+  if (value === "auto" || value === "bing" || value === "duckduckgo" || value === "startpage" || value === "google") return value;
+  throw new UsageError(`--engine must be auto, bing, duckduckgo, startpage, or google`);
 }
 
 function parseSearchLang(value: string): string {
@@ -4346,6 +4346,13 @@ function searchUrl(query: string, engine: SearchEngine, lang?: string, region?: 
     url.searchParams.set("query", query);
     if (lang) url.searchParams.set("language", lang);
     if (region) url.searchParams.set("region", region);
+    return url.toString();
+  }
+  if (engine === "google") {
+    const url = new URL("https://www.google.com/search");
+    url.searchParams.set("q", query);
+    if (lang) url.searchParams.set("hl", lang);
+    if (region) url.searchParams.set("gl", region);
     return url.toString();
   }
   const url = new URL("https://duckduckgo.com/html/");
@@ -4390,7 +4397,7 @@ Fetch a page and print a compact semantic accessibility-like tree.
 
 Options:
   --search <query>           Search the web and analyze the result page.
-  --engine <name>            Search engine for --search: auto, duckduckgo, bing, or startpage. Default: auto.
+  --engine <name>            Search engine for --search: auto, duckduckgo, bing, startpage, or google. Default: auto.
   --lang <code>              Search language hint, e.g. en, ko, ja, zh-cn.
   --region <code>            Search region hint, e.g. US, KR, JP, CN.
   --open-result <n|best>     With --search, fetch and analyze the selected result.
@@ -7978,6 +7985,7 @@ function detectSearchEngine(url: string): SearchResultEngine | null {
     if (hostname.endsWith("bing.com")) return "bing";
     if (hostname.endsWith("duckduckgo.com")) return "duckduckgo";
     if (hostname.endsWith("startpage.com")) return "startpage";
+    if (hostname.endsWith("google.com")) return "google";
     if (hostname.endsWith("search.yahoo.co.jp")) return "yahoo-japan";
     if (looksLikeGenericSearchUrl(url)) return "generic";
     return null;
@@ -8009,6 +8017,11 @@ function isResultCard(element: Element, engine: SearchResultEngine): boolean {
     return hasClass(element, "result")
       || hasClass(element, "web-result")
       || hasClass(element, "result__body");
+  }
+  if (engine === "google") {
+    return hasClass(element, "g")
+      || hasClass(element, "MjjYud")
+      || (element.name === "div" && findElement(element.children, (child) => /^h[1-6]$/.test(child.name)) !== undefined);
   }
   if (engine === "yahoo-japan") return hasClass(element, "sw-Card") || hasClass(element, "algo") || hasClass(element, "SearchResult");
   if (engine === "generic") {
@@ -8043,7 +8056,7 @@ function resultFromCard(card: Element, baseUrl: string, engine: SearchResultEngi
 }
 
 function resultTitleLink(card: Element, engine: SearchResultEngine): Element | undefined {
-  if (engine === "baidu" || engine === "bing" || engine === "yahoo-japan") {
+  if (engine === "baidu" || engine === "bing" || engine === "google" || engine === "yahoo-japan") {
     const heading = findElement(card.children, (element) => /^h[1-6]$/.test(element.name));
     const headingLink = heading ? firstUsefulAnchor(heading, "https://example.invalid") : undefined;
     if (headingLink) return headingLink;
@@ -18183,6 +18196,10 @@ function summarizeBrowserHtmlReasonCode(
   if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "HCAPTCHA_CHALLENGE")) return "hcaptcha";
   if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "RECAPTCHA_CHALLENGE")) return "recaptcha";
   if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "CLOUDFLARE_CHALLENGE")) return "cloudflare-challenge";
+  if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "AKAMAI_CHALLENGE")) return "akamai-challenge";
+  if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "DATADOME_CHALLENGE")) return "datadome-challenge";
+  if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "PERIMETERX_CHALLENGE")) return "perimeterx-challenge";
+  if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "KASADA_CHALLENGE")) return "kasada-challenge";
   if (error?.code === "NO_INSPECTABLE_CONTENT") return "no-inspectable-content";
   if (error?.code === "HTTP_ERROR") return "http-error";
   if (error?.code === "FETCH_FAILED" || error?.code === "TIMEOUT") return "fetch-error";
@@ -21177,6 +21194,34 @@ function detectBarrierDiagnostics(fetched: FetchResult, tree: SemanticNode, cont
       message: "The page appears to contain a Cloudflare challenge.",
     });
   }
+  if (/(akamai|akamai bot manager|bm-verify|_abck|ak_bmsc|sensor_data|abck)/i.test(challengeHaystack)) {
+    diagnostics.push({
+      severity: "warning",
+      code: "AKAMAI_CHALLENGE",
+      message: "The page appears to contain an Akamai bot challenge.",
+    });
+  }
+  if (/(datadome|captcha-delivery\.com|geo\.captcha-delivery\.com|ddcid|dd_r)/i.test(challengeHaystack)) {
+    diagnostics.push({
+      severity: "warning",
+      code: "DATADOME_CHALLENGE",
+      message: "The page appears to contain a DataDome challenge.",
+    });
+  }
+  if (/(perimeterx|px-captcha|_px|pxvid|px3)/i.test(challengeHaystack)) {
+    diagnostics.push({
+      severity: "warning",
+      code: "PERIMETERX_CHALLENGE",
+      message: "The page appears to contain a PerimeterX challenge.",
+    });
+  }
+  if (/(kasada|x-kpsdk|kpsdk|ips\.js)/i.test(challengeHaystack)) {
+    diagnostics.push({
+      severity: "warning",
+      code: "KASADA_CHALLENGE",
+      message: "The page appears to contain a Kasada challenge.",
+    });
+  }
   if (/(captcha|verify you are human|unusual traffic|checking your browser|just a moment|cf-browser-verification|cloudflare|access denied|request blocked|please wait for verification|please wait|enable javascript|enable java script|자바스크립트|봇이 아닙니다|자동입력|보안문자)/i.test(challengeHaystack)) {
     diagnostics.push({
       severity: "warning",
@@ -21226,7 +21271,11 @@ function isChallengeDiagnosticCode(code: string): boolean {
   return code === "CHALLENGE_LIKELY"
     || code === "HCAPTCHA_CHALLENGE"
     || code === "RECAPTCHA_CHALLENGE"
-    || code === "CLOUDFLARE_CHALLENGE";
+    || code === "CLOUDFLARE_CHALLENGE"
+    || code === "AKAMAI_CHALLENGE"
+    || code === "DATADOME_CHALLENGE"
+    || code === "PERIMETERX_CHALLENGE"
+    || code === "KASADA_CHALLENGE";
 }
 
 function looksLikeKnownSearchUrl(url: string): boolean {
@@ -27103,7 +27152,7 @@ function inferSearchResultCommandContext(url: string | undefined): Pick<SearchRe
     }
     if (hostname.endsWith("google.com")) {
       const query = parsed.searchParams.get("q");
-      return query ? { query } : undefined;
+      return query ? { query, engine: "google" } : undefined;
     }
     if (hostname.endsWith("baidu.com")) {
       const query = parsed.searchParams.get("wd") ?? parsed.searchParams.get("word");
@@ -27473,7 +27522,7 @@ function parseArgMetadata(argv: string[]): Partial<Pick<CliOptions, "url" | "ext
     }
     if (arg === "--engine") {
       const value = argv[index + 1];
-      if (value === "auto" || value === "bing" || value === "duckduckgo" || value === "startpage") metadata.searchEngine = value;
+      if (value === "auto" || value === "bing" || value === "duckduckgo" || value === "startpage" || value === "google") metadata.searchEngine = value;
       index += 1;
       continue;
     }
