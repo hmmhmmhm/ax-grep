@@ -13,6 +13,11 @@ ax-grep https://example.com --mode interactive --exclude-boilerplate
 ax-grep https://example.com --timeout 30000 --user-agent "my-agent/1.0"
 ```
 
+By default the CLI fetches static HTML with `impit`, which uses browser-like
+HTTP/TLS fingerprints. If `impit` cannot load or the request fails before a
+response is returned, ax-grep falls back to Node's built-in fetch. Pass
+`--fetcher node` to force the built-in fetch path.
+
 ## Search
 
 ```sh
@@ -122,7 +127,7 @@ Agent actions use an `execution` discriminator:
 - `interact-browser`: use a live browser, then optionally rerun with captured HTML.
 
 Generated commands preserve fetch and search context such as `--lang`,
-`--region`, `--find`, `--timeout`, `--user-agent`, and `--agent`.
+`--region`, `--find`, `--timeout`, `--user-agent`, `--fetcher`, and `--agent`.
 Text output also prints `executor*` lines for the same next-step fields.
 
 ## Find and Verification
@@ -149,7 +154,8 @@ result, retrying with browser-captured HTML, or broadening the search.
 
 ## Browser-Captured HTML
 
-The default URL path uses plain `fetch()`. It does not execute page JavaScript.
+The default URL path uses `impit` with Node fetch fallback. It does not execute
+page JavaScript.
 When a page is challenged, logged-in, or JavaScript-rendered, let a browser
 controller capture the HTML and pass it back through the same CLI.
 

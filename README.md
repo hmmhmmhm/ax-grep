@@ -8,15 +8,9 @@
 [![coverage: 100%](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](./tests)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
-Compact semantic trees and agent-ready page checks from HTML, URLs, WebViews,
-and live browser pages.
+Compact semantic trees and agent-ready page checks from HTML, URLs, WebViews, and live browser pages.
 
 </div>
-
-Core features:
-
-- readable semantic trees from URLs, files, stdin, or captured browser HTML
-- compact `--agent` JSON for search, page checks, and browser handoff loops
 
 ## 1. Try With A Prompt
 
@@ -39,8 +33,7 @@ not enough.
 curl -fsSL https://raw.githubusercontent.com/hmmhmmhm/ax-grep/main/skills.sh | sh
 ```
 
-This installs the Codex skill prompt only. Restart Codex if the new skill is
-not listed immediately.
+This installs the Codex skill prompt only. Restart Codex if the new skill is not listed immediately.
 
 ## 3. Try The CLI
 
@@ -67,8 +60,7 @@ const tree = extract(html);
 const promptText = formatSemanticTreeText(tree);
 ```
 
-`ax-grep` is ESM-only and requires Node 18 or newer. CommonJS services can use
-`const { extract } = await import("ax-grep")`.
+`ax-grep` is ESM-only and requires Node 18 or newer. CommonJS services can use `const { extract } = await import("ax-grep")`.
 
 ## 5. Use In WebViews Or Pages
 
@@ -81,11 +73,8 @@ const text = await page.evaluate(script);
 ```
 
 ## Docs
-
 - [Documentation index](./docs/README.md)
 - [CLI skill prompt](./skills/ax-grep-cli/SKILL.md)
-- [Current progress](./docs/progress.md)
-- [Feature overview](./docs/features.md)
 - [CLI and agent mode](./docs/cli-agent.md)
 - [Agent handoff loop](./docs/agent-handoff.md)
 - [Library API](./docs/library-api.md)

@@ -177,6 +177,7 @@ describe("cli", () => {
     expect(status).toBe(0);
     expect(stdout.output).toContain("--agent                    Print compact JSON for agent routing; read agent.handoff first.");
     expect(stdout.output).toContain("--agent-brief              Print smaller executor JSON for subagent loops.");
+    expect(stdout.output).toContain("--fetcher <name>           Fetch implementation: impit or node. Default: impit; falls back to node if impit fails.");
     expect(stdout.output).toContain("--agent and --agent-brief imply --json --no-tree and expose agent.handoff for the next executor step.");
   });
 

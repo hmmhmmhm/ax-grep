@@ -91,5 +91,8 @@
     "domhandler": "^6.0.1",
     "htmlparser2": "^12.0.0",
     "js-tiktoken": "^1.0.21"
+  },
+  "optionalDependencies": {
+    "impit": "^0.14.1"
   }
 }

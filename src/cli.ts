@@ -47,6 +47,7 @@ type CliFormat = "text" | "json";
 type SearchEngine = "bing" | "duckduckgo" | "startpage";
 type SearchEngineOption = SearchEngine | "auto";
 type SearchResultEngine = SearchEngine | "baidu" | "yahoo-japan" | "generic";
+type FetcherOption = "impit" | "node";
 
 type CliOptions = {
   url?: string;
@@ -70,6 +71,7 @@ type CliOptions = {
   sourceSearch?: SourceSearchSummary;
   timeoutMs: number;
   userAgent: string;
+  fetcher: FetcherOption;
   extractOptions: StaticSemanticTreeOptions;
 };
 
@@ -97,6 +99,15 @@ type FetchResult = {
   contentType: string;
   responseHeaders: Record<string, string>;
   page: PageSummary;
+};
+
+type FetchResponseLike = {
+  ok: boolean;
+  status: number;
+  statusText: string;
+  url: string;
+  headers: Headers;
+  text(): Promise<string>;
 };
 
 type SearchAttemptSummary = {
@@ -3365,6 +3376,7 @@ type CliIO = {
 
 const defaultTimeoutMs = 15_000;
 const defaultUserAgent = "ax-grep/0.1 (+https://github.com/hmmhmmhm/ax-grep)";
+const defaultFetcher: FetcherOption = "impit";
 const autoSearchEngines: SearchEngine[] = ["duckduckgo", "bing", "startpage"];
 
 function envelopeAgentCanReadCurrentPayload(envelope: object): boolean {
@@ -3486,6 +3498,7 @@ function parseArgs(argv: string[]): CliOptions {
   const findQueries: string[] = [];
   let timeoutMs = defaultTimeoutMs;
   let userAgent = defaultUserAgent;
+  let fetcher = defaultFetcher;
   let url = "";
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -3620,6 +3633,11 @@ function parseArgs(argv: string[]): CliOptions {
       index += 1;
       continue;
     }
+    if (arg === "--fetcher") {
+      fetcher = parseFetcher(readValue(argv, index, arg));
+      index += 1;
+      continue;
+    }
     if (arg.startsWith("-")) {
       throw new UsageError(`unknown option: ${arg}\n\n${usage()}`);
     }
@@ -3637,7 +3655,7 @@ function parseArgs(argv: string[]): CliOptions {
   if (input === "html-file" && !htmlFile) throw new UsageError(`--html-file requires a value`);
   const baseUrl = url || (htmlFile ? pathToFileURL(resolve(htmlFile)).toString() : "stdin://ax-grep");
   if (format === "json" && linksOnly) omitTree = true;
-  const options: CliOptions = { baseUrl, format, linksOnly, omitTree, agentMode, agentBrief, input, timeoutMs, userAgent, extractOptions };
+  const options: CliOptions = { baseUrl, format, linksOnly, omitTree, agentMode, agentBrief, input, timeoutMs, userAgent, fetcher, extractOptions };
   if (url) options.url = url;
   if (htmlFile) options.htmlFile = htmlFile;
   if (searchQuery) options.searchQuery = searchQuery;
@@ -4190,7 +4208,7 @@ async function fetchHtml(options: CliOptions, fetchImpl: typeof fetch): Promise<
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), options.timeoutMs);
   try {
-    const response = await fetchImpl(options.url, {
+    const requestInit: RequestInit = {
       headers: {
         accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         ...(options.searchLang || options.searchRegion ? { "accept-language": acceptLanguageHeader(options.searchLang, options.searchRegion) } : {}),
@@ -4198,7 +4216,8 @@ async function fetchHtml(options: CliOptions, fetchImpl: typeof fetch): Promise<
       },
       redirect: "follow",
       signal: controller.signal,
-    });
+    };
+    const response = await fetchWithConfiguredFetcher(options, fetchImpl, requestInit);
     if (!response.ok) {
       const retryAfter = cleanLinkText(response.headers.get("retry-after") ?? "").slice(0, 80);
       throw new CliError("HTTP_ERROR", `fetch failed with HTTP ${response.status} ${response.statusText}`.trim(), 12, response.status, {
@@ -4226,6 +4245,24 @@ async function fetchHtml(options: CliOptions, fetchImpl: typeof fetch): Promise<
   } finally {
     clearTimeout(timeout);
   }
+}
+
+async function fetchWithConfiguredFetcher(options: CliOptions, fetchImpl: typeof fetch, requestInit: RequestInit): Promise<FetchResponseLike> {
+  if (options.fetcher === "node" || fetchImpl !== globalThis.fetch) {
+    return fetchImpl(options.url!, requestInit);
+  }
+  try {
+    return await fetchWithImpit(options.url!, requestInit);
+  } catch (error) {
+    if (requestInit.signal?.aborted) throw error;
+    return fetchImpl(options.url!, requestInit);
+  }
+}
+
+async function fetchWithImpit(url: string, requestInit: RequestInit): Promise<FetchResponseLike> {
+  const { Impit } = await import("impit");
+  const impit = new Impit({ browser: "chrome" });
+  return impit.fetch(url, requestInit as Parameters<typeof impit.fetch>[1]);
 }
 
 const responseHeaderAllowlist = [
@@ -4323,6 +4360,11 @@ function parseOpenResult(value: string, option: string): number | "best" {
   return parsePositiveInteger(value, option);
 }
 
+function parseFetcher(value: string): FetcherOption {
+  if (value === "impit" || value === "node") return value;
+  throw new UsageError(`--fetcher must be one of: impit, node`);
+}
+
 function parsePositiveInteger(value: string, option: string): number {
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed <= 0) throw new UsageError(`${option} must be a positive integer`);
@@ -4371,10 +4413,11 @@ Options:
   --max-text-length <n>      Limit direct text/name fragments.
   --timeout <ms>             Fetch timeout. Default: ${defaultTimeoutMs}.
   --user-agent <value>       Override the request User-Agent.
+  --fetcher <name>           Fetch implementation: impit or node. Default: ${defaultFetcher}; falls back to node if impit fails.
   -h, --help                 Show this help.
 
 Notes:
-  The CLI uses fetch only. It does not run JavaScript or bypass bot checks.
+  The CLI fetches static HTML only. It does not run JavaScript or solve browser challenges.
   Use --html-file or --stdin with a URL argument for browser-captured HTML.
   Text output starts with a deduplicated links summary for agent navigation.
   --agent and --agent-brief imply --json --no-tree and expose agent.handoff for the next executor step.
@@ -27369,8 +27412,8 @@ function toCliError(error: unknown): CliError {
   return new CliError("FETCH_FAILED", error instanceof Error ? error.message : String(error), 10);
 }
 
-function parseArgMetadata(argv: string[]): Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion" | "agentMode" | "agentBrief" | "findQueries" | "timeoutMs" | "userAgent">> {
-  const metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion" | "agentMode" | "agentBrief" | "findQueries" | "timeoutMs" | "userAgent">> = { extractOptions: {}, findQueries: [] };
+function parseArgMetadata(argv: string[]): Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion" | "agentMode" | "agentBrief" | "findQueries" | "timeoutMs" | "userAgent" | "fetcher">> {
+  const metadata: Partial<Pick<CliOptions, "url" | "extractOptions" | "searchQuery" | "searchEngine" | "searchLang" | "searchRegion" | "agentMode" | "agentBrief" | "findQueries" | "timeoutMs" | "userAgent" | "fetcher">> = { extractOptions: {}, findQueries: [] };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (!arg) continue;
@@ -27432,8 +27475,14 @@ function parseArgMetadata(argv: string[]): Partial<Pick<CliOptions, "url" | "ext
       index += 1;
       continue;
     }
+    if (arg === "--fetcher") {
+      const value = argv[index + 1];
+      if (value === "impit" || value === "node") metadata.fetcher = value;
+      index += 1;
+      continue;
+    }
     if (arg.startsWith("-")) {
-      if (["--max-text-length", "--open", "--open-result", "--timeout", "--user-agent"].includes(arg)) index += 1;
+      if (["--max-text-length", "--open", "--open-result", "--timeout", "--user-agent", "--fetcher"].includes(arg)) index += 1;
       continue;
     }
     metadata.url ??= arg;
