@@ -2,13 +2,13 @@
 
 # ax-grep
 
-<img src="./docs/assets/ax-grep-og.png" alt="ax-grep promo image" width="920">
-
-<img src="./docs/assets/ax-grep-benchmark.png" alt="ax-grep benchmark comparison image" width="920">
-
 [![npm version](https://img.shields.io/npm/v/ax-grep.svg)](https://www.npmjs.com/package/ax-grep)
 [![coverage: 100%](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](./tests)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+
+<img src="./docs/assets/ax-grep-og.png" alt="ax-grep promo image" width="920">
+
+<img src="./docs/assets/ax-grep-benchmark.png" alt="ax-grep benchmark comparison image" width="920">
 
 Compact semantic trees and agent-ready page checks from HTML, URLs, WebViews, and live browser pages.
 
