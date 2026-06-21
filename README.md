@@ -98,6 +98,7 @@ const text = await page.evaluate(script);
 ```
 
 ## Docs
+- [How ax-grep works](./docs/how-it-works.md)
 - [Documentation index](./docs/README.md)
 - [CLI skill prompt](./skills/ax-grep-cli/SKILL.md)
 - [CLI and agent mode](./docs/cli-agent.md)

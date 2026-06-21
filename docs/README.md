@@ -4,6 +4,7 @@ Start here when README is too small for the detail you need.
 
 | Goal | File |
 | --- | --- |
+| Understand how ax-grep works | [how-it-works.md](./how-it-works.md) |
 | Install the Codex skill prompt | [../skills/ax-grep-cli/SKILL.md](../skills/ax-grep-cli/SKILL.md) |
 | Use CLI search and `--agent` output | [cli-agent.md](./cli-agent.md) |
 | Build a minimal agent handoff loop | [agent-handoff.md](./agent-handoff.md) |
