@@ -98,5 +98,10 @@
   },
   "optionalDependencies": {
     "impit": "^0.14.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "esbuild": "0.28.1"
+    }
   }
 }
