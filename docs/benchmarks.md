@@ -12,6 +12,9 @@ Resource safety:
 - Use `pnpm readiness:real-page-smoke` for the smallest real-page check. It
   fetches `https://example.com` with `--agent-brief` and does not launch
   Puppeteer or `agent-browser`.
+- Use `pnpm readiness:search-smoke` for the smallest real search check. It
+  runs `--search "ax-grep npm" --engine auto --agent-brief`, verifies engine
+  attempts, and does not launch Puppeteer or `agent-browser`.
 - Use `pnpm readiness:agent-browser-smoke` for the smallest `agent-browser`
   comparison set. It checks `https://example.com` and
   `https://books.toscrape.com/`, `https://news.ycombinator.com`, and
@@ -32,6 +35,7 @@ pnpm compare:static:fixtures
 pnpm compare:static:fixtures:gate
 pnpm readiness:audit
 pnpm readiness:real-page-smoke
+pnpm readiness:search-smoke
 pnpm readiness:agent-browser-smoke
 pnpm readiness:agent-browser-text-heavy-smoke
 pnpm check:processes

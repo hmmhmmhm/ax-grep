@@ -5,10 +5,16 @@
 [![npm version](https://img.shields.io/npm/v/ax-grep.svg)](https://www.npmjs.com/package/ax-grep)
 [![coverage: 100%](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](./tests)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![agent ready](https://img.shields.io/badge/agent-ready-0b7f3a.svg)](./docs/agent-handoff.md)
+[![Codex skill](https://img.shields.io/badge/Codex-skill-111111.svg)](./skills/ax-grep-cli/SKILL.md)
+[![Claude compatible](https://img.shields.io/badge/Claude-compatible-5b4b8a.svg)](./docs/cli-agent.md)
+[![Gemini ready](https://img.shields.io/badge/Gemini-ready-1a73e8.svg)](./docs/cli-agent.md)
 
 <img src="./docs/assets/ax-grep-og.png" alt="ax-grep promo image" width="920">
 
 <img src="./docs/assets/ax-grep-benchmark.png" alt="ax-grep benchmark comparison image" width="920">
+
+<img src="./docs/assets/ax-grep-search.png" alt="ax-grep auto search comparison image" width="920">
 
 Compact semantic trees and agent-ready page checks from HTML, URLs, WebViews, and live browser pages.
 It approximates the accessibility tree browsers expose, but can do it from
@@ -19,6 +25,9 @@ hCaptcha, reCAPTCHA, and Cloudflare challenge markers, then tells agents when a
 browser is actually needed. In the local benchmark, the decision handoff used
 15.4x less peak RAM on average and 3.0x fewer decision tokens on the content
 fixture than `agent-browser snapshot`.
+
+`--search` auto mode tries DuckDuckGo, Bing, and StartPage, records every
+engine attempt, and hands ranked source choices back to the agent.
 
 </div>
 

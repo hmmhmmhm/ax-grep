@@ -55,6 +55,7 @@ export function checkAgentReadinessProject(root = process.cwd()): ReadinessFailu
   requireScript(failures, scripts, "check:processes", "scripts/check-project-processes.ts");
   requireScript(failures, scripts, "readiness:audit", "scripts/check-agent-readiness.ts");
   requireScript(failures, scripts, "readiness:real-page-smoke", "scripts/check-real-page-smoke.ts");
+  requireScript(failures, scripts, "readiness:search-smoke", "scripts/check-search-smoke.ts");
   requireScript(failures, scripts, "readiness:agent-browser-smoke", "scripts/check-agent-browser-smoke.ts");
 
   requireFileIncludes(root, failures, "vitest.config.ts", [
@@ -242,6 +243,26 @@ export function collectAgentReadinessEvidence(root = process.cwd()): ReadinessEv
           "needsBrowserHtml",
           "canUseFetchedHtml",
           "semanticNamedRoleCount",
+        ]);
+      },
+    ),
+    evidenceCheck(
+      root,
+      "search-smoke",
+      "Auto search must be covered by a real non-browser smoke check, not only mocked engine fixtures.",
+      "readiness:search-smoke checks --search with --engine auto, selectedSearchEngine, searchEngines, ranked source results, and choose-result handoff.",
+      (failures) => {
+        const packageJson = readJson<PackageJson>(root, "package.json", failures);
+        requireScript(failures, packageJson?.scripts ?? {}, "readiness:search-smoke", "scripts/check-search-smoke.ts");
+        requireFileIncludes(root, failures, "scripts/check-search-smoke.ts", [
+          "--search",
+          "--engine",
+          "auto",
+          "selectedSearchEngine",
+          "searchEngines",
+          "sourceSearch",
+          "ranked source result URL",
+          "choose-result",
         ]);
       },
     ),
