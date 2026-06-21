@@ -11,6 +11,8 @@
 <img src="./docs/assets/ax-grep-benchmark.png" alt="ax-grep benchmark comparison image" width="920">
 
 Compact semantic trees and agent-ready page checks from HTML, URLs, WebViews, and live browser pages.
+It approximates the accessibility tree browsers expose, but can do it from
+static HTML before launching browser automation.
 
 The CLI defaults to `impit` for browser-like HTTP/2/TLS static fetches, detects
 hCaptcha, reCAPTCHA, and Cloudflare challenge markers, then tells agents when a
