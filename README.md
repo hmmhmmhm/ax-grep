@@ -16,24 +16,19 @@
 
 <img src="./docs/assets/ax-grep-search.png" alt="ax-grep auto search comparison image" width="920">
 
-Compact semantic trees and agent-ready page checks from HTML, URLs, WebViews, and live browser pages.
-It approximates the accessibility tree browsers expose, but can do it from
-static HTML before launching browser automation.
-
-The CLI defaults to `impit` for browser-like HTTP/2/TLS static fetches, detects
-hCaptcha, reCAPTCHA, and Cloudflare challenge markers, then tells agents when a
-browser is actually needed. In the local benchmark, the decision handoff used
-15.4x less peak RAM on average and 3.0x fewer decision tokens on the content
-fixture than `agent-browser snapshot`.
-
-`--search` auto mode tries DuckDuckGo, Bing, and StartPage, records every
-engine attempt, and hands ranked source choices back to the agent.
+Compact semantic trees and agent-ready page checks from HTML, URLs, WebViews,
+and live browser pages. It approximates browser accessibility trees before
+automation, defaults to `impit` for browser-like HTTP/2/TLS fetches, detects
+hCaptcha, reCAPTCHA, and Cloudflare challenge markers, saves 15.4x less peak
+RAM and 3.0x fewer decision tokens in the local benchmark, and `--search` auto
+mode tries DuckDuckGo, Bing, and StartPage while recording every engine attempt.
 
 </div>
 
 ## 1. Try With A Prompt
 
-Paste this into a Codex session or subagent prompt before opening a browser:
+Paste this into a Codex session or subagent prompt before opening a browser
+(also works as guidance for Claude, Gemini, OpenRouter, and other agents):
 
 ```md
 Before opening a browser, inspect pages with ax-grep when possible.
@@ -52,7 +47,9 @@ not enough.
 curl -fsSL https://raw.githubusercontent.com/hmmhmmhm/ax-grep/main/skills.sh | sh
 ```
 
-This installs the Codex skill prompt only. Restart Codex if the new skill is not listed immediately.
+This installs the Codex skill prompt only. The same prompt pattern can be pasted
+into Claude, Gemini, OpenRouter, or other agent runners. Restart Codex if the
+new skill is not listed immediately.
 
 ## 3. Try The CLI
 

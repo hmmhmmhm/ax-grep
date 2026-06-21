@@ -35,7 +35,8 @@ describe("README", () => {
     expect(readme).toContain("Gemini-ready-1a73e8.svg");
     expect(readme).toContain("tries DuckDuckGo, Bing, and StartPage");
     expect(readme).toContain("hCaptcha, reCAPTCHA, and Cloudflare challenge markers");
-    expect(readme).toContain("15.4x less peak RAM");
+    expect(readme).toContain("15.4x less peak");
+    expect(readme).toContain("RAM and 3.0x fewer decision tokens");
     expect(readme).toContain("3.0x fewer decision tokens");
     expect(readme).toContain("coverage-100%25-brightgreen.svg");
     expect(readme).toContain("[Agent handoff loop](./docs/agent-handoff.md)");
