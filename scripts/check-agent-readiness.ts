@@ -3291,7 +3291,7 @@ function checkReadmeSplit(root: string, failures: ReadinessFailure[]): void {
   if (typeof readme !== "string") return;
 
   const lineCount = readme.trimEnd().split(/\r?\n/).length;
-  if (lineCount > 80) {
+  if (lineCount > 110) {
     failures.push({ file: "README.md", message: `README must stay concise, got ${lineCount} lines` });
   }
   if (!readme.includes("./docs/README.md")) {

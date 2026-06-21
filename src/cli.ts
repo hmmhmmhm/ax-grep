@@ -9472,7 +9472,7 @@ function summarizeBarriers(diagnostics: DiagnosticSummary[], content: ContentSum
 }
 
 function barrierKindFromDiagnostic(code: string): PageBarrierSummary["kind"] | undefined {
-  if (code === "CHALLENGE_LIKELY") return "challenge";
+  if (isChallengeDiagnosticCode(code)) return "challenge";
   if (code === "LOGIN_REQUIRED") return "login";
   if (code === "PAYWALL_LIKELY") return "paywall";
   return undefined;
@@ -9480,7 +9480,7 @@ function barrierKindFromDiagnostic(code: string): PageBarrierSummary["kind"] | u
 
 function barrierKindFromText(text: string): PageBarrierSummary["kind"] | undefined {
   const haystack = text.toLowerCase();
-  if (/(captcha|verify you are human|checking your browser|just a moment|cloudflare|access denied|request blocked|enable javascript|봇이 아닙니다|보안문자)/i.test(haystack)) return "challenge";
+  if (/(captcha|hcaptcha|re-?captcha|g-recaptcha|grecaptcha|cf-challenge|cf-browser-verification|cf-turnstile|verify you are human|checking your browser|just a moment|cloudflare|access denied|request blocked|enable javascript|봇이 아닙니다|보안문자)/i.test(haystack)) return "challenge";
   if (/(login required|log in to continue|sign in to continue|please sign in|unauthorized|로그인이 필요|회원만|가입 후)/i.test(haystack)) return "login";
   if (/(subscribe to continue|subscription required|paywall|premium article|구독|유료기사|유료 기사|결제 후)/i.test(haystack)) return "paywall";
   if (/(accept all cookies|cookie settings|cookie preferences|we use cookies|쿠키|개인정보 설정)/i.test(haystack)) return "cookie-consent";
@@ -18180,6 +18180,9 @@ function summarizeBrowserHtmlReasonCode(
   const needsBrowserInteraction = Boolean(primaryAction?.requiresBrowserInteraction || (primaryAction && actionExecution(primaryAction) === "interact-browser"));
   if (!needsBrowserHtml && !needsBrowserInteraction) return undefined;
   if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "CLIENT_RENDERED")) return "client-rendered";
+  if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "HCAPTCHA_CHALLENGE")) return "hcaptcha";
+  if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "RECAPTCHA_CHALLENGE")) return "recaptcha";
+  if (analysis.diagnostics.some((diagnostic) => diagnostic.code === "CLOUDFLARE_CHALLENGE")) return "cloudflare-challenge";
   if (error?.code === "NO_INSPECTABLE_CONTENT") return "no-inspectable-content";
   if (error?.code === "HTTP_ERROR") return "http-error";
   if (error?.code === "FETCH_FAILED" || error?.code === "TIMEOUT") return "fetch-error";
@@ -21114,7 +21117,7 @@ function searchResultsLowConfidence(results: ResultSummary[]): boolean {
 
 function filterDiagnosticsForResultPages(diagnostics: DiagnosticSummary[], results: ResultSummary[]): DiagnosticSummary[] {
   if (results.length < 5) return diagnostics;
-  return diagnostics.filter((diagnostic) => diagnostic.code === "CHALLENGE_LIKELY");
+  return diagnostics.filter((diagnostic) => isChallengeDiagnosticCode(diagnostic.code));
 }
 
 function classifyPage(
@@ -21126,8 +21129,8 @@ function classifyPage(
   content: ContentSummary[],
   diagnostics: DiagnosticSummary[],
 ): ContentKind {
+  if (diagnostics.some((item) => isChallengeDiagnosticCode(item.code) || item.code === "LOGIN_REQUIRED" || item.code === "PAYWALL_LIKELY")) return "blocked-page";
   if (isUnavailableTree(tree)) return "empty";
-  if (diagnostics.some((item) => item.code === "CHALLENGE_LIKELY" || item.code === "LOGIN_REQUIRED" || item.code === "PAYWALL_LIKELY")) return "blocked-page";
   if (looksLikeKnownSearchUrl(fetched.finalUrl) || (looksLikeGenericSearchUrl(fetched.finalUrl) && extractSearchResults(fetched.html, fetched.finalUrl).length > 0)) return "search-results";
   if (content.length >= 2 || outline.length >= 3) return "content-page";
   if (actions.length >= 3) return "interactive-page";
@@ -21141,6 +21144,8 @@ function detectBarrierDiagnostics(fetched: FetchResult, tree: SemanticNode, cont
     ...content.map((item) => item.text),
     descendantSemanticText(tree),
   ].filter(Boolean).join(" ").toLowerCase();
+  const rawHtml = fetched.html.toLowerCase();
+  const challengeHaystack = `${haystack} ${rawHtml}`;
   const diagnostics: DiagnosticSummary[] = [];
 
   if (looksLikeClientRenderedShell(fetched.html, haystack)) {
@@ -21151,7 +21156,28 @@ function detectBarrierDiagnostics(fetched: FetchResult, tree: SemanticNode, cont
     });
   }
 
-  if (/(captcha|verify you are human|unusual traffic|checking your browser|just a moment|cf-browser-verification|cloudflare|access denied|request blocked|please wait for verification|please wait|enable javascript|enable java script|자바스크립트|봇이 아닙니다|자동입력|보안문자)/i.test(haystack)) {
+  if (/(hcaptcha\.com|js\.hcaptcha\.com|h-captcha|hcaptcha)/i.test(challengeHaystack)) {
+    diagnostics.push({
+      severity: "warning",
+      code: "HCAPTCHA_CHALLENGE",
+      message: "The page appears to contain an hCaptcha challenge.",
+    });
+  }
+  if (/(google\.com\/recaptcha|recaptcha\.net\/recaptcha|recaptcha\/api\.js|g-recaptcha|grecaptcha|re-?captcha)/i.test(challengeHaystack)) {
+    diagnostics.push({
+      severity: "warning",
+      code: "RECAPTCHA_CHALLENGE",
+      message: "The page appears to contain a reCAPTCHA challenge.",
+    });
+  }
+  if (/(cloudflare|cf-browser-verification|cf-challenge|cf-turnstile|challenges\.cloudflare\.com|cdn-cgi\/challenge-platform|_cf_chl_opt|cf_clearance)/i.test(challengeHaystack)) {
+    diagnostics.push({
+      severity: "warning",
+      code: "CLOUDFLARE_CHALLENGE",
+      message: "The page appears to contain a Cloudflare challenge.",
+    });
+  }
+  if (/(captcha|verify you are human|unusual traffic|checking your browser|just a moment|cf-browser-verification|cloudflare|access denied|request blocked|please wait for verification|please wait|enable javascript|enable java script|자바스크립트|봇이 아닙니다|자동입력|보안문자)/i.test(challengeHaystack)) {
     diagnostics.push({
       severity: "warning",
       code: "CHALLENGE_LIKELY",
@@ -21194,6 +21220,13 @@ function dedupeDiagnostics(diagnostics: DiagnosticSummary[]): DiagnosticSummary[
     seen.add(diagnostic.code);
     return true;
   });
+}
+
+function isChallengeDiagnosticCode(code: string): boolean {
+  return code === "CHALLENGE_LIKELY"
+    || code === "HCAPTCHA_CHALLENGE"
+    || code === "RECAPTCHA_CHALLENGE"
+    || code === "CLOUDFLARE_CHALLENGE";
 }
 
 function looksLikeKnownSearchUrl(url: string): boolean {

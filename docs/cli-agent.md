@@ -18,6 +18,10 @@ HTTP/TLS fingerprints. If `impit` cannot load or the request fails before a
 response is returned, ax-grep falls back to Node's built-in fetch. Pass
 `--fetcher node` to force the built-in fetch path.
 
+If fetched HTML shows hCaptcha, reCAPTCHA, or Cloudflare challenge markers, the
+agent payload reports `needs-browser` with a provider-specific
+`browserHtmlReasonCode` and a browser-capture follow-up command.
+
 ## Search
 
 ```sh

@@ -15548,6 +15548,78 @@ npx ax-grep https://example.test --agent</code></pre>
     });
   });
 
+  it("detects hCaptcha, reCAPTCHA, and Cloudflare challenge providers", async () => {
+    const cases = [
+      {
+        url: "https://challenge.example/hcaptcha",
+        code: "HCAPTCHA_CHALLENGE",
+        reasonCode: "hcaptcha",
+        html: `
+          <html>
+            <head><title>Human check</title><script src="https://js.hcaptcha.com/1/api.js"></script></head>
+            <body><form><div class="h-captcha" data-sitekey="site-key"></div></form></body>
+          </html>
+        `,
+      },
+      {
+        url: "https://challenge.example/recaptcha",
+        code: "RECAPTCHA_CHALLENGE",
+        reasonCode: "recaptcha",
+        html: `
+          <html>
+            <head><title>Security check</title><script src="https://www.google.com/recaptcha/api.js"></script></head>
+            <body><form><div class="g-recaptcha" data-sitekey="site-key"></div></form></body>
+          </html>
+        `,
+      },
+      {
+        url: "https://challenge.example/cloudflare",
+        code: "CLOUDFLARE_CHALLENGE",
+        reasonCode: "cloudflare-challenge",
+        html: `
+          <html>
+            <head>
+              <title>Just a moment...</title>
+              <script>window._cf_chl_opt = { cType: "managed" };</script>
+              <script src="/cdn-cgi/challenge-platform/h/b/orchestrate/chl_page/v1"></script>
+            </head>
+            <body><main><h1>Checking your browser</h1></main></body>
+          </html>
+        `,
+      },
+    ];
+
+    for (const challengeCase of cases) {
+      const stdout = new MemoryWriter();
+      const status = await runCli([challengeCase.url, "--agent"], {
+        stdout,
+        fetch: async () => new Response(challengeCase.html, { headers: { "content-type": "text/html" } }),
+      });
+
+      const envelope = JSON.parse(stdout.output);
+
+      expect([0, 20]).toContain(status);
+      expect(envelope.kind).toBe("blocked-page");
+      expect(envelope.agent.diagnosticCodes).toEqual(expect.arrayContaining([challengeCase.code]));
+      expect(envelope.agent).toMatchObject({
+        status: "needs-browser",
+        needsBrowserHtml: true,
+        browserHtmlReasonCode: challengeCase.reasonCode,
+        browserHtmlActionName: "retry-with-browser-html",
+        primaryAction: {
+          action: "retry-with-browser-html",
+        },
+      });
+      expect(envelope.pageCheck.barriers).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          kind: "challenge",
+          source: "diagnostic",
+          diagnosticCode: challengeCase.code,
+        }),
+      ]));
+    }
+  });
+
   it("detects login and paywall barriers", async () => {
     const stdout = new MemoryWriter();
     const status = await runCli(["https://news.example/article", "--agent"], {

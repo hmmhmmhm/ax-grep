@@ -26,6 +26,7 @@ Resource safety:
   separately.
 
 ```sh
+pnpm benchmark:agent-cost
 pnpm compare:sample
 pnpm compare:static:fixtures
 pnpm compare:static:fixtures:gate
@@ -52,6 +53,26 @@ quality, verification status, recommended actions, and next steps.
 Token comparisons estimate prompt cost for compact tree text and agent JSON
 payloads. See [comparison-baseline.md](./comparison-baseline.md) for the current
 baseline run.
+
+## Agent Cost Benchmark
+
+`pnpm benchmark:agent-cost` compares `ax-grep --agent-brief` with
+`agent-browser snapshot --compact` on local fixture pages. It runs cases
+sequentially, writes `tmp/benchmarks/agent-cost.json`, and closes the browser
+session after each case.
+
+Latest local run:
+
+| Case | ax-grep peak RSS | agent-browser peak RSS | RAM multiple | ax-grep decision tokens | agent-browser tokens | Token multiple |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| content-page | 80.0 MB | 906.4 MB | 11.3x | 631 | 1,903 | 3.0x |
+| challenge-page | 72.1 MB | 1,404.7 MB | 19.5x | 910 | 241 | 0.3x |
+
+Summary: average RAM reduction was 15.4x. The content fixture used 3.0x fewer
+decision tokens when the agent reads the compact handoff instead of a browser
+snapshot. The challenge fixture is primarily a memory/browser-avoidance win:
+`ax-grep` detects hCaptcha markers and returns an explicit browser handoff
+without launching Chromium.
 
 Search, social, challenge, and volatile targets may be diagnostic-only and
 excluded from gate averages. Check each run's `included` and `excluded` counts
