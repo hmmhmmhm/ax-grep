@@ -31,6 +31,7 @@ Resource safety:
 ```sh
 pnpm benchmark:agent-cost
 pnpm benchmark:library-cost
+pnpm benchmark:web-extractors
 pnpm compare:sample
 pnpm compare:static:fixtures
 pnpm compare:static:fixtures:gate
@@ -105,6 +106,38 @@ pnpm benchmark:library-cost
 
 Use `benchmark:agent-cost` for CLI-vs-browser release claims. Use
 `benchmark:library-cost` for server SDK sizing and memory regression checks.
+
+## Web Extractor Benchmark
+
+`pnpm benchmark:web-extractors` compares ax-grep against local, keyless
+LLM-ready web extraction tools. It does not call hosted extraction APIs. It runs
+providers sequentially and writes `tmp/benchmarks/web-extractors.json`.
+
+Default providers:
+
+- `ax-grep`: local `--agent-brief` output through `dist/cli.js`.
+- `readability`: local `@mozilla/readability` with `linkedom`.
+- `turndown-lib`: local `turndown` HTML-to-Markdown conversion.
+- `html-to-text-lib`: local `html-to-text` conversion.
+- `crawl4ai`: local Crawl4AI CLI, skipped unless `crwl` is installed.
+- `trafilatura`: local `trafilatura` CLI, skipped unless installed.
+- `lynx`: local text browser dump, skipped unless installed.
+- `w3m`: local text browser dump, skipped unless installed.
+- `pandoc`: local HTML-to-Markdown conversion, skipped unless installed.
+- `html2text`: local HTML-to-Markdown conversion, skipped unless installed.
+
+Example:
+
+```sh
+pnpm benchmark:web-extractors --providers ax-grep,readability,turndown-lib,html-to-text-lib https://example.com
+pnpm benchmark:web-extractors --target-set agent-executor --timeout 60000
+```
+
+The report records status, duration, output bytes, estimated `cl100k_base`
+tokens, subprocess peak RSS when available, and token/byte/duration ratios
+against ax-grep. In-process library providers report token, byte, and duration
+metrics but not isolated RSS. Missing programs are `skipped`, not failures, so
+the same command can run on lean servers and fuller benchmark machines.
 
 Latest local library-only run:
 
