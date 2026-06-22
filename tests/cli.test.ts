@@ -2713,9 +2713,18 @@ describe("cli", () => {
       `, { headers: { "content-type": "text/html" } }),
     });
 
+    expect(status).toBe(0);
+    expect(stdout.output).not.toContain('""mode');
+    expect(stdout.output).not.toContain('""action');
+
     const envelope = JSON.parse(stdout.output);
 
-    expect(status).toBe(0);
+    expect(envelope.agent.handoff).toMatchObject({
+      mode: "command",
+      action: "open-result",
+    });
+    expect(Object.keys(envelope.agent.handoff)).toContain("mode");
+    expect(Object.keys(envelope.agent.handoff)).not.toContain('"mode');
     expect(envelope.agent).toMatchObject({
       contract: { profile: "brief" },
       topChoiceKind: "result",
