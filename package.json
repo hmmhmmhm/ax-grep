@@ -85,15 +85,15 @@
   "devDependencies": {
     "@mozilla/readability": "^0.6.0",
     "@types/node": "^26.0.0",
-    "@vitest/coverage-v8": "4.1.9",
-    "agent-browser": "^0.29.1",
+    "@vitest/coverage-v8": "4.1.10",
+    "agent-browser": "^0.31.1",
     "html-to-text": "^10.0.0",
     "linkedom": "^0.18.12",
     "puppeteer": "^25.1.0",
     "tsup": "^8.5.1",
     "tsx": "^4.21.0",
     "turndown": "^7.2.4",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "vitest": "^4.1.0"
   },
   "dependencies": {
